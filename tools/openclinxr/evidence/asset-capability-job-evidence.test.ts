@@ -15,10 +15,10 @@ describe("asset capability job evidence report", () => {
     };
 
     expect(rootPackage.scripts["asset:capability:evidence"]).toBe(
-      "tsx tools/openclinxr/asset-capability-job-evidence.ts",
+      "tsx tools/openclinxr/evidence/asset-capability-job-evidence.ts",
     );
     expect(rootPackage.scripts["asset:capability:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/asset-capability-job-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/asset-capability-job-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:capability:evidence:validate");
   });

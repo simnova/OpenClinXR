@@ -132,13 +132,13 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  apps/api-python-backend: {}
+  apps/arena/api-python-backend: {}
 
-  apps/mock-realtime-voice-server:
+  apps/arena/mock-realtime-voice-server:
     dependencies:
       '@openclinxr/voice-gateway':
         specifier: workspace:*
-        version: link:../../packages/openclinxr/voice-gateway
+        version: link:../../../packages/openclinxr/voice-gateway
       hono:
         specifier: 4.12.18
         version: 4.12.18
@@ -152,6 +152,49 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  apps/arena/ui-xr-iwsdk-spike:
+    dependencies:
+      '@iwsdk/core':
+        specifier: 0.3.1
+        version: 0.3.1(@types/react@19.2.14)(react@19.2.5)
+      '@iwsdk/xr-input':
+        specifier: 0.3.1
+        version: 0.3.1(three@0.184.0)
+      '@openclinxr/iwsdk-spike':
+        specifier: workspace:*
+        version: link:../../../packages/openclinxr/arena/iwsdk-spike
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../../../packages/openclinxr/scenario-fixtures
+      three:
+        specifier: 0.184.0
+        version: 0.184.0
+    devDependencies:
+      '@iwsdk/vite-plugin-dev':
+        specifier: 0.3.1
+        version: 0.3.1(@types/react@19.2.14)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))(zod@4.4.2)
+      '@iwsdk/vite-plugin-uikitml':
+        specifier: 0.3.1
+        version: 0.3.1(three@0.184.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+      '@pmndrs/uikit':
+        specifier: 1.0.66
+        version: 1.0.66(three@0.184.0)
+      '@pmndrs/uikitml':
+        specifier: 0.1.12
+        version: 0.1.12(three@0.184.0)
+      '@types/three':
+        specifier: 0.184.0
+        version: 0.184.0
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.0.10
+        version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
       vitest:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
@@ -260,49 +303,6 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  apps/ui-xr-iwsdk-spike:
-    dependencies:
-      '@iwsdk/core':
-        specifier: 0.3.1
-        version: 0.3.1(@types/react@19.2.14)(react@19.2.5)
-      '@iwsdk/xr-input':
-        specifier: 0.3.1
-        version: 0.3.1(three@0.184.0)
-      '@openclinxr/iwsdk-spike':
-        specifier: workspace:*
-        version: link:../../packages/openclinxr/iwsdk-spike
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../../packages/openclinxr/scenario-fixtures
-      three:
-        specifier: 0.184.0
-        version: 0.184.0
-    devDependencies:
-      '@iwsdk/vite-plugin-dev':
-        specifier: 0.3.1
-        version: 0.3.1(@types/react@19.2.14)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))(zod@4.4.2)
-      '@iwsdk/vite-plugin-uikitml':
-        specifier: 0.3.1
-        version: 0.3.1(three@0.184.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-      '@pmndrs/uikit':
-        specifier: 1.0.66
-        version: 1.0.66(three@0.184.0)
-      '@pmndrs/uikitml':
-        specifier: 0.1.12
-        version: 0.1.12(three@0.184.0)
-      '@types/three':
-        specifier: 0.184.0
-        version: 0.184.0
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vite:
-        specifier: 8.0.10
-        version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4)
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-
   packages/cellix/config-typescript: {}
 
   packages/cellix/config-vitest:
@@ -340,6 +340,31 @@ importers:
       archunit:
         specifier: 2.3.0
         version: 2.3.0
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  packages/openclinxr/arena/iwsdk-spike:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
+
+  packages/openclinxr/arena/multi-actor-state-spike:
+    dependencies:
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../../scenario-fixtures
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../../shared-schemas
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -499,33 +524,8 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
 
-  packages/openclinxr/iwsdk-spike:
-    devDependencies:
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-
   packages/openclinxr/model-gateway:
     dependencies:
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
-    devDependencies:
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.4))
-
-  packages/openclinxr/multi-actor-state-spike:
-    dependencies:
-      '@openclinxr/scenario-fixtures':
-        specifier: workspace:*
-        version: link:../scenario-fixtures
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas

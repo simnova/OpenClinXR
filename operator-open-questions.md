@@ -2,6 +2,12 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
+## 2026-06-04 Local exam Mongo-memory boot profile boundary
+
+- Question: Should the local production-app validation profile boot API with prehydrated in-memory Mongo for manual and automated exam validation?
+- Current answer: Yes, but implement it as a dedicated local/test harness profile that uses existing data-layer Mongo-memory helpers and deterministic providers without adding `mongodb-memory-server` to app runtime manifests or weakening architecture rules.
+- Recommended default: keep `pnpm local:exam:smoke` as the fast current gate; next implement a local exam boot profile in data/test-harness boundaries, then expose a documented command for API/Admin/UI-XR validation once it can seed fixtures and publish useful review-packet evidence.
+
 ## Quest foreground performance capture blocked in this session
 
 - Asked: 2026-05-25
@@ -23,7 +29,7 @@ This file tracks non-blocking operator questions that need a better answer after
 - Risks and limits: VibeVoice-Realtime-0.5B is single-speaker oriented, primarily English, speech-only, and carries responsible-use warnings around impersonation, disinformation, inaccurate output, disclosure, and real-world/commercial use. It remains a developer-only, safety-gated runtime.
 - Follow-up evidence needed:
   - Run a true streaming VibeVoice benchmark, not just file generation.
-  - Run Moshi MLX or Qwen3-TTS behind `apps/api-python-backend` without cloud/API calls.
+  - Run Moshi MLX or Qwen3-TTS behind `apps/arena/api-python-backend` without cloud/API calls.
   - Execute the Godot sidecar on Quest 3 and record binary frame round-trip, then real audio capture/playback.
   - Measure first audible playback through the browser/WebXR audio stack.
   - Measure on the actual target hardware profile: Apple M1 Max 64 GB (current target machine); M4 Pro/Max are higher-spec future profiles.

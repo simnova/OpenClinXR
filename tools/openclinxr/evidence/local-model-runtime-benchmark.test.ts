@@ -146,7 +146,7 @@ describe("local model runtime benchmark CLI", () => {
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/local-model-runtime-benchmark.ts",
+        "tools/openclinxr/evidence/local-model-runtime-benchmark.ts",
         "--parse-log",
         logPath,
         "--output",
@@ -212,7 +212,7 @@ describe("local model runtime benchmark CLI", () => {
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/local-model-runtime-benchmark.ts",
+        "tools/openclinxr/evidence/local-model-runtime-benchmark.ts",
         "--execute-approved-local-run",
         "--model-file",
         modelPath,

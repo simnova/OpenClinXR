@@ -12,8 +12,8 @@ describe("humanoid realism gate", () => {
   it("exposes package scripts for generated humanoid animation and morph-target gating", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as { scripts: Record<string, string> };
 
-    expect(rootPackage.scripts["asset:humanoid-realism:gate"]).toBe("tsx tools/openclinxr/humanoid-realism-gate.ts");
-    expect(rootPackage.scripts["asset:humanoid-realism:validate"]).toBe("tsx tools/openclinxr/humanoid-realism-gate.ts --validate-latest");
+    expect(rootPackage.scripts["asset:humanoid-realism:gate"]).toBe("tsx tools/openclinxr/evidence/humanoid-realism-gate.ts");
+    expect(rootPackage.scripts["asset:humanoid-realism:validate"]).toBe("tsx tools/openclinxr/evidence/humanoid-realism-gate.ts --validate-latest");
   });
 
   it("classifies the current neutral generated humanoid without production-quality visual claims", async () => {

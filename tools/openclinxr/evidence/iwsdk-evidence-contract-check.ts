@@ -41,7 +41,7 @@ import {
   type IwsdkUiXrStationParityContract,
   type IwsdkVerificationToolSelectionContract,
   type IwsdkViteAiDevConfigContract,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import type { IwsdkMcpInventoryEvidenceReport } from "./iwsdk-mcp-inventory-evidence.js";
 
@@ -204,7 +204,7 @@ export function buildIwsdkEvidenceContractReport(input: {
     injectedDevRuntimeKb: 0,
     appJsBundleKb: 2511.19,
     bundleDeltaVsUiXrKb: 1895.52,
-    baselineAppBundleSource: "apps/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-DWeRkXUD.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
+    baselineAppBundleSource: "apps/arena/ui-xr-iwsdk-spike/dist/assets/*.js total minus apps/ui-xr/dist/assets/index-DWeRkXUD.js + apps/ui-xr/dist/assets/three-vendor-Csg9FCqN.js",
     smokePlanHash: "runtime-state:iwsdk-station-mcp-smoke-plan:v1",
     canvasNonblank: true,
     requiredSceneObjectNames: buildIwsdkUiXrStationParityContract().requiredSceneObjectNames,

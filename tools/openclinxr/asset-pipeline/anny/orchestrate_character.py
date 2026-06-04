@@ -58,7 +58,7 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
             "--manifest", str(manifest),
         ])
 
-        # 2. Headless Blender stage (now emits rigging_report.json next to glb for B+ contract)
+        # 2. Headless Blender stage (emits rigging_report.json next to the candidate GLB)
         report_path = output_glb.replace(".glb", "_rigging_report.json") if output_glb.endswith(".glb") else output_glb + "_rigging_report.json"
         blender_cmd = [
             "blender", "--background", "--python", str(BLENDER_STAGE), "--",

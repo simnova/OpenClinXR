@@ -13,7 +13,7 @@ import {
   type IwsdkWorkspaceScriptReference,
   type IwsdkWorkspaceSidecarProductionUiCoupling,
   type IwsdkWorkspaceSourceReference,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 
 type CliOptions = {
   workspaceRoot?: string;
@@ -100,7 +100,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const phase2DevtoolsApproved = input.phase2DevtoolsApproved ?? false;
   const uikitmlSpatialTextApproved = input.uikitmlSpatialTextApproved ?? false;
   const sharpLibvipsExceptionApproved = input.sharpLibvipsExceptionApproved ?? false;
-  const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike"));
+  const sidecarAppExists = existsSync(path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike"));
   const dependencies = await scanPackageDependencies(workspaceRoot);
   const sourceReferences = await scanSourceReferences(workspaceRoot);
   const sidecarProductionUiCouplings = await scanSidecarProductionUiCouplings(workspaceRoot, dependencies);
@@ -109,7 +109,7 @@ export async function buildIwsdkWorkspacePostureReport(input: {
   const sidecarLockfileImporterPresent = await scanSidecarLockfileImporter(workspaceRoot);
   const sidecarLockfilePackageNames = await scanSidecarLockfilePackageNames(workspaceRoot);
   const packageManagerReferences = await scanPackageManagerReferences(workspaceRoot, rootPackage);
-  const packageManagerControls = buildPackageManagerControls(rootPackage);
+  const packageManagerControls = await buildPackageManagerControls(workspaceRoot, rootPackage);
   const result = evaluateIwsdkWorkspacePosture({
     sidecarAppExists,
     sidecarInstallApproved,
@@ -239,12 +239,12 @@ async function scanSidecarProductionUiCouplings(
   workspaceRoot: string,
   dependencies: IwsdkWorkspaceDependency[],
 ): Promise<IwsdkWorkspaceSidecarProductionUiCoupling[]> {
-  const sidecarRoot = path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike");
+  const sidecarRoot = path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike");
   const sourceFiles = await walk(sidecarRoot, isSourceFile);
   const importPattern =
     /(?:from\s*["']|import\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])([^"']+)/g;
   const manifestCouplings = dependencies
-    .filter((dependency) => dependency.manifestPath === "apps/ui-xr-iwsdk-spike/package.json")
+    .filter((dependency) => dependency.manifestPath === "apps/arena/ui-xr-iwsdk-spike/package.json")
     .filter((dependency) => dependency.name === "@openclinxr/ui-xr")
     .map((dependency) => ({
       filePath: dependency.manifestPath,
@@ -277,7 +277,7 @@ async function scanSidecarProductionUiCouplings(
 async function scanSidecarProductionUiManifestCouplings(
   workspaceRoot: string,
 ): Promise<IwsdkWorkspaceSidecarProductionUiCoupling[]> {
-  const sidecarManifestPath = path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json");
+  const sidecarManifestPath = path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/package.json");
   if (!existsSync(sidecarManifestPath)) {
     return [];
   }
@@ -286,7 +286,7 @@ async function scanSidecarProductionUiManifestCouplings(
   return dependencyFields
     .filter((field) => packageJson[field]?.["@openclinxr/ui-xr"])
     .map(() => ({
-      filePath: "apps/ui-xr-iwsdk-spike/package.json",
+      filePath: "apps/arena/ui-xr-iwsdk-spike/package.json",
       specifier: "@openclinxr/ui-xr",
     }));
 }
@@ -389,7 +389,7 @@ function sidecarLockfileImporterBlock(lockfileText: string): string | undefined 
   let foundSidecarImporter = false;
 
   for (const line of lines) {
-    if (/^ {2}['"]?apps\/ui-xr-iwsdk-spike['"]?:\s*$/.test(line)) {
+    if (/^ {2}['"]?apps\/arena\/ui-xr-iwsdk-spike['"]?:\s*$/.test(line)) {
       foundSidecarImporter = true;
       continue;
     }
@@ -503,11 +503,14 @@ function stripYamlQuotes(value: string): string {
   return value;
 }
 
-function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePackageManagerControls {
+async function buildPackageManagerControls(
+  workspaceRoot: string,
+  rootPackage: PackageJson,
+): Promise<IwsdkWorkspacePackageManagerControls> {
   const iwsdkVerify = rootPackage.scripts?.["iwsdk:verify"] ?? "";
   const auditScript = rootPackage.scripts?.["security:audit"] ?? "";
   const licenseScript = rootPackage.scripts?.["security:licenses"] ?? "";
-  const threeOverride = rootPackage.pnpm?.overrides?.three;
+  const threeOverride = rootPackage.pnpm?.overrides?.three ?? await readWorkspaceThreeOverride(workspaceRoot);
 
   return {
     workspacePostureInVerify: iwsdkVerify.includes("pnpm iwsdk:workspace:posture"),
@@ -517,12 +520,22 @@ function buildPackageManagerControls(rootPackage: PackageJson): IwsdkWorkspacePa
   };
 }
 
+async function readWorkspaceThreeOverride(workspaceRoot: string): Promise<string | undefined> {
+  const workspacePath = path.join(workspaceRoot, "pnpm-workspace.yaml");
+  if (!existsSync(workspacePath)) {
+    return undefined;
+  }
+  const workspaceText = await readFile(workspacePath, "utf8");
+  const match = workspaceText.match(/(?:^|\n)\s{2}three:\s*["']?([^"'\n]+)["']?/);
+  return match?.[1]?.trim();
+}
+
 function scriptRunsPnpmAudit(command: string): boolean {
   return /^(?:[A-Z][A-Z0-9_]*=[^\s]+\s+)*pnpm\s+audit\b/.test(command.trim());
 }
 
 function scriptRunsLicensePolicyCheck(command: string): boolean {
-  return /^(?:[A-Z][A-Z0-9_]*=[^\s]+\s+)*tsx\s+tools\/openclinxr\/check-license-policy\.ts\b/.test(
+  return /^(?:[A-Z][A-Z0-9_]*=[^\s]+\s+)*tsx\s+tools\/openclinxr\/(?:evidence\/)?check-license-policy\.ts\b/.test(
     command.trim(),
   );
 }

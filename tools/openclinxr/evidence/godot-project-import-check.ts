@@ -313,7 +313,7 @@ async function assertReadable(file: string): Promise<void> {
 function parseArgs(args: string[]): CliOptions {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   const options: CliOptions = {
-    projectPath: "apps/ui-quest-voice-godot",
+    projectPath: "apps/arena/ui-quest-voice-godot",
     outputPath: ".agent-factory/godot-project-import-check.json",
     validateLatest: false,
   };

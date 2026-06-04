@@ -9,7 +9,7 @@ import {
   validateGodotProjectImportCheckReport,
 } from "./godot-project-import-check.js";
 
-const appPath = "apps/ui-quest-voice-godot";
+const appPath = "apps/arena/ui-quest-voice-godot";
 
 function sourceOnlyInput(): GodotProjectImportInput {
   return {
@@ -187,10 +187,10 @@ describe("Godot project import check", () => {
     };
 
     expect(rootPackage.scripts?.["godot:project:import-check"]).toBe(
-      "tsx tools/openclinxr/godot-project-import-check.ts",
+      "tsx tools/openclinxr/evidence/godot-project-import-check.ts",
     );
     expect(rootPackage.scripts?.["godot:project:import-check:validate"]).toBe(
-      "tsx tools/openclinxr/godot-project-import-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/godot-project-import-check.ts --validate-latest",
     );
     expect(rootPackage.scripts?.["agent:verify"]).toContain("pnpm godot:project:import-check:validate");
   });

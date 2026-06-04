@@ -21,10 +21,10 @@ describe("local voice runtime benchmark parser", () => {
     };
 
     expect(rootPackage.scripts["local:voice:runtime"]).toBe(
-      "tsx tools/openclinxr/local-voice-runtime-benchmark.ts",
+      "tsx tools/openclinxr/evidence/local-voice-runtime-benchmark.ts",
     );
     expect(rootPackage.scripts["local:voice:runtime:validate"]).toBe(
-      "tsx tools/openclinxr/local-voice-runtime-benchmark.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-voice-runtime-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:runtime:validate");
   });
@@ -216,7 +216,7 @@ describe("local voice runtime benchmark CLI", () => {
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/local-voice-runtime-benchmark.ts",
+        "tools/openclinxr/evidence/local-voice-runtime-benchmark.ts",
         "--log",
         logPath,
         "--prompt",
@@ -268,7 +268,7 @@ describe("local voice runtime benchmark CLI", () => {
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/local-voice-runtime-benchmark.ts",
+        "tools/openclinxr/evidence/local-voice-runtime-benchmark.ts",
         "--log",
         logPath,
         "--prompt",
@@ -323,7 +323,6 @@ describe("local voice runtime benchmark CLI", () => {
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runLocalVoiceRuntimeBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
-      await expect(runLocalVoiceRuntimeBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
       delete invalidReport.audio;

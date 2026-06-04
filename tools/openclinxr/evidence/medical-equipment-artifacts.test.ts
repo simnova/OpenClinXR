@@ -16,10 +16,10 @@ describe("medical equipment artifacts", () => {
     };
 
     expect(rootPackage.scripts["asset:medical-equipment:generate"]).toBe(
-      "tsx tools/openclinxr/medical-equipment-artifacts.ts",
+      "tsx tools/openclinxr/evidence/medical-equipment-artifacts.ts",
     );
     expect(rootPackage.scripts["asset:medical-equipment:validate"]).toBe(
-      "tsx tools/openclinxr/medical-equipment-artifacts.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/medical-equipment-artifacts.ts --validate-latest",
     );
   });
 

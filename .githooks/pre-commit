@@ -14,6 +14,4 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 echo "Running OpenClaw pre-commit guardrails..."
-pnpm docs:drift-check
-pnpm agent:alignment
-pnpm openclaw:post-slice
+pnpm hooks:pre-commit

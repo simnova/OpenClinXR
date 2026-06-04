@@ -319,7 +319,7 @@ export function evaluateIwerAutoEntryBrowserSmokeEvidence(
     ...requiredNotEvidenceFor.map((claim) => (
       notEvidenceFor.includes(claim) ? undefined : `missing_not_evidence_for_${claim}`
     )),
-    evidence.sidecar?.app === "apps/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_recorded",
+    evidence.sidecar?.app === "apps/arena/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_recorded",
     isLocalHttpUrl(evidence.sidecar?.runtimeUrl) ? undefined : "runtime_url_not_localhost",
     evidence.sidecar?.runtimeUrl?.includes("iwerAutoEnterVr=true")
       ? undefined

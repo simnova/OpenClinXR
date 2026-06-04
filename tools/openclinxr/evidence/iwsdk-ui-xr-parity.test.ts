@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   buildIwsdkStationMcpSmokePlan,
   iwsdkStationMcpSmokePlanHash,
-} from "../../apps/ui-xr/src/runtime-state.js";
+} from "../../../apps/ui-xr/src/runtime-state.js";
 import {
   buildIwsdkUiXrStationParityContract,
   evaluateIwsdkSpikeMetrics,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 
 describe("IWSDK UI-XR parity contract", () => {
   it("keeps the sidecar readiness contract aligned with the production XR smoke semantics", () => {

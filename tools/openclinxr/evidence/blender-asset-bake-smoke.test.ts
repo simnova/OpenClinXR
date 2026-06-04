@@ -17,10 +17,10 @@ describe("Blender asset bake smoke", () => {
     };
 
     expect(rootPackage.scripts["asset:blender:bake"]).toBe(
-      "tsx tools/openclinxr/blender-asset-bake-smoke.ts",
+      "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts",
     );
     expect(rootPackage.scripts["asset:blender:bake:validate"]).toBe(
-      "tsx tools/openclinxr/blender-asset-bake-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:blender:bake:validate");
   });

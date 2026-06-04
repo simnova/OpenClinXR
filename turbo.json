@@ -21,6 +21,10 @@
       "cache": false,
       "outputs": ["coverage/**"]
     },
+    "architecture": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true

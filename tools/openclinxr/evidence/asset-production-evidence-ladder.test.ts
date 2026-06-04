@@ -16,10 +16,10 @@ describe("asset production evidence ladder report", () => {
     };
 
     expect(rootPackage.scripts["asset:production:ladder"]).toBe(
-      "tsx tools/openclinxr/asset-production-evidence-ladder.ts",
+      "tsx tools/openclinxr/evidence/asset-production-evidence-ladder.ts",
     );
     expect(rootPackage.scripts["asset:production:ladder:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-evidence-ladder.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/asset-production-evidence-ladder.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:ladder:validate");
   });

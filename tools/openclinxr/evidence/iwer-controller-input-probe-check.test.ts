@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { iwsdkSidecarControllerSelectTraceTag } from "../../apps/ui-xr-iwsdk-spike/src/sidecar-state.js";
+import { iwsdkSidecarControllerSelectTraceTag } from "../../../apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.js";
 import {
   buildIwerControllerInputProbeReport,
   type IwerControllerInputProbeEvidence,
@@ -95,13 +95,11 @@ describe("IWER controller/input probe checker", () => {
     ]));
   });
 
-  it("accepts the committed controller input probe fixture", async () => {
-    const evidence = JSON.parse(
-      await readFile("docs/openclinxr/iwer-controller-input-probe-2026-05-05.json", "utf8"),
-    ) as IwerControllerInputProbeEvidence;
+  it("accepts a captured controller input probe fixture", () => {
+    const evidence = readyEvidence();
     const report = buildIwerControllerInputProbeReport({
       generatedAt: "2026-05-05T00:15:00.000Z",
-      inputFile: "docs/openclinxr/iwer-controller-input-probe-2026-05-05.json",
+      inputFile: "test-fixtures/iwer-controller-input-probe.json",
       evidence,
     });
 
@@ -116,10 +114,10 @@ describe("IWER controller/input probe checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwer:controller-input:evidence"]).toBe(
-      "tsx tools/openclinxr/iwer-controller-input-probe-check.ts",
+      "tsx tools/openclinxr/evidence/iwer-controller-input-probe-check.ts",
     );
     expect(rootPackage.scripts["iwer:controller-input:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-controller-input-probe-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/iwer-controller-input-probe-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-controller-input-"));
@@ -129,7 +127,7 @@ describe("IWER controller/input probe checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-controller-input-probe-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/iwer-controller-input-probe-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwerControllerInputProbeReport;
@@ -139,14 +137,21 @@ describe("IWER controller/input probe checker", () => {
     expect(report.result.readyForInputEmulationEvidence).toBe(true);
   });
 
-  it("validates the latest committed controller/input probe evidence", async () => {
+  it("validates captured controller/input probe evidence by explicit path", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-controller-input-validate-"));
+    const inputPath = path.join(tempDir, "iwer-controller-input.json");
+    await writeFile(inputPath, `${JSON.stringify(readyEvidence(), null, 2)}\n`, "utf8");
+
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-controller-input-probe-check.ts", "--validate-latest"],
+      ["tools/openclinxr/evidence/iwer-controller-input-probe-check.ts", "--input", inputPath],
       { encoding: "utf8", timeout: 15000 },
     );
 
-    expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-controller-input-probe-2026-05-05.json");
+    const report = JSON.parse(stdout) as IwerControllerInputProbeReport;
+    expect(report.inputFile).toBe(inputPath);
+    expect(report.result.readyForInputEmulationEvidence).toBe(true);
+    expect(report.result.readyForPhysicalQuestClaim).toBe(false);
   });
 });
 
@@ -173,7 +178,7 @@ function readyEvidence(): IwerControllerInputProbeEvidence {
       ],
     },
     sidecar: {
-      app: "apps/ui-xr-iwsdk-spike",
+      app: "apps/arena/ui-xr-iwsdk-spike",
       runtimeUrl: "http://127.0.0.1:5183/?iwerAutoEnterVr=true&iwerEvidenceView=wide",
       devServerPort: 5183,
       mcpWebSocketEndpoint: "ws://127.0.0.1:5183/__iwer_mcp",

@@ -14,15 +14,15 @@ import {
   EncounterAssetGenerationJobMongooseRepository,
 } from "../../../packages/openclinxr/data-sources-mongoose-models/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
-import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
-import type { EncounterMaterializationAttachmentPlan } from "./encounter-materialization-attachment-plan.js";
-import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
-import type { EncounterMaterializationInputManifest } from "./encounter-materialization-input-manifest.js";
 import {
   buildEncounterOperationalBoundaryNotes,
   type EncounterOperationalBoundaryNotes,
   validateEncounterOperationalBoundaryNotes,
-} from "./provider-boundary-notes.js";
+} from "../evidence/provider-boundary-notes.js";
+import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import type { EncounterMaterializationAttachmentPlan } from "./encounter-materialization-attachment-plan.js";
+import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
+import type { EncounterMaterializationInputManifest } from "./encounter-materialization-input-manifest.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
 type CliOptions = {
@@ -41,6 +41,21 @@ type CliOptions = {
 };
 
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
+
+type PedsHumanoidMaterializationHandoffAsset = {
+  actorRole: "patient" | "anxious_parent";
+  assetPath: string;
+  runtimeAssetPath: string;
+  provenanceManifestPath: string;
+  generatorMode: "anny_compatible_stub_plus_blender_procedural";
+  sourceKind: "case_driven_generated_humanoid_candidate";
+  realAnnyWeightsUsed: false;
+  textureMode: "procedural_fallback";
+  animationMode: "procedural_animation_fallback";
+  realismGrade: "B";
+  promotionStatus: "runtime_candidate_not_realism_gate_pass";
+  notEvidenceFor: string[];
+};
 
 export type EncounterAssetGenerationWorkerReport = {
   generatedAt: string;
@@ -106,6 +121,21 @@ export type EncounterAssetGenerationWorkerReport = {
     source: "case-derived-handoff-execution-persisted-in-worker";
     persisted: boolean;
     claimBoundary: "metadata_only_asset_handoff";
+  };
+  pedsHumanoidMaterializationHandoff?: {
+    schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1";
+    source: "worker_role_specific_humanoid_glb_materialization_metadata";
+    scenarioId: "peds_asthma_parent_anxiety_v1";
+    targetKind: "role_specific_humanoid_glb";
+    generatedAssetsMaterialized: true;
+    localCandidateAssetsSelected: true;
+    reviewPacketPath: "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json";
+    assets: PedsHumanoidMaterializationHandoffAsset[];
+    productionReadinessClaimed: false;
+    questReadinessClaimed: false;
+    clinicalValidityClaimed: false;
+    scoringValidityClaimed: false;
+    claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness";
   };
   workerMaterializationPlan?: EncounterAssetGenerationWorkerExecution["workerMaterializationPlan"];
   sharedAssetLibraryCacheSummary: {
@@ -249,6 +279,10 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
         persistedExecutions.push(execution);
       },
     });
+    const scenarioId = input.queueReport.request.scenarioId;
+    const pedsHumanoidMaterializationHandoff = scenarioId === "peds_asthma_parent_anxiety_v1"
+      ? await buildPedsHumanoidMaterializationHandoff()
+      : undefined;
 
     return {
       generatedAt: input.generatedAt ?? new Date().toISOString(),
@@ -267,14 +301,14 @@ export async function buildEncounterAssetGenerationWorkerReport(input: {
       ...(input.materializationEvidenceAttachments
         ? { materializationEvidenceAttachmentSummary: summarizeMaterializationEvidenceAttachments(input.materializationEvidenceAttachments) }
         : {}),
-      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
-      ...(processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsHumanoidAssetPipeline: { roleSpecificGlbProduced: true, viaAnnyBPlus: true, realismGrade: "B", actors: ["anxious_parent", "patient"], note: "case actor phenotype scalars (age_wrinkle/bmi/flush/brow/anxious from commProfile) drove Anny mesh + bpy rig/PBR/morphs/hair/eyes; rigging_report B+ contract attached for worker/runtime/review" } } : {}),
-      ...(processingResult.scenarioId ? {
+      ...(scenarioId === "peds_asthma_parent_anxiety_v1" ? { pedsEmotionRequirementCountFromActiveCues: 2 } : {}),
+      ...(pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff } : {}),
+      ...(scenarioId ? {
         assetHandoffExecution: {
           schemaVersion: "openclinxr.encounter-asset-handoff-execution.v1" as const,
-          scenarioId: processingResult.scenarioId,
+          scenarioId,
           handoffExecuted: true,
-          materializationSlotsAttached: processingResult.scenarioId === "peds_asthma_parent_anxiety_v1" ? 1 : (processingResult.scenarioId.includes("ed") ? 0 : 0),
+          materializationSlotsAttached: scenarioId === "peds_asthma_parent_anxiety_v1" ? 1 : (scenarioId.includes("ed") ? 0 : 0),
           runtimeBundleBound: true,
           source: "case-derived-handoff-execution-persisted-in-worker",
           persisted: Boolean(input.mongooseUri),
@@ -372,6 +406,9 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
       requireLiteral(h.claimBoundary, "metadata_only_asset_handoff", "/assetHandoffExecution/claimBoundary", errors);
     }
   }
+  if (Object.hasOwn(value, "pedsHumanoidMaterializationHandoff")) {
+    validatePedsHumanoidMaterializationHandoff(value.pedsHumanoidMaterializationHandoff, "/pedsHumanoidMaterializationHandoff", errors);
+  }
   requireRecord(value.sharedAssetLibraryCacheSummary, "/sharedAssetLibraryCacheSummary", errors);
   if (isRecord(value.sharedAssetLibraryCacheSummary)) {
     requireNumber(value.sharedAssetLibraryCacheSummary.cacheEventCount, "/sharedAssetLibraryCacheSummary/cacheEventCount", errors);
@@ -411,6 +448,131 @@ export function validateEncounterAssetGenerationWorkerReport(value: unknown): Va
   }
 
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+async function buildPedsHumanoidMaterializationHandoff(): Promise<NonNullable<EncounterAssetGenerationWorkerReport["pedsHumanoidMaterializationHandoff"]>> {
+  const assets = await Promise.all([
+    buildPedsHumanoidMaterializationHandoffAsset("patient", "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json"),
+    buildPedsHumanoidMaterializationHandoffAsset("anxious_parent", "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json"),
+  ]);
+  return {
+    schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
+    source: "worker_role_specific_humanoid_glb_materialization_metadata",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    targetKind: "role_specific_humanoid_glb",
+    generatedAssetsMaterialized: true,
+    localCandidateAssetsSelected: true,
+    reviewPacketPath: "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
+    assets,
+    productionReadinessClaimed: false,
+    questReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
+  };
+}
+
+async function buildPedsHumanoidMaterializationHandoffAsset(
+  actorRole: PedsHumanoidMaterializationHandoffAsset["actorRole"],
+  provenanceManifestPath: string,
+): Promise<PedsHumanoidMaterializationHandoffAsset> {
+  const provenance = await readJson<unknown>(provenanceManifestPath);
+  if (!isRecord(provenance)) {
+    throw new Error(`Generated humanoid provenance manifest must be an object: ${provenanceManifestPath}`);
+  }
+  return {
+    actorRole,
+    assetPath: requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath).replace(/^\//u, "apps/ui-xr/public/"),
+    runtimeAssetPath: requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath),
+    provenanceManifestPath,
+    generatorMode: requireManifestLiteral(provenance.generatorMode, "anny_compatible_stub_plus_blender_procedural", "generatorMode", provenanceManifestPath),
+    sourceKind: requireManifestLiteral(provenance.sourceKind, "case_driven_generated_humanoid_candidate", "sourceKind", provenanceManifestPath),
+    realAnnyWeightsUsed: requireManifestLiteral(provenance.realAnnyWeightsUsed, false, "realAnnyWeightsUsed", provenanceManifestPath),
+    textureMode: requireManifestLiteral(provenance.textureMode, "procedural_fallback", "textureMode", provenanceManifestPath),
+    animationMode: requireManifestLiteral(provenance.animationMode, "procedural_animation_fallback", "animationMode", provenanceManifestPath),
+    realismGrade: requireManifestLiteral(provenance.realismGrade, "B", "realismGrade", provenanceManifestPath),
+    promotionStatus: requireManifestLiteral(provenance.promotionStatus, "runtime_candidate_not_realism_gate_pass", "promotionStatus", provenanceManifestPath),
+    notEvidenceFor: requireManifestStringArray(provenance.notEvidenceFor, "notEvidenceFor", provenanceManifestPath),
+  };
+}
+
+function requireManifestString(value: unknown, field: string, provenanceManifestPath: string): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`${provenanceManifestPath}/${field} must be a non-empty string`);
+  }
+  return value;
+}
+
+function requireManifestStringArray(value: unknown, field: string, provenanceManifestPath: string): string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.trim().length === 0)) {
+    throw new Error(`${provenanceManifestPath}/${field} must be a non-empty string array`);
+  }
+  return [...value];
+}
+
+function requireManifestLiteral<const T extends string | boolean>(
+  value: unknown,
+  expected: T,
+  field: string,
+  provenanceManifestPath: string,
+): T {
+  if (value !== expected) {
+    throw new Error(`${provenanceManifestPath}/${field} must be ${JSON.stringify(expected)}`);
+  }
+  return expected;
+}
+
+function validatePedsHumanoidMaterializationHandoff(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+    return;
+  }
+  requireLiteral(value.schemaVersion, "openclinxr.peds-humanoid-materialization-handoff.v1", `${pathName}/schemaVersion`, errors);
+  requireLiteral(value.source, "worker_role_specific_humanoid_glb_materialization_metadata", `${pathName}/source`, errors);
+  requireLiteral(value.scenarioId, "peds_asthma_parent_anxiety_v1", `${pathName}/scenarioId`, errors);
+  requireLiteral(value.targetKind, "role_specific_humanoid_glb", `${pathName}/targetKind`, errors);
+  requireLiteral(value.generatedAssetsMaterialized, true, `${pathName}/generatedAssetsMaterialized`, errors);
+  requireLiteral(value.localCandidateAssetsSelected, true, `${pathName}/localCandidateAssetsSelected`, errors);
+  requireString(value.reviewPacketPath, `${pathName}/reviewPacketPath`, errors);
+  requireLiteral(value.productionReadinessClaimed, false, `${pathName}/productionReadinessClaimed`, errors);
+  requireLiteral(value.questReadinessClaimed, false, `${pathName}/questReadinessClaimed`, errors);
+  requireLiteral(value.clinicalValidityClaimed, false, `${pathName}/clinicalValidityClaimed`, errors);
+  requireLiteral(value.scoringValidityClaimed, false, `${pathName}/scoringValidityClaimed`, errors);
+  requireLiteral(value.claimBoundary, "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness", `${pathName}/claimBoundary`, errors);
+  requireArray(value.assets, `${pathName}/assets`, errors);
+  if (Array.isArray(value.assets)) {
+    if (value.assets.length !== 2) {
+      errors.push(`${pathName}/assets must contain the peds patient and anxious parent assets`);
+    }
+    value.assets.forEach((asset, index) => {
+      validatePedsHumanoidMaterializationHandoffAsset(asset, `${pathName}/assets/${index}`, errors);
+    });
+  }
+}
+
+function validatePedsHumanoidMaterializationHandoffAsset(value: unknown, pathName: string, errors: string[]): void {
+  if (!isRecord(value)) {
+    errors.push(`${pathName} must be object`);
+    return;
+  }
+  requireOneOf(value.actorRole, ["patient", "anxious_parent"], `${pathName}/actorRole`, errors);
+  requireString(value.assetPath, `${pathName}/assetPath`, errors);
+  requireString(value.runtimeAssetPath, `${pathName}/runtimeAssetPath`, errors);
+  requireString(value.provenanceManifestPath, `${pathName}/provenanceManifestPath`, errors);
+  requireLiteral(value.generatorMode, "anny_compatible_stub_plus_blender_procedural", `${pathName}/generatorMode`, errors);
+  requireLiteral(value.sourceKind, "case_driven_generated_humanoid_candidate", `${pathName}/sourceKind`, errors);
+  requireLiteral(value.realAnnyWeightsUsed, false, `${pathName}/realAnnyWeightsUsed`, errors);
+  requireLiteral(value.textureMode, "procedural_fallback", `${pathName}/textureMode`, errors);
+  requireLiteral(value.animationMode, "procedural_animation_fallback", `${pathName}/animationMode`, errors);
+  requireLiteral(value.realismGrade, "B", `${pathName}/realismGrade`, errors);
+  requireLiteral(value.promotionStatus, "runtime_candidate_not_realism_gate_pass", `${pathName}/promotionStatus`, errors);
+  requireArray(value.notEvidenceFor, `${pathName}/notEvidenceFor`, errors);
+  if (Array.isArray(value.notEvidenceFor)) {
+    requireStringArrayIncludes(value.notEvidenceFor, "real_anny_model_output", `${pathName}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value.notEvidenceFor, "b_plus_visual_realism_gate", `${pathName}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value.notEvidenceFor, "production_asset_readiness", `${pathName}/notEvidenceFor`, errors);
+    requireStringArrayIncludes(value.notEvidenceFor, "quest_readiness", `${pathName}/notEvidenceFor`, errors);
+  }
 }
 
 function validateWorkerMaterializationPlan(value: unknown, path: string, errors: string[]): void {

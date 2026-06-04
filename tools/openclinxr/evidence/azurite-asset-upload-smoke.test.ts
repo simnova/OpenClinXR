@@ -72,7 +72,7 @@ describe("azurite asset upload smoke", () => {
 
   it("exposes root package scripts for local emulator smoke usage", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as { scripts: Record<string, string> };
-    expect(rootPackage.scripts["asset:azurite:upload-smoke"]).toBe("tsx tools/openclinxr/azurite-asset-upload-smoke.ts --attempt-upload");
-    expect(rootPackage.scripts["asset:azurite:upload-smoke:validate"]).toBe("tsx tools/openclinxr/azurite-asset-upload-smoke.ts --validate-latest");
+    expect(rootPackage.scripts["asset:azurite:upload-smoke"]).toBe("tsx tools/openclinxr/evidence/azurite-asset-upload-smoke.ts --attempt-upload");
+    expect(rootPackage.scripts["asset:azurite:upload-smoke:validate"]).toBe("tsx tools/openclinxr/evidence/azurite-asset-upload-smoke.ts --validate-latest");
   });
 });

@@ -1,25 +1,33 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { describe, expect, it } from "vitest";
-import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import {
   buildIwerSidecarEmulationEvidenceReport,
   type IwerSidecarEmulationEvidenceReport,
 } from "./iwer-sidecar-emulation-evidence-check.js";
+import { pngFixture500, writePngFixture500 } from "./test-fixture-media.js";
 
 const execFileAsync = promisify(execFile);
+const screenshotFixturePath = "docs/openclinxr/screenshots/test-iwer-sidecar-emulation-fixture.png";
 
 describe("IWER sidecar emulation evidence checker", () => {
-  it("accepts the captured sidecar evidence as emulation-only and not production Quest proof", async () => {
-    const evidence = JSON.parse(
-      await readFile("docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json", "utf8"),
-    ) as IwerSidecarEmulationEvidenceReport["evidence"];
+  beforeAll(async () => {
+    await writePngFixture500(screenshotFixturePath);
+  });
+
+  afterAll(async () => {
+    await rm(screenshotFixturePath, { force: true });
+  });
+
+  it("accepts captured sidecar evidence as emulation-only and not production Quest proof", () => {
+    const evidence = readyEvidence();
     const report = buildIwerSidecarEmulationEvidenceReport({
       generatedAt: "2026-05-05T00:00:00.000Z",
-      inputFile: "docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
+      inputFile: "test-fixtures/iwer-sidecar-emulation-evidence.json",
       evidence,
     });
 
@@ -151,18 +159,16 @@ describe("IWER sidecar emulation evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:iwer:evidence"]).toBe(
-      "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts",
+      "pnpm iwer:sidecar:evidence && pnpm iwer:auto-entry:evidence && pnpm iwer:controller-input:evidence",
     );
     expect(rootPackage.scripts["iwer:sidecar:evidence"]).toBe(
-      "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
+      "tsx tools/openclinxr/evidence/iwer-sidecar-emulation-evidence-check.ts",
     );
     expect(rootPackage.scripts["iwer:sidecar:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/iwer-sidecar-emulation-evidence-check.ts --validate-latest",
     );
-    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwer:sidecar:evidence:validate");
-    expect(rootPackage.scripts["iwsdk:verify"]).not.toContain(
-      "pnpm iwsdk:iwer:evidence -- --input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json",
-    );
+    expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
+    expect(rootPackage.scripts["iwsdk:verify"]).not.toContain("pnpm iwsdk:iwer:evidence");
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-evidence-"));
     const inputPath = path.join(tempDir, "iwer-evidence.json");
@@ -171,7 +177,7 @@ describe("IWER sidecar emulation evidence checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/iwer-sidecar-emulation-evidence-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwerSidecarEmulationEvidenceReport;
@@ -181,15 +187,6 @@ describe("IWER sidecar emulation evidence checker", () => {
     expect(report.result.readyForEmulationEvidence).toBe(true);
   });
 
-  it("validates the latest committed sidecar evidence without a dated input path", async () => {
-    const { stdout } = await execFileAsync(
-      path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-sidecar-emulation-evidence-check.ts", "--validate-latest"],
-      { encoding: "utf8", timeout: 15000 },
-    );
-
-    expect(stdout.trim()).toBe("Validated docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json");
-  });
 });
 
 function requireFixtureValue<T>(value: T | null | undefined, label: string): NonNullable<T> {
@@ -217,7 +214,7 @@ function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
       ],
     },
     sidecar: {
-      app: "apps/ui-xr-iwsdk-spike",
+      app: "apps/arena/ui-xr-iwsdk-spike",
       runtimeUrl: "http://127.0.0.1:5183/",
       devServerPort: 5183,
       mcpWebSocketEndpoint: "ws://127.0.0.1:5183/__iwer_mcp",
@@ -253,10 +250,10 @@ function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
         id: "screenshot",
         method: "screenshot",
         ok: true,
-        artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+        artifact: screenshotFixturePath,
         mimeType: "image/png",
-        bytes: 39536,
-        dimensions: { width: 500, height: 500 },
+        bytes: pngFixture500.bytes,
+        dimensions: { width: pngFixture500.width, height: pngFixture500.height },
       },
     ],
     sessionEntryEvidence: {
@@ -295,7 +292,7 @@ function readyEvidence(): IwerSidecarEmulationEvidenceReport["evidence"] {
       distSearchMatches: [],
     },
     adversarialVisualQa: {
-      artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+      artifact: screenshotFixturePath,
       xrMode: "desktop_managed_browser_not_immersive_session",
       notes: ["The screenshot should be used for adversarial UI/scene iteration only."],
     },

@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import {
   evaluateIwsdkSidecarIwerInputProbeEvidence,
   iwsdkSidecarControllerSelectTraceTag,
-} from "../../apps/ui-xr-iwsdk-spike/src/sidecar-state.js";
+} from "../../../apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.js";
 import { globFiles } from "../../agent-factory/lib.js";
 
 type CliOptions = {
@@ -181,7 +181,7 @@ function schemaAndBoundaryBlockers(evidence: IwerControllerInputProbeEvidence): 
     evidence.classification?.scope === "sidecar_only_dev_evidence"
       ? undefined
       : "classification_scope_not_sidecar_only_dev_evidence",
-    evidence.sidecar?.app === "apps/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_ui_xr_iwsdk_spike",
+    evidence.sidecar?.app === "apps/arena/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_ui_xr_iwsdk_spike",
     isLocalHttpUrl(evidence.sidecar?.runtimeUrl) ? undefined : "runtime_url_not_localhost",
     isValidPort(evidence.sidecar?.devServerPort) ? undefined : "dev_server_port_invalid_or_missing",
     isLocalWebSocketUrl(evidence.sidecar?.mcpWebSocketEndpoint)

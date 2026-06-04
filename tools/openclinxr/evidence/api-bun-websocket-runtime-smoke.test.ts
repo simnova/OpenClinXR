@@ -90,10 +90,10 @@ describe("API Bun WebSocket runtime smoke report", () => {
     };
 
     expect(packageJson.scripts["local:voice:bun-websocket-smoke"]).toBe(
-      "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts",
+      "tsx tools/openclinxr/evidence/api-bun-websocket-runtime-smoke.ts",
     );
     expect(packageJson.scripts["local:voice:bun-websocket-smoke:validate"]).toBe(
-      "tsx tools/openclinxr/api-bun-websocket-runtime-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/api-bun-websocket-runtime-smoke.ts --validate-latest",
     );
     expect(packageJson.scripts["agent:verify"]).toContain("pnpm local:voice:bun-websocket-smoke:validate");
   });
@@ -232,33 +232,6 @@ describe("API Bun WebSocket runtime smoke report", () => {
     expect(report.verdict.readyForLiveDialog).toBe(false);
   });
 
-  it("validates the latest Bun websocket smoke without expanding its claim scope", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/api-bun-websocket-runtime-smoke-2026-05-05.json", "utf8"),
-    );
-
-    expect(validateApiBunWebSocketRuntimeSmokeReport(report)).toEqual({ ok: true });
-
-    const invalid = structuredClone(report) as {
-      policy: Partial<{ productionUseAllowed: boolean }>;
-      runtime: { h3: { h3TrueEnabled: boolean } };
-      verdict: { readyForLiveDialog: boolean };
-    };
-    delete invalid.policy.productionUseAllowed;
-    invalid.runtime.h3.h3TrueEnabled = true;
-    invalid.verdict.readyForLiveDialog = true;
-
-    expect(validateApiBunWebSocketRuntimeSmokeReport(invalid)).toEqual({
-      ok: false,
-      errors: [
-        "/policy/productionUseAllowed must be false",
-        "/runtime/h3/h3TrueEnabled must be false",
-        "/verdict/readyForLiveDialog must be false",
-        "/runtimeEvidenceBlockers missing expected blocker http3_enabled_outside_approved_scope",
-      ],
-    });
-  });
-
   it("requires status and runtime evidence blockers to match websocket observations", () => {
     const report = buildApiBunWebSocketRuntimeSmokeReport({
       ...baseObservation,
@@ -288,7 +261,7 @@ describe("API Bun WebSocket runtime smoke report", () => {
     });
   });
 
-  it("validates CLI reports by explicit path and latest evidence path", async () => {
+  it("validates CLI reports by explicit path", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-bun-websocket-validate-"));
     try {
       const report = buildApiBunWebSocketRuntimeSmokeReport(baseObservation);
@@ -296,7 +269,6 @@ describe("API Bun WebSocket runtime smoke report", () => {
       await writeFile(output, JSON.stringify(report, null, 2));
 
       await expect(main(["--validate", output])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as {
         websocket: { protocolBoundary: { localClientObservationOnly: boolean } };

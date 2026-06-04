@@ -16,10 +16,10 @@ describe("local Qwen TTS runtime smoke report", () => {
     };
 
     expect(rootPackage.scripts["local:voice:qwen-tts-smoke"]).toBe(
-      "tsx tools/openclinxr/local-qwen-tts-runtime-smoke.ts",
+      "tsx tools/openclinxr/evidence/local-qwen-tts-runtime-smoke.ts",
     );
     expect(rootPackage.scripts["local:voice:qwen-tts-smoke:validate"]).toBe(
-      "tsx tools/openclinxr/local-qwen-tts-runtime-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-qwen-tts-runtime-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:qwen-tts-smoke:validate");
   });
@@ -238,7 +238,6 @@ describe("local Qwen TTS runtime smoke report", () => {
       await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(main(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
       delete invalidReport.modelCache;

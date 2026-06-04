@@ -15,10 +15,10 @@ describe("gltf-pipeline smoke report", () => {
     };
 
     expect(rootPackage.scripts["asset:gltf:smoke"]).toBe(
-      "tsx tools/openclinxr/gltf-pipeline-smoke.ts",
+      "tsx tools/openclinxr/evidence/gltf-pipeline-smoke.ts",
     );
     expect(rootPackage.scripts["asset:gltf:smoke:validate"]).toBe(
-      "tsx tools/openclinxr/gltf-pipeline-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/gltf-pipeline-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:gltf:smoke:validate");
   });

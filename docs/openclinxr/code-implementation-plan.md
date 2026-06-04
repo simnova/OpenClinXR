@@ -89,7 +89,7 @@ Workspace naming should follow the development team's Turborepo convention:
 - Mongoose model layer: `packages/openclinxr/data-sources-mongoose-models`.
 - Local dependency simulators: `apps/mock-<<server-type>>-server`.
 - Architecture enforcement: `packages/openclinxr/architecture-rules` with ArchUnitTS tests that turn naming and dependency-direction decisions into executable checks.
-- Multi-actor runtime state: `packages/openclinxr/session-state` owns the production-shaped actor/session state contract promoted from the server-side multi-actor spike. The historical `packages/openclinxr/multi-actor-state-spike` remains evidence-only and superseded for production imports.
+- Multi-actor runtime state: `packages/openclinxr/session-state` owns the production-shaped actor/session state contract promoted from the server-side multi-actor spike. The historical `packages/openclinxr/arena/multi-actor-state-spike` remains evidence-only and superseded for production imports.
 
 ## Dependency Posture
 
@@ -272,13 +272,13 @@ Implement Vite WebXR app:
 
 #### IWSDK Sidecar Policy
 
-Meta Immersive Web SDK is a sidecar spike candidate, not a production XR dependency. Keep the production `apps/ui-xr` shell dependency-free from `@iwsdk/*` until a real install-backed `apps/ui-xr-iwsdk-spike` proves compatibility, license posture, bundle impact, MCP behavior, and foreground Quest 3 performance.
+Meta Immersive Web SDK is a sidecar spike candidate, not a production XR dependency. Keep the production `apps/ui-xr` shell dependency-free from `@iwsdk/*` until a real install-backed `apps/arena/ui-xr-iwsdk-spike` proves compatibility, license posture, bundle impact, MCP behavior, and foreground Quest 3 performance.
 
 Sidecar rules:
 
-- `apps/ui-xr-iwsdk-spike` now exists after Patrick approved install scope, exact versions, and transitive license posture on 2026-05-04.
+- `apps/arena/ui-xr-iwsdk-spike` now exists after Patrick approved install scope, exact versions, and transitive license posture on 2026-05-04.
 - The first install-backed slice evaluates exact-versioned `@iwsdk/core@0.3.1` and `@iwsdk/xr-input@0.3.1` only.
-- Both `apps/ui-xr` and `apps/ui-xr-iwsdk-spike` must expose an explicit Quest Browser `Enter Full VR` control that starts `navigator.xr.requestSession("immersive-vr")`; WebXR feature detection alone is not an immersive session.
+- Both `apps/ui-xr` and `apps/arena/ui-xr-iwsdk-spike` must expose an explicit Quest Browser `Enter Full VR` control that starts `navigator.xr.requestSession("immersive-vr")`; WebXR feature detection alone is not an immersive session.
 - Treat that Phase 1 path as full immersive VR, not passthrough mixed reality. Runtime evidence must record `requestedSessionMode: "immersive-vr"` and `mixedRealityPassthroughImplemented: false`; [proposal-webxr-mixed-reality-mode.md](../../proposals/approved/proposal-webxr-mixed-reality-mode.md) is approved as a separate sidecar track, so any `immersive-ar` path must keep its evidence, privacy posture, UX affordances, and production-readiness claims separate from Full VR.
 - Keep `@iwsdk/reference`, `@iwsdk/starter-assets`, `@iwsdk/create`, and `@meta-quest/hzdb` out of the first install-backed slice. Patrick approved the reference warmup download scope and `@meta-quest/hzdb` legal/procurement posture on 2026-05-04, but the packages remain sidecar-gated.
 - Do not run floating `npx iwsdk reference warmup`; the package-managed candidate is `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`, and it still needs CLI help, cache location, and download-size evidence before execution.

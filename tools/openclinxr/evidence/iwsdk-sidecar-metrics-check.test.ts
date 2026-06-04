@@ -80,7 +80,7 @@ describe("IWSDK sidecar metrics checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:sidecar:metrics"]).toBe(
-      "tsx tools/openclinxr/iwsdk-sidecar-metrics-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-sidecar-metrics-check.ts",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-sidecar-metrics-"));
@@ -90,7 +90,7 @@ describe("IWSDK sidecar metrics checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-sidecar-metrics-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/iwsdk-sidecar-metrics-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkSidecarMetricsReport;

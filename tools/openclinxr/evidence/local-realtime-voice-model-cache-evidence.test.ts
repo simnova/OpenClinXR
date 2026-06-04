@@ -15,10 +15,10 @@ describe("local realtime voice model cache evidence", () => {
     };
 
     expect(rootPackage.scripts["local:voice:model-cache"]).toBe(
-      "tsx tools/openclinxr/local-realtime-voice-model-cache-evidence.ts",
+      "tsx tools/openclinxr/evidence/local-realtime-voice-model-cache-evidence.ts",
     );
     expect(rootPackage.scripts["local:voice:model-cache:validate"]).toBe(
-      "tsx tools/openclinxr/local-realtime-voice-model-cache-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-realtime-voice-model-cache-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:model-cache:validate");
   });

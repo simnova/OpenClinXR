@@ -25,16 +25,16 @@ import {
 import type { DynamicEncounterFactoryProjectionArtifact } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { validateDynamicEncounterFactoryProjectionArtifact } from "../../../packages/openclinxr/shared-schemas/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
+import {
+  buildEncounterOperationalBoundaryNotes,
+  type EncounterOperationalBoundaryNotes,
+  validateEncounterOperationalBoundaryNotes,
+} from "../evidence/provider-boundary-notes.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import type { EncounterMaterializationEvidenceReport } from "./encounter-materialization-evidence.js";
 import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
-import {
-  buildEncounterOperationalBoundaryNotes,
-  type EncounterOperationalBoundaryNotes,
-  validateEncounterOperationalBoundaryNotes,
-} from "./provider-boundary-notes.js";
 import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
 
 type CliOptions = {

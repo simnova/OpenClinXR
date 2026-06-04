@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 18
 - agent-methodology: 8
-- archive-candidate: 5
-- current-reference: 44
-- decision-record: 18
-- evidence: 26
+- archive-candidate: 32
+- current-reference: 48
+- decision-record: 19
+- evidence: 28
 - historical-synthesis: 9
 - protected-policy: 12
 
@@ -25,7 +25,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `AUTONOMOUS_WORK_PLAN.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `PROJECT_COORDINATION_INDEX.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
-- `apps/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -73,7 +76,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/cellix/config-typescript/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/cellix/config-vitest/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `packages/openclinxr/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/arena/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -82,8 +86,35 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
+- `.agents/skills/antd/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/command/turborepo.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/best-practices/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/best-practices/dependencies.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/best-practices/packages.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/best-practices/structure.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/boundaries/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/caching/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/caching/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/caching/remote-cache.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/ci/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/ci/github-actions.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/ci/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/ci/vercel.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/cli/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/cli/commands.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/configuration/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/configuration/global-options.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/configuration/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/configuration/tasks.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/environment/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/environment/gotchas.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/environment/modes.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/filtering/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/filtering/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.agents/skills/turborepo/references/watch/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `AUTONOMOUS/PROJECT/worker.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

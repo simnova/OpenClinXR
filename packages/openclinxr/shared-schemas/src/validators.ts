@@ -211,7 +211,7 @@ export function validateTraceEvent(value: unknown): ValidationResult {
     source: string;
     actorId?: string;
     tag?: string;
-    payload?: Record<string, unknown>;
+    payload?: Record<string, unknown> & { durableEventRef?: unknown };
   };
   const durableEventRef = typeof trace.payload?.durableEventRef === "string" ? trace.payload.durableEventRef : undefined;
   const errors = [

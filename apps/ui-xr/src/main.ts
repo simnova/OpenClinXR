@@ -185,6 +185,14 @@ type RuntimeHumanoidActingCueEvidence = {
   notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "animation_quality">;
 };
 
+type GeneratedRuntimeDrive = {
+  locomotion?: boolean | number | string | null;
+  gaze?: boolean | number | string | null;
+  gazeAversion?: boolean | number | string | null;
+  lipSync?: boolean | number | string | null;
+  lipSyncViseme?: boolean | number | string | null;
+};
+
 type PortalTransitionEvidence = {
   source: "window.__openClinXrPortalTransitionEvidence";
   scenarioId: string;
@@ -337,7 +345,8 @@ declare global {
     __openClinXrRoleDistinctHumanoidCueEvidence?: RoleDistinctHumanoidCueEvidence;
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
      __openClinXrRuntimeHumanoidActingCueEvidence?: RuntimeHumanoidActingCueEvidence;
-     __openClinXrPortalTransitionEvidence?: PortalTransitionEvidence;
+      __openClinXrPedsDrive?: GeneratedRuntimeDrive;
+      __openClinXrPortalTransitionEvidence?: PortalTransitionEvidence;
    }
  }
 
@@ -1281,6 +1290,7 @@ type GeneratedHumanoidAnimationSlot = {
   baseScaleY: number;
   baseScaleZ: number;
   baseRotationY: number;
+  baseZ: number;
   phaseOffsetMs: number;
   mouthCue: Mesh;
   gazeCue: Line;
@@ -2694,8 +2704,8 @@ function createStationScene(): StationSceneRuntime {
           try {
             const cue = (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1") ? "anxious_parent" : (encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1" ? "urgent" : null);
             if (cue) {
-              gltf.scene.traverse((obj: any) => {
-                if (obj && obj.material) {
+              gltf.scene.traverse((obj) => {
+                if (obj instanceof Mesh && obj.material) {
                   const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
                   if (mat && mat.emissive !== undefined) {
                     mat.emissive = new Color(cue.includes("anx") || cue.includes("urgent") ? 0x1e3a5f : 0x000000);
@@ -2705,7 +2715,9 @@ function createStationScene(): StationSceneRuntime {
               });
               gltf.scene.userData.deeperVisualCueApplied = { cue, atLoad: true, source: "drive fromEmotion" };
             }
-          } catch (e) { /* non fatal visual cue */ }
+          } catch {
+            // Non-fatal visual cue.
+          }
         },
         undefined,
         (err) => {
@@ -3163,8 +3175,9 @@ function createStationScene(): StationSceneRuntime {
     window.__openClinXrInputEvidence = inputEvidence;
     updatePortalTransitionEvidence(locomotionRig, camera);
     updateVrPanels(inputEvidence);
-    // Wire gen drive (from pedsRuntimeDrive/scaffold/replay for peds/ed case spec: locomotion/gazeAversion/lipSyncViseme from emotionTimeline/runtimeExecutionHints) to live humanoid update in player (makes humanoids have locomotion/posture, gaze, lip-sync/viseme from generated behavior in launched desktop/WebXR; advances "player consuming the generated behavior" + "actors/humanoids having..." per queue/mission for peds+ed). Pass drive (from global or floor if available; fallback null keeps prior procedural). 
-    const genDriveForHumanoid = (typeof pedsRuntimeDrive !== 'undefined' && pedsRuntimeDrive) || (typeof window !== 'undefined' && (window as any).__openClinXrPedsDrive) || (typeof floor !== 'undefined' && floor ? floor.userData.genDrive || floor.userData.pedsRuntimeDrive : null) || null;
+    // Wire gen drive from scaffold/replay metadata to live humanoid update; fallback keeps prior procedural motion.
+    const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
+    const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
     updateEnvironmentRealismAnimations(deltaSeconds, now);
     // Deeper visual cue from drive in per-frame for live transitions on env world in launched player (richer integration of caseDerived env + gen drive/emotion). Uses deeperVisualCue from handoff (set at load from pedsRuntimeDrive/scaffold) and current emotion cues. Modulates emissive/scale on gltfEnvContainer/children for affect (e.g. anxious/urgent). Called every frame in renderSceneFrame (and fallback). Makes the virtual env world react dynamically in the full WebXR/desktop experience when running the app. (Previously only at load; now live per drive.)
@@ -5727,10 +5740,52 @@ function createRuntimeHumanoidDetailCues(assetId: string): Group {
   ];
   group.userData.openClinXrRuntimeDetailPolicy = {
     mode: "asset_surface_features_only_no_runtime_proxy_overlay",
-    reason: "Anny-derived GLB now carries surface hair, clothing, eye, brow, and lip geometry; runtime overlays must not obscure the generated humanoid.",
+    reason: "Anny-compatible stub + Blender procedural candidate GLB carries surface hair, clothing, eye, brow, and lip geometry; runtime overlays must not obscure the generated humanoid.",
     notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
   };
   return group;
+}
+
+function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidence["assets"][number]["humanoidSourceProvenance"] | undefined {
+  if (assetPath === "/generated-humanoids/peds_patient_child.glb") {
+    return {
+      generatorMode: "anny_compatible_stub_plus_blender_procedural",
+      sourceKind: "case_driven_generated_humanoid_candidate",
+      realAnnyWeightsUsed: false,
+      textureMode: "procedural_fallback",
+      animationMode: "procedural_animation_fallback",
+      realismGrade: "B",
+      provenanceManifestPath: "/generated-humanoids/peds_patient_child.provenance.json",
+      notEvidenceFor: [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
+    };
+  }
+  if (assetPath === "/generated-humanoids/peds_anxious_parent.glb") {
+    return {
+      generatorMode: "anny_compatible_stub_plus_blender_procedural",
+      sourceKind: "case_driven_generated_humanoid_candidate",
+      realAnnyWeightsUsed: false,
+      textureMode: "procedural_fallback",
+      animationMode: "procedural_animation_fallback",
+      realismGrade: "B",
+      provenanceManifestPath: "/generated-humanoids/peds_anxious_parent.provenance.json",
+      notEvidenceFor: [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
+    };
+  }
+  return undefined;
 }
 
 
@@ -5783,12 +5838,14 @@ function loadGeneratedHumanoidIntoActorSlot(
   }
   const humanoidLoader = new GLTFLoader();
   const actorSpecificAssetPath = runtimeHumanoidVariantAssetPath(options.actorId, options.assetPath);
+  const humanoidSourceProvenance = generatedHumanoidSourceProvenance(actorSpecificAssetPath);
   recordSceneAssetStatus({
     assetId: options.assetId,
     assetPath: actorSpecificAssetPath,
     sceneObjectName: options.objectName,
     status: "pending",
     fallbackActive: false,
+    humanoidSourceProvenance,
   });
   humanoidLoader.load(
     actorSpecificAssetPath,
@@ -5912,6 +5969,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         animationPlayback: gltf.animations.length > 0
           ? "gltf_animation_clips_playing"
           : "procedural_dialogue_expression_gaze_fallback",
+        humanoidSourceProvenance,
       });
       recordBootPhase("generated_humanoid_asset_loaded");
     },
@@ -5930,6 +5988,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         sceneObjectName: options.objectName,
         status: "failed",
         fallbackActive: true,
+        humanoidSourceProvenance,
         affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
           "primitive_actor_restored_after_generated_humanoid_load_failed",
           "case_definition_driven_role_pose_applied_to_fallback_actor",
@@ -6018,8 +6077,13 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     if (actorId === runtimeFamilyActorId()) return '/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb';
   }
 
-  if (scenarioId === 'peds_asthma_parent_anxiety_v1' && role === 'patient') {
-    return '/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb';
+  if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
+    if (actorId === runtimePatientActorId() || role === 'patient') {
+      return '/generated-humanoids/peds_patient_child.glb';
+    }
+    if (actorId === runtimeFamilyActorId() || role === 'parent' || role === 'family') {
+      return '/generated-humanoids/peds_anxious_parent.glb';
+    }
   }
 
   if (/older|elder|geriatric|delirium/u.test(`${scenarioId} ${actorId} ${role}`)) {
@@ -6063,6 +6127,7 @@ function registerGeneratedHumanoidAnimation(input: {
     baseScaleY: input.humanoid.scale.y,
     baseScaleZ: input.humanoid.scale.z,
     baseRotationY: input.humanoid.rotation.y,
+    baseZ: input.humanoid.position.z,
     phaseOffsetMs: generatedHumanoidAnimationSlots.length * 480,
     mouthCue: input.mouthCue,
     gazeCue: input.gazeCue,
@@ -6094,7 +6159,7 @@ function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
   );
 }
 
-function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: any): void {
+function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {
   const actorCues: RuntimeHumanoidActingCueEvidence["actorCues"] = [];
   for (const slot of generatedHumanoidAnimationSlots) {
     slot.mixer?.update(deltaSeconds);
@@ -6109,17 +6174,17 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(slot, t, isSpeaking);
     // Live apply from gen drive (loco/gaze/lip from case spec -> replay/drive for peds/ed) to humanoid for posture/loco/gaze/lip-sync/viseme in player (desktop fallback + WebXR). Makes the generated behavior drive actual humanoid motion in launched experience (Q1/2 blueprint->runtime consumption). Fallback to prior procedural if no drive. Smallest wire.
     if (drive) {
-      if (drive.locomotion != null) {
-        const baseZ = (slot as any).baseZ ?? slot.root.position.z ?? 0;
-        slot.root.position.z = baseZ + Number(drive.locomotion) * 0.6;
+      const locomotion = generatedDriveScalar(drive.locomotion);
+      if (locomotion !== null) {
+        slot.root.position.z = slot.baseZ + locomotion * 0.6;
       }
-      if (drive.gazeAversion != null) {
-        slot.root.rotation.y = Number(drive.gazeAversion) * 0.7;
+      const gaze = generatedDriveScalar(drive.gazeAversion ?? drive.gaze);
+      if (gaze !== null) {
+        slot.root.rotation.y = gaze * 0.7;
       }
-      if (drive.lipSyncViseme != null) {
-        const v = Number(drive.lipSyncViseme);
-        if ((slot.root as any).morphTargetInfluences) (slot.root as any).morphTargetInfluences[0] = v;
-        if ((slot as any).morphs) (slot as any).morphs.lip = v;
+      const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
+      if (viseme !== null) {
+        applyGeneratedDriveViseme(slot.root, viseme);
       }
     }
     slot.root.position.y = slot.baseY + breathing * 0.018;
@@ -6163,6 +6228,46 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
   }
   recordRuntimeHumanoidActingCueEvidence(actorCues);
   updateVirtualDeviceActorSpeechPulses(nowMs);
+}
+
+function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive {
+  return typeof value === "object" && value !== null;
+}
+
+function generatedDriveScalar(value: GeneratedRuntimeDrive[keyof GeneratedRuntimeDrive] | undefined): number | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === "boolean") {
+    return value ? 1 : 0;
+  }
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) {
+    return numeric;
+  }
+  const normalized = value.toLowerCase();
+  if (normalized.includes("high") || normalized.includes("urgent") || normalized.includes("escalation")) {
+    return 0.85;
+  }
+  if (normalized.includes("medium") || normalized.includes("moderate") || normalized.includes("anxious")) {
+    return 0.55;
+  }
+  if (normalized.includes("low") || normalized.includes("subtle") || normalized.includes("reassured")) {
+    return 0.25;
+  }
+  return null;
+}
+
+function applyGeneratedDriveViseme(root: Group, weight: number): void {
+  root.traverse((object) => {
+    if (!(object instanceof Mesh) || !object.morphTargetInfluences || object.morphTargetInfluences.length === 0) {
+      return;
+    }
+    object.morphTargetInfluences[0] = Math.min(0.95, Math.max(0, weight));
+  });
 }
 
 function pediatricAsthmaActingOverlayForSlot(

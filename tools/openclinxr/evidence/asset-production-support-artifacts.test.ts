@@ -17,10 +17,10 @@ describe("asset production support artifacts", () => {
     };
 
     expect(rootPackage.scripts["asset:production:support-artifacts"]).toBe(
-      "tsx tools/openclinxr/asset-production-support-artifacts.ts",
+      "tsx tools/openclinxr/evidence/asset-production-support-artifacts.ts",
     );
     expect(rootPackage.scripts["asset:production:support-artifacts:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-support-artifacts.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/asset-production-support-artifacts.ts --validate-latest",
     );
   });
 

@@ -20,10 +20,10 @@ describe("local realtime voice model source currentness evidence", () => {
     };
 
     expect(rootPackage.scripts["local:voice:model-source-currentness"]).toBe(
-      "tsx tools/openclinxr/local-realtime-voice-model-source-currentness-check.ts",
+      "tsx tools/openclinxr/evidence/local-realtime-voice-model-source-currentness-check.ts",
     );
     expect(rootPackage.scripts["local:voice:model-source-currentness:validate"]).toBe(
-      "tsx tools/openclinxr/local-realtime-voice-model-source-currentness-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-realtime-voice-model-source-currentness-check.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:model-source-currentness:validate");
   });

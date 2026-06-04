@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "architecture": "vitest run --root .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },

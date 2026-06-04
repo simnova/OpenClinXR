@@ -63,7 +63,7 @@ describe("IWSDK preinstall checker", () => {
 
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-preinstall-check.ts", "--proposal", fixturePath, "--output", output],
+      ["tools/openclinxr/evidence/iwsdk-preinstall-check.ts", "--proposal", fixturePath, "--output", output],
       { encoding: "utf8", timeout: 15000 },
     );
 
@@ -108,7 +108,7 @@ describe("IWSDK preinstall checker", () => {
     await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/iwsdk-preinstall-check.ts",
+        "tools/openclinxr/evidence/iwsdk-preinstall-check.ts",
         "--proposal",
         fixturePath,
         "--approved-phase2-devtools",
@@ -154,9 +154,9 @@ describe("IWSDK preinstall checker", () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as {
       scripts: Record<string, string>;
     };
-    expect(rootPackage.scripts["iwsdk:preinstall"]).toBe("tsx tools/openclinxr/iwsdk-preinstall-check.ts");
+    expect(rootPackage.scripts["iwsdk:preinstall"]).toBe("tsx tools/openclinxr/evidence/iwsdk-preinstall-check.ts");
     expect(rootPackage.scripts["iwsdk:preinstall:fixture"]).toBe(
-      "tsx tools/openclinxr/iwsdk-preinstall-check.ts --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json",
+      "tsx tools/openclinxr/evidence/iwsdk-preinstall-check.ts --proposal docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json",
     );
     expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:preinstall:fixture");
 
@@ -181,7 +181,7 @@ describe("IWSDK preinstall checker", () => {
     try {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
-        ["tools/openclinxr/iwsdk-preinstall-check.ts", "--proposal", proposalPath],
+        ["tools/openclinxr/evidence/iwsdk-preinstall-check.ts", "--proposal", proposalPath],
         { encoding: "utf8", timeout: 15000 },
       );
       throw new Error("Expected IWSDK preinstall checker to reject the proposal");

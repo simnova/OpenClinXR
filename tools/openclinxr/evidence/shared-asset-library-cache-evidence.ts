@@ -6,7 +6,7 @@ import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import {
   buildEncounterAssetGenerationQueueReport,
   type EncounterAssetGenerationQueueReport,
-} from "./encounter-asset-generation-queue.js";
+} from "../factory/encounter-asset-generation-queue.js";
 
 type CliOptions = {
   outputPath?: string;

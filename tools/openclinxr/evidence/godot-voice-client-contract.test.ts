@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const workspaceRoot = process.cwd();
-const appRoot = join(workspaceRoot, "apps/ui-quest-voice-godot");
+const appRoot = join(workspaceRoot, "apps/arena/ui-quest-voice-godot");
 
 function readAppFile(path: string): string {
   return readFileSync(join(appRoot, path), "utf8");
@@ -85,15 +85,16 @@ describe("Godot Quest voice client contract", () => {
     expect(brief).toContain("End-to-end latency on the headset");
   });
 
-  it("documents Godot as a deletable voice sidecar rather than the selected primary XR client", () => {
-    const note = readFileSync(join(workspaceRoot, "godot-usage-temporary-note.md"), "utf8");
+  it("documents Godot as a governed arena sidecar rather than the selected primary XR client", () => {
+    const readme = readAppFile("README.md");
+    const madrIndex = readFileSync(join(workspaceRoot, "docs/madr/README.md"), "utf8");
 
-    expect(note).toContain("temporary, deletable");
-    expect(note).toContain("Godot is not currently selected as the long-term primary OpenClinXR client");
-    expect(note).toContain("The WebXR/IWSDK browser app remains the main XR scenario UI path");
-    expect(note).toContain("Godot does not replace:");
-    expect(note).toContain("apps/ui-xr");
-    expect(note).toContain("apps/api");
-    expect(note).toContain("Production readiness without a follow-up proposal");
+    expect(readme).toContain("source-level Quest/Godot voice client contract");
+    expect(readme).toContain("Production voice should stay behind `@openclinxr/voice-gateway`");
+    expect(readme).toContain("does not prove physical Quest runtime behavior");
+    expect(readme).toContain("Production voice requires a real codec path");
+    expect(madrIndex).toContain("apps/arena/ui-quest-voice-godot");
+    expect(madrIndex).toContain("0017-websocket-first-realtime-transport.md");
+    expect(madrIndex).toContain("0027-quest3-usb-webxr-smoke-gate.md");
   });
 });

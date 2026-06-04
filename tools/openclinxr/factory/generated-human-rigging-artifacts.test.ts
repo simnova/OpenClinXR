@@ -22,16 +22,16 @@ describe("generated human rigging artifacts", () => {
     };
 
     expect(rootPackage.scripts["asset:human-rigging:generate"]).toBe(
-      "tsx tools/openclinxr/generated-human-rigging-artifacts.ts",
+      "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts",
     );
     expect(rootPackage.scripts["asset:human-rigging:validate"]).toBe(
-      "tsx tools/openclinxr/generated-human-rigging-artifacts.ts --validate-latest",
+      "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts --validate-latest",
     );
     expect(rootPackage.scripts["asset:human-rigging:variant-matrix"]).toBe(
-      "tsx tools/openclinxr/generated-human-rigging-variant-matrix.ts",
+      "tsx tools/openclinxr/factory/generated-human-rigging-variant-matrix.ts",
     );
     expect(rootPackage.scripts["asset:human-rigging:variant-matrix:validate"]).toBe(
-      "tsx tools/openclinxr/generated-human-rigging-variant-matrix.ts --validate-latest",
+      "tsx tools/openclinxr/factory/generated-human-rigging-variant-matrix.ts --validate-latest",
     );
   });
 

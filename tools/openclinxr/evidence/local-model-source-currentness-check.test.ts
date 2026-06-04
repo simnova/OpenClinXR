@@ -19,10 +19,10 @@ describe("local model source currentness evidence", () => {
     };
 
     expect(rootPackage.scripts["local:model:source-currentness"]).toBe(
-      "tsx tools/openclinxr/local-model-source-currentness-check.ts",
+      "tsx tools/openclinxr/evidence/local-model-source-currentness-check.ts",
     );
     expect(rootPackage.scripts["local:model:source-currentness:validate"]).toBe(
-      "tsx tools/openclinxr/local-model-source-currentness-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-model-source-currentness-check.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:model:source-currentness:validate");
   });

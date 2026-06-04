@@ -17,10 +17,10 @@ describe("asset production readiness report", () => {
     };
 
     expect(rootPackage.scripts["asset:production:readiness"]).toBe(
-      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts",
+      "tsx tools/openclinxr/evidence/asset-production-readiness-benchmark.ts",
     );
     expect(rootPackage.scripts["asset:production:readiness:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-readiness-benchmark.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/asset-production-readiness-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:readiness:validate");
   });
@@ -449,21 +449,30 @@ describe("asset production readiness report", () => {
     const outputPath = path.join(tempDir, "asset-production-readiness.json");
     const invalidPath = path.join(tempDir, "asset-production-readiness-invalid.json");
     const staleSourcePath = path.join(tempDir, "asset-production-readiness-stale-source.json");
+    const gltfSmokePath = path.join(tempDir, "gltf-pipeline-smoke.json");
+    const blenderSmokePath = path.join(tempDir, "blender-asset-bake-smoke.json");
     const previousExitCode = process.exitCode;
 
     try {
+      await writeFile(gltfSmokePath, `${JSON.stringify(gltfSmoke({ passed: true }), null, 2)}\n`, "utf8");
+      await writeFile(blenderSmokePath, `${JSON.stringify(blenderSmoke({
+        passed: true,
+        sourceLicensePosture: "reviewed_local_clinical_asset_fixture",
+        glbBytes: 109040,
+        semanticInventory: completeClinicalSemanticInventory(),
+      }), null, 2)}\n`, "utf8");
+
       await runAssetProductionReadinessCli([
         "--gltf-smoke",
-        "docs/openclinxr/gltf-pipeline-smoke-2026-05-06.json",
+        gltfSmokePath,
         "--blender-smoke",
-        "docs/openclinxr/blender-asset-bake-smoke-2026-05-06.json",
+        blenderSmokePath,
         "--use-local-asset-evidence-fixture",
         "--output",
         outputPath,
       ]);
 
       await expect(runAssetProductionReadinessCli(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(runAssetProductionReadinessCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const staleSourceReport = JSON.parse(await readFile(outputPath, "utf8"));
       staleSourceReport.input.gltfGeneratedAt = "2026-05-06T00:00:00.000Z";

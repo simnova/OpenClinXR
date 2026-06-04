@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="OpenClinXR is a blueprint-driven encounter factory for Step 2 CS-inspired XR clinical skills exams. Hyper-optimized OpenClaw-style agentic system for token-efficient, long-running, uninterrupted autonomous work on the case-definition-to-runtime pipeline. Current: UI-XR runtime evidence consumer + materialization (peds asthma), all gates false. M1 Max 64GB target; Quest disconnected."
+      content="OpenClinXR is a Step 2 CS-inspired XR clinical skills exam platform built as an evidence-gated encounter factory, with clinical asset commons, capability arenas, and local/offline plus connected Azure deployment modes."
     >
     <meta property="og:title" content="OpenClinXR">
     <meta
       property="og:description"
-      content="Blueprint-driven XR clinical simulation factory. OpenClaw agent-optimized for hyper-efficient long-running development. Evidence-gated, no overclaims. UI-XR runtime evidence consumer pipeline and actor materialization in focus."
+      content="Step 2 CS-inspired XR clinical skills exam platform. Encounter blueprints drive WebXR runtime, actors, assets, review, replay, and evidence gates."
     >
     <meta property="og:type" content="website">
     <title>OpenClinXR</title>
@@ -22,9 +22,10 @@
       <div class="nav-inner">
         <a href="#" class="nav-logo">OpenClinXR</a>
         <div class="nav-links">
-          <a href="#evidence-gates">Evidence Gates</a>
-          <a href="#architecture">Architecture Decisions</a>
-          <a href="#agents">Agent System</a>
+          <a href="#platform">Platform</a>
+          <a href="#evidence-gates">Evidence Docs</a>
+          <a href="#deployment">Deployment</a>
+          <a href="#agents">Build Model</a>
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
@@ -33,19 +34,19 @@
     <main>
       <section class="hero" aria-labelledby="openclinxr-title">
         <div class="hero__copy">
-          <p class="eyebrow">Blueprint-driven encounter factory • Hyper-optimized for agentic work</p>
+          <p class="eyebrow">XR clinical skills exam platform • Evidence-gated encounter factory</p>
           <h1 id="openclinxr-title">OpenClinXR</h1>
           <p class="lede">
-            Step 2 CS-inspired XR clinical skills exam platform as blueprint-driven encounter factory.
-            Hyper-optimized OpenClaw-style repo-native agents (adaptable across hosts) for token-efficient,
-            long-running autonomous work. Current (per snapshots): UI-XR runtime evidence consumer
-            (operator-selectable payloads to guarded attachments + projections) + materialization for
-            peds_asthma_parent_anxiety_v1. All gates false; raw hidden; M1 Max 64GB target.
+            OpenClinXR is a Step 2 CS-inspired XR clinical skills exam platform for building,
+            reviewing, and running timed clinical encounters from blueprint to runtime. It includes an
+            encounter factory, clinical asset commons, capability arenas, and local/offline plus connected
+            Azure deployment modes. OpenClaw is the build operating model behind the platform.
           </p>
           <div class="actions" aria-label="Project links">
-            <a class="button button--primary" href="https://github.com/simnova/OpenClinXR">GitHub Repo</a>
+            <a class="button button--primary" href="#platform">Explore Platform</a>
             <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">Evidence Docs</a>
-            <a class="button" href="AGENTS.md">AGENTS.md (Hyper-Opt + OpenClaw)</a>
+            <a class="button" href="#deployment">View Deployment Modes</a>
+            <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub Repo</a>
           </div>
         </div>
         <div class="hero__panel" aria-label="Current evidence posture">
@@ -53,46 +54,46 @@
             <img src="assets/openclinxr-xr-evidence.png" alt="OpenClinXR XR runtime posture evidence screen">
           </figure>
           <div>
-            <span class="metric">Current Focus</span>
-            <strong>UI-XR Runtime Evidence Consumer Pipeline</strong>
-            <p>Deterministic capture for actor realism/visual-QA/locomotion → preflight/submitPreview → guarded /runtime/visual-evidence-attachments + projections. Raw hidden, gates false. (Worker 9/7/11)</p>
+            <span class="metric">Who it is for</span>
+            <strong>Simulation programs, clinical education teams, and platform builders</strong>
+            <p>Scenario authors define encounters, learners run timed stations, faculty reviews trace/replay evidence, and admins manage review gates.</p>
           </div>
           <div>
-            <span class="metric">Materialization</span>
-            <strong>Actor/Equipment Evidence Attachments</strong>
-            <p>Provider-neutral manifests, 12+24 slot plans, records for specific humanoid/equip. Shared-neutral blockers visible in publication/launch/selection/review. (Worker 11/7)</p>
+            <span class="metric">Current proof boundary</span>
+            <strong>Blueprint-to-runtime evidence gates</strong>
+            <p>Current work is deterministic UI-XR runtime evidence consumer + peds/ED materialization. Gates remain false until committed artifacts prove more.</p>
           </div>
           <div>
-            <span class="metric">Agent System</span>
-            <strong>Hyper-Optimized OpenClaw</strong>
-            <p>Snapshots + Efficiency Quick Refs for low-token rehydrate. Lease for unattended. Token-efficient long-run practices. M1 Max 64GB target. (See AGENTS.md)</p>
+            <span class="metric">Trust boundary</span>
+            <strong>Not an exam-equivalence or clinical-validity claim</strong>
+            <p>Evidence is scoped to the committed artifacts and current runtime gates. OpenClaw keeps the build process disciplined; it is not the product promise.</p>
           </div>
         </div>
       </section>
 
-      <section class="band" aria-labelledby="what-title">
+      <section id="platform" class="band" aria-labelledby="what-title">
         <div class="section-heading">
-          <p class="eyebrow">What it is</p>
-          <h2 id="what-title">A blueprint-driven encounter factory with hyper-optimized agentic execution.</h2>
+          <p class="eyebrow">Platform overview</p>
+          <h2 id="what-title">A production exam platform, encounter factory, asset commons, and capability arena.</h2>
         </div>
         <div class="grid">
           <article>
-            <h3>Blueprint-to-runtime factory</h3>
+            <h3>Encounter Blueprint Factory</h3>
             <p>
               Reviewed encounter specifications (scenarios, actors, dialogue, emotion, traces, rubrics, asset needs)
-              drive generated runtime, publication, launch selection, review packets, and evidence. Case-def (e.g. peds_asthma_parent_anxiety_v1) not one-off scenes.
+              drive generated runtime, publication, launch selection, review packets, persistence, and evidence. Case definitions drive scenes; hand-built one-off rooms do not.
             </p>
           </article>
           <article>
-            <h3>OpenClaw agent system (hyper-optimized)</h3>
+            <h3>Clinical Asset Commons</h3>
             <p>
-              Repo-native for long-running, token-efficient, uninterrupted work across hosts. Snapshots + Efficiency Quick Refs for rehydrate. Lease, drift/alignment guards, focused verif. Persistent agents/** memory. Full iteration loop only for synthesis.
+              Generated or approved assets such as rooms, floors, nurses, equipment, clothing, humanoids, animation clips, and provenance records can be reused across encounters instead of regenerated each time.
             </p>
           </article>
           <article>
-            <h3>Evidence-gated review & persistence</h3>
+            <h3>Capability Arena</h3>
             <p>
-              UI-XR copied performance → consumer preflight/submitPreview → guarded attachments → replay/review projections (Admin/GraphQL/REST). Materialization gates in selection/publication. All claims false until explicit evidence.
+              Candidate technologies such as TTS, speech recognition, humanoid generation, IWSDK sidecars, and provider adapters compete in repeatable cage matches before production promotion.
             </p>
           </article>
         </div>
@@ -101,7 +102,7 @@
       <section id="evidence-gates" class="band band--evidence" aria-labelledby="evidence-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence gates</p>
-          <h2 id="evidence-title">Every capability carries its own proof boundary (current: runtime consumer + materialization).</h2>
+          <h2 id="evidence-title">Every capability carries its own proof boundary.</h2>
         </div>
         <div class="evidence-list">
           <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-generation-pipeline.md">
@@ -124,33 +125,35 @@
       </section>
 
       <!-- Architecture Decisions Section -->
-      <section id="architecture" class="band" aria-labelledby="architecture-title">
+      <section id="deployment" class="band" aria-labelledby="architecture-title">
         <div class="section-heading">
-          <p class="eyebrow">Architecture</p>
-          <h2 id="architecture-title">Decisions + agent system are canonical and hyper-optimized.</h2>
+          <p class="eyebrow">Deployment modes</p>
+          <h2 id="architecture-title">Local/offline first, connected when useful, Azure-ready for the production app surface.</h2>
         </div>
         <p>
-          Key decisions in MADRs. Full agent operating contract, working model (OpenClaw as daily driver for continuous slices), hyper token-efficient/long-run practices (snapshots for rehydrate, lease, focused cmds, scheduler for heartbeats), and coordination state live in root canonical files. Subordinate docs and site align to them.
+          Local/offline mode is the default development and validation path, using deterministic providers and preconfigured assets wherever possible.
+          Connected mode can use approved provider/API adapters behind explicit gates. Azure is a target for API, orchestration, review, and deployment surfaces,
+          while heavy local generation and capability cage matches stay separate until promoted.
         </p>
         <div class="actions" style="margin-top: 24px;">
           <a class="button button--primary" href="https://github.com/simnova/OpenClinXR/tree/main/docs/madr" target="_blank" rel="noopener">
             Browse MADRs (docs/madr)
           </a>
-          <a class="button" href="AGENTS.md">AGENTS.md + Hyper Practices</a>
+          <a class="button" href="AGENTS.md">Build Operating Model</a>
         </div>
         <p class="muted" style="margin-top: 12px; font-size: 0.9rem;">
-          Current: blueprint factory (case-def drives runtime/review/persist/assets). See snapshots in PROJECT/AUTONOMOUS/worker-backlog for active lanes (UI-XR consumer + materialization).
+          Current: blueprint factory (case-def drives runtime/review/persist/assets). See snapshots in PROJECT/AUTONOMOUS/worker-backlog for active lanes.
         </p>
       </section>
 
       <!-- Agent System Section -->
       <section id="agents" class="band band--evidence" aria-labelledby="agents-title">
         <div class="section-heading">
-          <p class="eyebrow">Development approach</p>
-          <h2 id="agents-title">Hyper-optimized OpenClaw-style agentic execution.</h2>
+          <p class="eyebrow">How we build it</p>
+          <h2 id="agents-title">OpenClaw-style agentic execution keeps the product direction from drifting.</h2>
         </div>
         <p>
-          Repo-native OpenClaw (not external daemon) for long-running, token-efficient, uninterrupted autonomous work.
+          Repo-native OpenClaw is the build operating model, not an external daemon and not the product itself. It supports long-running, token-efficient autonomous work.
           Persistent indexed memory in <code>agents/**</code> + <code>.agent-factory/</code>. Snapshots + Efficiency Quick Refs in state files for low-token rehydration. Lease, drift/alignment guards, focused verification. Full iteration loop reserved for plateau/synthesis.
           Live subagents or local role consultation. Always record in canonical state only.
         </p>
@@ -204,11 +207,11 @@
       <section class="band" aria-labelledby="status-title">
         <div class="section-heading">
           <p class="eyebrow">Current posture</p>
-          <h2 id="status-title">Hyper-optimized for agentic long-running work. Deliberately gated. Honest about current focus and blockers.</h2>
+          <h2 id="status-title">Early product and factory tooling, deliberately gated and honest about current proof.</h2>
         </div>
         <p class="status-copy">
-          Early-stage blueprint-driven encounter factory + hyper-optimized OpenClaw agent system (see AGENTS.md + snapshots).
-          Current (per snapshots): UI-XR consumer (operator-selectable to guarded + projections) + materialization for peds_asthma_parent_anxiety_v1. All gates false; raw hidden. M1 Max 64GB target; Quest disconnected. No overclaims. Rehydrate via root state snapshots.
+          Current (per snapshots): UI-XR consumer (operator-selectable to guarded + projections) + materialization for peds_asthma_parent_anxiety_v1 and an ED seed.
+          All gates false; raw hidden; M1 Max 64GB target; Quest evidence requires a disconnected-headset re-run. No overclaims and no exam-equivalence or clinical-validity claim.
         </p>
       </section>
     </main>
@@ -217,12 +220,12 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <p>
-          OpenClinXR • Blueprint-driven encounter factory (OpenClaw hyper-optimized, token-efficient, long-running autonomous)<br>
-          <small>Current (per snapshots): UI-XR consumer + materialization (peds). Gates false. M1 Max target. Rehydrate root snapshots first. See AGENTS.md + protected runbooks.</small>
+          OpenClinXR • Step 2 CS-inspired XR clinical skills exam platform and evidence-gated encounter factory<br>
+          <small>Current (per snapshots): UI-XR consumer + materialization (peds/ED). Gates false. Local-first, connected/Azure-capable. See AGENTS.md for the build operating model.</small>
         </p>
         <div class="footer-links">
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
-          <a href="AGENTS.md">AGENTS + Hyper-Opt</a>
+          <a href="AGENTS.md">Build Operating Model</a>
           <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">Evidence + Snapshots (05-28)</a>
           <a href="https://github.com/simnova/OpenClinXR/issues" target="_blank" rel="noopener">Issues</a>
         </div>

@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-06-04T06:09:47.923Z",
+  "projectPath": "apps/arena/ui-quest-voice-godot",
+  "sourceContract": {
+    "passed": true,
+    "blockers": [],
+    "satisfiedConditions": [
+      "binary_packet_send_source_observed",
+      "forty_eight_khz_sample_rate_declared",
+      "godot_4_project_source_observed",
+      "json_binary_receive_split_source_observed",
+      "mobile_renderer_configured",
+      "opus_codec_lane_declared",
+      "websocket_peer_source_observed"
+    ]
+  },
+  "godotImport": {
+    "attempted": false,
+    "status": "skipped_no_godot_binary",
+    "executable": null,
+    "exitCode": null,
+    "stdout": [],
+    "stderr": [],
+    "blockers": [
+      "godot_import_not_executed"
+    ]
+  },
+  "verdict": {
+    "readyForSourceContractClaim": true,
+    "readyForGodotImportClaim": false,
+    "readyForQuestRuntimeClaim": false,
+    "readyForVoiceRuntimeClaim": false,
+    "blockers": [
+      "godot_import:not_executed",
+      "quest_runtime:not_executed",
+      "voice_runtime:not_executed"
+    ]
+  },
+  "notEvidenceFor": [
+    "physical_quest_voice_runtime",
+    "quest_microphone_capture",
+    "native_opus_encode_decode",
+    "headset_audio_playback",
+    "low_latency_voice_readiness",
+    "clinical_voice_dialog_quality",
+    "production_runtime_readiness"
+  ],
+  "nextSteps": [
+    "Provide a local Godot 4 executable with --godot-binary to run the headless import check.",
+    "Run the sidecar on the physical Quest 3 before claiming microphone, playback, Opus, latency, or production voice readiness."
+  ]
+}

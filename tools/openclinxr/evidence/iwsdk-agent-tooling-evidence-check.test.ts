@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import {
   buildIwsdkAgentToolingEvidenceReport,
   type IwsdkAgentToolingEvidenceReport,
@@ -80,7 +80,7 @@ describe("IWSDK agent-tooling evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:agent-tooling:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-agent-tooling-evidence-check.ts",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-agent-evidence-"));
@@ -90,7 +90,7 @@ describe("IWSDK agent-tooling evidence checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-agent-tooling-evidence-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/iwsdk-agent-tooling-evidence-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwsdkAgentToolingEvidenceReport;

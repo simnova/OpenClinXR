@@ -368,7 +368,7 @@ Manual in-headset run still needs to capture:
 
 ## IWSDK Sidecar Criteria
 
-If `apps/ui-xr-iwsdk-spike` is created later, treat it as a separate sidecar run, not as proof that the production `apps/ui-xr` shell is ready.
+If `apps/arena/ui-xr-iwsdk-spike` is created later, treat it as a separate sidecar run, not as proof that the production `apps/ui-xr` shell is ready.
 
 Additional IWSDK sidecar evidence:
 

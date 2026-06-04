@@ -16,10 +16,10 @@ describe("skin/clothing provenance artifacts", () => {
     };
 
     expect(rootPackage.scripts["asset:skin-clothing:generate"]).toBe(
-      "tsx tools/openclinxr/skin-clothing-provenance-artifacts.ts",
+      "tsx tools/openclinxr/evidence/skin-clothing-provenance-artifacts.ts",
     );
     expect(rootPackage.scripts["asset:skin-clothing:validate"]).toBe(
-      "tsx tools/openclinxr/skin-clothing-provenance-artifacts.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/skin-clothing-provenance-artifacts.ts --validate-latest",
     );
   });
 

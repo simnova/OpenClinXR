@@ -146,7 +146,7 @@ const licenseOverrides: LicenseOverride[] = [
     reason: "Patrick Gidich approved an IWSDK Phase 2 sidecar-only devDependency exception on 2026-05-04 for @img/sharp-libvips-* packages pulled by exact sharp@0.33.5 through @iwsdk/vite-plugin-dev@0.3.1. The same native libvips package family is also pulled by dev-only GLTF Transform CLI/tooling through sharp@0.34.x for local asset processing. The exception is never for production use and must stay scoped to sidecar/dev tooling.",
     evidence: [
       "proposals/approved/proposal-iwsdk-phase2-sharp-libvips-exception.md",
-      "apps/ui-xr-iwsdk-spike/package.json",
+      "apps/arena/ui-xr-iwsdk-spike/package.json",
       "package.json devDependencies @gltf-transform/cli",
     ],
   },
@@ -268,7 +268,7 @@ function isBlockedLicense(license: string): boolean {
 }
 
 async function buildLicensePolicyContext(workspaceRoot: string): Promise<LicensePolicyContext> {
-  const sidecarPackageJson = await readJsonFile(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json"));
+  const sidecarPackageJson = await readJsonFile(path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/package.json"));
   const sidecarDevtoolVersion = sidecarPackageJson?.devDependencies?.["@iwsdk/vite-plugin-dev"];
 
   return {

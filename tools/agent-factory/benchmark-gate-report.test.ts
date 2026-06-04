@@ -643,7 +643,7 @@ function passedApiBunPythonProxyRuntimeSmoke(): Parameters<typeof buildBenchmark
       },
       runtime: {
         apiTarget: "apps/api bun+hono",
-        pythonBackendTarget: "apps/api-python-backend fastapi",
+        pythonBackendTarget: "apps/arena/api-python-backend fastapi",
         websocketPath: "/voice/realtime/ws",
         backendProtocol: "python-fastapi-compatible-websocket",
       },
@@ -1245,7 +1245,7 @@ function binaryOnlyGodotQuestVoiceEvidence(): Parameters<typeof buildBenchmarkGa
           ],
         },
         device: {
-          app: "apps/ui-quest-voice-godot",
+          app: "apps/arena/ui-quest-voice-godot",
           performedOnPhysicalQuest3: true,
           headsetConnectedViaUsbC: true,
           godotVersion: "4.5.1",
@@ -1334,7 +1334,7 @@ function sourceOnlyGodotProjectImportCheck(): Parameters<typeof buildBenchmarkGa
     file: ".agent-factory/godot-project-import-check.json",
     value: {
       generatedAt: "2026-05-06T10:00:00.000Z",
-      projectPath: "apps/ui-quest-voice-godot",
+      projectPath: "apps/arena/ui-quest-voice-godot",
       sourceContract: {
         passed: true,
         blockers: [],
@@ -3580,7 +3580,7 @@ describe("benchmark gate report", () => {
     expect(report.godot_project_import_check).toMatchObject({
       file: ".agent-factory/godot-project-import-check.json",
       generated_at: "2026-05-06T10:00:00.000Z",
-      project_path: "apps/ui-quest-voice-godot",
+      project_path: "apps/arena/ui-quest-voice-godot",
       source_contract: {
         passed: true,
         blockers: [],

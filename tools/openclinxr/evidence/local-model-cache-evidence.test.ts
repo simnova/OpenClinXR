@@ -14,9 +14,9 @@ describe("local reasoning model cache evidence", () => {
       scripts: Record<string, string>;
     };
 
-    expect(rootPackage.scripts["local:model:cache"]).toBe("tsx tools/openclinxr/local-model-cache-evidence.ts");
+    expect(rootPackage.scripts["local:model:cache"]).toBe("tsx tools/openclinxr/evidence/local-model-cache-evidence.ts");
     expect(rootPackage.scripts["local:model:cache:validate"]).toBe(
-      "tsx tools/openclinxr/local-model-cache-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-model-cache-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:model:cache:validate");
   });

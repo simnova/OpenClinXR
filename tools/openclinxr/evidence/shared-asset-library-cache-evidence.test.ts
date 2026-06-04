@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import { buildEncounterAssetGenerationQueueReport } from "../factory/encounter-asset-generation-queue.js";
 import {
   buildSharedAssetLibraryCacheEvidenceReport,
   validateSharedAssetLibraryCacheEvidenceReport,

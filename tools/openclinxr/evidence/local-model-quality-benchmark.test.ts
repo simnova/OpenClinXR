@@ -21,10 +21,10 @@ describe("local model quality benchmark report", () => {
     };
 
     expect(rootPackage.scripts["local:model:quality"]).toBe(
-      "tsx tools/openclinxr/local-model-quality-benchmark.ts",
+      "tsx tools/openclinxr/evidence/local-model-quality-benchmark.ts",
     );
     expect(rootPackage.scripts["local:model:quality:validate"]).toBe(
-      "tsx tools/openclinxr/local-model-quality-benchmark.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-model-quality-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:model:quality:validate");
   });
@@ -336,7 +336,6 @@ describe("local model quality benchmark report", () => {
       await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runLocalModelQualityBenchmarkCli(["--validate", reportPath])).resolves.toBeUndefined();
-      await expect(runLocalModelQualityBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
       delete invalidReport.actorPolicy;

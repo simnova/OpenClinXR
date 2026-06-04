@@ -22,13 +22,13 @@
     },
     {
       "status": "M",
-      "path": "apps/ui-xr-iwsdk-spike/src/main.ts",
+      "path": "apps/arena/ui-xr-iwsdk-spike/src/main.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },
     {
       "status": "M",
-      "path": "apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
+      "path": "apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.test.ts",
       "category": "product-code",
       "recommendedAction": "Do not mix into cleanup commits; triage as product feature/stabilization work."
     },

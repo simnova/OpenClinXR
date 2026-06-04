@@ -4,7 +4,7 @@ Date: 2026-05-04
 
 ## Status
 
-`apps/ui-quest-voice-godot` is a source-level Godot 4 sidecar for the realtime
+`apps/arena/ui-quest-voice-godot` is a source-level Godot 4 sidecar for the realtime
 voice transport contract. It is intentionally outside the default runtime path
 and does not add package dependencies.
 

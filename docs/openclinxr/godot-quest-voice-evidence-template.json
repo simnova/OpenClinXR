@@ -13,7 +13,7 @@
     ]
   },
   "device": {
-    "app": "apps/ui-quest-voice-godot",
+    "app": "apps/arena/ui-quest-voice-godot",
     "performedOnPhysicalQuest3": false,
     "headsetConnectedViaUsbC": false,
     "godotVersion": "",

@@ -58,7 +58,7 @@ describe("IWSDK metadata drift evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:metadata-drift:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-metadata-drift-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-metadata-drift-evidence-check.ts",
     );
 
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-metadata-drift-evidence-"));
@@ -76,7 +76,7 @@ describe("IWSDK metadata drift evidence checker", () => {
     try {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
-        ["tools/openclinxr/iwsdk-metadata-drift-evidence-check.ts", "--input", inputPath],
+        ["tools/openclinxr/evidence/iwsdk-metadata-drift-evidence-check.ts", "--input", inputPath],
         { encoding: "utf8", timeout: 15000 },
       );
       throw new Error("Expected IWSDK metadata drift checker to reject drift evidence");

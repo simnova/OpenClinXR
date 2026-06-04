@@ -5,6 +5,6 @@
     "jsx": "react-jsx",
     "types": ["node", "vitest"]
   },
-  "include": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"],
+  "include": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx", "tools/**/*.ts", "tools/**/*.tsx"],
   "exclude": ["node_modules", "dist", "coverage"]
 }

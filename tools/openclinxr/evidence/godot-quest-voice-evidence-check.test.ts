@@ -134,7 +134,7 @@ describe("Godot Quest voice evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["godot:quest:voice:evidence"]).toBe(
-      "tsx tools/openclinxr/godot-quest-voice-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/godot-quest-voice-evidence-check.ts",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-godot-quest-voice-"));
@@ -144,7 +144,7 @@ describe("Godot Quest voice evidence checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/godot-quest-voice-evidence-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/godot-quest-voice-evidence-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as GodotQuestVoiceEvidenceReport;
@@ -172,7 +172,7 @@ function readyEvidence(): GodotQuestVoiceEvidence {
       ],
     },
     device: {
-      app: "apps/ui-quest-voice-godot",
+      app: "apps/arena/ui-quest-voice-godot",
       performedOnPhysicalQuest3: true,
       headsetConnectedViaUsbC: true,
       godotVersion: "4.4.1",

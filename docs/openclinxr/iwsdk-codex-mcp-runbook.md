@@ -5,11 +5,11 @@ Status: Phase 1 sidecar installed; MCP/devtool phase remains advisory
 
 ## Purpose
 
-This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling now that a committed Phase 1 sidecar exists at `apps/ui-xr-iwsdk-spike` with exact package versions and accepted license posture.
+This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling now that a committed Phase 1 sidecar exists at `apps/arena/ui-xr-iwsdk-spike` with exact package versions and accepted license posture.
 
 This runbook does not install IWSDK, does not modify `.codex/config.toml`, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: `apps/ui-xr-iwsdk-spike` is a runnable sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, `three@0.184.0`, and the approved sidecar-only `@iwsdk/vite-plugin-dev@0.3.1` devDependency. The dev plugin is configured as serve-only with `injectOnBuild: false`; the 2026-05-04 IWER evidence run found no dev-runtime strings in production `dist` output. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
+Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, `three@0.184.0`, and the approved sidecar-only `@iwsdk/vite-plugin-dev@0.3.1` devDependency. The dev plugin is configured as serve-only with `injectOnBuild: false`; the 2026-05-04 IWER evidence run found no dev-runtime strings in production `dist` output. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
 
 Latest IWER managed-browser evidence:
 
@@ -38,7 +38,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 - `pnpm iwsdk:compatibility:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-compatibility-evidence-YYYY-MM-DD.json` records a ready verdict for the exact Vite/Node/Rolldown evidence captured from the sidecar workspace.
 - `pnpm iwsdk:metadata-drift:evidence -- --input path/to/evidence.json --output docs/openclinxr/iwsdk-metadata-drift-evidence-YYYY-MM-DD.json` records a ready verdict for any optional IWSDK package whose docs and npm metadata must be reconciled before use.
 - The `metadataDrift` section in the latest evidence snapshot has no blockers before any `@iwsdk/reference` warmup because Patrick approved an exact `@iwsdk/reference@0.3.2` pin and the 2026-05-06 npm spot-check still reports `0.3.2` as latest. This resolves only the docs/npm version-drift blocker; CLI help, cache location, model/corpus download size, and keep-assets-out-of-git evidence remain required before warmup.
-- `apps/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
+- `apps/arena/ui-xr-iwsdk-spike` exists and is intentionally outside production runtime paths.
 - IWSDK dependencies are exact-versioned in the sidecar app.
 - The sidecar app does not import or depend on `@openclinxr/ui-xr` or `apps/ui-xr/src/**`; parity must flow through explicit contracts, shared packages, or committed evidence snapshots.
 - `@iwsdk/reference`, `@meta-quest/hzdb`, and production adoption of `@iwsdk/vite-plugin-gltf-optimizer` remain outside default unattended verification unless the policy is deliberately changed. Patrick has approved the reference warmup download scope and `hzdb` legal/procurement posture, but both remain sidecar-gated.
@@ -46,13 +46,13 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 
 ## Codex MCP Template
 
-`packages/openclinxr/iwsdk-spike` exposes `buildIwsdkCodexMcpAdapterTemplate()` as the source of truth for the local adapter template.
+`packages/openclinxr/arena/iwsdk-spike` exposes `buildIwsdkCodexMcpAdapterTemplate()` as the source of truth for the local adapter template.
 
 The package-level runbook still records `adapterSyncCommand = "iwsdk adapter sync"` as the upstream/advisory adapter action. The installed `@iwsdk/vite-plugin-dev@0.3.1` package exposes the `iwsdk-dev-mcp` bin, and the committed template therefore uses the same package-managed command that produced `docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json`. Keep any local Codex MCP config reversible, and do not mark `adapterSyncRecorded` true until an actual adapter-sync action or equivalent local config mutation is captured with rollback evidence.
 
 ## Future Vite AI Config
 
-`packages/openclinxr/iwsdk-spike` also exposes `buildIwsdkViteAiDevConfigContract()` as the source of truth for the future sidecar's Vite dev-plugin posture. This remains advisory until phase 2, after the install-backed sidecar exists and the phase 1 runtime shell metrics pass.
+`packages/openclinxr/arena/iwsdk-spike` also exposes `buildIwsdkViteAiDevConfigContract()` as the source of truth for the future sidecar's Vite dev-plugin posture. This remains advisory until phase 2, after the install-backed sidecar exists and the phase 1 runtime shell metrics pass.
 
 Required future options:
 
@@ -63,7 +63,7 @@ Required future options:
 
 The config contract requires evidence that the Vite config uses `iwsdkDev`, that Codex MCP config generation is explicitly enabled, that unattended runs use agent mode, that the Quest 3 emulator is selected, that screenshot size is bounded, that adapter sync generates Codex config, and that runtime status records browser command readiness.
 
-Do not add this plugin to the committed workspace until `apps/ui-xr-iwsdk-spike` exists with exact IWSDK versions, the phase 1 runtime shell metrics pass, the install scope is accepted, and transitive license posture is accepted.
+Do not add this plugin to the committed workspace until `apps/arena/ui-xr-iwsdk-spike` exists with exact IWSDK versions, the phase 1 runtime shell metrics pass, the install scope is accepted, and transitive license posture is accepted.
 
 Target:
 
@@ -83,7 +83,7 @@ Keep this adapter local and reversible. Do not commit `.codex/config.toml` chang
 
 ## Verification Order
 
-`packages/openclinxr/iwsdk-spike` exposes `buildIwsdkVerificationToolSelectionContract()` as the source of truth for which verification tool can support which XR claim.
+`packages/openclinxr/arena/iwsdk-spike` exposes `buildIwsdkVerificationToolSelectionContract()` as the source of truth for which verification tool can support which XR claim.
 
 Use the tool ladder this way:
 
@@ -121,7 +121,7 @@ Evidence to record:
 - 32-tool inventory with exact observed tool names and session, transforms, input mode, select/trigger, gamepad, device state, browser, scene, and ECS category coverage before claiming IWSDK agent-tooling readiness.
 - Adversarial visual QA notes for each screenshot/video artifact, including clinical scene fidelity, actor/equipment realism, UI readability, interaction affordances, occlusion, scale, and explicit evidence limits.
 
-`packages/openclinxr/iwsdk-spike` exposes `evaluateIwsdkAgentToolingEvidence()` as the aggregate readiness check for this section. Treat IWSDK agent-tooling readiness as blocked unless that evaluator accepts adapter sync evidence, the 32-tool inventory, observed tool names matching `buildIwsdkMcpToolInventory().allToolNames`, all required MCP categories, the minimal MCP smoke subset, managed-browser evidence, and the optional MCP server action list.
+`packages/openclinxr/arena/iwsdk-spike` exposes `evaluateIwsdkAgentToolingEvidence()` as the aggregate readiness check for this section. Treat IWSDK agent-tooling readiness as blocked unless that evaluator accepts adapter sync evidence, the 32-tool inventory, observed tool names matching `buildIwsdkMcpToolInventory().allToolNames`, all required MCP categories, the minimal MCP smoke subset, managed-browser evidence, and the optional MCP server action list.
 
 Score a future captured aggregate MCP evidence JSON file with:
 
@@ -171,7 +171,7 @@ Score a future committed sidecar metrics JSON file with:
 pnpm iwsdk:sidecar:metrics -- --input path/to/iwsdk-sidecar-metrics.json --output docs/openclinxr/iwsdk-sidecar-metrics-YYYY-MM-DD.json
 ```
 
-This checker uses the same budgets as `packages/openclinxr/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest preflight readiness, foreground Quest FPS, p95 frame time, and controller-select latency.
+This checker uses the same budgets as `packages/openclinxr/arena/iwsdk-spike`: installed footprint, injected dev runtime, app bundle, bundle delta, console errors, foreground Quest preflight readiness, foreground Quest FPS, p95 frame time, and controller-select latency.
 
 Before creating or running any committed sidecar, scan the workspace posture with:
 
@@ -185,13 +185,13 @@ When the operator has approved the install-backed sidecar scope, rerun it as:
 pnpm iwsdk:workspace:posture -- --approved-sidecar
 ```
 
-The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/ui-xr-iwsdk-spike/`, including from the advisory `packages/openclinxr/iwsdk-spike/` policy package; if the sidecar imports or depends on production `apps/ui-xr` internals instead of parity contracts; if a package tries to reach IWSDK through an `npm:@iwsdk/...` alias specifier; if root package-manager controls or `pnpm-workspace.yaml` catalogs reference IWSDK packages; if package scripts attempt blocked actions such as `iwsdk reference warmup`, `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`, `@iwsdk/create`, or `pnpm create @iwsdk`; if IWSDK packages remain in quoted or unquoted lockfile keys after the sidecar app is absent; if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile; if the sidecar manifest and `pnpm-lock.yaml` importer are out of sync; if approved exact first-slice sidecar IWSDK dependencies are missing from the lockfile importer; if the sidecar exists without explicit approval; or if required audit/license/Three override controls are missing once the sidecar is approved. Placeholder controls such as `echo pnpm audit` or `true` do not satisfy the audit/license checks.
+The checker exits nonzero if IWSDK dependencies or imports leak outside `apps/arena/ui-xr-iwsdk-spike/`, including from the advisory `packages/openclinxr/arena/iwsdk-spike/` policy package; if the sidecar imports or depends on production `apps/ui-xr` internals instead of parity contracts; if a package tries to reach IWSDK through an `npm:@iwsdk/...` alias specifier; if root package-manager controls or `pnpm-workspace.yaml` catalogs reference IWSDK packages; if package scripts attempt blocked actions such as `iwsdk reference warmup`, `pnpm dlx @iwsdk/reference@0.3.2 iwsdk-reference warmup`, `@iwsdk/create`, or `pnpm create @iwsdk`; if IWSDK packages remain in quoted or unquoted lockfile keys after the sidecar app is absent; if blocked packages or sharp/libvips-style blocked transitive packages appear in the lockfile; if the sidecar manifest and `pnpm-lock.yaml` importer are out of sync; if approved exact first-slice sidecar IWSDK dependencies are missing from the lockfile importer; if the sidecar exists without explicit approval; or if required audit/license/Three override controls are missing once the sidecar is approved. Placeholder controls such as `echo pnpm audit` or `true` do not satisfy the audit/license checks.
 
-`packages/openclinxr/iwsdk-spike` also exposes `buildIwsdkOperatorSteeringBlockers()` and `buildIwsdkOperatorApprovalContract()`. `tools/openclinxr/iwsdk-operator-steering-blockers.test.ts` keeps true human-approval blockers mirrored in `operator-steering-needed-questions.md`, currently install-backed sidecar approval and physical Quest foreground frame pacing. The approval contract records Patrick's 2026-05-04 approval for reference warmup scope and `@meta-quest/hzdb` legal/procurement posture, while keeping the exact PNPM warmup path, cache/download evidence, and `hzdb` runtime behavior sidecar-gated.
+`packages/openclinxr/arena/iwsdk-spike` also exposes `buildIwsdkOperatorSteeringBlockers()` and `buildIwsdkOperatorApprovalContract()`. `tools/openclinxr/iwsdk-operator-steering-blockers.test.ts` keeps true human-approval blockers mirrored in `operator-steering-needed-questions.md`, currently install-backed sidecar approval and physical Quest foreground frame pacing. The approval contract records Patrick's 2026-05-04 approval for reference warmup scope and `@meta-quest/hzdb` legal/procurement posture, while keeping the exact PNPM warmup path, cache/download evidence, and `hzdb` runtime behavior sidecar-gated.
 
 ## Managed Browser Evidence Contract
 
-`packages/openclinxr/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.
+`packages/openclinxr/arena/iwsdk-spike` exposes `buildIwsdkManagedBrowserEvidenceContract()` and `evaluateIwsdkManagedBrowserEvidence()` so browser-mode claims are scored separately from generic MCP readiness.
 
 Score a captured evidence JSON file with:
 

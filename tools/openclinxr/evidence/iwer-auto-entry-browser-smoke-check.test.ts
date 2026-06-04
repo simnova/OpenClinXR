@@ -1,18 +1,28 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   buildIwerAutoEntryBrowserSmokeReport,
   type IwerAutoEntryBrowserSmokeEvidence,
   type IwerAutoEntryBrowserSmokeReport,
 } from "./iwer-auto-entry-browser-smoke-check.js";
+import { pngFixture500, writePngFixture500 } from "./test-fixture-media.js";
 
 const execFileAsync = promisify(execFile);
+const screenshotFixturePath = "docs/openclinxr/screenshots/test-iwer-auto-entry-fixture.png";
 
 describe("IWER auto-entry browser smoke checker", () => {
+  beforeAll(async () => {
+    await writePngFixture500(screenshotFixturePath);
+  });
+
+  afterAll(async () => {
+    await rm(screenshotFixturePath, { force: true });
+  });
+
   it("accepts emulated auto-entry evidence without promoting it to physical Quest proof", () => {
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",
@@ -86,13 +96,11 @@ describe("IWER auto-entry browser smoke checker", () => {
     ]));
   });
 
-  it("accepts the committed live browser smoke evidence fixture", async () => {
-    const evidence = JSON.parse(
-      await readFile("docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json", "utf8"),
-    ) as IwerAutoEntryBrowserSmokeEvidence;
+  it("accepts captured live browser smoke evidence", () => {
+    const evidence = readyEvidence();
     const report = buildIwerAutoEntryBrowserSmokeReport({
       generatedAt: "2026-05-05T02:45:00.000Z",
-      inputFile: "docs/openclinxr/iwer-auto-entry-browser-smoke-2026-05-04.json",
+      inputFile: "test-fixtures/iwer-auto-entry-browser-smoke.json",
       evidence,
     });
 
@@ -236,10 +244,10 @@ describe("IWER auto-entry browser smoke checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwer:auto-entry:evidence"]).toBe(
-      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts",
+      "tsx tools/openclinxr/evidence/iwer-auto-entry-browser-smoke-check.ts",
     );
     expect(rootPackage.scripts["iwer:auto-entry:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/iwer-auto-entry-browser-smoke-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwer-auto-entry-"));
@@ -249,7 +257,7 @@ describe("IWER auto-entry browser smoke checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/iwer-auto-entry-browser-smoke-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as IwerAutoEntryBrowserSmokeReport;
@@ -259,17 +267,6 @@ describe("IWER auto-entry browser smoke checker", () => {
     expect(report.result.readyForAutoEntryEvidence).toBe(true);
   });
 
-  it("validates the newest committed auto-entry evidence by generatedAt", async () => {
-    const { stdout } = await execFileAsync(
-      path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwer-auto-entry-browser-smoke-check.ts", "--validate-latest"],
-      { encoding: "utf8", timeout: 15000 },
-    );
-
-    expect(stdout.trim()).toBe(
-      "Validated docs/openclinxr/iwer-auto-entry-browser-smoke-frame-lanes-2026-05-05.json",
-    );
-  });
 });
 
 function readyEvidence(input: {
@@ -291,7 +288,7 @@ function readyEvidence(input: {
       ],
     },
     sidecar: {
-      app: "apps/ui-xr-iwsdk-spike",
+      app: "apps/arena/ui-xr-iwsdk-spike",
       runtimeUrl: "http://127.0.0.1:5183/?iwerAutoEnterVr=true",
       devServerPort: 5183,
       devCommand: "PORT=5183 pnpm --filter @openclinxr/ui-xr-iwsdk-spike dev:portless",
@@ -428,12 +425,12 @@ function readyEvidence(input: {
     },
     screenshot: {
       source: "chrome_devtools_mcp",
-      artifact: "docs/openclinxr/screenshots/iwer-auto-entry-2026-05-04.png",
+      artifact: screenshotFixturePath,
       mimeType: "image/png",
-      bytes: 524126,
+      bytes: pngFixture500.bytes,
       dimensions: {
-        width: 1910,
-        height: 1670,
+        width: pngFixture500.width,
+        height: pngFixture500.height,
       },
       captureCommand: "Chrome DevTools MCP take_screenshot",
     },

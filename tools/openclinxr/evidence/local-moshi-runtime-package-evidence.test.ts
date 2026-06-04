@@ -15,10 +15,10 @@ describe("local Moshi runtime package evidence", () => {
     };
 
     expect(rootPackage.scripts["local:voice:moshi-package"]).toBe(
-      "tsx tools/openclinxr/local-moshi-runtime-package-evidence.ts",
+      "tsx tools/openclinxr/evidence/local-moshi-runtime-package-evidence.ts",
     );
     expect(rootPackage.scripts["local:voice:moshi-package:validate"]).toBe(
-      "tsx tools/openclinxr/local-moshi-runtime-package-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-moshi-runtime-package-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:moshi-package:validate");
   });
@@ -252,7 +252,6 @@ describe("local Moshi runtime package evidence", () => {
       await writeFile(output, JSON.stringify(report, null, 2));
 
       await expect(main(["--validate", output])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as unknown as {
         runtime: { sourceRecordIds: string[] };

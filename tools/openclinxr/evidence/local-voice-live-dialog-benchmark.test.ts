@@ -17,10 +17,10 @@ describe("local voice live-dialog benchmark report", () => {
     };
 
     expect(rootPackage.scripts["local:voice:live-dialog"]).toBe(
-      "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts",
+      "tsx tools/openclinxr/evidence/local-voice-live-dialog-benchmark.ts",
     );
     expect(rootPackage.scripts["local:voice:live-dialog:validate"]).toBe(
-      "tsx tools/openclinxr/local-voice-live-dialog-benchmark.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-voice-live-dialog-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:live-dialog:validate");
   });
@@ -489,7 +489,6 @@ describe("local voice live-dialog benchmark report", () => {
       await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
       await expect(runLocalVoiceLiveDialogBenchmarkCli(["--validate", outputPath])).resolves.toBeUndefined();
-      await expect(runLocalVoiceLiveDialogBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalidReport = structuredClone(report) as unknown as Record<string, unknown>;
       delete invalidReport.runtimeStream;

@@ -41,7 +41,7 @@ describe("IWSDK managed browser evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:browser:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-managed-browser-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-managed-browser-evidence-check.ts",
     );
 
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-browser-evidence-"));
@@ -64,7 +64,7 @@ describe("IWSDK managed browser evidence checker", () => {
     try {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
-        ["tools/openclinxr/iwsdk-managed-browser-evidence-check.ts", "--input", inputPath],
+        ["tools/openclinxr/evidence/iwsdk-managed-browser-evidence-check.ts", "--input", inputPath],
         { encoding: "utf8", timeout: 15000 },
       );
       throw new Error("Expected IWSDK browser evidence checker to reject incomplete evidence");

@@ -27,7 +27,7 @@ describe("local provider benchmark CLI", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/local-provider-benchmark.ts", "--env-file", envFile],
+      ["tools/openclinxr/evidence/local-provider-benchmark.ts", "--env-file", envFile],
       {
         encoding: "utf8",
         timeout: 15000,

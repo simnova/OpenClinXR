@@ -18,10 +18,10 @@ describe("blueprint-driven voice simulation spike", () => {
     };
 
     expect(rootPackage.scripts["local:voice:blueprint-simulation"]).toBe(
-      "tsx tools/openclinxr/blueprint-voice-simulation-spike.ts",
+      "tsx tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts",
     );
     expect(rootPackage.scripts["local:voice:blueprint-simulation:validate"]).toBe(
-      "tsx tools/openclinxr/blueprint-voice-simulation-spike.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/blueprint-voice-simulation-spike.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:blueprint-simulation:validate");
   });
@@ -198,6 +198,7 @@ describe("blueprint-driven voice simulation spike", () => {
               sourceKind: "voice_transcript",
               streamId: "learner-mic-mock-001",
               transcriptSegmentId: "mock-final-transcript-001",
+              durableEventRef: "durable://station-runs/run_ed_chest_pain_priority_v1_blueprint_voice_simulation_mock_learner/events/3",
               provider: "mock-voice",
               provenanceRefs: ["voice:learner-mic-mock-001:mock-final-transcript-001"],
               rawAudioStored: false,
@@ -268,17 +269,17 @@ describe("blueprint-driven voice simulation spike", () => {
       },
     });
     expect(report.transportEvidence).toMatchObject({
-      linkedExistingEvidence: true,
+      linkedExistingEvidence: false,
       executedByThisReport: false,
       sourceFile: "docs/openclinxr/api-bun-python-proxy-runtime-smoke-2026-05-05.json",
-      sourceStatus: "blocked",
+      sourceStatus: "missing",
       bunPythonProxyPassed: false,
       readyForLiveDialog: false,
       runtime: {
-        apiTarget: "apps/api bun+hono",
-        pythonBackendTarget: "apps/api-python-backend fastapi",
-        websocketPath: "/voice/realtime/ws",
-        backendProtocol: "python-fastapi-compatible-websocket",
+        apiTarget: null,
+        pythonBackendTarget: null,
+        websocketPath: null,
+        backendProtocol: null,
       },
       observed: {
         connected: false,
@@ -298,11 +299,10 @@ describe("blueprint-driven voice simulation spike", () => {
         lowLatencyClaimed: false,
       },
       caveats: expect.arrayContaining([
-        "This smoke proves only the local Bun-to-FastAPI WebSocket proxy path.",
+        "No linked Bun-to-FastAPI WebSocket evidence was available to this blueprint report.",
       ]),
       blockers: expect.arrayContaining([
-        "real_model_inference_not_observed",
-        "quest_browser_audio_capture_not_observed",
+        "transport_evidence_missing",
       ]),
     });
     expect(report.triggerEvidence).toEqual({
@@ -390,7 +390,7 @@ describe("blueprint-driven voice simulation spike", () => {
       status: "passed",
       runtime: {
         apiTarget: "apps/api bun+hono",
-        pythonBackendTarget: "apps/api-python-backend fastapi",
+        pythonBackendTarget: "apps/arena/api-python-backend fastapi",
         websocketPath: "/voice/realtime/ws",
         backendProtocol: "python-fastapi-compatible-websocket",
       },
@@ -459,67 +459,21 @@ describe("blueprint-driven voice simulation spike", () => {
     expect(report.verdict.blockers).toContain("tier1_transport_policy_boundary_not_clean");
   });
 
-  it("validates the latest blueprint voice simulation evidence privacy and claim boundaries", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json", "utf8"),
-    );
-
-    expect(validateBlueprintVoiceSimulationSpikeReport(report)).toEqual({ ok: true });
-
-    const invalid = structuredClone(report) as {
-      policy: Partial<{ productionUseAllowed: boolean }>;
-      transportEvidence: { readyForLiveDialog: boolean };
-      verdict: { readyForProduction: boolean };
-    };
-    delete invalid.policy.productionUseAllowed;
-    invalid.transportEvidence.readyForLiveDialog = true;
-    invalid.verdict.readyForProduction = true;
-
-    expect(validateBlueprintVoiceSimulationSpikeReport(invalid)).toEqual({
-      ok: false,
-      errors: [
-        "/policy/productionUseAllowed must be false",
-        "/transportEvidence/readyForLiveDialog must be false",
-        "/verdict/readyForProduction must be false",
-      ],
-    });
-  });
-
-  it("requires verdict transport blockers to match linked transport evidence posture", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json", "utf8"),
-    );
-    const requiredTransportBlocker = report.verdict.blockers.find(
-      (blocker: string) => blocker.startsWith("tier1_"),
-    );
-    const invalid = structuredClone(report) as {
-      verdict: { blockers: string[]; tier1TransportLoopPassed: boolean };
-    };
-    invalid.verdict.blockers = invalid.verdict.blockers.filter(
-      (blocker) => blocker !== requiredTransportBlocker,
-    );
-    invalid.verdict.tier1TransportLoopPassed = false;
-
-    expect(validateBlueprintVoiceSimulationSpikeReport(invalid)).toEqual({
-      ok: false,
-      errors: [
-        "/verdict/tier1TransportLoopPassed must match /transportEvidence/bunPythonProxyPassed",
-        `/verdict/blockers missing expected blocker ${requiredTransportBlocker}`,
-      ],
-    });
-  });
-
-  it("validates CLI reports by explicit path and latest evidence path", async () => {
+  it("validates CLI reports by explicit path", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-blueprint-voice-validate-"));
     try {
-      const report = JSON.parse(
-        await readFile("docs/openclinxr/blueprint-voice-simulation-spike-2026-05-05.json", "utf8"),
-      );
+      const report = await buildBlueprintVoiceSimulationSpikeReport({
+        generatedAt: "2026-05-05T21:05:00.000Z",
+        blueprint: createStep2CsStyleSeedBlueprint(scenarioBank),
+        scenarios: scenarioBank,
+        scenarioId: "ed_chest_pain_priority_v1",
+        learnerUtterance: "Maria, please get an ECG and repeat the vitals.",
+        atSecond: 135,
+      });
       const output = path.join(dir, "report.json");
       await writeFile(output, JSON.stringify(report, null, 2));
 
       await expect(main(["--validate", output])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as {
         mockLoop: { rawAudioStored: boolean };

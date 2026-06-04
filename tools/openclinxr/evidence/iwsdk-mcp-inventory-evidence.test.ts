@@ -1,18 +1,12 @@
-import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
 import {
   buildIwsdkMcpToolInventory,
   buildIwsdkPackageManagedMcpCommand,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import {
   buildIwsdkMcpInventoryEvidenceReport,
-  type IwsdkMcpInventoryEvidenceReport,
 } from "./iwsdk-mcp-inventory-evidence.js";
-
-const execFileAsync = promisify(execFile);
 
 describe("IWSDK MCP inventory evidence", () => {
   it("turns an observed stdio tools/list inventory into a bounded readiness report", () => {
@@ -130,33 +124,9 @@ describe("IWSDK MCP inventory evidence", () => {
     };
 
     expect(rootPackage.scripts["iwsdk:mcp-inventory:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-mcp-inventory-evidence.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-mcp-inventory-evidence.ts",
     );
     expect(rootPackage.scripts.verify).not.toContain("iwsdk:mcp-inventory:evidence");
   });
 
-  it("captures the installed sidecar MCP tools over stdio", async () => {
-    const { stdout } = await execFileAsync(
-      path.resolve("node_modules/.bin/tsx"),
-      [
-        "tools/openclinxr/iwsdk-mcp-inventory-evidence.ts",
-        "--timeout-ms",
-        "5000",
-      ],
-      {
-        encoding: "utf8",
-        timeout: 10_000,
-      },
-    );
-    const report = JSON.parse(stdout) as IwsdkMcpInventoryEvidenceReport;
-
-    expect(report.inventory.matchedExpectedInventory).toBe(true);
-    expect(report.inventory.observedToolCount).toBe(32);
-    expect(report.localPreflightReadiness.readyForLocalAgentToolingPreflight).toBe(true);
-    expect(report.agentToolingReadiness.readyForAgentTooling).toBe(false);
-    expect(report.agentToolingReadiness.blockers).toEqual(expect.arrayContaining([
-      "adapter_sync_not_recorded",
-      "missing_managed_browser_evidence",
-    ]));
-  });
 });

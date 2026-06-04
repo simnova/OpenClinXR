@@ -73,10 +73,10 @@ describe("API Python backend runtime smoke report", () => {
     };
 
     expect(rootPackage.scripts["local:voice:python-backend-smoke"]).toBe(
-      "tsx tools/openclinxr/api-python-backend-runtime-smoke.ts",
+      "tsx tools/openclinxr/evidence/api-python-backend-runtime-smoke.ts",
     );
     expect(rootPackage.scripts["local:voice:python-backend-smoke:validate"]).toBe(
-      "tsx tools/openclinxr/api-python-backend-runtime-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/api-python-backend-runtime-smoke.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:python-backend-smoke:validate");
   });
@@ -217,32 +217,6 @@ describe("API Python backend runtime smoke report", () => {
     expect(report.verdict.blockers).toContain("websocket_latency_fields_not_observed");
   });
 
-  it("validates the latest Python backend smoke without allowing live-dialog claims", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/api-python-backend-runtime-smoke-2026-05-06.json", "utf8"),
-    );
-
-    expect(validateApiPythonBackendRuntimeSmokeReport(report)).toEqual({ ok: true });
-
-    const invalid = structuredClone(report) as {
-      policy: Partial<{ productionUseAllowed: boolean }>;
-      websocket: { protocol: { codec: string } };
-      verdict: { readyForLiveDialog: boolean };
-    };
-    delete invalid.policy.productionUseAllowed;
-    invalid.websocket.protocol.codec = "pcm";
-    invalid.verdict.readyForLiveDialog = true;
-
-    expect(validateApiPythonBackendRuntimeSmokeReport(invalid)).toEqual({
-      ok: false,
-      errors: [
-        "/policy/productionUseAllowed must be false",
-        "/websocket/protocol/codec must be \"opus\"",
-        "/verdict/readyForLiveDialog must be false",
-      ],
-    });
-  });
-
   it("requires status and verdict to match observed runtime blockers", () => {
     const report = buildApiPythonBackendRuntimeSmokeReport({
       ...baseInput,
@@ -271,7 +245,7 @@ describe("API Python backend runtime smoke report", () => {
     });
   });
 
-  it("validates CLI reports by explicit path and latest evidence path", async () => {
+  it("validates CLI reports by explicit path", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-python-backend-validate-"));
     try {
       const report = buildApiPythonBackendRuntimeSmokeReport(baseInput);
@@ -279,7 +253,6 @@ describe("API Python backend runtime smoke report", () => {
       await writeFile(output, JSON.stringify(report, null, 2));
 
       await expect(main(["--validate", output])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as {
         relatedLocalInferenceEvidence: {

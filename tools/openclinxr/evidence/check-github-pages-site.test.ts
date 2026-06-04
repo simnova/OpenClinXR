@@ -10,13 +10,13 @@ describe("GitHub Pages static site", () => {
     };
 
     expect(rootPackage.scripts["pages:validate"]).toBe(
-      "tsx tools/openclinxr/check-github-pages-site.ts",
+      "tsx tools/openclinxr/evidence/check-github-pages-site.ts",
     );
     expect(rootPackage.scripts["pages:sync-evidence-links"]).toBe(
-      "tsx tools/openclinxr/sync-github-pages-evidence-links.ts",
+      "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts",
     );
     expect(rootPackage.scripts["pages:sync-validate"]).toBe(
-      "tsx tools/openclinxr/sync-github-pages-evidence-links.ts --check && pnpm pages:validate",
+      "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts --check && pnpm pages:validate",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm pages:validate");
   });
@@ -99,15 +99,15 @@ describe("GitHub Pages static site", () => {
     }
 
     const staleIndex = index.replace(
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
     );
     try {
       await writeFile(indexPath, staleIndex, "utf8");
       const staleResult = await validateGitHubPagesSite();
       expect(staleResult.passed).toBe(false);
       expect(staleResult.blockers).toContain(
-        "pages_index_snapshot_not_latest:asset-production-readiness-benchmark:found:asset-production-readiness-benchmark-2026-05-05.json:expected:asset-production-readiness-benchmark-2026-05-06.json",
+        "pages_index_snapshot_not_latest:asset-production-readiness-benchmark:found:asset-production-readiness-benchmark-2026-05-21.json:expected:asset-production-readiness-benchmark-2026-05-28.json",
       );
     } finally {
       await writeFile(indexPath, index, "utf8");

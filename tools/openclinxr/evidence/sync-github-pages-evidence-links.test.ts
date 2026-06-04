@@ -8,8 +8,8 @@ describe("GitHub Pages snapshot link syncing", () => {
     const tempIndexPath = `docs/index.${randomUUID()}.html`;
     const originalIndex = await readFile("docs/index.html", "utf8");
     const staleIndex = originalIndex.replace(
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
     );
 
     try {
@@ -20,20 +20,20 @@ describe("GitHub Pages snapshot link syncing", () => {
       expect(result.updates).toEqual([
         {
           key: "asset-production-readiness-benchmark",
-          previousFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json",
-          nextFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+          previousFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json",
+          nextFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json",
         },
       ]);
 
       const updatedIndex = await readFile(tempIndexPath, "utf8");
       expect(
         updatedIndex.includes(
-          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
+          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json"',
         ),
       ).toBe(true);
       expect(
         updatedIndex.includes(
-          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
         ),
       ).toBe(false);
     } finally {
@@ -66,8 +66,8 @@ describe("GitHub Pages snapshot link syncing", () => {
   it("supports check-mode updates without writing when write is disabled", async () => {
     const tempIndexPath = `docs/index.${randomUUID()}.html`;
     const staleIndex = (await readFile("docs/index.html", "utf8")).replace(
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
+      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
     );
 
     try {
@@ -78,20 +78,20 @@ describe("GitHub Pages snapshot link syncing", () => {
       expect(result.updates).toEqual([
         {
           key: "asset-production-readiness-benchmark",
-          previousFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json",
-          nextFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json",
+          previousFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json",
+          nextFile: "docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json",
         },
       ]);
 
       const rewrittenIndex = await readFile(tempIndexPath, "utf8");
       expect(
         rewrittenIndex.includes(
-          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-06.json"',
+          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-27.json"',
         ),
       ).toBe(false);
       expect(
         rewrittenIndex.includes(
-          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-05.json"',
+          'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-production-readiness-benchmark-2026-05-21.json"',
         ),
       ).toBe(true);
     } finally {

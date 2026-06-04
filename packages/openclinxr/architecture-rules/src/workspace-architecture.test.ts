@@ -43,6 +43,33 @@ const apiConcretePersistenceDependencies = [
   "@openclinxr/data-mongodb",
   "@openclinxr/data-sources-mongoose-models",
 ] as const;
+const productionAppRoots = ["apps/api/", "apps/ui-admin/", "apps/ui-xr/"] as const;
+const capabilityArenaAppRoots = [
+  "apps/arena/api-python-backend/",
+  "apps/arena/mock-realtime-voice-server/",
+  "apps/arena/ui-quest-voice-godot/",
+  "apps/arena/ui-xr-iwsdk-spike/",
+] as const;
+const packageBackedCapabilityArenaAppRoots = [
+  "apps/arena/api-python-backend/",
+  "apps/arena/mock-realtime-voice-server/",
+  "apps/arena/ui-xr-iwsdk-spike/",
+] as const;
+const capabilityArenaPackageRoots = [
+  "packages/openclinxr/arena/iwsdk-spike/",
+  "packages/openclinxr/arena/multi-actor-state-spike/",
+] as const;
+const capabilityArenaPackages = [
+  "@openclinxr/iwsdk-spike",
+  "@openclinxr/multi-actor-state-spike",
+] as const;
+const nonProductionSupportPackages = [
+  "@openclinxr/test-harness",
+] as const;
+const forbiddenProductionAppDependencies = [
+  ...capabilityArenaPackages,
+  ...nonProductionSupportPackages,
+] as const;
 
 type DependencyField = typeof dependencyFields[number];
 
@@ -98,15 +125,37 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["packages:typecheck:affected"]).toContain("turbo run typecheck --affected");
     expect(rootPackage.scripts?.["packages:test:affected"]).toContain("turbo run test --affected");
     expect(rootPackage.scripts?.["packages:build:affected"]).toContain("turbo run build --affected");
+    expect(rootPackage.scripts?.["architecture"]).toContain("turbo run architecture");
+    expect(rootPackage.scripts?.["architecture"]).toContain("--filter '@openclinxr/architecture-rules'");
     for (const scriptName of packageScriptNames) {
       expect(rootPackage.scripts?.[scriptName]).toContain("TURBO_TELEMETRY_DISABLED=1");
       expect(rootPackage.scripts?.[scriptName]).toContain("DO_NOT_TRACK=1");
       expect(rootPackage.scripts?.[scriptName]).not.toMatch(/\bturbo\s+(?!run\b)(?:build|test|typecheck|dev)\b/);
     }
-    expect(rootPackage.scripts?.typecheck).toContain("pnpm packages:typecheck");
-    expect(rootPackage.scripts?.test).toContain("pnpm packages:test");
-    expect(rootPackage.scripts?.typecheck).not.toContain("pnpm -r");
-    expect(rootPackage.scripts?.test).not.toContain("pnpm -r");
+    expect(rootPackage.scripts?.["architecture"]).toContain("TURBO_TELEMETRY_DISABLED=1");
+    expect(rootPackage.scripts?.["architecture"]).toContain("DO_NOT_TRACK=1");
+    expect(rootPackage.scripts?.["architecture"]).not.toMatch(/\bturbo\s+(?!run\b)architecture\b/);
+    expect(rootPackage.scripts?.["typecheck"]).toContain("pnpm packages:typecheck");
+    expect(rootPackage.scripts?.["test"]).toContain("pnpm packages:test");
+    expect(rootPackage.scripts?.["typecheck"]).not.toContain("pnpm -r");
+    expect(rootPackage.scripts?.["test"]).not.toContain("pnpm -r");
+  });
+
+  it("keeps Git hooks routed through the agent-friendly OpenClaw hook runner", () => {
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    const preCommitHook = readFileSync(join(workspaceRoot, ".githooks/pre-commit"), "utf8");
+    const prePushHook = readFileSync(join(workspaceRoot, ".githooks/pre-push"), "utf8");
+
+    expect(rootPackage.scripts?.["hooks:pre-commit"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-commit");
+    expect(rootPackage.scripts?.["hooks:pre-push"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-push");
+    expect(rootPackage.scripts?.["hooks:strict"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile strict");
+    expect(rootPackage.scripts?.["hooks:local-exam"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam");
+    expect(rootPackage.scripts?.["local:exam:smoke"]).toContain("@openclinxr/test-harness");
+    expect(rootPackage.scripts?.["local:exam:smoke"]).toContain("station-simulation.test.ts");
+    expect(preCommitHook).toContain("pnpm hooks:pre-commit");
+    expect(prePushHook).toContain("pnpm hooks:pre-push");
   });
 
   it("keeps the asset-registry browser barrel free of Node-only object-store runtime exports", () => {
@@ -136,7 +185,7 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules typecheck");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm --filter @openclinxr/architecture-rules test");
     expect(rootPackage.scripts?.["iwsdk:verify"]).toContain("pnpm agent:sources");
-    expect(rootPackage.scripts?.verify).not.toContain("iwsdk:verify");
+    expect(rootPackage.scripts?.["verify"]).not.toContain("iwsdk:verify");
   });
 
   it("keeps pnpm audit and license governance in the default verification gate", () => {
@@ -148,10 +197,10 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["security:audit:prod"]).toBe("pnpm audit --prod --audit-level=high");
     expect(rootPackage.scripts?.["security:audit:dev"]).toBe("pnpm audit --dev --audit-level=high");
     expect(rootPackage.scripts?.["security:audit-policy"]).toBe(
-      "tsx tools/openclinxr/check-security-audit-policy.ts",
+      "tsx tools/openclinxr/evidence/check-security-audit-policy.ts",
     );
-    expect(rootPackage.scripts?.["security:licenses"]).toBe("tsx tools/openclinxr/check-license-policy.ts");
-    expect(rootPackage.scripts?.verify).toContain("pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses");
+    expect(rootPackage.scripts?.["security:licenses"]).toBe("tsx tools/openclinxr/evidence/check-license-policy.ts");
+    expect(rootPackage.scripts?.["verify"]).toContain("pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses");
     expect(rootPackage.scripts?.["security:audit"]).not.toMatch(/\becho\b|\|\|\s*true|--ignore|--audit-level\s*=\s*moderate/);
   });
 
@@ -159,7 +208,7 @@ describe("workspace architecture rules", () => {
     const implementationPlan = readFileSync(join(workspaceRoot, "docs/openclinxr/code-implementation-plan.md"), "utf8");
 
     expect(implementationPlan).toContain("IWSDK Sidecar Policy");
-    expect(implementationPlan).toContain("apps/ui-xr-iwsdk-spike");
+    expect(implementationPlan).toContain("apps/arena/ui-xr-iwsdk-spike");
     expect(implementationPlan).toContain("pnpm iwsdk:verify");
     expect(implementationPlan).toContain("@iwsdk/core");
     expect(implementationPlan).toContain("@iwsdk/xr-input");
@@ -175,6 +224,9 @@ describe("workspace architecture rules", () => {
     const productionAssetPipelineBindings = matrix.bindings.filter((binding) =>
       binding.profile === "production" && binding.plane === "asset-pipeline"
     );
+    const productionExecutableAssetPipelineBindings = productionAssetPipelineBindings.filter((binding) =>
+      ["python-worker", "native-executable-worker"].includes(binding.providerKind)
+    );
     const productionInteractiveBindings = matrix.bindings.filter((binding) =>
       binding.profile === "production" && binding.plane === "interactive-runtime"
     );
@@ -182,18 +234,20 @@ describe("workspace architecture rules", () => {
     expect(readiness.blockers).toEqual([]);
     expect(executableBindings.length).toBeGreaterThan(0);
     expect(executableBindings.every((binding) => binding.networkExposure !== "direct-public")).toBe(true);
-    expect(executableBindings.every((binding) => binding.endpointPath?.startsWith("/internal/capabilities/"))).toBe(true);
+    expect(executableBindings.every((binding) =>
+      binding.transport === "local-executable-worker" || binding.endpointPath?.startsWith("/internal/capabilities/")
+    )).toBe(true);
     expect(executableBindings.every((binding) =>
       ["main-api-tunnel", "internal-sidecar-http", "local-executable-worker"].includes(binding.transport)
     )).toBe(true);
-    expect(productionAssetPipelineBindings.map((binding) => binding.capabilityId)).toEqual([
+    expect([...new Set(productionExecutableAssetPipelineBindings.map((binding) => binding.capabilityId))]).toEqual([
       "character-generation",
       "voice-asset-generation",
       "medical-equipment-generation",
       "animation-generation",
       "asset-bake",
     ]);
-    expect(productionAssetPipelineBindings.every((binding) =>
+    expect(productionExecutableAssetPipelineBindings.every((binding) =>
       binding.facadePackage === "@openclinxr/capability-gateway"
     )).toBe(true);
     expect(productionInteractiveBindings.map((binding) => binding.facadePackage)).toEqual([
@@ -222,11 +276,11 @@ describe("workspace architecture rules", () => {
     };
     const tsdownConfig = readFileSync(join(workspaceRoot, "apps/api/tsdown.config.ts"), "utf8");
 
-    expect(apiPackage.scripts?.build).toBe("pnpm run package:azure");
+    expect(apiPackage.scripts?.["build"]).toBe("pnpm run package:azure");
     expect(apiPackage.scripts?.["build:azure"]).toContain("tsdown -c tsdown.config.ts");
     expect(apiPackage.scripts?.["build:azure:rolldown"]).toContain("rolldown -c rolldown.config.ts");
     expect(apiPackage.scripts?.["smoke:azure"]).toContain("pnpm run package:azure");
-    expect(apiPackage.devDependencies?.tsdown).toMatch(/^\d+\.\d+\.\d+/);
+    expect(apiPackage.devDependencies?.["tsdown"]).toMatch(/^\d+\.\d+\.\d+/);
     expect(tsdownConfig).toContain("onlyBundle");
     expect(tsdownConfig).toContain("neverBundle: [\"@azure/functions-core\"]");
     expect(tsdownConfig).toContain("alwaysBundle: [/^@openclinxr\\//, \"hono\", \"graphql\"]");
@@ -241,9 +295,9 @@ describe("workspace architecture rules", () => {
     const bunServer = readFileSync(join(workspaceRoot, "apps/api/src/bun-server.ts"), "utf8");
     const nodeServer = readFileSync(join(workspaceRoot, "apps/api/src/server.ts"), "utf8");
 
-    expect(apiPackage.dependencies?.hono).toMatch(/^\d+\.\d+\.\d+/);
+    expect(apiPackage.dependencies?.["hono"]).toMatch(/^\d+\.\d+\.\d+/);
     expect(apiPackage.dependencies?.["@hono/node-server"]).toMatch(/^\d+\.\d+\.\d+/);
-    expect(apiPackage.scripts?.dev).toBe("tsx src/server.ts");
+    expect(apiPackage.scripts?.["dev"]).toBe("tsx src/server.ts");
     expect(apiPackage.scripts?.["dev:node"]).toBe("tsx src/server.ts");
     expect(apiPackage.scripts?.["dev:bun"]).toBe("bun src/bun-server.ts");
     expect(protocolSupport).toContain('primaryRuntimeTarget: "bun-hono"');
@@ -275,7 +329,7 @@ describe("workspace architecture rules", () => {
     ];
     const dependencyViolations = workspacePackageDependencyFindings(speculativeProtocolDependencies);
     const sourceViolations = speculativeProtocolDependencies.flatMap((dependency) =>
-      sourceImportReferences(dependency, [...sourceFilesUnder("apps/api"), ...sourceFilesUnder("apps/mock-realtime-voice-server")])
+      sourceImportReferences(dependency, [...sourceFilesUnder("apps/api"), ...sourceFilesUnder("apps/arena/mock-realtime-voice-server")])
         .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
     );
 
@@ -303,14 +357,14 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps the realtime Python backend as an internal opt-in sidecar instead of a public app surface", () => {
-    const backendPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/api-python-backend/package.json"), "utf8")) as {
+    const backendPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/arena/api-python-backend/package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
       private?: boolean;
       scripts?: Record<string, string>;
     };
-    const backendSource = readFileSync(join(workspaceRoot, "apps/api-python-backend/src/api_python_backend/main.py"), "utf8");
-    const pyproject = readFileSync(join(workspaceRoot, "apps/api-python-backend/pyproject.toml"), "utf8");
+    const backendSource = readFileSync(join(workspaceRoot, "apps/arena/api-python-backend/src/api_python_backend/main.py"), "utf8");
+    const pyproject = readFileSync(join(workspaceRoot, "apps/arena/api-python-backend/pyproject.toml"), "utf8");
     const publicRestRoutes = readFileSync(join(workspaceRoot, "packages/openclinxr/rest/src/index.ts"), "utf8");
     const uiBackendReferences = filesWithContentMatching("apps", /api-python-backend|uvicorn|FastAPI/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath));
@@ -325,9 +379,9 @@ describe("workspace architecture rules", () => {
       "voice:evidence",
       "voice:install-local",
     ]);
-    expect(backendPackage.scripts?.dev).toContain("uvicorn api_python_backend.main:app");
-    expect(backendPackage.scripts?.test).toBe("python3 scripts/verify_backend.py");
-    expect(backendPackage.scripts?.typecheck).toBe("python3 scripts/verify_backend.py");
+    expect(backendPackage.scripts?.["dev"]).toContain("uvicorn api_python_backend.main:app");
+    expect(backendPackage.scripts?.["test"]).toBe("python3 scripts/verify_backend.py");
+    expect(backendPackage.scripts?.["typecheck"]).toBe("python3 scripts/verify_backend.py");
     expect(backendPackage.scripts?.["voice:evidence"]).toBe("python3 scripts/check_local_voice_evidence.py");
     expect(backendPackage.scripts?.["voice:install-local"]).toBe("python3 scripts/install_local_voice_models.py");
     expect(backendSource).toContain('@app.get("/health")');
@@ -346,7 +400,7 @@ describe("workspace architecture rules", () => {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
-    const mockPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/mock-realtime-voice-server/package.json"), "utf8")) as {
+    const mockPackage = JSON.parse(readFileSync(join(workspaceRoot, "apps/arena/mock-realtime-voice-server/package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
@@ -356,14 +410,14 @@ describe("workspace architecture rules", () => {
 
     expect({ ...apiPackage.dependencies, ...apiPackage.devDependencies }).not.toHaveProperty("ws");
     expect(mockPackage.dependencies).toMatchObject({
-      hono: "4.12.16",
-      ws: "8.20.0",
+      hono: apiPackage.dependencies?.["hono"],
+      ws: "8.20.1",
     });
     expect(apiSourceViolations).toEqual([]);
   });
 
   it("keeps the Quest Godot voice client as a dependency-free sidecar until headset codec evidence exists", () => {
-    const godotRoot = join(workspaceRoot, "apps/ui-quest-voice-godot");
+    const godotRoot = join(workspaceRoot, "apps/arena/ui-quest-voice-godot");
     const project = readFileSync(join(godotRoot, "project.godot"), "utf8");
     const client = readFileSync(join(godotRoot, "src/RealtimeVoiceClient.gd"), "utf8");
     const readme = readFileSync(join(godotRoot, "README.md"), "utf8");
@@ -387,6 +441,225 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
+  it("keeps production apps free of capability arena package dependencies", () => {
+    const manifestViolations = workspacePackageDependencyReferences([...forbiddenProductionAppDependencies])
+      .filter(({ manifestPath }) => productionAppRoots.some((root) => manifestPath.startsWith(root)))
+      .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`);
+    const sourceViolations = forbiddenProductionAppDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, productionAppSourceFiles())
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+
+    expect([...manifestViolations, ...sourceViolations].sort()).toEqual([]);
+  });
+
+  it("keeps production app source out of evidence and sidecar implementation paths", () => {
+    const forbiddenPathImports = [
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*tools\/openclinxr\/evidence\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/ui-xr-iwsdk-spike\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/ui-quest-voice-godot\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/api-python-backend\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/mock-realtime-voice-server\//,
+    ];
+    const violations = productionAppSourceFiles().filter((filePath) => {
+      const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+      return forbiddenPathImports.some((pattern) => pattern.test(sourceText));
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it("keeps gateway packages independent from UI shells and capability arena packages", () => {
+    const gatewaySourceFiles = [
+      ...sourceFilesUnder("packages/openclinxr/capability-gateway"),
+      ...sourceFilesUnder("packages/openclinxr/model-gateway"),
+      ...sourceFilesUnder("packages/openclinxr/voice-gateway"),
+    ].filter((filePath) => !filePath.endsWith(".test.ts"));
+    const forbiddenDependencies = [
+      "@openclinxr/ui-admin",
+      "@openclinxr/ui-xr",
+      "@openclinxr/ui-shared",
+      ...capabilityArenaPackages,
+    ];
+    const sourceViolations = forbiddenDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, gatewaySourceFiles)
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+    const relativeUiViolations = gatewaySourceFiles.filter((filePath) =>
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*(?:apps\/ui-|packages\/openclinxr\/ui-)/.test(
+        readFileSync(join(workspaceRoot, filePath), "utf8"),
+      )
+    );
+
+    expect([...sourceViolations, ...relativeUiViolations].sort()).toEqual([]);
+  });
+
+  it("keeps the encounter factory from importing production UI shells", async () => {
+    const sourceViolations = factorySourceFiles()
+      .filter((filePath) => !filePath.endsWith(".test.ts"))
+      .filter((filePath) =>
+        /(?:from\s+["']|import\s*\(\s*["'])[^"']*(?:apps\/ui-|@openclinxr\/ui-(?:admin|xr|shared))/.test(
+          readFileSync(join(workspaceRoot, filePath), "utf8"),
+        )
+      );
+
+    expect(factorySourceFiles().length).toBeGreaterThan(0);
+    expect(sourceViolations).toEqual([]);
+  });
+
+  it("keeps the asset commons package authoritative and independent from apps, gateways, and arena sidecars", () => {
+    const assetRegistrySourceFiles = sourceFilesUnder("packages/openclinxr/asset-registry")
+      .filter((filePath) => !filePath.endsWith(".test.ts"));
+    const forbiddenDependencies = [
+      "@openclinxr/api",
+      "@openclinxr/capability-gateway",
+      "@openclinxr/model-gateway",
+      "@openclinxr/voice-gateway",
+      "@openclinxr/scenario-runtime",
+      ...capabilityArenaPackages,
+    ];
+    const sourceViolations = forbiddenDependencies.flatMap((dependency) =>
+      sourceImportReferences(dependency, assetRegistrySourceFiles)
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+    const relativeBoundaryViolations = assetRegistrySourceFiles.filter((filePath) =>
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*(?:apps\/|tools\/openclinxr\/(?:factory|evidence|asset-pipeline)\/)/.test(
+        readFileSync(join(workspaceRoot, filePath), "utf8"),
+      )
+    );
+
+    expect([...sourceViolations, ...relativeBoundaryViolations].sort()).toEqual([]);
+  });
+
+  it("keeps capability arena apps from being production runtime roots", () => {
+    const productionManifestPaths = productionAppRoots.map((root) => `${root}package.json`);
+    const arenaAppPaths = capabilityArenaAppRoots.filter((root) => existsSync(join(workspaceRoot, root)));
+    const arenaManifestPaths = packageBackedCapabilityArenaAppRoots
+      .filter((root) => existsSync(join(workspaceRoot, `${root}package.json`)))
+      .map((root) => `${root}package.json`);
+
+    expect(productionManifestPaths.sort()).toEqual([
+      "apps/api/package.json",
+      "apps/ui-admin/package.json",
+      "apps/ui-xr/package.json",
+    ]);
+    expect(arenaAppPaths.sort()).toEqual([
+      "apps/arena/api-python-backend/",
+      "apps/arena/mock-realtime-voice-server/",
+      "apps/arena/ui-quest-voice-godot/",
+      "apps/arena/ui-xr-iwsdk-spike/",
+    ]);
+    expect(arenaManifestPaths.sort()).toEqual([
+      "apps/arena/api-python-backend/package.json",
+      "apps/arena/mock-realtime-voice-server/package.json",
+      "apps/arena/ui-xr-iwsdk-spike/package.json",
+    ]);
+  });
+
+  it("keeps capability arena packages under the arena package directory", () => {
+    const arenaPackageManifestPaths = capabilityArenaPackageRoots
+      .filter((root) => existsSync(join(workspaceRoot, `${root}package.json`)))
+      .map((root) => `${root}package.json`);
+    const misplacedSpikeManifestPaths = packageManifestFiles()
+      .filter((manifestPath) => manifestPath.startsWith("packages/openclinxr/"))
+      .filter((manifestPath) => /(?:spike|arena|cage|bakeoff)/.test(manifestPath))
+      .filter((manifestPath) => !capabilityArenaPackageRoots.some((root) => manifestPath.startsWith(root)))
+      .filter((manifestPath) => !manifestPath.startsWith("packages/openclinxr/architecture-rules/"));
+
+    expect(arenaPackageManifestPaths.sort()).toEqual([
+      "packages/openclinxr/arena/iwsdk-spike/package.json",
+      "packages/openclinxr/arena/multi-actor-state-spike/package.json",
+    ]);
+    expect(misplacedSpikeManifestPaths).toEqual([]);
+  });
+
+  it("keeps capability arena directories linked to governing MADRs", () => {
+    const expectedArenaMadrLinks = [
+      {
+        readmePath: "apps/arena/README.md",
+        decisions: [
+          "0017-websocket-first-realtime-transport.md",
+          "0019-provider-adapter-model-and-voice-routing.md",
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0022-local-llm-runtime-and-model-tiering.md",
+          "0023-vibevoice-as-local-voice-candidate.md",
+          "0024-pnpm-node-first-bun-deployment-gate.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/api-python-backend/README.md",
+        decisions: [
+          "0019-provider-adapter-model-and-voice-routing.md",
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0022-local-llm-runtime-and-model-tiering.md",
+          "0023-vibevoice-as-local-voice-candidate.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/mock-realtime-voice-server/README.md",
+        decisions: [
+          "0017-websocket-first-realtime-transport.md",
+          "0019-provider-adapter-model-and-voice-routing.md",
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0024-pnpm-node-first-bun-deployment-gate.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/ui-xr-iwsdk-spike/README.md",
+        decisions: [
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/ui-quest-voice-godot/README.md",
+        decisions: [
+          "0017-websocket-first-realtime-transport.md",
+          "0019-provider-adapter-model-and-voice-routing.md",
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/arena/README.md",
+        decisions: [
+          "0014-cellixjs-inspired-domain-contexts.md",
+          "0018-first-class-communication-style-layer.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/arena/iwsdk-spike/README.md",
+        decisions: [
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/arena/multi-actor-state-spike/README.md",
+        decisions: [
+          "0014-cellixjs-inspired-domain-contexts.md",
+          "0018-first-class-communication-style-layer.md",
+        ],
+      },
+    ];
+    const madrIndex = readFileSync(join(workspaceRoot, "docs/madr/README.md"), "utf8");
+
+    for (const { readmePath, decisions } of expectedArenaMadrLinks) {
+      const readme = readFileSync(join(workspaceRoot, readmePath), "utf8");
+
+      expect(madrIndex).toContain(readmePath);
+      for (const decision of decisions) {
+        expect(readme).toContain(decision);
+        expect(madrIndex).toContain(decision);
+      }
+    }
+    expect(readFileSync(join(workspaceRoot, "README.md"), "utf8")).toContain("docs/madr/README.md");
+  });
+
   it("keeps Cellix package copies free of OpenClinXR product semantics", () => {
     const violations = filesWithContentMatching("packages/cellix", /@openclinxr\/|OpenClinXR|openclinxr/);
 
@@ -404,7 +677,8 @@ describe("workspace architecture rules", () => {
     const violations = sourceFilesUnder("apps").filter(
       (filePath) =>
         !filePath.startsWith("apps/api/src/")
-        && !filePath.startsWith("apps/api-python-backend/src/")
+        && !filePath.startsWith("apps/arena/api-python-backend/src/")
+        && !/^apps\/arena\/[^/]+\/src\//.test(filePath)
         && !/^apps\/ui-[^/]+\/src\//.test(filePath)
         && !/^apps\/mock-[^/]+-server\/src\//.test(filePath),
     );
@@ -420,8 +694,8 @@ describe("workspace architecture rules", () => {
     expect(violations).toEqual([]);
   });
 
-  it("keeps UI app domain-contract imports behind app-local API clients", () => {
-    const forbiddenImports = /@openclinxr\/(?:asset-registry|exam-assembly|model-gateway|voice-gateway|scenario-runtime|trace-ledger|data-|data-sources-)/;
+  it("keeps UI app server, gateway, and persistence imports behind app-local API clients", () => {
+    const forbiddenImports = /@openclinxr\/(?:model-gateway|voice-gateway|capability-gateway|scenario-runtime|trace-ledger|data-|data-sources-)/;
     const violations = filesWithContentMatching("apps", forbiddenImports)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
       .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
@@ -735,9 +1009,9 @@ describe("workspace architecture rules", () => {
 
   it("prevents production code from importing the superseded multi-actor state spike", () => {
     const spikePackage = "@openclinxr/multi-actor-state-spike";
-    const allowedSpikeRoots = ["packages/openclinxr/multi-actor-state-spike/"];
+    const allowedSpikeRoots = ["packages/openclinxr/arena/multi-actor-state-spike/"];
     const manifestViolations = workspacePackageDependencyFindings([spikePackage])
-      .filter((finding) => !finding.startsWith("packages/openclinxr/multi-actor-state-spike/package.json:"));
+      .filter((finding) => !finding.startsWith("packages/openclinxr/arena/multi-actor-state-spike/package.json:"));
     const sourceViolations = sourceImportReferences(spikePackage)
       .filter(({ filePath }) => !allowedSpikeRoots.some((root) => filePath.startsWith(root)))
       .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`);
@@ -870,7 +1144,7 @@ describe("workspace architecture rules", () => {
       "vitest.config.ts",
       "apps/api/tsdown.config.ts",
       "apps/ui-xr/vite.config.ts",
-      "tools/openclinxr/local-provider-benchmark.ts",
+      "tools/openclinxr/evidence/local-provider-benchmark.ts",
     ]));
   });
 
@@ -896,7 +1170,7 @@ describe("workspace architecture rules", () => {
   }, 20_000);
 
   it("keeps Meta Immersive Web SDK dependencies isolated from production runtime paths", () => {
-    const allowedSpikeRoots = ["apps/ui-xr-iwsdk-spike/", "packages/openclinxr/iwsdk-spike/"];
+    const allowedSpikeRoots = ["apps/arena/ui-xr-iwsdk-spike/", "packages/openclinxr/arena/iwsdk-spike/"];
     const iwsdkImportPattern = /(?:from\s+["']|import\s*\(\s*["'])@iwsdk\//;
     const sourceViolations = [...sourceFilesUnder("apps"), ...sourceFilesUnder("packages")]
       .filter((filePath) => iwsdkImportPattern.test(readFileSync(join(workspaceRoot, filePath), "utf8")))
@@ -918,7 +1192,7 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps the approved IWSDK sidecar limited to approved runtime packages and approved sidecar devtools", () => {
-    const sidecarManifestPath = join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json");
+    const sidecarManifestPath = join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/package.json");
     expect(existsSync(sidecarManifestPath)).toBe(true);
 
     const manifest = JSON.parse(readFileSync(sidecarManifestPath, "utf8")) as {
@@ -946,14 +1220,14 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps a future IWSDK sidecar from importing production ui-xr app internals", async () => {
-    const sidecarRoot = join(workspaceRoot, "apps/ui-xr-iwsdk-spike");
+    const sidecarRoot = join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike");
     if (!existsSync(sidecarRoot)) {
       return;
     }
 
     const sourceImportViolations = findSidecarProductionUiCouplings();
     const archUnitViolations = await projectFiles(archTsconfig)
-      .inFolder("apps/ui-xr-iwsdk-spike/src/**")
+      .inFolder("apps/arena/ui-xr-iwsdk-spike/src/**")
       .shouldNot()
       .dependOnFiles()
       .inFolder("apps/ui-xr/src/**")
@@ -963,7 +1237,7 @@ describe("workspace architecture rules", () => {
   }, 20_000);
 
   it("keeps IWSDK lockfile packages absent while the sidecar app is absent", () => {
-    if (existsSync(join(workspaceRoot, "apps/ui-xr-iwsdk-spike"))) {
+    if (existsSync(join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike"))) {
       return;
     }
 
@@ -1016,6 +1290,14 @@ function workspacePackageDirs(root: string): string[] {
     .filter((entry) => entry.isDirectory())
     .map((entry) => join(root, entry.name))
     .filter((packageDir) => existsSync(join(packageDir, "package.json")));
+}
+
+function productionAppSourceFiles(): string[] {
+  return productionAppRoots.flatMap((root) => sourceFilesUnder(root));
+}
+
+function factorySourceFiles(): string[] {
+  return typescriptFilesUnder("tools/openclinxr/factory");
 }
 
 function sourceFilesUnder(root: string): string[] {
@@ -1291,7 +1573,7 @@ function findIwsdkLockfilePackages(lockfileText: string): string[] {
 }
 
 function findSidecarProductionUiCouplings(): string[] {
-  const sidecarSourceFiles = sourceFilesUnder("apps/ui-xr-iwsdk-spike");
+  const sidecarSourceFiles = sourceFilesUnder("apps/arena/ui-xr-iwsdk-spike");
   const sourceImportPattern =
     /(?:from\s*["']|import\s*["']|import\s*\(\s*["']|require\s*\(\s*["'])([^"']+)/g;
   const sourceViolations = sidecarSourceFiles.flatMap((filePath) => {
@@ -1303,7 +1585,7 @@ function findSidecarProductionUiCouplings(): string[] {
       .map((specifier) => `source:${filePath}:${specifier}`);
   });
   const manifestViolations = workspacePackageDependencyReferences(["@openclinxr/ui-xr"])
-    .filter(({ manifestPath }) => manifestPath === "apps/ui-xr-iwsdk-spike/package.json")
+    .filter(({ manifestPath }) => manifestPath === "apps/arena/ui-xr-iwsdk-spike/package.json")
     .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`);
 
   return [...manifestViolations, ...sourceViolations].sort();

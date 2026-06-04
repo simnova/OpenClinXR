@@ -12,7 +12,7 @@ import {
   type IwsdkAgentToolingEvidenceReadiness,
   type IwsdkAgentToolingLocalPreflightReadiness,
   type IwsdkMcpToolCategory,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 
 type CliOptions = {
   outputPath?: string;
@@ -45,7 +45,7 @@ export type IwsdkMcpInventoryEvidenceReport = {
   package: {
     name: "@iwsdk/vite-plugin-dev";
     version: string | null;
-    sidecarManifest: "apps/ui-xr-iwsdk-spike/package.json";
+    sidecarManifest: "apps/arena/ui-xr-iwsdk-spike/package.json";
   };
   server: {
     name: string | null;
@@ -172,7 +172,7 @@ export function buildIwsdkMcpInventoryEvidenceReport(input: {
     package: {
       name: "@iwsdk/vite-plugin-dev",
       version: input.packageVersion ?? null,
-      sidecarManifest: "apps/ui-xr-iwsdk-spike/package.json",
+      sidecarManifest: "apps/arena/ui-xr-iwsdk-spike/package.json",
     },
     server: {
       name: input.server?.name ?? null,
@@ -312,7 +312,7 @@ async function requestIwsdkMcpToolInventory(input: {
 async function readIwsdkDevPluginVersion(cwd: string): Promise<string | null> {
   try {
     const manifest = JSON.parse(
-      await readFile(path.join(cwd, "apps/ui-xr-iwsdk-spike/package.json"), "utf8"),
+      await readFile(path.join(cwd, "apps/arena/ui-xr-iwsdk-spike/package.json"), "utf8"),
     ) as {
       devDependencies?: Record<string, string>;
       dependencies?: Record<string, string>;

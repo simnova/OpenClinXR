@@ -77,7 +77,7 @@ Current intake: `docs/openclinxr/spikes/vibevoice-local-voice-spike.md` records 
 
 ### Realtime Voice Transport Position
 
-`docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional WebSocket transport harness through the Hono gateway shape and a Python-compatible backend fixture. `apps/api-python-backend` defines the FastAPI backend surface for future MLX/Moshi or Qwen3-TTS inference, and `apps/ui-quest-voice-godot` defines a source-level Quest/Godot `WebSocketPeer` client contract.
+`docs/openclinxr/realtime-voice-transport-spike-2026-05-04.json` records a no-cloud bidirectional WebSocket transport harness through the Hono gateway shape and a Python-compatible backend fixture. `apps/arena/api-python-backend` defines the FastAPI backend surface for future MLX/Moshi or Qwen3-TTS inference, and `apps/arena/ui-quest-voice-godot` defines a source-level Quest/Godot `WebSocketPeer` client contract.
 
 This lane is useful because it separates transport evidence from model evidence:
 
@@ -133,6 +133,18 @@ All runtime calls must log:
 - Latency metrics.
 - Token/audio usage.
 - Safety/grounding result.
+
+## Local Env Keys
+
+The opt-in local profile is documented in `.env.openclinxr.local.example`. Keep these variables local-only and unset by default:
+
+- `OPENCLINXR_LOCAL_MODEL_RUNTIME`
+- `OPENCLINXR_LOCAL_MODEL_ID`
+- `OPENCLINXR_LOCAL_VOICE_RUNTIME`
+- `OPENCLINXR_LOCAL_VOICE_ID`
+- `OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL`
+- `OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE`
+- `OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE`
 
 ## Local Benchmark Harness
 

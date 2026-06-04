@@ -110,8 +110,8 @@ const requiredScripts: Record<string, string> = {
   "security:audit": "pnpm audit --audit-level=high",
   "security:audit:prod": "pnpm audit --prod --audit-level=high",
   "security:audit:dev": "pnpm audit --dev --audit-level=high",
-  "security:audit-policy": "tsx tools/openclinxr/check-security-audit-policy.ts",
-  "security:licenses": "tsx tools/openclinxr/check-license-policy.ts",
+  "security:audit-policy": "tsx tools/openclinxr/evidence/check-security-audit-policy.ts",
+  "security:licenses": "tsx tools/openclinxr/evidence/check-license-policy.ts",
 };
 
 const requiredExceptionColumns = [

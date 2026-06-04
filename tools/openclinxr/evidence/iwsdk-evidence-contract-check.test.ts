@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { describe, expect, it } from "vitest";
-import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+import { buildIwsdkMcpToolInventory, type IwsdkAgentToolingEvidence } from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import type { IwerSidecarEmulationEvidence } from "./iwer-sidecar-emulation-evidence-check.js";
 import {
   buildIwsdkEvidenceContractReport,
@@ -218,13 +218,13 @@ describe("IWSDK evidence contract checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --mcp-inventory-input docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json --iwer-sidecar-input docs/openclinxr/iwer-sidecar-emulation-evidence-2026-05-04.json --metadata-drift-input docs/openclinxr/iwsdk-reference-exact-pin-metadata-evidence-2026-05-06.json",
+      "tsx tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts",
     );
 
     try {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
-        ["tools/openclinxr/iwsdk-evidence-contract-check.ts"],
+        ["tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts"],
         { encoding: "utf8", timeout: 15000 },
       );
       throw new Error("Expected IWSDK evidence contract checker to report current blockers");
@@ -271,7 +271,7 @@ describe("IWSDK evidence contract checker", () => {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
         [
-          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts",
           "--mcp-inventory-input",
           inventoryInputPath,
           "--",
@@ -400,7 +400,7 @@ describe("IWSDK evidence contract checker", () => {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
         [
-          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts",
           "--iwer-sidecar-input",
           iwerInputPath,
           "--output",
@@ -450,7 +450,7 @@ describe("IWSDK evidence contract checker", () => {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
         [
-          "tools/openclinxr/iwsdk-evidence-contract-check.ts",
+          "tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts",
           "--agent-tooling-input",
           agentToolingInputPath,
           "--compatibility-input",
@@ -554,7 +554,7 @@ describe("IWSDK evidence contract checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/iwsdk-evidence-contract-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts --validate-latest",
     );
     expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:evidence:validate");
 
@@ -568,16 +568,16 @@ describe("IWSDK evidence contract checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/iwsdk-evidence-contract-check.ts", "--validate-latest", path.join(tempDir, "*.json")],
+      ["tools/openclinxr/evidence/iwsdk-evidence-contract-check.ts", "--validate-latest", path.join(tempDir, "*.json")],
       { encoding: "utf8", timeout: 15000 },
     );
 
-    expect(stdout).toContain(`Validated ${reportPath}`);
+    expect(stdout.trim()).toMatch(/^Validated .*iwsdk-evidence-contract-2026-05-04\.json$/);
   });
 
-  it("keeps the committed IWSDK evidence snapshot aligned with the current builders", async () => {
+  it("keeps the current IWSDK evidence snapshot aligned with the current builders", async () => {
     const latestSnapshot = JSON.parse(
-      await readFile("docs/openclinxr/iwsdk-evidence-contract-2026-05-04.json", "utf8"),
+      await readFile("docs/openclinxr/iwsdk-evidence-contract-2026-06-04.json", "utf8"),
     ) as IwsdkEvidenceContractReport;
 
     expect(latestSnapshot).toEqual(buildIwsdkEvidenceContractReport({
@@ -647,7 +647,7 @@ function iwerSidecarEvidence(): IwerSidecarEmulationEvidence {
       ],
     },
     sidecar: {
-      app: "apps/ui-xr-iwsdk-spike",
+      app: "apps/arena/ui-xr-iwsdk-spike",
       runtimeUrl: "http://127.0.0.1:5183/",
       devServerPort: 5183,
       mcpWebSocketEndpoint: "ws://127.0.0.1:5183/__iwsdk/mcp",

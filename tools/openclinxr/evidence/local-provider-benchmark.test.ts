@@ -176,7 +176,7 @@ describe("local provider benchmark report", () => {
     };
 
     expect(rootPackage.scripts?.["local:provider:benchmark:validate"]).toBe(
-      "tsx tools/openclinxr/local-provider-benchmark.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/local-provider-benchmark.ts --validate-latest",
     );
     expect(rootPackage.scripts?.["agent:verify"]).toContain("pnpm local:provider:benchmark:validate");
     await expect(runLocalProviderBenchmarkCli(["--validate-latest"])).resolves.toBeUndefined();

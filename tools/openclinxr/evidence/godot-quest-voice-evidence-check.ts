@@ -202,7 +202,7 @@ function schemaBoundaryBlockers(evidence: GodotQuestVoiceEvidence): string[] {
     evidence.classification?.scope === "physical_quest_developer_evidence"
       ? undefined
       : "classification_scope_not_physical_quest_developer_evidence",
-    evidence.device?.app === "apps/ui-quest-voice-godot" ? undefined : "device_app_not_godot_sidecar",
+    evidence.device?.app === "apps/arena/ui-quest-voice-godot" ? undefined : "device_app_not_godot_sidecar",
     evidence.device?.performedOnPhysicalQuest3 === true ? undefined : "physical_quest3_device_not_confirmed",
     evidence.device?.headsetConnectedViaUsbC === true ? undefined : "quest_usb_c_connection_not_confirmed",
     typeof evidence.device?.godotVersion === "string" && evidence.device.godotVersion.trim().length > 0

@@ -556,11 +556,13 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("roleTintColor");
     expect(mainSource).toContain("tintGeneratedSceneMaterials");
     expect(mainSource).toContain("registerGeneratedHumanoidAnimation");
-    expect(mainSource).toContain("updateGeneratedHumanoidAnimations(deltaSeconds, now, camera)");
+    expect(mainSource).toContain("updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid)");
     expect(mainSource).toContain("procedural_idle_breathing_fallback");
     expect(mainSource).toContain("arms_lowered_from_generator_bind_pose_cue");
     expect(mainSource).toContain("applyGeneratedHumanoidRoleSpecificPosture");
     expect(mainSource).toContain("addRoleSpecificHumanoidVisuals");
+    expect(mainSource).toContain("/generated-humanoids/peds_patient_child.glb");
+    expect(mainSource).toContain("/generated-humanoids/peds_anxious_parent.glb");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.patient-hospital-gown-torso");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.nurse-role-badge-cue");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.family-civilian-cardigan-cue");
@@ -628,7 +630,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("openClinXrPhysicianInteractionTarget");
     expect(mainSource).toContain("asset_surface_features_only_no_runtime_proxy_overlay");
     expect(mainSource).toContain("generated_humanoid_asset_surface_detail_preferred");
-    expect(mainSource).toContain("Anny-derived GLB now carries surface hair, clothing, eye, brow, and lip geometry");
+    expect(mainSource).toContain("Anny-compatible stub + Blender procedural candidate GLB carries");
+    expect(mainSource).not.toContain("Anny-derived GLB now carries surface hair, clothing, eye, brow, and lip geometry");
     expect(mainSource).toContain("humanoid_camera_framing_decluttered_three_actor_environment_review");
     expect(mainSource).toContain("applyGeneratedHumanoidClinicalIdlePosture");
     expect(mainSource).toContain("relaxed_arms_scenario_conversation_pose");
@@ -707,6 +710,30 @@ describe("static browser assets", () => {
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/ecg-cart-12-lead.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/iv-pole-with-pump.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url))).toBe(true);
+  });
+
+  it("keeps generated peds humanoid provenance truthful until real Anny weights are proven", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    const parentProvenance = JSON.parse(
+      readFileSync(new URL("../public/generated-humanoids/peds_anxious_parent.provenance.json", import.meta.url), "utf8"),
+    );
+    const childProvenance = JSON.parse(
+      readFileSync(new URL("../public/generated-humanoids/peds_patient_child.provenance.json", import.meta.url), "utf8"),
+    );
+
+    for (const provenance of [parentProvenance, childProvenance]) {
+      expect(provenance.schemaVersion).toBe("openclinxr.generated-humanoid-provenance.v1");
+      expect(provenance.generatorMode).toBe("anny_compatible_stub_plus_blender_procedural");
+      expect(provenance.realAnnyWeightsUsed).toBe(false);
+      expect(provenance.textureMode).toBe("procedural_fallback");
+      expect(provenance.realismGrade).toBe("B");
+      expect(provenance.notEvidenceFor).toContain("real_anny_model_output");
+      expect(provenance.notEvidenceFor).toContain("b_plus_visual_realism_gate");
+    }
+
+    expect(mainSource).toContain("anny_compatible_stub_plus_blender_procedural");
+    expect(mainSource).toContain("realAnnyWeightsUsed: false");
+    expect(mainSource).toContain("procedural_animation_fallback");
   });
 
   it("loads only the active scenario fixture subpath in the headset app", () => {

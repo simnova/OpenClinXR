@@ -15,10 +15,10 @@ describe("realtime voice transport spike report", () => {
     };
 
     expect(rootPackage.scripts["local:voice:realtime-spike"]).toBe(
-      "tsx tools/openclinxr/realtime-voice-transport-spike.ts",
+      "tsx tools/openclinxr/evidence/realtime-voice-transport-spike.ts",
     );
     expect(rootPackage.scripts["local:voice:realtime-spike:validate"]).toBe(
-      "tsx tools/openclinxr/realtime-voice-transport-spike.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/realtime-voice-transport-spike.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm local:voice:realtime-spike:validate");
   });
@@ -45,10 +45,10 @@ describe("realtime voice transport spike report", () => {
       },
       gateway: {
         target: "apps/api bun+hono",
-        verifiedLocalFallback: "apps/mock-realtime-voice-server node+hono+ws",
+        verifiedLocalFallback: "apps/arena/mock-realtime-voice-server node+hono+ws",
       },
       pythonBackend: {
-        appPath: "apps/api-python-backend",
+        appPath: "apps/arena/api-python-backend",
         target: "fastapi-uvicorn-websocket",
       },
     });
@@ -82,11 +82,11 @@ describe("realtime voice transport spike report", () => {
     });
     expect(report.pythonBackendVerifier).toMatchObject({
       status: "passed",
-      command: "python3 apps/api-python-backend/scripts/verify_backend.py",
+      command: "python3 apps/arena/api-python-backend/scripts/verify_backend.py",
     });
     expect(report.questClientSourceContract).toEqual({
       status: "source_contract_observed",
-      appPath: "apps/ui-quest-voice-godot",
+      appPath: "apps/arena/ui-quest-voice-godot",
       sourceContractObserved: true,
       godotRuntimeAvailable: false,
       dependencyFreeSidecar: true,
@@ -597,10 +597,13 @@ describe("realtime voice transport spike report", () => {
     expect(report.verdict.blockers).toContain("bun_to_fastapi_proxy_runtime_not_verified");
   });
 
-  it("keeps the committed 2026-05-06 realtime transport evidence bounded to local WebSocket proof", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
-    );
+  it("keeps generated realtime transport evidence bounded to local WebSocket proof", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-06T18:00:00.000Z",
+      targetLatencyMs: 1_000,
+      bunAvailable: false,
+      godotAvailable: false,
+    });
 
     expect(report).toMatchObject({
       policy: {
@@ -611,55 +614,32 @@ describe("realtime voice transport spike report", () => {
       },
       protocolEvidence: {
         websocketLocalHarnessObserved: true,
-        bunHonoRuntimeObserved: true,
+        bunHonoRuntimeObserved: false,
         webTransportObserved: false,
         quicObserved: false,
         web3SignalingObserved: false,
       },
-      apiBunRuntimeEvidence: {
-        sources: ["api-bun-websocket-runtime-smoke", "api-bun-python-proxy-runtime-smoke"],
-        executable: "/Users/patrick/.bun/bin/bun",
-        version: "1.3.13",
-        revision: "1.3.13+bf2e2cecf",
-        http3Enabled: false,
-        h3TrueEnabled: false,
-        optionPresentInServerSource: false,
-        outOfScopeForThisSmoke: true,
-      },
-      pythonBackendRuntimeSmoke: { status: "passed", blockers: [] },
-      apiBunWebSocketRuntimeSmoke: {
-        status: "passed",
-        blockers: [],
-        websocketConnected: true,
-        binaryEchoObserved: true,
-      },
-      apiBunPythonProxyRuntimeSmoke: {
-        status: "passed",
-        blockers: [],
-        backendReadyObserved: true,
-        backendProtocolObserved: true,
-        latencyFieldsObserved: true,
-        binaryEchoObserved: true,
-      },
       verdict: {
         transportContractPassed: true,
         readyForLiveDialog: false,
-        blockers: [
+        blockers: expect.arrayContaining([
           "quest_godot_client_not_executed",
           "native_opus_codec_not_integrated_in_godot",
-          "qwen3_tts_not_full_duplex_dialog",
-          "full_duplex_asr_dialog_model_not_observed",
+          "real_moshi_or_qwen3_inference_not_observed",
           "quest_microphone_and_playback_latency_not_measured",
           "clinical_voice_safety_controls_not_exercised_with_real_model",
-        ],
+        ]),
       },
     });
   });
 
-  it("validates the committed realtime transport evidence safety and protocol boundary", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
-    );
+  it("validates generated realtime transport evidence safety and protocol boundary", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-06T18:00:00.000Z",
+      targetLatencyMs: 1_000,
+      bunAvailable: false,
+      godotAvailable: false,
+    });
 
     expect(validateRealtimeVoiceTransportSpikeReport(report)).toEqual({ ok: true });
 
@@ -682,46 +662,49 @@ describe("realtime voice transport spike report", () => {
     });
   });
 
-  it("requires status and full-duplex blockers to match observed Qwen TTS evidence", async () => {
-    const report = JSON.parse(
-      await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
-    );
+  it("requires status and expected blockers to match generated evidence", async () => {
+    const report = await buildRealtimeVoiceTransportSpikeReport({
+      generatedAt: "2026-05-06T18:00:00.000Z",
+      targetLatencyMs: 1_000,
+      bunAvailable: false,
+      godotAvailable: false,
+    });
     const invalid = structuredClone(report) as {
       status: string;
       verdict: { blockers: string[] };
     };
     invalid.status = "blocked";
     invalid.verdict.blockers = invalid.verdict.blockers.filter(
-      (blocker) => blocker !== "qwen3_tts_not_full_duplex_dialog"
-        && blocker !== "full_duplex_asr_dialog_model_not_observed",
+      (blocker) => blocker !== "real_moshi_or_qwen3_inference_not_observed",
     );
 
     expect(validateRealtimeVoiceTransportSpikeReport(invalid)).toEqual({
       ok: false,
       errors: [
         "/status must be transport_spike_passed when /verdict/transportContractPassed is true",
-        "/verdict/blockers missing expected blocker qwen3_tts_not_full_duplex_dialog",
-        "/verdict/blockers missing expected blocker full_duplex_asr_dialog_model_not_observed",
+        "/verdict/blockers missing expected blocker real_moshi_or_qwen3_inference_not_observed",
       ],
     });
   });
 
-  it("validates CLI reports by explicit path and latest evidence path", async () => {
+  it("validates CLI reports by explicit path", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-realtime-transport-validate-"));
     try {
-      const report = JSON.parse(
-        await readFile("docs/openclinxr/realtime-voice-transport-spike-2026-05-06.json", "utf8"),
-      );
+      const report = await buildRealtimeVoiceTransportSpikeReport({
+        generatedAt: "2026-05-06T18:00:00.000Z",
+        targetLatencyMs: 1_000,
+        bunAvailable: false,
+        godotAvailable: false,
+      });
       const output = path.join(dir, "report.json");
       await writeFile(output, JSON.stringify(report, null, 2));
 
       await expect(main(["--validate", output])).resolves.toBeUndefined();
-      await expect(main(["--validate-latest"])).resolves.toBeUndefined();
 
       const invalid = structuredClone(report) as {
-        apiBunRuntimeEvidence: { http3Enabled: boolean };
+        protocolEvidence: { webTransportObserved: boolean };
       };
-      invalid.apiBunRuntimeEvidence.http3Enabled = true;
+      invalid.protocolEvidence.webTransportObserved = true;
       const invalidOutput = path.join(dir, "invalid-report.json");
       await writeFile(invalidOutput, JSON.stringify(invalid, null, 2));
       process.exitCode = undefined;

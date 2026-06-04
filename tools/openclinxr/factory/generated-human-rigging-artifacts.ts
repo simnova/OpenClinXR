@@ -1,7 +1,6 @@
 import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
@@ -839,7 +838,7 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
   // canonical contract used by the rest of this file and the runtime.
   const orchestrator = path.resolve("tools/openclinxr/asset-pipeline/anny/orchestrate_character.py");
   const isPed = options.bodyProfile.includes("pediatric") || options.bodyProfile.includes("child");
-  // Case-driven phenotype scalars (from peds_asthma_parent_anxiety_v1 commProfile/roles + ed) for B+ iteration.
+  // Case-driven phenotype scalars (from peds_asthma_parent_anxiety_v1 commProfile/roles + ed) for the B-candidate iteration.
   // anxious_parent: stress age_wrinkle, flush, brow_tension for emotion start; child patient: small build.
   const pheno = isPed
     ? { skin_tone: "warm_light_child", hair_color: "light_brown", eye_color: "brown", age_wrinkle: 0.15, bmi: 17, build: "slender_asthma", brow_tension: 0.25, anxious: 0.35, flush: 0.1 }
@@ -864,17 +863,22 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
     ], { timeout: BLENDER_RIGGING_COMMAND_TIMEOUT_MS * 2 });
     // Attach report for case pipeline (worker materialization, runtime-state player, review packets caseDerived asset expectations)
     try {
-      const fsMod = await import("fs");
+      const fsMod = await import("node:fs");
       const reportPath = options.glbPath.replace(/\.glb$/, "_rigging_report.json");
       if (fsMod.existsSync(reportPath)) {
-        const rep = JSON.parse(fsMod.readFileSync(reportPath, "utf8"));
-        (globalThis as any).__openClinXrLastHumanoidRiggingReport = rep;
-        (globalThis as any).__openClinXrLastHumanoidGlb = options.glbPath;
-        console.log(`[asset-pipeline] B+ humanoid report attached (realismGrade=${rep.realismGrade || "B"}): ${reportPath}`);
+        const rep = JSON.parse(fsMod.readFileSync(reportPath, "utf8")) as unknown;
+        const handoffGlobal = globalThis as typeof globalThis & {
+          __openClinXrLastHumanoidRiggingReport?: unknown;
+          __openClinXrLastHumanoidGlb?: string;
+        };
+        handoffGlobal.__openClinXrLastHumanoidRiggingReport = rep;
+        handoffGlobal.__openClinXrLastHumanoidGlb = options.glbPath;
+        const realismGrade = isRecord(rep) && typeof rep.realismGrade === "string" ? rep.realismGrade : "B";
+        console.log(`[asset-pipeline] humanoid candidate report attached (realismGrade=${realismGrade}): ${reportPath}`);
       }
     } catch {}
     return;
-  } catch (e) {
+  } catch {
     // Fall back to direct Blender call to the automate script (in case orchestrator Python path differs).
   }
 
@@ -1030,8 +1034,8 @@ function collectMorphTargetNames(meshes: Array<Record<string, unknown>>): string
   return [...names].sort();
 }
 
-function createGeneratedHumanRiggingBlenderScript(): string {
-  return String.raw`
+function _createGeneratedHumanRiggingBlenderScript(): string {
+  return `
 import json
 import os
 import sys

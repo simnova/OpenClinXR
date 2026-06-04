@@ -2017,11 +2017,11 @@ function acceptanceCriteriaForHumanoidRemediationDimension(
 
 function isEncounterAssetGenerationQueueMessage(value: unknown): value is AzureStorageQueueEncounterAssetMessage {
   if (!isRecord(value)) return false;
-  if (value.schemaVersion !== "openclinxr.azure-storage-queue.encounter-asset-generation.v1") return false;
-  if (value.queueName !== "encounter-asset-generation") return false;
-  if (value.messageKind !== "encounter_definition_to_executable_encounter") return false;
-  if (!isRecord(value.request)) return false;
-  validateEncounterAssetGenerationRequest(value.request as EncounterExecutableAssetGenerationRequest);
+  if (value["schemaVersion"] !== "openclinxr.azure-storage-queue.encounter-asset-generation.v1") return false;
+  if (value["queueName"] !== "encounter-asset-generation") return false;
+  if (value["messageKind"] !== "encounter_definition_to_executable_encounter") return false;
+  if (!isRecord(value["request"])) return false;
+  validateEncounterAssetGenerationRequest(value["request"] as EncounterExecutableAssetGenerationRequest);
   return true;
 }
 

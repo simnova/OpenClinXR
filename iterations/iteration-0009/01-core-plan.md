@@ -26,7 +26,7 @@
 1. Keep `apps/api` as the only public tunnel for executable local/native capability work.
 2. Keep local model, voice, and Python/native asset workers behind provider or capability facades so local development, local production, and hosted production can swap implementations without portal changes.
 3. Use the deterministic asset-job facade as the contract for future Python/native asset workers before introducing Blender, rigging, voice-asset, or animation executables.
-4. Treat `apps/ui-xr` as the primary full-VR station prototype and `apps/ui-xr-iwsdk-spike` as an isolated sidecar for IWSDK/MR learning.
+4. Treat `apps/ui-xr` as the primary full-VR station prototype and `apps/arena/ui-xr-iwsdk-spike` as an isolated sidecar for IWSDK/MR learning.
 5. Prioritize a Quest manual foreground report and WebXR entry evidence before adding more XR features.
 6. Fix evidence-ledger ID drift before adding new leadership gates.
 7. Build the next clinical code slices around traceable station runtime behavior, case-bank review, and admin governance rather than autonomous scoring.

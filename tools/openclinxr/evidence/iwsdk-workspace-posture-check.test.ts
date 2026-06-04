@@ -114,16 +114,16 @@ describe("IWSDK workspace posture checker", () => {
       writeSidecarLockfileImporter: true,
     });
     await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
-    await mkdir(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/src"), { recursive: true });
+    await mkdir(path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/src"), { recursive: true });
     await writeFile(
       path.join(workspaceRoot, "apps/ui-xr/src/runtime-state.ts"),
       "export const smokePlan = 'production';\n",
       "utf8",
     );
     await writeFile(
-      path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/src/main.ts"),
+      path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/src/main.ts"),
       [
-        "import { smokePlan } from '../../ui-xr/src/runtime-state.js';",
+        "import { smokePlan } from '../../../ui-xr/src/runtime-state.js';",
         "import { AdminApp } from '@openclinxr/ui-xr';",
         "void smokePlan;",
         "void AdminApp;",
@@ -140,22 +140,22 @@ describe("IWSDK workspace posture checker", () => {
 
     expect(report.detected.sidecarProductionUiCouplings).toEqual([
       {
-        filePath: "apps/ui-xr-iwsdk-spike/package.json",
+        filePath: "apps/arena/ui-xr-iwsdk-spike/package.json",
         specifier: "@openclinxr/ui-xr",
       },
       {
-        filePath: "apps/ui-xr-iwsdk-spike/src/main.ts",
-        specifier: "../../ui-xr/src/runtime-state.js",
+        filePath: "apps/arena/ui-xr-iwsdk-spike/src/main.ts",
+        specifier: "../../../ui-xr/src/runtime-state.js",
       },
       {
-        filePath: "apps/ui-xr-iwsdk-spike/src/main.ts",
+        filePath: "apps/arena/ui-xr-iwsdk-spike/src/main.ts",
         specifier: "@openclinxr/ui-xr",
       },
     ]);
     expect(report.result.blockers).toEqual([
-      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/package.json:@openclinxr/ui-xr",
-      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/src/main.ts:../../ui-xr/src/runtime-state.js",
-      "sidecar_coupling_to_production_ui:apps/ui-xr-iwsdk-spike/src/main.ts:@openclinxr/ui-xr",
+      "sidecar_coupling_to_production_ui:apps/arena/ui-xr-iwsdk-spike/package.json:@openclinxr/ui-xr",
+      "sidecar_coupling_to_production_ui:apps/arena/ui-xr-iwsdk-spike/src/main.ts:../../../ui-xr/src/runtime-state.js",
+      "sidecar_coupling_to_production_ui:apps/arena/ui-xr-iwsdk-spike/src/main.ts:@openclinxr/ui-xr",
     ]);
   });
 
@@ -288,7 +288,7 @@ describe("IWSDK workspace posture checker", () => {
         "",
         "importers:",
         "",
-        "  apps/ui-xr-iwsdk-spike:",
+        "  apps/arena/ui-xr-iwsdk-spike:",
         "    dependencies:",
         "      react:",
         "        specifier: 19.2.3",
@@ -306,8 +306,8 @@ describe("IWSDK workspace posture checker", () => {
     expect(report.detected.sidecarLockfileImporterPresent).toBe(true);
     expect(report.detected.sidecarLockfilePackageNames).toEqual([]);
     expect(report.result.blockers).toEqual([
-      "missing_iwsdk_sidecar_lockfile_dependency:apps/ui-xr-iwsdk-spike:@iwsdk/core",
-      "missing_iwsdk_sidecar_lockfile_dependency:apps/ui-xr-iwsdk-spike:@iwsdk/xr-input",
+      "missing_iwsdk_sidecar_lockfile_dependency:apps/arena/ui-xr-iwsdk-spike:@iwsdk/core",
+      "missing_iwsdk_sidecar_lockfile_dependency:apps/arena/ui-xr-iwsdk-spike:@iwsdk/xr-input",
     ]);
   });
 
@@ -334,7 +334,7 @@ describe("IWSDK workspace posture checker", () => {
       result: {
         ready: false,
         blockers: expect.arrayContaining([
-          "phase2_devtools_package_present_without_operator_approval:apps/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
+          "phase2_devtools_package_present_without_operator_approval:apps/arena/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
           "@iwsdk/vite-plugin-dev:not_allowed_in_first_slice",
         ]),
         reviewWarnings: ["@iwsdk/vite-plugin-dev:review_required_package"],
@@ -426,7 +426,7 @@ describe("IWSDK workspace posture checker", () => {
     });
 
     expect(report.result.blockers).toContain(
-      "phase2_devtools_must_be_sidecar_dev_dependency:apps/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
+      "phase2_devtools_must_be_sidecar_dev_dependency:apps/arena/ui-xr-iwsdk-spike/package.json:dependencies.@iwsdk/vite-plugin-dev",
     );
   });
 
@@ -481,7 +481,7 @@ describe("IWSDK workspace posture checker", () => {
       sidecarDependencies: {
         "@iwsdk/reference": "0.3.1",
       },
-      lockfileText: "importers:\n\n  apps/ui-xr-iwsdk-spike:\n/@meta-quest/hzdb@1.1.0:\n/@img/sharp-libvips-linux-x64@1.0.4:\n",
+      lockfileText: "importers:\n\n  apps/arena/ui-xr-iwsdk-spike:\n/@meta-quest/hzdb@1.1.0:\n/@img/sharp-libvips-linux-x64@1.0.4:\n",
     });
     await mkdir(path.join(workspaceRoot, "apps/ui-xr/src"), { recursive: true });
     await writeFile(
@@ -521,7 +521,7 @@ describe("IWSDK workspace posture checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:workspace:posture"]).toBe(
-      "tsx tools/openclinxr/iwsdk-workspace-posture-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-workspace-posture-check.ts",
     );
     expect(rootPackage.scripts["iwsdk:verify"]).toContain(
       "pnpm iwsdk:workspace:posture -- --approved-sidecar --approved-phase2-devtools --approved-sharp-libvips-exception",
@@ -532,7 +532,7 @@ describe("IWSDK workspace posture checker", () => {
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
       [
-        "tools/openclinxr/iwsdk-workspace-posture-check.ts",
+        "tools/openclinxr/evidence/iwsdk-workspace-posture-check.ts",
         "--approved-sidecar",
         "--approved-phase2-devtools",
         "--approved-sharp-libvips-exception",
@@ -580,7 +580,7 @@ async function createWorkspaceFixture(input: {
   }
 
   if (input.sidecarDependencies) {
-    await writeJson(path.join(workspaceRoot, "apps/ui-xr-iwsdk-spike/package.json"), {
+    await writeJson(path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/package.json"), {
       name: "@openclinxr/ui-xr-iwsdk-spike",
       dependencies: input.sidecarDependencies,
       ...(input.sidecarDevDependencies ? { devDependencies: input.sidecarDevDependencies } : {}),
@@ -600,7 +600,7 @@ function buildFixtureLockfile(writeSidecarLockfileImporter = false): string {
     "",
     "importers:",
     "",
-    "  apps/ui-xr-iwsdk-spike:",
+    "  apps/arena/ui-xr-iwsdk-spike:",
     "    dependencies:",
     "      '@iwsdk/core':",
     "        specifier: 0.3.1",
@@ -618,7 +618,7 @@ function buildPhase2DevtoolsLockfile(): string {
     "",
     "importers:",
     "",
-    "  apps/ui-xr-iwsdk-spike:",
+    "  apps/arena/ui-xr-iwsdk-spike:",
     "    dependencies:",
     "      '@iwsdk/core':",
     "        specifier: 0.3.1",
@@ -649,7 +649,7 @@ function postureReadyRootPackage(): Record<string, unknown> {
     scripts: {
       "iwsdk:verify": "pnpm iwsdk:workspace:posture && pnpm security:audit && pnpm security:licenses",
       "security:audit": "pnpm audit --audit-level=high",
-      "security:licenses": "tsx tools/openclinxr/check-license-policy.ts",
+      "security:licenses": "tsx tools/openclinxr/evidence/check-license-policy.ts",
     },
     pnpm: {
       overrides: {

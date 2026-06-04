@@ -17,10 +17,10 @@ describe("environment artifacts", () => {
     };
 
     expect(rootPackage.scripts["asset:environment:generate"]).toBe(
-      "tsx tools/openclinxr/environment-artifacts.ts",
+      "tsx tools/openclinxr/evidence/environment-artifacts.ts",
     );
     expect(rootPackage.scripts["asset:environment:validate"]).toBe(
-      "tsx tools/openclinxr/environment-artifacts.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/environment-artifacts.ts --validate-latest",
     );
   });
 

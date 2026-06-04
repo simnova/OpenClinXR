@@ -14,7 +14,7 @@ const requiredKeys = [
 describe("local AI environment contract", () => {
   it("documents the local-only model and voice benchmark variables", async () => {
     const example = await readFile(".env.openclinxr.local.example", "utf8");
-    const handoff = await readFile("docs/openclinxr/development-handoff.md", "utf8");
+    const handoff = await readFile("docs/openclinxr/local-ai-voice-model-strategy.md", "utf8");
 
     for (const key of requiredKeys) {
       expect(example).toContain(`${key}=`);

@@ -15,10 +15,10 @@ describe("gltf-transform smoke report", () => {
     };
 
     expect(rootPackage.scripts["asset:gltf-transform:smoke"]).toBe(
-      "tsx tools/openclinxr/gltf-transform-smoke.ts",
+      "tsx tools/openclinxr/evidence/gltf-transform-smoke.ts",
     );
     expect(rootPackage.scripts["asset:gltf-transform:smoke:validate"]).toBe(
-      "tsx tools/openclinxr/gltf-transform-smoke.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/gltf-transform-smoke.ts --validate-latest",
     );
   });
 

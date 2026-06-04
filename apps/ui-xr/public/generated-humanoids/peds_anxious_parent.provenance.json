@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorRole": "anxious_parent",
+  "assetPath": "/generated-humanoids/peds_anxious_parent.glb",
+  "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+  "sourceKind": "case_driven_generated_humanoid_candidate",
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_animation_fallback",
+  "realismGrade": "B",
+  "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+  "notEvidenceFor": [
+    "real_anny_model_output",
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "sourceNotes": [
+    "Generated through the local Anny-compatible stub mesh stage plus Blender procedural rigging and material fallback.",
+    "Preserved as a WebXR runtime wiring candidate and provenance test fixture until a real Anny manifest or stronger local humanoid source replaces it."
+  ]
+}

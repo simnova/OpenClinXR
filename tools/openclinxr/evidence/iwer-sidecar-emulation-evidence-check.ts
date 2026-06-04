@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+import { buildIwsdkMcpToolInventory } from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 import { globFiles } from "../../agent-factory/lib.js";
 import {
   type AdversarialVisualQaEvidence,
@@ -260,7 +260,7 @@ export function evaluateIwerSidecarEmulationEvidence(
     ...requiredNotEvidenceFor.map((claim) => (
       notEvidenceFor.includes(claim) ? undefined : `missing_not_evidence_for_${claim}`
     )),
-    evidence.sidecar?.app === "apps/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_recorded",
+    evidence.sidecar?.app === "apps/arena/ui-xr-iwsdk-spike" ? undefined : "sidecar_app_not_recorded",
     isLocalHttpUrl(evidence.sidecar?.runtimeUrl) ? undefined : "runtime_url_not_localhost",
     isValidPort(evidence.sidecar?.devServerPort) ? undefined : "dev_server_port_invalid_or_missing",
     isLocalWebSocketUrl(evidence.sidecar?.mcpWebSocketEndpoint) ? undefined : "mcp_websocket_endpoint_not_localhost",

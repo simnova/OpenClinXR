@@ -1,6 +1,15 @@
 # OpenClinXR
 
-OpenClinXR is a blueprint-driven, agent-optimized XR clinical skills exam platform (Step 2 CS-inspired) built as an evidence-gated encounter factory. It uses OpenClaw-style repo-native execution (adaptable across Codex/Claude/Grok/Cursor/etc.) for long-running, token-efficient, uninterrupted autonomous work. Current focus: deterministic UI-XR runtime evidence consumer pipeline + actor/equipment materialization for peds_asthma_parent_anxiety (and ED seed), with all provider/runtime/learner/Quest/production/clinical/scoring gates explicitly false. No production or clinical claims.
+OpenClinXR is a Step 2 CS-inspired XR clinical skills exam platform built as an evidence-gated encounter factory. It is not an exam-equivalence or clinical-validity claim. OpenClaw is the repo-native build operating model behind the project, not the product itself.
+
+The product model has four connected tiers:
+
+- Production exam platform: author, review, assemble, run, trace, and replay timed clinical encounters for learners, faculty reviewers, admins, and scenario authors.
+- Encounter Blueprint Factory: turn reviewed case definitions into WebXR runtime scenes, actor behavior, dialogue policies, emotion timelines, review packets, and persistence records.
+- Clinical Asset Commons: reuse generated or approved assets such as rooms, floors, nurses, equipment, clothing, humanoids, animation clips, and provenance records across encounters.
+- Capability Arena: run repeatable cage matches for candidate technology such as TTS, speech recognition, humanoid generation, IWSDK sidecars, or provider adapters before promoting anything into the production app.
+
+Deployment posture: local/offline is the default development and validation path; connected mode can use approved provider/API adapters; Azure is a target for orchestration, review, API, and deployment surfaces. Current focus: deterministic UI-XR runtime evidence consumer pipeline + actor/equipment materialization for peds_asthma_parent_anxiety (and ED seed), with all provider/runtime/learner/Quest/production/clinical/scoring gates explicitly false.
 
 Project page: <https://developers.simnova.com/OpenClinXR/>
 
@@ -8,7 +17,7 @@ Target workstation: Apple M1 Max 64 GB (this machine); Quest 3 foreground eviden
 
 ## Current Posture
 
-This repository is early-stage infrastructure and agent-driven factory tooling, not a clinical product. All claims (runtime, voice, XR, assets, model quality) are deliberately scoped by committed evidence artifacts, validators, and OpenClaw per-slice records. Hyper-optimized for agentic use: snapshots for low-token rehydration, Efficiency Quick Refs, lease for safe unattended, drift/alignment guards, focused verification only.
+This repository is early-stage product and factory tooling, not a clinical product. What is trustworthy today is the evidence-gated development posture: runtime, voice, XR, assets, model quality, and deployment claims are deliberately scoped by committed artifacts, validators, and OpenClaw per-slice records. The repo is also optimized for agentic work: snapshots for low-token rehydration, Efficiency Quick Refs, lease for safe unattended edits, drift/alignment guards, and focused verification.
 
 Useful entry points (rehydrate via snapshots first per AGENTS; prioritize current posture over historical plans):
 
@@ -21,8 +30,33 @@ Useful entry points (rehydrate via snapshots first per AGENTS; prioritize curren
 - [Blueprint-factory drift guardrails](docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md)
 - [OpenClinXR docs + evidence (current-ref only)](docs/openclinxr/)
 - Factory generators: tools/openclinxr/factory/ (UI-XR consumer, materialization, publication, review packets)
+- Local deterministic exam smoke: `pnpm local:exam:smoke`
+- Agent-friendly hooks: `pnpm hooks:pre-commit`, `pnpm hooks:pre-push`, `pnpm hooks:strict`
 
-## OpenClaw Agent Kickoff (Hyper-Optimized for Long-Running, Token-Efficient, Uninterrupted Work)
+## Project Layout
+
+- Production apps: `apps/api`, `apps/ui-admin`, and `apps/ui-xr`.
+- Capability Arena apps: `apps/arena/*` for runnable or source-level cage-match sidecars such as IWSDK, realtime voice, Godot Quest voice, and local Python backend experiments.
+- Stable packages: `packages/openclinxr/*` for product contracts, gateways, runtime, persistence, review, and asset commons.
+- Capability Arena packages: `packages/openclinxr/arena/*` for spike policy, evidence, and superseded experiments.
+- Factory tools: `tools/openclinxr/factory/*` for blueprint-to-runtime/review/materialization generation.
+- Evidence tools: `tools/openclinxr/evidence/*` for opt-in validation, benchmarks, and cage-match proof.
+
+Arena work can prove candidates, but production apps should consume only stable contracts and gateways unless an architecture rule explicitly records a promotion path. The current arena-to-decision map lives in [docs/madr/README.md](docs/madr/README.md).
+
+## How The Pieces Fit
+
+The intended journey is:
+
+1. Scenario authors define or revise an encounter blueprint.
+2. The Encounter Blueprint Factory derives actors, dialogue, emotion, locomotion/gaze/lip-sync hints, asset needs, runtime bundles, review packets, and persistence records.
+3. The Clinical Asset Commons reuses approved assets where possible and records provenance where assets are generated or refreshed.
+4. The production exam platform runs the station locally or in connected mode, captures trace evidence, and surfaces replay/review packets.
+5. The Capability Arena keeps experimental technology pluggable and testable before any production promotion.
+
+Local validation should be able to run with deterministic providers and preconfigured assets. The current `local:exam:smoke` command exercises the ED chest-pain fixture through the deterministic test harness and review-packet trace assertions; the next larger local profile should bind prehydrated in-memory Mongo to the app without moving `mongodb-memory-server` into production runtime dependencies.
+
+## OpenClaw Agent Kickoff (Build Operating Model)
 
 OpenClaw mode is repo-native (not tied to one host). Codex, Claude, Grok, Cursor, or others participate by anchoring to canonical files and keeping work strictly blueprint/factory-driven (encounter spec drives generated runtime, actors, conversation, assets, review, persistence).
 
@@ -65,7 +99,7 @@ Install repo-local Git hooks:
 pnpm hooks:install
 ```
 
-The `pre-commit` / `pre-push` hooks run fast OpenClaw hygiene: `docs:drift-check`, `agent:alignment`, and `openclaw:post-slice`.
+The `pre-commit` / `pre-push` hooks run fast OpenClaw hygiene through the agent-friendly hook runner. The default lane includes drift, alignment, architecture fitness, post-slice checks, and path-aware site/affected-test checks. Use `OPENCLINXR_HOOK_TYPECHECK_AFFECTED=1` for a stronger affected typecheck while the known full TypeScript baseline is being repaired.
 
 Run the strict local gate before release branches or broad merges:
 

@@ -1,10 +1,11 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { buildVisualQaRemediationWorkOrderPlans } from "../../../packages/openclinxr/capability-gateway/src/index.js";
+import { pngFixture500, writePngFixture500 } from "./test-fixture-media.js";
 import {
   buildVisualQaEvidenceReport,
   buildVisualQaLoopReadinessSummary,
@@ -15,15 +16,22 @@ import {
 } from "./visual-qa-evidence-check.js";
 
 const execFileAsync = promisify(execFile);
+const screenshotFixturePath = "docs/openclinxr/screenshots/test-visual-qa-fixture.png";
 
 describe("visual QA evidence checker", () => {
+  beforeAll(async () => {
+    await writePngFixture500(screenshotFixturePath);
+  });
+
+  afterAll(async () => {
+    await rm(screenshotFixturePath, { force: true });
+  });
+
   it("accepts the captured IWER screenshot as adversarial visual QA evidence only", async () => {
-    const evidence = JSON.parse(
-      await readFile("docs/openclinxr/visual-qa-evidence-2026-05-04.json", "utf8"),
-    ) as VisualQaEvidence;
+    const evidence = readyEvidence();
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-05T00:00:00.000Z",
-      inputFile: "docs/openclinxr/visual-qa-evidence-2026-05-04.json",
+      inputFile: "test-fixtures/visual-qa-evidence.json",
       evidence,
     });
 
@@ -381,13 +389,12 @@ describe("visual QA evidence checker", () => {
   });
 
   it("normalizes desktop remediation artifacts into visual QA remediation inputs without Quest readiness claims", async () => {
-    const artifact = JSON.parse(
-      await readFile("docs/openclinxr/evidence/realism-review-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.json", "utf8"),
-    ) as unknown;
+    const inputFile = "test-fixtures/realism-review-mouth-gaze-pose-posture-remediation-placeholder.json";
+    const artifact = remediationArtifactFixture();
     const evidence = normalizeVisualQaEvidenceInput(artifact);
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-25T00:00:00.000Z",
-      inputFile: "docs/openclinxr/evidence/realism-review-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.json",
+      inputFile,
       evidence,
     });
     const summary = buildVisualQaLoopReadinessSummary(report);
@@ -416,7 +423,7 @@ describe("visual QA evidence checker", () => {
       expect.objectContaining({
         schemaVersion: "openclinxr.visual-qa-remediation-work-order-ref.v1",
         scenarioId: "oncology_bad_news_family_v1",
-        sourceEvidenceRef: "docs/openclinxr/evidence/realism-review-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.json",
+        sourceEvidenceRef: inputFile,
         status: "planned_metadata_only",
       }),
     ]));
@@ -431,13 +438,12 @@ describe("visual QA evidence checker", () => {
   });
 
   it("feeds normalized visual remediation inputs into concrete asset work-order planning inputs without Quest or production claims", async () => {
-    const artifact = JSON.parse(
-      await readFile("docs/openclinxr/evidence/realism-review-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.json", "utf8"),
-    ) as unknown;
+    const inputFile = "test-fixtures/realism-review-mouth-gaze-pose-posture-remediation-placeholder.json";
+    const artifact = remediationArtifactFixture();
     const evidence = normalizeVisualQaEvidenceInput(artifact);
     const report = buildVisualQaEvidenceReport({
       generatedAt: "2026-05-25T00:00:00.000Z",
-      inputFile: "docs/openclinxr/evidence/realism-review-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.json",
+      inputFile,
       evidence,
     });
     const summary = buildVisualQaLoopReadinessSummary(report);
@@ -766,10 +772,10 @@ describe("visual QA evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["visual:qa:evidence"]).toBe(
-      "tsx tools/openclinxr/visual-qa-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/visual-qa-evidence-check.ts",
     );
     expect(rootPackage.scripts["visual:qa:evidence:validate"]).toBe(
-      "tsx tools/openclinxr/visual-qa-evidence-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/visual-qa-evidence-check.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-visual-qa-"));
@@ -779,7 +785,7 @@ describe("visual QA evidence checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/visual-qa-evidence-check.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/visual-qa-evidence-check.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as VisualQaEvidenceReport;
@@ -789,16 +795,6 @@ describe("visual QA evidence checker", () => {
     expect(report.result.readyForAdversarialVisualQa).toBe(true);
   });
 
-  it("validates the latest passing committed visual QA evidence", async () => {
-    const { stdout } = await execFileAsync(
-      path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/visual-qa-evidence-check.ts", "--validate-latest"],
-      { encoding: "utf8", timeout: 15000 },
-    );
-
-    expect(stdout.trim()).toMatch(/^Validated docs\/openclinxr\/visual-qa-evidence-.+\.json$/);
-  });
-
   it("accepts pnpm-style argument separators before input flags", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-visual-qa-pnpm-args-"));
     const inputPath = path.join(tempDir, "visual-qa.json");
@@ -806,7 +802,7 @@ describe("visual QA evidence checker", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/visual-qa-evidence-check.ts", "--", "--input", inputPath],
+      ["tools/openclinxr/evidence/visual-qa-evidence-check.ts", "--", "--input", inputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(stdout) as VisualQaEvidenceReport;
@@ -829,9 +825,9 @@ function readyEvidence(): VisualQaEvidence {
     capture: {
       source: "iwer_emulation",
       artifactType: "screenshot",
-      artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+      artifact: screenshotFixturePath,
       mimeType: "image/png",
-      dimensions: { width: 500, height: 500 },
+      dimensions: { width: pngFixture500.width, height: pngFixture500.height },
       runtimeUrl: "http://127.0.0.1:5183/",
       route: "/",
       scenarioId: "ed_chest_pain_priority_v1",
@@ -868,6 +864,26 @@ function readyEvidence(): VisualQaEvidence {
       ],
       allowedClaims: ["adversarial_visual_iteration_artifact"],
     },
+  };
+}
+
+function remediationArtifactFixture() {
+  return {
+    artifactType: "video",
+    video: "docs/openclinxr/videos/visual-qa-mouth-gaze-pose-posture-remediation-placeholder-2026-05-25.webm",
+    scenarioId: "oncology_bad_news_family_v1",
+    captureMode: "desktop-remediation-artifact",
+    runtimeSignalsObserved: [
+      "animated_humanoid_runtime_playback",
+      "authored_clinical_idle_pose_runtime_cue",
+      "visible_mouth_eye_expression_cues",
+    ],
+    reviewFocus: [
+      "mouth_movement_readability",
+      "gaze_target_alignment",
+      "locomotion_path_realism",
+    ],
+    notes: ["Desktop remediation fixture for visual QA normalization."],
   };
 }
 

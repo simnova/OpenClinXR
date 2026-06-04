@@ -78,7 +78,7 @@ export type ApiBunPythonProxyRuntimeSmokeReport = {
   bun: ApiBunPythonProxyRuntimeSmokeObservation["bun"];
   runtime: {
     apiTarget: "apps/api bun+hono";
-    pythonBackendTarget: "apps/api-python-backend fastapi";
+    pythonBackendTarget: "apps/arena/api-python-backend fastapi";
     websocketPath: "/voice/realtime/ws";
     backendProtocol: "python-fastapi-compatible-websocket";
   };
@@ -292,7 +292,7 @@ function validateRuntime(value: unknown, errors: string[]): void {
   }
 
   requireLiteral(value.apiTarget, "apps/api bun+hono", "/runtime/apiTarget", errors);
-  requireLiteral(value.pythonBackendTarget, "apps/api-python-backend fastapi", "/runtime/pythonBackendTarget", errors);
+  requireLiteral(value.pythonBackendTarget, "apps/arena/api-python-backend fastapi", "/runtime/pythonBackendTarget", errors);
   requireLiteral(value.websocketPath, "/voice/realtime/ws", "/runtime/websocketPath", errors);
   requireLiteral(value.backendProtocol, "python-fastapi-compatible-websocket", "/runtime/backendProtocol", errors);
 }
@@ -494,7 +494,7 @@ export async function runApiBunPythonProxyRuntimeSmoke(
     "uvicorn",
     "api_python_backend.main:app",
     "--app-dir",
-    "apps/api-python-backend/src",
+    "apps/arena/api-python-backend/src",
     "--host",
     "127.0.0.1",
     "--port",
@@ -625,7 +625,7 @@ export function buildApiBunPythonProxyRuntimeSmokeReport(
     bun: input.bun,
     runtime: {
       apiTarget: "apps/api bun+hono",
-      pythonBackendTarget: "apps/api-python-backend fastapi",
+      pythonBackendTarget: "apps/arena/api-python-backend fastapi",
       websocketPath: realtimeVoiceProtocol.websocketPath,
       backendProtocol: realtimeVoiceProtocol.backendProtocol,
     },

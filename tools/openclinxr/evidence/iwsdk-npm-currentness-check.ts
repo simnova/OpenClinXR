@@ -70,35 +70,35 @@ export type IwsdkNpmCurrentnessReport = {
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const expectedPackages: ExpectedIwsdkPackage[] = [
-  { name: "@iwsdk/core", latestVersion: "0.4.1", license: "MIT" },
-  { name: "@iwsdk/xr-input", latestVersion: "0.4.1", license: "MIT" },
-  { name: "@iwsdk/locomotor", latestVersion: "0.4.1", license: "MIT" },
-  { name: "@iwsdk/glxf", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@iwsdk/core", latestVersion: "0.4.2", license: "MIT" },
+  { name: "@iwsdk/xr-input", latestVersion: "0.4.2", license: "MIT" },
+  { name: "@iwsdk/locomotor", latestVersion: "0.4.2", license: "MIT" },
+  { name: "@iwsdk/glxf", latestVersion: "0.4.2", license: "MIT" },
   {
     name: "@iwsdk/vite-plugin-dev",
-    latestVersion: "0.4.1",
+    latestVersion: "0.4.2",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-gltf-optimizer",
-    latestVersion: "0.4.1",
+    latestVersion: "0.4.2",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-uikitml",
-    latestVersion: "0.4.1",
+    latestVersion: "0.4.2",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
   {
     name: "@iwsdk/vite-plugin-metaspatial",
-    latestVersion: "0.4.1",
+    latestVersion: "0.4.2",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
-  { name: "@iwsdk/reference", latestVersion: "0.4.1", license: "MIT" },
+  { name: "@iwsdk/reference", latestVersion: "0.4.2", license: "MIT" },
   { name: "@meta-quest/hzdb", latestVersion: "1.2.1", license: "UNLICENSED" },
 ];
 
@@ -315,13 +315,13 @@ function vitePeerRangeAcceptsRepoMajor(peerRange: string, repoViteVersion: strin
 }
 
 async function readRepoViteVersion(): Promise<string> {
-  const manifest = JSON.parse(await readFile("apps/ui-xr-iwsdk-spike/package.json", "utf8")) as {
+  const manifest = JSON.parse(await readFile("apps/arena/ui-xr-iwsdk-spike/package.json", "utf8")) as {
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   };
   const version = manifest.devDependencies?.vite ?? manifest.dependencies?.vite;
   if (!version) {
-    throw new Error("Could not resolve repo Vite version from apps/ui-xr-iwsdk-spike/package.json");
+    throw new Error("Could not resolve repo Vite version from apps/arena/ui-xr-iwsdk-spike/package.json");
   }
   return version;
 }

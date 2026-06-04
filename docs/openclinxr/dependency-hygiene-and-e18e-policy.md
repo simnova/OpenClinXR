@@ -26,7 +26,7 @@ These warnings are known and should not become toil by themselves:
 
 - Transitive duplicate dependencies owned by older upstream toolchains.
 - Workspace package `exports` warnings pending a separate package-boundary decision.
-- IWSDK/Vite compatibility posture is pinned through `pnpm-workspace.yaml`; latest observed IWSDK plugin metadata is `0.4.1`, and the Vite plugins still peer on `vite: ^7.0.0` while the repo uses Vite `8.0.10`.
+- IWSDK/Vite compatibility posture is pinned through `pnpm-workspace.yaml`; latest observed IWSDK plugin metadata is `0.4.2`, and the Vite plugins still peer on `vite: ^7.0.0` while the repo uses Vite `8.0.10`.
 - Legacy GLTF tooling dependencies while `gltf-pipeline` remains an approved local asset capability and `@gltf-transform/core` Node API evidence is promoted through source-smoke consumers.
 
 ## First real reduction candidates

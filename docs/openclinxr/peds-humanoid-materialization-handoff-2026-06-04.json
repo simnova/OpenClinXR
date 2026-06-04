@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "openclinxr.peds-humanoid-materialization-handoff.v1",
+  "source": "worker_role_specific_humanoid_glb_materialization_metadata",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "targetKind": "role_specific_humanoid_glb",
+  "generatedAssetsMaterialized": true,
+  "localCandidateAssetsSelected": true,
+  "assets": [
+    {
+      "actorRole": "patient",
+      "assetPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+      "runtimeAssetPath": "/generated-humanoids/peds_patient_child.glb",
+      "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+      "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+      "sourceKind": "case_driven_generated_humanoid_candidate",
+      "realAnnyWeightsUsed": false,
+      "textureMode": "procedural_fallback",
+      "animationMode": "procedural_animation_fallback",
+      "realismGrade": "B",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "notEvidenceFor": [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    {
+      "actorRole": "anxious_parent",
+      "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "runtimeAssetPath": "/generated-humanoids/peds_anxious_parent.glb",
+      "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+      "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+      "sourceKind": "case_driven_generated_humanoid_candidate",
+      "realAnnyWeightsUsed": false,
+      "textureMode": "procedural_fallback",
+      "animationMode": "procedural_animation_fallback",
+      "realismGrade": "B",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "notEvidenceFor": [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    }
+  ],
+  "productionReadinessClaimed": false,
+  "questReadinessClaimed": false,
+  "clinicalValidityClaimed": false,
+  "scoringValidityClaimed": false,
+  "claimBoundary": "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness"
+}

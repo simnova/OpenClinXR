@@ -7,7 +7,7 @@ import {
   type IwsdkPackageMetadataDriftEvidence,
   type IwsdkPackageMetadataDriftPolicy,
   type IwsdkPackageMetadataDriftReadiness,
-} from "../../../packages/openclinxr/iwsdk-spike/src/index.js";
+} from "../../../packages/openclinxr/arena/iwsdk-spike/src/index.js";
 
 type CliOptions = {
   inputPath: string;

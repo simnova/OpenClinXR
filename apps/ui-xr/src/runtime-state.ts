@@ -709,7 +709,7 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   pedsReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   edReplayEvidence?: { scenarioId: string; turnsReplayed: number; finalEmotion: string | null; finalCue: string | null; locomotion: boolean; gazeAversion: string; lipSyncViseme: string; source: "case-derived-player-loop-replay" } | null;
   // Wired replay to runtime behavior (drive fields from replay for e2e player consumption; for peds+ed caseDerived).
-  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; source: "case-derived-replay-drive" } | null;
+  pedsRuntimeDrive?: { currentEmotion: string | null; currentCue: string | null; locomotion: boolean; gaze: string; lipSync: string; virtualEnv: string | null; gltfEnvWorld: { room: string | null; containerPolicy: string } | null; deeperVisualCue: { fromEnv: string | null; fromEmotion: string | null; cue: string; intensity: number; richerCuesApplied: boolean; source: "case-derived-richer-deeper-env" } | null; source: "case-derived-replay-drive" } | null;
   // Virtual env from factory (user steering: after functional player chunk for conv/emotion, now factory for virtual env pipeline). Small piece of virtual env that runtime player will use (room/props from case, tech vetted Three+GLTF open source). Evident in scaffold data for encounter experience.
   caseDerivedVirtualEnvironment?: {
     scenarioId: string;
@@ -988,6 +988,16 @@ export type SceneAssetEvidence = {
     fallbackActive: boolean;
     affordanceCueIds?: string[];
     animationPlayback?: "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
+    humanoidSourceProvenance?: {
+      generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_plus_blender" | "fixture" | "candidate";
+      sourceKind: "case_driven_generated_humanoid_candidate" | "runtime_fixture" | "source_comparator_candidate";
+      realAnnyWeightsUsed: boolean;
+      textureMode: "procedural_fallback" | "authored_or_baked" | "unknown";
+      animationMode: "procedural_animation_fallback" | "authored_animation_clips" | "unknown";
+      realismGrade: "B" | "B+" | "not_graded";
+      provenanceManifestPath?: string;
+      notEvidenceFor: string[];
+    };
   }>;
   productionAssetReadinessClaimed: false;
   notEvidenceFor: [
@@ -2189,7 +2199,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
 
   const pedsDialoguePolicyDemo = scenarioId === "peds_asthma_parent_anxiety_v1"
     ? getDialoguePolicyForActorFromCase(
-        { actors: [{ actorId: "parent_tara_johnson_v1", style: "angry_family_member", baselineMood: ["anxious"], topicsToAvoid: ["blame_for_delay"], adverseResponse: "louder" }] } as any,
+        { actors: [{ actorId: "parent_tara_johnson_v1", style: "angry_family_member", baselineMood: ["anxious"], topicsToAvoid: ["blame_for_delay"], adverseResponse: "louder" }] },
         "parent_tara_johnson_v1"
       )
     : null;
@@ -2224,8 +2234,8 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
 
   const pedsPlayerLoopStep = scenarioId === "peds_asthma_parent_anxiety_v1" && pedsPlayerStepLoopDemo ? {
     totalSteps: pedsPlayerStepLoopDemo.length,
-    currentAfterStep0: pedsPlayerStepLoopDemo[0],
-    currentAfterStep1: pedsPlayerStepLoopDemo[1] || pedsPlayerStepLoopDemo[0],
+    currentAfterStep0: pedsPlayerStepLoopDemo[0] ? { trigger: pedsPlayerStepLoopDemo[0].trigger, emotion: pedsPlayerStepLoopDemo[0].emotion ?? null, cue: pedsPlayerStepLoopDemo[0].cue ?? null } : { trigger: "", emotion: null, cue: null },
+    currentAfterStep1: pedsPlayerStepLoopDemo[1] ? { trigger: pedsPlayerStepLoopDemo[1].trigger, emotion: pedsPlayerStepLoopDemo[1].emotion ?? null, cue: pedsPlayerStepLoopDemo[1].cue ?? null } : (pedsPlayerStepLoopDemo[0] ? { trigger: pedsPlayerStepLoopDemo[0].trigger, emotion: pedsPlayerStepLoopDemo[0].emotion ?? null, cue: pedsPlayerStepLoopDemo[0].cue ?? null } : { trigger: "", emotion: null, cue: null }),
     source: "case-derived-loop-step" as const
   } : null;
 
@@ -2253,14 +2263,20 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
 
   // Early virtual env room for drive (caseDerivedVirtualEnvironment const is declared later in fn; hoisted lookup keeps init order safe while integrating env with gen loop data).
   const virtualEnvRoomForDrive = scenarioId === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : scenarioId === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null;
-  const pedsRuntimeDrive = ((scenarioId === "peds_asthma_parent_anxiety_v1" && pedsReplayEvidence) || (scenarioId === "ed_chest_pain_priority_v1" && edReplayEvidence)) ? {
-    currentEmotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalEmotion : edReplayEvidence!.finalEmotion,
-    currentCue: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.finalCue : edReplayEvidence!.finalCue,
-    locomotion: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.locomotion : edReplayEvidence!.locomotion,
-    gaze: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.gazeAversion : edReplayEvidence!.gazeAversion,
-    lipSync: scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsReplayEvidence!.lipSyncViseme : edReplayEvidence!.lipSyncViseme,
+  const activeReplayEvidence = scenarioId === "peds_asthma_parent_anxiety_v1"
+    ? pedsReplayEvidence
+    : scenarioId === "ed_chest_pain_priority_v1"
+      ? edReplayEvidence
+      : null;
+  const pedsRuntimeDrive = activeReplayEvidence ? {
+    currentEmotion: activeReplayEvidence.finalEmotion,
+    currentCue: activeReplayEvidence.finalCue,
+    locomotion: activeReplayEvidence.locomotion,
+    gaze: activeReplayEvidence.gazeAversion,
+    lipSync: activeReplayEvidence.lipSyncViseme,
     virtualEnv: virtualEnvRoomForDrive,
     gltfEnvWorld: virtualEnvRoomForDrive ? { room: virtualEnvRoomForDrive, containerPolicy: "gltf handoff container in launched player world (props + authoring vet + cues from gen drive)" } : null,
+    deeperVisualCue: virtualEnvRoomForDrive ? { fromEnv: virtualEnvRoomForDrive, fromEmotion: activeReplayEvidence.finalEmotion || (scenarioId === "peds_asthma_parent_anxiety_v1" ? pedsActiveEmotionDemo : null), cue: "tint or scale on gltfEnvContainer or props from emotion in the launched player world (deeper visual integration of env + gen drive)", intensity: 0.85, richerCuesApplied: true, source: "case-derived-richer-deeper-env" as const } : null,
     source: "case-derived-replay-drive" as const
   } : null;
 
@@ -2283,6 +2299,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
         { name: "wall_chart", primitives: [{ attributes: { POSITION: 4 } }] },
       ],
       extras: { caseId: "peds_asthma_parent_anxiety_v1", cues: ["exam_table", "oxygen_delivery_system", "peak_flow_meter", "parent_chair", "wall_chart"], source: "factory materialization stub (authoringVet pipeline + case spec) for actual gltf load in launched player gltfEnvContainer" },
+      richerAuthoring: { visemeCues: "blendshapes from affectTimeline/emotion state", locoCues: "anim clips from runtimeExecutionHints", gazeCues: "from emotion state machine", fullForPeds: true },
     },
     source: "case_spec_derivation_v1_factory_tech_vet",
   } : scenarioId === "ed_chest_pain_priority_v1" ? {
@@ -2305,14 +2322,15 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
         { name: "defibrillator", primitives: [{ attributes: { POSITION: 4 } }] },
       ],
       extras: { caseId: "ed_chest_pain_priority_v1", cues: ["gurney for patient position on ignored_emotion", "cardiac_monitor for vitals on urgent_escalation", "crash_cart for priority response", "iv_stand for fluid", "defibrillator for chest pain escalation"], source: "factory materialization stub (authoringVet pipeline + case spec eventSchedule/clinicalObjectives) for actual gltf load in launched player gltfEnvContainer" },
+      richerAuthoring: { visemeCues: "blendshapes from affectTimeline/emotion state", locoCues: "anim clips from runtimeExecutionHints", gazeCues: "from emotion state machine", fullForEd: true },
     },
     source: "case_spec_derivation_v1_factory_tech_vet",
   } : null;
 
   // Visual string for player (makes the virtual env evident in scaffold data when running the app/player; usable for encounter experience).
   const virtualEnvForPlayer = caseDerivedVirtualEnvironment ? `virtual ${caseDerivedVirtualEnvironment.roomType} with ${caseDerivedVirtualEnvironment.props.length} props (runtime tech: ${caseDerivedVirtualEnvironment.techStack.runtime}; vetted: ${caseDerivedVirtualEnvironment.techStack.vetStatus})` : null;
-  // Small gltf handoff piece for case env (from tech vet: gltf as interchange for virtual env player will use; open source gltf-transform/draco in pipeline, blender/gltf authoring; case spec room/props + emotionTimeline cues -> materialization produces gltf with blendshapes/extras for provenance; player loads via three GLTFLoader in main.ts). Stub url for peds/ed to unblock deeper pipeline (factory can attach real from case env desc). Advances "gltf handoff for case env" queued.
-  const gltfAssetUrlForEnv = scenarioId === "peds_asthma_parent_anxiety_v1" ? "case/peds_asthma_parent_anxiety_v1/virtual-env-room.glb" : scenarioId === "ed_chest_pain_priority_v1" ? "case/ed_chest_pain_priority_v1/virtual-env-room.glb" : null;
+  // Small gltf handoff piece for case env (from tech vet: gltf as interchange for virtual env player will use; open source gltf-transform/draco in pipeline, blender/gltf authoring; case spec room/props + emotionTimeline cues -> materialization produces gltf with blendshapes/extras for provenance; player loads via three GLTFLoader in main.ts). Using real existing glb as stand-in so actual load success path (add to gltfEnvContainer, loadedFromFactoryCaseEnv flag) is exercised in the launched full webxr player experience for peds/ed (per user "launch using turborepo", "actual gltf asset load in launched", "test out the world"). Factory will later write real from envGltfManifest + authoringVet. Advances "actual gltf asset load in launched player" + factory-to-runtime verification.
+  const gltfAssetUrlForEnv = scenarioId === "peds_asthma_parent_anxiety_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : scenarioId === "ed_chest_pain_priority_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null;
 
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
@@ -2742,8 +2760,9 @@ function traceInteractionAttemptFor(input: {
       return "xr_hand_select_attempted_no_runtime_event";
     case undefined:
       return "not_attempted";
+    default:
+      return "not_attempted";
   }
-  return "not_attempted";
 }
 
 export function buildManualPerformanceCaptureSummary(
@@ -3464,5 +3483,5 @@ export function stepEmotionStateFromCaseMachine(
 // Dialogue policy stub wired from peds case (rebalance). Provides actor-specific policy notes (style, avoid, adverse) for dialogue orchestration in runtime from case spec.
 export function getDialoguePolicyForActorFromCase(policy: { actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }> } | null, actorId: string) {
   if (!policy) return null;
-  return policy.actors.find((a: any) => a.actorId === actorId) || null;
+  return policy.actors.find((actor) => actor.actorId === actorId) || null;
 }

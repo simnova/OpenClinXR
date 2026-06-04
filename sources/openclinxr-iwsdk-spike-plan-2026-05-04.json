@@ -1,16 +1,16 @@
 {
   "source_id": "src-openclinxr-iwsdk-spike-plan-2026-05-04",
   "title": "OpenClinXR IWSDK Spike Plan Package",
-  "file_path": "/Users/patrick/Documents/New project 2/packages/openclinxr/iwsdk-spike",
+  "file_path": "/Users/patrick/Documents/New project 2/packages/openclinxr/arena/iwsdk-spike",
   "source_type": "internal-artifact",
-  "citation": "OpenClinXR package @openclinxr/iwsdk-spike and Phase 1 apps/ui-xr-iwsdk-spike sidecar, created 2026-05-04 to encode Meta Immersive Web SDK adoption gates, package isolation, and agent verification runbooks without adding IWSDK runtime dependencies to production apps.",
+  "citation": "OpenClinXR package @openclinxr/iwsdk-spike and Phase 1 apps/arena/ui-xr-iwsdk-spike sidecar, created 2026-05-04 to encode Meta Immersive Web SDK adoption gates, package isolation, and agent verification runbooks without adding IWSDK runtime dependencies to production apps.",
   "accessed_at": "2026-05-04",
   "permitted_uses": [
     "Internal implementation planning for an isolated Meta Immersive Web SDK spike, including package posture, source traceability, local agent verification, and production-adoption blockers."
   ],
   "claims_supported": [
-    "The OpenClinXR workspace now has a project-owned @openclinxr/iwsdk-spike package that contains typed spike planning data and a separate apps/ui-xr-iwsdk-spike sidecar that is allowed to depend on exact Phase 1 IWSDK packages.",
-    "The package keeps packages/openclinxr/iwsdk-spike as advisory policy/test code only, while executable @iwsdk dependencies and imports are allowed only in apps/ui-xr-iwsdk-spike/ for the approved Phase 1 slice.",
+    "The OpenClinXR workspace now has a project-owned @openclinxr/iwsdk-spike package that contains typed spike planning data and a separate apps/arena/ui-xr-iwsdk-spike sidecar that is allowed to depend on exact Phase 1 IWSDK packages.",
+    "The package keeps packages/openclinxr/arena/iwsdk-spike as advisory policy/test code only, while executable @iwsdk dependencies and imports are allowed only in apps/arena/ui-xr-iwsdk-spike/ for the approved Phase 1 slice.",
     "The package records source-backed candidate packages, including @iwsdk/core, @iwsdk/xr-input, @iwsdk/glxf, @iwsdk/locomotor, @iwsdk/vite-plugin-dev, @iwsdk/vite-plugin-gltf-optimizer, @iwsdk/vite-plugin-uikitml, and @iwsdk/vite-plugin-metaspatial.",
     "The package records blocked or unattended-only posture for @iwsdk/create, @iwsdk/reference, @iwsdk/starter-assets, and @meta-quest/hzdb.",
     "The package records a Codex-oriented verification runbook that checks iwsdk dev status, then xr_get_session_status, xr_accept_session, browser_screenshot, scene_get_hierarchy, xr_select, and browser_get_console_logs.",
@@ -26,7 +26,7 @@
     "The package records machine-readable sidecar and production readiness thresholds for installed footprint, injected IWSDK dev runtime size, JS bundle size, bundle delta versus apps/ui-xr, console errors, foreground Quest preflight readiness, Quest 3 FPS, p95 frame time, and controller-select latency.",
     "The root workspace exposes pnpm iwsdk:verify as an explicit opt-in policy lane for IWSDK spike planning checks without adding IWSDK installation assumptions to the default pnpm verify gate.",
     "The package exposes a Codex MCP adapter template and docs/openclinxr/iwsdk-codex-mcp-runbook.md records the local-only setup and verification order.",
-    "The package records apps/ui-xr-iwsdk-spike as a runnable, isolated Phase 1 sidecar backed by @iwsdk/core@0.3.1, @iwsdk/xr-input@0.3.1, and three@0.184.0, with Phase 2 devtool and production promotion still blocked until runtime metrics, adapter sync, MCP inventory, and Quest foreground proof pass.",
+    "The package records apps/arena/ui-xr-iwsdk-spike as a runnable, isolated Phase 1 sidecar backed by @iwsdk/core@0.3.1, @iwsdk/xr-input@0.3.1, and three@0.184.0, with Phase 2 devtool and production promotion still blocked until runtime metrics, adapter sync, MCP inventory, and Quest foreground proof pass.",
     "The package exposes a pre-install package policy and evaluator that accepts exact-versioned first-slice @iwsdk/core and @iwsdk/xr-input proposals while flagging unpinned versions, blocked packages, blocked license expressions, and blocked transitive packages before workspace package manifests or lockfiles change.",
     "The pre-install evaluator rejects @iwsdk packages outside the unattended first-slice allowlist, treats review-required packages such as GLXF, UIKitML, Meta Spatial, locomotion, dev tooling, and GLTF optimization as not ready for unattended install, blocks sharp-libvips transitive variants, and normalizes blocked license matching case-insensitively.",
     "The root workspace exposes pnpm iwsdk:preinstall as a JSON preflight report command that can score the default first-slice proposal or a proposal JSON file without installing IWSDK dependencies.",

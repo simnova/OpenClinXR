@@ -161,7 +161,7 @@ describe("Quest HTTP/3 compatibility checker", () => {
     };
 
     expect(rootPackage.scripts?.["xr:quest:http3:check"]).toBe(
-      "tsx tools/openclinxr/check-quest-http3-compatibility.ts",
+      "tsx tools/openclinxr/evidence/check-quest-http3-compatibility.ts",
     );
   });
 });

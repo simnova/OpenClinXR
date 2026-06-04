@@ -36,7 +36,7 @@ describe("IWSDK compatibility evidence checker", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["iwsdk:compatibility:evidence"]).toBe(
-      "tsx tools/openclinxr/iwsdk-compatibility-evidence-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-compatibility-evidence-check.ts",
     );
 
     const dir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-iwsdk-compatibility-evidence-"));
@@ -56,7 +56,7 @@ describe("IWSDK compatibility evidence checker", () => {
     try {
       await execFileAsync(
         path.resolve("node_modules/.bin/tsx"),
-        ["tools/openclinxr/iwsdk-compatibility-evidence-check.ts", "--input", inputPath],
+        ["tools/openclinxr/evidence/iwsdk-compatibility-evidence-check.ts", "--input", inputPath],
         { encoding: "utf8", timeout: 15000 },
       );
       throw new Error("Expected IWSDK compatibility evidence checker to reject incomplete evidence");

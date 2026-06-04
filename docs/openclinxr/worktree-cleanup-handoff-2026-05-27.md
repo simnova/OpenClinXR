@@ -14,8 +14,8 @@ This generated report categorizes the remaining dirty worktree so cleanup commit
 
 - `M` `.agent-factory/benchmark-gate-report.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
 - `M` `.agent-factory/quest-cdp-smoke-check.json` - local-cache; Ignore or delete if untracked; do not commit as durable evidence.
-- `M` `apps/ui-xr-iwsdk-spike/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
-- `M` `apps/ui-xr-iwsdk-spike/src/sidecar-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/arena/ui-xr-iwsdk-spike/src/main.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
+- `M` `apps/arena/ui-xr-iwsdk-spike/src/sidecar-state.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/data-mongodb/src/api-persistence-sink.integration.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.
 - `M` `packages/openclinxr/data-mongodb/src/mongodb-repositories.test.ts` - product-code; Do not mix into cleanup commits; triage as product feature/stabilization work.

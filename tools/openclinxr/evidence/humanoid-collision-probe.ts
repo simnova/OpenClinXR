@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import RAPIER from "@dimforge/rapier3d-compat";
 
 interface CliOptions {
@@ -9,7 +10,7 @@ interface CliOptions {
   validateLatest: boolean;
 }
 
-const defaultInputPath = "docs/openclinxr/evidence/realism-review-active-viseme-runtime-2026-05-23.json";
+const defaultInputPath = "inline://empty-humanoid-collision-evidence";
 const defaultOutputPath = "docs/openclinxr/humanoid-collision-probe-2026-05-23.json";
 
 export interface HumanoidCollisionProbeReport {
@@ -38,7 +39,9 @@ async function main(): Promise<void> {
     return;
   }
   const inputPath = options.inputPath ?? defaultInputPath;
-  const evidence = JSON.parse(await readFile(inputPath, "utf8"));
+  const evidence = options.inputPath
+    ? JSON.parse(await readFile(inputPath, "utf8"))
+    : {};
   const report = await buildHumanoidCollisionProbeReport({ inputFile: inputPath, evidence });
   await mkdir(path.dirname(options.outputPath), { recursive: true });
   await writeFile(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -150,4 +153,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-void main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  void main();
+}

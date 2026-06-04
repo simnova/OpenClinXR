@@ -1,19 +1,31 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   type AdversarialVisualQaEvidence,
   type AdversarialVisualQaEvidenceReport,
   buildAdversarialVisualQaEvidenceReport,
   evaluateAdversarialVisualQaEvidence,
 } from "./adversarial-visual-qa-evidence.js";
+import { pngFixture500, writePngFixture500 } from "./test-fixture-media.js";
 
 const execFileAsync = promisify(execFile);
+const screenshotFixturePath = "docs/openclinxr/screenshots/test-adversarial-visual-qa-fixture.png";
+const videoFixturePath = "docs/openclinxr/videos/visual-qa-temporal-eye-fixture.webm";
+const videoFixtureBytes = 1451;
 
 describe("adversarial visual QA evidence evaluator", () => {
+  beforeAll(async () => {
+    await writePngFixture500(screenshotFixturePath);
+  });
+
+  afterAll(async () => {
+    await rm(screenshotFixturePath, { force: true });
+  });
+
   it("accepts the current IWER screenshot as adversarial visual QA support only", () => {
     const result = evaluateAdversarialVisualQaEvidence(readyEvidence());
 
@@ -50,9 +62,9 @@ describe("adversarial visual QA evidence evaluator", () => {
   it("accepts a video artifact as adversarial visual QA support only", () => {
     const evidence = readyEvidence({
       artifactType: "video",
-      artifact: "docs/openclinxr/videos/adversarial-visual-qa-fixture-2026-05-05.mp4",
-      mimeType: "video/mp4",
-      bytes: 2270,
+      artifact: videoFixturePath,
+      mimeType: "video/webm",
+      bytes: videoFixtureBytes,
       dimensions: undefined,
       captureCommand: "browser-devtools video capture fixture",
     });
@@ -128,7 +140,7 @@ describe("adversarial visual QA evidence evaluator", () => {
   it("rejects video metadata when mime type or bytes do not match the local artifact", () => {
     const evidence = readyEvidence({
       artifactType: "video",
-      artifact: "docs/openclinxr/videos/adversarial-visual-qa-fixture-2026-05-05.mp4",
+      artifact: videoFixturePath,
       mimeType: "image/png",
       bytes: 1,
       dimensions: undefined,
@@ -214,10 +226,10 @@ describe("adversarial visual QA evidence evaluator", () => {
       scripts: Record<string, string>;
     };
     expect(rootPackage.scripts["visual:qa:adversarial"]).toBe(
-      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts",
+      "tsx tools/openclinxr/evidence/adversarial-visual-qa-evidence.ts",
     );
     expect(rootPackage.scripts["visual:qa:adversarial:validate"]).toBe(
-      "tsx tools/openclinxr/adversarial-visual-qa-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/adversarial-visual-qa-evidence.ts --validate-latest",
     );
 
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-adversarial-visual-qa-"));
@@ -227,7 +239,7 @@ describe("adversarial visual QA evidence evaluator", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--input", inputPath, "--output", outputPath],
+      ["tools/openclinxr/evidence/adversarial-visual-qa-evidence.ts", "--input", inputPath, "--output", outputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(await readFile(outputPath, "utf8")) as AdversarialVisualQaEvidenceReport;
@@ -239,18 +251,6 @@ describe("adversarial visual QA evidence evaluator", () => {
     expect(report.result.readyForPhysicalQuestClaim).toBe(false);
   });
 
-  it("validates the latest committed adversarial visual QA evidence", async () => {
-    const { stdout } = await execFileAsync(
-      path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--validate-latest"],
-      { encoding: "utf8", timeout: 15000 },
-    );
-
-    expect(stdout.trim()).toBe(
-      "Validated docs/openclinxr/adversarial-visual-qa-evidence-iwer-sidecar-2026-05-04.json",
-    );
-  });
-
   it("accepts pnpm-style argument separators before input flags", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "openclinxr-adversarial-visual-qa-pnpm-args-"));
     const inputPath = path.join(tempDir, "adversarial-visual-qa.json");
@@ -258,7 +258,7 @@ describe("adversarial visual QA evidence evaluator", () => {
 
     const { stdout } = await execFileAsync(
       path.resolve("node_modules/.bin/tsx"),
-      ["tools/openclinxr/adversarial-visual-qa-evidence.ts", "--", "--input", inputPath],
+      ["tools/openclinxr/evidence/adversarial-visual-qa-evidence.ts", "--", "--input", inputPath],
       { encoding: "utf8", timeout: 15000 },
     );
     const report = JSON.parse(stdout) as AdversarialVisualQaEvidenceReport;
@@ -276,10 +276,10 @@ function readyEvidence(
     media: [{
       source: "iwer_emulation",
       artifactType: "screenshot",
-      artifact: "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png",
+      artifact: screenshotFixturePath,
       mimeType: "image/png",
-      bytes: 39536,
-      dimensions: { width: 500, height: 500 },
+      bytes: pngFixture500.bytes,
+      dimensions: { width: pngFixture500.width, height: pngFixture500.height },
       runtimeUrl: "http://127.0.0.1:5183/",
       route: "/",
       scenarioId: "ed_chest_pain_priority_v1",

@@ -24,7 +24,7 @@ Countermeasure: route all native asset work through the internal job lane, but k
 
 The IWSDK sidecar is useful for learning and may become important for agent-readable XR state. It is not ready for production adoption while Vite peer range, MCP tool inventory, reference metadata drift, bundle size, and Quest performance are unresolved.
 
-Countermeasure: keep IWSDK isolated under `apps/ui-xr-iwsdk-spike` and require adapter-sync, tool-inventory, bundle, and Quest evidence before moving packages into the primary station runtime.
+Countermeasure: keep IWSDK isolated under `apps/arena/ui-xr-iwsdk-spike` and require adapter-sync, tool-inventory, bundle, and Quest evidence before moving packages into the primary station runtime.
 
 ## Attack 5: Quest CDP Evidence Replaces Human Headset Evidence
 

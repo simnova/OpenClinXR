@@ -532,7 +532,7 @@ export async function runApiPythonBackendRuntimeSmoke(
     "uvicorn",
     "api_python_backend.main:app",
     "--app-dir",
-    "apps/api-python-backend/src",
+    "apps/arena/api-python-backend/src",
     "--host",
     "127.0.0.1",
     "--port",

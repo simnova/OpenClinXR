@@ -2,7 +2,10 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import {
+  buildEncounterAssetGenerationQueueReport,
+  buildEncounterAssetGenerationRequestForScenario,
+} from "./encounter-asset-generation-queue.js";
 import {
   buildEncounterAssetGenerationWorkerReport,
   type EncounterAssetGenerationWorkerReport,
@@ -210,13 +213,13 @@ describe("encounter asset generation worker report", () => {
     };
 
     expect(rootPackage.scripts["asset:encounter-worker:run"]).toBe(
-      "tsx tools/openclinxr/encounter-asset-generation-worker.ts",
+      "tsx tools/openclinxr/factory/encounter-asset-generation-worker.ts",
     );
     expect(rootPackage.scripts["asset:encounter-worker:validate"]).toBe(
-      "tsx tools/openclinxr/encounter-asset-generation-worker.ts --validate-latest",
+      "tsx tools/openclinxr/factory/encounter-asset-generation-worker.ts --validate-latest",
     );
     expect(rootPackage.scripts["asset:encounter-worker:azurite"]).toBe(
-      "tsx tools/openclinxr/encounter-asset-generation-worker.ts --azure-storage-queue",
+      "tsx tools/openclinxr/factory/encounter-asset-generation-worker.ts --azure-storage-queue",
     );
   });
 
@@ -437,6 +440,96 @@ describe("encounter asset generation worker report", () => {
     expect(isAzuriteConnectionString("UseDevelopmentStorage=true")).toBe(true);
     expect(isAzuriteConnectionString("DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=fixture;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;")).toBe(true);
     expect(isAzuriteConnectionString("DefaultEndpointsProtocol=https;AccountName=prod;AccountKey=secret;EndpointSuffix=core.windows.net")).toBe(false);
+  });
+
+  it("carries peds role-specific humanoid GLB provenance into the worker materialization handoff", async () => {
+    const queueReport = buildEncounterAssetGenerationQueueReport({
+      generatedAt: "2026-06-04T03:40:00.000Z",
+      request: buildEncounterAssetGenerationRequestForScenario("peds_asthma_parent_anxiety_v1"),
+    });
+    const workerReport = await buildEncounterAssetGenerationWorkerReport({
+      queueReport,
+      generatedAt: "2026-06-04T03:41:00.000Z",
+    });
+
+    expect(workerReport.pedsHumanoidMaterializationHandoff).toMatchObject({
+      schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
+      source: "worker_role_specific_humanoid_glb_materialization_metadata",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      targetKind: "role_specific_humanoid_glb",
+      generatedAssetsMaterialized: true,
+      localCandidateAssetsSelected: true,
+      reviewPacketPath: "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
+      productionReadinessClaimed: false,
+      questReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
+      assets: expect.arrayContaining([
+        expect.objectContaining({
+          actorRole: "patient",
+          assetPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+          runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+          provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+          generatorMode: "anny_compatible_stub_plus_blender_procedural",
+          realAnnyWeightsUsed: false,
+          textureMode: "procedural_fallback",
+          animationMode: "procedural_animation_fallback",
+          realismGrade: "B",
+          promotionStatus: "runtime_candidate_not_realism_gate_pass",
+          notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate"]),
+        }),
+        expect.objectContaining({
+          actorRole: "anxious_parent",
+          assetPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+          runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+          provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+          generatorMode: "anny_compatible_stub_plus_blender_procedural",
+          realAnnyWeightsUsed: false,
+          textureMode: "procedural_fallback",
+          animationMode: "procedural_animation_fallback",
+          realismGrade: "B",
+          promotionStatus: "runtime_candidate_not_realism_gate_pass",
+          notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate"]),
+        }),
+      ]),
+    });
+    expect(workerReport.pedsHumanoidMaterializationHandoff?.assets).toHaveLength(2);
+    expect(validateEncounterAssetGenerationWorkerReport(workerReport)).toEqual({ ok: true });
+  });
+
+  it("rejects peds humanoid handoff overclaims before review/runtime evidence can consume them", async () => {
+    const queueReport = buildEncounterAssetGenerationQueueReport({
+      generatedAt: "2026-06-04T03:42:00.000Z",
+      request: buildEncounterAssetGenerationRequestForScenario("peds_asthma_parent_anxiety_v1"),
+    });
+    const workerReport = await buildEncounterAssetGenerationWorkerReport({
+      queueReport,
+      generatedAt: "2026-06-04T03:43:00.000Z",
+    });
+    const invalidReport = structuredClone(workerReport);
+    const firstAsset = requireFixtureValue(
+      invalidReport.pedsHumanoidMaterializationHandoff?.assets[0],
+      "first peds humanoid handoff asset",
+    );
+    firstAsset.realAnnyWeightsUsed = true as false;
+    firstAsset.realismGrade = "B+" as "B";
+    firstAsset.notEvidenceFor = firstAsset.notEvidenceFor.filter((entry) => entry !== "real_anny_model_output");
+    const handoff = requireFixtureValue(
+      invalidReport.pedsHumanoidMaterializationHandoff,
+      "peds humanoid materialization handoff",
+    );
+    handoff.productionReadinessClaimed = true as false;
+
+    expect(validateEncounterAssetGenerationWorkerReport(invalidReport)).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/pedsHumanoidMaterializationHandoff/productionReadinessClaimed must be false",
+        "/pedsHumanoidMaterializationHandoff/assets/0/realAnnyWeightsUsed must be false",
+        "/pedsHumanoidMaterializationHandoff/assets/0/realismGrade must be \"B\"",
+        "/pedsHumanoidMaterializationHandoff/assets/0/notEvidenceFor must include real_anny_model_output",
+      ]),
+    });
   });
 
   it("validates idle worker reports for empty emulator queues", async () => {

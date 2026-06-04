@@ -224,7 +224,7 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
     Ensure the shape keys / morph targets required by the runtime contract exist:
     viseme_* for lip-sync/dialogue, affect (brow/concern/pain/anxious) for emotion state
     transitions from case spec (peds commProfile/escalation). Phenotype drives base tension
-    (e.g. anxious_parent higher brow_furrow). Iterated for B+: stronger deltas, full typical
+    (e.g. anxious_parent higher brow_furrow). B-candidate pass: stronger deltas, full typical
     viseme set, gaze/eyelid, jaw for realistic expression under dialogue + affect.
     """
     if not mesh_obj.data.shape_keys:
@@ -240,7 +240,7 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
     for name in visemes + affects:
         if name not in mesh_obj.data.shape_keys.key_blocks:
             sk = mesh_obj.shape_key_add(name=name)
-            # Stronger deltas for B+ visible lip-sync + affect (real Anny/ML would have artist deltas)
+            # Stronger deltas for visible lip-sync + affect (real Anny/ML would have artist deltas)
             for v in sk.data:
                 if "mouth" in name or name.startswith("viseme_"):
                     v.co.y += 0.022 if v.co.y > 1.55 else 0.0
@@ -272,7 +272,7 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
 
 def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, phenotype: Dict[str, Any]) -> Dict[str, str]:
     """
-    Local fallback texturing + bake (always safe, no external models). Iterated for B+ realism:
+    Local fallback texturing + bake (always safe, no external models). B-candidate realism pass:
     multi-octave noise (pores + age spots + wrinkle lines from phenotype age_wrinkle/bmi),
     anxious flush/paleness for parent roles, transmission+subsurface approx for skin depth under
     medical exam lighting, varied roughness/spec, normal from bump. Matches user "hyper-realistic
@@ -307,7 +307,7 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     bsdf.inputs["Base Color"].default_value = base_color
     bsdf.inputs["Roughness"].default_value = 0.48 + (age_w * 0.12) + (max(0.0, bmi-24)*0.01)
     bsdf.inputs["Specular IOR Level"].default_value = 0.32
-    # Transmission + subsurface for skin depth/SSS approx under exam light (B+ quality cue)
+    # Transmission + subsurface for skin depth/SSS approx under exam light.
     bsdf.inputs["Transmission Weight"].default_value = 0.12
     bsdf.inputs["Subsurface Weight"].default_value = 0.08
     bsdf.inputs["Subsurface Radius"].default_value = (0.8, 0.4, 0.3)  # skin-like
@@ -407,7 +407,7 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
 
 
 def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str, Any]) -> None:
-    """B+ quality procedural hair + eyes driven by phenotype (hair_color, density, eye_color).
+    """B-candidate procedural hair + eyes driven by phenotype (hair_color, density, eye_color).
     Hair: colored cap + simple particle hint (geo nodes stub). Eyes: iris color from pheno,
     cornea refraction mix, small emission catchlight for exam lighting life. Supports
     gaze/lip viseme in runtime without uncanny flat eye/hair.
@@ -452,7 +452,7 @@ def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str
             bsdf_e.inputs["Base Color"].default_value = (0.25, 0.45, 0.72, 1.0)
         else:
             bsdf_e.inputs["Base Color"].default_value = (0.35, 0.28, 0.22, 1.0)
-        # Small emission for catchlight (exam lighting life, B+)
+        # Small emission for catchlight under exam lighting.
         bsdf_e.inputs["Emission Color"].default_value = (0.9, 0.9, 0.85, 1.0)
         bsdf_e.inputs["Emission Strength"].default_value = 0.08
         eye.data.materials.append(mat_eye)
@@ -509,7 +509,7 @@ def main() -> None:
     print("[blender] done. The resulting GLB should satisfy the canonical skeleton/morph/anchor contract for the OpenClinXR runtime and review packets.")
 
     # Write rigging_report.json (canonical contract for worker/materialization/runtime-state player)
-    # Iterated B+ grade: believable std patient under exam light, correct viseme/affect for dialogue+emotion,
+    # B-candidate grade: believable standardized-patient cue under exam light, correct viseme/affect for dialogue+emotion,
     # no flat uncanny (micro pores/wrinkle/SSS/hair/eye/catch from pheno), proper anatomy weights.
     report_path = args.output_glb.replace(".glb", "_rigging_report.json") if args.output_glb.endswith(".glb") else args.output_glb + "_rigging_report.json"
     report = {
@@ -551,7 +551,14 @@ def main() -> None:
         "licenseExceptionRequired": False,
         "realismGrade": "B",
         "phenotype": phenotype,
-        "notes": "B+ iteration: multi-octave pores/age/wrinkle from age_wrinkle/bmi, anxious flush, SSS/trans approx, iris+catchlight eyes, density hair, strong viseme/affect deltas for emotion/dialogue from case commProfile. Usable in runtime player for peds+ed actors."
+        "sourceProvenance": {
+            "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+            "realAnnyWeightsUsed": False,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_animation_fallback",
+            "notEvidenceFor": ["real_anny_model_output", "b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"]
+        },
+        "notes": "B-candidate iteration: multi-octave pores/age/wrinkle from age_wrinkle/bmi, anxious flush, SSS/trans approx, iris+catchlight eyes, density hair, strong viseme/affect deltas for emotion/dialogue from case commProfile. Usable in runtime player for peds+ed actors, but not evidence of real Anny weights or a B+ visual realism gate pass."
     }
     with open(report_path, "w") as f:
         json.dump(report, f, indent=2)

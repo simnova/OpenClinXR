@@ -16,10 +16,10 @@ describe("IWSDK npm currentness check", () => {
     };
 
     expect(rootPackage.scripts["iwsdk:npm-currentness"]).toBe(
-      "tsx tools/openclinxr/iwsdk-npm-currentness-check.ts",
+      "tsx tools/openclinxr/evidence/iwsdk-npm-currentness-check.ts",
     );
     expect(rootPackage.scripts["iwsdk:npm-currentness:validate"]).toBe(
-      "tsx tools/openclinxr/iwsdk-npm-currentness-check.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/iwsdk-npm-currentness-check.ts --validate-latest",
     );
     expect(rootPackage.scripts["iwsdk:verify"]).toContain("pnpm iwsdk:npm-currentness:validate");
   });
@@ -51,8 +51,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/core"),
     ).toMatchObject({
       name: "@iwsdk/core",
-      latest_version: "0.4.1",
-      expected_latest_version: "0.4.1",
+      latest_version: "0.4.2",
+      expected_latest_version: "0.4.2",
       license: {
         source: "MIT",
         expected: "MIT",
@@ -65,8 +65,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/vite-plugin-dev"),
     ).toMatchObject({
       name: "@iwsdk/vite-plugin-dev",
-      latest_version: "0.4.1",
-      expected_latest_version: "0.4.1",
+      latest_version: "0.4.2",
+      expected_latest_version: "0.4.2",
       peer_dependencies: {
         vite: "^7.0.0",
       },
@@ -94,7 +94,7 @@ describe("IWSDK npm currentness check", () => {
   it("blocks when a captured IWSDK package latest version moves beyond the approved snapshot", () => {
     const snapshot = metadataSnapshot();
     snapshot.packages = snapshot.packages.map((entry) =>
-      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.4.2" } : entry,
+      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.4.3" } : entry,
     );
 
     const report = buildIwsdkNpmCurrentnessReport({
@@ -106,14 +106,14 @@ describe("IWSDK npm currentness check", () => {
 
     expect(report.ready).toBe(false);
     expect(report.currentness.blockers).toEqual([
-      "npm_latest_version_moved:@iwsdk/core:expected_0.4.1_actual_0.4.2",
+      "npm_latest_version_moved:@iwsdk/core:expected_0.4.2_actual_0.4.3",
     ]);
   });
 
   it("writes and validates latest currentness reports from the CLI", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "openclinxr-iwsdk-npm-currentness-"));
-    const metadataPath = path.join(dir, "iwsdk-npm-metadata-snapshot-2026-05-27.json");
-    const outputPath = path.join(dir, "iwsdk-npm-currentness-2026-05-27.json");
+    const metadataPath = path.join(dir, "iwsdk-npm-metadata-snapshot-2026-06-04.json");
+    const outputPath = path.join(dir, "iwsdk-npm-currentness-2026-06-04.json");
 
     await writeFile(metadataPath, `${JSON.stringify(metadataSnapshot(), null, 2)}\n`, "utf8");
 
@@ -138,21 +138,21 @@ describe("IWSDK npm currentness check", () => {
 function metadataSnapshot(): IwsdkNpmMetadataSnapshot {
   return {
     kind: "iwsdk_npm_metadata_snapshot",
-    capturedAt: "2026-05-06T23:35:00.000Z",
+    capturedAt: "2026-06-04T04:00:00.000Z",
     source: {
       command: "npm view --json",
       registry: "https://registry.npmjs.org/",
     },
     packages: [
-      packageMetadata("@iwsdk/core", "0.4.1", "MIT"),
-      packageMetadata("@iwsdk/xr-input", "0.4.1", "MIT"),
-      packageMetadata("@iwsdk/locomotor", "0.4.1", "MIT"),
-      packageMetadata("@iwsdk/glxf", "0.4.1", "MIT"),
-      packageMetadata("@iwsdk/vite-plugin-dev", "0.4.1", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/vite-plugin-gltf-optimizer", "0.4.1", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/vite-plugin-uikitml", "0.4.1", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/vite-plugin-metaspatial", "0.4.1", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/reference", "0.4.1", "MIT"),
+      packageMetadata("@iwsdk/core", "0.4.2", "MIT"),
+      packageMetadata("@iwsdk/xr-input", "0.4.2", "MIT"),
+      packageMetadata("@iwsdk/locomotor", "0.4.2", "MIT"),
+      packageMetadata("@iwsdk/glxf", "0.4.2", "MIT"),
+      packageMetadata("@iwsdk/vite-plugin-dev", "0.4.2", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/vite-plugin-gltf-optimizer", "0.4.2", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/vite-plugin-uikitml", "0.4.2", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/vite-plugin-metaspatial", "0.4.2", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/reference", "0.4.2", "MIT"),
       packageMetadata("@meta-quest/hzdb", "1.2.1", "UNLICENSED"),
     ],
   };

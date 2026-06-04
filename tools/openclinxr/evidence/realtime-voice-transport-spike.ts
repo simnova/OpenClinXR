@@ -3,12 +3,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
-import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../apps/api/src/index.js";
+import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "../../../apps/api/src/index.js";
 import {
   runRealtimeVoiceProxyHarness,
   startPythonCompatibleVoiceBackendFixture,
   startRealtimeVoiceGatewayServer,
-} from "../../apps/mock-realtime-voice-server/src/index.js";
+} from "../../../apps/arena/mock-realtime-voice-server/src/index.js";
 import { realtimeVoiceProtocol } from "../../../packages/openclinxr/voice-gateway/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { LocalQwenTtsRuntimeSmokeReport } from "./local-qwen-tts-runtime-smoke.js";
@@ -122,7 +122,7 @@ type ApiBunPythonProxyRuntimeSmokeEvidence = {
 
 type QuestClientSourceContractEvidence = {
   status: "source_contract_observed" | "blocked";
-  appPath: "apps/ui-quest-voice-godot";
+  appPath: "apps/arena/ui-quest-voice-godot";
   sourceContractObserved: boolean;
   godotRuntimeAvailable: boolean;
   dependencyFreeSidecar: boolean;
@@ -177,11 +177,11 @@ export type RealtimeVoiceTransportSpikeReport = {
     };
     gateway: {
       target: "apps/api bun+hono";
-      verifiedLocalFallback: "apps/mock-realtime-voice-server node+hono+ws";
+      verifiedLocalFallback: "apps/arena/mock-realtime-voice-server node+hono+ws";
       websocketPath: "/voice/realtime/ws";
     };
     pythonBackend: {
-      appPath: "apps/api-python-backend";
+      appPath: "apps/arena/api-python-backend";
       target: "fastapi-uvicorn-websocket";
       websocketPath: "/voice/realtime/ws";
     };
@@ -202,7 +202,7 @@ export type RealtimeVoiceTransportSpikeReport = {
   };
   pythonBackendVerifier: {
     status: "passed" | "blocked";
-    command: "python3 apps/api-python-backend/scripts/verify_backend.py";
+    command: "python3 apps/arena/api-python-backend/scripts/verify_backend.py";
     stdout: string;
     blockers: string[];
   };
@@ -423,12 +423,12 @@ function validateArchitecture(value: unknown, errors: string[]): void {
   requireRecord(value.gateway, "/architecture/gateway", errors);
   if (isRecord(value.gateway)) {
     requireLiteral(value.gateway.target, "apps/api bun+hono", "/architecture/gateway/target", errors);
-    requireLiteral(value.gateway.verifiedLocalFallback, "apps/mock-realtime-voice-server node+hono+ws", "/architecture/gateway/verifiedLocalFallback", errors);
+    requireLiteral(value.gateway.verifiedLocalFallback, "apps/arena/mock-realtime-voice-server node+hono+ws", "/architecture/gateway/verifiedLocalFallback", errors);
     requireLiteral(value.gateway.websocketPath, "/voice/realtime/ws", "/architecture/gateway/websocketPath", errors);
   }
   requireRecord(value.pythonBackend, "/architecture/pythonBackend", errors);
   if (isRecord(value.pythonBackend)) {
-    requireLiteral(value.pythonBackend.appPath, "apps/api-python-backend", "/architecture/pythonBackend/appPath", errors);
+    requireLiteral(value.pythonBackend.appPath, "apps/arena/api-python-backend", "/architecture/pythonBackend/appPath", errors);
     requireLiteral(value.pythonBackend.target, "fastapi-uvicorn-websocket", "/architecture/pythonBackend/target", errors);
     requireLiteral(value.pythonBackend.websocketPath, "/voice/realtime/ws", "/architecture/pythonBackend/websocketPath", errors);
   }
@@ -477,7 +477,7 @@ function validatePythonBackendVerifier(value: unknown, errors: string[]): void {
   }
 
   requireOneOf(value.status, ["passed", "blocked"], "/pythonBackendVerifier/status", errors);
-  requireLiteral(value.command, "python3 apps/api-python-backend/scripts/verify_backend.py", "/pythonBackendVerifier/command", errors);
+  requireLiteral(value.command, "python3 apps/arena/api-python-backend/scripts/verify_backend.py", "/pythonBackendVerifier/command", errors);
   requireString(value.stdout, "/pythonBackendVerifier/stdout", errors);
   requireStringArray(value.blockers, "/pythonBackendVerifier/blockers", errors);
 }
@@ -576,7 +576,7 @@ function validateQuestClientSourceContract(value: unknown, errors: string[]): vo
   }
 
   requireOneOf(value.status, ["source_contract_observed", "blocked"], "/questClientSourceContract/status", errors);
-  requireLiteral(value.appPath, "apps/ui-quest-voice-godot", "/questClientSourceContract/appPath", errors);
+  requireLiteral(value.appPath, "apps/arena/ui-quest-voice-godot", "/questClientSourceContract/appPath", errors);
   for (const key of [
     "sourceContractObserved",
     "godotRuntimeAvailable",
@@ -832,11 +832,11 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
       },
       gateway: {
         target: "apps/api bun+hono",
-        verifiedLocalFallback: "apps/mock-realtime-voice-server node+hono+ws",
+        verifiedLocalFallback: "apps/arena/mock-realtime-voice-server node+hono+ws",
         websocketPath: "/voice/realtime/ws",
       },
       pythonBackend: {
-        appPath: "apps/api-python-backend",
+        appPath: "apps/arena/api-python-backend",
         target: "fastapi-uvicorn-websocket",
         websocketPath: "/voice/realtime/ws",
       },
@@ -898,7 +898,7 @@ export async function buildRealtimeVoiceTransportSpikeReport(input: {
 function buildQuestClientSourceContract(input: {
   godotRuntimeAvailable: boolean;
 }): QuestClientSourceContractEvidence {
-  const appPath = "apps/ui-quest-voice-godot" as const;
+  const appPath = "apps/arena/ui-quest-voice-godot" as const;
   const project = readWorkspaceText(join(appPath, "project.godot"));
   const client = readWorkspaceText(join(appPath, "src/RealtimeVoiceClient.gd"));
   const readme = readWorkspaceText(join(appPath, "README.md"));
@@ -1141,9 +1141,9 @@ async function runHarness(targetLatencyMs: number): Promise<Awaited<ReturnType<t
 }
 
 async function verifyPythonBackendSource(): Promise<RealtimeVoiceTransportSpikeReport["pythonBackendVerifier"]> {
-  const command = "python3 apps/api-python-backend/scripts/verify_backend.py";
+  const command = "python3 apps/arena/api-python-backend/scripts/verify_backend.py";
   try {
-    const { stdout } = await execFileAsync("python3", ["apps/api-python-backend/scripts/verify_backend.py"]);
+    const { stdout } = await execFileAsync("python3", ["apps/arena/api-python-backend/scripts/verify_backend.py"]);
     return {
       status: "passed",
       command,

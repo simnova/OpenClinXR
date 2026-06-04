@@ -1538,7 +1538,7 @@ function formatStationQueueBlocker(blocker: string): string {
     dialogue_seed_replay_not_ready: "Dialogue replay seeds not ready",
     governance_not_ready: "Governance not ready",
     synthetic_draft_validation_stage: "Synthetic draft validation stage",
-    summative_score_use_not_allowed_for_seed_queue: "Summative score use not allowed for seed queue",
+    summative_score_use_not_allowed_for_seed_queue: "Restricted score-use posture is not allowed for seed queue",
   };
 
   return blockerCopy[blocker] ?? blocker.replaceAll("_", " ");

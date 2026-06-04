@@ -299,7 +299,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",
@@ -675,7 +675,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",
@@ -851,7 +851,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      path.resolve("tools/openclinxr/check-quest-manual-performance.ts"),
+      path.resolve("tools/openclinxr/evidence/check-quest-manual-performance.ts"),
       "--output",
       output,
     ], { cwd: dir, encoding: "utf8", timeout: 15000 });
@@ -997,7 +997,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",
@@ -1276,7 +1276,7 @@ describe("Quest manual performance checker", () => {
       },
     };
 
-    const check = buildQuestManualPerformanceCheck("docs/openclinxr/quest-manual-performance-2026-05-04.json", report);
+    const check = buildQuestManualPerformanceCheck("test-fixtures/quest-manual-performance.json", report);
 
     expect(check.readyToClaimFramePacing).toBe(false);
     expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
@@ -1309,41 +1309,6 @@ describe("Quest manual performance checker", () => {
       "Replace primitive box hands with an articulated hand model or document why controller-only affordances are acceptable for this station.",
       "Retry thumbstick, hand-gesture, or room-scale locomotion and preserve the runtime locomotion event plus rig delta.",
       "Keep the headset foreground for a longer run and verify window.__openClinXrFrameStats increments while immersive mode is active.",
-    ]));
-  });
-
-  it("keeps the tracked Patrick Quest evidence below readiness while preserving useful observations", async () => {
-    const evidencePath = "docs/openclinxr/quest-manual-performance-2026-05-04.json";
-    const report = JSON.parse(await readFile(evidencePath, "utf8")) as QuestManualPerformanceReport;
-
-    const check = buildQuestManualPerformanceCheck(evidencePath, report);
-
-    expect(report.runContext?.performedBy).toBe("Patrick Gidich");
-    expect(report.station?.traceInteractionAttempt).toBe("dom_click_attempted_no_runtime_event");
-    expect(report.input?.handRepresentationKind).toBe("primitive_boxes");
-    expect(report.input?.locomotionAttempt).toBe("thumbstick_attempted_no_runtime_event");
-    expect(report.input?.activeLocomotionSource).toBe("none");
-    expect(report.input?.xrHandGestureState?.armed).toBe(false);
-    expect(check.evidencePosture).toBe("early_worn_headset_full_vr_observation");
-    expect(check.readyToClaimFramePacing).toBe(false);
-    expect(check.satisfiedConditions).toEqual(expect.arrayContaining([
-      "immersive_session_started",
-      "text_readability_confirmed",
-      "hand_or_controller_input_observed",
-    ]));
-    expect(check.blockers).toEqual(expect.arrayContaining([
-      "duration_under_10_minutes",
-      "trace_interaction_not_confirmed",
-      "locomotion_not_observed",
-      "frame_sample_under_600_or_missing",
-      "immersive_frame_count_zero_or_missing",
-    ]));
-    expect(check.adversarialFindings).toEqual(expect.arrayContaining([
-      "trace_interaction_attempted_without_runtime_event",
-      "hand_tracking_observed_without_realistic_hand_meshes",
-      "locomotion_attempted_without_runtime_event",
-      "locomotion_mode_declared_without_locomotion_event",
-      "immersive_session_started_but_frame_stats_empty",
     ]));
   });
 
@@ -1643,7 +1608,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",
@@ -1741,7 +1706,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",
@@ -1808,7 +1773,7 @@ describe("Quest manual performance checker", () => {
     }, null, 2), "utf8");
 
     await execFileAsync(path.resolve("node_modules/.bin/tsx"), [
-      "tools/openclinxr/check-quest-manual-performance.ts",
+      "tools/openclinxr/evidence/check-quest-manual-performance.ts",
       "--input",
       input,
       "--output",

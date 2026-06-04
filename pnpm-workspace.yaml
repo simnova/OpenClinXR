@@ -1,7 +1,11 @@
 packages:
-  - "apps/*"
+  - "apps/api"
+  - "apps/ui-admin"
+  - "apps/ui-xr"
+  - "apps/arena/*"
   - "packages/cellix/*"
   - "packages/openclinxr/*"
+  - "packages/openclinxr/arena/*"
 
 overrides:
   brace-expansion: "5.0.6"

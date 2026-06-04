@@ -15,10 +15,10 @@ describe("asset production artifact evidence report", () => {
     };
 
     expect(rootPackage.scripts["asset:production:artifact-evidence"]).toBe(
-      "tsx tools/openclinxr/asset-production-artifact-evidence.ts",
+      "tsx tools/openclinxr/evidence/asset-production-artifact-evidence.ts",
     );
     expect(rootPackage.scripts["asset:production:artifact-evidence:validate"]).toBe(
-      "tsx tools/openclinxr/asset-production-artifact-evidence.ts --validate-latest",
+      "tsx tools/openclinxr/evidence/asset-production-artifact-evidence.ts --validate-latest",
     );
     expect(rootPackage.scripts["agent:verify"]).toContain("pnpm asset:production:artifact-evidence:validate");
   });

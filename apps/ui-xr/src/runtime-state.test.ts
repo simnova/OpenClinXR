@@ -1637,6 +1637,15 @@ describe("XR runtime state", () => {
       source: "learner_runtime_asset_bundle_scene_manifest" as const,
       manifestId: "ed_chest_pain_runtime_scene_manifest_v1",
       schemaVersion: "openclinxr.runtime-scene-manifest.v1" as const,
+      selectedScenarioId: "ed_chest_pain_priority_v1",
+      bundleScenarioId: "ed_chest_pain_priority_v1",
+      selectedScenarioMatchesBundle: true,
+      stationId: "ed_bay_1",
+      stationContextTitle: "ED Chest Pain Priority",
+      stationContextChiefConcern: "Chest pain",
+      actorRoster: [{ actorId: "patient_robert_hayes_v1", role: "patient", embodiment: "humanoid" as const }],
+      equipmentIds: ["gurney", "cardiac_monitor"],
+      dialogueTraceTags: ["ignored_breathing", "breathing_effort_acknowledged"],
       roomPropCount: 30,
       semanticRoomPropCount: 30,
       actorPlacementCount: 3,
@@ -2954,8 +2963,8 @@ it("gets dialogue policy stub for peds actors from case (rebalance gen primary)"
       { actorId: "parent_tara_johnson_v1", style: "angry_family_member", baselineMood: ["anxious"], topicsToAvoid: ["blame_for_delay"], adverseResponse: "louder" },
     ],
   };
-  const parentPolicy = getDialoguePolicyForActorFromCase(policy as any, "parent_tara_johnson_v1");
+  const parentPolicy = getDialoguePolicyForActorFromCase(policy, "parent_tara_johnson_v1");
   expect(parentPolicy?.style).toBe("angry_family_member");
   expect(parentPolicy?.topicsToAvoid).toContain("blame_for_delay");
-  expect(getDialoguePolicyForActorFromCase(null as any, "foo")).toBeNull();
+  expect(getDialoguePolicyForActorFromCase(null, "foo")).toBeNull();
 });
