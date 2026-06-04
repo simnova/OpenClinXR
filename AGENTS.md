@@ -131,7 +131,7 @@ Violating these increases token use, risk of drift, and interruption. These prac
 
 Use this order when repo docs appear scattered or disagree:
 
-1. `AGENTS.md` is the operating contract.
+1. `AGENTS.md` is the operating contract (high-level; see `agents/rules/` for modular detailed conventions).
 2. `PROJECT_COORDINATION_INDEX.md` is the coordinator dashboard for active product direction, sub-agent control, and drift correction.
 3. `AUTONOMOUS_WORK_PLAN.md` is the active continuation plan. Its active product-advancement queue overrides old chronological "next slice" breadcrumbs.
 4. `docs/openclinxr/worker-backlog-and-validation-matrix.md` is the worker ownership and validation map.
@@ -139,6 +139,8 @@ Use this order when repo docs appear scattered or disagree:
 6. `operator-open-questions.md` contains nonblocking steering questions and recommended defaults.
 7. `docs/agent-factory/**`, `agents/**`, and `iterations/**` are persistent multi-agent memory and governance evidence. Use them to realign task selection, not to restart broad planning loops unless the active plan explicitly calls for one.
 8. Historical evidence reports, benchmark outputs, and old iteration "go-forward" notes are evidence, not active marching orders.
+
+**Modular Rules**: Detailed, focused instructions live in `agents/rules/` (canonical, parallel to `.agents/skills/`). Grok (and other harnesses) discover them via `.grok/rules/` (with symlinks), `.claude/rules/`, `.cursor/rules/`. This is better than one giant AGENTS.md for AgenticEx, maintainability, and multi-harness use. See `agents/rules/README.md` and `.grok/config.toml` for the setup. The project's internal agents should also consult `agents/rules/` for consistency.
 
 When an older file says to refresh evidence but the active plan says to build product capability, build product capability unless the evidence refresh unlocks that build.
 

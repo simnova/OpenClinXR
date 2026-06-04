@@ -7,6 +7,7 @@ import {
   findRuntimeActorAsset,
   findRuntimeEquipmentAsset,
   type LearnerRuntimeAssetBundle,
+  type PedsHumanoidMaterializationHandoff,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
@@ -6078,6 +6079,15 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   }
 
   if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
+    const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
+    if (pedsHandoff?.assets?.length) {
+      const targetRole = (actorId === runtimePatientActorId() || role === 'patient') ? "patient" : "anxious_parent";
+      const asset = pedsHandoff.assets.find((a) => a.actorRole === targetRole);
+      if (asset?.runtimeAssetPath || asset?.assetPath) {
+        return asset.runtimeAssetPath || asset.assetPath;
+      }
+    }
+    // deterministic fallback (used when no worker-fed handoff metadata in bundle)
     if (actorId === runtimePatientActorId() || role === 'patient') {
       return '/generated-humanoids/peds_patient_child.glb';
     }

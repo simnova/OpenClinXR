@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 18
 - agent-methodology: 8
-- archive-candidate: 32
+- archive-candidate: 60
 - current-reference: 47
 - decision-record: 19
 - evidence: 27
@@ -111,7 +111,35 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.agents/skills/turborepo/references/filtering/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/filtering/patterns.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.agents/skills/turborepo/references/watch/RULE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.claude/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.cursor/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/drift-toil-prevention.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/grok-harness-usage.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/long-running-autonomy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/rehydration-low-token.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/source-of-truth.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `agents/rules/subagent-protocol.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

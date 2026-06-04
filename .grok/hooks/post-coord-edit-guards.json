@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|search_replace|write|create|run_terminal_cmd",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PostToolUse (coord edit guard per AGENTS.md): running pnpm agent:alignment && pnpm docs:drift-check'; pnpm agent:alignment && pnpm docs:drift-check || echo 'Guard check completed with notes (exit non-zero ignored for PostToolUse; review output)'",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PreCompact reminder (per AGENTS.md Required Resume Sequence + LOW_TOKEN): immediately re-read ONLY the Current State Snapshot blocks (first ~20-80 lines) of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md + AGENTS.md top. Use snapshots + targeted rg/read_file(limit) + lease status. Do not narrate; continue with next approved slice.'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'SessionStart for openclinxr (AgenticEx): follow Required Resume Sequence in AGENTS.md exactly (re-read 4 files snapshots first). Project hooks active (PostToolUse auto-guards on edits to coord files; PreCompact rehydrate). Lease before edits. After coord changes always pnpm agent:alignment && pnpm docs:drift-check. See agents/rules/ for modular policies.'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

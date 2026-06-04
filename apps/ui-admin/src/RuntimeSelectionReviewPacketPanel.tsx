@@ -466,6 +466,16 @@ export function RuntimeSelectionReviewPacketPanel({
                 detail={`${packet.publicationPayloadLinkage.realismEvidenceRefs.refIds.join(", ")}; runtime hooks ${packet.publicationPayloadLinkage.realismEvidenceRefs.runtimeRealismEvidenceHookCount ?? 0}; visual QA hooks ${packet.publicationPayloadLinkage.realismEvidenceRefs.visualQaEvidenceHookCount ?? 0}; ${packet.publicationPayloadLinkage.realismEvidenceRefs.claimBoundary}`}
               />
             ) : null}
+            {packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff && packet.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? (
+              <div style={{ marginTop: 8, fontSize: 12 }}>
+                <Typography.Text strong>Peds humanoid materialization handoff (from asset worker, metadata for review/replay only)</Typography.Text>
+                <ul style={{ margin: "2px 0 0 12px", padding: 0 }}>
+                  {packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.assets?.map((a: { actorRole: string; runtimeAssetPath?: string; assetPath?: string; provenanceManifestPath?: string }) => (
+                    <li key={a.actorRole}>{a.actorRole}: {a.runtimeAssetPath || a.assetPath} (B, claims=false, {a.provenanceManifestPath})</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </fieldset>
           <ul className="compact-list" aria-label="Publication materialization blockers">
             {[...packet.publicationPayloadLinkage.blockers, ...packet.publicationPayloadLinkage.assetNeedsReadiness.blockers].map((blocker) => (

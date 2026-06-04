@@ -32,6 +32,9 @@ import {
 } from "../evidence/provider-boundary-notes.js";
 import type { EncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
 import { buildEncounterAssetGenerationQueueReport } from "./encounter-asset-generation-queue.js";
+import type {
+  EncounterAssetGenerationWorkerReport,
+} from "./encounter-asset-generation-worker.js";
 import type { EncounterMaterializationEvidenceReport } from "./encounter-materialization-evidence.js";
 import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
@@ -43,6 +46,7 @@ type CliOptions = {
   bundleReportPath?: string;
   materializationEvidenceReportPath?: string;
   materializationEvidenceAttachmentsPath?: string;
+  assetWorkerReportPath?: string;
   outputPath?: string;
   validatePath?: string;
   summarizeDryRunPlanPath?: string;
@@ -87,6 +91,7 @@ export type EncounterPublicationPayloadReport = {
   encounterAssetNeedsReadinessManifest?: EncounterAssetGenerationQueueReport["encounterAssetNeedsReadinessManifest"];
   encounterFactoryDryRunPlan: EncounterFactoryDryRunPlan;
   localMaterializationHandoffManifest: EncounterWorkerMaterializationPlan;
+  pedsHumanoidMaterializationHandoff?: EncounterAssetGenerationWorkerReport["pedsHumanoidMaterializationHandoff"];
   operationalNotes: EncounterOperationalBoundaryNotes;
   projectionArtifactConsumption?: EncounterAssetGenerationQueueReport["projectionArtifactConsumption"];
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
@@ -360,6 +365,9 @@ export async function runEncounterPublicationPayloadsCli(args: string[]): Promis
   const materializationEvidenceAttachments = options.materializationEvidenceAttachmentsPath
     ? await readJson<EncounterMaterializationEvidenceAttachmentRecords>(options.materializationEvidenceAttachmentsPath)
     : undefined;
+  const assetWorkerReport = options.assetWorkerReportPath
+    ? await readJson<EncounterAssetGenerationWorkerReport>(options.assetWorkerReportPath)
+    : undefined;
   const report = await buildEncounterPublicationPayloadReport({
     queueReport: queueReport
       ? queueReport
@@ -367,6 +375,7 @@ export async function runEncounterPublicationPayloadsCli(args: string[]): Promis
     bundleReport: await readJson<GeneratedEdStationRuntimeBundleReport>(bundleReportPath),
     materializationEvidenceReport,
     materializationEvidenceAttachments,
+    assetWorkerReport,
   });
   await syncPublishedLearnerRuntimeMaterializationGate(report);
   await writeJson(options.outputPath ?? defaultOutputPath, report);
@@ -394,6 +403,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
   bundleReport: GeneratedEdStationRuntimeBundleReport;
   materializationEvidenceReport?: EncounterMaterializationEvidenceReport;
   materializationEvidenceAttachments?: EncounterMaterializationEvidenceAttachmentRecords;
+  assetWorkerReport?: EncounterAssetGenerationWorkerReport;
   generatedAt?: string;
   artifactRoot?: string;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
@@ -418,6 +428,9 @@ export async function buildEncounterPublicationPayloadReport(input: {
   const remediationWorkOrderRefs = input.remediationWorkOrderRefs
     ?? await latestVisualQaRemediationWorkOrderRefsForScenario(input.queueReport.request.scenarioId);
 
+  const pedsHumanoidMaterializationHandoff = input.assetWorkerReport?.pedsHumanoidMaterializationHandoff
+    ?? undefined;
+
   if (input.bundleReport.status !== "bundle_ready" || !input.bundleReport.learnerBundle) {
     return blockedReport({
       generatedAt,
@@ -430,6 +443,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       uiXrPublicSceneManifestPath,
       uiXrPublicLearnerRuntimeBundlePath,
       bundleReport: input.bundleReport,
+      pedsHumanoidMaterializationHandoff,
       blockers: uniqueStrings([
         ...(input.bundleReport.blockers.length > 0 ? input.bundleReport.blockers : ["generated_bundle_not_ready"]),
         ...manifestBlockers,
@@ -451,6 +465,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       uiXrPublicSceneManifestPath,
       uiXrPublicLearnerRuntimeBundlePath,
       bundleReport: input.bundleReport,
+      pedsHumanoidMaterializationHandoff,
       blockers: [
         `scenario_mismatch:queue=${input.queueReport.request.scenarioId}:bundle=${learnerBundle.scenarioId}`,
         ...manifestBlockers,
@@ -468,6 +483,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
     ...learnerBundle,
     sceneManifest,
     actorEquipmentMaterializationGate,
+    ...(pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff } : {}),
   };
   const caseDefinitionDrivenFactoryCoverage = buildCaseDefinitionDrivenFactoryCoverage({
     queueReport: input.queueReport,
@@ -489,6 +505,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       learnerRuntimeBundlePath,
       uiXrPublicSceneManifestPath,
       uiXrPublicLearnerRuntimeBundlePath,
+      pedsHumanoidMaterializationHandoff,
       blockers: [
         ...missingHumanoidRequirementActorRoles.map((actorRole) => `humanoid_realism_requirement_actor_missing:${actorRole}`),
         ...manifestBlockers,
@@ -554,6 +571,7 @@ export async function buildEncounterPublicationPayloadReport(input: {
       request: input.queueReport.request,
       workOrders: input.queueReport.plan.generationWorkOrders,
     }),
+    ...(pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff } : {}),
     ...(remediationWorkOrderRefs?.length ? { remediationWorkOrderRefs } : {}),
     ...(input.queueReport.projectionArtifactConsumption
       ? { projectionArtifactConsumption: input.queueReport.projectionArtifactConsumption }
@@ -776,6 +794,15 @@ export function validateEncounterPublicationPayloadReport(value: unknown): Valid
   requireRecord(value.dynamicEncounterBehaviorCoverage, "/dynamicEncounterBehaviorCoverage", errors);
   requireRecord(value.encounterFactoryDryRunPlan, "/encounterFactoryDryRunPlan", errors);
   requireRecord(value.localMaterializationHandoffManifest, "/localMaterializationHandoffManifest", errors);
+  if (Object.hasOwn(value, "pedsHumanoidMaterializationHandoff")) {
+    const h = value.pedsHumanoidMaterializationHandoff as Record<string, unknown> | undefined;
+    if (h) {
+      requireLiteral(h.schemaVersion, "openclinxr.peds-humanoid-materialization-handoff.v1", "/pedsHumanoidMaterializationHandoff/schemaVersion", errors);
+      requireLiteral(h.scenarioId, "peds_asthma_parent_anxiety_v1", "/pedsHumanoidMaterializationHandoff/scenarioId", errors);
+      requireArray(h.assets, "/pedsHumanoidMaterializationHandoff/assets", errors);
+      requireLiteral(h.productionReadinessClaimed, false, "/pedsHumanoidMaterializationHandoff/productionReadinessClaimed", errors);
+    }
+  }
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
   requireArray(value.blockers, "/blockers", errors);
   if (Object.hasOwn(value, "encounterAssetNeedsReadinessManifest")) {
@@ -1501,6 +1528,7 @@ function blockedReport(input: {
   uiXrPublicSceneManifestPath: string;
   uiXrPublicLearnerRuntimeBundlePath: string;
   remediationWorkOrderRefs?: VisualQaRemediationWorkOrderRef[];
+  pedsHumanoidMaterializationHandoff?: EncounterAssetGenerationWorkerReport["pedsHumanoidMaterializationHandoff"];
   blockers: string[];
 }): EncounterPublicationPayloadReport {
   const requiredActorRoles = input.humanoidRealismRequirements.requirements.map((requirement) => requirement.actorRole);
@@ -1569,6 +1597,7 @@ function blockedReport(input: {
       request: input.input.queueReport.request,
       workOrders: input.input.queueReport.plan.generationWorkOrders,
     }),
+    ...(input.pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff: input.pedsHumanoidMaterializationHandoff } : {}),
     ...(input.remediationWorkOrderRefs?.length ? { remediationWorkOrderRefs: input.remediationWorkOrderRefs } : {}),
     ...(input.input.queueReport.projectionArtifactConsumption
       ? { projectionArtifactConsumption: input.input.queueReport.projectionArtifactConsumption }
@@ -1970,6 +1999,11 @@ function parseArgs(args: string[]): CliOptions {
     }
     if (arg === "--materialization-evidence-attachments") {
       options.materializationEvidenceAttachmentsPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--asset-worker-report") {
+      options.assetWorkerReportPath = requireValue(normalizedArgs, index, arg);
       index += 1;
       continue;
     }

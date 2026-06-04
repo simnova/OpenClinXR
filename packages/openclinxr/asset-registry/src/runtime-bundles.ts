@@ -173,6 +173,37 @@ export type EncounterRuntimeEvidenceGateRef = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
+export type PedsHumanoidMaterializationHandoffAsset = {
+  actorRole: "patient" | "anxious_parent";
+  assetPath: string;
+  runtimeAssetPath: string;
+  provenanceManifestPath: string;
+  generatorMode: "anny_compatible_stub_plus_blender_procedural";
+  sourceKind: "case_driven_generated_humanoid_candidate";
+  realAnnyWeightsUsed: false;
+  textureMode?: string;
+  animationMode?: string;
+  realismGrade: "B";
+  promotionStatus?: string;
+  notEvidenceFor: string[];
+};
+
+export type PedsHumanoidMaterializationHandoff = {
+  schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1";
+  source: "worker_role_specific_humanoid_glb_materialization_metadata";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  targetKind?: string;
+  generatedAssetsMaterialized: boolean;
+  localCandidateAssetsSelected: boolean;
+  reviewPacketPath?: string;
+  assets: PedsHumanoidMaterializationHandoffAsset[];
+  productionReadinessClaimed: false;
+  questReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: string;
+};
+
 export type EncounterRuntimeAssetBundle = {
   bundleId: string;
   tenantId: string;
@@ -194,6 +225,7 @@ export type EncounterRuntimeAssetBundle = {
   expiresAt: string | null;
   frozenForEncounter: boolean;
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
+  pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff;
 };
 
 export type EncounterRuntimeLearnerUseGate = {
@@ -801,6 +833,7 @@ export function toLearnerRuntimeAssetBundle(bundle: EncounterRuntimeAssetBundle)
     frozenForEncounter: bundle.frozenForEncounter,
     assemblyAuditMetadata: cloneEncounterRuntimeBundleAssemblyAuditMetadata(bundle.assemblyAuditMetadata),
     notEvidenceFor: bundle.notEvidenceFor,
+    ...(bundle.pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff: bundle.pedsHumanoidMaterializationHandoff } : {}),
     identityScope: "learner_runtime_opaque_bundle",
   };
 }

@@ -1,0 +1,133 @@
+# Project-scoped Grok configuration for openclinxr
+# Augments user ~/.grok/config.toml. Repo-root takes precedence over user for supported sections.
+# See https://docs (or ~/.grok/docs/user-guide/05-configuration.md) for full options.
+# This config is tuned for the project's heavy agentic workflows (per AGENTS.md, docs/agent-factory/, .agent-factory/, agents/** roles with charters+memory, subagent orchestration, persistent rehydration from snapshots in PROJECT_COORDINATION_INDEX.md etc., monorepo with turbo/pnpm, GitHub ops via grok_com_github MCP, custom skills in .agents/skills/ + lock).
+
+# --- Skills (already set for multi-harness standardization) ---
+[skills]
+paths = [".agents/skills"]
+# The .agents/skills/ (with antd, turborepo + future from skills-lock.json and workflow-skill-policy.md) is the canonical location.
+# Other harnesses should point their equivalent "additional skills" at the same dir.
+
+# --- Subagents (directly supports AGENTS.md subagent rule: coordinator first (explorer/chief-coordinator), then narrow specialists/adversarial) ---
+[subagents]
+enabled = true
+default_model = "grok-build"  # strong default for agentic work; override per-type below if desired
+
+[subagents.toggle]
+explore = true   # for coordinator/explorer roles (chief-coordinator, openclaw-drift-police)
+plan = true      # for implementation-planning-lead, execution
+
+# Example per-type model routing if you want different strengths:
+# [subagents.models]
+# explore = "grok-build"
+# plan = "grok-build"
+
+# --- Memory (complements the project's persistent agent memory in agents/**/memory.md, .agent-factory/memory-index.json, rehydration from state files) ---
+[memory]
+enabled = true
+
+[memory.session]
+save_on_end = true
+
+[memory.initial_injection]
+enabled = true
+min_score = 0.15   # low threshold to inject relevant prior agent memory on rehydration-style sessions
+
+[memory.search]
+max_results = 8
+min_score = 0.2
+
+# --- Features for large agentic monorepo ---
+[features]
+codebase_indexing = true   # helps Grok understand packages/, tools/agent-factory/, agents/ roles, docs/agent-factory/, schemas/, sources/ etc.
+lsp_tools = true           # useful for TS navigation in the monorepo (apps/, packages/, tools/)
+
+# --- Tool tuning for long autonomous/OpenClaw runs, pnpm/turbo builds, tests, agent:loop ---
+[toolset.bash]
+timeout_secs = 600         # 10min for pnpm agent:*, pnpm openclaw:*, full verifies, builds
+output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces
+
+# --- MCP: GitHub integration (grok_com_github provides the rich GitHub tools seen in sessions: PRs, issues, code search, push_files, etc.) ---
+# Configure explicitly for project so GitHub ops are reliably available in this workspace.
+# If the server is special/built-in (grok_com_github), this may register or augment it.
+# Use `grok mcp doctor` or `grok mcp list` after to verify.
+[mcp_servers.grok_com_github]
+# The exact transport/command is typically provided by the connected GitHub integration in the Grok env.
+# If it requires explicit setup, use:
+# command = "..." 
+# args = ["..."]
+# env = { GITHUB_TOKEN = "..." }  # prefer env or keychain
+# For now, declaring the name helps discovery in project context.
+# See also the project's use of GitHub MCP in arena spikes and tools.
+
+# --- UI / UX for long agentic sessions (rehydrations, autonomous loops, subagent threads) ---
+[ui]
+max_thoughts_width = 120
+compact_mode = false
+permission_mode = "always-approve"  # or "ask" for safety in autonomous work
+# simple_mode = true   # toggle based on preference for scrollback
+
+# --- Compat (keep scanning other harness files for skills/rules/AGENTS.md/hooks if you switch harnesses; see 05-configuration.md) ---
+[compat.cursor]
+agents = true
+rules = true
+skills = true
+hooks = true
+mcps = true
+[compat.claude]
+agents = true
+rules = true
+skills = true
+hooks = true
+mcps = true
+
+# --- Notifications for unattended/autonomous runs (turn_complete for heartbeat-style, approval during long slices) ---
+[ui.notifications]
+method = "auto"
+condition = "unfocused"
+events = ["turn_complete", "approval_required"]
+sleep_prevention = true
+progress_bar = true
+
+# --- Plugins (project .grok/plugins/ for bundled hooks/MCP/LSP/skills/agents; see 09-plugins.md) ---
+[plugins]
+# paths = [".grok/plugins"]  # default discovery includes .grok/plugins/ for team-shared automation
+# Example plugin for post-slice + guard automation lives in .grok/plugins/openclinxr-automation/
+
+# Notes:
+# - After changing this file, restart the Grok session or use relevant commands for reload.
+# - Use `grok inspect` (or grok inspect --json) to verify resolved config, skills, subagents, MCPs, memory, etc. in this workspace.
+# - Aligns with AGENTS.md resume sequence (re-read state files first), subagent rules, anti-toil, drift guards (pnpm agent:alignment + docs:drift-check after edits), lease for edits, focused verification.
+# - For full standardization across harnesses, keep .agents/skills/ + skills-lock.json as source of truth and configure each harness similarly.
+
+# --- Rules / Project Instructions (modular alternative or complement to giant AGENTS.md) ---
+# Grok natively scans:
+#   - AGENTS.md (and variants) from repo root down to CWD (accumulating; deeper wins)
+#   - *.md files in .grok/rules/ (always), .claude/rules/, .cursor/rules/ (compat)
+#
+# To avoid dumping everything into AGENTS.md, we use a structured approach parallel to skills:
+# - Canonical source: agents/rules/ (non-dot, aligns with project's agents/ role definitions and internal agent system)
+# - Grok discovery: symlinks in .grok/rules/ (and .claude/.cursor for other harnesses)
+#
+# This is better for AgenticEx: modular, focused instructions are easier for agents to follow,
+# easier to maintain, and supports the "targeted reads/patches, no chat summaries" + source-of-truth order.
+#
+# See agents/rules/README.md for details and the specific rule files (rehydration-low-token, subagent-protocol, drift-toil-prevention, etc.).
+# Update AGENTS.md high-level sections to reference these as needed.
+# The project's custom agents (in agents/** and tools/agent-factory/) can/should also load from agents/rules/ for consistency.
+
+# --- Agents / Project-scoped Agent Definitions ---
+# Per Grok project rules doc, .grok/agents/ for project-scoped agent definitions.
+# The source is agents/** (the 9 core roles with charter.md + memory.md + index.json, plus rules/ for modularity).
+# (Symlinks avoided in .grok/agents/ to prevent drift/registry path duplication with agents/rules/; see script note.)
+# Rely on root agents/ + agents/rules/. Grok can be prompted to consult specific role charters/memories using the source-of-truth order.
+# This + subagents config amps the "persistent expert team" and "repo-agent consultation" from AGENTS.md.
+
+# --- Hooks (lifecycle automation for AgenticEx) ---
+# Project hooks in .grok/hooks/*.json (trusted on first use via /hooks or Ctrl+L).
+# The example post-coord-edit-guards.json provides reminders on PostToolUse (after edits to coord files) to run guards,
+# and PreCompact reminders for rehydration.
+# This automates the "after edits to coordination files, always run pnpm agent:alignment && pnpm docs:drift-check" rule.
+# See .grok/hooks/ (synced to compat locations). Customize for auto-running guards, lease checks, etc.
+# Full events and format in Grok hooks doc.

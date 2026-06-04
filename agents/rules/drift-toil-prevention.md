@@ -1,0 +1,32 @@
+---
+authority: agent-methodology
+---
+
+# Drift and Toil Prevention
+
+## Guardrails
+- Before starting a slice, apply the guardrail slice gate in `docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md`.
+- If a slice does not advance blueprint-to-runtime generation, conversation/runtime tooling, reusable generated assets, review/persistence/replay, or verification of touched factory behavior, do not do it.
+- OpenClinXR is not a collection of handcrafted XR scenes. It is a blueprint-driven encounter factory.
+
+## Anti-Toil Product Advancement Gate
+- Do not let verification, benchmark refreshes, evidence ledgers, or repeated review loops become the work.
+- The slice must directly advance the Step 2 CS-inspired multi-station XR clinical-skills exam skeleton, or unblock a named product slice that cannot safely proceed without the evidence.
+- Evidence-only work is allowed when it verifies a just-touched package, captures a newly available hardware/runtime fact, or closes a specific leadership gate that is blocking an implementation decision.
+- Evidence-only work is not allowed merely to make stale reports fresher, reduce red in aggregate dashboards, rerun known-failing gates, or restate already-known blockers.
+- After one evidence-only slice, the next slice should normally be product construction.
+- After two consecutive evidence/validation-only slices, force a Chief Coordinator plus Implementation Plan Gap Attacker review using `agents/**`, `docs/agent-factory/**`, and the latest iteration synthesis; then choose a build slice unless a true blocker prevents all approved build work.
+- Run aggregate benchmark rollups at most once after a coherent batch of changes.
+- Prefer “make a learner/faculty/admin flow more complete” over “make a report more current” when both are safe.
+
+## Drift Prevention (hyper guard)
+- Never 2+ evidence-only without drift review + coordinator consult + product pivot.
+- `pnpm agent:alignment` catches stale breadcrumbs in docs.
+- Use `agents/adversarial/openclaw-drift-police/` (read charter+memory) on any suspicion of sprawl or one-off.
+- After edits to coordination files, always run `pnpm agent:alignment && pnpm docs:drift-check` (or the post-slice) before claiming ready for next.
+
+## Instruction Source-Of-Truth Order
+Use this order when repo docs appear scattered or disagree:
+1. `AGENTS.md` is the operating contract.
+2. `PROJECT_COORDINATION_INDEX.md` is the coordinator dashboard...
+(etc. — see full in AGENTS.md and the three state files)

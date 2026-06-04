@@ -16,3 +16,20 @@ Use workflow skills as local agent aids, not as hidden runtime dependencies. A s
 The executable source of truth is `recommendWorkflowSkillsForWorkOrder` in `packages/openclinxr/agent-loop`.
 
 Changed-package work should prefer the `packages:*:affected` scripts for local package verification, then finish with the full `pnpm verify` gate before a clean commit.
+
+## Multi-Harness / Standardized Discovery
+
+`.agents/skills/` (populated according to the recommendations above and `skills-lock.json`) is the single source of truth for workflow skills in this repo.
+
+To make these skills available to standard agent harnesses without duplication or symlinks:
+
+- Grok: A project-scoped `.grok/config.toml` (at repo root) includes the path:
+  ```toml
+  [skills]
+  paths = [".agents/skills"]
+  ```
+  (See `.grok/config.toml` and the Grok skills documentation for details on additional paths and priority.)
+
+- Other harnesses (Claude, Cursor, etc.): Configure their equivalent "additional skills paths" or "custom skills directory" setting to point at `.agents/skills/` (or a sub-path). This keeps one canonical location while supporting many tools.
+
+This approach prioritizes standardization across harnesses while preserving the project's internal agent tooling expectations.

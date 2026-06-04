@@ -6,7 +6,7 @@ Current product: blueprint-driven encounter factory for peds_asthma_parent_anxie
 
 Last support checkpoint: 2026-06-04 repo hygiene pruned historical evidence and compacted long-running logs. The worker matrix now keeps live ownership, checkpoints, and validation posture only. Detailed historical rows are in git.
 
-Next action: Worker 11/9 should propagate `pedsHumanoidMaterializationHandoff` into publication/review packet summaries and then make UI-XR prefer worker-fed humanoid metadata before deterministic fallback.
+Next action: Worker 9/7/11 UI-XR runtime evidence consumer surfaces + admin replay for handoff metadata; faculty review path; peds launch validation with handoff wired (post 11/9 slice complete).
 
 ## Efficient Rehydration + Working Model
 
@@ -31,6 +31,10 @@ Do not toil on evidence refreshes. Evidence supports product decisions; it is no
 2026-06-04 architecture/arena (Worker 0 support): production apps/packages, Capability Arena cage matches, Clinical Asset Commons, and support/governance packages are visually and architecturally separated. Arena READMEs link to MADRs and promotion gates.
 
 2026-06-04 humanoid provenance (Worker 11/9): peds humanoid GLBs are Anny-compatible stub + Blender procedural B candidates with sidecar provenance and blocked overclaims. Next: carry the handoff into review/runtime surfaces.
+
+2026-06-04 peds handoff propagation (Worker 11/9): handoff now surfaces in publication payload + bundle, review packet, admin panel summary, UI-XR prefers it for asset load. Touched 5 files + types. Focused tests green. Blueprint Q1/4.
+
+2026-06-04 Grok harness AgenticEx amp-up (Worker 0 support): full project .grok/config.toml + agents/rules/ modular extraction (6 rules with frontmatter) + functional hooks (PostToolUse auto-guards on coord edits + PreCompact rehydrate) + sync script for .grok/.claude/.cursor (rules symlinks + hooks.json, skills via config only no lns) + AGENTS.md + compat + notifications + plugins note. Authority/guards/drift green; 8+ project instructions loaded. Enables LOW_TOKEN, subagent-per-protocol (coordinator first), auto drift prevention, multi-harness standardization. Touched harness files + states. Next: 1-5 extractions (more from Hyper Token-Efficient etc.) + prove with #6 loop (hook fire, subagent to chief-coordinator/drift-police read-only + memory consult), then product pivot.
 
 2026-06-04 hooks/public alignment (Worker 0/7/9/11 support): hook runner, local exam smoke, Pages validation, and public copy now reinforce production/factory/asset-commons/arena/local/connected/Azure boundaries.
 

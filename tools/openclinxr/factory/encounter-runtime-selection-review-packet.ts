@@ -87,6 +87,7 @@ export type EncounterRuntimeSelectionReviewPacket = {
       materializedOutputCount: number;
       allOutputsPlannedMetadataOnly: boolean;
     };
+    pedsHumanoidMaterializationHandoff?: import("./encounter-publication-payloads.js").EncounterPublicationPayloadReport["pedsHumanoidMaterializationHandoff"];
     assetNeedsReadiness: {
       readyForDeterministicGeneration: boolean;
       missingRequiredAssetNeedIds: string[];
@@ -695,6 +696,7 @@ function buildPublicationPayloadLinkage(publicationPayloads: unknown): Encounter
       materializedOutputCount: outputs.filter((output) => output.generatedAssetsMaterialized === true).length,
       allOutputsPlannedMetadataOnly: outputs.length > 0 && outputs.every((output) => output.claimBoundary === "planned_metadata_only"),
     },
+    ...(value.pedsHumanoidMaterializationHandoff ? { pedsHumanoidMaterializationHandoff: value.pedsHumanoidMaterializationHandoff } : {}),
     assetNeedsReadiness: {
       readyForDeterministicGeneration: readiness.readyForDeterministicGeneration === true,
       missingRequiredAssetNeedIds: stringArray(readiness.missingRequiredAssetNeedIds),
@@ -727,6 +729,12 @@ function validatePublicationPayloadLinkage(value: unknown, errors: string[]): vo
     requireNumber(value.localMaterializationHandoff.plannedOutputCount, "/publicationPayloadLinkage/localMaterializationHandoff/plannedOutputCount", errors);
     requireNumber(value.localMaterializationHandoff.materializedOutputCount, "/publicationPayloadLinkage/localMaterializationHandoff/materializedOutputCount", errors);
     requireLiteral(value.localMaterializationHandoff.allOutputsPlannedMetadataOnly, true, "/publicationPayloadLinkage/localMaterializationHandoff/allOutputsPlannedMetadataOnly", errors);
+  }
+  if (Object.hasOwn(value, "pedsHumanoidMaterializationHandoff") && value.pedsHumanoidMaterializationHandoff) {
+    const h = value.pedsHumanoidMaterializationHandoff;
+    if (isRecord(h)) {
+      requireLiteral(h.schemaVersion, "openclinxr.peds-humanoid-materialization-handoff.v1", "/publicationPayloadLinkage/pedsHumanoidMaterializationHandoff/schemaVersion", errors);
+    }
   }
   requireRecord(value.assetNeedsReadiness, "/publicationPayloadLinkage/assetNeedsReadiness", errors);
   if (isRecord(value.assetNeedsReadiness)) {
