@@ -19,7 +19,7 @@ export type UikitmlSpatialTextEvidence = {
   documentName: typeof uikitmlSpatialTextDocumentName;
   packageVersions: {
     vite: "8.0.10";
-    vitePluginUikitml: "0.3.1";
+    vitePluginUikitml: "0.4.2";
     pmndrsUikitml: "0.1.12";
     pmndrsUikit: "1.0.66";
   };
@@ -79,7 +79,7 @@ export function buildUikitmlSpatialTextEvidence(input: {
     documentName: uikitmlSpatialTextDocumentName,
     packageVersions: {
       vite: "8.0.10",
-      vitePluginUikitml: "0.3.1",
+      vitePluginUikitml: "0.4.2",
       pmndrsUikitml: "0.1.12",
       pmndrsUikit: "1.0.66",
     },

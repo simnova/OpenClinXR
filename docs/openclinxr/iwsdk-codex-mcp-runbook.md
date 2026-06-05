@@ -1,15 +1,15 @@
 # IWSDK Codex MCP Runbook
 
 Date: 2026-05-04
-Status: Phase 1 sidecar installed; MCP/devtool phase remains advisory
+Status: Phase 2 validation sidecar promoted; Chrome DevTools MCP available; IWSDK stdio MCP blocked
 
 ## Purpose
 
 This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling now that a committed Phase 1 sidecar exists at `apps/arena/ui-xr-iwsdk-spike` with exact package versions and accepted license posture.
 
-This runbook does not install IWSDK, does not modify `.codex/config.toml`, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
+This runbook does not install production IWSDK, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable sidecar using `@iwsdk/core@0.3.1`, `@iwsdk/xr-input@0.3.1`, `three@0.184.0`, and the approved sidecar-only `@iwsdk/vite-plugin-dev@0.3.1` devDependency. The dev plugin is configured as serve-only with `injectOnBuild: false`; the 2026-05-04 IWER evidence run found no dev-runtime strings in production `dist` output. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
+Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable validation sidecar using `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, `@iwsdk/vite-plugin-uikitml@0.4.2`, and `three@0.184.0`. Chrome DevTools MCP is configured for local browser/runtime evidence. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains blocked/future instead of being added to Codex/Grok MCP config. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
 
 Latest IWER managed-browser evidence:
 
@@ -24,7 +24,7 @@ Latest IWER managed-browser evidence:
 
 This is desktop/IWER emulation evidence only. The latest auto-entry smoke records a query-gated `session_started` Full VR state in an IWER/Chrome DevTools managed browser with split preview/immersive frame-lane metadata. The earlier raw WebSocket evidence still records the useful `no_session_has_been_offered` path for direct `accept_session` probes. Neither replaces Quest foreground frame pacing, controller latency, thermals, comfort, passthrough, physical headset entry, or in-headset readability observations.
 
-The 2026-05-06 MCP inventory capture queried the installed sidecar `iwsdk-dev-mcp` server over stdio and matched the expected 32 tool names and all required categories without mutating local MCP config, running adapter sync, using `@iwsdk/reference`, using `@meta-quest/hzdb`, or making a physical Quest claim. It intentionally still blocks aggregate agent-tooling readiness because managed-browser, smoke-tool execution, scene hierarchy, and ECS runtime evidence are not complete.
+Historical note: the 2026-05-06 MCP inventory capture queried the then-recorded sidecar `iwsdk-dev-mcp` server over stdio and matched the expected 32 tool names and all required categories without mutating local MCP config, running adapter sync, using `@iwsdk/reference`, using `@meta-quest/hzdb`, or making a physical Quest claim. That evidence remains historical compatibility input; current IWSDK 0.4.2 package metadata does not expose the stdio binary.
 
 Use `pnpm iwsdk:evidence` to print the current sidecar evidence contract report. A nonzero exit is expected while agent tooling, Vite peer posture, bundle budget, and Quest foreground blockers remain unresolved; the JSON blockers are the evidence to carry into leadership review.
 
@@ -48,7 +48,7 @@ Use `pnpm iwsdk:evidence:validate` to validate the latest committed `docs/opencl
 
 `packages/openclinxr/arena/iwsdk-spike` exposes `buildIwsdkCodexMcpAdapterTemplate()` as the source of truth for the local adapter template.
 
-The package-level runbook still records `adapterSyncCommand = "iwsdk adapter sync"` as the upstream/advisory adapter action. The installed `@iwsdk/vite-plugin-dev@0.3.1` package exposes the `iwsdk-dev-mcp` bin, and the committed template therefore uses the same package-managed command that produced `docs/openclinxr/iwsdk-mcp-inventory-evidence-2026-05-06.json`. Keep any local Codex MCP config reversible, and do not mark `adapterSyncRecorded` true until an actual adapter-sync action or equivalent local config mutation is captured with rollback evidence.
+The package-level runbook still records `adapterSyncCommand = "iwsdk adapter sync"` as the upstream/advisory adapter action. Current `@iwsdk/vite-plugin-dev@0.4.2` package metadata exposes no `bin`, and `pnpm --filter @openclinxr/ui-xr-iwsdk-spike exec iwsdk-dev-mcp --help` fails because the command is absent. Therefore `buildIwsdkCodexMcpAdapterTemplate()` now emits a blocked template instead of a committed MCP server snippet. Keep any future local Codex MCP config reversible, and do not mark `adapterSyncRecorded` true until an actual adapter-sync action or equivalent local config mutation is captured with rollback evidence.
 
 ## Future Vite AI Config
 
@@ -71,15 +71,15 @@ Target:
 .codex/config.toml
 ```
 
-Template:
+Blocked template:
 
 ```toml
-[mcp_servers.iwsdk-runtime]
-command = "pnpm"
-args = ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"]
+# IWSDK stdio MCP is intentionally not configured.
+# @iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary.
+# Use Chrome DevTools MCP plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.
 ```
 
-Keep this adapter local and reversible. Do not commit `.codex/config.toml` changes to the repo.
+Keep any future adapter local and reversible until the installed IWSDK packages expose a real stdio MCP server.
 
 ## Verification Order
 

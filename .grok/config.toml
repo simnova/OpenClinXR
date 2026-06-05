@@ -67,6 +67,12 @@ output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces
 # For now, declaring the name helps discovery in project context.
 # See also the project's use of GitHub MCP in arena spikes and tools.
 
+# Chrome DevTools MCP is enabled for runtime/browser validation evidence.
+# Current npm metadata checked 2026-06-05: chrome-devtools-mcp@1.1.1, Apache-2.0.
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@1.1.1", "--headless"]
+
 # --- UI / UX for long agentic sessions (rehydrations, autonomous loops, subagent threads) ---
 [ui]
 max_thoughts_width = 120

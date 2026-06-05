@@ -1,6 +1,6 @@
 # OpenClinXR Project Coordination Index
 
-Last updated: 2026-06-04 (compact checkpoint edition after historical evidence/log pruning).
+Last updated: 2026-06-05 (IWSDK validation sidecar + Chrome DevTools MCP checkpoint).
 
 ## Current State Snapshot
 
@@ -9,6 +9,8 @@ Last updated: 2026-06-04 (compact checkpoint edition after historical evidence/l
 **Current emphasis**: convert case spec fields (communication profiles, escalation/deescalation triggers, empathy and parent-communication tags, clinical objectives, event schedule) into actor turns, dialogue cue policies, emotion transitions, locomotion/gaze/lip-sync hints, materialization work orders, review-safe handoffs, and replay surfaces. Supporting lane: UI-XR runtime evidence consumer for operator-selected manual realism evidence as review metadata only. Gates remain false for learner, Quest, production, clinical validity, scoring validity, and real-Anny/B+ claims unless explicitly promoted.
 
 **Latest harness bridge checkpoint**: 2026-06-04 Codex-native OpenClaw-style / OpenClaw-inspired bridge alignment: real `.codex/agents/*.toml` custom agents generated from canonical `agents/**`, `.codex/config.toml` with larger project-doc budget + multi-agent hooks enabled, `.codex/rules/openclaw.rules`, SubagentStart/SubagentStop lifecycle hooks, local Codex plugin/marketplace under `.agents/plugins` + `plugins/openclinxr-openclaw-style`, and wording clarified across current control surfaces to prevent confusing the repo-native pattern with an external OpenClaw runtime. Next remains product: peds launch validation / UI-XR consumer handoff.
+
+**Latest validation tooling checkpoint**: 2026-06-05 Worker 9/11 support promoted IWSDK as the preferred sidecar validation lane for peds launch checks, pinned the sidecar to latest observed `@iwsdk/*@0.4.2`, and added Chrome DevTools MCP to Codex/Grok local config. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains a blocked/future evidence lane while Vite/plugin sidecar evidence remains usable. This is validation/tooling promotion only: production `apps/ui-xr`, Quest readiness, learner readiness, clinical/scoring validity, and production IWSDK adoption remain blocked pending the existing review and physical-device gates.
 
 **Last completed checkpoint**: 2026-06-04 1-5+6 harness AgenticEx amp-up continuation + proof (4+1 new agents/rules/ MDs with frontmatter, AGENTS slim + markers, .grok/plugins/openclinxr-post-slice-automation, .grok/lsp.json, hooks + runner tie + memory consult hook, config tuning, classify extension so authority/drift clean, sync, authority to 220 MDs/agent-methodology ~20). #6 loop: search_replace fired PostToolUse hooks, spawn_subagent as explore chief-coordinator (full protocol, role memory consults, no drift/toil, recommended next), post-slice/inspect green (12 rules etc loaded), states updated with 1-6 record, guards green, committed f90252a + pushed. Tree clean. Next: Worker 9/7/11 UI-XR consumer/Admin ReviewReplay (metadata-only, handoff preference) or peds launch validation (Q1/Q4).
 
@@ -26,7 +28,7 @@ Last updated: 2026-06-04 (compact checkpoint edition after historical evidence/l
 
 **Codex hook bridge checkpoint**: 2026-06-04 project-native `.codex/hooks.json` added for Codex lifecycle hooks. Hooks route through `pnpm codex:hook` and mirror the Grok intent without a no-op heartbeat loop: SessionStart/PreToolUse/PreCompact/UserPromptSubmit/Stop emit OpenClaw-style rehydration/lease/run-next reminders, and PostToolUse runs `pnpm agent:alignment && pnpm docs:drift-check` only when hook payload references coordination/OpenClaw-style surfaces. Trust with `/hooks` after hash changes. Next remains product: peds launch validation / UI-XR consumer handoff.
 
-**Next queued slice**: Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only; or faculty review path determinism; or deeper peds launch with handoff in runtime bundle (post 11/9 propagation). Keep IWSDK sidecar on approved 0.3.1 packages unless explicitly upgraded. No real-Anny, B+, Quest, clinical, scoring, production, or learner-readiness claims.
+**Next queued slice**: Worker 9/7/11 peds launch validation with `pedsHumanoidMaterializationHandoff` in runtime bundle/consumer flow, using IWSDK 0.4.2 sidecar evidence and Chrome DevTools MCP where useful. UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only; faculty review path determinism remains next-safe fallback. No real-Anny, B+, Quest, clinical, scoring, production, or learner-readiness claims.
 
 ## Efficient Rehydration + Working Model
 

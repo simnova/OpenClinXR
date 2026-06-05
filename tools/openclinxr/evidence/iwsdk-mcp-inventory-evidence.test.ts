@@ -94,6 +94,10 @@ describe("IWSDK MCP inventory evidence", () => {
       "ecs",
     ]);
     expect(report.agentToolingReadiness.blockers).not.toContain("mcp_tool_inventory_count_not_32");
+    expect(buildIwsdkPackageManagedMcpCommand()).toMatchObject({
+      availableInInstalledSidecar: false,
+      unavailableReason: "iwsdk_dev_mcp_bin_not_published_by_iwsdk_0_4_2",
+    });
   });
 
   it("flags missing and unknown MCP tools before agent tooling can be claimed", () => {

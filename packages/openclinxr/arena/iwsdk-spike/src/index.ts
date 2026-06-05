@@ -342,6 +342,7 @@ export type IwsdkAgentVerificationRunbook = {
 export type IwsdkCodexMcpAdapterTemplate = {
   target: ".codex/config.toml";
   serverName: "iwsdk-runtime";
+  status: "blocked_no_installed_stdio_server";
   command: IwsdkPackageManagedMcpCommand;
   tomlSnippet: string;
   prerequisites: string[];
@@ -354,6 +355,8 @@ export type IwsdkPackageManagedMcpCommand = {
   args: string[];
   sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike";
   serverBin: "iwsdk-dev-mcp";
+  availableInInstalledSidecar: false;
+  unavailableReason: "iwsdk_dev_mcp_bin_not_published_by_iwsdk_0_4_2";
 };
 
 export type IwsdkViteAiDevConfigContract = {
@@ -376,7 +379,7 @@ export type IwsdkViteAiDevConfigContract = {
 export type IwsdkCompatibilityContract = {
   sourceRecordIds: string[];
   packageName: "@iwsdk/vite-plugin-dev";
-  packageVersion: "0.3.1";
+  packageVersion: "0.4.2";
   requiredNodeMajor: 22;
   openclinxrViteMajor: 8;
   iwsdkVitePluginPeerRange: "^7.0.0";
@@ -414,7 +417,7 @@ export type IwsdkCommittedSpikeSequence = {
 
 export type IwsdkSidecarReadinessContract = {
   sidecarAppRoot: "apps/arena/ui-xr-iwsdk-spike/";
-  currentState: "phase_1_approved_install_backed";
+  currentState: "phase_2_validation_sidecar_promoted";
   runnable: true;
   approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md";
   approvedPackages: string[];
@@ -1048,18 +1051,20 @@ export function buildIwsdkCommittedSpikeSequence(): IwsdkCommittedSpikeSequence 
 export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContract {
   return {
     sidecarAppRoot: "apps/arena/ui-xr-iwsdk-spike/",
-    currentState: "phase_1_approved_install_backed",
+    currentState: "phase_2_validation_sidecar_promoted",
     runnable: true,
     approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md",
     approvedPackages: [
-      "@iwsdk/core@0.3.1",
-      "@iwsdk/xr-input@0.3.1",
+      "@iwsdk/core@0.4.2",
+      "@iwsdk/xr-input@0.4.2",
+      "@iwsdk/vite-plugin-dev@0.4.2",
+      "@iwsdk/vite-plugin-uikitml@0.4.2",
       "three@0.184.0",
     ],
     remainingProductionBlockers: [
-      "phase_1_runtime_shell_metrics_pass",
-      "phase_2_agent_devtools_not_installed",
+      "vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
       "manual_quest_foreground_frame_pacing",
+      "production_runtime_contract_madr_not_approved",
     ],
   };
 }
@@ -2048,16 +2053,18 @@ export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplat
   return {
     target: ".codex/config.toml",
     serverName: "iwsdk-runtime",
+    status: "blocked_no_installed_stdio_server",
     command,
     tomlSnippet: [
-      "[mcp_servers.iwsdk-runtime]",
-      `command = "${command.executable}"`,
-      `args = ${formatTomlStringArray(command.args)}`,
+      "# IWSDK stdio MCP is intentionally not configured.",
+      "# @iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary.",
+      "# Use Chrome DevTools MCP plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.",
     ].join("\n"),
     prerequisites: [
       "Use only after apps/arena/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",
-      "Run pnpm iwsdk:verify before adding the adapter to local Codex config.",
-      "Keep the adapter local and reversible; do not commit .codex/config.toml changes.",
+      "Confirm the installed @iwsdk/vite-plugin-dev package publishes an MCP stdio binary before adding any adapter.",
+      "Run pnpm iwsdk:verify before considering a future adapter.",
+      "Keep future adapters sidecar-only and reversible; do not point them at apps/ui-xr.",
     ],
     validationCommandOrder: runbook.steps.map((step) => step.toolOrCommand),
     blockedActions: [...runbook.doNotRunUnattended],
@@ -2116,18 +2123,16 @@ export function buildIwsdkPackageManagedMcpCommand(): IwsdkPackageManagedMcpComm
     args: ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"],
     sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike",
     serverBin: "iwsdk-dev-mcp",
+    availableInInstalledSidecar: false,
+    unavailableReason: "iwsdk_dev_mcp_bin_not_published_by_iwsdk_0_4_2",
   };
-}
-
-function formatTomlStringArray(values: string[]): string {
-  return `[${values.map((value) => JSON.stringify(value)).join(", ")}]`;
 }
 
 export function buildIwsdkCompatibilityContract(): IwsdkCompatibilityContract {
   return {
     sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
     packageName: "@iwsdk/vite-plugin-dev",
-    packageVersion: "0.3.1",
+    packageVersion: "0.4.2",
     requiredNodeMajor: 22,
     openclinxrViteMajor: 8,
     iwsdkVitePluginPeerRange: "^7.0.0",

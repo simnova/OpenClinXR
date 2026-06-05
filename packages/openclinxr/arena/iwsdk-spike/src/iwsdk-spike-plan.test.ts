@@ -1022,22 +1022,23 @@ describe("IWSDK spike plan", () => {
     });
   });
 
-  it("builds a Codex MCP adapter template that stays package-managed and reversible", () => {
+  it("blocks the Codex IWSDK MCP adapter template when the installed package has no stdio server", () => {
     const template = buildIwsdkCodexMcpAdapterTemplate();
 
     expect(template.target).toBe(".codex/config.toml");
     expect(template.serverName).toBe("iwsdk-runtime");
+    expect(template.status).toBe("blocked_no_installed_stdio_server");
     expect(template.command).toEqual({
       executable: "pnpm",
       args: ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"],
       sidecarPackageName: "@openclinxr/ui-xr-iwsdk-spike",
       serverBin: "iwsdk-dev-mcp",
+      availableInInstalledSidecar: false,
+      unavailableReason: "iwsdk_dev_mcp_bin_not_published_by_iwsdk_0_4_2",
     });
-    expect(template.tomlSnippet).toContain("[mcp_servers.iwsdk-runtime]");
-    expect(template.tomlSnippet).toContain('command = "pnpm"');
-    expect(template.tomlSnippet).toContain(
-      'args = ["--filter", "@openclinxr/ui-xr-iwsdk-spike", "exec", "iwsdk-dev-mcp"]',
-    );
+    expect(template.tomlSnippet).toContain("IWSDK stdio MCP is intentionally not configured");
+    expect(template.tomlSnippet).toContain("@iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary");
+    expect(template.tomlSnippet).not.toContain("[mcp_servers.iwsdk-runtime]");
     expect(template.validationCommandOrder).toEqual([
       "iwsdk dev status",
       "xr_get_session_status",
@@ -1049,8 +1050,9 @@ describe("IWSDK spike plan", () => {
     ]);
     expect(template.prerequisites).toEqual([
       "Use only after apps/arena/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",
-      "Run pnpm iwsdk:verify before adding the adapter to local Codex config.",
-      "Keep the adapter local and reversible; do not commit .codex/config.toml changes.",
+      "Confirm the installed @iwsdk/vite-plugin-dev package publishes an MCP stdio binary before adding any adapter.",
+      "Run pnpm iwsdk:verify before considering a future adapter.",
+      "Keep future adapters sidecar-only and reversible; do not point them at apps/ui-xr.",
     ]);
     expect(template.blockedActions).toEqual([
       "npx iwsdk reference warmup",
@@ -1100,7 +1102,7 @@ describe("IWSDK spike plan", () => {
     expect(contract).toEqual({
       sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
       packageName: "@iwsdk/vite-plugin-dev",
-      packageVersion: "0.3.1",
+      packageVersion: "0.4.2",
       requiredNodeMajor: 22,
       openclinxrViteMajor: 8,
       iwsdkVitePluginPeerRange: "^7.0.0",
@@ -1187,21 +1189,23 @@ describe("IWSDK spike plan", () => {
     ]));
   });
 
-  it("records the approved Phase 1 IWSDK sidecar as runnable but not production-ready", () => {
+  it("records the approved IWSDK sidecar as promoted for validation but not production-ready", () => {
     expect(buildIwsdkSidecarReadinessContract()).toEqual({
       sidecarAppRoot: "apps/arena/ui-xr-iwsdk-spike/",
-      currentState: "phase_1_approved_install_backed",
+      currentState: "phase_2_validation_sidecar_promoted",
       runnable: true,
       approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md",
       approvedPackages: [
-        "@iwsdk/core@0.3.1",
-        "@iwsdk/xr-input@0.3.1",
+        "@iwsdk/core@0.4.2",
+        "@iwsdk/xr-input@0.4.2",
+        "@iwsdk/vite-plugin-dev@0.4.2",
+        "@iwsdk/vite-plugin-uikitml@0.4.2",
         "three@0.184.0",
       ],
       remainingProductionBlockers: [
-        "phase_1_runtime_shell_metrics_pass",
-        "phase_2_agent_devtools_not_installed",
+        "vite_plugin_peer_range_does_not_accept_openclinxr_vite_major",
         "manual_quest_foreground_frame_pacing",
+        "production_runtime_contract_madr_not_approved",
       ],
     });
   });

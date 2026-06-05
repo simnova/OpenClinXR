@@ -11,15 +11,15 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@iwsdk/core": "0.3.1",
-    "@iwsdk/xr-input": "0.3.1",
+    "@iwsdk/core": "0.4.2",
+    "@iwsdk/xr-input": "0.4.2",
     "@openclinxr/iwsdk-spike": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "three": "0.184.0"
   },
   "devDependencies": {
-    "@iwsdk/vite-plugin-dev": "0.3.1",
-    "@iwsdk/vite-plugin-uikitml": "0.3.1",
+    "@iwsdk/vite-plugin-dev": "0.4.2",
+    "@iwsdk/vite-plugin-uikitml": "0.4.2",
     "@pmndrs/uikit": "1.0.66",
     "@pmndrs/uikitml": "0.1.12",
     "@types/three": "0.184.0",

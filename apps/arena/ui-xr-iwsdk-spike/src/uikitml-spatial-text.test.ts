@@ -15,13 +15,13 @@ describe("UIKitML spatial text sidecar posture", () => {
     const packageJson = JSON.parse(readFileSync(join(appRoot, "package.json"), "utf8")) as {
       devDependencies?: Record<string, string>;
     };
-    const rootPackageJson = JSON.parse(readFileSync(join(appRoot, "..", "..", "package.json"), "utf8")) as {
+    const rootPackageJson = JSON.parse(readFileSync(join(appRoot, "..", "..", "..", "package.json"), "utf8")) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
 
     expect(packageJson.devDependencies).toMatchObject({
-      "@iwsdk/vite-plugin-uikitml": "0.3.1",
+      "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@pmndrs/uikitml": "0.1.12",
       "@pmndrs/uikit": "1.0.66",
       vite: "8.0.10",

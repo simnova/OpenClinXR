@@ -1237,13 +1237,13 @@ describe("workspace architecture rules", () => {
       devDependencies?: Record<string, string>;
     };
     expect(manifest.dependencies).toMatchObject({
-      "@iwsdk/core": "0.3.1",
-      "@iwsdk/xr-input": "0.3.1",
+      "@iwsdk/core": "0.4.2",
+      "@iwsdk/xr-input": "0.4.2",
       "three": "0.184.0",
     });
     expect(manifest.devDependencies).toMatchObject({
-      "@iwsdk/vite-plugin-dev": "0.3.1",
-      "@iwsdk/vite-plugin-uikitml": "0.3.1",
+      "@iwsdk/vite-plugin-dev": "0.4.2",
+      "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@types/three": "0.184.0",
       "typescript": "6.0.3",
       "vite": "8.0.10",

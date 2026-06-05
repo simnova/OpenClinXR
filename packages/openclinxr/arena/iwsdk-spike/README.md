@@ -4,6 +4,8 @@
 
 **Governing decisions:** [MADR 0027](../../../../docs/madr/0027-quest3-usb-webxr-smoke-gate.md) and [MADR 0028](../../../../docs/madr/0028-iwsdk-sidecar-spike.md).
 
+**Validation relationship:** this package is the typed contract layer for using the IWSDK sidecar during peds launch validation when XR input, scene hierarchy, MCP, or spatial UI parity evidence would materially reduce runtime risk.
+
 **Production relationship:** this package can describe and validate IWSDK evidence, but production apps must not import IWSDK runtime dependencies or sidecar app internals.
 
 Useful checks:
