@@ -81,4 +81,18 @@ describe("OpenClaw drift checker", () => {
       message: "missing OpenClaw drift marker: docs:drift-check",
     });
   });
+
+  it("fails when the active snapshot accumulates no-op heartbeat ledger text", () => {
+    const input = alignedInput();
+    input.files["AUTONOMOUS_WORK_PLAN.md"] =
+      "openclaw-runbook-2026-05-27.md\ndocs:drift-check\n2026-06-04 autonomy heartbeat: no-op verification\n## Efficient Rehydration";
+
+    const report = buildOpenClawDriftReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: "AUTONOMOUS_WORK_PLAN.md",
+      message: "current snapshot contains autonomy heartbeat/no-op verification ledger text; keep no-op runner/watchdog output local and pivot the snapshot to the next product slice",
+    });
+  });
 });

@@ -119,6 +119,16 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
     }
   }
 
+  for (const file of ["PROJECT_COORDINATION_INDEX.md", "AUTONOMOUS_WORK_PLAN.md", "docs/openclinxr/worker-backlog-and-validation-matrix.md"]) {
+    const currentSnapshot = sectionBefore(input.files[file] ?? "", "## Efficient Rehydration");
+    if (/\d{4}-\d{2}-\d{2}\s+autonomy heartbeat/iu.test(currentSnapshot)) {
+      failures.push({
+        file,
+        message: "current snapshot contains autonomy heartbeat/no-op verification ledger text; keep no-op runner/watchdog output local and pivot the snapshot to the next product slice",
+      });
+    }
+  }
+
   for (const file of input.markdownFiles) {
     if (!registeredMarkdown.has(file)) {
       failures.push({ file, message: "Markdown file is not registered in the doc authority registry; run pnpm docs:authority or remove the scattered artifact" });
@@ -163,6 +173,11 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
     checkedGeneratedArtifactCount: input.generatedArtifactFiles.length,
     failures,
   };
+}
+
+function sectionBefore(text: string, marker: string): string {
+  const index = text.indexOf(marker);
+  return index >= 0 ? text.slice(0, index) : text;
 }
 
 function walkFiles(start: string, predicate: (file: string) => boolean, out: string[] = []): string[] {
