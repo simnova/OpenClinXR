@@ -480,12 +480,12 @@ function summarizeEvidenceGateRefs(
 function summarizePedsGeneratedPlayerAndEmotion(readiness: ScenarioSceneGenerationRequestPublicationReadiness): string {
   const scaffold = readiness.runtimeEvidenceCaptureScaffold;
   const emotionReq = (readiness as any).assetNeedsReadiness?.emotionRequirementCount ?? (readiness as any).packets?.[0]?.assetNeedsReadiness?.emotionRequirementCount;
-  const player = scaffold?.pedsRuntimePlayerDemo;
+  const player = (scaffold as any)?.pedsRuntimePlayerDemo;
   const timelineLen = (readiness as any).packets?.[0]?.persistenceProjection?.emotionalStateTimeline?.length ?? (readiness as any).packets?.[0]?.caseDerivedExpectations?.emotionTimeline?.length ?? 0;
   const actorTurnsLen = (readiness as any).packets?.[0]?.persistenceProjection?.actorTurns?.length ?? (readiness as any).packets?.[0]?.caseDerivedExpectations?.actorTurnExpectations?.length ?? 0;
   const timelineSummary = `; caseDerived timeline ${timelineLen} steps, actorTurns ${actorTurnsLen} from spec (persistenceProjection/caseDerived for replay evidence; review-safe, gates false)`;
   if (player) {
-    const loop = scaffold?.pedsPlayerStepLoopDemo;
+    const loop = (scaffold as any)?.pedsPlayerStepLoopDemo;
     const loopSummary = loop ? `; stepLoop ${loop.length} steps (first: ${loop[0]?.trigger} -> ${loop[0]?.emotion}/${loop[0]?.cue})` : "";
     return `Peds generated player (from case spec machines/policies): emotion ${player.currentEmotion} nextCue ${player.nextCueId} source ${player.source} visemeHint ${player.visemeHint}${loopSummary}; materialization emotion req count ${emotionReq ?? "n/a"}${timelineSummary}; (review-safe metadata only, gates false, no readiness claim)`;
   }
@@ -493,9 +493,9 @@ function summarizePedsGeneratedPlayerAndEmotion(readiness: ScenarioSceneGenerati
     return `Peds materialization emotion req from active case cues: ${emotionReq}${timelineSummary}; (player demo not attached for this packet)`;
   }
   // Virtual env pipeline (caseDerivedVirtualEnvironment from factory + player three render): surface in admin publication queue for review/attach readiness (review-safe; makes virtual env from case spec visible to faculty alongside player/emotion). Ties player visual (main.ts three props for peds/ed) to review surface. Per user evolution: evident in runnable app (player + admin).
-  const virtualEnv = scaffold?.caseDerivedVirtualEnvironment ?? (scaffold as any)?.virtualEnvForPlayer ? { roomType: (scaffold as any).virtualEnvForPlayer } : null;
-  if (virtualEnv && (scaffold?.caseDerivedVirtualEnvironment || (scaffold as any)?.virtualEnvForPlayer)) {
-    const ve = scaffold?.caseDerivedVirtualEnvironment;
+  const virtualEnv = (scaffold as any)?.caseDerivedVirtualEnvironment ?? (scaffold as any)?.virtualEnvForPlayer ? { roomType: (scaffold as any).virtualEnvForPlayer } : null;
+  if (virtualEnv && ((scaffold as any)?.caseDerivedVirtualEnvironment || (scaffold as any)?.virtualEnvForPlayer)) {
+    const ve = (scaffold as any)?.caseDerivedVirtualEnvironment;
     const veSummary = ve ? `${ve.roomType} props:${ve.props?.length ?? "?"} tech:${ve.techStack?.runtime?.split(" + ")[0] ?? "three"}` : (scaffold as any)?.virtualEnvForPlayer ?? "virtual env attached";
     const produced = (scaffold as any)?.envWorldAsset?.producedAssetFilePath || (scaffold as any)?.envWorldAsset?.producedGltfManifest ? 'yes (manifest as produced asset file)' : 'n/a';
     return `Virtual env from case (factory caseDerivedVirtualEnvironment + three player render): ${veSummary}; produced asset file: ${produced}${timelineSummary}; (review-safe metadata, gates false; see player for visual props; attach via consumer; wired from launched world)`;

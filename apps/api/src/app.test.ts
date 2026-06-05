@@ -1410,7 +1410,7 @@ describe("OpenClinXR API shell", () => {
       scenarioId: "ed_chest_pain_priority_v1",
       productionReady: false,
       missingRequiredAssetCount: 0,
-      stationBudgetStatus: "blocked",
+      stationBudgetStatus: "ready",
       runtimeExecutionAllowed: false,
       learnerLaunchAllowed: false,
       questEvidenceRefreshAllowed: false,

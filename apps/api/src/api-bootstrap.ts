@@ -204,12 +204,12 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
     });
 }
 
-export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: { port?: number } = {}): NodeServerConfig {
-  return {
-    fetch: startup.fetch,
-    port: options.port ?? Number(process.env.PORT ?? 3000),
-  };
-}
+ export function createNodeServerConfig(startup: StartedOpenClinXrApi = createOpenClinXrApiStartup().startUp(), options: { port?: number } = {}): NodeServerConfig {
+   return {
+     fetch: startup.fetch,
+     port: options.port ?? Number(process.env['PORT'] ?? 3000),
+   };
+ }
 
 export function createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
   environment: BunRealtimeVoiceGatewayPostureEnvironment,
@@ -241,7 +241,7 @@ export function createBunServerConfig(startup: StartedOpenClinXrApi = createOpen
   return {
     runtime: "bun-hono",
     fetch: startup.fetch,
-    port: options.port ?? Number(process.env.PORT ?? 3000),
+    port: options.port ?? Number(process.env['PORT'] ?? 3000),
     websocketPath: "/voice/realtime/ws",
     canUpgradeWebSocketRequest: isRealtimeVoiceWebSocketUpgradeRequest,
     websocket: createBunRealtimeVoiceWebSocketHandler(websocketOptions),
@@ -259,12 +259,12 @@ function readPythonProxyReachabilityEvidenceFromEnvironment(
   }
 
   const rawEvidence = readOptionalEvidenceFile(evidenceFile, options);
-  if (!isRecord(rawEvidence) || rawEvidence.status !== "passed") {
+  if (!isRecord(rawEvidence) || rawEvidence['status'] !== "passed") {
     return undefined;
   }
-  const websocket = isRecord(rawEvidence.websocket) ? rawEvidence.websocket : {};
-  const eventTypesObserved = stringArray(websocket.eventTypesObserved);
-  const binaryMessages = finiteNumber(websocket.binaryMessages);
+  const websocket = isRecord(rawEvidence['websocket']) ? rawEvidence['websocket'] : {};
+  const eventTypesObserved = stringArray((websocket as Record<string, unknown>)['eventTypesObserved']);
+  const binaryMessages = finiteNumber((websocket as Record<string, unknown>)['binaryMessages']);
   const canonicalEventsObserved = [
     "backend.ready",
     "voice.started",
@@ -275,19 +275,19 @@ function readPythonProxyReachabilityEvidenceFromEnvironment(
   ].every((eventType) => eventTypesObserved.includes(eventType));
   const evidence = {
     sourceFile: evidenceFile,
-    ...(typeof rawEvidence.generatedAt === "string" ? { generatedAt: rawEvidence.generatedAt } : {}),
+    ...(typeof rawEvidence['generatedAt'] === "string" ? { generatedAt: rawEvidence['generatedAt'] } : {}),
     status: "passed" as const,
     eventTypesObserved,
     binaryMessages,
-    backendProtocolObserved: websocket.backendProtocolObserved === true,
-    latencyFieldsObserved: websocket.latencyFieldsObserved === true,
-    binaryEchoObserved: websocket.binaryEchoObserved === true,
+    backendProtocolObserved: websocket['backendProtocolObserved'] === true,
+    latencyFieldsObserved: websocket['latencyFieldsObserved'] === true,
+    binaryEchoObserved: websocket['binaryEchoObserved'] === true,
   };
 
   return evidence.binaryMessages > 0
-    && evidence.backendProtocolObserved
-    && evidence.latencyFieldsObserved
-    && evidence.binaryEchoObserved
+    && evidence['backendProtocolObserved']
+    && evidence['latencyFieldsObserved']
+    && evidence['binaryEchoObserved']
     && canonicalEventsObserved
     ? evidence
     : undefined;
@@ -303,18 +303,18 @@ function readPythonBackendRuntimeDependenciesEvidenceFromEnvironment(
   }
 
   const rawEvidence = readOptionalEvidenceFile(evidenceFile, options);
-  if (!isRecord(rawEvidence) || rawEvidence.status !== "passed") {
+  if (!isRecord(rawEvidence) || rawEvidence['status'] !== "passed") {
     return false;
   }
 
-  const python = isRecord(rawEvidence.python) ? rawEvidence.python : {};
-  const dependencies = isRecord(python.dependencies) ? python.dependencies : {};
-  const health = isRecord(rawEvidence.health) ? rawEvidence.health : {};
-  const capabilities = isRecord(rawEvidence.capabilities) ? rawEvidence.capabilities : {};
-  const websocket = isRecord(rawEvidence.websocket) ? rawEvidence.websocket : {};
-  const protocol = isRecord(websocket.protocol) ? websocket.protocol : {};
-  const missingPackages = stringArray(python.missingPackages);
-  const serverEventTypesObserved = stringArray(protocol.serverEventTypesObserved);
+  const python = isRecord(rawEvidence['python']) ? rawEvidence['python'] : {};
+  const dependencies = isRecord(python['dependencies']) ? python['dependencies'] : {};
+  const health = isRecord(rawEvidence['health']) ? rawEvidence['health'] : {};
+  const capabilities = isRecord(rawEvidence['capabilities']) ? rawEvidence['capabilities'] : {};
+  const websocket = isRecord(rawEvidence['websocket']) ? rawEvidence['websocket'] : {};
+  const protocol = isRecord(websocket['protocol']) ? websocket['protocol'] : {};
+  const missingPackages = stringArray(python['missingPackages']);
+  const serverEventTypesObserved = stringArray(protocol['serverEventTypesObserved']);
   const canonicalServerEventsObserved = [
     realtimeVoiceProtocol.serverEvents.backendReady,
     realtimeVoiceProtocol.serverEvents.voiceStarted,
@@ -324,17 +324,17 @@ function readPythonBackendRuntimeDependenciesEvidenceFromEnvironment(
     realtimeVoiceProtocol.serverEvents.voiceStopped,
   ].every((eventType) => serverEventTypesObserved.includes(eventType));
 
-  return dependencies.fastapi === "available"
-    && dependencies.uvicorn === "available"
-    && dependencies.websockets === "available"
+  return dependencies['fastapi'] === "available"
+    && dependencies['uvicorn'] === "available"
+    && dependencies['websockets'] === "available"
     && missingPackages.length === 0
-    && health.ok === true
-    && capabilities.ok === true
-    && websocket.connected === true
-    && protocol.canonicalProtocolObserved === true
-    && protocol.backendProtocolObserved === true
-    && protocol.latencyFieldsObserved === true
-    && websocket.binaryEchoObserved === true
+    && health['ok'] === true
+    && capabilities['ok'] === true
+    && websocket['connected'] === true
+    && protocol['canonicalProtocolObserved'] === true
+    && protocol['backendProtocolObserved'] === true
+    && protocol['latencyFieldsObserved'] === true
+    && websocket['binaryEchoObserved'] === true
     && canonicalServerEventsObserved;
 }
 
@@ -533,7 +533,7 @@ function acknowledgeRealtimeVoiceControlFrame(socket: BunRealtimeVoiceWebSocket,
     return;
   }
 
-  const controlType = typeof control.type === "string" ? control.type : "control";
+  const controlType = typeof control['type'] === "string" ? control['type'] : "control";
   if (!isSupportedRealtimeVoiceControlType(controlType)) {
     sendBunWebSocketJson(socket, {
       type: "error",

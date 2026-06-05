@@ -8,13 +8,13 @@ Latest harness bridge checkpoint: 2026-06-04 Codex-native OpenClaw-style / OpenC
 
 Latest validation tooling checkpoint: 2026-06-05 Worker 9/11 support promoted IWSDK as the preferred sidecar validation lane for peds launch checks, pinned latest observed `@iwsdk/*@0.4.2`, and added Chrome DevTools MCP config through `pnpm dlx chrome-devtools-mcp@1.1.1` for local browser/runtime evidence. IWSDK 0.4.2 has no installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains a blocked/future evidence lane while sidecar Vite/plugin validation remains available. This stays sidecar-only and validation-only; production `apps/ui-xr`, Quest readiness, learner readiness, clinical/scoring validity, and production IWSDK adoption remain blocked.
 
-Latest product checkpoint: 2026-06-05 Faculty review humanoid handoff. Faculty Review Decision Handoff now surfaces `caseDefinedHumanoidRuntimeHandoff` as deterministic metadata-only faculty planning context with actor roles, runtime signals, blockers, claim boundary, and not-evidence-for gates. Prior API/Admin/IWSDK peds handoff parity remains covered.
+Latest product checkpoint: 2026-06-05 strictness cleanup and Anny preflight readiness. API/UI-admin/asset-registry package typechecks are green with API strict index-signature access enforced, focused API/admin/asset-registry tests are green, and the generated ED station runtime bundle factory test now runs again after import-path repair. Prior peds handoff parity, Admin ReviewReplay, and faculty humanoid handoff remain covered.
 
 Latest divergence correction: 2026-06-04 active queue now points to peds launch validation for `pedsHumanoidMaterializationHandoff`; drift check now rejects dated no-op heartbeat ledger text in active snapshots; Grok PreToolUse lease hook text is advisory and no longer claims to execute an acquire command. Evidence: run-next selects peds validation, drift/alignment/check-openclaw-drift tests green.
 
 Last support checkpoint: 2026-06-04 1-5+6 harness AgenticEx (extractions of hyper-token-efficient, blueprint-factory-guardrails, repo-defined-agents-worker-roles, persistent-memory-scoring + agent-consult rules; .grok/plugins/ post-slice; .grok/lsp.json; hooks enhance + .githooks/agentic-hook-runner tie + memory-consult; config [memory] watcher + [plugins] + notifications + compat; registry classify; sync; authority/guards green 220 MDs). #6 proof executed (search_replace hook fire, subagent explore chief-coordinator per protocol/agent-consult with charter+memory reads + no drift, post-slice + grok inspect showing 12 rules/hooks/plugin/lsp, states 1-6 record, commit f90252a + push). Tree clean on origin. Guards green.
 
-Next action: app-wide UI-admin/API fixture strictness cleanup or faculty API projection hardening. UI-XR consumer/admin replay surfaces remain metadata-only.
+Next action: Worker 10/11 Anny provider/import preflight artifact for higher-quality humanoid source candidates. UI-XR consumer/admin replay surfaces remain metadata-only; real-Anny, B+, Quest, production, clinical/scoring, and learner-readiness claims remain blocked until the preflight and downstream evidence gates clear.
 
 ## Efficient Rehydration + Working Model
 
@@ -30,7 +30,7 @@ Do not toil on evidence refreshes. Evidence supports product decisions; it is no
 | 2 | Worker 9/7/11 | UI-XR runtime evidence consumer plus Admin/GraphQL/API review/replay summaries | Metadata-only payloads, raw hidden, reviewer decision gates |
 | 3 | Worker 7/8/9 | Worker 7 plus Worker 8 completed-station faculty review path | Local deterministic smoke, faculty/admin review surface tests |
 | 4 | Worker 11 | Clinical Asset Commons reuse for humanoids/equipment/floors/nurses | Sidecar provenance, materialization gates, MADR linkage |
-| 5 | Worker 10/support | Local exam and model/voice harnesses | Test/data boundary only; no runtime manifest pollution |
+| 5 | Worker 10/11 | Anny provider/import preflight plus local model/voice harnesses | Test/data boundary only; no runtime manifest pollution; false real-Anny/B+ readiness until source quality gates clear |
 
 ## Recent Checkpoints
 

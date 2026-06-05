@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 
 const localApiTarget = "http://localhost:3000";
 
-export function createOpenClinXrApiProxy(apiTarget = process.env.OPENCLINXR_API_PROXY_TARGET ?? localApiTarget) {
+export function createOpenClinXrApiProxy(apiTarget = process.env['OPENCLINXR_API_PROXY_TARGET'] ?? localApiTarget) {
   return Object.freeze({
     "/health": localApiProxyTarget(apiTarget),
     "/providers": localApiProxyTarget(apiTarget),

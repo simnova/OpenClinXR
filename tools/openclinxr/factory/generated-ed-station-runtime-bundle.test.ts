@@ -458,8 +458,8 @@ describe("generated ED station runtime bundle", () => {
 
   it("exposes root package scripts", async () => {
     const rootPackage = JSON.parse(await readFile("package.json", "utf8")) as { scripts: Record<string, string> };
-    expect(rootPackage.scripts["asset:generated-station-bundle"]).toBe("tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts");
-    expect(rootPackage.scripts["asset:generated-station-bundle:validate"]).toBe("tsx tools/openclinxr/generated-ed-station-runtime-bundle.ts --validate-latest");
+    expect(rootPackage.scripts["asset:generated-station-bundle"]).toBe("tsx tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts");
+    expect(rootPackage.scripts["asset:generated-station-bundle:validate"]).toBe("tsx tools/openclinxr/factory/generated-ed-station-runtime-bundle.ts --validate-latest");
   });
 });
 

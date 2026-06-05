@@ -236,7 +236,7 @@ function buildBlobRequestHeaders(input: {
     headers[`x-ms-meta-${normalizedKey}`] = value;
   }
   if (input.accountKey) {
-    headers.authorization = buildSharedKeyAuthorizationHeader({
+    headers['authorization'] = buildSharedKeyAuthorizationHeader({
       method: input.method,
       accountName,
       accountKey: input.accountKey,

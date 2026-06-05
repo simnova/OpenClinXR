@@ -2415,8 +2415,8 @@ function recordingFetch(requests: RecordedRequest[], responseByPath: Record<stri
       method: init?.method ?? "GET",
       ...(body !== undefined ? { body } : {}),
     });
-    const responseKey = requestUrl.pathname === "/admin/graphql" && isRecord(body) && typeof body.operationName === "string"
-      ? `${requestUrl.pathname}#${body.operationName}`
+    const responseKey = requestUrl.pathname === "/admin/graphql" && isRecord(body) && typeof body['operationName'] === "string"
+      ? `${requestUrl.pathname}#${body['operationName']}`
       : requestUrl.pathname;
     const methodResponseKey = `${init?.method ?? "GET"} ${requestUrl.pathname}`;
 

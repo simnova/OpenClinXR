@@ -98,9 +98,9 @@ function readMaterializationInputManifestSummaryForScenario(scenarioId: string):
     "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
   );
   if (!isRecord(workerReport)) return undefined;
-  const summary = workerReport.materializationInputManifestSummary;
+  const summary = workerReport['materializationInputManifestSummary'];
   if (!isRecord(summary)) return undefined;
-  const summaryScenarioId = summary.scenarioId;
+  const summaryScenarioId = summary['scenarioId'];
   if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
   return summary;
 }
@@ -135,9 +135,9 @@ function readMaterializationAttachmentPlanSummaryForScenario(scenarioId: string)
     "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
   );
   if (!isRecord(workerReport)) return undefined;
-  const summary = workerReport.materializationAttachmentPlanSummary;
+  const summary = workerReport['materializationAttachmentPlanSummary'];
   if (!isRecord(summary)) return undefined;
-  const summaryScenarioId = summary.scenarioId;
+  const summaryScenarioId = summary['scenarioId'];
   if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
   return summary;
 }
@@ -147,9 +147,9 @@ function readMaterializationEvidenceAttachmentSummaryForScenario(scenarioId: str
     "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
   );
   if (!isRecord(workerReport)) return undefined;
-  const summary = workerReport.materializationEvidenceAttachmentSummary;
+  const summary = workerReport['materializationEvidenceAttachmentSummary'];
   if (!isRecord(summary)) return undefined;
-  const summaryScenarioId = summary.scenarioId;
+  const summaryScenarioId = summary['scenarioId'];
   if (typeof summaryScenarioId === "string" && summaryScenarioId !== scenarioId) return undefined;
   return summary;
 }
@@ -159,7 +159,7 @@ function readRuntimeEvidenceCaptureScaffoldForScenario(scenarioId: string): unkn
     "docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json",
   );
   if (!isRecord(scaffold)) return undefined;
-  const scaffoldScenarioId = scaffold.selectedScenarioId;
+  const scaffoldScenarioId = scaffold['selectedScenarioId'];
   if (typeof scaffoldScenarioId === "string" && scaffoldScenarioId !== scenarioId) return undefined;
   return scaffold;
 }
@@ -169,15 +169,15 @@ function readRuntimeRealismEvidenceInputDraftForScenario(scenarioId: string): un
     "docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json",
   );
   if (!isRecord(draft)) return undefined;
-  const selectedScenarioId = draft.selectedScenarioId;
+  const selectedScenarioId = draft['selectedScenarioId'];
   if (typeof selectedScenarioId === "string" && selectedScenarioId !== scenarioId) return undefined;
   return draft;
 }
 
 function attachMaterializationInputManifestSummary(packet: unknown): unknown {
   if (!isRecord(packet)) return packet;
-  if (packet.materializationInputManifestSummary) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
+  if (packet['materializationInputManifestSummary']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
   if (typeof selectedScenarioId !== "string") return packet;
   const materializationInputManifestSummary = readMaterializationInputManifestSummaryForScenario(selectedScenarioId);
   return materializationInputManifestSummary ? { ...packet, materializationInputManifestSummary } : packet;
@@ -185,8 +185,8 @@ function attachMaterializationInputManifestSummary(packet: unknown): unknown {
 
 function attachMaterializationAttachmentPlanSummary(packet: unknown): unknown {
   if (!isRecord(packet)) return packet;
-  if (packet.materializationAttachmentPlanSummary) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
+  if (packet['materializationAttachmentPlanSummary']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
   if (typeof selectedScenarioId !== "string") return packet;
   const materializationAttachmentPlanSummary = readMaterializationAttachmentPlanSummaryForScenario(selectedScenarioId);
   return materializationAttachmentPlanSummary ? { ...packet, materializationAttachmentPlanSummary } : packet;
@@ -194,8 +194,8 @@ function attachMaterializationAttachmentPlanSummary(packet: unknown): unknown {
 
 function attachMaterializationEvidenceAttachmentSummary(packet: unknown): unknown {
   if (!isRecord(packet)) return packet;
-  if (packet.materializationEvidenceAttachmentSummary) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
+  if (packet['materializationEvidenceAttachmentSummary']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
   if (typeof selectedScenarioId !== "string") return packet;
   const materializationEvidenceAttachmentSummary = readMaterializationEvidenceAttachmentSummaryForScenario(selectedScenarioId);
   return materializationEvidenceAttachmentSummary ? { ...packet, materializationEvidenceAttachmentSummary } : packet;
@@ -203,8 +203,8 @@ function attachMaterializationEvidenceAttachmentSummary(packet: unknown): unknow
 
 function attachRuntimeRealismEvidenceInputDraft(packet: unknown): unknown {
   if (!isRecord(packet)) return packet;
-  if (packet.runtimeRealismEvidenceInputDraft) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
+  if (packet['runtimeRealismEvidenceInputDraft']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
   if (typeof selectedScenarioId !== "string") return packet;
   const runtimeRealismEvidenceInputDraft = readRuntimeRealismEvidenceInputDraftForScenario(selectedScenarioId);
   return runtimeRealismEvidenceInputDraft ? { ...packet, runtimeRealismEvidenceInputDraft } : packet;
@@ -215,9 +215,9 @@ function attachRuntimeRealismEvidenceInputReviewDecisionRecord(
   decisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined,
 ): unknown {
   if (!decisionRecord || !isRecord(packet)) return packet;
-  if (packet.runtimeRealismEvidenceInputReviewDecisionRecord) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
-  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  if (packet['runtimeRealismEvidenceInputReviewDecisionRecord']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord['scenarioId']) return packet;
   return { ...packet, runtimeRealismEvidenceInputReviewDecisionRecord: decisionRecord };
 }
 
@@ -227,9 +227,9 @@ function attachRuntimeVisualEvidenceAttachmentSummary(
   attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord,
 ): unknown {
   if (!decisionRecord || !isRecord(packet)) return packet;
-  if (packet.runtimeVisualEvidenceAttachmentSummary) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
-  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  if (packet['runtimeVisualEvidenceAttachmentSummary']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord['scenarioId']) return packet;
   const summary = buildRuntimeRealismEvidenceAttachmentSummary(decisionRecord, attachmentRecord);
   return summary ? { ...packet, runtimeVisualEvidenceAttachmentSummary: summary } : packet;
 }
@@ -240,9 +240,9 @@ function attachRuntimeVisualEvidenceAttachmentActionPacket(
   attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord,
 ): unknown {
   if (!decisionRecord || !isRecord(packet)) return packet;
-  if (packet.runtimeVisualEvidenceAttachmentActionPacket) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
-  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  if (packet['runtimeVisualEvidenceAttachmentActionPacket']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord['scenarioId']) return packet;
   const summary = buildRuntimeRealismEvidenceAttachmentSummary(decisionRecord, attachmentRecord);
   const actionPacket = buildRuntimeVisualEvidenceAttachmentActionPacket(summary);
   return actionPacket ? { ...packet, runtimeVisualEvidenceAttachmentActionPacket: actionPacket } : packet;
@@ -253,16 +253,16 @@ function attachRuntimeVisualEvidenceAttachmentRecord(
   attachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined,
 ): unknown {
   if (!attachmentRecord || !isRecord(packet)) return packet;
-  if (packet.runtimeVisualEvidenceAttachmentRecord) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
-  if (typeof selectedScenarioId === "string" && selectedScenarioId !== attachmentRecord.scenarioId) return packet;
+  if (packet['runtimeVisualEvidenceAttachmentRecord']) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== attachmentRecord['scenarioId']) return packet;
   return { ...packet, runtimeVisualEvidenceAttachmentRecord: attachmentRecord };
 }
 
 function attachRuntimeEvidenceCaptureScaffold(packet: unknown): unknown {
   if (!isRecord(packet)) return packet;
-  if (packet.runtimeEvidenceCaptureScaffold) return packet;
-  const scenarioId = packet.selectedScenarioId;
+  if (packet["runtimeEvidenceCaptureScaffold"]) return packet;
+  const scenarioId = packet['selectedScenarioId'];
   if (typeof scenarioId !== "string") return packet;
   const scaffold = readRuntimeEvidenceCaptureScaffoldForScenario(scenarioId);
   return scaffold ? { ...packet, runtimeEvidenceCaptureScaffold: scaffold } : packet;
@@ -273,23 +273,23 @@ function attachMaterializationInputReviewDecisionRecord(
   decisionRecord: ApiMaterializationInputReviewDecisionRecord | undefined,
 ): unknown {
   if (!decisionRecord || !isRecord(packet)) return packet;
-  if (packet.materializationInputReviewDecisionRecord) return packet;
-  const selectedScenarioId = packet.selectedScenarioId;
-  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord.scenarioId) return packet;
+  if (packet["materializationInputReviewDecisionRecord"]) return packet;
+  const selectedScenarioId = packet['selectedScenarioId'];
+  if (typeof selectedScenarioId === "string" && selectedScenarioId !== decisionRecord['scenarioId']) return packet;
   return { ...packet, materializationInputReviewDecisionRecord: decisionRecord };
 }
 
 function buildMaterializationInputReviewActionPacket(summary: unknown, notEvidenceFor: readonly string[]): unknown | undefined {
   if (!isRecord(summary)) return undefined;
-  const actorWorkOrderInputCount = typeof summary.actorWorkOrderInputCount === "number" ? summary.actorWorkOrderInputCount : 0;
-  const equipmentWorkOrderInputCount = typeof summary.equipmentWorkOrderInputCount === "number" ? summary.equipmentWorkOrderInputCount : 0;
-  const blockerIds = parseStringArray(summary.blockerIds);
+  const actorWorkOrderInputCount = typeof summary["actorWorkOrderInputCount"] === "number" ? summary["actorWorkOrderInputCount"] : 0;
+  const equipmentWorkOrderInputCount = typeof summary["equipmentWorkOrderInputCount"] === "number" ? summary["equipmentWorkOrderInputCount"] : 0;
+  const blockerIds = parseStringArray(summary["blockerIds"]);
   const actorBlockerCount = blockerIds.filter((blocker) => blocker.includes("actor")).length;
   const equipmentBlockerCount = blockerIds.filter((blocker) => blocker.includes("equipment")).length;
   return {
     schemaVersion: "openclinxr.encounter-materialization-input-review-action-packet.v1",
     source: "materialization_input_manifest_summary",
-    scenarioId: typeof summary.scenarioId === "string" ? summary.scenarioId : null,
+    scenarioId: typeof summary['scenarioId'] === "string" ? summary['scenarioId'] : null,
     actionMode: "metadata_only_review_actions_not_provider_execution",
     availableActions: [
       {
@@ -297,7 +297,7 @@ function buildMaterializationInputReviewActionPacket(summary: unknown, notEviden
         status: "available",
         inputCount: actorWorkOrderInputCount,
         blockerCount: actorBlockerCount,
-        requiredCueIds: parseStringArray(summary.requiredActorCueIds),
+        requiredCueIds: parseStringArray(summary["requiredActorCueIds"]),
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
         claimBoundary: "materialization_input_review_action_not_provider_execution",
@@ -307,7 +307,7 @@ function buildMaterializationInputReviewActionPacket(summary: unknown, notEviden
         status: "available",
         inputCount: actorWorkOrderInputCount,
         blockerCount: actorBlockerCount,
-        requiredCueIds: parseStringArray(summary.requiredActorCueIds),
+        requiredCueIds: parseStringArray(summary["requiredActorCueIds"]),
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
         claimBoundary: "materialization_input_review_action_not_provider_execution",
@@ -317,7 +317,7 @@ function buildMaterializationInputReviewActionPacket(summary: unknown, notEviden
         status: "available",
         inputCount: equipmentWorkOrderInputCount,
         blockerCount: equipmentBlockerCount,
-        requiredCueIds: parseStringArray(summary.requiredEquipmentCueIds),
+        requiredCueIds: parseStringArray(summary["requiredEquipmentCueIds"]),
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
         claimBoundary: "materialization_input_review_action_not_provider_execution",
@@ -327,7 +327,7 @@ function buildMaterializationInputReviewActionPacket(summary: unknown, notEviden
         status: "available",
         inputCount: equipmentWorkOrderInputCount,
         blockerCount: equipmentBlockerCount,
-        requiredCueIds: parseStringArray(summary.requiredEquipmentCueIds),
+        requiredCueIds: parseStringArray(summary["requiredEquipmentCueIds"]),
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
         claimBoundary: "materialization_input_review_action_not_provider_execution",
@@ -399,7 +399,7 @@ function buildRuntimeRealismEvidenceAttachmentSummary(
   return {
     schemaVersion: "openclinxr.runtime-realism-evidence-attachment-summary.v1",
     source: "runtime_realism_evidence_input_review_decisions",
-    scenarioId: decisionRecord.scenarioId,
+    scenarioId: decisionRecord['scenarioId'],
     runtimeActorEvidenceInputCount: decisionRecord.decisions.filter((decision) => decision.inputKind === "runtime_realism_signal_input").length,
     visualQaEvidenceInputCount: decisionRecord.decisions.filter((decision) => decision.inputKind === "visual_qa_review_input").length,
     reviewedMetadataOnlyCount: decisionRecord.reviewedDecisionCount,
@@ -467,7 +467,7 @@ function buildRuntimeVisualEvidenceAttachmentActionPacket(
   return {
     schemaVersion: "openclinxr.runtime-visual-evidence-attachment-action-packet.v1",
     source: "runtime_visual_evidence_attachment_summary",
-    scenarioId: summary.scenarioId,
+    scenarioId: summary['scenarioId'],
     actionMode: "metadata_only_attachment_actions_not_runtime_execution",
     availableActions: [
       {
@@ -919,8 +919,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   const latestMaterializationInputReviewDecisionRecordForPacket = (
     packet: unknown,
   ): ApiMaterializationInputReviewDecisionRecord | undefined => {
-    if (!isRecord(packet) || typeof packet.selectedScenarioId !== "string") return undefined;
-    return latestMaterializationInputReviewDecisionRecordForScenario(packet.selectedScenarioId);
+    if (!isRecord(packet) || typeof packet['selectedScenarioId'] !== "string") return undefined;
+    return latestMaterializationInputReviewDecisionRecordForScenario(packet['selectedScenarioId']);
   };
 
   app.use("*", async (context, next) => {
@@ -930,7 +930,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     if (context.req.method === "OPTIONS") {
       return context.body(null, 204);
     }
-    await next();
+    return next();
   });
 
   app.use("*", async (context, next) => {
@@ -983,10 +983,13 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get(routeById("runtime-selection-review-packet").path, (context) => {
+    const inMemoryReviewScenarioId = runtimeVisualEvidenceAttachmentRecord?.scenarioId
+      ?? runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId
+      ?? sceneGenerationRequests.find((candidate) => candidate.materializationInputReviewDecisionRecord)?.scenarioId;
     const durablePacket = readRepoGeneratedJsonIfExists(
       "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
     );
-    if (durablePacket) {
+    if (durablePacket && (!inMemoryReviewScenarioId || inMemoryReviewScenarioId === "peds_asthma_parent_anxiety_v1")) {
       const packetWithSummary = attachMaterializationEvidenceAttachmentSummary(
         attachMaterializationAttachmentPlanSummary(
           attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(attachPedsHumanoidMaterializationHandoff(durablePacket))),
@@ -1282,8 +1285,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
       createAdminGraphqlRoot(runtime, persistence, adminScenarioOverrides, {
-        runtimeRealismEvidenceInputReviewDecisionRecord,
-        runtimeVisualEvidenceAttachmentRecord,
+        ...(runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+        ...(runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord } : {}),
       }),
     );
     await recordGraphqlOperationSpan(telemetry, {
@@ -1884,8 +1887,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         packet: runtime.reviewPacket(stationRunId),
         clinicalEventReviewSummary,
         traceEvents: runtime.traceEvents(stationRunId),
-        runtimeRealismEvidenceInputReviewDecisionRecord,
-        runtimeVisualEvidenceAttachmentRecord,
+        ...(runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+        ...(runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord } : {}),
       }));
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -1939,8 +1942,8 @@ function createAdminGraphqlRoot(
         packet: runtime.reviewPacket(stationRunIdString),
         clinicalEventReviewSummary,
         traceEvents: runtime.traceEvents(stationRunIdString),
-        runtimeRealismEvidenceInputReviewDecisionRecord: state.runtimeRealismEvidenceInputReviewDecisionRecord,
-        runtimeVisualEvidenceAttachmentRecord: state.runtimeVisualEvidenceAttachmentRecord,
+        ...(state.runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord: state.runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+        ...(state.runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord: state.runtimeVisualEvidenceAttachmentRecord } : {}),
       });
     },
     traceEvents: ({ stationRunId }) => runtime.traceEvents(String(stationRunId)),
@@ -2037,8 +2040,8 @@ function summarizeReviewReplayReadiness(input: {
   const runtimeVisualEvidenceReplayProjection = buildRuntimeVisualEvidenceReplayProjection({
     stationRunId: input.stationRunId,
     scenarioId: input.packet.scenarioId,
-    decisionRecord: input.runtimeRealismEvidenceInputReviewDecisionRecord,
-    attachmentRecord: input.runtimeVisualEvidenceAttachmentRecord,
+    ...(input.runtimeRealismEvidenceInputReviewDecisionRecord ? { decisionRecord: input.runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+    ...(input.runtimeVisualEvidenceAttachmentRecord ? { attachmentRecord: input.runtimeVisualEvidenceAttachmentRecord } : {}),
   });
   const assetReleaseLadderReplayProjection = buildAssetReleaseLadderReplayProjection(input.packet.scenarioId);
   const caseDefinedHumanoidPerformanceContract = buildDynamicEncounterFactoryPlanningProjection(
@@ -2155,7 +2158,7 @@ function buildUiXrConsumerWorkflowSummary(
   return {
     schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
     source: "ui_xr_runtime_evidence_consumer_operator_workflow",
-    scenarioId: attachmentRecord.scenarioId,
+    scenarioId: attachmentRecord['scenarioId'],
     acceptedAttachmentRefCount: uiXrAttachments.length,
     runtimeEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_runtime_realism_evidence_refs").length,
     visualQaEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_visual_qa_evidence_refs").length,
@@ -2234,7 +2237,7 @@ function buildAssetReleaseLadderReplayProjection(scenarioId: string): ApiAssetRe
     productionReadyAssetCount: ladder.productionReadyAssetIds.length,
     blockedAssetCount: ladder.blockedAssetIds.length,
     missingRequiredAssetCount: ladder.missingRequiredAssetIds.length,
-    stationBudgetStatus: ladder.stationBudget.ready ? "ready" : "blocked",
+    stationBudgetStatus: ladder.stationBudget.blockers.length === 0 ? "ready" : "blocked",
     blockerCount: ladder.blockers.length,
     blockerIds: [...ladder.blockers],
     blockedAssets,
@@ -2345,21 +2348,21 @@ function buildXrTraceEvidenceSummary(input: {
     return null;
   }
   const payload = xrEvent.payload;
-  const latestTraceTag = typeof payload.latestTraceTag === "string" ? payload.latestTraceTag : xrEvent.tag ?? null;
+  const latestTraceTag = typeof payload["latestTraceTag"] === "string" ? payload["latestTraceTag"] : xrEvent.tag ?? null;
   return {
     stationRunId: input.stationRunId,
-    source: typeof payload.source === "string" ? payload.source : xrEvent.source,
-    evidenceRef: typeof payload.evidenceRef === "string" ? payload.evidenceRef : `trace_event:${input.stationRunId}:${xrEvent.sequence}`,
-    activeLocomotionSource: typeof payload.activeLocomotionSource === "string" ? payload.activeLocomotionSource : null,
-    locomotionDistanceMeters: typeof payload.locomotionDistanceMeters === "number" ? payload.locomotionDistanceMeters : null,
-    locomotionTurnRadians: typeof payload.locomotionTurnRadians === "number" ? payload.locomotionTurnRadians : null,
-    interactionSignalRefs: Array.isArray(payload.interactionSignalRefs)
-      ? payload.interactionSignalRefs.filter((value): value is string => typeof value === "string")
+    source: typeof payload["source"] === "string" ? payload["source"] : xrEvent.source,
+    evidenceRef: typeof payload["evidenceRef"] === "string" ? payload["evidenceRef"] : `trace_event:${input.stationRunId}:${xrEvent.sequence}`,
+    activeLocomotionSource: typeof payload["activeLocomotionSource"] === "string" ? payload["activeLocomotionSource"] : null,
+    locomotionDistanceMeters: typeof payload["locomotionDistanceMeters"] === "number" ? payload["locomotionDistanceMeters"] : null,
+    locomotionTurnRadians: typeof payload["locomotionTurnRadians"] === "number" ? payload["locomotionTurnRadians"] : null,
+    interactionSignalRefs: Array.isArray(payload["interactionSignalRefs"])
+      ? payload["interactionSignalRefs"].filter((value): value is string => typeof value === "string")
       : [],
     latestTraceTag,
-    latestTraceLatencyMs: typeof payload.latestTraceLatencyMs === "number" ? payload.latestTraceLatencyMs : null,
-    blockers: Array.isArray(payload.blockers)
-      ? payload.blockers.filter((value): value is string => typeof value === "string")
+    latestTraceLatencyMs: typeof payload["latestTraceLatencyMs"] === "number" ? payload["latestTraceLatencyMs"] : null,
+    blockers: Array.isArray(payload["blockers"])
+      ? payload["blockers"].filter((value): value is string => typeof value === "string")
       : [],
     claimBoundary: "xr_trace_evidence_summary_not_score_use_quest_readiness_clinical_validity_or_raw_payload_readiness" as const,
   };
@@ -2660,25 +2663,25 @@ function parseActorInteractionSource(value: unknown): RouteRuntimeActorInteracti
     return undefined;
   }
 
-  if (value.kind === "voice_transcript"
-    && typeof value.streamId === "string"
-    && typeof value.transcriptSegmentId === "string"
-    && typeof value.finalTranscriptText === "string"
-    && typeof value.provider === "string") {
+  if (value["kind"] === "voice_transcript"
+    && typeof value["streamId"] === "string"
+    && typeof value["transcriptSegmentId"] === "string"
+    && typeof value["finalTranscriptText"] === "string"
+    && typeof value["provider"] === "string") {
     return {
       kind: "voice_transcript",
-      streamId: value.streamId,
-      transcriptSegmentId: value.transcriptSegmentId,
-      finalTranscriptText: value.finalTranscriptText,
-      provider: value.provider,
-      provenanceRefs: parseStringArray(value.provenanceRefs),
+      streamId: value["streamId"],
+      transcriptSegmentId: value["transcriptSegmentId"],
+      finalTranscriptText: value["finalTranscriptText"],
+      provider: value["provider"],
+      provenanceRefs: parseStringArray(value["provenanceRefs"]),
     };
   }
 
-  if (value.kind === "text") {
+  if (value["kind"] === "text") {
     return {
       kind: "text",
-      provenanceRefs: parseStringArray(value.provenanceRefs),
+      provenanceRefs: parseStringArray(value["provenanceRefs"]),
     };
   }
 
@@ -2691,66 +2694,66 @@ function parseStringArray(value: unknown): string[] {
 
 function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
   return isRecord(value)
-    && typeof value.reviewerRole === "string"
-    && typeof value.reviewerId === "string"
-    && (value.decision === "approved" || value.decision === "changes_requested")
-    && typeof value.comments === "string"
-    && Array.isArray(value.evidenceRefs)
-    && value.evidenceRefs.every((ref) => typeof ref === "string")
-    && typeof value.reviewedAt === "string";
+    && typeof value["reviewerRole"] === "string"
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "approved" || value["decision"] === "changes_requested")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
 }
 
 function isRuntimeAssetReviewDecision(value: unknown): value is RuntimeAssetReviewDecision {
   return isRecord(value)
-    && typeof value.assetId === "string"
-    && ["asset_pipeline", "clinical_simulation", "xr_performance", "security_privacy"].includes(String(value.reviewerRole))
-    && typeof value.reviewerId === "string"
-    && (value.decision === "approved_for_local_runtime" || value.decision === "changes_requested")
-    && typeof value.comments === "string"
-    && Array.isArray(value.evidenceRefs)
-    && value.evidenceRefs.every((ref) => typeof ref === "string")
-    && typeof value.reviewedAt === "string";
+    && typeof value["assetId"] === "string"
+    && ["asset_pipeline", "clinical_simulation", "xr_performance", "security_privacy"].includes(String(value["reviewerRole"]))
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "approved_for_local_runtime" || value["decision"] === "changes_requested")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
 }
 
 function isMaterializationInputReviewDecision(value: unknown): value is ApiMaterializationInputReviewDecision {
   return isRecord(value)
     && (
-      value.actionId === "review_actor_materialization_inputs"
-      || value.actionId === "hold_actor_materialization_inputs"
-      || value.actionId === "review_equipment_materialization_inputs"
-      || value.actionId === "hold_equipment_materialization_inputs"
+      value["actionId"] === "review_actor_materialization_inputs"
+      || value["actionId"] === "hold_actor_materialization_inputs"
+      || value["actionId"] === "review_equipment_materialization_inputs"
+      || value["actionId"] === "hold_equipment_materialization_inputs"
     )
-    && typeof value.reviewerId === "string"
-    && (value.decision === "reviewed_metadata_only" || value.decision === "held_metadata_only")
-    && typeof value.comments === "string"
-    && Array.isArray(value.evidenceRefs)
-    && value.evidenceRefs.every((ref) => typeof ref === "string")
-    && typeof value.reviewedAt === "string";
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "reviewed_metadata_only" || value["decision"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
 }
 
 function isRuntimeRealismEvidenceInputReviewDecision(value: unknown): value is ApiRuntimeRealismEvidenceInputReviewDecision {
   return isRecord(value)
-    && typeof value.inputId === "string"
-    && (value.inputKind === "runtime_realism_signal_input" || value.inputKind === "visual_qa_review_input")
-    && typeof value.reviewerId === "string"
-    && (value.decision === "reviewed_metadata_only" || value.decision === "held_metadata_only")
-    && typeof value.comments === "string"
-    && Array.isArray(value.evidenceRefs)
-    && value.evidenceRefs.every((ref) => typeof ref === "string")
-    && typeof value.reviewedAt === "string";
+    && typeof value["inputId"] === "string"
+    && (value["inputKind"] === "runtime_realism_signal_input" || value["inputKind"] === "visual_qa_review_input")
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "reviewed_metadata_only" || value["decision"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
 }
 
 function isRuntimeVisualEvidenceAttachment(value: unknown): value is ApiRuntimeVisualEvidenceAttachment {
   return isRecord(value)
-    && (value.actionId === "attach_runtime_realism_evidence_refs" || value.actionId === "attach_visual_qa_evidence_refs")
-    && typeof value.inputId === "string"
-    && (value.inputKind === "runtime_realism_signal_input" || value.inputKind === "visual_qa_review_input")
-    && typeof value.evidenceRef === "string"
-    && typeof value.localArtifactPath === "string"
-    && typeof value.reviewerId === "string"
-    && (value.attachmentStatus === "attached_metadata_only" || value.attachmentStatus === "held_metadata_only")
-    && typeof value.comments === "string"
-    && typeof value.attachedAt === "string";
+    && (value["actionId"] === "attach_runtime_realism_evidence_refs" || value["actionId"] === "attach_visual_qa_evidence_refs")
+    && typeof value["inputId"] === "string"
+    && (value["inputKind"] === "runtime_realism_signal_input" || value["inputKind"] === "visual_qa_review_input")
+    && typeof value["evidenceRef"] === "string"
+    && typeof value["localArtifactPath"] === "string"
+    && typeof value["reviewerId"] === "string"
+    && (value["attachmentStatus"] === "attached_metadata_only" || value["attachmentStatus"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && typeof value["attachedAt"] === "string";
 }
 
 function isRawUiXrManualPerformancePayload(value: Record<string, unknown>): boolean {
@@ -2762,17 +2765,17 @@ function isRawUiXrManualPerformancePayload(value: Record<string, unknown>): bool
 
 function isExamForm(value: unknown): value is ExamForm {
   return isRecord(value)
-    && typeof value.examFormId === "string"
-    && Array.isArray(value.stationRefs)
-    && value.stationRefs.every(isStationRef);
+    && typeof value["examFormId"] === "string"
+    && Array.isArray(value["stationRefs"])
+    && value["stationRefs"].every(isStationRef);
 }
 
 function isStationRef(value: unknown): value is ExamForm["stationRefs"][number] {
   return isRecord(value)
-    && typeof value.order === "number"
-    && typeof value.scenarioId === "string"
-    && typeof value.scenarioVersion === "number"
-    && typeof value.title === "string";
+    && typeof value["order"] === "number"
+    && typeof value["scenarioId"] === "string"
+    && typeof value["scenarioVersion"] === "number"
+    && typeof value["title"] === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

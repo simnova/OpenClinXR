@@ -1108,7 +1108,7 @@ export type AdminRuntimeVisualEvidenceReplayProjection = {
     blockerIds: string[];
     claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness";
     notEvidenceFor: AdminNoReadinessEvidenceClaim[];
-  };
+  } | null;
   claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness";
   notEvidenceFor: AdminNoReadinessEvidenceClaim[];
 };
@@ -1179,11 +1179,14 @@ export type AdminCaseDefinedHumanoidRuntimeHandoff = {
   notEvidenceFor: Array<"generated_humanoid_asset_readiness" | "animation_quality" | "quest_readiness" | "runtime_readiness" | "clinical_validity" | "scoring_validity">;
 };
 
-export type AdminReviewReplayReadinessSummary = NonNullable<ReviewPacketReplayQuery["reviewReplayReadinessSummary"]> & {
+export type AdminReviewReplayReadinessSummary = Omit<
+  NonNullable<ReviewPacketReplayQuery["reviewReplayReadinessSummary"]>,
+  "runtimeVisualEvidenceReplayProjection"
+> & {
   runtimeEvidenceGateRefs?: AdminReviewReplayRuntimeEvidenceGateRef[];
   generatedBundlePosture?: AdminReviewReplayGeneratedBundlePosture;
   reviewPacketEvidenceHandoff?: AdminReviewReplayEvidenceHandoff;
-  runtimeVisualEvidenceReplayProjection?: AdminRuntimeVisualEvidenceReplayProjection;
+  runtimeVisualEvidenceReplayProjection?: AdminRuntimeVisualEvidenceReplayProjection | null;
   assetReleaseLadderReplayProjection?: AdminAssetReleaseLadderReplayProjection;
   xrTraceEvidenceSummary?: NonNullable<AdminReviewReplayEvidenceHandoff["xrTraceEvidenceSummary"]>;
   runtimeRemediationPlanRefs?: string[];
@@ -1289,7 +1292,7 @@ export type AdminScenarioReviewResult = SubmitScenarioReviewMutation["submitScen
 export type AdminReviewPacket = SaveFacultyScoreDraftMutation["saveFacultyScoreDraft"];
 export type AdminStationRunQueueSnapshot = StationRunQueueSnapshotsQuery["stationRunQueueSnapshots"][number];
 
-export const defaultAdminApiBaseUrl = import.meta.env.VITE_OPENCLINXR_API_BASE_URL ?? "";
+export const defaultAdminApiBaseUrl = import.meta.env['VITE_OPENCLINXR_API_BASE_URL'] ?? "";
 
 const stationRunQueueSnapshotsDocument = print(StationRunQueueSnapshotsDocument);
 const createStationRunQueueSnapshotDocument = print(CreateStationRunQueueSnapshotDocument);
@@ -1442,7 +1445,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         if (!data) {
           throw new Error("OpenClinXR admin GraphQL request failed: ReviewPacketReplay missing_data");
         }
-        return data;
+        return data as unknown as AdminReviewPacketReplay;
       }
 
       return graphql<ReviewPacketReplayQuery>(
@@ -1451,7 +1454,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "ReviewPacketReplay",
         reviewPacketReplayDocument,
         variables,
-      );
+      ) as unknown as AdminReviewPacketReplay;
     },
     getReviewReplayReadinessSummary: (input) =>
       get(fetcher, baseUrl, buildSessionRoutePath("review-replay-readiness-summary", input.stationRunId)),
@@ -1564,7 +1567,7 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
     throw new Error(`OpenClinXR admin API request failed: GET ${url} ${response.status} ${errorCode}`);
   }
 
@@ -1581,7 +1584,7 @@ async function post<TResponse = unknown>(fetcher: typeof fetch, baseUrl: string,
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
     throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 
@@ -1604,7 +1607,7 @@ async function graphql<TData>(
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const errorCode = isRecord(errorBody) && typeof errorBody.error === "string" ? errorBody.error : "unknown_error";
+    const errorCode = isRecord(errorBody) && typeof errorBody['error'] === "string" ? errorBody['error'] : "unknown_error";
     throw new Error(`OpenClinXR admin API request failed: POST ${url} ${response.status} ${errorCode}`);
   }
 

@@ -1623,7 +1623,7 @@ describe("asset registry", () => {
       const humanoidRealismMetadata = manifest.humanoidRealismMetadata;
       expect(humanoidRealismMetadata).toBeDefined();
       if (!humanoidRealismMetadata) {
-        throw new Error(`Expected humanoid realism metadata for ${manifest.id}.`);
+        throw new Error(`Expected humanoid realism metadata for ${manifest.assetId}.`);
       }
       expectHumanoidRealismMetadata(humanoidRealismMetadata, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
       expect(validateAssetManifestStructure(manifest).ok).toBe(true);
@@ -1687,7 +1687,7 @@ describe("asset registry", () => {
       const humanoidRealismMetadata = manifest.humanoidRealismMetadata;
       expect(humanoidRealismMetadata).toBeDefined();
       if (!humanoidRealismMetadata) {
-        throw new Error(`Expected humanoid realism metadata for ${manifest.id}.`);
+        throw new Error(`Expected humanoid realism metadata for ${manifest.assetId}.`);
       }
       expectHumanoidRealismMetadata(humanoidRealismMetadata, manifest.tags.includes("nurse") ? "nurse" : manifest.tags.includes("patient") ? "patient" : "family");
       expect(validateAssetManifestStructure(manifest).ok).toBe(true);

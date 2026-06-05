@@ -21,12 +21,12 @@ if (!bun) {
   throw new Error("Bun runtime is required for apps/api/src/bun-server.ts. Use pnpm --filter @openclinxr/api dev:node as the local fallback until Bun is installed.");
 }
 
-const pythonBackendWebSocketUrl = process.env.OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL;
+const pythonBackendWebSocketUrl = process.env["OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL"];
 const startup = createOpenClinXrApiStartup({
   realtimeVoiceGatewayPosture: createBunRealtimeVoiceGatewayPostureInputFromEnvironment(process.env),
 }).startUp();
 const config = createBunServerConfig(startup, {
-  port: Number(process.env.PORT ?? 3000),
+  port: Number(process.env["PORT"] ?? 3000),
   ...(pythonBackendWebSocketUrl ? { pythonBackendWebSocketUrl } : {}),
 });
 const server = bun.serve({

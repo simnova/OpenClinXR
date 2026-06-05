@@ -180,6 +180,7 @@ function summaryFixture(): ReviewReplayReadinessSummary {
       scoringValidityClaimed: false,
       replayEvidenceReady: false,
       blockerIds: ["runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads"],
+      nextActions: [],
       uiXrConsumerOperatorWorkflowSummary: {
         schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
         source: "ui_xr_runtime_evidence_consumer_operator_workflow",
@@ -232,7 +233,7 @@ function summaryFixture(): ReviewReplayReadinessSummary {
         blockerIds: ["ui_xr_consumer_refs_are_metadata_only_not_runtime_or_visual_proof"],
         claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
         notEvidenceFor: [
-          "raw_payload_display",
+          "provider_availability",
           "runtime_readiness",
           "learner_launch_readiness",
           "quest_readiness",
@@ -243,7 +244,7 @@ function summaryFixture(): ReviewReplayReadinessSummary {
       },
       claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
       notEvidenceFor: [
-        "raw_payload_display",
+        "provider_availability",
         "runtime_readiness",
         "learner_launch_readiness",
         "quest_readiness",

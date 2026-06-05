@@ -108,8 +108,9 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array) {
+      send(frame: string | Uint8Array): number {
         sentFrames.push(frame);
+        return sentFrames.length;
       },
     };
 
@@ -141,8 +142,9 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array) {
+      send(frame: string | Uint8Array): number {
         sentFrames.push(frame);
+        return sentFrames.length;
       },
     };
 
@@ -176,8 +178,9 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array) {
+      send(frame: string | Uint8Array): number {
         sentFrames.push(frame);
+        return sentFrames.length;
       },
     };
 
@@ -207,8 +210,9 @@ describe("OpenClinXR API startup", () => {
     const config = createBunServerConfig(startup, { port: 4322 });
     const sentFrames: unknown[] = [];
     const fakeSocket = {
-      send(frame: string | Uint8Array) {
+      send(frame: string | Uint8Array): number {
         sentFrames.push(frame);
+        return sentFrames.length;
       },
     };
     const buffer = new Uint8Array([0xff, 0x4f, 0x70, 0x75, 0x73, 0xee]).buffer;
@@ -234,8 +238,9 @@ describe("OpenClinXR API startup", () => {
     });
     const sentFrames: unknown[] = [];
     const clientSocket = {
-      send(frame: string | Uint8Array) {
+      send(frame: string | Uint8Array): number {
         sentFrames.push(frame);
+        return sentFrames.length;
       },
     };
     const buffer = new Uint8Array([0xff, 0x4f, 0x70, 0x75, 0x73, 0xee]).buffer;
@@ -654,8 +659,8 @@ class FakeBackendWebSocket {
 
   constructor(readonly url: string) {}
 
-  send(frame: string | Uint8Array): void {
-    this.sentFrames.push(frame);
+  send(frame: string | Uint8Array): number {
+    this.sentFrames.push(frame); return this.sentFrames.length;
   }
 
   close(): void {

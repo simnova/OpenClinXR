@@ -14,9 +14,9 @@ import {
   toLearnerRuntimeAssetBundle,
 } from "../../../packages/openclinxr/asset-registry/src/runtime-bundles.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
-import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "./environment-artifacts.js";
+import { buildEnvironmentRuntimeAssetReference, defaultEnvironmentArtifactsReportPath, type EnvironmentArtifactsReport } from "../evidence/environment-artifacts.js";
 import { buildGeneratedHumanRiggingRuntimeAssetReference, defaultGeneratedHumanRiggingReportPath, type GeneratedHumanRiggingReport } from "./generated-human-rigging-artifacts.js";
-import { buildMedicalEquipmentRuntimeAssetReferences, defaultMedicalEquipmentReportPath, type MedicalEquipmentArtifactsReport } from "./medical-equipment-artifacts.js";
+import { buildMedicalEquipmentRuntimeAssetReferences, defaultMedicalEquipmentReportPath, type MedicalEquipmentArtifactsReport } from "../evidence/medical-equipment-artifacts.js";
 
 export type GeneratedEdStationRuntimeBundleReport = {
   schemaVersion: "openclinxr.generated-ed-station-runtime-bundle.v1";

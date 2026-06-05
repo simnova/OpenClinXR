@@ -3,5 +3,10 @@
   "compilerOptions": {
     "rootDir": "."
   },
-  "include": ["src/**/*.ts", "rolldown.config.ts", "tsdown.config.ts", "scripts/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "rolldown.config.ts",
+    "tsdown.config.ts",
+    "scripts/**/*.ts"
+  ]
 }
