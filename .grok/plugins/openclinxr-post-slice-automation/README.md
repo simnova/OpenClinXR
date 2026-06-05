@@ -1,6 +1,6 @@
 # openclinxr-slice-runner (Grok plugin, evolved from post-slice)
 
-Project plugin for event-driven OpenClaw-style autonomy with repo-defined agents/** (chief-coordinator, drift-police, etc. as the persistent team).
+Project plugin for event-driven OpenClaw-style / OpenClaw-inspired autonomy with repo-defined agents/** (chief-coordinator, drift-police, etc. as the persistent team). It is not an external OpenClaw runtime.
 
 Addresses gaps 1-7 from docs/agent-factory/agentex-openclaw-full-autonomy-gaps.md (post 1-5+6 foundation).
 
@@ -14,7 +14,7 @@ Addresses gaps 1-7 from docs/agent-factory/agentex-openclaw-full-autonomy-gaps.m
 - Plugin auto-discovered from `.grok/plugins/` .
 - On Stop/Notification: surfaces the event-driven runner steps for 1 (quiet continuation), 3 (memory write-back after real slices), 6 (drift-police).
 - Lease safety (gap4): see enhanced .grok/hooks/post-coord-edit-guards.json (PreToolUse auto-suggests acquire for coord edits).
-- Grok primary runner (gap5): SessionStart (in post-coord hooks) asserts full exec in this TUI env + injects universal prompt + Grok adapter excerpt from protected tool-adapters.
+- Grok primary runner (gap5): SessionStart (in post-coord hooks) asserts full exec in this TUI env + injects the OpenClaw-style / OpenClaw-inspired universal prompt + Grok adapter excerpt from protected tool-adapters.
 - Role subagents (gap2): use agent-consult.md + spawn_subagent with "as chief-coordinator" (plugin/ hooks encourage auto load of charter/memory from agents/<role>/ ). For first-class, see below.
 - Quiet runner for continuation (gap1 replacement, gap7 smoke):
 
@@ -44,6 +44,6 @@ To make first-class without duplication (respecting previous no-symlink decision
 
 GROK_PLUGIN_ROOT and GROK_PLUGIN_DATA available (use for writable state in write-back).
 
-Part of AgentEx gaps 1-7 execution for full autonomy (enables days-long product slices like UI-XR consumer using the repo team). 
+Part of AgentEx gaps 1-7 execution for OpenClaw-style full autonomy (enables days-long product slices like UI-XR consumer using the repo team).
 
 Re-run sync after changes. Run guards on state/coordination touches.

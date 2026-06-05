@@ -2,17 +2,17 @@
 
 Date: 2026-05-27
 
-This runbook is a protected OpenClaw control surface for OpenClinXR. Routine agents must not delete, weaken, bypass, rename, or reinterpret it during autonomous work.
+This runbook is a protected OpenClaw-style / OpenClaw-inspired control surface for OpenClinXR. Routine agents must not delete, weaken, bypass, rename, or reinterpret it during autonomous work.
 
 Important naming clarification: this repository uses an OpenClaw-style execution pattern, not an external OpenClaw runtime, daemon, SaaS product, or privileged orchestration service. OpenClinXR uses repo-native guardrail files, repo-defined roles, deterministic checks, host adapter prompts, and a drift-police role that can be used from Codex, Claude, Grok, Cursor, or another capable agent host.
 
 ## Purpose
 
-OpenClaw mode exists to keep unattended work advancing the OpenClinXR product instead of producing scattered notes, one-off scenes, stale screenshots, or generic agent-status artifacts.
+OpenClaw-style / OpenClaw-inspired mode exists to keep unattended work advancing the OpenClinXR product instead of producing scattered notes, one-off scenes, stale screenshots, or generic agent-status artifacts.
 
 Use this runbook with `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`.
 
-## OpenClaw Start Sequence
+## OpenClaw-Style Start Sequence
 
 1. Run `pnpm openclaw:preflight` before long unattended work from a supposedly clean checkout.
 2. Read `AGENTS.md`.
@@ -28,7 +28,7 @@ Use this runbook with `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_
 11. Update canonical state files only, then run `pnpm openclaw:post-slice` before claiming the slice is ready for the next queue transition.
 12. Immediately queue the next slice unless a true stop condition is reached.
 
-## Allowed OpenClaw Execution Modes
+## Allowed OpenClaw-Style Execution Modes
 
 - `live_subagents`: use when the host tool exposes live subagents and independent, non-overlapping work or review is available.
 - `local_role_consultation`: use when live agents are unavailable or too expensive; read the relevant repo-defined role memory/charter and record the decision in canonical state.
@@ -45,7 +45,7 @@ Invoke it when:
 - Generated screenshots, JSON, GLBs, or local cache artifacts are unregistered.
 - A worker starts manually designing one encounter instead of strengthening the reusable factory.
 - Two evidence-only slices happen in a row.
-- A subagent reports from the wrong cwd or ignores repo-native OpenClaw files.
+- A subagent reports from the wrong cwd or ignores repo-native OpenClaw-style files.
 
 The expected correction is: name the drift, cite the violated guardrail, recommend the smallest cleanup or registration step, and route the worker back to the next product slice.
 
@@ -67,7 +67,7 @@ To support days-long agentic runs with minimal token use and no interruption:
 - Searches: `grep` tool (with path/glob/head_limit) or terminal `grep` / `tail` before any `read_file` on large files. Always `read_file` + `offset` + `limit` (e.g. 30) for files >100 lines.
 - Verification: always focused (`vitest ... -t "name"`, `biome check specific.ts`). Never full `agent:verify` for routine; use `agent:alignment` first (~0.5s).
 - Long-run protocol: use `pnpm openclaw:run-next` to select the next queued slice and write only `.openclinxr/openclaw/run-next-report.json`; acquire `pnpm openclaw:lease -- acquire --owner <role> --slice <id> --ttl-minutes 60` before any real write; release after canonical update. Run `pnpm openclaw:preflight && pnpm docs:drift-check` at start of unattended. Use `pnpm openclaw:watchdog` only as a quiet local idle check; it must not append no-op heartbeat records to canonical Markdown.
-- Codex native lifecycle hooks are project-local in `.codex/hooks.json` and route through `pnpm codex:hook`. They provide SessionStart/PreToolUse/PostToolUse/PreCompact/UserPromptSubmit/Stop reminders plus scoped alignment/drift guards for coordination/OpenClaw surfaces. They must be trusted with `/hooks` when their hash changes.
+- Codex native lifecycle hooks are project-local in `.codex/hooks.json` and route through `pnpm codex:hook`. They provide SessionStart/PreToolUse/PostToolUse/PreCompact/SubagentStart/SubagentStop/UserPromptSubmit/Stop reminders plus scoped alignment/drift guards for coordination/OpenClaw-style surfaces. They must be trusted with `/hooks` when their hash changes.
 - On any platform heartbeat/compact/force response: rehydrate snapshots, check `git status --short` + lease status, use `pnpm openclaw:run-next` if a new slice needs selection, finish/repair/pivot, record only real product changes, verification evidence, or blockers. No chat status.
 - Avoid token bloat: no broad ls on docs/openclinxr (400+ JSONs), no full cat of ledgers, no un-focused tests, no evidence refresh without decision unlock.
 - Subagent: coordinator first (read-only), narrow, map to agents/**, close fast, integrate results to state only.
@@ -130,7 +130,7 @@ pnpm openclaw:lease -- status
 Use this prompt for Codex, Claude, Cursor, or another agent host when starting unattended work:
 
 ```text
-Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.
+Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr. This is not an external OpenClaw runtime.
 
 Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, and docs/openclinxr/openclaw-runbook-2026-05-27.md as the source of truth. Do not use generic chat autonomy.
 

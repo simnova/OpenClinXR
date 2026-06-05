@@ -4,6 +4,8 @@
 
 Current product: blueprint-driven encounter factory for peds_asthma_parent_anxiety_v1 plus ED seed. The active work should move case definitions into generated runtime behavior, review packets, replay/persistence, and reusable asset materialization. UI-XR runtime evidence consumer remains metadata-only, reviewer-gated, and not a learner/Quest/production readiness claim.
 
+Latest harness bridge checkpoint: 2026-06-04 Codex-native OpenClaw-style / OpenClaw-inspired bridge alignment (Worker 0 support): `.codex/agents/*.toml` custom agents, project config/rules/hooks including SubagentStart/SubagentStop, local plugin/marketplace packaging, and generated cross-harness role pointers now map back to canonical `agents/**` without implying an external OpenClaw runtime. Next product lane remains peds launch validation / UI-XR consumer handoff.
+
 Last support checkpoint: 2026-06-04 1-5+6 harness AgenticEx (extractions of hyper-token-efficient, blueprint-factory-guardrails, repo-defined-agents-worker-roles, persistent-memory-scoring + agent-consult rules; .grok/plugins/ post-slice; .grok/lsp.json; hooks enhance + .githooks/agentic-hook-runner tie + memory-consult; config [memory] watcher + [plugins] + notifications + compat; registry classify; sync; authority/guards green 220 MDs). #6 proof executed (search_replace hook fire, subagent explore chief-coordinator per protocol/agent-consult with charter+memory reads + no drift, post-slice + grok inspect showing 12 rules/hooks/plugin/lsp, states 1-6 record, commit f90252a + push). Tree clean on origin. Guards green.
 
 Next action: Worker 9/7/11 UI-XR runtime evidence consumer surfaces + admin replay for handoff metadata; faculty review path; peds launch validation with handoff wired (post 11/9 slice complete).

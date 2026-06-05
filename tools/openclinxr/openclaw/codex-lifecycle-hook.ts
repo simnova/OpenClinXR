@@ -7,6 +7,8 @@ export type CodexLifecycleHookMode =
   | "pre-tool-use"
   | "post-tool-use"
   | "pre-compact"
+  | "subagent-start"
+  | "subagent-stop"
   | "user-prompt-submit"
   | "stop";
 
@@ -34,7 +36,7 @@ const COORDINATION_PATH_MARKERS = [
 ];
 
 const OPENCLAW_REMINDER =
-  "OpenClaw: use AGENTS.md + snapshots, prefer pnpm openclaw:run-next, lease before real edits, and keep no-op runner/watchdog output out of canonical state.";
+  "OpenClaw-style / OpenClaw-inspired workflow: use AGENTS.md + snapshots, prefer pnpm openclaw:run-next, lease before real edits, and keep no-op runner/watchdog output out of canonical state.";
 
 export function buildCodexLifecycleHookDecision(
   mode: CodexLifecycleHookMode,
@@ -53,7 +55,7 @@ export function buildCodexLifecycleHookDecision(
       return {
         mode,
         message: touchedCoordinationSurface(payloadText)
-          ? `${OPENCLAW_REMINDER} Coordination/OpenClaw surface detected; confirm lease posture before editing.`
+          ? `${OPENCLAW_REMINDER} Coordination/OpenClaw-style surface detected; confirm lease posture before editing.`
           : OPENCLAW_REMINDER,
         runGuards: false,
         guardCommand: null,
@@ -64,12 +66,12 @@ export function buildCodexLifecycleHookDecision(
       return {
         mode,
         message: shouldRunGuards
-          ? "OpenClaw coordination surface changed or was targeted; running alignment and drift guards."
-          : "OpenClaw hook: no coordination/OpenClaw surface detected, skipping heavy guards.",
+          ? "OpenClaw-style coordination surface changed or was targeted; running alignment and drift guards."
+          : "OpenClaw-style hook: no coordination/OpenClaw-style surface detected, skipping heavy guards.",
         runGuards: shouldRunGuards,
         guardCommand: shouldRunGuards ? "pnpm agent:alignment && pnpm docs:drift-check" : null,
         reason: shouldRunGuards
-          ? "Payload references AGENTS/state/rules/hooks/OpenClaw coordination paths."
+          ? "Payload references AGENTS/state/rules/hooks/OpenClaw-style coordination paths."
           : "Payload did not reference coordination paths.",
       };
     }
@@ -77,16 +79,34 @@ export function buildCodexLifecycleHookDecision(
       return {
         mode,
         message:
-          "OpenClaw compact reminder: re-read AGENTS.md and the snapshot heads of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, and worker backlog, then continue the selected slice.",
+          "OpenClaw-style compact reminder: re-read AGENTS.md and the snapshot heads of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, and worker backlog, then continue the selected slice.",
         runGuards: false,
         guardCommand: null,
         reason: "Rehydration reminder only.",
+      };
+    case "subagent-start":
+      return {
+        mode,
+        message:
+          "OpenClaw-style subagent reminder: map to a repo role, confirm /Volumes/files/src/openclinxr plus AGENTS/state/agents/tools exist, then read the canonical role charter and memory before reporting.",
+        runGuards: false,
+        guardCommand: null,
+        reason: "Subagent role-mapping guidance only.",
+      };
+    case "subagent-stop":
+      return {
+        mode,
+        message:
+          "OpenClaw-style subagent closeout: return concise findings, blockers, and recommended next slice; parent agent owns integration and canonical state updates.",
+        runGuards: false,
+        guardCommand: null,
+        reason: "Subagent closeout guidance only.",
       };
     case "user-prompt-submit":
       return {
         mode,
         message:
-          "OpenClaw prompt reminder: for heartbeat/continue/autonomy prompts, use pnpm openclaw:run-next and execute only real selected slices.",
+          "OpenClaw-style prompt reminder: for heartbeat/continue/autonomy prompts, use pnpm openclaw:run-next and execute only real selected slices.",
         runGuards: false,
         guardCommand: null,
         reason: "Prompt-scoped guidance only.",
@@ -95,7 +115,7 @@ export function buildCodexLifecycleHookDecision(
       return {
         mode,
         message:
-          "OpenClaw stop reminder: do not append no-op heartbeat records; durable state changes belong only after product changes, verification evidence, or blockers.",
+          "OpenClaw-style stop reminder: do not append no-op heartbeat records; durable state changes belong only after product changes, verification evidence, or blockers.",
         runGuards: false,
         guardCommand: null,
         reason: "Stop guidance only.",
@@ -104,7 +124,7 @@ export function buildCodexLifecycleHookDecision(
 }
 
 export function isCodexLifecycleHookMode(value: string): value is CodexLifecycleHookMode {
-  return ["session-start", "pre-tool-use", "post-tool-use", "pre-compact", "user-prompt-submit", "stop"].includes(value);
+  return ["session-start", "pre-tool-use", "post-tool-use", "pre-compact", "subagent-start", "subagent-stop", "user-prompt-submit", "stop"].includes(value);
 }
 
 function touchedCoordinationSurface(payloadText: string): boolean {

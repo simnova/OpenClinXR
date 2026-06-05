@@ -43,8 +43,19 @@ describe("codex lifecycle hook", () => {
     expect(isCodexLifecycleHookMode("pre-tool-use")).toBe(true);
     expect(isCodexLifecycleHookMode("post-tool-use")).toBe(true);
     expect(isCodexLifecycleHookMode("pre-compact")).toBe(true);
+    expect(isCodexLifecycleHookMode("subagent-start")).toBe(true);
+    expect(isCodexLifecycleHookMode("subagent-stop")).toBe(true);
     expect(isCodexLifecycleHookMode("user-prompt-submit")).toBe(true);
     expect(isCodexLifecycleHookMode("stop")).toBe(true);
     expect(isCodexLifecycleHookMode("heartbeat")).toBe(false);
+  });
+
+  it("keeps subagent lifecycle hooks tied to repo-role mapping", () => {
+    const start = buildCodexLifecycleHookDecision("subagent-start", "");
+    const stop = buildCodexLifecycleHookDecision("subagent-stop", "");
+
+    expect(start.message).toContain("map to a repo role");
+    expect(start.message).toContain("/Volumes/files/src/openclinxr");
+    expect(stop.message).toContain("parent agent owns integration");
   });
 });

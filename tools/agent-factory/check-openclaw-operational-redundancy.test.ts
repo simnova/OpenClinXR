@@ -25,13 +25,20 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
     packageJson,
     files: {
       "README.md": "Copy-paste kickoff prompts",
-      "AGENTS.md": "OpenClaw",
-      "PROJECT_COORDINATION_INDEX.md": "OpenClaw",
+      "AGENTS.md": "OpenClaw-style / OpenClaw-inspired",
+      ".codex/config.toml": "project_doc_max_bytes = 65536\nmulti_agent = true\nmax_depth = 1",
+      ".codex/hooks.json": "SubagentStart\nSubagentStop\npnpm codex:hook -- subagent-start\npnpm codex:hook -- subagent-stop",
+      ".codex/rules/openclaw.rules": "git\", \"reset\", \"--hard\ngit\", \"push\ndecision = \"prompt\"",
+      ".codex/agents/chief-coordinator.toml": "name = \"chief-coordinator\"\ndeveloper_instructions\nOpenClaw-style / OpenClaw-inspired\nagents/coordinator/chief-coordinator/charter.md",
+      ".agents/plugins/marketplace.json": "openclinxr-openclaw-style\n./plugins/openclinxr-openclaw-style",
+      "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json": "openclinxr-openclaw-style\n\"skills\": \"./skills/\"",
+      "PROJECT_COORDINATION_INDEX.md": "OpenClaw-style / OpenClaw-inspired",
       "AUTONOMOUS_WORK_PLAN.md": sliceFields,
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": sliceFields,
-      "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": "Codex Adapter\nClaude Adapter\nGrok Adapter\nCursor Adapter\nCapability Fallback Matrix",
+      "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": "Codex Adapter\nClaude Adapter\nGrok Adapter\nCursor Adapter\nCapability Fallback Matrix\nnot an external OpenClaw runtime",
       "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
         "OpenClaw-style execution pattern",
+        "OpenClaw-inspired",
         "not an external OpenClaw runtime",
         "pnpm openclaw:preflight",
         "pnpm openclaw:post-slice",
@@ -41,7 +48,7 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
         sliceFields,
         "## Canonical Automation Prompt",
         "```text",
-        "Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.",
+        "Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr.",
         "Stay focused on the case-definition-driven WebXR encounter factory.",
         "After each slice, run focused verification when appropriate.",
         "Stop only if explicitly told to pause/stop or if all approved lanes are truly blocked.",
@@ -52,7 +59,7 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
   };
 }
 
-describe("OpenClaw operational redundancy checker", () => {
+describe("OpenClaw-style operational redundancy checker", () => {
   it("passes when preflight, post-slice, prompt, and ledger guardrails are aligned", () => {
     expect(buildOperationalRedundancyReport(alignedInput())).toMatchObject({ ok: true, failures: [] });
   });

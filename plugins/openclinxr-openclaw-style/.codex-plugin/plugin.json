@@ -1,0 +1,6 @@
+{
+  "name": "openclinxr-openclaw-style",
+  "version": "0.1.0",
+  "description": "Repo-local Codex plugin packaging the OpenClinXR OpenClaw-style / OpenClaw-inspired workflow bridge.",
+  "skills": "./skills/"
+}

@@ -1,13 +1,13 @@
 ---
 name: openclinxr-openclaw
-description: Use when working in /Volumes/files/src/openclinxr on OpenClaw autonomy, repo-agent consultation, case-definition-driven XR factory slices, coordination files, heartbeat replacement, or cross-harness Codex/Grok alignment.
+description: Use when working in /Volumes/files/src/openclinxr on OpenClaw-style / OpenClaw-inspired autonomy, repo-agent consultation, case-definition-driven XR factory slices, coordination files, heartbeat replacement, or cross-harness Codex/Grok alignment.
 ---
 
-# OpenClinXR OpenClaw Bridge
+# OpenClinXR OpenClaw-Style Bridge
 
 ## Purpose
 
-Use this as Codex's bridge into the same OpenClaw operating system that Grok uses. The canonical sources stay in the repo; do not duplicate their contents into Codex config.
+Use this as Codex's bridge into the same repo-native OpenClaw-style / OpenClaw-inspired operating pattern that Grok uses. This is not an external OpenClaw runtime. The canonical sources stay in the repo; do not duplicate their contents into Codex config.
 
 ## Required Start
 
@@ -35,7 +35,7 @@ Use live subagents only when available and materially useful. Otherwise perform 
 
 ## Verification
 
-After coordination or OpenClaw changes run:
+After coordination or OpenClaw-style changes run:
 
 ```bash
 pnpm openclaw:post-slice

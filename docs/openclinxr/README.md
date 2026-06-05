@@ -11,7 +11,7 @@ Agents must not treat every Markdown or JSON file here as equally authoritative.
 3. `../../AUTONOMOUS_WORK_PLAN.md` - active queue handoff and slice ledger.
 4. `worker-backlog-and-validation-matrix.md` - worker ownership and validation map.
 5. `blueprint-factory-drift-guardrails-2026-05-27.md` - protected blueprint-factory/conversation-tooling guardrails.
-6. `codex-openclaw-operating-bridge-2026-05-27.md` - Codex/OpenClaw execution-mode bridge.
+6. `codex-openclaw-operating-bridge-2026-05-27.md` - Codex/OpenClaw-style execution-mode bridge (repo-native, not an external runtime).
 7. `doc-authority-registry-2026-05-27.md` - generated authority map for Markdown files.
 8. `generated-artifact-registry-2026-05-27.md` - generated cleanup map for JSON, screenshots, local caches, and runtime assets.
 9. `evidence-index-2026-05-27.md` - generated navigation index for representative retained evidence.

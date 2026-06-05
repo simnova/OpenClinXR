@@ -36,6 +36,12 @@ const requiredScripts: Record<string, string> = {
 const requiredFiles = [
   "README.md",
   "AGENTS.md",
+  ".codex/config.toml",
+  ".codex/hooks.json",
+  ".codex/rules/openclaw.rules",
+  ".codex/agents/chief-coordinator.toml",
+  ".agents/plugins/marketplace.json",
+  "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json",
   "PROJECT_COORDINATION_INDEX.md",
   "AUTONOMOUS_WORK_PLAN.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
@@ -68,6 +74,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
 
   for (const marker of [
     "OpenClaw-style execution pattern",
+    "OpenClaw-inspired",
     "not an external OpenClaw runtime",
     "pnpm openclaw:preflight",
     "pnpm openclaw:post-slice",
@@ -84,7 +91,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     failures.push({ file: "docs/openclinxr/openclaw-runbook-2026-05-27.md", message: "canonical automation prompt could not be extracted" });
   } else {
     for (const marker of [
-      "repo-native OpenClaw mode",
+      "repo-native OpenClaw-style",
       "case-definition-driven WebXR encounter factory",
       "After each slice",
       "Stop only if explicitly told to pause/stop",
@@ -109,10 +116,48 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   }
 
   const adapters = input.files["docs/openclinxr/openclaw-tool-adapters-2026-05-27.md"] ?? "";
-  for (const marker of ["Codex Adapter", "Claude Adapter", "Grok Adapter", "Cursor Adapter", "Capability Fallback Matrix"]) {
+  for (const marker of ["Codex Adapter", "Claude Adapter", "Grok Adapter", "Cursor Adapter", "Capability Fallback Matrix", "not an external OpenClaw runtime"]) {
     if (!adapters.includes(marker)) {
       failures.push({ file: "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md", message: `missing host adapter marker: ${marker}` });
     }
+  }
+
+  const codexConfig = input.files[".codex/config.toml"] ?? "";
+  for (const marker of ["project_doc_max_bytes = 65536", "multi_agent = true", "max_depth = 1"]) {
+    if (!codexConfig.includes(marker)) {
+      failures.push({ file: ".codex/config.toml", message: `missing Codex project config marker: ${marker}` });
+    }
+  }
+
+  const codexHooks = input.files[".codex/hooks.json"] ?? "";
+  for (const marker of ["SubagentStart", "SubagentStop", "pnpm codex:hook -- subagent-start", "pnpm codex:hook -- subagent-stop"]) {
+    if (!codexHooks.includes(marker)) {
+      failures.push({ file: ".codex/hooks.json", message: `missing Codex lifecycle hook marker: ${marker}` });
+    }
+  }
+
+  const codexAgent = input.files[".codex/agents/chief-coordinator.toml"] ?? "";
+  for (const marker of ["name = \"chief-coordinator\"", "developer_instructions", "OpenClaw-style / OpenClaw-inspired", "agents/coordinator/chief-coordinator/charter.md"]) {
+    if (!codexAgent.includes(marker)) {
+      failures.push({ file: ".codex/agents/chief-coordinator.toml", message: `missing Codex custom-agent marker: ${marker}` });
+    }
+  }
+
+  const codexRules = input.files[".codex/rules/openclaw.rules"] ?? "";
+  for (const marker of ["git\", \"reset\", \"--hard", "git\", \"push", "decision = \"prompt\""]) {
+    if (!codexRules.includes(marker)) {
+      failures.push({ file: ".codex/rules/openclaw.rules", message: `missing Codex command rule marker: ${marker}` });
+    }
+  }
+
+  const pluginManifest = input.files["plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json"] ?? "";
+  if (!pluginManifest.includes("openclinxr-openclaw-style") || !pluginManifest.includes('"skills": "./skills/"')) {
+    failures.push({ file: "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json", message: "local Codex plugin manifest must expose the OpenClaw-style skill bundle" });
+  }
+
+  const marketplace = input.files[".agents/plugins/marketplace.json"] ?? "";
+  if (!marketplace.includes("openclinxr-openclaw-style") || !marketplace.includes("./plugins/openclinxr-openclaw-style")) {
+    failures.push({ file: ".agents/plugins/marketplace.json", message: "repo plugin marketplace must expose the OpenClaw-style local plugin" });
   }
 
   const readme = input.files["README.md"] ?? "";
@@ -144,7 +189,7 @@ async function main(): Promise<void> {
   }
 
   if (report.ok) {
-    console.log("Checked OpenClaw operational redundancy: preflight, post-slice guard, automation prompt, slice ledger fields, and host adapters are aligned.");
+    console.log("Checked OpenClaw-style operational redundancy: preflight, post-slice guard, automation prompt, slice ledger fields, host adapters, and Codex-native surfaces are aligned.");
     return;
   }
 

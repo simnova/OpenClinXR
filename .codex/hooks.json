@@ -8,7 +8,7 @@
             "type": "command",
             "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- session-start",
             "timeout": 20,
-            "statusMessage": "Loading OpenClaw session guidance"
+            "statusMessage": "Loading OpenClaw-style session guidance"
           }
         ]
       }
@@ -21,7 +21,7 @@
             "type": "command",
             "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- pre-tool-use",
             "timeout": 20,
-            "statusMessage": "Checking OpenClaw edit posture"
+            "statusMessage": "Checking OpenClaw-style edit posture"
           }
         ]
       }
@@ -34,7 +34,7 @@
             "type": "command",
             "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- post-tool-use",
             "timeout": 180,
-            "statusMessage": "Running scoped OpenClaw guards"
+            "statusMessage": "Running scoped OpenClaw-style guards"
           }
         ]
       }
@@ -47,7 +47,33 @@
             "type": "command",
             "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- pre-compact",
             "timeout": 20,
-            "statusMessage": "Preparing OpenClaw rehydration note"
+            "statusMessage": "Preparing OpenClaw-style rehydration note"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- subagent-start",
+            "timeout": 20,
+            "statusMessage": "Loading OpenClaw-style subagent guidance"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$(git rev-parse --show-toplevel)\" && pnpm codex:hook -- subagent-stop",
+            "timeout": 20,
+            "statusMessage": "Checking OpenClaw-style subagent closeout"
           }
         ]
       }

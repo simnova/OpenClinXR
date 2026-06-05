@@ -1,10 +1,10 @@
-# Codex/OpenClaw Operating Bridge
+# Codex/OpenClaw-Style Operating Bridge
 
 Date: 2026-05-27
 
 ## Purpose
 
-This bridge aligns modern Codex capabilities with the repo-native OpenClaw-style agent system already present in OpenClinXR. It prevents the autonomy prompt from drifting into generic Codex behavior while still using Codex tools that materially advance the case-definition-driven WebXR encounter factory.
+This bridge aligns modern Codex capabilities with the repo-native OpenClaw-style / OpenClaw-inspired agent system already present in OpenClinXR. It is not an external OpenClaw runtime. It prevents the autonomy prompt from drifting into generic Codex behavior while still using Codex tools that materially advance the case-definition-driven WebXR encounter factory.
 
 ## Current Finding
 

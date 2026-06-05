@@ -3,7 +3,7 @@
 # Run from repo root.
 # Canonical: agents/rules/*.md (with frontmatter for doc-authority-registry) and .grok/hooks/*.json (plus .agents/skills/ via config).
 # Produces relative symlinks in .grok/rules/ + .claude/rules/ + .cursor/rules/,
-# safe role pointer files in harness agent directories, and hooks.json for claude/cursor compat.
+# safe role pointer files in harness agent directories, Codex custom-agent TOML files, and hooks.json for claude/cursor compat.
 # Skills discovery is via [skills] paths = [".agents/skills"] (and equiv in other harness configs); no skills symlinks.
 # Idempotent. See AGENTS.md, agents/rules/README.md, .grok/config.toml.
 
@@ -40,6 +40,7 @@ done
 # AGENTS (project-scoped role pointers; canonical content remains root agents/**)
 # Keep pointer files intentionally tiny: no charter/memory duplication, no symlinks to role folders.
 # This gives Grok/Claude/Cursor/Codex a symmetric discovery surface while preserving agents/** as the source of truth.
+# Codex also gets native .toml custom-agent files in .codex/agents/.
 rm -rf .grok/agents .claude/agents .cursor/agents .codex/agents 2>/dev/null || true
 mkdir -p .grok/agents .claude/agents .cursor/agents .codex/agents
 node - <<'NODE'
@@ -60,21 +61,43 @@ for (const group of fs.readdirSync("agents", { withFileTypes: true }).filter((d)
 roles.sort((a, b) => a.role.localeCompare(b.role));
 
 const list = roles.map(({ role }) => `- ${role}`).join("\n");
+const tomlString = (value) => JSON.stringify(value);
+const multilineToml = (value) => `"""\n${value.replaceAll('"""', '\\"\\"\\"')}\n"""`;
 for (const harness of harnesses) {
   const dir = path.join(harness, "agents");
   fs.writeFileSync(
     path.join(dir, "README.md"),
-    `# Repo-defined agent role pointers\n\nCanonical role definitions live under root \`agents/**\` with \`charter.md\`, \`memory.md\`, and \`index.json\`.\n\nThese files are safe harness-local pointers only. They do not duplicate role memory or replace the source-of-truth order in \`AGENTS.md\`.\n\nRoles:\n${list}\n\nUse \`agents/rules/agent-consult.md\` and \`agents/rules/subagent-protocol.md\` before mapping a live subagent or local role consultation.\n`,
+    `# Repo-defined agent role pointers\n\nCanonical role definitions live under root \`agents/**\` with \`charter.md\`, \`memory.md\`, and \`index.json\`.\n\nThese files are safe harness-local pointers only. They do not duplicate role memory or replace the source-of-truth order in \`AGENTS.md\`.\n\nThis repo uses an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an external OpenClaw runtime.\n\nRoles:\n${list}\n\nUse \`agents/rules/agent-consult.md\` and \`agents/rules/subagent-protocol.md\` before mapping a live subagent or local role consultation.\n\nFor Codex, sibling \`.toml\` files are native project custom-agent definitions; the Markdown files remain lightweight human/cross-harness pointers.\n`,
   );
 
   for (const { group, role, roleDir } of roles) {
     fs.writeFileSync(
       path.join(dir, `${role}.md`),
-      `# ${role} (repo role pointer)\n\nCanonical: \`${roleDir}/charter.md\`, \`${roleDir}/memory.md\`, and \`${roleDir}/index.json\`.\n\nGroup: \`${group}\`.\n\nUse for: role-mapped repo-agent consultation or a live subagent prompt when the current harness supports subagents and the task materially reduces drift, review cost, or implementation risk.\n\nTarget repo /Volumes/files/src/openclinxr.\n\nSpawn/local-consult prompt seed: \"You are \`${role}\` for /Volumes/files/src/openclinxr. First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist. Read your canonical charter and memory with a tight limit. Follow agents/rules/agent-consult.md and agents/rules/subagent-protocol.md. Return concise findings, blockers, and recommended next slice. Do not edit unless explicitly assigned a non-overlapping write scope.\"\n`,
+      `# ${role} (repo role pointer)\n\nCanonical: \`${roleDir}/charter.md\`, \`${roleDir}/memory.md\`, and \`${roleDir}/index.json\`.\n\nGroup: \`${group}\`.\n\nUse for: role-mapped repo-agent consultation or a live subagent prompt when the current harness supports subagents and the task materially reduces drift, review cost, or implementation risk.\n\nThis is an OpenClaw-style / OpenClaw-inspired workflow pointer, not an external OpenClaw runtime.\n\nTarget repo /Volumes/files/src/openclinxr.\n\nSpawn/local-consult prompt seed: \"You are \`${role}\` for /Volumes/files/src/openclinxr. First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist. Read your canonical charter and memory with a tight limit. Follow agents/rules/agent-consult.md and agents/rules/subagent-protocol.md. Return concise findings, blockers, and recommended next slice. Do not edit unless explicitly assigned a non-overlapping write scope.\"\n`,
     );
+    if (harness === ".codex") {
+      const description = `Repo role ${role} for OpenClinXR OpenClaw-style / OpenClaw-inspired consultation. Use when this role materially reduces drift, review cost, or implementation risk.`;
+      const instructions = [
+        `You are the ${role} repo-defined role for /Volumes/files/src/openclinxr.`,
+        "This is an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an external OpenClaw runtime.",
+        "First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist before drawing repo-native conclusions.",
+        `Read ${roleDir}/charter.md and ${roleDir}/memory.md with a tight limit, plus agents/rules/agent-consult.md and agents/rules/subagent-protocol.md.`,
+        "Follow the source-of-truth order in AGENTS.md. Preserve protected blueprint-factory guardrails.",
+        "Return concise findings, blockers, and recommended next slice. Do not edit unless explicitly assigned a non-overlapping write scope.",
+      ].join("\n");
+      fs.writeFileSync(
+        path.join(dir, `${role}.toml`),
+        [
+          `name = ${tomlString(role)}`,
+          `description = ${tomlString(description)}`,
+          `developer_instructions = ${multilineToml(instructions)}`,
+          "",
+        ].join("\n"),
+      );
+    }
   }
 }
-console.log(`  Generated ${roles.length} role pointer files for ${harnesses.join(", ")}`);
+console.log(`  Generated ${roles.length} role pointer files for ${harnesses.join(", ")} plus Codex TOML custom agents`);
 NODE
 
 # HOOKS (canonical in .grok/hooks/*.json per Grok project hooks; auto guards + rehydrate reminders)

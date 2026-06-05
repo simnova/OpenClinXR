@@ -1,0 +1,17 @@
+{
+  "name": "openclinxr-local",
+  "plugins": [
+    {
+      "name": "openclinxr-openclaw-style",
+      "source": {
+        "source": "local",
+        "path": "./plugins/openclinxr-openclaw-style"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "NONE"
+      },
+      "category": "Engineering"
+    }
+  ]
+}

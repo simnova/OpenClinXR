@@ -1,0 +1,37 @@
+# OpenClinXR OpenClaw-style command policy for Codex.
+# These rules complement AGENTS.md and repo guardrails; they do not replace review judgment.
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Do not discard user or agent work; inspect status and make targeted edits instead.",
+    match = ["git reset --hard", "git reset --hard HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "checkout", "--"],
+    decision = "forbidden",
+    justification = "Do not revert files implicitly; use apply_patch or ask for explicit revert scope.",
+    match = ["git checkout -- AGENTS.md"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "prompt",
+    justification = "Recursive deletion needs explicit review in this repo.",
+    match = ["rm -rf tmp"],
+)
+
+prefix_rule(
+    pattern = ["git", "commit"],
+    decision = "prompt",
+    justification = "Commits should happen only after staged-scope review and OpenClaw-style guards.",
+    match = ["git commit -m example"],
+)
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "prompt",
+    justification = "Pushing publishes repo state; require explicit user intent.",
+    match = ["git push origin main"],
+)

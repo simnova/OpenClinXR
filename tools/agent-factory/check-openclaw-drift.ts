@@ -59,7 +59,7 @@ const requiredMarkers: Record<string, string[]> = {
     "docs:drift-check",
   ],
   "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
-    "protected OpenClaw control surface",
+    "protected OpenClaw-style",
     "OpenClaw-style execution pattern",
     "not an external OpenClaw runtime",
     "Required Per-Slice Record",
@@ -73,10 +73,10 @@ const requiredMarkers: Record<string, string[]> = {
     "openclaw-tool-adapters-2026-05-27.md",
   ],
   "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": [
-    "protected OpenClaw control surface",
-    "OpenClaw is repo-native, not Codex-native",
+    "protected OpenClaw-style",
+    "OpenClaw-style / OpenClaw-inspired execution is repo-native",
     "Capability Fallback Matrix",
-    "Universal OpenClaw Prompt",
+    "Universal OpenClaw-Style Prompt",
     "Codex Adapter",
     "Claude Adapter",
     "Grok Adapter",

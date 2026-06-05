@@ -55,7 +55,7 @@ If context is compacted or feels incomplete, do not finalize. Re-read these file
 
 The snapshots at the top of `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (added 2026-05-28) are the fast-path context. Read only the first ~60-80 lines of each for continuation unless full history or audit is required. This keeps rehydration low-token and effective while preserving the full ledger.
 
-Current working model (original mission + OpenClaw adaptation):
+Current working model (original mission + OpenClaw-style / OpenClaw-inspired adaptation; not an external OpenClaw runtime):
 - Persistent expert team: repo-defined roles in `agents/**` (charter + memory + index) + generated `.agent-factory/memory-index.json` for consultation lenses. Read charter+memory locally for focus; use live subagents narrowly when available and non-overlapping.
 - Full iteration loop (`iterations/**`, `docs/agent-factory/operating-loop.md`, `packages/openclinxr/agent-loop`, `pnpm agent:loop` + tools/agent-factory/): synthesis/plateau-recovery/planning tool only. Not for routine slices.
 - Daily driver: OpenClaw-style continuous small deterministic slices (see openclaw-runbook + tool-adapters). Use Required Per-Slice Record in the two state md files. Lease for unattended. `pnpm docs:drift-check` + `agent:alignment` guards. Anti-toil gate: after 1 evidence-only do product; after 2 force drift review + coordinator roles + product pivot.
@@ -147,7 +147,7 @@ Unattended loop:
 
 ## OpenClaw-Style Repo-Agent Activation
 
-This repository has an OpenClaw-style, file-backed agent system under `agents/**`, `docs/agent-factory/**`, `iterations/**`, `.agent-factory/**`, and `packages/openclinxr/agent-loop`. It is activated by repo commands and memory files, not by merely existing on disk.
+This repository has an OpenClaw-style / OpenClaw-inspired, file-backed agent system under `agents/**`, `docs/agent-factory/**`, `iterations/**`, `.agent-factory/**`, and `packages/openclinxr/agent-loop`. It is not an external OpenClaw runtime. It is activated by repo commands and memory files, not by merely existing on disk.
 
 For Codex-specific tool alignment, also use `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md`. That bridge maps current Codex capabilities, live subagents, Browser screenshots, local execution, and repo-native agent-factory commands back to this operating contract.
 
@@ -165,7 +165,7 @@ Live subagent discovery rule:
 - Map repo-defined roles onto live subagent prompts. Example: an `explorer` can act as Chief Coordinator or Gap Attacker for a read-only drift check; a `worker` can act as Asset Pipeline Lead or XR Systems Architect for a disjoint implementation slice.
 - Do not spawn agents for every heartbeat by default. Spawn when there are independent review/implementation tasks, when drift is suspected, or after repeated evidence/gate-only slices.
 
-OpenClaw orchestration-agent rule:
+OpenClaw-style orchestration-agent rule:
 
 - When Patrick asks for OpenClaw-style multi-agent execution or after context compaction during autonomous work, create or simulate a coordinator/orchestration agent before broad multi-agent execution.
 - The orchestration agent does not implement product code, patch files, run routine verification, or own a product slice.

@@ -49,7 +49,7 @@ enabled = true  # watch .agent-factory/memory-index.json and agents/*/memory.md 
 codebase_indexing = true   # helps Grok understand packages/, tools/agent-factory/, agents/ roles, docs/agent-factory/, schemas/, sources/ etc.
 lsp_tools = true           # useful for TS navigation in the monorepo (apps/, packages/, tools/)
 
-# --- Tool tuning for long autonomous/OpenClaw runs, pnpm/turbo builds, tests, agent:loop ---
+# --- Tool tuning for long autonomous OpenClaw-style / OpenClaw-inspired runs, pnpm/turbo builds, tests, agent:loop ---
 [toolset.bash]
 timeout_secs = 600         # 10min for pnpm agent:*, pnpm openclaw:*, full verifies, builds
 output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces

@@ -160,7 +160,11 @@ describe("workspace architecture rules", () => {
 
   it("keeps the OpenClaw bridge discoverable for Codex and Grok", () => {
     const bridgeSkill = readFileSync(join(workspaceRoot, ".agents/skills/openclinxr-openclaw/SKILL.md"), "utf8");
+    const codexConfig = readFileSync(join(workspaceRoot, ".codex/config.toml"), "utf8");
     const codexHooks = readFileSync(join(workspaceRoot, ".codex/hooks.json"), "utf8");
+    const codexAgent = readFileSync(join(workspaceRoot, ".codex/agents/chief-coordinator.toml"), "utf8");
+    const codexRules = readFileSync(join(workspaceRoot, ".codex/rules/openclaw.rules"), "utf8");
+    const codexPluginManifest = readFileSync(join(workspaceRoot, "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json"), "utf8");
     const grokConfig = readFileSync(join(workspaceRoot, ".grok/config.toml"), "utf8");
     const grokAgentPointer = readFileSync(join(workspaceRoot, ".grok/agents/chief-coordinator.md"), "utf8");
     const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
@@ -172,8 +176,16 @@ describe("workspace architecture rules", () => {
     expect(codexHooks).toContain('"PreToolUse"');
     expect(codexHooks).toContain('"PostToolUse"');
     expect(codexHooks).toContain('"PreCompact"');
+    expect(codexHooks).toContain('"SubagentStart"');
+    expect(codexHooks).toContain('"SubagentStop"');
     expect(codexHooks).toContain('"Stop"');
     expect(codexHooks).toContain("pnpm codex:hook");
+    expect(codexConfig).toContain("project_doc_max_bytes = 65536");
+    expect(codexConfig).toContain("multi_agent = true");
+    expect(codexAgent).toContain('name = "chief-coordinator"');
+    expect(codexAgent).toContain("OpenClaw-style / OpenClaw-inspired");
+    expect(codexRules).toContain('pattern = ["git", "reset", "--hard"]');
+    expect(codexPluginManifest).toContain("openclinxr-openclaw-style");
     expect(grokConfig).toContain('paths = [".agents/skills"]');
     expect(bridgeSkill).toContain("name: openclinxr-openclaw");
     expect(bridgeSkill).toContain("pnpm openclaw:run-next");

@@ -2,11 +2,11 @@
 
 Date: 2026-05-27
 
-This is a protected OpenClaw control surface for running OpenClinXR across Codex, Claude, Grok, Cursor, or another agent host. Routine agents must not delete, weaken, bypass, rename, or reinterpret it during autonomous work.
+This is a protected OpenClaw-style / OpenClaw-inspired control surface for running OpenClinXR across Codex, Claude, Grok, Cursor, or another agent host. It is not an external OpenClaw runtime. Routine agents must not delete, weaken, bypass, rename, or reinterpret it during autonomous work.
 
 ## Purpose
 
-OpenClaw is repo-native, not Codex-native. The host tool may change, but the execution contract must remain anchored to `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, `docs/openclinxr/openclaw-runbook-2026-05-27.md`, and the protected blueprint-factory guardrails.
+OpenClaw-style / OpenClaw-inspired execution is repo-native, not Codex-native and not an external OpenClaw runtime. The host tool may change, but the execution contract must remain anchored to `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, `docs/openclinxr/openclaw-runbook-2026-05-27.md`, and the protected blueprint-factory guardrails.
 
 The goal is easy host swapping without losing focus on the case-definition-driven WebXR encounter factory.
 
@@ -32,12 +32,12 @@ Any host can run OpenClaw if it can do most of the following:
 | Git/source control | Inspect/stage/commit only when explicitly requested or cleanup plan requires it. | Avoid destructive changes; report uncommitted work boundaries. |
 | External model/tools | Use only if approved and provider gates allow it. | Keep execution disabled and record provider preflight blockers. |
 
-## Universal OpenClaw Prompt
+## Universal OpenClaw-Style Prompt
 
 Use this when the host is unknown or when switching between tools:
 
 ```text
-Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr.
+Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr. This is not an external OpenClaw runtime.
 
 Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as the source of truth.
 
@@ -57,7 +57,7 @@ Codex is preferred for local implementation because it usually has shell, browse
 Kickoff:
 
 ```text
-Continue in repo-native OpenClaw mode in /Volumes/files/src/openclinxr using Codex local tools.
+Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr using Codex local tools.
 
 First read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
 
@@ -79,7 +79,7 @@ Claude can run OpenClaw well when it has repo/file and shell access. If Claude l
 Kickoff:
 
 ```text
-Operate as a repo-native OpenClaw agent for /Volumes/files/src/openclinxr, not as generic Claude chat.
+Operate as a repo-native OpenClaw-style / OpenClaw-inspired agent for /Volumes/files/src/openclinxr, not as generic Claude chat.
 
 Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md before selecting work.
 
@@ -121,7 +121,7 @@ Cursor is useful for local code editing and repo navigation. It should be given 
 Kickoff:
 
 ```text
-Run Cursor in repo-native OpenClaw mode for /Volumes/files/src/openclinxr.
+Run Cursor in repo-native OpenClaw-style / OpenClaw-inspired mode for /Volumes/files/src/openclinxr.
 
 Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
 
