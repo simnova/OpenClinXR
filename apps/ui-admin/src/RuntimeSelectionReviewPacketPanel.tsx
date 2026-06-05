@@ -5,7 +5,7 @@ import type { AdminRuntimeSelectionReviewPacket, RuntimeVisualEvidenceAttachment
 export type RuntimeSelectionReviewPacketPanelProps = {
   packet: AdminRuntimeSelectionReviewPacket;
   runtimeVisualEvidenceAttachmentSubmitStatus?: "idle" | "submitting" | "submitted" | "error";
-  runtimeVisualEvidenceAttachmentSubmitMessage?: string;
+  runtimeVisualEvidenceAttachmentSubmitMessage?: string | undefined;
   onSubmitRuntimeVisualEvidenceAttachment?: (input: SubmitRuntimeVisualEvidenceAttachmentInput) => void | Promise<void>;
 };
 
@@ -468,10 +468,35 @@ export function RuntimeSelectionReviewPacketPanel({
             ) : null}
             {packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff && packet.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? (
               <div style={{ marginTop: 8, fontSize: 12 }}>
-                <Typography.Text strong>Peds humanoid materialization handoff (from asset worker, metadata for review/replay only)</Typography.Text>
+                <Typography.Text strong>Peds humanoid materialization handoff</Typography.Text>
+                <fieldset className="readiness-strip" aria-label="Peds humanoid materialization handoff metrics">
+                  <RuntimeSelectionMetric
+                    label={packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.claimBoundary}
+                    detail={`generated assets ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.generatedAssetsMaterialized)}; local candidates ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.localCandidateAssetsSelected)}`}
+                  />
+                  <RuntimeSelectionMetric
+                    label="handoff readiness claims"
+                    detail={`production ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.productionReadinessClaimed)}; Quest ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.questReadinessClaimed)}; clinical ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.clinicalValidityClaimed)}; scoring ${String(packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.scoringValidityClaimed)}`}
+                  />
+                  <RuntimeSelectionMetric
+                    label="review packet"
+                    detail={packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.reviewPacketPath}
+                  />
+                </fieldset>
                 <ul style={{ margin: "2px 0 0 12px", padding: 0 }}>
-                  {packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.assets?.map((a: { actorRole: string; runtimeAssetPath?: string; assetPath?: string; provenanceManifestPath?: string }) => (
-                    <li key={a.actorRole}>{a.actorRole}: {a.runtimeAssetPath || a.assetPath} (B, claims=false, {a.provenanceManifestPath})</li>
+                  {packet.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff.assets?.map((a: {
+                    actorRole: string;
+                    runtimeAssetPath?: string;
+                    assetPath?: string;
+                    provenanceManifestPath?: string;
+                    realAnnyWeightsUsed?: boolean;
+                    realismGrade?: string;
+                    promotionStatus?: string;
+                    notEvidenceFor?: string[];
+                  }) => (
+                    <li key={a.actorRole}>
+                      {a.actorRole}: {a.runtimeAssetPath || a.assetPath}; grade {a.realismGrade ?? "ungraded"}; real Anny {String(a.realAnnyWeightsUsed === true)}; {a.promotionStatus ?? "promotion_status_unavailable"}; provenance {a.provenanceManifestPath}; not evidence for {(a.notEvidenceFor ?? []).join(", ") || "unspecified"}
+                    </li>
                   ))}
                 </ul>
               </div>

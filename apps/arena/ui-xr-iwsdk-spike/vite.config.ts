@@ -3,6 +3,12 @@ import { type DevPluginOptions, iwsdkDev } from "@iwsdk/vite-plugin-dev";
 import { type CompileUIKitOptions, compileUIKit } from "@iwsdk/vite-plugin-uikitml";
 import { defineConfig } from "vitest/config";
 
+type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions & {
+  ai?: NonNullable<DevPluginOptions["ai"]> & {
+    tools?: string[];
+  };
+};
+
 export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
   emulator: {
     device: "metaQuest3",
@@ -19,7 +25,7 @@ export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
     },
   },
   verbose: true,
-} satisfies DevPluginOptions);
+} satisfies OpenClinXrIwsdkSpikeDevPluginOptions);
 
 export const openClinXrIwsdkSpikeBuildOutput = Object.freeze({
   codeSplitting: {

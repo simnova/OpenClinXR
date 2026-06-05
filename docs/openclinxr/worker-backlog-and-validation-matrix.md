@@ -8,11 +8,13 @@ Latest harness bridge checkpoint: 2026-06-04 Codex-native OpenClaw-style / OpenC
 
 Latest validation tooling checkpoint: 2026-06-05 Worker 9/11 support promoted IWSDK as the preferred sidecar validation lane for peds launch checks, pinned latest observed `@iwsdk/*@0.4.2`, and added Chrome DevTools MCP config through `pnpm dlx chrome-devtools-mcp@1.1.1` for local browser/runtime evidence. IWSDK 0.4.2 has no installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains a blocked/future evidence lane while sidecar Vite/plugin validation remains available. This stays sidecar-only and validation-only; production `apps/ui-xr`, Quest readiness, learner readiness, clinical/scoring validity, and production IWSDK adoption remain blocked.
 
+Latest product checkpoint: 2026-06-05 Faculty review humanoid handoff. Faculty Review Decision Handoff now surfaces `caseDefinedHumanoidRuntimeHandoff` as deterministic metadata-only faculty planning context with actor roles, runtime signals, blockers, claim boundary, and not-evidence-for gates. Prior API/Admin/IWSDK peds handoff parity remains covered.
+
 Latest divergence correction: 2026-06-04 active queue now points to peds launch validation for `pedsHumanoidMaterializationHandoff`; drift check now rejects dated no-op heartbeat ledger text in active snapshots; Grok PreToolUse lease hook text is advisory and no longer claims to execute an acquire command. Evidence: run-next selects peds validation, drift/alignment/check-openclaw-drift tests green.
 
 Last support checkpoint: 2026-06-04 1-5+6 harness AgenticEx (extractions of hyper-token-efficient, blueprint-factory-guardrails, repo-defined-agents-worker-roles, persistent-memory-scoring + agent-consult rules; .grok/plugins/ post-slice; .grok/lsp.json; hooks enhance + .githooks/agentic-hook-runner tie + memory-consult; config [memory] watcher + [plugins] + notifications + compat; registry classify; sync; authority/guards green 220 MDs). #6 proof executed (search_replace hook fire, subagent explore chief-coordinator per protocol/agent-consult with charter+memory reads + no drift, post-slice + grok inspect showing 12 rules/hooks/plugin/lsp, states 1-6 record, commit f90252a + push). Tree clean on origin. Guards green.
 
-Next action: Worker 9/7/11 peds launch validation with handoff wired through bundle/consumer/runtime selection, using IWSDK 0.4.2 sidecar and Chrome DevTools MCP evidence where useful. UI-XR consumer/admin replay surfaces remain metadata-only; faculty review path remains fallback.
+Next action: app-wide UI-admin/API fixture strictness cleanup or faculty API projection hardening. UI-XR consumer/admin replay surfaces remain metadata-only.
 
 ## Efficient Rehydration + Working Model
 
@@ -31,6 +33,18 @@ Do not toil on evidence refreshes. Evidence supports product decisions; it is no
 | 5 | Worker 10/support | Local exam and model/voice harnesses | Test/data boundary only; no runtime manifest pollution |
 
 ## Recent Checkpoints
+
+2026-06-05 peds handoff public bundle launch validation (Worker 9/11): public peds learner runtime bundle carries patient + anxious-parent `pedsHumanoidMaterializationHandoff` asset preferences; local launch selection and runtime handoff adapter expose a compact metadata-only summary; all false readiness/validity/real-Anny/B+ gates preserved. Focused tests + jq + local Browser smoke green; later UI-XR tsgo repair cleared the package typecheck gate.
+
+2026-06-05 UI-XR tsgo repair (Worker 9 support): cleared `@openclinxr/ui-xr` typecheck by overriding browser-app `noPropertyAccessFromIndexSignature` and fixing strict runtime evidence typing for materialization summaries, GLTF mesh/error guards, optional humanoid provenance, and derived runtime evidence readiness. Focused typecheck/tests green.
+
+2026-06-05 Admin ReviewReplay peds handoff display (Worker 9/7/11): admin Runtime Selection Review Packet now displays peds handoff metadata with explicit false readiness claims and actor asset/provenance details. Focused panel test green; touched-symbol typecheck clean. Full ui-admin typecheck and root review-packet factory test have unrelated existing failures recorded in the work plan.
+
+2026-06-05 IWSDK peds handoff parity (Worker 9/11): approved sidecar adapter verifies public peds handoff metadata and false gates without production IWSDK adoption. Sidecar Vite config typecheck now passes with local `ai.tools` contract metadata preserved. Focused sidecar typecheck/tests and IWSDK parity contract test green.
+
+2026-06-05 API peds handoff parity (Worker 9/7/11): `/runtime/selection-review-packet` attaches public peds handoff metadata to the durable peds review packet for API/Admin consumption. Focused route test green; touched-symbol typecheck clean. Full API typecheck has unrelated existing strictness/Bun websocket fixture failures recorded in the work plan.
+
+2026-06-05 Faculty review humanoid handoff (Worker 7/8/9): Faculty Review Decision Handoff displays case-defined humanoid runtime handoff metadata for completed-station faculty planning without score-use, clinical, Quest, runtime, production, or learner claims. Focused panel test green; no touched-file type errors.
 
 2026-06-04 repo hygiene (Worker 0 support): deleted historical generated evidence and stale docs, replaced old benchmark-dependent Pages tests with temporary fixtures, redirected worktree cleanup output to `.agent-factory`, regenerated registries/indexes, and compacted long logs into checkpoint summaries. Next: product pivot remains peds humanoid handoff propagation.
 

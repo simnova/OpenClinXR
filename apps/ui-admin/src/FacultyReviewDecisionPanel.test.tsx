@@ -50,6 +50,16 @@ describe("FacultyReviewDecisionPanel", () => {
     expect(humanoidContract).toHaveTextContent("quest_readiness");
     expect(humanoidContract).toHaveTextContent("runtime_readiness");
     expect(humanoidContract).toHaveTextContent("clinical_validity");
+    const humanoidRuntimeHandoff = within(panel).getByLabelText("Faculty case-defined humanoid runtime handoff");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("2 actor runtime handoffs");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("roles patient, family");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("6 required runtime signals");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("locomotion:path_to_bedside");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("expression:anxious_parent");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("2 handoff blockers");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("case_definition_humanoid_runtime_handoff_metadata_only");
+    expect(humanoidRuntimeHandoff).toHaveTextContent("not evidence for generated_humanoid_asset_readiness, animation_quality, quest_readiness, runtime_readiness, clinical_validity, scoring_validity");
     const runtimeVisualEvidenceContext = within(panel).getByLabelText("Faculty runtime visual evidence context");
     expect(runtimeVisualEvidenceContext).toHaveTextContent("3 accepted metadata refs");
     expect(runtimeVisualEvidenceContext).toHaveTextContent("1 runtime refs");
@@ -194,6 +204,34 @@ function reviewReplayReadinessSummaryFixture(): AdminReviewPacketReplay["reviewR
     blockers: ["missing_required_behavior", "late_behavior_present"],
     recommendedNextAction: "review_missing_required_behavior",
     replayBoundary: "summary_only_faculty_review_not_score_use",
+    caseDefinedHumanoidRuntimeHandoff: [
+      {
+        claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
+        actorRole: "patient",
+        workOrderIds: ["peds_patient_child_runtime_handoff"],
+        locomotionRequired: true,
+        expressionRequired: true,
+        gazeRequired: true,
+        lipSyncRequired: true,
+        interactiveRequired: true,
+        requiredSignalIds: ["locomotion:path_to_bedside", "expression:dyspnea_concern", "gaze:clinician", "lip_sync:response_turn"],
+        blockers: ["actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required"],
+        notEvidenceFor: ["generated_humanoid_asset_readiness", "animation_quality", "quest_readiness", "runtime_readiness", "clinical_validity", "scoring_validity"],
+      },
+      {
+        claimBoundary: "case_definition_humanoid_runtime_handoff_metadata_only",
+        actorRole: "family",
+        workOrderIds: ["peds_anxious_parent_runtime_handoff"],
+        locomotionRequired: false,
+        expressionRequired: true,
+        gazeRequired: true,
+        lipSyncRequired: true,
+        interactiveRequired: true,
+        requiredSignalIds: ["expression:anxious_parent", "gaze:child_patient"],
+        blockers: ["actor_materialization_evidence_missing:parent_tara_johnson_v1:actor_specific_body_profile_required"],
+        notEvidenceFor: ["generated_humanoid_asset_readiness", "animation_quality", "quest_readiness", "runtime_readiness", "clinical_validity", "scoring_validity"],
+      },
+    ],
     xrTraceEvidenceSummary: {
       stationRunId: "station_run_001",
       source: "ui_xr_runtime_trace",
@@ -238,6 +276,46 @@ function reviewReplayReadinessSummaryFixture(): AdminReviewPacketReplay["reviewR
       scoringValidityClaimed: false,
       replayEvidenceReady: false,
       blockerIds: ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+      nextActions: [
+        "review 3 accepted metadata-only runtime/visual refs during faculty debrief preparation",
+        "carry forward blockers runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "keep runtime, learner, Quest, production, clinical, and scoring gates blocked",
+      ],
+      uiXrConsumerOperatorWorkflowSummary: {
+        schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
+        source: "ui_xr_runtime_evidence_consumer_operator_workflow",
+        scenarioId: "ed_chest_pain_priority_v1",
+        acceptedAttachmentRefCount: 3,
+        runtimeEvidenceRefCount: 1,
+        visualQaEvidenceRefCount: 2,
+        targetRoute: "/runtime/visual-evidence-attachments",
+        method: "POST",
+        submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+        submitPreview: {
+          route: "/runtime/visual-evidence-attachments",
+          bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
+          attachmentCount: 3,
+          actionIds: ["attach_runtime_realism_evidence_refs", "attach_visual_qa_evidence_refs"],
+          inputIds: ["runtime-realism-evidence-input:patient_robert_hayes_v1"],
+          localArtifactPaths: ["runtime-evidence-capture-scaffold/ed_chest_pain_priority_v1/patient.json"],
+          rawPayloadDisplayed: false,
+          claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
+        },
+        reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs",
+        preflightChecks: ["metadata_only_refs_reviewed"],
+        nextActions: ["prepare faculty debrief with metadata-only runtime/visual refs"],
+        rawPayloadDisplayed: false,
+        providerExecutionAllowed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        questEvidenceRefreshAllowed: false,
+        productionAssetReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        blockerIds: ["runtime_realism_evidence_not_attached_to_encounter_bundle"],
+        claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
+        notEvidenceFor: ["runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+      },
       claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
       notEvidenceFor: ["runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
     },

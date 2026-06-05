@@ -673,6 +673,35 @@ export type AdminRuntimeProviderReadiness = {
   surfaces: AdminRuntimeProviderReadinessSurface[];
 };
 
+export type AdminPedsHumanoidMaterializationHandoff = {
+  schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1";
+  source: string;
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  targetKind: "role_specific_humanoid_glb";
+  generatedAssetsMaterialized: boolean;
+  localCandidateAssetsSelected: boolean;
+  reviewPacketPath: string;
+  assets: Array<{
+    actorRole: string;
+    assetPath: string;
+    runtimeAssetPath?: string;
+    provenanceManifestPath: string;
+    generatorMode: string;
+    sourceKind: string;
+    realAnnyWeightsUsed: false;
+    textureMode: string;
+    animationMode: string;
+    realismGrade: string;
+    promotionStatus: string;
+    notEvidenceFor: string[];
+  }>;
+  productionReadinessClaimed: false;
+  questReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness";
+};
+
 export type AdminRuntimeSelectionReviewPacket = {
   schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1";
   source: string;
@@ -773,6 +802,7 @@ export type AdminRuntimeSelectionReviewPacket = {
       };
       claimBoundary: "materialization_contract_metadata_only_not_runtime_readiness" | "unavailable";
     };
+    pedsHumanoidMaterializationHandoff?: AdminPedsHumanoidMaterializationHandoff;
   };
   operatorReviewReadiness?: {
     status: "ready_for_operator_review" | "not_ready_for_operator_review";

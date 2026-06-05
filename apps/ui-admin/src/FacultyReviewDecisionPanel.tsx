@@ -1,7 +1,7 @@
 import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import { Tag, Typography } from "antd";
 import type { ReactElement } from "react";
-import type { AdminCaseDefinedHumanoidPerformanceContract, AdminReviewPacketReplay } from "./api-client.js";
+import type { AdminCaseDefinedHumanoidPerformanceContract, AdminCaseDefinedHumanoidRuntimeHandoff, AdminReviewPacketReplay } from "./api-client.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
 type ClinicalEventReviewSummary = AdminReviewPacketReplay["clinicalEventReviewSummary"] | null | undefined;
@@ -90,6 +90,9 @@ export function FacultyReviewDecisionPanel({
             {`Canonical replay action: ${reviewReplayReadinessSummary.recommendedNextAction}`}
           </Typography.Paragraph>
           {humanoidPerformanceContract ? renderCaseDefinedHumanoidPerformanceContract(humanoidPerformanceContract) : null}
+          {(reviewReplayReadinessSummary.caseDefinedHumanoidRuntimeHandoff?.length ?? 0) > 0
+            ? renderCaseDefinedHumanoidRuntimeHandoff(reviewReplayReadinessSummary.caseDefinedHumanoidRuntimeHandoff ?? [])
+            : null}
           {renderRuntimeVisualEvidenceReplayProjection(reviewReplayReadinessSummary)}
           {renderRuntimeVisualEvidenceFacultyFollowUp(reviewReplayReadinessSummary)}
           {renderAssetReleaseLadderReplayProjection(reviewReplayReadinessSummary)}
@@ -325,6 +328,35 @@ function renderCaseDefinedHumanoidPerformanceContract(
           `locomotionPlanningRequired:${String(contract.locomotionPlanningRequired)}`,
           contract.claimBoundary,
           `not evidence for ${contract.notEvidenceFor.join(", ")}`,
+        ].join("; ")}
+      </Typography.Paragraph>
+    </fieldset>
+  );
+}
+
+function renderCaseDefinedHumanoidRuntimeHandoff(
+  handoff: AdminCaseDefinedHumanoidRuntimeHandoff[],
+): ReactElement {
+  const actorRoles = Array.from(new Set(handoff.map((item) => item.actorRole)));
+  const requiredSignalIds = Array.from(new Set(handoff.flatMap((item) => item.requiredSignalIds)));
+  const blockers = Array.from(new Set(handoff.flatMap((item) => item.blockers)));
+  const notEvidenceFor = Array.from(new Set(handoff.flatMap((item) => item.notEvidenceFor)));
+  return (
+    <fieldset className="station-queue-row" aria-label="Faculty case-defined humanoid runtime handoff">
+      <Typography.Text strong>Faculty case-defined humanoid runtime handoff</Typography.Text>
+      <Typography.Paragraph type="secondary">
+        Case-defined humanoid runtime handoff context is deterministic faculty planning metadata only; it is not generated-humanoid-asset readiness, animation-quality approval, Quest-readiness, runtime-readiness, clinical-validity, or scoring-validity.
+      </Typography.Paragraph>
+      <Typography.Paragraph type="secondary">
+        {[
+          `${handoff.length} actor runtime handoffs`,
+          `roles ${actorRoles.join(", ") || "none"}`,
+          `${requiredSignalIds.length} required runtime signals`,
+          requiredSignalIds.join(", ") || "signals none",
+          `${blockers.length} handoff blockers`,
+          blockers.join(", ") || "blockers none",
+          handoff[0]?.claimBoundary ?? "case_definition_humanoid_runtime_handoff_metadata_only",
+          `not evidence for ${notEvidenceFor.join(", ")}`,
         ].join("; ")}
       </Typography.Paragraph>
     </fieldset>

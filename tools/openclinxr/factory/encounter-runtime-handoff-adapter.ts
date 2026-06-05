@@ -41,6 +41,7 @@ export type EncounterRuntimeHandoffAdapterReport = {
     providerExecutionApproved: boolean;
     providerExecutionConfigured: boolean;
   };
+  pedsRuntimeMaterializationHandoff?: NonNullable<EncounterLocalLaunchSelectionReport["pedsRuntimeMaterializationHandoff"]>;
   blockers: string[];
   notEvidenceFor: Array<"quest_readiness" | "production_readiness" | "clinical_validity" | "scoring_validity" | "provider_readiness">;
   claimBoundary: "runtime_handoff_adapter_not_learner_launch";
@@ -109,6 +110,9 @@ export function buildEncounterRuntimeHandoffAdapterReport(
     localRuntimeHandoffAllowed,
     actorRuntimeHandoffs,
     evidenceGates,
+    ...(launchSelection.pedsRuntimeMaterializationHandoff
+      ? { pedsRuntimeMaterializationHandoff: launchSelection.pedsRuntimeMaterializationHandoff }
+      : {}),
     blockers,
     notEvidenceFor: ["quest_readiness", "production_readiness", "clinical_validity", "scoring_validity", "provider_readiness"],
     claimBoundary: "runtime_handoff_adapter_not_learner_launch",

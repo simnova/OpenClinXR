@@ -13,6 +13,7 @@ import {
   buildEncounterPublicationPayloadReport,
   type EncounterPublicationCaseDefinedHumanoidRuntimeHandoff,
   type EncounterPublicationHumanoidRuntimeRequirement,
+  type EncounterPublicationPayloadReport,
 } from "./encounter-publication-payloads.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
 
@@ -107,6 +108,51 @@ const humanoidRuntimeRequirement = (
   gazeTargetRequired: true,
   visemeMapRequired: true,
   notEvidenceFor,
+});
+
+const pedsHumanoidMaterializationHandoff = (): NonNullable<EncounterPublicationPayloadReport["pedsHumanoidMaterializationHandoff"]> => ({
+  schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
+  source: "worker_role_specific_humanoid_glb_materialization_metadata",
+  scenarioId: "peds_asthma_parent_anxiety_v1",
+  targetKind: "role_specific_humanoid_glb",
+  generatedAssetsMaterialized: true,
+  localCandidateAssetsSelected: true,
+  reviewPacketPath: "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
+  assets: [
+    {
+      actorRole: "patient",
+      assetPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+      runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+      provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+      generatorMode: "anny_compatible_stub_plus_blender_procedural",
+      sourceKind: "case_driven_generated_humanoid_candidate",
+      realAnnyWeightsUsed: false,
+      textureMode: "procedural_fallback",
+      animationMode: "procedural_animation_fallback",
+      realismGrade: "B",
+      promotionStatus: "runtime_candidate_not_realism_gate_pass",
+      notEvidenceFor: ["real_anny_model_output", "b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    },
+    {
+      actorRole: "anxious_parent",
+      assetPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+      provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+      generatorMode: "anny_compatible_stub_plus_blender_procedural",
+      sourceKind: "case_driven_generated_humanoid_candidate",
+      realAnnyWeightsUsed: false,
+      textureMode: "procedural_fallback",
+      animationMode: "procedural_animation_fallback",
+      realismGrade: "B",
+      promotionStatus: "runtime_candidate_not_realism_gate_pass",
+      notEvidenceFor: ["real_anny_model_output", "b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
+    },
+  ],
+  productionReadinessClaimed: false,
+  questReadinessClaimed: false,
+  clinicalValidityClaimed: false,
+  scoringValidityClaimed: false,
+  claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
 });
 
 describe("encounter local launch selection", () => {
@@ -318,6 +364,90 @@ describe("encounter local launch selection", () => {
       allRequiredSlotsSatisfied: false,
     });
     expect(validateEncounterLocalLaunchSelectionReport(report)).toEqual({ ok: true });
+  });
+
+  it("summarizes pediatric humanoid materialization handoff for launch/runtime asset preference without readiness claims", async () => {
+    const publication = await buildEncounterPublicationPayloadReport({
+      queueReport: buildEncounterAssetGenerationQueueReport({ generatedAt: "2026-05-23T12:00:00.000Z" }),
+      bundleReport: bundleReport(),
+      generatedAt: "2026-05-23T12:30:00.000Z",
+    });
+    const report = buildEncounterLocalLaunchSelectionReport({
+      ...publication,
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      stationId: "pediatric_urgent_care_station_v1",
+      publicationTargets: {
+        ...publication.publicationTargets,
+        learnerRuntimeBundleId: "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
+      },
+      localArtifacts: {
+        ...publication.localArtifacts,
+        sceneManifestPath: ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_executable_v1/scene-manifest.v1.json",
+        learnerRuntimeBundlePath: ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_executable_v1/learner-runtime-bundle.v1.json",
+        uiXrPublicSceneManifestPath: "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+        uiXrPublicLearnerRuntimeBundlePath: "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+      },
+      pedsHumanoidMaterializationHandoff: pedsHumanoidMaterializationHandoff(),
+    }, "2026-06-05T00:00:00.000Z");
+
+    expect(report).toMatchObject({
+      selectedScenarioId: "peds_asthma_parent_anxiety_v1",
+      selectedStationId: "pediatric_urgent_care_station_v1",
+      selectedRuntimeAssetBundleId: "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
+      sceneManifestUrl: "/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+      learnerRuntimeBundleUrl: "/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+      pedsRuntimeMaterializationHandoff: {
+        schemaVersion: "openclinxr.peds-runtime-materialization-handoff-summary.v1",
+        source: "publication_payload_pedsHumanoidMaterializationHandoff",
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        handoffAssetCount: 2,
+        generatedAssetsMaterialized: true,
+        localCandidateAssetsSelected: true,
+        productionReadinessClaimed: false,
+        questReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+        claimBoundary: "peds_humanoid_materialization_handoff_summary_metadata_only",
+      },
+      learnerLaunchAllowed: false,
+      evidenceBoundaries: {
+        learnerLaunchEnabled: false,
+        questReadinessClaimed: false,
+        productionReadinessClaimed: false,
+        clinicalValidityClaimed: false,
+        scoringValidityClaimed: false,
+      },
+    });
+    expect(report.pedsRuntimeMaterializationHandoff?.actorRuntimeAssetPreferences).toEqual([
+      expect.objectContaining({
+        actorRole: "patient",
+        runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+        provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+        realAnnyWeightsUsed: false,
+        realismGrade: "B",
+        promotionStatus: "runtime_candidate_not_realism_gate_pass",
+        claimBoundary: "metadata_only_runtime_asset_preference_not_readiness",
+      }),
+      expect.objectContaining({
+        actorRole: "anxious_parent",
+        runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+        realAnnyWeightsUsed: false,
+        realismGrade: "B",
+      }),
+    ]);
+    expect(validateEncounterLocalLaunchSelectionReport(report)).toEqual({ ok: true });
+    expect(validateEncounterLocalLaunchSelectionReport({
+      ...report,
+      pedsRuntimeMaterializationHandoff: {
+        ...report.pedsRuntimeMaterializationHandoff,
+        productionReadinessClaimed: true,
+      },
+    })).toEqual({
+      ok: false,
+      errors: expect.arrayContaining([
+        "/pedsRuntimeMaterializationHandoff/productionReadinessClaimed must be false",
+      ]),
+    });
   });
 
   it("rejects launch contracts that drift from selected scenario/runtime IDs", async () => {

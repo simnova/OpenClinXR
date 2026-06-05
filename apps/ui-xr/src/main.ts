@@ -91,6 +91,8 @@ import {
   type ReadableVrTextPanelEvidence,
   type ReadableVrTextPanelEvidenceSet,
   type RigPoseEvidence,
+  type RuntimeMaterializationEvidenceAttachmentSummary,
+  type RuntimeRemainingRuntimeBlockerReasons,
   type RuntimeEvidencePosture,
   type RuntimeInteractionEvidence,
   type RuntimeSceneManifestEvidence,
@@ -2324,7 +2326,7 @@ function formatLearnerRuntimeUseGate(evidence: LearnerRuntimeUseGateEvidence | n
 }
 
 function formatRemainingRuntimeBlockerReasons(
-  reasons: LearnerRuntimeUseGateEvidence["actorEquipmentMaterializationGate"]["remainingRuntimeBlockerReasons"] | null | undefined,
+  reasons: RuntimeRemainingRuntimeBlockerReasons | null | undefined,
 ): string {
   if (!reasons) {
     return "";
@@ -2334,7 +2336,7 @@ function formatRemainingRuntimeBlockerReasons(
 }
 
 function formatMaterializationAttachmentSummary(
-  summary: LearnerRuntimeUseGateEvidence["actorEquipmentMaterializationGate"]["materializationEvidenceAttachmentSummary"] | null | undefined,
+  summary: RuntimeMaterializationEvidenceAttachmentSummary | null | undefined,
 ): string {
   if (!summary) {
     return "";
@@ -2722,7 +2724,7 @@ function createStationScene(): StationSceneRuntime {
         },
         undefined,
         (err) => {
-          gltfEnvContainer.userData.actualGltfLoadError = String(err && (err.message || err));
+          gltfEnvContainer.userData.actualGltfLoadError = err instanceof Error ? err.message : String(err);
           // world remains valid via the three props (exam_table etc) + container (the "produce real" manifest is in the packet/scaffold for factory to use)
         }
       );
@@ -3188,7 +3190,7 @@ function createStationScene(): StationSceneRuntime {
       const isAffect = cueData.cue && (cueData.cue.includes('anx') || cueData.cue.includes('fright') || cueData.cue.includes('urgent') || cueData.cue.includes('parent'));
       const targetIntensity = isAffect ? Math.min(baseIntensity * 1.8, 0.35) : baseIntensity * 0.6;
       gltfEnvContainer.traverse((obj) => {
-        if (obj.material && typeof obj.material.emissiveIntensity === 'number') {
+        if (obj instanceof Mesh && !Array.isArray(obj.material) && typeof obj.material.emissiveIntensity === 'number') {
           obj.material.emissiveIntensity = targetIntensity;
         }
         if (obj.scale && isAffect) {
@@ -5846,7 +5848,7 @@ function loadGeneratedHumanoidIntoActorSlot(
     sceneObjectName: options.objectName,
     status: "pending",
     fallbackActive: false,
-    humanoidSourceProvenance,
+    ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
   });
   humanoidLoader.load(
     actorSpecificAssetPath,
@@ -5970,7 +5972,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         animationPlayback: gltf.animations.length > 0
           ? "gltf_animation_clips_playing"
           : "procedural_dialogue_expression_gaze_fallback",
-        humanoidSourceProvenance,
+        ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
       });
       recordBootPhase("generated_humanoid_asset_loaded");
     },
@@ -5989,7 +5991,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         sceneObjectName: options.objectName,
         status: "failed",
         fallbackActive: true,
-        humanoidSourceProvenance,
+        ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
         affordanceCueIds: runtimeAssetAffordanceCueIds(options.assetId, [
           "primitive_actor_restored_after_generated_humanoid_load_failed",
           "case_definition_driven_role_pose_applied_to_fallback_actor",

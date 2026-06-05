@@ -34,6 +34,7 @@ export type EncounterLocalLaunchSelectionReport = {
   };
   launchContract: EncounterLocalLaunchContract;
   actorEquipmentMaterializationGate: EncounterLocalLaunchContract["actorEquipmentMaterializationGate"];
+  pedsRuntimeMaterializationHandoff?: PedsRuntimeMaterializationHandoffSummary;
   realismEvidenceRefs: {
     claimBoundary: "metadata_only_not_runtime_or_visual_quality_evidence" | "unavailable";
     refIds: string[];
@@ -58,6 +59,29 @@ export type EncounterLocalLaunchSelectionReport = {
     scoringValidityClaimed: false;
   };
   claimBoundary: "local_launch_selection_not_runtime_readiness";
+};
+
+export type PedsRuntimeMaterializationHandoffSummary = {
+  schemaVersion: "openclinxr.peds-runtime-materialization-handoff-summary.v1";
+  source: "publication_payload_pedsHumanoidMaterializationHandoff";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  handoffAssetCount: number;
+  actorRuntimeAssetPreferences: Array<{
+    actorRole: string;
+    runtimeAssetPath: string;
+    provenanceManifestPath: string;
+    realAnnyWeightsUsed: false;
+    realismGrade: "B";
+    promotionStatus?: string;
+    claimBoundary: "metadata_only_runtime_asset_preference_not_readiness";
+  }>;
+  generatedAssetsMaterialized: boolean;
+  localCandidateAssetsSelected: boolean;
+  productionReadinessClaimed: false;
+  questReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "peds_humanoid_materialization_handoff_summary_metadata_only";
 };
 
 export type EncounterLocalLaunchContract = {
@@ -148,6 +172,7 @@ export function buildEncounterLocalLaunchSelectionReport(
   generatedAt = new Date().toISOString(),
 ): EncounterLocalLaunchSelectionReport {
   const scenarioId = publicationReport.scenarioId;
+  const pedsRuntimeMaterializationHandoff = summarizePedsRuntimeMaterializationHandoff(publicationReport);
   const blockers = uniqueStrings([
     ...publicationReport.blockers,
     ...(publicationReport.status === "materialized" ? [] : ["publication_payload_not_materialized"]),
@@ -185,6 +210,7 @@ export function buildEncounterLocalLaunchSelectionReport(
     },
     launchContract: buildEncounterLocalLaunchContract(publicationReport, blockers),
     actorEquipmentMaterializationGate: summarizeActorEquipmentMaterializationGate(publicationReport),
+    ...(pedsRuntimeMaterializationHandoff ? { pedsRuntimeMaterializationHandoff } : {}),
     realismEvidenceRefs: summarizeRealismEvidenceRefs(publicationReport),
     learnerLaunchAllowed: false,
     blockers,
@@ -215,6 +241,7 @@ export function validateEncounterLocalLaunchSelectionReport(value: unknown): Val
   requireRecord(value.selectedAssetCounts, "/selectedAssetCounts", errors);
   validateLaunchContract(value.launchContract, errors);
   validateLaunchMaterializationGate(value.actorEquipmentMaterializationGate, "/actorEquipmentMaterializationGate", errors);
+  if (value.pedsRuntimeMaterializationHandoff !== undefined) validatePedsRuntimeMaterializationHandoffSummary(value.pedsRuntimeMaterializationHandoff, errors);
   validateRealismEvidenceRefs(value.realismEvidenceRefs, errors);
   requireRecord(value.evidenceBoundaries, "/evidenceBoundaries", errors);
   requireArray(value.dynamicBehaviorTags, "/dynamicBehaviorTags", errors);
@@ -257,6 +284,35 @@ export function validateEncounterLocalLaunchSelectionReport(value: unknown): Val
     requireLiteral(value.evidenceBoundaries.scoringValidityClaimed, false, "/evidenceBoundaries/scoringValidityClaimed", errors);
   }
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function summarizePedsRuntimeMaterializationHandoff(
+  report: EncounterPublicationPayloadReport,
+): PedsRuntimeMaterializationHandoffSummary | undefined {
+  const handoff = report.pedsHumanoidMaterializationHandoff;
+  if (!handoff || report.scenarioId !== "peds_asthma_parent_anxiety_v1") return undefined;
+  return {
+    schemaVersion: "openclinxr.peds-runtime-materialization-handoff-summary.v1",
+    source: "publication_payload_pedsHumanoidMaterializationHandoff",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    handoffAssetCount: handoff.assets.length,
+    actorRuntimeAssetPreferences: handoff.assets.map((asset) => ({
+      actorRole: asset.actorRole,
+      runtimeAssetPath: asset.runtimeAssetPath || asset.assetPath,
+      provenanceManifestPath: asset.provenanceManifestPath,
+      realAnnyWeightsUsed: false,
+      realismGrade: "B",
+      ...(asset.promotionStatus ? { promotionStatus: asset.promotionStatus } : {}),
+      claimBoundary: "metadata_only_runtime_asset_preference_not_readiness",
+    })),
+    generatedAssetsMaterialized: handoff.generatedAssetsMaterialized,
+    localCandidateAssetsSelected: handoff.localCandidateAssetsSelected,
+    productionReadinessClaimed: false,
+    questReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "peds_humanoid_materialization_handoff_summary_metadata_only",
+  };
 }
 
 function compareStringFields(left: unknown, right: unknown, leftPath: string, rightPath: string, errors: string[]): void {
@@ -516,6 +572,46 @@ function validateLaunchMaterializationGate(value: unknown, path: string, errors:
     const blockerCount = (Array.isArray(value.actorBlockers) ? value.actorBlockers.length : 0)
       + (Array.isArray(value.equipmentBlockers) ? value.equipmentBlockers.length : 0);
     if (blockerCount === 0) errors.push(`${path} must include actor or equipment blockers when runtime selection is blocked`);
+  }
+}
+
+function validatePedsRuntimeMaterializationHandoffSummary(value: unknown, errors: string[]): void {
+  requireRecord(value, "/pedsRuntimeMaterializationHandoff", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.peds-runtime-materialization-handoff-summary.v1", "/pedsRuntimeMaterializationHandoff/schemaVersion", errors);
+  requireLiteral(value.source, "publication_payload_pedsHumanoidMaterializationHandoff", "/pedsRuntimeMaterializationHandoff/source", errors);
+  requireLiteral(value.scenarioId, "peds_asthma_parent_anxiety_v1", "/pedsRuntimeMaterializationHandoff/scenarioId", errors);
+  requireNumber(value.handoffAssetCount, "/pedsRuntimeMaterializationHandoff/handoffAssetCount", errors);
+  requireArray(value.actorRuntimeAssetPreferences, "/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences", errors);
+  requireLiteral(value.productionReadinessClaimed, false, "/pedsRuntimeMaterializationHandoff/productionReadinessClaimed", errors);
+  requireLiteral(value.questReadinessClaimed, false, "/pedsRuntimeMaterializationHandoff/questReadinessClaimed", errors);
+  requireLiteral(value.clinicalValidityClaimed, false, "/pedsRuntimeMaterializationHandoff/clinicalValidityClaimed", errors);
+  requireLiteral(value.scoringValidityClaimed, false, "/pedsRuntimeMaterializationHandoff/scoringValidityClaimed", errors);
+  requireLiteral(value.claimBoundary, "peds_humanoid_materialization_handoff_summary_metadata_only", "/pedsRuntimeMaterializationHandoff/claimBoundary", errors);
+  if (Array.isArray(value.actorRuntimeAssetPreferences)) {
+    if (typeof value.handoffAssetCount === "number" && value.actorRuntimeAssetPreferences.length !== value.handoffAssetCount) {
+      errors.push("/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences must match handoffAssetCount");
+    }
+    value.actorRuntimeAssetPreferences.forEach((preference, index) => {
+      if (!isRecord(preference)) {
+        errors.push(`/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index} must be object`);
+        return;
+      }
+      requireLiteral(preference.realAnnyWeightsUsed, false, `/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index}/realAnnyWeightsUsed`, errors);
+      requireLiteral(preference.realismGrade, "B", `/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index}/realismGrade`, errors);
+      requireLiteral(
+        preference.claimBoundary,
+        "metadata_only_runtime_asset_preference_not_readiness",
+        `/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index}/claimBoundary`,
+        errors,
+      );
+      if (typeof preference.runtimeAssetPath !== "string" || !preference.runtimeAssetPath.startsWith("/")) {
+        errors.push(`/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index}/runtimeAssetPath must be a public runtime asset path`);
+      }
+      if (typeof preference.provenanceManifestPath !== "string" || preference.provenanceManifestPath.length === 0) {
+        errors.push(`/pedsRuntimeMaterializationHandoff/actorRuntimeAssetPreferences/${index}/provenanceManifestPath must be non-empty`);
+      }
+    });
   }
 }
 

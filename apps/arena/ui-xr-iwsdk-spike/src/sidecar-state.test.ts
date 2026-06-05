@@ -5,6 +5,7 @@ import {
   buildIwsdkSidecarFrameStats,
   buildIwsdkSidecarIwerInputProbeEvidence,
   buildIwsdkSidecarLocalMetricsEvidence,
+  buildIwsdkSidecarPedsHumanoidMaterializationParityEvidence,
   buildIwsdkSidecarRuntimeEvidence,
   buildIwsdkSidecarXrEntryEvidence,
   completeIwsdkSidecarTraceAction,
@@ -59,6 +60,52 @@ describe("IWSDK sidecar runtime state", () => {
       handTrackingPosture: "optional_feature_with_primitive_hand_model",
       locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
     }));
+  });
+
+  it("checks peds humanoid handoff parity from the public UI-XR bundle without runtime readiness claims", () => {
+    const bundle = JSON.parse(readFileSync(
+      new URL("../../../ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json", import.meta.url),
+      "utf8",
+    )) as {
+      pedsHumanoidMaterializationHandoff: Parameters<typeof buildIwsdkSidecarPedsHumanoidMaterializationParityEvidence>[0];
+    };
+
+    expect(buildIwsdkSidecarPedsHumanoidMaterializationParityEvidence(
+      bundle.pedsHumanoidMaterializationHandoff,
+    )).toEqual({
+      schemaVersion: "openclinxr.iwsdk-sidecar-peds-humanoid-materialization-parity.v1",
+      source: "apps_ui_xr_public_peds_learner_runtime_bundle",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      sidecar: "apps/arena/ui-xr-iwsdk-spike",
+      expectedActorRoles: ["patient", "anxious_parent"],
+      observedActorRoles: ["patient", "anxious_parent"],
+      runtimeAssetPaths: [
+        "/generated-humanoids/peds_patient_child.glb",
+        "/generated-humanoids/peds_anxious_parent.glb",
+      ],
+      provenanceManifestPaths: [
+        "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+        "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+      ],
+      readyForSidecarParityEvidence: true,
+      readyForProductionRuntime: false,
+      readyForPhysicalQuestClaim: false,
+      productionReadinessClaimed: false,
+      questReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      blockers: [],
+      claimBoundary: "iwsdk_sidecar_peds_handoff_parity_metadata_only_not_runtime_or_quest_readiness",
+      notEvidenceFor: [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "physical_quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "learner_launch_readiness",
+      ],
+    });
   });
 
   it("summarizes sidecar frame deltas for Quest CDP and manual headset evidence", () => {

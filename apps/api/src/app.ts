@@ -105,6 +105,31 @@ function readMaterializationInputManifestSummaryForScenario(scenarioId: string):
   return summary;
 }
 
+function readPedsHumanoidMaterializationHandoffForScenario(scenarioId: string): unknown | undefined {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1") return undefined;
+  const bundle = readRepoGeneratedJsonIfExists(
+    "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+  );
+  if (!isRecord(bundle)) return undefined;
+  return bundle["pedsHumanoidMaterializationHandoff"];
+}
+
+function attachPedsHumanoidMaterializationHandoff(packet: unknown): unknown {
+  if (!isRecord(packet)) return packet;
+  if (packet["selectedScenarioId"] !== "peds_asthma_parent_anxiety_v1") return packet;
+  if (!isRecord(packet["publicationPayloadLinkage"])) return packet;
+  if (packet["publicationPayloadLinkage"]["pedsHumanoidMaterializationHandoff"] !== undefined) return packet;
+  const handoff = readPedsHumanoidMaterializationHandoffForScenario(packet["selectedScenarioId"]);
+  if (!handoff) return packet;
+  return {
+    ...packet,
+    publicationPayloadLinkage: {
+      ...packet["publicationPayloadLinkage"],
+      pedsHumanoidMaterializationHandoff: handoff,
+    },
+  };
+}
+
 function readMaterializationAttachmentPlanSummaryForScenario(scenarioId: string): unknown | undefined {
   const workerReport = readRepoGeneratedJsonIfExists(
     "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
@@ -958,13 +983,13 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get(routeById("runtime-selection-review-packet").path, (context) => {
-    const durablePacket = readGeneratedJsonIfExists(
+    const durablePacket = readRepoGeneratedJsonIfExists(
       "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
     );
     if (durablePacket) {
       const packetWithSummary = attachMaterializationEvidenceAttachmentSummary(
         attachMaterializationAttachmentPlanSummary(
-          attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(durablePacket)),
+          attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(attachPedsHumanoidMaterializationHandoff(durablePacket))),
         ),
       );
       const packetWithRuntimeReviewRecord = attachRuntimeRealismEvidenceInputReviewDecisionRecord(packetWithSummary, runtimeRealismEvidenceInputReviewDecisionRecord);

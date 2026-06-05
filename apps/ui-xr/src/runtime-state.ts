@@ -2163,7 +2163,7 @@ const RUNTIME_VISUAL_EVIDENCE_NOT_EVIDENCE_FOR = [
 
 type RuntimeVisualEvidenceCaptureScaffoldInput = Omit<
   ManualPerformanceEvidencePayload,
-  "runtimeVisualEvidenceCaptureScaffold"
+  "runtimeVisualEvidenceCaptureScaffold" | "runtimeEvidenceConsumerReadiness"
 >;
 
 export function buildRuntimeVisualEvidenceCaptureScaffold(

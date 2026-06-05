@@ -87,6 +87,61 @@ describe("static browser assets", () => {
     expect(runtimeStateSource).toContain("approvedLocalFixtureOnly");
   });
 
+  it("publishes the pediatric humanoid materialization handoff in the public learner bundle without readiness claims", () => {
+    const bundle = JSON.parse(readFileSync(new URL("../public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json", import.meta.url), "utf8")) as {
+      scenarioId: string;
+      pedsHumanoidMaterializationHandoff?: {
+        schemaVersion: string;
+        scenarioId: string;
+        assets: Array<{
+          actorRole: string;
+          runtimeAssetPath: string;
+          provenanceManifestPath: string;
+          realAnnyWeightsUsed: boolean;
+          realismGrade: string;
+          promotionStatus?: string;
+          notEvidenceFor: string[];
+        }>;
+        productionReadinessClaimed: boolean;
+        questReadinessClaimed: boolean;
+        clinicalValidityClaimed: boolean;
+        scoringValidityClaimed: boolean;
+        claimBoundary: string;
+      };
+    };
+
+    expect(bundle.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(bundle.pedsHumanoidMaterializationHandoff).toMatchObject({
+      schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      productionReadinessClaimed: false,
+      questReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
+    });
+    expect(bundle.pedsHumanoidMaterializationHandoff?.assets).toEqual([
+      expect.objectContaining({
+        actorRole: "patient",
+        runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+        provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+        realAnnyWeightsUsed: false,
+        realismGrade: "B",
+        promotionStatus: "runtime_candidate_not_realism_gate_pass",
+        notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness"]),
+      }),
+      expect.objectContaining({
+        actorRole: "anxious_parent",
+        runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+        provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+        realAnnyWeightsUsed: false,
+        realismGrade: "B",
+        promotionStatus: "runtime_candidate_not_realism_gate_pass",
+        notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness"]),
+      }),
+    ]);
+  });
+
   it("exposes timed encounter progression and patient note evidence for station-to-station runs", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const styles = readFileSync(new URL("./styles.css", import.meta.url), "utf8");

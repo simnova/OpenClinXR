@@ -29,6 +29,55 @@ export type IwsdkSidecarRuntimeEvidence = {
   traceActionTags: string[];
 };
 
+export type IwsdkSidecarPedsHumanoidMaterializationHandoffInput = {
+  schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1";
+  scenarioId: string;
+  assets?: Array<{
+    actorRole?: string;
+    runtimeAssetPath?: string;
+    assetPath?: string;
+    provenanceManifestPath?: string;
+    realAnnyWeightsUsed?: boolean;
+    realismGrade?: string;
+    promotionStatus?: string;
+    notEvidenceFor?: string[];
+  }>;
+  productionReadinessClaimed?: boolean;
+  questReadinessClaimed?: boolean;
+  clinicalValidityClaimed?: boolean;
+  scoringValidityClaimed?: boolean;
+  claimBoundary?: string;
+};
+
+export type IwsdkSidecarPedsHumanoidMaterializationParityEvidence = {
+  schemaVersion: "openclinxr.iwsdk-sidecar-peds-humanoid-materialization-parity.v1";
+  source: "apps_ui_xr_public_peds_learner_runtime_bundle";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  sidecar: "apps/arena/ui-xr-iwsdk-spike";
+  expectedActorRoles: readonly ["patient", "anxious_parent"];
+  observedActorRoles: string[];
+  runtimeAssetPaths: string[];
+  provenanceManifestPaths: string[];
+  readyForSidecarParityEvidence: boolean;
+  readyForProductionRuntime: false;
+  readyForPhysicalQuestClaim: false;
+  productionReadinessClaimed: false;
+  questReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  blockers: string[];
+  claimBoundary: "iwsdk_sidecar_peds_handoff_parity_metadata_only_not_runtime_or_quest_readiness";
+  notEvidenceFor: readonly [
+    "real_anny_model_output",
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "physical_quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "learner_launch_readiness",
+  ];
+};
+
 export type IwsdkSidecarXrSessionMode = "immersive-vr" | "immersive-ar";
 
 export type IwsdkSidecarXrEntryStatus =
@@ -242,6 +291,60 @@ export function buildIwsdkSidecarRuntimeEvidence(input: {
     locomotionPosture: "experimental_keyboard_and_thumbstick_dolly",
     requiredSceneObjectNames: [...iwsdkSidecarSceneObjectNames],
     traceActionTags: [...iwsdkSidecarTraceActionTags],
+  };
+}
+
+export function buildIwsdkSidecarPedsHumanoidMaterializationParityEvidence(
+  handoff: IwsdkSidecarPedsHumanoidMaterializationHandoffInput,
+): IwsdkSidecarPedsHumanoidMaterializationParityEvidence {
+  const expectedActorRoles = ["patient", "anxious_parent"] as const;
+  const assets = handoff.assets ?? [];
+  const observedActorRoles = assets.flatMap((asset) => asset.actorRole ? [asset.actorRole] : []);
+  const runtimeAssetPaths = assets.flatMap((asset) => {
+    const runtimeAssetPath = asset.runtimeAssetPath ?? asset.assetPath;
+    return runtimeAssetPath ? [runtimeAssetPath] : [];
+  });
+  const provenanceManifestPaths = assets.flatMap((asset) => asset.provenanceManifestPath ? [asset.provenanceManifestPath] : []);
+  const blockers = [
+    handoff.schemaVersion === "openclinxr.peds-humanoid-materialization-handoff.v1" ? undefined : "peds_handoff_schema_version_mismatch",
+    handoff.scenarioId === "peds_asthma_parent_anxiety_v1" ? undefined : "peds_handoff_scenario_mismatch",
+    ...expectedActorRoles.filter((role) => !observedActorRoles.includes(role)).map((role) => `peds_handoff_missing_actor_role:${role}`),
+    ...assets.filter((asset) => asset.realAnnyWeightsUsed !== false).map((asset) => `peds_handoff_real_anny_claim_not_false:${asset.actorRole ?? "unknown"}`),
+    ...assets.filter((asset) => asset.realismGrade !== "B").map((asset) => `peds_handoff_unexpected_realism_grade:${asset.actorRole ?? "unknown"}`),
+    ...assets.filter((asset) => asset.promotionStatus !== "runtime_candidate_not_realism_gate_pass").map((asset) => `peds_handoff_unexpected_promotion_status:${asset.actorRole ?? "unknown"}`),
+    handoff.productionReadinessClaimed === false ? undefined : "peds_handoff_production_claim_not_false",
+    handoff.questReadinessClaimed === false ? undefined : "peds_handoff_quest_claim_not_false",
+    handoff.clinicalValidityClaimed === false ? undefined : "peds_handoff_clinical_claim_not_false",
+    handoff.scoringValidityClaimed === false ? undefined : "peds_handoff_scoring_claim_not_false",
+  ].filter((blocker): blocker is string => blocker !== undefined);
+
+  return {
+    schemaVersion: "openclinxr.iwsdk-sidecar-peds-humanoid-materialization-parity.v1",
+    source: "apps_ui_xr_public_peds_learner_runtime_bundle",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    sidecar: "apps/arena/ui-xr-iwsdk-spike",
+    expectedActorRoles,
+    observedActorRoles,
+    runtimeAssetPaths,
+    provenanceManifestPaths,
+    readyForSidecarParityEvidence: blockers.length === 0,
+    readyForProductionRuntime: false,
+    readyForPhysicalQuestClaim: false,
+    productionReadinessClaimed: false,
+    questReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    blockers,
+    claimBoundary: "iwsdk_sidecar_peds_handoff_parity_metadata_only_not_runtime_or_quest_readiness",
+    notEvidenceFor: [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "physical_quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "learner_launch_readiness",
+    ],
   };
 }
 

@@ -1855,6 +1855,21 @@ describe("OpenClinXR API shell", () => {
       publicationPayloadLinkage: {
         source: string;
         status: string;
+        pedsHumanoidMaterializationHandoff?: {
+          claimBoundary: string;
+          productionReadinessClaimed: boolean;
+          questReadinessClaimed: boolean;
+          clinicalValidityClaimed: boolean;
+          scoringValidityClaimed: boolean;
+          assets: Array<{
+            actorRole: string;
+            runtimeAssetPath: string;
+            realAnnyWeightsUsed: boolean;
+            realismGrade: string;
+            promotionStatus: string;
+            notEvidenceFor: string[];
+          }>;
+        };
         localMaterializationHandoff: {
           plannedOutputCount: number;
           materializedOutputCount: number;
@@ -1892,6 +1907,49 @@ describe("OpenClinXR API shell", () => {
         externalNetworkUsed: boolean;
         claimBoundary: string;
       };
+      materializationEvidenceAttachmentSummary?: {
+        totalRequiredSlotCount: number;
+        attachedSlotCount: number;
+        missingSlotCount: number;
+        heldOrInvalidAttachmentCount: number;
+        allRequiredSlotsSatisfied: boolean;
+        runtimeSelectionAllowed: boolean;
+        learnerLaunchAllowed: boolean;
+        questEvidenceRefreshAllowed: boolean;
+        claimBoundary: string;
+      };
+      runtimeRealismEvidenceInputDraft?: {
+        status: string;
+        runtimeActorEvidenceInputs: Array<{ actorId: string; requiredEvidenceStatus: string }>;
+        visualQaEvidenceInputs: Array<{ targetId: string; requiredEvidenceStatus: string }>;
+        gateBoundary: {
+          providerExecutionAllowed: boolean;
+          providerExecutionPerformed: boolean;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+          productionAssetReadinessClaimed: boolean;
+          clinicalValidityClaimed: boolean;
+          scoringValidityClaimed: boolean;
+        };
+      };
+      runtimeEvidenceCaptureScaffold?: {
+        runtimeEvidenceCandidateCount: number;
+        visualQaEvidenceCandidateCount: number;
+        submitRuntimeVisualEvidenceAttachmentInput: {
+          scenarioId: string;
+          attachments: Array<{ inputId: string; actionId: string }>;
+        };
+        gateBoundary: {
+          providerExecutionAllowed: boolean;
+          runtimeExecutionAllowed: boolean;
+          learnerLaunchAllowed: boolean;
+          questEvidenceRefreshAllowed: boolean;
+          productionAssetReadinessClaimed: boolean;
+          clinicalValidityClaimed: boolean;
+          scoringValidityClaimed: boolean;
+        };
+      };
       blockers: string[];
       nextAllowedStep: string;
       claimBoundary: string;
@@ -1901,9 +1959,9 @@ describe("OpenClinXR API shell", () => {
     expect(response.status).toBe(200);
     expect(body).toMatchObject({
       schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",
-      source: "api_local_runtime_bundle_fixture",
+      source: "encounter_guarded_runtime_selection_intent",
       reviewPacketMode: "read_only_guarded_runtime_handoff",
-      selectedScenarioId: "ed_chest_pain_priority_v1",
+      selectedScenarioId: "peds_asthma_parent_anxiety_v1",
       runtimeExecutionAllowed: false,
       learnerLaunchAllowed: false,
       providerExecutionPerformed: false,
@@ -1911,7 +1969,7 @@ describe("OpenClinXR API shell", () => {
       questEvidenceRefreshed: false,
       broadVerificationPerformed: false,
       guardedRuntimeSelectorDecision: {
-        selectionStatus: "disabled_guard_not_runtime_execution",
+        selectionStatus: "blocked_intent_bundle_missing",
         claimBoundary: "guarded_runtime_selector_seam_not_runtime_execution",
         runtimeExecutionAllowed: false,
         learnerLaunchAllowed: false,
@@ -1921,7 +1979,7 @@ describe("OpenClinXR API shell", () => {
       },
       publicationPayloadLinkage: {
         source: "encounter_publication_payloads",
-        status: "blocked",
+        status: "materialized",
         localMaterializationHandoff: {
           plannedOutputCount: 8,
           materializedOutputCount: 0,
@@ -1929,14 +1987,14 @@ describe("OpenClinXR API shell", () => {
         },
         assetNeedsReadiness: {
           requiredHumanoidRoles: ["patient", "family", "nurse"],
-          sharedAssetLibrarySemanticKeyCount: 8,
+          sharedAssetLibrarySemanticKeyCount: 16,
         },
         realismEvidenceRefs: {
           refIds: ["humanoid-realism-gate", "runtime-realism-evidence-check", "visual-qa-evidence-check"],
           refs: expect.arrayContaining([
             expect.objectContaining({
               refId: "humanoid-realism-gate",
-              evidenceRef: "encounter-publication-realism://ed_chest_pain_priority_v2/encounter_assets_ed_chest_pain_priority_executable_v1/humanoid-realism-gate/0-actors",
+              evidenceRef: "encounter-publication-realism://peds_asthma_parent_anxiety_v1/encounter_assets_peds_asthma_parent_anxiety_executable_v1/humanoid-realism-gate/3-actors",
               status: "required_not_attached",
             }),
           ]),
@@ -1948,7 +2006,7 @@ describe("OpenClinXR API shell", () => {
       operatorReviewReadiness: {
         status: "not_ready_for_operator_review",
         reviewedArtifactCount: 4,
-        blockingArtifactCount: 4,
+        blockingArtifactCount: 47,
         materializationRequiredBeforeRuntime: true,
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
@@ -1969,17 +2027,48 @@ describe("OpenClinXR API shell", () => {
       "runtime_selector_disabled_guard_not_wired",
       "provider_execution_disabled_by_policy",
       "learner_launch_disabled_until_evidence_gates_clear",
+      "guarded_runtime_intent_bundle_missing",
       "publication_payload_not_materialized",
-      "humanoid_realism_requirement_actor_missing:family",
-      "runtime_selection_review_packet_api_surface_read_only",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
     ]));
     expect(body.publicationPayloadLinkage.localMaterializationHandoff.plannedOutputCount).toBeGreaterThan(
       body.publicationPayloadLinkage.localMaterializationHandoff.materializedOutputCount,
     );
+    expect(body.publicationPayloadLinkage.pedsHumanoidMaterializationHandoff).toMatchObject({
+      claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
+      productionReadinessClaimed: false,
+      questReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      assets: expect.arrayContaining([
+        expect.objectContaining({
+          actorRole: "patient",
+          runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+          realAnnyWeightsUsed: false,
+          realismGrade: "B",
+          promotionStatus: "runtime_candidate_not_realism_gate_pass",
+          notEvidenceFor: expect.arrayContaining([
+            "real_anny_model_output",
+            "b_plus_visual_realism_gate",
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity",
+          ]),
+        }),
+        expect.objectContaining({
+          actorRole: "anxious_parent",
+          runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+          realAnnyWeightsUsed: false,
+          realismGrade: "B",
+          promotionStatus: "runtime_candidate_not_realism_gate_pass",
+        }),
+      ]),
+    });
     expect(body.operatorReviewReadiness.blockerIds).toEqual(expect.arrayContaining([
       "runtime_selector_disabled_guard_not_wired",
       "publication_payload_not_materialized",
-      "humanoid_realism_requirement_actor_missing:family",
+      "actor_materialization_evidence_missing:patient_maya_johnson_v1:actor_specific_body_profile_required",
     ]));
     expect(body.operatorReviewReadiness.requiredOperatorActions).toEqual(expect.arrayContaining([
       "materialize_or_attach_generated_assets_before_guarded_runtime_wiring",

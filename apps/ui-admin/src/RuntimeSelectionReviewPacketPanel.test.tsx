@@ -170,6 +170,93 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
     expect(onSubmitRuntimeVisualEvidenceAttachment.mock.calls[0]?.[0].attachments).toHaveLength(12);
     expect(screen.getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("provider false; runtime false; learner false; Quest false");
   });
+
+  it("shows the peds humanoid handoff as review/replay metadata with false readiness claims", () => {
+    const basePacket = packetFixture();
+    if (!basePacket.publicationPayloadLinkage) throw new Error("packet fixture must include publication payload linkage");
+    const publicationPayloadLinkage = basePacket.publicationPayloadLinkage;
+    const packet: AdminRuntimeSelectionReviewPacket = {
+      ...basePacket,
+      selectedScenarioId: "peds_asthma_parent_anxiety_v1",
+      publicationPayloadLinkage: {
+        ...publicationPayloadLinkage,
+        pedsHumanoidMaterializationHandoff: {
+          schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
+          source: "worker_role_specific_humanoid_glb_materialization_metadata",
+          scenarioId: "peds_asthma_parent_anxiety_v1",
+          targetKind: "role_specific_humanoid_glb",
+          generatedAssetsMaterialized: true,
+          localCandidateAssetsSelected: true,
+          reviewPacketPath: "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
+          assets: [
+            {
+              actorRole: "patient",
+              assetPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+              runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
+              provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+              generatorMode: "anny_compatible_stub_plus_blender_procedural",
+              sourceKind: "case_driven_generated_humanoid_candidate",
+              realAnnyWeightsUsed: false,
+              textureMode: "procedural_fallback",
+              animationMode: "procedural_animation_fallback",
+              realismGrade: "B",
+              promotionStatus: "runtime_candidate_not_realism_gate_pass",
+              notEvidenceFor: [
+                "real_anny_model_output",
+                "b_plus_visual_realism_gate",
+                "production_asset_readiness",
+                "quest_readiness",
+                "clinical_validity",
+                "scoring_validity",
+              ],
+            },
+            {
+              actorRole: "anxious_parent",
+              assetPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+              runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
+              provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+              generatorMode: "anny_compatible_stub_plus_blender_procedural",
+              sourceKind: "case_driven_generated_humanoid_candidate",
+              realAnnyWeightsUsed: false,
+              textureMode: "procedural_fallback",
+              animationMode: "procedural_animation_fallback",
+              realismGrade: "B",
+              promotionStatus: "runtime_candidate_not_realism_gate_pass",
+              notEvidenceFor: [
+                "real_anny_model_output",
+                "b_plus_visual_realism_gate",
+                "production_asset_readiness",
+                "quest_readiness",
+                "clinical_validity",
+                "scoring_validity",
+              ],
+            },
+          ],
+          productionReadinessClaimed: false,
+          questReadinessClaimed: false,
+          clinicalValidityClaimed: false,
+          scoringValidityClaimed: false,
+          claimBoundary: "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness",
+        },
+      },
+    };
+
+    render(<RuntimeSelectionReviewPacketPanel packet={packet} />);
+
+    const panel = screen.getByLabelText("Runtime selection review packet");
+    expect(panel).toHaveTextContent("Peds humanoid materialization handoff");
+    expect(within(panel).getByLabelText("Peds humanoid materialization handoff metrics")).toHaveTextContent("local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness");
+    expect(within(panel).getByLabelText("Peds humanoid materialization handoff metrics")).toHaveTextContent("generated assets true; local candidates true");
+    expect(within(panel).getByLabelText("Peds humanoid materialization handoff metrics")).toHaveTextContent("production false; Quest false; clinical false; scoring false");
+    expect(within(panel).getByLabelText("Peds humanoid materialization handoff metrics")).toHaveTextContent("docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json");
+    expect(panel).toHaveTextContent("patient: /generated-humanoids/peds_patient_child.glb; grade B; real Anny false; runtime_candidate_not_realism_gate_pass");
+    expect(panel).toHaveTextContent("anxious_parent: /generated-humanoids/peds_anxious_parent.glb; grade B; real Anny false; runtime_candidate_not_realism_gate_pass");
+    expect(panel).toHaveTextContent("apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json");
+    expect(panel).toHaveTextContent("real_anny_model_output, b_plus_visual_realism_gate, production_asset_readiness, quest_readiness, clinical_validity, scoring_validity");
+    expect(panel.textContent).not.toContain("Quest ready");
+    expect(panel.textContent).not.toContain("learner launch ready");
+    expect(panel.textContent).not.toContain("clinically valid");
+  });
 });
 
 function packetFixture(): AdminRuntimeSelectionReviewPacket {
