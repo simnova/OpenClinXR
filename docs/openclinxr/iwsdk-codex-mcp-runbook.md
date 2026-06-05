@@ -9,7 +9,7 @@ This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling no
 
 This runbook does not install production IWSDK, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable validation sidecar using `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, `@iwsdk/vite-plugin-uikitml@0.4.2`, and `three@0.184.0`. Chrome DevTools MCP is configured for local browser/runtime evidence. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains blocked/future instead of being added to Codex/Grok MCP config. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
+Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable validation sidecar using `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, `@iwsdk/vite-plugin-uikitml@0.4.2`, and `three@0.184.0`. Chrome DevTools MCP is configured through `pnpm dlx chrome-devtools-mcp@1.1.1` for local browser/runtime evidence. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains blocked/future instead of being added to Codex/Grok MCP config. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
 
 Latest IWER managed-browser evidence:
 

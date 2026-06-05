@@ -69,9 +69,10 @@ output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces
 
 # Chrome DevTools MCP is enabled for runtime/browser validation evidence.
 # Current npm metadata checked 2026-06-05: chrome-devtools-mcp@1.1.1, Apache-2.0.
+# Use pnpm dlx so the workspace stays aligned with the repo package manager.
 [mcp_servers.chrome-devtools]
-command = "npx"
-args = ["-y", "chrome-devtools-mcp@1.1.1", "--headless"]
+command = "pnpm"
+args = ["dlx", "chrome-devtools-mcp@1.1.1", "--headless"]
 
 # --- UI / UX for long agentic sessions (rehydrations, autonomous loops, subagent threads) ---
 [ui]
