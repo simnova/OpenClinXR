@@ -104,6 +104,7 @@
     "asset:anny-skin:track-a-pbr": "tsx tools/openclinxr/evidence/anny-skin-track-a-pbr-cagematch.ts",
     "asset:anny-skin:track-a-pbr:validate": "tsx tools/openclinxr/evidence/anny-skin-track-a-pbr-cagematch.ts --validate-latest",
     "asset:anny-skin:realvisxl-direct-texture": "tsx tools/openclinxr/evidence/realvisxl-direct-texture-cagematch.ts",
+    "asset:anny-skin:comfy-masked-texture": "tsx tools/openclinxr/evidence/comfy-masked-face-texture-cagematch.ts",
     "asset:anny-skin:head-detail-texture": "python3 tools/openclinxr/evidence/create_head_detail_texture.py",
     "asset:anny-source:uv-masks": "python3 tools/openclinxr/evidence/create_anny_source_uv_masks.py",
     "asset:anny:mpfb2-eye-rig": "blender --background --python tools/openclinxr/asset-pipeline/anny/add_mpfb2_eye_rig.py --",

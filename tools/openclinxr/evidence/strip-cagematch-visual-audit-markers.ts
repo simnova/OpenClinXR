@@ -231,9 +231,16 @@ function parseArgs(args: string[]): CliOptions {
     else if (arg === "--candidate-id") options.candidateId = requireNext(args, ++index, arg);
     else if (arg === "--cleanup-report") options.cleanupReportPath = requireNext(args, ++index, arg);
     else if (arg === "--marker-prefixes") options.markerPrefixes = requireNext(args, ++index, arg).split(",").map((item) => item.trim()).filter(Boolean);
+    else if (arg === "--source-glb") options.inputPath = requireNext(args, ++index, arg);  // support documented query command shorthand for productivity
     else throw new Error(`Unknown option ${arg}`);
   }
   if (!options.inputPath) throw new Error("Missing --input");
+  if (!options.outputPath && options.inputPath) {
+    // auto-derive for documented --source-glb usage (place stripped next to input or conventional)
+    const dir = path.dirname(options.inputPath);
+    const base = path.basename(options.inputPath, path.extname(options.inputPath));
+    options.outputPath = path.join(dir, `${base}_stripped.glb`);
+  }
   if (!options.outputPath) throw new Error("Missing --output");
   if (options.markerPrefixes.length === 0) throw new Error("--marker-prefixes must include at least one prefix");
   return options;

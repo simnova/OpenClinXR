@@ -18,6 +18,7 @@ type CliOptions = {
   lane: string;
   runId: string;
   outputGlbName: string;
+  maskReportPath?: string; // optional: for mask-constrained composite input (when the provided --texture is a base albedo)
 };
 
 async function main(): Promise<void> {
@@ -200,11 +201,14 @@ function parseArgs(args: string[]): CliOptions {
     else if (arg === "--lane") options.lane = requireNext(args, ++index, arg);
     else if (arg === "--run-id") options.runId = requireNext(args, ++index, arg);
     else if (arg === "--output-glb-name") options.outputGlbName = requireNext(args, ++index, arg);
+    else if (arg === "--mask-report") options.maskReportPath = requireNext(args, ++index, arg);
     else throw new Error(`Unknown option ${arg}`);
   }
   if (!options.sourceReportPath) throw new Error("Missing --source-report");
   if (!options.sourceGlbPath) throw new Error("Missing --source-glb");
   if (!options.texturePath) throw new Error("Missing --texture");
+  // --mask-report is optional (used when the caller wants the apply step itself to respect source UV masks
+  // for the composite, e.g. when feeding a base RealVisXL albedo + mask instead of a pre-composited tile).
   return options;
 }
 
