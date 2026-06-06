@@ -44,4 +44,8 @@
 - Summary: Bun/Hono smokes green 2026-06-06; Grok LSP 2 servers via canonical lsp.json.
 - Confidence: 0.8
 - Recorded by: agent:memory:append
+- Policy tier: fast_bounded## Lesson 2026-06-06 — slice-2-protocol-posture-ccusage
+- Summary: Slice 2 (d1fb076): createOpenClinXrApiProtocolPostureFromEnvironment reads OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE or latest smoke artifact (non-test); clears api_bun_websocket_runtime_not_verified when status=passed + empty runtimeEvidenceBlockers. 95 API tests green. ccusage: Composer ~174k peak appropriate for cross-package wiring; Explore via Task still composer not deepseek-v4-flash—use native Grok explore for scout cost proof. Implementation aligned with deepseek-v4-pro tier intent.
+- Confidence: 0.8
+- Recorded by: agent:memory:append
 - Policy tier: fast_bounded
