@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.anny-skin-cagematch-probe.v1",
-  "generatedAt": "2026-06-06T06:01:59.815Z",
+  "generatedAt": "2026-06-06T18:35:23.590Z",
   "claimScope": "local_skin_texturing_and_rigging_cagematch_availability_only",
   "upstreamReferences": [
     {
@@ -88,9 +88,9 @@
         "source": "/Users/patrick/Library/Application Support/Blender/5.1/scripts/addons/stablegen/__init__.py"
       },
       "cloudrig": {
-        "status": "missing",
-        "moduleName": null,
-        "source": null
+        "status": "available",
+        "moduleName": "bl_ext.blender_org.cloudrig",
+        "source": "/Users/patrick/Library/Application Support/Blender/5.1/extensions/blender_org/cloudrig/__init__.py"
       },
       "rigify": {
         "status": "available",
@@ -163,7 +163,6 @@
       "id": "cloudrig_rigging",
       "status": "blocked",
       "blockers": [
-        "cloudrig_blender_addon_not_detected",
         "anny_specific_metarig_alignment_template_not_recorded"
       ],
       "nextSafeStep": "Enable CloudRig in Blender and create/record an Anny-specific metarig alignment template before using it on candidates.",
@@ -193,8 +192,7 @@
     "readyForLocalTextureCagematch": true,
     "generationAllowedByThisReport": false,
     "blockers": [
-      "before_after_skin_texture_screenshot_plan_required",
-      "cloudrig_not_ready_for_rigging_cagematch"
+      "before_after_skin_texture_screenshot_plan_required"
     ],
     "nextSafeStep": "Create a no-promotion copied-candidate skin cagematch task with checkpoint license/cache manifest and before/after model-vetting screenshots."
   },

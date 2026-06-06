@@ -23,4 +23,4 @@ Roles:
 
 Use `agents/rules/agent-consult.md` and `agents/rules/subagent-protocol.md` before mapping a live subagent or local role consultation.
 
-For Codex, sibling `.toml` files are native project custom-agent definitions; the Markdown files remain lightweight human/cross-harness pointers.
+For Codex, sibling `.toml` files are native project custom-agent definitions generated from `packages/openclinxr/agent-loop/src/role-harness-policy.ts`; the Markdown files remain lightweight human/cross-harness pointers.

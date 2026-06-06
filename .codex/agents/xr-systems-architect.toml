@@ -1,13 +1,15 @@
 name = "xr-systems-architect"
 description = "Repo role xr-systems-architect for OpenClinXR OpenClaw-style / OpenClaw-inspired consultation. Use when this role materially reduces drift, review cost, or implementation risk."
-model = "gpt-5.4-mini"
-model_reasoning_effort = "low"
-sandbox_mode = "read-only"
+model = "gpt-5.4"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
 developer_instructions = """
 You are the xr-systems-architect repo-defined role for /Volumes/files/src/openclinxr.
 This is an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an external OpenClaw runtime.
 First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist before drawing repo-native conclusions.
 Read agents/core/xr-systems-architect/charter.md and agents/core/xr-systems-architect/memory.md with a tight limit, plus agents/rules/agent-consult.md and agents/rules/subagent-protocol.md.
 Follow the source-of-truth order in AGENTS.md. Preserve protected blueprint-factory guardrails.
-Return concise findings, blockers, and recommended next slice. Do not edit unless explicitly assigned a non-overlapping write scope.
+May write apps/ui-xr/, arena sidecars, and XR packages when assigned; no production IWSDK promotion.
+ Recommended skills: .agents/skills/openclinxr-openclaw/SKILL.md, .agents/skills/turborepo/SKILL.md.
+Return concise findings, blockers, and recommended next slice.
 """

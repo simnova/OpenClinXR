@@ -33,6 +33,22 @@ Use live subagents only when available and materially useful. Otherwise perform 
 - No canonical state update for no-op readiness checks. Routine runner output belongs in `.openclinxr/openclaw/run-next-report.json`.
 - Canonical state updates are for product changes, verification evidence, or real blockers.
 
+## Model routing (harness-specific)
+
+- **Grok:** prefer direct DeepSeek (`deepseek-v4-flash` for scouts, `deepseek-v4-pro` for implementation/review) and `grok-build` for frontier synthesis. Do not use Moonbridge as the primary Grok subagent route when direct DeepSeek is available.
+- **Codex Desktop:** cannot select DeepSeek in the native model picker. Use tier-appropriate models from generated `.codex/agents/*.toml`. Moonbridge (`pnpm local:moonbridge:probe`) is **Codex-only optional assist** for bounded first-pass review on scout/expert roles—not for implementation or readiness judgment.
+- **Production pipeline:** asset generation and scene optimization may require agentic evaluation behind a swappable `ModelAssistProvider` (Moonbridge today; approved online models later). Procedural-only pipelines are the goal, but online AI is permitted behind explicit gates.
+
+See `docs/agent-factory/model-assignment-policy.md` and `packages/openclinxr/agent-loop/src/role-harness-policy.ts`.
+
+## Memory write-back
+
+When a slice yields a durable role lesson:
+
+```bash
+pnpm agent:memory:append -- --role <role-id> --topic <topic> --lesson "<text>"
+```
+
 ## Verification
 
 After coordination or OpenClaw-style changes run:

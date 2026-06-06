@@ -35,6 +35,27 @@ When task selection feels unfocused, after compaction, suspected drift, or befor
 ## Memory Injection
 SessionStart hooks + [memory] in .grok/config.toml provide initial context from index/role memory. Use `GROK_MEMORY=1` if needed for cross-session.
 
+## Memory Write-Back
+When a slice yields a durable lesson for a consulted role, append it to role memory and rebuild the index:
+
+```bash
+pnpm agent:memory:append -- --role <role-id> --topic <topic> --lesson "<text>"
+```
+
+Prefer this over leaving lessons only in per-slice state records.
+
+## Grok Composer entrypoint
+
+The primary Grok session (Composer) is the orchestration entrypoint. Embody `chief-coordinator` for slice selection and integration. Spawn `explore` subagents (mapped to chief-coordinator / openclaw-drift-police) for read-only consults on `deepseek-v4-flash` instead of expanding Composer context. See `agents/rules/grok-harness-usage.md`.
+
+## Harness Model Routing
+- Per-role tiers and Codex TOML generation: `packages/openclinxr/agent-loop/src/role-harness-policy.ts` + `pnpm agent:harness:sync`.
+- **Grok:** direct DeepSeek (`deepseek-v4-flash` / `deepseek-v4-pro`) and `grok-build` for frontier work. Do not use Moonbridge as primary Grok routing.
+- **Codex Desktop:** tier models from generated `.codex/agents/*.toml`. Moonbridge (`pnpm local:moonbridge:probe`) is **Codex-only optional first-pass assist** when DeepSeek cannot be selected in the model picker.
+- **Production pipeline:** swappable `ModelAssistProvider` bridges (Moonbridge today; approved online models later) may support bounded agentic evaluation/optimization behind gates. Procedural-only asset/scene pipelines remain the goal; online AI is permitted where gates allow.
+
+See `docs/agent-factory/model-assignment-policy.md`.
+
 See subagent-protocol.md for spawn details and AGENTS.md "OpenClaw orchestration-agent rule" + "Mandatory agent use rules".
 
 This rule + the memory/role hooks make persistent indexed memory (agents/** + .agent-factory/) first-class for AgenticEx.

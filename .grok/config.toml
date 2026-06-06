@@ -9,19 +9,114 @@ paths = [".agents/skills"]
 # The .agents/skills/ (with antd, turborepo + future from skills-lock.json and workflow-skill-policy.md) is the canonical location.
 # Other harnesses should point their equivalent "additional skills" at the same dir.
 
-# --- Subagents (directly supports AGENTS.md subagent rule: coordinator first (explorer/chief-coordinator), then narrow specialists/adversarial) ---
+# --- Composer orchestration entrypoint (primary Grok session) ---
+# The primary Grok session (Composer / grok-composer-*) is the OpenClaw orchestrator.
+# Embody repo role: chief-coordinator. Own rehydrate, lease, slice selection, state updates, integration.
+# Do NOT delegate orchestration to subagents; delegate bounded consults and disjoint work only.
+# Mapping:
+#   explore subagent → chief-coordinator, openclaw-drift-police, gap-attacker (read-only, cheap)
+#   plan subagent    → implementation-planning-lead (sequencing)
+#   specialists      → asset-pipeline-lead, xr-systems-architect, etc. (disjoint write scopes)
+# Token efficiency: keep Composer context lean; push scout/review reads to explore+deepseek-v4-flash.
+# Measure: pnpm agent:harness:prove (parses ~/.grok/sessions + ccusage codex where available).
+
+# --- Subagents (coordinator first per AGENTS.md + agents/rules/subagent-protocol.md) ---
 [subagents]
 enabled = true
-default_model = "grok-build"  # strong default for agentic work; override per-type below if desired
+# Do NOT set default_model here — it overrides per-type routing (see Grok subagents doc).
+# Primary Composer session keeps its own model (e.g. grok-composer-2.5-fast).
 
 [subagents.toggle]
-explore = true   # for coordinator/explorer roles (chief-coordinator, openclaw-drift-police)
-plan = true      # for implementation-planning-lead, execution
+explore = true   # chief-coordinator, openclaw-drift-police, productivity-skeptic consults
+plan = true      # implementation-planning-lead sequencing
 
-# Example per-type model routing if you want different strengths:
-# [subagents.models]
-# explore = "grok-build"
-# plan = "grok-build"
+[subagents.models]
+explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults
+plan = "deepseek-v4-pro"        # bounded planning slices
+
+# Direct DeepSeek + Moonbridge as backup (user ~/.grok/config.toml)
+#
+# Preference hierarchy (updated so Moonbridge is explicitly the backup):
+# 1. grok-build (strongest frontier / default for high-stakes or implementation judgment)
+# 2. Direct DeepSeek (the "these" we tested and enabled):
+#    - v4-pro (strong direct, excellent reasoning via thinking mode + reasoning_content)
+#    - v4-flash (fast/cheap direct, still strong with thinking)
+#    - Anthropic messages variant (for native thinking blocks / Messages shape)
+#    - FIM beta (for code fill-in-the-middle scenarios, e.g. external tools)
+#    All now reliably usable in the agent (key visible to run_terminal_command; curls for
+#    thinking, multi-round, FIM, Anthropic format all succeeded).
+# 3. deepseek-via-moon (Moonbridge local bridge) — BACKUP / fallback only.
+#
+# Moonbridge (local bridge, still the sanctioned one for the repo):
+# - http://127.0.0.1:38440/v1 + /responses
+# - Exposed as the swappable ModelAssistProvider for bounded first-pass reviews
+#   (tools/openclinxr/evidence/model-assist-provider.ts, pnpm local:moonbridge:*).
+# - Moonbridge is NOT a Grok subagent routing target when direct DeepSeek is available.
+#   It is Codex Desktop-only optional assist (Codex cannot select DeepSeek in the model
+#   picker) and a generic production-pipeline ModelAssistProvider option for bounded
+#   agentic evaluation/optimization behind explicit gates.
+# - Per AUTONOMOUS_WORK_PLAN + worker matrix: upgrade to frontier/direct models for
+#   implementation or protected-claim judgment. Grok prefers direct DeepSeek or grok-build.
+#
+# Direct DeepSeek (official API):
+# - v4-pro / v4-flash via chat_completions (https://api.deepseek.com) — primary direct.
+# - Anthropic messages (https://api.deepseek.com/anthropic) — secondary.
+# - FIM via /beta (https://api.deepseek.com/beta) — for code completion.
+# - Full thinking mode, multi-turn, tools, 1M context.
+# - See the user's ~/.grok/config.toml for the current entries, subagent routing,
+#   and the curl tests that validated them.
+#
+# Key hygiene (never let the secret appear in anything that goes to GitHub):
+# - ALWAYS use `env_key = "DEEPSEEK_API_KEY"` (or OPENCLINXR_DEEPSEEK_API_KEY)
+#   in [model.*] sections. Never put the literal "sk-..." value in any .toml.
+# - Set the real value only in your personal environment (direnv + .envrc is ideal
+#   and already aligns with Grok's load_envrc support).
+# - The project's .grok/config.toml contains only comments + env_key examples.
+# - Your personal ~/.grok/config.toml lives in /Users/you/.grok/ — it is not
+#   part of the repo.
+# - Rotate keys regularly at https://platform.deepseek.com/api_keys.
+#
+# Usage after setup:
+#   grok models
+#   /model deepseek-v4-pro   (or deepseek-v4-flash, deepseek, deepseek-v4-pro-anthropic, etc.)
+#   grok -m deepseek-v4-pro -p "..."
+#   (Moonbridge via-moon is still available as explicit backup.)
+#
+# Subagent routing example (current in user config):
+#   [subagents.models]
+#   explore = "deepseek-v4-flash"   # direct fast/cheap + thinking — preferred
+#   plan = "deepseek-v4-pro"        # direct strong reasoning (or grok-build)
+#   # via-moon only as fallback
+#
+# This setup gives high-fidelity direct DeepSeek (with full thinking/FIM/multi-turn)
+# as the primary "these" options, grok-build for frontier strength, and Moonbridge
+# strictly as the backup while preserving its role for the repo's local assist tooling.
+# All secrets stay out of source control.
+#
+# DeepSeek Advanced Usage Hints (from the linked guides):
+# - multi_round_chat: Always send the FULL concatenated messages history on every call (stateless).
+#   For thinking models: in non-tool turns, prior reasoning_content can be omitted from context (API ignores).
+#   In tool-call turns: MUST include full reasoning_content + tool_calls in all subsequent assistant messages.
+#   Grok's conversation/subagent history management should append complete assistant messages (use .message or equivalent).
+# - kv_cache (Context Caching): Default on. Hits on exact prefix matches (e.g. consistent system + long user content).
+#   Use `user_id` (e.g. "openclinxr-explore-peds-v1" or per-case) in requests for KV isolation, privacy, and per-"user" cache buckets (affects hit rate, rate limits, scheduling).
+#   Monitor usage.prompt_cache_hit_tokens vs miss_tokens. Structure long contexts (e.g. full case def + history) as reusable prefixes.
+# - json_mode: response_format={"type":"json_object"} (if backend supports) + MUST mention "json" + provide concrete example/schema in the prompt.
+#   Reasonable max_tokens. Occasional empty content possible — strengthen the "output ONLY the JSON object" instruction.
+#   Then json.loads the content. Ideal for structured outputs like review packets, trace tags, or asset manifests.
+# - thinking_mode: v4-pro/flash default enabled (reasoning_content + content). Control with thinking={"type":"enabled"} + reasoning_effort="high/max".
+#   In thinking: temperature/top_p etc. are ignored. For multi-turn/tool loops follow the rules above.
+#   Use in agent prompts: "Think step by step (the model will surface reasoning_content). For final answer...".
+#   In Anthropic variant: native thinking blocks via the messages format.
+#
+# When using these in the harness (subagents, custom prompts, or future direct API tools):
+# - Prefer direct chat_completions models (v4-pro for complex, flash for speed) for most agentic work.
+# - For JSON-structured agent outputs (e.g. case reviews, handoffs): always use the json_mode prompt pattern on v4-pro.
+# - For long-running multi-actor traces or case defs: leverage KV cache with consistent user_id + prefix structure.
+# - For code-related (FIM, generation): use the fim entry or chat + FIM-style prompts.
+# - In subagent system prompts or agent-loop code: include the relevant instructions from the guides (examples in json, history rules for thinking).
+# - The Moonbridge local bridge can proxy many of these if you extend it (it already does responses-style); direct is higher fidelity when the key/env is available.
+# Update your personal ~/.grok/config.toml model descriptions or subagent prompts with these patterns for best results. Test small and watch usage/cache stats.
 
 # --- Memory (complements the project's persistent agent memory in agents/**/memory.md, .agent-factory/memory-index.json, rehydration from state files) ---
 [memory]
@@ -158,7 +253,7 @@ progress_bar = true
 
 # --- Agents / Project-scoped Agent Definitions ---
 # Per Grok project rules doc, .grok/agents/ for project-scoped agent definitions.
-# The source is agents/** (the 9 core roles with charter.md + memory.md + index.json, plus rules/ for modularity).
+# The source is agents/** (the 13 active roles with charter.md + memory.md + index.json, plus rules/ for modularity).
 # Safe pointers (no full content dup) now in .grok/agents/ for all canonical agents/** roles, generated by scripts/sync-harness-agent-files.sh for first-class subagent discovery/mapping (gap2).
 # These point to root agents/<role>/ without duplicating role memory (avoids previous drift/registry issues with full symlinks).
 # Grok can be prompted to consult specific role charters/memories using the source-of-truth order + agent-consult.md.

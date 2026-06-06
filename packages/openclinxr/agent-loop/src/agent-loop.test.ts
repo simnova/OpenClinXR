@@ -271,6 +271,27 @@ describe("agent-loop synthesis planning", () => {
       reasoningEffort: "xhigh",
       policyTier: "frontier_thinking",
     });
+    expect(recommendBackgroundAgentModel({ taskType: "bounded_scout", harness: "grok" })).toMatchObject({
+      model: "deepseek-v4-flash",
+      reasoningEffort: "low",
+      policyTier: "fast_bounded",
+      harness: "grok",
+    });
+    expect(recommendBackgroundAgentModel({ taskType: "implementation_worker", harness: "grok" })).toMatchObject({
+      model: "deepseek-v4-pro",
+      reasoningEffort: "medium",
+      harness: "grok",
+    });
+    expect(recommendBackgroundAgentModel({ taskType: "bounded_scout", harness: "codex" })).toMatchObject({
+      model: "gpt-5.4-mini",
+      codexAssistBridge: "moonbridge",
+      harness: "codex",
+    });
+    expect(recommendBackgroundAgentModel({ taskType: "implementation_worker", harness: "codex" })).toMatchObject({
+      model: "gpt-5.4",
+      codexAssistBridge: "none",
+      harness: "codex",
+    });
     const coreRevisionWorkOrder = plan.workOrders.find((order) => order.stage === "core_revision");
     if (!coreRevisionWorkOrder) {
       throw new Error("Expected core revision work order");
@@ -409,6 +430,26 @@ describe("agent-loop synthesis planning", () => {
         ]),
       }),
     ]));
+
+    const annySkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Run an Anny-compatible humanoid cagematch and model-vetting capture for the peds patient.",
+      dimensions: ["technical_feasibility"],
+      memoryTopics: ["anny", "humanoid", "rigging", "cagematch"],
+    });
+
+    expect(annySkills.map((skill) => skill.id)).toEqual(
+      expect.arrayContaining(["anny-asset-pipeline", "provider-boundary"]),
+    );
+
+    const openclawSkills = recommendWorkflowSkillsForWorkOrder({
+      stage: "core_revision",
+      goal: "Rehydrate OpenClaw coordination state and select the next lease-protected slice.",
+      dimensions: ["implementation_readiness"],
+      memoryTopics: ["openclaw", "autonomous", "run-next"],
+    });
+
+    expect(openclawSkills.map((skill) => skill.id)).toContain("openclinxr-openclaw");
   });
 
   it("keeps specialist-owned blocker actions tied to scored dimensions after the plan clears low score thresholds", () => {

@@ -1,7 +1,7 @@
 {
   "generated_by": "tools/agent-factory/build-memory-index.ts",
-  "agent_count": 9,
-  "entry_count": 21,
+  "agent_count": 13,
+  "entry_count": 25,
   "superseded_entry_count": 1,
   "entries": [
     {
@@ -153,6 +153,22 @@
       "source_file": "agents/core/implementation-planning-lead/index.json"
     },
     {
+      "id": "license-provenance-specialist-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "License And Provenance Specialist initialized to review asset rights, generated asset provenance, provider boundaries, and false readiness gates.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "license-provenance-specialist",
+      "team": "legal",
+      "source_file": "agents/legal/license-provenance-specialist/index.json"
+    },
+    {
       "id": "pediatrics-physician-lesson-0001",
       "type": "lesson",
       "topic": "initial-charter",
@@ -167,6 +183,54 @@
       "agent_id": "pediatrics-physician",
       "team": "physicians",
       "source_file": "agents/physicians/pediatrics-physician/index.json"
+    },
+    {
+      "id": "productivity-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Productivity Skeptic initialized to pressure OpenClinXR model work toward Anny-grounded generated humanoids, visible Model Vetting Studio video evidence, and skeptic-impressive website-update thresholds while challenging fixture-grade drift and harness toil.",
+      "confidence": 1,
+      "source_ids": [
+        "user-request-2026-06-05-productivity-skeptic-agent"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "productivity-skeptic",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/productivity-skeptic/index.json"
+    },
+    {
+      "id": "rigging-animation-specialist-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Rigging And Animation Specialist initialized to review humanoid skeleton, skinning, morph targets, visemes, gaze, posture, locomotion, and GLB runtime suitability.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "rigging-animation-specialist",
+      "team": "core",
+      "source_file": "agents/core/rigging-animation-specialist/index.json"
+    },
+    {
+      "id": "visual-realism-adversary-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Visual Realism Adversary initialized to critique humanoid screenshots, actor-role distinction, clothing/rig artifacts, expression/gaze plausibility, and false realism claims.",
+      "confidence": 1,
+      "source_ids": [
+        "src-internal-agent-factory-design-spec"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "visual-realism-adversary",
+      "team": "adversarial",
+      "source_file": "agents/adversarial/visual-realism-adversary/index.json"
     },
     {
       "id": "vp-engineering-delivery-lesson-0001",

@@ -1,7 +1,8 @@
 {
   "agent_id": "openclaw-drift-police",
   "team": "adversarial",
-  "last_updated": "2026-05-27",
+  "last_updated": "2026-06-06",
+  "alignment_notes": "2026-05-28 hyper-optimization; UI-XR consumer snapshots-first rehydrate",
   "entries": [
     {
       "id": "openclaw-drift-police-lesson-0001",
@@ -33,5 +34,3 @@
     }
   ]
 }
-Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots rehydrate OpenClaw continuous blueprint M1 Max 64GB
-UI-XR consumer

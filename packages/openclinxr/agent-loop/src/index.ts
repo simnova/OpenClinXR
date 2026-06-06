@@ -1,3 +1,5 @@
+import type { HarnessKind } from "./role-harness-policy.js";
+
 export const scoreWeights = {
   clinical_validity: 10,
   psychometric_defensibility: 10,
@@ -184,9 +186,16 @@ export type BackgroundAgentTaskType =
   | "leadership_preflight"
   | "leadership_synthesis";
 
-export type BackgroundAgentModelName = "gpt-5.4-mini" | "gpt-5.4" | "gpt-5.5";
+export type BackgroundAgentModelName =
+  | "gpt-5.4-mini"
+  | "gpt-5.4"
+  | "gpt-5.5"
+  | "deepseek-v4-flash"
+  | "deepseek-v4-pro"
+  | "grok-build";
 export type BackgroundAgentReasoningEffort = "low" | "medium" | "high" | "xhigh";
 export type BackgroundAgentPolicyTier = "fast_bounded" | "standard_execution" | "expert_review" | "frontier_thinking";
+export type ModelAssistBridge = "moonbridge" | "none";
 
 export type BackgroundAgentModelRecommendation = {
   taskType: BackgroundAgentTaskType;
@@ -194,14 +203,24 @@ export type BackgroundAgentModelRecommendation = {
   reasoningEffort: BackgroundAgentReasoningEffort;
   policyTier: BackgroundAgentPolicyTier;
   rationale: string;
+  harness?: HarnessKind;
+  openaiEquivalent?: {
+    model: "gpt-5.4-mini" | "gpt-5.4" | "gpt-5.5";
+    reasoningEffort: BackgroundAgentReasoningEffort;
+  };
+  codexAssistBridge?: ModelAssistBridge;
+  productionPipelineAssistNote?: string;
 };
 
 export type AgentWorkflowSkillId =
   | "ant-design-cli-skill"
+  | "anny-asset-pipeline"
   | "apollo-graphql-skills"
   | "archunitts"
   | "blender-mcp"
   | "meta-iwsdk-mcp"
+  | "openclinxr-openclaw"
+  | "provider-boundary"
   | "storybook-mcp"
   | "turborepo-skill";
 
@@ -217,6 +236,7 @@ export type AgentWorkflowSkillRecommendation = {
 
 export type RecommendBackgroundAgentModelInput = {
   taskType: BackgroundAgentTaskType;
+  harness?: HarnessKind;
 };
 
 export type CreateAgentLoopPlanInput = {
@@ -528,50 +548,108 @@ export function createAgentDispatchPackets(plan: AgentLoopPlan, options: { memor
   });
 }
 
-export function recommendBackgroundAgentModel(input: RecommendBackgroundAgentModelInput): BackgroundAgentModelRecommendation {
-  switch (input.taskType) {
+function openaiEquivalentForTier(
+  policyTier: BackgroundAgentPolicyTier,
+): BackgroundAgentModelRecommendation["openaiEquivalent"] {
+  switch (policyTier) {
+    case "fast_bounded":
+      return { model: "gpt-5.4-mini", reasoningEffort: "low" };
+    case "standard_execution":
+      return { model: "gpt-5.4", reasoningEffort: "medium" };
+    case "expert_review":
+      return { model: "gpt-5.4", reasoningEffort: "high" };
+    case "frontier_thinking":
+      return { model: "gpt-5.5", reasoningEffort: "xhigh" };
+  }
+}
+
+function policyTierForTaskType(taskType: BackgroundAgentTaskType): BackgroundAgentPolicyTier {
+  switch (taskType) {
     case "bounded_scout":
-      return {
-        taskType: input.taskType,
-        model: "gpt-5.4-mini",
-        reasoningEffort: "low",
-        policyTier: "fast_bounded",
-        rationale: "Use for read-only scouting, narrow gap checks, and quick sidecar review while the main thread keeps the critical path.",
-      };
+      return "fast_bounded";
     case "implementation_worker":
-      return {
-        taskType: input.taskType,
-        model: "gpt-5.4",
-        reasoningEffort: "medium",
-        policyTier: "standard_execution",
-        rationale: "Use for bounded code or documentation slices with clear ownership and ordinary integration risk.",
-      };
+      return "standard_execution";
     case "specialist_review":
-      return {
-        taskType: input.taskType,
-        model: "gpt-5.4",
-        reasoningEffort: "high",
-        policyTier: "expert_review",
-        rationale: "Use for clinical, legal, psychometric, security, or architecture review that needs more depth but not full frontier synthesis.",
-      };
+      return "expert_review";
     case "leadership_preflight":
-      return {
-        taskType: input.taskType,
-        model: "gpt-5.5",
-        reasoningEffort: "high",
-        policyTier: "frontier_thinking",
-        rationale: "Use for cross-domain blocker triage before senior leadership approval is appropriate.",
-      };
     case "adversarial_review":
     case "leadership_synthesis":
-      return {
-        taskType: input.taskType,
-        model: "gpt-5.5",
-        reasoningEffort: "xhigh",
-        policyTier: "frontier_thinking",
-        rationale: "Reserve GPT-5.5 extra-high reasoning for adversarial or leadership synthesis where the work is primarily hard thinking across tradeoffs.",
-      };
+      return "frontier_thinking";
   }
+}
+
+function rationaleForTaskType(taskType: BackgroundAgentTaskType): string {
+  switch (taskType) {
+    case "bounded_scout":
+      return "Use for read-only scouting, narrow gap checks, and quick sidecar review while the main thread keeps the critical path.";
+    case "implementation_worker":
+      return "Use for bounded code or documentation slices with clear ownership and ordinary integration risk.";
+    case "specialist_review":
+      return "Use for clinical, legal, psychometric, security, or architecture review that needs more depth but not full frontier synthesis.";
+    case "leadership_preflight":
+      return "Use for cross-domain blocker triage before senior leadership approval is appropriate.";
+    case "adversarial_review":
+    case "leadership_synthesis":
+      return "Reserve frontier reasoning for adversarial or leadership synthesis where the work is primarily hard thinking across tradeoffs.";
+  }
+}
+
+function harnessModelForTask(
+  taskType: BackgroundAgentTaskType,
+  harness: HarnessKind,
+): { model: BackgroundAgentModelName; reasoningEffort: BackgroundAgentReasoningEffort } {
+  const policyTier = policyTierForTaskType(taskType);
+  switch (policyTier) {
+    case "fast_bounded":
+      if (harness === "grok") {
+        return { model: "deepseek-v4-flash", reasoningEffort: "low" };
+      }
+      return { model: "gpt-5.4-mini", reasoningEffort: "low" };
+    case "standard_execution":
+      if (harness === "grok") {
+        return { model: "deepseek-v4-pro", reasoningEffort: "medium" };
+      }
+      return { model: "gpt-5.4", reasoningEffort: "medium" };
+    case "expert_review":
+      if (harness === "grok") {
+        return { model: "deepseek-v4-pro", reasoningEffort: "high" };
+      }
+      return { model: "gpt-5.4", reasoningEffort: "high" };
+    case "frontier_thinking": {
+      const reasoningEffort: BackgroundAgentReasoningEffort =
+        taskType === "leadership_preflight" ? "high" : "xhigh";
+      if (harness === "grok") {
+        return { model: "grok-build", reasoningEffort };
+      }
+      return { model: "gpt-5.5", reasoningEffort };
+    }
+  }
+}
+
+export function recommendBackgroundAgentModel(input: RecommendBackgroundAgentModelInput): BackgroundAgentModelRecommendation {
+  const harness = input.harness ?? "openai_default";
+  const policyTier = policyTierForTaskType(input.taskType);
+  const { model, reasoningEffort } = harnessModelForTask(input.taskType, harness);
+  const recommendation: BackgroundAgentModelRecommendation = {
+    taskType: input.taskType,
+    model,
+    reasoningEffort,
+    policyTier,
+    rationale: rationaleForTaskType(input.taskType),
+    harness,
+    openaiEquivalent: openaiEquivalentForTier(policyTier),
+    productionPipelineAssistNote:
+      "Factory asset generation and scene optimization may require agentic evaluation behind a swappable ModelAssistProvider; procedural-only pipelines are a goal, not the current guarantee.",
+  };
+
+  if (harness === "codex" && (policyTier === "fast_bounded" || policyTier === "expert_review")) {
+    recommendation.codexAssistBridge = "moonbridge";
+    recommendation.rationale = `${recommendation.rationale} Codex Desktop cannot select DeepSeek directly; optional Moonbridge first-pass assist is allowed for bounded review only.`;
+  } else {
+    recommendation.codexAssistBridge = "none";
+  }
+
+  return recommendation;
 }
 
 export function recommendAgentModelForWorkOrder(order: Pick<AgentWorkOrder, "stage">): BackgroundAgentModelRecommendation {
@@ -709,6 +787,86 @@ export function recommendWorkflowSkillsForWorkOrder(
         "Do not use optional @meta-quest/hzdb without legal review because npm metadata reports UNLICENSED.",
         "Treat sharp/libvips LGPL and Unknown pmndrs license metadata from the local scratch spike as dependency-governance blockers until resolved.",
         "Do not run reference warmup or model/corpus downloads unattended.",
+      ],
+    });
+  }
+
+  if (
+    matchesAny(text, [
+      "openclaw",
+      "repo-agent",
+      "autonomous",
+      "lease",
+      "run-next",
+      "coordination",
+      "rehydrate",
+      "heartbeat",
+    ])
+  ) {
+    recommendations.push({
+      id: "openclinxr-openclaw",
+      name: "OpenClinXR OpenClaw Bridge",
+      useWhen: "Use for OpenClaw-style autonomy, repo-agent consultation, lease/run-next, and cross-harness alignment.",
+      guardrails: [
+        "Rehydrate from AGENTS.md and the three state snapshots before selecting work.",
+        "Canonical state updates belong in coordination files, not chat summaries.",
+      ],
+    });
+  }
+
+  if (
+    matchesAny(text, [
+      "anny",
+      "humanoid",
+      "rigging",
+      "skin",
+      "clothing",
+      "glb",
+      "model vetting",
+      "cagematch",
+      "blender",
+      "mpfb2",
+      "realvisxl",
+      "stablegen",
+    ])
+  ) {
+    recommendations.push({
+      id: "anny-asset-pipeline",
+      name: "Anny Asset Pipeline",
+      useWhen: "Use for Anny-compatible humanoid generation, Blender rigging, preflight, and cagematch promotion gates.",
+      guardrails: [
+        "Keep Anny output candidate-only until license, provenance, rig, actor-role mapping, and visual evidence gates clear.",
+        "Do not promote real-Anny, B+, Quest, production, learner, clinical, or scoring readiness from fixture evidence.",
+      ],
+    });
+  }
+
+  if (
+    matchesAny(text, [
+      "provider",
+      "moonbridge",
+      "deepseek",
+      "comfyui",
+      "stablegen",
+      "realvisxl",
+      "paid api",
+      "credentials",
+      "license",
+      "provenance",
+      "model assist",
+      "anny",
+      "cagematch",
+      "model vetting",
+    ])
+  ) {
+    recommendations.push({
+      id: "provider-boundary",
+      name: "Provider Boundary",
+      useWhen: "Use when work touches local-only or approval-gated providers, credentials, paid APIs, or model-assist bridges.",
+      guardrails: [
+        "Moonbridge is a Codex Desktop-only optional first-pass assist bridge; Grok should prefer direct DeepSeek when available.",
+        "Production pipelines may use swappable ModelAssistProvider bridges for agentic evaluation, not as readiness claims.",
+        "Do not enable paid/cloud providers or credentials without explicit approval.",
       ],
     });
   }
@@ -1016,3 +1174,18 @@ function matchesAny(value: string, needles: readonly string[]): boolean {
 function roundScore(value: number): number {
   return Number(value.toFixed(3));
 }
+
+export {
+  getRepoRoleHarnessPolicy,
+  productionPipelineAssistNote,
+  repoRoleHarnessPolicies,
+  resolveHarnessModelSpec,
+  shouldRecommendMoonbridgeAssist,
+} from "./role-harness-policy.js";
+export type {
+  CodexSandboxMode,
+  HarnessKind,
+  HarnessModelSpec,
+  RepoRoleHarnessPolicy,
+  RepoWorkflowSkillId,
+} from "./role-harness-policy.js";
