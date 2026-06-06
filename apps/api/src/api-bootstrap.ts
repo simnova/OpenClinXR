@@ -1,11 +1,16 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./app.js";
-import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolSupport } from "./protocol-support.js";
+import {
+  createOpenClinXrApiProtocolPosture,
+  type OpenClinXrApiProtocolPosture,
+  type OpenClinXrApiProtocolSupport,
+} from "./protocol-support.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 
@@ -34,6 +39,7 @@ type ApiStartupContext = {
   telemetry: TelemetryRecorder;
   assetGenerationFacade: AssetGenerationCapabilityFacade;
   realtimeVoiceGatewayPosture: RealtimeVoiceGatewayPostureInput;
+  apiProtocolPosture: OpenClinXrApiProtocolPosture;
 };
 
 type ApiApplicationServices = {
@@ -102,6 +108,9 @@ export type OpenClinXrApiStartupOptions = {
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
   realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
+  apiProtocolPosture?: OpenClinXrApiProtocolPosture;
+  protocolPostureEnvironment?: OpenClinXrApiProtocolPostureEnvironment;
+  protocolPostureEnvironmentOptions?: OpenClinXrApiProtocolPostureEnvironmentOptions;
 };
 
 export type BunRealtimeVoiceGatewayPostureEnvironment = {
@@ -112,6 +121,18 @@ export type BunRealtimeVoiceGatewayPostureEnvironment = {
 
 export type BunRealtimeVoiceGatewayPostureEnvironmentOptions = {
   readEvidenceFile?: (filePath: string) => unknown;
+};
+
+export type OpenClinXrApiProtocolPostureEnvironment = {
+  OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
+  OPENCLINXR_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
+  VITEST?: string;
+  NODE_ENV?: string;
+};
+
+export type OpenClinXrApiProtocolPostureEnvironmentOptions = {
+  readEvidenceFile?: (filePath: string) => unknown;
+  discoverLatestSmokeEvidence?: boolean;
 };
 
 class ApiInfrastructureRegistry {
@@ -164,7 +185,7 @@ export class OpenClinXrApiStartupBuilder {
   startUp(): StartedOpenClinXrApi {
     const context = this.contextFactory(this.infrastructureRegistry);
     const applicationServices = this.applicationServicesFactory(context);
-    const protocolPosture = createOpenClinXrApiProtocolPosture();
+    const protocolPosture = context.apiProtocolPosture;
 
     return {
       fetch: applicationServices.fetch,
@@ -183,6 +204,11 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
+  const apiProtocolPosture = options.apiProtocolPosture
+    ?? createOpenClinXrApiProtocolPostureFromEnvironment(
+      options.protocolPostureEnvironment ?? process.env as OpenClinXrApiProtocolPostureEnvironment,
+      options.protocolPostureEnvironmentOptions ?? {},
+    );
 
   return new OpenClinXrApiStartupBuilder()
     .initializeInfrastructureServices((serviceRegistry) => {
@@ -192,7 +218,7 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
         .registerInfrastructureService("telemetry", telemetry)
         .registerInfrastructureService("assetGenerationFacade", assetGenerationFacade);
     })
-    .setContext((registry) => defaultContextFactory(registry, realtimeVoiceGatewayPosture))
+    .setContext((registry) => defaultContextFactory(registry, realtimeVoiceGatewayPosture, apiProtocolPosture))
     .initializeApplicationServices(defaultApplicationServicesFactory)
     .registerAzureFunctionHttpHandler("graphql-contract", {
       route: "admin/graphql/{*segments}",
@@ -338,9 +364,111 @@ function readPythonBackendRuntimeDependenciesEvidenceFromEnvironment(
     && canonicalServerEventsObserved;
 }
 
+export function createOpenClinXrApiProtocolPostureFromEnvironment(
+  environment: OpenClinXrApiProtocolPostureEnvironment = {},
+  options: OpenClinXrApiProtocolPostureEnvironmentOptions = {},
+): OpenClinXrApiProtocolPosture {
+  return createOpenClinXrApiProtocolPosture({
+    apiBunWebSocketRuntimeVerified: readApiBunWebSocketRuntimeVerifiedFromEnvironment(environment, options),
+  });
+}
+
+export function readApiBunWebSocketRuntimeVerifiedFromEnvironment(
+  environment: OpenClinXrApiProtocolPostureEnvironment,
+  options: OpenClinXrApiProtocolPostureEnvironmentOptions = {},
+): boolean {
+  const evidenceFile = resolveApiBunWebSocketRuntimeEvidencePath(environment, options);
+  if (!evidenceFile) {
+    return false;
+  }
+
+  const rawEvidence = readOptionalProtocolPostureEvidenceFile(evidenceFile, options);
+  return isPassedApiBunWebSocketRuntimeSmokeEvidence(rawEvidence);
+}
+
+function resolveApiBunWebSocketRuntimeEvidencePath(
+  environment: OpenClinXrApiProtocolPostureEnvironment,
+  options: OpenClinXrApiProtocolPostureEnvironmentOptions,
+): string | undefined {
+  const configuredPath = environment.OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE
+    ?? environment.OPENCLINXR_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE;
+  if (configuredPath) {
+    return configuredPath;
+  }
+
+  const shouldDiscover = options.discoverLatestSmokeEvidence
+    ?? !isProtocolPostureEvidenceDiscoverySuppressed(environment);
+  if (!shouldDiscover) {
+    return undefined;
+  }
+
+  return findLatestApiBunWebSocketRuntimeSmokeEvidencePath();
+}
+
+function isProtocolPostureEvidenceDiscoverySuppressed(environment: OpenClinXrApiProtocolPostureEnvironment): boolean {
+  return environment.VITEST === "true"
+    || environment.NODE_ENV === "test"
+    || process.env.VITEST === "true"
+    || process.env.NODE_ENV === "test";
+}
+
+function findLatestApiBunWebSocketRuntimeSmokeEvidencePath(): string | undefined {
+  const docsDir = resolveRepoRelativePath("docs/openclinxr");
+  if (!existsSync(docsDir)) {
+    return undefined;
+  }
+
+  const latest = readdirSync(docsDir)
+    .filter((fileName) => /^api-bun-websocket-runtime-smoke-.*\.json$/.test(fileName))
+    .sort()
+    .at(-1);
+  return latest ? path.join("docs/openclinxr", latest) : undefined;
+}
+
+function resolveRepoRelativePath(relativePath: string): string {
+  const direct = path.resolve(process.cwd(), relativePath);
+  if (existsSync(direct)) {
+    return direct;
+  }
+  return path.resolve(process.cwd(), "../..", relativePath);
+}
+
+function readOptionalProtocolPostureEvidenceFile(
+  filePath: string,
+  options: OpenClinXrApiProtocolPostureEnvironmentOptions,
+): unknown {
+  const resolvedPath = path.isAbsolute(filePath) ? filePath : resolveRepoRelativePath(filePath);
+  return readOptionalEvidenceFile(resolvedPath, options);
+}
+
+function isPassedApiBunWebSocketRuntimeSmokeEvidence(value: unknown): boolean {
+  if (!isRecord(value) || value["status"] !== "passed") {
+    return false;
+  }
+
+  const runtimeEvidenceBlockers = stringArray(value["runtimeEvidenceBlockers"]);
+  if (runtimeEvidenceBlockers.length > 0) {
+    return false;
+  }
+
+  const runtime = isRecord(value["runtime"]) ? value["runtime"] : {};
+  const h3 = isRecord(runtime["h3"]) ? runtime["h3"] : {};
+  if (h3["enabled"] === true || h3["h3TrueEnabled"] === true) {
+    return false;
+  }
+
+  const health = isRecord(value["health"]) ? value["health"] : {};
+  if (health["attempted"] !== true || health["ok"] !== true) {
+    return false;
+  }
+
+  const websocket = isRecord(value["websocket"]) ? value["websocket"] : {};
+  return websocket["attempted"] === true && websocket["connected"] === true;
+}
+
 function readOptionalEvidenceFile(
   filePath: string,
-  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions,
+  options: BunRealtimeVoiceGatewayPostureEnvironmentOptions | OpenClinXrApiProtocolPostureEnvironmentOptions,
 ): unknown {
   try {
     if (options.readEvidenceFile) {
@@ -622,6 +750,7 @@ function finiteNumber(value: unknown): number {
 function defaultContextFactory(
   serviceRegistry: ApiInfrastructureRegistry,
   realtimeVoiceGatewayPosture: RealtimeVoiceGatewayPostureInput = createDefaultRealtimeVoiceGatewayPostureInput(),
+  apiProtocolPosture: OpenClinXrApiProtocolPosture = createOpenClinXrApiProtocolPosture(),
 ): ApiStartupContext {
   return {
     runtime: serviceRegistry.getInfrastructureService("scenarioRuntime"),
@@ -629,6 +758,7 @@ function defaultContextFactory(
     telemetry: serviceRegistry.getInfrastructureService("telemetry"),
     assetGenerationFacade: serviceRegistry.getInfrastructureService("assetGenerationFacade"),
     realtimeVoiceGatewayPosture,
+    apiProtocolPosture,
   };
 }
 
@@ -637,6 +767,7 @@ function defaultApplicationServicesFactory(context: ApiStartupContext): ApiAppli
     telemetry: context.telemetry,
     assetGenerationFacade: context.assetGenerationFacade,
     realtimeVoiceGatewayPosture: context.realtimeVoiceGatewayPosture,
+    apiProtocolPosture: context.apiProtocolPosture,
   });
   return {
     fetch: (request) => app.fetch(request),

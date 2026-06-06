@@ -5,7 +5,9 @@ import {
   createBunRealtimeVoiceGatewayPostureInputFromEnvironment,
   createBunServerConfig,
   createNodeServerConfig,
+  createOpenClinXrApiProtocolPostureFromEnvironment,
   createOpenClinXrApiStartup,
+  readApiBunWebSocketRuntimeVerifiedFromEnvironment,
 } from "./index.js";
 
 describe("OpenClinXR API startup", () => {
@@ -504,6 +506,64 @@ describe("OpenClinXR API startup", () => {
     expect(incompletePostureInput.pythonBackendProxyReachabilityEvidence).toBeUndefined();
   });
 
+  it("promotes websocket protocol posture to runtime_ready when Bun WebSocket smoke evidence passes", async () => {
+    const startup = createOpenClinXrApiStartup({
+      protocolPostureEnvironment: {
+        OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-bun-websocket-runtime-smoke-2026-06-06.json",
+      },
+      protocolPostureEnvironmentOptions: {
+        readEvidenceFile: () => passedApiBunWebSocketRuntimeSmokeEvidence(),
+      },
+    }).startUp();
+
+    expect(startup.protocolSupport).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        protocolId: "websocket",
+        status: "ready",
+        claimScope: "runtime_ready",
+        blockers: [],
+      }),
+    ]));
+
+    const response = await startup.fetch(new Request("http://localhost/runtime/protocols"));
+    await expect(response.json()).resolves.toMatchObject({
+      protocols: expect.arrayContaining([
+        expect.objectContaining({
+          protocolId: "websocket",
+          status: "ready",
+          blockers: [],
+        }),
+      ]),
+    });
+  });
+
+  it("keeps websocket protocol posture blocked when Bun WebSocket smoke evidence is absent or blocked", () => {
+    expect(readApiBunWebSocketRuntimeVerifiedFromEnvironment({}, {})).toBe(false);
+    expect(readApiBunWebSocketRuntimeVerifiedFromEnvironment(
+      { OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/missing.json" },
+      { readEvidenceFile: () => undefined },
+    )).toBe(false);
+    expect(readApiBunWebSocketRuntimeVerifiedFromEnvironment(
+      { OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-bun-websocket-runtime-smoke-blocked.json" },
+      { readEvidenceFile: () => ({ status: "blocked", runtimeEvidenceBlockers: ["websocket_not_connected"] }) },
+    )).toBe(false);
+    expect(createOpenClinXrApiProtocolPostureFromEnvironment(
+      { OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE: "docs/openclinxr/api-bun-websocket-runtime-smoke-incomplete.json" },
+      {
+        readEvidenceFile: () => ({
+          status: "passed",
+          runtimeEvidenceBlockers: ["websocket_control_ack_missing"],
+          runtime: { h3: { enabled: false, h3TrueEnabled: false } },
+          health: { attempted: true, ok: true },
+          websocket: { attempted: true, connected: true },
+        }),
+      },
+    ).protocols.find((protocol) => protocol.protocolId === "websocket")).toMatchObject({
+      status: "contract_ready",
+      blockers: expect.arrayContaining(["api_bun_websocket_runtime_not_verified"]),
+    });
+  });
+
   it("ignores backend runtime evidence that omits dependency, health, capability, or canonical websocket proof", () => {
     const incompletePostureInput = createBunRealtimeVoiceGatewayPostureInputFromEnvironment(
       {
@@ -761,6 +821,28 @@ function passedPythonBackendRuntimeSmokeEvidence(): {
           "voice.stopped",
         ],
       },
+    },
+  };
+}
+
+function passedApiBunWebSocketRuntimeSmokeEvidence(): Record<string, unknown> {
+  return {
+    generatedAt: "2026-06-06T22:20:36.794Z",
+    status: "passed",
+    runtimeEvidenceBlockers: [],
+    runtime: {
+      h3: {
+        enabled: false,
+        h3TrueEnabled: false,
+      },
+    },
+    health: {
+      attempted: true,
+      ok: true,
+    },
+    websocket: {
+      attempted: true,
+      connected: true,
     },
   };
 }

@@ -74,7 +74,7 @@ import {
   selectRealtimeVoiceProtocol,
 } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
-import { createOpenClinXrApiProtocolPosture } from "./protocol-support.js";
+import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
 type RuntimeReviewPacket = ReturnType<ScenarioRuntime["reviewPacket"]>;
@@ -897,6 +897,7 @@ export type ApiAppOptions = {
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
   realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
+  apiProtocolPosture?: OpenClinXrApiProtocolPosture;
 };
 
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
@@ -904,6 +905,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
+  const apiProtocolPosture = options.apiProtocolPosture ?? createOpenClinXrApiProtocolPosture();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
   const sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[] = [];
   const runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[] = [];
@@ -963,7 +965,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
 
-  app.get(routeById("runtime-protocols").path, (context) => context.json(createOpenClinXrApiProtocolPosture()));
+  app.get(routeById("runtime-protocols").path, (context) => context.json(apiProtocolPosture));
 
   app.get(routeById("runtime-provider-readiness").path, (context) => {
     const matrix = buildOpenClinXrCapabilityRoutingMatrix();

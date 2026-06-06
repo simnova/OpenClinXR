@@ -8,7 +8,13 @@ import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
 import { describe, expect, it } from "vitest";
-import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./index.js";
+import {
+  type ApiPersistenceSink,
+  type ApiScenarioReviewDecisionRecord,
+  type ApiStationRunQueueSnapshot,
+  createApiApp,
+  createOpenClinXrApiProtocolPosture,
+} from "./index.js";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
@@ -1764,6 +1770,25 @@ describe("OpenClinXR API shell", () => {
           protocolId: "web3-signaling",
           status: "planned",
           blockers: expect.arrayContaining(["operator_web3_signaling_proposal_missing", "web3_identity_and_signaling_protocol_not_selected"]),
+        }),
+      ]),
+    });
+  });
+
+  it("reports websocket runtime_ready when apiProtocolPosture is supplied from Bun WebSocket smoke evidence", async () => {
+    const app = createApiApp(undefined, {}, {
+      apiProtocolPosture: createOpenClinXrApiProtocolPosture({ apiBunWebSocketRuntimeVerified: true }),
+    });
+    const response = await app.request("/runtime/protocols");
+
+    expect(response.status).toBe(200);
+    expect(await json(response)).toMatchObject({
+      protocols: expect.arrayContaining([
+        expect.objectContaining({
+          protocolId: "websocket",
+          status: "ready",
+          claimScope: "runtime_ready",
+          blockers: [],
         }),
       ]),
     });
