@@ -150,6 +150,7 @@ async function stripMarkerNodes(document: Document, prefixes: string[]): Promise
       PropertyType.ACCESSOR,
       PropertyType.BUFFER,
     ],
+    keepAttributes: true,
   }));
   return removedNodeNames.sort();
 }
