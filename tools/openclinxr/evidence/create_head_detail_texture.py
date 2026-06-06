@@ -78,22 +78,24 @@ def main() -> None:
         draw.ellipse((cx + 1, cy - 2, cx + 2, cy - 1), fill=(255, 255, 238, 128))
         draw.line((eye[0] - 2, eye[1] - 10, eye[2] + 2, eye[1] - 8), fill=(45, 26, 16, 108), width=2)
 
-    mx0, my0, mx1, my1 = mouth
-    lip_y = round(my0 + (my1 - my0) * 0.42)
-    draw.ellipse((mx0 + 16, lip_y - 8, mx1 - 16, lip_y + 7), fill=(130, 66, 58, 42))
-    draw.line((mx0 + 22, lip_y, mx1 - 22, lip_y), fill=(82, 38, 36, 112), width=2)
-    draw.line((mx0 + 30, lip_y + 7, mx1 - 30, lip_y + 8), fill=(194, 118, 94, 28), width=1)
+    if args.mode == "balanced":
+        mx0, my0, mx1, my1 = mouth
+        lip_y = round(my0 + (my1 - my0) * 0.42)
+        draw.ellipse((mx0 + 16, lip_y - 8, mx1 - 16, lip_y + 7), fill=(130, 66, 58, 42))
+        draw.line((mx0 + 22, lip_y, mx1 - 22, lip_y), fill=(82, 38, 36, 112), width=2)
+        draw.line((mx0 + 30, lip_y + 7, mx1 - 30, lip_y + 8), fill=(194, 118, 94, 28), width=1)
 
     # Skin mottling limited to face/head.
-    for _ in range(90):
-        x = random.randint(face[0], face[2])
-        y = random.randint(face[1], face[3])
-        radius = random.randint(1, 2)
-        if random.random() < 0.6:
-            color = (165, 92, 72, random.randint(4, 10))
-        else:
-            color = (235, 188, 150, random.randint(4, 9))
-        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
+    if args.mode == "balanced":
+        for _ in range(90):
+            x = random.randint(face[0], face[2])
+            y = random.randint(face[1], face[3])
+            radius = random.randint(1, 2)
+            if random.random() < 0.6:
+                color = (165, 92, 72, random.randint(4, 10))
+            else:
+                color = (235, 188, 150, random.randint(4, 9))
+            draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
 
     detail = detail.filter(ImageFilter.GaussianBlur(radius=1.2))
     result = Image.alpha_composite(image, detail)
@@ -110,7 +112,9 @@ def main() -> None:
             "faceUvBox": [0.413, 0.025, 0.587, 0.220],
             "source": "observed_peds_patient_anny_uv_distribution",
         },
-        "features": ["scalp_hairline_breakup", "brow_eye_socket_iris_catchlight", "lip_separation", "face_skin_variation"],
+        "mode": args.mode,
+        "features": ["scalp_hairline_breakup", "brow_eye_socket_iris_catchlight"]
+        + (["lip_separation", "face_skin_variation"] if args.mode == "balanced" else []),
         "sha256": sha256(output_path),
         "providerBoundary": {
             "localOnly": True,
@@ -137,6 +141,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--report")
     parser.add_argument("--size", type=int, default=1024)
     parser.add_argument("--seed", type=int, default=6060606)
+    parser.add_argument("--mode", choices=["balanced", "hair-eye-only"], default="balanced")
     return parser.parse_args(argv)
 
 
