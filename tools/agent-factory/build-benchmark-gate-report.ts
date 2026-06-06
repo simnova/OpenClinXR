@@ -1,51 +1,51 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/api-bun-python-proxy-runtime-smoke.js";
-import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/api-bun-websocket-runtime-smoke.js";
-import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/api-python-backend-runtime-smoke.js";
+import type { ApiBunPythonProxyRuntimeSmokeReport } from "../openclinxr/evidence/api-bun-python-proxy-runtime-smoke.js";
+import type { ApiBunWebSocketRuntimeSmokeReport } from "../openclinxr/evidence/api-bun-websocket-runtime-smoke.js";
+import type { ApiPythonBackendRuntimeSmokeReport } from "../openclinxr/evidence/api-python-backend-runtime-smoke.js";
 import {
   type AssetCapabilityJobEvidenceReport,
   validateAssetCapabilityJobEvidenceReport,
-} from "../openclinxr/asset-capability-job-evidence.js";
+} from "../openclinxr/evidence/asset-capability-job-evidence.js";
 import {
   type AssetProductionArtifactEvidenceReport,
   validateAssetProductionArtifactEvidenceReport,
-} from "../openclinxr/asset-production-artifact-evidence.js";
+} from "../openclinxr/evidence/asset-production-artifact-evidence.js";
 import {
   type AssetProductionEvidenceLadderReport,
   validateAssetProductionEvidenceLadderReport,
-} from "../openclinxr/asset-production-evidence-ladder.js";
+} from "../openclinxr/evidence/asset-production-evidence-ladder.js";
 import {
   type AssetProductionReadinessReport,
   validateAssetProductionReadinessReport,
-} from "../openclinxr/asset-production-readiness-benchmark.js";
+} from "../openclinxr/evidence/asset-production-readiness-benchmark.js";
 import {
   buildQuestManualPerformanceCheck,
   type QuestManualPerformanceCheck,
   type QuestManualPerformanceHarvestSignalSnapshot,
   type QuestManualPerformancePayload,
-} from "../openclinxr/check-quest-manual-performance.js";
+} from "../openclinxr/evidence/check-quest-manual-performance.js";
 import {
   buildQuestMixedRealityManualCheck,
   type QuestMixedRealityManualCheck,
   type QuestMixedRealityManualReport,
-} from "../openclinxr/check-quest-mixed-reality-manual.js";
-import type { GodotProjectImportCheck } from "../openclinxr/godot-project-import-check.js";
-import type { GodotQuestVoiceEvidenceReport } from "../openclinxr/godot-quest-voice-evidence-check.js";
-import type { LocalModelCacheEvidenceReport } from "../openclinxr/local-model-cache-evidence.js";
-import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/local-moshi-runtime-package-evidence.js";
-import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/local-qwen-tts-runtime-smoke.js";
-import type { LocalRealtimeVoiceModelSourceCurrentnessReport } from "../openclinxr/local-realtime-voice-model-source-currentness-check.js";
+} from "../openclinxr/evidence/check-quest-mixed-reality-manual.js";
+import type { GodotProjectImportCheck } from "../openclinxr/evidence/godot-project-import-check.js";
+import type { GodotQuestVoiceEvidenceReport } from "../openclinxr/evidence/godot-quest-voice-evidence-check.js";
+import type { LocalModelCacheEvidenceReport } from "../openclinxr/evidence/local-model-cache-evidence.js";
+import type { LocalMoshiRuntimePackageEvidenceReport } from "../openclinxr/evidence/local-moshi-runtime-package-evidence.js";
+import type { LocalQwenTtsRuntimeSmokeReport } from "../openclinxr/evidence/local-qwen-tts-runtime-smoke.js";
+import type { LocalRealtimeVoiceModelSourceCurrentnessReport } from "../openclinxr/evidence/local-realtime-voice-model-source-currentness-check.js";
 import {
   buildQuestSmokeEvidenceCheck,
   type QuestSmokeEvidenceCheck,
   type QuestSmokeReport,
-} from "../openclinxr/quest-cdp-smoke.js";
+} from "../openclinxr/evidence/quest-cdp-smoke.js";
 import {
   buildVisualQaEvidenceReport,
   type VisualQaEvidence,
   type VisualQaEvidenceReport,
-} from "../openclinxr/visual-qa-evidence-check.js";
+} from "../openclinxr/evidence/visual-qa-evidence-check.js";
 import { globFiles, readJson, writeJson } from "./lib.js";
 
 type GateStatus = {

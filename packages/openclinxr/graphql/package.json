@@ -14,6 +14,7 @@
     "codegen:check": "graphql-codegen --config codegen.ts --check",
     "generate": "tsx scripts/generate-static-artifacts.ts && pnpm run codegen",
     "generate:check": "tsx scripts/generate-static-artifacts.ts --check && pnpm run codegen:check",
+    "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "pnpm run generate:check && vitest run --root ."
   },

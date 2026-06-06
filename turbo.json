@@ -1,33 +1,48 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "globalDependencies": [
+    "biome.json",
     "package.json",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
     "tsconfig.base.json",
+    "tsconfig.archunit.json",
+    "tsconfig.ide.json",
     "vitest.config.ts"
   ],
   "globalEnv": ["CI", "NODE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
       "outputs": ["dist/**", "deploy/**"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
+      "outputs": []
+    },
+    "lint": {
+      "inputs": ["$TURBO_DEFAULT$", "package.json", "biome.json"],
       "outputs": []
     },
     "test": {
-      "cache": false,
+      "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "**/*.test.ts", "vitest.config.ts", "package.json"],
       "outputs": ["coverage/**"]
     },
     "architecture": {
       "dependsOn": ["^typecheck"],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
       "outputs": []
     },
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "//#test:tools": {
+      "inputs": ["tools/**/*.ts", "vitest.config.ts", "tsconfig.tools-relaxed.json"],
+      "outputs": []
     }
   }
 }

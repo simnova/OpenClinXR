@@ -20,6 +20,7 @@
     "./dirname": "./src/utils/dirname.ts"
   },
   "scripts": {
+    "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },

@@ -415,6 +415,7 @@ describe("workspace architecture rules", () => {
     expect(backendPackage.devDependencies).toBeUndefined();
     expect(Object.keys(backendPackage.scripts ?? {}).sort()).toEqual([
       "dev",
+      "lint",
       "test",
       "typecheck",
       "voice:evidence",

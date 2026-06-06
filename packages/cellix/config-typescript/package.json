@@ -13,5 +13,8 @@
     "./base": "./tsconfig.base.json",
     "./node": "./tsconfig.node.json",
     "./vitest": "./tsconfig.vitest.json"
+  },
+  "scripts": {
+    "lint": "biome check --no-errors-on-unmatched ."
   }
 }

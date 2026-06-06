@@ -12,7 +12,8 @@
     "startupTimeout": 30000,
     "initializationOptions": {
       "preferences": {
-        "importModuleSpecifierPreference": "relative",
+        "importModuleSpecifierPreference": "non-relative",
+        "importModuleSpecifierEnding": "minimal",
         "includePackageJsonAutoImports": "on"
       },
       "hostInfo": "grok-build-openclinxr-monorepo",

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "architecture": "vitest run --root .",
+    "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },

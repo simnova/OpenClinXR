@@ -1,0 +1,17 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 8192,
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "search.exclude": {
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/.openclinxr": true,
+    "**/node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/.turbo": true,
+    "**/dist": true
+  }
+}

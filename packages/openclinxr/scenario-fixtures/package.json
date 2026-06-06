@@ -9,6 +9,7 @@
     "./scenario-bank": "./src/scenario-bank.ts"
   },
   "scripts": {
+    "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },

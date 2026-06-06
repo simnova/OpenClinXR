@@ -10,6 +10,7 @@
     "openclinxr-bench-mock": "./src/bench-mock.ts"
   },
   "scripts": {
+    "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root .",
     "bench:mock": "tsx src/bench-mock.ts"
