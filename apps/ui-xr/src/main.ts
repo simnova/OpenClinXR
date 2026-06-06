@@ -1389,6 +1389,7 @@ type GeneratedHumanoidAnimationSlot = {
   activeSpeech?: HumanoidSpeechPlayback | undefined;
   mixer?: AnimationMixer;
   activeRoleAnimationClipName?: string | undefined;
+  activeGazeProbeAnimationClipName?: string | undefined;
 };
 type HumanoidExpressionEmotion = "neutral" | "anxious" | "concerned" | "reassured" | "pain";
 type HumanoidExpressionWeights = {
@@ -6129,8 +6130,12 @@ function loadGeneratedHumanoidIntoActorSlot(
         actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_secondary_actors_for_primary_humanoid_mouth_gaze_pose_review";
       }
       const roleAnimationClipNames = roleAnimationClipNamesForActor(options.actorId);
+      const gazeProbeAnimationClipNames = gazeProbeAnimationClipNamesFromGltf(gltf.animations);
       const activeRoleAnimationClipName = gltf.animations.find((clip): clip is AnimationClip =>
         clip instanceof AnimationClip && roleAnimationClipNames.includes(clip.name)
+      )?.name ?? null;
+      const activeGazeProbeAnimationClipName = gltf.animations.find((clip): clip is AnimationClip =>
+        clip instanceof AnimationClip && gazeProbeAnimationClipNames.includes(clip.name)
       )?.name ?? null;
       registerGeneratedHumanoidAnimation({
         assetId: options.assetId,
@@ -6143,6 +6148,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         expressionCue,
         animationClips: gltf.animations,
         roleAnimationClipNames,
+        gazeProbeAnimationClipNames,
       });
       recordSceneAssetStatus({
         assetId: options.assetId,
@@ -6173,6 +6179,9 @@ function loadGeneratedHumanoidIntoActorSlot(
           : "procedural_dialogue_expression_gaze_fallback",
         roleAnimationClipNames,
         activeRoleAnimationClipName,
+        gazeProbeAnimationClipNames,
+        activeGazeProbeAnimationClipName,
+        gazeProbePlayback: activeGazeProbeAnimationClipName ? "gltf_gaze_probe_clip_playing" : "gaze_probe_clip_missing",
         ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
       });
       recordBootPhase("generated_humanoid_asset_loaded");
@@ -6329,13 +6338,17 @@ function registerGeneratedHumanoidAnimation(input: {
   expressionCue: Group;
   animationClips: unknown[];
   roleAnimationClipNames: string[];
+  gazeProbeAnimationClipNames: string[];
 }): void {
   const mixer = input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
   const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.roleAnimationClipNames.includes(clip.name)
   );
+  const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
+    clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
+  );
   const clipsToPlay = selectedRoleClips.length > 0
-    ? selectedRoleClips
+    ? [...selectedRoleClips, ...selectedGazeProbeClips]
     : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
   if (mixer) {
     for (const clip of clipsToPlay) {
@@ -6343,6 +6356,7 @@ function registerGeneratedHumanoidAnimation(input: {
     }
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
+  const activeGazeProbeAnimationClipName = selectedGazeProbeClips[0]?.name;
   const slot = {
     assetId: input.assetId,
     actorId: input.actorId,
@@ -6362,6 +6376,7 @@ function registerGeneratedHumanoidAnimation(input: {
     emotionExpression: createHumanoidEmotionExpressionState(),
     ...(mixer ? { mixer } : {}),
     ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
+    ...(activeGazeProbeAnimationClipName ? { activeGazeProbeAnimationClipName } : {}),
   };
   generatedHumanoidAnimationSlots.push(slot);
   generatedHumanoidAnimationSlotsByActorId.set(input.actorId, slot);
@@ -6373,6 +6388,8 @@ function registerGeneratedHumanoidAnimation(input: {
     : "procedural_idle_breathing_fallback";
   input.humanoid.userData.openClinXrRoleAnimationClipNames = input.roleAnimationClipNames;
   input.humanoid.userData.openClinXrActiveRoleAnimationClipName = activeRoleAnimationClipName ?? null;
+  input.humanoid.userData.openClinXrGazeProbeAnimationClipNames = input.gazeProbeAnimationClipNames;
+  input.humanoid.userData.openClinXrActiveGazeProbeAnimationClipName = activeGazeProbeAnimationClipName ?? null;
   if (input.actorId === runtimePatientActorId()) {
     window.requestAnimationFrame(() => {
       triggerHumanoidDialogue(input.actorId, dialogueLine.textContent?.trim() || initialDialogueText, {
@@ -6797,6 +6814,12 @@ function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
   return animationClips.some((clip) =>
     clip instanceof AnimationClip && /clinical|idle|relaxed|conversation|consult/i.test(clip.name)
   );
+}
+
+function gazeProbeAnimationClipNamesFromGltf(animationClips: unknown[]): string[] {
+  return animationClips
+    .filter((clip): clip is AnimationClip => clip instanceof AnimationClip && clip.name.startsWith("openclinxr_mpfb2_eye_look_probe"))
+    .map((clip) => clip.name);
 }
 
 function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {

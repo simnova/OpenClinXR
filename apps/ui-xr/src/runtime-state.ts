@@ -1025,6 +1025,9 @@ export type SceneAssetEvidence = {
     animationPlayback?: "gltf_role_animation_clip_playing" | "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
     roleAnimationClipNames?: string[];
     activeRoleAnimationClipName?: string | null;
+    gazeProbeAnimationClipNames?: string[];
+    activeGazeProbeAnimationClipName?: string | null;
+    gazeProbePlayback?: "gltf_gaze_probe_clip_playing" | "gaze_probe_clip_missing" | "not_applicable";
     humanoidSourceProvenance?: {
       generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_local_forward_pass_plus_blender_procedural" | "real_anny_plus_blender" | "fixture" | "candidate";
       sourceKind: "case_driven_generated_humanoid_candidate" | "real_anny_candidate_unverified" | "runtime_fixture" | "source_comparator_candidate";

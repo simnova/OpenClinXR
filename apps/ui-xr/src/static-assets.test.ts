@@ -710,6 +710,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("role clips active");
     expect(mainSource).toContain("activeRoleAnimationClipName");
     expect(mainSource).toContain("openClinXrActiveRoleAnimationClipName");
+    expect(mainSource).toContain("gazeProbeAnimationClipNamesFromGltf");
+    expect(mainSource).toContain("openclinxr_mpfb2_eye_look_probe");
+    expect(mainSource).toContain("openClinXrActiveGazeProbeAnimationClipName");
     expect(mainSource).toContain("createDetailedEdRoomProps");
     expect(mainSource).toContain("runtimeRoomPropObjectPrefix");
     expect(mainSource).toContain("runtimeSceneObjectPrefix");
@@ -741,6 +744,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("runtimeAssetAffordanceCueIds");
     expect(mainSource).toContain("affordanceCueIds");
     expect(mainSource).toContain("animationPlayback");
+    expect(runtimeStateSource).toContain("gltf_gaze_probe_clip_playing");
     expect(mainSource).toContain("affordance cues");
     expect(mainSource).toContain("selectable_equipment_reference");
     expect(mainSource).toContain("room_boundary_reference");
