@@ -1,5 +1,6 @@
 node_modules/
 .turbo/
+*.tsbuildinfo
 .DS_Store
 .env.openclinxr.local
 .envrc

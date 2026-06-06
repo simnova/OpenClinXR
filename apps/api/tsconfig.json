@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "types": ["bun-types"]
+    "types": [
+      "bun-types"
+    ],
+    "composite": true
   },
   "include": [
     "src/**/*.ts",

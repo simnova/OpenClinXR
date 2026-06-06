@@ -1,7 +1,12 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "."
+    "rootDir": ".",
+    "composite": true
   },
-  "include": ["codegen.ts", "src/**/*.ts", "scripts/**/*.ts"]
+  "include": [
+    "codegen.ts",
+    "src/**/*.ts",
+    "scripts/**/*.ts"
+  ]
 }

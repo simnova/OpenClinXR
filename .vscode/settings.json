@@ -2,8 +2,10 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsserver.maxTsServerMemory": 8192,
+  "typescript.tsserver.useSyntaxServer": "auto",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.preferences.useAliasesForRenames": true,
   "search.exclude": {
     "**/.turbo": true,
     "**/dist": true,

@@ -2,8 +2,16 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "noPropertyAccessFromIndexSignature": false
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "noPropertyAccessFromIndexSignature": false,
+    "composite": true
   },
-  "include": ["src/**/*.ts", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "vite.config.ts"
+  ]
 }

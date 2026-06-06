@@ -6,7 +6,7 @@
   "counts": {
     "agent-methodology": 51,
     "current-reference": 148,
-    "archive-candidate": 8,
+    "archive-candidate": 9,
     "evidence": 27,
     "protected-policy": 11,
     "agent-memory": 26,
@@ -1910,6 +1910,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/turbo-remote-cache-setup.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md",

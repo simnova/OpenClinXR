@@ -913,6 +913,10 @@ async function main(): Promise<void> {
   console.log(`Wrote .agent-factory/benchmark-gate-report.json; gates ${readySummary}`);
 }
 
+function normalizeEvidenceFilePath(file: string): string {
+  return path.isAbsolute(file) ? path.normalize(file) : path.resolve(process.cwd(), file);
+}
+
 export async function latestJson<TValue>(
   pattern: string,
   acceptFile: (file: string) => boolean = () => true,
@@ -922,7 +926,7 @@ export async function latestJson<TValue>(
   if (!file) {
     return undefined;
   }
-  return { file, value: await readJson<TValue>(file) };
+  return { file: normalizeEvidenceFilePath(file), value: await readJson<TValue>(file) };
 }
 
 async function fileJson<TValue>(file: string): Promise<{ file: string; value: TValue } | undefined> {
@@ -1992,7 +1996,7 @@ export async function latestVisualQaEvidenceJson(
   if (!file) {
     return undefined;
   }
-  return { file, value: await readJson<VisualQaEvidence>(file) };
+  return { file: normalizeEvidenceFilePath(file), value: await readJson<VisualQaEvidence>(file) };
 }
 
 function compareVisualQaEvidenceFiles(left: string, right: string): number {

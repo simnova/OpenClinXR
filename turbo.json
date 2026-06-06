@@ -1,5 +1,30 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
+  "remoteCache": {
+    "enabled": true
+  },
+  "boundaries": {
+    "tags": {
+      "production": {
+        "dependencies": {
+          "deny": ["arena"]
+        }
+      },
+      "internal": {
+        "dependencies": {
+          "deny": ["arena"]
+        }
+      },
+      "cellix": {
+        "dependencies": {
+          "deny": ["arena", "production"]
+        },
+        "dependents": {
+          "deny": ["arena", "production"]
+        }
+      }
+    }
+  },
   "globalDependencies": [
     "biome.json",
     "package.json",

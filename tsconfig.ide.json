@@ -1,7 +1,107 @@
 {
-  "extends": "./tsconfig.archunit.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "composite": false
-  }
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./apps/arena/mock-realtime-voice-server"
+    },
+    {
+      "path": "./apps/arena/model-vetting-studio"
+    },
+    {
+      "path": "./apps/arena/ui-xr-iwsdk-spike"
+    },
+    {
+      "path": "./apps/ui-admin"
+    },
+    {
+      "path": "./apps/ui-xr"
+    },
+    {
+      "path": "./packages/cellix/config-vitest"
+    },
+    {
+      "path": "./packages/openclinxr/agent-loop"
+    },
+    {
+      "path": "./packages/openclinxr/architecture-rules"
+    },
+    {
+      "path": "./packages/openclinxr/arena/iwsdk-spike"
+    },
+    {
+      "path": "./packages/openclinxr/arena/model-vetting"
+    },
+    {
+      "path": "./packages/openclinxr/arena/multi-actor-state-spike"
+    },
+    {
+      "path": "./packages/openclinxr/asset-registry"
+    },
+    {
+      "path": "./packages/openclinxr/capability-gateway"
+    },
+    {
+      "path": "./packages/openclinxr/config-rolldown"
+    },
+    {
+      "path": "./packages/openclinxr/data-mongodb"
+    },
+    {
+      "path": "./packages/openclinxr/data-sources-mongoose-models"
+    },
+    {
+      "path": "./packages/openclinxr/domain"
+    },
+    {
+      "path": "./packages/openclinxr/exam-assembly"
+    },
+    {
+      "path": "./packages/openclinxr/graphql"
+    },
+    {
+      "path": "./packages/openclinxr/model-gateway"
+    },
+    {
+      "path": "./packages/openclinxr/rest"
+    },
+    {
+      "path": "./packages/openclinxr/review-workflow"
+    },
+    {
+      "path": "./packages/openclinxr/scenario-fixtures"
+    },
+    {
+      "path": "./packages/openclinxr/scenario-runtime"
+    },
+    {
+      "path": "./packages/openclinxr/session-state"
+    },
+    {
+      "path": "./packages/openclinxr/shared-schemas"
+    },
+    {
+      "path": "./packages/openclinxr/telemetry"
+    },
+    {
+      "path": "./packages/openclinxr/test-harness"
+    },
+    {
+      "path": "./packages/openclinxr/trace-ledger"
+    },
+    {
+      "path": "./packages/openclinxr/ui-route-admin"
+    },
+    {
+      "path": "./packages/openclinxr/ui-route-shared"
+    },
+    {
+      "path": "./packages/openclinxr/ui-shared"
+    },
+    {
+      "path": "./packages/openclinxr/voice-gateway"
+    }
+  ]
 }

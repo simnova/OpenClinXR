@@ -1,7 +1,8 @@
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { writePngFixture500 } from "../openclinxr/evidence/test-fixture-media.js";
 import { buildAssetProductionArtifactEvidenceReport } from "../openclinxr/evidence/asset-production-artifact-evidence.js";
 import { buildAssetProductionEvidenceLadderReport } from "../openclinxr/evidence/asset-production-evidence-ladder.js";
 import type { AssetProductionReadinessReport } from "../openclinxr/evidence/asset-production-readiness-benchmark.js";
@@ -1716,6 +1717,8 @@ const completedVisualQaEvidence: VisualQaEvidence = {
       interaction_affordances: { status: "concern", notes: ["Controller and hand input still require separate evidence."] },
       occlusion_scale: { status: "concern", notes: ["Scale and occlusion need XR scene inspection and Quest confirmation."] },
       evidence_limits: { status: "pass", notes: ["This is IWER evidence, not physical Quest or production proof."] },
+      equipment_necessity: { status: "pass", notes: ["Equipment shown is necessary for the clinical scenario context."] },
+      scene_clutter_removal: { status: "pass", notes: ["No distracting scene clutter is introduced in this capture."] },
     },
   },
   claimBoundaries: {
@@ -1731,7 +1734,17 @@ const completedVisualQaEvidence: VisualQaEvidence = {
   },
 };
 
+const visualQaScreenshotFixturePath = "docs/openclinxr/screenshots/iwer-sidecar-agent-browser-2026-05-04.png";
+
 describe("benchmark gate report", () => {
+  beforeAll(async () => {
+    await writePngFixture500(visualQaScreenshotFixturePath);
+  });
+
+  afterAll(async () => {
+    await rm(visualQaScreenshotFixturePath, { force: true });
+  });
+
   it("selects raw Quest CDP smoke evidence without derived check reports", async () => {
     const tempDir = await mkdtemp(path.join(tmpdir(), "openclinxr-quest-smoke-latest-"));
     const rawPath = path.join(tempDir, "quest-cdp-smoke-2026-05-04.json");
@@ -2142,20 +2155,24 @@ describe("benchmark gate report", () => {
     expect(gatesById.get("evidence-leadership-0009-002")).toEqual(expect.objectContaining({
       ready_to_resolve: false,
       blockers: expect.arrayContaining([
-        "local_model_quality:target_hardware:target_hardware_not_m1_profile",
+        "local_model_quality:target_hardware:target_hardware_not_m4_profile",
+        "local_model_quality_benchmark:evidence_stale_over_24h",
+        "local_model_runtime_benchmark:evidence_stale_over_24h",
+        "local_provider_benchmark:evidence_stale_over_24h",
       ]),
       satisfied_conditions: expect.arrayContaining([
         "local_model_quality_actor_policy_benchmark_passed",
         "local_model_quality_report_present",
         "local_model_quality_required_keys_present",
         "local_model_runtime_benchmark_passed",
+        "local_model_ready_to_benchmark",
+        "local_provider_mock_benchmarks_passed",
       ]),
     }));
     expect(gatesById.get("evidence-leadership-0009-002")?.blockers).not.toEqual(expect.arrayContaining([
       "local_model_quality:structured_output:reasoning_markup_emitted",
       "local_model_quality:structured_output:safety_flags_not_guardrail_labels",
       "local_model_quality:structured_output:schema_grammar_not_enforced",
-      "local_model_quality_benchmark:evidence_stale_over_24h",
     ]));
     expect(gatesById.get("evidence-leadership-0009-002")?.blockers).not.toEqual(expect.arrayContaining([
       "local_model_quality:actor_policy:real_local_model_visible_fact_grounding_probe_failed",

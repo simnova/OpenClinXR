@@ -12,7 +12,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 26
 - agent-methodology: 51
-- archive-candidate: 8
+- archive-candidate: 9
 - current-reference: 148
 - decision-record: 19
 - evidence: 27
@@ -190,6 +190,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/generated-output-storage-policy-2026-06-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

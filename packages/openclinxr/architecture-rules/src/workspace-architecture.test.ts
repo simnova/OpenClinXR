@@ -600,6 +600,38 @@ describe("workspace architecture rules", () => {
     ]);
   });
 
+  it("keeps turbo boundaries tags aligned with architecture package tiers", () => {
+    const rootTurbo = JSON.parse(readFileSync(join(workspaceRoot, "turbo.json"), "utf8")) as {
+      boundaries?: {
+        tags?: Record<string, {
+          dependencies?: { deny?: string[] };
+        }>;
+      };
+    };
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+
+    expect(rootTurbo.boundaries?.tags?.production?.dependencies?.deny).toContain("arena");
+    expect(rootTurbo.boundaries?.tags?.internal?.dependencies?.deny).toContain("arena");
+    expect(rootPackage.scripts?.["boundaries"]).toContain("turbo boundaries");
+
+    const taggedManifests = [
+      ...productionAppRoots.map((root) => ({ manifestPath: `${root}package.json`, tag: "production" })),
+      ...capabilityArenaAppRoots
+        .filter((root) => existsSync(join(workspaceRoot, `${root}package.json`)))
+        .map((root) => ({ manifestPath: `${root}package.json`, tag: "arena" })),
+      ...capabilityArenaPackageRoots.map((root) => ({ manifestPath: `${root}package.json`, tag: "arena" })),
+    ];
+
+    for (const { manifestPath, tag } of taggedManifests) {
+      const turboPath = join(workspaceRoot, manifestPath.replace("package.json", "turbo.json"));
+      const turboConfig = JSON.parse(readFileSync(turboPath, "utf8")) as { extends?: string[]; tags?: string[] };
+      expect(turboConfig.extends).toEqual(["//"]);
+      expect(turboConfig.tags).toContain(tag);
+    }
+  });
+
   it("keeps capability arena packages under the arena package directory", () => {
     const arenaPackageManifestPaths = capabilityArenaPackageRoots
       .filter((root) => existsSync(join(workspaceRoot, `${root}package.json`)))
