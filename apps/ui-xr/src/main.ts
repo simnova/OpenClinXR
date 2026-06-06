@@ -185,7 +185,7 @@ type RuntimeHumanoidActingCueEvidence = {
     cueIds: string[];
     respiratoryRateCueHz?: number | undefined;
     gazeAlternationTargetActorId?: string | null | undefined;
-    bodyMotionMode: "procedural_idle_body_motion" | "scenario_dialogue_body_motion_runtime" | "scenario_pediatric_respiratory_distress_idle_overlay";
+    bodyMotionMode: "procedural_idle_body_motion" | "scenario_dialogue_body_motion_runtime" | "scenario_pediatric_respiratory_distress_idle_overlay" | "source_comparator_runtime_pose_updates_disabled";
   }>;
   notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "animation_quality">;
 };
@@ -1387,6 +1387,7 @@ type GeneratedHumanoidAnimationSlot = {
   eyeFocusCue: Group;
   expressionCue: Group;
   emotionExpression: HumanoidEmotionExpressionState;
+  sourceComparatorFreezeEnabled: boolean;
   activeSpeech?: HumanoidSpeechPlayback | undefined;
   mixer?: AnimationMixer;
   activeRoleAnimationClipName?: string | undefined;
@@ -2825,10 +2826,17 @@ function createStationScene(): StationSceneRuntime {
     camera.lookAt(0.02, 1.02, -0.08);
     camera.userData.openClinXrCameraFraming = "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus";
   } else if (cleanHumanoidSourceComparatorCapture) {
-    camera.fov = 48;
-    camera.position.set(-0.08, 0.86, 3.45);
-    camera.lookAt(-0.08, 0.82, -0.96);
-    camera.userData.openClinXrCameraFraming = "clean_humanoid_source_comparator_full_body_candidate_capture";
+    if (selectedHumanoidSourceComparator() === "peds_anny_mpfb2_eye_rig_patient") {
+      camera.fov = 58;
+      camera.position.set(-0.88, 0.72, 3.55);
+      camera.lookAt(-0.88, 0.02, 0.12);
+      camera.userData.openClinXrCameraFraming = "clean_peds_anny_mpfb2_source_comparator_full_body_candidate_capture";
+    } else {
+      camera.fov = 48;
+      camera.position.set(-0.08, 0.86, 3.45);
+      camera.lookAt(-0.08, 0.82, -0.96);
+      camera.userData.openClinXrCameraFraming = "clean_humanoid_source_comparator_full_body_candidate_capture";
+    }
   } else if (actorPoseReviewCapture) {
     camera.position.set(-0.12, 1.22, 4.05);
     camera.lookAt(-0.18, 1.05, -0.18);
@@ -6123,6 +6131,7 @@ function loadGeneratedHumanoidIntoActorSlot(
       humanoid.position.set(0, options.verticalOffsetMeters, 0);
       humanoid.rotation.y = 0;
       humanoid.scale.set(1, 1, 1);
+      neutralizeGeneratedHumanoidMorphTargets(humanoid);
       const humanoidSourceComparator = selectedHumanoidSourceComparator();
       const cleanSourceComparatorCapture = shouldUseCleanHumanoidSourceComparatorCapture() && humanoidSourceComparator !== null && options.actorId === runtimePatientActorId();
       if (cleanSourceComparatorCapture) {
@@ -6424,6 +6433,42 @@ function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_anto
   return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" ? selected : null;
 }
 
+function neutralizeGeneratedHumanoidMorphTargets(humanoid: Group): void {
+  let meshCount = 0;
+  let influenceCount = 0;
+  const targetNames = new Set<string>();
+  humanoid.traverse((object) => {
+    if (!(object instanceof Mesh)) {
+      return;
+    }
+    meshCount++;
+    const targetDictionary = object.morphTargetDictionary ?? {};
+    const morphTargetCount = Math.max(
+      object.morphTargetInfluences?.length ?? 0,
+      Object.keys(targetDictionary).length,
+    );
+    if (!object.morphTargetInfluences || object.morphTargetInfluences.length !== morphTargetCount) {
+      object.morphTargetInfluences = Array.from({ length: morphTargetCount }, () => 0);
+    }
+    for (let index = 0; index < object.morphTargetInfluences.length; index++) {
+      object.morphTargetInfluences[index] = 0;
+      influenceCount++;
+    }
+    for (const targetName of Object.keys(targetDictionary)) {
+      targetNames.add(targetName);
+    }
+    object.userData.openClinXrNeutralMorphTargetPolicy =
+      "all_imported_morph_targets_zeroed_until_runtime_speech_expression_sets_controlled_weights";
+  });
+  humanoid.userData.openClinXrNeutralMorphTargetPolicy = {
+    mode: "zero_imported_default_morph_weights_on_load",
+    meshCount,
+    influenceCount,
+    targetNames: [...targetNames].sort(),
+    reason: "generated_anny_mpfb2_candidates_can_export_nonzero_default_viseme_expression_weights_that_hide_the_body_in_clean_review",
+  };
+}
+
 function registerGeneratedHumanoidAnimation(input: {
   assetId: string;
   actorId: string;
@@ -6480,6 +6525,7 @@ function registerGeneratedHumanoidAnimation(input: {
     eyeFocusCue: input.eyeFocusCue,
     expressionCue: input.expressionCue,
     emotionExpression: createHumanoidEmotionExpressionState(),
+    sourceComparatorFreezeEnabled: !input.playbackEnabled && input.fixedSourcePoseSampleSeconds !== null,
     ...(mixer ? { mixer } : {}),
     ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
     ...(activeGazeProbeAnimationClipName ? { activeGazeProbeAnimationClipName } : {}),
@@ -6498,7 +6544,11 @@ function registerGeneratedHumanoidAnimation(input: {
   input.humanoid.userData.openClinXrActiveRoleAnimationClipName = activeRoleAnimationClipName ?? null;
   input.humanoid.userData.openClinXrGazeProbeAnimationClipNames = input.gazeProbeAnimationClipNames;
   input.humanoid.userData.openClinXrActiveGazeProbeAnimationClipName = activeGazeProbeAnimationClipName ?? null;
-  if (input.actorId === runtimePatientActorId()) {
+  if (slot.sourceComparatorFreezeEnabled) {
+    input.humanoid.userData.openClinXrSourceComparatorRuntimeFreezePolicy =
+      "runtime_pose_speech_gaze_emotion_updates_disabled_for_clean_source_body_capture";
+  }
+  if (input.actorId === runtimePatientActorId() && !slot.sourceComparatorFreezeEnabled) {
     window.requestAnimationFrame(() => {
       triggerHumanoidDialogue(input.actorId, dialogueLine.textContent?.trim() || initialDialogueText, {
         kind: "learner_camera",
@@ -6512,6 +6562,9 @@ function registerGeneratedHumanoidAnimation(input: {
 
 function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
   if (pedsActorPlayerRuntimePlaybackScheduled || !isPediatricAsthmaRuntimeScenario()) {
+    return;
+  }
+  if (generatedHumanoidAnimationSlots.some((slot) => slot.sourceComparatorFreezeEnabled)) {
     return;
   }
   const turns = pedsActorPlayerRuntimeTurns();
@@ -6677,6 +6730,9 @@ function playPedsActorPlayerRuntimeTurn(
   },
 ): void {
   for (const slot of generatedHumanoidAnimationSlots) {
+    if (slot.sourceComparatorFreezeEnabled) {
+      continue;
+    }
     if (slot.actorId !== turn.actorId) {
       slot.activeSpeech = undefined;
       slot.mouthCue.visible = false;
@@ -6734,7 +6790,7 @@ function applyPedsActorPlayerSequenceListenerCues(
   ];
   for (const listenerActorId of listenerActorIds) {
     const slot = generatedHumanoidAnimationSlotsByActorId.get(listenerActorId);
-    if (!slot || slot.activeSpeech) {
+    if (!slot || slot.activeSpeech || slot.sourceComparatorFreezeEnabled) {
       continue;
     }
     const gazeOrigin = new Vector3(0, 1.57, 0.29);
@@ -6933,6 +6989,25 @@ function gazeProbeAnimationClipNamesFromGltf(animationClips: unknown[]): string[
 function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, camera: PerspectiveCamera, drive?: GeneratedRuntimeDrive | null): void {
   const actorCues: RuntimeHumanoidActingCueEvidence["actorCues"] = [];
   for (const slot of generatedHumanoidAnimationSlots) {
+    if (slot.sourceComparatorFreezeEnabled) {
+      slot.mouthCue.visible = false;
+      slot.gazeCue.visible = false;
+      slot.eyeFocusCue.visible = false;
+      slot.expressionCue.visible = false;
+      slot.root.userData.openClinXrBodyMotionCue = {
+        cueIds: ["source_comparator_runtime_pose_freeze_cue"],
+        mode: "source_comparator_runtime_pose_updates_disabled",
+        intensity: 0,
+        notEvidenceFor: "runtime acting, body-motion realism, Quest headset kinematic certification, or production animation quality",
+      };
+      actorCues.push({
+        actorId: slot.actorId,
+        role: runtimeActorRole(slot.actorId) ?? null,
+        cueIds: slot.root.userData.openClinXrBodyMotionCue.cueIds,
+        bodyMotionMode: "source_comparator_runtime_pose_updates_disabled",
+      });
+      continue;
+    }
     slot.mixer?.update(deltaSeconds);
     applyGeneratedHumanoidClinicalIdlePosture(slot.root);
     applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);

@@ -146,6 +146,7 @@ type LocalCandidateBundleEvidence = {
   roleMaterialHandoff?: RoleMaterialHandoff;
   roleAnimationHandoff?: RoleAnimationHandoff;
   proceduralFaceDetailHandoff?: ProceduralFaceDetailHandoff;
+  morphTargetDiagnostics?: MorphTargetDiagnostics;
   notEvidenceFor: string[];
 };
 
@@ -187,6 +188,22 @@ type ProceduralFaceDetailHandoff = {
   headTopY: number | null;
   eyeY: number | null;
   faceZ: number | null;
+  claimScope: string;
+  notEvidenceFor: string[];
+};
+
+type MorphTargetDiagnostics = {
+  defaultWeightThreshold: number;
+  extremeDeltaThreshold: number;
+  nonzeroDefaultWeights: Array<{
+    name: string;
+    defaultValue: number;
+  }>;
+  extremeMorphDeltas: Array<{
+    name: string;
+    maxDelta: number;
+    maxAxisDelta: number;
+  }>;
   claimScope: string;
   notEvidenceFor: string[];
 };
@@ -497,6 +514,7 @@ async function evaluateCandidate(spec: AnnyCandidateSpec): Promise<CandidatePref
     ...(localCandidateBundle && localCandidateBundle.gates.bPlusVisualRealismGate === false ? [] : localCandidateBundle ? ["local_candidate_bundle_b_plus_gate_missing"] : []),
     ...(localCandidateBundle && localCandidateBundle.gates.questReadiness === false ? [] : localCandidateBundle ? ["local_candidate_bundle_quest_gate_missing"] : []),
     ...(localCandidateBundle && localCandidateBundle.gates.productionReadiness === false ? [] : localCandidateBundle ? ["local_candidate_bundle_production_gate_missing"] : []),
+    ...morphTargetDiagnosticsBlockers(localCandidateBundle?.morphTargetDiagnostics),
   ]);
   const structuralBlockers = new Set([
     "glb_scene_missing",
@@ -612,6 +630,14 @@ async function evaluateCandidate(spec: AnnyCandidateSpec): Promise<CandidatePref
       productionManifestPromotionAllowed: false,
     },
   };
+}
+
+function morphTargetDiagnosticsBlockers(diagnostics: MorphTargetDiagnostics | undefined): string[] {
+  if (!diagnostics) return [];
+  return uniqueStrings([
+    ...diagnostics.nonzeroDefaultWeights.map((entry) => `default_morph_weight_detected:${entry.name}:${entry.defaultValue}`),
+    ...diagnostics.extremeMorphDeltas.map((entry) => `extreme_morph_delta_detected:${entry.name}:${entry.maxDelta}`),
+  ]);
 }
 
 function buildMissingGeneratedAssetCandidate(
@@ -868,6 +894,27 @@ export function validateAnnyCandidatePreflightReport(value: unknown): { ok: true
               requireStringArrayIncludes(proceduralFaceDetailHandoff["notEvidenceFor"], "b_plus_visual_realism_gate", `/candidates/${index}/localCandidateBundle/proceduralFaceDetailHandoff/notEvidenceFor`, errors);
             }
           }
+          const morphTargetDiagnostics = localCandidateBundle["morphTargetDiagnostics"];
+          if (morphTargetDiagnostics !== undefined) {
+            requireRecord(morphTargetDiagnostics, `/candidates/${index}/localCandidateBundle/morphTargetDiagnostics`, errors);
+            if (isRecord(morphTargetDiagnostics)) {
+              if (typeof morphTargetDiagnostics["defaultWeightThreshold"] !== "number") {
+                errors.push(`/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/defaultWeightThreshold must be number`);
+              }
+              if (typeof morphTargetDiagnostics["extremeDeltaThreshold"] !== "number") {
+                errors.push(`/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/extremeDeltaThreshold must be number`);
+              }
+              if (!Array.isArray(morphTargetDiagnostics["nonzeroDefaultWeights"])) {
+                errors.push(`/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/nonzeroDefaultWeights must be array`);
+              }
+              if (!Array.isArray(morphTargetDiagnostics["extremeMorphDeltas"])) {
+                errors.push(`/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/extremeMorphDeltas must be array`);
+              }
+              requireString(morphTargetDiagnostics["claimScope"], `/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/claimScope`, errors);
+              requireStringArrayIncludes(morphTargetDiagnostics["notEvidenceFor"], "production_asset_readiness", `/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/notEvidenceFor`, errors);
+              requireStringArrayIncludes(morphTargetDiagnostics["notEvidenceFor"], "b_plus_visual_realism_gate", `/candidates/${index}/localCandidateBundle/morphTargetDiagnostics/notEvidenceFor`, errors);
+            }
+          }
         }
       }
       if (isRecord(glb)) {
@@ -983,6 +1030,7 @@ async function evaluateLocalCandidateBundle(
   const roleMaterialHandoff = roleMaterialHandoffFromRiggingReport(riggingReport);
   const roleAnimationHandoff = roleAnimationHandoffFromRiggingReport(riggingReport);
   const proceduralFaceDetailHandoff = proceduralFaceDetailHandoffFromRiggingReport(riggingReport);
+  const morphTargetDiagnostics = morphTargetDiagnosticsFromRiggingReport(riggingReport);
   return {
     schemaVersion: String(bundle.raw.schemaVersion ?? "unknown"),
     claimScope: String(bundle.raw.claimScope ?? "unknown"),
@@ -1030,6 +1078,7 @@ async function evaluateLocalCandidateBundle(
     ...(roleMaterialHandoff ? { roleMaterialHandoff } : {}),
     ...(roleAnimationHandoff ? { roleAnimationHandoff } : {}),
     ...(proceduralFaceDetailHandoff ? { proceduralFaceDetailHandoff } : {}),
+    ...(morphTargetDiagnostics ? { morphTargetDiagnostics } : {}),
     notEvidenceFor: stringArray(bundle.raw.notEvidenceFor),
   };
 }
@@ -1103,6 +1152,29 @@ function proceduralFaceDetailHandoffFromRiggingReport(report: Record<string, unk
     faceZ: numberOrNull(markers["faceZ"]),
     claimScope: stringOr(markers["claimScope"], "procedural_face_detail_marker_not_production_groom_or_eye_shader"),
     notEvidenceFor: stringArray(markers["notEvidenceFor"]),
+  };
+}
+
+function morphTargetDiagnosticsFromRiggingReport(report: Record<string, unknown>): MorphTargetDiagnostics | null {
+  const diagnostics = isRecord(report["morphTargetDiagnostics"]) ? report["morphTargetDiagnostics"] : null;
+  if (!diagnostics) return null;
+  const nonzeroDefaultWeights = Array.isArray(diagnostics["nonzeroDefaultWeights"]) ? diagnostics["nonzeroDefaultWeights"] : [];
+  const extremeMorphDeltas = Array.isArray(diagnostics["extremeMorphDeltas"]) ? diagnostics["extremeMorphDeltas"] : [];
+  if (nonzeroDefaultWeights.length === 0 && extremeMorphDeltas.length === 0) return null;
+  return {
+    defaultWeightThreshold: numberOr(diagnostics["defaultWeightThreshold"], 0.001),
+    extremeDeltaThreshold: numberOr(diagnostics["extremeDeltaThreshold"], 0.05),
+    nonzeroDefaultWeights: nonzeroDefaultWeights.map((entry) => ({
+      name: stringOr(isRecord(entry) ? entry["name"] : undefined, "unknown"),
+      defaultValue: numberOr(isRecord(entry) ? entry["defaultValue"] : undefined, 0),
+    })),
+    extremeMorphDeltas: extremeMorphDeltas.map((entry) => ({
+      name: stringOr(isRecord(entry) ? entry["name"] : undefined, "unknown"),
+      maxDelta: numberOr(isRecord(entry) ? entry["maxDelta"] : undefined, 0),
+      maxAxisDelta: numberOr(isRecord(entry) ? entry["maxAxisDelta"] : undefined, 0),
+    })),
+    claimScope: stringOr(diagnostics["claimScope"], "morph_target_diagnostic_not_readiness"),
+    notEvidenceFor: stringArray(diagnostics["notEvidenceFor"]),
   };
 }
 

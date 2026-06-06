@@ -336,6 +336,67 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
         kb["anxious"].value = min(0.45, anxious)
 
 
+def morph_target_diagnostics(mesh_obj: bpy.types.Object, default_weight_threshold: float = 0.001, extreme_delta_threshold: float = 0.05) -> Dict[str, Any]:
+    """
+    Inspect exported morph targets for two common regressions:
+    - nonzero default morph weights left on at export time
+    - unusually large deltas that would make a target explode at runtime
+
+    The thresholds are intentionally conservative and local-only. They are a
+    diagnostic/guard, not a readiness claim.
+    """
+    shape_keys = getattr(mesh_obj.data, "shape_keys", None)
+    key_blocks = getattr(shape_keys, "key_blocks", None) if shape_keys else None
+    if not key_blocks:
+        return {
+            "defaultWeightThreshold": default_weight_threshold,
+            "extremeDeltaThreshold": extreme_delta_threshold,
+            "nonzeroDefaultWeights": [],
+            "extremeMorphDeltas": [],
+            "claimScope": "morph_target_diagnostic_not_readiness",
+            "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+        }
+
+    basis = key_blocks[0]
+    basis_coords = [vertex.co.copy() for vertex in basis.data]
+    nonzero_default_weights: List[Dict[str, Any]] = []
+    extreme_morph_deltas: List[Dict[str, Any]] = []
+
+    for key_block in key_blocks[1:]:
+        default_value = float(getattr(key_block, "value", 0.0) or 0.0)
+        if abs(default_value) > default_weight_threshold:
+            nonzero_default_weights.append({
+                "name": key_block.name,
+                "defaultValue": round(default_value, 6),
+            })
+
+        max_delta = 0.0
+        max_delta_axis = 0.0
+        if len(key_block.data) == len(basis_coords):
+            for basis_coord, shape_vert in zip(basis_coords, key_block.data):
+                delta = shape_vert.co - basis_coord
+                delta_magnitude = delta.length
+                if delta_magnitude > max_delta:
+                    max_delta = delta_magnitude
+                    max_delta_axis = max(abs(delta.x), abs(delta.y), abs(delta.z))
+
+        if max_delta > extreme_delta_threshold:
+            extreme_morph_deltas.append({
+                "name": key_block.name,
+                "maxDelta": round(max_delta, 6),
+                "maxAxisDelta": round(max_delta_axis, 6),
+            })
+
+    return {
+        "defaultWeightThreshold": default_weight_threshold,
+        "extremeDeltaThreshold": extreme_delta_threshold,
+        "nonzeroDefaultWeights": nonzero_default_weights,
+        "extremeMorphDeltas": extreme_morph_deltas,
+        "claimScope": "morph_target_diagnostic_not_readiness",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
+
+
 def add_auditable_face_gaze_controls(phenotype: Dict[str, Any]) -> None:
     """Create lightweight exported nodes the GLB preflight can audit for face/gaze/blink control presence."""
     control_specs = [
@@ -967,6 +1028,7 @@ def main() -> None:
 
     print("[blender] assigning role-specific clothing materials to mesh regions")
     role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype)
+    morph_diagnostics = morph_target_diagnostics(mesh_obj)
 
     face_detail_markers = {
         "status": "abandoned_rejected_experiment",
@@ -1075,6 +1137,7 @@ def main() -> None:
             "eyeColor": phenotype.get("eye_color", "unknown"),
             "materialFinish": phenotype.get("materialFinish", "matte_local_fixture_cloth"),
         },
+        "morphTargetDiagnostics": morph_diagnostics,
         "accessoryPresence": {
             "markers": phenotype.get("accessoryMarkers", []),
             "generatedObjects": role_visual_markers.get("objectNames", []),

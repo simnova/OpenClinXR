@@ -907,6 +907,16 @@ describe("static browser assets", () => {
     expect(headsetSources).toContain('from "@openclinxr/scenario-fixtures/ed-chest-pain"');
   });
 
+  it("neutralizes imported humanoid morph weights on load before comparator and runtime controls", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("zero_imported_default_morph_weights_on_load");
+    expect(mainSource).toContain("Array.from({ length: morphTargetCount }, () => 0)");
+    expect(mainSource).toContain("morphTargetInfluences = Array.from");
+    expect(mainSource).toContain("all_imported_morph_targets_zeroed_until_runtime_speech_expression_sets_controlled_weights");
+    expect(mainSource).toContain("neutralizeGeneratedHumanoidMorphTargets(humanoid)");
+  });
+
   it("keeps the Portless dev script aligned to the injected app port", () => {
     const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
       scripts?: Record<string, string>;
