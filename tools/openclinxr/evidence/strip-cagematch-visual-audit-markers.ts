@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { NodeIO, type Document } from "@gltf-transform/core";
+import { NodeIO, PropertyType, type Document } from "@gltf-transform/core";
 import { ALL_EXTENSIONS, EXTMeshoptCompression } from "@gltf-transform/extensions";
 import { prune } from "@gltf-transform/functions";
 import { MeshoptDecoder } from "meshoptimizer";
@@ -140,7 +140,17 @@ async function stripMarkerNodes(document: Document, prefixes: string[]): Promise
       node.dispose();
     }
   }
-  await document.transform(prune({ propertyTypes: ["mesh"] }));
+  await document.transform(prune({
+    propertyTypes: [
+      PropertyType.MESH,
+      PropertyType.PRIMITIVE,
+      PropertyType.PRIMITIVE_TARGET,
+      PropertyType.MATERIAL,
+      PropertyType.TEXTURE,
+      PropertyType.ACCESSOR,
+      PropertyType.BUFFER,
+    ],
+  }));
   return removedNodeNames.sort();
 }
 
