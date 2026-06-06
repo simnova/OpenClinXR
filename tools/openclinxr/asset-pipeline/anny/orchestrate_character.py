@@ -54,6 +54,7 @@ PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
                 "skin_tone": "warm_light_child",
                 "hair_color": "light_brown",
                 "eye_color": "hazel",
+                "anny_topology": "default",
                 "gender_presentation": "child",
                 "height_cm": 125,
                 "build": "slender_asthma",

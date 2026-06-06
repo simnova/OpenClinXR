@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   buildModelVettingReportFromAnnyPreflight,
@@ -37,6 +37,12 @@ type LocalCandidateMirrorManifest = {
     publicMirrorUrlPath: string;
     visualAuditMarkerCleanupReportPath: string | null;
   }>;
+  skippedCandidates: Array<{
+    candidateId: string;
+    actorId: string;
+    sourceGlbPath: string;
+    reason: "source_glb_missing";
+  }>;
   falseGates: {
     runtimePromotionAllowed: false;
     productionReadinessClaimed: false;
@@ -56,7 +62,27 @@ export async function buildLocalCandidateModelVettingMirror(input: {
   stripVisualAuditMarkers?: boolean;
 }): Promise<LocalCandidateMirrorManifest> {
   await ensureCagematchOutputHome(input.outputHome);
-  const report = buildModelVettingReportFromAnnyPreflight({ sourceReport: input.sourcePreflight });
+  const candidatesWithExistingGlbs: AnnyLikePreflightReport["candidates"] = [];
+  const skippedCandidates: LocalCandidateMirrorManifest["skippedCandidates"] = [];
+  for (const candidate of input.sourcePreflight.candidates) {
+    const sourceGlbPath = candidate.paths.sourceGlbPath;
+    if (await fileExists(sourceGlbPath)) {
+      candidatesWithExistingGlbs.push(candidate);
+    } else {
+      skippedCandidates.push({
+        candidateId: candidate.candidateId,
+        actorId: candidate.actorMapping.actorId,
+        sourceGlbPath,
+        reason: "source_glb_missing",
+      });
+    }
+  }
+  const report = buildModelVettingReportFromAnnyPreflight({
+    sourceReport: {
+      ...input.sourcePreflight,
+      candidates: candidatesWithExistingGlbs,
+    },
+  });
   const mirroredCandidates = await Promise.all(report.candidates.map(async (candidate) => {
     const publicMirrorGlbPath = path.join(input.outputHome.publicMirrorDir, path.basename(candidate.sourceGlbPath));
     await mkdir(path.dirname(publicMirrorGlbPath), { recursive: true });
@@ -111,6 +137,7 @@ export async function buildLocalCandidateModelVettingMirror(input: {
     localModelVettingReportPath,
     publicModelVettingReportPath,
     mirroredCandidates,
+    skippedCandidates,
     falseGates: {
       runtimePromotionAllowed: false,
       productionReadinessClaimed: false,
@@ -159,6 +186,15 @@ function parseArgs(args: string[]): CliOptions {
 async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    const stats = await stat(filePath);
+    return stats.isFile();
+  } catch {
+    return false;
+  }
 }
 
 function uniqueStrings(values: string[]): string[] {

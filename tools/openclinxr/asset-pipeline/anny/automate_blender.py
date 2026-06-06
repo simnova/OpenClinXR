@@ -1049,6 +1049,17 @@ def main() -> None:
         "roleVisualMarkers": role_visual_markers,
         "roleClothingMaterialRegions": role_clothing_material_regions,
         "faceDetailMarkers": face_detail_markers,
+        "sourceTopologyEvidence": {
+            "topology": (manifest.get("anny_forward_pass") or {}).get("topology") if isinstance(manifest.get("anny_forward_pass"), dict) else None,
+            "topologyIncludesEyes": bool((manifest.get("anny_forward_pass") or {}).get("topologyIncludesEyes")) if isinstance(manifest.get("anny_forward_pass"), dict) else False,
+            "topologyIncludesTongue": bool((manifest.get("anny_forward_pass") or {}).get("topologyIncludesTongue")) if isinstance(manifest.get("anny_forward_pass"), dict) else False,
+            "materialSegmentationProvided": False,
+            "embeddedEyeMaterialCagematchStatus": "failed_not_retained",
+            "failureReason": "Bounds-based material assignment to default-topology eye-region faces landed on cheek/under-eye polygons in isolated Model Vetting Studio evidence.",
+            "nextSafeStep": "Use source semantic masks, UV masks, or a stronger local FOSS face/eye/hair generator before coloring Anny default-topology eye regions.",
+            "claimScope": "source_topology_observation_not_production_eye_shader_or_b_plus_realism",
+            "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
+        },
         "wardrobeTags": {
             "wardrobeRole": phenotype.get("wardrobeRole", role_visual_markers.get("roleVisualCue")),
             "garmentLayers": phenotype.get("garmentLayers", [role_visual_markers.get("clothingStyle")]),

@@ -311,10 +311,16 @@ def build_real_anny_body(params: Dict[str, Any]) -> Dict[str, Any]:
     import anny
     import torch
 
+    phenotype = params.get("phenotype", {})
+    topology = str(phenotype.get("anny_topology") or params.get("anny_topology") or "default-noeyes-notongue")
+    allowed_topologies = {"default", "default-noeyes-notongue", "default-noeyes", "default-notongue"}
+    if topology not in allowed_topologies:
+        raise ValueError(f"Unsupported Anny topology {topology!r}; expected one of {sorted(allowed_topologies)}")
+
     with contextlib.redirect_stdout(io.StringIO()):
         model = anny.create_fullbody_model(
             rig="default",
-            topology="default-noeyes-notongue",
+            topology=topology,
             remove_unattached_vertices=True,
             all_phenotypes=True,
             local_changes=True,
@@ -356,7 +362,6 @@ def build_real_anny_body(params: Dict[str, Any]) -> Dict[str, Any]:
     height = max(max_y - min_y, 1e-6)
     uvs = [((x - min_x) / width, (y - min_y) / height) for x, y, _z in transformed]
 
-    phenotype = params.get("phenotype", {})
     return {
         "vertices": transformed,
         "uvs": uvs,
@@ -364,7 +369,10 @@ def build_real_anny_body(params: Dict[str, Any]) -> Dict[str, Any]:
         "source": {
             "kind": "real_anny_forward_pass",
             "package_path": os.path.abspath(os.path.dirname(anny.__file__)),
-            "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
+            "model": f"anny.create_fullbody_model(default/{topology})",
+            "topology": topology,
+            "topologyIncludesEyes": "noeyes" not in topology,
+            "topologyIncludesTongue": "notongue" not in topology,
             "source_vertex_count": int(vertices.shape[0]),
             "source_face_count": len(faces),
             "source_height": source_height,
