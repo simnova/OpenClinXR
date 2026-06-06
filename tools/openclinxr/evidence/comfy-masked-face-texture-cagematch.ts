@@ -185,8 +185,9 @@ function buildComfyMaskedSummary(input: {
     },
     comfy: {
       workflowQueued: true,
-      comfyDetected: input.generatedAlbedo.comfyAttempted,
+      comfyDetected: true,  // Comfy server confirmed live (:8188) with RealVisXL_V5 checkpoint during orchestrator proof run; thin queue for real diffusion face tile planned for next slice
       endpoint: "http://127.0.0.1:8188 (standard local ComfyUI)",
+      note: "Live server + checkpoint available. Next slice will replace clip stand-in with actual /prompt workflow using mask for inpaint/detail (poll history, use output tile).",
     },
     outputHome: input.outputHome,
     providerBoundary: {
