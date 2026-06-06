@@ -12,8 +12,12 @@ Roles:
 - clinical-safety-critic
 - implementation-plan-gap-attacker
 - implementation-planning-lead
+- license-provenance-specialist
 - openclaw-drift-police
 - pediatrics-physician
+- productivity-skeptic
+- rigging-animation-specialist
+- visual-realism-adversary
 - vp-engineering-delivery
 - xr-systems-architect
 

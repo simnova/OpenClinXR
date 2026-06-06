@@ -4,6 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import type { UiXrManualPerformanceEvidencePayload } from "./ui-xr-runtime-evidence-consumer.js";
 import {
+  buildUiXrManualPerformanceEvidencePayloadFromEncounterScaffold,
   buildUiXrRuntimeEvidenceConsumerArtifact,
   buildUiXrRuntimeEvidenceConsumerPreflightReport,
   runCli,
@@ -110,6 +111,46 @@ describe("UI-XR runtime evidence consumer", () => {
     });
     expect(artifact.submitRuntimeVisualEvidenceAttachmentInput.attachments[0]).not.toHaveProperty("runtimeExecutionAllowed");
     expect(artifact.submitRuntimeVisualEvidenceAttachmentInput.attachments[0]).not.toHaveProperty("learnerLaunchAllowed");
+    expect(validateUiXrRuntimeEvidenceConsumerArtifact(artifact)).toEqual({ ok: true, errors: [] });
+  });
+
+  it("converts encounter runtime evidence capture scaffolds with actor-player metadata into UI-XR consumer artifacts", () => {
+    const payload = buildUiXrManualPerformanceEvidencePayloadFromEncounterScaffold(encounterScaffoldFixture());
+    const artifact = buildUiXrRuntimeEvidenceConsumerArtifact({
+      payload,
+      expectedScenarioId: "peds_asthma_parent_anxiety_v1",
+      generatedAt: "2026-06-05T20:45:00.000Z",
+    });
+
+    expect(artifact).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      runtimeAssetBundleId: "encounter_assets_peds_asthma_parent_anxiety_executable_v1:runtime-selection-intent",
+      runtimeEvidenceCandidateCount: 3,
+      visualQaEvidenceCandidateCount: 9,
+      actorPlayerRuntimeEvidenceAttachment: {
+        actorCount: 3,
+        projectedTurnCount: 9,
+        projectedSampleCount: 27,
+        providerExecutionPerformed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+        claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment",
+      },
+      preflightReport: {
+        status: "consumer_ready_metadata_only",
+        actorPlayerRuntimeEvidenceAttachment: {
+          actorCount: 3,
+          projectedTurnCount: 9,
+          projectedSampleCount: 27,
+        },
+      },
+    });
+    expect(artifact.submitRuntimeVisualEvidenceAttachmentInput.attachments[0]).toMatchObject({
+      reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+      evidenceRef: "runtime-evidence://metadata-only/actor-player-runtime/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1",
+      localArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+    });
     expect(validateUiXrRuntimeEvidenceConsumerArtifact(artifact)).toEqual({ ok: true, errors: [] });
   });
 
@@ -382,5 +423,64 @@ function uiXrPayloadFixture(overrides: Partial<{
         "learner_launch_readiness",
       ],
     },
+  };
+}
+
+function encounterScaffoldFixture(): unknown {
+  return {
+    schemaVersion: "openclinxr.encounter-runtime-evidence-capture-scaffold.v1",
+    source: "encounter_runtime_realism_evidence_input_draft",
+    selectedScenarioId: "peds_asthma_parent_anxiety_v1",
+    selectedRuntimeAssetBundleId: "encounter_assets_peds_asthma_parent_anxiety_executable_v1:runtime-selection-intent",
+    status: "metadata_only_attachment_candidates_not_submitted",
+    runtimeEvidenceCandidateCount: 3,
+    visualQaEvidenceCandidateCount: 9,
+    actorPlayerRuntimeEvidenceAttachment: {
+      sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+      actorCount: 3,
+      projectedTurnCount: 9,
+      projectedSampleCount: 27,
+      providerExecutionPerformed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      scenePlacementEvidenceAllowed: false,
+      claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment",
+    },
+    submitRuntimeVisualEvidenceAttachmentInput: {
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      attachments: [
+        {
+          actionId: "attach_runtime_realism_evidence_refs",
+          inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
+          inputKind: "runtime_realism_signal_input",
+          evidenceRef: "runtime-evidence://metadata-only/actor-player-runtime/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1",
+          localArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+          reviewerId: "runtime_evidence_capture_scaffold",
+          attachmentStatus: "attached_metadata_only",
+          comments: "Metadata-only guarded actor-player evidence for patient patient_maya_johnson_v1: 4 case-derived turns and 12 samples.",
+          attachedAt: "2026-06-05T20:39:24.398Z",
+        },
+      ],
+    },
+    gateBoundary: {
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "runtime_evidence_capture_scaffold_does_not_clear_launch_gates",
+    },
+    claimBoundary: "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence",
+    notEvidenceFor: [
+      "provider_availability",
+      "runtime_readiness",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "learner_launch_readiness",
+    ],
   };
 }

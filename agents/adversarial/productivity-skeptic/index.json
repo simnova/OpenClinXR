@@ -1,0 +1,20 @@
+{
+  "agent_id": "productivity-skeptic",
+  "team": "adversarial",
+  "last_updated": "2026-06-05",
+  "entries": [
+    {
+      "id": "productivity-skeptic-lesson-0001",
+      "type": "lesson",
+      "topic": "initial-charter",
+      "summary": "Productivity Skeptic initialized to pressure OpenClinXR model work toward Anny-grounded generated humanoids, visible Model Vetting Studio video evidence, and skeptic-impressive website-update thresholds while challenging fixture-grade drift and harness toil.",
+      "confidence": 1,
+      "source_ids": [
+        "user-request-2026-06-05-productivity-skeptic-agent"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

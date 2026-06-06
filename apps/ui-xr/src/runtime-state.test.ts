@@ -41,6 +41,7 @@ import {
   parseBrowserVersionHints,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
+  type ActorPlayerRuntimeMetadataSummary,
   type ReadableVrTextPanelEvidenceSet,
   type RuntimeInteractionEvidence,
   readRuntimeActorEquipmentMaterializationGate,
@@ -1579,6 +1580,219 @@ describe("XR runtime state", () => {
       "scoring_validity",
       "learner_launch_readiness",
     ]);
+  });
+
+  it("carries peds actor-player metadata into copied UI-XR evidence without runtime promotion", () => {
+    const actorPlayerBlockers = [
+      "multi_turn_sequence_not_executed_in_scene_runtime",
+      "learner_runtime_not_enabled",
+      "quest_runtime_not_verified",
+    ];
+    const actorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary = {
+      source: "model_vetting_actor_player_runtime_evidence" as const,
+      sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+      executionMode: "local_deterministic_non_scene" as const,
+      actorCount: 3,
+      projectedTurnCount: 9,
+      projectedSampleCount: 27,
+      actorSummaries: [
+        {
+          actorId: "patient_maya_johnson_v1",
+          turnCount: 4,
+          sampleCount: 12,
+          roleAnimationClipNames: ["openclinxr_role_patient_asthma_breathing_effort"],
+          sceneExecutionStatus: "not_scene_executed" as const,
+          blockerIds: actorPlayerBlockers,
+        },
+        {
+          actorId: "parent_tara_johnson_v1",
+          turnCount: 2,
+          sampleCount: 6,
+          roleAnimationClipNames: ["openclinxr_role_parent_anxious_fidget_guard"],
+          sceneExecutionStatus: "not_scene_executed" as const,
+          blockerIds: actorPlayerBlockers,
+        },
+        {
+          actorId: "nurse_kevin_lee_v1",
+          turnCount: 3,
+          sampleCount: 9,
+          roleAnimationClipNames: ["openclinxr_role_nurse_clinical_check_reassure"],
+          sceneExecutionStatus: "not_scene_executed" as const,
+          blockerIds: actorPlayerBlockers,
+        },
+      ],
+      providerExecutionPerformed: false as const,
+      runtimeExecutionAllowed: false as const,
+      learnerLaunchAllowed: false as const,
+      scenePlacementEvidenceAllowed: false as const,
+      claimBoundary: "ui_xr_actor_player_metadata_only_not_runtime_execution" as const,
+      notEvidenceFor: [
+        "real_anny_model_output",
+        "b_plus_visual_realism_gate",
+        "scene_placement_readiness",
+        "quest_readiness",
+        "production_asset_readiness",
+        "learner_readiness",
+        "clinical_validity",
+        "scoring_validity",
+      ],
+    };
+
+    const payload = buildManualPerformanceEvidencePayload({
+      manualPerformanceDraft: null,
+      captureSummary: buildManualPerformanceCaptureSummary({
+        draft: undefined,
+        frameStats: undefined,
+        now: 1300,
+      }),
+      actorPlayerRuntimeMetadataSummary,
+      humanoidSpeechEvidence: {
+        source: "local_dialogue_phoneme_viseme_mapping",
+        activeActorId: "patient_maya_johnson_v1",
+        activeAssetId: "peds_patient_maya_anny_compatible_candidate",
+        lastText: "It feels hard to breathe.",
+        phonemeSequence: ["ih", "t", "sil"],
+        visemeSequence: ["narrow", "tongue", "closed"],
+        emotionSource: "scenario_actor_communication_profile",
+        scenarioBaselineMood: ["frightened", "short_of_breath"],
+        scenarioEmotionCueIds: ["work_of_breathing", "anxiety"],
+        activeActorRuntimeRealismRequirement: {
+          actorId: "patient_maya_johnson_v1",
+          role: "patient",
+          baselineMood: ["frightened", "short_of_breath"],
+          locomotionRequired: true,
+          expressionRequired: true,
+          gazeRequired: true,
+          lipSyncRequired: true,
+          interactionRequired: true,
+          requiredCueIds: [
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change",
+          ],
+        },
+        activeActorRealismLaunchBadge: {
+          actorId: "patient_maya_johnson_v1",
+          actorRole: "patient",
+          status: "realismBlocked",
+          blockers: [
+            "actor_player_metadata_not_scene_runtime",
+            "runtime_realism_evidence_not_attached_to_actor_badge",
+          ],
+          claimBoundary: "case_defined_actor_realism_launch_badge_metadata_only",
+        },
+        activeEmotionState: "anxious",
+        activeExpressionTransitionMs: 480,
+        gazeTargetKind: "learner_camera",
+        gazeTargetActorId: null,
+        notEvidenceFor: [
+          "clinical_speech_quality",
+          "production_lip_sync",
+          "production_eye_tracking",
+          "scoring_validity",
+        ],
+      },
+      caseDefinedHumanoidPerformanceContractEvidence: {
+        source: "case_definition_humanoid_performance_contract",
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+        claimBoundary: "case_definition_humanoid_performance_metadata_only",
+        actorCount: 3,
+        locomotionActorRoles: ["family", "nurse", "patient"],
+        expressionActorRoles: ["family", "nurse", "patient"],
+        gazeActorRoles: ["family", "nurse", "patient"],
+        lipSyncActorRoles: ["family", "nurse", "patient"],
+        interactiveActorRoles: ["family", "nurse", "patient"],
+        emotionStateCount: 9,
+        dialogueDrivenVisemeMappingRequired: true,
+        gazeTargetingRequired: true,
+        locomotionPlanningRequired: true,
+        notEvidenceFor: [
+          "generated_humanoid_asset_readiness",
+          "animation_quality",
+          "quest_readiness",
+          "runtime_readiness",
+          "clinical_validity",
+        ],
+      },
+    });
+
+    expect(payload.actorPlayerRuntimeMetadataSummary).toBe(actorPlayerRuntimeMetadataSummary);
+    expect(payload.runtimeVisualEvidenceCaptureScaffold).toMatchObject({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      actorPlayerRuntimeMetadataSummary: {
+        actorCount: 3,
+        projectedTurnCount: 9,
+        projectedSampleCount: 27,
+        providerExecutionPerformed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+        claimBoundary: "ui_xr_actor_player_metadata_only_not_runtime_execution",
+      },
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+    });
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.actorPlayerRuntimeMetadataSummary?.actorSummaries).toEqual([
+      expect.objectContaining({
+        actorId: "patient_maya_johnson_v1",
+        turnCount: 4,
+        sampleCount: 12,
+        sceneExecutionStatus: "not_scene_executed",
+      }),
+      expect.objectContaining({
+        actorId: "parent_tara_johnson_v1",
+        turnCount: 2,
+        sampleCount: 6,
+        sceneExecutionStatus: "not_scene_executed",
+      }),
+      expect.objectContaining({
+        actorId: "nurse_kevin_lee_v1",
+        turnCount: 3,
+        sampleCount: 9,
+        roleAnimationClipNames: ["openclinxr_role_nurse_clinical_check_reassure"],
+        sceneExecutionStatus: "not_scene_executed",
+      }),
+    ]);
+    expect(payload.runtimeVisualEvidenceCaptureScaffold?.actorPlayerRuntimeMetadataSummary?.actorSummaries[0]?.blockerIds).toEqual(
+      expect.arrayContaining(actorPlayerBlockers),
+    );
+    expect(payload.runtimeEvidenceConsumerReadiness).toMatchObject({
+      status: "consumer_ready_metadata_only",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      actorPlayerRuntimeMetadataSummary: {
+        sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+        actorCount: 3,
+        projectedTurnCount: 9,
+        projectedSampleCount: 27,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+      },
+      rawPayloadDisplayed: false,
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+    });
+    expect(payload.runtimeEvidenceConsumerReadiness?.actorPlayerRuntimeMetadataSummary?.notEvidenceFor).toEqual(expect.arrayContaining([
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "scene_placement_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "learner_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ]));
   });
 
   it("bundles the selected runtime asset bundle id into copied Quest evidence payloads", () => {

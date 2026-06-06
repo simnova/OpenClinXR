@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "openclinxr.anny-local-candidate-bundle.v1",
+  "claimScope": "local_real_anny_candidate_bundle_not_readiness",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "patient_maya_johnson_v1",
+  "actorRole": "patient",
+  "outputs": {
+    "objPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_base.obj",
+    "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
+    "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
+    "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
+    "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json",
+    "optimizationReportPath": null
+  },
+  "generation": {
+    "meshStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+    "usesRealAnnyForwardPass": true,
+    "realAnnyWeightsUsed": false,
+    "useComfy": false,
+    "seed": 1001,
+    "paramsHash": "33518e476184669087988cf8350fa4f9c1ef44c74503f58802afc2822aaddf56",
+    "optimizationApplied": false,
+    "optimizationStage": "none",
+    "meshoptEnabled": false
+  },
+  "providerExecution": {
+    "cloudProviderUsed": false,
+    "paidApiUsed": false,
+    "modelDownloadUsed": false,
+    "comfyUsed": false
+  },
+  "gates": {
+    "realAnnyModelOutput": true,
+    "bPlusVisualRealismGate": false,
+    "scenePlacementReadiness": false,
+    "questReadiness": false,
+    "productionReadiness": false,
+    "learnerReadiness": false,
+    "clinicalValidity": false,
+    "scoringValidity": false
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "scene_placement_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

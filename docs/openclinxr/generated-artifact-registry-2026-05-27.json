@@ -4,407 +4,1310 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "ignore-local-cache": 12,
-    "keep-current": 44,
-    "keep-evidence": 32,
+    "keep-evidence": 91,
+    "ignore-local-cache": 55,
+    "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 5
   },
   "entries": [
     {
       "path": ".agent-factory/benchmark-gate-report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/evidence-debt-report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/godot-project-import-check.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/maturity-report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/memory-index.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-cdp-smoke-check.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-http3-compatibility-check.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-http3-compatibility-template-check.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-manual-performance-report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-mixed-reality-manual-report.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/quest-mixed-reality-manual-template-check.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
     },
     {
       "path": ".agent-factory/risk-report.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-real-smoke/peds_patient_child.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
-      "action": "delete-if-untracked",
-      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/smoke/mesh.manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/smoke/role-marker-smoke.manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/automation-lease.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-face-landmark-front-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-procedural-face-detail-handoff-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-clean-baseline-nurse-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-clean-baseline-parent-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-clean-baseline-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-marker-fixed-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-marker-repaired-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-material-visible-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-nurse-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-parent-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-meshopt-world-bounds-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-raw-world-bounds-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-skin-material-nurse-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-skin-material-parent-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-skin-material-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/model-vetting-real-anny-world-bounds-patient-three-quarter-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/moonbridge-role-clip-review.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/run-next-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-actor-player-runtime-playback-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-bundle-dialogue-trace-actor-player-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-equipment-trace-affordance-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-fixture-import-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-multi-actor-trace-sequence-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-sequence-listener-coupled-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-trace-triggered-actor-player-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-regenerated-role-clip-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-role-clip-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-scene-asset-failure-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/learner-runtime-bundle.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/scene-manifest.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/environment/ed-exam-bay-shell.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/environment/pediatric_urgent_care_bay_environment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/oncology_bad_news_family_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/oncology_bad_news_family_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/psych_suicidal_ideation_safety_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/psych_suicidal_ideation_safety_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/neutral-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/adult-standard-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/bariatric-adult-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/inhaler_spacer_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/nebulizer_mask_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/oxygen_wall_port_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/parent_chair_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/pediatric_stretcher_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/pulse_oximeter_equipment.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/oncology_bad_news_family_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/psych_suicidal_ideation_safety_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/neutral-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/adult-standard-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/bariatric-adult-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb",
       "authority": "keep-current",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/ao.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/basecolor.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/before_after_plan.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/metallic.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/normal.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/roughness.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/ao.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/basecolor.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/before_after_plan.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/metallic.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/normal.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/roughness.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/ao.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/basecolor.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/before_after_plan.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/metallic.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/normal.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/roughness.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/anny-skin-cagematch-probe-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-texture-cagematch-manifest-peds_asthma_parent_anxiety_v1-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-track-a-mit-pbr-cagematch-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-track-a-mit-pbr-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-track-a-mit-pbr-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json",
       "authority": "keep-evidence",
       "tracked": false,
       "action": "keep",
@@ -413,420 +1316,588 @@
     {
       "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-guarded-runtime-selection-intent-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-handoff-preflight-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-local-factory-operation-manifest-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-attachment-plan-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-evidence-attachment-inputs-peds-asthma-parent-anxiety-partial-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-partial-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-evidence-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-materialization-input-manifest-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-publication-payloads-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/evidence-index-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/external-ai-asset-provider-preflight-2026-05-25.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-promotion-gate-ob-reom-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-provider-gate-ob-reom-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-source-allowlist-template-2026-05-27.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/garment-work-order-ob-reom-shirts01-cc0-derived-transform-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/generated-artifact-registry-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/godot-project-import-check-2026-06-04.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/godot-quest-voice-evidence-template.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
       "path": "docs/openclinxr/humanoid-collision-probe-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/humanoid-realism-gate-neutral-generated-human-animated-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/iwsdk-evidence-contract-2026-06-04.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/iwsdk-first-slice-preinstall-proposal.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/iwsdk-npm-currentness-2026-06-04.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-06-04.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/iwsdk-phase2-devtools-preinstall-proposal.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/local-model-source-currentness-2026-05-21.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-rerun-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-v2-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-clip-v3-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/materialize-clinical-idle-pose-lower-arms-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_front_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_side_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_three_quarter_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_front_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_side_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_three_quarter_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_front_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_side_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_three_quarter_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_front_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_side_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_three_quarter_2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/mpfb-makehuman-garment-license-intake-2026-05-27.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/quest-http3-compatibility-template.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
       "path": "docs/openclinxr/quest-manual-performance-template.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
       "path": "docs/openclinxr/quest-mixed-reality-manual-template.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-peds-asthma-parent-anxiety-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-cleanup-moonbridge-review-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-debug-page-2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-visual-audit-marker-cleanup-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-direct-texture-visual-review-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-skin-smoke-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/realvisxl-skin-smoke-2026-06-06.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/refine-humanoid-material-contrast-v2-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/refine-humanoid-material-contrast-v3-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
+      "path": "docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/strip-humanoid-primitive-proxies-2026-05-23.json",
       "authority": "keep-compatibility-input",
-      "tracked": false,
+      "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
       "path": "docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
       "path": "docs/openclinxr/ui-xr-peds-materialization-gate-browser-smoke-2026-05-28.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     }

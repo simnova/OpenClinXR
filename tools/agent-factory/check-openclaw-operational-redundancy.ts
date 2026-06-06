@@ -40,8 +40,10 @@ const requiredFiles = [
   ".codex/hooks.json",
   ".codex/rules/openclaw.rules",
   ".codex/agents/chief-coordinator.toml",
+  "tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
   ".agents/plugins/marketplace.json",
   "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json",
+  "agents/rules/drift-toil-prevention.md",
   "PROJECT_COORDINATION_INDEX.md",
   "AUTONOMOUS_WORK_PLAN.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
@@ -81,6 +83,8 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     "pnpm openclaw:automation-prompt",
     "pnpm openclaw:run-next",
     "pnpm openclaw:watchdog",
+    "Model-work product guard",
+    "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
   ]) {
     if (!runbook.includes(marker)) {
       failures.push({ file: "docs/openclinxr/openclaw-runbook-2026-05-27.md", message: `missing operational redundancy marker: ${marker}` });
@@ -95,6 +99,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
       "case-definition-driven WebXR encounter factory",
       "After each slice",
       "Stop only if explicitly told to pause/stop",
+      "Apply the model-work product guard",
     ]) {
       if (!automationPrompt.includes(marker)) {
         failures.push({ file: "docs/openclinxr/openclaw-runbook-2026-05-27.md", message: `canonical automation prompt missing marker: ${marker}` });
@@ -115,6 +120,17 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     }
   }
 
+  const driftToilRule = input.files["agents/rules/drift-toil-prevention.md"] ?? "";
+  for (const marker of [
+    "Model-work product guard",
+    "do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts",
+    "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
+  ]) {
+    if (!driftToilRule.includes(marker)) {
+      failures.push({ file: "agents/rules/drift-toil-prevention.md", message: `missing model-work product guard marker: ${marker}` });
+    }
+  }
+
   const adapters = input.files["docs/openclinxr/openclaw-tool-adapters-2026-05-27.md"] ?? "";
   for (const marker of ["Codex Adapter", "Claude Adapter", "Grok Adapter", "Cursor Adapter", "Capability Fallback Matrix", "not an external OpenClaw runtime"]) {
     if (!adapters.includes(marker)) {
@@ -130,9 +146,23 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   }
 
   const codexHooks = input.files[".codex/hooks.json"] ?? "";
-  for (const marker of ["SubagentStart", "SubagentStop", "pnpm codex:hook -- subagent-start", "pnpm codex:hook -- subagent-stop"]) {
+  for (const marker of ["SubagentStart", "SubagentStop", "Stop", "pnpm codex:hook -- subagent-start", "pnpm codex:hook -- subagent-stop", "pnpm codex:hook -- stop"]) {
     if (!codexHooks.includes(marker)) {
       failures.push({ file: ".codex/hooks.json", message: `missing Codex lifecycle hook marker: ${marker}` });
+    }
+  }
+
+  const codexLifecycleHook = input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"] ?? "";
+  for (const marker of [
+    "OpenClaw-style stop guard",
+    "a clean slice boundary is not a stop condition",
+    "do not send a final chat summary",
+    "run pnpm openclaw:run-next",
+    "continue the next real slice",
+    "Autonomous continuation guard for Stop lifecycle boundary",
+  ]) {
+    if (!codexLifecycleHook.includes(marker)) {
+      failures.push({ file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts", message: `missing Codex stop-continuation guard marker: ${marker}` });
     }
   }
 

@@ -1,4 +1,5 @@
 import { stat } from "node:fs/promises";
+import path from "node:path";
 import { Mongoose } from "mongoose";
 import {
   createAzureStorageEncounterAssetGenerationQueueClientFromConnectionString,
@@ -43,15 +44,15 @@ type CliOptions = {
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 type PedsHumanoidMaterializationHandoffAsset = {
-  actorRole: "patient" | "anxious_parent";
+  actorRole: "patient" | "anxious_parent" | "nurse";
   assetPath: string;
   runtimeAssetPath: string;
   provenanceManifestPath: string;
-  generatorMode: "anny_compatible_stub_plus_blender_procedural";
-  sourceKind: "case_driven_generated_humanoid_candidate";
+  generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_local_forward_pass_plus_blender_procedural";
+  sourceKind: "case_driven_generated_humanoid_candidate" | "real_anny_candidate_unverified";
   realAnnyWeightsUsed: false;
   textureMode: "procedural_fallback";
-  animationMode: "procedural_animation_fallback";
+  animationMode: "procedural_animation_fallback" | "procedural_clinical_idle_conversation_posture_fallback";
   realismGrade: "B";
   promotionStatus: "runtime_candidate_not_realism_gate_pass";
   notEvidenceFor: string[];
@@ -454,6 +455,7 @@ async function buildPedsHumanoidMaterializationHandoff(): Promise<NonNullable<En
   const assets = await Promise.all([
     buildPedsHumanoidMaterializationHandoffAsset("patient", "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json"),
     buildPedsHumanoidMaterializationHandoffAsset("anxious_parent", "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json"),
+    buildPedsHumanoidMaterializationHandoffAsset("nurse", "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json"),
   ]);
   return {
     schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1",
@@ -480,16 +482,18 @@ async function buildPedsHumanoidMaterializationHandoffAsset(
   if (!isRecord(provenance)) {
     throw new Error(`Generated humanoid provenance manifest must be an object: ${provenanceManifestPath}`);
   }
+  const sourceAssetPath = requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath);
+  const publicFileName = path.basename(sourceAssetPath);
   return {
     actorRole,
-    assetPath: requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath).replace(/^\//u, "apps/ui-xr/public/"),
-    runtimeAssetPath: requireManifestString(provenance.assetPath, "assetPath", provenanceManifestPath),
+    assetPath: `apps/ui-xr/public/generated-humanoids/${publicFileName}`,
+    runtimeAssetPath: `/generated-humanoids/${publicFileName}`,
     provenanceManifestPath,
-    generatorMode: requireManifestLiteral(provenance.generatorMode, "anny_compatible_stub_plus_blender_procedural", "generatorMode", provenanceManifestPath),
-    sourceKind: requireManifestLiteral(provenance.sourceKind, "case_driven_generated_humanoid_candidate", "sourceKind", provenanceManifestPath),
+    generatorMode: requireManifestOneOf(provenance.generatorMode, ["anny_compatible_stub_plus_blender_procedural", "real_anny_local_forward_pass_plus_blender_procedural"], "generatorMode", provenanceManifestPath),
+    sourceKind: requireManifestOneOf(provenance.sourceKind, ["case_driven_generated_humanoid_candidate", "real_anny_candidate_unverified"], "sourceKind", provenanceManifestPath),
     realAnnyWeightsUsed: requireManifestLiteral(provenance.realAnnyWeightsUsed, false, "realAnnyWeightsUsed", provenanceManifestPath),
     textureMode: requireManifestLiteral(provenance.textureMode, "procedural_fallback", "textureMode", provenanceManifestPath),
-    animationMode: requireManifestLiteral(provenance.animationMode, "procedural_animation_fallback", "animationMode", provenanceManifestPath),
+    animationMode: requireManifestOneOf(provenance.animationMode, ["procedural_animation_fallback", "procedural_clinical_idle_conversation_posture_fallback"], "animationMode", provenanceManifestPath),
     realismGrade: requireManifestLiteral(provenance.realismGrade, "B", "realismGrade", provenanceManifestPath),
     promotionStatus: requireManifestLiteral(provenance.promotionStatus, "runtime_candidate_not_realism_gate_pass", "promotionStatus", provenanceManifestPath),
     notEvidenceFor: requireManifestStringArray(provenance.notEvidenceFor, "notEvidenceFor", provenanceManifestPath),
@@ -522,6 +526,18 @@ function requireManifestLiteral<const T extends string | boolean>(
   return expected;
 }
 
+function requireManifestOneOf<const T extends string>(
+  value: unknown,
+  expectedValues: readonly T[],
+  field: string,
+  provenanceManifestPath: string,
+): T {
+  if (!expectedValues.includes(value as T)) {
+    throw new Error(`${provenanceManifestPath}/${field} must be one of ${expectedValues.map((expected) => JSON.stringify(expected)).join(", ")}`);
+  }
+  return value as T;
+}
+
 function validatePedsHumanoidMaterializationHandoff(value: unknown, pathName: string, errors: string[]): void {
   if (!isRecord(value)) {
     errors.push(`${pathName} must be object`);
@@ -541,8 +557,8 @@ function validatePedsHumanoidMaterializationHandoff(value: unknown, pathName: st
   requireLiteral(value.claimBoundary, "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness", `${pathName}/claimBoundary`, errors);
   requireArray(value.assets, `${pathName}/assets`, errors);
   if (Array.isArray(value.assets)) {
-    if (value.assets.length !== 2) {
-      errors.push(`${pathName}/assets must contain the peds patient and anxious parent assets`);
+    if (value.assets.length !== 3) {
+      errors.push(`${pathName}/assets must contain the peds patient, anxious parent, and nurse assets`);
     }
     value.assets.forEach((asset, index) => {
       validatePedsHumanoidMaterializationHandoffAsset(asset, `${pathName}/assets/${index}`, errors);
@@ -555,20 +571,19 @@ function validatePedsHumanoidMaterializationHandoffAsset(value: unknown, pathNam
     errors.push(`${pathName} must be object`);
     return;
   }
-  requireOneOf(value.actorRole, ["patient", "anxious_parent"], `${pathName}/actorRole`, errors);
+  requireOneOf(value.actorRole, ["patient", "anxious_parent", "nurse"], `${pathName}/actorRole`, errors);
   requireString(value.assetPath, `${pathName}/assetPath`, errors);
   requireString(value.runtimeAssetPath, `${pathName}/runtimeAssetPath`, errors);
   requireString(value.provenanceManifestPath, `${pathName}/provenanceManifestPath`, errors);
-  requireLiteral(value.generatorMode, "anny_compatible_stub_plus_blender_procedural", `${pathName}/generatorMode`, errors);
-  requireLiteral(value.sourceKind, "case_driven_generated_humanoid_candidate", `${pathName}/sourceKind`, errors);
+  requireOneOf(value.generatorMode, ["anny_compatible_stub_plus_blender_procedural", "real_anny_local_forward_pass_plus_blender_procedural"], `${pathName}/generatorMode`, errors);
+  requireOneOf(value.sourceKind, ["case_driven_generated_humanoid_candidate", "real_anny_candidate_unverified"], `${pathName}/sourceKind`, errors);
   requireLiteral(value.realAnnyWeightsUsed, false, `${pathName}/realAnnyWeightsUsed`, errors);
   requireLiteral(value.textureMode, "procedural_fallback", `${pathName}/textureMode`, errors);
-  requireLiteral(value.animationMode, "procedural_animation_fallback", `${pathName}/animationMode`, errors);
+  requireOneOf(value.animationMode, ["procedural_animation_fallback", "procedural_clinical_idle_conversation_posture_fallback"], `${pathName}/animationMode`, errors);
   requireLiteral(value.realismGrade, "B", `${pathName}/realismGrade`, errors);
   requireLiteral(value.promotionStatus, "runtime_candidate_not_realism_gate_pass", `${pathName}/promotionStatus`, errors);
   requireArray(value.notEvidenceFor, `${pathName}/notEvidenceFor`, errors);
   if (Array.isArray(value.notEvidenceFor)) {
-    requireStringArrayIncludes(value.notEvidenceFor, "real_anny_model_output", `${pathName}/notEvidenceFor`, errors);
     requireStringArrayIncludes(value.notEvidenceFor, "b_plus_visual_realism_gate", `${pathName}/notEvidenceFor`, errors);
     requireStringArrayIncludes(value.notEvidenceFor, "production_asset_readiness", `${pathName}/notEvidenceFor`, errors);
     requireStringArrayIncludes(value.notEvidenceFor, "quest_readiness", `${pathName}/notEvidenceFor`, errors);

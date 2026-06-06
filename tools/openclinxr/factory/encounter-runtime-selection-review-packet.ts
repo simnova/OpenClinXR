@@ -6,6 +6,9 @@ import type { EncounterGuardedRuntimeSelectionIntent } from "./encounter-guarded
 type CliOptions = {
   selectionIntentPath?: string;
   publicationPayloadsPath?: string;
+  runtimeMappingEvidencePath?: string;
+  actorPlayerRuntimeEvidencePath?: string;
+  runtimeEvidenceCaptureScaffoldPath?: string;
   outputPath?: string;
   validatePath?: string;
   validateLatest: boolean;
@@ -42,6 +45,143 @@ export type EncounterRuntimeSelectionReviewPacket = {
       recommendedVisemeIntensity: number;
       locomotionEnabled: boolean;
     };
+  } | null;
+  caseDerivedRuntimeBindingEvidence?: {
+    schemaVersion: "openclinxr.case-derived-runtime-binding-evidence.v1";
+    scenarioId: string;
+    source: "case_spec_derivation_plus_model_vetting_runtime_mapping";
+    sourceRuntimeMappingEvidencePath: string;
+    claimBoundary: "metadata_only_case_turn_to_runtime_hook_binding_not_runtime_execution";
+    actorBindings: Array<{
+      actorId: string;
+      candidateId: string | null;
+      caseDerivedTurnIds: string[];
+      caseDerivedCues: string[];
+      expectedEmotions: string[];
+      runtimeHookBindings: Array<{
+        hookId: "speech_viseme_timeline_binding" | "emotion_transition_state_binding" | "gaze_blink_runtime_binding" | "posture_locomotion_runtime_binding";
+        status: "metadata_bound_not_runtime_verified" | "blocked_missing_candidate";
+        evidenceArtifactPaths: string[];
+        blockers: string[];
+      }>;
+    }>;
+    missingCaseActorIds: string[];
+    decision: {
+      candidateActorTurnBindingsAttached: boolean;
+      caseTurnRuntimeBindingComplete: false;
+      runtimeActorMappingReady: false;
+      scenePlacementEvidenceAllowed: false;
+      runtimePromotionAllowed: false;
+      productionManifestPromotionAllowed: false;
+      learnerLaunchAllowed: false;
+      providerExecutionPerformed: false;
+      nextSafeStep: string;
+    };
+    notEvidenceFor: Array<"real_anny_model_output" | "b_plus_visual_realism_gate" | "runtime_readiness" | "scene_placement_readiness" | "quest_readiness" | "production_asset_readiness" | "learner_readiness" | "clinical_validity" | "scoring_validity">;
+  } | null;
+  caseDerivedActorPlayerRuntimeEvidence?: {
+    schemaVersion: "openclinxr.case-derived-actor-player-runtime-evidence.v1";
+    scenarioId: string;
+    source: "case_spec_derivation_plus_model_vetting_actor_player_runtime";
+    sourceActorPlayerRuntimeEvidencePath: string;
+    claimBoundary: "metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime";
+    actorRuntimeSummaries: Array<{
+      actorId: string;
+      candidateId: string | null;
+      caseDerivedTurnIds: string[];
+      caseDerivedRuntimeTurnCount: number;
+      caseDerivedRuntimeSampleCount: number;
+      roleAnimationClipNames: string[];
+      turnTraceTag: string | null;
+      executedHookCount: number;
+      hookExecutions: Array<{
+        hookId: "speech_viseme_timeline_binding" | "emotion_transition_state_binding" | "gaze_blink_runtime_binding" | "posture_locomotion_runtime_binding";
+        runtimeSurfaceStatus: "executed_in_guarded_local_actor_player_stub" | "blocked_missing_actor_player_runtime";
+        sceneExecutionStatus: "not_scene_executed";
+        sampleCount: number;
+        remainingBlockers: string[];
+      }>;
+    }>;
+    missingCaseActorIds: string[];
+    decision: {
+      actorPlayerRuntimeEvidenceAttached: boolean;
+      localActorPlayerRuntimeEvidenceExecuted: boolean;
+      actorPlayerRuntimeEvidenceComplete: boolean;
+      runtimeActorMappingReady: false;
+      scenePlacementEvidenceAllowed: false;
+      runtimePromotionAllowed: false;
+      productionManifestPromotionAllowed: false;
+      learnerLaunchAllowed: false;
+      providerExecutionPerformed: false;
+      nextSafeStep: string;
+    };
+    notEvidenceFor: Array<"real_anny_model_output" | "b_plus_visual_realism_gate" | "runtime_readiness" | "scene_placement_readiness" | "quest_readiness" | "production_asset_readiness" | "learner_readiness" | "clinical_validity" | "scoring_validity">;
+  } | null;
+  runtimeEvidenceCaptureScaffold?: {
+    schemaVersion: "openclinxr.encounter-runtime-evidence-capture-scaffold.v1";
+    source: "encounter_runtime_realism_evidence_input_draft";
+    selectedScenarioId: string;
+    status: "metadata_only_attachment_candidates_not_submitted";
+    runtimeEvidenceCandidateCount: number;
+    visualQaEvidenceCandidateCount: number;
+    actorPlayerRuntimeEvidenceAttachment?: {
+      sourceArtifactPath: string;
+      actorCount: number;
+      projectedTurnCount: number;
+      projectedSampleCount: number;
+      providerExecutionPerformed: false;
+      runtimeExecutionAllowed: false;
+      learnerLaunchAllowed: false;
+      scenePlacementEvidenceAllowed: false;
+      claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment";
+    };
+    attachmentCandidates: Array<{
+      actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+      inputId: string;
+      inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+      evidenceRef: string;
+      localArtifactPath: string;
+      reviewerId: "runtime_evidence_capture_scaffold";
+      attachmentStatus: "attached_metadata_only";
+      comments: string;
+      attachedAt: string;
+      sourceEvidenceRef: string;
+      providerExecutionAllowed: false;
+      runtimeExecutionAllowed: false;
+      learnerLaunchAllowed: false;
+      questEvidenceRefreshAllowed: false;
+      productionAssetReadinessClaimed: false;
+      clinicalValidityClaimed: false;
+      scoringValidityClaimed: false;
+      claimBoundary: "metadata_only_runtime_evidence_capture_candidate_not_submitted";
+      notEvidenceFor: EncounterRuntimeSelectionReviewPacket["notEvidenceFor"];
+    }>;
+    submitRuntimeVisualEvidenceAttachmentInput: {
+      scenarioId: string;
+      attachments: Array<{
+        actionId: "attach_runtime_realism_evidence_refs" | "attach_visual_qa_evidence_refs";
+        inputId: string;
+        inputKind: "runtime_realism_signal_input" | "visual_qa_review_input";
+        evidenceRef: string;
+        localArtifactPath: string;
+        reviewerId: "runtime_evidence_capture_scaffold";
+        attachmentStatus: "attached_metadata_only";
+        comments: string;
+        attachedAt: string;
+      }>;
+    };
+    gateBoundary: {
+      providerExecutionAllowed: false;
+      runtimeExecutionAllowed: false;
+      learnerLaunchAllowed: false;
+      questEvidenceRefreshAllowed: false;
+      productionAssetReadinessClaimed: false;
+      clinicalValidityClaimed: false;
+      scoringValidityClaimed: false;
+      claimBoundary: "runtime_evidence_capture_scaffold_does_not_clear_launch_gates";
+    };
+    claimBoundary: "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence";
+    notEvidenceFor: EncounterRuntimeSelectionReviewPacket["notEvidenceFor"];
   } | null;
   persistenceProjection?: {
     actorTurns: unknown[];
@@ -262,6 +402,9 @@ export async function runEncounterRuntimeSelectionReviewPacketCli(args: string[]
     await readJson<EncounterGuardedRuntimeSelectionIntent>(selectionIntentPath),
     new Date().toISOString(),
     publicationPayloads,
+    await readOptionalRuntimeMappingEvidence(options.runtimeMappingEvidencePath),
+    await readOptionalActorPlayerRuntimeEvidence(options.actorPlayerRuntimeEvidencePath),
+    await readOptionalRuntimeEvidenceCaptureScaffold(options.runtimeEvidenceCaptureScaffoldPath),
   );
   await writeJson(options.outputPath ?? defaultOutputPath, packet);
   console.log(`Wrote ${options.outputPath ?? defaultOutputPath}`);
@@ -271,6 +414,9 @@ export function buildEncounterRuntimeSelectionReviewPacket(
   selectionIntent: EncounterGuardedRuntimeSelectionIntent,
   generatedAt = new Date().toISOString(),
   publicationPayloads?: unknown,
+  runtimeMappingEvidence?: { path: string; evidence: unknown },
+  actorPlayerRuntimeEvidence?: { path: string; evidence: unknown },
+  runtimeEvidenceCaptureScaffold?: unknown,
 ): EncounterRuntimeSelectionReviewPacket {
   const publicationPayloadLinkage = buildPublicationPayloadLinkage(publicationPayloads);
   if (selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1") {
@@ -293,6 +439,7 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       ? ["actor_equipment_materialization_evidence_not_attached"]
       : []),
   ]);
+  const caseDerivedActorTurnExpectations = deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId);
   return {
     generatedAt,
     schemaVersion: "openclinxr.encounter-runtime-selection-review-packet.v1",
@@ -308,7 +455,10 @@ export function buildEncounterRuntimeSelectionReviewPacket(
       clinicalObjectives: scenarioBank.pediatricAsthmaScenario.clinicalObjectives,
       reviewRubricCommunication: null,
     } : null,
-    caseDerivedActorTurnExpectations: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId),
+    caseDerivedActorTurnExpectations,
+    caseDerivedRuntimeBindingEvidence: deriveCaseRuntimeBindingEvidence(selectionIntent.selectedScenarioId, caseDerivedActorTurnExpectations, runtimeMappingEvidence),
+    caseDerivedActorPlayerRuntimeEvidence: deriveCaseActorPlayerRuntimeEvidence(selectionIntent.selectedScenarioId, caseDerivedActorTurnExpectations, actorPlayerRuntimeEvidence),
+    runtimeEvidenceCaptureScaffold: normalizeRuntimeEvidenceCaptureScaffold(selectionIntent.selectedScenarioId, runtimeEvidenceCaptureScaffold),
     caseDerivedEmotionStateMachine: deriveEmotionStateMachineFromCase(selectionIntent.selectedScenarioId),
     caseDerivedDialoguePolicy: deriveDialoguePolicyFromCase(selectionIntent.selectedScenarioId),
     // Virtual env pipeline small piece (user steering post runtime player chunk): factory identifies/vets tech for virtual env that runtime player will use (Three.js + GLTF from main.ts env shell loading for WebXR/desktop player; open source MIT, fits M1/approved boundaries/no paid, reusable via caseDerived). Builds small piece: case spec drives basic room/props for peds clinic and ed bay (advances virtual encounter pipeline + exam experience; evident in player scaffold data, usable for future rendering/selection). Adapts user instruction to factory + small wire. Blueprint/factory tie: Q1 "blueprint must drive generated runtime" (case -> factory vet + caseDerivedVirtualEnvironment for env in player); Q3 reusable semantic pieces; Q4 connect generated env to runtime experience; Q5 verif (testable); does not displace conv (Q2 done prior). Anti-one-off: data driven from case, not hardcoded scene.
@@ -384,9 +534,9 @@ export function buildEncounterRuntimeSelectionReviewPacket(
     })(),
     pedsActiveEmotionDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? "frightened" : null,
     pedsDialogueCueIdsDemo: selectionIntent.selectedScenarioId === "peds_asthma_parent_anxiety_v1" ? ["empathy_statement", "parent_communication", "urgent_escalation"] : null,
-    persistenceProjection: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId) ? {
-      actorTurns: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.turns,
-      emotionalStateTimeline: deriveBasicActorTurnExpectationsFromCase(selectionIntent.selectedScenarioId)!.emotionTimeline,
+    persistenceProjection: caseDerivedActorTurnExpectations ? {
+      actorTurns: caseDerivedActorTurnExpectations.turns,
+      emotionalStateTimeline: caseDerivedActorTurnExpectations.emotionTimeline,
       source: "case-derived-for-persistence"
     } : null,
     reviewPacketMode: "read_only_guarded_runtime_handoff",
@@ -448,6 +598,9 @@ export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): V
   validatePublicationPayloadLinkage(value.publicationPayloadLinkage, errors);
   validateOperatorReviewReadiness(value.operatorReviewReadiness, errors);
   validateRuntimeRealismEvidenceDraftReview(value.runtimeRealismEvidenceDraftReview, errors);
+  validateCaseDerivedRuntimeBindingEvidence(value.caseDerivedRuntimeBindingEvidence, errors);
+  validateCaseDerivedActorPlayerRuntimeEvidence(value.caseDerivedActorPlayerRuntimeEvidence, errors);
+  validateRuntimeEvidenceCaptureScaffold(value.runtimeEvidenceCaptureScaffold, value.selectedScenarioId, errors);
   requireArray(value.reviewerChecklist, "/reviewerChecklist", errors);
   requireArray(value.blockers, "/blockers", errors);
   requireArray(value.notEvidenceFor, "/notEvidenceFor", errors);
@@ -462,6 +615,145 @@ export function validateEncounterRuntimeSelectionReviewPacket(value: unknown): V
     }
   }
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
+}
+
+function validateCaseDerivedRuntimeBindingEvidence(value: unknown, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  requireRecord(value, "/caseDerivedRuntimeBindingEvidence", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value.schemaVersion, "openclinxr.case-derived-runtime-binding-evidence.v1", "/caseDerivedRuntimeBindingEvidence/schemaVersion", errors);
+  requireLiteral(value.claimBoundary, "metadata_only_case_turn_to_runtime_hook_binding_not_runtime_execution", "/caseDerivedRuntimeBindingEvidence/claimBoundary", errors);
+  requireArray(value.actorBindings, "/caseDerivedRuntimeBindingEvidence/actorBindings", errors);
+  requireArray(value.missingCaseActorIds, "/caseDerivedRuntimeBindingEvidence/missingCaseActorIds", errors);
+  requireRecord(value.decision, "/caseDerivedRuntimeBindingEvidence/decision", errors);
+  if (isRecord(value.decision)) {
+    requireLiteral(value.decision.caseTurnRuntimeBindingComplete, false, "/caseDerivedRuntimeBindingEvidence/decision/caseTurnRuntimeBindingComplete", errors);
+    requireLiteral(value.decision.runtimeActorMappingReady, false, "/caseDerivedRuntimeBindingEvidence/decision/runtimeActorMappingReady", errors);
+    requireLiteral(value.decision.scenePlacementEvidenceAllowed, false, "/caseDerivedRuntimeBindingEvidence/decision/scenePlacementEvidenceAllowed", errors);
+    requireLiteral(value.decision.runtimePromotionAllowed, false, "/caseDerivedRuntimeBindingEvidence/decision/runtimePromotionAllowed", errors);
+    requireLiteral(value.decision.productionManifestPromotionAllowed, false, "/caseDerivedRuntimeBindingEvidence/decision/productionManifestPromotionAllowed", errors);
+    requireLiteral(value.decision.learnerLaunchAllowed, false, "/caseDerivedRuntimeBindingEvidence/decision/learnerLaunchAllowed", errors);
+    requireLiteral(value.decision.providerExecutionPerformed, false, "/caseDerivedRuntimeBindingEvidence/decision/providerExecutionPerformed", errors);
+  }
+  if (Array.isArray(value.notEvidenceFor)) {
+    for (const claim of ["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness", "production_asset_readiness", "learner_readiness", "clinical_validity", "scoring_validity"]) {
+      if (!value.notEvidenceFor.includes(claim)) errors.push(`/caseDerivedRuntimeBindingEvidence/notEvidenceFor must include ${claim}`);
+    }
+  } else {
+    errors.push("/caseDerivedRuntimeBindingEvidence/notEvidenceFor must be array");
+  }
+}
+
+function validateCaseDerivedActorPlayerRuntimeEvidence(value: unknown, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  requireRecord(value, "/caseDerivedActorPlayerRuntimeEvidence", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value["schemaVersion"], "openclinxr.case-derived-actor-player-runtime-evidence.v1", "/caseDerivedActorPlayerRuntimeEvidence/schemaVersion", errors);
+  requireLiteral(value["claimBoundary"], "metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime", "/caseDerivedActorPlayerRuntimeEvidence/claimBoundary", errors);
+  requireArray(value["actorRuntimeSummaries"], "/caseDerivedActorPlayerRuntimeEvidence/actorRuntimeSummaries", errors);
+  requireArray(value["missingCaseActorIds"], "/caseDerivedActorPlayerRuntimeEvidence/missingCaseActorIds", errors);
+  requireRecord(value["decision"], "/caseDerivedActorPlayerRuntimeEvidence/decision", errors);
+  if (isRecord(value["decision"])) {
+    const decision = value["decision"];
+    requireLiteral(decision["runtimeActorMappingReady"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/runtimeActorMappingReady", errors);
+    requireLiteral(decision["scenePlacementEvidenceAllowed"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/scenePlacementEvidenceAllowed", errors);
+    requireLiteral(decision["runtimePromotionAllowed"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/runtimePromotionAllowed", errors);
+    requireLiteral(decision["productionManifestPromotionAllowed"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/productionManifestPromotionAllowed", errors);
+    requireLiteral(decision["learnerLaunchAllowed"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/learnerLaunchAllowed", errors);
+    requireLiteral(decision["providerExecutionPerformed"], false, "/caseDerivedActorPlayerRuntimeEvidence/decision/providerExecutionPerformed", errors);
+  }
+  if (Array.isArray(value["actorRuntimeSummaries"])) {
+    for (const [index, actor] of value["actorRuntimeSummaries"].entries()) {
+      const actorPath = `/caseDerivedActorPlayerRuntimeEvidence/actorRuntimeSummaries/${index}`;
+      requireRecord(actor, actorPath, errors);
+      if (!isRecord(actor)) continue;
+      requireString(actor["actorId"], `${actorPath}/actorId`, errors);
+      requireArray(actor["roleAnimationClipNames"], `${actorPath}/roleAnimationClipNames`, errors);
+      requireArray(actor["hookExecutions"], `${actorPath}/hookExecutions`, errors);
+      if (Array.isArray(actor["hookExecutions"])) {
+        for (const [hookIndex, hook] of actor["hookExecutions"].entries()) {
+          const hookPath = `${actorPath}/hookExecutions/${hookIndex}`;
+          requireRecord(hook, hookPath, errors);
+          if (!isRecord(hook)) continue;
+          requireLiteral(hook["sceneExecutionStatus"], "not_scene_executed", `${hookPath}/sceneExecutionStatus`, errors);
+          requireArray(hook["remainingBlockers"], `${hookPath}/remainingBlockers`, errors);
+        }
+      }
+    }
+  }
+  if (Array.isArray(value["notEvidenceFor"])) {
+    for (const claim of ["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness", "production_asset_readiness", "learner_readiness", "clinical_validity", "scoring_validity"]) {
+      if (!value["notEvidenceFor"].includes(claim)) errors.push(`/caseDerivedActorPlayerRuntimeEvidence/notEvidenceFor must include ${claim}`);
+    }
+  } else {
+    errors.push("/caseDerivedActorPlayerRuntimeEvidence/notEvidenceFor must be array");
+  }
+}
+
+function normalizeRuntimeEvidenceCaptureScaffold(
+  selectedScenarioId: string,
+  value: unknown,
+): EncounterRuntimeSelectionReviewPacket["runtimeEvidenceCaptureScaffold"] {
+  if (value === undefined || value === null) return null;
+  if (!isRecord(value)) return value as EncounterRuntimeSelectionReviewPacket["runtimeEvidenceCaptureScaffold"];
+  return {
+    ...value,
+    selectedScenarioId: typeof value["selectedScenarioId"] === "string" ? value["selectedScenarioId"] : selectedScenarioId,
+  } as EncounterRuntimeSelectionReviewPacket["runtimeEvidenceCaptureScaffold"];
+}
+
+function validateRuntimeEvidenceCaptureScaffold(value: unknown, selectedScenarioId: unknown, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  requireRecord(value, "/runtimeEvidenceCaptureScaffold", errors);
+  if (!isRecord(value)) return;
+  requireLiteral(value["schemaVersion"], "openclinxr.encounter-runtime-evidence-capture-scaffold.v1", "/runtimeEvidenceCaptureScaffold/schemaVersion", errors);
+  requireLiteral(value["source"], "encounter_runtime_realism_evidence_input_draft", "/runtimeEvidenceCaptureScaffold/source", errors);
+  requireLiteral(value["selectedScenarioId"], selectedScenarioId, "/runtimeEvidenceCaptureScaffold/selectedScenarioId", errors);
+  requireLiteral(value["status"], "metadata_only_attachment_candidates_not_submitted", "/runtimeEvidenceCaptureScaffold/status", errors);
+  requireNumber(value["runtimeEvidenceCandidateCount"], "/runtimeEvidenceCaptureScaffold/runtimeEvidenceCandidateCount", errors);
+  requireNumber(value["visualQaEvidenceCandidateCount"], "/runtimeEvidenceCaptureScaffold/visualQaEvidenceCandidateCount", errors);
+  requireArray(value["attachmentCandidates"], "/runtimeEvidenceCaptureScaffold/attachmentCandidates", errors);
+  validateRuntimeEvidenceCaptureScaffoldActorPlayerAttachment(value["actorPlayerRuntimeEvidenceAttachment"], errors);
+  requireRecord(value["submitRuntimeVisualEvidenceAttachmentInput"], "/runtimeEvidenceCaptureScaffold/submitRuntimeVisualEvidenceAttachmentInput", errors);
+  if (isRecord(value["submitRuntimeVisualEvidenceAttachmentInput"])) {
+    const submitInput = value["submitRuntimeVisualEvidenceAttachmentInput"];
+    requireLiteral(submitInput["scenarioId"], selectedScenarioId, "/runtimeEvidenceCaptureScaffold/submitRuntimeVisualEvidenceAttachmentInput/scenarioId", errors);
+    requireArray(submitInput["attachments"], "/runtimeEvidenceCaptureScaffold/submitRuntimeVisualEvidenceAttachmentInput/attachments", errors);
+  }
+  requireRecord(value["gateBoundary"], "/runtimeEvidenceCaptureScaffold/gateBoundary", errors);
+  if (isRecord(value["gateBoundary"])) {
+    const gateBoundary = value["gateBoundary"];
+    requireLiteral(gateBoundary["providerExecutionAllowed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/providerExecutionAllowed", errors);
+    requireLiteral(gateBoundary["runtimeExecutionAllowed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/runtimeExecutionAllowed", errors);
+    requireLiteral(gateBoundary["learnerLaunchAllowed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/learnerLaunchAllowed", errors);
+    requireLiteral(gateBoundary["questEvidenceRefreshAllowed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/questEvidenceRefreshAllowed", errors);
+    requireLiteral(gateBoundary["productionAssetReadinessClaimed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/productionAssetReadinessClaimed", errors);
+    requireLiteral(gateBoundary["clinicalValidityClaimed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/clinicalValidityClaimed", errors);
+    requireLiteral(gateBoundary["scoringValidityClaimed"], false, "/runtimeEvidenceCaptureScaffold/gateBoundary/scoringValidityClaimed", errors);
+    requireLiteral(gateBoundary["claimBoundary"], "runtime_evidence_capture_scaffold_does_not_clear_launch_gates", "/runtimeEvidenceCaptureScaffold/gateBoundary/claimBoundary", errors);
+  }
+  requireLiteral(value["claimBoundary"], "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence", "/runtimeEvidenceCaptureScaffold/claimBoundary", errors);
+  requireArray(value["notEvidenceFor"], "/runtimeEvidenceCaptureScaffold/notEvidenceFor", errors);
+  if (Array.isArray(value["notEvidenceFor"])) {
+    for (const claim of ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"]) {
+      if (!value["notEvidenceFor"].includes(claim)) errors.push(`/runtimeEvidenceCaptureScaffold/notEvidenceFor must include ${claim}`);
+    }
+  }
+}
+
+function validateRuntimeEvidenceCaptureScaffoldActorPlayerAttachment(value: unknown, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  requireRecord(value, "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment", errors);
+  if (!isRecord(value)) return;
+  requireString(value["sourceArtifactPath"], "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/sourceArtifactPath", errors);
+  requireNumber(value["actorCount"], "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/actorCount", errors);
+  requireNumber(value["projectedTurnCount"], "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/projectedTurnCount", errors);
+  requireNumber(value["projectedSampleCount"], "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/projectedSampleCount", errors);
+  requireLiteral(value["providerExecutionPerformed"], false, "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/providerExecutionPerformed", errors);
+  requireLiteral(value["runtimeExecutionAllowed"], false, "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/runtimeExecutionAllowed", errors);
+  requireLiteral(value["learnerLaunchAllowed"], false, "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/learnerLaunchAllowed", errors);
+  requireLiteral(value["scenePlacementEvidenceAllowed"], false, "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/scenePlacementEvidenceAllowed", errors);
+  requireLiteral(value["claimBoundary"], "metadata_only_actor_player_runtime_evidence_attachment", "/runtimeEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment/claimBoundary", errors);
 }
 
 function buildRuntimeRealismEvidenceDraftReview(
@@ -615,6 +907,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--runtime-mapping-evidence") {
+      options.runtimeMappingEvidencePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--actor-player-runtime-evidence") {
+      options.actorPlayerRuntimeEvidencePath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--runtime-evidence-capture-scaffold") {
+      options.runtimeEvidenceCaptureScaffoldPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--output") {
       options.outputPath = requireValue(normalizedArgs, index, arg);
       index += 1;
@@ -638,6 +945,24 @@ async function latestPath(pattern: string): Promise<string | undefined> {
   const files = await globFiles(pattern);
   const filesWithStats = await Promise.all(files.map(async (filePath) => ({ filePath, mtimeMs: (await stat(filePath)).mtimeMs })));
   return filesWithStats.sort((left, right) => left.mtimeMs - right.mtimeMs || left.filePath.localeCompare(right.filePath)).at(-1)?.filePath;
+}
+
+async function readOptionalRuntimeMappingEvidence(explicitPath?: string): Promise<{ path: string; evidence: unknown } | undefined> {
+  const runtimeMappingEvidencePath = explicitPath ?? await latestPath("docs/openclinxr/model-vetting-runtime-mapping-evidence-*.json");
+  if (!runtimeMappingEvidencePath) return undefined;
+  return { path: runtimeMappingEvidencePath, evidence: await readJson<unknown>(runtimeMappingEvidencePath) };
+}
+
+async function readOptionalActorPlayerRuntimeEvidence(explicitPath?: string): Promise<{ path: string; evidence: unknown } | undefined> {
+  const actorPlayerRuntimeEvidencePath = explicitPath ?? await latestPath("docs/openclinxr/model-vetting-actor-player-runtime-evidence-*.json");
+  if (!actorPlayerRuntimeEvidencePath) return undefined;
+  return { path: actorPlayerRuntimeEvidencePath, evidence: await readJson<unknown>(actorPlayerRuntimeEvidencePath) };
+}
+
+async function readOptionalRuntimeEvidenceCaptureScaffold(explicitPath?: string): Promise<unknown | undefined> {
+  const runtimeEvidenceCaptureScaffoldPath = explicitPath ?? await latestPath("docs/openclinxr/encounter-runtime-evidence-capture-scaffold-*.json");
+  if (!runtimeEvidenceCaptureScaffoldPath) return undefined;
+  return await readJson<unknown>(runtimeEvidenceCaptureScaffoldPath);
 }
 
 function requireValue(args: string[], index: number, flag: string): string {
@@ -961,6 +1286,206 @@ function buildRealismEvidenceRefsSummary(value: unknown): EncounterRuntimeSelect
     runtimeExecutionAllowed: false,
     providerExecutionPerformed: false,
     questReadinessClaimed: false,
+  };
+}
+
+function deriveCaseRuntimeBindingEvidence(
+  scenarioId: string,
+  caseDerived: ReturnType<typeof deriveBasicActorTurnExpectationsFromCase>,
+  runtimeMappingEvidence?: { path: string; evidence: unknown },
+): EncounterRuntimeSelectionReviewPacket["caseDerivedRuntimeBindingEvidence"] {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1" || !caseDerived || !runtimeMappingEvidence || !isRecord(runtimeMappingEvidence.evidence)) return null;
+  const mappingActors = Array.isArray(runtimeMappingEvidence.evidence["actors"])
+    ? runtimeMappingEvidence.evidence["actors"].filter(isRecord)
+    : [];
+  if (mappingActors.length === 0) return null;
+  const mappingByActorId = new Map(
+    mappingActors
+      .map((actor): [string, Record<string, unknown>] => [typeof actor["actorId"] === "string" ? actor["actorId"] : "", actor])
+      .filter(([actorId]) => actorId.length > 0),
+  );
+  const caseActorIds = uniqueStrings(caseDerived.turns.map((turn) => turn.actorId));
+  const actorBindings = caseActorIds.map((actorId) => {
+    const actorMapping = mappingByActorId.get(actorId);
+    const caseTurns = caseDerived.turns.filter((turn) => turn.actorId === actorId);
+    const missingCandidateBlockers = [`case_actor_without_model_vetting_candidate:${actorId}`];
+    const mappingChecks = actorMapping && Array.isArray(actorMapping["mappingChecks"])
+      ? actorMapping["mappingChecks"].filter(isRecord)
+      : [];
+    const buildHook = (
+      hookId: "speech_viseme_timeline_binding" | "emotion_transition_state_binding" | "gaze_blink_runtime_binding" | "posture_locomotion_runtime_binding",
+    ) => {
+      const check = mappingChecks.find((candidate) => candidate["checkId"] === hookId);
+      const evidenceArtifactPaths = Array.isArray(check?.["evidence"])
+        ? check["evidence"].map((item) => typeof item === "string" ? item.slice(item.indexOf(":") + 1) : "").filter((item) => item.length > 0 && item !== "missing")
+        : [];
+      const checkBlockers = Array.isArray(check?.["blockers"]) ? check["blockers"].filter((item): item is string => typeof item === "string") : [];
+      return {
+        hookId,
+        status: actorMapping ? "metadata_bound_not_runtime_verified" as const : "blocked_missing_candidate" as const,
+        evidenceArtifactPaths,
+        blockers: actorMapping
+          ? uniqueStrings([
+              ...checkBlockers,
+              "case_turn_hook_not_executed_in_runtime_actor_player",
+              "scene_placement_not_verified",
+            ])
+          : missingCandidateBlockers,
+      };
+    };
+    return {
+      actorId,
+      candidateId: actorMapping && typeof actorMapping["candidateId"] === "string" ? actorMapping["candidateId"] : null,
+      caseDerivedTurnIds: caseTurns.map((turn) => turn.turnId),
+      caseDerivedCues: uniqueStrings(caseTurns.map((turn) => turn.cue)),
+      expectedEmotions: uniqueStrings(caseTurns.map((turn) => turn.expectedEmotion)),
+      runtimeHookBindings: [
+        buildHook("speech_viseme_timeline_binding"),
+        buildHook("emotion_transition_state_binding"),
+        buildHook("gaze_blink_runtime_binding"),
+        buildHook("posture_locomotion_runtime_binding"),
+      ],
+    };
+  });
+  const missingCaseActorIds = actorBindings.filter((binding) => binding.candidateId === null).map((binding) => binding.actorId);
+  return {
+    schemaVersion: "openclinxr.case-derived-runtime-binding-evidence.v1",
+    scenarioId,
+    source: "case_spec_derivation_plus_model_vetting_runtime_mapping",
+    sourceRuntimeMappingEvidencePath: runtimeMappingEvidence.path,
+    claimBoundary: "metadata_only_case_turn_to_runtime_hook_binding_not_runtime_execution",
+    actorBindings,
+    missingCaseActorIds,
+    decision: {
+      candidateActorTurnBindingsAttached: actorBindings.some((binding) => binding.candidateId !== null),
+      caseTurnRuntimeBindingComplete: false,
+      runtimeActorMappingReady: false,
+      scenePlacementEvidenceAllowed: false,
+      runtimePromotionAllowed: false,
+      productionManifestPromotionAllowed: false,
+      learnerLaunchAllowed: false,
+      providerExecutionPerformed: false,
+      nextSafeStep: missingCaseActorIds.length > 0
+        ? "Add missing case actor candidates and execute runtime actor-player bindings before any scene-placement or learner-facing claim."
+        : "Execute runtime actor-player bindings and adversarially review isolated evidence before any scene-placement or learner-facing claim.",
+    },
+    notEvidenceFor: [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "runtime_readiness",
+      "scene_placement_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "learner_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
+}
+
+function deriveCaseActorPlayerRuntimeEvidence(
+  scenarioId: string,
+  caseDerived: ReturnType<typeof deriveBasicActorTurnExpectationsFromCase>,
+  actorPlayerRuntimeEvidence?: { path: string; evidence: unknown },
+): EncounterRuntimeSelectionReviewPacket["caseDerivedActorPlayerRuntimeEvidence"] {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1" || !caseDerived || !actorPlayerRuntimeEvidence || !isRecord(actorPlayerRuntimeEvidence.evidence)) return null;
+  const runtimeActors = Array.isArray(actorPlayerRuntimeEvidence.evidence["actors"])
+    ? actorPlayerRuntimeEvidence.evidence["actors"].filter(isRecord)
+    : [];
+  if (runtimeActors.length === 0) return null;
+  const runtimeByActorId = new Map(
+    runtimeActors
+      .map((actor): [string, Record<string, unknown>] => [typeof actor["actorId"] === "string" ? actor["actorId"] : "", actor])
+      .filter(([actorId]) => actorId.length > 0),
+  );
+  const caseActorIds = uniqueStrings(caseDerived.turns.map((turn) => turn.actorId));
+  const actorRuntimeSummaries = caseActorIds.map((actorId) => {
+    const runtimeActor = runtimeByActorId.get(actorId);
+    const caseTurns = caseDerived.turns.filter((turn) => turn.actorId === actorId);
+    const hookExecutions = runtimeActor && Array.isArray(runtimeActor["hookExecutions"])
+      ? runtimeActor["hookExecutions"].filter(isRecord)
+      : [];
+    const caseDerivedTurnSequence = runtimeActor && Array.isArray(runtimeActor["caseDerivedTurnSequence"])
+      ? runtimeActor["caseDerivedTurnSequence"].filter(isRecord)
+      : [];
+    const summarizeHook = (
+      hookId: "speech_viseme_timeline_binding" | "emotion_transition_state_binding" | "gaze_blink_runtime_binding" | "posture_locomotion_runtime_binding",
+    ) => {
+      const hook = hookExecutions.find((candidate) => candidate["hookId"] === hookId);
+      return {
+        hookId,
+        runtimeSurfaceStatus: hook && hook["runtimeSurfaceStatus"] === "executed_in_guarded_local_actor_player_stub"
+          ? "executed_in_guarded_local_actor_player_stub" as const
+          : "blocked_missing_actor_player_runtime" as const,
+        sceneExecutionStatus: "not_scene_executed" as const,
+        sampleCount: Array.isArray(hook?.["samples"]) ? hook["samples"].length : 0,
+        remainingBlockers: hook
+          ? uniqueStrings([
+              ...stringArray(hook["remainingBlockers"]),
+              "review_packet_attachment_metadata_only",
+              "scene_placement_not_verified",
+            ])
+          : [`case_actor_without_actor_player_runtime:${actorId}`],
+      };
+    };
+    return {
+      actorId,
+      candidateId: runtimeActor && typeof runtimeActor["candidateId"] === "string" ? runtimeActor["candidateId"] : null,
+      caseDerivedTurnIds: caseTurns.map((turn) => turn.turnId),
+      caseDerivedRuntimeTurnCount: caseDerivedTurnSequence.length,
+      caseDerivedRuntimeSampleCount: caseDerivedTurnSequence.reduce((total, turn) => total + (Array.isArray(turn["samples"]) ? turn["samples"].length : 0), 0),
+      roleAnimationClipNames: uniqueStrings(caseDerivedTurnSequence.flatMap((turn) => [
+        typeof turn["roleAnimationClipName"] === "string" ? turn["roleAnimationClipName"] : "",
+        ...(
+          Array.isArray(turn["samples"])
+            ? turn["samples"].filter(isRecord).map((sample) => typeof sample["roleAnimationClipName"] === "string" ? sample["roleAnimationClipName"] : "")
+            : []
+        ),
+      ]).filter((name) => name.length > 0)),
+      turnTraceTag: runtimeActor && typeof runtimeActor["turnTraceTag"] === "string" ? runtimeActor["turnTraceTag"] : null,
+      executedHookCount: typeof runtimeActor?.["executedHookCount"] === "number" ? runtimeActor["executedHookCount"] : 0,
+      hookExecutions: [
+        summarizeHook("speech_viseme_timeline_binding"),
+        summarizeHook("emotion_transition_state_binding"),
+        summarizeHook("gaze_blink_runtime_binding"),
+        summarizeHook("posture_locomotion_runtime_binding"),
+      ],
+    };
+  });
+  const missingCaseActorIds = actorRuntimeSummaries.filter((summary) => summary.candidateId === null).map((summary) => summary.actorId);
+  const complete = actorRuntimeSummaries.length > 0
+    && actorRuntimeSummaries.every((summary) => summary.executedHookCount === 4 && summary.hookExecutions.every((hook) => hook.runtimeSurfaceStatus === "executed_in_guarded_local_actor_player_stub" && hook.sampleCount === 3));
+  return {
+    schemaVersion: "openclinxr.case-derived-actor-player-runtime-evidence.v1",
+    scenarioId,
+    source: "case_spec_derivation_plus_model_vetting_actor_player_runtime",
+    sourceActorPlayerRuntimeEvidencePath: actorPlayerRuntimeEvidence.path,
+    claimBoundary: "metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime",
+    actorRuntimeSummaries,
+    missingCaseActorIds,
+    decision: {
+      actorPlayerRuntimeEvidenceAttached: actorRuntimeSummaries.some((summary) => summary.candidateId !== null),
+      localActorPlayerRuntimeEvidenceExecuted: actorRuntimeSummaries.some((summary) => summary.executedHookCount > 0),
+      actorPlayerRuntimeEvidenceComplete: complete,
+      runtimeActorMappingReady: false,
+      scenePlacementEvidenceAllowed: false,
+      runtimePromotionAllowed: false,
+      productionManifestPromotionAllowed: false,
+      learnerLaunchAllowed: false,
+      providerExecutionPerformed: false,
+      nextSafeStep: "Expose this metadata in reviewer/admin surfaces and expand to multi-turn actor-player evidence before any scene-placement claim.",
+    },
+    notEvidenceFor: [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "runtime_readiness",
+      "scene_placement_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "learner_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
   };
 }
 

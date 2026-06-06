@@ -90,6 +90,9 @@ for (const harness of harnesses) {
         [
           `name = ${tomlString(role)}`,
           `description = ${tomlString(description)}`,
+          `model = "gpt-5.4-mini"`,
+          `model_reasoning_effort = "low"`,
+          `sandbox_mode = "read-only"`,
           `developer_instructions = ${multilineToml(instructions)}`,
           "",
         ].join("\n"),

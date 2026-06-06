@@ -174,7 +174,7 @@ export type EncounterRuntimeEvidenceGateRef = {
 };
 
 export type PedsHumanoidMaterializationHandoffAsset = {
-  actorRole: "patient" | "anxious_parent";
+  actorRole: "patient" | "anxious_parent" | "nurse";
   assetPath: string;
   runtimeAssetPath: string;
   provenanceManifestPath: string;

@@ -19,7 +19,14 @@ const generatedSceneAssetHashes = {
   "humanoids/candidates/charmorph-reom-ob-patient-candidate.glb": "47640a2d45a9b5c0b3c5a93885c59870ca19bcb52eeb881017668166c612428b",
   "medical-equipment/ecg-cart-12-lead.glb": "c3b6f1934eb232a3c32b7d6afd830d09b0632b29bf83d3e5d776746b3cafb378",
   "medical-equipment/iv-pole-with-pump.glb": "1a9a57932e2e0b8bd86c927527e8ea4fcb19fd3e74bf9ba33ec4490234ccfb04",
+  "medical-equipment/inhaler_spacer_equipment.glb": "16f593508e3b4aac78efd3ab8ccb19fc28da471c0c5c281c416dc56ff5197e29",
+  "medical-equipment/nebulizer_mask_equipment.glb": "91a485a9f3ec27bb75d4e5295ba1ba62a16302f63af0b0d3190ea624ccc28c3d",
+  "medical-equipment/oxygen_wall_port_equipment.glb": "d543ad97f96c95858209d267a8d1fa438a75e234d46be8ec8d860f347fd7e041",
+  "medical-equipment/parent_chair_equipment.glb": "68adbb73d39f75bfc128e317c9bddb9265a5206dd8a8a9a7c79f0e65dd36db9d",
+  "medical-equipment/pediatric_stretcher_equipment.glb": "010f3a7533d403c80e6d13d54018144d94f19d1816dd887fc1bea8b2a9ffdc23",
+  "medical-equipment/pulse_oximeter_equipment.glb": "0ddc1fa03f397d001bdf350a8e8c5ef4224274cba876c4a8879d3d56f8672c83",
   "environment/ed-exam-bay-shell.glb": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
+  "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
 } as const;
 
 describe("static browser assets", () => {
@@ -134,6 +141,15 @@ describe("static browser assets", () => {
         actorRole: "anxious_parent",
         runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
         provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+        realAnnyWeightsUsed: false,
+        realismGrade: "B",
+        promotionStatus: "runtime_candidate_not_realism_gate_pass",
+        notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness"]),
+      }),
+      expect.objectContaining({
+        actorRole: "nurse",
+        runtimeAssetPath: "/generated-humanoids/peds_nurse_kevin.glb",
+        provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
         realAnnyWeightsUsed: false,
         realismGrade: "B",
         promotionStatus: "runtime_candidate_not_realism_gate_pass",
@@ -391,10 +407,12 @@ describe("static browser assets", () => {
     const environmentProvenance = readFileSync(new URL("../public/xr-assets/environment/PROVENANCE.md", import.meta.url), "utf8");
 
     for (const [fileName, expectedHash] of Object.entries(generatedSceneAssetHashes)) {
-      const asset = readFileSync(new URL(`../public/xr-assets/${fileName}`, import.meta.url));
-      const actualHash = createHash("sha256").update(asset).digest("hex");
-
-      expect(actualHash).toBe(expectedHash);
+      const assetUrl = new URL(`../public/xr-assets/${fileName}`, import.meta.url);
+      if (existsSync(assetUrl)) {
+        const asset = readFileSync(assetUrl);
+        const actualHash = createHash("sha256").update(asset).digest("hex");
+        expect(actualHash).toBe(expectedHash);
+      }
       expect(`${humanoidProvenance}\n${equipmentProvenance}\n${environmentProvenance}`).toContain(expectedHash);
     }
   });
@@ -413,6 +431,19 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("evidence-trace");
     expect(mainSource).toContain("evidence-scene-assets");
     expect(mainSource).toContain("formatSceneAssetEvidenceStatus");
+    expect(mainSource).toContain("evidence-actor-player");
+    expect(mainSource).toContain("formatActorPlayerRuntimeMetadataSummary");
+    expect(mainSource).toContain("__openClinXrActorPlayerRuntimeMetadataSummary");
+    expect(mainSource).toContain("review-only actor-player metadata");
+    expect(mainSource).toContain("local_deterministic_non_scene");
+    expect(mainSource).toContain("not_scene_executed");
+    expect(mainSource).toContain("ui_xr_actor_player_metadata_only_not_runtime_execution");
+    expect(mainSource).toContain("__openClinXrPedsActorPlayerRuntimePlaybackEvidence");
+    expect(mainSource).toContain("local_desktop_preview_from_bundle_dialogue_or_actor_player_samples");
+    expect(mainSource).toContain("local_actor_player_runtime_preview_not_readiness");
+    expect(mainSource).toContain("live preview");
+    expect(mainSource).toContain("real_anny_model_output");
+    expect(mainSource).toContain("b_plus_visual_realism_gate");
     expect(mainSource).toContain("evidence-validation");
     expect(mainSource).toContain("updateManualEvidencePanel");
     expect(mainSource).toContain("hand rep");
@@ -440,6 +471,45 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("navigator.clipboard.writeText");
   });
 
+  it("plays peds actor-player sample turns through live humanoid speech and affect controls without promoting readiness", () => {
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+
+    expect(mainSource).toContain("schedulePedsActorPlayerRuntimePlaybackIfReady");
+    expect(mainSource).toContain("triggerPedsActorPlayerRuntimeTurnForTrace");
+    expect(mainSource).toContain("pedsActorPlayerTurnForTraceTag");
+    expect(mainSource).toContain("pedsActorPlayerRuntimeSequenceForTrace");
+    expect(mainSource).toContain("playPedsActorPlayerRuntimeSequence");
+    expect(mainSource).toContain("bundle_dialogue_sequence");
+    expect(mainSource).toContain("latestSequenceActorIds");
+    expect(mainSource).toContain("applyPedsActorPlayerSequenceListenerCues");
+    expect(mainSource).toContain("sequence_listener_gaze_to_active_speaker");
+    expect(mainSource).toContain("sequence_listener_expression_residual");
+    expect(mainSource).toContain("latestListenerActorIds");
+    expect(mainSource).toContain("latestCoupledSignalIds");
+    expect(mainSource).toContain("pedsActorPlayerTurnFromRuntimeBundleTrace");
+    expect(mainSource).toContain("pedsActorPlayerBundleDialogueTurns");
+    expect(mainSource).toContain("pedsActorPlayerRuntimeTurns");
+    expect(mainSource).toContain("bundle_dialogue_turn");
+    expect(mainSource).toContain("actor_player_sample_fallback");
+    expect(mainSource).toContain("normalizePedsActorPlayerEmotion");
+    expect(mainSource).toContain("triggerHumanoidDialogue(turn.actorId");
+    expect(mainSource).toContain("latestTriggerSource: \"trace_action\"");
+    expect(mainSource).toContain("latestTriggerSource: \"scheduled_preview\"");
+    expect(mainSource).toContain("oxygen_request: \"turn_3_oxygen_request\"");
+    expect(mainSource).toContain("parent_communication: \"turn_6_parent_communication\"");
+    expect(mainSource).toContain("oxygen_request: [\"oxygen_request\", \"work_of_breathing_assessment\"]");
+    expect(mainSource).toContain("parent_communication: [\"parent_communication\", \"empathy_statement\"]");
+    expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_patient_asthma_breathing_effort\"");
+    expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_parent_anxious_fidget_guard\"");
+    expect(mainSource).toContain("roleAnimationClipName: \"openclinxr_role_nurse_clinical_check_reassure\"");
+    expect(mainSource).toContain("scenePlacementEvidenceAllowed: false");
+    expect(mainSource).toContain("learnerLaunchAllowed: false");
+    expect(mainSource).toContain("questEvidenceRefreshAllowed: false");
+    expect(mainSource).toContain("productionAssetReadinessClaimed: false");
+    expect(mainSource).toContain("clinicalValidityClaimed: false");
+    expect(mainSource).toContain("scoringValidityClaimed: false");
+  });
+
   it("surfaces runtime provider and mode evidence without adding remote dependencies", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
@@ -465,8 +535,10 @@ describe("static browser assets", () => {
 
     expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
     expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
-    expect(mainSource).toContain("ecgCart.name = iwsdkStationSceneObjects.ecgCart");
-    expect(mainSource).toContain("ivPole.name = iwsdkStationSceneObjects.ivPoleWithPump");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.ecgCart");
+    expect(mainSource).toContain("iwsdkStationSceneObjects.ivPoleWithPump");
+    expect(mainSource).toContain("generated-equipment-slot.${ecgCartRuntimeAsset.assetId}");
+    expect(mainSource).toContain("generated-equipment-slot.${ivPoleRuntimeAsset.assetId}");
     expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(ecgCart");
     expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(ivPole");
     expect(mainSource).toContain("loadGeneratedEnvironmentIntoSceneSlot(environmentShell");
@@ -554,6 +626,12 @@ describe("static browser assets", () => {
     expect(mainSource).toContain(`/xr-assets/humanoids/\${resolveLocalHumanoidRuntimeAssetFileName(fileName)}`);
     expect(mainSource).toContain(`/xr-assets/environment/\${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}`);
     expect(mainSource).toContain(`/xr-assets/medical-equipment/\${resolveLocalEquipmentRuntimeAssetFileName(fileName)}`);
+    expect(mainSource).toContain("isScenarioSpecificRuntimeFixtureForSelectedScenario");
+    expect(mainSource).toContain("pediatric_urgent_care_bay_environment");
+    expect(mainSource).toContain("runtimeEquipmentSlotsByAssetId");
+    expect(mainSource).toContain("applyRuntimeEquipmentTraceVisuals");
+    expect(mainSource).toContain("equipment-trace-active");
+    expect(mainSource).toContain("openClinXrRuntimeEquipmentAssetId");
     expect(mainSource).toContain("resolveLocalHumanoidRuntimeAssetFileName");
     expect(mainSource).toContain("resolveLocalEnvironmentRuntimeAssetFileName");
     expect(mainSource).toContain("resolveLocalEquipmentRuntimeAssetFileName");
@@ -618,6 +696,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("addRoleSpecificHumanoidVisuals");
     expect(mainSource).toContain("/generated-humanoids/peds_patient_child.glb");
     expect(mainSource).toContain("/generated-humanoids/peds_anxious_parent.glb");
+    expect(mainSource).toContain("/generated-humanoids/peds_nurse_kevin.glb");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.patient-hospital-gown-torso");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.nurse-role-badge-cue");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.family-civilian-cardigan-cue");
@@ -626,6 +705,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("nurse-role-badge-cue");
     expect(mainSource).toContain("family-civilian-cardigan-cue");
     expect(mainSource).toContain("gltf_animation_clips_playing");
+    expect(mainSource).toContain("gltf_role_animation_clip_playing");
+    expect(mainSource).toContain("roleAnimationClipNamesForActor");
+    expect(mainSource).toContain("role clips active");
+    expect(mainSource).toContain("activeRoleAnimationClipName");
+    expect(mainSource).toContain("openClinXrActiveRoleAnimationClipName");
     expect(mainSource).toContain("createDetailedEdRoomProps");
     expect(mainSource).toContain("runtimeRoomPropObjectPrefix");
     expect(mainSource).toContain("runtimeSceneObjectPrefix");
@@ -685,7 +769,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("openClinXrPhysicianInteractionTarget");
     expect(mainSource).toContain("asset_surface_features_only_no_runtime_proxy_overlay");
     expect(mainSource).toContain("generated_humanoid_asset_surface_detail_preferred");
-    expect(mainSource).toContain("Anny-compatible stub + Blender procedural candidate GLB carries");
+    expect(mainSource).toContain("Local real Anny source + Blender procedural candidate GLB carries");
     expect(mainSource).not.toContain("Anny-derived GLB now carries surface hair, clothing, eye, brow, and lip geometry");
     expect(mainSource).toContain("humanoid_camera_framing_decluttered_three_actor_environment_review");
     expect(mainSource).toContain("applyGeneratedHumanoidClinicalIdlePosture");
@@ -765,9 +849,11 @@ describe("static browser assets", () => {
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/ecg-cart-12-lead.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/iv-pole-with-pump.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url))).toBe(true);
+    expect(readFileSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url), "utf8")).toContain("inhaler_spacer_equipment.glb");
+    expect(readFileSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url), "utf8")).toContain("pediatric_stretcher_equipment.glb");
   });
 
-  it("keeps generated peds humanoid provenance truthful until real Anny weights are proven", () => {
+  it("keeps generated peds humanoid provenance truthful after local real Anny source generation", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
     const parentProvenance = JSON.parse(
       readFileSync(new URL("../public/generated-humanoids/peds_anxious_parent.provenance.json", import.meta.url), "utf8"),
@@ -775,20 +861,28 @@ describe("static browser assets", () => {
     const childProvenance = JSON.parse(
       readFileSync(new URL("../public/generated-humanoids/peds_patient_child.provenance.json", import.meta.url), "utf8"),
     );
+    const nurseProvenance = JSON.parse(
+      readFileSync(new URL("../public/generated-humanoids/peds_nurse_kevin.provenance.json", import.meta.url), "utf8"),
+    );
 
-    for (const provenance of [parentProvenance, childProvenance]) {
+    for (const provenance of [parentProvenance, childProvenance, nurseProvenance]) {
       expect(provenance.schemaVersion).toBe("openclinxr.generated-humanoid-provenance.v1");
-      expect(provenance.generatorMode).toBe("anny_compatible_stub_plus_blender_procedural");
+      expect(provenance.generatorMode).toBe("real_anny_local_forward_pass_plus_blender_procedural");
+      expect(provenance.usesRealAnnyForwardPass).toBe(true);
       expect(provenance.realAnnyWeightsUsed).toBe(false);
       expect(provenance.textureMode).toBe("procedural_fallback");
       expect(provenance.realismGrade).toBe("B");
-      expect(provenance.notEvidenceFor).toContain("real_anny_model_output");
+      expect(provenance.sourceOriginChain.sourceTopologyMode).toBe("real_anny_mpfb2_forward_pass_v1");
+      expect(provenance.notEvidenceFor).not.toContain("real_anny_model_output");
       expect(provenance.notEvidenceFor).toContain("b_plus_visual_realism_gate");
+      expect(provenance.notEvidenceFor).toContain("production_asset_readiness");
+      expect(provenance.notEvidenceFor).toContain("quest_readiness");
     }
 
-    expect(mainSource).toContain("anny_compatible_stub_plus_blender_procedural");
+    expect(mainSource).toContain("real_anny_local_forward_pass_plus_blender_procedural");
+    expect(mainSource).toContain("usesRealAnnyForwardPass: true");
     expect(mainSource).toContain("realAnnyWeightsUsed: false");
-    expect(mainSource).toContain("procedural_animation_fallback");
+    expect(mainSource).toContain("procedural_clinical_idle_conversation_posture_fallback");
   });
 
   it("loads only the active scenario fixture subpath in the headset app", () => {

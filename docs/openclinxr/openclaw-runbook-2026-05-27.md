@@ -82,6 +82,7 @@ Update the canonical automation prompt (via openclaw:automation-prompt) to refer
 - Do not commit generated screenshots, JSON, local cache, or runtime outputs unless they are classified by `docs:artifacts` and useful as current representative evidence.
 - Do not treat unit tests as the only proof for XR/runtime/UI/asset behavior when browser or runtime evidence is feasible.
 - Do not refresh evidence simply because it is stale unless it unlocks a concrete implementation decision.
+- Model-work product guard: do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts unless that slice also builds or directly unlocks actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality, runtime-visible model behavior, or provider/cache/tooling capability that can produce models on this machine inside approved boundaries.
 - Do not use paid/cloud APIs, production deployment, credentials, destructive operations, or unapproved runtime dependency changes without explicit approval.
 
 ## Drift Check
@@ -135,6 +136,8 @@ Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/file
 Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, and docs/openclinxr/openclaw-runbook-2026-05-27.md as the source of truth. Do not use generic chat autonomy.
 
 Before selecting work, run or mentally apply the OpenClaw drift guard: no scattered markdown, no one-off hand-designed encounters, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision.
+
+Apply the model-work product guard before any Anny, humanoid, voice, animation, skin, clothing, or model-provider slice: do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts unless the same slice builds or directly unlocks actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality, runtime-visible model behavior, or provider/cache/tooling capability that can produce models locally inside approved boundaries.
 
 Before editing, run `pnpm openclaw:run-next` to identify the next queued slice, then acquire the lease with `pnpm openclaw:lease -- acquire --owner openclaw-run-next --slice "<short-slice-name>"`. If the lease output says another unexpired owner holds the slice, do not overlap that work; re-read canonical state and wait for a clean runner opportunity. Refresh the lease during long work and release it only after focused verification and canonical state updates. If the lease is expired, recover it and inspect `git status --short` before continuing.
 

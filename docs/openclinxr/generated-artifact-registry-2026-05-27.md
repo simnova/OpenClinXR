@@ -10,26 +10,69 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 12
+- ignore-local-cache: 55
 - keep-compatibility-input: 24
-- keep-current: 44
-- keep-evidence: 32
+- keep-current: 95
+- keep-evidence: 91
 - keep-template: 5
 
 ## Cleanup Actions
 
-- `.agent-factory/benchmark-gate-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/evidence-debt-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/godot-project-import-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/maturity-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/memory-index.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-cdp-smoke-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-http3-compatibility-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-http3-compatibility-template-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-manual-performance-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-mixed-reality-manual-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/quest-mixed-reality-manual-template-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
-- `.agent-factory/risk-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.openclinxr/asset-production/anny-real-smoke/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/smoke/mesh.manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/smoke/role-marker-smoke.manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/automation-lease.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-face-landmark-front-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-procedural-face-detail-handoff-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-clean-baseline-nurse-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-clean-baseline-parent-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-clean-baseline-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-marker-fixed-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-marker-repaired-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-material-visible-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-nurse-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-parent-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-mesh-clothing-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-meshopt-world-bounds-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-raw-world-bounds-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-skin-material-nurse-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-skin-material-parent-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-skin-material-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/model-vetting-real-anny-world-bounds-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/moonbridge-role-clip-review.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/run-next-report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-actor-player-runtime-playback-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-bundle-dialogue-trace-actor-player-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-equipment-trace-affordance-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-fixture-import-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-multi-actor-trace-sequence-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-sequence-listener-coupled-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-peds-trace-triggered-actor-player-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-regenerated-role-clip-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-role-clip-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/ui-xr-scene-asset-failure-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/external-ai-asset-provider-preflight-2026-05-25.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
@@ -54,6 +97,57 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/refine-humanoid-material-contrast-v3-2026-05-23.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/runtime-realism-evidence-check-authored-idle-pose-required-2026-05-23.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/strip-humanoid-primitive-proxies-2026-05-23.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
+- `apps/ui-xr/dist/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/environment/pediatric_urgent_care_bay_environment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v2/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_chest_pain_priority_v2/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_stroke_alert_handoff_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ed_stroke_alert_handoff_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ob_headache_preeclampsia_triage_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ob_headache_preeclampsia_triage_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/oncology_bad_news_family_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/oncology_bad_news_family_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/peds_asthma_parent_anxiety_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/peds_asthma_parent_anxiety_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/psych_suicidal_ideation_safety_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/psych_suicidal_ideation_safety_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/stepdown_sepsis_nurse_escalation_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-namuhekam-polo-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-shirts01-cc0-elvs-crude-tshirt-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/candidates/reom-toigo-basic-tucked-tshirt-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/neutral-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/adult-standard-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/bariatric-adult-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/ecg-cart-12-lead.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/inhaler_spacer_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/iv-pole-with-pump.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/nebulizer_mask_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/oxygen_wall_port_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/parent_chair_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/pediatric_stretcher_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/pulse_oximeter_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
@@ -98,7 +192,42 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `.agent-factory/benchmark-gate-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/evidence-debt-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/godot-project-import-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/maturity-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/memory-index.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-cdp-smoke-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-http3-compatibility-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-http3-compatibility-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-manual-performance-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-mixed-reality-manual-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/quest-mixed-reality-manual-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `.agent-factory/risk-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/ao.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/basecolor.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/before_after_plan.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/metallic.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/normal.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/roughness.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/ao.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/basecolor.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/before_after_plan.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/metallic.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/normal.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_nurse_kevin/roughness.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/ao.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/basecolor.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/before_after_plan.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/metallic.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/normal.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_patient_child/roughness.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/anny-skin-cagematch-probe-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-texture-cagematch-manifest-peds_asthma_parent_anxiety_v1-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-track-a-mit-pbr-cagematch-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-track-a-mit-pbr-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-track-a-mit-pbr-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
@@ -126,8 +255,32 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/local-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/local-realtime-voice-model-source-currentness-2026-05-21.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_side_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_three_quarter_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_side_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_anxious_parent_track_a_mit_pbr_three_quarter_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_side_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_nurse_kevin_track_a_mit_pbr_three_quarter_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_front_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_side_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_three_quarter_2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-cagematch-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-cagematch-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-cleanup-moonbridge-review-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-debug-page-2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-visual-audit-marker-cleanup-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-direct-texture-visual-review-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/realvisxl-skin-smoke-2026-06-06.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ui-xr-ob-humanoid-source-closeup-comparator-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/ui-xr-peds-materialization-gate-browser-smoke-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/garment-source-allowlist-template-2026-05-27.json` - keep-template; keep; Template/license/provenance/source artifact; never prune as generated clutter.

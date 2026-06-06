@@ -1,0 +1,128 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+  "source_kind": "real_anny_candidate_unverified",
+  "generator_mode": "real_anny_local_forward_pass",
+  "uses_real_anny_forward_pass": true,
+  "real_anny_weights_used": false,
+  "fallback_active": false,
+  "input_params": {
+    "age": 29,
+    "body_profile": "adult_clinical_team",
+    "pose": "standing_clinical_ready",
+    "seed": 1003,
+    "phenotype": {
+      "skin_tone": "medium_warm",
+      "hair_color": "black",
+      "eye_color": "brown",
+      "gender_presentation": "adult_male_nurse",
+      "height_cm": 176,
+      "build": "average_clinical_team",
+      "hair_density": 0.58,
+      "brow_tension": 0.12,
+      "anxious": 0.18,
+      "flush": 0.02,
+      "age_wrinkle": 0.1,
+      "bmi": 23.0,
+      "clothing_style": "teal_clinical_scrubs_with_name_badge",
+      "clothing_color": "teal_scrubs",
+      "role_visual_cue": "clinical_nurse",
+      "wardrobeRole": "pediatric_nurse_scrubs",
+      "garmentLayers": [
+        "scrub_top",
+        "scrub_pocket"
+      ],
+      "fabricPalette": "teal_scrubs_and_white_badge",
+      "materialFinish": "poly_cotton_slight_sheen",
+      "accessoryMarkers": [
+        "name_badge",
+        "scrub_pocket"
+      ],
+      "fitProfile": "adult_clinical_team_fit"
+    },
+    "actor_id": "nurse_kevin_lee_v1"
+  },
+  "output": {
+    "obj_path": "/Volumes/files/src/openclinxr/.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_base.obj",
+    "vertex_count": 13348,
+    "face_count": 13346,
+    "has_uvs": true,
+    "source_topology_mode": "real_anny_mpfb2_forward_pass_v1",
+    "uv_coverage_note": "planar normalized review UVs over real Anny source mesh"
+  },
+  "anny_forward_pass": {
+    "kind": "real_anny_forward_pass",
+    "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
+    "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
+    "source_vertex_count": 13348,
+    "source_face_count": 13346,
+    "source_height": 1.6728534698486328,
+    "target_height": 1.76,
+    "scale": 1.0520945388954195,
+    "external_network_used": false,
+    "model_download_used": false,
+    "noncommercial_download_used": false
+  },
+  "phenotype_summary": {
+    "skin_tone": "medium_warm",
+    "hair_color": "black",
+    "eye_color": "brown",
+    "gender_presentation": "adult_male_nurse",
+    "height_cm": 176,
+    "build": "average_clinical_team",
+    "hair_density": 0.58,
+    "brow_tension": 0.12,
+    "anxious": 0.18,
+    "flush": 0.02,
+    "age_wrinkle": 0.1,
+    "bmi": 23.0,
+    "clothing_style": "teal_clinical_scrubs_with_name_badge",
+    "clothing_color": "teal_scrubs",
+    "role_visual_cue": "clinical_nurse",
+    "wardrobeRole": "pediatric_nurse_scrubs",
+    "garmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "fabricPalette": "teal_scrubs_and_white_badge",
+    "materialFinish": "poly_cotton_slight_sheen",
+    "accessoryMarkers": [
+      "name_badge",
+      "scrub_pocket"
+    ],
+    "fitProfile": "adult_clinical_team_fit"
+  },
+  "material_hints": {
+    "skin": "medium_warm",
+    "hair": "black",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "role": {
+      "wardrobeRole": "pediatric_nurse_scrubs",
+      "garmentLayers": [
+        "scrub_top",
+        "scrub_pocket"
+      ],
+      "fabricPalette": "teal_scrubs_and_white_badge",
+      "materialFinish": "poly_cotton_slight_sheen",
+      "accessoryMarkers": [
+        "name_badge",
+        "scrub_pocket"
+      ],
+      "fitProfile": "adult_clinical_team_fit",
+      "clothing_style": "teal_clinical_scrubs_with_name_badge",
+      "clothing_color": "teal_scrubs",
+      "role_visual_cue": "clinical_nurse",
+      "claim_scope": "procedural_role_distinction_marker_not_production_costume"
+    }
+  },
+  "not_evidence_for": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
+    "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
+    "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
+  ]
+}

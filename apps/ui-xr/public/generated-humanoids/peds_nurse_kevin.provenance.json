@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "actorId": "nurse_kevin_lee_v1",
+  "actorRole": "nurse",
+  "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
+  "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json",
+  "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json",
+  "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+  "sourceKind": "real_anny_candidate_unverified",
+  "usesRealAnnyForwardPass": true,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "B",
+  "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "meshStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "optimizationStage": null,
+    "sourceManifestKind": "real_anny_candidate_unverified",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
+  },
+  "optimizationHandoff": null,
+  "licenseChain": {
+    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
+  },
+  "derivativeLineage": {
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "nurse_kevin_lee_v1",
+    "reuseKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
+    "sourceParametersHash": "d987f3433978f6f96b3d5c642da5084df5094ff18475dbde02b3b4c4a4963eaa"
+  },
+  "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
+  "promptOrCaseParameterHash": "d987f3433978f6f96b3d5c642da5084df5094ff18475dbde02b3b4c4a4963eaa",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "provider_runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "sourceNotes": [
+    "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
+    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
+  ]
+}

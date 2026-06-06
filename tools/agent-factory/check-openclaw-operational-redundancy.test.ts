@@ -27,11 +27,24 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
       "README.md": "Copy-paste kickoff prompts",
       "AGENTS.md": "OpenClaw-style / OpenClaw-inspired",
       ".codex/config.toml": "project_doc_max_bytes = 65536\nmulti_agent = true\nmax_depth = 1",
-      ".codex/hooks.json": "SubagentStart\nSubagentStop\npnpm codex:hook -- subagent-start\npnpm codex:hook -- subagent-stop",
+      ".codex/hooks.json": "SubagentStart\nSubagentStop\nStop\npnpm codex:hook -- subagent-start\npnpm codex:hook -- subagent-stop\npnpm codex:hook -- stop",
       ".codex/rules/openclaw.rules": "git\", \"reset\", \"--hard\ngit\", \"push\ndecision = \"prompt\"",
       ".codex/agents/chief-coordinator.toml": "name = \"chief-coordinator\"\ndeveloper_instructions\nOpenClaw-style / OpenClaw-inspired\nagents/coordinator/chief-coordinator/charter.md",
+      "tools/openclinxr/openclaw/codex-lifecycle-hook.ts": [
+        "OpenClaw-style stop guard",
+        "a clean slice boundary is not a stop condition",
+        "do not send a final chat summary",
+        "run pnpm openclaw:run-next",
+        "continue the next real slice",
+        "Autonomous continuation guard for Stop lifecycle boundary",
+      ].join("\n"),
       ".agents/plugins/marketplace.json": "openclinxr-openclaw-style\n./plugins/openclinxr-openclaw-style",
       "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json": "openclinxr-openclaw-style\n\"skills\": \"./skills/\"",
+      "agents/rules/drift-toil-prevention.md": [
+        "Model-work product guard",
+        "do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts",
+        "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
+      ].join("\n"),
       "PROJECT_COORDINATION_INDEX.md": "OpenClaw-style / OpenClaw-inspired",
       "AUTONOMOUS_WORK_PLAN.md": sliceFields,
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": sliceFields,
@@ -45,11 +58,14 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
         "pnpm openclaw:automation-prompt",
         "pnpm openclaw:run-next",
         "pnpm openclaw:watchdog",
+        "Model-work product guard",
+        "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
         sliceFields,
         "## Canonical Automation Prompt",
         "```text",
         "Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr.",
         "Stay focused on the case-definition-driven WebXR encounter factory.",
+        "Apply the model-work product guard before any model slice.",
         "After each slice, run focused verification when appropriate.",
         "Stop only if explicitly told to pause/stop or if all approved lanes are truly blocked.",
         "```",
@@ -105,6 +121,67 @@ describe("OpenClaw-style operational redundancy checker", () => {
     expect(report.failures).toContainEqual({
       file: "docs/openclinxr/openclaw-runbook-2026-05-27.md",
       message: "missing operational redundancy marker: not an external OpenClaw runtime",
+    });
+  });
+
+  it("fails if the Codex Stop hook is not wired", () => {
+    const input = alignedInput();
+    input.files[".codex/hooks.json"] = input.files[".codex/hooks.json"].replace("pnpm codex:hook -- stop", "");
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: ".codex/hooks.json",
+      message: "missing Codex lifecycle hook marker: pnpm codex:hook -- stop",
+    });
+  });
+
+  it("fails if the Codex Stop hook can treat clean slices as final chat boundaries", () => {
+    const input = alignedInput();
+    input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"] = input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"].replace(
+      "a clean slice boundary is not a stop condition",
+      "",
+    );
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
+      message: "missing Codex stop-continuation guard marker: a clean slice boundary is not a stop condition",
+    });
+  });
+
+  it("fails if the model-work product guard is removed from the methodology rule", () => {
+    const input = alignedInput();
+    input.files["agents/rules/drift-toil-prevention.md"] = input.files["agents/rules/drift-toil-prevention.md"].replace(
+      "Model-work product guard",
+      "",
+    );
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: "agents/rules/drift-toil-prevention.md",
+      message: "missing model-work product guard marker: Model-work product guard",
+    });
+  });
+
+  it("fails if the canonical automation prompt omits the model-work product guard", () => {
+    const input = alignedInput();
+    input.files["docs/openclinxr/openclaw-runbook-2026-05-27.md"] = input.files["docs/openclinxr/openclaw-runbook-2026-05-27.md"].replace(
+      "Apply the model-work product guard before any model slice.",
+      "",
+    );
+
+    const report = buildOperationalRedundancyReport(input);
+
+    expect(report.ok).toBe(false);
+    expect(report.failures).toContainEqual({
+      file: "docs/openclinxr/openclaw-runbook-2026-05-27.md",
+      message: "canonical automation prompt missing marker: Apply the model-work product guard",
     });
   });
 });

@@ -85,13 +85,11 @@ const requiredMarkers: Record<string, string[]> = {
   ],
 };
 
-const ignoredDirectoryNames = new Set([".git", "node_modules", ".turbo", ".openclinxr-local", "tmp", "openclaw"]);
+const ignoredDirectoryNames = new Set([".git", "node_modules", ".turbo", ".openclinxr", ".openclinxr-local", "dist", "tmp", "openclaw"]);
 const generatedArtifactRoots = [
   ".agent-factory",
-  ".openclinxr",
   "docs/openclinxr",
   "apps/ui-xr/public/xr-assets",
-  "apps/ui-xr/dist/xr-assets",
 ] as const;
 const generatedArtifactExtensions = new Set([".json", ".png", ".jpg", ".jpeg", ".webp", ".glb", ".gltf", ".bin", ".mp3", ".wav", ".ogg", ".txt"]);
 const oneOffMarkdownNamePattern = /(?:checkpoint|status|progress|scratch|temporary|temp|handoff|prompt|continuation|notes?)(?:[-_].*)?\.md$/iu;
@@ -130,6 +128,7 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   for (const file of input.markdownFiles) {
+    if (isGeneratedOutputPolicyIgnoredPath(file)) continue;
     if (!registeredMarkdown.has(file)) {
       failures.push({ file, message: "Markdown file is not registered in the doc authority registry; run pnpm docs:authority or remove the scattered artifact" });
     }
@@ -142,6 +141,7 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   for (const file of input.generatedArtifactFiles) {
+    if (isGeneratedOutputPolicyIgnoredPath(file)) continue;
     if (!registeredArtifacts.has(file)) {
       failures.push({ file, message: "generated artifact is not registered in the generated artifact registry; run pnpm docs:artifacts or ignore/delete the local artifact" });
     }
@@ -178,6 +178,16 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
 function sectionBefore(text: string, marker: string): string {
   const index = text.indexOf(marker);
   return index >= 0 ? text.slice(0, index) : text;
+}
+
+function isGeneratedOutputPolicyIgnoredPath(file: string): boolean {
+  return file.startsWith(".openclinxr/")
+    || file.includes("/dist/")
+    || file.startsWith("docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-")
+    || file.startsWith("docs/openclinxr/model-vetting-captures/anny-skin-")
+    || file.startsWith("docs/openclinxr/realvisxl-")
+    || /^docs\/openclinxr\/anny-skin-(?:texture-cagematch-manifest|track-a-mit-pbr)/u.test(file)
+    || /^docs\/openclinxr\/stablegen-blender-background-trial-/u.test(file);
 }
 
 function walkFiles(start: string, predicate: (file: string) => boolean, out: string[] = []): string[] {

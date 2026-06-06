@@ -38,6 +38,23 @@ export type RuntimeEvidenceCaptureScaffold = {
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeEvidenceAttachment?: {
+    sourceArtifactPath: string;
+    actorCount: number;
+    projectedTurnCount: number;
+    projectedSampleCount: number;
+    actorSummaries: Array<{
+      actorId: string;
+      turnCount: number;
+      sampleCount: number;
+      roleAnimationClipNames: string[];
+    }>;
+    providerExecutionPerformed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    scenePlacementEvidenceAllowed: false;
+    claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment";
+  };
   attachmentCandidates: RuntimeEvidenceCaptureScaffoldCandidate[];
   submitRuntimeVisualEvidenceAttachmentInput: {
     scenarioId: string;
@@ -79,19 +96,19 @@ const NOT_EVIDENCE_FOR = [
 
 export function buildRuntimeEvidenceCaptureScaffold(input: {
   evidenceInputDraft: EncounterRuntimeRealismEvidenceInputDraft;
+  actorPlayerRuntimeEvidence?: { path: string; evidence: unknown };
   generatedAt?: string;
 }): RuntimeEvidenceCaptureScaffold {
   const generatedAt = input.generatedAt ?? input.evidenceInputDraft.generatedAt;
+  const actorPlayerActors = readActorPlayerActors(input.actorPlayerRuntimeEvidence?.evidence);
+  const actorPlayerByActorId = new Map(actorPlayerActors.map((actor) => [actor.actorId, actor]));
   const runtimeCandidates = input.evidenceInputDraft.runtimeActorEvidenceInputs.map((entry) =>
-    buildCandidate({
-      actionId: "attach_runtime_realism_evidence_refs",
-      inputId: entry.evidenceInputId,
-      inputKind: "runtime_realism_signal_input",
-      evidenceRef: `runtime-evidence://metadata-only/local-capture-scaffold/${input.evidenceInputDraft.selectedScenarioId}/${entry.actorId}`,
-      localArtifactPath: `runtime-evidence-capture-scaffold/${sanitizePathSegment(input.evidenceInputDraft.selectedScenarioId)}/${sanitizePathSegment(entry.actorId)}-runtime-realism.json`,
-      sourceEvidenceRef: entry.sourceEvidenceRef,
-      attachedAt: generatedAt,
-      comments: `Metadata-only runtime-realism capture scaffold for ${entry.actorRole} ${entry.actorId}; reviewer/API submission is required before attachment records can update.`,
+    buildRuntimeCandidate({
+      entry,
+      scenarioId: input.evidenceInputDraft.selectedScenarioId,
+      generatedAt,
+      actorPlayerEvidencePath: input.actorPlayerRuntimeEvidence?.path,
+      actorPlayerActor: actorPlayerByActorId.get(entry.actorId),
     })
   );
   const visualQaCandidates = input.evidenceInputDraft.visualQaEvidenceInputs.map((entry) =>
@@ -119,6 +136,25 @@ export function buildRuntimeEvidenceCaptureScaffold(input: {
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: runtimeCandidates.length,
     visualQaEvidenceCandidateCount: visualQaCandidates.length,
+    ...(input.actorPlayerRuntimeEvidence ? {
+      actorPlayerRuntimeEvidenceAttachment: {
+        sourceArtifactPath: input.actorPlayerRuntimeEvidence.path,
+        actorCount: actorPlayerActors.length,
+        projectedTurnCount: actorPlayerActors.reduce((total, actor) => total + actor.turnCount, 0),
+        projectedSampleCount: actorPlayerActors.reduce((total, actor) => total + actor.sampleCount, 0),
+        actorSummaries: actorPlayerActors.map((actor) => ({
+          actorId: actor.actorId,
+          turnCount: actor.turnCount,
+          sampleCount: actor.sampleCount,
+          roleAnimationClipNames: actor.roleAnimationClipNames,
+        })),
+        providerExecutionPerformed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+        claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment",
+      },
+    } : {}),
     attachmentCandidates,
     submitRuntimeVisualEvidenceAttachmentInput: {
       scenarioId: input.evidenceInputDraft.selectedScenarioId,
@@ -151,26 +187,27 @@ export function buildRuntimeEvidenceCaptureScaffold(input: {
 export function validateRuntimeEvidenceCaptureScaffold(value: unknown): { ok: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ["/ must be object"] };
-  requireLiteral(value.schemaVersion, "openclinxr.encounter-runtime-evidence-capture-scaffold.v1", "/schemaVersion", errors);
-  requireLiteral(value.source, "encounter_runtime_realism_evidence_input_draft", "/source", errors);
-  requireLiteral(value.status, "metadata_only_attachment_candidates_not_submitted", "/status", errors);
-  requireString(value.selectedScenarioId, "/selectedScenarioId", errors);
-  requireNumber(value.runtimeEvidenceCandidateCount, "/runtimeEvidenceCandidateCount", errors);
-  requireNumber(value.visualQaEvidenceCandidateCount, "/visualQaEvidenceCandidateCount", errors);
-  requireArray(value.attachmentCandidates, "/attachmentCandidates", errors);
-  validateCandidates(value.attachmentCandidates, errors);
-  validateSubmitInput(value.submitRuntimeVisualEvidenceAttachmentInput, value.selectedScenarioId, errors);
-  validateGateBoundary(value.gateBoundary, errors);
-  requireLiteral(value.claimBoundary, "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence", "/claimBoundary", errors);
-  requireArray(value.notEvidenceFor, "/notEvidenceFor", errors);
+  requireLiteral(value["schemaVersion"], "openclinxr.encounter-runtime-evidence-capture-scaffold.v1", "/schemaVersion", errors);
+  requireLiteral(value["source"], "encounter_runtime_realism_evidence_input_draft", "/source", errors);
+  requireLiteral(value["status"], "metadata_only_attachment_candidates_not_submitted", "/status", errors);
+  requireString(value["selectedScenarioId"], "/selectedScenarioId", errors);
+  requireNumber(value["runtimeEvidenceCandidateCount"], "/runtimeEvidenceCandidateCount", errors);
+  requireNumber(value["visualQaEvidenceCandidateCount"], "/visualQaEvidenceCandidateCount", errors);
+  requireArray(value["attachmentCandidates"], "/attachmentCandidates", errors);
+  validateCandidates(value["attachmentCandidates"], errors);
+  if (value["actorPlayerRuntimeEvidenceAttachment"] !== undefined) validateActorPlayerRuntimeEvidenceAttachment(value["actorPlayerRuntimeEvidenceAttachment"], errors);
+  validateSubmitInput(value["submitRuntimeVisualEvidenceAttachmentInput"], value["selectedScenarioId"], errors);
+  validateGateBoundary(value["gateBoundary"], errors);
+  requireLiteral(value["claimBoundary"], "metadata_only_runtime_evidence_capture_scaffold_not_runtime_or_visual_evidence", "/claimBoundary", errors);
+  requireArray(value["notEvidenceFor"], "/notEvidenceFor", errors);
   for (const claim of NOT_EVIDENCE_FOR) {
-    if (Array.isArray(value.notEvidenceFor) && !value.notEvidenceFor.includes(claim)) errors.push(`/notEvidenceFor must include ${claim}`);
+    if (Array.isArray(value["notEvidenceFor"]) && !value["notEvidenceFor"].includes(claim)) errors.push(`/notEvidenceFor must include ${claim}`);
   }
-  if (Array.isArray(value.attachmentCandidates)) {
-    const runtimeCount = value.attachmentCandidates.filter((entry) => isRecord(entry) && entry.inputKind === "runtime_realism_signal_input").length;
-    const visualCount = value.attachmentCandidates.filter((entry) => isRecord(entry) && entry.inputKind === "visual_qa_review_input").length;
-    if (value.runtimeEvidenceCandidateCount !== runtimeCount) errors.push("/runtimeEvidenceCandidateCount must match runtime attachment candidates");
-    if (value.visualQaEvidenceCandidateCount !== visualCount) errors.push("/visualQaEvidenceCandidateCount must match visual QA attachment candidates");
+  if (Array.isArray(value["attachmentCandidates"])) {
+    const runtimeCount = value["attachmentCandidates"].filter((entry) => isRecord(entry) && entry["inputKind"] === "runtime_realism_signal_input").length;
+    const visualCount = value["attachmentCandidates"].filter((entry) => isRecord(entry) && entry["inputKind"] === "visual_qa_review_input").length;
+    if (value["runtimeEvidenceCandidateCount"] !== runtimeCount) errors.push("/runtimeEvidenceCandidateCount must match runtime attachment candidates");
+    if (value["visualQaEvidenceCandidateCount"] !== visualCount) errors.push("/visualQaEvidenceCandidateCount must match visual QA attachment candidates");
   }
   return { ok: errors.length === 0, errors };
 }
@@ -188,9 +225,58 @@ async function runCli(args = process.argv.slice(2)): Promise<void> {
     return;
   }
   const evidenceInputDraft = JSON.parse(await readFile(options.evidenceInputPath, "utf8")) as EncounterRuntimeRealismEvidenceInputDraft;
-  const scaffold = buildRuntimeEvidenceCaptureScaffold({ evidenceInputDraft });
+  const actorPlayerRuntimeEvidence = options.actorPlayerRuntimeEvidencePath
+    ? { path: options.actorPlayerRuntimeEvidencePath, evidence: JSON.parse(await readFile(options.actorPlayerRuntimeEvidencePath, "utf8")) as unknown }
+    : undefined;
+  const scaffold = buildRuntimeEvidenceCaptureScaffold({ evidenceInputDraft, actorPlayerRuntimeEvidence });
   await writeFile(options.outputPath, `${JSON.stringify(scaffold, null, 2)}\n`, "utf8");
   console.log(`Wrote ${options.outputPath}`);
+}
+
+function buildRuntimeCandidate(input: {
+  entry: EncounterRuntimeRealismEvidenceInputDraft["runtimeActorEvidenceInputs"][number];
+  scenarioId: string;
+  generatedAt: string;
+  actorPlayerEvidencePath?: string;
+  actorPlayerActor?: { actorId: string; turnCount: number; sampleCount: number; roleAnimationClipNames: string[] };
+}): RuntimeEvidenceCaptureScaffoldCandidate {
+  const actorPlayerAttached = input.actorPlayerEvidencePath && input.actorPlayerActor;
+  return buildCandidate({
+    actionId: "attach_runtime_realism_evidence_refs",
+    inputId: input.entry.evidenceInputId,
+    inputKind: "runtime_realism_signal_input",
+    evidenceRef: actorPlayerAttached
+      ? `runtime-evidence://metadata-only/actor-player-runtime/${input.scenarioId}/${input.entry.actorId}`
+      : `runtime-evidence://metadata-only/local-capture-scaffold/${input.scenarioId}/${input.entry.actorId}`,
+    localArtifactPath: actorPlayerAttached
+      ? input.actorPlayerEvidencePath!
+      : `runtime-evidence-capture-scaffold/${sanitizePathSegment(input.scenarioId)}/${sanitizePathSegment(input.entry.actorId)}-runtime-realism.json`,
+    sourceEvidenceRef: input.entry.sourceEvidenceRef,
+    attachedAt: input.generatedAt,
+    comments: actorPlayerAttached
+      ? `Metadata-only guarded actor-player evidence for ${input.entry.actorRole} ${input.entry.actorId}: ${input.actorPlayerActor!.turnCount} case-derived turns and ${input.actorPlayerActor!.sampleCount} samples; reviewer/API submission is required before attachment records can update.`
+      : `Metadata-only runtime-realism capture scaffold for ${input.entry.actorRole} ${input.entry.actorId}; reviewer/API submission is required before attachment records can update.`,
+  });
+}
+
+function readActorPlayerActors(value: unknown): Array<{ actorId: string; turnCount: number; sampleCount: number; roleAnimationClipNames: string[] }> {
+  if (!isRecord(value) || !Array.isArray(value["actors"])) return [];
+  return value["actors"].filter(isRecord).map((actor) => {
+    const caseDerivedTurnSequence = Array.isArray(actor["caseDerivedTurnSequence"]) ? actor["caseDerivedTurnSequence"].filter(isRecord) : [];
+    return {
+      actorId: typeof actor["actorId"] === "string" ? actor["actorId"] : "unknown-actor",
+      turnCount: caseDerivedTurnSequence.length,
+      sampleCount: caseDerivedTurnSequence.reduce((total, turn) => total + (Array.isArray(turn["samples"]) ? turn["samples"].length : 0), 0),
+      roleAnimationClipNames: uniqueStrings(caseDerivedTurnSequence.flatMap((turn) => [
+        typeof turn["roleAnimationClipName"] === "string" ? turn["roleAnimationClipName"] : "",
+        ...(
+          Array.isArray(turn["samples"])
+            ? turn["samples"].filter(isRecord).map((sample) => typeof sample["roleAnimationClipName"] === "string" ? sample["roleAnimationClipName"] : "")
+            : []
+        ),
+      ]).filter((name) => name.length > 0)),
+    };
+  }).filter((actor) => actor.actorId !== "unknown-actor");
 }
 
 function buildCandidate(input: Omit<
@@ -246,7 +332,7 @@ function validateCandidates(value: unknown, errors: string[]): void {
       return;
     }
     validateAttachment(entry, entryPath, errors);
-    requireString(entry.sourceEvidenceRef, `${entryPath}/sourceEvidenceRef`, errors);
+    requireString(entry["sourceEvidenceRef"], `${entryPath}/sourceEvidenceRef`, errors);
     for (const key of [
       "providerExecutionAllowed",
       "runtimeExecutionAllowed",
@@ -258,18 +344,44 @@ function validateCandidates(value: unknown, errors: string[]): void {
     ]) {
       requireLiteral(entry[key], false, `${entryPath}/${key}`, errors);
     }
-    requireLiteral(entry.claimBoundary, "metadata_only_runtime_evidence_capture_candidate_not_submitted", `${entryPath}/claimBoundary`, errors);
-    requireArray(entry.notEvidenceFor, `${entryPath}/notEvidenceFor`, errors);
+    requireLiteral(entry["claimBoundary"], "metadata_only_runtime_evidence_capture_candidate_not_submitted", `${entryPath}/claimBoundary`, errors);
+    requireArray(entry["notEvidenceFor"], `${entryPath}/notEvidenceFor`, errors);
   });
+}
+
+function validateActorPlayerRuntimeEvidenceAttachment(value: unknown, errors: string[]): void {
+  requireRecord(value, "/actorPlayerRuntimeEvidenceAttachment", errors);
+  if (!isRecord(value)) return;
+  requireString(value["sourceArtifactPath"], "/actorPlayerRuntimeEvidenceAttachment/sourceArtifactPath", errors);
+  requireNumber(value["actorCount"], "/actorPlayerRuntimeEvidenceAttachment/actorCount", errors);
+  requireNumber(value["projectedTurnCount"], "/actorPlayerRuntimeEvidenceAttachment/projectedTurnCount", errors);
+  requireNumber(value["projectedSampleCount"], "/actorPlayerRuntimeEvidenceAttachment/projectedSampleCount", errors);
+  requireArray(value["actorSummaries"], "/actorPlayerRuntimeEvidenceAttachment/actorSummaries", errors);
+  if (Array.isArray(value["actorSummaries"])) {
+    for (const [index, actor] of value["actorSummaries"].entries()) {
+      const actorPath = `/actorPlayerRuntimeEvidenceAttachment/actorSummaries/${index}`;
+      requireRecord(actor, actorPath, errors);
+      if (!isRecord(actor)) continue;
+      requireString(actor["actorId"], `${actorPath}/actorId`, errors);
+      requireNumber(actor["turnCount"], `${actorPath}/turnCount`, errors);
+      requireNumber(actor["sampleCount"], `${actorPath}/sampleCount`, errors);
+      requireArray(actor["roleAnimationClipNames"], `${actorPath}/roleAnimationClipNames`, errors);
+    }
+  }
+  requireLiteral(value["providerExecutionPerformed"], false, "/actorPlayerRuntimeEvidenceAttachment/providerExecutionPerformed", errors);
+  requireLiteral(value["runtimeExecutionAllowed"], false, "/actorPlayerRuntimeEvidenceAttachment/runtimeExecutionAllowed", errors);
+  requireLiteral(value["learnerLaunchAllowed"], false, "/actorPlayerRuntimeEvidenceAttachment/learnerLaunchAllowed", errors);
+  requireLiteral(value["scenePlacementEvidenceAllowed"], false, "/actorPlayerRuntimeEvidenceAttachment/scenePlacementEvidenceAllowed", errors);
+  requireLiteral(value["claimBoundary"], "metadata_only_actor_player_runtime_evidence_attachment", "/actorPlayerRuntimeEvidenceAttachment/claimBoundary", errors);
 }
 
 function validateSubmitInput(value: unknown, scenarioId: unknown, errors: string[]): void {
   requireRecord(value, "/submitRuntimeVisualEvidenceAttachmentInput", errors);
   if (!isRecord(value)) return;
-  requireLiteral(value.scenarioId, scenarioId, "/submitRuntimeVisualEvidenceAttachmentInput/scenarioId", errors);
-  requireArray(value.attachments, "/submitRuntimeVisualEvidenceAttachmentInput/attachments", errors);
-  if (!Array.isArray(value.attachments)) return;
-  value.attachments.forEach((entry, index) => {
+  requireLiteral(value["scenarioId"], scenarioId, "/submitRuntimeVisualEvidenceAttachmentInput/scenarioId", errors);
+  requireArray(value["attachments"], "/submitRuntimeVisualEvidenceAttachmentInput/attachments", errors);
+  if (!Array.isArray(value["attachments"])) return;
+  value["attachments"].forEach((entry, index) => {
     validateAttachment(entry, `/submitRuntimeVisualEvidenceAttachmentInput/attachments/${index}`, errors);
   });
 }
@@ -279,21 +391,21 @@ function validateAttachment(value: unknown, pathName: string, errors: string[]):
     errors.push(`${pathName} must be object`);
     return;
   }
-  if (value.actionId !== "attach_runtime_realism_evidence_refs" && value.actionId !== "attach_visual_qa_evidence_refs") {
+  if (value["actionId"] !== "attach_runtime_realism_evidence_refs" && value["actionId"] !== "attach_visual_qa_evidence_refs") {
     errors.push(`${pathName}/actionId must be a runtime visual evidence attachment action`);
   }
-  if (value.inputKind !== "runtime_realism_signal_input" && value.inputKind !== "visual_qa_review_input") {
+  if (value["inputKind"] !== "runtime_realism_signal_input" && value["inputKind"] !== "visual_qa_review_input") {
     errors.push(`${pathName}/inputKind must be runtime_realism_signal_input or visual_qa_review_input`);
   }
-  if (value.actionId === "attach_runtime_realism_evidence_refs") requireLiteral(value.inputKind, "runtime_realism_signal_input", `${pathName}/inputKind`, errors);
-  if (value.actionId === "attach_visual_qa_evidence_refs") requireLiteral(value.inputKind, "visual_qa_review_input", `${pathName}/inputKind`, errors);
-  requireString(value.inputId, `${pathName}/inputId`, errors);
-  requireString(value.evidenceRef, `${pathName}/evidenceRef`, errors);
-  requireString(value.localArtifactPath, `${pathName}/localArtifactPath`, errors);
-  requireLiteral(value.reviewerId, "runtime_evidence_capture_scaffold", `${pathName}/reviewerId`, errors);
-  requireLiteral(value.attachmentStatus, "attached_metadata_only", `${pathName}/attachmentStatus`, errors);
-  requireString(value.comments, `${pathName}/comments`, errors);
-  requireString(value.attachedAt, `${pathName}/attachedAt`, errors);
+  if (value["actionId"] === "attach_runtime_realism_evidence_refs") requireLiteral(value["inputKind"], "runtime_realism_signal_input", `${pathName}/inputKind`, errors);
+  if (value["actionId"] === "attach_visual_qa_evidence_refs") requireLiteral(value["inputKind"], "visual_qa_review_input", `${pathName}/inputKind`, errors);
+  requireString(value["inputId"], `${pathName}/inputId`, errors);
+  requireString(value["evidenceRef"], `${pathName}/evidenceRef`, errors);
+  requireString(value["localArtifactPath"], `${pathName}/localArtifactPath`, errors);
+  requireLiteral(value["reviewerId"], "runtime_evidence_capture_scaffold", `${pathName}/reviewerId`, errors);
+  requireLiteral(value["attachmentStatus"], "attached_metadata_only", `${pathName}/attachmentStatus`, errors);
+  requireString(value["comments"], `${pathName}/comments`, errors);
+  requireString(value["attachedAt"], `${pathName}/attachedAt`, errors);
 }
 
 function validateGateBoundary(value: unknown, errors: string[]): void {
@@ -310,14 +422,15 @@ function validateGateBoundary(value: unknown, errors: string[]): void {
   ]) {
     requireLiteral(value[key], false, `/gateBoundary/${key}`, errors);
   }
-  requireLiteral(value.claimBoundary, "runtime_evidence_capture_scaffold_does_not_clear_launch_gates", "/gateBoundary/claimBoundary", errors);
+  requireLiteral(value["claimBoundary"], "runtime_evidence_capture_scaffold_does_not_clear_launch_gates", "/gateBoundary/claimBoundary", errors);
 }
 
-function parseCliOptions(args: string[]): { evidenceInputPath: string; outputPath: string; validatePath: string | null } {
+function parseCliOptions(args: string[]): { evidenceInputPath: string; outputPath: string; validatePath: string | null; actorPlayerRuntimeEvidencePath?: string } {
   const normalizedArgs = args[0] === "--" ? args.slice(1) : args;
   let evidenceInputPath = "docs/openclinxr/encounter-runtime-realism-evidence-input-peds-asthma-parent-anxiety-2026-05-28.json";
   let outputPath = path.join("docs/openclinxr", "encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json");
   let validatePath: string | null = null;
+  let actorPlayerRuntimeEvidencePath: string | undefined;
   for (let index = 0; index < normalizedArgs.length; index += 1) {
     const arg = normalizedArgs[index];
     const next = normalizedArgs[index + 1];
@@ -330,15 +443,22 @@ function parseCliOptions(args: string[]): { evidenceInputPath: string; outputPat
     } else if (arg === "--validate" && next) {
       validatePath = next;
       index += 1;
+    } else if (arg === "--actor-player-runtime-evidence" && next) {
+      actorPlayerRuntimeEvidencePath = next;
+      index += 1;
     } else {
       throw new Error(`Unknown argument: ${arg ?? ""}`);
     }
   }
-  return { evidenceInputPath, outputPath, validatePath };
+  return { evidenceInputPath, outputPath, validatePath, actorPlayerRuntimeEvidencePath };
 }
 
 function sanitizePathSegment(value: string): string {
   return value.replace(/[^a-zA-Z0-9._:-]+/g, "_");
+}
+
+function uniqueStrings(values: string[]): string[] {
+  return Array.from(new Set(values.filter((value) => value.length > 0)));
 }
 
 function requireLiteral<T>(value: unknown, expected: T, pathName: string, errors: string[]): void {

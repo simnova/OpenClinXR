@@ -1,0 +1,266 @@
+{
+  "ok": true,
+  "schemaVersion": "openclinxr.generated-humanoid-realism-manifest.v1",
+  "canonicalSkeleton": {
+    "boneCount": 52,
+    "root": "pelvis",
+    "hasTwistBones": true,
+    "fingersPerHand": 5,
+    "twistNames": [
+      "upper_arm_twist",
+      "forearm_twist"
+    ]
+  },
+  "morphTargets": {
+    "count": 25,
+    "names": [
+      "viseme_silence",
+      "viseme_AA",
+      "viseme_E",
+      "viseme_IH",
+      "viseme_OH",
+      "viseme_OU",
+      "viseme_FV",
+      "viseme_L",
+      "viseme_TH",
+      "openclinxr_mouth_open",
+      "openclinxr_brow_concern",
+      "openclinxr_cheek_tension",
+      "brow_raise",
+      "brow_furrow",
+      "eye_blink_l",
+      "eye_blink_r",
+      "eye_squint",
+      "gaze_yaw",
+      "gaze_pitch",
+      "jaw_open",
+      "smile",
+      "frown",
+      "concern",
+      "pain",
+      "anxious"
+    ],
+    "visemeSet": "typical40",
+    "faceAffect": [
+      "anxious",
+      "pain",
+      "neutral",
+      "reassured",
+      "concern",
+      "frightened"
+    ]
+  },
+  "attachmentPoints": {
+    "ear_anchor_l": [
+      0.12,
+      1.62,
+      0.02
+    ],
+    "ear_anchor_r": [
+      -0.12,
+      1.62,
+      0.02
+    ],
+    "nose_tip": [
+      0.0,
+      1.58,
+      0.14
+    ],
+    "head_top": [
+      0.0,
+      1.78,
+      0.0
+    ],
+    "chin": [
+      0.0,
+      1.52,
+      0.11
+    ]
+  },
+  "skinning": {
+    "maxInfluences": 4,
+    "normalized": true
+  },
+  "textureBake": {
+    "baker": "stablegen-procedural-fallback",
+    "maps": [
+      "albedo",
+      "roughness",
+      "normal",
+      "metallic",
+      "specular",
+      "ao"
+    ],
+    "baked": true,
+    "resolution": 1024,
+    "packedInGlb": true
+  },
+  "animationClips": {
+    "count": 5,
+    "names": [
+      "openclinxr_clinical_idle_breathing",
+      "openclinxr_conversation_listen_nod",
+      "openclinxr_posture_shift_standing",
+      "openclinxr_role_nurse_clinical_check_reassure",
+      "openclinxr_conversation_expression_morphs"
+    ],
+    "clinicalIdlePoseClip": "openclinxr_clinical_idle_breathing",
+    "conversationClip": "openclinxr_conversation_listen_nod",
+    "locomotionPostureClip": "openclinxr_posture_shift_standing",
+    "claimScope": "deterministic procedural fallback clips; not motion-capture or Speech2Motion evidence"
+  },
+  "roleAnimationHandoff": {
+    "actorRole": "nurse",
+    "roleSpecificClipNames": [
+      "openclinxr_role_nurse_clinical_check_reassure"
+    ],
+    "roleMotionControls": {
+      "roleGesture": "clinical_check_reassure",
+      "animatedBones": [
+        "chest",
+        "head",
+        "upper_arm.L",
+        "upper_arm.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R"
+      ],
+      "functionalIntent": "one-hand clinical check gesture followed by a calmer reassure/reset posture"
+    },
+    "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+    "notEvidenceFor": [
+      "motion_capture_quality",
+      "speech2motion_quality",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleVisualMarkers": {
+    "actorRole": "nurse",
+    "roleVisualCue": "clinical_nurse",
+    "clothingStyle": "teal_clinical_scrubs_with_name_badge",
+    "objectNames": [
+      "openclinxr_role_clothing_nurse_torso_panel",
+      "openclinxr_role_clothing_nurse_name_badge",
+      "openclinxr_role_clothing_nurse_scrub_pocket"
+    ],
+    "claimScope": "small_procedural_role_marker_not_production_costume",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleClothingMaterialRegions": {
+    "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+    "topMaterialName": "openclinxr_role_mesh_clothing_nurse_top",
+    "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
+    "topFaceCount": 2152,
+    "lowerFaceCount": 744,
+    "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "faceDetailMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "manual_bounds_based_hair_eye_and_face_marker_geometry",
+    "reason": "Visual review rejected the procedural hair cap, eye spheres, brow bars, nose marker, and mouth marker as visibly awful and counterproductive for Anny realism.",
+    "nextSafeStep": "Use a real humanoid source-quality path for hair, eyes, and facial topology, or a dedicated local FOSS hair/face cagematch that beats clean Anny-body evidence in isolated screenshots.",
+    "claimScope": "manual_face_hair_markers_disabled_not_realism_evidence",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "wardrobeTags": {
+    "wardrobeRole": "pediatric_nurse_scrubs",
+    "garmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "fabricPalette": "teal_scrubs_and_white_badge",
+    "materialFinish": "poly_cotton_slight_sheen",
+    "fitProfile": "adult_clinical_team_fit",
+    "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe"
+  },
+  "materialTagSummary": {
+    "roleColorway": "teal_scrubs",
+    "skinTone": "medium_warm",
+    "hairColor": "black",
+    "eyeColor": "brown",
+    "materialFinish": "poly_cotton_slight_sheen"
+  },
+  "accessoryPresence": {
+    "markers": [
+      "name_badge",
+      "scrub_pocket"
+    ],
+    "generatedObjects": [
+      "openclinxr_role_clothing_nurse_torso_panel",
+      "openclinxr_role_clothing_nurse_name_badge",
+      "openclinxr_role_clothing_nurse_scrub_pocket"
+    ],
+    "claimScope": "synthetic_role_visual_cue_only"
+  },
+  "provenance": {
+    "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
+    "generatedAt": "2026-06-06T03:22:28.553442Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
+  },
+  "licenseExceptionRequired": false,
+  "realismGrade": "B",
+  "phenotype": {
+    "skin_tone": "medium_warm",
+    "hair_color": "black",
+    "eye_color": "brown",
+    "gender_presentation": "adult_male_nurse",
+    "height_cm": 176,
+    "build": "average_clinical_team",
+    "hair_density": 0.58,
+    "brow_tension": 0.12,
+    "anxious": 0.18,
+    "flush": 0.02,
+    "age_wrinkle": 0.1,
+    "bmi": 23.0,
+    "clothing_style": "teal_clinical_scrubs_with_name_badge",
+    "clothing_color": "teal_scrubs",
+    "role_visual_cue": "clinical_nurse",
+    "wardrobeRole": "pediatric_nurse_scrubs",
+    "garmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "fabricPalette": "teal_scrubs_and_white_badge",
+    "materialFinish": "poly_cotton_slight_sheen",
+    "accessoryMarkers": [
+      "name_badge",
+      "scrub_pocket"
+    ],
+    "fitProfile": "adult_clinical_team_fit"
+  },
+  "sourceProvenance": {
+    "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+    "realAnnyWeightsUsed": false,
+    "textureMode": "procedural_fallback",
+    "animationMode": "procedural_animation_fallback",
+    "notEvidenceFor": [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "notes": "B-candidate iteration: multi-octave pores/age/wrinkle from age_wrinkle/bmi, anxious flush, SSS/trans approx, iris+catchlight eyes, density hair, strong viseme/affect deltas for emotion/dialogue from case commProfile. Usable in runtime player for peds+ed actors, but not evidence of real Anny weights or a B+ visual realism gate pass."
+}

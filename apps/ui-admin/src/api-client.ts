@@ -520,6 +520,17 @@ export type RuntimeEvidenceCaptureScaffold = {
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeEvidenceAttachment?: {
+    sourceArtifactPath: string;
+    actorCount: number;
+    projectedTurnCount: number;
+    projectedSampleCount: number;
+    providerExecutionPerformed: false;
+    runtimeExecutionAllowed: false;
+    learnerLaunchAllowed: false;
+    scenePlacementEvidenceAllowed: false;
+    claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment";
+  };
   attachmentCandidates: Array<RuntimeVisualEvidenceAttachment & {
     sourceEvidenceRef: string;
     providerExecutionAllowed: false;
@@ -815,6 +826,43 @@ export type AdminRuntimeSelectionReviewPacket = {
     runtimeExecutionAllowed: false;
     questEvidenceRefreshAllowed: false;
     claimBoundary: "operator_review_readiness_metadata_only";
+  };
+  caseDerivedActorPlayerRuntimeEvidence?: {
+    schemaVersion: "openclinxr.case-derived-actor-player-runtime-evidence.v1";
+    scenarioId: string;
+    source: "case_spec_derivation_plus_model_vetting_actor_player_runtime";
+    sourceActorPlayerRuntimeEvidencePath: string;
+    claimBoundary: "metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime";
+    actorRuntimeSummaries: Array<{
+      actorId: string;
+      candidateId: string | null;
+      caseDerivedTurnIds: string[];
+      caseDerivedRuntimeTurnCount?: number;
+      caseDerivedRuntimeSampleCount?: number;
+      turnTraceTag: string | null;
+      executedHookCount: number;
+      hookExecutions: Array<{
+        hookId: string;
+        runtimeSurfaceStatus: "executed_in_guarded_local_actor_player_stub" | "blocked_missing_actor_player_runtime";
+        sceneExecutionStatus: "not_scene_executed";
+        sampleCount: number;
+        remainingBlockers: string[];
+      }>;
+    }>;
+    missingCaseActorIds: string[];
+    decision: {
+      actorPlayerRuntimeEvidenceAttached: boolean;
+      localActorPlayerRuntimeEvidenceExecuted: boolean;
+      actorPlayerRuntimeEvidenceComplete: boolean;
+      runtimeActorMappingReady: false;
+      scenePlacementEvidenceAllowed: false;
+      runtimePromotionAllowed: false;
+      productionManifestPromotionAllowed: false;
+      learnerLaunchAllowed: false;
+      providerExecutionPerformed: false;
+      nextSafeStep: string;
+    };
+    notEvidenceFor: string[];
   };
   runtimeRealismEvidenceDraftReview?: {
     status: "draft_required_not_attached";

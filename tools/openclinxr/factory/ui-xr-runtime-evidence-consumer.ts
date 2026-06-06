@@ -16,6 +16,24 @@ export type UiXrRuntimeVisualEvidenceAttachment = {
   attachedAt: string;
 };
 
+export type UiXrActorPlayerRuntimeEvidenceAttachment = {
+  sourceArtifactPath: string;
+  actorCount: number;
+  projectedTurnCount: number;
+  projectedSampleCount: number;
+  actorSummaries?: Array<{
+    actorId: string;
+    turnCount: number;
+    sampleCount: number;
+    roleAnimationClipNames: string[];
+  }>;
+  providerExecutionPerformed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  scenePlacementEvidenceAllowed: false;
+  claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment";
+};
+
 export type UiXrRuntimeVisualEvidenceSubmitInput = {
   scenarioId: string;
   attachments: UiXrRuntimeVisualEvidenceAttachment[];
@@ -29,6 +47,7 @@ export type UiXrRuntimeVisualEvidenceCaptureScaffold = {
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeEvidenceAttachment?: UiXrActorPlayerRuntimeEvidenceAttachment;
   submitRuntimeVisualEvidenceAttachmentInput: UiXrRuntimeVisualEvidenceSubmitInput;
   providerExecutionAllowed: false;
   runtimeExecutionAllowed: false;
@@ -55,6 +74,7 @@ export type UiXrRuntimeEvidenceConsumerArtifact = {
   status: "metadata_only_attachment_submit_input_ready";
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeEvidenceAttachment?: UiXrActorPlayerRuntimeEvidenceAttachment;
   preflightReport: UiXrRuntimeEvidenceConsumerPreflightReport;
   submitRuntimeVisualEvidenceAttachmentInput: UiXrRuntimeVisualEvidenceSubmitInput;
   adminAttachmentRouteHandoff: {
@@ -116,6 +136,7 @@ export type UiXrRuntimeEvidenceConsumerPreflightReport = {
   attachmentCount: number;
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeEvidenceAttachment?: UiXrActorPlayerRuntimeEvidenceAttachment;
   targetRoute: "/runtime/visual-evidence-attachments";
   submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput";
   submitPreview: {
@@ -201,6 +222,7 @@ export function buildUiXrRuntimeEvidenceConsumerArtifact(input: {
     status: "metadata_only_attachment_submit_input_ready",
     runtimeEvidenceCandidateCount: scaffold.runtimeEvidenceCandidateCount,
     visualQaEvidenceCandidateCount: scaffold.visualQaEvidenceCandidateCount,
+    ...(scaffold.actorPlayerRuntimeEvidenceAttachment ? { actorPlayerRuntimeEvidenceAttachment: scaffold.actorPlayerRuntimeEvidenceAttachment } : {}),
     preflightReport,
     submitRuntimeVisualEvidenceAttachmentInput: scaffold.submitRuntimeVisualEvidenceAttachmentInput,
     adminAttachmentRouteHandoff: {
@@ -287,6 +309,7 @@ export function buildUiXrRuntimeEvidenceConsumerPreflightReport(input: {
     attachmentCount,
     runtimeEvidenceCandidateCount: typeof scaffold?.runtimeEvidenceCandidateCount === "number" ? scaffold.runtimeEvidenceCandidateCount : 0,
     visualQaEvidenceCandidateCount: typeof scaffold?.visualQaEvidenceCandidateCount === "number" ? scaffold.visualQaEvidenceCandidateCount : 0,
+    ...(scaffold?.actorPlayerRuntimeEvidenceAttachment ? { actorPlayerRuntimeEvidenceAttachment: scaffold.actorPlayerRuntimeEvidenceAttachment } : {}),
     targetRoute: "/runtime/visual-evidence-attachments",
     submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
     submitPreview: {
@@ -367,6 +390,7 @@ export function validateUiXrRuntimeEvidenceConsumerArtifact(value: unknown): { o
   requireString(value.scenarioId, "/scenarioId", errors);
   requireNumber(value.runtimeEvidenceCandidateCount, "/runtimeEvidenceCandidateCount", errors);
   requireNumber(value.visualQaEvidenceCandidateCount, "/visualQaEvidenceCandidateCount", errors);
+  validateActorPlayerRuntimeEvidenceAttachment(value.actorPlayerRuntimeEvidenceAttachment, "/actorPlayerRuntimeEvidenceAttachment", errors);
   validateArtifactPreflightReport(value, errors);
   validateSubmitInput(value.submitRuntimeVisualEvidenceAttachmentInput, value.scenarioId, errors);
   validateAdminAttachmentRouteHandoff(value.adminAttachmentRouteHandoff, errors);
@@ -403,6 +427,7 @@ export function validateUiXrRuntimeEvidenceConsumerPreflightReport(value: unknow
   requireNumber(value.attachmentCount, "/attachmentCount", errors);
   requireNumber(value.runtimeEvidenceCandidateCount, "/runtimeEvidenceCandidateCount", errors);
   requireNumber(value.visualQaEvidenceCandidateCount, "/visualQaEvidenceCandidateCount", errors);
+  validateActorPlayerRuntimeEvidenceAttachment(value.actorPlayerRuntimeEvidenceAttachment, "/actorPlayerRuntimeEvidenceAttachment", errors);
   requireLiteral(value.targetRoute, "/runtime/visual-evidence-attachments", "/targetRoute", errors);
   requireLiteral(value.submitBodyRef, "submitRuntimeVisualEvidenceAttachmentInput", "/submitBodyRef", errors);
   validatePreflightSubmitPreview(value.submitPreview, value.attachmentCount, errors);
@@ -463,11 +488,41 @@ function validateUiXrRuntimeVisualEvidenceCaptureScaffold(
   requireLiteral(value.status, "metadata_only_attachment_candidates_not_submitted", "/runtimeVisualEvidenceCaptureScaffold/status", errors);
   requireNumber(value.runtimeEvidenceCandidateCount, "/runtimeVisualEvidenceCaptureScaffold/runtimeEvidenceCandidateCount", errors);
   requireNumber(value.visualQaEvidenceCandidateCount, "/runtimeVisualEvidenceCaptureScaffold/visualQaEvidenceCandidateCount", errors);
+  validateActorPlayerRuntimeEvidenceAttachment(value.actorPlayerRuntimeEvidenceAttachment, "/runtimeVisualEvidenceCaptureScaffold/actorPlayerRuntimeEvidenceAttachment", errors);
   validateSubmitInput(value.submitRuntimeVisualEvidenceAttachmentInput, value.scenarioId, errors);
   validateFalseGates(value, "/runtimeVisualEvidenceCaptureScaffold", errors);
   requireLiteral(value.claimBoundary, "ui_xr_capture_scaffold_not_runtime_visual_evidence", "/runtimeVisualEvidenceCaptureScaffold/claimBoundary", errors);
   requireArray(value.notEvidenceFor, "/runtimeVisualEvidenceCaptureScaffold/notEvidenceFor", errors);
   return { ok: errors.length === 0, errors };
+}
+
+function validateActorPlayerRuntimeEvidenceAttachment(value: unknown, pathName: string, errors: string[]): void {
+  if (value === undefined || value === null) return;
+  requireRecord(value, pathName, errors);
+  if (!isRecord(value)) return;
+  requireString(value["sourceArtifactPath"], `${pathName}/sourceArtifactPath`, errors);
+  requireNumber(value["actorCount"], `${pathName}/actorCount`, errors);
+  requireNumber(value["projectedTurnCount"], `${pathName}/projectedTurnCount`, errors);
+  requireNumber(value["projectedSampleCount"], `${pathName}/projectedSampleCount`, errors);
+  if (value["actorSummaries"] !== undefined) {
+    requireArray(value["actorSummaries"], `${pathName}/actorSummaries`, errors);
+    if (Array.isArray(value["actorSummaries"])) {
+      for (const [index, actor] of value["actorSummaries"].entries()) {
+        const actorPath = `${pathName}/actorSummaries/${index}`;
+        requireRecord(actor, actorPath, errors);
+        if (!isRecord(actor)) continue;
+        requireString(actor["actorId"], `${actorPath}/actorId`, errors);
+        requireNumber(actor["turnCount"], `${actorPath}/turnCount`, errors);
+        requireNumber(actor["sampleCount"], `${actorPath}/sampleCount`, errors);
+        requireArray(actor["roleAnimationClipNames"], `${actorPath}/roleAnimationClipNames`, errors);
+      }
+    }
+  }
+  requireLiteral(value["providerExecutionPerformed"], false, `${pathName}/providerExecutionPerformed`, errors);
+  requireLiteral(value["runtimeExecutionAllowed"], false, `${pathName}/runtimeExecutionAllowed`, errors);
+  requireLiteral(value["learnerLaunchAllowed"], false, `${pathName}/learnerLaunchAllowed`, errors);
+  requireLiteral(value["scenePlacementEvidenceAllowed"], false, `${pathName}/scenePlacementEvidenceAllowed`, errors);
+  requireLiteral(value["claimBoundary"], "metadata_only_actor_player_runtime_evidence_attachment", `${pathName}/claimBoundary`, errors);
 }
 
 function validateAdminAttachmentRouteHandoff(value: unknown, errors: string[]): void {
@@ -578,7 +633,9 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
     console.log(`Validated ${options.validatePath}`);
     return;
   }
-  const payload = JSON.parse(await readFile(options.inputPath, "utf8")) as UiXrManualPerformanceEvidencePayload;
+  const payload = options.encounterScaffoldPath
+    ? buildUiXrManualPerformanceEvidencePayloadFromEncounterScaffold(JSON.parse(await readFile(options.encounterScaffoldPath, "utf8")) as unknown)
+    : JSON.parse(await readFile(options.inputPath, "utf8")) as UiXrManualPerformanceEvidencePayload;
   if (options.preflight) {
     const preflight = buildUiXrRuntimeEvidenceConsumerPreflightReport({
       payload,
@@ -600,6 +657,52 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
   });
   await writeFile(options.outputPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   console.log(`Wrote ${options.outputPath}`);
+}
+
+export function buildUiXrManualPerformanceEvidencePayloadFromEncounterScaffold(value: unknown): UiXrManualPerformanceEvidencePayload {
+  if (!isRecord(value)) throw new Error("Encounter runtime evidence capture scaffold must be an object");
+  const selectedScenarioId = value["selectedScenarioId"];
+  const selectedRuntimeAssetBundleId = value["selectedRuntimeAssetBundleId"];
+  const submitInput = isRecord(value["submitRuntimeVisualEvidenceAttachmentInput"]) ? value["submitRuntimeVisualEvidenceAttachmentInput"] : null;
+  const sourceAttachments = Array.isArray(submitInput?.["attachments"]) ? submitInput["attachments"].filter(isRecord) : [];
+  return {
+    runtimeAssetBundleId: typeof selectedRuntimeAssetBundleId === "string" ? selectedRuntimeAssetBundleId : null,
+    runtimeVisualEvidenceCaptureScaffold: {
+      schemaVersion: "openclinxr.ui-xr-runtime-visual-evidence-capture-scaffold.v1",
+      source: "ui_xr_manual_performance_evidence_payload",
+      scenarioId: typeof selectedScenarioId === "string" ? selectedScenarioId : "",
+      runtimeAssetBundleId: typeof selectedRuntimeAssetBundleId === "string" ? selectedRuntimeAssetBundleId : null,
+      status: "metadata_only_attachment_candidates_not_submitted",
+      runtimeEvidenceCandidateCount: typeof value["runtimeEvidenceCandidateCount"] === "number" ? value["runtimeEvidenceCandidateCount"] : 0,
+      visualQaEvidenceCandidateCount: typeof value["visualQaEvidenceCandidateCount"] === "number" ? value["visualQaEvidenceCandidateCount"] : 0,
+      ...(isRecord(value["actorPlayerRuntimeEvidenceAttachment"])
+        ? { actorPlayerRuntimeEvidenceAttachment: value["actorPlayerRuntimeEvidenceAttachment"] as UiXrActorPlayerRuntimeEvidenceAttachment }
+        : {}),
+      submitRuntimeVisualEvidenceAttachmentInput: {
+        scenarioId: typeof selectedScenarioId === "string" ? selectedScenarioId : "",
+        attachments: sourceAttachments.map((attachment) => ({
+          actionId: attachment["actionId"] === "attach_visual_qa_evidence_refs" ? "attach_visual_qa_evidence_refs" : "attach_runtime_realism_evidence_refs",
+          inputId: typeof attachment["inputId"] === "string" ? attachment["inputId"] : "",
+          inputKind: attachment["inputKind"] === "visual_qa_review_input" ? "visual_qa_review_input" : "runtime_realism_signal_input",
+          evidenceRef: typeof attachment["evidenceRef"] === "string" ? attachment["evidenceRef"] : "",
+          localArtifactPath: typeof attachment["localArtifactPath"] === "string" ? attachment["localArtifactPath"] : "",
+          reviewerId: "ui_xr_manual_runtime_evidence_capture_scaffold",
+          attachmentStatus: "attached_metadata_only",
+          comments: typeof attachment["comments"] === "string" ? attachment["comments"] : "Metadata-only UI-XR runtime capture scaffold.",
+          attachedAt: typeof attachment["attachedAt"] === "string" ? attachment["attachedAt"] : new Date().toISOString(),
+        })),
+      },
+      providerExecutionAllowed: false,
+      runtimeExecutionAllowed: false,
+      learnerLaunchAllowed: false,
+      questEvidenceRefreshAllowed: false,
+      productionAssetReadinessClaimed: false,
+      clinicalValidityClaimed: false,
+      scoringValidityClaimed: false,
+      claimBoundary: "ui_xr_capture_scaffold_not_runtime_visual_evidence",
+      notEvidenceFor: [...NOT_EVIDENCE_FOR],
+    },
+  };
 }
 
 function validateSubmitInput(value: unknown, scenarioId: unknown, errors: string[]): void {
@@ -656,6 +759,7 @@ function parseCliOptions(args: string[]): {
   scenarioId: string | null;
   validatePath: string | null;
   validatePreflightPath: string | null;
+  encounterScaffoldPath: string | null;
   preflightOutputPath: string | null;
   preflight: boolean;
 } {
@@ -665,6 +769,7 @@ function parseCliOptions(args: string[]): {
   let scenarioId: string | null = null;
   let validatePath: string | null = null;
   let validatePreflightPath: string | null = null;
+  let encounterScaffoldPath: string | null = null;
   let preflightOutputPath: string | null = null;
   let preflight = false;
   for (let index = 0; index < normalizedArgs.length; index += 1) {
@@ -685,6 +790,9 @@ function parseCliOptions(args: string[]): {
     } else if (arg === "--validate-preflight" && next) {
       validatePreflightPath = next;
       index += 1;
+    } else if (arg === "--encounter-scaffold" && next) {
+      encounterScaffoldPath = next;
+      index += 1;
     } else if (arg === "--preflight-output" && next) {
       preflightOutputPath = next;
       index += 1;
@@ -694,7 +802,7 @@ function parseCliOptions(args: string[]): {
       throw new Error(`Unknown argument: ${arg ?? ""}`);
     }
   }
-  return { inputPath, outputPath, scenarioId, validatePath, validatePreflightPath, preflightOutputPath, preflight };
+  return { inputPath, outputPath, scenarioId, validatePath, validatePreflightPath, encounterScaffoldPath, preflightOutputPath, preflight };
 }
 
 function requireLiteral<T>(value: unknown, expected: T, pathName: string, errors: string[]): void {

@@ -1,0 +1,549 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #101412;
+  color: #f4f8f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.studio-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
+  min-height: 100vh;
+  background: #101412;
+}
+
+.studio-stage {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    #141a17;
+  background-size: 72px 72px;
+}
+
+.stage-grid {
+  position: absolute;
+  inset: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #385148;
+  background: #19211d;
+}
+
+.camera-rail {
+  position: absolute;
+  background: #3e675b;
+}
+
+.camera-rail.horizontal {
+  left: 12%;
+  right: 12%;
+  height: 1px;
+}
+
+.camera-rail.vertical {
+  top: 10%;
+  bottom: 10%;
+  width: 1px;
+}
+
+.turntable-ring {
+  width: min(54vw, 520px);
+  aspect-ratio: 1;
+  border: 2px solid #80c7ad;
+  border-radius: 50%;
+  background: #1f2a25;
+}
+
+.pose-silhouette {
+  position: absolute;
+  width: 88px;
+  height: 292px;
+  border-radius: 42px 42px 24px 24px;
+  background: linear-gradient(#d8eee4, #95b7aa);
+  box-shadow: 0 0 0 18px rgba(128, 199, 173, 0.1);
+}
+
+.pose-silhouette::before {
+  content: "";
+  position: absolute;
+  top: -58px;
+  left: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #d8eee4;
+}
+
+.floor-plane {
+  position: absolute;
+  bottom: 22%;
+  width: min(62vw, 640px);
+  height: 1px;
+  background: #80c7ad;
+}
+
+.camera-label {
+  position: absolute;
+  padding: 7px 10px;
+  border: 1px solid #80c7ad;
+  border-radius: 6px;
+  background: #edf8f3;
+  color: #17221e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.camera-label.front {
+  bottom: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.camera-label.side {
+  top: 50%;
+  right: 12%;
+  transform: translateY(-50%);
+}
+
+.camera-label.three-quarter {
+  top: 19%;
+  right: 18%;
+}
+
+.camera-label.turntable {
+  left: 14%;
+  top: 19%;
+}
+
+.capture-strip {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  bottom: 32px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.capture-strip span {
+  min-height: 40px;
+  padding: 10px;
+  border: 1px solid #385148;
+  background: #edf8f3;
+  color: #17221e;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.studio-panel {
+  min-height: 100vh;
+  padding: 26px;
+  overflow-y: auto;
+  border-left: 1px solid #b4c7bd;
+  background: #f5faf7;
+  color: #17221e;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #8a3e28;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: 30px;
+  line-height: 1.05;
+}
+
+h2 {
+  margin-bottom: 6px;
+  font-size: 17px;
+}
+
+.subtle,
+.asset-path {
+  color: #52645b;
+  line-height: 1.4;
+}
+
+.decision-panel,
+.candidate-panel,
+.actor-player-panel,
+.boundary-panel {
+  padding: 16px 0;
+  border-top: 1px solid #cbdad3;
+}
+
+dl {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+dt {
+  color: #52645b;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+dd {
+  margin: 2px 0 0;
+  font-weight: 700;
+}
+
+.candidate-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.candidate-heading strong {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border: 1px solid #c48968;
+  border-radius: 6px;
+  background: #fff1e8;
+  color: #7b321e;
+  font-size: 13px;
+}
+
+.asset-path {
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.role-material-handoff,
+.procedural-face-detail-handoff {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.role-material-handoff span,
+.role-material-handoff small,
+.role-material-handoff em,
+.procedural-face-detail-handoff span,
+.procedural-face-detail-handoff small,
+.procedural-face-detail-handoff em {
+  padding: 7px 8px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #52645b;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.role-material-handoff small,
+.role-material-handoff em,
+.procedural-face-detail-handoff small,
+.procedural-face-detail-handoff em {
+  grid-column: 1 / -1;
+}
+
+.role-material-handoff em,
+.procedural-face-detail-handoff em {
+  border-color: #c48968;
+  background: #fff1e8;
+  color: #7b321e;
+}
+
+.role-animation-handoff {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.role-animation-handoff span,
+.role-animation-handoff em {
+  padding: 7px 8px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #52645b;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.role-animation-handoff em {
+  border-color: #c48968;
+  background: #fff1e8;
+  color: #7b321e;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.capture-slot {
+  min-height: 86px;
+  padding: 10px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.capture-slot span,
+.capture-slot strong,
+.capture-slot small {
+  display: block;
+}
+
+.capture-slot span {
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.capture-slot strong {
+  color: #8a3e28;
+}
+
+.capture-slot small {
+  margin-top: 8px;
+  color: #52645b;
+}
+
+.capture-slot.captured {
+  border-color: #338764;
+  background: #e5f6ef;
+}
+
+.capture-slot.captured strong {
+  color: #1d6f50;
+}
+
+.mode-list,
+.gate-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gate-list.compact {
+  margin: 8px 0 12px;
+}
+
+.mode-list span,
+.gate-list span {
+  padding: 6px 8px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #17221e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.actor-preview-list {
+  display: grid;
+  gap: 10px;
+}
+
+.actor-preview {
+  padding: 10px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.actor-preview-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.actor-preview-heading span {
+  color: #52645b;
+  font-weight: 700;
+}
+
+.media-handoff {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.media-handoff span {
+  min-height: 34px;
+  padding: 7px 8px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #f5faf7;
+  color: #52645b;
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.runtime-role-clip {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid #cbdad3;
+  border-radius: 6px;
+  background: #f9fbfa;
+}
+
+.runtime-role-clip span,
+.runtime-role-clip em {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.runtime-role-clip span {
+  color: #17221e;
+  font-weight: 800;
+}
+
+.runtime-role-clip em {
+  color: #52645b;
+}
+
+.turn-preview {
+  display: grid;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid #e3ece7;
+}
+
+.turn-preview span,
+.turn-preview strong,
+.turn-preview small,
+.turn-preview em {
+  overflow-wrap: anywhere;
+}
+
+.turn-preview span {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.turn-preview strong {
+  color: #1d6f50;
+}
+
+.turn-preview.blocked strong {
+  color: #8a3e28;
+}
+
+.turn-preview small,
+.turn-preview em {
+  color: #52645b;
+  font-size: 12px;
+}
+
+.turn-preview p {
+  margin: 2px 0;
+  color: #17221e;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.mode-list .mode-block {
+  border-color: #c48968;
+  background: #fff1e8;
+  color: #7b321e;
+}
+
+.mode-list .mode-pass {
+  border-color: #81baa3;
+  background: #e5f6ef;
+  color: #1d6f50;
+}
+
+.error-text {
+  color: #8a3e28;
+  overflow-wrap: anywhere;
+}
+
+.error-state {
+  color: #f0c5b2;
+  font-weight: 800;
+}
+
+.candidate-capture-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  background: #18211d;
+}
+
+#model-vetting-candidate-capture-canvas {
+  display: block;
+  width: min(100vw, 100vh);
+  height: min(100vw, 100vh);
+}
+
+.candidate-capture-badge {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  max-width: min(620px, calc(100vw - 36px));
+  padding: 9px 12px;
+  border: 1px solid #80c7ad;
+  border-radius: 6px;
+  background: #edf8f3;
+  color: #17221e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 880px) {
+  .studio-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-stage {
+    min-height: 62vh;
+  }
+
+  .studio-panel {
+    min-height: auto;
+    border-left: 0;
+  }
+
+  .capture-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

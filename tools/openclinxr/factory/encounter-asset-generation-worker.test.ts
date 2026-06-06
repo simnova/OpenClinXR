@@ -471,30 +471,46 @@ describe("encounter asset generation worker report", () => {
           assetPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
           runtimeAssetPath: "/generated-humanoids/peds_patient_child.glb",
           provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
-          generatorMode: "anny_compatible_stub_plus_blender_procedural",
+          generatorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+          sourceKind: "real_anny_candidate_unverified",
           realAnnyWeightsUsed: false,
           textureMode: "procedural_fallback",
-          animationMode: "procedural_animation_fallback",
+          animationMode: "procedural_clinical_idle_conversation_posture_fallback",
           realismGrade: "B",
           promotionStatus: "runtime_candidate_not_realism_gate_pass",
-          notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate"]),
+          notEvidenceFor: expect.arrayContaining(["b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness"]),
         }),
         expect.objectContaining({
           actorRole: "anxious_parent",
           assetPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
           runtimeAssetPath: "/generated-humanoids/peds_anxious_parent.glb",
           provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
-          generatorMode: "anny_compatible_stub_plus_blender_procedural",
+          generatorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+          sourceKind: "real_anny_candidate_unverified",
           realAnnyWeightsUsed: false,
           textureMode: "procedural_fallback",
-          animationMode: "procedural_animation_fallback",
+          animationMode: "procedural_clinical_idle_conversation_posture_fallback",
           realismGrade: "B",
           promotionStatus: "runtime_candidate_not_realism_gate_pass",
-          notEvidenceFor: expect.arrayContaining(["real_anny_model_output", "b_plus_visual_realism_gate"]),
+          notEvidenceFor: expect.arrayContaining(["b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness"]),
+        }),
+        expect.objectContaining({
+          actorRole: "nurse",
+          assetPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+          runtimeAssetPath: "/generated-humanoids/peds_nurse_kevin.glb",
+          provenanceManifestPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
+          generatorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+          sourceKind: "real_anny_candidate_unverified",
+          realAnnyWeightsUsed: false,
+          textureMode: "procedural_fallback",
+          animationMode: "procedural_clinical_idle_conversation_posture_fallback",
+          realismGrade: "B",
+          promotionStatus: "runtime_candidate_not_realism_gate_pass",
+          notEvidenceFor: expect.arrayContaining(["b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness"]),
         }),
       ]),
     });
-    expect(workerReport.pedsHumanoidMaterializationHandoff?.assets).toHaveLength(2);
+    expect(workerReport.pedsHumanoidMaterializationHandoff?.assets).toHaveLength(3);
     expect(validateEncounterAssetGenerationWorkerReport(workerReport)).toEqual({ ok: true });
   });
 
@@ -514,7 +530,7 @@ describe("encounter asset generation worker report", () => {
     );
     firstAsset.realAnnyWeightsUsed = true as false;
     firstAsset.realismGrade = "B+" as "B";
-    firstAsset.notEvidenceFor = firstAsset.notEvidenceFor.filter((entry) => entry !== "real_anny_model_output");
+    firstAsset.notEvidenceFor = firstAsset.notEvidenceFor.filter((entry) => entry !== "b_plus_visual_realism_gate");
     const handoff = requireFixtureValue(
       invalidReport.pedsHumanoidMaterializationHandoff,
       "peds humanoid materialization handoff",
@@ -527,7 +543,7 @@ describe("encounter asset generation worker report", () => {
         "/pedsHumanoidMaterializationHandoff/productionReadinessClaimed must be false",
         "/pedsHumanoidMaterializationHandoff/assets/0/realAnnyWeightsUsed must be false",
         "/pedsHumanoidMaterializationHandoff/assets/0/realismGrade must be \"B\"",
-        "/pedsHumanoidMaterializationHandoff/assets/0/notEvidenceFor must include real_anny_model_output",
+        "/pedsHumanoidMaterializationHandoff/assets/0/notEvidenceFor must include b_plus_visual_realism_gate",
       ]),
     });
   });

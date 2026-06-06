@@ -9,6 +9,7 @@ describe("encounter runtime evidence capture scaffold", () => {
   it("turns evidence input drafts into metadata-only attachment candidates", () => {
     const scaffold = buildRuntimeEvidenceCaptureScaffold({
       evidenceInputDraft: evidenceInputDraftFixture(),
+      actorPlayerRuntimeEvidence: actorPlayerRuntimeEvidenceFixture(),
     });
 
     expect(scaffold).toMatchObject({
@@ -20,6 +21,23 @@ describe("encounter runtime evidence capture scaffold", () => {
       status: "metadata_only_attachment_candidates_not_submitted",
       runtimeEvidenceCandidateCount: 3,
       visualQaEvidenceCandidateCount: 2,
+      actorPlayerRuntimeEvidenceAttachment: {
+        sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+        actorCount: 3,
+        projectedTurnCount: 9,
+        projectedSampleCount: 27,
+        actorSummaries: expect.arrayContaining([
+          expect.objectContaining({
+            actorId: "nurse_kevin_lee_v1",
+            roleAnimationClipNames: ["openclinxr_role_nurse_clinical_check_reassure"],
+          }),
+        ]),
+        providerExecutionPerformed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+        claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment",
+      },
       gateBoundary: {
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
@@ -46,11 +64,12 @@ describe("encounter runtime evidence capture scaffold", () => {
         actionId: "attach_runtime_realism_evidence_refs",
         inputId: "runtime-realism-evidence-input:patient_maya_johnson_v1",
         inputKind: "runtime_realism_signal_input",
-        evidenceRef: "runtime-evidence://metadata-only/local-capture-scaffold/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1",
-        localArtifactPath: "runtime-evidence-capture-scaffold/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1-runtime-realism.json",
+        evidenceRef: "runtime-evidence://metadata-only/actor-player-runtime/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1",
+        localArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
         sourceEvidenceRef: "encounter-publication-realism://peds/runtime/patient",
         reviewerId: "runtime_evidence_capture_scaffold",
         attachmentStatus: "attached_metadata_only",
+        comments: expect.stringContaining("4 case-derived turns and 12 samples"),
         providerExecutionAllowed: false,
         runtimeExecutionAllowed: false,
         learnerLaunchAllowed: false,
@@ -149,5 +168,29 @@ function evidenceInputDraftFixture(): EncounterRuntimeRealismEvidenceInputDraft 
       "scoring_validity",
       "learner_launch_readiness",
     ],
+  };
+}
+
+function actorPlayerRuntimeEvidenceFixture(): { path: string; evidence: unknown } {
+  return {
+    path: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+    evidence: {
+      actors: [
+        actorPlayerActor("patient_maya_johnson_v1", 4, "openclinxr_role_patient_asthma_breathing_effort"),
+        actorPlayerActor("parent_tara_johnson_v1", 2, "openclinxr_role_parent_anxious_fidget_guard"),
+        actorPlayerActor("nurse_kevin_lee_v1", 3, "openclinxr_role_nurse_clinical_check_reassure"),
+      ],
+    },
+  };
+}
+
+function actorPlayerActor(actorId: string, turnCount: number, roleAnimationClipName: string) {
+  return {
+    actorId,
+    caseDerivedTurnSequence: Array.from({ length: turnCount }, (_, index) => ({
+      turnId: `${actorId}:turn:${index}`,
+      roleAnimationClipName,
+      samples: [{ sampleMs: 0, roleAnimationClipName }, { sampleMs: 500, roleAnimationClipName }, { sampleMs: 1000, roleAnimationClipName }],
+    })),
   };
 }

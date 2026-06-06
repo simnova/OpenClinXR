@@ -50,6 +50,7 @@ const currentReferences = new Set([
   "docs/openclinxr/exam-scenario-architecture.md",
   "docs/openclinxr/virtual-patient-agent-model.md",
   "docs/openclinxr/asset-generation-pipeline.md",
+  "docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md",
   "docs/openclinxr/dynamic-session-asset-strategy.md",
   "docs/openclinxr/model-provider-and-voice-routing.md",
   "docs/openclinxr/mongodb-data-model.md",
@@ -123,13 +124,16 @@ function classify(file: string): DocAuthorityEntry {
   if (file.startsWith("agents/rules/") || file === "agents/rules/README.md") {
     return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)." };
   }
+  if (file.startsWith(".agents/skills/")) {
+    return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files." };
+  }
   if (/^\.(grok|claude|cursor)\/rules\//.test(file)) {
     return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml." };
   }
   if (file.startsWith(".grok/plugins/")) {
     return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails." };
   }
-  if (file.startsWith(".grok/agents/")) {
+  if (/^\.(grok|claude|cursor|codex)\/agents\//.test(file)) {
     return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules." };
   }
   if (file.startsWith("iterations/")) {

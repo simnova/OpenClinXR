@@ -35,6 +35,12 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
     expect(within(panel).getByLabelText("Runtime realism evidence draft hook details")).toHaveTextContent("runtime_realism_hook_metadata_only_not_runtime_readiness");
     expect(within(panel).getByLabelText("Runtime realism evidence draft hook details")).toHaveTextContent("pulse_oximeter_equipment (equipment): required_not_attached");
     expect(within(panel).getByLabelText("Runtime realism evidence draft hook details")).toHaveTextContent("visual_qa_hook_metadata_only_not_visual_quality_evidence");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence metrics")).toHaveTextContent("metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence metrics")).toHaveTextContent("3 actors; missing 0; complete true");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence metrics")).toHaveTextContent("runtime false; scene false; learner false; provider false");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence details")).toHaveTextContent("nurse_kevin_lee_v1: 4 guarded hooks; 3 turns; 9 samples; nurse_work_of_breathing_assessment");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence details")).toHaveTextContent("speech_viseme_timeline_binding:3:not_scene_executed");
+    expect(within(panel).getByLabelText("Actor-player runtime evidence details")).toHaveTextContent("model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json");
     expect(within(panel).getByLabelText("Runtime realism evidence input draft metrics")).toHaveTextContent("draft_inputs_required_not_attached");
     expect(within(panel).getByLabelText("Runtime realism evidence input draft metrics")).toHaveTextContent("3 actor inputs; 9 visual QA inputs");
     expect(within(panel).getByLabelText("Runtime realism evidence input draft metrics")).toHaveTextContent("provider false; runtime false; learner false; Quest false");
@@ -65,6 +71,8 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
     expect(within(panel).getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("3 runtime candidates; 9 visual QA candidates");
     expect(within(panel).getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("12 metadata-only submit candidates");
     expect(within(panel).getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("provider false; runtime false; learner false; Quest false");
+    expect(within(panel).getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("metadata_only_actor_player_runtime_evidence_attachment");
+    expect(within(panel).getByLabelText("Runtime evidence capture scaffold metrics")).toHaveTextContent("3 actors; 9 turns; 27 samples; provider false; runtime false; learner false; scene false");
     expect(within(panel).getByLabelText("Runtime evidence capture scaffold candidate details")).toHaveTextContent("runtime-realism-evidence-input:patient_maya_johnson_v1: attach_runtime_realism_evidence_refs");
     expect(within(panel).getByLabelText("Runtime evidence capture scaffold candidate details")).toHaveTextContent("runtime-evidence://metadata-only/local-capture-scaffold/peds_asthma_parent_anxiety_v1/patient_maya_johnson_v1");
     expect(within(panel).getByLabelText("Runtime selection review metrics")).toHaveTextContent("disabled_guard_not_runtime_execution");
@@ -198,7 +206,7 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
               sourceKind: "case_driven_generated_humanoid_candidate",
               realAnnyWeightsUsed: false,
               textureMode: "procedural_fallback",
-              animationMode: "procedural_animation_fallback",
+              animationMode: "procedural_clinical_idle_conversation_posture_fallback",
               realismGrade: "B",
               promotionStatus: "runtime_candidate_not_realism_gate_pass",
               notEvidenceFor: [
@@ -219,7 +227,7 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
               sourceKind: "case_driven_generated_humanoid_candidate",
               realAnnyWeightsUsed: false,
               textureMode: "procedural_fallback",
-              animationMode: "procedural_animation_fallback",
+              animationMode: "procedural_clinical_idle_conversation_posture_fallback",
               realismGrade: "B",
               promotionStatus: "runtime_candidate_not_realism_gate_pass",
               notEvidenceFor: [
@@ -258,6 +266,16 @@ describe("RuntimeSelectionReviewPacketPanel", () => {
     expect(panel.textContent).not.toContain("clinically valid");
   });
 });
+
+function actorPlayerHook(hookId: string) {
+  return {
+    hookId,
+    runtimeSurfaceStatus: "executed_in_guarded_local_actor_player_stub" as const,
+    sceneExecutionStatus: "not_scene_executed" as const,
+    sampleCount: 3,
+    remainingBlockers: ["scene_runtime_not_executed", "review_packet_attachment_metadata_only"],
+  };
+}
 
 function packetFixture(): AdminRuntimeSelectionReviewPacket {
   return {
@@ -492,6 +510,74 @@ function packetFixture(): AdminRuntimeSelectionReviewPacket {
       questEvidenceRefreshAllowed: false,
       claimBoundary: "runtime_realism_evidence_draft_review_metadata_only",
     },
+    caseDerivedActorPlayerRuntimeEvidence: {
+      schemaVersion: "openclinxr.case-derived-actor-player-runtime-evidence.v1",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      source: "case_spec_derivation_plus_model_vetting_actor_player_runtime",
+      sourceActorPlayerRuntimeEvidencePath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+      claimBoundary: "metadata_only_actor_player_stub_execution_not_scene_or_learner_runtime",
+      actorRuntimeSummaries: [
+        {
+          actorId: "patient_maya_johnson_v1",
+          candidateId: "peds_patient_child",
+          caseDerivedTurnIds: ["patient-child-turn-1"],
+          caseDerivedRuntimeTurnCount: 4,
+          caseDerivedRuntimeSampleCount: 12,
+          turnTraceTag: "patient_dyspnea_short_answer",
+          executedHookCount: 4,
+          hookExecutions: [
+            actorPlayerHook("speech_viseme_timeline_binding"),
+            actorPlayerHook("emotion_transition_state_binding"),
+            actorPlayerHook("gaze_blink_runtime_binding"),
+            actorPlayerHook("posture_locomotion_runtime_binding"),
+          ],
+        },
+        {
+          actorId: "parent_tara_johnson_v1",
+          candidateId: "peds_anxious_parent",
+          caseDerivedTurnIds: ["parent-turn-1"],
+          caseDerivedRuntimeTurnCount: 2,
+          caseDerivedRuntimeSampleCount: 6,
+          turnTraceTag: "parent_anxiety_initial_concern",
+          executedHookCount: 4,
+          hookExecutions: [
+            actorPlayerHook("speech_viseme_timeline_binding"),
+            actorPlayerHook("emotion_transition_state_binding"),
+            actorPlayerHook("gaze_blink_runtime_binding"),
+            actorPlayerHook("posture_locomotion_runtime_binding"),
+          ],
+        },
+        {
+          actorId: "nurse_kevin_lee_v1",
+          candidateId: "peds_nurse_kevin",
+          caseDerivedTurnIds: ["nurse-turn-1"],
+          caseDerivedRuntimeTurnCount: 3,
+          caseDerivedRuntimeSampleCount: 9,
+          turnTraceTag: "nurse_work_of_breathing_assessment",
+          executedHookCount: 4,
+          hookExecutions: [
+            actorPlayerHook("speech_viseme_timeline_binding"),
+            actorPlayerHook("emotion_transition_state_binding"),
+            actorPlayerHook("gaze_blink_runtime_binding"),
+            actorPlayerHook("posture_locomotion_runtime_binding"),
+          ],
+        },
+      ],
+      missingCaseActorIds: [],
+      decision: {
+        actorPlayerRuntimeEvidenceAttached: true,
+        localActorPlayerRuntimeEvidenceExecuted: true,
+        actorPlayerRuntimeEvidenceComplete: true,
+        runtimeActorMappingReady: false,
+        scenePlacementEvidenceAllowed: false,
+        runtimePromotionAllowed: false,
+        productionManifestPromotionAllowed: false,
+        learnerLaunchAllowed: false,
+        providerExecutionPerformed: false,
+        nextSafeStep: "Expose this metadata in reviewer/admin surfaces and expand to multi-turn actor-player evidence before any scene-placement claim.",
+      },
+      notEvidenceFor: ["real_anny_model_output", "b_plus_visual_realism_gate", "quest_readiness", "production_asset_readiness", "learner_readiness", "clinical_validity", "scoring_validity"],
+    },
     runtimeRealismEvidenceInputDraft: {
       schemaVersion: "openclinxr.encounter-runtime-realism-evidence-input-draft.v1",
       source: "encounter_runtime_selection_review_packet",
@@ -701,6 +787,17 @@ function packetFixture(): AdminRuntimeSelectionReviewPacket {
       status: "metadata_only_attachment_candidates_not_submitted",
       runtimeEvidenceCandidateCount: 3,
       visualQaEvidenceCandidateCount: 9,
+      actorPlayerRuntimeEvidenceAttachment: {
+        sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+        actorCount: 3,
+        projectedTurnCount: 9,
+        projectedSampleCount: 27,
+        providerExecutionPerformed: false,
+        runtimeExecutionAllowed: false,
+        learnerLaunchAllowed: false,
+        scenePlacementEvidenceAllowed: false,
+        claimBoundary: "metadata_only_actor_player_runtime_evidence_attachment",
+      },
       attachmentCandidates: [
         {
           actionId: "attach_runtime_realism_evidence_refs",

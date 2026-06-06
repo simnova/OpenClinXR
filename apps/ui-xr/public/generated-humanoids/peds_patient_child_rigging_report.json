@@ -1,0 +1,257 @@
+{
+  "ok": true,
+  "schemaVersion": "openclinxr.generated-humanoid-realism-manifest.v1",
+  "canonicalSkeleton": {
+    "boneCount": 52,
+    "root": "pelvis",
+    "hasTwistBones": true,
+    "fingersPerHand": 5,
+    "twistNames": [
+      "upper_arm_twist",
+      "forearm_twist"
+    ]
+  },
+  "morphTargets": {
+    "count": 25,
+    "names": [
+      "viseme_silence",
+      "viseme_AA",
+      "viseme_E",
+      "viseme_IH",
+      "viseme_OH",
+      "viseme_OU",
+      "viseme_FV",
+      "viseme_L",
+      "viseme_TH",
+      "openclinxr_mouth_open",
+      "openclinxr_brow_concern",
+      "openclinxr_cheek_tension",
+      "brow_raise",
+      "brow_furrow",
+      "eye_blink_l",
+      "eye_blink_r",
+      "eye_squint",
+      "gaze_yaw",
+      "gaze_pitch",
+      "jaw_open",
+      "smile",
+      "frown",
+      "concern",
+      "pain",
+      "anxious"
+    ],
+    "visemeSet": "typical40",
+    "faceAffect": [
+      "anxious",
+      "pain",
+      "neutral",
+      "reassured",
+      "concern",
+      "frightened"
+    ]
+  },
+  "attachmentPoints": {
+    "ear_anchor_l": [
+      0.12,
+      1.62,
+      0.02
+    ],
+    "ear_anchor_r": [
+      -0.12,
+      1.62,
+      0.02
+    ],
+    "nose_tip": [
+      0.0,
+      1.58,
+      0.14
+    ],
+    "head_top": [
+      0.0,
+      1.78,
+      0.0
+    ],
+    "chin": [
+      0.0,
+      1.52,
+      0.11
+    ]
+  },
+  "skinning": {
+    "maxInfluences": 4,
+    "normalized": true
+  },
+  "textureBake": {
+    "baker": "stablegen-procedural-fallback",
+    "maps": [
+      "albedo",
+      "roughness",
+      "normal",
+      "metallic",
+      "specular",
+      "ao"
+    ],
+    "baked": true,
+    "resolution": 1024,
+    "packedInGlb": true
+  },
+  "animationClips": {
+    "count": 5,
+    "names": [
+      "openclinxr_clinical_idle_breathing",
+      "openclinxr_conversation_listen_nod",
+      "openclinxr_posture_shift_standing",
+      "openclinxr_role_patient_asthma_breathing_effort",
+      "openclinxr_conversation_expression_morphs"
+    ],
+    "clinicalIdlePoseClip": "openclinxr_clinical_idle_breathing",
+    "conversationClip": "openclinxr_conversation_listen_nod",
+    "locomotionPostureClip": "openclinxr_posture_shift_standing",
+    "claimScope": "deterministic procedural fallback clips; not motion-capture or Speech2Motion evidence"
+  },
+  "roleAnimationHandoff": {
+    "actorRole": "patient",
+    "roleSpecificClipNames": [
+      "openclinxr_role_patient_asthma_breathing_effort"
+    ],
+    "roleMotionControls": {
+      "roleGesture": "asthma_breathing_effort",
+      "animatedBones": [
+        "spine",
+        "chest",
+        "head",
+        "upper_arm.L",
+        "upper_arm.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R"
+      ],
+      "functionalIntent": "repeated work-of-breathing chest/spine effort with subtle guarded arm motion"
+    },
+    "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+    "notEvidenceFor": [
+      "motion_capture_quality",
+      "speech2motion_quality",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleVisualMarkers": {
+    "actorRole": "patient",
+    "roleVisualCue": "pediatric_patient",
+    "clothingStyle": "pediatric_soft_blue_exam_tshirt",
+    "objectNames": [
+      "openclinxr_role_clothing_patient_torso_panel",
+      "openclinxr_role_clothing_patient_shirt_stripe"
+    ],
+    "claimScope": "small_procedural_role_marker_not_production_costume",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleClothingMaterialRegions": {
+    "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+    "topMaterialName": "openclinxr_role_mesh_clothing_patient_top",
+    "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
+    "topFaceCount": 2474,
+    "lowerFaceCount": 1042,
+    "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "faceDetailMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "manual_bounds_based_hair_eye_and_face_marker_geometry",
+    "reason": "Visual review rejected the procedural hair cap, eye spheres, brow bars, nose marker, and mouth marker as visibly awful and counterproductive for Anny realism.",
+    "nextSafeStep": "Use a real humanoid source-quality path for hair, eyes, and facial topology, or a dedicated local FOSS hair/face cagematch that beats clean Anny-body evidence in isolated screenshots.",
+    "claimScope": "manual_face_hair_markers_disabled_not_realism_evidence",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "wardrobeTags": {
+    "wardrobeRole": "patient_casual_child",
+    "garmentLayers": [
+      "short_sleeve_exam_tshirt"
+    ],
+    "fabricPalette": "soft_blue_and_warm_white",
+    "materialFinish": "cotton_matte",
+    "fitProfile": "pediatric_slim_fit",
+    "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe"
+  },
+  "materialTagSummary": {
+    "roleColorway": "soft_blue",
+    "skinTone": "warm_light_child",
+    "hairColor": "light_brown",
+    "eyeColor": "hazel",
+    "materialFinish": "cotton_matte"
+  },
+  "accessoryPresence": {
+    "markers": [],
+    "generatedObjects": [
+      "openclinxr_role_clothing_patient_torso_panel",
+      "openclinxr_role_clothing_patient_shirt_stripe"
+    ],
+    "claimScope": "synthetic_role_visual_cue_only"
+  },
+  "provenance": {
+    "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
+    "generatedAt": "2026-06-06T03:22:21.091758Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"wardrobeRole\": \"patient_casual_child\"}"
+  },
+  "licenseExceptionRequired": false,
+  "realismGrade": "B",
+  "phenotype": {
+    "skin_tone": "warm_light_child",
+    "hair_color": "light_brown",
+    "eye_color": "hazel",
+    "gender_presentation": "child",
+    "height_cm": 125,
+    "build": "slender_asthma",
+    "hair_density": 0.55,
+    "brow_tension": 0.18,
+    "anxious": 0.42,
+    "flush": 0.05,
+    "age_wrinkle": 0.04,
+    "bmi": 16.5,
+    "clothing_style": "pediatric_soft_blue_exam_tshirt",
+    "clothing_color": "soft_blue",
+    "role_visual_cue": "pediatric_patient",
+    "wardrobeRole": "patient_casual_child",
+    "garmentLayers": [
+      "short_sleeve_exam_tshirt"
+    ],
+    "fabricPalette": "soft_blue_and_warm_white",
+    "materialFinish": "cotton_matte",
+    "accessoryMarkers": [],
+    "fitProfile": "pediatric_slim_fit"
+  },
+  "sourceProvenance": {
+    "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+    "realAnnyWeightsUsed": false,
+    "textureMode": "procedural_fallback",
+    "animationMode": "procedural_animation_fallback",
+    "notEvidenceFor": [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "notes": "B-candidate iteration: multi-octave pores/age/wrinkle from age_wrinkle/bmi, anxious flush, SSS/trans approx, iris+catchlight eyes, density hair, strong viseme/affect deltas for emotion/dialogue from case commProfile. Usable in runtime player for peds+ed actors, but not evidence of real Anny weights or a B+ visual realism gate pass."
+}

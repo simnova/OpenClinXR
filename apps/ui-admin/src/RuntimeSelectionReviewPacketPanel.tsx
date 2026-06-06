@@ -101,6 +101,31 @@ export function RuntimeSelectionReviewPacketPanel({
           </ul>
         </>
       ) : null}
+      {packet.caseDerivedActorPlayerRuntimeEvidence ? (
+        <>
+          <Typography.Title level={5}>Actor-player runtime evidence</Typography.Title>
+          <fieldset className="readiness-strip" aria-label="Actor-player runtime evidence metrics">
+            <RuntimeSelectionMetric
+              label={packet.caseDerivedActorPlayerRuntimeEvidence.claimBoundary}
+              detail={`${packet.caseDerivedActorPlayerRuntimeEvidence.actorRuntimeSummaries.length} actors; missing ${packet.caseDerivedActorPlayerRuntimeEvidence.missingCaseActorIds.length}; complete ${String(packet.caseDerivedActorPlayerRuntimeEvidence.decision.actorPlayerRuntimeEvidenceComplete)}`}
+            />
+            <RuntimeSelectionMetric
+              label="local actor-player stub only; no scene, learner, provider, or readiness claim"
+              detail={`runtime ${String(packet.caseDerivedActorPlayerRuntimeEvidence.decision.runtimeActorMappingReady)}; scene ${String(packet.caseDerivedActorPlayerRuntimeEvidence.decision.scenePlacementEvidenceAllowed)}; learner ${String(packet.caseDerivedActorPlayerRuntimeEvidence.decision.learnerLaunchAllowed)}; provider ${String(packet.caseDerivedActorPlayerRuntimeEvidence.decision.providerExecutionPerformed)}`}
+            />
+          </fieldset>
+          <ul className="compact-list" aria-label="Actor-player runtime evidence details">
+            {packet.caseDerivedActorPlayerRuntimeEvidence.actorRuntimeSummaries.slice(0, 3).map((summary) => (
+              <li key={`${summary.actorId}:${summary.turnTraceTag ?? "missing-trace"}`}>
+                <Typography.Text>{`${summary.actorId}: ${summary.executedHookCount} guarded hooks; ${summary.caseDerivedRuntimeTurnCount ?? summary.caseDerivedTurnIds.length} turns; ${summary.caseDerivedRuntimeSampleCount ?? 0} samples; ${summary.turnTraceTag ?? "missing trace tag"}`}</Typography.Text>
+                <Typography.Text type="secondary">
+                  {`${summary.hookExecutions.map((hook) => `${hook.hookId}:${hook.sampleCount}:${hook.sceneExecutionStatus}`).join(", ")}; ${packet.caseDerivedActorPlayerRuntimeEvidence?.sourceActorPlayerRuntimeEvidencePath}`}
+                </Typography.Text>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
       {packet.runtimeRealismEvidenceInputDraft ? (
         <>
           <Typography.Title level={5}>Runtime realism evidence input draft</Typography.Title>
@@ -252,6 +277,12 @@ export function RuntimeSelectionReviewPacketPanel({
               label={packet.runtimeEvidenceCaptureScaffold.claimBoundary}
               detail={`provider ${String(packet.runtimeEvidenceCaptureScaffold.gateBoundary.providerExecutionAllowed)}; runtime ${String(packet.runtimeEvidenceCaptureScaffold.gateBoundary.runtimeExecutionAllowed)}; learner ${String(packet.runtimeEvidenceCaptureScaffold.gateBoundary.learnerLaunchAllowed)}; Quest ${String(packet.runtimeEvidenceCaptureScaffold.gateBoundary.questEvidenceRefreshAllowed)}`}
             />
+            {packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment ? (
+              <RuntimeSelectionMetric
+                label={packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.claimBoundary}
+                detail={`${packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.actorCount} actors; ${packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.projectedTurnCount} turns; ${packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.projectedSampleCount} samples; provider ${String(packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.providerExecutionPerformed)}; runtime ${String(packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.runtimeExecutionAllowed)}; learner ${String(packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.learnerLaunchAllowed)}; scene ${String(packet.runtimeEvidenceCaptureScaffold.actorPlayerRuntimeEvidenceAttachment.scenePlacementEvidenceAllowed)}`}
+              />
+            ) : null}
           </fieldset>
           <ul className="compact-list" aria-label="Runtime evidence capture scaffold candidate details">
             {packet.runtimeEvidenceCaptureScaffold.attachmentCandidates.slice(0, 6).map((candidate) => (

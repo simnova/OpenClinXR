@@ -857,14 +857,16 @@
         "sourceKind": "case_driven_generated_humanoid_candidate",
         "realAnnyWeightsUsed": false,
         "textureMode": "procedural_fallback",
-        "animationMode": "procedural_animation_fallback",
+        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
         "realismGrade": "B",
         "promotionStatus": "runtime_candidate_not_realism_gate_pass",
         "notEvidenceFor": [
           "real_anny_model_output",
           "b_plus_visual_realism_gate",
+          "provider_runtime_readiness",
           "production_asset_readiness",
           "quest_readiness",
+          "learner_readiness",
           "clinical_validity",
           "scoring_validity"
         ]
@@ -878,14 +880,39 @@
         "sourceKind": "case_driven_generated_humanoid_candidate",
         "realAnnyWeightsUsed": false,
         "textureMode": "procedural_fallback",
-        "animationMode": "procedural_animation_fallback",
+        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
         "realismGrade": "B",
         "promotionStatus": "runtime_candidate_not_realism_gate_pass",
         "notEvidenceFor": [
           "real_anny_model_output",
           "b_plus_visual_realism_gate",
+          "provider_runtime_readiness",
           "production_asset_readiness",
           "quest_readiness",
+          "learner_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      {
+        "actorRole": "nurse",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+        "runtimeAssetPath": "/generated-humanoids/peds_nurse_kevin.glb",
+        "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
+        "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+        "sourceKind": "case_driven_generated_humanoid_candidate",
+        "realAnnyWeightsUsed": false,
+        "textureMode": "procedural_fallback",
+        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+        "realismGrade": "B",
+        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+        "notEvidenceFor": [
+          "real_anny_model_output",
+          "b_plus_visual_realism_gate",
+          "provider_runtime_readiness",
+          "production_asset_readiness",
+          "quest_readiness",
+          "learner_readiness",
           "clinical_validity",
           "scoring_validity"
         ]

@@ -39,6 +39,7 @@ import {
   WebGLRenderer,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, type StationApiClient } from "./api-client.js";
@@ -56,6 +57,7 @@ import {
   buildXrRuntimeReadinessDecision,
   buildXrTraceActionHandoffEvidence,
   buildXrTraceInteractionEvidenceSummary,
+  type ActorPlayerRuntimeMetadataSummary,
   type CaseDefinedHumanoidPerformanceContractEvidence,
   type CaseDefinedHumanoidRuntimeHandoffEvidence,
   completeTraceAction,
@@ -337,6 +339,8 @@ declare global {
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
+    __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
+    __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
     __openClinXrDebugScene?: Scene;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
@@ -361,6 +365,7 @@ if (!app) {
 const defaultStaticGeneratedLearnerRuntimeAssetBundleScenarioId = "ed_chest_pain_priority_v1";
 
 window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence();
+window.__openClinXrActorPlayerRuntimeMetadataSummary = buildActorPlayerRuntimeMetadataSummary();
 
 function buildCaseDefinedHumanoidPerformanceContractEvidence(
   scenarioId = selectedScenarioId(),
@@ -395,6 +400,68 @@ function buildCaseDefinedHumanoidPerformanceContractEvidence(
   };
 }
 
+function buildActorPlayerRuntimeMetadataSummary(
+  scenarioId = selectedScenarioId(),
+): ActorPlayerRuntimeMetadataSummary | undefined {
+  if (scenarioId !== "peds_asthma_parent_anxiety_v1") {
+    return undefined;
+  }
+  const blockerIds = [
+    "local_multi_actor_preview_not_scene_placement_evidence",
+    "learner_runtime_not_enabled",
+    "quest_runtime_not_verified",
+  ];
+  return {
+    source: "model_vetting_actor_player_runtime_evidence",
+    sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+    executionMode: "local_deterministic_non_scene",
+    actorCount: 3,
+    projectedTurnCount: 9,
+    projectedSampleCount: 27,
+    actorSummaries: [
+      {
+        actorId: "patient_maya_johnson_v1",
+        turnCount: 4,
+        sampleCount: 12,
+        roleAnimationClipNames: ["openclinxr_role_patient_asthma_breathing_effort"],
+        sceneExecutionStatus: "not_scene_executed",
+        blockerIds,
+      },
+      {
+        actorId: "parent_tara_johnson_v1",
+        turnCount: 2,
+        sampleCount: 6,
+        roleAnimationClipNames: ["openclinxr_role_parent_anxious_fidget_guard"],
+        sceneExecutionStatus: "not_scene_executed",
+        blockerIds,
+      },
+      {
+        actorId: "nurse_kevin_lee_v1",
+        turnCount: 3,
+        sampleCount: 9,
+        roleAnimationClipNames: ["openclinxr_role_nurse_clinical_check_reassure"],
+        sceneExecutionStatus: "not_scene_executed",
+        blockerIds,
+      },
+    ],
+    providerExecutionPerformed: false,
+    runtimeExecutionAllowed: false,
+    learnerLaunchAllowed: false,
+    scenePlacementEvidenceAllowed: false,
+    claimBoundary: "ui_xr_actor_player_metadata_only_not_runtime_execution",
+    notEvidenceFor: [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "scene_placement_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "learner_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
+}
+
 function requireElement<TElement extends Element>(selector: string): TElement {
   const element = document.querySelector<TElement>(selector);
   if (!element) {
@@ -419,6 +486,7 @@ function recordBootPhase(phase: string, error?: unknown): void {
 }
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
+const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
@@ -941,9 +1009,27 @@ function isDynamicGeneratedEncounterSceneMode(): boolean {
 function isGeneratedPlaceholderSourceForDifferentScenario(source: string): boolean {
   const scenarioSlug = encounterRuntimeAssetBundle.scenarioId.replaceAll("_", "-");
   const normalizedSource = source.toLowerCase();
+  if (isScenarioSpecificRuntimeFixtureForSelectedScenario(normalizedSource)) {
+    return false;
+  }
   return isDynamicGeneratedEncounterSceneMode()
     && !normalizedSource.includes(encounterRuntimeAssetBundle.scenarioId.toLowerCase())
     && !normalizedSource.includes(scenarioSlug.toLowerCase());
+}
+
+function isScenarioSpecificRuntimeFixtureForSelectedScenario(normalizedSource: string): boolean {
+  if (encounterRuntimeAssetBundle.scenarioId !== "peds_asthma_parent_anxiety_v1") {
+    return false;
+  }
+  return [
+    "pediatric_urgent_care_bay_environment",
+    "pulse_oximeter_equipment",
+    "nebulizer_mask_equipment",
+    "oxygen_wall_port_equipment",
+    "pediatric_stretcher_equipment",
+    "parent_chair_equipment",
+    "inhaler_spacer_equipment",
+  ].some((fixtureName) => normalizedSource.includes(fixtureName));
 }
 
 function isGeneratedPlaceholderAssetForDifferentScenario(asset: EncounterRuntimeAsset): boolean {
@@ -1302,6 +1388,7 @@ type GeneratedHumanoidAnimationSlot = {
   emotionExpression: HumanoidEmotionExpressionState;
   activeSpeech?: HumanoidSpeechPlayback | undefined;
   mixer?: AnimationMixer;
+  activeRoleAnimationClipName?: string | undefined;
 };
 type HumanoidExpressionEmotion = "neutral" | "anxious" | "concerned" | "reassured" | "pain";
 type HumanoidExpressionWeights = {
@@ -1337,11 +1424,76 @@ type HumanoidDialogueEmotionContext = {
   baselineMood: string[];
   cueIds: string[];
 };
+type PedsActorPlayerRuntimeTurn = {
+  actorId: string;
+  turnId: string;
+  cue: string;
+  text: string;
+  emotion: HumanoidExpressionEmotion;
+  gazeTargetKind: "learner_camera" | "actor";
+  gazeTargetActorId: string | null;
+  roleAnimationClipName: string;
+  source: "bundle_dialogue_turn" | "actor_player_sample_fallback";
+};
+type PedsActorPlayerRuntimeSequenceSource = "bundle_dialogue_sequence" | "single_runtime_turn";
+type PedsActorPlayerRuntimeSequenceEvidence = {
+  sequenceId: string;
+  traceTag: string;
+  source: PedsActorPlayerRuntimeSequenceSource;
+  turns: PedsActorPlayerRuntimeTurn[];
+};
+type PedsActorPlayerRuntimePlaybackEvidence = {
+  source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples";
+  sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json";
+  scheduled: boolean;
+  actorCount: number;
+  turnCount: number;
+  bundleDialogueTurnCount: number;
+  fallbackTurnCount: number;
+  latestTurnIndex: number;
+  latestActorId: string | null;
+  latestTurnId: string | null;
+  latestCue: string | null;
+  latestEmotion: HumanoidExpressionEmotion | null;
+  latestRoleAnimationClipName: string | null;
+  latestTurnSource: PedsActorPlayerRuntimeTurn["source"] | null;
+  latestTriggerSource: "scheduled_preview" | "trace_action" | null;
+  latestTraceTag: string | null;
+  latestSequenceId: string | null;
+  latestSequenceSource: PedsActorPlayerRuntimeSequenceSource | null;
+  latestSequenceStepIndex: number;
+  latestSequenceTurnCount: number;
+  latestSequenceActorIds: string[];
+  latestListenerActorIds: string[];
+  latestCoupledSignalIds: string[];
+  activeGeneratedActorSlotCount: number;
+  activeHumanoidSpeechEvidenceActorId: string | null;
+  scenePlacementEvidenceAllowed: false;
+  learnerLaunchAllowed: false;
+  questEvidenceRefreshAllowed: false;
+  productionAssetReadinessClaimed: false;
+  clinicalValidityClaimed: false;
+  scoringValidityClaimed: false;
+  claimBoundary: "local_actor_player_runtime_preview_not_readiness";
+  notEvidenceFor: [
+    "scene_placement_readiness",
+    "learner_launch_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "clinical_validity",
+    "scoring_validity",
+  ];
+};
 const generatedHumanoidAnimationSlots: GeneratedHumanoidAnimationSlot[] = [];
 const generatedHumanoidAnimationSlotsByActorId = new Map<string, GeneratedHumanoidAnimationSlot>();
 const generatedHumanoidActorSlotsByActorId = new Map<string, Group>();
 const virtualDeviceActorSlotsByActorId = new Map<string, Group>();
 const activeVirtualDeviceSpeechByActorId = new Map<string, HumanoidSpeechPlayback>();
+let pedsActorPlayerRuntimePlaybackScheduled = false;
+let pedsActorPlayerRuntimePlaybackLastTraceAtMs = 0;
+let pedsActorPlayerRuntimeSequenceActiveUntilMs = 0;
 const environmentReactiveProps = new Map<string, Group>();
 let lastObservedLocomotionSummary: {
   source: NonNullable<OpenClinXrInputEvidence["activeLocomotionSource"]>;
@@ -1561,6 +1713,7 @@ app.innerHTML = `
           <div><dt>Input</dt><dd id="evidence-input">pending</dd></div>
           <div><dt>Assets</dt><dd id="evidence-scene-assets">pending</dd></div>
           <div><dt>Speech affect</dt><dd id="evidence-speech-affect">pending</dd></div>
+          <div><dt>Actor-player</dt><dd id="evidence-actor-player">pending</dd></div>
           <div><dt>Movement</dt><dd id="evidence-locomotion">pending</dd></div>
           <div><dt>Trace interaction</dt><dd id="evidence-trace-interaction">not observed</dd></div>
           <div><dt>Trace</dt><dd id="evidence-trace">pending</dd></div>
@@ -1580,6 +1733,8 @@ function refreshStationContextFromRuntimeBundle(): void {
   state = createRuntimeStateFromBundle(encounterRuntimeAssetBundle, state);
   window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence =
     buildCaseDefinedHumanoidPerformanceContractEvidence(encounterRuntimeAssetBundle.scenarioId);
+  window.__openClinXrActorPlayerRuntimeMetadataSummary =
+    buildActorPlayerRuntimeMetadataSummary(encounterRuntimeAssetBundle.scenarioId);
   initialDialogueText = initialDialogueTextForSelectedScenario();
   selectedStationContext = stationContextForSelectedScenario();
   document.querySelector<HTMLElement>(".stage")?.setAttribute("aria-label", selectedStationContext.stageAriaLabel);
@@ -1616,6 +1771,7 @@ const evidenceLoop = requireElement<HTMLElement>("#evidence-loop");
 const evidenceInput = requireElement<HTMLElement>("#evidence-input");
 const evidenceSceneAssets = requireElement<HTMLElement>("#evidence-scene-assets");
 const evidenceSpeechAffect = requireElement<HTMLElement>("#evidence-speech-affect");
+const evidenceActorPlayer = requireElement<HTMLElement>("#evidence-actor-player");
 const evidenceLocomotion = requireElement<HTMLElement>("#evidence-locomotion");
 const evidenceTraceInteraction = requireElement<HTMLElement>("#evidence-trace-interaction");
 const evidenceTrace = requireElement<HTMLElement>("#evidence-trace");
@@ -1868,7 +2024,9 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
   state = completeTraceAction(state, tag);
   const dialogueText = dialogueFor(tag);
   dialogueLine.textContent = dialogueText;
-  triggerHumanoidDialogueForTrace(tag, dialogueText);
+  if (!triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
+    triggerHumanoidDialogueForTrace(tag, dialogueText);
+  }
   updateEnvironmentStateForTrace(tag);
   renderControls();
   updateReadiness();
@@ -1892,7 +2050,7 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
 
 function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
   const activeTraceTags = Array.from(new Set([...(window.__openClinXrEnvironmentStateEvidence?.activeTraceTags ?? []), tag]));
-  const activeRuntimeEquipmentIds = activeTraceTags.flatMap(runtimeEquipmentIdsForTraceTag);
+  const activeRuntimeEquipmentIds = Array.from(new Set(activeTraceTags.flatMap(runtimeEquipmentIdsForTraceTag)));
   const stressCueIds = [
     ...(activeTraceTags.includes("vitals_review") ? ["monitor_waveform_card_soft_warning", "nurse_workflow_lane_attention"] : []),
     ...(activeTraceTags.includes("ecg_request") ? ["ekg_leads_on_bed_ready", "ecg_cart_workflow_attention"] : []),
@@ -1954,12 +2112,45 @@ function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
   };
   window.__openClinXrEnvironmentStateEvidence = evidence;
   applyEnvironmentStateVisuals(evidence);
+  applyRuntimeEquipmentTraceVisuals(evidence);
   roomStateSummary.textContent = [
     `monitor ${evidence.monitorState}`,
     `alarm ${evidence.alarmState}`,
     evidence.activePropIds.length > 0 ? `active ${evidence.activePropIds.join(", ")}` : "no active props",
   ].join(" | ");
   return evidence;
+}
+
+function applyRuntimeEquipmentTraceVisuals(evidence: EnvironmentStateEvidence): void {
+  const activeEquipmentIds = new Set(evidence.activePropIds);
+  for (const [assetId, slot] of runtimeEquipmentSlotsByAssetId) {
+    const active = activeEquipmentIds.has(assetId);
+    const marker = ensureRuntimeEquipmentTraceMarker(slot, assetId);
+    marker.visible = active;
+    slot.userData.openClinXrTraceLinkedEquipmentActive = active;
+    slot.userData.openClinXrTraceLinkedActiveTraceTags = active
+      ? evidence.activeTraceTags.filter((tag) => runtimeEquipmentIdsForTraceTag(tag).includes(assetId))
+      : [];
+  }
+}
+
+function ensureRuntimeEquipmentTraceMarker(slot: Group, assetId: string): Mesh {
+  const markerName = `${runtimeSceneObjectPrefix()}.equipment-trace-active.${assetId}`;
+  const existing = slot.children.find((child): child is Mesh => child instanceof Mesh && child.name === markerName);
+  if (existing) {
+    return existing;
+  }
+  const marker = new Mesh(
+    new BoxGeometry(0.28, 0.035, 0.028),
+    new MeshBasicMaterial({ color: 0xfacc15, transparent: true, opacity: 0.82 }),
+  );
+  marker.name = markerName;
+  marker.position.set(0, 0.72, 0);
+  marker.userData.openClinXrTraceLinkedEquipmentCue =
+    "active_when_case_trace_references_this_runtime_equipment";
+  marker.visible = false;
+  slot.add(marker);
+  return marker;
 }
 
 function runtimeEquipmentIdsForTraceTag(tag: string): string[] {
@@ -2679,7 +2870,7 @@ function createStationScene(): StationSceneRuntime {
       const sid = encounterRuntimeAssetBundle.scenarioId;
       const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
       const p = room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
-      return p ? `file://${p}` : null;
+      return p ? null : null;
     })(),
   };
   scene.add(floor);
@@ -2827,7 +3018,9 @@ function createStationScene(): StationSceneRuntime {
     interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"],
   });
   const ecgCart = equipmentSlotMesh(0xf3f5f0, 0x111820);
-  ecgCart.name = iwsdkStationSceneObjects.ecgCart;
+  ecgCart.name = isDynamicGeneratedEncounterSceneMode()
+    ? `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${ecgCartRuntimeAsset.assetId}`
+    : iwsdkStationSceneObjects.ecgCart;
   ecgCart.position.set(ecgCartPlacement.position.x, ecgCartPlacement.position.y, ecgCartPlacement.position.z);
   ecgCart.visible = !selectedScenarioRuntimeMismatch;
   if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
@@ -2849,7 +3042,9 @@ function createStationScene(): StationSceneRuntime {
     interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"],
   });
   const ivPole = equipmentSlotMesh(0xd8dde1, 0x2b3034);
-  ivPole.name = iwsdkStationSceneObjects.ivPoleWithPump;
+  ivPole.name = isDynamicGeneratedEncounterSceneMode()
+    ? `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${ivPoleRuntimeAsset.assetId}`
+    : iwsdkStationSceneObjects.ivPoleWithPump;
   ivPole.position.set(ivPolePlacement.position.x, ivPolePlacement.position.y, ivPolePlacement.position.z);
   ivPole.visible = !selectedScenarioRuntimeMismatch;
   if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
@@ -5743,49 +5938,45 @@ function createRuntimeHumanoidDetailCues(assetId: string): Group {
   ];
   group.userData.openClinXrRuntimeDetailPolicy = {
     mode: "asset_surface_features_only_no_runtime_proxy_overlay",
-    reason: "Anny-compatible stub + Blender procedural candidate GLB carries surface hair, clothing, eye, brow, and lip geometry; runtime overlays must not obscure the generated humanoid.",
+    reason: "Local real Anny source + Blender procedural candidate GLB carries source topology plus surface hair, clothing, eye, brow, and lip geometry; runtime overlays must not obscure the generated humanoid.",
     notEvidenceFor: ["production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
   };
   return group;
 }
 
 function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidence["assets"][number]["humanoidSourceProvenance"] | undefined {
+  const realAnnyCandidate = {
+    generatorMode: "real_anny_local_forward_pass_plus_blender_procedural" as const,
+    sourceKind: "real_anny_candidate_unverified" as const,
+    usesRealAnnyForwardPass: true,
+    realAnnyWeightsUsed: false,
+    textureMode: "procedural_fallback" as const,
+    animationMode: "procedural_clinical_idle_conversation_posture_fallback" as const,
+    realismGrade: "B" as const,
+    notEvidenceFor: [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
   if (assetPath === "/generated-humanoids/peds_patient_child.glb") {
     return {
-      generatorMode: "anny_compatible_stub_plus_blender_procedural",
-      sourceKind: "case_driven_generated_humanoid_candidate",
-      realAnnyWeightsUsed: false,
-      textureMode: "procedural_fallback",
-      animationMode: "procedural_animation_fallback",
-      realismGrade: "B",
+      ...realAnnyCandidate,
       provenanceManifestPath: "/generated-humanoids/peds_patient_child.provenance.json",
-      notEvidenceFor: [
-        "real_anny_model_output",
-        "b_plus_visual_realism_gate",
-        "production_asset_readiness",
-        "quest_readiness",
-        "clinical_validity",
-        "scoring_validity",
-      ],
     };
   }
   if (assetPath === "/generated-humanoids/peds_anxious_parent.glb") {
     return {
-      generatorMode: "anny_compatible_stub_plus_blender_procedural",
-      sourceKind: "case_driven_generated_humanoid_candidate",
-      realAnnyWeightsUsed: false,
-      textureMode: "procedural_fallback",
-      animationMode: "procedural_animation_fallback",
-      realismGrade: "B",
+      ...realAnnyCandidate,
       provenanceManifestPath: "/generated-humanoids/peds_anxious_parent.provenance.json",
-      notEvidenceFor: [
-        "real_anny_model_output",
-        "b_plus_visual_realism_gate",
-        "production_asset_readiness",
-        "quest_readiness",
-        "clinical_validity",
-        "scoring_validity",
-      ],
+    };
+  }
+  if (assetPath === "/generated-humanoids/peds_nurse_kevin.glb") {
+    return {
+      ...realAnnyCandidate,
+      provenanceManifestPath: "/generated-humanoids/peds_nurse_kevin.provenance.json",
     };
   }
   return undefined;
@@ -5840,6 +6031,7 @@ function loadGeneratedHumanoidIntoActorSlot(
     child.visible = false;
   }
   const humanoidLoader = new GLTFLoader();
+  humanoidLoader.setMeshoptDecoder(MeshoptDecoder);
   const actorSpecificAssetPath = runtimeHumanoidVariantAssetPath(options.actorId, options.assetPath);
   const humanoidSourceProvenance = generatedHumanoidSourceProvenance(actorSpecificAssetPath);
   recordSceneAssetStatus({
@@ -5936,6 +6128,10 @@ function loadGeneratedHumanoidIntoActorSlot(
         actorSlot.visible = false;
         actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_secondary_actors_for_primary_humanoid_mouth_gaze_pose_review";
       }
+      const roleAnimationClipNames = roleAnimationClipNamesForActor(options.actorId);
+      const activeRoleAnimationClipName = gltf.animations.find((clip): clip is AnimationClip =>
+        clip instanceof AnimationClip && roleAnimationClipNames.includes(clip.name)
+      )?.name ?? null;
       registerGeneratedHumanoidAnimation({
         assetId: options.assetId,
         actorId: options.actorId,
@@ -5946,6 +6142,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         eyeFocusCue,
         expressionCue,
         animationClips: gltf.animations,
+        roleAnimationClipNames,
       });
       recordSceneAssetStatus({
         assetId: options.assetId,
@@ -5970,8 +6167,12 @@ function loadGeneratedHumanoidIntoActorSlot(
           ...(humanoid.userData.openClinXrClinicalIdlePoseClipPresent ? ["authored_clinical_idle_pose_clip_cue"] : []),
         ]),
         animationPlayback: gltf.animations.length > 0
-          ? "gltf_animation_clips_playing"
+          ? roleAnimationClipNames.length > 0
+            ? "gltf_role_animation_clip_playing"
+            : "gltf_animation_clips_playing"
           : "procedural_dialogue_expression_gaze_fallback",
+        roleAnimationClipNames,
+        activeRoleAnimationClipName,
         ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
       });
       recordBootPhase("generated_humanoid_asset_loaded");
@@ -6083,7 +6284,11 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
     const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
     if (pedsHandoff?.assets?.length) {
-      const targetRole = (actorId === runtimePatientActorId() || role === 'patient') ? "patient" : "anxious_parent";
+      const targetRole = (actorId === runtimePatientActorId() || role === 'patient')
+        ? "patient"
+        : (actorId === runtimeClinicalTeamActorId() || role === 'nurse')
+          ? "nurse"
+          : "anxious_parent";
       const asset = pedsHandoff.assets.find((a) => a.actorRole === targetRole);
       if (asset?.runtimeAssetPath || asset?.assetPath) {
         return asset.runtimeAssetPath || asset.assetPath;
@@ -6095,6 +6300,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     }
     if (actorId === runtimeFamilyActorId() || role === 'parent' || role === 'family') {
       return '/generated-humanoids/peds_anxious_parent.glb';
+    }
+    if (actorId === runtimeClinicalTeamActorId() || role === 'nurse') {
+      return '/generated-humanoids/peds_nurse_kevin.glb';
     }
   }
 
@@ -6120,15 +6328,21 @@ function registerGeneratedHumanoidAnimation(input: {
   eyeFocusCue: Group;
   expressionCue: Group;
   animationClips: unknown[];
+  roleAnimationClipNames: string[];
 }): void {
   const mixer = input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
+  const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
+    clip instanceof AnimationClip && input.roleAnimationClipNames.includes(clip.name)
+  );
+  const clipsToPlay = selectedRoleClips.length > 0
+    ? selectedRoleClips
+    : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
   if (mixer) {
-    for (const clip of input.animationClips) {
-      if (clip instanceof AnimationClip) {
-        mixer.clipAction(clip)?.play();
-      }
+    for (const clip of clipsToPlay) {
+      mixer.clipAction(clip)?.play();
     }
   }
+  const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
   const slot = {
     assetId: input.assetId,
     actorId: input.actorId,
@@ -6147,13 +6361,18 @@ function registerGeneratedHumanoidAnimation(input: {
     expressionCue: input.expressionCue,
     emotionExpression: createHumanoidEmotionExpressionState(),
     ...(mixer ? { mixer } : {}),
+    ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
   };
   generatedHumanoidAnimationSlots.push(slot);
   generatedHumanoidAnimationSlotsByActorId.set(input.actorId, slot);
   generatedHumanoidActorSlotsByActorId.set(input.actorId, input.actorSlot);
   input.humanoid.userData.openClinXrAnimationPlayback = mixer
-    ? "gltf_animation_clips_playing"
+    ? activeRoleAnimationClipName
+      ? "gltf_role_animation_clip_playing"
+      : "gltf_animation_clips_playing"
     : "procedural_idle_breathing_fallback";
+  input.humanoid.userData.openClinXrRoleAnimationClipNames = input.roleAnimationClipNames;
+  input.humanoid.userData.openClinXrActiveRoleAnimationClipName = activeRoleAnimationClipName ?? null;
   if (input.actorId === runtimePatientActorId()) {
     window.requestAnimationFrame(() => {
       triggerHumanoidDialogue(input.actorId, dialogueLine.textContent?.trim() || initialDialogueText, {
@@ -6162,7 +6381,416 @@ function registerGeneratedHumanoidAnimation(input: {
       });
     });
   }
+  schedulePedsActorPlayerRuntimePlaybackIfReady();
   recordBootPhase(mixer ? "generated_humanoid_animation_clips_started" : "generated_humanoid_procedural_idle_started");
+}
+
+function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
+  if (pedsActorPlayerRuntimePlaybackScheduled || !isPediatricAsthmaRuntimeScenario()) {
+    return;
+  }
+  const turns = pedsActorPlayerRuntimeTurns();
+  const requiredActorIds = Array.from(new Set(turns.map((turn) => turn.actorId)));
+  if (!requiredActorIds.every((actorId) => generatedHumanoidAnimationSlotsByActorId.has(actorId))) {
+    recordPedsActorPlayerRuntimePlaybackEvidence({
+      scheduled: false,
+      turns,
+      latestTurnIndex: -1,
+      latestTurn: null,
+      latestTriggerSource: null,
+      latestTraceTag: null,
+      latestSequence: null,
+      latestSequenceStepIndex: -1,
+      latestListenerActorIds: [],
+      latestCoupledSignalIds: [],
+    });
+    return;
+  }
+  pedsActorPlayerRuntimePlaybackScheduled = true;
+  let turnIndex = 0;
+  const playNextTurn = (): void => {
+    const nowMs = performance.now();
+    if (nowMs - pedsActorPlayerRuntimePlaybackLastTraceAtMs < 3800 || nowMs < pedsActorPlayerRuntimeSequenceActiveUntilMs) {
+      return;
+    }
+    const turn = turns[turnIndex % turns.length];
+    if (!turn) return;
+    playPedsActorPlayerRuntimeTurn(turn, {
+      turns,
+      latestTurnIndex: turnIndex % turns.length,
+      latestTriggerSource: "scheduled_preview",
+      latestTraceTag: null,
+      latestSequence: null,
+      latestSequenceStepIndex: -1,
+    });
+    turnIndex += 1;
+  };
+  window.setTimeout(playNextTurn, 850);
+  window.setInterval(playNextTurn, 3200);
+  recordBootPhase("peds_actor_player_runtime_playback_scheduled");
+}
+
+function triggerPedsActorPlayerRuntimeTurnForTrace(traceTag: string): boolean {
+  if (!isPediatricAsthmaRuntimeScenario()) {
+    return false;
+  }
+  const turns = pedsActorPlayerRuntimeTurns();
+  const sequence = pedsActorPlayerRuntimeSequenceForTrace(traceTag, turns);
+  if (!sequence || sequence.turns.some((turn) => !generatedHumanoidAnimationSlotsByActorId.has(turn.actorId))) {
+    return false;
+  }
+  pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
+  pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (sequence.turns.length * 1250) + 2600;
+  playPedsActorPlayerRuntimeSequence(sequence, turns);
+  return true;
+}
+
+function pedsActorPlayerTurnForTraceTag(traceTag: string, turns = pedsActorPlayerRuntimeTurns()): PedsActorPlayerRuntimeTurn | undefined {
+  const bundleTurn = pedsActorPlayerTurnFromRuntimeBundleTrace(traceTag);
+  if (bundleTurn) {
+    return bundleTurn;
+  }
+  const traceToTurnId: Record<string, string> = {
+    inhaler_history: "turn_1_inhaler_history",
+    trigger_history: "turn_2_trigger_history",
+    work_of_breathing_assessment: "turn_0_work_of_breathing_assessment",
+    oxygen_request: "turn_3_oxygen_request",
+    parent_communication: "turn_6_parent_communication",
+    family_communication: "turn_6_parent_communication",
+    empathy_statement: "turn_7_empathy_statement",
+    reassessment: "turn_8_reassessment",
+    bronchodilator_plan: "turn_8_reassessment",
+  };
+  const turnId = traceToTurnId[traceTag];
+  return turnId ? turns.find((turn) => turn.turnId === turnId) : turns.find((turn) => turn.cue === traceTag);
+}
+
+function pedsActorPlayerRuntimeSequenceForTrace(
+  traceTag: string,
+  fallbackTurns = pedsActorPlayerRuntimeTurns(),
+): PedsActorPlayerRuntimeSequenceEvidence | undefined {
+  const bundleTurns = pedsActorPlayerBundleDialogueTurns();
+  const bundleSequenceTraceTags: Record<string, string[]> = {
+    oxygen_request: ["oxygen_request", "work_of_breathing_assessment"],
+    bronchodilator_plan: ["bronchodilator_plan", "empathy_statement"],
+    parent_communication: ["parent_communication", "empathy_statement"],
+    family_communication: ["parent_communication", "empathy_statement"],
+    inhaler_history: ["inhaler_history", "trigger_history"],
+    trigger_history: ["trigger_history", "inhaler_history"],
+  };
+  const requestedBundleTurns = (bundleSequenceTraceTags[traceTag] ?? [traceTag])
+    .map((candidateTraceTag) => bundleTurns.find((turn) => turn.cue === candidateTraceTag))
+    .filter((turn): turn is PedsActorPlayerRuntimeTurn => Boolean(turn));
+  const uniqueBundleTurns = dedupePedsActorPlayerRuntimeTurns(requestedBundleTurns);
+  if (uniqueBundleTurns.length > 0) {
+    return {
+      sequenceId: `bundle_sequence_${traceTag}`,
+      traceTag,
+      source: uniqueBundleTurns.length > 1 ? "bundle_dialogue_sequence" : "single_runtime_turn",
+      turns: uniqueBundleTurns,
+    };
+  }
+  const fallbackTurn = pedsActorPlayerTurnForTraceTag(traceTag, fallbackTurns);
+  return fallbackTurn
+    ? {
+      sequenceId: `fallback_sequence_${traceTag}`,
+      traceTag,
+      source: "single_runtime_turn",
+      turns: [fallbackTurn],
+    }
+    : undefined;
+}
+
+function dedupePedsActorPlayerRuntimeTurns(turns: PedsActorPlayerRuntimeTurn[]): PedsActorPlayerRuntimeTurn[] {
+  const seen = new Set<string>();
+  return turns.filter((turn) => {
+    const key = `${turn.actorId}:${turn.turnId}:${turn.cue}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
+  return (encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).map((runtimeTurn) => ({
+    actorId: runtimeTurn.actorId,
+    turnId: `bundle_${runtimeTurn.traceTag}`,
+    cue: runtimeTurn.traceTag,
+    text: runtimeTurn.text,
+    emotion: runtimeTurn.affectTimeline?.emotion
+      ? normalizePedsActorPlayerEmotion(runtimeTurn.affectTimeline.emotion)
+      : emotionForDialogueText(runtimeTurn.text),
+    gazeTargetKind: runtimeTurn.gazeTargetKind,
+    gazeTargetActorId: runtimeTurn.gazeTargetActorId,
+    roleAnimationClipName: roleAnimationClipNamesForActor(runtimeTurn.actorId)[0] ?? "",
+    source: "bundle_dialogue_turn",
+  }));
+}
+
+function pedsActorPlayerTurnFromRuntimeBundleTrace(traceTag: string): PedsActorPlayerRuntimeTurn | undefined {
+  return pedsActorPlayerBundleDialogueTurns().find((turn) => turn.cue === traceTag);
+}
+
+function normalizePedsActorPlayerEmotion(emotion: string): HumanoidExpressionEmotion {
+  const normalized = emotion.toLowerCase();
+  if (normalized.includes("pain") || normalized.includes("frightened")) return "pain";
+  if (normalized.includes("anxious")) return "anxious";
+  if (normalized.includes("concern")) return "concerned";
+  if (normalized.includes("reassur")) return "reassured";
+  return "neutral";
+}
+
+function playPedsActorPlayerRuntimeTurn(
+  turn: PedsActorPlayerRuntimeTurn,
+  input: {
+    turns: PedsActorPlayerRuntimeTurn[];
+    latestTurnIndex: number;
+    latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
+    latestTraceTag: string | null;
+    latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
+    latestSequenceStepIndex: number;
+  },
+): void {
+  for (const slot of generatedHumanoidAnimationSlots) {
+    if (slot.actorId !== turn.actorId) {
+      slot.activeSpeech = undefined;
+      slot.mouthCue.visible = false;
+      slot.gazeCue.visible = false;
+      slot.eyeFocusCue.visible = false;
+      slot.expressionCue.visible = false;
+    }
+  }
+  const activeSlot = generatedHumanoidAnimationSlotsByActorId.get(turn.actorId);
+  if (activeSlot) {
+    delete activeSlot.root.userData.openClinXrSequenceListeningCue;
+  }
+  const nowMs = performance.now();
+  const listenerCue = applyPedsActorPlayerSequenceListenerCues(turn, input.latestSequence, nowMs);
+  triggerHumanoidDialogue(turn.actorId, turn.text, {
+    kind: turn.gazeTargetKind,
+    actorId: turn.gazeTargetActorId,
+  }, turn.emotion);
+  recordPedsActorPlayerRuntimePlaybackEvidence({
+    scheduled: pedsActorPlayerRuntimePlaybackScheduled,
+    turns: input.turns,
+    latestTurnIndex: input.latestTurnIndex,
+    latestTurn: turn,
+    latestTriggerSource: input.latestTriggerSource,
+    latestTraceTag: input.latestTraceTag,
+    latestSequence: input.latestSequence,
+    latestSequenceStepIndex: input.latestSequenceStepIndex,
+    latestListenerActorIds: listenerCue.actorIds,
+    latestCoupledSignalIds: listenerCue.coupledSignalIds,
+  });
+  dialogueLine.textContent = turn.text;
+}
+
+function applyPedsActorPlayerSequenceListenerCues(
+  activeTurn: PedsActorPlayerRuntimeTurn,
+  sequence: PedsActorPlayerRuntimeSequenceEvidence | null,
+  nowMs: number,
+): { actorIds: string[]; coupledSignalIds: string[] } {
+  if (!sequence || sequence.turns.length <= 1) {
+    return { actorIds: [], coupledSignalIds: [] };
+  }
+  const activeActorSlot = generatedHumanoidActorSlotsByActorId.get(activeTurn.actorId);
+  if (!activeActorSlot) {
+    return { actorIds: [], coupledSignalIds: [] };
+  }
+  const targetWorld = activeActorSlot.getWorldPosition(new Vector3());
+  targetWorld.y += 1.18;
+  const listenerActorIds = Array.from(new Set(sequence.turns
+    .map((turn) => turn.actorId)
+    .filter((actorId) => actorId !== activeTurn.actorId)));
+  const coupledSignalIds = [
+    "sequence_listener_gaze_to_active_speaker",
+    "sequence_listener_expression_residual",
+    "sequence_listener_body_attention_shift",
+  ];
+  for (const listenerActorId of listenerActorIds) {
+    const slot = generatedHumanoidAnimationSlotsByActorId.get(listenerActorId);
+    if (!slot || slot.activeSpeech) {
+      continue;
+    }
+    const gazeOrigin = new Vector3(0, 1.57, 0.29);
+    const targetLocal = slot.root.worldToLocal(targetWorld.clone());
+    const boundedTarget = targetLocal.sub(gazeOrigin).clampLength(0.35, 1.15).add(gazeOrigin);
+    slot.gazeCue.geometry.setFromPoints([gazeOrigin, boundedTarget]);
+    slot.gazeCue.visible = true;
+    orientHumanoidEyeFocusCue(slot, gazeOrigin, boundedTarget);
+    orientHumanoidTowardGazeTarget(slot, targetWorld);
+    startHumanoidEmotionTransition(slot, listenerEmotionForSequence(activeTurn), nowMs);
+    const expressionState = updateHumanoidEmotionExpression(slot, nowMs);
+    slot.expressionCue.visible = true;
+    slot.expressionCue.scale.set(1 + expressionState.weights.cheekTension * 0.12, 1 + expressionState.weights.browConcern * 0.09, 1);
+    applyHumanoidMorphTargetCue(slot, 0.025, "rest", expressionState.weights);
+    slot.root.userData.openClinXrSequenceListeningCue = {
+      activeSpeakerActorId: activeTurn.actorId,
+      sequenceId: sequence.sequenceId,
+      traceTag: sequence.traceTag,
+      listenerEmotion: expressionState.targetEmotion,
+      cueIds: coupledSignalIds,
+      notEvidenceFor: "production social gaze, clinical communication scoring, or motion-capture realism",
+    };
+  }
+  return { actorIds: listenerActorIds, coupledSignalIds };
+}
+
+function listenerEmotionForSequence(activeTurn: PedsActorPlayerRuntimeTurn): HumanoidExpressionEmotion {
+  if (activeTurn.emotion === "pain" || activeTurn.emotion === "anxious") {
+    return "concerned";
+  }
+  if (activeTurn.emotion === "reassured") {
+    return "reassured";
+  }
+  return "concerned";
+}
+
+function playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequenceEvidence, fallbackTurns: PedsActorPlayerRuntimeTurn[]): void {
+  sequence.turns.forEach((turn, stepIndex) => {
+    window.setTimeout(() => {
+      playPedsActorPlayerRuntimeTurn(turn, {
+        turns: fallbackTurns,
+        latestTurnIndex: fallbackTurns.findIndex((fallbackTurn) => fallbackTurn.turnId === turn.turnId && fallbackTurn.actorId === turn.actorId),
+        latestTriggerSource: "trace_action",
+        latestTraceTag: sequence.traceTag,
+        latestSequence: sequence,
+        latestSequenceStepIndex: stepIndex,
+      });
+    }, stepIndex * 1150);
+  });
+}
+
+function pedsActorPlayerRuntimeTurns(): PedsActorPlayerRuntimeTurn[] {
+  return [
+    {
+      actorId: "patient_maya_johnson_v1",
+      turnId: "turn_1_inhaler_history",
+      cue: "inhaler_history",
+      text: "Maya: It feels tight when I breathe.",
+      emotion: "pain",
+      gazeTargetKind: "learner_camera",
+      gazeTargetActorId: null,
+      roleAnimationClipName: "openclinxr_role_patient_asthma_breathing_effort",
+      source: "actor_player_sample_fallback",
+    },
+    {
+      actorId: "parent_tara_johnson_v1",
+      turnId: "turn_6_parent_communication",
+      cue: "parent_communication",
+      text: "Tara: I am really worried about Maya's breathing.",
+      emotion: "anxious",
+      gazeTargetKind: "actor",
+      gazeTargetActorId: "patient_maya_johnson_v1",
+      roleAnimationClipName: "openclinxr_role_parent_anxious_fidget_guard",
+      source: "actor_player_sample_fallback",
+    },
+    {
+      actorId: "nurse_kevin_lee_v1",
+      turnId: "turn_0_work_of_breathing_assessment",
+      cue: "work_of_breathing_assessment",
+      text: "Kevin: I am watching her breathing effort and will call out any change.",
+      emotion: "concerned",
+      gazeTargetKind: "actor",
+      gazeTargetActorId: "patient_maya_johnson_v1",
+      roleAnimationClipName: "openclinxr_role_nurse_clinical_check_reassure",
+      source: "actor_player_sample_fallback",
+    },
+    {
+      actorId: "nurse_kevin_lee_v1",
+      turnId: "turn_3_oxygen_request",
+      cue: "oxygen_request",
+      text: "Kevin: I am starting oxygen and keeping her positioned upright.",
+      emotion: "concerned",
+      gazeTargetKind: "actor",
+      gazeTargetActorId: "patient_maya_johnson_v1",
+      roleAnimationClipName: "openclinxr_role_nurse_clinical_check_reassure",
+      source: "actor_player_sample_fallback",
+    },
+    {
+      actorId: "parent_tara_johnson_v1",
+      turnId: "turn_7_empathy_statement",
+      cue: "empathy_statement",
+      text: "Tara: Please tell me what is happening and what you need me to do.",
+      emotion: "anxious",
+      gazeTargetKind: "learner_camera",
+      gazeTargetActorId: null,
+      roleAnimationClipName: "openclinxr_role_parent_anxious_fidget_guard",
+      source: "actor_player_sample_fallback",
+    },
+    {
+      actorId: "patient_maya_johnson_v1",
+      turnId: "turn_8_reassessment",
+      cue: "reassessment",
+      text: "Maya: It is a little easier when I sit up.",
+      emotion: "reassured",
+      gazeTargetKind: "learner_camera",
+      gazeTargetActorId: null,
+      roleAnimationClipName: "openclinxr_role_patient_asthma_breathing_effort",
+      source: "actor_player_sample_fallback",
+    },
+  ];
+}
+
+function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
+  scheduled: boolean;
+  turns: PedsActorPlayerRuntimeTurn[];
+  latestTurnIndex: number;
+  latestTurn: PedsActorPlayerRuntimeTurn | null;
+  latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
+  latestTraceTag: string | null;
+  latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
+  latestSequenceStepIndex: number;
+  latestListenerActorIds: string[];
+  latestCoupledSignalIds: string[];
+}): void {
+  const bundleDialogueTurnCount = encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.length ?? 0;
+  window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence = {
+    source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples",
+    sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
+    scheduled: input.scheduled,
+    actorCount: Array.from(new Set(input.turns.map((turn) => turn.actorId))).length,
+    turnCount: input.turns.length,
+    bundleDialogueTurnCount,
+    fallbackTurnCount: input.turns.length,
+    latestTurnIndex: input.latestTurnIndex,
+    latestActorId: input.latestTurn?.actorId ?? null,
+    latestTurnId: input.latestTurn?.turnId ?? null,
+    latestCue: input.latestTurn?.cue ?? null,
+    latestEmotion: input.latestTurn?.emotion ?? null,
+    latestRoleAnimationClipName: input.latestTurn?.roleAnimationClipName ?? null,
+    latestTurnSource: input.latestTurn?.source ?? null,
+    latestTriggerSource: input.latestTriggerSource,
+    latestTraceTag: input.latestTraceTag,
+    latestSequenceId: input.latestSequence?.sequenceId ?? null,
+    latestSequenceSource: input.latestSequence?.source ?? null,
+    latestSequenceStepIndex: input.latestSequenceStepIndex,
+    latestSequenceTurnCount: input.latestSequence?.turns.length ?? 0,
+    latestSequenceActorIds: input.latestSequence
+      ? Array.from(new Set(input.latestSequence.turns.map((turn) => turn.actorId)))
+      : [],
+    latestListenerActorIds: input.latestListenerActorIds,
+    latestCoupledSignalIds: input.latestCoupledSignalIds,
+    activeGeneratedActorSlotCount: generatedHumanoidAnimationSlotsByActorId.size,
+    activeHumanoidSpeechEvidenceActorId: window.__openClinXrHumanoidSpeechEvidence?.activeActorId ?? null,
+    scenePlacementEvidenceAllowed: false,
+    learnerLaunchAllowed: false,
+    questEvidenceRefreshAllowed: false,
+    productionAssetReadinessClaimed: false,
+    clinicalValidityClaimed: false,
+    scoringValidityClaimed: false,
+    claimBoundary: "local_actor_player_runtime_preview_not_readiness",
+    notEvidenceFor: [
+      "scene_placement_readiness",
+      "learner_launch_readiness",
+      "quest_readiness",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity",
+    ],
+  };
 }
 
 function hasAuthoredClinicalIdlePoseClip(animationClips: unknown[]): boolean {
@@ -7291,6 +7919,8 @@ function loadGeneratedEquipmentIntoSceneSlot(
 ): void {
   const primitiveFallbackChildren = [...sceneSlot.children];
   const primitiveFallbackVisible = shouldShowPrimitiveAssetFallbacks();
+  runtimeEquipmentSlotsByAssetId.set(options.assetId, sceneSlot);
+  sceneSlot.userData.openClinXrRuntimeEquipmentAssetId = options.assetId;
   addPediatricRespiratoryEquipmentCues(sceneSlot, options.assetId);
   for (const child of primitiveFallbackChildren) {
     child.visible = primitiveFallbackVisible;
@@ -7334,6 +7964,9 @@ function loadGeneratedEquipmentIntoSceneSlot(
         child.visible = false;
       }
       sceneSlot.add(equipment);
+      if (window.__openClinXrEnvironmentStateEvidence) {
+        applyRuntimeEquipmentTraceVisuals(window.__openClinXrEnvironmentStateEvidence);
+      }
       recordSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
@@ -7510,6 +8143,10 @@ function updateManualEvidencePanel(): string {
     formatHumanoidSpeechAffectEvidence(window.__openClinXrHumanoidSpeechEvidence ?? null),
     formatCaseDefinedHumanoidPerformanceContractEvidence(window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null),
   ].join(" | ");
+  evidenceActorPlayer.textContent = formatActorPlayerRuntimeMetadataSummary(
+    window.__openClinXrActorPlayerRuntimeMetadataSummary ?? null,
+    window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
+  );
   evidenceLocomotion.textContent = [
     formatPortalTransitionEvidence(window.__openClinXrPortalTransitionEvidence ?? null),
     summary.activeLocomotionSource ?? "none",
@@ -7552,11 +8189,13 @@ function updateManualEvidencePanel(): string {
     environmentStateEvidence: window.__openClinXrEnvironmentStateEvidence ?? null,
     humanoidSpeechEvidence: window.__openClinXrHumanoidSpeechEvidence ?? null,
     caseDefinedHumanoidPerformanceContractEvidence: window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence ?? null,
+    actorPlayerRuntimeMetadataSummary: window.__openClinXrActorPlayerRuntimeMetadataSummary ?? null,
     examineeLocomotionEvidence: window.__openClinXrExamineeLocomotionEvidence ?? null,
     runtimeInteractionEvidence: latestRuntimeInteractionEvidence,
     traceInteractionEvidenceSummary: window.__openClinXrTraceInteractionEvidenceSummary ?? null,
     }),
     portalTransitionEvidence: window.__openClinXrPortalTransitionEvidence ?? null,
+    pedsActorPlayerRuntimePlaybackEvidence: window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence ?? null,
     examFlowEvidence: window.__openClinXrExamFlowEvidence ?? null,
     examRunSummaryEvidence: window.__openClinXrExamRunSummaryEvidence ?? null,
   }, null, 2);
@@ -7573,6 +8212,10 @@ function formatSceneAssetEvidenceStatus(evidence: SceneAssetEvidence | null): st
     evidence.failedCount === 0 ? "no load failures" : `${evidence.failedCount} failed`,
     evidence.fallbackActiveCount === 0 ? "no fallbacks active" : `${evidence.fallbackActiveCount} fallbacks active`,
     `${evidence.assets.reduce((count, asset) => count + (asset.affordanceCueIds?.length ?? 0), 0)} affordance cues`,
+    `${evidence.assets.filter((asset) => asset.animationPlayback === "gltf_role_animation_clip_playing").length} role clips active`,
+    ...evidence.assets
+      .filter((asset) => asset.activeRoleAnimationClipName)
+      .map((asset) => `${asset.sceneObjectName} ${asset.activeRoleAnimationClipName}`),
   ].join(" | ");
 }
 
@@ -7649,6 +8292,42 @@ function formatCaseDefinedHumanoidPerformanceContractEvidence(evidence: CaseDefi
     evidence.claimBoundary,
     `not readiness ${evidence.notEvidenceFor.join(",")}`,
   ].join(" | ");
+}
+
+function formatActorPlayerRuntimeMetadataSummary(
+  evidence: ActorPlayerRuntimeMetadataSummary | null,
+  playback: PedsActorPlayerRuntimePlaybackEvidence | null = null,
+): string {
+  if (!evidence) {
+    return "actor-player metadata pending";
+  }
+  const actorRows = evidence.actorSummaries
+    .map((actor) => {
+      const clips = actor.roleAnimationClipNames?.length ? ` clips ${actor.roleAnimationClipNames.join(",")}` : "";
+      return `${actor.actorId} ${actor.turnCount}t/${actor.sampleCount}s ${actor.sceneExecutionStatus}${clips}`;
+    })
+    .join("; ");
+  const blockers = Array.from(new Set(evidence.actorSummaries.flatMap((actor) => actor.blockerIds))).join(",");
+  return [
+    "review-only actor-player metadata",
+    evidence.executionMode,
+    `${evidence.actorCount} actors`,
+    `${evidence.projectedTurnCount} turns`,
+    `${evidence.projectedSampleCount} samples`,
+    actorRows,
+    `source ${evidence.sourceArtifactPath}`,
+    playback?.scheduled
+      ? `live preview ${playback.latestTriggerSource ?? "pending"} ${playback.latestTraceTag ?? "no-trace"} ${playback.latestTurnSource ?? "unknown-source"} ${playback.latestActorId ?? "pending"} ${playback.latestCue ?? "pending"} emotion ${playback.latestEmotion ?? "pending"} ${playback.latestRoleAnimationClipName ?? "no-role-clip"} sequence ${playback.latestSequenceSource ?? "none"} ${playback.latestSequenceStepIndex + 1}/${playback.latestSequenceTurnCount || 0} actors ${playback.latestSequenceActorIds.join(",") || "none"} listeners ${playback.latestListenerActorIds.join(",") || "none"} coupled ${playback.latestCoupledSignalIds.join(",") || "none"} bundle ${playback.bundleDialogueTurnCount} fallback ${playback.fallbackTurnCount}`
+      : "live preview pending",
+    `blocked ${blockers || "none"}`,
+    evidence.claimBoundary,
+    playback?.claimBoundary ?? "local_actor_player_runtime_preview_not_started",
+    `not readiness ${evidence.notEvidenceFor.join(",")}`,
+  ].join(" | ");
+}
+
+function roleAnimationClipNamesForActor(actorId: string): string[] {
+  return window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)?.roleAnimationClipNames ?? [];
 }
 
 function formatLocomotionDiagnosticSummary(

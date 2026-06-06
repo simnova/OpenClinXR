@@ -46,21 +46,25 @@ const apiConcretePersistenceDependencies = [
 const productionAppRoots = ["apps/api/", "apps/ui-admin/", "apps/ui-xr/"] as const;
 const capabilityArenaAppRoots = [
   "apps/arena/api-python-backend/",
+  "apps/arena/model-vetting-studio/",
   "apps/arena/mock-realtime-voice-server/",
   "apps/arena/ui-quest-voice-godot/",
   "apps/arena/ui-xr-iwsdk-spike/",
 ] as const;
 const packageBackedCapabilityArenaAppRoots = [
   "apps/arena/api-python-backend/",
+  "apps/arena/model-vetting-studio/",
   "apps/arena/mock-realtime-voice-server/",
   "apps/arena/ui-xr-iwsdk-spike/",
 ] as const;
 const capabilityArenaPackageRoots = [
   "packages/openclinxr/arena/iwsdk-spike/",
+  "packages/openclinxr/arena/model-vetting/",
   "packages/openclinxr/arena/multi-actor-state-spike/",
 ] as const;
 const capabilityArenaPackages = [
   "@openclinxr/iwsdk-spike",
+  "@openclinxr/model-vetting",
   "@openclinxr/multi-actor-state-spike",
 ] as const;
 const nonProductionSupportPackages = [
@@ -583,12 +587,14 @@ describe("workspace architecture rules", () => {
     expect(arenaAppPaths.sort()).toEqual([
       "apps/arena/api-python-backend/",
       "apps/arena/mock-realtime-voice-server/",
+      "apps/arena/model-vetting-studio/",
       "apps/arena/ui-quest-voice-godot/",
       "apps/arena/ui-xr-iwsdk-spike/",
     ]);
     expect(arenaManifestPaths.sort()).toEqual([
       "apps/arena/api-python-backend/package.json",
       "apps/arena/mock-realtime-voice-server/package.json",
+      "apps/arena/model-vetting-studio/package.json",
       "apps/arena/ui-xr-iwsdk-spike/package.json",
     ]);
   });
@@ -605,6 +611,7 @@ describe("workspace architecture rules", () => {
 
     expect(arenaPackageManifestPaths.sort()).toEqual([
       "packages/openclinxr/arena/iwsdk-spike/package.json",
+      "packages/openclinxr/arena/model-vetting/package.json",
       "packages/openclinxr/arena/multi-actor-state-spike/package.json",
     ]);
     expect(misplacedSpikeManifestPaths).toEqual([]);
@@ -632,6 +639,14 @@ describe("workspace architecture rules", () => {
           "0021-local-first-no-cloud-implementation-spikes.md",
           "0022-local-llm-runtime-and-model-tiering.md",
           "0023-vibevoice-as-local-voice-candidate.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/model-vetting-studio/README.md",
+        decisions: [
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
         ],
       },
       {
@@ -671,6 +686,14 @@ describe("workspace architecture rules", () => {
       {
         readmePath: "packages/openclinxr/arena/iwsdk-spike/README.md",
         decisions: [
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/arena/model-vetting/README.md",
+        decisions: [
+          "0021-local-first-no-cloud-implementation-spikes.md",
           "0027-quest3-usb-webxr-smoke-gate.md",
           "0028-iwsdk-sidecar-spike.md",
         ],

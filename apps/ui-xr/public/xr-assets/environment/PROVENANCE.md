@@ -6,3 +6,9 @@
   - Purpose: deterministic ED exam bay shell candidate for local WebXR visual iteration.
   - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence.
   - External assets used: false.
+- `pediatric_urgent_care_bay_environment.glb`
+  - SHA-256: `9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62`
+  - Source: repo-authored local Blender primitive fixture generated for the public UI-XR runtime path after browser evidence showed the peds bundle referenced a missing environment GLB.
+  - Purpose: deterministic pediatric urgent-care bay continuity shell for local UI-XR runtime import and review-safe scene context.
+  - Boundaries: not production environment readiness, not Quest readiness, not clinical visual validity, not scoring evidence.
+  - External assets used: false.

@@ -635,11 +635,44 @@ export type ManualPerformanceEvidencePayload = {
   environmentStateEvidence: EnvironmentStateEvidence | null;
   humanoidSpeechEvidence: HumanoidSpeechEvidence | null;
   caseDefinedHumanoidPerformanceContractEvidence: CaseDefinedHumanoidPerformanceContractEvidence | null;
+  actorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | null;
   examineeLocomotionEvidence: ExamineeLocomotionEvidence | null;
   runtimeInteractionEvidence: RuntimeInteractionEvidence | null;
   traceInteractionEvidenceSummary: XrTraceInteractionEvidenceSummary | null;
   runtimeVisualEvidenceCaptureScaffold: RuntimeVisualEvidenceCaptureScaffold | null;
   runtimeEvidenceConsumerReadiness: RuntimeEvidenceConsumerReadiness | null;
+};
+
+export type ActorPlayerRuntimeMetadataSummary = {
+  source: "model_vetting_actor_player_runtime_evidence";
+  sourceArtifactPath: string;
+  executionMode: "local_deterministic_non_scene";
+  actorCount: number;
+  projectedTurnCount: number;
+  projectedSampleCount: number;
+  actorSummaries: Array<{
+    actorId: string;
+    turnCount: number;
+    sampleCount: number;
+    roleAnimationClipNames?: string[];
+    sceneExecutionStatus: "not_scene_executed";
+    blockerIds: string[];
+  }>;
+  providerExecutionPerformed: false;
+  runtimeExecutionAllowed: false;
+  learnerLaunchAllowed: false;
+  scenePlacementEvidenceAllowed: false;
+  claimBoundary: "ui_xr_actor_player_metadata_only_not_runtime_execution";
+  notEvidenceFor: Array<
+    | "real_anny_model_output"
+    | "b_plus_visual_realism_gate"
+    | "scene_placement_readiness"
+    | "quest_readiness"
+    | "production_asset_readiness"
+    | "learner_readiness"
+    | "clinical_validity"
+    | "scoring_validity"
+  >;
 };
 
 export type RuntimeVisualEvidenceAttachmentCandidate = {
@@ -726,6 +759,7 @@ export type RuntimeVisualEvidenceCaptureScaffold = {
   status: "metadata_only_attachment_candidates_not_submitted";
   runtimeEvidenceCandidateCount: number;
   visualQaEvidenceCandidateCount: number;
+  actorPlayerRuntimeMetadataSummary?: ActorPlayerRuntimeMetadataSummary | null;
   attachmentCandidates: RuntimeVisualEvidenceAttachmentCandidate[];
   submitRuntimeVisualEvidenceAttachmentInput: RuntimeVisualEvidenceAttachmentSubmitInput;
   providerExecutionAllowed: false;
@@ -748,6 +782,7 @@ export type RuntimeEvidenceConsumerReadiness = {
   attachmentCount: number;
   runtimeEvidenceAttachmentCount: number;
   visualQaEvidenceAttachmentCount: number;
+  actorPlayerRuntimeMetadataSummary?: ActorPlayerRuntimeMetadataSummary | null;
   targetRoute: "/runtime/visual-evidence-attachments";
   submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput";
   submitPreview: {
@@ -987,13 +1022,16 @@ export type SceneAssetEvidence = {
     status: "pending" | "loaded" | "failed";
     fallbackActive: boolean;
     affordanceCueIds?: string[];
-    animationPlayback?: "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
+    animationPlayback?: "gltf_role_animation_clip_playing" | "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
+    roleAnimationClipNames?: string[];
+    activeRoleAnimationClipName?: string | null;
     humanoidSourceProvenance?: {
-      generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_plus_blender" | "fixture" | "candidate";
-      sourceKind: "case_driven_generated_humanoid_candidate" | "runtime_fixture" | "source_comparator_candidate";
+      generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_local_forward_pass_plus_blender_procedural" | "real_anny_plus_blender" | "fixture" | "candidate";
+      sourceKind: "case_driven_generated_humanoid_candidate" | "real_anny_candidate_unverified" | "runtime_fixture" | "source_comparator_candidate";
+      usesRealAnnyForwardPass?: boolean;
       realAnnyWeightsUsed: boolean;
       textureMode: "procedural_fallback" | "authored_or_baked" | "unknown";
-      animationMode: "procedural_animation_fallback" | "authored_animation_clips" | "unknown";
+      animationMode: "procedural_animation_fallback" | "procedural_clinical_idle_conversation_posture_fallback" | "authored_animation_clips" | "unknown";
       realismGrade: "B" | "B+" | "not_graded";
       provenanceManifestPath?: string;
       notEvidenceFor: string[];
@@ -2126,6 +2164,7 @@ export function buildManualPerformanceEvidencePayload(input: {
   examineeLocomotionEvidence?: ExamineeLocomotionEvidence | null | undefined;
   runtimeInteractionEvidence?: RuntimeInteractionEvidence | null | undefined;
   traceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary | null | undefined;
+  actorPlayerRuntimeMetadataSummary?: ActorPlayerRuntimeMetadataSummary | null | undefined;
 }): ManualPerformanceEvidencePayload {
   const payloadWithoutScaffold = {
     manualPerformanceDraft: input.manualPerformanceDraft,
@@ -2142,6 +2181,7 @@ export function buildManualPerformanceEvidencePayload(input: {
     examineeLocomotionEvidence: input.examineeLocomotionEvidence ?? null,
     runtimeInteractionEvidence: input.runtimeInteractionEvidence ?? null,
     traceInteractionEvidenceSummary: input.traceInteractionEvidenceSummary ?? null,
+    actorPlayerRuntimeMetadataSummary: input.actorPlayerRuntimeMetadataSummary ?? null,
   };
   const runtimeVisualEvidenceCaptureScaffold = buildRuntimeVisualEvidenceCaptureScaffold(payloadWithoutScaffold);
   return {
@@ -2362,6 +2402,7 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
     status: "metadata_only_attachment_candidates_not_submitted",
     runtimeEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "runtime_realism_signal_input").length,
     visualQaEvidenceCandidateCount: attachmentCandidates.filter((candidate) => candidate.inputKind === "visual_qa_review_input").length,
+    actorPlayerRuntimeMetadataSummary: input.actorPlayerRuntimeMetadataSummary ?? null,
     attachmentCandidates,
     submitRuntimeVisualEvidenceAttachmentInput: {
       scenarioId,
@@ -2396,6 +2437,7 @@ export function buildRuntimeEvidenceConsumerReadiness(
     attachmentCount: attachments.length,
     runtimeEvidenceAttachmentCount: scaffold?.runtimeEvidenceCandidateCount ?? 0,
     visualQaEvidenceAttachmentCount: scaffold?.visualQaEvidenceCandidateCount ?? 0,
+    actorPlayerRuntimeMetadataSummary: scaffold?.actorPlayerRuntimeMetadataSummary ?? null,
     targetRoute: "/runtime/visual-evidence-attachments",
     submitBodyRef: "runtimeVisualEvidenceCaptureScaffold.submitRuntimeVisualEvidenceAttachmentInput",
     submitPreview: {

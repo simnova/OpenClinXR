@@ -40,6 +40,7 @@ then this script) for the "character-generation" / "role_specific_humanoid_glb" 
 """
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -215,8 +216,73 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
     arm_obj.select_set(True)
     bpy.context.view_layer.objects.active = arm_obj
     bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+    ensure_deterministic_skinning_fallback(mesh_obj, arm_obj)
 
     return arm_obj
+
+
+def ensure_deterministic_skinning_fallback(mesh_obj: bpy.types.Object, arm_obj: bpy.types.Object) -> None:
+    """
+    Keep smooth local source meshes exportable as skinned GLBs even when Blender's
+    bone-heat automatic weighting cannot solve a fallback topology. This is a
+    deterministic local skinning fallback, not production deformation quality.
+    """
+    if not any(mod.type == "ARMATURE" and mod.object == arm_obj for mod in mesh_obj.modifiers):
+        mod = mesh_obj.modifiers.new("openclinxr_canonical_humanoid_armature", "ARMATURE")
+        mod.object = arm_obj
+    mesh_obj.parent = arm_obj
+
+    bone_names = [bone.name for bone in arm_obj.data.bones]
+    groups = {name: mesh_obj.vertex_groups.get(name) or mesh_obj.vertex_groups.new(name=name) for name in bone_names}
+    for group in groups.values():
+        try:
+            group.remove(range(len(mesh_obj.data.vertices)))
+        except RuntimeError:
+            pass
+
+    ys = [vertex.co.y for vertex in mesh_obj.data.vertices]
+    xs = [vertex.co.x for vertex in mesh_obj.data.vertices]
+    min_y, max_y = min(ys), max(ys)
+    min_x, max_x = min(xs), max(xs)
+    height = max(max_y - min_y, 0.001)
+    width = max(max_x - min_x, 0.001)
+
+    def add_weight(vertex_index: int, bone_name: str, weight: float) -> None:
+        group = groups.get(bone_name)
+        if group and weight > 0:
+            group.add([vertex_index], min(1.0, max(0.0, weight)), "ADD")
+
+    for vertex in mesh_obj.data.vertices:
+        y_norm = (vertex.co.y - min_y) / height
+        x_norm = (vertex.co.x - min_x) / width
+        side = ".L" if x_norm >= 0.5 else ".R"
+        abs_x = abs(vertex.co.x)
+        if y_norm > 0.82:
+            add_weight(vertex.index, "head", 0.82)
+            add_weight(vertex.index, "neck", 0.18)
+        elif y_norm > 0.68:
+            add_weight(vertex.index, "chest", 0.70)
+            add_weight(vertex.index, "neck", 0.30)
+        elif y_norm > 0.52:
+            if abs_x > width * 0.20:
+                add_weight(vertex.index, f"upper_arm{side}", 0.72)
+                add_weight(vertex.index, "chest", 0.28)
+            else:
+                add_weight(vertex.index, "spine", 0.55)
+                add_weight(vertex.index, "chest", 0.45)
+        elif y_norm > 0.34:
+            if abs_x > width * 0.20:
+                add_weight(vertex.index, f"forearm{side}", 0.75)
+                add_weight(vertex.index, f"upper_arm{side}", 0.25)
+            else:
+                add_weight(vertex.index, "pelvis", 0.55)
+                add_weight(vertex.index, "spine", 0.45)
+        elif y_norm > 0.14:
+            add_weight(vertex.index, f"thigh{side}", 0.72)
+            add_weight(vertex.index, f"shin{side}", 0.28)
+        else:
+            add_weight(vertex.index, f"shin{side}", 0.62)
+            add_weight(vertex.index, f"foot{side}", 0.38)
 
 
 def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, Any] | None = None) -> None:
@@ -270,6 +336,155 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
         kb["anxious"].value = min(0.45, anxious)
 
 
+def add_auditable_face_gaze_controls(phenotype: Dict[str, Any]) -> None:
+    """Create lightweight exported nodes the GLB preflight can audit for face/gaze/blink control presence."""
+    control_specs = [
+        ("openclinxr_face_control", (0.0, 0.21, 1.62)),
+        ("openclinxr_gaze_control", (0.0, 0.28, 1.68)),
+        ("openclinxr_blink_control", (0.0, 0.24, 1.69)),
+    ]
+    for name, location in control_specs:
+        empty = bpy.data.objects.new(name, None)
+        empty.empty_display_type = "SPHERE"
+        empty.empty_display_size = 0.025
+        empty.location = location
+        empty["openclinxr_control_kind"] = name.replace("openclinxr_", "")
+        empty["phenotype_hash"] = hashlib.sha256(json.dumps(phenotype, sort_keys=True).encode("utf-8")).hexdigest()
+        bpy.context.collection.objects.link(empty)
+
+
+def add_clinical_animation_clips(mesh_obj: bpy.types.Object, arm_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> List[str]:
+    """Add deterministic clinical idle/conversation/posture clips as NLA strips for GLB export/preflight."""
+    clip_names = [
+        "openclinxr_clinical_idle_breathing",
+        "openclinxr_conversation_listen_nod",
+        "openclinxr_posture_shift_standing",
+    ]
+    bpy.context.view_layer.objects.active = arm_obj
+    bpy.ops.object.mode_set(mode="POSE")
+    arm_obj.animation_data_create()
+    anxious = float(phenotype.get("anxious", 0.25))
+    role_tension = 1.25 if "parent" in actor_role else 0.85
+
+    def set_pose(frame: int, chest_x: float, head_x: float, head_z: float, hand_l_z: float, hand_r_z: float, extra_rotations: Dict[str, tuple] | None = None) -> None:
+        bpy.context.scene.frame_set(frame)
+        rotations = [
+            ("chest", (chest_x, 0.0, 0.0)),
+            ("head", (head_x, 0.0, head_z)),
+            ("hand.L", (0.0, 0.0, hand_l_z)),
+            ("hand.R", (0.0, 0.0, hand_r_z)),
+        ]
+        for bone_name, rotation in (extra_rotations or {}).items():
+            rotations.append((bone_name, rotation))
+        for bone_name, rotation in rotations:
+            bone = arm_obj.pose.bones.get(bone_name)
+            if bone:
+                bone.rotation_mode = "XYZ"
+                bone.rotation_euler = rotation
+                bone.keyframe_insert("rotation_euler", frame=frame)
+
+    clip_specs = [
+        ("openclinxr_clinical_idle_breathing", [(1, 0.00, 0.00, 0.00, 0.00, 0.00), (24, 0.018, -0.006, 0.0, 0.00, 0.00), (48, 0.00, 0.00, 0.00, 0.00, 0.00)]),
+        ("openclinxr_conversation_listen_nod", [(1, 0.00, 0.00, -0.02, 0.01, -0.01), (18, 0.00, 0.05, 0.02, 0.02, -0.02), (36, 0.00, -0.02, -0.01, 0.01, -0.01), (54, 0.00, 0.00, 0.00, 0.00, 0.00)]),
+        ("openclinxr_posture_shift_standing", [(1, 0.0, 0.00, 0.00, 0.0, 0.0), (30, 0.025 * role_tension, 0.015 * anxious, 0.02, 0.05, -0.04), (60, -0.015, -0.01, -0.015, -0.02, 0.02), (90, 0.0, 0.00, 0.00, 0.0, 0.0)]),
+    ]
+    role_specific_clip = role_specific_clip_spec(actor_role, anxious, role_tension)
+    clip_specs.append(role_specific_clip)
+
+    for clip_name, poses in clip_specs:
+        action = bpy.data.actions.new(clip_name)
+        arm_obj.animation_data.action = action
+        for pose in poses:
+            set_pose(*pose)
+        track = arm_obj.animation_data.nla_tracks.new()
+        track.name = clip_name
+        track.strips.new(clip_name, int(poses[0][0]), action)
+        track.lock = True
+        track.mute = False
+
+    if mesh_obj.data.shape_keys:
+        mesh_obj.data.shape_keys.animation_data_create()
+        shape_action = bpy.data.actions.new("openclinxr_conversation_expression_morphs")
+        mesh_obj.data.shape_keys.animation_data.action = shape_action
+        key_blocks = mesh_obj.data.shape_keys.key_blocks
+        for frame, mouth_open, brow, cheek in [(1, 0.0, anxious * 0.2, anxious * 0.2), (16, 0.55, anxious * 0.35, anxious * 0.35), (32, 0.1, anxious * 0.25, anxious * 0.25)]:
+            bpy.context.scene.frame_set(frame)
+            for key_name, value in [
+                ("openclinxr_mouth_open", mouth_open),
+                ("openclinxr_brow_concern", brow),
+                ("openclinxr_cheek_tension", cheek),
+                ("eye_blink_l", 1.0 if frame == 16 else 0.0),
+                ("eye_blink_r", 1.0 if frame == 16 else 0.0),
+            ]:
+                if key_name in key_blocks:
+                    key_blocks[key_name].value = value
+                    key_blocks[key_name].keyframe_insert("value", frame=frame)
+        track = mesh_obj.data.shape_keys.animation_data.nla_tracks.new()
+        track.name = "openclinxr_conversation_expression_morphs"
+        track.strips.new("openclinxr_conversation_expression_morphs", 1, shape_action)
+
+    bpy.ops.object.mode_set(mode="OBJECT")
+    return clip_names + [role_specific_clip[0], "openclinxr_conversation_expression_morphs"]
+
+
+def role_specific_clip_spec(actor_role: str, anxious: float, role_tension: float) -> tuple:
+    role = actor_role.lower()
+    if "nurse" in role:
+        return (
+            "openclinxr_role_nurse_clinical_check_reassure",
+            [
+                (1, 0.00, 0.00, -0.02, 0.00, 0.00, {"upper_arm.L": (0.02, 0.00, -0.05), "upper_arm.R": (0.02, 0.00, 0.05), "forearm.L": (0.00, 0.00, 0.02), "forearm.R": (0.00, 0.00, -0.02)}),
+                (14, -0.018, 0.024, 0.05, -0.26, 0.20, {"upper_arm.L": (-0.22, 0.04, -0.24), "upper_arm.R": (-0.12, -0.02, 0.10), "forearm.L": (-0.34, 0.00, -0.10), "forearm.R": (-0.14, 0.00, 0.08), "hand.L": (0.05, 0.02, -0.20), "hand.R": (0.02, -0.01, 0.12)}),
+                (30, 0.006, 0.012, -0.03, -0.10, 0.10, {"upper_arm.L": (-0.10, 0.02, -0.12), "upper_arm.R": (-0.08, 0.00, 0.08), "forearm.L": (-0.20, 0.00, -0.08), "forearm.R": (-0.10, 0.00, 0.06), "hand.L": (0.03, 0.00, -0.08), "hand.R": (0.00, 0.00, 0.06)}),
+                (48, -0.004, -0.006, 0.02, -0.04, 0.04, {"upper_arm.L": (-0.02, 0.00, -0.04), "upper_arm.R": (-0.02, 0.00, 0.04), "forearm.L": (-0.05, 0.00, -0.02), "forearm.R": (-0.05, 0.00, 0.02)}),
+                (66, 0.00, 0.00, 0.00, 0.00, 0.00, {"upper_arm.L": (0.00, 0.00, 0.00), "upper_arm.R": (0.00, 0.00, 0.00), "forearm.L": (0.00, 0.00, 0.00), "forearm.R": (0.00, 0.00, 0.00)}),
+            ],
+        )
+    if "parent" in role or "family" in role:
+        return (
+            "openclinxr_role_parent_anxious_fidget_guard",
+            [
+                (1, 0.00, 0.00, -0.04, 0.04, -0.04, {"upper_arm.L": (0.06, 0.00, -0.06), "upper_arm.R": (0.06, 0.00, 0.06), "forearm.L": (0.02, 0.00, -0.02), "forearm.R": (0.02, 0.00, 0.02)}),
+                (12, 0.026 * role_tension, 0.030 * anxious, 0.07, 0.24, -0.20, {"upper_arm.L": (-0.12, 0.04, -0.28), "upper_arm.R": (-0.08, -0.03, 0.24), "forearm.L": (-0.24, 0.00, -0.26), "forearm.R": (-0.20, 0.00, 0.24), "hand.L": (0.02, 0.00, -0.26), "hand.R": (0.02, 0.00, 0.24), "thigh.L": (0.03, 0.00, 0.00), "thigh.R": (-0.02, 0.00, 0.00)}),
+                (24, -0.012, -0.018, -0.06, -0.14, 0.16, {"upper_arm.L": (-0.06, 0.00, -0.20), "upper_arm.R": (-0.12, 0.04, 0.28), "forearm.L": (-0.12, 0.00, -0.18), "forearm.R": (-0.28, 0.00, 0.26), "hand.L": (0.00, 0.00, -0.18), "hand.R": (0.04, 0.00, 0.28), "thigh.L": (-0.02, 0.00, 0.00), "thigh.R": (0.03, 0.00, 0.00)}),
+                (36, 0.014 * role_tension, 0.020 * anxious, 0.04, 0.18, -0.18, {"upper_arm.L": (-0.10, 0.03, -0.24), "upper_arm.R": (-0.08, -0.03, 0.22), "forearm.L": (-0.20, 0.00, -0.22), "forearm.R": (-0.18, 0.00, 0.20), "hand.L": (0.02, 0.00, -0.22), "hand.R": (0.02, 0.00, 0.20)}),
+                (54, 0.00, 0.00, -0.03, 0.04, -0.04, {"upper_arm.L": (0.02, 0.00, -0.05), "upper_arm.R": (0.02, 0.00, 0.05), "forearm.L": (0.00, 0.00, -0.02), "forearm.R": (0.00, 0.00, 0.02)}),
+            ],
+        )
+    return (
+        "openclinxr_role_patient_asthma_breathing_effort",
+        [
+            (1, 0.00, 0.00, 0.00, 0.00, 0.00, {"upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00)}),
+            (12, 0.046, -0.024, 0.00, -0.03, 0.03, {"spine": (0.018, 0.00, 0.00), "upper_arm.L": (0.09, 0.00, -0.05), "upper_arm.R": (0.09, 0.00, 0.05), "forearm.L": (0.05, 0.00, -0.02), "forearm.R": (0.05, 0.00, 0.02)}),
+            (24, -0.006, 0.012, 0.00, 0.00, 0.00, {"spine": (-0.004, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.02), "upper_arm.R": (0.03, 0.00, 0.02), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00)}),
+            (36, 0.040, -0.018, 0.00, -0.03, 0.03, {"spine": (0.014, 0.00, 0.00), "upper_arm.L": (0.08, 0.00, -0.04), "upper_arm.R": (0.08, 0.00, 0.04), "forearm.L": (0.04, 0.00, -0.02), "forearm.R": (0.04, 0.00, 0.02)}),
+            (54, -0.004, 0.010, 0.00, 0.00, 0.00, {"spine": (-0.002, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.01), "upper_arm.R": (0.03, 0.00, 0.01), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00)}),
+            (72, 0.00, 0.00, 0.00, 0.00, 0.00, {"spine": (0.00, 0.00, 0.00), "upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00)}),
+        ],
+    )
+
+
+def role_animation_control_summary(actor_role: str) -> Dict[str, Any]:
+    role = actor_role.lower()
+    if "nurse" in role:
+        return {
+            "roleGesture": "clinical_check_reassure",
+            "animatedBones": ["chest", "head", "upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R"],
+            "functionalIntent": "one-hand clinical check gesture followed by a calmer reassure/reset posture",
+        }
+    if "parent" in role or "family" in role:
+        return {
+            "roleGesture": "anxious_fidget_guard",
+            "animatedBones": ["chest", "head", "upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R", "thigh.L", "thigh.R"],
+            "functionalIntent": "protective hand fidgeting with small anxious weight shifts",
+        }
+    return {
+        "roleGesture": "asthma_breathing_effort",
+        "animatedBones": ["spine", "chest", "head", "upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R"],
+        "functionalIntent": "repeated work-of-breathing chest/spine effort with subtle guarded arm motion",
+    }
+
+
 def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, phenotype: Dict[str, Any]) -> Dict[str, str]:
     """
     Local fallback texturing + bake (always safe, no external models). B-candidate realism pass:
@@ -305,6 +520,7 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
         base_color = (base_color[0] - 0.03, base_color[1] - 0.02, base_color[2] - 0.01, 1.0)  # subtle stress paleness
 
     bsdf.inputs["Base Color"].default_value = base_color
+    mat.diffuse_color = base_color
     bsdf.inputs["Roughness"].default_value = 0.48 + (age_w * 0.12) + (max(0.0, bmi-24)*0.01)
     bsdf.inputs["Specular IOR Level"].default_value = 0.32
     # Transmission + subsurface for skin depth/SSS approx under exam light.
@@ -339,7 +555,11 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     nt.links.new(mix.outputs["Color"], color_ramp.inputs["Fac"])
     color_ramp.color_ramp.elements[0].color = (base_color[0] - 0.09 - age_w*0.03, base_color[1] - 0.07, base_color[2] - 0.06, 1)
     color_ramp.color_ramp.elements[1].color = (base_color[0] + 0.05 + flush*0.02, base_color[1] + 0.03, base_color[2] + 0.02, 1)
-    nt.links.new(color_ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    # Keep the export material glTF-friendly: complex procedural node graphs on
+    # Base Color can be dropped by the exporter, yielding a white body in WebXR.
+    # Sidecar PNGs below preserve the procedural texture evidence; the runtime
+    # GLB uses the phenotype-driven base color factor until image-texture baking
+    # is promoted.
 
     if mesh_obj.data.materials:
         mesh_obj.data.materials[0] = mat
@@ -406,7 +626,34 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     return {"albedo": albedo_path, "rough": rough_path, "normal": normal_path}
 
 
-def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str, Any]) -> None:
+def mesh_world_bounds(mesh_obj: bpy.types.Object) -> Dict[str, float]:
+    # OBJ import keeps Anny vertices in their local source basis and applies an
+    # object transform for Blender's world basis. Procedural marker meshes are
+    # unparented scene objects, so bounds must be measured in world coordinates.
+    vertices = [mesh_obj.matrix_world @ vertex.co for vertex in mesh_obj.data.vertices] if hasattr(mesh_obj.data, "vertices") else []
+    corners = vertices or [Vector(corner) for corner in mesh_obj.bound_box]
+    xs = [corner.x for corner in corners]
+    ys = [corner.y for corner in corners]
+    zs = [corner.z for corner in corners]
+    return {
+        "min_x": min(xs),
+        "max_x": max(xs),
+        "min_y": min(ys),
+        "max_y": max(ys),
+        "min_z": min(zs),
+        "max_z": max(zs),
+        "center_x": (min(xs) + max(xs)) / 2,
+        "center_y": (min(ys) + max(ys)) / 2,
+        "center_z": (min(zs) + max(zs)) / 2,
+        "height_y": max(ys) - min(ys),
+        "width": max(xs) - min(xs),
+        "depth_z": max(zs) - min(zs),
+        "height_z": max(zs) - min(zs),
+        "depth_y": max(ys) - min(ys),
+    }
+
+
+def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str, Any]) -> Dict[str, Any]:
     """B-candidate procedural hair + eyes driven by phenotype (hair_color, density, eye_color).
     Hair: colored cap + simple particle hint (geo nodes stub). Eyes: iris color from pheno,
     cornea refraction mix, small emission catchlight for exam lighting life. Supports
@@ -415,12 +662,27 @@ def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str
     hair_col = phenotype.get("hair_color", "brown")
     density = float(phenotype.get("hair_density", 0.65))
     eye_col = phenotype.get("eye_color", "brown")
+    bounds = mesh_world_bounds(mesh_obj)
+    # Marker meshes are authored in Blender's Z-up scene/world coordinates, then
+    # the exporter converts the scene to glTF Y-up.
+    head_radius = max(0.105, min(0.24, bounds["height_z"] * 0.13))
+    head_center_x = bounds["center_x"]
+    head_center_y = bounds["center_y"]
+    head_top_z = bounds["max_z"]
+    face_y = bounds["min_y"] - max(0.018, bounds["depth_y"] * 0.04)
+    eye_z = head_top_z - head_radius * 0.62
+    eye_spacing = max(0.052, min(0.095, bounds["width"] * 0.17))
+    feature_y = face_y - max(0.004, bounds["depth_y"] * 0.012)
 
-    # Hair cap (deformed, colored by pheno)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.24, location=(0, 0, 1.72))
+    # Hair cap (deformed, colored by pheno). Use mesh bounds instead of fixed adult
+    # coordinates so child/parent/nurse proportions keep visible hair near the head.
+    bpy.ops.mesh.primitive_uv_sphere_add(
+        radius=head_radius,
+        location=(head_center_x, head_center_y, head_top_z - head_radius * 0.24),
+    )
     hair = bpy.context.active_object
     hair.name = "local_fixture_hair_cap"
-    hair.scale = (1.0, 0.85, 0.7)
+    hair.scale = (1.05, 0.92, 0.58)
     bpy.ops.object.transform_apply(scale=True)
     mat_hair = bpy.data.materials.new("hair")
     mat_hair.use_nodes = True
@@ -435,10 +697,25 @@ def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str
     hair.data.materials.append(mat_hair)
     # Density hint (scale affects visual mass)
     hair.scale[0] *= (0.9 + density * 0.2)
+    hair["openclinxr_hair_bounds_placement"] = "mesh_bounds_head_cap_not_fixed_coordinate"
+
+    def material(name: str, color: tuple, roughness: float = 0.72) -> bpy.types.Material:
+        mat = bpy.data.materials.new(name)
+        mat.use_nodes = True
+        bsdf = mat.node_tree.nodes.get("Principled BSDF") or mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+        bsdf.inputs["Base Color"].default_value = color
+        bsdf.inputs["Roughness"].default_value = roughness
+        return mat
+
+    brow_mat = material("local_fixture_brow_detail", tuple(bsdf_h.inputs["Base Color"].default_value), 0.8)
+    mouth_mat = material("local_fixture_mouth_detail", (0.44, 0.16, 0.14, 1.0), 0.76)
+    nose_mat = material("local_fixture_nose_highlight", (0.86, 0.62, 0.54, 1.0), 0.68)
+    facial_feature_names: List[str] = []
 
     # Eyes (iris colored by pheno + catchlight emission for alive look under medical light)
     for side, x in [("left", 0.08), ("right", -0.08)]:
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.035, location=(x, 0.18, 1.68))
+        eye_x = head_center_x + (eye_spacing if side == "left" else -eye_spacing)
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=max(0.014, head_radius * 0.16), location=(eye_x, face_y, eye_z))
         eye = bpy.context.active_object
         eye.name = f"local_fixture_{side}_eye"
         mat_eye = bpy.data.materials.new(f"eye_{side}")
@@ -456,6 +733,201 @@ def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str
         bsdf_e.inputs["Emission Color"].default_value = (0.9, 0.9, 0.85, 1.0)
         bsdf_e.inputs["Emission Strength"].default_value = 0.08
         eye.data.materials.append(mat_eye)
+        eye["openclinxr_eye_bounds_placement"] = "mesh_bounds_face_anchor_not_fixed_coordinate"
+
+        bpy.ops.mesh.primitive_cube_add(
+            size=1.0,
+            location=(eye_x, feature_y, eye_z + head_radius * 0.22),
+        )
+        brow = bpy.context.active_object
+        brow.name = f"local_fixture_{side}_brow"
+        brow.dimensions = (head_radius * 0.27, max(0.006, bounds["depth_y"] * 0.018), head_radius * 0.035)
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        brow.data.materials.append(brow_mat)
+        brow["openclinxr_brow_bounds_placement"] = "mesh_bounds_face_anchor_not_expression_rig"
+        facial_feature_names.append(brow.name)
+
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=max(0.012, head_radius * 0.09), location=(head_center_x, feature_y, eye_z - head_radius * 0.22))
+    nose = bpy.context.active_object
+    nose.name = "local_fixture_nose_tip"
+    nose.scale = (0.8, 1.12, 0.62)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    nose.data.materials.append(nose_mat)
+    nose["openclinxr_nose_bounds_placement"] = "mesh_bounds_face_anchor_not_anatomical_claim"
+    facial_feature_names.append(nose.name)
+
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(head_center_x, feature_y, eye_z - head_radius * 0.54))
+    mouth = bpy.context.active_object
+    mouth.name = "local_fixture_mouth_line"
+    mouth.dimensions = (head_radius * 0.34, max(0.005, bounds["depth_y"] * 0.014), head_radius * 0.035)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    mouth.data.materials.append(mouth_mat)
+    mouth["openclinxr_mouth_bounds_placement"] = "mesh_bounds_face_anchor_not_lipsync_quality"
+    facial_feature_names.append(mouth.name)
+
+    return {
+        "hairPlacementMode": "mesh_bounds_head_cap",
+        "eyePlacementMode": "mesh_bounds_face_anchor",
+        "featurePlacementMode": "mesh_bounds_face_landmark_markers",
+        "hairObjectName": hair.name,
+        "eyeObjectNames": ["local_fixture_left_eye", "local_fixture_right_eye"],
+        "facialFeatureObjectNames": facial_feature_names,
+        "coordinateBasis": "blender_z_up_marker_meshes_exported_y_up_glb",
+        "headTopY": round(head_top_z, 4),
+        "eyeY": round(eye_z, 4),
+        "faceZ": round(face_y, 4),
+        "claimScope": "procedural_bounds_based_hair_eye_and_face_landmark_detail_not_production_groom_eye_shader_or_anatomy",
+        "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
+    }
+
+
+def role_marker_color(phenotype: Dict[str, Any], actor_role: str) -> tuple:
+    color = str(phenotype.get("clothing_color") or "").lower()
+    if "teal" in color or actor_role == "nurse":
+        return (0.02, 0.48, 0.52, 1.0)
+    if "rose" in color or "parent" in actor_role:
+        return (0.62, 0.24, 0.34, 1.0)
+    if "blue" in color or "patient" in actor_role:
+        return (0.20, 0.46, 0.82, 1.0)
+    return (0.38, 0.40, 0.42, 1.0)
+
+
+def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    bsdf = mat.node_tree.nodes.get("Principled BSDF") or mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+    bsdf.inputs["Base Color"].default_value = color
+    bsdf.inputs["Roughness"].default_value = 0.78
+    return mat
+
+
+def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Assign simple case-driven clothing materials to the humanoid mesh itself.
+
+    This is still a local procedural fixture, not MakeClothes/StableGen wardrobe,
+    but it makes isolated model vetting evaluate a clothed generated actor instead
+    of only a mannequin with a detached role placard.
+    """
+    role = actor_role.lower()
+    base_color = role_marker_color(phenotype, role)
+    if "nurse" in role:
+        top_color = base_color
+        lower_color = (0.015, 0.34, 0.37, 1.0)
+    elif "parent" in role or "guardian" in str(phenotype.get("role_visual_cue", "")).lower():
+        top_color = base_color
+        lower_color = (0.18, 0.17, 0.20, 1.0)
+    else:
+        top_color = base_color
+        lower_color = (0.18, 0.26, 0.42, 1.0)
+
+    top_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_top", top_color)
+    lower_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_lower", lower_color)
+    top_index = len(mesh_obj.data.materials)
+    mesh_obj.data.materials.append(top_mat)
+    lower_index = len(mesh_obj.data.materials)
+    mesh_obj.data.materials.append(lower_mat)
+
+    bounds = mesh_world_bounds(mesh_obj)
+    min_z = bounds["min_z"]
+    height_z = max(bounds["height_z"], 0.001)
+    top_min_z = min_z + height_z * 0.46
+    top_max_z = min_z + height_z * 0.74
+    lower_min_z = min_z + height_z * 0.13
+    lower_max_z = min_z + height_z * 0.49
+    max_torso_half_width = max(bounds["width"] * 0.42, 0.10)
+
+    mesh_obj.update_from_editmode()
+    mesh_obj.update_tag()
+    top_faces = 0
+    lower_faces = 0
+    for polygon in mesh_obj.data.polygons:
+        center = mesh_obj.matrix_world @ polygon.center
+        abs_x = abs(center.x)
+        if top_min_z <= center.z <= top_max_z and abs_x <= max_torso_half_width:
+            polygon.material_index = top_index
+            top_faces += 1
+        elif lower_min_z <= center.z < lower_max_z and abs_x <= max_torso_half_width * 0.92:
+            polygon.material_index = lower_index
+            lower_faces += 1
+
+    if top_faces == 0 or lower_faces == 0:
+        raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}")
+
+    return {
+        "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+        "topMaterialName": top_mat.name,
+        "lowerMaterialName": lower_mat.name,
+        "topFaceCount": top_faces,
+        "lowerFaceCount": lower_faces,
+        "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
+
+
+def add_role_clothing_markers(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Add visible local role markers to the generated GLB itself.
+
+    These are intentionally simple procedural panels, not a production costume pass.
+    Their job is to make peds patient / parent / nurse candidates visually distinct in
+    isolated model vetting before we spend more cycles on tests or scene placement.
+    """
+    role = actor_role.lower()
+    style = str(phenotype.get("clothing_style") or f"{role}_local_fixture_clothing")
+    cue = str(phenotype.get("role_visual_cue") or role)
+    base_color = role_marker_color(phenotype, role)
+    mat = create_role_marker_material(f"openclinxr_role_marker_{role}", base_color)
+    badge_mat = create_role_marker_material("openclinxr_role_marker_badge_white", (0.92, 0.92, 0.84, 1.0))
+
+    # Marker meshes are authored in Blender's Z-up scene coordinates, then
+    # converted to glTF Y-up during export. Keep these coordinates in Blender
+    # basis so role cues stay attached to the torso in isolated model captures.
+    is_child = "patient" in role or float(phenotype.get("height_cm", 170)) < 140
+    width = 0.11 if is_child else 0.14
+    height = 0.08 if is_child else 0.10
+    depth = 0.025
+    center_x = 0.12 if is_child else 0.16
+    bounds = mesh_world_bounds(mesh_obj)
+    center_y = bounds["min_y"] - max(0.014, bounds["depth_y"] * 0.04)
+    center_z = bounds["min_z"] + bounds["height_z"] * (0.63 if is_child else 0.62)
+
+    marker_names: List[str] = []
+
+    def cube_marker(name: str, location: tuple, scale: tuple, material: bpy.types.Material) -> bpy.types.Object:
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=location)
+        obj = bpy.context.active_object
+        obj.name = name
+        obj.dimensions = scale
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        obj.data.materials.append(material)
+        obj["openclinxr_role_visual_cue"] = cue
+        obj["openclinxr_clothing_style"] = style
+        obj["openclinxr_claim_scope"] = "procedural_role_distinction_marker_not_production_costume"
+        obj["openclinxr_not_evidence_for"] = "production_asset_readiness"
+        marker_names.append(obj.name)
+        return obj
+
+    cube_marker(f"openclinxr_role_clothing_{role}_torso_panel", (center_x, center_y, center_z), (width, depth, height), mat)
+
+    if "nurse" in role or "nurse" in cue:
+        cube_marker("openclinxr_role_clothing_nurse_name_badge", (center_x + width * 0.22, center_y - depth * 0.55, center_z + height * 0.18), (width * 0.18, depth * 0.75, height * 0.18), badge_mat)
+        cube_marker("openclinxr_role_clothing_nurse_scrub_pocket", (center_x - width * 0.20, center_y - depth * 0.55, center_z - height * 0.20), (width * 0.20, depth * 0.75, height * 0.14), badge_mat)
+    elif "parent" in role or "guardian" in cue:
+        cube_marker("openclinxr_role_clothing_parent_cardigan_left", (center_x - width * 0.28, center_y - depth * 0.55, center_z), (width * 0.10, depth * 0.75, height * 1.05), mat)
+        cube_marker("openclinxr_role_clothing_parent_cardigan_right", (center_x + width * 0.28, center_y - depth * 0.55, center_z), (width * 0.10, depth * 0.75, height * 1.05), mat)
+    else:
+        stripe_mat = create_role_marker_material("openclinxr_role_marker_patient_shirt_stripe", (0.93, 0.93, 0.86, 1.0))
+        cube_marker("openclinxr_role_clothing_patient_shirt_stripe", (center_x, center_y - depth * 0.55, center_z + height * 0.18), (width * 0.72, depth * 0.75, height * 0.11), stripe_mat)
+
+    return {
+        "actorRole": actor_role,
+        "roleVisualCue": cue,
+        "clothingStyle": style,
+        "objectNames": marker_names,
+        "claimScope": "small_procedural_role_marker_not_production_costume",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
 
 
 def export_final_glb(output_path: str) -> None:
@@ -464,6 +936,8 @@ def export_final_glb(output_path: str) -> None:
         filepath=output_path,
         export_format="GLB",
         export_yup=True,
+        export_animations=True,
+        export_nla_strips=True,
         export_materials="EXPORT",
         export_image_format="AUTO",
         export_texture_dir="",
@@ -483,14 +957,28 @@ def main() -> None:
     mesh_obj = import_mesh(args.input_mesh)
 
     print("[blender] creating canonical armature + skin + required morph targets (viseme/expression contract)")
-    create_canonical_armature(mesh_obj)
+    arm_obj = create_canonical_armature(mesh_obj)
     add_required_morph_targets(mesh_obj, phenotype)
+    add_auditable_face_gaze_controls(phenotype)
+    animation_clips = add_clinical_animation_clips(mesh_obj, arm_obj, args.actor_role, phenotype)
 
     print(f"[blender] texturing prompt: {prompt[:120]}...")
     baked = add_simple_procedural_pbr_and_bake(mesh_obj, prompt, phenotype)
 
-    print("[blender] adding procedural hair + eyes (demo; real hair would come from StableGen/Comfy or geo nodes)")
-    add_procedural_hair_and_eyes(mesh_obj, phenotype)
+    print("[blender] assigning role-specific clothing materials to mesh regions")
+    role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype)
+
+    face_detail_markers = {
+        "status": "abandoned_rejected_experiment",
+        "rejectedApproach": "manual_bounds_based_hair_eye_and_face_marker_geometry",
+        "reason": "Visual review rejected the procedural hair cap, eye spheres, brow bars, nose marker, and mouth marker as visibly awful and counterproductive for Anny realism.",
+        "nextSafeStep": "Use a real humanoid source-quality path for hair, eyes, and facial topology, or a dedicated local FOSS hair/face cagematch that beats clean Anny-body evidence in isolated screenshots.",
+        "claimScope": "manual_face_hair_markers_disabled_not_realism_evidence",
+        "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
+    }
+
+    print("[blender] adding small role-specific procedural clothing markers (local audit cue, not production costume)")
+    role_visual_markers = add_role_clothing_markers(mesh_obj, args.actor_role, phenotype)
 
     # Optional: future hook for real ComfyUI / StableGen call
     if args.use_comfy:
@@ -542,6 +1030,44 @@ def main() -> None:
             "baked": True,
             "resolution": 1024,
             "packedInGlb": True
+        },
+        "animationClips": {
+            "count": len(animation_clips),
+            "names": animation_clips,
+            "clinicalIdlePoseClip": "openclinxr_clinical_idle_breathing",
+            "conversationClip": "openclinxr_conversation_listen_nod",
+            "locomotionPostureClip": "openclinxr_posture_shift_standing",
+            "claimScope": "deterministic procedural fallback clips; not motion-capture or Speech2Motion evidence"
+        },
+        "roleAnimationHandoff": {
+            "actorRole": args.actor_role,
+            "roleSpecificClipNames": [name for name in animation_clips if name.startswith("openclinxr_role_")],
+            "roleMotionControls": role_animation_control_summary(args.actor_role),
+            "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+            "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"]
+        },
+        "roleVisualMarkers": role_visual_markers,
+        "roleClothingMaterialRegions": role_clothing_material_regions,
+        "faceDetailMarkers": face_detail_markers,
+        "wardrobeTags": {
+            "wardrobeRole": phenotype.get("wardrobeRole", role_visual_markers.get("roleVisualCue")),
+            "garmentLayers": phenotype.get("garmentLayers", [role_visual_markers.get("clothingStyle")]),
+            "fabricPalette": phenotype.get("fabricPalette", phenotype.get("clothing_color", "role_distinction_neutral")),
+            "materialFinish": phenotype.get("materialFinish", "matte_local_fixture_cloth"),
+            "fitProfile": phenotype.get("fitProfile", "case_actor_basic_fit"),
+            "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe",
+        },
+        "materialTagSummary": {
+            "roleColorway": phenotype.get("clothing_color", "role_distinction_neutral"),
+            "skinTone": phenotype.get("skin_tone", "unknown"),
+            "hairColor": phenotype.get("hair_color", "unknown"),
+            "eyeColor": phenotype.get("eye_color", "unknown"),
+            "materialFinish": phenotype.get("materialFinish", "matte_local_fixture_cloth"),
+        },
+        "accessoryPresence": {
+            "markers": phenotype.get("accessoryMarkers", []),
+            "generatedObjects": role_visual_markers.get("objectNames", []),
+            "claimScope": "synthetic_role_visual_cue_only",
         },
         "provenance": {
             "source": f"anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case={args.case_id}, actor={args.actor_role})",
