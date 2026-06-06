@@ -1,26 +1,49 @@
 {
-  "servers": {
-    "tsserver": {
-      "command": "typescript-language-server",
-      "args": ["--stdio"],
-      "filetypes": ["typescript", "typescriptreact", "json"],
-      "rootPatterns": ["tsconfig.json", "package.json", "turbo.json"],
-      "initializationOptions": {
-        "preferences": {
-          "importModuleSpecifierPreference": "relative",
-          "includePackageJsonAutoImports": "on"
-        },
-        "hostInfo": "grok-build-monorepo",
-        "tsserver": {
-          "useSyntaxServer": "auto"
-        }
+  "typescript": {
+    "command": "typescript-language-server",
+    "args": ["--stdio"],
+    "extensionToLanguage": {
+      ".ts": "typescript",
+      ".tsx": "typescriptreact",
+      ".mts": "typescript",
+      ".cts": "typescript",
+      ".json": "json"
+    },
+    "startupTimeout": 30000,
+    "initializationOptions": {
+      "preferences": {
+        "importModuleSpecifierPreference": "relative",
+        "includePackageJsonAutoImports": "on"
       },
-      "settings": {
-        "typescript": {
-          "tsdk": "node_modules/typescript/lib",
-          "suggest": {
-            "completeFunctionCalls": true
-          }
+      "hostInfo": "grok-build-openclinxr-monorepo",
+      "tsserver": {
+        "useSyntaxServer": "auto"
+      }
+    },
+    "settings": {
+      "typescript": {
+        "tsdk": "node_modules/typescript/lib",
+        "suggest": {
+          "completeFunctionCalls": true
+        }
+      }
+    }
+  },
+  "python": {
+    "command": "pyright-langserver",
+    "args": ["--stdio"],
+    "extensionToLanguage": {
+      ".py": "python",
+      ".pyi": "python"
+    },
+    "startupTimeout": 30000,
+    "settings": {
+      "python": {
+        "analysis": {
+          "typeCheckingMode": "basic",
+          "autoSearchPaths": true,
+          "useLibraryCodeForTypes": true,
+          "diagnosticMode": "openFilesOnly"
         }
       }
     }

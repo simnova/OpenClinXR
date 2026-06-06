@@ -1,0 +1,18 @@
+{
+  "include": [
+    "apps/arena/api-python-backend/src",
+    "apps/arena/api-python-backend/scripts",
+    "tools/openclinxr/asset-pipeline"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/.venv",
+    "**/__pycache__",
+    "**/dist"
+  ],
+  "venvPath": ".",
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false
+}

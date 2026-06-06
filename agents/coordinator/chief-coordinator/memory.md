@@ -40,4 +40,8 @@
 - Summary: Harness proof 5/5 green; delegate explore reads to deepseek-v4-flash; measure with agent:harness:prove and ccusage.
 - Confidence: 0.8
 - Recorded by: agent:memory:append
+- Policy tier: fast_bounded## Lesson 2026-06-06 — bun-hono-lsp-slice
+- Summary: Bun/Hono smokes green 2026-06-06; Grok LSP 2 servers via canonical lsp.json.
+- Confidence: 0.8
+- Recorded by: agent:memory:append
 - Policy tier: fast_bounded
