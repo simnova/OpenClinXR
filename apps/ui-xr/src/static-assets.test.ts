@@ -295,6 +295,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("humanoidSourceComparator");
     expect(mainSource).toContain("peds_anny_mpfb2_eye_rig_patient");
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
+    expect(mainSource).toContain("source_materials_preserved_for_clean_comparator_capture_no_runtime_tint");
+    expect(mainSource).toContain("source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override");
     expect(mainSource).toContain("mpfb-ob-patient-aisha-rigged-candidate.glb");
     expect(mainSource).toContain("charmorph-antonia-ob-patient-candidate.glb");
     expect(mainSource).toContain("charmorph-reom-ob-patient-candidate.glb");

@@ -6092,10 +6092,20 @@ function loadGeneratedHumanoidIntoActorSlot(
         humanoid.userData.openClinXrHumanoidComparatorTransform =
           `${humanoidSourceComparator}_source_alignment_for_webxr_visual_comparison_only_target_facing`;
       }
-      tintGeneratedSceneMaterials(humanoid, options.roleTintColor, options.actorId);
+      if (!cleanSourceComparatorCapture) {
+        tintGeneratedSceneMaterials(humanoid, options.roleTintColor, options.actorId);
+      } else {
+        humanoid.userData.openClinXrSourceComparatorMaterialPolicy =
+          "source_materials_preserved_for_clean_comparator_capture_no_runtime_tint";
+      }
       humanoid.userData.openClinXrClinicalIdlePoseClipPresent = hasAuthoredClinicalIdlePoseClip(gltf.animations);
-      applyGeneratedHumanoidClinicalIdlePosture(humanoid);
-      applyGeneratedHumanoidRoleSpecificPosture(humanoid, options.actorId);
+      if (!cleanSourceComparatorCapture) {
+        applyGeneratedHumanoidClinicalIdlePosture(humanoid);
+        applyGeneratedHumanoidRoleSpecificPosture(humanoid, options.actorId);
+      } else {
+        humanoid.userData.openClinXrSourceComparatorPosturePolicy =
+          "source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override";
+      }
       if (cleanSourceComparatorCapture) {
         humanoid.userData.openClinXrRoleSpecificVisualsPolicy = "skipped_for_clean_source_comparator_capture";
         suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid);
