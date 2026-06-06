@@ -74,6 +74,32 @@ output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces
 command = "pnpm"
 args = ["dlx", "chrome-devtools-mcp@1.1.1", "--headless"]
 
+# Playwright support (Microsoft):
+# - CLI (via @playwright/test): the `playwright` command
+#   for codegen, test, trace, etc. Use via the bash/terminal tool:
+#     pnpm exec playwright codegen ...
+#     pnpm run playwright:test
+#   This is usually the more token-efficient option.
+# - MCP server (@playwright/mcp): exposes structured browser automation tools
+#   (navigate, click, screenshot, evaluate, etc.) for agent/tool-calling.
+#   Available when you need fine-grained, stateful control that is awkward
+#   to express as shell commands.
+#
+# Token-efficiency rule (per hyper-token-efficient-long-run-practices.md):
+#   Try the CLI first in most cases. Escalate to the MCP only when the
+#   structured tool surface provides clear value (complex multi-step flows,
+#   heavy interaction with page state, etc.).
+#
+# Use pnpm dlx for the MCP and pnpm exec for the CLI to stay consistent
+# with the monorepo. @playwright/test is the recommended package (CLI + test
+# runner). The old `playwright-cli` standalone is deprecated.
+[mcp_servers.playwright]
+command = "pnpm"
+args = ["dlx", "@playwright/mcp@0.0.75"]
+
+# Note: @playwright/test is declared in devDependencies so `pnpm exec playwright`
+# (the CLI) is reliably available to the agent and scripts.
+
 # --- UI / UX for long agentic sessions (rehydrations, autonomous loops, subagent threads) ---
 [ui]
 max_thoughts_width = 120

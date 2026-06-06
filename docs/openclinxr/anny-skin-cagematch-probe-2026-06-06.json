@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "openclinxr.anny-skin-cagematch-probe.v1",
+  "generatedAt": "2026-06-06T06:01:59.815Z",
+  "claimScope": "local_skin_texturing_and_rigging_cagematch_availability_only",
+  "upstreamReferences": [
+    {
+      "id": "stablegen",
+      "url": "https://github.com/sakalond/StableGen",
+      "observedUse": "Blender add-on candidate for local multi-view texture generation/refinement through ComfyUI.",
+      "licensePosture": "GPL-3.0",
+      "claimBoundary": "Availability and license posture only; no generated skin quality or model-weight clearance claimed."
+    },
+    {
+      "id": "comfyui",
+      "url": "https://github.com/Comfy-Org/ComfyUI",
+      "observedUse": "Local diffusion backend candidate for StableGen skin texture workflows.",
+      "licensePosture": "GPL-3.0",
+      "claimBoundary": "Local server probe only; cloud/API nodes, paid cloud, model downloads, and queued workflows stay out of scope."
+    },
+    {
+      "id": "cloudrig",
+      "url": "https://extensions.blender.org/add-ons/cloudrig/",
+      "observedUse": "Blender Studio rig generation extension candidate for later Anny rigging cagematches.",
+      "licensePosture": "GPL-3.0-or-later",
+      "claimBoundary": "Add-on availability only; no Anny metarig fit, skin weights, facial rig, or runtime suitability claimed."
+    }
+  ],
+  "providerBoundary": {
+    "localOnly": true,
+    "availabilityProbeOnly": true,
+    "blenderExecutedForProbe": true,
+    "comfyStatusEndpointProbed": true,
+    "stableGenGenerationAttempted": false,
+    "comfyWorkflowQueued": false,
+    "diffusionWeightsLoaded": false,
+    "modelDownloadsUsed": false,
+    "externalNetworkUsed": false,
+    "paidApiUsed": false,
+    "credentialsUsed": false,
+    "productionAssetReadinessClaimed": false
+  },
+  "licensedCheckpoints": {
+    "RealVisXL_V5.0_fp16.safetensors": {
+      "source": "https://huggingface.co/SG161222/RealVisXL_V5.0",
+      "license": "CreativeML Open RAIL++-M",
+      "licenseUrl": "https://github.com/Stability-AI/generative-models/blob/main/model_licenses/LICENSE-SDXL1.0",
+      "placementDate": "2026-06-06",
+      "usage": "Local-only no-promotion skin texturing cagematch for Anny pediatric assets. No redistribution. Nonprofit medical training use.",
+      "localPath": "/Users/patrick/ComfyUI/models/checkpoints/RealVisXL_V5.0_fp16.safetensors",
+      "exists": true,
+      "sizeBytes": 6938065488
+    }
+  },
+  "supportingModels": {
+    "ip-adapter-plus_sdxl_vit-h.safetensors": {
+      "source": "https://huggingface.co/h94/IP-Adapter/resolve/main/sdxl_models/ip-adapter-plus_sdxl_vit-h.safetensors",
+      "localPath": "/Users/patrick/ComfyUI/models/ipadapter/ip-adapter-plus_sdxl_vit-h.safetensors",
+      "usage": "Local-only IPAdapter support for no-promotion StableGen/ComfyUI Anny skin cagematches.",
+      "exists": true,
+      "sizeBytes": 847517512
+    },
+    "controlnet_depth_sdxl.safetensors": {
+      "source": "https://huggingface.co/xinsir/controlnet-depth-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors",
+      "localPath": "/Users/patrick/ComfyUI/models/controlnet/controlnet_depth_sdxl.safetensors",
+      "usage": "Local-only depth ControlNet support for no-promotion StableGen/ComfyUI Anny skin cagematches.",
+      "exists": true,
+      "sizeBytes": 2502139104
+    },
+    "CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors": {
+      "source": "https://huggingface.co/h94/IP-Adapter/resolve/main/sdxl_models/image_encoder/model.safetensors",
+      "localPath": "/Users/patrick/ComfyUI/models/clip_vision/CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors",
+      "usage": "Local-only SDXL CLIP vision encoder dependency for IPAdapter-backed StableGen/ComfyUI cagematches.",
+      "exists": true,
+      "sizeBytes": 3689912664
+    }
+  },
+  "observations": {
+    "blender": {
+      "status": "available",
+      "executable": "blender",
+      "version": "Blender 5.1.1",
+      "detail": null
+    },
+    "blenderAddons": {
+      "stablegen": {
+        "status": "available",
+        "moduleName": "stablegen",
+        "source": "/Users/patrick/Library/Application Support/Blender/5.1/scripts/addons/stablegen/__init__.py"
+      },
+      "cloudrig": {
+        "status": "missing",
+        "moduleName": null,
+        "source": null
+      },
+      "rigify": {
+        "status": "available",
+        "moduleName": "rigify",
+        "source": "/Applications/Blender.app/Contents/Resources/5.1/scripts/addons_core/rigify/__init__.py"
+      }
+    },
+    "comfyui": {
+      "status": "available",
+      "url": "http://127.0.0.1:8188",
+      "endpoint": "/system_stats",
+      "responseStatus": 200,
+      "hasSystemStats": true,
+      "detail": null
+    },
+    "localPaths": {
+      "comfyUiCandidates": [
+        {
+          "path": "/Users/patrick/ComfyUI",
+          "exists": true
+        },
+        {
+          "path": "/Users/patrick/Documents/ComfyUI",
+          "exists": false
+        },
+        {
+          "path": "/Users/patrick/Applications/ComfyUI",
+          "exists": false
+        }
+      ],
+      "blenderAddonCandidates": []
+    },
+    "cliTools": {
+      "fastSimplification": {
+        "status": "available",
+        "executable": "python3",
+        "version": null,
+        "detail": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/fast_simplification/__init__.py"
+      },
+      "trimesh": {
+        "status": "available",
+        "executable": "python3",
+        "version": null,
+        "detail": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/trimesh/__init__.py"
+      },
+      "gltfTransform": {
+        "status": "available",
+        "executable": "/Volumes/files/src/openclinxr/node_modules/.bin/gltf-transform",
+        "version": "4.3.0",
+        "detail": null
+      }
+    }
+  },
+  "candidates": [
+    {
+      "id": "stablegen_comfyui_skin_texturing",
+      "status": "ready_for_local_cagematch",
+      "blockers": [
+        "before_after_skin_texture_screenshot_plan_required"
+      ],
+      "nextSafeStep": "Run one local-only before/after Anny skin texturing cagematch on a copied candidate, recording checkpoint license/cache provenance and screenshots before any promotion.",
+      "notEvidenceFor": [
+        "generated_skin_quality",
+        "stablegen_texture_success",
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness"
+      ]
+    },
+    {
+      "id": "cloudrig_rigging",
+      "status": "blocked",
+      "blockers": [
+        "cloudrig_blender_addon_not_detected",
+        "anny_specific_metarig_alignment_template_not_recorded"
+      ],
+      "nextSafeStep": "Enable CloudRig in Blender and create/record an Anny-specific metarig alignment template before using it on candidates.",
+      "notEvidenceFor": [
+        "skin_weight_quality",
+        "facial_rig_quality",
+        "animation_retargeting_quality",
+        "production_asset_readiness",
+        "quest_readiness"
+      ]
+    },
+    {
+      "id": "simplify_optimize_webxr",
+      "status": "advisory_only",
+      "blockers": [],
+      "nextSafeStep": "Use simplification/optimization only after a visible candidate exists, preserving before/after screenshots and structural GLB inspection.",
+      "notEvidenceFor": [
+        "visual_realism_improvement",
+        "rig_quality",
+        "production_asset_readiness",
+        "quest_readiness"
+      ]
+    }
+  ],
+  "readiness": {
+    "status": "ready_for_local_skin_texture_cagematch_without_generation",
+    "readyForLocalTextureCagematch": true,
+    "generationAllowedByThisReport": false,
+    "blockers": [
+      "before_after_skin_texture_screenshot_plan_required",
+      "cloudrig_not_ready_for_rigging_cagematch"
+    ],
+    "nextSafeStep": "Create a no-promotion copied-candidate skin cagematch task with checkpoint license/cache manifest and before/after model-vetting screenshots."
+  },
+  "notEvidenceFor": [
+    "generated_skin_quality",
+    "stablegen_texture_success",
+    "diffusion_model_license_clearance",
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

@@ -20,6 +20,10 @@ Use `scripts/sync-harness-agent-files.sh` (run after adding rules/skills/hooks) 
 - Use subagents per protocol in subagent-protocol.md, with .grok/config.toml enabling explore/plan.
 - For GitHub ops, the grok_com_github MCP is declared in config.
 - Memory enabled for cross-session persistence aligned with project memory.
+- Playwright CLI + MCP: The project ships @playwright/test (for `pnpm exec playwright ...` CLI commands like codegen/test/trace) and @playwright/mcp (exposed as an MCP server for agent-driven browser control).
+  - Default: Prefer the CLI via the terminal tool — it is usually more token-efficient.
+  - Escalate to the MCP tools only when you need structured, fine-grained browser automation that is awkward to express as shell commands (complex stateful flows, heavy interaction, etc.).
+  See .grok/config.toml for the exact configuration and token-efficiency guidance.
 
 ## Benefits
 - Automates guards and reminders.

@@ -13,10 +13,17 @@ tmp/
 __pycache__/
 *.pyc
 apps/*/dist/
+apps/*/*/dist/cagematch/
+apps/arena/model-vetting-studio/public/cagematch/
 apps/*/deploy/
 packages/*/dist/
 packages/*/*/dist/
+docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-*/
+docs/openclinxr/anny-skin-texture-cagematch-manifest-*.json
+docs/openclinxr/anny-skin-track-a-mit-pbr-*.json
+docs/openclinxr/model-vetting-captures/anny-skin-*/
+docs/openclinxr/realvisxl-*
+docs/openclinxr/stablegen-blender-background-trial-*.json
 
 # allow doc for local state (see .openclinxr/README.md)
 !.openclinxr/README.md
-
