@@ -10,10 +10,17 @@ import {
   type ModelVettingReport,
 } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 import { globFiles, readJson } from "../../agent-factory/lib.js";
+import {
+  buildCagematchOutputHome,
+  ensureCagematchOutputHome,
+  type CagematchOutputHome,
+} from "./generated-output-home.js";
 
-const defaultOutputDir = "apps/arena/model-vetting-studio/public/cagematch/anny-skin-track-a-mit-pbr";
-const defaultModelVettingReportPath = `docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-${new Date().toISOString().slice(0, 10)}.json`;
-const defaultCagematchReportPath = `docs/openclinxr/anny-skin-track-a-mit-pbr-cagematch-peds-asthma-parent-anxiety-${new Date().toISOString().slice(0, 10)}.json`;
+const defaultRunId = new Date().toISOString().slice(0, 10);
+const defaultOutputHome = buildCagematchOutputHome("anny-skin-track-a-mit-pbr", defaultRunId);
+const defaultOutputDir = defaultOutputHome.publicMirrorDir;
+const defaultModelVettingReportPath = path.join(defaultOutputHome.localEvidenceDir, "model-vetting-report.json");
+const defaultCagematchReportPath = path.join(defaultOutputHome.localEvidenceDir, "cagematch-report.json");
 
 type TextureRole = "basecolor" | "normal" | "roughness" | "metallic" | "ao";
 
@@ -42,6 +49,7 @@ type TrackAReport = {
   claimScope: "copied_candidate_mit_track_a_pbr_texture_application_no_runtime_promotion";
   sourceManifestPath: string;
   sourceModelVettingReportPath: string;
+  outputHome: CagematchOutputHome;
   outputDir: string;
   candidates: AppliedCandidate[];
   providerBoundary: {
@@ -84,7 +92,8 @@ type CliOptions = {
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   if (options.validateLatest || options.validatePath) {
-    const validatePath = options.validatePath ?? await latestPath("docs/openclinxr/anny-skin-track-a-mit-pbr-cagematch-*.json");
+    const validatePath = options.validatePath ?? await latestPath(".openclinxr/evidence/cagematch/anny-skin-track-a-mit-pbr/*/cagematch-report.json")
+      ?? await latestPath("docs/openclinxr/anny-skin-track-a-mit-pbr-cagematch-*.json");
     if (!validatePath) throw new Error("Missing Anny skin Track A PBR cagematch report to validate.");
     const errors = validateTrackAReport(await readJson<unknown>(validatePath));
     if (errors.length === 0) {
@@ -99,18 +108,23 @@ async function main(): Promise<void> {
   const manifestPath = options.manifestPath ?? await requiredLatestPath("docs/openclinxr/anny-skin-texture-cagematch-manifest-*.json");
   const sourceReportPath = options.sourceReportPath ?? await requiredLatestPath("docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-*.json");
   const sourceReport = await readJson<ModelVettingReport>(sourceReportPath);
+  const outputHome = await ensureCagematchOutputHome(buildCagematchOutputHome("anny-skin-track-a-mit-pbr", path.basename(path.dirname(options.cagematchReportPath))));
   const trackReport = await buildTrackAPbrCagematch({
     manifest: await readJson<CagematchManifest>(manifestPath),
     manifestPath,
     sourceReport,
     sourceReportPath,
+    outputHome,
     outputDir: options.outputDir,
     modelVettingReportPath: options.modelVettingReportPath,
   });
   const afterReport = buildAfterModelVettingReport(sourceReport, trackReport);
   const afterValidation = validateModelVettingReport(afterReport);
   if (!afterValidation.ok) throw new Error(`Invalid generated after model-vetting report: ${afterValidation.errors.join("; ")}`);
-  await mkdir(path.dirname(options.modelVettingReportPath), { recursive: true });
+  await Promise.all([
+    mkdir(path.dirname(options.modelVettingReportPath), { recursive: true }),
+    mkdir(path.dirname(options.cagematchReportPath), { recursive: true }),
+  ]);
   await writeFile(options.modelVettingReportPath, `${JSON.stringify(afterReport, null, 2)}\n`, "utf8");
   await writeFile(trackReport.publicModelVettingReportPath, `${JSON.stringify(afterReport, null, 2)}\n`, "utf8");
   await writeFile(options.cagematchReportPath, `${JSON.stringify(trackReport, null, 2)}\n`, "utf8");
@@ -124,6 +138,7 @@ export async function buildTrackAPbrCagematch(input: {
   manifestPath: string;
   sourceReport: ModelVettingReport;
   sourceReportPath: string;
+  outputHome?: CagematchOutputHome;
   outputDir: string;
   modelVettingReportPath: string;
 }): Promise<TrackAReport> {
@@ -163,6 +178,7 @@ export async function buildTrackAPbrCagematch(input: {
     claimScope: "copied_candidate_mit_track_a_pbr_texture_application_no_runtime_promotion",
     sourceManifestPath: input.manifestPath,
     sourceModelVettingReportPath: input.sourceReportPath,
+    outputHome: input.outputHome ?? buildCagematchOutputHome("anny-skin-track-a-mit-pbr", defaultRunId),
     outputDir: input.outputDir,
     candidates,
     providerBoundary: {

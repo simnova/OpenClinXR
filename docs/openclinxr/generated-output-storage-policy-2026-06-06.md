@@ -36,6 +36,12 @@ Use local paths that make the lifecycle obvious:
 
 The preferred future direction is to keep heavyweight run artifacts under `.openclinxr/**` by default and copy only the minimum public-serving subset into `apps/**/public/cagematch/**` when a local browser harness needs it.
 
+Fresh checkouts can initialize this layout with:
+
+`pnpm asset:cagematch:init-output-home -- --lane <lane-name> --run-id <run-id>`
+
+That command creates the local `.openclinxr/asset-production/**` and `.openclinxr/evidence/**` homes plus the ignored model-vetting public cagematch mirror used by browser harnesses.
+
 ## Manifest Contract
 
 Every generated-output pointer should be enough for another agent to understand what exists without committing the blob:
@@ -112,4 +118,3 @@ Before committing a cagematch or generated-asset slice:
 3. Record the meaningful result in `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, or the worker matrix without embedding large outputs.
 4. Preserve false readiness gates.
 5. Run the focused validators and drift/alignment guards for touched factory surfaces.
-
