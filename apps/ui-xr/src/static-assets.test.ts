@@ -297,6 +297,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
     expect(mainSource).toContain("source_materials_preserved_for_clean_comparator_capture_no_runtime_tint");
     expect(mainSource).toContain("source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override");
+    expect(mainSource).toContain("source_comparator_fixed_pose_sampled");
+    expect(mainSource).toContain("source_comparator_animation_suppressed");
+    expect(mainSource).toContain("clean_humanoid_source_comparator_full_body_candidate_capture");
+    expect(mainSource).toContain("hidden_for_clean_humanoid_source_comparator_capture");
+    expect(mainSource).toContain("frustum_culling_disabled_for_clean_source_comparator_capture_after_skinned_mesh_bounds_hid_body");
     expect(mainSource).toContain("mpfb-ob-patient-aisha-rigged-candidate.glb");
     expect(mainSource).toContain("charmorph-antonia-ob-patient-candidate.glb");
     expect(mainSource).toContain("charmorph-reom-ob-patient-candidate.glb");
@@ -936,7 +941,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("Fallback bundle hidden");
     expect(mainSource).toContain("Use factory materialization before realism review.");
     expect(mainSource).toContain("hidden_because_selected_scenario_specific_3d_bundle_missing");
-    expect(mainSource).toContain("if (!selectedScenarioRuntimeMismatch) {\n      scene.add(createVirtualDeviceActorAffordance");
+    expect(mainSource).toContain("if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {\n      scene.add(createVirtualDeviceActorAffordance");
   });
 
   it("normalizes generated runtime placements before applying them to Three.js transforms", () => {

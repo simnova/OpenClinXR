@@ -1022,7 +1022,7 @@ export type SceneAssetEvidence = {
     status: "pending" | "loaded" | "failed";
     fallbackActive: boolean;
     affordanceCueIds?: string[];
-    animationPlayback?: "gltf_role_animation_clip_playing" | "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "not_applicable";
+    animationPlayback?: "gltf_role_animation_clip_playing" | "gltf_animation_clips_playing" | "procedural_idle_breathing_fallback" | "procedural_dialogue_expression_gaze_fallback" | "source_comparator_fixed_pose_sampled" | "source_comparator_animation_suppressed" | "not_applicable";
     roleAnimationClipNames?: string[];
     activeRoleAnimationClipName?: string | null;
     gazeProbeAnimationClipNames?: string[];

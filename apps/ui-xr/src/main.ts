@@ -1093,7 +1093,8 @@ function isSceneOnlyVisualReviewCaptureMode(): boolean {
   const captureMode = selectedCaptureMode();
   return captureMode.includes("scene-only")
     || captureMode.includes("dynamic-only")
-    || captureMode.includes("visual-cleanup");
+    || captureMode.includes("visual-cleanup")
+    || shouldUseCleanHumanoidSourceComparatorCapture();
 }
 
 const sceneOnlyEssentialRoomPropIds = new Set([
@@ -2811,6 +2812,7 @@ function createStationScene(): StationSceneRuntime {
   const actorPoseReviewCapture = isActorPoseReviewCaptureMode();
   const actorCloseCapture = isActorCloseRealismCaptureMode() || actorPoseReviewCapture;
   const generatedSceneOverviewCapture = isGeneratedSceneOverviewCaptureMode();
+  const cleanHumanoidSourceComparatorCapture = shouldUseCleanHumanoidSourceComparatorCapture();
   const selectedScenarioRuntimeMismatch = isSelectedScenarioRuntimeBundleMismatch();
   const selectedStationContext = stationContextForSelectedScenario();
   const camera = new PerspectiveCamera(faceDetailCapture ? 48 : generatedSceneOverviewCapture ? 60 : actorCloseCapture ? 42 : 52, 1, 0.1, 100);
@@ -2822,6 +2824,11 @@ function createStationScene(): StationSceneRuntime {
     camera.position.set(0.18, 1.32, 4.35);
     camera.lookAt(0.02, 1.02, -0.08);
     camera.userData.openClinXrCameraFraming = "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus";
+  } else if (cleanHumanoidSourceComparatorCapture) {
+    camera.fov = 48;
+    camera.position.set(-0.08, 0.86, 3.45);
+    camera.lookAt(-0.08, 0.82, -0.96);
+    camera.userData.openClinXrCameraFraming = "clean_humanoid_source_comparator_full_body_candidate_capture";
   } else if (actorPoseReviewCapture) {
     camera.position.set(-0.12, 1.22, 4.05);
     camera.lookAt(-0.18, 1.05, -0.18);
@@ -2855,6 +2862,10 @@ function createStationScene(): StationSceneRuntime {
   floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_anchor_beyond_reusable_portal_threshold";
   floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_selected_encounter_runtime_bundle";
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
+  if (cleanHumanoidSourceComparatorCapture) {
+    floor.visible = false;
+    floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   // gltf handoff hook for case env (small piece from tech vet + factory caseDerivedVirtualEnvironment + gltfAssetUrlForEnv in scaffold; player loads full virtual env (room/props + emotion/loco/gaze cues from gen timeline) via three GLTFLoader (imported) or GLTFLoader in main; authoring vet/blender/gltf-pipeline in factory produces real gltf from case spec. Enables deeper pipeline + 2nd scen. Evident in player when asset present.
   floor.userData.caseDerivedVirtualEnvGltfHandoff = {
     gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
@@ -2882,11 +2893,15 @@ function createStationScene(): StationSceneRuntime {
   gltfEnvContainer.userData.producedManifestPath = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedManifestPath;
   gltfEnvContainer.userData.producedGltfUrl = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl;
   gltfEnvContainer.userData.openClinXrLaunchTestPolicy = "virtual env world launched in player (props + gltf handoff + authoring vet from case); experience via dev server + station select";
+  if (cleanHumanoidSourceComparatorCapture) {
+    gltfEnvContainer.visible = false;
+    gltfEnvContainer.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   scene.add(gltfEnvContainer);
   // Actual gltf asset load in the launched player (wired for the factory-produced gltf from case env + authoringVet pipeline/cues in packet envGltfManifest + envGltfManifest in scaffold; uses GLTFLoader already in scope; loads into gltfEnvContainer for full cue-driven world (props + gltf with morphs/extras for emotion/loco/gaze from gen drive); onError keeps the world (props + container) so the launched experience always succeeds and is usable; when real gltf asset is produced by factory materialization and available (via url or consumer attach), it loads the full visual env world into the running player. This is the "actual gltf asset load in launched player gltfEnvContainer (produce real from factory + load for full visual world)" per queue. Validated by re-launching the app (turborepo) after edit.
   const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl || floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
   // producedGltfUrl wired from consumer (file:// /tmp ... or manifest) for full factory produced gltf from case env + authoringVet; falls back to stub if not real asset yet. Makes produced url consumable in launched player gltf load for cue-driven world.
-  if (gltfUrlForActualLoad) {
+  if (gltfUrlForActualLoad && !cleanHumanoidSourceComparatorCapture) {
     try {
       const loader = new GLTFLoader();
       loader.load(
@@ -2924,8 +2939,10 @@ function createStationScene(): StationSceneRuntime {
       gltfEnvContainer.userData.actualGltfLoadSetupError = String(e);
     }
   }
-  addDynamicEncounterRoomShell(scene, doorwayTheme);
-  addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
+  if (!cleanHumanoidSourceComparatorCapture) {
+    addDynamicEncounterRoomShell(scene, doorwayTheme);
+    addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
+  }
 
   if (selectedScenarioRuntimeMismatch) {
     const mismatchPanel = createReadableVrTextPanel({
@@ -2946,7 +2963,7 @@ function createStationScene(): StationSceneRuntime {
     mismatchPanel.mesh.userData.openClinXrScenarioMismatchPolicy =
       "selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence";
     scene.add(mismatchPanel.mesh);
-  } else {
+  } else if (!cleanHumanoidSourceComparatorCapture) {
     addScenarioExpectationPanel(scene, selectedStationContext);
   }
 
@@ -2958,6 +2975,9 @@ function createStationScene(): StationSceneRuntime {
   } else if (shouldSuppressGeneratedEnvironmentShell(encounterRuntimeAssetBundle.environment)) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrDynamicScenePolicy = "suppressed_mismatched_placeholder_environment_for_case_defined_scene_manifest";
+  } else if (cleanHumanoidSourceComparatorCapture) {
+    environmentShell.visible = false;
+    environmentShell.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
     environmentShell.visible = false;
     environmentShell.userData.openClinXrCaptureDeclutterPolicy = "hidden_for_actor_pose_review_only";
@@ -2978,6 +2998,9 @@ function createStationScene(): StationSceneRuntime {
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     bed.visible = false;
     bed.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
+  } else if (cleanHumanoidSourceComparatorCapture) {
+    bed.visible = false;
+    bed.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
     bed.visible = false;
     bed.userData.openClinXrCaptureDeclutterPolicy = "hidden_for_actor_pose_review_only";
@@ -2993,6 +3016,9 @@ function createStationScene(): StationSceneRuntime {
   } else if (isDynamicGeneratedEncounterSceneMode()) {
     monitor.visible = false;
     monitor.userData.openClinXrDynamicScenePolicy = "hidden_when_scene_manifest_and_generated_environment_supply_encounter_context";
+  } else if (cleanHumanoidSourceComparatorCapture) {
+    monitor.visible = false;
+    monitor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (actorPoseReviewCapture) {
     monitor.position.set(1.95, 1.35, -0.92);
     monitor.userData.openClinXrCaptureDeclutterPolicy = "moved_aside_for_actor_pose_review_only";
@@ -3003,9 +3029,11 @@ function createStationScene(): StationSceneRuntime {
     if (selectedScenarioRuntimeMismatch) {
       prop.visible = false;
       prop.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
-    } else if (actorPoseReviewCapture) {
+    } else if (cleanHumanoidSourceComparatorCapture || actorPoseReviewCapture) {
       prop.visible = false;
-      prop.userData.openClinXrCaptureDeclutterPolicy = "hidden_for_actor_pose_review_only";
+      prop.userData.openClinXrCaptureDeclutterPolicy = cleanHumanoidSourceComparatorCapture
+        ? "hidden_for_clean_humanoid_source_comparator_capture"
+        : "hidden_for_actor_pose_review_only";
     } else if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
       prop.visible = false;
       prop.userData.openClinXrObVisualReviewPolicy = "hidden_when_ob_specific_set_dressing_supplies_required_context_without_generic_prop_artifacts";
@@ -3024,6 +3052,10 @@ function createStationScene(): StationSceneRuntime {
     : iwsdkStationSceneObjects.ecgCart;
   ecgCart.position.set(ecgCartPlacement.position.x, ecgCartPlacement.position.y, ecgCartPlacement.position.z);
   ecgCart.visible = !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture) {
+    ecgCart.visible = false;
+    ecgCart.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
     ecgCart.visible = false;
     ecgCart.userData.openClinXrObVisualReviewPolicy = "hidden_to_prevent_non_ob_edge_equipment_artifact_in_portal_entry_evidence";
@@ -3048,6 +3080,10 @@ function createStationScene(): StationSceneRuntime {
     : iwsdkStationSceneObjects.ivPoleWithPump;
   ivPole.position.set(ivPolePlacement.position.x, ivPolePlacement.position.y, ivPolePlacement.position.z);
   ivPole.visible = !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture) {
+    ivPole.visible = false;
+    ivPole.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
     ivPole.visible = false;
     ivPole.userData.openClinXrObVisualReviewPolicy = "hidden_to_prevent_non_ob_edge_equipment_artifact_in_portal_entry_evidence";
@@ -3082,6 +3118,10 @@ function createStationScene(): StationSceneRuntime {
     slot.name = `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${runtimeEquipment.equipmentId}`;
     slot.position.set(placement.position.x, placement.position.y, placement.position.z);
     slot.visible = !selectedScenarioRuntimeMismatch;
+    if (cleanHumanoidSourceComparatorCapture) {
+      slot.visible = false;
+      slot.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    }
     if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
       slot.visible = false;
       slot.userData.openClinXrObVisualReviewPolicy = "hidden_when_ob_specific_set_dressing_supplies_required_equipment_context";
@@ -3132,6 +3172,10 @@ function createStationScene(): StationSceneRuntime {
   nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
   nurse.position.set(nursePlacement.position.x, nursePlacement.position.y, nursePlacement.position.z);
   nurse.visible = !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture) {
+    nurse.visible = false;
+    nurse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
   applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
   nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
@@ -3156,6 +3200,10 @@ function createStationScene(): StationSceneRuntime {
   spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
   spouse.position.set(spousePlacement.position.x, spousePlacement.position.y, spousePlacement.position.z);
   spouse.visible = !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture) {
+    spouse.visible = false;
+    spouse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  }
   if (isPediatricAsthmaRuntimeScenario()) {
     spouse.position.x = Math.max(spouse.position.x, -1.42);
     spouse.position.z = 0.42;
@@ -3176,7 +3224,7 @@ function createStationScene(): StationSceneRuntime {
   });
 
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
-    if (!selectedScenarioRuntimeMismatch) {
+    if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {
       scene.add(createVirtualDeviceActorAffordance(virtualActor.actorId));
     }
   }
@@ -3185,13 +3233,19 @@ function createStationScene(): StationSceneRuntime {
   clockMesh.name = iwsdkStationSceneObjects.wallClock;
   clockMesh.rotation.x = Math.PI / 2;
   clockMesh.position.set(0.9, 3.35, -1.2);
-  if (!shouldShowPrimitiveAssetFallbacks()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    clockMesh.visible = false;
+    clockMesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (!shouldShowPrimitiveAssetFallbacks()) {
     clockMesh.visible = false;
     clockMesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_fallback_debug_capture";
   }
   scene.add(clockMesh);
   const clinicalPanel = createClinicalPanel();
-  if (!shouldShowInSceneEvidencePanels()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    clinicalPanel.mesh.visible = false;
+    clinicalPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (!shouldShowInSceneEvidencePanels()) {
     clinicalPanel.mesh.visible = false;
     clinicalPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
@@ -3207,7 +3261,10 @@ function createStationScene(): StationSceneRuntime {
   });
   dialoguePanel.mesh.position.set(0.85, 2.58, -1.42);
   dialoguePanel.mesh.rotation.y = -0.28;
-  if (!shouldShowInSceneEvidencePanels()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    dialoguePanel.mesh.visible = false;
+    dialoguePanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (!shouldShowInSceneEvidencePanels()) {
     dialoguePanel.mesh.visible = false;
     dialoguePanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
@@ -3245,7 +3302,10 @@ function createStationScene(): StationSceneRuntime {
   });
   inputPanel.mesh.position.set(1.6, 1.32, -1.08);
   inputPanel.mesh.rotation.y = -0.42;
-  if (!shouldShowInSceneEvidencePanels()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    inputPanel.mesh.visible = false;
+    inputPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (!shouldShowInSceneEvidencePanels()) {
     inputPanel.mesh.visible = false;
     inputPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
   }
@@ -6109,6 +6169,13 @@ function loadGeneratedHumanoidIntoActorSlot(
       if (cleanSourceComparatorCapture) {
         humanoid.userData.openClinXrRoleSpecificVisualsPolicy = "skipped_for_clean_source_comparator_capture";
         suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid);
+        humanoid.traverse((object) => {
+          if (object instanceof Mesh) {
+            object.frustumCulled = false;
+            object.userData.openClinXrComparatorCullingPolicy =
+              "frustum_culling_disabled_for_clean_source_comparator_capture_after_skinned_mesh_bounds_hid_body";
+          }
+        });
       } else {
         addRoleSpecificHumanoidVisuals(humanoid, options.actorId);
       }
@@ -6171,6 +6238,8 @@ function loadGeneratedHumanoidIntoActorSlot(
         animationClips: gltf.animations,
         roleAnimationClipNames,
         gazeProbeAnimationClipNames,
+        playbackEnabled: !cleanSourceComparatorCapture,
+        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture ? 0.18 : null,
       });
       recordSceneAssetStatus({
         assetId: options.assetId,
@@ -6194,16 +6263,18 @@ function loadGeneratedHumanoidIntoActorSlot(
           "physician_interaction_target_cue",
           ...(humanoid.userData.openClinXrClinicalIdlePoseClipPresent ? ["authored_clinical_idle_pose_clip_cue"] : []),
         ]),
-        animationPlayback: gltf.animations.length > 0
-          ? roleAnimationClipNames.length > 0
-            ? "gltf_role_animation_clip_playing"
-            : "gltf_animation_clips_playing"
-          : "procedural_dialogue_expression_gaze_fallback",
+        animationPlayback: cleanSourceComparatorCapture
+          ? "source_comparator_fixed_pose_sampled"
+          : gltf.animations.length > 0
+            ? roleAnimationClipNames.length > 0
+              ? "gltf_role_animation_clip_playing"
+              : "gltf_animation_clips_playing"
+            : "procedural_dialogue_expression_gaze_fallback",
         roleAnimationClipNames,
         activeRoleAnimationClipName,
         gazeProbeAnimationClipNames,
         activeGazeProbeAnimationClipName,
-        gazeProbePlayback: activeGazeProbeAnimationClipName ? "gltf_gaze_probe_clip_playing" : "gaze_probe_clip_missing",
+        gazeProbePlayback: cleanSourceComparatorCapture ? "not_applicable" : activeGazeProbeAnimationClipName ? "gltf_gaze_probe_clip_playing" : "gaze_probe_clip_missing",
         ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}),
       });
       recordBootPhase("generated_humanoid_asset_loaded");
@@ -6365,8 +6436,10 @@ function registerGeneratedHumanoidAnimation(input: {
   animationClips: unknown[];
   roleAnimationClipNames: string[];
   gazeProbeAnimationClipNames: string[];
+  playbackEnabled: boolean;
+  fixedSourcePoseSampleSeconds: number | null;
 }): void {
-  const mixer = input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
+  const mixer = input.playbackEnabled && input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
   const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.roleAnimationClipNames.includes(clip.name)
   );
@@ -6376,6 +6449,13 @@ function registerGeneratedHumanoidAnimation(input: {
   const clipsToPlay = selectedRoleClips.length > 0
     ? [...selectedRoleClips, ...selectedGazeProbeClips]
     : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
+  const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip): clip is AnimationClip => clip instanceof AnimationClip);
+  if (!input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null) {
+    const fixedPoseMixer = new AnimationMixer(input.humanoid);
+    fixedPoseMixer.clipAction(fixedSourcePoseClip).play();
+    fixedPoseMixer.setTime(input.fixedSourcePoseSampleSeconds);
+    input.humanoid.updateMatrixWorld(true);
+  }
   if (mixer) {
     for (const clip of clipsToPlay) {
       mixer.clipAction(clip)?.play();
@@ -6407,11 +6487,13 @@ function registerGeneratedHumanoidAnimation(input: {
   generatedHumanoidAnimationSlots.push(slot);
   generatedHumanoidAnimationSlotsByActorId.set(input.actorId, slot);
   generatedHumanoidActorSlotsByActorId.set(input.actorId, input.actorSlot);
-  input.humanoid.userData.openClinXrAnimationPlayback = mixer
+  input.humanoid.userData.openClinXrAnimationPlayback = !input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null
+    ? "source_comparator_fixed_pose_sampled"
+    : mixer
     ? activeRoleAnimationClipName
       ? "gltf_role_animation_clip_playing"
       : "gltf_animation_clips_playing"
-    : "procedural_idle_breathing_fallback";
+    : input.playbackEnabled ? "procedural_idle_breathing_fallback" : "source_comparator_animation_suppressed";
   input.humanoid.userData.openClinXrRoleAnimationClipNames = input.roleAnimationClipNames;
   input.humanoid.userData.openClinXrActiveRoleAnimationClipName = activeRoleAnimationClipName ?? null;
   input.humanoid.userData.openClinXrGazeProbeAnimationClipNames = input.gazeProbeAnimationClipNames;
