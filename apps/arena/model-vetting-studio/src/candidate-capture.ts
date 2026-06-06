@@ -30,6 +30,13 @@ export type ModelVettingCandidateCaptureEvidence = {
   fixedCameraView: FixedCameraView | null;
   sourceGlbPath: string;
   meshCount: number;
+  animationEvidence: {
+    animationCount: number;
+    animationNames: string[];
+    totalChannelCount: number;
+    mpfb2EyeLookProbePresent: boolean;
+    runtimeImportEvidenceOnly: true;
+  };
   normalizedBoundsMeters: {
     width: number;
     height: number;
@@ -98,6 +105,7 @@ export async function renderCandidateCapture(input: {
   const glbUrl = glbUrlForPath(candidate.sourceGlbPath);
   const gltf = await loader.loadAsync(glbUrl);
   const model = gltf.scene;
+  const animationEvidence = buildAnimationEvidence(gltf.animations);
   let meshCount = 0;
   const inspectionMaterial = new MeshBasicMaterial({ color: "#cde7dc" });
   const useSourceMaterials = input.view !== "emotion_transition";
@@ -167,6 +175,7 @@ export async function renderCandidateCapture(input: {
     fixedCameraView: isFixedCameraView(input.view) ? input.view : null,
     sourceGlbPath: candidate.sourceGlbPath,
     meshCount,
+    animationEvidence,
     normalizedBoundsMeters: {
       width: roundMeters(size.x),
       height: roundMeters(size.y),
@@ -187,6 +196,17 @@ export async function renderCandidateCapture(input: {
     clinicalValidityClaimAllowed: false,
     scoringValidityClaimAllowed: false,
     notEvidenceFor: input.evidence.notEvidenceFor,
+  };
+}
+
+export function buildAnimationEvidence(animations: Array<{ name?: string; tracks?: unknown[] }>): ModelVettingCandidateCaptureEvidence["animationEvidence"] {
+  const animationNames = animations.map((animation, index) => animation.name || `unnamed_animation_${index}`);
+  return {
+    animationCount: animations.length,
+    animationNames,
+    totalChannelCount: animations.reduce((total, animation) => total + (Array.isArray(animation.tracks) ? animation.tracks.length : 0), 0),
+    mpfb2EyeLookProbePresent: animationNames.some((name) => name.startsWith("openclinxr_mpfb2_eye_look_probe")),
+    runtimeImportEvidenceOnly: true,
   };
 }
 
