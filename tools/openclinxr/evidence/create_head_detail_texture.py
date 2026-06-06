@@ -17,7 +17,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 
 NOT_EVIDENCE_FOR = [
@@ -98,6 +98,11 @@ def main() -> None:
             draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
 
     detail = detail.filter(ImageFilter.GaussianBlur(radius=1.2))
+    mask_report = load_mask_report(args.mask_report, image.size) if args.mask_report else None
+    if mask_report:
+        clip_mask = compose_clip_mask(mask_report["masks"], args.mode)
+        detail_alpha = detail.getchannel("A")
+        detail.putalpha(ImageChops.multiply(detail_alpha, clip_mask))
     result = Image.alpha_composite(image, detail)
     result.save(output_path)
 
@@ -110,8 +115,11 @@ def main() -> None:
         "uvAssumption": {
             "headUvBox": [0.352, 0.0, 0.648, 0.222],
             "faceUvBox": [0.413, 0.025, 0.587, 0.220],
-            "source": "observed_peds_patient_anny_uv_distribution",
+            "source": "source_uv_mask_report" if mask_report else "observed_peds_patient_anny_uv_distribution",
         },
+        "sourceUvMaskReportPath": args.mask_report,
+        "sourceUvMaskReportSha256": sha256(Path(args.mask_report)) if args.mask_report else None,
+        "maskClip": mask_report["clip"] if mask_report else None,
         "mode": args.mode,
         "features": ["scalp_hairline_breakup", "brow_eye_socket_iris_catchlight"]
         + (["lip_separation", "face_skin_variation"] if args.mode == "balanced" else []),
@@ -142,7 +150,40 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--size", type=int, default=1024)
     parser.add_argument("--seed", type=int, default=6060606)
     parser.add_argument("--mode", choices=["balanced", "hair-eye-only"], default="balanced")
+    parser.add_argument("--mask-report")
     return parser.parse_args(argv)
+
+
+def load_mask_report(report_path: str, size: tuple[int, int]) -> dict:
+    report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+    outputs = report.get("outputs", {})
+    masks = {}
+    for name in ("head", "face_front", "eye_region", "scalp"):
+        path = outputs.get(name, {}).get("path")
+        if path:
+            masks[name] = Image.open(path).convert("L").resize(size, Image.Resampling.NEAREST)
+    return {
+        "masks": masks,
+        "clip": {
+            "schemaVersion": report.get("schemaVersion"),
+            "sourceObjPath": report.get("sourceObjPath"),
+            "maskNames": sorted(masks),
+            "claimScope": "source_uv_mask_constrained_detail_texture_not_realism_or_production",
+        },
+    }
+
+
+def compose_clip_mask(masks: dict[str, Image.Image], mode: str) -> Image.Image:
+    if not masks:
+        raise ValueError("mask report did not provide usable masks")
+    selected = ["scalp", "eye_region"] if mode == "hair-eye-only" else ["scalp", "eye_region", "face_front"]
+    available = [masks[name] for name in selected if name in masks]
+    if not available:
+        raise ValueError(f"mask report did not provide any selected masks for mode {mode}")
+    clip = Image.new("L", available[0].size, 0)
+    for mask in available:
+        clip = ImageChops.lighter(clip, mask)
+    return clip
 
 
 def sha256(file_path: Path) -> str:
