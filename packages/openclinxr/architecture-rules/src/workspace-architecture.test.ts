@@ -1196,6 +1196,17 @@ describe("workspace architecture rules", () => {
     expect(findPaidProviderBoundaryViolations(scanPaidProviderBoundary())).toEqual([]);
   }, 10_000);
 
+  it("keeps gitignored local env files out of paid-provider policy scans", () => {
+    const ignoredLocalEnvFiles = [".envrc", ".env.openclinxr.local"]
+      .filter((filePath) => existsSync(join(workspaceRoot, filePath)))
+      .filter((filePath) => isGitIgnoredWorkspacePath(filePath));
+
+    for (const filePath of ignoredLocalEnvFiles) {
+      expect(paidProviderPolicyTextFiles()).not.toContain(filePath);
+    }
+    expect(paidProviderPolicyTextFiles()).toContain(".env.openclinxr.local.example");
+  });
+
   it("scans package scripts, config files, env templates, and tools for paid provider credentials", () => {
     expect(paidProviderPolicyTextFiles()).toEqual(expect.arrayContaining([
       ".env.openclinxr.local.example",
@@ -1594,7 +1605,17 @@ function workspaceConfigAndEnvFiles(): string[] {
       || filePath === "pnpm-workspace.yaml"
       || /(^|\/)tsconfig(?:\.[^/]+)?\.json$/.test(filePath)
       || /(^|\/)(?:vite|vitest|tsdown|rolldown|biome|eslint|storybook|codegen|tailwind|postcss)\.config\.[cm]?[jt]s$/.test(filePath)
-    );
+    )
+    .filter((filePath) => !isGitIgnoredWorkspacePath(filePath));
+}
+
+function isGitIgnoredWorkspacePath(filePath: string): boolean {
+  try {
+    execFileSync("git", ["check-ignore", "-q", "--", filePath], { cwd: workspaceRoot });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function typescriptFilesUnder(root: string): string[] {

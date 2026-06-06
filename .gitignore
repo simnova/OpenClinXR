@@ -2,6 +2,7 @@ node_modules/
 .turbo/
 .DS_Store
 .env.openclinxr.local
+.envrc
 .openclinxr/
 .openclinxr-local/
 .agent-factory/browser-evidence/
