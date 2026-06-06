@@ -2,6 +2,7 @@
 # This repo uses an OpenClaw-style / OpenClaw-inspired workflow, not an external OpenClaw runtime.
 
 project_doc_max_bytes = 65536
+approval_policy = "on-request"
 
 [features]
 hooks = true
