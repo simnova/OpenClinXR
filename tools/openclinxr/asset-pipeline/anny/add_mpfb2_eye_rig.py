@@ -47,7 +47,7 @@ def main() -> None:
     eye_settings = load_mpfb2_eye_settings()
 
     eyes = add_rigged_eyes(mesh_obj, armature_obj, head_bone_name, bounds, eye_settings)
-    pose_probe = run_pose_probe(eyes["lookTarget"])
+    pose_probe = run_pose_probe(eyes["lookTarget"], [eyes["left"], eyes["right"]])
 
     output_path = Path(args.output_glb)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -86,6 +86,7 @@ def main() -> None:
             "positions": eyes["positions"],
             "constraints": eyes["constraints"],
             "poseProbe": pose_probe,
+            "exportedAnimationClip": "openclinxr_mpfb2_eye_look_probe",
         },
         "providerBoundary": {
             "localOnly": True,
@@ -313,13 +314,34 @@ def add_eye_face_details(
     return details
 
 
-def run_pose_probe(target: bpy.types.Object) -> dict[str, Any]:
+def run_pose_probe(target: bpy.types.Object, eyes: list[bpy.types.Object]) -> dict[str, Any]:
+    bpy.context.scene.frame_start = 1
+    bpy.context.scene.frame_end = 28
+    bpy.context.scene.frame_set(1)
     start = tuple(round(item, 5) for item in target.location)
+    target.keyframe_insert(data_path="location", frame=1)
+    for eye in eyes:
+        eye.keyframe_insert(data_path="rotation_euler", frame=1)
+    bpy.context.scene.frame_set(28)
     target.location.x += 0.04
     target.location.z += 0.01
     bpy.context.view_layer.update()
+    target.keyframe_insert(data_path="location", frame=28)
+    for eye in eyes:
+        eye.keyframe_insert(data_path="rotation_euler", frame=28)
     moved = tuple(round(item, 5) for item in target.location)
-    return {"targetMoved": start != moved, "start": start, "moved": moved}
+    action_names = []
+    for obj in [target, *eyes]:
+        if obj.animation_data and obj.animation_data.action:
+            obj.animation_data.action.name = "openclinxr_mpfb2_eye_look_probe"
+            action_names.append(obj.animation_data.action.name)
+    return {
+        "targetMoved": start != moved,
+        "start": start,
+        "moved": moved,
+        "keyframedFrames": [1, 28],
+        "exportableActionNames": sorted(set(action_names)),
+    }
 
 
 def sha256(file_path: Path) -> str:
