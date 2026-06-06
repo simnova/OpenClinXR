@@ -6,10 +6,10 @@
   "counts": {
     "archive-candidate": 65,
     "current-reference": 94,
-    "evidence": 27,
     "protected-policy": 11,
     "agent-memory": 18,
     "agent-methodology": 21,
+    "evidence": 15,
     "decision-record": 19,
     "historical-synthesis": 9
   },
@@ -750,97 +750,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".openclinxr/README.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/anny/data/mpfb2/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/torchgen/packaged/autograd/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
       "path": "AGENTS.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
@@ -1483,6 +1392,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/generated-output-storage-policy-2026-06-06.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md",

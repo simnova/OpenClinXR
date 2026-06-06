@@ -15,7 +15,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - archive-candidate: 65
 - current-reference: 94
 - decision-record: 19
-- evidence: 27
+- evidence: 15
 - historical-synthesis: 9
 - protected-policy: 11
 
@@ -189,9 +189,9 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.cursor/agents/pediatrics-physician.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.cursor/agents/vp-engineering-delivery.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.cursor/agents/xr-systems-architect.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/generated-output-storage-policy-2026-06-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

@@ -10,22 +10,26 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 8
+- ignore-local-cache: 12
 - keep-compatibility-input: 24
 - keep-current: 44
-- keep-evidence: 43
+- keep-evidence: 32
 - keep-template: 5
 
 ## Cleanup Actions
 
-- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/openclaw/automation-lease.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/openclaw/run-next-report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/test-publication/local_tenant/ed_chest_pain_priority_v1/ed_chest_pain_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.agent-factory/benchmark-gate-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/evidence-debt-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/godot-project-import-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/maturity-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/memory-index.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-cdp-smoke-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-http3-compatibility-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-http3-compatibility-template-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-manual-performance-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-mixed-reality-manual-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/quest-mixed-reality-manual-template-check.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
+- `.agent-factory/risk-report.json` - ignore-local-cache; delete-if-untracked; Untracked transient agent-factory check output; safe to delete or ignore.
 - `docs/openclinxr/encounter-asset-generation-queue-2026-05-23.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/external-ai-asset-provider-preflight-2026-05-25.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
 - `docs/openclinxr/garment-fit-quality-reom-shirts01-cc0-transform-2026-05-27.json` - keep-compatibility-input; review-before-change; Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output.
@@ -94,18 +98,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
-- `.agent-factory/benchmark-gate-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/evidence-debt-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/godot-project-import-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/maturity-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/memory-index.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-cdp-smoke-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-http3-compatibility-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-http3-compatibility-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-manual-performance-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-mixed-reality-manual-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/quest-mixed-reality-manual-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
-- `.agent-factory/risk-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `docs/openclinxr/anny-skin-cagematch-probe-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
