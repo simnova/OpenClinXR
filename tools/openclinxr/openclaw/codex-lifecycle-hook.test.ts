@@ -58,4 +58,15 @@ describe("codex lifecycle hook", () => {
     expect(start.message).toContain("/Volumes/files/src/openclinxr");
     expect(stop.message).toContain("parent agent owns integration");
   });
+
+  it("keeps the stop hook from treating clean slices as final chat boundaries", () => {
+    const decision = buildCodexLifecycleHookDecision("stop", "");
+
+    expect(decision.runGuards).toBe(false);
+    expect(decision.reason).toContain("Autonomous continuation guard");
+    expect(decision.message).toContain("a clean slice boundary is not a stop condition");
+    expect(decision.message).toContain("do not send a final chat summary");
+    expect(decision.message).toContain("pnpm openclaw:run-next");
+    expect(decision.message).toContain("continue the next real slice");
+  });
 });

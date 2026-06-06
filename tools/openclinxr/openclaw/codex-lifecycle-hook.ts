@@ -115,10 +115,10 @@ export function buildCodexLifecycleHookDecision(
       return {
         mode,
         message:
-          "OpenClaw-style stop reminder: do not append no-op heartbeat records; durable state changes belong only after product changes, verification evidence, or blockers.",
+          "OpenClaw-style stop guard: a clean slice boundary is not a stop condition. If no explicit pause/stop, all-lanes-complete, or all-lanes-blocked condition is recorded, do not send a final chat summary; rehydrate snapshots, run pnpm openclaw:run-next, lease, and continue the next real slice. Do not append no-op heartbeat records; durable state changes belong only after product changes, verification evidence, or blockers.",
         runGuards: false,
         guardCommand: null,
-        reason: "Stop guidance only.",
+        reason: "Autonomous continuation guard for Stop lifecycle boundary.",
       };
   }
 }

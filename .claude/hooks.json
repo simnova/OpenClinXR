@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'PreToolUse (lease safety per gap4 + AGENTS long-running-autonomy): if editing coord/states/AGENTS, ensure lease. Running: pnpm openclaw:lease -- acquire --owner harness-autonomy --slice \"pre-edit-$(basename $0)\" --ttl-minutes 30 || echo \"Lease check/acquire suggested or held by other; re-read states and respect lease.\"; pnpm openclaw:lease -- status || true",
+            "command": "echo 'PreToolUse (lease safety per gap4 + AGENTS long-running-autonomy): if editing coord/states/AGENTS, ensure a lease before real edits. Advisory hook check only; run: pnpm openclaw:lease -- acquire --owner harness-autonomy --slice \"<selected-slice>\" --ttl-minutes 30. Current lease status:'; pnpm openclaw:lease -- status || true",
             "timeout": 30
           }
         ]
