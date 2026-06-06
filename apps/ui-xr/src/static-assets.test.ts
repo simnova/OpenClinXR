@@ -293,6 +293,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("semantic_pediatric_equipment_cues_visible");
     expect(mainSource).toContain("emotionSource: speech.emotionContext.source");
     expect(mainSource).toContain("humanoidSourceComparator");
+    expect(mainSource).toContain("peds_anny_mpfb2_eye_rig_patient");
+    expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
     expect(mainSource).toContain("mpfb-ob-patient-aisha-rigged-candidate.glb");
     expect(mainSource).toContain("charmorph-antonia-ob-patient-candidate.glb");
     expect(mainSource).toContain("charmorph-reom-ob-patient-candidate.glb");

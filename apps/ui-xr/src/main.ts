@@ -5980,6 +5980,18 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
       provenanceManifestPath: "/generated-humanoids/peds_nurse_kevin.provenance.json",
     };
   }
+  if (assetPath.includes("/cagematch/anny-mpfb2-eye-rig/")) {
+    return {
+      ...realAnnyCandidate,
+      sourceKind: "source_comparator_candidate",
+      provenanceManifestPath: "ignored_public_cagematch/anny-mpfb2-eye-rig/current/mpfb2-eye-rig-report.json",
+      notEvidenceFor: [
+        ...realAnnyCandidate.notEvidenceFor,
+        "default_runtime_asset_replacement",
+        "generated_output_committed_to_git",
+      ],
+    };
+  }
   return undefined;
 }
 
@@ -6291,6 +6303,10 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   }
 
   if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
+    const humanoidSourceComparator = selectedHumanoidSourceComparator();
+    if (humanoidSourceComparator === "peds_anny_mpfb2_eye_rig_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
+      return "/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb";
+    }
     const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
     if (pedsHandoff?.assets?.length) {
       const targetRole = (actorId === runtimePatientActorId() || role === 'patient')
@@ -6322,9 +6338,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   return fallbackPath;
 }
 
-function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | null {
+function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | null {
   const selected = new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim();
-  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" ? selected : null;
+  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" ? selected : null;
 }
 
 function registerGeneratedHumanoidAnimation(input: {

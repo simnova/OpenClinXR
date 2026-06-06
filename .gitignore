@@ -15,6 +15,7 @@ __pycache__/
 apps/*/dist/
 apps/*/*/dist/cagematch/
 apps/arena/model-vetting-studio/public/cagematch/
+apps/ui-xr/public/cagematch/
 apps/*/deploy/
 packages/*/dist/
 packages/*/*/dist/
