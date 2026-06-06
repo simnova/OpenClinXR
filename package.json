@@ -83,6 +83,7 @@
     "asset:anny-candidate:validate": "tsx tools/openclinxr/evidence/anny-candidate-preflight.ts --validate-latest",
     "asset:model-vetting:report": "tsx tools/openclinxr/evidence/model-vetting-report.ts",
     "asset:model-vetting:validate": "tsx tools/openclinxr/evidence/model-vetting-report.ts --validate-latest",
+    "asset:model-vetting:local-candidate-mirror": "tsx tools/openclinxr/evidence/model-vetting-local-candidate-mirror.ts",
     "asset:model-vetting:capture-manifest": "tsx tools/openclinxr/evidence/model-vetting-capture-manifest.ts",
     "asset:model-vetting:capture-manifest:validate": "tsx tools/openclinxr/evidence/model-vetting-capture-manifest.ts --validate-latest",
     "asset:model-vetting:turntable-capture": "tsx tools/openclinxr/evidence/model-vetting-turntable-capture.ts",

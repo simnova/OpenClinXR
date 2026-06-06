@@ -68,8 +68,7 @@ type CleanupReport = {
   ];
 };
 
-async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+export async function stripCagematchVisualAuditMarkers(options: CliOptions): Promise<CleanupReport> {
   await MeshoptDecoder.ready;
   const io = createGlbIo();
   const document = await io.read(options.inputPath);
@@ -123,6 +122,12 @@ async function main(): Promise<void> {
     await updateModelVettingReport(options.publicReportPath, options.candidateId, structuralMetrics, options.cleanupReportPath);
   }
 
+  return cleanupReport;
+}
+
+async function main(): Promise<void> {
+  const options = parseArgs(process.argv.slice(2));
+  const cleanupReport = await stripCagematchVisualAuditMarkers(options);
   process.stdout.write(`${JSON.stringify(cleanupReport, null, 2)}\n`);
 }
 

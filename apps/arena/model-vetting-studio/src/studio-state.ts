@@ -5,7 +5,7 @@ import {
 } from "@openclinxr/model-vetting";
 
 export const modelVettingStudioReportUrl = new URL(
-  "../../../../docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json",
+  "../../../../docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json",
   import.meta.url,
 ).href;
 
@@ -134,9 +134,16 @@ export async function loadModelVettingStudioEvidence(
     fetch(captureManifestUrl),
   ]);
   if (!response.ok) throw new Error(`Unable to load model-vetting report: ${response.status}`);
-  const actorPlayerEvidence = actorPlayerResponse.ok ? await actorPlayerResponse.json() as unknown : null;
-  const captureManifest = captureManifestResponse.ok ? await captureManifestResponse.json() as unknown : null;
+  const actorPlayerEvidence = await optionalJsonFromResponse(actorPlayerResponse);
+  const captureManifest = await optionalJsonFromResponse(captureManifestResponse);
   return buildModelVettingStudioEvidence(await response.json() as unknown, reportUrl, actorPlayerEvidence, actorPlayerUrl, captureManifest);
+}
+
+export async function optionalJsonFromResponse(response: Response): Promise<unknown | null> {
+  if (!response.ok) return null;
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) return null;
+  return response.json() as Promise<unknown>;
 }
 
 export function buildModelVettingStudioEvidence(
