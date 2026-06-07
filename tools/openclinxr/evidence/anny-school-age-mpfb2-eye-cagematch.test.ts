@@ -19,5 +19,7 @@ describe("anny-school-age-mpfb2-eye-cagematch wiring", () => {
     expect(source).toContain("viseme_timeline");
     expect(source).toContain("apps/ui-xr/public/cagematch");
     expect(source).toContain("captureDialogueText");
+    expect(source).toContain("2026-06-07-school-aged-patient-scalp-hair-v3");
+    expect(source).toContain("faceHairSourceTopologyMode");
   });
 });

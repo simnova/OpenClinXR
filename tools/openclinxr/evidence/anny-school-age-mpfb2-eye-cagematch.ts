@@ -36,7 +36,8 @@ const NOT_EVIDENCE_FOR = [
 ];
 
 const DEFAULT_INPUT_GLB =
-  ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-warmer-skin-v1/peds_patient_child.glb";
+  ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/peds_patient_child.glb";
+const DEFAULT_SCALP_HAIR_SOURCE_RUN_ID = "2026-06-07-school-aged-patient-scalp-hair-v3";
 const DEFAULT_SOURCE_REPORT =
   "apps/arena/model-vetting-studio/public/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/model-vetting-report.json";
 const DEFAULT_SOURCE_CANDIDATE_ID = "peds_patient_child_anny_compatible_candidate";
@@ -126,6 +127,9 @@ async function main(): Promise<void> {
       mpfb2ReportPath,
       sourceReportPath: options.sourceReportPath,
       sourceCandidateId: options.sourceCandidateId,
+      scalpHairSourceRunId: DEFAULT_SCALP_HAIR_SOURCE_RUN_ID,
+      scalpHairRevision: "v3_mesh_native_scalp_material_no_detached_hair_markers",
+      faceHairSourceTopologyMode: "mesh_native_scalp_region_plus_mpfb2_informed_seated_eyes",
       outputHome,
       captureViews: options.captureViews,
       providerBoundary: {
@@ -238,6 +242,7 @@ async function buildMpfb2EyeReport(input: {
     eyePlacementMode: "mpfb2_informed_low_poly_procedural_seated_eyes",
     featurePlacementMode: "no_detached_face_markers",
     hairObjectName: "mesh_native_scalp_region",
+    scalpHairSourceRunId: DEFAULT_SCALP_HAIR_SOURCE_RUN_ID,
     coordinateBasis: "armature_head_bone_parented",
     eyeObjectNames,
     facialFeatureObjectNames: [],
@@ -413,7 +418,7 @@ function stopServer(server: ChildProcessWithoutNullStreams): void {
 function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
     lane: "anny-school-age",
-    runId: "2026-06-07-school-aged-patient-mpfb2-eye-v1",
+    runId: "2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1",
     inputGlbPath: DEFAULT_INPUT_GLB,
     sourceReportPath: DEFAULT_SOURCE_REPORT,
     sourceCandidateId: DEFAULT_SOURCE_CANDIDATE_ID,
