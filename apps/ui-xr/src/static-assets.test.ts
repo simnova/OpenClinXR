@@ -302,6 +302,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("openClinXrVisemeTimelineComparatorEvidence");
     expect(mainSource).toContain("resolvePedsAdaptiveDialogueBranch");
     expect(mainSource).toContain("__openClinXrPedsAdaptiveDialogueEvidence");
+    expect(mainSource).toContain("schoolAgePatientAssetPath");
     expect(mainSource).toContain("__openClinXrMouthGazePoseComparatorEvidence");
     expect(mainSource).toContain("recordMouthGazePoseComparatorEvidence");
     expect(mainSource).toContain("glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition");

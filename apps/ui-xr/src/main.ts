@@ -1483,6 +1483,8 @@ type PedsAdaptiveDialogueEvidence = {
   mappingMode: PedsAdaptiveDialogueBranchResolution["mappingMode"];
   reviewSafeMetadata: PedsAdaptiveDialogueBranchResolution["reviewSafeMetadata"];
   latestSequenceSource: "bundle_dialogue_adaptive_branch";
+  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient";
+  schoolAgePatientAssetPath?: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
   notEvidenceFor: string[];
 };
 type PedsActorPlayerRuntimePlaybackEvidence = {
@@ -6726,6 +6728,9 @@ function triggerPedsAdaptiveDialogueBranch(
   pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
   pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (turns.length * 1250) + 2600;
   playPedsActorPlayerRuntimeSequence(sequence, pedsActorPlayerRuntimeTurns());
+  const schoolAgeComparator = selectedHumanoidSourceComparator() === "peds_anny_school_age_mpfb2_eye_patient"
+    ? "peds_anny_school_age_mpfb2_eye_patient" as const
+    : undefined;
   window.__openClinXrPedsAdaptiveDialogueEvidence = {
     source: "window.__openClinXrPedsAdaptiveDialogueEvidence",
     scenarioId: "peds_asthma_parent_anxiety_v1",
@@ -6737,6 +6742,12 @@ function triggerPedsAdaptiveDialogueBranch(
     mappingMode: branch.mappingMode,
     reviewSafeMetadata: branch.reviewSafeMetadata,
     latestSequenceSource: "bundle_dialogue_adaptive_branch",
+    ...(schoolAgeComparator
+      ? {
+        humanoidSourceComparator: schoolAgeComparator,
+        schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb",
+      }
+      : {}),
     notEvidenceFor: branch.reviewSafeMetadata.notEvidenceFor,
   };
   recordPedsActorPlayerRuntimePlaybackEvidence({

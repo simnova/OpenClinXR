@@ -131,6 +131,7 @@
     "asset:anny:mpfb2-eye-rig": "blender --background --python tools/openclinxr/asset-pipeline/anny/add_mpfb2_eye_rig.py --",
     "asset:anny:school-age-mpfb2-eye": "tsx tools/openclinxr/evidence/anny-school-age-mpfb2-eye-cagematch.ts",
     "asset:ui-xr:peds-school-age-mouth-gaze-capture": "tsx tools/openclinxr/evidence/ui-xr-peds-school-age-mouth-gaze-capture.ts",
+    "asset:ui-xr:peds-adaptive-dialogue-capture": "tsx tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts",
     "asset:humanoid-source:decide": "tsx tools/openclinxr/factory/humanoid-source-decision-tree-cli.ts",
     "asset:mpfb:pediatric-patient-cagematch": "tsx tools/openclinxr/evidence/mpfb-pediatric-patient-cagematch.ts",
     "asset:humanoid-source:side-by-side-cagematch": "tsx tools/openclinxr/evidence/humanoid-source-side-by-side-cagematch.ts",
