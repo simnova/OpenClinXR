@@ -3,6 +3,7 @@ import {
   evaluateGrokDelegationAdvice,
   evaluateGrokTierUpgrade,
   formatGrokTierRecordLine,
+  parseGrokTierId,
 } from "../../../packages/openclinxr/agent-loop/src/grok-tier-routing.js";
 
 describe("grok tier cli helpers", () => {
@@ -24,5 +25,9 @@ describe("grok tier cli helpers", () => {
 
   it("formats tier record lines for state files", () => {
     expect(formatGrokTierRecordLine("tier1_deepseek_flash_scout")).toContain("tier: flash");
+  });
+
+  it("accepts execute tier alias used by agents", () => {
+    expect(parseGrokTierId("tier3_deepseek_pro_execute")).toBe("tier3_deepseek_pro_execution");
   });
 });

@@ -239,6 +239,21 @@ export type GrokTierUpgradeEvaluation = {
   reason: string;
 };
 
+export const GROK_TIER_IDS: GrokTierId[] = GROK_TIER_LADDER.map((entry) => entry.tierId);
+
+const GROK_TIER_ID_ALIASES: Partial<Record<string, GrokTierId>> = {
+  tier3_deepseek_pro_execute: "tier3_deepseek_pro_execution",
+};
+
+export function parseGrokTierId(input: string): GrokTierId {
+  const normalized = input.trim();
+  const aliased = GROK_TIER_ID_ALIASES[normalized];
+  if (aliased) return aliased;
+  const spec = GROK_TIER_LADDER.find((entry) => entry.tierId === normalized);
+  if (spec) return spec.tierId;
+  throw new Error(`Unknown Grok tier: ${normalized}. Valid: ${GROK_TIER_IDS.join(", ")}`);
+}
+
 export function getGrokTierSpec(tierId: GrokTierId): GrokTierSpec {
   const spec = GROK_TIER_LADDER.find((entry) => entry.tierId === tierId);
   if (!spec) throw new Error(`Unknown Grok tier: ${tierId}`);

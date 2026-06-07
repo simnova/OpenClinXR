@@ -5,6 +5,7 @@ import {
   evaluateGrokDelegationAdvice,
   evaluateGrokTierUpgrade,
   formatGrokTierRecordLine,
+  parseGrokTierId,
   recommendGrokStartTier,
   validateGrokHarnessTierConfig,
 } from "./grok-tier-routing.js";
@@ -71,5 +72,11 @@ describe("grok tier routing", () => {
 
   it("formats tier record for state files", () => {
     expect(formatGrokTierRecordLine("tier4_grok_compose_integrate")).toContain("compose");
+  });
+
+  it("parses valid tier ids and aliases common execute typo", () => {
+    expect(parseGrokTierId("tier1_deepseek_flash_scout")).toBe("tier1_deepseek_flash_scout");
+    expect(parseGrokTierId("tier3_deepseek_pro_execute")).toBe("tier3_deepseek_pro_execution");
+    expect(() => parseGrokTierId("tier9_invalid")).toThrow(/Valid:/);
   });
 });

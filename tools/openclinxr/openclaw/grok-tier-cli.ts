@@ -11,6 +11,7 @@ import {
   evaluateGrokDelegationAdvice,
   evaluateGrokTierUpgrade,
   formatGrokTierIntrospectionBrief,
+  parseGrokTierId,
   recommendGrokStartTier,
   validateGrokHarnessTierConfig,
   type GrokDelegationIntent,
@@ -85,7 +86,7 @@ function parseArgs(argv: string[]): CliArgs {
     if (arg === "--plan-question" && argv[i + 1]) planQuestion = argv[++i];
     if (arg === "--execution-scope" && argv[i + 1]) executionScope = argv[++i];
     if (arg === "--intent" && argv[i + 1]) intent = argv[++i] as GrokDelegationIntent;
-    if (arg === "--current-tier" && argv[i + 1]) currentTier = argv[++i] as GrokTierId;
+    if (arg === "--current-tier" && argv[i + 1]) currentTier = parseGrokTierId(argv[++i]);
     if (arg === "--scout-output" && argv[i + 1]) scoutOutput = argv[++i];
     if (arg === "--verification-failures" && argv[i + 1]) verificationFailures = Number(argv[++i]) || 0;
     if (arg === "--evidence-only-streak" && argv[i + 1]) evidenceOnlyStreak = Number(argv[++i]) || 0;
