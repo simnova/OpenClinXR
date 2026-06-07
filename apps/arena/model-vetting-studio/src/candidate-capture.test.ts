@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildAnimationEvidence, glbUrlForPath, isFixedCameraView, selectBodyMotionProbeClipName } from "./candidate-capture.js";
+import { buildVisemeTimelineFromDialogue, PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE } from "@openclinxr/model-vetting";
+import { buildAnimationEvidence, glbUrlForPath, isFixedCameraView, isTemporalCaptureView, selectBodyMotionProbeClipName } from "./candidate-capture.js";
 
 describe("candidate capture GLB selection", () => {
   it("maps sidecar-produced local candidate paths to the matching browser-served GLB", () => {
@@ -46,5 +47,12 @@ describe("candidate capture GLB selection", () => {
       "openclinxr_mpfb_body_motion_probe_pediatric_breathing",
       "idle",
     ])).toBe("openclinxr_mpfb_body_motion_probe_pediatric_breathing");
+  });
+
+  it("treats viseme_timeline as a temporal capture bound to the peds asthma patient utterance", () => {
+    expect(isTemporalCaptureView("viseme_timeline")).toBe(true);
+    const timeline = buildVisemeTimelineFromDialogue(PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE);
+    expect(timeline.traceTag).toBe("work_of_breathing_assessment");
+    expect(timeline.visemeSequence.length).toBeGreaterThan(0);
   });
 });

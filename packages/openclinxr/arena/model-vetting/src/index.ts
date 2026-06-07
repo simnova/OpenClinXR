@@ -710,3 +710,14 @@ export type {
   CagematchTechnologyId,
 } from "./cagematch-report.js";
 export { validateCagematchReportPage, validateCagematchReportRegistry } from "./cagematch-report.js";
+export {
+  PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE,
+  applyMorphTargetVisemeCue,
+  buildVisemeTimelineFromDialogue,
+  humanoidDialogueDurationMs,
+  phonemeSequenceForDialogue,
+  visemeAtTimelineProgress,
+  visemeForPhoneme,
+  visemeOpenness,
+} from "./viseme-timeline.js";
+export type { MorphTargetVisemeCueEvidence, VisemeTimeline, VisemeTimelineMappingMode } from "./viseme-timeline.js";

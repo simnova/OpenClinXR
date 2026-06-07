@@ -294,8 +294,12 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("emotionSource: speech.emotionContext.source");
     expect(mainSource).toContain("humanoidSourceComparator");
     expect(mainSource).toContain("peds_anny_mpfb2_eye_rig_patient");
+    expect(mainSource).toContain("peds_anny_school_age_mpfb2_eye_patient");
     expect(mainSource).toContain("peds_anny_comfy_masked_skin");
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
+    expect(mainSource).toContain("/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb");
+    expect(mainSource).toContain("pedsAsthmaPatientBundleVisemeUtterance");
+    expect(mainSource).toContain("openClinXrVisemeTimelineComparatorEvidence");
     expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_anxious_parent.glb");
     expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_nurse_kevin.glb");
     expect(mainSource).toContain("source_materials_preserved_for_clean_comparator_capture_no_runtime_tint");
@@ -763,7 +767,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("dialogue_target");
     expect(mainSource).toContain("triggerHumanoidDialogueForTrace");
     expect(mainSource).toContain("triggerHumanoidDialogue(actorTurn.actorId, text, localDialogueGazeTargetForTraceTag(tag))");
-    expect(mainSource).toContain("triggerHumanoidDialogue(input.actorId, dialogueLine.textContent?.trim() || initialDialogueText");
+    expect(mainSource).toContain("triggerHumanoidDialogue(input.actorId, dialogueText");
     expect(mainSource).toContain("__openClinXrHumanoidSpeechEvidence ??=");
     expect(mainSource).not.toContain("window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(null, null, null, [], [], null);");
     expect(mainSource).toContain("localDialogueActorIdForTraceTag");

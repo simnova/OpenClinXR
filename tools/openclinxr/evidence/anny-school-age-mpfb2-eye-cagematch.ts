@@ -16,7 +16,8 @@ type CliOptions = {
   sourceReportPath: string;
   sourceCandidateId: string;
   outputGlbName: string;
-  captureViews: Array<"front" | "three_quarter" | "body_motion_probe">;
+  captureViews: Array<"front" | "three_quarter" | "body_motion_probe" | "viseme_timeline">;
+  dialogueText: string;
   port: number;
   durationMs: number;
   skipMpfb2Stage: boolean;
@@ -152,6 +153,7 @@ async function main(): Promise<void> {
       runId: options.runId,
       port: options.port,
       durationMs: options.durationMs,
+      dialogueText: options.dialogueText,
     });
     await writeJson(captureManifestPath, {
       schemaVersion: "openclinxr.model-vetting-capture-manifest.v1",
@@ -164,11 +166,16 @@ async function main(): Promise<void> {
   }
 
   const currentDir = path.join("apps/arena/model-vetting-studio/public/cagematch", options.lane, "current");
+  const uiXrCurrentDir = path.join("apps/ui-xr/public/cagematch", options.lane, "current");
   await mkdir(currentDir, { recursive: true });
+  await mkdir(uiXrCurrentDir, { recursive: true });
   await Promise.all([
     copyFile(outputGlbPath, path.join(currentDir, options.outputGlbName)),
     copyFile(publicReportPath, path.join(currentDir, "model-vetting-report.json")),
     copyFile(mpfb2ReportPath, path.join(currentDir, "mpfb2-eye-rig-report.json")),
+    copyFile(outputGlbPath, path.join(uiXrCurrentDir, options.outputGlbName)),
+    copyFile(publicReportPath, path.join(uiXrCurrentDir, "model-vetting-report.json")),
+    copyFile(mpfb2ReportPath, path.join(uiXrCurrentDir, "mpfb2-eye-rig-report.json")),
   ]);
 
   process.stdout.write(
@@ -240,6 +247,8 @@ async function buildMpfb2EyeReport(input: {
   candidate.captureArtifacts = {
     fixedCameraScreenshots: [],
     turntableVideo: null,
+    morphVisemeTimelineCapture: null,
+    emotionTransitionCapture: null,
   };
 
   return {
@@ -268,6 +277,7 @@ async function captureStudioEvidence(input: {
   runId: string;
   port: number;
   durationMs: number;
+  dialogueText: string;
 }): Promise<Array<{ candidateId: string; slotId: string; artifactPath: string }>> {
   const candidate = input.report.candidates[0];
   const server = spawn("pnpm", ["--filter", "@openclinxr/model-vetting-studio", "dev:portless"], {
@@ -282,20 +292,23 @@ async function captureStudioEvidence(input: {
     const browser = await chromium.launch({ headless: true });
     try {
       for (const captureView of input.captureViews) {
-        const ext = captureView === "body_motion_probe" ? "webm" : "png";
+        const ext = captureView === "body_motion_probe" || captureView === "viseme_timeline" ? "webm" : "png";
         const artifactPath = path.join(
           input.captureDir,
           `${path.basename(candidate.sourceGlbPath, ".glb")}_${captureView}_${input.runId}.${ext}`,
         );
         const page = await browser.newPage({ viewport: { width: 1280, height: 1280 } });
+        const dialogueQuery = captureView === "viseme_timeline"
+          ? `&captureDialogueText=${encodeURIComponent(input.dialogueText)}`
+          : "";
         const url =
           `http://127.0.0.1:${input.port}/?captureCandidateId=${encodeURIComponent(candidate.candidateId)}` +
-          `&captureView=${captureView}&reportUrl=${encodeURIComponent(input.reportUrl)}`;
+          `&captureView=${captureView}&reportUrl=${encodeURIComponent(input.reportUrl)}${dialogueQuery}`;
         await page.goto(url, { waitUntil: "networkidle" });
         await page.waitForFunction(
           (expectedView) => {
             const evidence = window.__openClinXrModelVettingCandidateCaptureEvidence;
-            return (
+            const baseReady = (
               evidence?.captureView === expectedView
               && typeof evidence.captureClaim === "string"
               && evidence.captureClaim.startsWith("isolated_model_")
@@ -303,13 +316,20 @@ async function captureStudioEvidence(input: {
               && typeof evidence.meshCount === "number"
               && evidence.meshCount > 0
             );
+            if (expectedView === "viseme_timeline") {
+              return baseReady
+                && evidence?.visemeTimelineEvidence?.morphTargetPlaybackMode === "glb_morph_target_timeline_from_bundle_dialogue"
+                && (evidence.visemeTimelineEvidence.appliedTargetCount ?? 0) > 0;
+            }
+            return baseReady;
           },
           captureView,
           { timeout: 120_000 },
         );
-        await page.waitForTimeout(400);
-        if (captureView === "body_motion_probe") {
-          await writeFile(artifactPath, Buffer.from(await recordModelCanvasVideo(page, input.durationMs)));
+        await page.waitForTimeout(captureView === "viseme_timeline" ? 1200 : 400);
+        if (captureView === "body_motion_probe" || captureView === "viseme_timeline") {
+          const recordingDurationMs = captureView === "viseme_timeline" ? Math.max(input.durationMs, 4500) : input.durationMs;
+          await writeFile(artifactPath, Buffer.from(await recordModelCanvasVideo(page, recordingDurationMs)));
         } else {
           await page.screenshot({ path: artifactPath });
         }
@@ -357,6 +377,7 @@ async function recordModelCanvasVideo(page: import("playwright").Page, durationM
 function slotIdForCaptureView(view: CliOptions["captureViews"][number]): string {
   if (view === "front") return "front_screenshot";
   if (view === "three_quarter") return "three_quarter_screenshot";
+  if (view === "viseme_timeline") return "viseme_timeline_video";
   return "body_motion_probe_video";
 }
 
@@ -387,7 +408,8 @@ function parseArgs(args: string[]): CliOptions {
     sourceReportPath: DEFAULT_SOURCE_REPORT,
     sourceCandidateId: DEFAULT_SOURCE_CANDIDATE_ID,
     outputGlbName: "peds_patient_child_mpfb2_eye.glb",
-    captureViews: ["front", "three_quarter", "body_motion_probe"],
+    captureViews: ["front", "three_quarter", "body_motion_probe", "viseme_timeline"],
+    dialogueText: "Maya Johnson: It is hard to breathe and my chest feels tight.",
     port: 5192,
     durationMs: 5000,
     skipMpfb2Stage: false,
@@ -405,6 +427,7 @@ function parseArgs(args: string[]): CliOptions {
       options.captureViews = requireNext(args, ++index, arg).split(",").map((v) => v.trim()) as CliOptions["captureViews"];
     } else if (arg === "--port") options.port = Number(requireNext(args, ++index, arg));
     else if (arg === "--duration-ms") options.durationMs = Number(requireNext(args, ++index, arg));
+    else if (arg === "--dialogue-text") options.dialogueText = requireNext(args, ++index, arg);
     else if (arg === "--skip-mpfb2-stage") options.skipMpfb2Stage = true;
     else if (arg === "--skip-capture") options.skipCapture = true;
   }

@@ -6060,6 +6060,18 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
       ],
     };
   }
+  if (assetPath.includes("/cagematch/anny-school-age/")) {
+    return {
+      ...realAnnyCandidate,
+      sourceKind: "source_comparator_candidate",
+      provenanceManifestPath: "ignored_public_cagematch/anny-school-age/current/mpfb2-eye-rig-report.json",
+      notEvidenceFor: [
+        ...realAnnyCandidate.notEvidenceFor,
+        "default_runtime_asset_replacement",
+        "generated_output_committed_to_git",
+      ],
+    };
+  }
   return undefined;
 }
 
@@ -6408,6 +6420,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     if (humanoidSourceComparator === "peds_anny_mpfb2_eye_rig_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
       return "/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb";
     }
+    if (humanoidSourceComparator === "peds_anny_school_age_mpfb2_eye_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
+      return "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
+    }
     const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
     if (pedsHandoff?.assets?.length) {
       const targetRole = (actorId === runtimePatientActorId() || role === 'patient')
@@ -6439,9 +6454,16 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   return fallbackPath;
 }
 
-function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_comfy_masked_skin" | null {
+function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | null {
   const selected = new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim();
-  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_comfy_masked_skin" ? selected : null;
+  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" ? selected : null;
+}
+
+function pedsAsthmaPatientBundleVisemeUtterance(): string {
+  const bundleTurn = (encounterRuntimeAssetBundle.sceneManifest.dialogueTurns ?? []).find(
+    (turn) => turn.traceTag === "work_of_breathing_assessment" && turn.actorId === runtimePatientActorId(),
+  );
+  return bundleTurn?.text ?? "Maya Johnson: It is hard to breathe and my chest feels tight.";
 }
 
 function neutralizeGeneratedHumanoidMorphTargets(humanoid: Group): void {
@@ -6560,11 +6582,25 @@ function registerGeneratedHumanoidAnimation(input: {
       "runtime_pose_speech_gaze_emotion_updates_disabled_for_clean_source_body_capture";
   }
   if (input.actorId === runtimePatientActorId() && !slot.sourceComparatorFreezeEnabled) {
+    const comparator = selectedHumanoidSourceComparator();
+    const dialogueText = comparator === "peds_anny_school_age_mpfb2_eye_patient"
+      ? pedsAsthmaPatientBundleVisemeUtterance()
+      : dialogueLine.textContent?.trim() || initialDialogueText;
     window.requestAnimationFrame(() => {
-      triggerHumanoidDialogue(input.actorId, dialogueLine.textContent?.trim() || initialDialogueText, {
+      triggerHumanoidDialogue(input.actorId, dialogueText, {
         kind: "learner_camera",
         actorId: null,
-      });
+      }, comparator === "peds_anny_school_age_mpfb2_eye_patient" ? "anxious" : undefined);
+      if (comparator === "peds_anny_school_age_mpfb2_eye_patient") {
+        input.humanoid.userData.openClinXrVisemeTimelineComparatorEvidence = {
+          comparator,
+          dialogueText,
+          traceTag: "work_of_breathing_assessment",
+          mappingMode: "deterministic_text_phoneme_viseme_runtime_cue",
+          morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue",
+          notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
+        };
+      }
     });
   }
   schedulePedsActorPlayerRuntimePlaybackIfReady();

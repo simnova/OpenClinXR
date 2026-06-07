@@ -1,9 +1,15 @@
 import {
+  PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE,
+  applyMorphTargetVisemeCue,
+  buildVisemeTimelineFromDialogue,
+  visemeAtTimelineProgress,
+  type VisemeTimeline,
+} from "@openclinxr/model-vetting";
+import {
   AmbientLight,
   AnimationClip,
   AnimationMixer,
   Box3,
-  BoxGeometry,
   Color,
   CylinderGeometry,
   DirectionalLight,
@@ -93,6 +99,19 @@ export type ModelVettingCandidateCaptureEvidence = {
     durationMs: number;
     degrees: number;
   };
+  visemeTimelineEvidence?: {
+    dialogueText: string;
+    traceTag: VisemeTimeline["traceTag"];
+    actorId: VisemeTimeline["actorId"];
+    mappingMode: VisemeTimeline["mappingMode"];
+    phonemeCount: number;
+    visemeCount: number;
+    appliedTargetCount: number;
+    activeViseme: string;
+    mouthOpenness: number;
+    morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue";
+    notEvidenceFor: string;
+  };
   scenePlacementEvidenceAllowed: false;
   questReadinessClaimAllowed: false;
   productionReadinessClaimAllowed: false;
@@ -127,6 +146,7 @@ export async function renderCandidateCapture(input: {
   evidence: ModelVettingStudioEvidence;
   candidateId: string;
   view: CandidateCaptureView;
+  dialogueText?: string;
 }): Promise<ModelVettingCandidateCaptureEvidence> {
   const candidate = input.evidence.candidates.find((item) => item.candidateId === input.candidateId);
   if (!candidate) throw new Error(`Unknown candidateId ${input.candidateId}`);
@@ -169,13 +189,13 @@ export async function renderCandidateCapture(input: {
   let skinnedMeshCount = 0;
   const inspectionMaterial = new MeshBasicMaterial({ color: "#cde7dc" });
   const useSourceMaterials = input.view !== "emotion_transition";
-  const visemeCue = new Mesh(
-    new BoxGeometry(0.42, 0.035, 0.035),
-    new MeshBasicMaterial({ color: "#17221e" }),
-  );
-  visemeCue.position.set(0, 1.48, 0.74);
-  visemeCue.visible = input.view === "viseme_timeline";
-  scene.add(visemeCue);
+  const visemeTimelineCapture = input.view === "viseme_timeline";
+  const visemeTimeline = visemeTimelineCapture
+    ? buildVisemeTimelineFromDialogue(input.dialogueText ?? PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE)
+    : null;
+  let latestVisemeCueEvidence = visemeTimelineCapture
+    ? applyMorphTargetVisemeCue(model, 0, "rest")
+    : null;
 
   const bodyMotionCapture = input.view === "body_motion_probe";
   const captureModel = new Group();
@@ -226,15 +246,15 @@ export async function renderCandidateCapture(input: {
     ? probeLiveSkinnedBounds(model, mixer)
     : null;
   const liveRiggedCapture = Boolean(liveSkinnedBoundsProbe?.sane);
-  model.visible = liveRiggedCapture;
-  captureModel.visible = !liveRiggedCapture;
+  model.visible = liveRiggedCapture || visemeTimelineCapture;
+  captureModel.visible = !liveRiggedCapture && !visemeTimelineCapture;
   const associatedSkinEnvelope = bodyMotionCapture && !liveRiggedCapture
     ? createAssociatedSkinEnvelopeDiagnostic(model, skinnedMeshes, useSourceMaterials)
     : null;
   if (associatedSkinEnvelope) scene.add(associatedSkinEnvelope.root);
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
-  if (bodyMotionCapture && liveRiggedCapture) {
-    frameCameraForBounds(camera, bounds, input.view);
+  if ((bodyMotionCapture && liveRiggedCapture) || visemeTimelineCapture) {
+    frameCameraForBounds(camera, bounds, visemeTimelineCapture ? "three_quarter" : input.view);
   } else {
     camera.position.copy(cameraPosition(input.view));
     camera.lookAt(0, 0.9, 0);
@@ -242,7 +262,7 @@ export async function renderCandidateCapture(input: {
   if (isTemporalCaptureView(input.view)) {
     const start = performance.now();
     let previous = start;
-    const durationMs = 3000;
+    const durationMs = visemeTimeline?.durationMs ?? 3000;
     const animate = (now: number) => {
       const deltaSeconds = Math.max(0, now - previous) / 1000;
       previous = now;
@@ -264,8 +284,11 @@ export async function renderCandidateCapture(input: {
         captureModel.position.set(basePosition.x + sway * 0.018, basePosition.y + Math.max(0, breath) * 0.012, basePosition.z);
         captureModel.rotation.z = sway * 0.025;
       }
-      if (input.view === "viseme_timeline") {
-        visemeCue.scale.x = 0.45 + Math.abs(Math.sin(progress * Math.PI * 8)) * 1.35;
+      if (visemeTimelineCapture && visemeTimeline) {
+        const visemeFrame = visemeAtTimelineProgress(visemeTimeline, progress);
+        const openness = visemeFrame.openness * (0.65 + Math.abs(Math.sin(now / 58)) * 0.18);
+        latestVisemeCueEvidence = applyMorphTargetVisemeCue(model, openness, visemeFrame.viseme);
+        model.updateMatrixWorld(true);
       }
       if (input.view === "emotion_transition") {
         inspectionMaterial.color.lerpColors(new Color("#cde7dc"), new Color("#f0c5b2"), progress);
@@ -319,9 +342,26 @@ export async function renderCandidateCapture(input: {
     deterministicTemporalCue: {
       enabled: isTemporalCaptureView(input.view),
       cue: isTemporalCaptureView(input.view) ? input.view : null,
-      durationMs: isTemporalCaptureView(input.view) ? 3000 : 0,
+      durationMs: isTemporalCaptureView(input.view) ? (visemeTimeline?.durationMs ?? 3000) : 0,
       degrees: input.view === "turntable" ? 360 : 0,
     },
+    ...(visemeTimelineCapture && visemeTimeline && latestVisemeCueEvidence
+      ? {
+        visemeTimelineEvidence: {
+          dialogueText: visemeTimeline.dialogueText,
+          traceTag: visemeTimeline.traceTag,
+          actorId: visemeTimeline.actorId,
+          mappingMode: visemeTimeline.mappingMode,
+          phonemeCount: visemeTimeline.phonemeSequence.length,
+          visemeCount: visemeTimeline.visemeSequence.length,
+          appliedTargetCount: latestVisemeCueEvidence.appliedTargetCount,
+          activeViseme: latestVisemeCueEvidence.currentViseme,
+          mouthOpenness: latestVisemeCueEvidence.mouthOpenness,
+          morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue" as const,
+          notEvidenceFor: latestVisemeCueEvidence.notEvidenceFor,
+        },
+      }
+      : {}),
     scenePlacementEvidenceAllowed: false,
     questReadinessClaimAllowed: false,
     productionReadinessClaimAllowed: false,

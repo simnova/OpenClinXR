@@ -80,11 +80,13 @@ void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifes
       });
     }
     if (captureCandidateId && isCandidateCaptureView(captureView)) {
+      const captureDialogueText = params.get("captureDialogueText");
       return renderCandidateCapture({
         mount: app,
         evidence,
         candidateId: captureCandidateId,
         view: captureView,
+        ...(captureDialogueText ? { dialogueText: captureDialogueText } : {}),
       }).then((captureEvidence) => {
         window.__openClinXrModelVettingCandidateCaptureEvidence = captureEvidence;
       });
