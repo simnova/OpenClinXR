@@ -18,6 +18,7 @@ type CliOptions = {
   lane: string;
   runId: string;
   outputAlbedoName: string;
+  requireComfyDiffusion: boolean;
 };
 
 type MaskReport = {
@@ -78,6 +79,7 @@ print('created minimal base albedo fallback')
     baseAlbedoPath: baseAlbedo,
     outputAlbedoPath,
     outputPrefix: `openclinxr_comfy_masked_face_${options.runId.replace(/[^a-zA-Z0-9]+/g, "_")}`,
+    requireComfyDiffusion: options.requireComfyDiffusion,
   });
 
   const summary = buildComfyMaskedSummary({
@@ -103,7 +105,8 @@ print('created minimal base albedo fallback')
     publicSummaryPath,
     outputAlbedoPath,
     publicMirrorUrlPath: outputHome.publicMirrorUrlPath,
-    comfyWorkflowQueued: true,
+    requireComfyDiffusion: options.requireComfyDiffusion,
+    comfyWorkflowQueued: generatedAlbedo.comfyDiffusionRan,
     masksReferenced: Object.keys(maskReport.outputs),
     realvisxlCheckpointSha256: REALVISXL_CHECKPOINT_SHA,
   }, null, 2) + "\n");
@@ -115,6 +118,7 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
   baseAlbedoPath: string;
   outputAlbedoPath: string;
   outputPrefix: string;
+  requireComfyDiffusion: boolean;
 }): Promise<{
   albedoSha256: string;
   usedMaskClip: boolean;
@@ -180,8 +184,17 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
             text2ImgError instanceof Error ? text2ImgError.message : String(text2ImgError)
           }\n`,
         );
+        if (input.requireComfyDiffusion) {
+          throw new Error(
+            `Required Comfy diffusion failed after masked inpaint and txt2img attempts: ${
+              text2ImgError instanceof Error ? text2ImgError.message : String(text2ImgError)
+            }`,
+          );
+        }
       }
     }
+  } else if (input.requireComfyDiffusion) {
+    throw new Error("Required Comfy diffusion, but ComfyUI was not detected at http://127.0.0.1:8188.");
   }
 
   if (!comfyDiffusionRan) {
@@ -261,6 +274,11 @@ function buildComfyMaskedSummary(input: {
     claimScope: "local_comfy_realvisxl_masked_face_inpaint_on_source_uv_mask_not_realism_or_production",
     lane: input.outputHome.lane,
     runId: input.outputHome.runId,
+    sourceLineage: {
+      sourceObjPath: input.maskReport.sourceObjPath,
+      maskReportPath: input.maskReportPath,
+      masksReferenced: Object.keys(input.maskReport.outputs),
+    },
     maskReportPath: input.maskReportPath,
     maskReportSha256: (input.maskReport as any)?.outputs?.face_front?.sha256 || "mask-report-outputs-contain-shas",
     baseAlbedoPath: input.baseAlbedoPath,
@@ -273,7 +291,7 @@ function buildComfyMaskedSummary(input: {
       note: "RealVisXL_V5.0_fp16 (licensed local cache, approved for cagematch use only)",
     },
     comfy: {
-      workflowQueued: true,
+      workflowQueued: input.generatedAlbedo.comfyDiffusionRan,
       comfyDetected: input.generatedAlbedo.comfyAttempted,
       diffusionRan: input.generatedAlbedo.comfyDiffusionRan,
       promptId: input.generatedAlbedo.comfyPromptId,
@@ -290,8 +308,9 @@ function buildComfyMaskedSummary(input: {
       paidApiUsed: false,
       credentialsUsed: false,
       stableGenAddonUsed: false,
-      comfyWorkflowQueued: true,
+      comfyWorkflowQueued: input.generatedAlbedo.comfyDiffusionRan,
       diffusionWeightsLoaded: input.generatedAlbedo.comfyDiffusionRan,
+      proceduralFallbackUsed: !input.generatedAlbedo.comfyDiffusionRan,
       runtimePromotionAllowed: false,
       productionAssetReadinessClaimed: false,
       questReadinessClaimed: false,
@@ -324,6 +343,7 @@ function parseArgs(args: string[]): CliOptions {
     lane: "anny-comfy-masked-skin",
     runId: new Date().toISOString().slice(0, 10),
     outputAlbedoName: "peds_patient_child_comfy_masked_face_albedo.png",
+    requireComfyDiffusion: false,
   };
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -333,6 +353,7 @@ function parseArgs(args: string[]): CliOptions {
     else if (arg === "--lane") options.lane = requireNext(args, ++i, arg);
     else if (arg === "--run-id") options.runId = requireNext(args, ++i, arg);
     else if (arg === "--output-albedo-name") options.outputAlbedoName = requireNext(args, ++i, arg);
+    else if (arg === "--require-comfy-diffusion") options.requireComfyDiffusion = true;
   }
   if (!options.maskReportPath) throw new Error("Missing --mask-report (anny-source-uv-masks.json)");
   return options;

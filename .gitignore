@@ -9,6 +9,7 @@ node_modules/
 .agent-factory/browser-evidence/
 .agent-factory/*-check.json
 .agent-factory/*-current.json
+.playwright-mcp/
 apps/*/.codex/
 tmp/
 .venv/
@@ -19,6 +20,9 @@ apps/arena/model-vetting-studio/dist/
 apps/*/*/dist/cagematch/
 apps/arena/model-vetting-studio/public/cagematch/
 apps/ui-xr/public/cagematch/
+benchmarks/glb-optimization/input/
+benchmarks/glb-optimization/output/
+benchmarks/glb-optimization/reports/*.json
 apps/*/deploy/
 packages/*/dist/
 packages/*/*/dist/

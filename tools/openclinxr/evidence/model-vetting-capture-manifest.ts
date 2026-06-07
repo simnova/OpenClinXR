@@ -48,7 +48,8 @@ export type ModelVettingCaptureManifestSlot = {
     | "three_quarter_screenshot"
     | "turntable_video"
     | "viseme_timeline_video"
-    | "emotion_transition_video";
+    | "emotion_transition_video"
+    | "body_motion_probe_video";
   mediaKind: "screenshot" | "video";
   requiredView: string;
   status: "missing" | "captured";
@@ -196,6 +197,7 @@ async function buildManifestCandidate(
       slot("turntable_video", "video", "turntable", slotArtifacts.get(slotKey(candidate.candidateId, "turntable_video")) ?? candidate.captureArtifacts.turntableVideo ?? null),
       slot("viseme_timeline_video", "video", "viseme_timeline", slotArtifacts.get(slotKey(candidate.candidateId, "viseme_timeline_video")) ?? candidate.captureArtifacts.morphVisemeTimelineCapture ?? null),
       slot("emotion_transition_video", "video", "emotion_transition", slotArtifacts.get(slotKey(candidate.candidateId, "emotion_transition_video")) ?? candidate.captureArtifacts.emotionTransitionCapture ?? null),
+      slot("body_motion_probe_video", "video", "body_motion_probe", slotArtifacts.get(slotKey(candidate.candidateId, "body_motion_probe_video")) ?? null),
     ],
   };
 }

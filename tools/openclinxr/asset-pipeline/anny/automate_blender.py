@@ -139,34 +139,56 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
     bpy.ops.object.mode_set(mode="EDIT")
 
     # Very rough skeleton matching the contract (pelvis -> spine -> chest -> neck -> head,
-    # arms, legs). Real Anny + MPFB2 would give a much better rest pose and weights.
+    # arms, legs). The source Anny mesh uses local Y as height, and the deterministic
+    # weighting code below uses that same basis, so the fallback armature must also be
+    # built in local-Y height space. A Z-up armature produces browser skinning blow-ups.
     edit_bones = arm_data.edit_bones
+
+    vertices = [vertex.co.copy() for vertex in mesh_obj.data.vertices]
+    min_x = min(vertex.x for vertex in vertices)
+    max_x = max(vertex.x for vertex in vertices)
+    min_y = min(vertex.y for vertex in vertices)
+    max_y = max(vertex.y for vertex in vertices)
+    min_z = min(vertex.z for vertex in vertices)
+    max_z = max(vertex.z for vertex in vertices)
+    center_x = (min_x + max_x) / 2
+    center_z = (min_z + max_z) / 2
+    height = max(max_y - min_y, 0.001)
+    width = max(max_x - min_x, 0.001)
+    depth = max(max_z - min_z, 0.001)
+
+    def p(x_factor: float, y_factor: float, z_factor: float = 0.0) -> tuple:
+        return (
+            center_x + width * x_factor,
+            min_y + height * y_factor,
+            center_z + depth * z_factor,
+        )
 
     bones: Dict[str, Any] = {}
     # Pelvis root
     bones["pelvis"] = edit_bones.new("pelvis")
-    bones["pelvis"].head = (0, 0, 0.95)
-    bones["pelvis"].tail = (0, 0, 1.05)
+    bones["pelvis"].head = p(0.0, 0.46)
+    bones["pelvis"].tail = p(0.0, 0.52)
 
     # Spine chain
     bones["spine"] = edit_bones.new("spine")
     bones["spine"].head = bones["pelvis"].tail
-    bones["spine"].tail = (0, 0, 1.25)
+    bones["spine"].tail = p(0.0, 0.64)
     bones["spine"].parent = bones["pelvis"]
 
     bones["chest"] = edit_bones.new("chest")
     bones["chest"].head = bones["spine"].tail
-    bones["chest"].tail = (0, 0, 1.45)
+    bones["chest"].tail = p(0.0, 0.76)
     bones["chest"].parent = bones["spine"]
 
     bones["neck"] = edit_bones.new("neck")
     bones["neck"].head = bones["chest"].tail
-    bones["neck"].tail = (0, 0, 1.55)
+    bones["neck"].tail = p(0.0, 0.82)
     bones["neck"].parent = bones["chest"]
 
     bones["head"] = edit_bones.new("head")
     bones["head"].head = bones["neck"].tail
-    bones["head"].tail = (0, 0, 1.75)
+    bones["head"].tail = p(0.0, 0.96)
     bones["head"].parent = bones["neck"]
 
     # Left arm (mirrored for right)
@@ -186,8 +208,8 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
         hand.tail = (hand_pos[0], hand_pos[1] + 0.08 * (1 if side == "L" else -1), hand_pos[2])
         hand.parent = elbow
 
-    make_limb("L", (0.18, 0, 1.40), (0.35, 0, 1.15), (0.48, 0, 0.92))
-    make_limb("R", (-0.18, 0, 1.40), (-0.35, 0, 1.15), (-0.48, 0, 0.92))
+    make_limb("L", p(0.18, 0.74), p(0.34, 0.58), p(0.44, 0.42))
+    make_limb("R", p(-0.18, 0.74), p(-0.34, 0.58), p(-0.44, 0.42))
 
     # Legs
     def make_leg(side: str, hip: tuple, knee: tuple, foot: tuple):
@@ -203,19 +225,18 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
 
         foot_b = edit_bones.new(f"foot.{side}")
         foot_b.head = foot
-        foot_b.tail = (foot[0], foot[1] + 0.12, foot[2] - 0.05)
+        foot_b.tail = (foot[0], foot[1], foot[2] + depth * 0.10)
         foot_b.parent = shin
 
-    make_leg("L", (0.1, 0, 0.95), (0.12, 0, 0.55), (0.12, 0.08, 0.05))
-    make_leg("R", (-0.1, 0, 0.95), (-0.12, 0, 0.55), (-0.12, 0.08, 0.05))
+    make_leg("L", p(0.10, 0.47), p(0.12, 0.25), p(0.12, 0.02, 0.04))
+    make_leg("R", p(-0.10, 0.47), p(-0.12, 0.25), p(-0.12, 0.02, 0.04))
 
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    # Parent the mesh to the armature with automatic weights (good enough for demo + morphs).
-    mesh_obj.select_set(True)
-    arm_obj.select_set(True)
-    bpy.context.view_layer.objects.active = arm_obj
-    bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+    # Use an explicit deterministic bind path instead of Blender's ARMATURE_AUTO
+    # parent operator. The source Anny fallback mesh can satisfy Blender export
+    # with auto weights while still producing pathological Three.js live-skinned
+    # bounds because the object parent inverse / bind state is not WebXR-safe.
     ensure_deterministic_skinning_fallback(mesh_obj, arm_obj)
 
     return arm_obj
@@ -231,6 +252,7 @@ def ensure_deterministic_skinning_fallback(mesh_obj: bpy.types.Object, arm_obj: 
         mod = mesh_obj.modifiers.new("openclinxr_canonical_humanoid_armature", "ARMATURE")
         mod.object = arm_obj
     mesh_obj.parent = arm_obj
+    mesh_obj.matrix_parent_inverse = Matrix.Identity(4)
 
     bone_names = [bone.name for bone in arm_obj.data.bones]
     groups = {name: mesh_obj.vertex_groups.get(name) or mesh_obj.vertex_groups.new(name=name) for name in bone_names}
@@ -304,8 +326,10 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
     affects = ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension", "brow_raise", "brow_furrow", "eye_blink_l", "eye_blink_r", "eye_squint", "smile", "frown", "concern", "pain", "anxious", "jaw_open", "gaze_yaw", "gaze_pitch"]
 
     for name in visemes + affects:
+        for key_block in mesh_obj.data.shape_keys.key_blocks:
+            key_block.value = 0.0
         if name not in mesh_obj.data.shape_keys.key_blocks:
-            sk = mesh_obj.shape_key_add(name=name)
+            sk = mesh_obj.shape_key_add(name=name, from_mix=False)
             # Stronger deltas for visible lip-sync + affect (real Anny/ML would have artist deltas)
             for v in sk.data:
                 if "mouth" in name or name.startswith("viseme_"):
@@ -326,14 +350,11 @@ def add_required_morph_targets(mesh_obj: bpy.types.Object, phenotype: Dict[str, 
                 elif "jaw" in name:
                     v.co.y -= 0.015
 
-    # Set base values from phenotype for anxious parent (higher brow/concern at rest for emotion start)
+    # Keep exported default morph weights at zero. Emotion/resting affect is driven
+    # by runtime animation curves and actor-state metadata, not baked default values.
     kb = mesh_obj.data.shape_keys.key_blocks
-    if "brow_furrow" in kb:
-        kb["brow_furrow"].value = min(0.35, brow_base + anxious * 0.2)
-    if "openclinxr_brow_concern" in kb:
-        kb["openclinxr_brow_concern"].value = min(0.25, anxious * 0.5)
-    if "anxious" in kb:
-        kb["anxious"].value = min(0.45, anxious)
+    for key_block in kb:
+        key_block.value = 0.0
 
 
 def morph_target_diagnostics(mesh_obj: bpy.types.Object, default_weight_threshold: float = 0.001, extreme_delta_threshold: float = 0.05) -> Dict[str, Any]:
@@ -394,6 +415,89 @@ def morph_target_diagnostics(mesh_obj: bpy.types.Object, default_weight_threshol
         "extremeMorphDeltas": extreme_morph_deltas,
         "claimScope": "morph_target_diagnostic_not_readiness",
         "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
+
+
+def body_rig_diagnostics(mesh_obj: bpy.types.Object, arm_obj: bpy.types.Object, animation_clips: List[str], actor_role: str) -> Dict[str, Any]:
+    """Summarize deterministic body skinning coverage for the canonical rig report."""
+    group_names = {group.index: group.name for group in mesh_obj.vertex_groups}
+    weighted_by_bone = {bone.name: 0 for bone in arm_obj.data.bones}
+    dominant_by_bone = {bone.name: 0 for bone in arm_obj.data.bones}
+    unweighted_vertex_count = 0
+    shoulder_bleed_count = 0
+    pelvis_spine_chest_split = {"pelvis": 0, "spine": 0, "chest": 0}
+    ys = [vertex.co.y for vertex in mesh_obj.data.vertices]
+    min_y, max_y = min(ys), max(ys)
+    height = max(max_y - min_y, 0.001)
+
+    for vertex in mesh_obj.data.vertices:
+        weights = {
+            group_names.get(weight.group, f"group_{weight.group}"): float(weight.weight)
+            for weight in vertex.groups
+            if float(weight.weight) > 0.001
+        }
+        if not weights:
+            unweighted_vertex_count += 1
+            continue
+        dominant_name = max(weights.items(), key=lambda item: item[1])[0]
+        if dominant_name in dominant_by_bone:
+            dominant_by_bone[dominant_name] += 1
+        for bone_name in weights:
+            if bone_name in weighted_by_bone:
+                weighted_by_bone[bone_name] += 1
+        y_norm = (vertex.co.y - min_y) / height
+        has_chest = weights.get("chest", 0) > 0.05
+        has_arm = any(weights.get(name, 0) > 0.05 for name in ("upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R"))
+        if 0.50 <= y_norm <= 0.72 and has_chest and has_arm:
+            shoulder_bleed_count += 1
+        for split_bone in pelvis_spine_chest_split:
+            if weights.get(split_bone, 0) > 0.05:
+                pelvis_spine_chest_split[split_bone] += 1
+
+    symmetry_pairs = []
+    for left, right in [
+        ("upper_arm.L", "upper_arm.R"),
+        ("forearm.L", "forearm.R"),
+        ("hand.L", "hand.R"),
+        ("thigh.L", "thigh.R"),
+        ("shin.L", "shin.R"),
+        ("foot.L", "foot.R"),
+    ]:
+        left_count = dominant_by_bone.get(left, 0)
+        right_count = dominant_by_bone.get(right, 0)
+        denominator = max(left_count, right_count, 1)
+        symmetry_pairs.append({
+            "leftBone": left,
+            "rightBone": right,
+            "leftDominantVertexCount": left_count,
+            "rightDominantVertexCount": right_count,
+            "dominantCountDeltaRatio": round(abs(left_count - right_count) / denominator, 4),
+        })
+
+    body_motion_clip_name = next((name for name in animation_clips if name.startswith("openclinxr_role_")), None)
+    body_motion_clip_name = body_motion_clip_name or next((name for name in animation_clips if "posture" in name or "clinical" in name), None)
+    return {
+        "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
+        "coordinateBasis": "blender_mesh_local_y_height_exported_y_up_glb",
+        "armatureName": arm_obj.name,
+        "boneNames": [bone.name for bone in arm_obj.data.bones],
+        "boneCount": len(arm_obj.data.bones),
+        "vertexCount": len(mesh_obj.data.vertices),
+        "unweightedVertexCount": unweighted_vertex_count,
+        "weightedVertexCount": len(mesh_obj.data.vertices) - unweighted_vertex_count,
+        "weightedVertexCountsByBone": weighted_by_bone,
+        "dominantVertexCountsByBone": dominant_by_bone,
+        "leftRightSymmetry": symmetry_pairs,
+        "shoulderTorsoArmBleedVertexCount": shoulder_bleed_count,
+        "pelvisSpineChestSplitVertexCounts": pelvis_spine_chest_split,
+        "poseProbe": {
+            "actorRole": actor_role,
+            "bodyMotionProbeClipName": body_motion_clip_name,
+            "animatedClipCount": len(animation_clips),
+            "probeScope": "report_side_body_rig_coverage_and_clip_selection_not_mocap_or_quality_grade",
+        },
+        "claimScope": "deterministic_body_rig_skinning_diagnostics_not_deformation_quality_or_readiness",
+        "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity"],
     }
 
 
@@ -483,6 +587,9 @@ def add_clinical_animation_clips(mesh_obj: bpy.types.Object, arm_obj: bpy.types.
         track = mesh_obj.data.shape_keys.animation_data.nla_tracks.new()
         track.name = "openclinxr_conversation_expression_morphs"
         track.strips.new("openclinxr_conversation_expression_morphs", 1, shape_action)
+        bpy.context.scene.frame_set(0)
+        for key_block in key_blocks:
+            key_block.value = 0.0
 
     bpy.ops.object.mode_set(mode="OBJECT")
     return clip_names + [role_specific_clip[0], "openclinxr_conversation_expression_morphs"]
@@ -515,12 +622,12 @@ def role_specific_clip_spec(actor_role: str, anxious: float, role_tension: float
     return (
         "openclinxr_role_patient_asthma_breathing_effort",
         [
-            (1, 0.00, 0.00, 0.00, 0.00, 0.00, {"upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00)}),
-            (12, 0.046, -0.024, 0.00, -0.03, 0.03, {"spine": (0.018, 0.00, 0.00), "upper_arm.L": (0.09, 0.00, -0.05), "upper_arm.R": (0.09, 0.00, 0.05), "forearm.L": (0.05, 0.00, -0.02), "forearm.R": (0.05, 0.00, 0.02)}),
-            (24, -0.006, 0.012, 0.00, 0.00, 0.00, {"spine": (-0.004, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.02), "upper_arm.R": (0.03, 0.00, 0.02), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00)}),
-            (36, 0.040, -0.018, 0.00, -0.03, 0.03, {"spine": (0.014, 0.00, 0.00), "upper_arm.L": (0.08, 0.00, -0.04), "upper_arm.R": (0.08, 0.00, 0.04), "forearm.L": (0.04, 0.00, -0.02), "forearm.R": (0.04, 0.00, 0.02)}),
-            (54, -0.004, 0.010, 0.00, 0.00, 0.00, {"spine": (-0.002, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.01), "upper_arm.R": (0.03, 0.00, 0.01), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00)}),
-            (72, 0.00, 0.00, 0.00, 0.00, 0.00, {"spine": (0.00, 0.00, 0.00), "upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00)}),
+            (1, 0.00, 0.00, 0.00, 0.00, 0.00, {"upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00), "thigh.L": (0.00, 0.00, 0.00), "thigh.R": (0.00, 0.00, 0.00), "shin.L": (0.00, 0.00, 0.00), "shin.R": (0.00, 0.00, 0.00), "foot.L": (0.00, 0.00, 0.00), "foot.R": (0.00, 0.00, 0.00)}),
+            (12, 0.046, -0.024, 0.00, -0.03, 0.03, {"spine": (0.018, 0.00, 0.00), "upper_arm.L": (0.09, 0.00, -0.05), "upper_arm.R": (0.09, 0.00, 0.05), "forearm.L": (0.05, 0.00, -0.02), "forearm.R": (0.05, 0.00, 0.02), "thigh.L": (0.026, 0.00, -0.010), "thigh.R": (-0.018, 0.00, 0.010), "shin.L": (-0.020, 0.00, 0.00), "shin.R": (0.012, 0.00, 0.00), "foot.L": (0.010, 0.00, -0.006), "foot.R": (-0.006, 0.00, 0.006)}),
+            (24, -0.006, 0.012, 0.00, 0.00, 0.00, {"spine": (-0.004, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.02), "upper_arm.R": (0.03, 0.00, 0.02), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00), "thigh.L": (-0.012, 0.00, 0.006), "thigh.R": (0.018, 0.00, -0.006), "shin.L": (0.010, 0.00, 0.00), "shin.R": (-0.014, 0.00, 0.00), "foot.L": (-0.006, 0.00, 0.004), "foot.R": (0.006, 0.00, -0.004)}),
+            (36, 0.040, -0.018, 0.00, -0.03, 0.03, {"spine": (0.014, 0.00, 0.00), "upper_arm.L": (0.08, 0.00, -0.04), "upper_arm.R": (0.08, 0.00, 0.04), "forearm.L": (0.04, 0.00, -0.02), "forearm.R": (0.04, 0.00, 0.02), "thigh.L": (0.020, 0.00, -0.008), "thigh.R": (-0.016, 0.00, 0.008), "shin.L": (-0.016, 0.00, 0.00), "shin.R": (0.012, 0.00, 0.00), "foot.L": (0.008, 0.00, -0.005), "foot.R": (-0.005, 0.00, 0.005)}),
+            (54, -0.004, 0.010, 0.00, 0.00, 0.00, {"spine": (-0.002, 0.00, 0.00), "upper_arm.L": (0.03, 0.00, -0.01), "upper_arm.R": (0.03, 0.00, 0.01), "forearm.L": (0.01, 0.00, 0.00), "forearm.R": (0.01, 0.00, 0.00), "thigh.L": (-0.008, 0.00, 0.004), "thigh.R": (0.008, 0.00, -0.004), "shin.L": (0.006, 0.00, 0.00), "shin.R": (-0.006, 0.00, 0.00), "foot.L": (-0.004, 0.00, 0.002), "foot.R": (0.004, 0.00, -0.002)}),
+            (72, 0.00, 0.00, 0.00, 0.00, 0.00, {"spine": (0.00, 0.00, 0.00), "upper_arm.L": (0.04, 0.00, -0.02), "upper_arm.R": (0.04, 0.00, 0.02), "forearm.L": (0.02, 0.00, 0.00), "forearm.R": (0.02, 0.00, 0.00), "thigh.L": (0.00, 0.00, 0.00), "thigh.R": (0.00, 0.00, 0.00), "shin.L": (0.00, 0.00, 0.00), "shin.R": (0.00, 0.00, 0.00), "foot.L": (0.00, 0.00, 0.00), "foot.R": (0.00, 0.00, 0.00)}),
         ],
     )
 
@@ -541,8 +648,8 @@ def role_animation_control_summary(actor_role: str) -> Dict[str, Any]:
         }
     return {
         "roleGesture": "asthma_breathing_effort",
-        "animatedBones": ["spine", "chest", "head", "upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R"],
-        "functionalIntent": "repeated work-of-breathing chest/spine effort with subtle guarded arm motion",
+        "animatedBones": ["spine", "chest", "head", "upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R", "thigh.L", "thigh.R", "shin.L", "shin.R", "foot.L", "foot.R"],
+        "functionalIntent": "repeated work-of-breathing chest/spine effort with subtle guarded arm and stance-shift leg motion",
     }
 
 
@@ -570,24 +677,26 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     flush = float(phenotype.get("flush", 0.0))  # anxious parent higher
 
     if "warm" in skin or "light" in skin or "child" in skin:
-        base_color = (0.93, 0.79, 0.70, 1.0)
+        base_color = (0.78, 0.56, 0.45, 1.0)
     else:
         base_color = (0.62, 0.46, 0.36, 1.0)
 
     # Anxious/concern flush or mild paleness for asthma parent/patient
     if flush > 0.1:
         base_color = (base_color[0] + flush*0.06, base_color[1] - flush*0.03, base_color[2] - flush*0.04, 1.0)
+    elif "patient" in (prompt or "").lower() or "child" in skin:
+        base_color = (base_color[0] + 0.025, base_color[1] + 0.010, base_color[2] + 0.004, 1.0)
     if "parent" in (prompt or "").lower() or age_w > 0.5:
         base_color = (base_color[0] - 0.03, base_color[1] - 0.02, base_color[2] - 0.01, 1.0)  # subtle stress paleness
 
     bsdf.inputs["Base Color"].default_value = base_color
     mat.diffuse_color = base_color
-    bsdf.inputs["Roughness"].default_value = 0.48 + (age_w * 0.12) + (max(0.0, bmi-24)*0.01)
-    bsdf.inputs["Specular IOR Level"].default_value = 0.32
+    bsdf.inputs["Roughness"].default_value = 0.58 + (age_w * 0.10) + (max(0.0, bmi-24)*0.01)
+    bsdf.inputs["Specular IOR Level"].default_value = 0.24
     # Transmission + subsurface for skin depth/SSS approx under exam light.
-    bsdf.inputs["Transmission Weight"].default_value = 0.12
-    bsdf.inputs["Subsurface Weight"].default_value = 0.08
-    bsdf.inputs["Subsurface Radius"].default_value = (0.8, 0.4, 0.3)  # skin-like
+    bsdf.inputs["Transmission Weight"].default_value = 0.03
+    bsdf.inputs["Subsurface Weight"].default_value = 0.035
+    bsdf.inputs["Subsurface Radius"].default_value = (0.45, 0.28, 0.20)  # local fallback only
 
     # Multi-octave noise: pores (fine) + spots/wrinkle (mid) driven by phenotype
     tex_fine = nt.nodes.new("ShaderNodeTexNoise")
@@ -626,6 +735,8 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
         mesh_obj.data.materials[0] = mat
     else:
         mesh_obj.data.materials.append(mat)
+    for polygon in mesh_obj.data.polygons:
+        polygon.material_index = 0
 
     bake_dir = os.path.dirname(bpy.data.filepath) or "/tmp"
     os.makedirs(bake_dir, exist_ok=True)
@@ -879,32 +990,37 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         top_color = base_color
         lower_color = (0.18, 0.17, 0.20, 1.0)
     else:
-        top_color = base_color
-        lower_color = (0.18, 0.26, 0.42, 1.0)
+        top_color = (0.05, 0.34, 0.88, 1.0)
+        lower_color = (0.06, 0.12, 0.28, 1.0)
 
     top_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_top", top_color)
     lower_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_lower", lower_color)
+    trim_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_soft_trim", (0.47, 0.68, 0.96, 1.0))
     top_index = len(mesh_obj.data.materials)
     mesh_obj.data.materials.append(top_mat)
     lower_index = len(mesh_obj.data.materials)
     mesh_obj.data.materials.append(lower_mat)
+    trim_index = len(mesh_obj.data.materials)
+    mesh_obj.data.materials.append(trim_mat)
 
     bounds = mesh_world_bounds(mesh_obj)
     min_z = bounds["min_z"]
     height_z = max(bounds["height_z"], 0.001)
     center_x = bounds["center_x"]
-    # Inset torso bands and leave a waist skin buffer so hard z-cutoffs do not
-    # paint jagged blue/red/teal panel edges across the organic Anny torso.
-    top_min_z = min_z + height_z * 0.50
-    top_max_z = min_z + height_z * 0.70
-    lower_min_z = min_z + height_z * 0.16
-    lower_max_z = min_z + height_z * 0.42
-    max_torso_half_width = max(bounds["width"] * 0.36, 0.09)
+    # Wider bands make the generated actor read as clothed in isolated browser
+    # evidence, while still avoiding detached cube/card markers.
+    top_min_z = min_z + height_z * 0.42
+    top_max_z = min_z + height_z * 0.74
+    lower_min_z = min_z + height_z * 0.08
+    lower_max_z = min_z + height_z * 0.46
+    max_torso_half_width = max(bounds["width"] * 0.50, 0.12)
+    shoulder_half_width = max(bounds["width"] * 0.36, 0.09)
 
     mesh_obj.update_from_editmode()
     mesh_obj.update_tag()
     top_faces = 0
     lower_faces = 0
+    trim_faces = 0
     skipped_back_faces = 0
     for polygon in mesh_obj.data.polygons:
         center = mesh_obj.matrix_world @ polygon.center
@@ -912,30 +1028,104 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         rel_x = abs(center.x - center_x)
         waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_z - 0.52) / 0.28)
         effective_half_width = max_torso_half_width * waist_factor
-        world_normal = mesh_obj.matrix_world.to_3x3() @ polygon.normal
-        if world_normal.y < -0.15:
-            skipped_back_faces += 1
-            continue
-        if top_min_z <= center.z <= top_max_z and rel_x <= effective_half_width:
+        is_collar_trim = (top_max_z - height_z * 0.018) <= center.z <= top_max_z and rel_x <= shoulder_half_width * 0.72
+        is_waist_trim = (top_min_z - height_z * 0.014) <= center.z <= (top_min_z + height_z * 0.014) and rel_x <= effective_half_width * 0.92
+        if is_collar_trim or is_waist_trim:
+            polygon.material_index = trim_index
+            trim_faces += 1
+        elif top_min_z <= center.z <= top_max_z and rel_x <= effective_half_width:
             polygon.material_index = top_index
             top_faces += 1
         elif lower_min_z <= center.z <= lower_max_z and rel_x <= effective_half_width * 0.95:
             polygon.material_index = lower_index
             lower_faces += 1
 
-    if top_faces == 0 or lower_faces == 0:
-        raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}")
+    if top_faces == 0 or lower_faces == 0 or trim_faces == 0:
+        raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}, trim_faces={trim_faces}")
 
     return {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-        "clothingRegionRevision": "v2_inset_ellipse_back_skip",
+        "clothingRegionRevision": "v5_subtle_mesh_native_collar_waist_trim_no_detached_markers",
         "topMaterialName": top_mat.name,
         "lowerMaterialName": lower_mat.name,
+        "trimMaterialName": trim_mat.name,
         "topFaceCount": top_faces,
         "lowerFaceCount": lower_faces,
+        "trimFaceCount": trim_faces,
         "skippedBackFaceCount": skipped_back_faces,
         "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
         "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
+
+
+def apply_mesh_native_scalp_hair_material_region(mesh_obj: bpy.types.Object, phenotype: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Paint a conservative scalp/hair region on the imported Anny mesh surface.
+
+    This is not the rejected detached hair-cap/marker approach. It keeps the
+    source topology intact and only assigns a material to scalp-like polygons so
+    isolated review can evaluate whether removing the bald mannequin read is
+    useful before a real groom/hair-card source stage exists.
+    """
+    hair_color = str(phenotype.get("hair_color", "brown")).lower()
+    if "black" in hair_color:
+        base_color = (0.035, 0.028, 0.022, 1.0)
+    elif "blond" in hair_color or "blonde" in hair_color:
+        base_color = (0.42, 0.32, 0.16, 1.0)
+    elif "light" in hair_color:
+        base_color = (0.24, 0.15, 0.075, 1.0)
+    else:
+        base_color = (0.12, 0.07, 0.035, 1.0)
+
+    hair_mat = create_role_marker_material("openclinxr_mesh_native_scalp_hair_surface", base_color)
+    hair_index = len(mesh_obj.data.materials)
+    mesh_obj.data.materials.append(hair_mat)
+
+    bounds = mesh_world_bounds(mesh_obj)
+    min_z = bounds["min_z"]
+    height_z = max(bounds["height_z"], 0.001)
+    center_x = bounds["center_x"]
+    center_y = bounds["center_y"]
+    depth_y = max(bounds["depth_y"], 0.001)
+    width = max(bounds["width"], 0.001)
+    hair_density = max(0.0, min(1.0, float(phenotype.get("hair_density", 0.55))))
+    scalp_min_z = min_z + height_z * (0.875 - hair_density * 0.010)
+    crown_min_z = min_z + height_z * 0.925
+    max_scalp_half_width = width * (0.18 + hair_density * 0.020)
+    back_start_y = center_y - depth_y * 0.02
+    face_front_exclusion_y = center_y - depth_y * 0.18
+
+    scalp_faces = 0
+    crown_faces = 0
+    skipped_face_front_faces = 0
+    for polygon in mesh_obj.data.polygons:
+        center = mesh_obj.matrix_world @ polygon.center
+        rel_x = abs(center.x - center_x)
+        on_crown = center.z >= crown_min_z and rel_x <= max_scalp_half_width * 1.05
+        on_back_scalp = center.z >= scalp_min_z and center.y >= back_start_y and rel_x <= max_scalp_half_width
+        on_side_scalp = center.z >= (scalp_min_z + height_z * 0.030) and center.y >= back_start_y and rel_x >= max_scalp_half_width * 0.64 and rel_x <= max_scalp_half_width * 1.03
+        if on_crown or on_back_scalp or on_side_scalp:
+            if center.z < crown_min_z and center.y < face_front_exclusion_y:
+                skipped_face_front_faces += 1
+                continue
+            polygon.material_index = hair_index
+            scalp_faces += 1
+            if on_crown:
+                crown_faces += 1
+
+    if scalp_faces == 0:
+        raise RuntimeError("mesh-native scalp hair material assignment found no scalp faces")
+
+    return {
+        "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
+        "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+        "hairMaterialName": hair_mat.name,
+        "hairColor": hair_color,
+        "scalpFaceCount": scalp_faces,
+        "crownFaceCount": crown_faces,
+        "skippedFaceFrontFaceCount": skipped_face_front_faces,
+        "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
+        "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
     }
 
 
@@ -1041,7 +1231,10 @@ def main() -> None:
 
     print("[blender] assigning role-specific clothing materials to mesh regions")
     role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype)
+    print("[blender] assigning mesh-native scalp/hair material region")
+    scalp_hair_material_region = apply_mesh_native_scalp_hair_material_region(mesh_obj, phenotype)
     morph_diagnostics = morph_target_diagnostics(mesh_obj)
+    body_diagnostics = body_rig_diagnostics(mesh_obj, arm_obj, animation_clips, args.actor_role)
 
     face_detail_markers = {
         "status": "abandoned_rejected_experiment",
@@ -1095,11 +1288,12 @@ def main() -> None:
         "ok": True,
         "schemaVersion": "openclinxr.generated-humanoid-realism-manifest.v1",
         "canonicalSkeleton": {
-            "boneCount": 52,
+            "boneCount": len(arm_obj.data.bones),
             "root": "pelvis",
-            "hasTwistBones": True,
-            "fingersPerHand": 5,
-            "twistNames": ["upper_arm_twist", "forearm_twist"]
+            "hasTwistBones": False,
+            "fingersPerHand": 0,
+            "twistNames": [],
+            "claimScope": "minimal_canonical_body_armature_for_local_candidate_motion_probe_not_production_rig"
         },
         "morphTargets": {
             "count": 25,
@@ -1137,8 +1331,10 @@ def main() -> None:
             "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
             "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"]
         },
+        "bodyRigDiagnostics": body_diagnostics,
         "roleVisualMarkers": role_visual_markers,
         "roleClothingMaterialRegions": role_clothing_material_regions,
+        "scalpHairMaterialRegion": scalp_hair_material_region,
         "faceDetailMarkers": face_detail_markers,
         "sourceTopologyEvidence": {
             "topology": (manifest.get("anny_forward_pass") or {}).get("topology") if isinstance(manifest.get("anny_forward_pass"), dict) else None,

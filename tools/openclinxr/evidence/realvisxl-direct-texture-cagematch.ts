@@ -50,6 +50,7 @@ async function main(): Promise<void> {
   const localReportPath = path.join(outputHome.localEvidenceDir, "model-vetting-report.json");
   const publicReportPath = path.join(outputHome.publicMirrorDir, "model-vetting-report.json");
   const summaryPath = path.join(outputHome.localEvidenceDir, "realvisxl-direct-texture-cagematch.json");
+  const candidate = report.candidates[0];
   await Promise.all([
     writeJsonFile(localReportPath, report),
     writeJsonFile(publicReportPath, report),
@@ -62,6 +63,17 @@ async function main(): Promise<void> {
       outputGlbPath,
       publicMirrorUrlPath,
       texturePath: options.texturePath,
+      sourceLineage: {
+        scenarioId: candidate.scenarioId,
+        actorId: candidate.actorId,
+        actorRole: candidate.actorRole,
+        reuseKey: candidate.reuseKey,
+        sourceCandidateId: options.candidateId,
+        outputCandidateId: candidate.candidateId,
+        sourceManifestPath: candidate.sourceManifestPath,
+        sourceReportPath: options.sourceReportPath,
+        sourceGlbPath: options.sourceGlbPath,
+      },
       appliedTexture,
       outputHome,
       providerBoundary: {

@@ -19,8 +19,9 @@ type CliOptions = {
 
 const defaultDate = new Date().toISOString().slice(0, 10);
 type TemporalCaptureView = "turntable" | "viseme_timeline" | "emotion_transition";
+type BodyRigTemporalCaptureView = "body_motion_probe";
 type FixedCameraView = "front" | "side" | "three_quarter";
-type CandidateCaptureView = FixedCameraView | TemporalCaptureView;
+type CandidateCaptureView = FixedCameraView | TemporalCaptureView | BodyRigTemporalCaptureView;
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -42,13 +43,8 @@ async function main(): Promise<void> {
           const artifactPath = path.join(options.outputDir, `${captureStem(candidate.sourceGlbPath)}_${captureView}_${defaultDate}.${isFixedCameraView(captureView) ? "png" : "webm"}`);
           const context = await browser.newContext({
             viewport: { width: 1280, height: 1280 },
-            recordVideo: isFixedCameraView(captureView) ? undefined : {
-              dir: options.outputDir,
-              size: { width: 1280, height: 1280 },
-            },
           });
           const page = await context.newPage();
-          const video = page.video();
           const url = `http://127.0.0.1:${options.port}/?captureCandidateId=${encodeURIComponent(candidate.candidateId)}&captureView=${captureView}${options.reportUrl ? `&reportUrl=${encodeURIComponent(options.reportUrl)}` : ""}`;
           await page.goto(url, { waitUntil: "networkidle" });
           await page.waitForFunction((expectedView) => {
@@ -62,10 +58,10 @@ async function main(): Promise<void> {
               && evidence.scenePlacementEvidenceAllowed === false
               && evidence.productionReadinessClaimAllowed === false;
           }, captureView);
-          await page.waitForTimeout(isFixedCameraView(captureView) ? 300 : options.durationMs);
+          await page.waitForTimeout(300);
           if (isFixedCameraView(captureView)) await page.screenshot({ path: artifactPath });
+          else await writeFile(artifactPath, Buffer.from(await recordModelCanvasVideo(page, options.durationMs)));
           await page.close();
-          if (!isFixedCameraView(captureView)) await video?.saveAs(artifactPath);
           await context.close();
           upsertArtifact(artifactMap, {
             candidateId: candidate.candidateId,
@@ -121,6 +117,31 @@ async function readArtifactMap(filePath: string): Promise<ModelVettingCaptureArt
   return artifactMap;
 }
 
+async function recordModelCanvasVideo(page: import("playwright").Page, durationMs: number): Promise<number[]> {
+  return page.evaluate(async (recordingDurationMs) => {
+    const canvas = document.querySelector("canvas");
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error("Model-vetting capture canvas not found");
+    const stream = canvas.captureStream(30);
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm";
+    const chunks: Blob[] = [];
+    const recorder = new MediaRecorder(stream, { mimeType });
+    recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) chunks.push(event.data);
+    });
+    const stopped = new Promise<void>((resolve, reject) => {
+      recorder.addEventListener("stop", () => resolve(), { once: true });
+      recorder.addEventListener("error", () => reject(new Error("Model-vetting canvas recording failed")), { once: true });
+    });
+    recorder.start();
+    await new Promise((resolve) => setTimeout(resolve, recordingDurationMs));
+    recorder.stop();
+    await stopped;
+    for (const track of stream.getTracks()) track.stop();
+    const blob = new Blob(chunks, { type: mimeType });
+    return Array.from(new Uint8Array(await blob.arrayBuffer()));
+  }, durationMs);
+}
+
 function upsertArtifact(
   artifactMap: ModelVettingCaptureArtifactMap,
   artifact: ModelVettingCaptureArtifactMap["artifacts"][number],
@@ -151,11 +172,12 @@ function slotIdForCaptureView(view: CandidateCaptureView): ModelVettingCaptureAr
   if (view === "three_quarter") return "three_quarter_screenshot";
   if (view === "viseme_timeline") return "viseme_timeline_video";
   if (view === "emotion_transition") return "emotion_transition_video";
+  if (view === "body_motion_probe") return "body_motion_probe_video";
   return "turntable_video";
 }
 
 function isCandidateCaptureView(value: string): value is CandidateCaptureView {
-  return isFixedCameraView(value) || value === "turntable" || value === "viseme_timeline" || value === "emotion_transition";
+  return isFixedCameraView(value) || value === "turntable" || value === "viseme_timeline" || value === "emotion_transition" || value === "body_motion_probe";
 }
 
 function isFixedCameraView(value: string): value is FixedCameraView {

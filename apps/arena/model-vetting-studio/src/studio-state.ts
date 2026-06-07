@@ -25,7 +25,8 @@ export type ModelVettingCaptureSlotId =
   | "three_quarter_screenshot"
   | "turntable_video"
   | "viseme_timeline_video"
-  | "emotion_transition_video";
+  | "emotion_transition_video"
+  | "body_motion_probe_video";
 
 export type ModelVettingCaptureSlot = {
   slotId: ModelVettingCaptureSlotId;
@@ -330,7 +331,8 @@ function isCaptureSlotId(value: unknown): value is ModelVettingCaptureSlotId {
     || value === "three_quarter_screenshot"
     || value === "turntable_video"
     || value === "viseme_timeline_video"
-    || value === "emotion_transition_video";
+    || value === "emotion_transition_video"
+    || value === "body_motion_probe_video";
 }
 
 function captureSlotLabel(slotId: ModelVettingCaptureSlotId): string {
@@ -339,6 +341,7 @@ function captureSlotLabel(slotId: ModelVettingCaptureSlotId): string {
   if (slotId === "three_quarter_screenshot") return "Three-quarter fixed camera";
   if (slotId === "turntable_video") return "Turntable clip";
   if (slotId === "viseme_timeline_video") return "Viseme timeline clip";
+  if (slotId === "body_motion_probe_video") return "Body motion probe clip";
   return "Emotion transition clip";
 }
 
@@ -403,6 +406,16 @@ function buildCaptureSlots(candidate: ModelVettingCandidate, notEvidenceFor: Mod
       requiredFor: "isolated_lab_capture",
       status: candidate.captureArtifacts.emotionTransitionCapture ? "captured" : "missing",
       artifactPath: candidate.captureArtifacts.emotionTransitionCapture ?? null,
+      notEvidenceFor,
+    },
+    {
+      slotId: "body_motion_probe_video",
+      label: "Body motion probe clip",
+      mediaKind: "video",
+      deterministicView: "body_motion_probe",
+      requiredFor: "isolated_lab_capture",
+      status: "missing",
+      artifactPath: null,
       notEvidenceFor,
     },
   ];

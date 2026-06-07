@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAnimationEvidence, glbUrlForPath, isFixedCameraView } from "./candidate-capture.js";
+import { buildAnimationEvidence, glbUrlForPath, isFixedCameraView, selectBodyMotionProbeClipName } from "./candidate-capture.js";
 
 describe("candidate capture GLB selection", () => {
   it("maps sidecar-produced local candidate paths to the matching browser-served GLB", () => {
@@ -28,7 +28,23 @@ describe("candidate capture GLB selection", () => {
       animationNames: ["openclinxr_clinical_idle_breathing", "openclinxr_mpfb2_eye_look_probe.001"],
       totalChannelCount: 3,
       mpfb2EyeLookProbePresent: true,
+      bodyMotionProbeClipName: "openclinxr_clinical_idle_breathing",
+      bodyMotionProbePresent: true,
       runtimeImportEvidenceOnly: true,
     });
+  });
+
+  it("prefers role-specific body animation clips for body motion probe evidence", () => {
+    expect(selectBodyMotionProbeClipName([
+      "openclinxr_clinical_idle_breathing",
+      "openclinxr_role_patient_asthma_breathing_effort",
+    ])).toBe("openclinxr_role_patient_asthma_breathing_effort");
+  });
+
+  it("accepts MPFB body motion probe clips for MakeHuman comparator evidence", () => {
+    expect(selectBodyMotionProbeClipName([
+      "openclinxr_mpfb_body_motion_probe_pediatric_breathing",
+      "idle",
+    ])).toBe("openclinxr_mpfb_body_motion_probe_pediatric_breathing");
   });
 });

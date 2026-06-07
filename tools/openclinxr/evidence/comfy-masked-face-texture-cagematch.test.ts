@@ -39,4 +39,16 @@ describe("comfy-masked-face-texture-cagematch (thin)", () => {
     expect(home.publicMirrorDir).toContain("anny-comfy-masked-skin");
     expect(home.localEvidenceDir).toContain("cagematch/anny-comfy-masked-skin");
   });
+
+  it("registers a real-only Comfy script that disables fallback success", async () => {
+    const rootPackage = await import("../../../package.json", { with: { type: "json" } });
+    expect(rootPackage.default.scripts["asset:anny-skin:comfy-masked-texture:real-only"]).toContain("--require-comfy-diffusion");
+
+    const realOnlySummaryShape = {
+      comfy: { workflowQueued: true, diffusionRan: true },
+      providerBoundary: { comfyWorkflowQueued: true, diffusionWeightsLoaded: true, proceduralFallbackUsed: false },
+    };
+    expect(realOnlySummaryShape.comfy.diffusionRan).toBe(true);
+    expect(realOnlySummaryShape.providerBoundary.proceduralFallbackUsed).toBe(false);
+  });
 });

@@ -38,7 +38,7 @@ describe("Anny candidate preflight", () => {
         score: 0.8,
       },
       decision: {
-        status: "blocked_until_candidate_evidence_clears",
+        status: "metadata_review_ready",
         currentFallbacksRemainActive: true,
         runtimePromotionAllowed: false,
       },
@@ -77,30 +77,21 @@ describe("Anny candidate preflight", () => {
         "openclinxr_brow_concern",
         "openclinxr_cheek_tension",
       ]);
-      if (candidate.actorMapping.actorId === "nurse_kevin_lee_v1") {
-        expect(candidate.status).toBe("blocked");
-        expect(candidate.blockers).toContain("generated_glb_local_artifact_missing");
-        expect(candidate.nextEvidenceRequired).toContain("regenerate_or_restore_local_generated_glb_artifact_outside_git");
-      } else {
-        expect(candidate.rigControlEvidence.requiredMorphTargetsPresent).toBe(true);
-        expect(candidate.rigControlEvidence.missingMorphTargets).toEqual([]);
-        expect(candidate.rigControlEvidence.observedMorphTargets).toEqual(expect.arrayContaining([
-          "openclinxr_mouth_open",
-          "openclinxr_brow_concern",
-          "openclinxr_cheek_tension",
-        ]));
-        expect(candidate.status).toBe("blocked");
-        expect(candidate.blockers).toEqual(expect.arrayContaining([
-          "animation_clips_missing",
-          "clinical_idle_or_conversation_clip_missing",
-          "face_rig_control_nodes_missing",
-          "locomotion_posture_clip_missing",
-        ]));
-        expect(candidate.nextEvidenceRequired).toContain("resolve_structural_or_provenance_blockers");
-        expect(candidate.rigControlEvidence.blinkControlPresent).toBe(true);
-        expect(candidate.glb.animationCount).toBe(0);
-        expect(candidate.glb.clinicalIdlePoseClipCount).toBe(0);
-      }
+      expect(candidate.rigControlEvidence.requiredMorphTargetsPresent).toBe(true);
+      expect(candidate.rigControlEvidence.missingMorphTargets).toEqual([]);
+      expect(candidate.rigControlEvidence.observedMorphTargets).toEqual(expect.arrayContaining([
+        "openclinxr_mouth_open",
+        "openclinxr_brow_concern",
+        "openclinxr_cheek_tension",
+      ]));
+      expect(candidate.status).toBe("ready_for_webxr_visual_evidence");
+      expect(candidate.blockers).toEqual([]);
+      expect(candidate.rigControlEvidence.faceRigNodesPresent).toBe(true);
+      expect(candidate.rigControlEvidence.gazeEyeNodesPresent).toBe(true);
+      expect(candidate.rigControlEvidence.blinkControlPresent).toBe(true);
+      expect(candidate.rigControlEvidence.locomotionPostureClipPresent).toBe(true);
+      expect(candidate.glb.animationCount).toBeGreaterThan(0);
+      expect(candidate.glb.clinicalIdlePoseClipCount).toBeGreaterThan(0);
       expect(candidate.quarantine.runtimeBundlePromotionAllowed).toBe(false);
       expect(candidate.nextEvidenceRequired).toContain("license_provenance_chain_review_with_source_origin_derivative_lineage_and_document_hash");
       expect(candidate.nextEvidenceRequired).toContain("canonical_rig_expression_gaze_blink_and_locomotion_clip_evidence");

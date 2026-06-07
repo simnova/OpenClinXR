@@ -53,9 +53,15 @@ importers:
       ajv:
         specifier: 8.20.0
         version: 8.20.0
+      draco3d:
+        specifier: 1.5.7
+        version: 1.5.7
       gltf-pipeline:
         specifier: 4.3.1
         version: 4.3.1
+      gltfpack:
+        specifier: 1.1.0
+        version: 1.1.0
       knip:
         specifier: 6.11.0
         version: 6.11.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
@@ -4113,6 +4119,11 @@ packages:
 
   gltf-validator@2.0.0-dev.3.10:
     resolution: {integrity: sha512-odJ4k0tRkGXiDGn78yDBg+fBbAIvBnXxh3RwAta0emSxGtyagFE8B4xELB1oYe3S5RD8Ci3uZAsZaascH2LAEQ==}
+
+  gltfpack@1.1.0:
+    resolution: {integrity: sha512-i4ly1Xd3JWhyPG6GO1O3U/n1C6AegSd+w91hKrQkfgMIwgVKY4lBSN2ZmVRaV5kroMjuFCSPv2+QbiQnfN55Tg==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -9351,6 +9362,8 @@ snapshots:
       yargs: 17.7.2
 
   gltf-validator@2.0.0-dev.3.10: {}
+
+  gltfpack@1.1.0: {}
 
   gopd@1.2.0: {}
 

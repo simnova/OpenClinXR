@@ -7,7 +7,7 @@
     "agent-methodology": 51,
     "current-reference": 148,
     "archive-candidate": 9,
-    "evidence": 27,
+    "evidence": 30,
     "protected-policy": 11,
     "agent-memory": 26,
     "decision-record": 19,
@@ -1378,6 +1378,27 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "benchmarks/glb-optimization/README.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "benchmarks/glb-optimization/latest-report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "benchmarks/glb-optimization/reports/glb-optimization-cagematch-2026-06-07-openclinxr-samples-final.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/agent-factory/README.md",
