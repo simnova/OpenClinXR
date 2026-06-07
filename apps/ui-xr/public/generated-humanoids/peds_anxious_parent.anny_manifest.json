@@ -40,7 +40,7 @@
     "actor_id": "parent_tara_johnson_v1"
   },
   "output": {
-    "obj_path": "/Volumes/files/src/openclinxr/.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_base.obj",
+    "obj_path": "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
     "vertex_count": 13348,
     "face_count": 13346,
     "has_uvs": true,
@@ -51,11 +51,14 @@
     "kind": "real_anny_forward_pass",
     "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
     "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
+    "topology": "default-noeyes-notongue",
+    "topologyIncludesEyes": false,
+    "topologyIncludesTongue": false,
     "source_vertex_count": 13348,
     "source_face_count": 13346,
-    "source_height": 1.7000439167022705,
+    "source_height": 1.7000443935394287,
     "target_height": 1.66,
-    "scale": 0.9764453633762901,
+    "scale": 0.9764450894978938,
     "external_network_used": false,
     "model_download_used": false,
     "noncommercial_download_used": false

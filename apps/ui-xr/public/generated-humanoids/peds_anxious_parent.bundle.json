@@ -5,11 +5,11 @@
   "actorId": "parent_tara_johnson_v1",
   "actorRole": "parent",
   "outputs": {
-    "objPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_base.obj",
-    "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
-    "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
-    "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
-    "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json",
+    "objPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+    "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_manifest.json",
+    "glbPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+    "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent_rigging_report.json",
+    "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
     "optimizationReportPath": null
   },
   "generation": {

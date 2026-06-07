@@ -43,7 +43,7 @@
     "actor_id": "nurse_kevin_lee_v1"
   },
   "output": {
-    "obj_path": "/Volumes/files/src/openclinxr/.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_base.obj",
+    "obj_path": "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
     "vertex_count": 13348,
     "face_count": 13346,
     "has_uvs": true,
@@ -54,11 +54,14 @@
     "kind": "real_anny_forward_pass",
     "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
     "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
+    "topology": "default-noeyes-notongue",
+    "topologyIncludesEyes": false,
+    "topologyIncludesTongue": false,
     "source_vertex_count": 13348,
     "source_face_count": 13346,
-    "source_height": 1.6728534698486328,
+    "source_height": 1.6728533506393433,
     "target_height": 1.76,
-    "scale": 1.0520945388954195,
+    "scale": 1.0520946138687832,
     "external_network_used": false,
     "model_download_used": false,
     "noncommercial_download_used": false

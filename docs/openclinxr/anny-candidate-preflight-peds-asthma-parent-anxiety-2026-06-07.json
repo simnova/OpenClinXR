@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.anny-candidate-preflight.v1",
-  "generatedAt": "2026-06-07T00:01:22.057Z",
+  "generatedAt": "2026-06-07T00:05:29.415Z",
   "claimScope": "anny_candidate_preflight_metadata_and_structural_only",
   "providerBoundary": {
     "providerId": "anny_local_or_anny_compatible_import",
@@ -530,8 +530,8 @@
         "paidApiUsed": false
       },
       "paths": {
-        "sourceGlbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
-        "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json",
+        "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+        "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
         "localCandidateBundlePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.bundle.json"
       },
       "localCandidateBundle": {
@@ -540,11 +540,11 @@
         "bundlePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.bundle.json",
         "actorRole": "parent",
         "outputPaths": {
-          "objPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_base.obj",
-          "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
-          "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
-          "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
-          "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.provenance.json"
+          "objPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+          "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_manifest.json",
+          "glbPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+          "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent_rigging_report.json",
+          "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json"
         },
         "generation": {
           "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
@@ -572,21 +572,17 @@
         },
         "outputEvidence": {
           "allOutputsPresent": true,
-          "objSha256": "d61658a4cc012c48e7b8b9b0b6882ad647ad2548373be1ecb1bf6e9b983940b3",
-          "sourceManifestSha256": "eb4da6fb3cb8459673c6d03ee5da7074a902f1388bc1bca5bb7b03888c88d7f0",
-          "glbSha256": "0260d57a7c06addf0353991998c42b957e8fd73c2695973cabc84866426c381e",
-          "riggingReportSha256": "a4b4fea1b4ebb6079fe2412eadbde77a872e3d8e8bc89803ce2f9c2f5aef998c",
-          "provenanceSha256": "659a7aa84eece7fb625ffe369c7ae9c9710494770b3fbbd8497077cf465f62c5"
+          "objSha256": "f704763db50211893919141dd205f9e36ce1bcb53b3013509cb0a528b5088737",
+          "sourceManifestSha256": "b6106356de547bea83a7f7d6e1a2419a0fc599cf69dc09527f59c6c714e819a3",
+          "glbSha256": "f84d7cb410523be983b6aac51736b2b5e86f294dd05ff9c50ffc72b9f93ce9f2",
+          "riggingReportSha256": "0c681bd18df7bd702ce9d4830197ecf523dc01a1688bb267a7c71e22c8008131",
+          "provenanceSha256": "6f4e3a129868c19ed96f2c23cc9e9f242957fbe6f9a5c69b2d5fc8b53591ea46"
         },
         "roleMaterialHandoff": {
           "actorRole": "parent",
           "roleVisualCue": "anxious_parent_guardian",
           "clothingStyle": "muted_rose_guardian_cardigan",
-          "objectNames": [
-            "openclinxr_role_clothing_parent_torso_panel",
-            "openclinxr_role_clothing_parent_cardigan_left",
-            "openclinxr_role_clothing_parent_cardigan_right"
-          ],
+          "objectNames": [],
           "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
           "topMaterialName": "openclinxr_role_mesh_clothing_parent_top",
           "lowerMaterialName": "openclinxr_role_mesh_clothing_parent_lower",
@@ -600,12 +596,8 @@
           "fabricPalette": "muted_rose_and_neutral",
           "materialFinish": "cotton_knit_matte",
           "accessoryMarkers": [],
-          "generatedAccessoryObjects": [
-            "openclinxr_role_clothing_parent_torso_panel",
-            "openclinxr_role_clothing_parent_cardigan_left",
-            "openclinxr_role_clothing_parent_cardigan_right"
-          ],
-          "claimScope": "small_procedural_role_marker_not_production_costume",
+          "generatedAccessoryObjects": [],
+          "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
           "notEvidenceFor": [
             "production_asset_readiness",
             "b_plus_visual_realism_gate",
@@ -628,6 +620,228 @@
             "scoring_validity"
           ]
         },
+        "morphTargetDiagnostics": {
+          "defaultWeightThreshold": 0.001,
+          "extremeDeltaThreshold": 0.05,
+          "nonzeroDefaultWeights": [
+            {
+              "name": "viseme_silence",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_AA",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_E",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_IH",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_OH",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_OU",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_FV",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_L",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_TH",
+              "defaultValue": 1
+            },
+            {
+              "name": "openclinxr_mouth_open",
+              "defaultValue": 0.1
+            },
+            {
+              "name": "openclinxr_brow_concern",
+              "defaultValue": 0.205
+            },
+            {
+              "name": "openclinxr_cheek_tension",
+              "defaultValue": 0.205
+            },
+            {
+              "name": "brow_raise",
+              "defaultValue": 1
+            },
+            {
+              "name": "brow_furrow",
+              "defaultValue": 0.35
+            },
+            {
+              "name": "eye_squint",
+              "defaultValue": 1
+            },
+            {
+              "name": "smile",
+              "defaultValue": 1
+            },
+            {
+              "name": "frown",
+              "defaultValue": 1
+            },
+            {
+              "name": "concern",
+              "defaultValue": 1
+            },
+            {
+              "name": "pain",
+              "defaultValue": 1
+            },
+            {
+              "name": "anxious",
+              "defaultValue": 0.45
+            },
+            {
+              "name": "jaw_open",
+              "defaultValue": 1
+            },
+            {
+              "name": "gaze_yaw",
+              "defaultValue": 1
+            },
+            {
+              "name": "gaze_pitch",
+              "defaultValue": 1
+            }
+          ],
+          "extremeMorphDeltas": [
+            {
+              "name": "viseme_E",
+              "maxDelta": 0.088009,
+              "maxAxisDelta": 0.088
+            },
+            {
+              "name": "viseme_IH",
+              "maxDelta": 0.176018,
+              "maxAxisDelta": 0.176
+            },
+            {
+              "name": "viseme_OH",
+              "maxDelta": 0.352035,
+              "maxAxisDelta": 0.351999
+            },
+            {
+              "name": "viseme_OU",
+              "maxDelta": 0.704088,
+              "maxAxisDelta": 0.703999
+            },
+            {
+              "name": "viseme_FV",
+              "maxDelta": 1.408158,
+              "maxAxisDelta": 1.407997
+            },
+            {
+              "name": "viseme_L",
+              "maxDelta": 2.816317,
+              "maxAxisDelta": 2.815995
+            },
+            {
+              "name": "viseme_TH",
+              "maxDelta": 5.632633,
+              "maxAxisDelta": 5.631989
+            },
+            {
+              "name": "openclinxr_mouth_open",
+              "maxDelta": 11.265267,
+              "maxAxisDelta": 11.26398
+            },
+            {
+              "name": "openclinxr_brow_concern",
+              "maxDelta": 22.508541,
+              "maxAxisDelta": 22.505959
+            },
+            {
+              "name": "openclinxr_cheek_tension",
+              "maxDelta": 45.017502,
+              "maxAxisDelta": 45.011917
+            },
+            {
+              "name": "brow_raise",
+              "maxDelta": 90.034584,
+              "maxAxisDelta": 90.023842
+            },
+            {
+              "name": "brow_furrow",
+              "maxDelta": 180.06917,
+              "maxAxisDelta": 180.047684
+            },
+            {
+              "name": "eye_blink_l",
+              "maxDelta": 360.13833,
+              "maxAxisDelta": 360.095367
+            },
+            {
+              "name": "eye_blink_r",
+              "maxDelta": 720.276659,
+              "maxAxisDelta": 720.190735
+            },
+            {
+              "name": "eye_squint",
+              "maxDelta": 1440.553449,
+              "maxAxisDelta": 1440.381592
+            },
+            {
+              "name": "smile",
+              "maxDelta": 2881.114016,
+              "maxAxisDelta": 2880.770264
+            },
+            {
+              "name": "frown",
+              "maxDelta": 5762.216752,
+              "maxAxisDelta": 5761.529297
+            },
+            {
+              "name": "concern",
+              "maxDelta": 11524.433505,
+              "maxAxisDelta": 11523.058594
+            },
+            {
+              "name": "pain",
+              "maxDelta": 23048.867009,
+              "maxAxisDelta": 23046.117188
+            },
+            {
+              "name": "anxious",
+              "maxDelta": 46097.734019,
+              "maxAxisDelta": 46092.234375
+            },
+            {
+              "name": "jaw_open",
+              "maxDelta": 92195.451378,
+              "maxAxisDelta": 92184.453125
+            },
+            {
+              "name": "gaze_yaw",
+              "maxDelta": 184390.919509,
+              "maxAxisDelta": 184368.921875
+            },
+            {
+              "name": "gaze_pitch",
+              "maxDelta": 368781.805601,
+              "maxAxisDelta": 368737.8125
+            }
+          ],
+          "claimScope": "morph_target_diagnostic_not_readiness",
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
         "notEvidenceFor": [
           "b_plus_visual_realism_gate",
           "scene_placement_readiness",
@@ -640,7 +854,7 @@
       },
       "provenance": {
         "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-        "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
         "textureMode": "procedural_fallback",
         "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
         "realismGrade": "B",
@@ -654,7 +868,7 @@
           "clinical_validity",
           "scoring_validity"
         ],
-        "documentSha256": "659a7aa84eece7fb625ffe369c7ae9c9710494770b3fbbd8497077cf465f62c5",
+        "documentSha256": "6f4e3a129868c19ed96f2c23cc9e9f242957fbe6f9a5c69b2d5fc8b53591ea46",
         "sourceOriginChainPresent": true,
         "licenseChainPresent": true,
         "derivativeLineagePresent": true,
@@ -669,16 +883,16 @@
         "mappingNote": "parent normalized to family by case-definition alias policy."
       },
       "glb": {
-        "byteLength": 34051104,
-        "sha256": "0260d57a7c06addf0353991998c42b957e8fd73c2695973cabc84866426c381e",
+        "byteLength": 34048820,
+        "sha256": "f84d7cb410523be983b6aac51736b2b5e86f294dd05ff9c50ffc72b9f93ce9f2",
         "sceneCount": 1,
-        "nodeCount": 25,
-        "meshCount": 4,
-        "materialCount": 4,
+        "nodeCount": 22,
+        "meshCount": 1,
+        "materialCount": 3,
         "skinCount": 1,
         "animationCount": 5,
         "morphTargetPrimitiveCount": 3,
-        "vertexCount": 53456,
+        "vertexCount": 53384,
         "clinicalIdlePoseClipCount": 3
       },
       "rigEvidence": {
@@ -736,7 +950,54 @@
         ]
       },
       "status": "ready_for_webxr_visual_evidence",
-      "blockers": [],
+      "blockers": [
+        "default_morph_weight_detected:viseme_silence:1",
+        "default_morph_weight_detected:viseme_AA:1",
+        "default_morph_weight_detected:viseme_E:1",
+        "default_morph_weight_detected:viseme_IH:1",
+        "default_morph_weight_detected:viseme_OH:1",
+        "default_morph_weight_detected:viseme_OU:1",
+        "default_morph_weight_detected:viseme_FV:1",
+        "default_morph_weight_detected:viseme_L:1",
+        "default_morph_weight_detected:viseme_TH:1",
+        "default_morph_weight_detected:openclinxr_mouth_open:0.1",
+        "default_morph_weight_detected:openclinxr_brow_concern:0.205",
+        "default_morph_weight_detected:openclinxr_cheek_tension:0.205",
+        "default_morph_weight_detected:brow_raise:1",
+        "default_morph_weight_detected:brow_furrow:0.35",
+        "default_morph_weight_detected:eye_squint:1",
+        "default_morph_weight_detected:smile:1",
+        "default_morph_weight_detected:frown:1",
+        "default_morph_weight_detected:concern:1",
+        "default_morph_weight_detected:pain:1",
+        "default_morph_weight_detected:anxious:0.45",
+        "default_morph_weight_detected:jaw_open:1",
+        "default_morph_weight_detected:gaze_yaw:1",
+        "default_morph_weight_detected:gaze_pitch:1",
+        "extreme_morph_delta_detected:viseme_E:0.088009",
+        "extreme_morph_delta_detected:viseme_IH:0.176018",
+        "extreme_morph_delta_detected:viseme_OH:0.352035",
+        "extreme_morph_delta_detected:viseme_OU:0.704088",
+        "extreme_morph_delta_detected:viseme_FV:1.408158",
+        "extreme_morph_delta_detected:viseme_L:2.816317",
+        "extreme_morph_delta_detected:viseme_TH:5.632633",
+        "extreme_morph_delta_detected:openclinxr_mouth_open:11.265267",
+        "extreme_morph_delta_detected:openclinxr_brow_concern:22.508541",
+        "extreme_morph_delta_detected:openclinxr_cheek_tension:45.017502",
+        "extreme_morph_delta_detected:brow_raise:90.034584",
+        "extreme_morph_delta_detected:brow_furrow:180.06917",
+        "extreme_morph_delta_detected:eye_blink_l:360.13833",
+        "extreme_morph_delta_detected:eye_blink_r:720.276659",
+        "extreme_morph_delta_detected:eye_squint:1440.553449",
+        "extreme_morph_delta_detected:smile:2881.114016",
+        "extreme_morph_delta_detected:frown:5762.216752",
+        "extreme_morph_delta_detected:concern:11524.433505",
+        "extreme_morph_delta_detected:pain:23048.867009",
+        "extreme_morph_delta_detected:anxious:46097.734019",
+        "extreme_morph_delta_detected:jaw_open:92195.451378",
+        "extreme_morph_delta_detected:gaze_yaw:184390.919509",
+        "extreme_morph_delta_detected:gaze_pitch:368781.805601"
+      ],
       "nextEvidenceRequired": [
         "isolated_model_vetting_video_and_visual_realism_review_for_real_anny_candidate",
         "license_provenance_chain_review_with_source_origin_derivative_lineage_and_document_hash",
@@ -772,8 +1033,8 @@
         "paidApiUsed": false
       },
       "paths": {
-        "sourceGlbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
-        "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json",
+        "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+        "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
         "localCandidateBundlePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.bundle.json"
       },
       "localCandidateBundle": {
@@ -782,11 +1043,11 @@
         "bundlePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.bundle.json",
         "actorRole": "nurse",
         "outputPaths": {
-          "objPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_base.obj",
-          "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.anny_manifest.json",
-          "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
-          "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin_rigging_report.json",
-          "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.provenance.json"
+          "objPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
+          "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
+          "glbPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+          "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin_rigging_report.json",
+          "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json"
         },
         "generation": {
           "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
@@ -814,21 +1075,17 @@
         },
         "outputEvidence": {
           "allOutputsPresent": true,
-          "objSha256": "c1c18cf94280b376dcd82d99e9c910b46d92653312076885570d2a672596255d",
-          "sourceManifestSha256": "bd8a39cfc10aaa46983a5e8759c6c762efdac60c87e55c8dfdfe1cc7ad2b7902",
-          "glbSha256": "fa53f02353b7fe998959f5cacd57557ae97a546c45d994f015396017763ba524",
-          "riggingReportSha256": "c874e730ee4c3f3618f79febbcdb6bdc5f87305b5c5f0a97e6a01acbb335e945",
-          "provenanceSha256": "7f6feb63036327e9766550293050520c13feeb11f5725b5a4900c29316b6710c"
+          "objSha256": "46a6ca8fa5521272e1093639828238202e997c67fc9549777b3e7aeac89eb705",
+          "sourceManifestSha256": "0934cdf66c0564ae40d3fa61b6ca894565ecb3af2e8ebe41959eafd53736dcd1",
+          "glbSha256": "70a9cd6d984f3652cb3a29bfcdeb52d29ed5f0b979f80c02087179b56f3098f1",
+          "riggingReportSha256": "f7c122898d4e5e95d02682690f2d0fe4270e97c021e7ccf39db690563340961e",
+          "provenanceSha256": "a3c641dfbe42451be3fc2c4907058017e1f8f5dcec2ffbd462226ce4ea05627a"
         },
         "roleMaterialHandoff": {
           "actorRole": "nurse",
           "roleVisualCue": "clinical_nurse",
           "clothingStyle": "teal_clinical_scrubs_with_name_badge",
-          "objectNames": [
-            "openclinxr_role_clothing_nurse_torso_panel",
-            "openclinxr_role_clothing_nurse_name_badge",
-            "openclinxr_role_clothing_nurse_scrub_pocket"
-          ],
+          "objectNames": [],
           "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
           "topMaterialName": "openclinxr_role_mesh_clothing_nurse_top",
           "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
@@ -845,12 +1102,8 @@
             "name_badge",
             "scrub_pocket"
           ],
-          "generatedAccessoryObjects": [
-            "openclinxr_role_clothing_nurse_torso_panel",
-            "openclinxr_role_clothing_nurse_name_badge",
-            "openclinxr_role_clothing_nurse_scrub_pocket"
-          ],
-          "claimScope": "small_procedural_role_marker_not_production_costume",
+          "generatedAccessoryObjects": [],
+          "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
           "notEvidenceFor": [
             "production_asset_readiness",
             "b_plus_visual_realism_gate",
@@ -873,6 +1126,228 @@
             "scoring_validity"
           ]
         },
+        "morphTargetDiagnostics": {
+          "defaultWeightThreshold": 0.001,
+          "extremeDeltaThreshold": 0.05,
+          "nonzeroDefaultWeights": [
+            {
+              "name": "viseme_silence",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_AA",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_E",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_IH",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_OH",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_OU",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_FV",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_L",
+              "defaultValue": 1
+            },
+            {
+              "name": "viseme_TH",
+              "defaultValue": 1
+            },
+            {
+              "name": "openclinxr_mouth_open",
+              "defaultValue": 0.1
+            },
+            {
+              "name": "openclinxr_brow_concern",
+              "defaultValue": 0.045
+            },
+            {
+              "name": "openclinxr_cheek_tension",
+              "defaultValue": 0.045
+            },
+            {
+              "name": "brow_raise",
+              "defaultValue": 1
+            },
+            {
+              "name": "brow_furrow",
+              "defaultValue": 0.156
+            },
+            {
+              "name": "eye_squint",
+              "defaultValue": 1
+            },
+            {
+              "name": "smile",
+              "defaultValue": 1
+            },
+            {
+              "name": "frown",
+              "defaultValue": 1
+            },
+            {
+              "name": "concern",
+              "defaultValue": 1
+            },
+            {
+              "name": "pain",
+              "defaultValue": 1
+            },
+            {
+              "name": "anxious",
+              "defaultValue": 0.18
+            },
+            {
+              "name": "jaw_open",
+              "defaultValue": 1
+            },
+            {
+              "name": "gaze_yaw",
+              "defaultValue": 1
+            },
+            {
+              "name": "gaze_pitch",
+              "defaultValue": 1
+            }
+          ],
+          "extremeMorphDeltas": [
+            {
+              "name": "viseme_E",
+              "maxDelta": 0.088011,
+              "maxAxisDelta": 0.088
+            },
+            {
+              "name": "viseme_IH",
+              "maxDelta": 0.176023,
+              "maxAxisDelta": 0.176
+            },
+            {
+              "name": "viseme_OH",
+              "maxDelta": 0.352046,
+              "maxAxisDelta": 0.351999
+            },
+            {
+              "name": "viseme_OU",
+              "maxDelta": 0.704113,
+              "maxAxisDelta": 0.703999
+            },
+            {
+              "name": "viseme_FV",
+              "maxDelta": 1.408204,
+              "maxAxisDelta": 1.407997
+            },
+            {
+              "name": "viseme_L",
+              "maxDelta": 2.816408,
+              "maxAxisDelta": 2.815995
+            },
+            {
+              "name": "viseme_TH",
+              "maxDelta": 5.632816,
+              "maxAxisDelta": 5.631989
+            },
+            {
+              "name": "openclinxr_mouth_open",
+              "maxDelta": 11.265632,
+              "maxAxisDelta": 11.263979
+            },
+            {
+              "name": "openclinxr_brow_concern",
+              "maxDelta": 22.509272,
+              "maxAxisDelta": 22.505959
+            },
+            {
+              "name": "openclinxr_cheek_tension",
+              "maxDelta": 45.018934,
+              "maxAxisDelta": 45.011917
+            },
+            {
+              "name": "brow_raise",
+              "maxDelta": 90.037473,
+              "maxAxisDelta": 90.023834
+            },
+            {
+              "name": "brow_furrow",
+              "maxDelta": 180.074964,
+              "maxAxisDelta": 180.047684
+            },
+            {
+              "name": "eye_blink_l",
+              "maxDelta": 360.149919,
+              "maxAxisDelta": 360.095367
+            },
+            {
+              "name": "eye_blink_r",
+              "maxDelta": 720.299904,
+              "maxAxisDelta": 720.190796
+            },
+            {
+              "name": "eye_squint",
+              "maxDelta": 1440.599808,
+              "maxAxisDelta": 1440.381592
+            },
+            {
+              "name": "smile",
+              "maxDelta": 2881.206734,
+              "maxAxisDelta": 2880.770264
+            },
+            {
+              "name": "frown",
+              "maxDelta": 5762.402187,
+              "maxAxisDelta": 5761.529297
+            },
+            {
+              "name": "concern",
+              "maxDelta": 11524.804375,
+              "maxAxisDelta": 11523.058594
+            },
+            {
+              "name": "pain",
+              "maxDelta": 23049.608749,
+              "maxAxisDelta": 23046.117188
+            },
+            {
+              "name": "anxious",
+              "maxDelta": 46099.217499,
+              "maxAxisDelta": 46092.234375
+            },
+            {
+              "name": "jaw_open",
+              "maxDelta": 92198.418339,
+              "maxAxisDelta": 92184.453125
+            },
+            {
+              "name": "gaze_yaw",
+              "maxDelta": 184396.8701,
+              "maxAxisDelta": 184368.9375
+            },
+            {
+              "name": "gaze_pitch",
+              "maxDelta": 368793.740098,
+              "maxAxisDelta": 368737.875
+            }
+          ],
+          "claimScope": "morph_target_diagnostic_not_readiness",
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
         "notEvidenceFor": [
           "b_plus_visual_realism_gate",
           "scene_placement_readiness",
@@ -885,7 +1360,7 @@
       },
       "provenance": {
         "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-        "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
         "textureMode": "procedural_fallback",
         "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
         "realismGrade": "B",
@@ -899,7 +1374,7 @@
           "clinical_validity",
           "scoring_validity"
         ],
-        "documentSha256": "7f6feb63036327e9766550293050520c13feeb11f5725b5a4900c29316b6710c",
+        "documentSha256": "a3c641dfbe42451be3fc2c4907058017e1f8f5dcec2ffbd462226ce4ea05627a",
         "sourceOriginChainPresent": true,
         "licenseChainPresent": true,
         "derivativeLineagePresent": true,
@@ -914,16 +1389,16 @@
         "mappingNote": "nurse normalized to nurse by case-definition alias policy."
       },
       "glb": {
-        "byteLength": 34268152,
-        "sha256": "fa53f02353b7fe998959f5cacd57557ae97a546c45d994f015396017763ba524",
+        "byteLength": 34256176,
+        "sha256": "70a9cd6d984f3652cb3a29bfcdeb52d29ed5f0b979f80c02087179b56f3098f1",
         "sceneCount": 1,
-        "nodeCount": 25,
-        "meshCount": 4,
-        "materialCount": 5,
+        "nodeCount": 22,
+        "meshCount": 1,
+        "materialCount": 3,
         "skinCount": 1,
         "animationCount": 5,
         "morphTargetPrimitiveCount": 3,
-        "vertexCount": 53456,
+        "vertexCount": 53384,
         "clinicalIdlePoseClipCount": 4
       },
       "rigEvidence": {
@@ -981,7 +1456,54 @@
         ]
       },
       "status": "ready_for_webxr_visual_evidence",
-      "blockers": [],
+      "blockers": [
+        "default_morph_weight_detected:viseme_silence:1",
+        "default_morph_weight_detected:viseme_AA:1",
+        "default_morph_weight_detected:viseme_E:1",
+        "default_morph_weight_detected:viseme_IH:1",
+        "default_morph_weight_detected:viseme_OH:1",
+        "default_morph_weight_detected:viseme_OU:1",
+        "default_morph_weight_detected:viseme_FV:1",
+        "default_morph_weight_detected:viseme_L:1",
+        "default_morph_weight_detected:viseme_TH:1",
+        "default_morph_weight_detected:openclinxr_mouth_open:0.1",
+        "default_morph_weight_detected:openclinxr_brow_concern:0.045",
+        "default_morph_weight_detected:openclinxr_cheek_tension:0.045",
+        "default_morph_weight_detected:brow_raise:1",
+        "default_morph_weight_detected:brow_furrow:0.156",
+        "default_morph_weight_detected:eye_squint:1",
+        "default_morph_weight_detected:smile:1",
+        "default_morph_weight_detected:frown:1",
+        "default_morph_weight_detected:concern:1",
+        "default_morph_weight_detected:pain:1",
+        "default_morph_weight_detected:anxious:0.18",
+        "default_morph_weight_detected:jaw_open:1",
+        "default_morph_weight_detected:gaze_yaw:1",
+        "default_morph_weight_detected:gaze_pitch:1",
+        "extreme_morph_delta_detected:viseme_E:0.088011",
+        "extreme_morph_delta_detected:viseme_IH:0.176023",
+        "extreme_morph_delta_detected:viseme_OH:0.352046",
+        "extreme_morph_delta_detected:viseme_OU:0.704113",
+        "extreme_morph_delta_detected:viseme_FV:1.408204",
+        "extreme_morph_delta_detected:viseme_L:2.816408",
+        "extreme_morph_delta_detected:viseme_TH:5.632816",
+        "extreme_morph_delta_detected:openclinxr_mouth_open:11.265632",
+        "extreme_morph_delta_detected:openclinxr_brow_concern:22.509272",
+        "extreme_morph_delta_detected:openclinxr_cheek_tension:45.018934",
+        "extreme_morph_delta_detected:brow_raise:90.037473",
+        "extreme_morph_delta_detected:brow_furrow:180.074964",
+        "extreme_morph_delta_detected:eye_blink_l:360.149919",
+        "extreme_morph_delta_detected:eye_blink_r:720.299904",
+        "extreme_morph_delta_detected:eye_squint:1440.599808",
+        "extreme_morph_delta_detected:smile:2881.206734",
+        "extreme_morph_delta_detected:frown:5762.402187",
+        "extreme_morph_delta_detected:concern:11524.804375",
+        "extreme_morph_delta_detected:pain:23049.608749",
+        "extreme_morph_delta_detected:anxious:46099.217499",
+        "extreme_morph_delta_detected:jaw_open:92198.418339",
+        "extreme_morph_delta_detected:gaze_yaw:184396.8701",
+        "extreme_morph_delta_detected:gaze_pitch:368793.740098"
+      ],
       "nextEvidenceRequired": [
         "isolated_model_vetting_video_and_visual_realism_review_for_real_anny_candidate",
         "license_provenance_chain_review_with_source_origin_derivative_lineage_and_document_hash",

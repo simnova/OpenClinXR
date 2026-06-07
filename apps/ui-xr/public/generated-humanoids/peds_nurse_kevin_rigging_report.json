@@ -139,15 +139,15 @@
     ]
   },
   "roleVisualMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
+    "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
+    "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
     "actorRole": "nurse",
     "roleVisualCue": "clinical_nurse",
     "clothingStyle": "teal_clinical_scrubs_with_name_badge",
-    "objectNames": [
-      "openclinxr_role_clothing_nurse_torso_panel",
-      "openclinxr_role_clothing_nurse_name_badge",
-      "openclinxr_role_clothing_nurse_scrub_pocket"
-    ],
-    "claimScope": "small_procedural_role_marker_not_production_costume",
+    "objectNames": [],
+    "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
@@ -182,6 +182,22 @@
       "scoring_validity"
     ]
   },
+  "sourceTopologyEvidence": {
+    "topology": "default-noeyes-notongue",
+    "topologyIncludesEyes": false,
+    "topologyIncludesTongue": false,
+    "materialSegmentationProvided": false,
+    "embeddedEyeMaterialCagematchStatus": "failed_not_retained",
+    "failureReason": "Bounds-based material assignment to default-topology eye-region faces landed on cheek/under-eye polygons in isolated Model Vetting Studio evidence.",
+    "nextSafeStep": "Use source semantic masks, UV masks, or a stronger local FOSS face/eye/hair generator before coloring Anny default-topology eye regions.",
+    "claimScope": "source_topology_observation_not_production_eye_shader_or_b_plus_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "wardrobeTags": {
     "wardrobeRole": "pediatric_nurse_scrubs",
     "garmentLayers": [
@@ -200,21 +216,239 @@
     "eyeColor": "brown",
     "materialFinish": "poly_cotton_slight_sheen"
   },
+  "morphTargetDiagnostics": {
+    "defaultWeightThreshold": 0.001,
+    "extremeDeltaThreshold": 0.05,
+    "nonzeroDefaultWeights": [
+      {
+        "name": "viseme_silence",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_AA",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_E",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_IH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OU",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_FV",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_L",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_TH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "defaultValue": 0.1
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "defaultValue": 0.045
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "defaultValue": 0.045
+      },
+      {
+        "name": "brow_raise",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "brow_furrow",
+        "defaultValue": 0.156
+      },
+      {
+        "name": "eye_squint",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "smile",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "frown",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "concern",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "pain",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "anxious",
+        "defaultValue": 0.18
+      },
+      {
+        "name": "jaw_open",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_yaw",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_pitch",
+        "defaultValue": 1.0
+      }
+    ],
+    "extremeMorphDeltas": [
+      {
+        "name": "viseme_E",
+        "maxDelta": 0.088011,
+        "maxAxisDelta": 0.088
+      },
+      {
+        "name": "viseme_IH",
+        "maxDelta": 0.176023,
+        "maxAxisDelta": 0.176
+      },
+      {
+        "name": "viseme_OH",
+        "maxDelta": 0.352046,
+        "maxAxisDelta": 0.351999
+      },
+      {
+        "name": "viseme_OU",
+        "maxDelta": 0.704113,
+        "maxAxisDelta": 0.703999
+      },
+      {
+        "name": "viseme_FV",
+        "maxDelta": 1.408204,
+        "maxAxisDelta": 1.407997
+      },
+      {
+        "name": "viseme_L",
+        "maxDelta": 2.816408,
+        "maxAxisDelta": 2.815995
+      },
+      {
+        "name": "viseme_TH",
+        "maxDelta": 5.632816,
+        "maxAxisDelta": 5.631989
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "maxDelta": 11.265632,
+        "maxAxisDelta": 11.263979
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "maxDelta": 22.509272,
+        "maxAxisDelta": 22.505959
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "maxDelta": 45.018934,
+        "maxAxisDelta": 45.011917
+      },
+      {
+        "name": "brow_raise",
+        "maxDelta": 90.037473,
+        "maxAxisDelta": 90.023834
+      },
+      {
+        "name": "brow_furrow",
+        "maxDelta": 180.074964,
+        "maxAxisDelta": 180.047684
+      },
+      {
+        "name": "eye_blink_l",
+        "maxDelta": 360.149919,
+        "maxAxisDelta": 360.095367
+      },
+      {
+        "name": "eye_blink_r",
+        "maxDelta": 720.299904,
+        "maxAxisDelta": 720.190796
+      },
+      {
+        "name": "eye_squint",
+        "maxDelta": 1440.599808,
+        "maxAxisDelta": 1440.381592
+      },
+      {
+        "name": "smile",
+        "maxDelta": 2881.206734,
+        "maxAxisDelta": 2880.770264
+      },
+      {
+        "name": "frown",
+        "maxDelta": 5762.402187,
+        "maxAxisDelta": 5761.529297
+      },
+      {
+        "name": "concern",
+        "maxDelta": 11524.804375,
+        "maxAxisDelta": 11523.058594
+      },
+      {
+        "name": "pain",
+        "maxDelta": 23049.608749,
+        "maxAxisDelta": 23046.117188
+      },
+      {
+        "name": "anxious",
+        "maxDelta": 46099.217499,
+        "maxAxisDelta": 46092.234375
+      },
+      {
+        "name": "jaw_open",
+        "maxDelta": 92198.418339,
+        "maxAxisDelta": 92184.453125
+      },
+      {
+        "name": "gaze_yaw",
+        "maxDelta": 184396.8701,
+        "maxAxisDelta": 184368.9375
+      },
+      {
+        "name": "gaze_pitch",
+        "maxDelta": 368793.740098,
+        "maxAxisDelta": 368737.875
+      }
+    ],
+    "claimScope": "morph_target_diagnostic_not_readiness",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "accessoryPresence": {
     "markers": [
       "name_badge",
       "scrub_pocket"
     ],
-    "generatedObjects": [
-      "openclinxr_role_clothing_nurse_torso_panel",
-      "openclinxr_role_clothing_nurse_name_badge",
-      "openclinxr_role_clothing_nurse_scrub_pocket"
-    ],
+    "generatedObjects": [],
     "claimScope": "synthetic_role_visual_cue_only"
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-06-06T03:22:28.553442Z",
+    "generatedAt": "2026-06-07T00:05:23.731150Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

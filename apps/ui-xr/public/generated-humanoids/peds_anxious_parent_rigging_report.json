@@ -141,15 +141,15 @@
     ]
   },
   "roleVisualMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
+    "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
+    "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
     "actorRole": "parent",
     "roleVisualCue": "anxious_parent_guardian",
     "clothingStyle": "muted_rose_guardian_cardigan",
-    "objectNames": [
-      "openclinxr_role_clothing_parent_torso_panel",
-      "openclinxr_role_clothing_parent_cardigan_left",
-      "openclinxr_role_clothing_parent_cardigan_right"
-    ],
-    "claimScope": "small_procedural_role_marker_not_production_costume",
+    "objectNames": [],
+    "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
@@ -184,6 +184,22 @@
       "scoring_validity"
     ]
   },
+  "sourceTopologyEvidence": {
+    "topology": "default-noeyes-notongue",
+    "topologyIncludesEyes": false,
+    "topologyIncludesTongue": false,
+    "materialSegmentationProvided": false,
+    "embeddedEyeMaterialCagematchStatus": "failed_not_retained",
+    "failureReason": "Bounds-based material assignment to default-topology eye-region faces landed on cheek/under-eye polygons in isolated Model Vetting Studio evidence.",
+    "nextSafeStep": "Use source semantic masks, UV masks, or a stronger local FOSS face/eye/hair generator before coloring Anny default-topology eye regions.",
+    "claimScope": "source_topology_observation_not_production_eye_shader_or_b_plus_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "wardrobeTags": {
     "wardrobeRole": "anxious_parent_casual",
     "garmentLayers": [
@@ -202,18 +218,236 @@
     "eyeColor": "brown",
     "materialFinish": "cotton_knit_matte"
   },
+  "morphTargetDiagnostics": {
+    "defaultWeightThreshold": 0.001,
+    "extremeDeltaThreshold": 0.05,
+    "nonzeroDefaultWeights": [
+      {
+        "name": "viseme_silence",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_AA",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_E",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_IH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OU",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_FV",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_L",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_TH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "defaultValue": 0.1
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "defaultValue": 0.205
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "defaultValue": 0.205
+      },
+      {
+        "name": "brow_raise",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "brow_furrow",
+        "defaultValue": 0.35
+      },
+      {
+        "name": "eye_squint",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "smile",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "frown",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "concern",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "pain",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "anxious",
+        "defaultValue": 0.45
+      },
+      {
+        "name": "jaw_open",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_yaw",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_pitch",
+        "defaultValue": 1.0
+      }
+    ],
+    "extremeMorphDeltas": [
+      {
+        "name": "viseme_E",
+        "maxDelta": 0.088009,
+        "maxAxisDelta": 0.088
+      },
+      {
+        "name": "viseme_IH",
+        "maxDelta": 0.176018,
+        "maxAxisDelta": 0.176
+      },
+      {
+        "name": "viseme_OH",
+        "maxDelta": 0.352035,
+        "maxAxisDelta": 0.351999
+      },
+      {
+        "name": "viseme_OU",
+        "maxDelta": 0.704088,
+        "maxAxisDelta": 0.703999
+      },
+      {
+        "name": "viseme_FV",
+        "maxDelta": 1.408158,
+        "maxAxisDelta": 1.407997
+      },
+      {
+        "name": "viseme_L",
+        "maxDelta": 2.816317,
+        "maxAxisDelta": 2.815995
+      },
+      {
+        "name": "viseme_TH",
+        "maxDelta": 5.632633,
+        "maxAxisDelta": 5.631989
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "maxDelta": 11.265267,
+        "maxAxisDelta": 11.26398
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "maxDelta": 22.508541,
+        "maxAxisDelta": 22.505959
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "maxDelta": 45.017502,
+        "maxAxisDelta": 45.011917
+      },
+      {
+        "name": "brow_raise",
+        "maxDelta": 90.034584,
+        "maxAxisDelta": 90.023842
+      },
+      {
+        "name": "brow_furrow",
+        "maxDelta": 180.06917,
+        "maxAxisDelta": 180.047684
+      },
+      {
+        "name": "eye_blink_l",
+        "maxDelta": 360.13833,
+        "maxAxisDelta": 360.095367
+      },
+      {
+        "name": "eye_blink_r",
+        "maxDelta": 720.276659,
+        "maxAxisDelta": 720.190735
+      },
+      {
+        "name": "eye_squint",
+        "maxDelta": 1440.553449,
+        "maxAxisDelta": 1440.381592
+      },
+      {
+        "name": "smile",
+        "maxDelta": 2881.114016,
+        "maxAxisDelta": 2880.770264
+      },
+      {
+        "name": "frown",
+        "maxDelta": 5762.216752,
+        "maxAxisDelta": 5761.529297
+      },
+      {
+        "name": "concern",
+        "maxDelta": 11524.433505,
+        "maxAxisDelta": 11523.058594
+      },
+      {
+        "name": "pain",
+        "maxDelta": 23048.867009,
+        "maxAxisDelta": 23046.117188
+      },
+      {
+        "name": "anxious",
+        "maxDelta": 46097.734019,
+        "maxAxisDelta": 46092.234375
+      },
+      {
+        "name": "jaw_open",
+        "maxDelta": 92195.451378,
+        "maxAxisDelta": 92184.453125
+      },
+      {
+        "name": "gaze_yaw",
+        "maxDelta": 184390.919509,
+        "maxAxisDelta": 184368.921875
+      },
+      {
+        "name": "gaze_pitch",
+        "maxDelta": 368781.805601,
+        "maxAxisDelta": 368737.8125
+      }
+    ],
+    "claimScope": "morph_target_diagnostic_not_readiness",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "accessoryPresence": {
     "markers": [],
-    "generatedObjects": [
-      "openclinxr_role_clothing_parent_torso_panel",
-      "openclinxr_role_clothing_parent_cardigan_left",
-      "openclinxr_role_clothing_parent_cardigan_right"
-    ],
+    "generatedObjects": [],
     "claimScope": "synthetic_role_visual_cue_only"
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-06-06T03:22:24.829141Z",
+    "generatedAt": "2026-06-07T00:05:23.757055Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,
