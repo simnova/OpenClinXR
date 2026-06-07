@@ -56,6 +56,11 @@ export type ModelVettingRoleMaterialHandoff = {
   roleVisualCue: string;
   clothingStyle: string;
   objectNames: string[];
+  meshRegionMaterialMode?: string;
+  topMaterialName?: string;
+  lowerMaterialName?: string;
+  topFaceCount?: number;
+  lowerFaceCount?: number;
   wardrobeRole: string;
   garmentLayers: string[];
   fabricPalette: string;
@@ -554,8 +559,12 @@ function validateCandidate(value: unknown, path: string, errors: string[]): void
       requireString(roleMaterialHandoff["roleVisualCue"], `${path}/roleMaterialHandoff/roleVisualCue`, errors);
       requireString(roleMaterialHandoff["wardrobeRole"], `${path}/roleMaterialHandoff/wardrobeRole`, errors);
       requireString(roleMaterialHandoff["clothingStyle"], `${path}/roleMaterialHandoff/clothingStyle`, errors);
-      if (!Array.isArray(roleMaterialHandoff["objectNames"]) || roleMaterialHandoff["objectNames"].length === 0) {
-        errors.push(`${path}/roleMaterialHandoff/objectNames must be nonempty array`);
+      const objectNames = roleMaterialHandoff["objectNames"];
+      const meshRegionMaterialMode = roleMaterialHandoff["meshRegionMaterialMode"];
+      const hasObjectNames = Array.isArray(objectNames) && objectNames.length > 0;
+      const hasMeshRegionMaterialMode = typeof meshRegionMaterialMode === "string" && meshRegionMaterialMode.length > 0;
+      if (!hasObjectNames && !hasMeshRegionMaterialMode) {
+        errors.push(`${path}/roleMaterialHandoff must include nonempty objectNames or meshRegionMaterialMode`);
       }
       requireStringArrayIncludes(roleMaterialHandoff["notEvidenceFor"], "production_asset_readiness", `${path}/roleMaterialHandoff/notEvidenceFor`, errors);
     }
@@ -690,3 +699,14 @@ function isolatedCaptureComplete(captureArtifacts: ModelVettingCaptureArtifacts)
     && Boolean(captureArtifacts.morphVisemeTimelineCapture)
     && Boolean(captureArtifacts.emotionTransitionCapture);
 }
+
+export type {
+  CagematchDecisionBranch,
+  CagematchFeasibilityCriterion,
+  CagematchProcessExplanation,
+  CagematchReportMedia,
+  CagematchReportPage,
+  CagematchReportRegistry,
+  CagematchTechnologyId,
+} from "./cagematch-report.js";
+export { validateCagematchReportPage, validateCagematchReportRegistry } from "./cagematch-report.js";

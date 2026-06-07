@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "openclinxr.cagematch-report-registry.v1",
+  "generatedAt": "2026-06-07T00:35:02.845Z",
+  "reports": [
+    {
+      "reportId": "humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb",
+      "lane": "humanoid-source-side-by-side",
+      "runId": "2026-06-07-anny-vs-mpfb",
+      "title": "Anny Comfy masked-face vs MPFB pediatric comparator",
+      "family": "Humanoid source generation",
+      "reportUrlPath": "/cagematch-reports/humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb/report.json",
+      "pageUrlQuery": "?cagematchReport=humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb",
+      "thumbnailUrlPath": "/cagematch-reports/humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb/front.png"
+    }
+  ]
+}

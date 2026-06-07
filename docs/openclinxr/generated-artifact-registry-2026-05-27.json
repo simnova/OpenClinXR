@@ -4,8 +4,8 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 93,
-    "ignore-local-cache": 303,
+    "keep-evidence": 94,
+    "ignore-local-cache": 346,
     "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 5
@@ -425,6 +425,62 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v2/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v3/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v6/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-nurse/peds_nurse_kevin_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-parent/peds_anxious_parent_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/cagematch/anny-masked-head-detail-texture/2026-06-06-043725/masked_head_detail.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -523,6 +579,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/mpfb-peds-patient-comparator/2026-06-07-mpfb-peds-comparator/mpfb-blender-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -579,7 +642,210 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/2026-06-07-comfy-face-inpaint-v6/peds_patient_child_comfy_masked_face_front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/2026-06-07-comfy-face-inpaint-v6/peds_patient_child_comfy_masked_face_three_quarter_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/2026-06-07-v6-artifact-map.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin-capture-artifact-map-2026-06-07-v5.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin-capture-artifact-map-2026-06-07.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin-capture-manifest-2026-06-07.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/peds_patient_child_comfy_masked_face_front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/peds_patient_child_comfy_masked_face_three_quarter_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/peds_patient_child_comfy_masked_face_front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/peds_patient_child_comfy_masked_face_three_quarter_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v2/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v3/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v4/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v5/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v6/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v6/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint-v6/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-comfy-face-inpaint/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-nurse/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-nurse/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-nurse/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-parent/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-parent/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind-parent/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-07-parent-nurse-bind/comfy-masked-face-actor-bind-cagematch.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1727,6 +1993,41 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/humanoid-source-side-by-side/2026-06-07-anny-vs-mpfb/captures/anny_comfy_v6_vs_mpfb_front_2026-06-07-anny-vs-mpfb.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/humanoid-source-side-by-side/2026-06-07-anny-vs-mpfb/captures/anny_comfy_v6_vs_mpfb_three_quarter_2026-06-07-anny-vs-mpfb.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/humanoid-source-side-by-side/2026-06-07-anny-vs-mpfb/humanoid-source-side-by-side-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/humanoid-source-side-by-side/2026-06-07-anny-vs-mpfb/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/mpfb-peds-patient-comparator/2026-06-07-mpfb-peds-comparator/mpfb-pediatric-patient-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/realvisxl-direct-texture/2026-06-06-035551/tool.stdout.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1777,6 +2078,13 @@
     },
     {
       "path": ".openclinxr/evidence/cagematch/realvisxl-direct-texture/2026-06-06-035611/tool.stdout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/humanoid-source-decision-tree-latest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1847,13 +2155,6 @@
     },
     {
       "path": ".openclinxr/evidence/ui-xr-clean-mpfb2-comparator-freeze-2026-06-06/state.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/openclaw/automation-lease.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -3480,6 +3781,13 @@
       "path": "docs/openclinxr/model-vetting-captures/anny-skin-track-a-mit-pbr/peds_patient_child_track_a_mit_pbr_three_quarter_2026-06-06.png",
       "authority": "keep-evidence",
       "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-07.json",
+      "authority": "keep-evidence",
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },

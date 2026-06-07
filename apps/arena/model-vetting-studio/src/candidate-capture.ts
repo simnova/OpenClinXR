@@ -63,6 +63,26 @@ export type ModelVettingCandidateCaptureEvidence = {
   notEvidenceFor: ModelVettingStudioEvidence["notEvidenceFor"];
 };
 
+export type ModelVettingDualCandidateCaptureEvidence = {
+  source: "window.__openClinXrModelVettingDualCaptureEvidence";
+  leftCandidateId: string;
+  rightCandidateId: string;
+  leftSourceGlbPath: string;
+  rightSourceGlbPath: string;
+  captureView: FixedCameraView;
+  leftMeshCount: number;
+  rightMeshCount: number;
+  captureClaim: "isolated_dual_humanoid_source_side_by_side_screenshot_only";
+  materialEvidenceMode: "source_candidate_materials";
+  scenePlacementEvidenceAllowed: false;
+  questReadinessClaimAllowed: false;
+  productionReadinessClaimAllowed: false;
+  learnerReadinessClaimAllowed: false;
+  clinicalValidityClaimAllowed: false;
+  scoringValidityClaimAllowed: false;
+  notEvidenceFor: ModelVettingStudioEvidence["notEvidenceFor"];
+};
+
 export async function renderCandidateCapture(input: {
   mount: HTMLElement;
   evidence: ModelVettingStudioEvidence;
@@ -197,6 +217,113 @@ export async function renderCandidateCapture(input: {
     scoringValidityClaimAllowed: false,
     notEvidenceFor: input.evidence.notEvidenceFor,
   };
+}
+
+export async function renderDualCandidateCapture(input: {
+  mount: HTMLElement;
+  evidence: ModelVettingStudioEvidence;
+  leftCandidateId: string;
+  rightCandidateId: string;
+  view: FixedCameraView;
+}): Promise<ModelVettingDualCandidateCaptureEvidence> {
+  const leftCandidate = input.evidence.candidates.find((item) => item.candidateId === input.leftCandidateId);
+  const rightCandidate = input.evidence.candidates.find((item) => item.candidateId === input.rightCandidateId);
+  if (!leftCandidate) throw new Error(`Unknown leftCandidateId ${input.leftCandidateId}`);
+  if (!rightCandidate) throw new Error(`Unknown rightCandidateId ${input.rightCandidateId}`);
+  if (!isFixedCameraView(input.view)) throw new Error(`Dual compare capture requires a fixed camera view, got ${input.view}`);
+
+  const stage = document.createElement("section");
+  stage.className = "candidate-capture-stage dual-compare";
+  stage.setAttribute("aria-label", `${leftCandidate.actorDisplayRole} vs ${rightCandidate.actorDisplayRole} ${input.view} capture`);
+  const canvas = document.createElement("canvas");
+  canvas.id = "model-vetting-dual-capture-canvas";
+  const badge = document.createElement("div");
+  badge.className = "candidate-capture-badge";
+  badge.textContent = `${leftCandidate.actorDisplayRole} vs ${rightCandidate.actorDisplayRole} · ${input.view.replaceAll("_", " ")} · side-by-side`;
+  stage.append(canvas, badge);
+  input.mount.replaceChildren(stage);
+
+  const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
+  const width = 1280;
+  const height = 1280;
+  renderer.setSize(width, height, false);
+  renderer.setClearColor(new Color("#18211d"));
+
+  const scene = new Scene();
+  scene.background = new Color("#18211d");
+  scene.add(new AmbientLight("#dceee6", 1.5));
+  const keyLight = new DirectionalLight("#ffffff", 2.4);
+  keyLight.position.set(3, 5, 4);
+  scene.add(keyLight);
+  const fillLight = new DirectionalLight("#b6d8ca", 1.2);
+  fillLight.position.set(-4, 3, -2);
+  scene.add(fillLight);
+  const grid = new GridHelper(6, 20, "#80c7ad", "#31483f");
+  scene.add(grid);
+
+  const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  const [leftGltf, rightGltf] = await Promise.all([
+    loader.loadAsync(glbUrlForPath(leftCandidate.sourceGlbPath)),
+    loader.loadAsync(glbUrlForPath(rightCandidate.sourceGlbPath)),
+  ]);
+
+  const leftCounts = await addScaledCaptureModel(scene, leftGltf.scene, -1.05);
+  const rightCounts = await addScaledCaptureModel(scene, rightGltf.scene, 1.05);
+
+  const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
+  camera.position.copy(cameraPosition(input.view));
+  camera.lookAt(0, 0.9, 0);
+  renderer.render(scene, camera);
+
+  return {
+    source: "window.__openClinXrModelVettingDualCaptureEvidence",
+    leftCandidateId: leftCandidate.candidateId,
+    rightCandidateId: rightCandidate.candidateId,
+    leftSourceGlbPath: leftCandidate.sourceGlbPath,
+    rightSourceGlbPath: rightCandidate.sourceGlbPath,
+    captureView: input.view,
+    leftMeshCount: leftCounts.meshCount,
+    rightMeshCount: rightCounts.meshCount,
+    captureClaim: "isolated_dual_humanoid_source_side_by_side_screenshot_only",
+    materialEvidenceMode: "source_candidate_materials",
+    scenePlacementEvidenceAllowed: false,
+    questReadinessClaimAllowed: false,
+    productionReadinessClaimAllowed: false,
+    learnerReadinessClaimAllowed: false,
+    clinicalValidityClaimAllowed: false,
+    scoringValidityClaimAllowed: false,
+    notEvidenceFor: input.evidence.notEvidenceFor,
+  };
+}
+
+async function addScaledCaptureModel(scene: Scene, model: Object3D, offsetX: number): Promise<{ meshCount: number }> {
+  let meshCount = 0;
+  const captureModel = new Group();
+  model.updateMatrixWorld(true);
+  model.traverse((object) => {
+    if (object instanceof Mesh) {
+      meshCount += 1;
+      const mesh = new Mesh(object.geometry, object.material);
+      mesh.name = `${object.name || "mesh"}_dual_capture_clone`;
+      mesh.frustumCulled = false;
+      mesh.applyMatrix4(object.matrixWorld);
+      captureModel.add(mesh);
+    }
+  });
+  scene.add(captureModel);
+  captureModel.updateMatrixWorld(true);
+  const initialBounds = computeBaseMeshBounds(captureModel);
+  const initialSize = initialBounds.getSize(new Vector3());
+  const targetHeightMeters = 2.2;
+  const scale = targetHeightMeters / Math.max(initialSize.y, 0.001);
+  captureModel.scale.setScalar(scale);
+  captureModel.updateMatrixWorld(true);
+  const bounds = computeBaseMeshBounds(captureModel);
+  const center = bounds.getCenter(new Vector3());
+  captureModel.position.set(offsetX - center.x, -bounds.min.y, -center.z);
+  captureModel.updateMatrixWorld(true);
+  return { meshCount };
 }
 
 export function buildAnimationEvidence(animations: Array<{ name?: string; tracks?: unknown[] }>): ModelVettingCandidateCaptureEvidence["animationEvidence"] {

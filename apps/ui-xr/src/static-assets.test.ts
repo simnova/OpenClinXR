@@ -294,7 +294,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("emotionSource: speech.emotionContext.source");
     expect(mainSource).toContain("humanoidSourceComparator");
     expect(mainSource).toContain("peds_anny_mpfb2_eye_rig_patient");
+    expect(mainSource).toContain("peds_anny_comfy_masked_skin");
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
+    expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_anxious_parent.glb");
+    expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_nurse_kevin.glb");
     expect(mainSource).toContain("source_materials_preserved_for_clean_comparator_capture_no_runtime_tint");
     expect(mainSource).toContain("source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override");
     expect(mainSource).toContain("source_comparator_fixed_pose_sampled");

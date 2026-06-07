@@ -1,4 +1,10 @@
 import {
+  loadCagematchReportPage,
+  loadCagematchReportRegistry,
+  renderCagematchReportIndex,
+  renderCagematchReportPage,
+} from "./cagematch-report-view.js";
+import {
   loadModelVettingStudioEvidence,
   type ActorPlayerPreviewActor,
   type ActorPlayerTurnPreview,
@@ -8,8 +14,11 @@ import {
 } from "./studio-state.js";
 import {
   isCandidateCaptureView,
+  isFixedCameraView,
   renderCandidateCapture,
+  renderDualCandidateCapture,
   type ModelVettingCandidateCaptureEvidence,
+  type ModelVettingDualCandidateCaptureEvidence,
 } from "./candidate-capture.js";
 import "./styles.css";
 
@@ -17,6 +26,7 @@ declare global {
   interface Window {
     __openClinXrModelVettingStudioEvidence?: ModelVettingStudioEvidence;
     __openClinXrModelVettingCandidateCaptureEvidence?: ModelVettingCandidateCaptureEvidence;
+    __openClinXrModelVettingDualCaptureEvidence?: ModelVettingDualCandidateCaptureEvidence;
   }
 }
 
@@ -29,12 +39,46 @@ app.innerHTML = renderLoading();
 const params = new URLSearchParams(window.location.search);
 const reportUrlOverride = params.get("reportUrl") || undefined;
 const captureManifestUrlOverride = params.get("captureManifestUrl") || undefined;
+const cagematchReportId = params.get("cagematchReport");
+const cagematchReportsIndex = params.get("cagematchReports") === "1";
 
+if (cagematchReportsIndex) {
+  void loadCagematchReportRegistry()
+    .then((registry) => {
+      app.innerHTML = renderCagematchReportIndex(registry);
+    })
+    .catch((error: unknown) => {
+      app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
+    });
+} else if (cagematchReportId) {
+  void loadCagematchReportPage(cagematchReportId)
+    .then((report) => {
+      app.innerHTML = renderCagematchReportPage(report);
+      document.title = `${report.title} · OpenClinXR Cagematch`;
+    })
+    .catch((error: unknown) => {
+      app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
+    });
+} else {
 void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifestUrlOverride)
   .then((evidence) => {
     window.__openClinXrModelVettingStudioEvidence = evidence;
     const captureCandidateId = params.get("captureCandidateId");
     const captureView = params.get("captureView");
+    const dualCompare = params.get("dualCompare") === "true";
+    const leftCandidateId = params.get("leftCandidateId");
+    const rightCandidateId = params.get("rightCandidateId");
+    if (dualCompare && leftCandidateId && rightCandidateId && isFixedCameraView(captureView)) {
+      return renderDualCandidateCapture({
+        mount: app,
+        evidence,
+        leftCandidateId,
+        rightCandidateId,
+        view: captureView,
+      }).then((captureEvidence) => {
+        window.__openClinXrModelVettingDualCaptureEvidence = captureEvidence;
+      });
+    }
     if (captureCandidateId && isCandidateCaptureView(captureView)) {
       return renderCandidateCapture({
         mount: app,
@@ -51,6 +95,7 @@ void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifes
   .catch((error: unknown) => {
     app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
   });
+}
 
 function renderLoading(): string {
   return `
@@ -115,6 +160,12 @@ function renderStudio(evidence: ModelVettingStudioEvidence): string {
         ${renderActorPlayerPreview(evidence)}
         ${evidence.candidates.map(renderCandidate).join("")}
         ${renderBoundary(evidence)}
+        <section class="cagematch-report-link-panel" aria-label="Cagematch reports">
+          <h2>Cagematch reports</h2>
+          <p class="subtle">Technology comparison write-ups with objectives, media, feasibility criteria, and decision trees.</p>
+          <a class="report-link" href="/?cagematchReport=humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb">Anny vs MPFB (latest)</a>
+          <a class="report-link" href="/?cagematchReports=1">View all cagematch reports</a>
+        </section>
       </aside>
     </main>
   `;

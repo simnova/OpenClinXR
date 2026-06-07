@@ -5,11 +5,11 @@
   "actorId": "patient_maya_johnson_v1",
   "actorRole": "patient",
   "outputs": {
-    "objPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_base.obj",
-    "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_manifest.json",
-    "glbPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
-    "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child_rigging_report.json",
-    "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+    "objPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_base.obj",
+    "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
+    "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
+    "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
+    "provenancePath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json",
     "optimizationReportPath": null
   },
   "generation": {

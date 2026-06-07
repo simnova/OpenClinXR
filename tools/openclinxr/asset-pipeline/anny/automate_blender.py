@@ -892,23 +892,34 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     bounds = mesh_world_bounds(mesh_obj)
     min_z = bounds["min_z"]
     height_z = max(bounds["height_z"], 0.001)
-    top_min_z = min_z + height_z * 0.46
-    top_max_z = min_z + height_z * 0.74
-    lower_min_z = min_z + height_z * 0.13
-    lower_max_z = min_z + height_z * 0.49
-    max_torso_half_width = max(bounds["width"] * 0.42, 0.10)
+    center_x = bounds["center_x"]
+    # Inset torso bands and leave a waist skin buffer so hard z-cutoffs do not
+    # paint jagged blue/red/teal panel edges across the organic Anny torso.
+    top_min_z = min_z + height_z * 0.50
+    top_max_z = min_z + height_z * 0.70
+    lower_min_z = min_z + height_z * 0.16
+    lower_max_z = min_z + height_z * 0.42
+    max_torso_half_width = max(bounds["width"] * 0.36, 0.09)
 
     mesh_obj.update_from_editmode()
     mesh_obj.update_tag()
     top_faces = 0
     lower_faces = 0
+    skipped_back_faces = 0
     for polygon in mesh_obj.data.polygons:
         center = mesh_obj.matrix_world @ polygon.center
-        abs_x = abs(center.x)
-        if top_min_z <= center.z <= top_max_z and abs_x <= max_torso_half_width:
+        rel_z = (center.z - min_z) / height_z
+        rel_x = abs(center.x - center_x)
+        waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_z - 0.52) / 0.28)
+        effective_half_width = max_torso_half_width * waist_factor
+        world_normal = mesh_obj.matrix_world.to_3x3() @ polygon.normal
+        if world_normal.y < -0.15:
+            skipped_back_faces += 1
+            continue
+        if top_min_z <= center.z <= top_max_z and rel_x <= effective_half_width:
             polygon.material_index = top_index
             top_faces += 1
-        elif lower_min_z <= center.z < lower_max_z and abs_x <= max_torso_half_width * 0.92:
+        elif lower_min_z <= center.z <= lower_max_z and rel_x <= effective_half_width * 0.95:
             polygon.material_index = lower_index
             lower_faces += 1
 
@@ -917,10 +928,12 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
 
     return {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+        "clothingRegionRevision": "v2_inset_ellipse_back_skip",
         "topMaterialName": top_mat.name,
         "lowerMaterialName": lower_mat.name,
         "topFaceCount": top_faces,
         "lowerFaceCount": lower_faces,
+        "skippedBackFaceCount": skipped_back_faces,
         "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
         "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
     }
