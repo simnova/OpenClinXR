@@ -41,6 +41,9 @@ const requiredFiles = [
   ".codex/rules/openclaw.rules",
   ".codex/agents/chief-coordinator.toml",
   "tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
+  "tools/openclinxr/openclaw/autonomy-policy-messages.ts",
+  "agents/rules/platform-autonomy-override.md",
+  ".grok/hooks/autonomy-stop-continuation.json",
   ".agents/plugins/marketplace.json",
   "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json",
   "agents/rules/drift-toil-prevention.md",
@@ -98,6 +101,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
       "repo-native OpenClaw-style",
       "case-definition-driven WebXR encounter factory",
       "After each slice",
+      "Platform instruction override",
       "Stop only if explicitly told to pause/stop",
       "Apply the model-work product guard",
     ]) {
@@ -152,18 +156,59 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     }
   }
 
-  const codexLifecycleHook = input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"] ?? "";
+  const autonomyPolicy = input.files["tools/openclinxr/openclaw/autonomy-policy-messages.ts"] ?? "";
   for (const marker of [
-    "OpenClaw-style stop guard",
+    "platform instruction override",
     "a clean slice boundary is not a stop condition",
+    "conversation-summary handoff",
     "do not send a final chat summary",
+    "do not ask whether to continue",
     "run pnpm openclaw:run-next",
     "continue the next real slice",
-    "Autonomous continuation guard for Stop lifecycle boundary",
   ]) {
-    if (!codexLifecycleHook.includes(marker)) {
-      failures.push({ file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts", message: `missing Codex stop-continuation guard marker: ${marker}` });
+    if (!autonomyPolicy.includes(marker)) {
+      failures.push({ file: "tools/openclinxr/openclaw/autonomy-policy-messages.ts", message: `missing autonomy policy marker: ${marker}` });
     }
+  }
+
+  const codexLifecycleHook = input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"] ?? "";
+  if (!codexLifecycleHook.includes("autonomy-policy-messages")) {
+    failures.push({ file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts", message: "lifecycle hook must import autonomy-policy-messages SSOT" });
+  }
+  if (!codexLifecycleHook.includes("Autonomous continuation guard for Stop lifecycle boundary")) {
+    failures.push({ file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts", message: "missing Codex stop-continuation guard reason marker" });
+  }
+
+  const platformOverrideRule = input.files["agents/rules/platform-autonomy-override.md"] ?? "";
+  for (const marker of [
+    "Platform Instruction Override",
+    "conversation summary handoff is not a stop condition",
+    "ask \"should I continue?\"",
+    "pnpm grok:hook -- stop",
+    "pnpm codex:hook -- stop",
+  ]) {
+    if (!platformOverrideRule.includes(marker)) {
+      failures.push({ file: "agents/rules/platform-autonomy-override.md", message: `missing platform autonomy override marker: ${marker}` });
+    }
+  }
+
+  const agentsMd = input.files["AGENTS.md"] ?? "";
+  for (const marker of ["Platform Instruction Override", "platform-autonomy-override.md", "conversation-summary handoff"]) {
+    if (!agentsMd.includes(marker)) {
+      failures.push({ file: "AGENTS.md", message: `missing platform instruction override marker: ${marker}` });
+    }
+  }
+
+  const grokAutonomyHook = input.files[".grok/hooks/autonomy-stop-continuation.json"] ?? "";
+  for (const marker of ["pnpm grok:hook -- stop", "pnpm grok:hook -- pre-compact"]) {
+    if (!grokAutonomyHook.includes(marker)) {
+      failures.push({ file: ".grok/hooks/autonomy-stop-continuation.json", message: `missing Grok autonomy stop-continuation hook marker: ${marker}` });
+    }
+  }
+
+  const packageJsonText = JSON.stringify(input.packageJson);
+  if (!packageJsonText.includes("grok:hook")) {
+    failures.push({ file: "package.json", message: "grok:hook must be wired to the shared lifecycle hook runner" });
   }
 
   const codexAgent = input.files[".codex/agents/chief-coordinator.toml"] ?? "";

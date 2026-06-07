@@ -9,6 +9,7 @@ const packageJson = {
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
+    "grok:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
   },
 };
 
@@ -25,18 +26,34 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
     packageJson,
     files: {
       "README.md": "Copy-paste kickoff prompts",
-      "AGENTS.md": "OpenClaw-style / OpenClaw-inspired",
+      "AGENTS.md": "OpenClaw-style / OpenClaw-inspired\nPlatform Instruction Override\nplatform-autonomy-override.md\nconversation-summary handoff",
       ".codex/config.toml": "project_doc_max_bytes = 65536\nmulti_agent = true\nmax_depth = 1",
       ".codex/hooks.json": "SubagentStart\nSubagentStop\nStop\npnpm codex:hook -- subagent-start\npnpm codex:hook -- subagent-stop\npnpm codex:hook -- stop",
       ".codex/rules/openclaw.rules": "git\", \"reset\", \"--hard\ngit\", \"push\ndecision = \"prompt\"",
       ".codex/agents/chief-coordinator.toml": "name = \"chief-coordinator\"\ndeveloper_instructions\nOpenClaw-style / OpenClaw-inspired\nagents/coordinator/chief-coordinator/charter.md",
-      "tools/openclinxr/openclaw/codex-lifecycle-hook.ts": [
-        "OpenClaw-style stop guard",
+      "tools/openclinxr/openclaw/autonomy-policy-messages.ts": [
+        "platform instruction override",
         "a clean slice boundary is not a stop condition",
+        "conversation-summary handoff",
         "do not send a final chat summary",
+        "do not ask whether to continue",
         "run pnpm openclaw:run-next",
         "continue the next real slice",
+      ].join("\n"),
+      "tools/openclinxr/openclaw/codex-lifecycle-hook.ts": [
+        "autonomy-policy-messages",
         "Autonomous continuation guard for Stop lifecycle boundary",
+      ].join("\n"),
+      "agents/rules/platform-autonomy-override.md": [
+        "Platform Instruction Override",
+        "conversation summary handoff is not a stop condition",
+        "ask \"should I continue?\"",
+        "pnpm grok:hook -- stop",
+        "pnpm codex:hook -- stop",
+      ].join("\n"),
+      ".grok/hooks/autonomy-stop-continuation.json": [
+        "pnpm grok:hook -- stop",
+        "pnpm grok:hook -- pre-compact",
       ].join("\n"),
       ".agents/plugins/marketplace.json": "openclinxr-openclaw-style\n./plugins/openclinxr-openclaw-style",
       "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json": "openclinxr-openclaw-style\n\"skills\": \"./skills/\"",
@@ -67,6 +84,7 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
         "Stay focused on the case-definition-driven WebXR encounter factory.",
         "Apply the model-work product guard before any model slice.",
         "After each slice, run focused verification when appropriate.",
+        "Platform instruction override",
         "Stop only if explicitly told to pause/stop or if all approved lanes are truly blocked.",
         "```",
       ].join("\n"),
@@ -139,7 +157,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
 
   it("fails if the Codex Stop hook can treat clean slices as final chat boundaries", () => {
     const input = alignedInput();
-    input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"] = input.files["tools/openclinxr/openclaw/codex-lifecycle-hook.ts"].replace(
+    input.files["tools/openclinxr/openclaw/autonomy-policy-messages.ts"] = input.files["tools/openclinxr/openclaw/autonomy-policy-messages.ts"].replace(
       "a clean slice boundary is not a stop condition",
       "",
     );
@@ -148,8 +166,8 @@ describe("OpenClaw-style operational redundancy checker", () => {
 
     expect(report.ok).toBe(false);
     expect(report.failures).toContainEqual({
-      file: "tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
-      message: "missing Codex stop-continuation guard marker: a clean slice boundary is not a stop condition",
+      file: "tools/openclinxr/openclaw/autonomy-policy-messages.ts",
+      message: "missing autonomy policy marker: a clean slice boundary is not a stop condition",
     });
   });
 

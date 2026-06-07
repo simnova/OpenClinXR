@@ -4,7 +4,10 @@ authority: agent-methodology
 
 # Rehydration, Low-Token Autonomy, and Efficient Practices
 
-## Required Resume Sequence (at start of any session, after compaction, before deciding to stop)
+## Compaction / summary handoff
+`KV_eviction|summary_handoff` → cold-start rehydrate only (`platform-autonomy-override.md`).
+
+## Required Resume Sequence (session|compaction|conversation-summary handoff; pre-halt)
 1. Re-read this `AGENTS.md`.
 2. Read `PROJECT_COORDINATION_INDEX.md`.
 3. Read `AUTONOMOUS_WORK_PLAN.md`.

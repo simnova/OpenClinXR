@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; pnpm grok:tier:post-slice 2>/dev/null | tail -5 || true",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- pre-compact 2>/dev/null || pnpm codex:hook -- pre-compact",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- session-start 2>/dev/null || pnpm codex:hook -- session-start || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

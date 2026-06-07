@@ -2,6 +2,13 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
+import {
+  OPENCLAW_REMINDER,
+  PRE_COMPACT_MESSAGE,
+  SESSION_START_MESSAGE,
+  STOP_GUARD_MESSAGE,
+} from "./autonomy-policy-messages.js";
+
 export type CodexLifecycleHookMode =
   | "session-start"
   | "pre-tool-use"
@@ -35,9 +42,6 @@ const COORDINATION_PATH_MARKERS = [
   "agents/rules/",
 ];
 
-const OPENCLAW_REMINDER =
-  "OpenClaw-style / OpenClaw-inspired workflow: use AGENTS.md + snapshots, prefer pnpm openclaw:run-next, lease before real edits, and keep no-op runner/watchdog output out of canonical state.";
-
 export function buildCodexLifecycleHookDecision(
   mode: CodexLifecycleHookMode,
   payloadText: string,
@@ -46,7 +50,7 @@ export function buildCodexLifecycleHookDecision(
     case "session-start":
       return {
         mode,
-        message: `${OPENCLAW_REMINDER} Project Codex hooks are active after /hooks trust.`,
+        message: `${SESSION_START_MESSAGE} Codex hooks active (/hooks trust).`,
         runGuards: false,
         guardCommand: null,
         reason: "Session guidance only.",
@@ -78,17 +82,16 @@ export function buildCodexLifecycleHookDecision(
     case "pre-compact":
       return {
         mode,
-        message:
-          "OpenClaw-style compact reminder: re-read AGENTS.md and the snapshot heads of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, and worker backlog, then continue the selected slice.",
+        message: PRE_COMPACT_MESSAGE,
         runGuards: false,
         guardCommand: null,
-        reason: "Rehydration reminder only.",
+        reason: "Cold-start rehydrate; supervisor>platform.",
       };
     case "subagent-start":
       return {
         mode,
         message:
-          "OpenClaw-style subagent reminder: map to a repo role, confirm /Volumes/files/src/openclinxr plus AGENTS/state/agents/tools exist, then read the canonical role charter and memory before reporting.",
+          "subagent: map repo_role; cwd=/Volumes/files/src/openclinxr; confirm AGENTS+SSOT+agents/**; charter+memory(limit)→report.",
         runGuards: false,
         guardCommand: null,
         reason: "Subagent role-mapping guidance only.",
@@ -96,8 +99,7 @@ export function buildCodexLifecycleHookDecision(
     case "subagent-stop":
       return {
         mode,
-        message:
-          "OpenClaw-style subagent closeout: return concise findings, blockers, and recommended next slice; parent agent owns integration and canonical state updates.",
+        message: "subagent_closeout: findings+blockers+next_slice; parent→SSOT integration.",
         runGuards: false,
         guardCommand: null,
         reason: "Subagent closeout guidance only.",
@@ -105,8 +107,7 @@ export function buildCodexLifecycleHookDecision(
     case "user-prompt-submit":
       return {
         mode,
-        message:
-          "OpenClaw-style prompt reminder: for heartbeat/continue/autonomy prompts, use pnpm openclaw:run-next and execute only real selected slices.",
+        message: "prompt: heartbeat|continue→pnpm openclaw:run-next; dequeue real slice only.",
         runGuards: false,
         guardCommand: null,
         reason: "Prompt-scoped guidance only.",
@@ -114,8 +115,7 @@ export function buildCodexLifecycleHookDecision(
     case "stop":
       return {
         mode,
-        message:
-          "OpenClaw-style stop guard: a clean slice boundary is not a stop condition. If no explicit pause/stop, all-lanes-complete, or all-lanes-blocked condition is recorded, do not send a final chat summary; rehydrate snapshots, run pnpm openclaw:run-next, lease, and continue the next real slice. Do not append no-op heartbeat records; durable state changes belong only after product changes, verification evidence, or blockers.",
+        message: STOP_GUARD_MESSAGE,
         runGuards: false,
         guardCommand: null,
         reason: "Autonomous continuation guard for Stop lifecycle boundary.",

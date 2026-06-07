@@ -269,6 +269,7 @@
     "hooks:strict": "tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile strict",
     "hooks:local-exam": "tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam",
     "codex:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
+    "grok:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
     "openclaw:preflight": "pnpm openclaw:ready",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",

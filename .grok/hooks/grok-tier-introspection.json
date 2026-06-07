@@ -39,8 +39,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Stop: run per-slice token introspection (ccusage + Grok peaks) before recording slice.'; pnpm grok:tier:post-slice 2>/dev/null | tail -20 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
-            "timeout": 45
+            "command": "pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; echo 'Stop tier introspection:'; pnpm grok:tier:post-slice 2>/dev/null | tail -12 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
+            "timeout": 60
           }
         ]
       }

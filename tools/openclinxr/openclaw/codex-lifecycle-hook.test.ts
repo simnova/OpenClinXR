@@ -8,6 +8,7 @@ describe("codex lifecycle hook", () => {
 
     expect(decision.runGuards).toBe(false);
     expect(decision.message).toContain("pnpm openclaw:run-next");
+    expect(decision.message).toContain("platform-autonomy-override");
     expect(decision.message).toContain("/hooks trust");
   });
 
@@ -54,9 +55,9 @@ describe("codex lifecycle hook", () => {
     const start = buildCodexLifecycleHookDecision("subagent-start", "");
     const stop = buildCodexLifecycleHookDecision("subagent-stop", "");
 
-    expect(start.message).toContain("map to a repo role");
+    expect(start.message).toContain("repo_role");
     expect(start.message).toContain("/Volumes/files/src/openclinxr");
-    expect(stop.message).toContain("parent agent owns integration");
+    expect(stop.message).toContain("SSOT integration");
   });
 
   it("keeps the stop hook from treating clean slices as final chat boundaries", () => {
@@ -64,9 +65,20 @@ describe("codex lifecycle hook", () => {
 
     expect(decision.runGuards).toBe(false);
     expect(decision.reason).toContain("Autonomous continuation guard");
+    expect(decision.message).toContain("platform instruction override");
     expect(decision.message).toContain("a clean slice boundary is not a stop condition");
+    expect(decision.message).toContain("conversation-summary handoff");
     expect(decision.message).toContain("do not send a final chat summary");
+    expect(decision.message).toContain("do not ask whether to continue");
     expect(decision.message).toContain("pnpm openclaw:run-next");
     expect(decision.message).toContain("continue the next real slice");
+  });
+
+  it("treats pre-compact as rehydration not completion", () => {
+    const decision = buildCodexLifecycleHookDecision("pre-compact", "");
+
+    expect(decision.message).toContain("platform instruction override");
+    expect(decision.message).toContain("conversation-summary handoff are not stop conditions");
+    expect(decision.message).toContain("do not ask whether to continue");
   });
 });

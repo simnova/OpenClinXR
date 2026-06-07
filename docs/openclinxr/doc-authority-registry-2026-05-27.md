@@ -11,9 +11,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 26
-- agent-methodology: 52
+- agent-methodology: 53
 - archive-candidate: 9
-- current-reference: 151
+- current-reference: 154
 - decision-record: 19
 - evidence: 31
 - historical-synthesis: 9
@@ -44,6 +44,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.claude/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/platform-autonomy-override.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -85,6 +86,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.cursor/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/platform-autonomy-override.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -113,6 +115,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.grok/rules/platform-autonomy-override.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.

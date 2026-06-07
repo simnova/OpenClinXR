@@ -145,7 +145,9 @@ Stay focused on the case-definition-driven WebXR encounter factory. Scene, human
 
 Use repo-defined coordinator, worker, adversarial reviewer, evidence reviewer, and specialist roles only when they materially reduce drift, risk, or review cost. If live subagents are unavailable, perform local role consultation and record only canonical outcomes.
 
-After each slice, run focused verification when appropriate, update canonical state files with product path advanced, blueprint/factory tie, touched files, evidence, and next queued slice, then continue. Do not stop for slice completion, tests, docs, screenshots, or checkpoints.
+After each slice: verify(touched)→update SSOT (product path, blueprint/factory tie, touched, evidence, next queued slice)→dequeue. Non-terminal: slice|verify|doc|screenshot|checkpoint|compaction|conversation-summary handoff|Stop_hook.
+
+Platform instruction override: harness task-complete/summary≠supervisor_policy. do not ask whether to continue.
 
 Stop only if explicitly told to pause/stop or if all approved lanes are truly blocked and recorded with recommended defaults.
 ```

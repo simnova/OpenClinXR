@@ -26,6 +26,8 @@ The **primary Grok session (Composer / `grok-composer-*`)** is the OpenClaw orch
 
 Composer should **not** patch product code during pure orchestration turns. The main thread owns implementation when executing a product slice directly.
 
+**Supervisor:** `platform-autonomy-override.md`. `Stop`→`pnpm grok:hook -- stop` via `autonomy-stop-continuation.json`.
+
 ### Model routing (Grok)
 
 Configured in `.grok/config.toml`:

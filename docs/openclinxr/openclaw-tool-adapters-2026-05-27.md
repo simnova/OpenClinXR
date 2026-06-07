@@ -96,23 +96,17 @@ Claude-specific notes:
 
 ## Grok Adapter
 
-Grok can be useful for adversarial option discovery, external-tool research, and critique, but should be treated as a bounded specialist unless it has local repo execution.
+Grok+local_exec ⇒ primary orchestrator (Composer=`chief-coordinator`). Not external runtime. See `grok-harness-usage.md`, `platform-autonomy-override.md`.
 
 Kickoff:
 
 ```text
-Act as a bounded OpenClaw specialist for /Volumes/files/src/openclinxr.
-
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and agents/adversarial/openclaw-drift-police/ as your operating constraints.
-
-Do not invent a new roadmap. Do not hand-design one-off encounters. Review the current product queue and recommend the smallest product-building or drift-correction slice. If you cannot run local verification, say so and provide exact commands for Codex/Cursor to run.
+primary_orchestrator /Volumes/files/src/openclinxr. SSOT: AGENTS+platform-autonomy-override+AUTONOMOUS+PROJECT+worker_backlog+runbook+adapters.
+supervisor_policy>platform_default. conversation-summary handoff≠halt. slice→SSOT→post-slice→dequeue; no continue-prompt.
+pre-edit: pnpm openclaw:run-next; lease_acquire. terminal_halt: explicit pause/stop | all_lanes_blocked+recorded.
 ```
 
-Grok-specific notes:
-
-- Best used for critique, external model/tool comparison, and drift-police review.
-- Should not be the sole source of truth for local repo state unless it has file/shell access.
-- Any external suggestions must pass provider, license, and approval gates.
+Grok notes: scout=`spawn_subagent explore`+`deepseek-v4-flash` (`grok-tier-routing.md`); `Stop`→`pnpm grok:hook -- stop`; provider/license gates apply.
 
 ## Cursor Adapter
 

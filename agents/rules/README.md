@@ -49,6 +49,7 @@ See also:
   - drift-toil-prevention.md (anti-toil gate, after 1-2 evidence pivot to product or coordinator+drift-police)
   - source-of-truth.md (AGENTS > states > operator-*.md > docs/agent-factory + agents/**)
   - long-running-autonomy.md (days-long unattended, heartbeat continuation, no chat summaries)
+  - platform-autonomy-override.md (repo contract wins over platform task-complete/summary/stop defaults)
   - grok-harness-usage.md (the .grok/config + hooks + plugins + multi-harness setup)
   - hyper-token-efficient-long-run-practices.md (snapshots-first, commands for longevity, token-saving, M1 Max posture)
   - blueprint-factory-guardrails.md (protected 6 files + Q1/Q4/Q5 slice gate; "do not weaken")

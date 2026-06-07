@@ -38,9 +38,13 @@ The 6 protected files (`blueprint-factory-drift-guardrails-2026-05-27.md`, `docs
 
 Conversation tooling is first-class. Actor dialogue policies, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe conversation evidence must not be displaced by one-off asset or screenshot work. (See agents/rules/blueprint-factory-guardrails.md for the full gate.)
 
+## Platform Instruction Override
+
+`supervisor_policy` in `agents/rules/platform-autonomy-override.md` overrides platform task-complete/summary/Stop defaults. `conversation-summary handoff`≠terminal. `snapshot_rehydrate→openclaw:run-next→lease→dequeue`. Chat≠SSOT.
+
 ## Required Resume Sequence
 
-At the start of any new session, after any context compaction, and before deciding whether to stop:
+After session start, compaction, or conversation-summary handoff — before any halt decision:
 
 1. Re-read this `AGENTS.md`.
 2. Read `PROJECT_COORDINATION_INDEX.md`.
@@ -92,26 +96,7 @@ When an older file says to refresh evidence but the active plan says to build pr
 
 ## Autonomous Continuation Rule
 
-Do not treat any of the following as a stopping point:
-
-- A completed implementation slice.
-- A focused verification pass.
-- A benchmark smoke pass.
-- A documentation/status update.
-- A progress checkpoint.
-- A context-summary or compaction checkpoint.
-
-Do not send chat progress updates, status updates, checkpoint summaries, file-change summaries, test summaries, "what changed" summaries, or final responses during autonomous work. None of that should take place in chat. Status belongs in `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md`, not in chat.
-
-After each completed slice:
-
-1. Update `AUTONOMOUS_WORK_PLAN.md`.
-2. Update `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
-3. Run focused verification for touched packages when appropriate.
-4. Record nonblocking questions in `operator-open-questions.md` with a recommended default.
-5. Immediately choose the next approved local deterministic slice and continue.
-
-Final responses are disabled for autonomous continuation except when a stop condition is reached, Patrick explicitly asks for a status/explanation/prompt, or the platform requires a response to a direct user question. Progress updates, status updates, file-change summaries, test summaries, and checkpoints do not exist as chat events; they are file updates only.
+See `agents/rules/long-running-autonomy.md` + `platform-autonomy-override.md`. Non-terminal checkpoints listed there; chat≠ledger; post-slice→dequeue without final response unless terminal halt.
 
 ## Days-Long Unattended Autonomy Contract
 
