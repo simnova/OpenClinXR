@@ -76,6 +76,6 @@ pnpm agent:harness:prove -- --runs=5     # repeat suite 5x for stability proof
 
 Report path: `.openclinxr/openclaw/grok-harness-proof-latest.json`
 
-ccusage (https://ccusage.com/): `session --json` for Codex cross-check; `openclaw session --json` for OpenClaw. Grok/Composer peaks are parsed from `~/.grok/sessions/.../updates.jsonl` (`params._meta.totalTokens`).
+ccusage (https://ccusage.com/): install globally once with `npm install -g ccusage` (recommended for harness prove and slice-cost review); `pnpm agent:harness:prove` prefers the global binary and falls back to `pnpm dlx ccusage`. Use `session --json` for Codex cross-check; `openclaw session --json` for OpenClaw. Grok/Composer peaks are parsed from `~/.grok/sessions/.../updates.jsonl` (`params._meta.totalTokens`).
 
 Run `grok inspect` to verify loaded rules, skills, subagents, hooks.

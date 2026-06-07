@@ -362,12 +362,24 @@ async function parseGrokSessionTokens(limit = 5): Promise<GrokSessionTokenSummar
   return summaries;
 }
 
-function fetchCcusageByAgent(agentFilter: string, jsonCommand: string[]): CcusageAgentSummary {
-  const spawn = spawnSync("pnpm", ["dlx", "ccusage", ...jsonCommand], {
+function runCcusage(jsonCommand: string[]) {
+  const globalCcusage = spawnSync("ccusage", jsonCommand, {
     encoding: "utf8",
     timeout: 90_000,
     maxBuffer: 16 * 1024 * 1024,
   });
+  if (globalCcusage.status === 0) {
+    return globalCcusage;
+  }
+  return spawnSync("pnpm", ["dlx", "ccusage", ...jsonCommand], {
+    encoding: "utf8",
+    timeout: 90_000,
+    maxBuffer: 16 * 1024 * 1024,
+  });
+}
+
+function fetchCcusageByAgent(agentFilter: string, jsonCommand: string[]): CcusageAgentSummary {
+  const spawn = runCcusage(jsonCommand);
   if (spawn.status !== 0) {
     return {
       available: false,
