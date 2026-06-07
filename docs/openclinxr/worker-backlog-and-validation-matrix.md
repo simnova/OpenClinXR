@@ -6,6 +6,8 @@ Current product: blueprint-driven encounter factory for peds_asthma_parent_anxie
 
 Generated-output storage rule: cagematches should publish factories and manifests, not generated payloads. Follow `docs/openclinxr/generated-output-storage-policy-2026-06-06.md`; generated GLBs, screenshots, videos, texture maps, provider caches, and one-off run reports are local/cache/object-store artifacts unless explicitly promoted as small stable fixtures or docs.
 
+2026-06-07 UI-XR scalp+MPFB2 comparator recapture checkpoint: Worker 9/11 reran mouth-gaze capture on refreshed scalp-hair-v3+MPFB2 `current/` GLB; inspection confirms gaze probe + morph timeline (`morphTargetAppliedTargetCount=15`). Next: garment source-quality or embedded eye topology; hold website.
+
 2026-06-07 school-age scalp+MPFB2 face/hair source-topology checkpoint: Worker 10/11 chained scalp-hair-v3 into school-age MPFB2 eye factory default; run `2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1` captured front/three-quarter/body_motion/viseme_timeline and refreshed UI-XR cagematch `current/` mirror. Recommended next lane: UI-XR comparator recapture on refreshed GLB or garment source-quality; hold website.
 
 2026-06-07 autonomy harness adapt checkpoint: Worker 0/11 hardened per-slice token ritual — `openclaw:post-slice` fails without `Token introspection:` in latest plan checkpoint; `openclaw:slice-token:start/finish` aliases; enriched stateRecordLine with ccusageModels + grok flash/pro/composer. Diagnosis: ccusage tracks Codex; Grok/DeepSeek via finish report; `flashΔ=0` means explore scouts were skipped. Next: face/hair/source-topology with mandatory explore scout.
