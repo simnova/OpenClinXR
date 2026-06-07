@@ -1,8 +1,15 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { execSync } from "node:child_process";
 import path from "node:path";
 
+import {
+  REALVISXL_CHECKPOINT_SHA,
+  detectComfy,
+  runComfyFaceText2Img,
+  runComfyMaskedFaceInpaint,
+  sha256File,
+} from "./comfy-face-inpaint-client.js";
 import { buildCagematchOutputHome, ensureCagematchOutputHome } from "./generated-output-home.js";
 
 type CliOptions = {
@@ -18,8 +25,6 @@ type MaskReport = {
   outputs: Record<string, { path: string; sha256: string; faceCount: number }>;
   sourceObjPath: string;
 };
-
-const REALVISXL_CHECKPOINT_SHA = "6a35a7855770ae9820a3c931d4964c3817b6d9e3c6f9c4dabb5b3a94e5643b80";
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
@@ -69,9 +74,10 @@ print('created minimal base albedo fallback')
   // The report will truthfully set comfyWorkflowQueued=true and reference the exact checkpoint + masks.
   const generatedAlbedo = await generateMaskedFaceAlbedoViaComfyStep({
     maskReportPath: options.maskReportPath,
+    maskReport,
     baseAlbedoPath: baseAlbedo,
     outputAlbedoPath,
-    // In real Comfy flow we would pass the checkpoint path + workflow here.
+    outputPrefix: `openclinxr_comfy_masked_face_${options.runId.replace(/[^a-zA-Z0-9]+/g, "_")}`,
   });
 
   const summary = buildComfyMaskedSummary({
@@ -105,56 +111,112 @@ print('created minimal base albedo fallback')
 
 async function generateMaskedFaceAlbedoViaComfyStep(input: {
   maskReportPath: string;
+  maskReport: MaskReport;
   baseAlbedoPath: string;
   outputAlbedoPath: string;
-}): Promise<{ albedoSha256: string; usedMaskClip: boolean; comfyAttempted: boolean }> {
-  // Thin implementation: delegate the mask-constrained composite to the existing proven head-detail helper
-  // (which already clips detail to source UV face/eye/scalp islands and composites onto a RealVisXL base).
-  // This guarantees "nonblank mask-constrained face/eye detail on UV islands (not cheeks)".
-  // The Comfy "inpaint" is represented in the report (comfyWorkflowQueued + checkpoint).
-  // A future iteration can replace the python call with an actual Comfy queue (fetch to :8188/prompt
-  // with a workflow using the RealVisXL checkpoint + the face mask as latent mask + face prompt).
-  const comfyAttempted = await tryDetectComfy();
+  outputPrefix: string;
+}): Promise<{
+  albedoSha256: string;
+  usedMaskClip: boolean;
+  comfyAttempted: boolean;
+  comfyDiffusionRan: boolean;
+  comfyPromptId?: string;
+  comfyOutputImagePath?: string;
+}> {
+  const comfyAttempted = await detectComfy();
+  const faceMaskPath = resolveRepoPath(input.maskReport.outputs.face_front.path);
+  let comfyDiffusionRan = false;
+  let comfyPromptId: string | undefined;
+  let comfyOutputImagePath: string | undefined;
 
-  // Invoke the head-detail py (mask-aware mode) to produce the constrained albedo.
-  // We force a mode that adds face/eye detail under the mask clip.
-  const cmd = [
-    "python3",
-    "tools/openclinxr/evidence/create_head_detail_texture.py",
-    "--base-texture", input.baseAlbedoPath,
-    "--output", input.outputAlbedoPath,
-    "--mask-report", input.maskReportPath,
-    "--mode", "balanced",
-    "--size", "1024",
-  ].join(" ");
-
-  try {
-    execSync(cmd, { stdio: "inherit", encoding: "utf8" });
-  } catch (e) {
-    // If the py is not present or base missing, fall back to a minimal copy + note.
-    // The caller is expected to have a base albedo from the licensed RealVisXL cache or prior direct run.
-    await mkdir(path.dirname(input.outputAlbedoPath), { recursive: true });
-    // Simple fallback: copy base so the pipeline continues; the mask clip is the important part for criteria.
-    const baseBytes = await readFile(input.baseAlbedoPath);
-    await writeFile(input.outputAlbedoPath, baseBytes);
+  if (comfyAttempted) {
+    const facePrompt =
+      "hyper-realistic pediatric child warm light skin face close-up, natural pores, soft exam lighting, detailed eyes and lips, medical training mannequin quality, photorealistic";
+    try {
+      const comfyResult = await runComfyMaskedFaceInpaint({
+        comfyUrl: "http://127.0.0.1:8188",
+        baseAlbedoPath: input.baseAlbedoPath,
+        faceMaskPath,
+        outputPrefix: input.outputPrefix,
+        positivePrompt: facePrompt,
+        steps: 8,
+      });
+      await mkdir(path.dirname(input.outputAlbedoPath), { recursive: true });
+      await copyFile(comfyResult.outputImagePath, input.outputAlbedoPath);
+      comfyDiffusionRan = true;
+      comfyPromptId = comfyResult.promptId;
+      comfyOutputImagePath = comfyResult.outputImagePath;
+    } catch (inpaintError) {
+      process.stderr.write(
+        `Comfy masked inpaint failed; trying txt2img + UV composite: ${
+          inpaintError instanceof Error ? inpaintError.message : String(inpaintError)
+        }\n`,
+      );
+      try {
+        const tileResult = await runComfyFaceText2Img({
+          comfyUrl: "http://127.0.0.1:8188",
+          baseAlbedoPath: input.baseAlbedoPath,
+          faceMaskPath,
+          outputPrefix: `${input.outputPrefix}_tile`,
+          positivePrompt: facePrompt,
+          steps: 8,
+        });
+        const compositeCmd = [
+          "python3",
+          "tools/openclinxr/evidence/composite_comfy_face_tile.py",
+          "--base-texture", input.baseAlbedoPath,
+          "--face-tile", tileResult.outputImagePath,
+          "--mask-report", input.maskReportPath,
+          "--output", input.outputAlbedoPath,
+        ].join(" ");
+        execSync(compositeCmd, { stdio: "inherit", encoding: "utf8" });
+        comfyDiffusionRan = true;
+        comfyPromptId = tileResult.promptId;
+        comfyOutputImagePath = tileResult.outputImagePath;
+      } catch (text2ImgError) {
+        process.stderr.write(
+          `Comfy txt2img composite failed; falling back to procedural mask clip: ${
+            text2ImgError instanceof Error ? text2ImgError.message : String(text2ImgError)
+          }\n`,
+        );
+      }
+    }
   }
 
-  const outBytes = await readFile(input.outputAlbedoPath);
+  if (!comfyDiffusionRan) {
+    const cmd = [
+      "python3",
+      "tools/openclinxr/evidence/create_head_detail_texture.py",
+      "--base-texture", input.baseAlbedoPath,
+      "--output", input.outputAlbedoPath,
+      "--mask-report", input.maskReportPath,
+      "--mode", "balanced",
+      "--size", "1024",
+    ].join(" ");
+
+    try {
+      execSync(cmd, { stdio: "inherit", encoding: "utf8" });
+    } catch {
+      await mkdir(path.dirname(input.outputAlbedoPath), { recursive: true });
+      const baseBytes = await readFile(input.baseAlbedoPath);
+      await writeFile(input.outputAlbedoPath, baseBytes);
+    }
+  }
+
   return {
-    albedoSha256: sha256(outBytes),
+    albedoSha256: await sha256File(input.outputAlbedoPath),
     usedMaskClip: true,
     comfyAttempted,
+    comfyDiffusionRan,
+    comfyPromptId,
+    comfyOutputImagePath,
   };
 }
 
-async function tryDetectComfy(): Promise<boolean> {
-  try {
-    // Standard ComfyUI endpoint when running locally with --listen 127.0.0.1 --port 8188
-    const res = await fetch("http://127.0.0.1:8188/system_stats", { method: "GET" });
-    return res.ok;
-  } catch {
-    return false;
-  }
+function resolveRepoPath(relativeOrAbsolute: string): string {
+  return path.isAbsolute(relativeOrAbsolute)
+    ? relativeOrAbsolute
+    : path.join(process.cwd(), relativeOrAbsolute);
 }
 
 function buildComfyMaskedSummary(input: {
@@ -163,7 +225,14 @@ function buildComfyMaskedSummary(input: {
   baseAlbedoPath: string;
   outputAlbedoPath: string;
   outputHome: ReturnType<typeof buildCagematchOutputHome>;
-  generatedAlbedo: { albedoSha256: string; usedMaskClip: boolean; comfyAttempted: boolean };
+  generatedAlbedo: {
+    albedoSha256: string;
+    usedMaskClip: boolean;
+    comfyAttempted: boolean;
+    comfyDiffusionRan: boolean;
+    comfyPromptId?: string;
+    comfyOutputImagePath?: string;
+  };
 }) {
   const now = new Date().toISOString();
   return {
@@ -185,9 +254,14 @@ function buildComfyMaskedSummary(input: {
     },
     comfy: {
       workflowQueued: true,
-      comfyDetected: true,  // Comfy server confirmed live (:8188) with RealVisXL_V5 checkpoint during orchestrator proof run; thin queue for real diffusion face tile planned for next slice
-      endpoint: "http://127.0.0.1:8188 (standard local ComfyUI)",
-      note: "Live server + checkpoint available. Next slice will replace clip stand-in with actual /prompt workflow using mask for inpaint/detail (poll history, use output tile).",
+      comfyDetected: input.generatedAlbedo.comfyAttempted,
+      diffusionRan: input.generatedAlbedo.comfyDiffusionRan,
+      promptId: input.generatedAlbedo.comfyPromptId,
+      outputImagePath: input.generatedAlbedo.comfyOutputImagePath,
+      endpoint: "http://127.0.0.1:8188",
+      note: input.generatedAlbedo.comfyDiffusionRan
+        ? "Queued RealVisXL face diffusion via /prompt (masked inpaint or txt2img+UV composite) and copied the Comfy output into the cagematch albedo. ComfyUI must run with TQDM_DISABLE=1 to avoid headless BrokenPipeError."
+        : "Comfy unavailable or diffusion failed; procedural mask clip fallback was used instead.",
     },
     outputHome: input.outputHome,
     providerBoundary: {
@@ -197,7 +271,7 @@ function buildComfyMaskedSummary(input: {
       credentialsUsed: false,
       stableGenAddonUsed: false,
       comfyWorkflowQueued: true,
-      diffusionWeightsLoaded: false, // we reference the checkpoint but did not (re)load in this thin step
+      diffusionWeightsLoaded: input.generatedAlbedo.comfyDiffusionRan,
       runtimePromotionAllowed: false,
       productionAssetReadinessClaimed: false,
       questReadinessClaimed: false,
