@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { execSync } from "node:child_process";
 import path from "node:path";
 
@@ -141,8 +141,12 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
         positivePrompt: facePrompt,
         steps: 8,
       });
-      await mkdir(path.dirname(input.outputAlbedoPath), { recursive: true });
-      await copyFile(comfyResult.outputImagePath, input.outputAlbedoPath);
+      compositeComfyFaceTile({
+        baseAlbedoPath: input.baseAlbedoPath,
+        faceTilePath: comfyResult.outputImagePath,
+        maskReportPath: input.maskReportPath,
+        outputAlbedoPath: input.outputAlbedoPath,
+      });
       comfyDiffusionRan = true;
       comfyPromptId = comfyResult.promptId;
       comfyOutputImagePath = comfyResult.outputImagePath;
@@ -161,15 +165,12 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
           positivePrompt: facePrompt,
           steps: 8,
         });
-        const compositeCmd = [
-          "python3",
-          "tools/openclinxr/evidence/composite_comfy_face_tile.py",
-          "--base-texture", input.baseAlbedoPath,
-          "--face-tile", tileResult.outputImagePath,
-          "--mask-report", input.maskReportPath,
-          "--output", input.outputAlbedoPath,
-        ].join(" ");
-        execSync(compositeCmd, { stdio: "inherit", encoding: "utf8" });
+        compositeComfyFaceTile({
+          baseAlbedoPath: input.baseAlbedoPath,
+          faceTilePath: tileResult.outputImagePath,
+          maskReportPath: input.maskReportPath,
+          outputAlbedoPath: input.outputAlbedoPath,
+        });
         comfyDiffusionRan = true;
         comfyPromptId = tileResult.promptId;
         comfyOutputImagePath = tileResult.outputImagePath;
@@ -211,6 +212,23 @@ async function generateMaskedFaceAlbedoViaComfyStep(input: {
     comfyPromptId,
     comfyOutputImagePath,
   };
+}
+
+function compositeComfyFaceTile(input: {
+  baseAlbedoPath: string;
+  faceTilePath: string;
+  maskReportPath: string;
+  outputAlbedoPath: string;
+}): void {
+  const compositeCmd = [
+    "python3",
+    "tools/openclinxr/evidence/composite_comfy_face_tile.py",
+    "--base-texture", input.baseAlbedoPath,
+    "--face-tile", input.faceTilePath,
+    "--mask-report", input.maskReportPath,
+    "--output", input.outputAlbedoPath,
+  ].join(" ");
+  execSync(compositeCmd, { stdio: "inherit", encoding: "utf8" });
 }
 
 function resolveRepoPath(relativeOrAbsolute: string): string {
