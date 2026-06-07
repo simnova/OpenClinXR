@@ -1182,6 +1182,68 @@ export {
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
 } from "./role-harness-policy.js";
+export {
+  GROK_CURSOR_TASK_WARNING,
+  GROK_TIER_LADDER,
+  GROK_TIER_PACKAGE_SCRIPTS,
+  GROK_TIER_SAFEGUARDS,
+  GROK_TIER_UPGRADE_TRIGGERS,
+  buildGrokTierIntrospectionReport,
+  buildGrokTierWorkOrder,
+  evaluateGrokDelegationAdvice,
+  evaluateGrokTierUpgrade,
+  formatGrokTierIntrospectionBrief,
+  formatGrokTierRecordLine,
+  getGrokTierSpec,
+  recommendGrokStartTier,
+  validateGrokHarnessTierConfig,
+} from "./grok-tier-routing.js";
+export type {
+  GrokDelegationAdvice,
+  GrokDelegationIntent,
+  GrokHarnessSurface,
+  GrokSubagentType,
+  GrokTierId,
+  GrokTierIntrospectionReport,
+  GrokTierSpec,
+  GrokTierUpgradeEvaluation,
+  GrokTierUpgradeTrigger,
+  GrokTierWorkOrder,
+} from "./grok-tier-routing.js";
+export {
+  GROK_TOKEN_THRESHOLDS,
+  buildGrokSliceTokenBaseline,
+  buildGrokSliceTokenIntrospectionReport,
+  classifyGrokModelTier,
+  evaluateGrokSliceTokenViolations,
+  formatGrokSliceTokenBrief,
+  parseCcusageDailyPayload,
+  summarizeGrokWorkspaceSessions,
+} from "./grok-token-introspection.js";
+export type {
+  CcusageSnapshot,
+  GrokModelTierClass,
+  GrokSessionTokenSnapshot,
+  GrokSliceTokenBaseline,
+  GrokSliceTokenIntrospectionReport,
+  GrokTierTokenViolation,
+  GrokWorkspaceTokenSnapshot,
+} from "./grok-token-introspection.js";
+export {
+  GROK_REPO_AGENT_CONSULT_DEFAULTS,
+  GROK_REPO_AGENT_SPAWN_SAFEGUARDS,
+  buildGrokRepoAgentSpawnRegistry,
+  buildGrokRepoAgentSpawnSpec,
+  buildRepoAgentSpawnPrompt,
+  formatGrokRepoAgentSpawnBrief,
+  recommendRepoAgentsForConsult,
+  resolveGrokSpawnSurfaceForPolicy,
+} from "./grok-repo-agent-spawn.js";
+export type {
+  GrokRepoAgentSpawnRegistryReport,
+  GrokRepoAgentSpawnSpec,
+  GrokRepoAgentSpawnSurface,
+} from "./grok-repo-agent-spawn.js";
 export type {
   CodexSandboxMode,
   HarnessKind,

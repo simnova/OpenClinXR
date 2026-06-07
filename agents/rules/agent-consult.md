@@ -50,6 +50,8 @@ The primary Grok session (Composer) is the orchestration entrypoint. Embody `chi
 
 ## Harness Model Routing
 - Per-role tiers and Codex TOML generation: `packages/openclinxr/agent-loop/src/role-harness-policy.ts` + `pnpm agent:harness:sync`.
+- **Grok tier ladder (harness-only):** `agents/rules/grok-tier-routing.md` + `pnpm grok:tier:introspect`. Scout via native `spawn_subagent explore` (flash), not Cursor Task.
+- **Grok repo agent spawn:** `pnpm grok:agent:spawn-spec -- --role <role-id>` maps `agents/**` + `role-harness-policy.ts` to subagent_type + model. Regenerate via `pnpm agent:harness:sync`.
 - **Grok:** direct DeepSeek (`deepseek-v4-flash` / `deepseek-v4-pro`) and `grok-build` for frontier work. Do not use Moonbridge as primary Grok routing.
 - **Codex Desktop:** tier models from generated `.codex/agents/*.toml`. Moonbridge (`pnpm local:moonbridge:probe`) is **Codex-only optional first-pass assist** when DeepSeek cannot be selected in the model picker.
 - **Production pipeline:** swappable `ModelAssistProvider` bridges (Moonbridge today; approved online models later) may support bounded agentic evaluation/optimization behind gates. Procedural-only asset/scene pipelines remain the goal; online AI is permitted where gates allow.

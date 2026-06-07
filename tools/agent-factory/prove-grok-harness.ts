@@ -4,10 +4,14 @@ import { readFile as readFileAsync, writeFile as writeFileAsync } from "node:fs/
 import os from "node:os";
 import path from "node:path";
 import {
+  buildGrokRepoAgentSpawnRegistry,
+  buildGrokSliceTokenIntrospectionReport,
+  buildGrokTierIntrospectionReport,
   getRepoRoleHarnessPolicy,
   recommendBackgroundAgentModel,
   repoRoleHarnessPolicies,
   resolveHarnessModelSpec,
+  validateGrokHarnessTierConfig,
 } from "../../packages/openclinxr/agent-loop/src/index.js";
 
 type ProofIteration = {
@@ -443,6 +447,135 @@ async function iterationGrokInspect(): Promise<Record<string, unknown>> {
   return { rules, subagents, inspect: "ok" };
 }
 
+async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
+  const configPath = path.join(repoRoot, ".grok", "config.toml");
+  const config = await readFileAsync(configPath, "utf8");
+  const rulePath = path.join(repoRoot, "agents", "rules", "grok-tier-routing.md");
+  const rule = await readFileAsync(rulePath, "utf8");
+  const pkg = JSON.parse(await readFileAsync(path.join(repoRoot, "package.json"), "utf8")) as {
+    scripts?: Record<string, string>;
+  };
+  const tierScripts = [
+    "grok:tier:introspect",
+    "grok:tier:brief",
+    "grok:tier:check",
+    "grok:tier:work-order",
+    "grok:tier:slice-start",
+    "grok:tier:slice-introspect",
+    "grok:tier:post-slice",
+  ];
+  for (const script of tierScripts) {
+    if (!pkg.scripts?.[script]) {
+      throw new Error(`Missing package.json script: ${script}`);
+    }
+  }
+  const configCheck = validateGrokHarnessTierConfig(config);
+  if (!configCheck.ok) {
+    throw new Error(`Grok tier config invalid: ${configCheck.errors.join("; ")}`);
+  }
+  if (!rule.includes("Do not use Cursor `Task` for tier 0–2")) {
+    throw new Error("grok-tier-routing.md missing Cursor Task guard");
+  }
+  if (!rule.includes("pnpm grok:tier:slice-start")) {
+    throw new Error("grok-tier-routing.md missing per-slice token introspection flow");
+  }
+  if (!rule.includes("pnpm grok:agent:spawn-spec")) {
+    throw new Error("grok-tier-routing.md missing repo agent spawn flow");
+  }
+  const agentScripts = ["grok:agent:list", "grok:agent:spawn-spec", "grok:agent:validate", "grok:agent:consult"];
+  for (const script of agentScripts) {
+    if (!pkg.scripts?.[script]) {
+      throw new Error(`Missing package.json script: ${script}`);
+    }
+  }
+  const hookPath = path.join(repoRoot, ".grok", "hooks", "grok-tier-introspection.json");
+  const hook = await readFileAsync(hookPath, "utf8");
+  if (!hook.includes("grok:tier:brief")) {
+    throw new Error("grok-tier-introspection.json hook missing tier brief command");
+  }
+  const report = buildGrokTierIntrospectionReport({
+    configToml: config,
+    ruleFilePresent: true,
+    packageScriptsPresent: true,
+  });
+  if (report.posture === "blocked") {
+    throw new Error(`Grok tier introspection blocked: ${report.checks.filter((c) => !c.passed).map((c) => c.checkId).join(", ")}`);
+  }
+  const tierTest = spawnSync("pnpm", ["exec", "vitest", "run", "tools/openclinxr/openclaw/grok-tier-cli.test.ts"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
+  if (tierTest.status !== 0) {
+    throw new Error(`grok-tier-cli tests failed: ${tierTest.stderr || tierTest.stdout}`);
+  }
+  const tokenModuleTest = spawnSync(
+    "pnpm",
+    ["--filter", "@openclinxr/agent-loop", "test", "--", "-t", "grok token introspection"],
+    { cwd: repoRoot, encoding: "utf8" },
+  );
+  if (tokenModuleTest.status !== 0) {
+    throw new Error(`grok-token-introspection tests failed: ${tokenModuleTest.stderr || tokenModuleTest.stdout}`);
+  }
+  const roleDirs = [
+    { roleId: "chief-coordinator", roleDir: "agents/coordinator/chief-coordinator", group: "coordinator" },
+    { roleId: "openclaw-drift-police", roleDir: "agents/adversarial/openclaw-drift-police", group: "adversarial" },
+    { roleId: "implementation-plan-gap-attacker", roleDir: "agents/adversarial/implementation-plan-gap-attacker", group: "adversarial" },
+    { roleId: "productivity-skeptic", roleDir: "agents/adversarial/productivity-skeptic", group: "adversarial" },
+    { roleId: "visual-realism-adversary", roleDir: "agents/adversarial/visual-realism-adversary", group: "adversarial" },
+    { roleId: "implementation-planning-lead", roleDir: "agents/core/implementation-planning-lead", group: "core" },
+    { roleId: "asset-pipeline-lead", roleDir: "agents/core/asset-pipeline-lead", group: "core" },
+    { roleId: "rigging-animation-specialist", roleDir: "agents/core/rigging-animation-specialist", group: "core" },
+    { roleId: "xr-systems-architect", roleDir: "agents/core/xr-systems-architect", group: "core" },
+    { roleId: "pediatrics-physician", roleDir: "agents/physicians/pediatrics-physician", group: "physicians" },
+    { roleId: "clinical-safety-critic", roleDir: "agents/adversarial/clinical-safety-critic", group: "adversarial" },
+    { roleId: "license-provenance-specialist", roleDir: "agents/legal/license-provenance-specialist", group: "legal" },
+    { roleId: "vp-engineering-delivery", roleDir: "agents/leadership/vp-engineering-delivery", group: "leadership" },
+  ];
+  const agentRegistry = buildGrokRepoAgentSpawnRegistry({ roles: roleDirs });
+  if (agentRegistry.posture !== "aligned") {
+    throw new Error(`Repo agent spawn registry not aligned: ${agentRegistry.checks.filter((c) => !c.passed).map((c) => c.checkId).join(", ")}`);
+  }
+  const chiefPointer = await readFileAsync(path.join(repoRoot, ".grok", "agents", "chief-coordinator.md"), "utf8");
+  if (!chiefPointer.includes("Grok spawn spec")) {
+    throw new Error("Run pnpm agent:harness:sync to embed Grok spawn specs in .grok/agents pointers");
+  }
+  const tokenFixture = buildGrokSliceTokenIntrospectionReport({
+    sliceId: "harness-proof-fixture",
+    declaredTier: "tier1_deepseek_flash_scout",
+    baseline: null,
+    currentCcusage: {
+      available: true,
+      period: "2026-06-07",
+      totalTokens: 1000,
+      totalCostUsd: 1,
+      modelsUsed: [],
+      agents: ["codex"],
+      note: "fixture",
+    },
+    currentGrokSessions: [
+      {
+        sessionId: "fixture-composer",
+        peakTotalTokens: 50_000,
+        finalTotalTokens: 50_000,
+        modelIdsSeen: ["grok-composer-2.5-fast"],
+        toolCallCount: 1,
+        turnCount: 1,
+      },
+    ],
+  });
+  if (tokenFixture.posture !== "drift" && tokenFixture.posture !== "violation") {
+    throw new Error(`Expected token fixture drift/violation for scout+composer, got ${tokenFixture.posture}`);
+  }
+  return {
+    posture: report.posture,
+    tierScripts,
+    configCheck,
+    tokenFixturePosture: tokenFixture.posture,
+    agentRegistryPosture: agentRegistry.posture,
+    agentCount: agentRegistry.roleCount,
+  };
+}
+
 async function iterationOrchestrationWorkflow(): Promise<Record<string, unknown>> {
   const consult = await readFileAsync(path.join(repoRoot, "agents", "rules", "agent-consult.md"), "utf8");
   const subagent = await readFileAsync(path.join(repoRoot, "agents", "rules", "subagent-protocol.md"), "utf8");
@@ -504,6 +637,7 @@ async function runProofSuite(quick: boolean): Promise<{ iterations: ProofIterati
   iterations.push(await runIteration("04", "agent-loop-tests", iterationAgentLoopTests));
   iterations.push(await runIteration("05", "memory-append", iterationMemoryAppendDry));
   iterations.push(await runIteration("06", "orchestration-workflow", iterationOrchestrationWorkflow));
+  iterations.push(await runIteration("06b", "grok-tier-routing", iterationGrokTierRouting));
 
   if (!quick) {
     iterations.push(await runIteration("07", "grok-inspect", iterationGrokInspect));
@@ -617,6 +751,9 @@ async function main(): Promise<void> {
     },
     recommendations: [
       "Keep Composer context lean; delegate coordinator/drift reads to explore+deepseek-v4-flash.",
+      "Run pnpm grok:tier:introspect before multi-subagent waves; never use Cursor Task for read-only scouts.",
+      "Per slice: pnpm grok:tier:slice-start at begin, pnpm grok:tier:post-slice at end; record stateRecordLine.",
+      "Spawn repo agents via pnpm grok:agent:spawn-spec --role <id>; run pnpm agent:harness:sync after policy edits.",
       "Track Grok peaks via pnpm agent:harness:prove; use ccusage session (Codex) + openclaw session for cross-harness cost.",
       `Re-run with --runs=5 after policy changes; latest pass rate ${runSummaries.filter((r) => r.passed).length}/${runSummaries.length}.`,
     ],

@@ -1,6 +1,10 @@
 import { access, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  buildGrokRepoAgentSpawnSpec,
+  formatGrokRepoAgentSpawnBrief,
+} from "../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
+import {
   getRepoRoleHarnessPolicy,
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
@@ -106,6 +110,32 @@ function codexTomlForRole(role: RoleEntry): string {
 }
 
 function pointerMarkdown(role: RoleEntry): string {
+  const spawn = buildGrokRepoAgentSpawnSpec({
+    roleId: role.role,
+    roleDir: role.roleDir,
+    group: role.group,
+  });
+  const spawnLines = spawn.spawnSubagentCall
+    ? [
+        "",
+        "## Grok spawn spec (generated from role-harness-policy)",
+        "",
+        `- ${formatGrokRepoAgentSpawnBrief(spawn)}`,
+        `- CLI: \`pnpm grok:agent:spawn-spec -- --role ${role.role}\``,
+        `- subagent_type: \`${spawn.spawnSubagentCall.subagent_type}\``,
+        `- capability_mode: \`${spawn.spawnSubagentCall.capability_mode}\``,
+        `- model: \`${spawn.model}\` (${spawn.policyTier})`,
+        "",
+      ].join("\n")
+    : [
+        "",
+        "## Grok spawn spec (generated from role-harness-policy)",
+        "",
+        `- ${formatGrokRepoAgentSpawnBrief(spawn)}`,
+        `- CLI: use Composer / grok-build — \`pnpm grok:agent:spawn-spec -- --role ${role.role}\``,
+        "",
+      ].join("\n");
+
   return `# ${role.role} (repo role pointer)
 
 Canonical: \`${role.roleDir}/charter.md\`, \`${role.roleDir}/memory.md\`, and \`${role.roleDir}/index.json\`.
@@ -117,8 +147,8 @@ Use for: role-mapped repo-agent consultation or a live subagent prompt when the 
 This is an OpenClaw-style / OpenClaw-inspired workflow pointer, not an external OpenClaw runtime.
 
 Target repo /Volumes/files/src/openclinxr.
-
-Spawn/local-consult prompt seed: "You are \`${role.role}\` for /Volumes/files/src/openclinxr. First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist. Read your canonical charter and memory with a tight limit. Follow agents/rules/agent-consult.md and agents/rules/subagent-protocol.md. Return concise findings, blockers, and recommended next slice. Do not edit unless explicitly assigned a non-overlapping write scope."
+${spawnLines}
+Spawn/local-consult prompt seed: "${spawn.spawnPrompt}"
 `;
 }
 

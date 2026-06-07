@@ -38,6 +38,22 @@ Configured in `.grok/config.toml`:
 
 Do **not** set `[subagents] default_model` in project config — it overrides per-type routing.
 
+### Tiered delegation ladder (Grok-only)
+
+Full policy: `agents/rules/grok-tier-routing.md` + `packages/openclinxr/agent-loop/src/grok-tier-routing.ts`.
+
+| Tier | Model | Surface |
+| --- | --- | --- |
+| Scout | `deepseek-v4-flash` | Native `spawn_subagent` **explore** (read-only) |
+| Plan | `deepseek-v4-pro` | Native `spawn_subagent` **plan** |
+| Execute | `deepseek-v4-pro` | Native `spawn_subagent` **general-purpose** (bounded) |
+| Integrate | Composer | Main thread — lease, state files, post-slice |
+| Frontier | `grok-build` | Protected-claim / ambiguous synthesis |
+
+**Never use Cursor `Task` for tier 0–2 scouts** — it only exposes `composer-2.5-fast`. Run `pnpm grok:tier:introspect` before multi-subagent waves and after compaction.
+
+**Per-slice token audit:** `pnpm grok:tier:slice-start` at slice begin, `pnpm grok:tier:post-slice` at end. Uses ccusage daily deltas + Grok session peaks to detect tier-routing violations.
+
 ### Token efficiency
 
 - Rehydrate using snapshot limits (~60–80 lines), not full coordination ledgers.

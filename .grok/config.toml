@@ -33,6 +33,9 @@ plan = true      # implementation-planning-lead sequencing
 [subagents.models]
 explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults
 plan = "deepseek-v4-pro"        # bounded planning slices
+# grok-tier-routing: tier 1 scout / tier 2 plan ladder — see agents/rules/grok-tier-routing.md
+# CLI: pnpm grok:tier:introspect | grok:tier:work-order | grok:tier:check
+# Never use Cursor Task for read-only scouts; use spawn_subagent explore instead.
 
 # Direct DeepSeek + Moonbridge as backup (user ~/.grok/config.toml)
 #

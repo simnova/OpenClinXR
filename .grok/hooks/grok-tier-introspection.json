@@ -1,0 +1,49 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Grok tier routing (grok-harness-only): before delegating read-only work use spawn_subagent explore+deepseek-v4-flash, NOT Cursor Task. Run pnpm grok:tier:brief for introspection prompts.'; pnpm grok:tier:brief 2>/dev/null | head -20 || echo 'Run: pnpm grok:tier:introspect after install'",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PreCompact tier introspection: re-read snapshot blocks only; run pnpm grok:tier:brief; downgrade scouts to explore+flash after compaction.'; pnpm grok:tier:brief 2>/dev/null | head -12 || true",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task|spawn_subagent|subagent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PreToolUse tier guard: spawn repo-defined agents only (agents/**). Use pnpm grok:agent:spawn-spec --role <id>, not generic Cursor Task.'; pnpm grok:agent:consult -- --consult orchestration 2>/dev/null | head -5 || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Stop: run per-slice token introspection (ccusage + Grok peaks) before recording slice.'; pnpm grok:tier:post-slice 2>/dev/null | tail -20 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
+            "timeout": 45
+          }
+        ]
+      }
+    ]
+  }
+}
