@@ -4,8 +4,8 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 92,
-    "ignore-local-cache": 293,
+    "keep-evidence": 93,
+    "ignore-local-cache": 303,
     "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 5
@@ -132,6 +132,13 @@
     },
     {
       "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -397,6 +404,27 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/peds_patient_child_stripped.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/realvisxl_base_fallback_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/cagematch/anny-masked-head-detail-texture/2026-06-06-043725/masked_head_detail.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -426,6 +454,41 @@
     },
     {
       "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-043419/scalp_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/anny-source-uv-masks.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/eye_region_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/face_front_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/head_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/scalp_mask.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -510,6 +573,13 @@
     },
     {
       "path": ".openclinxr/evidence/anny-preflight-local-full-candidates.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/comfy-masked-face-texture-cagematch.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -2810,6 +2880,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "docs/openclinxr/anny-candidate-preflight-peds-asthma-parent-anxiety-2026-06-07.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/ao.png",

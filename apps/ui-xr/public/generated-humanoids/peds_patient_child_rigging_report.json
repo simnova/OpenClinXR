@@ -140,14 +140,15 @@
     ]
   },
   "roleVisualMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
+    "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
+    "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
     "actorRole": "patient",
     "roleVisualCue": "pediatric_patient",
     "clothingStyle": "pediatric_soft_blue_exam_tshirt",
-    "objectNames": [
-      "openclinxr_role_clothing_patient_torso_panel",
-      "openclinxr_role_clothing_patient_shirt_stripe"
-    ],
-    "claimScope": "small_procedural_role_marker_not_production_costume",
+    "objectNames": [],
+    "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
@@ -182,6 +183,22 @@
       "scoring_validity"
     ]
   },
+  "sourceTopologyEvidence": {
+    "topology": "default",
+    "topologyIncludesEyes": true,
+    "topologyIncludesTongue": true,
+    "materialSegmentationProvided": false,
+    "embeddedEyeMaterialCagematchStatus": "failed_not_retained",
+    "failureReason": "Bounds-based material assignment to default-topology eye-region faces landed on cheek/under-eye polygons in isolated Model Vetting Studio evidence.",
+    "nextSafeStep": "Use source semantic masks, UV masks, or a stronger local FOSS face/eye/hair generator before coloring Anny default-topology eye regions.",
+    "claimScope": "source_topology_observation_not_production_eye_shader_or_b_plus_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "wardrobeTags": {
     "wardrobeRole": "patient_casual_child",
     "garmentLayers": [
@@ -199,18 +216,222 @@
     "eyeColor": "hazel",
     "materialFinish": "cotton_matte"
   },
+  "morphTargetDiagnostics": {
+    "defaultWeightThreshold": 0.001,
+    "extremeDeltaThreshold": 0.05,
+    "nonzeroDefaultWeights": [
+      {
+        "name": "viseme_silence",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_AA",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_E",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_IH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_OU",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_FV",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_L",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "viseme_TH",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "defaultValue": 0.1
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "defaultValue": 0.105
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "defaultValue": 0.105
+      },
+      {
+        "name": "brow_raise",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "brow_furrow",
+        "defaultValue": 0.264
+      },
+      {
+        "name": "eye_squint",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "smile",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "frown",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "concern",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "pain",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "anxious",
+        "defaultValue": 0.42
+      },
+      {
+        "name": "jaw_open",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_yaw",
+        "defaultValue": 1.0
+      },
+      {
+        "name": "gaze_pitch",
+        "defaultValue": 1.0
+      }
+    ],
+    "extremeMorphDeltas": [
+      {
+        "name": "viseme_OU",
+        "maxDelta": 0.053613,
+        "maxAxisDelta": 0.053613
+      },
+      {
+        "name": "viseme_FV",
+        "maxDelta": 0.101914,
+        "maxAxisDelta": 0.101914
+      },
+      {
+        "name": "viseme_L",
+        "maxDelta": 0.203827,
+        "maxAxisDelta": 0.203827
+      },
+      {
+        "name": "viseme_TH",
+        "maxDelta": 0.407654,
+        "maxAxisDelta": 0.407654
+      },
+      {
+        "name": "openclinxr_mouth_open",
+        "maxDelta": 0.815309,
+        "maxAxisDelta": 0.815309
+      },
+      {
+        "name": "openclinxr_brow_concern",
+        "maxDelta": 1.630676,
+        "maxAxisDelta": 1.630617
+      },
+      {
+        "name": "openclinxr_cheek_tension",
+        "maxDelta": 3.371038,
+        "maxAxisDelta": 3.37101
+      },
+      {
+        "name": "brow_raise",
+        "maxDelta": 6.632345,
+        "maxAxisDelta": 6.632244
+      },
+      {
+        "name": "brow_furrow",
+        "maxDelta": 13.264718,
+        "maxAxisDelta": 13.264488
+      },
+      {
+        "name": "eye_blink_l",
+        "maxDelta": 26.529316,
+        "maxAxisDelta": 26.528976
+      },
+      {
+        "name": "eye_blink_r",
+        "maxDelta": 53.058633,
+        "maxAxisDelta": 53.057953
+      },
+      {
+        "name": "eye_squint",
+        "maxDelta": 106.117266,
+        "maxAxisDelta": 106.115906
+      },
+      {
+        "name": "smile",
+        "maxDelta": 212.234572,
+        "maxAxisDelta": 212.231812
+      },
+      {
+        "name": "frown",
+        "maxDelta": 424.469144,
+        "maxAxisDelta": 424.463623
+      },
+      {
+        "name": "concern",
+        "maxDelta": 848.938325,
+        "maxAxisDelta": 848.927307
+      },
+      {
+        "name": "pain",
+        "maxDelta": 1697.876651,
+        "maxAxisDelta": 1697.854614
+      },
+      {
+        "name": "anxious",
+        "maxDelta": 3395.753301,
+        "maxAxisDelta": 3395.709229
+      },
+      {
+        "name": "jaw_open",
+        "maxDelta": 6791.506308,
+        "maxAxisDelta": 6791.417969
+      },
+      {
+        "name": "gaze_yaw",
+        "maxDelta": 13583.017917,
+        "maxAxisDelta": 13582.841797
+      },
+      {
+        "name": "gaze_pitch",
+        "maxDelta": 27166.029966,
+        "maxAxisDelta": 27165.677734
+      }
+    ],
+    "claimScope": "morph_target_diagnostic_not_readiness",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "accessoryPresence": {
     "markers": [],
-    "generatedObjects": [
-      "openclinxr_role_clothing_patient_torso_panel",
-      "openclinxr_role_clothing_patient_shirt_stripe"
-    ],
+    "generatedObjects": [],
     "claimScope": "synthetic_role_visual_cue_only"
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-06-06T03:22:21.091758Z",
-    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"wardrobeRole\": \"patient_casual_child\"}"
+    "generatedAt": "2026-06-07T00:01:04.002176Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,
   "realismGrade": "B",
@@ -218,6 +439,7 @@
     "skin_tone": "warm_light_child",
     "hair_color": "light_brown",
     "eye_color": "hazel",
+    "anny_topology": "default",
     "gender_presentation": "child",
     "height_cm": 125,
     "build": "slender_asthma",

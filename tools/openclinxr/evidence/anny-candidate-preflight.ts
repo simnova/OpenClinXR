@@ -857,8 +857,12 @@ export function validateAnnyCandidatePreflightReport(value: unknown): { ok: true
               requireString(roleMaterialHandoff["roleVisualCue"], `/candidates/${index}/localCandidateBundle/roleMaterialHandoff/roleVisualCue`, errors);
               requireString(roleMaterialHandoff["wardrobeRole"], `/candidates/${index}/localCandidateBundle/roleMaterialHandoff/wardrobeRole`, errors);
               requireString(roleMaterialHandoff["clothingStyle"], `/candidates/${index}/localCandidateBundle/roleMaterialHandoff/clothingStyle`, errors);
-              if (!Array.isArray(roleMaterialHandoff["objectNames"]) || roleMaterialHandoff["objectNames"].length === 0) {
-                errors.push(`/candidates/${index}/localCandidateBundle/roleMaterialHandoff/objectNames must be nonempty array`);
+              const objectNames = roleMaterialHandoff["objectNames"];
+              const meshRegionMaterialMode = roleMaterialHandoff["meshRegionMaterialMode"];
+              const hasObjectNames = Array.isArray(objectNames) && objectNames.length > 0;
+              const hasMeshRegionMaterialMode = typeof meshRegionMaterialMode === "string" && meshRegionMaterialMode.length > 0;
+              if (!hasObjectNames && !hasMeshRegionMaterialMode) {
+                errors.push(`/candidates/${index}/localCandidateBundle/roleMaterialHandoff must include nonempty objectNames or meshRegionMaterialMode`);
               }
               requireStringArrayIncludes(roleMaterialHandoff["notEvidenceFor"], "production_asset_readiness", `/candidates/${index}/localCandidateBundle/roleMaterialHandoff/notEvidenceFor`, errors);
             }
@@ -1094,13 +1098,19 @@ function roleMaterialHandoffFromRiggingReport(report: Record<string, unknown>): 
   const roleClothingMaterialRegions = isRecord(report["roleClothingMaterialRegions"]) ? report["roleClothingMaterialRegions"] : null;
   const wardrobeTags = isRecord(report["wardrobeTags"]) ? report["wardrobeTags"] : {};
   const accessoryPresence = isRecord(report["accessoryPresence"]) ? report["accessoryPresence"] : {};
-  if (!roleVisualMarkers) return null;
-  const objectNames = stringArray(roleVisualMarkers["objectNames"]);
-  if (objectNames.length === 0) return null;
+  if (!roleVisualMarkers && !roleClothingMaterialRegions) return null;
+  const objectNames = roleVisualMarkers ? stringArray(roleVisualMarkers["objectNames"]) : [];
+  const meshRegionMaterialMode = roleClothingMaterialRegions
+    ? stringOr(roleClothingMaterialRegions["meshRegionMaterialMode"], "")
+    : "";
+  if (objectNames.length === 0 && meshRegionMaterialMode.length === 0) return null;
   return {
-    actorRole: stringOr(roleVisualMarkers["actorRole"], "unknown"),
-    roleVisualCue: stringOr(roleVisualMarkers["roleVisualCue"], "unknown"),
-    clothingStyle: stringOr(roleVisualMarkers["clothingStyle"], "unknown"),
+    actorRole: stringOr(roleVisualMarkers?.["actorRole"], "unknown"),
+    roleVisualCue: stringOr(roleVisualMarkers?.["roleVisualCue"], stringOr(wardrobeTags["wardrobeRole"], "unknown")),
+    clothingStyle: stringOr(
+      roleVisualMarkers?.["clothingStyle"],
+      stringOr(stringArray(wardrobeTags["garmentLayers"])[0], "unknown"),
+    ),
     objectNames,
     ...(roleClothingMaterialRegions ? {
       meshRegionMaterialMode: stringOr(roleClothingMaterialRegions["meshRegionMaterialMode"], "unknown"),
@@ -1109,14 +1119,19 @@ function roleMaterialHandoffFromRiggingReport(report: Record<string, unknown>): 
       topFaceCount: numberOr(roleClothingMaterialRegions["topFaceCount"], 0),
       lowerFaceCount: numberOr(roleClothingMaterialRegions["lowerFaceCount"], 0),
     } : {}),
-    wardrobeRole: stringOr(wardrobeTags["wardrobeRole"], stringOr(roleVisualMarkers["roleVisualCue"], "unknown")),
+    wardrobeRole: stringOr(wardrobeTags["wardrobeRole"], stringOr(roleVisualMarkers?.["roleVisualCue"], "unknown")),
     garmentLayers: stringArray(wardrobeTags["garmentLayers"]),
     fabricPalette: stringOr(wardrobeTags["fabricPalette"], "unknown"),
     materialFinish: stringOr(wardrobeTags["materialFinish"], "unknown"),
     accessoryMarkers: stringArray(accessoryPresence["markers"]),
     generatedAccessoryObjects: stringArray(accessoryPresence["generatedObjects"]),
-    claimScope: stringOr(roleVisualMarkers["claimScope"], "procedural_role_distinction_marker_not_production_costume"),
-    notEvidenceFor: stringArray(roleVisualMarkers["notEvidenceFor"]),
+    claimScope: stringOr(
+      roleVisualMarkers?.["claimScope"],
+      stringOr(roleClothingMaterialRegions?.["claimScope"], "procedural_role_distinction_marker_not_production_costume"),
+    ),
+    notEvidenceFor: stringArray(
+      roleVisualMarkers?.["notEvidenceFor"] ?? roleClothingMaterialRegions?.["notEvidenceFor"],
+    ),
   };
 }
 

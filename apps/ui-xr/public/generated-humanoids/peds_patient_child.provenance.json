@@ -3,9 +3,9 @@
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "patient_maya_johnson_v1",
   "actorRole": "patient",
-  "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
-  "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
-  "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child_rigging_report.json",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_manifest.json",
   "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
@@ -34,10 +34,10 @@
     "caseId": "peds_asthma_parent_anxiety_v1",
     "actorId": "patient_maya_johnson_v1",
     "reuseKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_candidate",
-    "sourceParametersHash": "33518e476184669087988cf8350fa4f9c1ef44c74503f58802afc2822aaddf56"
+    "sourceParametersHash": "359b65b3a166d3c4b0039e27ae4fba8e41408d16231a02a1fd5181972eaa535e"
   },
   "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
-  "promptOrCaseParameterHash": "33518e476184669087988cf8350fa4f9c1ef44c74503f58802afc2822aaddf56",
+  "promptOrCaseParameterHash": "359b65b3a166d3c4b0039e27ae4fba8e41408d16231a02a1fd5181972eaa535e",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "provider_runtime_readiness",

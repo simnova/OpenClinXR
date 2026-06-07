@@ -10,16 +10,17 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 293
+- ignore-local-cache: 303
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 92
+- keep-evidence: 93
 - keep-template: 5
 
 ## Cleanup Actions
 
 - `.openclinxr/asset-production/anny-real-smoke/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -61,11 +62,19 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/smoke/mesh.manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/smoke/role-marker-smoke.manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/peds_patient_child_comfy_masked_face_albedo.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/peds_patient_child_stripped.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/realvisxl_base_fallback_albedo.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-masked-head-detail-texture/2026-06-06-043725/masked_head_detail.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-043419/eye_region_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-043419/face_front_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-043419/head_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-043419/scalp_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/anny-source-uv-masks.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/eye_region_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/face_front_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/head_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/cagematch/anny-source-uv-masks/2026-06-06-comfy-masked-skin/scalp_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/verify-sPoI4P/eye_region_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/verify-sPoI4P/face_front_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/cagematch/anny-source-uv-masks/verify-sPoI4P/head_mask.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -78,6 +87,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/anny-preflight-default-topology-eye-cagematch.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/anny-preflight-embedded-eye-material-cagematch.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/anny-preflight-local-full-candidates.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/cagematch/anny-comfy-masked-skin/2026-06-06-comfy-masked-skin/comfy-masked-face-texture-cagematch.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/anny-default-topology-clean/2026-06-06-042641/artifact-map.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/anny-default-topology-clean/2026-06-06-042641/capture-manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/anny-default-topology-clean/2026-06-06-042641/captures/peds_anxious_parent_front_2026-06-06.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -442,6 +452,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.agent-factory/quest-mixed-reality-manual-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/quest-mixed-reality-manual-template-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/risk-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
+- `docs/openclinxr/anny-candidate-preflight-peds-asthma-parent-anxiety-2026-06-07.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/ao.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/basecolor.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-2026-06-05/peds_anxious_parent/before_after_plan.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

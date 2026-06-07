@@ -157,11 +157,13 @@ describe("Anny candidate preflight", () => {
         morphTargetCount: 25,
         animationClipCount: 4,
         roleVisualMarkers: {
+          status: "abandoned_rejected_experiment",
+          rejectedApproach: "visible_bounds_based_role_clothing_cube_markers",
           actorRole: "patient",
           roleVisualCue: "pediatric_patient",
           clothingStyle: "pediatric_soft_blue_exam_tshirt",
-          objectNames: ["openclinxr_role_clothing_patient_torso_panel", "openclinxr_role_clothing_patient_shirt_stripe"],
-          claimScope: "small_procedural_role_marker_not_production_costume",
+          objectNames: [],
+          claimScope: "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
           notEvidenceFor: ["production_asset_readiness", "b_plus_visual_realism_gate"],
         },
         roleClothingMaterialRegions: {
@@ -181,7 +183,7 @@ describe("Anny candidate preflight", () => {
         },
         accessoryPresence: {
           markers: [],
-          generatedObjects: ["openclinxr_role_clothing_patient_torso_panel", "openclinxr_role_clothing_patient_shirt_stripe"],
+          generatedObjects: [],
         },
         faceDetailMarkers: {
           status: "abandoned_rejected_experiment",
@@ -297,13 +299,14 @@ describe("Anny candidate preflight", () => {
         wardrobeRole: "patient_casual_child",
         roleVisualCue: "pediatric_patient",
         clothingStyle: "pediatric_soft_blue_exam_tshirt",
-        objectNames: expect.arrayContaining(["openclinxr_role_clothing_patient_shirt_stripe"]),
+        objectNames: [],
+        generatedAccessoryObjects: [],
         meshRegionMaterialMode: "bounds_based_role_clothing_material_assignment",
         topMaterialName: "openclinxr_role_mesh_clothing_patient_top",
         lowerMaterialName: "openclinxr_role_mesh_clothing_patient_lower",
         topFaceCount: 2474,
         lowerFaceCount: 1042,
-        claimScope: "small_procedural_role_marker_not_production_costume",
+        claimScope: "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
         notEvidenceFor: expect.arrayContaining(["production_asset_readiness"]),
       });
       expect(patient?.localCandidateBundle?.proceduralFaceDetailHandoff).toBeUndefined();

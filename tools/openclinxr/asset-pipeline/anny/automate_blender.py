@@ -1039,8 +1039,24 @@ def main() -> None:
         "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
     }
 
-    print("[blender] adding small role-specific procedural clothing markers (local audit cue, not production costume)")
-    role_visual_markers = add_role_clothing_markers(mesh_obj, args.actor_role, phenotype)
+    role = args.actor_role.lower()
+    role_visual_markers = {
+        "status": "abandoned_rejected_experiment",
+        "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
+        "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
+        "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
+        "actorRole": args.actor_role,
+        "roleVisualCue": str(phenotype.get("role_visual_cue") or role),
+        "clothingStyle": str(phenotype.get("clothing_style") or f"{role}_local_fixture_clothing"),
+        "objectNames": [],
+        "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity",
+        ],
+    }
 
     # Optional: future hook for real ComfyUI / StableGen call
     if args.use_comfy:
@@ -1123,8 +1139,8 @@ def main() -> None:
             "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
         },
         "wardrobeTags": {
-            "wardrobeRole": phenotype.get("wardrobeRole", role_visual_markers.get("roleVisualCue")),
-            "garmentLayers": phenotype.get("garmentLayers", [role_visual_markers.get("clothingStyle")]),
+            "wardrobeRole": phenotype.get("wardrobeRole", role_visual_markers.get("roleVisualCue", role)),
+            "garmentLayers": phenotype.get("garmentLayers", [role_visual_markers.get("clothingStyle", f"{role}_local_fixture_clothing")]),
             "fabricPalette": phenotype.get("fabricPalette", phenotype.get("clothing_color", "role_distinction_neutral")),
             "materialFinish": phenotype.get("materialFinish", "matte_local_fixture_cloth"),
             "fitProfile": phenotype.get("fitProfile", "case_actor_basic_fit"),
