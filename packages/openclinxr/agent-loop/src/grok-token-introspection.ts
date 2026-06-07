@@ -353,6 +353,13 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
       : getGrokTierSpec(input.declaredTier).role === "frontier"
         ? "frontier"
         : "pro";
+  const newProSessions = Math.max(0, currentGrok.proSessionCount - baselineGrok.proSessionCount);
+  const grokModelsSeen = [
+    ...new Set(currentGrok.sessions.flatMap((session) => session.modelIdsSeen)),
+  ].sort();
+  const ccusageModels = input.currentCcusage.modelsUsed.length > 0
+    ? input.currentCcusage.modelsUsed.join("|")
+    : "none";
 
   return {
     schemaVersion: "openclinxr.grok-tier-slice-token-introspection.v1",
@@ -384,7 +391,16 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
         : "Token posture aligned with tier routing guidance.",
       "Run pnpm grok:tier:slice-start at slice begin and pnpm grok:tier:slice-introspect at slice end.",
     ],
-    stateRecordLine: `Token introspection: ${posture}; tier: ${tierShort}; ccusageΔ=${ccusageTokenDelta}; composerΔ=${composerPeakDelta}; ratio=${scoutVsComposerPeakRatio ?? "n/a"}`,
+    stateRecordLine: [
+      `Token introspection: ${posture}`,
+      `tier: ${tierShort}`,
+      `ccusageΔ=${ccusageTokenDelta}`,
+      `ccusageModels=${ccusageModels}`,
+      `grok flash=${currentGrok.flashSessionCount} pro=${currentGrok.proSessionCount} composer=${currentGrok.composerSessionCount}`,
+      `flashΔ=${newFlashSessions} proΔ=${newProSessions} composerΔ=${composerPeakDelta}`,
+      `grokModels=${grokModelsSeen.join("|") || "none"}`,
+      `ratio=${scoutVsComposerPeakRatio ?? "n/a"}`,
+    ].join("; "),
   };
 }
 

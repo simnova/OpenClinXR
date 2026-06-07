@@ -274,6 +274,8 @@
     "grok:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
     "openclaw:preflight": "pnpm openclaw:ready",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
+    "openclaw:slice-token:start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
+    "openclaw:slice-token:finish": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",

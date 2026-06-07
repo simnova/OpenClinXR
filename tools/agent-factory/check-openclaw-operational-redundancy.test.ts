@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buildOperationalRedundancyReport, type OperationalRedundancyInput } from "./check-openclaw-operational-redundancy.js";
+import {
+  buildOperationalRedundancyReport,
+  validateLatestSliceTokenLedger,
+  type OperationalRedundancyInput,
+} from "./check-openclaw-operational-redundancy.js";
 
 const packageJson = {
   scripts: {
@@ -9,6 +13,10 @@ const packageJson = {
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
+    "openclaw:slice-token:start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
+    "openclaw:slice-token:finish": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
+    "grok:tier:slice-start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
+    "grok:tier:post-slice": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
     "grok:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
   },
 };
@@ -63,7 +71,7 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
         "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
       ].join("\n"),
       "PROJECT_COORDINATION_INDEX.md": "OpenClaw-style / OpenClaw-inspired",
-      "AUTONOMOUS_WORK_PLAN.md": sliceFields,
+      "AUTONOMOUS_WORK_PLAN.md": `2026-06-07 sample checkpoint: Token introspection: aligned; tier: compose; ccusageΔ=0; composerΔ=0; ratio=n/a\n${sliceFields}`,
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": sliceFields,
       "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": "Codex Adapter\nClaude Adapter\nGrok Adapter\nCursor Adapter\nCapability Fallback Matrix\nnot an external OpenClaw runtime",
       "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
@@ -184,6 +192,37 @@ describe("OpenClaw-style operational redundancy checker", () => {
     expect(report.failures).toContainEqual({
       file: "agents/rules/drift-toil-prevention.md",
       message: "missing model-work product guard marker: Model-work product guard",
+    });
+  });
+
+  it("fails post-slice when the latest checkpoint omits Token introspection", () => {
+    const input = alignedInput();
+    const report = buildOperationalRedundancyReport({
+      ...input,
+      enforceSliceTokenLedger: true,
+    });
+    expect(report.ok).toBe(true);
+
+    const missing = buildOperationalRedundancyReport({
+      ...input,
+      files: {
+        ...input.files,
+        "AUTONOMOUS_WORK_PLAN.md": "2026-06-07 sample checkpoint without token ledger\nProduct path advanced",
+      },
+      enforceSliceTokenLedger: true,
+    });
+    expect(missing.ok).toBe(false);
+    expect(missing.failures).toContainEqual({
+      file: "AUTONOMOUS_WORK_PLAN.md",
+      message:
+        "latest checkpoint missing Token introspection line; run pnpm openclaw:slice-token:start → slice work → pnpm openclaw:slice-token:finish and paste stateRecordLine before commit",
+    });
+  });
+
+  it("validates token ledger helper independently", () => {
+    expect(validateLatestSliceTokenLedger("2026-06-07 x: Token introspection: aligned")).toBeNull();
+    expect(validateLatestSliceTokenLedger("2026-06-07 x: no token line")).toMatchObject({
+      file: "AUTONOMOUS_WORK_PLAN.md",
     });
   });
 

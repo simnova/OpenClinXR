@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 export type OperationalRedundancyInput = {
   packageJson: { scripts?: Record<string, string> };
   files: Record<string, string>;
+  enforceSliceTokenLedger?: boolean;
 };
 
 export type OperationalRedundancyFailure = {
@@ -31,7 +32,36 @@ const requiredScripts: Record<string, string> = {
   "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
   "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
   "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
+  "openclaw:slice-token:start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
+  "openclaw:slice-token:finish": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
+  "grok:tier:slice-start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
+  "grok:tier:post-slice": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
 };
+
+export function extractRecentCheckpointLines(planText: string, maxLines = 3): string[] {
+  return planText
+    .split("\n")
+    .filter((line) => /^\d{4}-\d{2}-\d{2}/.test(line.trim()))
+    .slice(0, maxLines);
+}
+
+export function validateLatestSliceTokenLedger(planText: string): OperationalRedundancyFailure | null {
+  const checkpoints = extractRecentCheckpointLines(planText);
+  if (checkpoints.length === 0) {
+    return {
+      file: "AUTONOMOUS_WORK_PLAN.md",
+      message: "snapshot missing dated checkpoint lines for per-slice token ledger",
+    };
+  }
+  if (!checkpoints[0]?.includes("Token introspection:")) {
+    return {
+      file: "AUTONOMOUS_WORK_PLAN.md",
+      message:
+        "latest checkpoint missing Token introspection line; run pnpm openclaw:slice-token:start → slice work → pnpm openclaw:slice-token:finish and paste stateRecordLine before commit",
+    };
+  }
+  return null;
+}
 
 const requiredFiles = [
   "README.md",
@@ -240,6 +270,11 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     failures.push({ file: "README.md", message: "top-level README must keep copy-paste kickoff prompts for tool switching" });
   }
 
+  if (input.enforceSliceTokenLedger) {
+    const tokenFailure = validateLatestSliceTokenLedger(input.files["AUTONOMOUS_WORK_PLAN.md"] ?? "");
+    if (tokenFailure) failures.push(tokenFailure);
+  }
+
   return { ok: failures.length === 0, failures, automationPrompt };
 }
 
@@ -252,7 +287,11 @@ function loadInput(): OperationalRedundancyInput {
 }
 
 async function main(): Promise<void> {
-  const report = buildOperationalRedundancyReport(loadInput());
+  const enforceSliceTokenLedger = process.argv.includes("--post-slice");
+  const report = buildOperationalRedundancyReport({
+    ...loadInput(),
+    enforceSliceTokenLedger,
+  });
   if (process.argv.includes("--print-automation-prompt")) {
     if (report.automationPrompt) {
       console.log(report.automationPrompt);

@@ -82,7 +82,8 @@ Full policy: `agents/rules/grok-tier-routing.md` + `packages/openclinxr/agent-lo
 3. `pnpm openclaw:run-next` or queue from state files.
 4. `pnpm openclaw:lease -- acquire ...` before edits.
 5. Spawn `explore` for coordinator/drift consult when it saves Composer context.
-6. After slice: state update, `pnpm agent:memory:append` for durable lessons, `pnpm openclaw:post-slice`.
+6. Per-slice token ritual (required before commit): `pnpm openclaw:slice-token:start -- --slice-id <id> --current-tier <tier>` → work → `pnpm openclaw:slice-token:finish` → paste `stateRecordLine` into latest `AUTONOMOUS_WORK_PLAN.md` checkpoint. `ccusage` tracks Codex cross-harness; Grok/DeepSeek models tracked via `~/.grok/sessions` peaks in the finish report.
+7. After slice: state update (with Token introspection line), `pnpm openclaw:post-slice` (fails if token line missing), then dequeue next slice without final chat.
 
 ## Proof and measurement
 
