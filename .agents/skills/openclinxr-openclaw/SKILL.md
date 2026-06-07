@@ -11,10 +11,16 @@ Use this as Codex's bridge into the same repo-native OpenClaw-style / OpenClaw-i
 
 ## Required Start
 
-1. Read `AGENTS.md`.
-2. Read the current snapshots in `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
-3. Prefer `pnpm openclaw:run-next` to select a slice. Use `pnpm openclaw:watchdog` only as a quiet local idle check.
-4. Acquire a lease before real edits: `pnpm openclaw:lease -- acquire --owner openclaw-run-next --slice "<slice>" --ttl-minutes 60`.
+1. Read `AGENTS.md` + `PROJECT_STATUS.md` (first ~40 lines).
+2. Load active slice brief: `.openclinxr/slices/<slice-id>/brief.json`.
+3. Spawn parallel team: `pnpm openclaw:team-spawn -- --slice-id <id> --phase scout|execute`.
+4. Verify completion: `pnpm openclaw:slice:verify -- --slice-id <id>`.
+5. Acquire lease before integrator merges: `pnpm openclaw:lease -- acquire --owner integrator --slice "<slice>" --ttl-minutes 60`.
+
+New slice from template: `pnpm openclaw:slice:init -- --template real-garment-v1 --slice-id <id>`.
+Autonomous execution: `pnpm openclaw:run-next` or `pnpm grok:automation-prompt` for scheduler-based heartbeat loops.
+
+Legacy `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` are historical audit ledgers — do not append per-slice checkpoints there. Canonical state is in `PROJECT_STATUS.md`.
 
 ## Repo-Agent Consultation
 
@@ -51,12 +57,17 @@ pnpm agent:memory:append -- --role <role-id> --topic <topic> --lesson "<text>"
 
 ## Verification
 
-After coordination or OpenClaw-style changes run:
+After **coordination file** edits (PROJECT_STATUS.md, teams/, AGENTS.md) run:
 
 ```bash
-pnpm openclaw:post-slice
-pnpm agent:alignment
 pnpm docs:drift-check
+pnpm agent:alignment
+```
+
+Per-slice completion uses machine verify (not MD ritual):
+
+```bash
+pnpm openclaw:slice:verify -- --slice-id <id>
 ```
 
 For product code, also run focused tests for touched packages before broader gates.

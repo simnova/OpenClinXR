@@ -20,19 +20,23 @@ paths = [".agents/skills"]
 # Token efficiency: keep Composer context lean; push scout/review reads to explore+deepseek-v4-flash.
 # Measure: pnpm agent:harness:prove (parses ~/.grok/sessions + ccusage codex where available).
 
-# --- Subagents (coordinator first per AGENTS.md + agents/rules/subagent-protocol.md) ---
+# --- Subagents (coordinator first per AGENTS.md + agents/rules/subagent-protocol.md + LEX_AGENTIC) ---
 [subagents]
 enabled = true
-# Do NOT set default_model here — it overrides per-type routing (see Grok subagents doc).
+# Do NOT set default_model here — it overrides per-type routing (see Grok subagents doc + grok-tier-routing.md).
 # Primary Composer session keeps its own model (e.g. grok-composer-2.5-fast).
+# Favor harness capabilities: parallel tool calls, spawn_subagent (explore flash FIRST for coordinator/scouts per protocol, then general-purpose with capability_mode/read-only or execute + isolation/worktree/background as needed), scheduler_create + monitor for recurring/unattended (rehydrate + openclaw:run-next + guards), todo_write for tracking. This pushes token efficiency + autonomy beyond basic TUI/slash flows described in user-guide docs.
 
 [subagents.toggle]
-explore = true   # chief-coordinator, openclaw-drift-police, productivity-skeptic consults
+explore = true   # chief-coordinator, openclaw-drift-police, productivity-skeptic consults (read-only, cheap)
 plan = true      # implementation-planning-lead sequencing
+general-purpose = true  # execution specialists (asset/xr/impl) after scoping
 
 [subagents.models]
-explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults
+explore = "deepseek-v4-flash"   # cheap read-only coordinator/drift consults (scout tier per grok-tier-routing + subagent-protocol)
 plan = "deepseek-v4-pro"        # bounded planning slices
+general-purpose = "deepseek-v4-pro"  # bounded execution / write slices (tier 3; use for disjoint impl after coordinator scoping). Favor this + capability_mode over full Composer for most work.
+# grok-build only for frontier/protected (escalation or high-stakes per LEX_AGENTIC + harness-usage)
 # grok-tier-routing: tier 1 scout / tier 2 plan ladder — see agents/rules/grok-tier-routing.md
 # CLI: pnpm grok:tier:introspect | grok:tier:work-order | grok:tier:check
 # Never use Cursor Task for read-only scouts; use spawn_subagent explore instead.
@@ -120,6 +124,10 @@ plan = "deepseek-v4-pro"        # bounded planning slices
 # - In subagent system prompts or agent-loop code: include the relevant instructions from the guides (examples in json, history rules for thinking).
 # - The Moonbridge local bridge can proxy many of these if you extend it (it already does responses-style); direct is higher fidelity when the key/env is available.
 # Update your personal ~/.grok/config.toml model descriptions or subagent prompts with these patterns for best results. Test small and watch usage/cache stats.
+
+# --- Models (web capabilities for challenge analysis during autonomy) ---
+[models]
+web_search = "grok-4.20-multi-agent"  # High-reasoning web-integrated model. Use specifically when needing to browse the web to analyze options for challenges you get yourself into during long autonomous runs, heartbeats, or when stuck (per user directive). Complements the DeepSeek cost-optimized tiers (explore=deepseek-v4-flash for scouts/coordinator consults, general-purpose=deepseek-v4-pro for execution) and grok-build for frontier/protected. Do not use for routine slices to preserve LOW_TOKEN efficiency and cheap-first policy.
 
 # --- Memory (complements the project's persistent agent memory in agents/**/memory.md, .agent-factory/memory-index.json, rehydration from state files) ---
 [memory]
@@ -290,3 +298,4 @@ description = "Universal token-efficient expert overlay (BLUF + terse + jargon).
 # This automates the "after edits to coordination files, always run pnpm agent:alignment && pnpm docs:drift-check" rule.
 # See .grok/hooks/ (synced to compat locations). Customize for auto-running guards, lease checks, etc.
 # Full events and format in Grok hooks doc.
+# Leverage harness strengths (scheduler_create, monitor, spawn_subagent background) in hook commands for recurring slices / background evidence / team delegation.
