@@ -115,6 +115,8 @@
     "asset:anny-skin:head-detail-texture": "python3 tools/openclinxr/evidence/create_head_detail_texture.py",
     "asset:anny-source:uv-masks": "python3 tools/openclinxr/evidence/create_anny_source_uv_masks.py",
     "asset:anny:mpfb2-eye-rig": "blender --background --python tools/openclinxr/asset-pipeline/anny/add_mpfb2_eye_rig.py --",
+    "asset:humanoid-source:decide": "tsx tools/openclinxr/factory/humanoid-source-decision-tree-cli.ts",
+    "asset:mpfb:pediatric-patient-cagematch": "tsx tools/openclinxr/evidence/mpfb-pediatric-patient-cagematch.ts",
     "asset:cagematch:init-output-home": "tsx tools/openclinxr/evidence/generated-output-home.ts",
     "asset:cagematch:strip-visual-audit-markers": "tsx tools/openclinxr/evidence/strip-cagematch-visual-audit-markers.ts",
     "local:moonbridge:probe": "tsx tools/openclinxr/evidence/moonbridge-deepseek-direct-probe.ts",

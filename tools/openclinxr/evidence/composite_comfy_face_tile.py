@@ -10,15 +10,31 @@ from pathlib import Path
 from PIL import Image, ImageChops
 
 
+def load_mask(mask_report: dict, name: str, size: int) -> Image.Image:
+    mask_path = Path(mask_report["outputs"][name]["path"])
+    if not mask_path.is_absolute():
+        mask_path = Path.cwd() / mask_path
+    return Image.open(mask_path).convert("L").resize((size, size), Image.Resampling.LANCZOS)
+
+
+def build_composite_mask(mask_report: dict, size: int, mode: str) -> Image.Image:
+    face_front = load_mask(mask_report, "face_front", size)
+    if mode == "face_front":
+        return face_front
+    if mode == "face_no_scalp":
+        scalp = load_mask(mask_report, "scalp", size)
+        eye_region = load_mask(mask_report, "eye_region", size)
+        face_without_scalp = ImageChops.subtract(face_front, scalp)
+        return ImageChops.lighter(face_without_scalp, eye_region)
+    raise ValueError(f"Unsupported mask mode: {mode}")
+
+
 def main() -> None:
     args = parse_args()
     base = Image.open(args.base_texture).convert("RGBA").resize((args.size, args.size), Image.Resampling.LANCZOS)
     tile = Image.open(args.face_tile).convert("RGBA").resize((args.size, args.size), Image.Resampling.LANCZOS)
     mask_report = json.loads(Path(args.mask_report).read_text(encoding="utf-8"))
-    face_mask_path = Path(mask_report["outputs"]["face_front"]["path"])
-    if not face_mask_path.is_absolute():
-        face_mask_path = Path.cwd() / face_mask_path
-    mask = Image.open(face_mask_path).convert("L").resize((args.size, args.size), Image.Resampling.LANCZOS)
+    mask = build_composite_mask(mask_report, args.size, args.mask_mode)
 
     masked_tile = Image.new("RGBA", base.size, (0, 0, 0, 0))
     masked_tile.paste(tile, (0, 0), mask)
@@ -36,6 +52,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mask-report", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--size", type=int, default=1024)
+    parser.add_argument(
+        "--mask-mode",
+        choices=["face_front", "face_no_scalp"],
+        default="face_no_scalp",
+        help="face_no_scalp clips diffusion to face_front minus scalp plus eye_region islands",
+    )
     return parser.parse_args()
 
 

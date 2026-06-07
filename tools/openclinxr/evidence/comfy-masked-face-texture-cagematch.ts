@@ -219,6 +219,7 @@ function compositeComfyFaceTile(input: {
   faceTilePath: string;
   maskReportPath: string;
   outputAlbedoPath: string;
+  maskMode?: "face_front" | "face_no_scalp";
 }): void {
   const compositeCmd = [
     "python3",
@@ -226,6 +227,7 @@ function compositeComfyFaceTile(input: {
     "--base-texture", input.baseAlbedoPath,
     "--face-tile", input.faceTilePath,
     "--mask-report", input.maskReportPath,
+    "--mask-mode", input.maskMode ?? "face_no_scalp",
     "--output", input.outputAlbedoPath,
   ].join(" ");
   execSync(compositeCmd, { stdio: "inherit", encoding: "utf8" });
