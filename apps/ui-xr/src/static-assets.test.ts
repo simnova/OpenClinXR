@@ -300,6 +300,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb");
     expect(mainSource).toContain("pedsAsthmaPatientBundleVisemeUtterance");
     expect(mainSource).toContain("openClinXrVisemeTimelineComparatorEvidence");
+    expect(mainSource).toContain("resolvePedsAdaptiveDialogueBranch");
+    expect(mainSource).toContain("__openClinXrPedsAdaptiveDialogueEvidence");
+    expect(mainSource).toContain("bundle_dialogue_adaptive_branch");
     expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_anxious_parent.glb");
     expect(mainSource).toContain("/cagematch/anny-comfy-masked-skin/current/peds_nurse_kevin.glb");
     expect(mainSource).toContain("source_materials_preserved_for_clean_comparator_capture_no_runtime_tint");

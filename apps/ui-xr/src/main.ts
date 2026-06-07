@@ -44,6 +44,10 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, type StationApiClient } from "./api-client.js";
 import {
+  resolvePedsAdaptiveDialogueBranch,
+  type PedsAdaptiveDialogueBranchResolution,
+} from "./peds-adaptive-dialogue-policy.js";
+import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
   buildManualPerformanceCaptureSummary,
@@ -341,6 +345,7 @@ declare global {
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
+    __openClinXrPedsAdaptiveDialogueEvidence?: PedsAdaptiveDialogueEvidence;
     __openClinXrDebugScene?: Scene;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
@@ -1445,6 +1450,19 @@ type PedsActorPlayerRuntimeSequenceEvidence = {
   source: PedsActorPlayerRuntimeSequenceSource;
   turns: PedsActorPlayerRuntimeTurn[];
 };
+type PedsAdaptiveDialogueEvidence = {
+  source: "window.__openClinXrPedsAdaptiveDialogueEvidence";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  latestRequestedTraceTag: string;
+  latestPolicyTrigger: PedsAdaptiveDialogueBranchResolution["policyTrigger"];
+  latestBranchType: PedsAdaptiveDialogueBranchResolution["branchType"];
+  adaptiveTraceTags: string[];
+  emotionTransition: PedsAdaptiveDialogueBranchResolution["emotionTransition"];
+  mappingMode: PedsAdaptiveDialogueBranchResolution["mappingMode"];
+  reviewSafeMetadata: PedsAdaptiveDialogueBranchResolution["reviewSafeMetadata"];
+  latestSequenceSource: "bundle_dialogue_adaptive_branch";
+  notEvidenceFor: string[];
+};
 type PedsActorPlayerRuntimePlaybackEvidence = {
   source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence";
   scenarioId: "peds_asthma_parent_anxiety_v1";
@@ -2024,10 +2042,18 @@ function recordTraceSelectLatency(
 
 function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatencyEvidence["source"]): void {
   const traceSelectStartedAtMs = performance.now();
+  const priorCompletedTraceTags = state.completedTraceTags;
   state = completeTraceAction(state, tag);
+  const adaptiveBranch = resolvePedsAdaptiveDialogueBranch(
+    tag,
+    priorCompletedTraceTags,
+    encounterRuntimeAssetBundle.scenarioId,
+  );
   const dialogueText = dialogueFor(tag);
   dialogueLine.textContent = dialogueText;
-  if (!triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
+  if (adaptiveBranch && triggerPedsAdaptiveDialogueBranch(adaptiveBranch, "trace_action")) {
+    // Adaptive bundle branch already drove actor turns, viseme, gaze, and emotion transitions.
+  } else if (!triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
     triggerHumanoidDialogueForTrace(tag, dialogueText);
   }
   updateEnvironmentStateForTrace(tag);
@@ -6653,6 +6679,57 @@ function schedulePedsActorPlayerRuntimePlaybackIfReady(): void {
   window.setTimeout(playNextTurn, 850);
   window.setInterval(playNextTurn, 3200);
   recordBootPhase("peds_actor_player_runtime_playback_scheduled");
+}
+
+function triggerPedsAdaptiveDialogueBranch(
+  branch: PedsAdaptiveDialogueBranchResolution,
+  triggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"],
+): boolean {
+  if (!isPediatricAsthmaRuntimeScenario()) {
+    return false;
+  }
+  const bundleTurns = pedsActorPlayerBundleDialogueTurns();
+  const turns = branch.adaptiveTraceTags
+    .map((cue) => bundleTurns.find((turn) => turn.cue === cue))
+    .filter((turn): turn is PedsActorPlayerRuntimeTurn => Boolean(turn));
+  if (turns.length === 0 || turns.some((turn) => !generatedHumanoidAnimationSlotsByActorId.has(turn.actorId))) {
+    return false;
+  }
+  const sequence: PedsActorPlayerRuntimeSequenceEvidence = {
+    sequenceId: `adaptive_branch_${branch.policyTrigger}_${branch.requestedTraceTag}`,
+    traceTag: branch.requestedTraceTag,
+    source: "bundle_dialogue_sequence",
+    turns,
+  };
+  pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
+  pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (turns.length * 1250) + 2600;
+  playPedsActorPlayerRuntimeSequence(sequence, pedsActorPlayerRuntimeTurns());
+  window.__openClinXrPedsAdaptiveDialogueEvidence = {
+    source: "window.__openClinXrPedsAdaptiveDialogueEvidence",
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    latestRequestedTraceTag: branch.requestedTraceTag,
+    latestPolicyTrigger: branch.policyTrigger,
+    latestBranchType: branch.branchType,
+    adaptiveTraceTags: branch.adaptiveTraceTags,
+    emotionTransition: branch.emotionTransition,
+    mappingMode: branch.mappingMode,
+    reviewSafeMetadata: branch.reviewSafeMetadata,
+    latestSequenceSource: "bundle_dialogue_adaptive_branch",
+    notEvidenceFor: branch.reviewSafeMetadata.notEvidenceFor,
+  };
+  recordPedsActorPlayerRuntimePlaybackEvidence({
+    scheduled: pedsActorPlayerRuntimePlaybackScheduled,
+    turns: pedsActorPlayerRuntimeTurns(),
+    latestTurnIndex: turns.length - 1,
+    latestTurn: turns[turns.length - 1] ?? null,
+    latestTriggerSource: triggerSource,
+    latestTraceTag: branch.requestedTraceTag,
+    latestSequence: sequence,
+    latestSequenceStepIndex: turns.length - 1,
+    latestListenerActorIds: [],
+    latestCoupledSignalIds: ["bundle_dialogue_adaptive_branch", `policy_${branch.policyTrigger}`],
+  });
+  return true;
 }
 
 function triggerPedsActorPlayerRuntimeTurnForTrace(traceTag: string): boolean {
