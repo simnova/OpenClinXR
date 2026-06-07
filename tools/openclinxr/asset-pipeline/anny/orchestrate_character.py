@@ -37,6 +37,7 @@ from typing import Any, Dict, Optional, Tuple
 HERE = Path(__file__).parent
 GEN_MESH = HERE / "generate_mesh.py"
 BLENDER_STAGE = HERE / "automate_blender.py"
+MPFB2_EYE_RIG = HERE / "add_mpfb2_eye_rig.py"
 OPTIMIZE_GLB = HERE / "optimize_glb_meshopt.mjs"
 
 PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
@@ -335,7 +336,22 @@ def write_bundle_sidecar(params: Dict[str, Any], case_id: str, actor_role: str, 
     return bundle_path
 
 
-def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False) -> Dict[str, str]:
+def apply_mpfb2_eye_rig(output_glb: str) -> str:
+    """Optional post-Blender stage: MPFB2-informed seated procedural eyes + gaze-probe export."""
+    report_path = output_glb.replace(".glb", "_mpfb2_eye_rig_report.json") if output_glb.endswith(".glb") else output_glb + "_mpfb2_eye_rig_report.json"
+    staged_glb = output_glb.replace(".glb", "_mpfb2_eye_staged.glb") if output_glb.endswith(".glb") else output_glb + "_mpfb2_eye_staged.glb"
+    blender_bin = os.environ.get("BLENDER_PATH", "blender")
+    run_cmd([
+        blender_bin, "--background", "--python", str(MPFB2_EYE_RIG), "--",
+        "--input-glb", str(output_glb),
+        "--output-glb", str(staged_glb),
+        "--report", str(report_path),
+    ], timeout=180)
+    os.replace(staged_glb, output_glb)
+    return report_path
+
+
+def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False) -> Dict[str, str]:
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
     output_path = Path(output_glb)
@@ -368,6 +384,10 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
 
     run_cmd(blender_cmd, timeout=300)
 
+    mpfb2_eye_rig_report_path: Optional[str] = None
+    if mpfb2_eye_rig:
+        mpfb2_eye_rig_report_path = apply_mpfb2_eye_rig(output_glb)
+
     optimization_report_path: Optional[str] = None
     if optimize_meshopt:
         optimization_report_path = output_glb.replace(".glb", "_optimization_report.json") if output_glb.endswith(".glb") else output_glb + "_optimization_report.json"
@@ -383,7 +403,10 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
     bundle_path = write_bundle_sidecar(params, case_id, actor_role, output_glb, report_path, provenance_path, str(manifest), str(obj), use_comfy, optimization_report_path)
 
     print(f"[orchestrate] SUCCESS: {output_glb} + report + provenance + bundle")
-    return {"glb": output_glb, "report": report_path, "provenance": provenance_path, "bundle": bundle_path}
+    result = {"glb": output_glb, "report": report_path, "provenance": provenance_path, "bundle": bundle_path}
+    if mpfb2_eye_rig_report_path:
+        result["mpfb2EyeRigReport"] = mpfb2_eye_rig_report_path
+    return result
 
 
 def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any], str, str, str]:
@@ -428,6 +451,7 @@ def main() -> None:
     ap.add_argument("--use-comfy", action="store_true")
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188")
     ap.add_argument("--optimize-meshopt", action="store_true", help="Apply post-Blender Meshopt compression only after browser evidence confirms skinned body visibility.")
+    ap.add_argument("--mpfb2-eye-rig", action="store_true", help="Apply MPFB2-informed seated procedural eyes and exportable gaze-probe clips after Blender rigging.")
     argv = sys.argv[1:]
     if argv and argv[0] == "--":
         argv = argv[1:]
@@ -446,7 +470,7 @@ def main() -> None:
         return
 
     params, case_id, actor_role, output_glb = resolve_generation_inputs(args)
-    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt)
+    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig)
     print("ORCHESTRATE_SUCCESS")
     print(json.dumps(out))
 

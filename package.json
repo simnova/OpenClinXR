@@ -129,6 +129,7 @@
     "asset:anny-skin:head-detail-texture": "python3 tools/openclinxr/evidence/create_head_detail_texture.py",
     "asset:anny-source:uv-masks": "python3 tools/openclinxr/evidence/create_anny_source_uv_masks.py",
     "asset:anny:mpfb2-eye-rig": "blender --background --python tools/openclinxr/asset-pipeline/anny/add_mpfb2_eye_rig.py --",
+    "asset:anny:school-age-mpfb2-eye": "tsx tools/openclinxr/evidence/anny-school-age-mpfb2-eye-cagematch.ts",
     "asset:humanoid-source:decide": "tsx tools/openclinxr/factory/humanoid-source-decision-tree-cli.ts",
     "asset:mpfb:pediatric-patient-cagematch": "tsx tools/openclinxr/evidence/mpfb-pediatric-patient-cagematch.ts",
     "asset:humanoid-source:side-by-side-cagematch": "tsx tools/openclinxr/evidence/humanoid-source-side-by-side-cagematch.ts",
