@@ -76,7 +76,7 @@ const requiredFiles = [
   ".grok/hooks/autonomy-stop-continuation.json",
   ".agents/plugins/marketplace.json",
   "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json",
-  "agents/rules/drift-toil-prevention.md",
+  "agents/rules/GUARD_DRIFT.md",
   "PROJECT_COORDINATION_INDEX.md",
   "AUTONOMOUS_WORK_PLAN.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
@@ -154,14 +154,14 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
     }
   }
 
-  const driftToilRule = input.files["agents/rules/drift-toil-prevention.md"] ?? "";
+  const driftToilRule = input.files["agents/rules/GUARD_DRIFT.md"] ?? "";
   for (const marker of [
     "Model-work product guard",
     "do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts",
     "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
   ]) {
     if (!driftToilRule.includes(marker)) {
-      failures.push({ file: "agents/rules/drift-toil-prevention.md", message: `missing model-work product guard marker: ${marker}` });
+      failures.push({ file: "agents/rules/GUARD_DRIFT.md", message: `missing model-work product guard marker: ${marker}` });
     }
   }
 
