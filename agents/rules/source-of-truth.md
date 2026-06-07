@@ -4,10 +4,12 @@ authority: agent-methodology
 
 # Instruction Source-Of-Truth Order and Persistent Memory
 
+See `agents/rules/agentic-lexicon.md` for authoritative terminology used throughout (orchestration coordinator, Q-gate slice filter, visibility/noticeability mandate, etc.).
+
 ## Instruction Source-Of-Truth Order
 Use this order when repo docs appear scattered or disagree:
 
-1. `AGENTS.md` is the operating contract.
+1. `AGENTS.md` is the operating contract (high-level; modular detailed conventions in `agents/rules/`).
 2. `PROJECT_COORDINATION_INDEX.md` is the coordinator dashboard for active product direction, sub-agent control, and drift correction.
 3. `AUTONOMOUS_WORK_PLAN.md` is the active continuation plan. Its active product-advancement queue overrides old chronological "next slice" breadcrumbs.
 4. `docs/openclinxr/worker-backlog-and-validation-matrix.md` is the worker ownership and validation map.
@@ -16,7 +18,7 @@ Use this order when repo docs appear scattered or disagree:
 7. `docs/agent-factory/**`, `agents/**`, and `iterations/**` are persistent multi-agent memory and governance evidence. Use them to realign task selection, not to restart broad planning loops unless the active plan explicitly calls for one.
 8. Historical evidence reports, benchmark outputs, and old iteration "go-forward" notes are evidence, not active marching orders.
 
-When an older file says to refresh evidence but the active plan says to build product capability, build product capability unless the evidence refresh unlocks that build.
+When an older file says to refresh evidence but the active plan says to build product capability, build product capability unless the evidence refresh unlocks that build. See agentic-lexicon.md for LOW_TOKEN practices that keep rehydration and state updates efficient.
 
 ## Persistent Memory And Scoring
 Persistent memory for this repo is file-backed and indexed through the planning/status documents. Keep it concise, searchable, and actionable.

@@ -74,6 +74,7 @@ PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
                 "materialFinish": "cotton_matte",
                 "accessoryMarkers": [],
                 "fitProfile": "pediatric_slim_fit",
+                "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",  # re-orchestrated patient preset for expanded real garment in apply_role_clothing_material_regions (Q1 peds blueprint)
             },
         },
     },
@@ -188,6 +189,12 @@ def source_generation_summary(manifest_path: str) -> Dict[str, Any]:
         "notEvidenceFor": [
             *([] if uses_real_anny else ["real_anny_model_output"]),
             "b_plus_visual_realism_gate",
+            "quest_readiness",
+            "production_asset_readiness",
+            "learner_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "scene_placement_readiness",
             "provider_runtime_readiness",
             "production_asset_readiness",
             "quest_readiness",
@@ -337,7 +344,7 @@ def write_bundle_sidecar(params: Dict[str, Any], case_id: str, actor_role: str, 
 
 
 def apply_mpfb2_eye_rig(output_glb: str) -> str:
-    """Optional post-Blender stage: MPFB2-informed seated procedural eyes + gaze-probe export."""
+    """Optional post-Blender stage: MPFB2-informed seated procedural eyes + gaze-probe export (peds-asthma-blueprint-eye-joint-integration-v1: eye bones in canonical armature from automate_blender, eyes parented to eye.L/eye.R, probe drives bone rots + target compat; truthful notEvidenceFor on all gates)."""
     report_path = output_glb.replace(".glb", "_mpfb2_eye_rig_report.json") if output_glb.endswith(".glb") else output_glb + "_mpfb2_eye_rig_report.json"
     staged_glb = output_glb.replace(".glb", "_mpfb2_eye_staged.glb") if output_glb.endswith(".glb") else output_glb + "_mpfb2_eye_staged.glb"
     blender_bin = os.environ.get("BLENDER_PATH", "blender")
@@ -351,7 +358,7 @@ def apply_mpfb2_eye_rig(output_glb: str) -> str:
     return report_path
 
 
-def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False) -> Dict[str, str]:
+def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
     output_path = Path(output_glb)
@@ -377,6 +384,8 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
         "--case-id", case_id,
         "--actor-role", actor_role,
     ]
+    if garment_source_geometry_hint:
+        blender_cmd.extend(["--garment-source-geometry-hint"])  # legacy only; per pivot, real garment (sleeved+weighted from phenotype.garmentLayers e.g. short_sleeve_exam_tshirt) is now default behavior inside apply_role_clothing_material_regions (Q1/Q5); re-orchestrated patient_maya_johnson_v1 preset now emits expanded sleeve geo on re-run
 
     # Blender may not be on PATH in all envs; the caller can pass BLENDER_PATH
     blender_bin = os.environ.get("BLENDER_PATH", "blender")
@@ -451,7 +460,8 @@ def main() -> None:
     ap.add_argument("--use-comfy", action="store_true")
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188")
     ap.add_argument("--optimize-meshopt", action="store_true", help="Apply post-Blender Meshopt compression only after browser evidence confirms skinned body visibility.")
-    ap.add_argument("--mpfb2-eye-rig", action="store_true", help="Apply MPFB2-informed seated procedural eyes and exportable gaze-probe clips after Blender rigging.")
+    ap.add_argument("--mpfb2-eye-rig", action="store_true", help="Apply MPFB2-informed seated procedural eyes and exportable gaze-probe clips after Blender rigging (now drives canonical eye.L/eye.R bones under head for peds school-age blueprint eye-joint-integration; gaze via bone rotations + target compat; diagnostics/reports updated with notEvidenceFor all readiness gates).")
+    ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (hint-v1 aborted 2026-06-07 per chief pivot + anti-toil + Q1 violation: 48-face rigid no-weight cylinder, ignored garmentLayers=short_sleeve_exam_tshirt from peds_asthma_parent_anxiety_v1). Real embed from phenotype now in apply_role_clothing_material_regions (sleeved weighted geo deforms on breathing; v2 expanded 0.27len/visible volume/ripples/folds/vivid blue per asset-pipeline-lead for peds patient preset re-orchestrate). Default OFF; flag for backward only.")
     argv = sys.argv[1:]
     if argv and argv[0] == "--":
         argv = argv[1:]
@@ -470,7 +480,7 @@ def main() -> None:
         return
 
     params, case_id, actor_role, output_glb = resolve_generation_inputs(args)
-    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig)
+    out = generate(params, case_id, actor_role, output_glb, args.use_comfy, args.comfy_url, args.optimize_meshopt, args.mpfb2_eye_rig, getattr(args, "garment_source_geometry_hint", False))
     print("ORCHESTRATE_SUCCESS")
     print(json.dumps(out))
 
@@ -491,6 +501,8 @@ try:
         output_dir: Optional[str] = None
         case_actor_preset: Optional[str] = None
         use_comfy: bool = False
+        mpfb2_eye_rig: bool = False
+        garment_source_geometry_hint: bool = False  # legacy (hint aborted); real garment region now driven by phenotype.garmentLayers (short_sleeve_exam_tshirt etc) in apply_role_clothing_material_regions; patient preset re-orchestrated for v2 obvious sleeves (Q1)
         comfy_url: str = "http://127.0.0.1:8188"
         optimize_meshopt: bool = False
 
@@ -504,9 +516,10 @@ try:
             output_glb=req.output_glb,
             output_dir=req.output_dir,
             case_actor_preset=req.case_actor_preset,
+            garment_source_geometry_hint=getattr(req, "garment_source_geometry_hint", False),  # legacy only
         )
         params, case_id, actor_role, output_glb = resolve_generation_inputs(namespace)
-        out = generate(params, case_id, actor_role, output_glb, req.use_comfy, req.comfy_url, req.optimize_meshopt)
+        out = generate(params, case_id, actor_role, output_glb, req.use_comfy, req.comfy_url, req.optimize_meshopt, getattr(req, "mpfb2_eye_rig", False), getattr(req, "garment_source_geometry_hint", False))  # phenotype.garmentLayers now primary for real sleeved garment in blender stage; re-orchestrated peds patient preset triggers expanded sleeve geometry on next orchestrate_character --case-actor-preset patient_maya_johnson_v1
         return {"ok": True, "glb": out.get("glb"), "report": out.get("report"), "provenance": out.get("provenance"), "bundle": out.get("bundle")}
 
 except ImportError:

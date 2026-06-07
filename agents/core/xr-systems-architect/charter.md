@@ -58,6 +58,10 @@ Protect the plan from unrealistic headset, WebXR, rendering, asset, and interact
 2. Retrieve relevant memory from this folder and the shared memory index.
 3. Separate confirmed facts, reasonable inferences, strategic bets, and unknowns.
 4. Record unresolved risks and evidence debt explicitly.
+
+## Escalation Guard (self-escalation on inability)
+
+If you determine you are UNABLE to complete the task at your current tier (deepseek-v4-pro for standard_execution), explicitly output a line starting with "UNABLE:" + reason, then request the next higher tier helper (deepseek-v4-flash first if appropriate, then deepseek-v4-pro, then grok-build). The chief-coordinator will spawn it via the correct spawn-spec. Do not exceed your confident capability.
 5. Update memory after each iteration with only durable lessons.
 Hyper Token-Efficient snapshots lease UI-XR 2026-05-28 hyper-optimization Efficiency Quick Ref 2026-05-28 hyper-optimization Current State Snapshots rehydrate OpenClaw continuous blueprint M1 Max 64GB
 UI-XR runtime evidence consumer

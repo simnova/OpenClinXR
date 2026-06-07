@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "openclinxr.model-vetting-report.v1",
+  "reportId": "real-garment-2026-06-07",
+  "lane": "real-garment-pivot",
+  "runId": "2026-06-07-real-garment",
+  "title": "Peds real garment from phenotype (expanded sleeves) - Q1/Q5 evidence",
+  "claimScope": "isolated_model_vetting_metadata_structural_and_lab_contract_only",
+  "providerBoundary": {
+    "type": "local_only",
+    "note": "no cloud, no paid, no production"
+  },
+  "candidates": [
+    {
+      "candidateId": "peds_real_garment_v1",
+      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_patient_child.glb"
+    }
+  ],
+  "objectives": [
+    "Verify real sleeved garment geometry from peds_asthma_parent_anxiety_v1 phenotype.garmentLayers",
+    "Confirm 324-face expanded obvious sleeve mesh (0.27 len, 0.35 r base, 7r/12c + ripples/bulge/folds, vivid blue contrast) with weights on clavicle/upper_arm/chest/spine/neck; separate 'openclinxr_real_garment_from_phenotype_short_sleeve_tshirt' prominent",
+    "deformsWithBreathing true during asthma clip",
+    "No promotion gates (notEvidenceFor: production, b_plus, clinical, scoring)"
+  ],
+  "process": "orchestrate (re-orchestrated patient_maya_johnson_v1 preset) with real garment path in apply_role_clothing_material_regions (v2 expanded); export includes openclinxr_real_garment_peds_tshirt_v1_mesh; rigging_report has realGarmentRegionFromPhenotype (faceCount:324); patient preset re-orchestrated for Q1 peds blueprint",
+  "captureEvidence": {
+    "front": "front.png",
+    "three_quarter": "three_quarter.png",
+    "body_motion_probe": "body_motion_probe.webm"
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "production"
+  ],
+  "decision": {
+    "status": "evidence_only",
+    "notes": "Q1/Q5 for blueprint-driven real garment; sleeves expanded per visibility rule until noticeable"
+  }
+}

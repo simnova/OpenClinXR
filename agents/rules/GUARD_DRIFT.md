@@ -28,8 +28,8 @@ authority: agent-methodology
 - Use `agents/adversarial/openclaw-drift-police/` (read charter+memory) on any suspicion of sprawl or one-off.
 - After edits to coordination files, always run `pnpm agent:alignment && pnpm docs:drift-check` (or the post-slice) before claiming ready for next.
 
+## Chunk Visibility / Noticeability (cross-ref)
+See `agents/rules/agentic-lexicon.md` (authoritative definition) and `agents/rules/chunk-visibility-noticeability.md` (authority: agent-methodology; non-negotiable for orchestration coordinator (chief-coordinator role)). Every chunk must produce noticeable change in tester app (Model Vetting cagematch) **or** sample scene (UI-XR); if not visible, expand scope until it is. Anti-toil + Q1/Q5 gate: invisible = toil or fixture; force expansion or pivot after 1 evidence-only. Orchestration coordinator enforces via Persona (charter + toml), spawn-prompt bake (grok-repo-agent-spawn.ts), and state records ("Per visibility/noticeability rule..."). This is part of the protected blueprint-factory posture.
+
 ## Instruction Source-Of-Truth Order
-Use this order when repo docs appear scattered or disagree:
-1. `AGENTS.md` is the operating contract.
-2. `PROJECT_COORDINATION_INDEX.md` is the coordinator dashboard...
-(etc. — see full in AGENTS.md and the three state files)
+See `agents/rules/source-of-truth.md` (canonical) and `agents/rules/agentic-lexicon.md`. Primary order (when scattered docs disagree): AGENTS.md (contract) > 3 state MDs (dashboards/plan/ownership) > operator-*.md > docs/agent-factory/** + agents/** (memory). Detailed rules in this directory provide focused expansions; they defer to the lexicon for terminology.

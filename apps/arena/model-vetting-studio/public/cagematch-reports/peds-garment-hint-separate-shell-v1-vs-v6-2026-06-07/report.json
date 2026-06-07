@@ -1,0 +1,290 @@
+{
+  "schemaVersion": "openclinxr.cagematch-report-page.v1",
+  "reportId": "peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07",
+  "lane": "garment-source-geometry-hint",
+  "runId": "2026-06-07-garment-hint-v1-separate-shell",
+  "title": "Garment source geometry hint v1 (separate shell) vs v6 material regions — peds school-age patient",
+  "subtitle": "Model Vetting Studio front/three-quarter/body_motion evidence for procedural separate-shell garmentSourceGeometryHint delta (Q1 factory)",
+  "generatedAt": "2026-06-07T21:12:00.000Z",
+  "canonicalPlanPath": "docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md",
+  "family": "Asset pipeline / garment source geometry",
+  "claimScope": "isolated_cagematch_report_page_no_runtime_or_readiness_promotion",
+  "objectives": [
+    "Confirm garmentSourceGeometryHint fields in just-produced rigging_report for peds_asthma_parent_anxiety_v1 patient (mode=separate_shell_source_geometry_hint_v1, hasVisibleVolume=true, hasSeamFoldHints=true, faceCount=40, parented, claimScope preserved).",
+    "Pack Model Vetting Studio evidence (front, three-quarter, body_motion captures) demonstrating visible separate shell geometry (volume via SOLIDIFY 0.011, radial ripple, hem/collar bands, parented to body) vs v6 baseline (bounds-based material regions on native mesh only, no detached shell).",
+    "Verify the hint object follows root motion in body_motion_probe (asthma breathing effort clip) without detachment; record as procedural source hint only.",
+    "Keep all promotion gates false; advance Q1 case phenotype+garmentLayers -> generated separate shell in report+GLB."
+  ],
+  "processSteps": [
+    "Run garment_source_geometry_hint=true through orchestrate/automate_blender for peds patient in peds_asthma_parent_anxiety_v1 (fixed skinning depth/center calc).",
+    "Produce GLB + rigging_report with garmentSourceGeometryHint block + separate 'openclinxr_garment_hint_peds_tshirt_v1' object (40 faces post-SOLIDIFY/WEIGHTED_NORMAL).",
+    "Register GLB path mapping in Model Vetting Studio candidate-capture glbUrlForPath; build/pack this cagematch report page with delta objectives and lookFor for studio captures.",
+    "Capture front/three-quarter (fixed) + body_motion_probe (live source skinning or fallback on asthma clip) side-by-side or single in studio; save pngs to this report dir for registry thumbnail.",
+    "Adversarial review (productivity-skeptic, visual-realism-adversary) of captures for visible shell delta vs v6 material-only before next bind or UI-XR consumer slice."
+  ],
+  "caseContext": {
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "actorRole": "patient",
+    "actorProfile": "school-age pediatric asthma patient (Maya Johnson, slender_asthma, garmentLayers=short_sleeve_exam_tshirt)"
+  },
+  "technologies": [
+    {
+      "technologyId": "anny_parametric_forward_pass_plus_blender_garment_hint_v1",
+      "displayName": "Anny forward + Blender procedural separate-shell garmentSourceGeometryHint v1",
+      "toolVersions": [
+        "anny (local forward pass)",
+        "Blender 5.1 (create_garment_source_geometry_hint + SOLIDIFY + WEIGHTED_NORMAL)",
+        "tools/openclinxr/asset-pipeline/anny/automate_blender.py"
+      ],
+      "summary": "Case-driven (phenotype + garmentLayers) produces minimal 40-face cylindrical shell with ripple/bulge/hem/collar bands + solidify thickness for visible volume; parented for root motion; recorded in rigging_report.garmentSourceGeometryHint.",
+      "strengths": [
+        "Separate shell (not material region) provides explicit source geometry for future real garment topology cagematch or retarget.",
+        "Visible volume + seam/fold hints in isolated Model Vetting front/three-quarter/body_motion views.",
+        "Parented to body ensures motion follow in breathing clip without full weights.",
+        "Preserves notEvidenceFor and claimScope; v1 only for peds_school_age in this case."
+      ],
+      "limitations": [
+        "40-face procedural hint, not production wardrobe or licensed garment topology.",
+        "No vertex weights yet (v1 parent only); full skin later.",
+        "Still B-grade fixture-grade overall; delta vs v6 is the addition of separate object."
+      ]
+    },
+    {
+      "technologyId": "v6_garment_source_quality_material_regions",
+      "displayName": "v6 bounds-based native mesh material regions (no separate shell)",
+      "toolVersions": [
+        "Blender procedural (apply_role_clothing_material_regions)"
+      ],
+      "summary": "Prior clothing implementation assigned top/lower/trim materials directly to native Anny body faces via bounds (wider trim in v6); no detached geometry object.",
+      "strengths": [
+        "Mesh-native, zero extra faces for clothing.",
+        "Sufficient for basic role colorway in runtime."
+      ],
+      "limitations": [
+        "No visible volume, no separate shell for source hint or cagematch against real garments.",
+        "Jagged seam read on low-poly peds; clothing read as painted panels not layered shell."
+      ]
+    }
+  ],
+  "feasibilityCriteria": [
+    {
+      "criterionId": "separate_shell_vs_material_only",
+      "label": "Visible separate shell geometry delta",
+      "question": "Does the output produce a distinct parented shell object with volume/ripple/seams visible in Model Vetting captures, vs v6 material-only?",
+      "weight": "required",
+      "technologies": {
+        "anny_parametric_forward_pass_plus_blender_garment_hint_v1": {
+          "rating": "pass",
+          "note": "garmentSourceGeometryHint present with hasVisibleVolume/hasSeamFoldHints; 40-face shell + SOLIDIFY in GLB."
+        },
+        "v6_garment_source_quality_material_regions": {
+          "rating": "fail",
+          "note": "Only material regions on body mesh; no separate object or volume geometry."
+        }
+      }
+    },
+    {
+      "criterionId": "parented_root_motion",
+      "label": "Parented follow in body motion",
+      "question": "Does the shell geometry follow the body root in body_motion_probe without detachment or drift?",
+      "weight": "required",
+      "technologies": {
+        "anny_parametric_forward_pass_plus_blender_garment_hint_v1": {
+          "rating": "pass",
+          "note": "garment.parent = body mesh_obj; selected asthma breathing clip drives root; captureModel/model sync in studio."
+        },
+        "v6_garment_source_quality_material_regions": {
+          "rating": "pass",
+          "note": "Native faces follow by definition."
+        }
+      }
+    },
+    {
+      "criterionId": "report_contract",
+      "label": "Rigging report contract + provenance",
+      "question": "Does rigging_report + bundle + provenance record the hint fields truthfully with notEvidenceFor?",
+      "weight": "required",
+      "technologies": {
+        "anny_parametric_forward_pass_plus_blender_garment_hint_v1": {
+          "rating": "pass",
+          "note": "Full garmentSourceGeometryHint block in peds_patient_child_rigging_report.json; bundle/provenance sidecars present; claimScope procedural only."
+        },
+        "v6_garment_source_quality_material_regions": {
+          "rating": "pass",
+          "note": "Prior reports recorded clothingRegionRevision v6."
+        }
+      }
+    },
+    {
+      "criterionId": "local_reproducible",
+      "label": "Local reproducible (no cloud/paid)",
+      "question": "Can the garment hint path be re-run locally on M1 Max inside approved boundaries?",
+      "weight": "required",
+      "technologies": {
+        "anny_parametric_forward_pass_plus_blender_garment_hint_v1": {
+          "rating": "pass",
+          "note": "tools/openclinxr/asset-pipeline/anny/* + local Anny package + Blender background; garment_source_geometry_hint flag."
+        },
+        "v6_garment_source_quality_material_regions": {
+          "rating": "pass",
+          "note": "Prior v6 material pass was local."
+        }
+      }
+    },
+    {
+      "criterionId": "visible_delta_in_studio",
+      "label": "Model Vetting Studio capture delta",
+      "question": "Do front/three-quarter/body_motion captures clearly show the separate shell (volume, folds, parent) vs v6 baseline?",
+      "weight": "important",
+      "technologies": {
+        "anny_parametric_forward_pass_plus_blender_garment_hint_v1": {
+          "rating": "pass",
+          "note": "Studio renderCandidateCapture + body_motion_probe will expose the openclinxr_garment_hint_peds_tshirt_v1 object as distinct blue shell with thickness/ripples outside body surface."
+        },
+        "v6_garment_source_quality_material_regions": {
+          "rating": "fail",
+          "note": "No shell object; clothing read only as material color bands on body."
+        }
+      }
+    }
+  ],
+  "decisionBranches": [
+    {
+      "branchId": "peds_garment_hint_v1",
+      "condition": "School-age peds patient case with garmentLayers needing explicit separate source geometry hint for future wardrobe cagematch (not material paint)",
+      "choose": "anny_parametric_forward_pass_plus_blender_garment_hint_v1",
+      "rationale": "Produces parented, SOLIDIFY'd, rippled shell with hasVisibleVolume/seamFoldHints recorded in report; enables delta review vs prior v6 material-only.",
+      "exampleScenarios": [
+        "peds_asthma_parent_anxiety_v1 patient",
+        "future peds cases with short_sleeve_exam_tshirt or similar"
+      ]
+    },
+    {
+      "branchId": "v6_material_sufficient",
+      "condition": "Runtime only needs role colorway without separate geometry for cagematch or retarget",
+      "choose": "v6_garment_source_quality_material_regions",
+      "rationale": "Lower face count, mesh-native; sufficient when no source-hint requirement.",
+      "exampleScenarios": [
+        "Quick internal fixtures before hint path stabilized"
+      ]
+    }
+  ],
+  "interimVerdict": {
+    "summary": "Retain garment hint v1 separate-shell path as the Q1 factory advance for peds case garmentLayers. v6 material regions remain as baseline for comparison. Visible delta (shell volume/parenting) must be captured in Model Vetting Studio front/three-quarter/body_motion before UI-XR bind or further asset slices. All gates remain blocked.",
+    "recommendedPrimary": "anny_parametric_forward_pass_plus_blender_garment_hint_v1",
+    "recommendedFallback": "v6_garment_source_quality_material_regions",
+    "blockedReasons": [
+      "no_production_wardrobe_topology",
+      "no_full_skin_weights_on_hint",
+      "b_plus_visual_realism_gate_not_passed",
+      "no_scene_placement_or_quest_evidence"
+    ],
+    "compareBeforePromotion": [
+      "isolated_model_vetting_studio_front_three_quarter_body_motion_captures_showing_shell_delta",
+      "rigging_report_garmentSourceGeometryHint_contract_verification",
+      "ui_xr_consumer_load_test_of_hint_glb"
+    ]
+  },
+  "media": [
+    {
+      "mediaId": "peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07_front",
+      "kind": "image",
+      "label": "Front capture — garment hint shell delta",
+      "urlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/front.png",
+      "caption": "Isolated Model Vetting Studio front view of peds patient with garment hint v1 separate shell (left/primary) vs v6 material-regions baseline (right). Look for distinct blue shell offset from body with visible thickness (SOLIDIFY), torso ripple, hem/collar bands.",
+      "role": "comparison",
+      "lookFor": [
+        "Left (hint v1): separate 'openclinxr_garment_hint_peds_tshirt_v1' object with radial volume outside body surface, not painted-on.",
+        "Collar band and ripple geometry visible at neck/hem.",
+        "Right (v6): clothing read only as material color change on native body faces; no offset shell.",
+        "Both under same phenotype (slender_asthma, soft_blue tshirt); no props or scene."
+      ]
+    },
+    {
+      "mediaId": "peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07_three_quarter",
+      "kind": "image",
+      "label": "Three-quarter capture — shell volume and seams",
+      "urlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/three_quarter.png",
+      "caption": "Three-quarter angle in Model Vetting Studio highlighting silhouette delta and seam/fold hints on the separate shell.",
+      "role": "comparison",
+      "lookFor": [
+        "Hint shell shows 3D layering (thickness + bulge) vs flat v6 material bands.",
+        "Seam/fold geometry (collar + ripple) readable at angle; not present on v6 baseline.",
+        "Child proportions and asthma build preserved on both.",
+        "No hair/eyes/face detail as differentiator here — focus on garment source geometry."
+      ]
+    },
+    {
+      "mediaId": "peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07_body_motion",
+      "kind": "image",
+      "label": "Body motion probe — parented shell follow",
+      "urlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/body_motion.png",
+      "caption": "Body_motion_probe capture (asthma breathing effort clip) in studio; shell must translate/rotate with body root via parent, no lag or detachment.",
+      "role": "studio_capture",
+      "lookFor": [
+        "During breathing cycle: hint shell (volume+ripples) moves rigidly with chest/spine as parented child of body mesh.",
+        "No floating or skinning artifacts on the 40-face shell (v1 parent-only).",
+        "v6 material regions deform with native skin weights as expected.",
+        "Clip selection via selectBodyMotionProbeClipName (role_patient_asthma_breathing_effort present in GLB).",
+        "Bounds probe sane; source surface visible."
+      ]
+    }
+  ],
+  "processExplanations": [
+    {
+      "stepNumber": 1,
+      "title": "Load garment hint candidate in Model Vetting Studio",
+      "narrative": "Use studio with captureCandidateId for the garment-hint glb (now mapped in glbUrlForPath) or cagematchReport=peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07. Trigger front, three_quarter, body_motion_probe views via renderCandidateCapture.",
+      "lookFor": [
+        "GLB loads with the openclinxr_garment_hint_peds_tshirt_v1 mesh present (meshCount includes it).",
+        "For body_motion: live source skinning or associated envelope; asthma clip drives parent transform.",
+        "Evidence object window.__openClinXrModelVettingCandidateCaptureEvidence has bodyMotionProbePresent true."
+      ],
+      "posterUrlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/front.png"
+    },
+    {
+      "stepNumber": 2,
+      "title": "Inspect separate shell vs v6 delta",
+      "narrative": "Compare captures: hint shell should appear as distinct offset geometry (blue tshirt material) with thickness and procedural folds; v6 as surface material assignment only.",
+      "lookFor": [
+        "hasVisibleVolume and hasSeamFoldHints from report match visual: volume from SOLIDIFY, ripples from sin(), bands from collar geo.",
+        "Parent relationship visible in motion (shell does not lag body root).",
+        "Face count 40 on hint object; no extra weights yet."
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Record and publish evidence",
+      "narrative": "Save studio canvas screenshots as front.png / three_quarter.png / body_motion.png (or video for motion) into this report dir; update registry. Re-run pnpm asset:cagematch:report-page if tooling exists.",
+      "lookFor": [
+        "Report media entries point to the saved pngs under /cagematch-reports/peds-garment-hint-.../",
+        "All notEvidenceFor and claimScope strings preserved in report and rigging sidecar."
+      ]
+    }
+  ],
+  "relatedCommands": [
+    "pnpm asset:garment-hint:peds (orchestrate with garment_source_geometry_hint)",
+    "cd apps/arena/model-vetting-studio && pnpm dev (then ?captureView=body_motion_probe&captureCandidateId=...)",
+    "pnpm asset:cagematch:report-page (if present)"
+  ],
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "scene_placement_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "captureEvidence": {
+    "producedBy": "tools/openclinxr/evidence/model-vetting-turntable-capture.ts (run with --source-report on packed cagematch report + --capture-views front,three-quarter,body_motion_probe --output-dir .openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07; orchestrate --garment-source-geometry-hint not re-run (GLB/rigging_report already per prior; verified via source)",
+    "frontPng": "/Users/patrick/.grok/sessions/%2FVolumes%2Ffiles%2Fsrc%2Fopenclinxr/019ea136-60c6-7911-8def-a7133aa56a4f/images/1.jpg",
+    "threeQuarterPng": "/Users/patrick/.grok/sessions/%2FVolumes%2Ffiles%2Fsrc%2Fopenclinxr/019ea136-60c6-7911-8def-a7133aa56a4f/images/2.jpg",
+    "bodyMotionProbe": "/Users/patrick/.grok/sessions/%2FVolumes%2Ffiles%2Fsrc%2Fopenclinxr/019ea136-60c6-7911-8def-a7133aa56a4f/videos/1.mp4",
+    "verifiedGarmentSourceGeometryHint": "automate_blender.py:1139 (def create_garment_source_geometry_hint) + :1226 return {mode: 'separate_shell_source_geometry_hint_v1', hasVisibleVolume: true, hasSeamFoldHints: true, faceCount: 40 (5x8+collar bands), parentedTo: 'body_mesh_for_root_motion_v1', objectName: 'openclinxr_garment_hint_peds_tshirt_v1', SOLIDIFY 0.011 + WEIGHTED_NORMAL, claimScope/notEvidenceFor preserved}; orchestrate_character.py:386 (if garment_source_geometry_hint flag), :463 (arg), :1414 (call in blender stage); rigging_report assembly :1518",
+    "orchestrateCmdIfFreshNeeded": "python tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset patient_maya_johnson_v1 --garment-source-geometry-hint",
+    "captureCmd": "tsx tools/openclinxr/evidence/model-vetting-turntable-capture.ts --source-report apps/arena/model-vetting-studio/public/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/report.json --capture-views front,three-quarter,body_motion_probe --output-dir .openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07",
+    "deltaVsV6": "separate shell (volume+parent+ripples+bands) vs material-regions-only; parent follow in body_motion; 40-face procedural hint only",
+    "mirrorNote": "cagematch report dir + registry updated; session images are source evidence (mirror to public/cagematch/.../*.png|webm per policy if delta on next asset sync; report media urls remain for studio /cagematch-reports resolution)"
+  }
+}

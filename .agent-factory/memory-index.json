@@ -416,6 +416,24 @@
       "agent_id": "xr-systems-architect",
       "team": "core",
       "source_file": "agents/core/xr-systems-architect/index.json"
+    },
+    {
+      "id": "ai-first-naming-foundation-0001",
+      "type": "decision",
+      "topic": "ai-first-artifacts",
+      "summary": "AI-first declared foundational principle for all coordination artifacts: short keyword prefixes (LEX_AGENTIC, GUARD_*, MANDATE_*, PROTO_*, TIER_*) for retrieval/index, universal frontmatter with ai_parse_score/drift_score/token_efficiency/q_gates/visibility/strategic_group metrics, GH Projects (OpenClinXR-AI-Artifacts #8 + Planning #7) custom fields for measurable output/tracking, .agent-factory/ LSP memory entries. Supporting rules renamed (core SSOT AGENTS+3states + protected 6 untouched per guardrails). Pre: 18-33ch descriptive; post 12-21ch keyword. ai_parse 0.93-0.94 on LEX. Drives efficiency refinement + anti-drift loops (post-slice/guard numeric scores). Adapted Cagan/Torres/ShapeUp/LangGraph patterns to agentic factory. Q5 for instruction factory itself; visible in grok inspect + node parse + rehydrate snapshots.",
+      "confidence": 0.96,
+      "source_ids": [
+        "user-query-2026-06-ai-first-md-naming",
+        "AGENTS.md",
+        "agents/rules/LEX_AGENTIC.md"
+      ],
+      "iteration": 10,
+      "status": "active",
+      "supersedes": [],
+      "agent_id": "chief-coordinator",
+      "team": "coordinator",
+      "source_file": ".agent-factory/memory-index.json"
     }
   ]
 }

@@ -1,0 +1,1 @@
+../../agents/rules/LEX_AGENTIC.md

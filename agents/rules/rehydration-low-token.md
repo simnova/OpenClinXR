@@ -4,27 +4,16 @@ authority: agent-methodology
 
 # Rehydration, Low-Token Autonomy, and Efficient Practices
 
+See `agents/rules/agentic-lexicon.md` for authoritative LOW_TOKEN targeted rehydration definition (60-80 line snapshots of the 3 state MDs + AGENTS top only; targeted grep/read_file(limit); state exclusively in 3 MDs).
+
 ## Compaction / summary handoff
 `KV_eviction|summary_handoff` → cold-start rehydrate only (`platform-autonomy-override.md`).
 
 ## Required Resume Sequence (session|compaction|conversation-summary handoff; pre-halt)
-1. Re-read this `AGENTS.md`.
-2. Read `PROJECT_COORDINATION_INDEX.md`.
-3. Read `AUTONOMOUS_WORK_PLAN.md`.
-4. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
-5. Select the next approved local deterministic product-advancement slice from those docs.
-6. Continue implementation unless a stop condition is reached.
-
-If context feels incomplete, re-read these files and continue from the documented next slice.
+(Identical to AGENTS.md Required Resume Sequence and agentic-lexicon.md. Re-read AGENTS.md top + 3 state snapshots first.)
 
 ## Efficient Rehydration + Working Model
-- The snapshots at the top of the three state files (first 20-80 lines) + AGENTS.md top are the fast-path context.
-- For history/audit only: use `tail -50 FILE | grep -E '(Next queued|Product path|Blueprint/factory)'` or `tail -100 FILE` – never full read unless synthesizing iteration.
-- Use `read_file` with `offset` + `limit` (e.g. limit=30) on any file >100 lines.
-- Always prefer the `grep` tool (with path, glob, head_limit, -B/-A) over `read_file` or `cat` for exploration.
-- For generated artifacts: use `grep` or terminal `ls docs/openclinxr/ | grep peds` + read specific registered JSONs only.
-- For tests/verif: `pnpm --filter ... test -- -t "exact test name substring"` (focused).
-- `pnpm exec biome check specific/file.ts` not whole.
+(See agentic-lexicon.md + hyper-token-efficient-long-run-practices.md for full. Snapshots at top of 3 state files are fast-path. Targeted tools only. History via `tail | grep` or focused reads.)
 
 ## Commands for Speed/Longevity
 - Cheap guards first: `pnpm agent:alignment` (0.5s) before any `agent:verify` or full hygiene.

@@ -19,7 +19,7 @@ The **primary Grok session (Composer / `grok-composer-*`)** is the OpenClaw orch
 | Layer | Responsibility |
 | --- | --- |
 | **Composer (main thread)** | Rehydrate snapshots, acquire lease, select next slice, integrate subagent results, update canonical state files, run guards |
-| **Repo role embodiment** | Act as `chief-coordinator` for orchestration decisions |
+| **Repo role embodiment** | Act as orchestration coordinator (chief-coordinator role) for slice selection, delegation, integration, lease, and state (per agentic-lexicon.md) |
 | **`explore` subagent** | Read-only consult mapped to `chief-coordinator`, `openclaw-drift-police`, `implementation-plan-gap-attacker`, `productivity-skeptic` |
 | **`plan` subagent** | Bounded sequencing consult mapped to `implementation-planning-lead` |
 | **Specialist subagents** | Disjoint implementation/review only (`asset-pipeline-lead`, `xr-systems-architect`, physicians, etc.) |

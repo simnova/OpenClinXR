@@ -1,6 +1,64 @@
 {
   "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; pnpm grok:tier:post-slice 2>/dev/null | tail -5 || true",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; echo 'Stop tier introspection:'; pnpm grok:tier:post-slice 2>/dev/null | tail -12 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- pre-compact 2>/dev/null || pnpm codex:hook -- pre-compact",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'PreCompact tier introspection: re-read snapshot blocks only; run pnpm grok:tier:brief; downgrade scouts to explore+flash after compaction.'; pnpm grok:tier:brief 2>/dev/null | head -12 || true",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- pre-compact 2>/dev/null || pnpm codex:hook -- pre-compact",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm grok:hook -- session-start 2>/dev/null || pnpm codex:hook -- session-start || true",
+            "timeout": 15
+          }
+        ]
+      },
       {
         "hooks": [
           {
@@ -14,7 +72,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'SessionStart for openclinxr (AgenticEx full autonomy): follow Required Resume Sequence (snapshots of 4 files). In this TUI env Grok has FULL local execution (shell, edit, spawn_subagent, scheduler_create, monitor, pnpm openclaw:*) so it is PRIMARY OpenClaw-style / OpenClaw-inspired runner per Grok adapter in docs/openclinxr/openclaw-tool-adapters-2026-05-27.md (not an external runtime). Load universal prompt + Harness notes: Act as repo-native OpenClaw-style primary for /Volumes/files/src/openclinxr. Use states, lease before edits, repo agents/** for team (chief-coordinator first for orchestration, map via agent-consult), post-slice always, no scattered. Project hooks active (PostToolUse guards, PreCompact rehydrate, memory consult). See agents/rules/ and .grok/plugins/openclinxr-post-slice-automation/. Lease before edits. After coord: pnpm agent:alignment && pnpm docs:drift-check.'; cat docs/openclinxr/openclaw-tool-adapters-2026-05-27.md | sed -n '/## Shared Host Requirements/,/## Universal OpenClaw Prompt/p' | head -40 || true; pnpm openclaw:lease -- status 2>/dev/null || true",
+            "command": "pnpm grok:hook -- session-start 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true",
             "timeout": 15
           }
         ]
@@ -29,33 +87,13 @@
         ]
       }
     ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'PreCompact tier introspection: re-read snapshot blocks only; run pnpm grok:tier:brief; downgrade scouts to explore+flash after compaction.'; pnpm grok:tier:brief 2>/dev/null | head -12 || true",
-            "timeout": 15
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'PreCompact reminder (per AGENTS.md Required Resume Sequence + LOW_TOKEN): immediately re-read ONLY the Current State Snapshot blocks (first ~20-80 lines) of PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md + AGENTS.md top. Use snapshots + targeted rg/read_file(limit) + lease status. Do not narrate; continue with next approved slice.'",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Task|spawn_subagent|subagent",
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'PreToolUse tier guard: read-only consults → spawn_subagent explore (deepseek-v4-flash). Cursor Task only exposes composer-2.5-fast. See agents/rules/grok-tier-routing.md'; pnpm grok:tier:advise -- --intent scout 2>/dev/null | head -8 || true",
+            "command": "echo 'PreToolUse tier guard: spawn repo-defined agents only (agents/**). Use pnpm grok:agent:spawn-spec --role <id>, not generic Cursor Task.'; pnpm grok:agent:consult -- --consult orchestration 2>/dev/null | head -5 || true",
             "timeout": 10
           }
         ]

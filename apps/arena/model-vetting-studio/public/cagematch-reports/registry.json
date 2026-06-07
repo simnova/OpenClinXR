@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.cagematch-report-registry.v1",
-  "generatedAt": "2026-06-07T00:35:02.845Z",
+  "generatedAt": "2026-06-07T21:15:00.000Z",
   "reports": [
     {
       "reportId": "humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb",
@@ -11,6 +11,28 @@
       "reportUrlPath": "/cagematch-reports/humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb/report.json",
       "pageUrlQuery": "?cagematchReport=humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb",
       "thumbnailUrlPath": "/cagematch-reports/humanoid-source-side-by-side-2026-06-07-anny-vs-mpfb/front.png"
+    },
+    {
+      "reportId": "peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07",
+      "lane": "garment-source-geometry-hint",
+      "runId": "2026-06-07-garment-hint-v1-separate-shell",
+      "title": "Garment source geometry hint v1 (separate shell) vs v6 material regions — peds school-age patient",
+      "family": "Asset pipeline / garment source geometry",
+      "reportUrlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/report.json",
+      "pageUrlQuery": "?cagematchReport=peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07",
+      "thumbnailUrlPath": "/cagematch-reports/peds-garment-hint-separate-shell-v1-vs-v6-2026-06-07/front.png",
+      "captureEvidenceUpdated": "2026-06-07T21:12:00.000Z (model-vetting-turntable-capture + image evidence for front/three-quarter/body_motion_probe; see report.captureEvidence for paths + automate:1139/orchestrate:386 verification of garmentSourceGeometryHint block)"
+    },
+    {
+      "reportId": "real-garment-2026-06-07",
+      "lane": "real-garment-pivot",
+      "runId": "2026-06-07-real-garment",
+      "title": "Peds real garment from phenotype garmentLayers (short_sleeve_exam_tshirt) - Q1/Q5 pivot evidence",
+      "family": "Asset pipeline / real garment from phenotype",
+      "reportUrlPath": "/cagematch-reports/real-garment-2026-06-07/report.json",
+      "pageUrlQuery": "?cagematchReport=real-garment-2026-06-07",
+      "thumbnailUrlPath": "/cagematch-reports/real-garment-2026-06-07/front.png",
+      "captureEvidenceUpdated": "2026-06-07 (re-launched/fixed model-vetting-turntable-capture.ts:6500ms+alias+timeout; report+rigging_report verified 134f sleeves weights; map in .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ + pngs/webm on run; tools/openclinxr/evidence/model-vetting-turntable-capture.ts + apps/arena/model-vetting-studio/public/cagematch-reports/real-garment-2026-06-07/report.json + peds_patient_child.glb + rigging_report)"
     }
   ]
 }

@@ -19,7 +19,7 @@ When task selection feels unfocused, after compaction, suspected drift, or befor
 6. Only then spawn live subagent (if available) as narrow read-only explorer mapped to that role, with explicit prompt including "Target repo: /Volumes/files/src/openclinxr. Confirm AGENTS.md + states + agents/** + tools/agent-factory exist. Return concise findings + recommended next slice."
 
 ## Live Subagent Rule (from AGENTS)
-- Coordinator/orchestration first (read-only explorer or local chief-coordinator).
+- Orchestration coordinator (chief-coordinator role) first (read-only explorer or local chief-coordinator embodiment; see agentic-lexicon.md).
 - Then narrow specialists/adversarial only where they materially cut drift/review cost.
 - Map to repo roles.
 - Orchestration agent does NOT implement product code, patch, or own slice.
@@ -46,7 +46,7 @@ Prefer this over leaving lessons only in per-slice state records.
 
 ## Grok Composer entrypoint
 
-The primary Grok session (Composer) is the orchestration entrypoint. Embody `chief-coordinator` for slice selection and integration. Spawn `explore` subagents (mapped to chief-coordinator / openclaw-drift-police) for read-only consults on `deepseek-v4-flash` instead of expanding Composer context. See `agents/rules/grok-harness-usage.md`.
+The primary Grok session (Composer) is the orchestration entrypoint. Embody orchestration coordinator (chief-coordinator role) for slice selection, integration, lease, and state updates. Spawn `explore` subagents (mapped to chief-coordinator / openclaw-drift-police per agentic-lexicon.md) for read-only consults on `deepseek-v4-flash` instead of expanding Composer context. See `agents/rules/grok-harness-usage.md` and subagent-protocol.md.
 
 ## Harness Model Routing
 - Per-role tiers and Codex TOML generation: `packages/openclinxr/agent-loop/src/role-harness-policy.ts` + `pnpm agent:harness:sync`.

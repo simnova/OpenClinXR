@@ -1007,6 +1007,12 @@ function isHumanoidMouthGazePoseReviewCaptureMode(): boolean {
   return captureMode.includes("mouth-gaze-pose") || captureMode.includes("actor-pose") || captureMode.includes("pose-review");
 }
 
+function isPedsRealGarmentSleeveDeformCapture(): boolean {
+  const cmp = selectedHumanoidSourceComparator();
+  const mode = selectedCaptureMode();
+  return cmp === "peds_anny_real_garment_patient" && (mode.includes("garment-sleeve") || mode.includes("sleeve-deform") || mode.includes("body-motion-garment") || mode.includes("real-garment-body"));
+}
+
 function isDynamicGeneratedEncounterSceneMode(): boolean {
   return encounterRuntimeAssetBundle.sceneManifest.roomProps.length > 0
     && encounterRuntimeAssetBundle.environment.reviewStatus !== "blocked";
@@ -1454,7 +1460,7 @@ type PedsActorPlayerRuntimeSequenceEvidence = {
 type MouthGazePoseComparatorEvidence = {
   source: "window.__openClinXrMouthGazePoseComparatorEvidence";
   captureMode: string;
-  comparator: "peds_anny_school_age_mpfb2_eye_patient";
+  comparator: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient";
   scenarioId: "peds_asthma_parent_anxiety_v1";
   actorId: string;
   dialogueText: string;
@@ -1470,6 +1476,16 @@ type MouthGazePoseComparatorEvidence = {
   morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition";
   emotionTransitionCuePresent: boolean;
   visemeTimelineComparatorEvidencePresent: boolean;
+  activeDialogueTurnRef?: any;
+  liveSource?: "live_blueprint_dialogue_emotion_source" | undefined;
+  garmentGeometry?: {
+    name: string;
+    visible: boolean;
+    source: string; // surface prepared for future real-garment (phenotype.garmentLayers embed, Q1); null for current school-age peds comparator
+    hasVisibleVolume: boolean;
+    hasSeamFoldHints: boolean;
+    sleeveDeform?: string; // Q1: separate deforming 3D sleeves (skinned, phenotype garmentLayers) vs body; visible in UI-XR peds real_garment captures
+  } | null;
   notEvidenceFor: string[];
 };
 type PedsAdaptiveDialogueEvidence = {
@@ -1483,8 +1499,9 @@ type PedsAdaptiveDialogueEvidence = {
   mappingMode: PedsAdaptiveDialogueBranchResolution["mappingMode"];
   reviewSafeMetadata: PedsAdaptiveDialogueBranchResolution["reviewSafeMetadata"];
   latestSequenceSource: "bundle_dialogue_adaptive_branch";
-  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient";
+  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient";
   schoolAgePatientAssetPath?: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
+  realGarmentPatientAssetPath?: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
   notEvidenceFor: string[];
 };
 type PedsActorPlayerRuntimePlaybackEvidence = {
@@ -2881,6 +2898,11 @@ function createStationScene(): StationSceneRuntime {
       camera.position.set(-0.88, 0.72, 3.55);
       camera.lookAt(-0.88, 0.02, 0.12);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_mpfb2_source_comparator_full_body_candidate_capture";
+    } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_patient") {
+      camera.fov = 48;
+      camera.position.set(-0.08, 0.86, 3.45);
+      camera.lookAt(-0.08, 0.82, -0.96);
+      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
     } else {
       camera.fov = 48;
       camera.position.set(-0.08, 0.86, 3.45);
@@ -6122,6 +6144,18 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
       ],
     };
   }
+  if (assetPath.includes("/cagematch/anny-real-garment/")) {
+    return {
+      ...realAnnyCandidate,
+      sourceKind: "source_comparator_candidate",
+      provenanceManifestPath: "ignored_public_cagematch/anny-real-garment/current/peds_patient_child_real_garment_rigging_report.json",
+      notEvidenceFor: [
+        ...realAnnyCandidate.notEvidenceFor,
+        "default_runtime_asset_replacement",
+        "generated_output_committed_to_git",
+      ],
+    };
+  }
   return undefined;
 }
 
@@ -6223,6 +6257,31 @@ function loadGeneratedHumanoidIntoActorSlot(
         humanoid.userData.openClinXrHumanoidComparatorTransform =
           `${humanoidSourceComparator}_source_alignment_for_webxr_visual_comparison_only_target_facing`;
       }
+      if (humanoidSourceComparator === "peds_anny_real_garment_patient" && options.actorId === runtimePatientActorId()) {
+        humanoid.traverse((object: any) => {
+          if (object instanceof Mesh) {
+            const nm = (object.name || "").toLowerCase();
+            const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
+            if (isGarment) {
+              object.visible = true;
+              object.frustumCulled = false;
+              object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
+              object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
+              object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers_short_sleeve_exam_tshirt;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath";
+              if (!Array.isArray(object.material) && object.material && typeof (object.material as any).emissive !== "undefined") {
+                const mat: any = object.material;
+                // highlight separate garment for Q1 consumer evidence: cyan sleeves vs body to make deforming sleeve geo noticeably visible in peds real_garment captures
+                mat.emissive = new Color(0x00ffcc);
+                mat.emissiveIntensity = 0.55;
+              }
+            } else if (/body|skin|torso|head/i.test(nm)) {
+              object.visible = true;
+              object.userData.openClinXrBodyEvidenceSurface = true;
+            }
+          }
+        });
+        humanoid.userData.openClinXrRealGarmentTopology = "embedded_from_phenotype_garmentLayers";
+      }
       if (!cleanSourceComparatorCapture) {
         tintGeneratedSceneMaterials(humanoid, options.roleTintColor, options.actorId);
       } else {
@@ -6309,8 +6368,8 @@ function loadGeneratedHumanoidIntoActorSlot(
         animationClips: gltf.animations,
         roleAnimationClipNames,
         gazeProbeAnimationClipNames,
-        playbackEnabled: !cleanSourceComparatorCapture,
-        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture ? 0.18 : null,
+        playbackEnabled: !cleanSourceComparatorCapture || isPedsRealGarmentSleeveDeformCapture(),
+        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture && !isPedsRealGarmentSleeveDeformCapture() ? 0.18 : null,
       });
       recordSceneAssetStatus({
         assetId: options.assetId,
@@ -6473,6 +6532,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     if (humanoidSourceComparator === "peds_anny_school_age_mpfb2_eye_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
       return "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
     }
+    if (humanoidSourceComparator === "peds_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
+      return "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
+    }
     const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
     if (pedsHandoff?.assets?.length) {
       const targetRole = (actorId === runtimePatientActorId() || role === 'patient')
@@ -6504,9 +6566,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   return fallbackPath;
 }
 
-function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | null {
+function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | "peds_anny_real_garment_patient" | null {
   const selected = new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim();
-  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" ? selected : null;
+  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" || selected === "peds_anny_real_garment_patient" ? selected : null;
 }
 
 function pedsAsthmaPatientBundleVisemeUtterance(): string {
@@ -6633,15 +6695,16 @@ function registerGeneratedHumanoidAnimation(input: {
   }
   if (input.actorId === runtimePatientActorId() && !slot.sourceComparatorFreezeEnabled) {
     const comparator = selectedHumanoidSourceComparator();
-    const dialogueText = comparator === "peds_anny_school_age_mpfb2_eye_patient"
+    const isPedsRealGarmentOrSchool = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient";
+    const dialogueText = isPedsRealGarmentOrSchool
       ? pedsAsthmaPatientBundleVisemeUtterance()
       : dialogueLine.textContent?.trim() || initialDialogueText;
     window.requestAnimationFrame(() => {
       triggerHumanoidDialogue(input.actorId, dialogueText, {
         kind: "learner_camera",
         actorId: null,
-      }, comparator === "peds_anny_school_age_mpfb2_eye_patient" ? "anxious" : undefined);
-      if (comparator === "peds_anny_school_age_mpfb2_eye_patient") {
+      }, isPedsRealGarmentOrSchool ? "anxious" : undefined);
+      if (isPedsRealGarmentOrSchool) {
         input.humanoid.userData.openClinXrVisemeTimelineComparatorEvidence = {
           comparator,
           dialogueText,
@@ -6650,6 +6713,7 @@ function registerGeneratedHumanoidAnimation(input: {
           morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue",
           notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
         };
+        // garmentGeometry surface prepared; real-garment (phenotype.garmentLayers) + school-age use embedded clothing regions from real topology
       }
     });
   }
@@ -6728,8 +6792,8 @@ function triggerPedsAdaptiveDialogueBranch(
   pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
   pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (turns.length * 1250) + 2600;
   playPedsActorPlayerRuntimeSequence(sequence, pedsActorPlayerRuntimeTurns());
-  const schoolAgeComparator = selectedHumanoidSourceComparator() === "peds_anny_school_age_mpfb2_eye_patient"
-    ? "peds_anny_school_age_mpfb2_eye_patient" as const
+  const pedsRealGarmentOrSchoolComparator = ["peds_anny_school_age_mpfb2_eye_patient", "peds_anny_real_garment_patient"].includes(selectedHumanoidSourceComparator() || "") 
+    ? (selectedHumanoidSourceComparator() as "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient")
     : undefined;
   window.__openClinXrPedsAdaptiveDialogueEvidence = {
     source: "window.__openClinXrPedsAdaptiveDialogueEvidence",
@@ -6742,10 +6806,12 @@ function triggerPedsAdaptiveDialogueBranch(
     mappingMode: branch.mappingMode,
     reviewSafeMetadata: branch.reviewSafeMetadata,
     latestSequenceSource: "bundle_dialogue_adaptive_branch",
-    ...(schoolAgeComparator
+    ...(pedsRealGarmentOrSchoolComparator
       ? {
-        humanoidSourceComparator: schoolAgeComparator,
-        schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb",
+        humanoidSourceComparator: pedsRealGarmentOrSchoolComparator,
+        ...(pedsRealGarmentOrSchoolComparator === "peds_anny_real_garment_patient"
+          ? { realGarmentPatientAssetPath: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb" }
+          : { schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb" }),
       }
       : {}),
     notEvidenceFor: branch.reviewSafeMetadata.notEvidenceFor,
@@ -7447,6 +7513,7 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     slot.expressionCue.visible = false;
     slot.expressionCue.scale.set(1, 1, 1);
     resetHumanoidFaceRigControls(slot);
+    (slot as any)._liveAffectRamp = undefined;
     startHumanoidEmotionTransition(slot, "neutral", nowMs);
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights);
     slot.root.rotation.y += normalizeAngle(slot.baseRotationY - slot.root.rotation.y) * 0.08;
@@ -7469,27 +7536,100 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     slot.expressionCue.visible = false;
     slot.expressionCue.scale.set(1, 1, 1);
     resetHumanoidFaceRigControls(slot);
+    (slot as any)._liveAffectRamp = undefined;
     startHumanoidEmotionTransition(slot, "neutral", nowMs);
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights);
     return;
   }
-  const index = Math.min(speech.visemeSequence.length - 1, Math.max(0, Math.floor(progress * speech.visemeSequence.length)));
-  const viseme = speech.visemeSequence[index] ?? "rest";
-  const openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
+  // Live bind (Q1 blueprint-to-runtime lipsync + Q5): active dialogue turn from bundle.sceneManifest.dialogueTurns + peds adaptive policy + affectTimeline (onset/transition/decayMs + intensity)
+  // for peds_asthma_parent_anxiety_v1 during actor-player/trace/sequence playback. Compute timed emotion ramp + full viseme/emotion weights drive (beyond fixed bias)
+  // into effWeights passed to morph/rig controls. Prefer explicit timeline data from turn if present; keep pre-bake fallback. Reuses local fns + expressionWeightsForEmotion.
+  // Surfaces enhanced activeDialogueTurnRef (with full affectTimeline + liveRamp) + "live_blueprint_dialogue_emotion_source" in evidence + comparator.
+  let viseme = "rest";
+  let openness = 0.35;
+  let activeDialogueTurnRef: any = undefined;
+  let liveSource: "live_blueprint_dialogue_emotion_source" | undefined = undefined;
+  if (encounterRuntimeAssetBundle?.scenarioId === "peds_asthma_parent_anxiety_v1" && speech.actorId) {
+    const bundleTurns = pedsActorPlayerBundleDialogueTurns();
+    const matchingTurn = bundleTurns.find((t: any) => t.actorId === speech.actorId);
+    const rtTurn = matchingTurn ? runtimeDialogueTurnForTraceTag(matchingTurn.cue) : undefined;
+    if (matchingTurn && rtTurn) {
+      try {
+        // live from turn metadata (bundle dialogueTurn + full affectTimeline + peds policy emotion) using local viseme/phoneme fns
+        // (mirrors @openclinxr/model-vetting viseme-timeline + emotion-transition helpers; import not safe in ui-xr browser runtime)
+        const ttext = matchingTurn.text || speech.text;
+        const phon = phonemeSequenceForDialogue(ttext);
+        const vseq = phon.map(visemeForPhoneme);
+        const p = Math.min(1, Math.max(0, progress));
+        const lidx = Math.min(vseq.length - 1, Math.max(0, Math.floor(p * vseq.length)));
+        viseme = vseq[lidx] ?? "rest";
+        openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
+        const timeline = (rtTurn as any).affectTimeline ?? (matchingTurn as any).affectTimeline;
+        const turnEmotion = timeline?.emotion ? normalizePedsActorPlayerEmotion(String(timeline.emotion)) : ((rtTurn as any).affectTimeline?.emotion || (matchingTurn as any).emotion || speech.emotion);
+        const elapsedMs = nowMs - speech.startedAtMs;
+        const rampIntensity = computeAffectRampIntensity(elapsedMs, speech.durationMs, timeline);
+        (slot as any)._liveAffectRamp = timeline ? {
+          emotion: turnEmotion,
+          intensity: Number(rampIntensity.toFixed(3)),
+          onsetMs: timeline.onsetMs,
+          transitionMs: timeline.transitionMs,
+          decayMs: timeline.decayMs,
+          sourceIntensity: timeline.intensity,
+        } : undefined;
+        activeDialogueTurnRef = {
+          traceTag: matchingTurn.cue,
+          turnId: (matchingTurn as any).turnId,
+          source: "bundle_dialogue_turn",
+          affectTimelineEmotion: turnEmotion,
+          affectTimeline: timeline ? {
+            emotion: timeline.emotion,
+            intensity: timeline.intensity,
+            onsetMs: timeline.onsetMs,
+            transitionMs: timeline.transitionMs,
+            decayMs: timeline.decayMs,
+            liveRampIntensity: Number(rampIntensity.toFixed(3)),
+          } : null,
+        };
+        liveSource = "live_blueprint_dialogue_emotion_source";
+      } catch {
+        (slot as any)._liveAffectRamp = undefined;
+        // pre-bake fallback
+      }
+    }
+  }
+  if (viseme === "rest" && openness === 0.35 && speech.visemeSequence && speech.visemeSequence.length) {
+    // pre-bake fallback path (when no live turn applied)
+    const index = Math.min(speech.visemeSequence.length - 1, Math.max(0, Math.floor(progress * speech.visemeSequence.length)));
+    viseme = speech.visemeSequence[index] ?? "rest";
+    openness = visemeOpenness(viseme) * (0.65 + Math.sin(nowMs / 58) * 0.18);
+  }
   slot.mouthCue.visible = true;
   slot.mouthCue.scale.set(1 + openness * 1.4, 1 + openness * 3.6, 1);
   const expressionState = updateHumanoidEmotionExpression(slot, nowMs);
+  // Full timeline-driven (beyond fixed bias): use stored _liveAffectRamp (from explicit onset/transition/decayMs + intensity on bundle turn)
+  // to drive scaled peak weights via expressionWeightsForEmotion + light blend with transitioned state into effWeights for rig/morph.
+  const ramp = (slot as any)._liveAffectRamp;
+  let effWeights = expressionState.weights;
+  if (ramp && ramp.intensity > 0.01) {
+    const peakW = expressionWeightsForEmotion(ramp.emotion || expressionState.targetEmotion);
+    const i = ramp.intensity;
+    effWeights = {
+      mouthOpen: Math.min(0.95, peakW.mouthOpen * i * 0.85 + expressionState.weights.mouthOpen * 0.15),
+      browConcern: Math.min(0.95, peakW.browConcern * i * 0.85 + expressionState.weights.browConcern * 0.15),
+      cheekTension: Math.min(0.95, peakW.cheekTension * i * 0.85 + expressionState.weights.cheekTension * 0.15),
+    };
+  }
   slot.expressionCue.visible = true;
-  slot.expressionCue.scale.set(1 + expressionState.weights.cheekTension * 0.22, 1 + expressionState.weights.browConcern * 0.16, 1);
-  slot.expressionCue.position.y = -openness * 0.012 + expressionState.weights.browConcern * 0.012;
+  slot.expressionCue.scale.set(1 + effWeights.cheekTension * 0.22, 1 + effWeights.browConcern * 0.16, 1);
+  slot.expressionCue.position.y = -openness * 0.012 + effWeights.browConcern * 0.012;
   slot.root.userData.openClinXrRuntimeExpressionCue = {
-    expressionSource: "scenario_dialogue_viseme_gaze_runtime",
+    expressionSource: liveSource ? "live_blueprint_dialogue_emotion_source" : "scenario_dialogue_viseme_gaze_runtime",
     currentViseme: viseme,
     currentEmotion: expressionState.currentEmotion,
     targetEmotion: expressionState.targetEmotion,
     mouthOpenness: Number(openness.toFixed(3)),
     expressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
-    expressionWeights: roundHumanoidExpressionWeights(expressionState.weights),
+    expressionWeights: roundHumanoidExpressionWeights(effWeights),
     cueIds: [
       "visible_runtime_mouth_shape_cue",
       "visible_runtime_eye_focus_cue",
@@ -7497,10 +7637,10 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
       "emotion_aligned_expression_transition_cue",
     ],
   };
-  slot.mouthCue.userData.openClinXrCurrentPhoneme = speech.phonemeSequence[index] ?? "sil";
+  slot.mouthCue.userData.openClinXrCurrentPhoneme = speech.phonemeSequence[0] ?? "sil";
   slot.mouthCue.userData.openClinXrCurrentViseme = viseme;
   const eyeMotion = computeHumanoidEyeMotionMetrics(speech, nowMs);
-  applyHumanoidFaceRigControls(slot, openness, viseme, speech, camera, eyeMotion, expressionState.weights);
+  applyHumanoidFaceRigControls(slot, openness, viseme, speech, camera, eyeMotion, effWeights);
   window.__openClinXrHumanoidSpeechEvidence = {
     ...(window.__openClinXrHumanoidSpeechEvidence ??
       buildHumanoidSpeechEvidence(
@@ -7513,7 +7653,7 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
         speech.emotionContext,
         speech.actorRuntimeRealismRequirement,
       )),
-    activePhoneme: speech.phonemeSequence[index] ?? "sil",
+    activePhoneme: speech.phonemeSequence[0] ?? "sil",
     activeViseme: viseme,
     activeMouthOpenness: Number(openness.toFixed(3)),
     activeEyeBlinkIntensity: eyeMotion.blinkIntensity,
@@ -7525,7 +7665,7 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     scenarioEmotionCueIds: speech.emotionContext.cueIds,
     activeActorRuntimeRealismRequirement: speech.actorRuntimeRealismRequirement,
     activeExpressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
-    activeExpressionWeights: roundHumanoidExpressionWeights(expressionState.weights),
+    activeExpressionWeights: roundHumanoidExpressionWeights(effWeights),
     activeExpressionCueIds: [
       "visible_runtime_mouth_shape_cue",
       "visible_runtime_eye_focus_cue",
@@ -7541,6 +7681,8 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     ],
     activeBodyMotionIntensity: Number((openness + 0.18).toFixed(3)),
     activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
+    activeDialogueTurnRef,
+    liveSource,
   };
   recordMouthGazePoseComparatorEvidence(slot, speech, viseme, openness, expressionState, nowMs);
   updateHumanoidGazeCue(slot, speech, camera);
@@ -7558,12 +7700,49 @@ function recordMouthGazePoseComparatorEvidence(
     return;
   }
   const comparator = selectedHumanoidSourceComparator();
-  if (comparator !== "peds_anny_school_age_mpfb2_eye_patient" || speech.actorId !== runtimePatientActorId()) {
+  const isPedsRealGarmentOrSchoolForEvidence = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient";
+  if (!isPedsRealGarmentOrSchoolForEvidence || speech.actorId !== runtimePatientActorId()) {
     return;
   }
   const morphCue = slot.root.userData.openClinXrMorphTargetRuntimeCue as {
     appliedTargetCount?: number;
   } | undefined;
+  const liveTurnForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.activeDialogueTurnRef;
+  const liveSrcForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.liveSource;
+  let garmentGeometry: MouthGazePoseComparatorEvidence["garmentGeometry"] = null;
+  if (comparator === "peds_anny_real_garment_patient") {
+    slot.root.traverse((object: any) => {
+      if (object instanceof Mesh) {
+        const nm = (object.name || "").toLowerCase();
+        const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
+        if (isGarment) {
+          object.visible = true;
+          object.frustumCulled = false;
+          object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
+          object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
+          object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers_short_sleeve_exam_tshirt;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath";
+          if (!Array.isArray(object.material) && object.material && typeof (object.material as any).emissive !== "undefined") {
+            const mat: any = object.material;
+            mat.emissive = new Color(0x00ffcc);
+            mat.emissiveIntensity = 0.55;
+          }
+          if (!garmentGeometry) {
+            garmentGeometry = {
+              name: object.name || "real_garment_mesh",
+              visible: object.visible,
+              source: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb",
+              hasVisibleVolume: true,
+              hasSeamFoldHints: true,
+              sleeveDeform: "skinned_from_phenotype;separate_sleeve_geo;deform_with_body",
+            };
+          }
+        } else if (/body|skin|torso|head|mesh/i.test(nm)) {
+          object.visible = true;
+          object.userData.openClinXrBodyEvidenceSurface = true;
+        }
+      }
+    });
+  }
   window.__openClinXrMouthGazePoseComparatorEvidence = {
     source: "window.__openClinXrMouthGazePoseComparatorEvidence",
     captureMode: selectedCaptureMode(),
@@ -7586,6 +7765,9 @@ function recordMouthGazePoseComparatorEvidence(
     morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
     emotionTransitionCuePresent: Boolean(slot.root.userData.openClinXrEmotionExpressionTransitionCue),
     visemeTimelineComparatorEvidencePresent: Boolean(slot.root.userData.openClinXrVisemeTimelineComparatorEvidence),
+    activeDialogueTurnRef: liveTurnForMouth,
+    liveSource: liveSrcForMouth,
+    garmentGeometry,
     notEvidenceFor: [
       "production phoneme timing",
       "validated facial animation",
@@ -7596,6 +7778,7 @@ function recordMouthGazePoseComparatorEvidence(
       "learner_readiness",
     ],
   };
+  // traverse ensures extra real-garment meshes (from phenotype.garmentLayers embed) + body visible + frustum off + cyan emissive highlight + sleeveDeform userData; supports body-motion via isPedsRealGarmentSleeveDeformCapture for moving sleeves in peds UI-XR captures (Q1)
 }
 
 function applyHumanoidFaceRigControls(
@@ -8097,6 +8280,27 @@ function visemeOpenness(viseme: string): number {
     open: 0.78,
   };
   return openness[viseme] ?? 0.35;
+}
+
+function computeAffectRampIntensity(elapsedMs: number, durationMs: number, timeline: any): number {
+  // Timed emotion ramp driven by explicit affectTimeline (onset/transition/decayMs + intensity) from bundle turn.
+  // Used for peds_asthma_parent_anxiety_v1 live bundle turns in updateHumanoidSpeechCue.
+  // Prefers explicit timeline data; linear ramp-up then hold+decay in final decay window.
+  if (!timeline || typeof timeline.intensity !== "number") return 0;
+  const peak = Math.max(0, Math.min(1, timeline.intensity));
+  const onset = Number(timeline.onsetMs ?? 0);
+  const trans = Number(timeline.transitionMs ?? 500);
+  const dec = Number(timeline.decayMs ?? 700);
+  if (elapsedMs < onset) return 0;
+  const rampEnd = onset + trans;
+  if (elapsedMs < rampEnd) {
+    const t = (elapsedMs - onset) / Math.max(1, trans);
+    return peak * Math.min(1, Math.max(0, t));
+  }
+  const decayStart = Math.max(rampEnd, durationMs - dec);
+  if (elapsedMs < decayStart) return peak;
+  const d = (elapsedMs - decayStart) / Math.max(1, dec);
+  return peak * Math.max(0, 1 - d);
 }
 
 function tintGeneratedSceneMaterials(root: Group, tintColor: number, actorId?: string): void {

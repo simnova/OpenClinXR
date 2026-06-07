@@ -1,1 +1,0 @@
-../../agents/rules/blueprint-factory-guardrails.md

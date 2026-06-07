@@ -31,6 +31,16 @@ Deeper/more specific rules take precedence.
 3. Update `AGENTS.md` high-level sections to reference or defer to the modular rules where appropriate.
 4. For the project's custom agent roles (in `agents/**`), update their charters/memories or the agent-loop code to also consult `agents/rules/` for consistency.
 
+## Current Focused Rules (relevant to orchestration)
+
+**Core for Orchestrator High-Level View (read these on every rehydrate for the forest perspective; see "Orchestrator High-Level View Protocol" in LEX_AGENTIC.md):**
+- LEX_AGENTIC.md: The single source of truth (was agentic-lexicon.md). Authoritative glossary + all stable terms/mandates/principles (orchestration coordinator role, sizable collaborative vertical slice mandate, persona-constrained BLUF, Q-gate filter, visibility/noticeability, tiered routing + self-escalation, LOW_TOKEN rehydration via 60-80 line snapshots only, anti-toil, protected guardrails, Guidance Stability vs Current WIP, AI-First Foundational Principle with ai_parse/drift metrics). Every other file + AGENTS.md + charters defer to this. (authority: agent-methodology; ai_parse baseline 0.93)
+- MANDATE_VISIBILITY.md (was chunk-visibility-noticeability.md): Orchestration coordinator ruleset – every chunk must be a sizable collaborative vertical slice (multi-role body on functional area, provable by interacting in Model Vetting tester or UI-XR sample) and noticeable (expand until skeptic-visible delta in tester app or sample scene). Non-negotiable for Q1/Q5 + anti-toil. See chief charter/Persona + PROTO_SUBAGENT.md + spawn bake.
+- GUARD_BLUEPRINT.md (was blueprint-factory-guardrails.md) + PROTO_SUBAGENT.md + TIER_GROK.md (was grok-tier-routing.md) + GUARD_DRIFT.md (was drift-toil-prevention.md): The core operational gates (Q1/Q4/Q5 slice filter + "do not weaken" the 6 protected files; coordinator-first delegation + BLUF; cheap-first tiering + self-escalation; anti 2+ evidence-only without coordinator+drift-police review + product pivot).
+
+**Supplemental / Detailed (read with strict limits/grep only when delegating to a specific role or auditing one slice; never for daily high-level orchestration):**
+- drift-toil-prevention.md, long-running-autonomy.md, hyper-token-efficient-long-run-practices.md, source-of-truth.md, rehydration-low-token.md, grok-harness-usage.md, agent-consult.md, repo-defined-agents-worker-roles.md, persistent-memory-scoring.md, platform-autonomy-override.md (and others). All reference agentic-lexicon.md for core terms. Use these only for role-specific or edge-case detail.
+
 ## Benefits for AgenticEx
 
 - Modular instructions are easier for agents (and humans) to process.
@@ -56,4 +66,6 @@ See also:
   - repo-defined-agents-worker-roles.md (ownership from worker matrix; when + how to use/consult agents/** + subagents)
   - persistent-memory-scoring.md (file-backed primary memory files + iteration record + rubric for architecture outputs)
 
-Run `./scripts/sync-harness-agent-files.sh` after adding. Then `pnpm docs:authority` (to register new agent-methodology MDs) + `pnpm agent:alignment && pnpm docs:drift-check`.
+**Orchestrator discipline (enforced in agentic-lexicon.md "Orchestrator High-Level View Protocol" and chief-coordinator charter):** The chief-coordinator / Composer main thread must treat only the "Core for Orchestrator High-Level View" group above (plus the 3 MD snapshots + AGENTS top + worker-backlog matrix) as the daily forest view. All supplemental rules are read with strict limits/grep *only* when delegating a specific role or auditing one slice. This prevents context bloat, keeps the high-level perspective clean, and forces selection of sizable collaborative vertical slices. Violations (pulling too many verbose files) are a drift signal.
+
+Run `./scripts/sync-harness-agent-files.sh` after adding (ensures .grok/rules/ symlinks + .grok/agents/ pointers). Then `pnpm docs:authority` (to register new agent-methodology MDs such as agentic-lexicon.md) + `pnpm agent:alignment && pnpm docs:drift-check`.

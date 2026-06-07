@@ -1090,6 +1090,13 @@ export type HumanoidSpeechEvidence = {
     | undefined;
   gazeTargetKind: "learner_camera" | "actor" | null;
   gazeTargetActorId: string | null;
+  activeDialogueTurnRef?: {
+    traceTag?: string | null;
+    turnId?: string | null;
+    source: "bundle_dialogue_turn";
+    affectTimelineEmotion?: string | null;
+  } | undefined;
+  liveSource?: "live_blueprint_dialogue_emotion_source" | undefined;
   notEvidenceFor: readonly [
     "clinical_speech_quality",
     "production_lip_sync",

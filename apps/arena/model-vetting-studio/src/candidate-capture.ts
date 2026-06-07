@@ -763,6 +763,9 @@ export function glbUrlForPath(sourceGlbPath: string): string {
   if (sourceGlbPath.endsWith("peds_nurse_kevin.glb")) {
     return new URL("../../../ui-xr/public/generated-humanoids/peds_nurse_kevin.glb", import.meta.url).href;
   }
+  if (sourceGlbPath.includes("peds_asthma_parent_anxiety_v1_garment_hint_v1") || sourceGlbPath.includes("garment_hint_peds_tshirt")) {
+    return new URL("../../../../.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.glb", import.meta.url).href;
+  }
   return new URL("../../../ui-xr/public/generated-humanoids/peds_patient_child.glb", import.meta.url).href;
 }
 

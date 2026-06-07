@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "openclinxr.cagematch-report-page.v1",
+  "reportId": "real-garment-2026-06-07",
+  "lane": "real-garment-pivot",
+  "runId": "2026-06-07-real-garment",
+  "title": "Peds real garment from phenotype garmentLayers (short_sleeve_exam_tshirt) - Q1/Q5 pivot evidence",
+  "subtitle": "Model Vetting Studio front/three_quarter/body_motion_probe on realGarmentRegionFromPhenotype (324 faces, expanded obvious sleeves 0.27h r=0.35 base 7r/12c + ripples/bulge/folds + vivid blue contrast separate mesh 'openclinxr_real_garment_from_phenotype_short_sleeve_tshirt' deforming on breathing) vs prior hint tube; rigging_report + packed GLB (re-orchestrated patient preset + apply_role... v2)",
+  "generatedAt": "2026-06-07T22:00:00.000Z",
+  "canonicalPlanPath": "docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md",
+  "family": "Asset pipeline / real garment from phenotype",
+  "claimScope": "isolated_cagematch_report_page_no_runtime_or_readiness_promotion",
+  "objectives": [
+    "Confirm realGarmentRegionFromPhenotype in produced rigging_report (faceCount:324, hasSleeveGeometry:true, sleeveCoverage:torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve, sleeveLenFactor:0.27, sleeveRows:7, sleeveCols:12, hasProminentSleeves:true, weightedBones:[clavicle.L/R,upper_arm.L/R,chest,spine,neck], deformsWithBreathing:true, garmentLayers:[short_sleeve_exam_tshirt], claimScope:case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production).",
+    "Pack Model Vetting Studio evidence (front.png, three_quarter.png, body_motion_probe.webm + artifact-map) for the real garment GLB+report using model-vetting-turntable-capture --source-report .../real-garment-2026-06-07/report.json --capture-views front,three_quarter,body_motion_probe --output-dir .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07 --report-url /cagematch-reports/real-garment-2026-06-07/report.json (fixed duration 6500ms + view alias + wait timeout).",
+    "Verify visible sleeve volume/ripple/deform on breathing probe (not rigid 40-face tube); record as Q5 evidence closing the phenotype.garmentLayers -> real skinned garment pivot (Q1).",
+    "Keep all promotion gates false; notEvidenceFor includes production_asset_readiness, b_plus_visual_realism_gate, clinical_validity, scoring_validity."
+  ],
+  "processSteps": [
+    "orchestrate_character with peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1 (garmentLayers short_sleeve_exam_tshirt; re-orchestrated preset with sleeveGeometryExpansion v2) -> .openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child.glb + peds_patient_child_rigging_report.json (realGarmentRegion 324f).",
+    "Mirror GLB to apps/arena/model-vetting-studio/public/cagematch/anny-real-garment-2026-06-07/peds_patient_child.glb; ensure minimal+expanded report.json with candidates + realGarmentRegionFromPhenotype summary.",
+    "Re-launch/fix tools/openclinxr/evidence/model-vetting-turntable-capture.ts (duration:6500, normalize three-quarter/body-motion-probe, waitForFunction timeout:120s, settle 800ms); run with packed report + reportUrl + correct views.",
+    "Verify artifacts (pngs/webm + map) land in .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/; cross-check rigging_report realGarmentRegionFromPhenotype:324 faces expanded obvious sleeves (0.27/0.35r/7x12+ripples/folds/vivid blue contrast separate mesh) + weights; update registry captureEvidenceUpdated. apply_role_clothing_material_regions v2 + patient preset re-orchestrate complete (Q1)."
+  ],
+  "caseContext": {
+    "scenarioId": "peds_asthma_parent_anxiety_v1",
+    "actorRole": "patient",
+    "actorProfile": "school-age pediatric asthma patient (Maya Johnson, slender_asthma, garmentLayers=short_sleeve_exam_tshirt)"
+  },
+  "candidates": [
+    {
+      "candidateId": "peds_real_garment_v1",
+      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_patient_child.glb"
+    }
+  ],
+  "captureEvidence": {
+    "script": "tools/openclinxr/evidence/model-vetting-turntable-capture.ts",
+    "views": ["front", "three_quarter", "body_motion_probe"],
+    "outputDir": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07",
+    "reportUrl": "/cagematch-reports/real-garment-2026-06-07/report.json",
+    "riggingReportPath": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child_rigging_report.json",
+    "realGarmentRegionFromPhenotype": {
+      "faceCount": 324,
+      "hasSleeveGeometry": true,
+      "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
+      "sleeveLenFactor": 0.27,
+      "sleeveRows": 7,
+      "sleeveCols": 12,
+      "sleeveRFactor": 0.35,
+      "hasProminentSleeves": true,
+      "hasExpandedVolumeDetail": true,
+      "weightedBones": ["clavicle.L", "clavicle.R", "upper_arm.L", "upper_arm.R", "chest", "spine", "neck"],
+      "deformsWithBreathing": true,
+      "garmentLayers": ["short_sleeve_exam_tshirt"]
+    }
+  }
+}

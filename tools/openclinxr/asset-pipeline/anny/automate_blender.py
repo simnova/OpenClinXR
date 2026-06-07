@@ -70,6 +70,7 @@ def parse_cli() -> argparse.Namespace:
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188", help="ComfyUI server URL (used when --use-comfy)")
     ap.add_argument("--bake-textures", action="store_true", default=True, help="Always do a local procedural bake as fallback (safe, no external diffusion).")
     ap.add_argument("--hair-density", type=float, default=0.6, help="Simple scalar for hair density in the demo hair system / geo nodes.")
+    ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (garment-hint-v1 aborted per chief/skeptic pivot 2026-06-07; Q1 violation, sub-pixel, no weights, no sleeve geo despite phenotype). Real garment now from phenotype.garmentLayers (e.g. short_sleeve_exam_tshirt) via expanded apply_role_clothing_material_regions (real torso+shoulder+upper-arm sleeve geo + vertex weights on clavicle/upper_arm for breathing deform). Flag kept for compat only; default OFF.")
     return ap.parse_args(argv)
 
 
@@ -191,12 +192,40 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
     bones["head"].tail = p(0.0, 0.96)
     bones["head"].parent = bones["neck"]
 
-    # Left arm (mirrored for right)
+    # Additive eye.L/eye.R + clavicle.L/R + index_finger_base.L/R (fuller 23-bone canonical armature for peds-school-age-blueprint-eye-joint-full-extend-v1).
+    # Bounds-driven via p() factors on mesh bbox; supports upper-body (clavicles for breathing effort/shoulder gesture) + hand (index bases for anxiety fidget/parent interaction) from peds_asthma_parent_anxiety_v1 school-age patient blueprint case needs.
+    # Eyes: parent to head. Clavicles: parent to chest (upper_arm parents to clavicle). Index bases: parent to hand. All additive; skin groups auto-created in ensure_deterministic_skinning_fallback.
+    # boneCount/boneNames in body_rig_diagnostics + rigging_report remain fully dynamic from arm_obj.data.bones (truthful). notEvidenceFor preserved on all gates.
+    eye_l = edit_bones.new("eye.L")
+    eye_l.head = p(0.022, 0.905, 0.012)
+    eye_l.tail = p(0.022, 0.905, 0.020)
+    eye_l.parent = bones["head"]
+    bones["eye.L"] = eye_l
+    eye_r = edit_bones.new("eye.R")
+    eye_r.head = p(-0.022, 0.905, 0.012)
+    eye_r.tail = p(-0.022, 0.905, 0.020)
+    eye_r.parent = bones["head"]
+    bones["eye.R"] = eye_r
+
+    # Clavicle.L/R (additive, bounds-driven shoulder girdle for fuller upper-body rigging)
+    clav_l = edit_bones.new("clavicle.L")
+    clav_l.head = p(0.08, 0.77, 0.01)
+    clav_l.tail = p(0.18, 0.74, 0.0)
+    clav_l.parent = bones["chest"]
+    bones["clavicle.L"] = clav_l
+    clav_r = edit_bones.new("clavicle.R")
+    clav_r.head = p(-0.08, 0.77, 0.01)
+    clav_r.tail = p(-0.18, 0.74, 0.0)
+    clav_r.parent = bones["chest"]
+    bones["clavicle.R"] = clav_r
+
+    # Left arm (mirrored for right); upper_arm now parents to clavicle when present
     def make_limb(side: str, shoulder_pos: tuple, elbow_pos: tuple, hand_pos: tuple):
         shoulder = edit_bones.new(f"upper_arm.{side}")
         shoulder.head = shoulder_pos
         shoulder.tail = elbow_pos
-        shoulder.parent = bones["chest"]
+        clav_name = f"clavicle.{side}"
+        shoulder.parent = bones[clav_name] if clav_name in bones else bones["chest"]
 
         elbow = edit_bones.new(f"forearm.{side}")
         elbow.head = elbow_pos
@@ -207,6 +236,15 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
         hand.head = hand_pos
         hand.tail = (hand_pos[0], hand_pos[1] + 0.08 * (1 if side == "L" else -1), hand_pos[2])
         hand.parent = elbow
+
+        # Index finger base (additive, bounds-driven from hand for fuller hand rigging per blueprint)
+        idx_base = edit_bones.new(f"index_finger_base.{side}")
+        dx = 0.03 if side == "L" else -0.03
+        dy = 0.07 if side == "L" else -0.07
+        idx_base.head = hand_pos
+        idx_base.tail = (hand_pos[0] + dx, hand_pos[1] + dy, hand_pos[2] + 0.005)
+        idx_base.parent = hand
+        bones[f"index_finger_base.{side}"] = idx_base
 
     make_limb("L", p(0.18, 0.74), p(0.34, 0.58), p(0.44, 0.42))
     make_limb("R", p(-0.18, 0.74), p(-0.34, 0.58), p(-0.44, 0.42))
@@ -264,10 +302,15 @@ def ensure_deterministic_skinning_fallback(mesh_obj: bpy.types.Object, arm_obj: 
 
     ys = [vertex.co.y for vertex in mesh_obj.data.vertices]
     xs = [vertex.co.x for vertex in mesh_obj.data.vertices]
+    zs = [vertex.co.z for vertex in mesh_obj.data.vertices]
     min_y, max_y = min(ys), max(ys)
     min_x, max_x = min(xs), max(xs)
+    min_z, max_z = min(zs), max(zs)
     height = max(max_y - min_y, 0.001)
     width = max(max_x - min_x, 0.001)
+    depth = max(max_z - min_z, 0.001)
+    center_x = (min_x + max_x) / 2
+    center_z = (min_z + max_z) / 2
 
     def add_weight(vertex_index: int, bone_name: str, weight: float) -> None:
         group = groups.get(bone_name)
@@ -279,12 +322,35 @@ def ensure_deterministic_skinning_fallback(mesh_obj: bpy.types.Object, arm_obj: 
         x_norm = (vertex.co.x - min_x) / width
         side = ".L" if x_norm >= 0.5 else ".R"
         abs_x = abs(vertex.co.x)
+        # peds-school-age-blueprint-eye-joint-full-extend-v1 skin weights (Q1 for peds_asthma_parent_anxiety_v1):
+        # Eyes get localized head-region influence for gaze bone drive (retarget + mpfb2 probe).
+        # Clavicles get shoulder-girdle weights for breathing/upper-body effort gestures (clavicle-driven shoulder motion in role clips).
+        # Index finger bases get hand-proximal weights for anxiety fidget/parent interaction (hand clips).
+        # All additive to existing groups; keeps deterministic fallback, no detached geo. Retarget consumers now see skinned influence on expanded joints.
         if y_norm > 0.82:
-            add_weight(vertex.index, "head", 0.82)
+            # Eye region (bounds approx from p() in armature; small localized weight for eye bones; head reduced for verts near eyes)
+            eye_l_x = 0.022 * width
+            eye_r_x = -0.022 * width
+            eye_z = 0.016 * depth  # rough
+            dx_l = abs(vertex.co.x - (center_x + eye_l_x))
+            dx_r = abs(vertex.co.x - (center_x + eye_r_x))
+            is_eye_l = dx_l < width * 0.04 and vertex.co.z > center_z + eye_z * 0.5
+            is_eye_r = dx_r < width * 0.04 and vertex.co.z > center_z + eye_z * 0.5
+            head_w = 0.55 if (is_eye_l or is_eye_r) else 0.82
+            add_weight(vertex.index, "head", head_w)
             add_weight(vertex.index, "neck", 0.18)
+            if is_eye_l:
+                add_weight(vertex.index, "eye.L", 0.40)
+            elif is_eye_r:
+                add_weight(vertex.index, "eye.R", 0.40)
         elif y_norm > 0.68:
             add_weight(vertex.index, "chest", 0.70)
             add_weight(vertex.index, "neck", 0.30)
+            # Clavicle shoulder girdle for peds upper body (breathing effort)
+            if abs_x > width * 0.06:
+                clav_w = 0.35 if abs_x > width * 0.12 else 0.18
+                add_weight(vertex.index, f"clavicle{side}", clav_w)
+                add_weight(vertex.index, "chest", 0.70 - clav_w * 0.6)
         elif y_norm > 0.52:
             if abs_x > width * 0.20:
                 add_weight(vertex.index, f"upper_arm{side}", 0.72)
@@ -299,6 +365,14 @@ def ensure_deterministic_skinning_fallback(mesh_obj: bpy.types.Object, arm_obj: 
             else:
                 add_weight(vertex.index, "pelvis", 0.55)
                 add_weight(vertex.index, "spine", 0.45)
+            # Index finger base (hand-proximal for fidget/parent interaction on school-age)
+            if y_norm < 0.42:
+                hand_x_center = 0.44 * width if side == ".L" else -0.44 * width
+                dx_hand = abs(vertex.co.x - (center_x + hand_x_center * (1 if side == ".L" else -1)))
+                if dx_hand < width * 0.06:
+                    idx_w = 0.40
+                    add_weight(vertex.index, f"index_finger_base{side}", idx_w)
+                    add_weight(vertex.index, f"hand{side}", 0.30)
         elif y_norm > 0.14:
             add_weight(vertex.index, f"thigh{side}", 0.72)
             add_weight(vertex.index, f"shin{side}", 0.28)
@@ -973,13 +1047,18 @@ def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
     return mat
 
 
-def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> Dict[str, Any]:
+def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any], arm_obj: Optional[bpy.types.Object] = None) -> Dict[str, Any]:
     """
     Assign simple case-driven clothing materials to the humanoid mesh itself.
-
-    This is still a local procedural fixture, not MakeClothes/StableGen wardrobe,
-    but it makes isolated model vetting evaluate a clothed generated actor instead
-    of only a mannequin with a detached role placard.
+    EXPANDED (pivot embed-real-garment-region-from-phenotype Q1 Q5): reads phenotype.garmentLayers
+    (e.g. ["short_sleeve_exam_tshirt"] from peds_asthma_parent_anxiety_v1 patient preset).
+    When tshirt layer present, emits REAL (not post-cylinder-hint) torso+shoulder+upper-arm short-sleeve
+    geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine)
+    + ARMATURE modifier so sleeves deform during openclinxr_role_patient_asthma_breathing_effort clip
+    (spine/chest/upper_arm motion in breathing effort). Keeps body mesh-native material regions.
+    SOLIDIFY + weighted normals for volume. Expanded sleeve geo (0.27 len, 0.35r base, 7r/12c + extra
+    ripple/bulge/fold bands + vivid blue contrast) for obvious separate 3D clothing visibility in
+    Model Vetting studio renders + UI-XR scene (not subtle bands). Report metadata wired.
     """
     role = actor_role.lower()
     base_color = role_marker_color(phenotype, role)
@@ -1009,6 +1088,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     center_x = bounds["center_x"]
     # Wider bands make the generated actor read as clothed in isolated browser
     # evidence, while still avoiding detached cube/card markers.
+    # garment source-quality v1 (2026-06-07 autonomy kickoff): widened collar/waist trim
+    # + adjusted factors for better visual clothing "intent" and reduced abrupt jagged seam
+    # read on low-poly pediatric school-age topology (still fully mesh-native bounds-based,
+    # no detached geometry, no regression to live skinning/garment-trim prior work).
     top_min_z = min_z + height_z * 0.42
     top_max_z = min_z + height_z * 0.74
     lower_min_z = min_z + height_z * 0.08
@@ -1028,8 +1111,8 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         rel_x = abs(center.x - center_x)
         waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_z - 0.52) / 0.28)
         effective_half_width = max_torso_half_width * waist_factor
-        is_collar_trim = (top_max_z - height_z * 0.018) <= center.z <= top_max_z and rel_x <= shoulder_half_width * 0.72
-        is_waist_trim = (top_min_z - height_z * 0.014) <= center.z <= (top_min_z + height_z * 0.014) and rel_x <= effective_half_width * 0.92
+        is_collar_trim = (top_max_z - height_z * 0.024) <= center.z <= top_max_z and rel_x <= shoulder_half_width * 0.80
+        is_waist_trim = (top_min_z - height_z * 0.019) <= center.z <= (top_min_z + height_z * 0.019) and rel_x <= effective_half_width * 0.98
         if is_collar_trim or is_waist_trim:
             polygon.material_index = trim_index
             trim_faces += 1
@@ -1043,9 +1126,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     if top_faces == 0 or lower_faces == 0 or trim_faces == 0:
         raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}, trim_faces={trim_faces}")
 
-    return {
+    ret = {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-        "clothingRegionRevision": "v5_subtle_mesh_native_collar_waist_trim_no_detached_markers",
+        "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
         "topMaterialName": top_mat.name,
         "lowerMaterialName": lower_mat.name,
         "trimMaterialName": trim_mat.name,
@@ -1054,6 +1137,327 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         "trimFaceCount": trim_faces,
         "skippedBackFaceCount": skipped_back_faces,
         "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+    }
+
+    # PIVOT IMPLEMENTATION: embed-real-garment-region-from-phenotype (Q1 Q5)
+    # Read garmentLayers from case phenotype (peds_asthma_parent_anxiety_v1: ["short_sleeve_exam_tshirt"])
+    # Produce real (non-hint) sleeve-bearing geometry skinned for deformation. Expanded sleeve scope
+    # per asset-pipeline-lead: len>=0.25, r/rows/cols up, +bulge/ripple/folds, vivid contrast color,
+    # prominent separate mesh deforming on breathing. Q1 peds blueprint drives visible 3D garment.
+    garment_layers = phenotype.get("garmentLayers", []) or [phenotype.get("clothing_style", "")]
+    real_garment = None
+    if any(any(k in str(g).lower() for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve")) for g in garment_layers) or "patient" in role:
+        import math
+        cx = bounds["center_x"]
+        cy = bounds.get("center_y", 0.0)
+        r_base = max(bounds["width"], bounds.get("depth_y", bounds["width"])) * 0.47
+        top_z = min_z + height_z * 0.71
+        bot_z = min_z + height_z * 0.11
+        torso_rows, torso_cols = 8, 12
+        sleeve_rows, sleeve_cols = 7, 12
+        sleeve_len = height_z * 0.27  # expanded 0.27+ for obvious visible separate 3D sleeves (not subtle 0.16 bands) at studio/UI-XR distance
+        verts = []
+        faces = []
+        # torso shell (better than pure cylinder: chest bulge + shoulder slope) + expanded ripple/bulge for volume
+        for i in range(torso_rows):
+            t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
+            z = bot_z + t * (top_z - bot_z)
+            ripple = 0.006 * math.sin(t * 8.0)
+            bulge = 0.022 if 0.28 < t < 0.68 else 0.010
+            r = r_base + 0.015 + ripple + bulge
+            if i == 0:
+                r *= 0.93
+            if i == torso_rows - 1:
+                r *= 0.87
+            for j in range(torso_cols):
+                ang = (j / torso_cols) * 2.0 * math.pi
+                x = cx + r * math.cos(ang)
+                y = cy - 0.006 + (0.01 * math.sin(ang))
+                verts.append((x, y, z))
+        for i in range(torso_rows - 1):
+            for j in range(torso_cols):
+                a = i * torso_cols + j
+                b = i * torso_cols + ((j + 1) % torso_cols)
+                c = (i + 1) * torso_cols + ((j + 1) % torso_cols)
+                d = (i + 1) * torso_cols + j
+                faces.append((a, b, c, d))
+        # short sleeve L (shoulder+upper_arm coverage, attached at shoulder) -- expanded r/rows/cols, protrusion, ripple for obvious 3D volume
+        sleeve_attach_z = min_z + height_z * 0.66
+        sleeve_r0 = r_base * 0.35
+        sL = len(verts)
+        for si in range(sleeve_rows):
+            st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0
+            sz = sleeve_attach_z - st * sleeve_len
+            ripple = 0.005 * math.sin(st * 12.0)
+            sr = sleeve_r0 * (1.0 - st * 0.20) + ripple
+            sx = 0.18 + st * 0.06  # increased protrusion for visible separate sleeve at camera distance
+            for sj in range(sleeve_cols):
+                sang = (sj / sleeve_cols) * 2.0 * math.pi
+                x = cx + sx + sr * 0.55 * math.cos(sang)
+                y = cy - 0.004 + sr * 0.45 * math.sin(sang)
+                verts.append((x, y, sz))
+        for si in range(sleeve_rows - 1):
+            for sj in range(sleeve_cols):
+                a = sL + si * sleeve_cols + sj
+                b = sL + si * sleeve_cols + ((sj + 1) % sleeve_cols)
+                c = sL + (si + 1) * sleeve_cols + ((sj + 1) % sleeve_cols)
+                d = sL + (si + 1) * sleeve_cols + sj
+                faces.append((a, b, c, d))
+        # short sleeve R
+        sR = len(verts)
+        for si in range(sleeve_rows):
+            st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0
+            sz = sleeve_attach_z - st * sleeve_len
+            ripple = 0.005 * math.sin(st * 12.0)
+            sr = sleeve_r0 * (1.0 - st * 0.20) + ripple
+            sx = -0.18 - st * 0.06
+            for sj in range(sleeve_cols):
+                sang = (sj / sleeve_cols) * 2.0 * math.pi
+                x = cx + sx + sr * 0.55 * math.cos(sang)
+                y = cy - 0.004 + sr * 0.45 * math.sin(sang)
+                verts.append((x, y, sz))
+        for si in range(sleeve_rows - 1):
+            for sj in range(sleeve_cols):
+                a = sR + si * sleeve_cols + sj
+                b = sR + si * sleeve_cols + ((sj + 1) % sleeve_cols)
+                c = sR + (si + 1) * sleeve_cols + ((sj + 1) % sleeve_cols)
+                d = sR + (si + 1) * sleeve_cols + sj
+                faces.append((a, b, c, d))
+        # collar seam band (visible fold/seam geometry) -- +1 row for more band detail
+        col0 = len(verts)
+        for ci in range(3):
+            zc = top_z + 0.005 + ci * 0.007
+            rc = r_base * 0.40
+            for j in range(torso_cols):
+                ang = (j / torso_cols) * 2.0 * math.pi
+                verts.append((cx + rc * math.cos(ang), cy - 0.003, zc))
+        for ci in range(2):
+            for j in range(torso_cols):
+                a = col0 + ci * torso_cols + j
+                b = col0 + ci * torso_cols + ((j + 1) % torso_cols)
+                c = col0 + (ci + 1) * torso_cols + ((j + 1) % torso_cols)
+                d = col0 + (ci + 1) * torso_cols + j
+                faces.append((a, b, c, d))
+        # sleeve cuff bands (hem) -- +1 row for volume
+        for sbase, sgn in [(sL, 1.0), (sR, -1.0)]:
+            c0 = len(verts)
+            for ci in range(3):
+                zc = (sleeve_attach_z - (sleeve_rows-1)/float(sleeve_rows-1) * sleeve_len if sleeve_rows > 1 else sleeve_attach_z) - ci * 0.004
+                rc = sleeve_r0 * 0.72
+                for j in range(sleeve_cols):
+                    ang = (j / sleeve_cols) * 2.0 * math.pi
+                    verts.append((cx + sgn*0.13 + rc * 0.5 * math.cos(ang), cy - 0.002, zc))
+            for ci in range(2):
+                for j in range(sleeve_cols):
+                    a = c0 + ci * sleeve_cols + j
+                    b = c0 + ci * sleeve_cols + ((j + 1) % sleeve_cols)
+                    c = c0 + (ci + 1) * sleeve_cols + ((j + 1) % sleeve_cols)
+                    d = c0 + (ci + 1) * sleeve_cols + j
+                    faces.append((a, b, c, d))
+        # mid-sleeve fold/ripple bands (extra visible garment detail + folds)
+        for sbase, sgn in [(sL, 1.0), (sR, -1.0)]:
+            c0 = len(verts)
+            for ci in range(2):
+                st_mid = 0.42 + ci * 0.12
+                zc = sleeve_attach_z - st_mid * sleeve_len
+                rc = sleeve_r0 * (1.0 - st_mid * 0.20) * 0.94 + 0.004 * math.sin(ci * 3.14)
+                for j in range(sleeve_cols):
+                    ang = (j / sleeve_cols) * 2.0 * math.pi
+                    xoff = (0.012 if ci % 2 == 0 else -0.004)
+                    verts.append((cx + sgn*0.13 + rc * 0.5 * math.cos(ang) + xoff, cy - 0.002, zc))
+            for ci in range(1):
+                for j in range(sleeve_cols):
+                    a = c0 + ci * sleeve_cols + j
+                    b = c0 + ci * sleeve_cols + ((j + 1) % sleeve_cols)
+                    c = c0 + (ci + 1) * sleeve_cols + ((j + 1) % sleeve_cols)
+                    d = c0 + (ci + 1) * sleeve_cols + j
+                    faces.append((a, b, c, d))
+        gmesh = bpy.data.meshes.new("openclinxr_real_garment_peds_tshirt_v1_mesh")
+        gmesh.from_pydata(verts, [], faces)
+        gmesh.update()
+        garment = bpy.data.objects.new("openclinxr_real_garment_from_phenotype_short_sleeve_tshirt", gmesh)
+        bpy.context.collection.objects.link(garment)
+        gmat = create_role_marker_material("openclinxr_real_garment_exam_tshirt_phenotype", (0.08, 0.52, 0.95, 1.0))  # vivid blue contrast vs skin/body top; makes separate 'openclinxr_real_garment_from_phenotype_short_sleeve_tshirt' mesh prominent
+        garment.data.materials.append(gmat)
+        sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
+        sol.thickness = 0.014  # thicker for visible volume as 3D clothing layer
+        garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
+        # skin to armature for breathing deform (clav/upper_arm etc)
+        weighted_bones: List[str] = []
+        if arm_obj is None:
+            arm_obj = bpy.data.objects.get("openclinxr_canonical_humanoid_armature")
+        if arm_obj is not None:
+            arm_mod = garment.modifiers.new("openclinxr_real_garment_armature", "ARMATURE")
+            arm_mod.object = arm_obj
+            arm_mod.use_vertex_groups = True
+            bone_names = [b.name for b in arm_obj.data.bones]
+            groups: Dict[str, Any] = {}
+            for bn in ["clavicle.L", "clavicle.R", "upper_arm.L", "upper_arm.R", "chest", "spine", "neck"]:
+                if bn in bone_names:
+                    groups[bn] = garment.vertex_groups.get(bn) or garment.vertex_groups.new(name=bn)
+            # bounds-based weights targeted to upper torso/sleeves (analogous to ensure_deterministic_skinning_fallback)
+            gvs = list(garment.data.vertices)
+            if gvs:
+                gys = [v.co.y for v in gvs]
+                gxs = [v.co.x for v in gvs]
+                gmin_y, gmax_y = min(gys), max(gys)
+                gheight = max(gmax_y - gmin_y, 0.001)
+                gwidth = max(max(gxs) - min(gxs), 0.001) or 1.0
+                gcx = (min(gxs) + max(gxs)) / 2
+                for vi, v in enumerate(gvs):
+                    yn = (v.co.y - gmin_y) / gheight
+                    xa = abs(v.co.x - gcx)
+                    side = ".L" if v.co.x >= gcx else ".R"
+                    if yn > 0.58:  # upper torso/shoulder
+                        if xa > gwidth * 0.12:
+                            cw = 0.42
+                            if f"clavicle{side}" in groups:
+                                groups[f"clavicle{side}"].add([vi], cw, "ADD")
+                            if "chest" in groups:
+                                groups["chest"].add([vi], 0.38, "ADD")
+                        else:
+                            if "chest" in groups:
+                                groups["chest"].add([vi], 0.68, "ADD")
+                            if "spine" in groups:
+                                groups["spine"].add([vi], 0.22, "ADD")
+                    else:  # sleeve and mid
+                        if xa > gwidth * 0.15:
+                            aw = 0.62
+                            if f"upper_arm{side}" in groups:
+                                groups[f"upper_arm{side}"].add([vi], aw, "ADD")
+                            if f"clavicle{side}" in groups:
+                                groups[f"clavicle{side}"].add([vi], 0.28, "ADD")
+                        else:
+                            if "chest" in groups:
+                                groups["chest"].add([vi], 0.55, "ADD")
+                            if "spine" in groups:
+                                groups["spine"].add([vi], 0.32, "ADD")
+            weighted_bones = list(groups.keys())
+        garment.parent = mesh_obj
+        garment["openClinXrRealGarmentFromPhenotype"] = "embed_real_garment_region_v1"
+        face_count = len(faces)
+        real_garment = {
+            "mode": "phenotype_embedded_real_garment_region_v1",
+            "revision": "embed_real_garment_from_phenotype_garmentLayers_pediatric_school_age_v2_obvious_sleeves",
+            "objectName": garment.name,
+            "faceCount": face_count,
+            "hasSleeveGeometry": True,
+            "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
+            "sleeveLenFactor": 0.27,
+            "sleeveRows": 7,
+            "sleeveCols": 12,
+            "sleeveRFactor": 0.35,
+            "hasProminentSleeves": True,
+            "hasExpandedVolumeDetail": True,
+            "weightedBones": weighted_bones,
+            "deformsWithBreathing": True,
+            "hasVisibleVolume": True,
+            "hasSeamFoldHints": True,
+            "garmentLayers": [str(g) for g in garment_layers if g],
+            "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+            "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+        }
+    if real_garment:
+        ret["realGarmentRegion"] = real_garment
+    return ret
+
+
+def create_garment_source_geometry_hint(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> Dict[str, Any]:
+    """Minimal deterministic garment-source-geometry-hint-v1 separate shell (or source garment topology pass) for the current school-age peds patient (patient_maya_johnson_v1 / pediatric_school_age from peds_asthma_parent_anxiety_v1).
+
+    Creates a distinct linked mesh object (not material regions on body) with:
+    - radial offset + solidify thickness for visible volume/layering vs body surface
+    - z-ripple + mid-torso bulge + hem/collar bands for fold and seam hints
+    - patient-appropriate soft-blue exam tshirt coloring from phenotype
+    - parented to body mesh for root motion in body views (v1; full skin weights deferred)
+    Produces visible clothing geometry (folds/seams/volume) in Model Vetting front/three-quarter/body_motion views.
+    Keeps claimScope / notEvidenceFor truthful and preserved; no promotion of readiness gates.
+    """
+    role = actor_role.lower()
+    body_profile = str(phenotype.get("body_profile", "")).lower()
+    if "patient" not in role and "school" not in body_profile:
+        return {
+            "mode": "skipped_not_target_peds_school_age_patient",
+            "claimScope": "garment_source_geometry_hint_v1_only_for_peds_asthma_parent_anxiety_v1_school_age",
+            "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+        }
+    import math
+    bounds = mesh_world_bounds(mesh_obj)
+    min_z = bounds["min_z"]
+    height_z = max(bounds["height_z"], 0.001)
+    cx = bounds["center_x"]
+    cy = bounds["center_y"]
+    r_base = max(bounds["width"], bounds.get("depth_y", bounds["width"])) * 0.53
+    top_z = min_z + height_z * 0.71
+    bot_z = min_z + height_z * 0.09
+    rows = 5
+    cols = 8
+    verts = []
+    faces = []
+    for i in range(rows):
+        t = i / float(rows - 1) if rows > 1 else 0.0
+        z = bot_z + t * (top_z - bot_z)
+        ripple = 0.007 * math.sin(t * 6.28)
+        bulge = 0.015 if 0.25 < t < 0.72 else 0.0
+        r = r_base + 0.019 + ripple + bulge
+        if i == 0:
+            r *= 0.95
+        if i == rows - 1:
+            r *= 0.90
+        for j in range(cols):
+            ang = (j / cols) * 2.0 * math.pi
+            x = cx + r * math.cos(ang)
+            y = cy - 0.008 + (0.012 * math.sin(ang))
+            verts.append((x, y, z))
+    for i in range(rows - 1):
+        for j in range(cols):
+            a = i * cols + j
+            b = i * cols + ((j + 1) % cols)
+            c = (i + 1) * cols + ((j + 1) % cols)
+            d = (i + 1) * cols + j
+            faces.append((a, b, c, d))
+    # collar/seam hint band (extra geometry for visible seam/fold)
+    collar_start = len(verts)
+    for i in range(2):
+        z = top_z + 0.008 + i * 0.009
+        r = r_base * 0.47
+        for j in range(cols):
+            ang = (j / cols) * 2.0 * math.pi
+            x = cx + r * math.cos(ang)
+            y = cy - 0.006
+            verts.append((x, y, z))
+    for i in range(1):
+        for j in range(cols):
+            a = collar_start + i * cols + j
+            b = collar_start + i * cols + ((j + 1) % cols)
+            c = collar_start + (i + 1) * cols + ((j + 1) % cols)
+            d = collar_start + (i + 1) * cols + j
+            faces.append((a, b, c, d))
+    mesh = bpy.data.meshes.new("openclinxr_garment_hint_peds_tshirt_v1_mesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    garment = bpy.data.objects.new("openclinxr_garment_hint_peds_tshirt_v1", mesh)
+    bpy.context.collection.objects.link(garment)
+    gmat = create_role_marker_material("openclinxr_garment_hint_peds_exam_tshirt", (0.05, 0.34, 0.88, 1.0))
+    garment.data.materials.append(gmat)
+    sol = garment.modifiers.new("openclinxr_garment_hint_thickness_v1", "SOLIDIFY")
+    sol.thickness = 0.011
+    garment.modifiers.new("openclinxr_garment_hint_weighted_normals", "WEIGHTED_NORMAL")
+    # v1: parent to body mesh for basic transform follow in body-motion views (no full vertex weights yet)
+    garment.parent = mesh_obj
+    garment["openClinXrGarmentSourceHint"] = "garment_source_geometry_hint_v1_separate_shell"
+    garment["openClinXrGarmentRevision"] = "v1_pediatric_school_age_exam_tshirt_folds_seams_volume"
+    face_count = len(faces)
+    return {
+        "mode": "separate_shell_source_geometry_hint_v1",
+        "revision": "garment_source_geometry_hint_v1_pediatric_school_age",
+        "objectName": garment.name,
+        "faceCount": face_count,
+        "hasVisibleVolume": True,
+        "hasSeamFoldHints": True,
+        "parentedTo": "body_mesh_for_root_motion_v1",
+        "claimScope": "procedural_source_geometry_hint_separate_shell_not_production_wardrobe_or_external_source_obj",
         "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
     }
 
@@ -1230,7 +1634,11 @@ def main() -> None:
     baked = add_simple_procedural_pbr_and_bake(mesh_obj, prompt, phenotype)
 
     print("[blender] assigning role-specific clothing materials to mesh regions")
-    role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype)
+    role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype, arm_obj=arm_obj)
+    garment_source_geometry_hint = None
+    if getattr(args, "garment_source_geometry_hint", False):
+        print("[blender] creating garment source geometry hint v1 separate shell (folds/seams/volume) for current school-age peds patient from peds_asthma_parent_anxiety_v1 (LEGACY; pivot to real phenotype garmentLayers in apply_role_clothing_material_regions)")
+        garment_source_geometry_hint = create_garment_source_geometry_hint(mesh_obj, args.actor_role, phenotype)
     print("[blender] assigning mesh-native scalp/hair material region")
     scalp_hair_material_region = apply_mesh_native_scalp_hair_material_region(mesh_obj, phenotype)
     morph_diagnostics = morph_target_diagnostics(mesh_obj)
@@ -1334,6 +1742,8 @@ def main() -> None:
         "bodyRigDiagnostics": body_diagnostics,
         "roleVisualMarkers": role_visual_markers,
         "roleClothingMaterialRegions": role_clothing_material_regions,
+        "garmentSourceGeometryHint": garment_source_geometry_hint,
+        "realGarmentRegionFromPhenotype": (role_clothing_material_regions or {}).get("realGarmentRegion") if isinstance(role_clothing_material_regions, dict) else None,
         "scalpHairMaterialRegion": scalp_hair_material_region,
         "faceDetailMarkers": face_detail_markers,
         "sourceTopologyEvidence": {

@@ -32,11 +32,11 @@ The target system should support:
 
 ## Protected Blueprint-Factory Guardrails
 
-See `agents/rules/blueprint-factory-guardrails.md` (authority: agent-methodology; frontmatter + full protected list + Q1/Q4/Q5 slice gate + "do not weaken" rules).
+See `agents/rules/GUARD_BLUEPRINT.md` (authority: agent-methodology; frontmatter + full protected list + Q1/Q4/Q5 slice gate + "do not weaken" rules).
 
 The 6 protected files (`blueprint-factory-drift-guardrails-2026-05-27.md`, `docs/openclinxr/doc-authority-registry-2026-05-27.md`, `docs/openclinxr/doc-authority-registry-2026-05-27.json`, `docs/openclinxr/generated-artifact-registry-2026-05-27.md`, `docs/openclinxr/generated-artifact-registry-2026-05-27.json`, openclaw-runbook-2026-05-27.md, openclaw-tool-adapters-2026-05-27.md) are non-negotiable. Consult the registry before elevating other MDs. Every slice must advance blueprint-to-runtime (Q1), review/persistence/replay (Q4), or verification of touched factory (Q5) or unblock one that cannot proceed safely.
 
-Conversation tooling is first-class. Actor dialogue policies, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe conversation evidence must not be displaced by one-off asset or screenshot work. (See agents/rules/blueprint-factory-guardrails.md for the full gate.)
+Conversation tooling is first-class. Actor dialogue policies, learner utterance/action intake, turn-taking, interruptions, emotion transitions, trace tags, replayable actor turns, and review-safe conversation evidence must not be displaced by one-off asset or screenshot work. (See agents/rules/GUARD_BLUEPRINT.md for the full gate.)
 
 ## Platform Instruction Override
 
@@ -59,6 +59,8 @@ If context is compacted or feels incomplete, do not finalize. Re-read these file
 
 The snapshots at the top of `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (added 2026-05-28) are the fast-path context. Read only the first ~60-80 lines of each for continuation unless full history or audit is required. This keeps rehydration low-token and effective while preserving the full ledger.
 
+**Guidance Stability Rule**: These snapshot headers must contain only stable, abstract direction (north star, emphasis on sizable collaborative vertical slices across functional areas, Q-gates, visibility/noticeability mandate, anti-toil, cheap-first + escalation, etc.). They must be kept free of transient current WIP details (specific file:line from the active slice, subagent IDs, exact capture logs, one-feature narratives). Those details belong exclusively in the dated per-slice checkpoints lower in the files and in registered artifacts. The orchestration coordinator must treat the clean snapshot header as the consistent contract across the entire project lifetime and always scope work as large, noticeable, team-collaborative vertical slices from the worker-backlog matrix. See "Guidance Stability vs Current WIP Principle" in `agents/rules/LEX_AGENTIC.md`.
+
 Current working model (original mission + OpenClaw-style / OpenClaw-inspired adaptation; not an external OpenClaw runtime):
 - Persistent expert team: repo-defined roles in `agents/**` (charter + memory + index) + generated `.agent-factory/memory-index.json` for consultation lenses. Read charter+memory locally for focus; use live subagents narrowly when available and non-overlapping.
 - Full iteration loop (`iterations/**`, `docs/agent-factory/operating-loop.md`, `packages/openclinxr/agent-loop`, `pnpm agent:loop` + tools/agent-factory/): synthesis/plateau-recovery/planning tool only. Not for routine slices.
@@ -77,113 +79,50 @@ See `agents/rules/hyper-token-efficient-long-run-practices.md` (authority: agent
 
 Key practices (rehydration via snapshots + targeted read_file(limit)/grep, `pnpm openclaw:lease -- acquire ...`, cheap guards first, state only in 3 canonical MDs, subagent coordinator-first, anti 2+ evidence-toil, token-saving in commands, etc.) are now in the dedicated rule + agents/rules/long-running-autonomy.md and drift-toil-prevention.md. Update the rule on future evolutions of M1 Max / long-run posture. (Full "Hyper Token-Efficient & Long-Run Practices" text lives in the rule for LOW_TOKEN reads.)
 
-## Instruction Source-Of-Truth Order
+## Instruction Source-Of-Truth Order and Modular Rules
 
-Use this order when repo docs appear scattered or disagree:
+See `agents/rules/source-of-truth.md` (canonical detailed) + `agents/rules/LEX_AGENTIC.md` (terminology + AI-First Foundational Principle). 
 
-1. `AGENTS.md` is the operating contract (high-level; see `agents/rules/` for modular detailed conventions).
-2. `PROJECT_COORDINATION_INDEX.md` is the coordinator dashboard for active product direction, sub-agent control, and drift correction.
-3. `AUTONOMOUS_WORK_PLAN.md` is the active continuation plan. Its active product-advancement queue overrides old chronological "next slice" breadcrumbs.
-4. `docs/openclinxr/worker-backlog-and-validation-matrix.md` is the worker ownership and validation map.
-5. `operator-steering-needed-questions.md` contains true blockers and hardware/operator instructions.
-6. `operator-open-questions.md` contains nonblocking steering questions and recommended defaults.
-7. `docs/agent-factory/**`, `agents/**`, and `iterations/**` are persistent multi-agent memory and governance evidence. Use them to realign task selection, not to restart broad planning loops unless the active plan explicitly calls for one.
-8. Historical evidence reports, benchmark outputs, and old iteration "go-forward" notes are evidence, not active marching orders.
+**AI-First Foundational (machine primary)**: Coordination artifacts use short keyword prefixes (LEX_, GUARD_, MANDATE_, STRAT_, EXEC_, MEM_), universal frontmatter (ai_parse_score, drift_score, q_gates, visibility, strategic_group, token_efficiency), BLUF + metrics for parse/retrieval/scoring. Drives measurable refinement (GH project custom fields + post-guard ai_parse updates + Token lines). See LEX_AGENTIC.md "AI-First Foundational Principle". Rehydrate uses snapshots + targeted; state in 3 MDs only. Alignment markers: Anti-Toil Product Advancement Gate agents/adversarial/openclaw-drift-police/charter.md.
 
-**Modular Rules**: Detailed, focused instructions live in `agents/rules/` (canonical, parallel to `.agents/skills/`). Grok (and other harnesses) discover them via `.grok/rules/` (with symlinks), `.claude/rules/`, `.cursor/rules/`. This is better than one giant AGENTS.md for AgenticEx, maintainability, and multi-harness use. See `agents/rules/README.md` and `.grok/config.toml` for the setup. The project's internal agents should also consult `agents/rules/` for consistency.
+High-level order when scattered docs disagree:
+1. `AGENTS.md` (operating contract).
+2. `PROJECT_COORDINATION_INDEX.md` (coordinator dashboard).
+3. `AUTONOMOUS_WORK_PLAN.md` (active plan; queue overrides old breadcrumbs).
+4. `docs/openclinxr/worker-backlog-and-validation-matrix.md` (worker ownership/validation).
+5. `operator-steering-needed-questions.md` (true blockers).
+6. `operator-open-questions.md` (nonblocking steering + defaults).
+7. `docs/agent-factory/**`, `agents/**`, `iterations/**` (persistent memory/governance; realign, do not restart broad loops).
+8. Historical evidence = evidence, not marching orders.
 
-When an older file says to refresh evidence but the active plan says to build product capability, build product capability unless the evidence refresh unlocks that build.
+**Modular Rules (canonical detailed)**: `agents/rules/` (non-dot; aligned with repo roles). Symlinked to `.grok/rules/`, `.claude/rules/`, `.cursor/rules/`. Deeper/specific take precedence. See `agents/rules/README.md` (lists all + how to add; run sync-harness + `pnpm docs:authority` + guards after changes). Internal agents consult rules/ for consistency. AGENTS.md remains thin contract; detailed rehydration/source/autonomy/subagent/visibility/lexicon live in the focused rules (avoid duplication here). When older evidence-refresh instruction conflicts with active plan to build product, build product unless evidence is required to unblock safely.
+
+**Protected**: See `agents/rules/GUARD_BLUEPRINT.md` (6 protected files + Q1/Q4/Q5 slice gate + "do not weaken"). Consult doc-authority + generated-artifact registries before elevating MDs or ignoring generated artifacts. Conversation tooling is first-class.
 
 ## Autonomous Continuation Rule
 
-See `agents/rules/long-running-autonomy.md` + `platform-autonomy-override.md`. Non-terminal checkpoints listed there; chat≠ledger; post-slice→dequeue without final response unless terminal halt.
+See `agents/rules/long-running-autonomy.md` + `agents/rules/platform-autonomy-override.md` (supervisor_policy > harness defaults). Non-terminal checkpoints (slice|verify|post-slice|heartbeat|compaction) listed there; chat≠ledger; `snapshot_rehydrate → pnpm openclaw:run-next → lease → dequeue` without final response unless terminal halt. See `agents/rules/LEX_AGENTIC.md` for orchestration coordinator duties, LOW_TOKEN rehydration, lease, and unattended loop steps.
 
-## Days-Long Unattended Autonomy Contract
+## OpenClaw-Style Repo-Agent Activation and Subagent Protocol
 
-This repo can only sustain days-long autonomy through repeated rehydration, durable file-backed state, and automation/heartbeat continuation. A single Codex turn is not a durable background process: it may stop because the platform requires a response, context compacts, a tool session ends, a heartbeat arrives, or a plugin/skill workflow introduces an approval checkpoint.
+OpenClaw-style / OpenClaw-inspired file-backed agent system (not an external runtime) under `agents/**` (charter+memory), `docs/agent-factory/**`, `packages/openclinxr/agent-loop`. Activated by repo commands + memory files + `pnpm agent:*` + `pnpm openclaw:*`.
 
-The most common apparent "stop" is a heartbeat turn ending with the required heartbeat XML response. That response is a platform boundary, not project completion. On the next heartbeat or user continuation, rehydrate from the repo docs and continue the next approved slice instead of explaining status.
+See `agents/rules/LEX_AGENTIC.md` for authoritative definitions of:
+- orchestration coordinator (chief-coordinator role)
+- role-mapped subagent delegation (coordinator-first)
+- persona-constrained BLUF
+- tiered routing with self-escalation (flash explore scouts first; grok-build only on escalation or protected claims)
+- Q-gate slice filter
 
-When Patrick asks for unattended or multi-hour/multi-day work:
+See `agents/rules/PROTO_SUBAGENT.md` (core rule, work order template, best practices), `agents/rules/agent-consult.md`, `agents/rules/TIER_GROK.md`, and `agents/rules/grok-harness-usage.md` (Composer as orchestration entrypoint; explore subs for cheap scouts on deepseek-v4-flash; no Cursor Task for 0-2).
 
-- Treat the request as approval to run the repo autonomous loop until a stop condition in this file is reached.
-- Prefer the event-driven runner over recurring no-op heartbeats: use `pnpm openclaw:run-next` to select the next approved slice and write only `.openclinxr/openclaw/run-next-report.json`; use `pnpm openclaw:watchdog` only as a quiet local idle check. Do not append canonical state records unless product code, verification evidence, or a real blocker changed.
-- Codex lifecycle hooks live in `.codex/hooks.json` and route through `pnpm codex:hook`; trust/review them with `/hooks` after changes. They are guardrails and rehydration reminders, not a background product worker.
-- Rehydrate from `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md` before selecting work if context may have compacted.
-- Do not wait for chat confirmation after a slice, verification pass, screenshot, evidence review, doc update, or heartbeat.
-- If a tool, skill, plugin, or methodology asks for approval, require chat approval only for new scope, destructive operations, paid/cloud/API use, production deployment, credentials, physical hardware action, runtime dependency changes, or an explicit user-requested planning gate. For already-approved local deterministic slices, record assumptions/defaults in operator files and continue.
-- If context compacts, re-read the resume docs and continue; do not infer completion from compaction.
-- Before long unattended runs after cleanup or suspected drift, run `pnpm docs:drift-check` and apply the required per-slice record in `docs/openclinxr/openclaw-runbook-2026-05-27.md`.
-- If a heartbeat arrives, perform at least one productive approved slice before any heartbeat response unless all lanes are blocked.
-- If the platform forces a response, keep it minimal and continuation-oriented; do not summarize files changed or ask whether to continue unless a stop condition is reached.
-- Every batch ends by selecting the next approved slice, not by reporting completion.
-- Durable status belongs in repo docs and operator files, not chat.
+Mandatory: after compaction / suspected drift / 2+ evidence-only slices, consult at minimum chief-coordinator + implementation-planning-lead + implementation-plan-gap-attacker + vp-engineering-delivery + openclaw-drift-police (via local charter/memory read or narrow explore sub). For XR/asset: also xr-systems-architect + asset-pipeline-lead. Coordinator first; narrow non-overlapping; map to repo roles; main worker owns integration + state + closure. Every prompt names full repo path and confirms core files. Never full agent-factory loop for routine slices.
 
-Unattended loop:
-
-1. Select the highest-value lane from `PROJECT_COORDINATION_INDEX.md` and `AUTONOMOUS_WORK_PLAN.md`.
-2. Implement the smallest coherent product-advancement slice.
-3. Run focused verification for touched packages when appropriate.
-4. Capture visual/runtime evidence only when it verifies changed behavior or unlocks the next implementation decision.
-5. Update `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, and any relevant evidence/operator files.
-6. If blocked, record the blocker with a recommended default, then pivot to another approved lane.
-7. If two evidence-only slices happen consecutively, force the next slice to be a product-building or pipeline-hardening slice.
-8. Continue without asking whether to continue.
-
-## OpenClaw-Style Repo-Agent Activation
-
-This repository has an OpenClaw-style / OpenClaw-inspired, file-backed agent system under `agents/**`, `docs/agent-factory/**`, `iterations/**`, `.agent-factory/**`, and `packages/openclinxr/agent-loop`. It is not an external OpenClaw runtime. It is activated by repo commands and memory files, not by merely existing on disk.
-
-For Codex-specific tool alignment, also use `docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md`. That bridge maps current Codex capabilities, live subagents, Browser screenshots, local execution, and repo-native agent-factory commands back to this operating contract.
-
-Activation status:
-
-- Active as persistent repo memory: yes. Agent charters, memories, indexes, scorecards, and iteration syntheses are committed and should steer work.
-- Active as tooling: yes. `pnpm agent:alignment`, `pnpm agent:loop`, `pnpm agent:validate`, `pnpm agent:index`, `pnpm agent:maturity`, and related checks exist.
-- Active as always-on autonomous runtime: no. There is no daemon that automatically spawns all `agents/**` roles on every slice.
-- Active as live subagents: only when the current Codex environment exposes a subagent/multi-agent tool or when a repo command creates an agent-loop artifact. If no live subagent tool is available, simulate repo-defined agents by reading the relevant `charter.md`/`memory.md` files and recording the lens used.
-
-Live subagent discovery rule:
-
-- Before concluding that live subagents are unavailable, search the current tool environment for multi-agent/subagent tooling.
-- If `multi_agent_v1` or equivalent tooling is available and Patrick has requested agent use, delegation, parallel review, or OpenClaw-style execution, use live subagents for bounded independent work that materially reduces drift or review cost.
-- Map repo-defined roles onto live subagent prompts. Example: an `explorer` can act as Chief Coordinator or Gap Attacker for a read-only drift check; a `worker` can act as Asset Pipeline Lead or XR Systems Architect for a disjoint implementation slice.
-- Do not spawn agents for every heartbeat by default. Spawn when there are independent review/implementation tasks, when drift is suspected, or after repeated evidence/gate-only slices.
-
-OpenClaw-style orchestration-agent rule:
-
-- When Patrick asks for OpenClaw-style multi-agent execution or after context compaction during autonomous work, create or simulate a coordinator/orchestration agent before broad multi-agent execution.
-- The orchestration agent does not implement product code, patch files, run routine verification, or own a product slice.
-- The orchestration agent only maintains mission alignment, checks in on progress, assigns independent tasks, chooses independent slices, maps repo-defined roles to live/local agents, prevents overlapping write scopes, watches for toil/drift, criticizes repeated tests or isolated code that do not create tangible product advancement, and recommends when agent threads should be closed.
-- The main Codex worker remains responsible for implementation, verification, doc updates, and closing live subagent threads once their outputs are consumed.
-- If live subagent tooling is available and Patrick has requested this mode, spawn the orchestration agent as a narrow read-only `explorer`/coordinator. Then spawn narrowly scoped specialist or adversarial agents only where they materially reduce drift, review cost, or implementation risk. If live subagent tooling is unavailable, simulate it by consulting `agents/coordinator/chief-coordinator/**`, `agents/core/implementation-planning-lead/**`, and the active worker role memories, then record the orchestration decision in the plan docs.
-- Every live subagent prompt must explicitly name `/Volumes/files/src/openclinxr` as the target repo and must first confirm that `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/agent-factory/**`, `agents/**`, and `tools/agent-factory/**` are present before drawing repo-native conclusions. If a subagent reports from another cwd, close it as stale and do not use its findings.
-- Rehydration after compaction: immediately after reading this file, restore this pattern before selecting work: coordinator/orchestration agent first, then independent specialist/adversarial agents only where they materially reduce drift or review cost, while local implementation continues on non-overlapping work.
-- Before completing any slice, repeat this instruction internally and start the next slice: keep going; use focused subagents with one non-coding coordinator; keep driving toward the case-definition-driven factory that builds hyper-realistic WebXR encounters with humanoids acting out case roles complete with locomotion, expression, interactivity, and changing emotion state; use codebase evidence and screenshots for adversarial review; keep chat minimal; do not treat unit tests or isolated code as sufficient proof of progress; full end-to-end running software is the goal.
-
-Mandatory agent use rules:
-
-- After any context compaction, suspected drift, or two consecutive evidence/gate-only slices, consult at least the Chief Coordinator, Implementation Planning Lead, Implementation Plan Gap Attacker, and VP Engineering Delivery memories/charters before selecting the next slice.
-- When suspected drift involves scattered artifacts, one-off encounter work, evidence toil, weakened guardrails, wrong-cwd subagents, or noncanonical process, consult `agents/adversarial/openclaw-drift-police/charter.md` and `agents/adversarial/openclaw-drift-police/memory.md`, run or request `pnpm docs:drift-check`, apply the smallest correction, and pivot back to a product slice.
-- For XR/humanoid/asset work, also consult XR Systems Architect and Asset Pipeline Lead memory/charter when the next slice changes runtime behavior, visual evidence rules, generated assets, rigging, animation, Quest/WebXR posture, or IWSDK posture.
-- For scenario-bank, clinical, scoring, review, or safety language changes, consult the relevant physician/simulation, psychometric, clinical-safety, legal/compliance, and security/privacy agents.
-- When live subagent tools are available, spawn narrow non-overlapping agents for independent review or implementation only when they materially reduce drift, review cost, or implementation risk.
-- When live subagent tools are unavailable or more expensive than local work, perform a "repo-agent consultation" locally by reading the relevant role memory/charter and writing the role decision into `AUTONOMOUS_WORK_PLAN.md` or the worker backlog.
-- Do not run the full agent-factory loop for routine implementation. Run or dry-run `pnpm agent:loop` only when broad planning, leadership/adversarial synthesis, plateau recovery, or major direction changes are needed.
+Rehydration after compaction: restore coordinator-first pattern before selecting work.
 
 ## Case-Definition-Driven WebXR Realism Loop
 
-The active product north star is a case-definition-driven encounter factory. Scenario definitions should drive generated assets, actor roles, dialogue, emotion state, locomotion/posture, gaze, lip-sync, interactivity, equipment, environment props, review gates, and runtime evidence. Avoid hardcoded one-off scene behavior unless it is an explicitly labeled deterministic local fallback that is being converted back into factory metadata.
-
-For humanoid/XR/asset work:
-
-- Keep pushing toward hyper-realistic WebXR encounters where humanoids act out case-defined roles, including locomotion or posture changes, facial expression, gaze, lip-sync, interactivity/collision affordances, and changing emotional state.
-- Use evidence in the codebase to refine the next implementation, especially screenshots, browser evidence JSON, runtime scene evidence, visual QA reports, and adversarial review notes.
-- Do not accept unit tests as the sole proof of progress. Focused tests are useful, but product advancement requires running software evidence when the slice changes runtime, UI, XR, scene, humanoid, or asset behavior.
-- Prefer end-to-end local browser/runtime evidence, screenshots, generated bundle evidence, or admin/review workflow evidence over isolated code assertions whenever feasible and inside approved boundaries.
-- Use adversarial agents to compare screenshots/evidence against the intended encounter representation and identify concrete realism gaps before broad new planning.
-- If a slice only adds tests, validators, or metadata and does not move a learner/faculty/admin/runtime/factory path closer to executable behavior, the orchestration agent should treat it as suspect and select a tangible product slice next.
-- Keep chat output minimal. Store status, evidence, and next-slice handoff in `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+See `agents/rules/LEX_AGENTIC.md` (Q1 blueprint-to-runtime + visibility/noticeability mandate) and `agents/rules/MANDATE_VISIBILITY.md`. Active north star: case-definition-driven encounter factory (scenario/phenotype fields → generated actors, dialogue, emotion, locomotion, gaze, lip-sync, assets, runtime evidence). Humanoid/XR/asset slices must produce skeptic-noticeable change in tester (Model Vetting) **or** sample (UI-XR) per the mandate; expand until visible (no sub-pixel/fixture/rigid-no-weights acceptance). Prefer end-to-end runtime evidence over unit tests. Adversarial roles (productivity-skeptic, visual-realism-adversary, openclaw-drift-police) critique for gaps. Store status/evidence/handoff only in the 3 canonical MDs; keep chat minimal. See also blueprint-factory-guardrails.md (conversation tooling first-class).
 
 ## Stop Conditions
 
@@ -210,35 +149,9 @@ When a slice is blocked by credentials, hardware action, paid/cloud/API use, des
 
 Only stop for blockers if all approved product-advancement lanes are blocked and no safe local deterministic slice remains.
 
-## Low-Token Autonomy
+## Low-Token Autonomy and Anti-Toil Gate
 
-Operate in LOW_TOKEN_AUTONOMY mode unless Patrick explicitly changes the mode.
-
-- Minimize chat output.
-- Do not narrate routine progress.
-- Prefer targeted `rg`/`sed` reads and small patches.
-- Avoid broad repo scans and repeated file reads.
-- Keep status and handoff context in `AUTONOMOUS_WORK_PLAN.md` and the worker backlog.
-- Do not summarize successful command output unless it changes the next decision.
-
-## Anti-Toil Product Advancement Gate
-
-Do not let verification, benchmark refreshes, evidence ledgers, or repeated review loops become the work.
-
-Before selecting a slice, apply this gate:
-
-- The slice must directly advance the Step 2 CS-inspired multi-station XR clinical-skills exam skeleton, or unblock a named product slice that cannot safely proceed without the evidence.
-- Evidence-only work is allowed when it verifies a just-touched package, captures a newly available hardware/runtime fact, or closes a specific leadership gate that is blocking an implementation decision.
-- Evidence-only work is not allowed merely to make stale reports fresher, reduce red in aggregate dashboards, rerun known-failing gates, or restate already-known blockers.
-- After one evidence-only slice, the next slice should normally be product construction: scenario bank, exam assembly, station runtime, admin review workflow, XR interaction, persistence integration, provider facade safety, or asset-pipeline implementation.
-- After two consecutive evidence/validation-only slices, force a Chief Coordinator plus Implementation Plan Gap Attacker review using `agents/**`, `docs/agent-factory/**`, and the latest `iterations/iteration-*/07-final-synthesis.md`; then choose a build slice unless a true blocker prevents all approved build work.
-- Run aggregate benchmark rollups at most once after a coherent batch of changes, not after every small validation, unless the aggregate result changes the next implementation decision.
-- Prefer “make a learner/faculty/admin flow more complete” over “make a report more current” when both are safe.
-
-Useful self-check:
-
-- If the output only says “still blocked” and no product behavior, contract, fixture, UI, or runtime path improved, it was probably toil.
-- If the output makes a future implementation safer, more connected, or more observable, it is likely productive.
+See `agents/rules/LEX_AGENTIC.md` (LOW_TOKEN targeted rehydration via 60-80 line snapshots of the 3 state MDs + AGENTS top; targeted grep/read_file(limit); state only in 3 MDs) and `agents/rules/GUARD_DRIFT.md` (anti-toil gate details + model-work guard + productivity-skeptic pulse). Operate in LOW_TOKEN_AUTONOMY by default: no chat summaries/ledgers/narration; prefer small deterministic slices; after 1 evidence-only next is product; after 2 force coordinator + drift-police review + product pivot. Guards: `pnpm agent:alignment && pnpm docs:drift-check` after coordination edits. See also hyper-token-efficient-long-run-practices.md and rehydration-low-token.md for expansions.
 
 ## Repo-Defined Agents And Worker Roles
 

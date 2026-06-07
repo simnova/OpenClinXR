@@ -31,6 +31,9 @@ NOT_EVIDENCE_FOR = [
     "learner_readiness",
     "clinical_validity",
     "scoring_validity",
+    "motion_capture_quality",
+    "speech2motion_quality",
+    "real_anny_model_output",
 ]
 
 
@@ -47,7 +50,7 @@ def main() -> None:
     eye_settings = load_mpfb2_eye_settings()
 
     eyes = add_rigged_eyes(mesh_obj, armature_obj, head_bone_name, bounds, eye_settings)
-    pose_probe = run_pose_probe(eyes["lookTarget"], [eyes["left"], eyes["right"]])
+    pose_probe = run_pose_probe(eyes["lookTarget"], [eyes["left"], eyes["right"]], armature_obj)
 
     output_path = Path(args.output_glb)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +81,9 @@ def main() -> None:
         "eyeRig": {
             "mode": "mpfb2_default_eye_settings_low_poly_procedural_fallback",
             "headBoneName": head_bone_name,
-            "parentMode": "bone_parent_to_existing_head_bone" if head_bone_name else "object_parent_to_armature_or_scene",
+            "eyeBoneNames": ["eye.L", "eye.R"],
+            "parentMode": "bone_parent_to_eye_bones_under_head" if (armature_obj and "eye.L" in armature_obj.data.bones) else ("bone_parent_to_existing_head_bone" if head_bone_name else "object_parent_to_armature_or_scene"),
+            "gazeDrive": "eye_bone_rotations_plus_existing_target_track_to_for_compat",
             "lookTargetName": eyes["lookTarget"].name,
             "objectNames": eyes["objectNames"],
             "triangleCount": eyes["triangleCount"],
@@ -207,10 +212,19 @@ def add_rigged_eyes(
         eye.data.name = f"{eye.name}_mesh"
         eye.data.materials.append(material)
         world_matrix = eye.matrix_world.copy()
-        if armature_obj and head_bone_name:
+        # Parent procedural eye to dedicated eye bone (eye.L/eye.R under head) when present in canonical armature (peds school-age blueprint integration);
+        # fall back to head_bone for compat with prior runs. Drive gaze via bone rotations + keep existing target/TRACK_TO for probe consumers.
+        eye_bone_name = "eye.L" if label == "left" else "eye.R"
+        parent_bone_for_eye = None
+        if armature_obj:
+            if eye_bone_name in armature_obj.data.bones:
+                parent_bone_for_eye = eye_bone_name
+            elif head_bone_name:
+                parent_bone_for_eye = head_bone_name
+        if armature_obj and parent_bone_for_eye:
             eye.parent = armature_obj
             eye.parent_type = "BONE"
-            eye.parent_bone = head_bone_name
+            eye.parent_bone = parent_bone_for_eye
             eye.matrix_world = world_matrix
         elif armature_obj:
             eye.parent = armature_obj
@@ -314,7 +328,7 @@ def add_eye_face_details(
     return details
 
 
-def run_pose_probe(target: bpy.types.Object, eyes: list[bpy.types.Object]) -> dict[str, Any]:
+def run_pose_probe(target: bpy.types.Object, eyes: list[bpy.types.Object], armature_obj: bpy.types.Object | None = None) -> dict[str, Any]:
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 28
     bpy.context.scene.frame_set(1)
@@ -322,7 +336,28 @@ def run_pose_probe(target: bpy.types.Object, eyes: list[bpy.types.Object]) -> di
     target.keyframe_insert(data_path="location", frame=1)
     for eye in eyes:
         eye.keyframe_insert(data_path="rotation_euler", frame=1)
-    bpy.context.scene.frame_set(28)
+    # Drive gaze probe via eye bone rotations (additive eye.L/eye.R under head) + existing target for compat with prior consumers.
+    # Key pose bone euler so skeleton/pose evidence and retarget show integrated joints; TRACK_TO on eyes remains for object-level compat.
+    if armature_obj:
+        bpy.context.view_layer.objects.active = armature_obj
+        bpy.ops.object.mode_set(mode="POSE")
+        for side, eye in (("L", eyes[0]), ("R", eyes[1])):
+            bname = f"eye.{side}"
+            if bname in armature_obj.pose.bones:
+                pb = armature_obj.pose.bones[bname]
+                pb.keyframe_insert(data_path="rotation_euler", frame=1)
+        bpy.context.scene.frame_set(28)
+        # small additive rotation delta on bones for visible gaze sweep (compat with target move)
+        for side, eye in (("L", eyes[0]), ("R", eyes[1])):
+            bname = f"eye.{side}"
+            if bname in armature_obj.pose.bones:
+                pb = armature_obj.pose.bones[bname]
+                pb.rotation_euler[1] += 0.12 if side == "L" else -0.12  # yaw-ish
+                pb.rotation_euler[0] += 0.04
+                pb.keyframe_insert(data_path="rotation_euler", frame=28)
+        bpy.ops.object.mode_set(mode="OBJECT")
+    else:
+        bpy.context.scene.frame_set(28)
     target.location.x += 0.04
     target.location.z += 0.01
     bpy.context.view_layer.update()

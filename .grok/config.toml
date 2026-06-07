@@ -238,6 +238,26 @@ progress_bar = true
 # - Aligns with AGENTS.md resume sequence (re-read state files first), subagent rules, anti-toil, drift guards (pnpm agent:alignment + docs:drift-check after edits), lease for edits, focused verification.
 # - For full standardization across harnesses, keep .agents/skills/ + skills-lock.json as source of truth and configure each harness similarly.
 
+# --- Subagent Personas (Grok Build proper definitions per 16-subagents.md) ---
+# Project personas discovered from .grok/personas/*.toml.
+# Each role maps to an expertise-specific persona (terse, BLUF, domain jargon).
+# These are injected as behavioral overlay in custom spawn prompts (builder + role pointers).
+# Personas are expertise-tied: coordinator/orchestration, skeptic/anti-toil, asset-pipeline (Anny/ rigging/ geometry), XR runtime (lipsync/affect/trace), clinical, etc.
+# All enforce: BOTTOM LINE first, ≤100 words, bullets with file:line + precise jargon (e.g. notEvidenceFor, hasVisibleVolume, snapshot rehydrate, cheap-first, Q1/Q4/Q5 gate, live_blueprint_dialogue_emotion_source), end with "Recommended next: <slice> (Q#)".
+# Less tokens via terse expert-to-expert style.
+
+[subagents.personas.expert-terse-bluf]
+instructions = "BOTTOM LINE: Lead with conclusion in one jargon-dense sentence. Then minimal evidence bullets. <80-100 tokens target. Use file:line + domain shorthand only. End exactly 'Recommended next: <name> (Q#)'. Assume reader agents share full context and lexicon. No filler, no hedging, no recap."
+description = "Universal token-efficient expert overlay (BLUF + terse + jargon). Applied to all repo roles."
+
+# Specific expertise personas (see .grok/personas/*.toml for full instructions)
+# chief-coordinator + drift-police + gap-attacker → orchestration-drift-police
+# productivity-skeptic → productivity-skeptic
+# asset-pipeline-lead / rigging-animation-specialist → asset-pipeline-expert
+# xr-systems-architect → xr-runtime-expert
+# pediatrics-physician + clinical-safety-critic → clinical-reviewer (add later if needed)
+# implementation roles → implementation-planner (add as needed)
+
 # --- Rules / Project Instructions (modular alternative or complement to giant AGENTS.md) ---
 # Grok natively scans:
 #   - AGENTS.md (and variants) from repo root down to CWD (accumulating; deeper wins)

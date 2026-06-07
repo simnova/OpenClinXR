@@ -31,12 +31,24 @@ export const CANONICAL_HUMANOID_BONES = [
   "chest",
   "neck",
   "head",
+  // peds-school-age-blueprint-eye-joint-full-extend-v1 (from peds_asthma_parent_anxiety_v1 case needs):
+  // + eye.L/R for gaze/emotion/dialogue (blueprint affectTimeline + commProfile triggers)
+  // + clavicle.L/R for upper-body breathing effort / shoulder gesture (work_of_breathing, escalation)
+  // + index_finger_base.L/R for anxiety fidget / parent clutch interaction (hand motion in role clips)
+  // Full 23-bone canonical now drives skeleton binding, skin quality, retarget maps, and runtime clip validation for school-age patient.
+  // Blender create_canonical_armature emits these additively (bounds-driven); skin weights extended in ensure_deterministic_skinning_fallback.
+  "eye.L",
+  "eye.R",
+  "clavicle.L",
+  "clavicle.R",
   "upper_arm.L",
   "forearm.L",
   "hand.L",
+  "index_finger_base.L",
   "upper_arm.R",
   "forearm.R",
   "hand.R",
+  "index_finger_base.R",
   "thigh.L",
   "shin.L",
   "foot.L",

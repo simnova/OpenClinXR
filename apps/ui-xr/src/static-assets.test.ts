@@ -296,13 +296,22 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("peds_anny_mpfb2_eye_rig_patient");
     expect(mainSource).toContain("peds_anny_school_age_mpfb2_eye_patient");
     expect(mainSource).toContain("peds_anny_comfy_masked_skin");
+    expect(mainSource).toContain("peds_anny_real_garment_patient");
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
     expect(mainSource).toContain("/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb");
+    expect(mainSource).toContain("/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb");
+    expect(mainSource).toContain("isPedsRealGarmentSleeveDeformCapture");
+    expect(mainSource).toContain("garment-sleeve");
+    expect(mainSource).toContain("sleeve-deform");
+    expect(mainSource).toContain("openClinXrSleeveDeformEvidence");
+    expect(mainSource).toContain("skinned_garment_sleeves_from_phenotype_garmentLayers");
+    expect(mainSource).toContain("separate deforming 3D sleeves");
     expect(mainSource).toContain("pedsAsthmaPatientBundleVisemeUtterance");
     expect(mainSource).toContain("openClinXrVisemeTimelineComparatorEvidence");
     expect(mainSource).toContain("resolvePedsAdaptiveDialogueBranch");
     expect(mainSource).toContain("__openClinXrPedsAdaptiveDialogueEvidence");
     expect(mainSource).toContain("schoolAgePatientAssetPath");
+    expect(mainSource).toContain("realGarmentPatientAssetPath");
     expect(mainSource).toContain("__openClinXrMouthGazePoseComparatorEvidence");
     expect(mainSource).toContain("recordMouthGazePoseComparatorEvidence");
     expect(mainSource).toContain("glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition");
@@ -514,6 +523,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("pedsActorPlayerRuntimeTurns");
     expect(mainSource).toContain("bundle_dialogue_turn");
     expect(mainSource).toContain("actor_player_sample_fallback");
+    // live blueprint dialogue+emotion lipsync bind (Q1/Q5 slice)
+    expect(mainSource).toContain("live_blueprint_dialogue_emotion_source");
+    expect(mainSource).toContain("activeDialogueTurnRef");
     expect(mainSource).toContain("normalizePedsActorPlayerEmotion");
     expect(mainSource).toContain("triggerHumanoidDialogue(turn.actorId");
     expect(mainSource).toContain("latestTriggerSource: \"trace_action\"");
@@ -778,6 +790,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrHumanoidSpeechEvidence ??=");
     expect(mainSource).not.toContain("window.__openClinXrHumanoidSpeechEvidence = buildHumanoidSpeechEvidence(null, null, null, [], [], null);");
     expect(mainSource).toContain("localDialogueActorIdForTraceTag");
+    expect(mainSource).toContain("live_blueprint_dialogue_emotion_source"); // updated for live turn+emotion bind in speech evidence + mouth-gaze
     expect(mainSource).toContain("phonemeSequenceForDialogue");
     expect(mainSource).toContain("visemeForPhoneme");
     expect(mainSource).toContain("createHumanoidSpeechMouthCue");
