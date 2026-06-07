@@ -721,3 +721,16 @@ export {
   visemeOpenness,
 } from "./viseme-timeline.js";
 export type { MorphTargetVisemeCueEvidence, VisemeTimeline, VisemeTimelineMappingMode } from "./viseme-timeline.js";
+export {
+  applyMorphTargetEmotionCue,
+  buildPedsAsthmaPatientEmotionTransitionTimeline,
+  emotionWeightsAtTimelineProgress,
+  expressionWeightsForEmotion,
+} from "./emotion-transition.js";
+export type {
+  EmotionTransitionMappingMode,
+  EmotionTransitionTimeline,
+  HumanoidExpressionEmotion,
+  HumanoidExpressionWeights,
+  MorphTargetEmotionCueEvidence,
+} from "./emotion-transition.js";

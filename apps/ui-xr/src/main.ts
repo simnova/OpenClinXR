@@ -346,6 +346,7 @@ declare global {
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
     __openClinXrPedsAdaptiveDialogueEvidence?: PedsAdaptiveDialogueEvidence;
+    __openClinXrMouthGazePoseComparatorEvidence?: MouthGazePoseComparatorEvidence;
     __openClinXrDebugScene?: Scene;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
@@ -1449,6 +1450,27 @@ type PedsActorPlayerRuntimeSequenceEvidence = {
   traceTag: string;
   source: PedsActorPlayerRuntimeSequenceSource;
   turns: PedsActorPlayerRuntimeTurn[];
+};
+type MouthGazePoseComparatorEvidence = {
+  source: "window.__openClinXrMouthGazePoseComparatorEvidence";
+  captureMode: string;
+  comparator: "peds_anny_school_age_mpfb2_eye_patient";
+  scenarioId: "peds_asthma_parent_anxiety_v1";
+  actorId: string;
+  dialogueText: string;
+  traceTag: "work_of_breathing_assessment";
+  activeViseme: string;
+  activeMouthOpenness: number;
+  activeEmotionState: HumanoidExpressionEmotion;
+  activeExpressionTransitionMs: number;
+  activeExpressionWeights: HumanoidExpressionWeights;
+  gazeProbePlayback: string | null;
+  activeGazeProbeAnimationClipName: string | null;
+  morphTargetAppliedTargetCount: number;
+  morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition";
+  emotionTransitionCuePresent: boolean;
+  visemeTimelineComparatorEvidencePresent: boolean;
+  notEvidenceFor: string[];
 };
 type PedsAdaptiveDialogueEvidence = {
   source: "window.__openClinXrPedsAdaptiveDialogueEvidence";
@@ -7509,7 +7531,60 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     activeBodyMotionIntensity: Number((openness + 0.18).toFixed(3)),
     activeBodyMotionMode: "scenario_dialogue_body_motion_runtime",
   };
+  recordMouthGazePoseComparatorEvidence(slot, speech, viseme, openness, expressionState, nowMs);
   updateHumanoidGazeCue(slot, speech, camera);
+}
+
+function recordMouthGazePoseComparatorEvidence(
+  slot: GeneratedHumanoidAnimationSlot,
+  speech: HumanoidSpeechPlayback,
+  viseme: string,
+  openness: number,
+  expressionState: HumanoidEmotionExpressionState,
+  nowMs: number,
+): void {
+  if (!isHumanoidMouthGazePoseReviewCaptureMode()) {
+    return;
+  }
+  const comparator = selectedHumanoidSourceComparator();
+  if (comparator !== "peds_anny_school_age_mpfb2_eye_patient" || speech.actorId !== runtimePatientActorId()) {
+    return;
+  }
+  const morphCue = slot.root.userData.openClinXrMorphTargetRuntimeCue as {
+    appliedTargetCount?: number;
+  } | undefined;
+  window.__openClinXrMouthGazePoseComparatorEvidence = {
+    source: "window.__openClinXrMouthGazePoseComparatorEvidence",
+    captureMode: selectedCaptureMode(),
+    comparator,
+    scenarioId: "peds_asthma_parent_anxiety_v1",
+    actorId: speech.actorId,
+    dialogueText: speech.text,
+    traceTag: "work_of_breathing_assessment",
+    activeViseme: viseme,
+    activeMouthOpenness: Number(openness.toFixed(3)),
+    activeEmotionState: expressionState.targetEmotion,
+    activeExpressionTransitionMs: Number(Math.max(0, nowMs - expressionState.transitionStartedAtMs).toFixed(0)),
+    activeExpressionWeights: roundHumanoidExpressionWeights(expressionState.weights),
+    gazeProbePlayback: typeof slot.root.userData.openClinXrAnimationPlayback === "string"
+      && slot.activeGazeProbeAnimationClipName
+      ? "gltf_gaze_probe_clip_playing"
+      : null,
+    activeGazeProbeAnimationClipName: slot.activeGazeProbeAnimationClipName ?? null,
+    morphTargetAppliedTargetCount: morphCue?.appliedTargetCount ?? 0,
+    morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
+    emotionTransitionCuePresent: Boolean(slot.root.userData.openClinXrEmotionExpressionTransitionCue),
+    visemeTimelineComparatorEvidencePresent: Boolean(slot.root.userData.openClinXrVisemeTimelineComparatorEvidence),
+    notEvidenceFor: [
+      "production phoneme timing",
+      "validated facial animation",
+      "clinical affect scoring",
+      "b_plus_visual_realism_gate",
+      "quest_readiness",
+      "production_asset_readiness",
+      "learner_readiness",
+    ],
+  };
 }
 
 function applyHumanoidFaceRigControls(

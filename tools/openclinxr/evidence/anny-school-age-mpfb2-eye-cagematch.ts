@@ -16,7 +16,7 @@ type CliOptions = {
   sourceReportPath: string;
   sourceCandidateId: string;
   outputGlbName: string;
-  captureViews: Array<"front" | "three_quarter" | "body_motion_probe" | "viseme_timeline">;
+  captureViews: Array<"front" | "three_quarter" | "body_motion_probe" | "viseme_timeline" | "emotion_transition">;
   dialogueText: string;
   port: number;
   durationMs: number;
@@ -292,7 +292,9 @@ async function captureStudioEvidence(input: {
     const browser = await chromium.launch({ headless: true });
     try {
       for (const captureView of input.captureViews) {
-        const ext = captureView === "body_motion_probe" || captureView === "viseme_timeline" ? "webm" : "png";
+        const ext = captureView === "body_motion_probe" || captureView === "viseme_timeline" || captureView === "emotion_transition"
+          ? "webm"
+          : "png";
         const artifactPath = path.join(
           input.captureDir,
           `${path.basename(candidate.sourceGlbPath, ".glb")}_${captureView}_${input.runId}.${ext}`,
@@ -321,14 +323,21 @@ async function captureStudioEvidence(input: {
                 && evidence?.visemeTimelineEvidence?.morphTargetPlaybackMode === "glb_morph_target_timeline_from_bundle_dialogue"
                 && (evidence.visemeTimelineEvidence.appliedTargetCount ?? 0) > 0;
             }
+            if (expectedView === "emotion_transition") {
+              return baseReady
+                && evidence?.emotionTransitionEvidence?.morphTargetPlaybackMode === "glb_morph_target_emotion_transition_from_case_definition"
+                && (evidence.emotionTransitionEvidence.appliedTargetCount ?? 0) > 0;
+            }
             return baseReady;
           },
           captureView,
           { timeout: 120_000 },
         );
-        await page.waitForTimeout(captureView === "viseme_timeline" ? 1200 : 400);
-        if (captureView === "body_motion_probe" || captureView === "viseme_timeline") {
-          const recordingDurationMs = captureView === "viseme_timeline" ? Math.max(input.durationMs, 4500) : input.durationMs;
+        await page.waitForTimeout(captureView === "viseme_timeline" || captureView === "emotion_transition" ? 1200 : 400);
+        if (captureView === "body_motion_probe" || captureView === "viseme_timeline" || captureView === "emotion_transition") {
+          const recordingDurationMs = captureView === "viseme_timeline" || captureView === "emotion_transition"
+            ? Math.max(input.durationMs, 4500)
+            : input.durationMs;
           await writeFile(artifactPath, Buffer.from(await recordModelCanvasVideo(page, recordingDurationMs)));
         } else {
           await page.screenshot({ path: artifactPath });
@@ -378,6 +387,7 @@ function slotIdForCaptureView(view: CliOptions["captureViews"][number]): string 
   if (view === "front") return "front_screenshot";
   if (view === "three_quarter") return "three_quarter_screenshot";
   if (view === "viseme_timeline") return "viseme_timeline_video";
+  if (view === "emotion_transition") return "emotion_transition_video";
   return "body_motion_probe_video";
 }
 

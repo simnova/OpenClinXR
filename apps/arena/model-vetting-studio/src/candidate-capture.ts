@@ -1,7 +1,10 @@
 import {
   PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE,
+  applyMorphTargetEmotionCue,
   applyMorphTargetVisemeCue,
+  buildPedsAsthmaPatientEmotionTransitionTimeline,
   buildVisemeTimelineFromDialogue,
+  emotionWeightsAtTimelineProgress,
   visemeAtTimelineProgress,
   type VisemeTimeline,
 } from "@openclinxr/model-vetting";
@@ -112,6 +115,22 @@ export type ModelVettingCandidateCaptureEvidence = {
     morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue";
     notEvidenceFor: string;
   };
+  emotionTransitionEvidence?: {
+    fromEmotion: string;
+    toEmotion: string;
+    transitionProgress: number;
+    appliedTargetCount: number;
+    expressionWeights: {
+      mouthOpen: number;
+      browConcern: number;
+      cheekTension: number;
+    };
+    morphTargetPlaybackMode: "glb_morph_target_emotion_transition_from_case_definition";
+    mappingMode: "case_definition_driven_expression_transition";
+    traceTag: "work_of_breathing_assessment";
+    actorId: "patient_maya_johnson_v1";
+    notEvidenceFor: string;
+  };
   scenePlacementEvidenceAllowed: false;
   questReadinessClaimAllowed: false;
   productionReadinessClaimAllowed: false;
@@ -188,13 +207,25 @@ export async function renderCandidateCapture(input: {
   let meshCount = 0;
   let skinnedMeshCount = 0;
   const inspectionMaterial = new MeshBasicMaterial({ color: "#cde7dc" });
-  const useSourceMaterials = input.view !== "emotion_transition";
+  const emotionTransitionCapture = input.view === "emotion_transition";
+  const useSourceMaterials = true;
   const visemeTimelineCapture = input.view === "viseme_timeline";
   const visemeTimeline = visemeTimelineCapture
     ? buildVisemeTimelineFromDialogue(input.dialogueText ?? PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE)
     : null;
+  const emotionTransitionTimeline = emotionTransitionCapture
+    ? buildPedsAsthmaPatientEmotionTransitionTimeline({ extendedCapture: true })
+    : null;
   let latestVisemeCueEvidence = visemeTimelineCapture
     ? applyMorphTargetVisemeCue(model, 0, "rest")
+    : null;
+  let latestEmotionCueEvidence = emotionTransitionCapture && emotionTransitionTimeline
+    ? applyMorphTargetEmotionCue(
+      model,
+      emotionWeightsAtTimelineProgress(emotionTransitionTimeline, 0).weights,
+      emotionTransitionTimeline,
+      0,
+    )
     : null;
 
   const bodyMotionCapture = input.view === "body_motion_probe";
@@ -290,8 +321,15 @@ export async function renderCandidateCapture(input: {
         latestVisemeCueEvidence = applyMorphTargetVisemeCue(model, openness, visemeFrame.viseme);
         model.updateMatrixWorld(true);
       }
-      if (input.view === "emotion_transition") {
-        inspectionMaterial.color.lerpColors(new Color("#cde7dc"), new Color("#f0c5b2"), progress);
+      if (emotionTransitionCapture && emotionTransitionTimeline) {
+        const emotionFrame = emotionWeightsAtTimelineProgress(emotionTransitionTimeline, progress);
+        latestEmotionCueEvidence = applyMorphTargetEmotionCue(
+          model,
+          emotionFrame.weights,
+          emotionTransitionTimeline,
+          emotionFrame.transitionProgress,
+        );
+        model.updateMatrixWorld(true);
       }
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
@@ -342,7 +380,9 @@ export async function renderCandidateCapture(input: {
     deterministicTemporalCue: {
       enabled: isTemporalCaptureView(input.view),
       cue: isTemporalCaptureView(input.view) ? input.view : null,
-      durationMs: isTemporalCaptureView(input.view) ? (visemeTimeline?.durationMs ?? 3000) : 0,
+      durationMs: isTemporalCaptureView(input.view)
+        ? (visemeTimeline?.durationMs ?? emotionTransitionTimeline?.durationMs ?? 3000)
+        : 0,
       degrees: input.view === "turntable" ? 360 : 0,
     },
     ...(visemeTimelineCapture && visemeTimeline && latestVisemeCueEvidence
@@ -359,6 +399,22 @@ export async function renderCandidateCapture(input: {
           mouthOpenness: latestVisemeCueEvidence.mouthOpenness,
           morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue" as const,
           notEvidenceFor: latestVisemeCueEvidence.notEvidenceFor,
+        },
+      }
+      : {}),
+    ...(emotionTransitionCapture && emotionTransitionTimeline && latestEmotionCueEvidence
+      ? {
+        emotionTransitionEvidence: {
+          fromEmotion: latestEmotionCueEvidence.fromEmotion,
+          toEmotion: latestEmotionCueEvidence.toEmotion,
+          transitionProgress: latestEmotionCueEvidence.transitionProgress,
+          appliedTargetCount: latestEmotionCueEvidence.appliedTargetCount,
+          expressionWeights: latestEmotionCueEvidence.expressionWeights,
+          morphTargetPlaybackMode: "glb_morph_target_emotion_transition_from_case_definition" as const,
+          mappingMode: emotionTransitionTimeline.mappingMode,
+          traceTag: emotionTransitionTimeline.traceTag,
+          actorId: emotionTransitionTimeline.actorId,
+          notEvidenceFor: latestEmotionCueEvidence.notEvidenceFor,
         },
       }
       : {}),
