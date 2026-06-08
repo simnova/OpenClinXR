@@ -120,8 +120,7 @@ function isStale(lastRunAt: Date, now: Date, minIdleMinutes: number): boolean {
 
 async function loadStateFiles(): Promise<StateFiles> {
   const files = [
-    "AUTONOMOUS_WORK_PLAN.md",
-    "PROJECT_COORDINATION_INDEX.md",
+    "PROJECT_STATUS.md",
     "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   ];
   return Object.fromEntries(await Promise.all(files.map(async (file) => [file, await readFile(file, "utf8")])));

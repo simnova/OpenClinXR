@@ -27,9 +27,9 @@ This policy applies **only to the Grok code harness**. Codex Desktop (`.codex/ag
 
 Cursor `Task` only exposes `composer-2.5-fast` subagents. For cheap DeepSeek scouts, use native Grok `spawn_subagent` with `subagent_type=explore` and `capability_mode=read-only`. That honors `.grok/config.toml` `[subagents.models]`.
 
-**Orchestration coordinator rule (chief-coordinator role embodiment):** The orchestration coordinator (Composer main thread embodying chief-coordinator role) must itself be delegated via explore + deepseek-v4-flash when doing coordination/scout work. It must never directly spawn child agents as grok-build for routine slices. All spawns go through `pnpm grok:agent:spawn-spec --role <repo-role>` (enforces tier model per role-harness-policy + bakes Persona from charter + ESCALATION GUARD + visibility/noticeability mandate from agentic-lexicon.md + chunk-visibility-noticeability.md). Composer main thread only integrates + acquires/releases lease + updates the 3 canonical state MDs.
+**Orchestration coordinator rule (chief-coordinator role embodiment):** The orchestration coordinator (Composer main thread embodying chief-coordinator role) must itself be delegated via explore + deepseek-v4-flash when doing coordination/scout work. It must never directly spawn child agents as grok-build for routine slices. All spawns go through `pnpm grok:agent:spawn-spec --role <repo-role>` (enforces tier model per role-harness-policy + bakes Persona from charter + ESCALATION GUARD + visibility/noticeability mandate from agentic-lexicon.md + chunk-visibility-noticeability.md). Composer main thread only integrates + acquires/releases lease + updates PROJECT_STATUS.md.
 
-**Self-escalation guard:** Every subagent prompt includes an ESCALATION GUARD (baked in grok-repo-agent-spawn.ts). If a subagent (at any tier) explicitly outputs a line beginning with "UNABLE:", the orchestration coordinator MUST treat it as a valid request and spawn a higher-tier helper for the sub-task via the correct `pnpm grok:agent:spawn-spec` (ladder: deepseek-v4-flash → deepseek-v4-pro → grok-build). Record the reason and escalation in the 3 canonical MDs. This is the supported mechanism for a low-tier agent to request a more capable helper when it hits its limit. See agentic-lexicon.md.
+**Self-escalation guard:** Every subagent prompt includes an ESCALATION GUARD (baked in grok-repo-agent-spawn.ts). If a subagent (at any tier) explicitly outputs a line beginning with "UNABLE:", the orchestration coordinator MUST treat it as a valid request and spawn a higher-tier helper for the sub-task via the correct `pnpm grok:agent:spawn-spec` (ladder: deepseek-v4-flash → deepseek-v4-pro → grok-build). Record the reason and escalation in PROJECT_STATUS.md. This is the supported mechanism for a low-tier agent to request a more capable helper when it hits its limit. See agentic-lexicon.md.
 
 Composer owns orchestration: rehydrate snapshots, acquire lease, integrate subagent output, run post-slice guards, update canonical state files.
 
@@ -81,7 +81,7 @@ Work orders from `pnpm grok:tier:work-order` embed `repoAgentSpawns` with full `
 3. **Scout:** `pnpm grok:tier:work-order -- --slice-id <id> --slice-summary "<text>" --scout-question "<question>"` then spawn `explore` with the generated `scoutPrompt`.
 3. **Evaluate upgrade:** if flash output lacks repo file paths or Q1/Q4/Q5 gate language, upgrade to tier 2 `plan` before any write scope.
 4. **Execute:** only after bounded plan; use tier 3 `general-purpose` for disjoint implementation slices.
-5. **Integrate:** Composer merges results, runs focused verify, records `tier: flash|pro|compose|frontier` in `AUTONOMOUS_WORK_PLAN.md`.
+5. **Integrate:** Composer merges results, runs focused verify, records `tier: flash|pro|compose|frontier` in `PROJECT_STATUS.md`.
 6. **At slice end:** run `pnpm grok:tier:post-slice` and paste `stateRecordLine` into the slice record.
 7. **After compaction or multi-subagent waves:** re-run introspection and re-read snapshot blocks only.
 

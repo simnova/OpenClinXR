@@ -8,7 +8,7 @@ These guardrails are protected repo coordination policy. Autonomous agents, live
 
 Changes are allowed only when Patrick explicitly asks to change the guardrails or when a human-reviewed coordination update replaces them with stricter equivalent language. Routine autonomous work must treat this file as read-only policy.
 
-`pnpm agent:alignment` must fail if these guardrails are unlinked from `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, or `AUTONOMOUS_WORK_PLAN.md`.
+`pnpm agent:alignment` must fail if these guardrails are unlinked from `AGENTS.md` or `PROJECT_STATUS.md`.
 
 ## Non-Negotiable North Star
 

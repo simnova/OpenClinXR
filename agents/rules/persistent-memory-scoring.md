@@ -3,7 +3,7 @@ title: Persistent Memory And Scoring (Rubric)
 authority: agent-methodology
 scope: project-wide
 last-updated: 2026-06-04
-relates-to: AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, .agent-factory/memory-index.json, agents/**/memory.md
+relates-to: AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, .agent-factory/memory-index.json, agents/**/memory.md
 ---
 
 # Persistent Memory And Scoring
@@ -13,7 +13,7 @@ Persistent memory for this repo is file-backed and indexed through the planning/
 Primary memory files:
 
 - `AGENTS.md`: durable agent operating contract.
-- `AUTONOMOUS_WORK_PLAN.md`: current state, continuation defaults, completed slices, and next work.
+- `PROJECT_STATUS.md`: canonical state (autonomy, priority, active work, backlog, strategy, per-slice checkpoints).
 - `docs/openclinxr/worker-backlog-and-validation-matrix.md`: worker ownership, validation matrix, evidence, and done conditions.
 - `operator-steering-needed-questions.md`: true operator blockers and approved scope.
 - `operator-open-questions.md`: nonblocking questions with recommended defaults.

@@ -9,7 +9,7 @@ authority: agent-methodology
 ## Non-terminal checkpoints
 `slice|verify|benchmark|doc|checkpoint|compaction|conversation-summary handoff|Stop_hook|heartbeat|task-complete_prompt`
 
-Chat≠status plane. Ledger: `AUTONOMOUS` + worker matrix only.
+Chat≠status plane. Ledger: `PROJECT_STATUS` + worker matrix only.
 
 Post-slice: `update_SSOT→verify(touched)→operator-open-questions→dequeue→continue`.
 

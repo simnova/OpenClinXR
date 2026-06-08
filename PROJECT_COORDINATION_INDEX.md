@@ -1,5 +1,7 @@
 # OpenClinXR Project Coordination Index
 
+**HISTORICAL AUDIT LEDGER — NOT CANONICAL STATE.** This file preserves prior checkpoint history for audit only. Do not append new checkpoints here. Canonical state is in `PROJECT_STATUS.md`. See that file's "Historical Audit Ledgers" section.
+
 Last updated: 2026-06-07 (guidance-WIP divorce for consistent large slices).
 
 ---

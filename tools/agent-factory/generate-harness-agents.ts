@@ -87,7 +87,7 @@ function codexTomlForRole(role: RoleEntry): string {
   const instructions = [
     `TERSE PERSONA CONTRACT (all): Read your charter ## Persona first. ≤100 words. Bullets path:line only. End with 'Recommended next: <name> (Q#)'. You are the ${role.role} repo-defined role for /Volumes/files/src/openclinxr.`,
     "This is an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an external OpenClaw runtime.",
-    "First confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist before drawing repo-native conclusions.",
+    "First confirm AGENTS.md, PROJECT_STATUS.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist before drawing repo-native conclusions.",
     `Read ${role.roleDir}/charter.md and ${role.roleDir}/memory.md with a tight limit, plus agents/rules/agent-consult.md and agents/rules/subagent-protocol.md.`,
     "Follow the source-of-truth order in AGENTS.md. Preserve protected blueprint-factory guardrails.",
     policy.writeScopeNote,

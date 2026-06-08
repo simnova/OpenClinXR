@@ -12,12 +12,12 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 26
 - agent-methodology: 55
-- archive-candidate: 9
+- archive-candidate: 11
 - current-reference: 160
 - decision-record: 19
 - evidence: 31
 - historical-synthesis: 9
-- protected-policy: 11
+- protected-policy: 10
 
 ## Highest-Value Current Navigation
 
@@ -127,8 +127,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/repo-defined-agents-worker-roles.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/source-of-truth.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
-- `AUTONOMOUS_WORK_PLAN.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
-- `PROJECT_COORDINATION_INDEX.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
+- `PROJECT_STATUS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `apps/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -198,6 +197,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/generated-output-storage-policy-2026-06-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

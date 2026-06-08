@@ -49,13 +49,13 @@ export function validateLatestSliceTokenLedger(planText: string): OperationalRed
   const checkpoints = extractRecentCheckpointLines(planText);
   if (checkpoints.length === 0) {
     return {
-      file: "AUTONOMOUS_WORK_PLAN.md",
+      file: "PROJECT_STATUS.md",
       message: "snapshot missing dated checkpoint lines for per-slice token ledger",
     };
   }
   if (!checkpoints[0]?.includes("Token introspection:")) {
     return {
-      file: "AUTONOMOUS_WORK_PLAN.md",
+      file: "PROJECT_STATUS.md",
       message:
         "latest checkpoint missing Token introspection line; run pnpm openclaw:slice-token:start → slice work → pnpm openclaw:slice-token:finish and paste stateRecordLine before commit",
     };
@@ -77,8 +77,7 @@ const requiredFiles = [
   ".agents/plugins/marketplace.json",
   "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json",
   "agents/rules/GUARD_DRIFT.md",
-  "PROJECT_COORDINATION_INDEX.md",
-  "AUTONOMOUS_WORK_PLAN.md",
+  "PROJECT_STATUS.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/openclaw-runbook-2026-05-27.md",
   "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md",
@@ -144,6 +143,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   for (const file of [
     "docs/openclinxr/openclaw-runbook-2026-05-27.md",
     "AUTONOMOUS_WORK_PLAN.md",
+    "PROJECT_STATUS.md",
     "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   ]) {
     const text = input.files[file] ?? "";

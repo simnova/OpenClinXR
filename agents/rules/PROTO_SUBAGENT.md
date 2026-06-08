@@ -16,12 +16,12 @@ authority: agent-methodology
 - For XR/humanoid/asset work, also consult XR Systems Architect and Asset Pipeline Lead memory/charter.
 - For scenario-bank, clinical, scoring, review, or safety language changes, consult the relevant physician/simulation, psychometric, clinical-safety, legal/compliance, and security/privacy agents.
 - When live subagent tools are available, spawn narrow non-overlapping agents for independent review or implementation only when they materially reduce drift, review cost, or implementation risk.
-- When live subagent tools are unavailable or more expensive than local work, perform a "repo-agent consultation" locally by reading the relevant role memory/charter and writing the role decision into `AUTONOMOUS_WORK_PLAN.md` or the worker backlog.
+- When live subagent tools are unavailable or more expensive than local work, perform a "repo-agent consultation" locally by reading the relevant role memory/charter and writing the role decision into `PROJECT_STATUS.md` or the worker backlog.
 - Do not run the full agent-factory loop for routine implementation. Run or dry-run `pnpm agent:loop` only when broad planning, leadership/adversarial synthesis, plateau recovery, or major direction changes are needed.
 
 ## Sub-Agent Work Order Template
 Target repo: /Volumes/files/src/openclinxr.
-Confirm AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist.
+Confirm AGENTS.md, PROJECT_STATUS.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist.
 Role/nickname:
 Scope:
 Read-only or write scope:
@@ -33,7 +33,7 @@ Return: concise findings, blockers, and recommended next slice.
 - Scope each agent to contribute to one sizable collaborative vertical slice (see agentic-lexicon.md) — a multi-role body of work targeting a functional area (asset factory, exam running, model proving ground) that is provable by interacting/showcasing in the tangible apps and sufficient for the productivity-skeptic to assess teamwork + forward movement + website evidence. Reject or escalate if the assigned scope is minor/isolated.
 - Avoid overlapping write scopes.
 - Tell agents the repo is shared and they must not revert unrelated changes.
-- Tell agents to respect approved boundaries in `AUTONOMOUS_WORK_PLAN.md`.
+- Tell agents to respect approved boundaries in `PROJECT_STATUS.md`.
 - Continue local non-overlapping work while agents run.
 - Integrate agent results into the plan/status docs before moving on.
 - Worker roles in `docs/openclinxr/worker-backlog-and-validation-matrix.md` are always useful as an ownership map.

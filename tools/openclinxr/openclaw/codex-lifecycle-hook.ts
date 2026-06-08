@@ -29,8 +29,7 @@ export type CodexLifecycleHookDecision = {
 
 const COORDINATION_PATH_MARKERS = [
   "AGENTS.md",
-  "PROJECT_COORDINATION_INDEX.md",
-  "AUTONOMOUS_WORK_PLAN.md",
+  "PROJECT_STATUS.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/openclaw-runbook-2026-05-27.md",
   ".agents/skills/openclinxr-openclaw/SKILL.md",

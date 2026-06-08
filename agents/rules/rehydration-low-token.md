@@ -10,10 +10,10 @@ See `agents/rules/agentic-lexicon.md` for authoritative LOW_TOKEN targeted rehyd
 `KV_eviction|summary_handoff` → cold-start rehydrate only (`platform-autonomy-override.md`).
 
 ## Required Resume Sequence (session|compaction|conversation-summary handoff; pre-halt)
-(Identical to AGENTS.md Required Resume Sequence and agentic-lexicon.md. Re-read AGENTS.md top + 3 state snapshots first.)
+(Identical to AGENTS.md Required Resume Sequence and agentic-lexicon.md. Re-read AGENTS.md top + PROJECT_STATUS.md + worker-backlog snapshots first.)
 
 ## Efficient Rehydration + Working Model
-(See agentic-lexicon.md + hyper-token-efficient-long-run-practices.md for full. Snapshots at top of 3 state files are fast-path. Targeted tools only. History via `tail | grep` or focused reads.)
+(See agentic-lexicon.md + hyper-token-efficient-long-run-practices.md for full. Snapshots at top of PROJECT_STATUS.md + worker-backlog are fast-path. Targeted tools only. History via `tail | grep` or focused reads.)
 
 ## Commands for Speed/Longevity
 - Cheap guards first: `pnpm agent:alignment` (0.5s) before any `agent:verify` or full hygiene.

@@ -42,22 +42,36 @@ Conversation tooling is first-class. Actor dialogue policies, learner utterance/
 
 `supervisor_policy` in `agents/rules/platform-autonomy-override.md` overrides platform task-complete/summary/Stop defaults. `conversation-summary handoff`≠terminal. `snapshot_rehydrate→openclaw:run-next→lease→dequeue`. Chat≠SSOT.
 
+## Slice Team Workflow (primary)
+
+Work runs as **slice teams**: brief + parallel roles + handoff JSON + machine verification. No human review gates.
+
+1. Read this `AGENTS.md` + first ~40 lines of `PROJECT_STATUS.md`.
+2. Load active slice brief: `.openclinxr/slices/<slice-id>/brief.json`.
+3. Spawn parallel subagents per phase: `pnpm openclaw:team-spawn -- --slice-id <id> --phase scout|execute`.
+4. Subagents write **only** `.openclinxr/slices/<id>/handoffs/<role>.json` (never triplicate coordination MDs).
+5. Integrator merges, runs `pnpm openclaw:slice:verify -- --slice-id <id>`, appends one line to `PROJECT_STATUS.md` § Recent, dequeues next slice.
+6. **Execute immediately** — do not propose-and-wait. Human override only via `PAUSED` in `PROJECT_STATUS.md` or explicit pause/stop.
+
+Team templates: `teams/*.json`. Gates: `agents/rules/GUARD_BLUEPRINT.md`, `agents/rules/MANDATE_VISIBILITY.md`.
+
 ## Required Resume Sequence
 
 After session start, compaction, or conversation-summary handoff — before any halt decision:
 
 1. Re-read this `AGENTS.md`.
-2. Read `PROJECT_COORDINATION_INDEX.md`.
-3. Read `AUTONOMOUS_WORK_PLAN.md`.
-4. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
-5. Select the next approved local deterministic product-advancement slice from those docs.
-6. Continue implementation unless a stop condition below is reached.
+2. Read `PROJECT_STATUS.md` (autonomy status + current priority + active slice).
+3. Read `.openclinxr/slices/<active-slice>/brief.json` if a slice is in flight.
+4. Skim `docs/openclinxr/worker-backlog-and-validation-matrix.md` ownership table only (no checkpoint history).
+5. Continue the active slice or dequeue from `PROJECT_STATUS.md` backlog unless a stop condition applies.
 
-If context is compacted or feels incomplete, do not finalize. Re-read these files and continue from the documented next slice.
+Legacy `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` are deprecated audit ledgers — do not append per-slice checkpoints there.
+
+If context is compacted or feels incomplete, do not finalize. Re-read the files above and continue the documented slice.
 
 ## Efficient Rehydration + Working Model for Agentic Use (Grok/Codex/other)
 
-The snapshots at the top of `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (added 2026-05-28) are the fast-path context. Read only the first ~60-80 lines of each for continuation unless full history or audit is required. This keeps rehydration low-token and effective while preserving the full ledger.
+Fast-path rehydration: `PROJECT_STATUS.md` (first ~40 lines) + active slice `brief.json`. Worker matrix: ownership table only. Legacy 3-MD snapshots are audit-only. Targeted `grep` / `read_file(limit)` for everything else.
 
 **Guidance Stability Rule**: These snapshot headers must contain only stable, abstract direction (north star, emphasis on sizable collaborative vertical slices across functional areas, Q-gates, visibility/noticeability mandate, anti-toil, cheap-first + escalation, etc.). They must be kept free of transient current WIP details (specific file:line from the active slice, subagent IDs, exact capture logs, one-feature narratives). Those details belong exclusively in the dated per-slice checkpoints lower in the files and in registered artifacts. The orchestration coordinator must treat the clean snapshot header as the consistent contract across the entire project lifetime and always scope work as large, noticeable, team-collaborative vertical slices from the worker-backlog matrix. See "Guidance Stability vs Current WIP Principle" in `agents/rules/LEX_AGENTIC.md`.
 
@@ -77,22 +91,22 @@ After edits to coordination files, always run `pnpm agent:alignment && pnpm docs
 
 See `agents/rules/hyper-token-efficient-long-run-practices.md` (authority: agent-methodology).
 
-Key practices (rehydration via snapshots + targeted read_file(limit)/grep, `pnpm openclaw:lease -- acquire ...`, cheap guards first, state only in 3 canonical MDs, subagent coordinator-first, anti 2+ evidence-toil, token-saving in commands, etc.) are now in the dedicated rule + agents/rules/long-running-autonomy.md and drift-toil-prevention.md. Update the rule on future evolutions of M1 Max / long-run posture. (Full "Hyper Token-Efficient & Long-Run Practices" text lives in the rule for LOW_TOKEN reads.)
+Key practices (rehydration via snapshots + targeted read_file(limit)/grep, `pnpm openclaw:lease -- acquire ...`, cheap guards first, state only in PROJECT_STATUS.md + worker-backlog, subagent coordinator-first, anti 2+ evidence-toil, token-saving in commands, etc.) are now in the dedicated rule + agents/rules/long-running-autonomy.md and drift-toil-prevention.md. Update the rule on future evolutions of M1 Max / long-run posture. (Full "Hyper Token-Efficient & Long-Run Practices" text lives in the rule for LOW_TOKEN reads.)
 
 ## Instruction Source-Of-Truth Order and Modular Rules
 
 See `agents/rules/source-of-truth.md` (canonical detailed) + `agents/rules/LEX_AGENTIC.md` (terminology + AI-First Foundational Principle). 
 
-**AI-First Foundational (machine primary)**: Coordination artifacts use short keyword prefixes (LEX_, GUARD_, MANDATE_, STRAT_, EXEC_, MEM_), universal frontmatter (ai_parse_score, drift_score, q_gates, visibility, strategic_group, token_efficiency), BLUF + metrics for parse/retrieval/scoring. Drives measurable refinement (GH project custom fields + post-guard ai_parse updates + Token lines). See LEX_AGENTIC.md "AI-First Foundational Principle". Rehydrate uses snapshots + targeted; state in 3 MDs only. Alignment markers: Anti-Toil Product Advancement Gate agents/adversarial/openclaw-drift-police/charter.md.
+**AI-First Foundational (machine primary)**: Coordination artifacts use short keyword prefixes (LEX_, GUARD_, MANDATE_, STRAT_, EXEC_, MEM_), universal frontmatter (ai_parse_score, drift_score, q_gates, visibility, strategic_group, token_efficiency), BLUF + metrics for parse/retrieval/scoring. Drives measurable refinement (GH project custom fields + post-guard ai_parse updates + Token lines). See LEX_AGENTIC.md "AI-First Foundational Principle". Rehydrate uses snapshots + targeted; state in PROJECT_STATUS.md + worker-backlog only. Alignment markers: Anti-Toil Product Advancement Gate agents/adversarial/openclaw-drift-police/charter.md.
 
 High-level order when scattered docs disagree:
 1. `AGENTS.md` (operating contract).
-2. `PROJECT_COORDINATION_INDEX.md` (coordinator dashboard).
-3. `AUTONOMOUS_WORK_PLAN.md` (active plan; queue overrides old breadcrumbs).
-4. `docs/openclinxr/worker-backlog-and-validation-matrix.md` (worker ownership/validation).
-5. `operator-steering-needed-questions.md` (true blockers).
-6. `operator-open-questions.md` (nonblocking steering + defaults).
-7. `docs/agent-factory/**`, `agents/**`, `iterations/**` (persistent memory/governance; realign, do not restart broad loops).
+2. `PROJECT_STATUS.md` (canonical state: autonomy, priority, active work, backlog, strategy, per-slice checkpoints).
+3. `docs/openclinxr/worker-backlog-and-validation-matrix.md` (worker ownership/validation matrix).
+4. `operator-steering-needed-questions.md` (true blockers).
+5. `operator-open-questions.md` (nonblocking steering + defaults).
+6. `docs/agent-factory/**`, `agents/**`, `iterations/**` (persistent memory/governance; realign, do not restart broad loops).
+7. `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md` (historical audit ledgers only; see PROJECT_STATUS.md "Historical Audit Ledgers" section).
 8. Historical evidence = evidence, not marching orders.
 
 **Modular Rules (canonical detailed)**: `agents/rules/` (non-dot; aligned with repo roles). Symlinked to `.grok/rules/`, `.claude/rules/`, `.cursor/rules/`. Deeper/specific take precedence. See `agents/rules/README.md` (lists all + how to add; run sync-harness + `pnpm docs:authority` + guards after changes). Internal agents consult rules/ for consistency. AGENTS.md remains thin contract; detailed rehydration/source/autonomy/subagent/visibility/lexicon live in the focused rules (avoid duplication here). When older evidence-refresh instruction conflicts with active plan to build product, build product unless evidence is required to unblock safely.
@@ -122,13 +136,13 @@ Rehydration after compaction: restore coordinator-first pattern before selecting
 
 ## Case-Definition-Driven WebXR Realism Loop
 
-See `agents/rules/LEX_AGENTIC.md` (Q1 blueprint-to-runtime + visibility/noticeability mandate) and `agents/rules/MANDATE_VISIBILITY.md`. Active north star: case-definition-driven encounter factory (scenario/phenotype fields → generated actors, dialogue, emotion, locomotion, gaze, lip-sync, assets, runtime evidence). Humanoid/XR/asset slices must produce skeptic-noticeable change in tester (Model Vetting) **or** sample (UI-XR) per the mandate; expand until visible (no sub-pixel/fixture/rigid-no-weights acceptance). Prefer end-to-end runtime evidence over unit tests. Adversarial roles (productivity-skeptic, visual-realism-adversary, openclaw-drift-police) critique for gaps. Store status/evidence/handoff only in the 3 canonical MDs; keep chat minimal. See also blueprint-factory-guardrails.md (conversation tooling first-class).
+See `agents/rules/LEX_AGENTIC.md` (Q1 blueprint-to-runtime + visibility/noticeability mandate) and `agents/rules/MANDATE_VISIBILITY.md`. Active north star: case-definition-driven encounter factory (scenario/phenotype fields → generated actors, dialogue, emotion, locomotion, gaze, lip-sync, assets, runtime evidence). Humanoid/XR/asset slices must produce skeptic-noticeable change in tester (Model Vetting) **or** sample (UI-XR) per the mandate; expand until visible (no sub-pixel/fixture/rigid-no-weights acceptance). Prefer end-to-end runtime evidence over unit tests. Adversarial roles (productivity-skeptic, visual-realism-adversary, openclaw-drift-police) critique for gaps. Store status/evidence/handoff only in PROJECT_STATUS.md + worker-backlog; keep chat minimal. See also blueprint-factory-guardrails.md (conversation tooling first-class).
 
 ## Stop Conditions
 
 Only stop and send a final response when one of these is true:
 
-- All currently approved work in `AUTONOMOUS_WORK_PLAN.md` is complete.
+- All currently approved work in `PROJECT_STATUS.md` is complete.
 - Every currently approved productive work lane is blocked after recording each blocker in the operator question files.
 - Patrick explicitly says to pause or stop.
 
@@ -144,14 +158,14 @@ When a slice is blocked by credentials, hardware action, paid/cloud/API use, des
 
 1. Add the blocker to `operator-steering-needed-questions.md` if it truly blocks a required decision or action.
 2. Add nonblocking steering to `operator-open-questions.md` with a recommended default.
-3. Mark the blocked lane in `AUTONOMOUS_WORK_PLAN.md` or the worker backlog with the smallest useful next operator action.
+3. Mark the blocked lane in `PROJECT_STATUS.md` or the worker backlog with the smallest useful next operator action.
 4. Immediately pivot to another approved product-advancement lane that can produce demonstrative progress toward the OpenClinXR project goal.
 
 Only stop for blockers if all approved product-advancement lanes are blocked and no safe local deterministic slice remains.
 
 ## Low-Token Autonomy and Anti-Toil Gate
 
-See `agents/rules/LEX_AGENTIC.md` (LOW_TOKEN targeted rehydration via 60-80 line snapshots of the 3 state MDs + AGENTS top; targeted grep/read_file(limit); state only in 3 MDs) and `agents/rules/GUARD_DRIFT.md` (anti-toil gate details + model-work guard + productivity-skeptic pulse). Operate in LOW_TOKEN_AUTONOMY by default: no chat summaries/ledgers/narration; prefer small deterministic slices; after 1 evidence-only next is product; after 2 force coordinator + drift-police review + product pivot. Guards: `pnpm agent:alignment && pnpm docs:drift-check` after coordination edits. See also hyper-token-efficient-long-run-practices.md and rehydration-low-token.md for expansions.
+See `agents/rules/LEX_AGENTIC.md` (LOW_TOKEN targeted rehydration via 60-80 line snapshots of PROJECT_STATUS.md + worker-backlog + AGENTS top; targeted grep/read_file(limit); state only in PROJECT_STATUS.md + worker-backlog) and `agents/rules/GUARD_DRIFT.md` (anti-toil gate details + model-work guard + productivity-skeptic pulse). Operate in LOW_TOKEN_AUTONOMY by default: no chat summaries/ledgers/narration; prefer small deterministic slices; after 1 evidence-only next is product; after 2 force coordinator + drift-police review + product pivot. Guards: `pnpm agent:alignment && pnpm docs:drift-check` after coordination edits. See also hyper-token-efficient-long-run-practices.md and rehydration-low-token.md for expansions.
 
 ## Repo-Defined Agents And Worker Roles
 
@@ -203,7 +217,7 @@ Approved IWSDK posture:
 - Do not add IWSDK packages to `apps/ui-xr`, shared production packages, default startup, or broad verification unless explicitly approved.
 - Latest observed IWSDK package metadata remains sidecar-gated: `@iwsdk/*` packages are current at `0.4.2`, but Vite plugins still peer on `vite: ^7.0.0` while the repo uses Vite `8.0.10`; do not promote IWSDK runtime adoption from package freshness alone.
 - Respect the existing IWSDK gates for exact package versions, sidecar-only devtools, package weight, license posture, Vite/Node compatibility, native dependency exceptions, and metadata/source evidence.
-- If IWSDK is not used for an XR slice, record the reason briefly in `AUTONOMOUS_WORK_PLAN.md` or the worker backlog so the decision is explicit rather than forgotten.
+- If IWSDK is not used for an XR slice, record the reason briefly in `PROJECT_STATUS.md` or the worker backlog so the decision is explicit rather than forgotten.
 
 ## SOLID for agentic context, not ceremony
 
@@ -219,7 +233,7 @@ When continuing OpenClinXR implementation work, apply SOLID principles only when
 
 - Heartbeats are continuation triggers, not status checkpoints.
 - On any heartbeat or automation wake-up, do not respond with only a quiet status message unless no filesystem/tool access is available.
-- Before replying to a heartbeat, perform at least one small productive approved slice from `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, or `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+- Before replying to a heartbeat, perform at least one small productive approved slice from `PROJECT_STATUS.md` or `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
 - After the slice, run focused verification for touched files/packages when appropriate, update the relevant plan/status docs, record nonblocking questions in `operator-open-questions.md`, and continue to the next approved slice if context/time remains.
 - Do not treat visual QA captures, evidence reports, doc updates, or focused verification as stop points.
 - If a true blocker appears, write it to `operator-open-questions.md` with a recommended default and pivot to another productive approved lane instead of stopping in chat.

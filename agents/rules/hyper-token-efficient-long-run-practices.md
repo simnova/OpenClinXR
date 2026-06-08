@@ -3,7 +3,7 @@ title: Hyper Token-Efficient & Long-Run Practices (for uninterrupted agentic com
 authority: agent-methodology
 scope: project-wide
 last-updated: 2026-06-04
-relates-to: AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, agents/rules/long-running-autonomy.md, agents/rules/drift-toil-prevention.md
+relates-to: AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, agents/rules/long-running-autonomy.md, agents/rules/drift-toil-prevention.md
 ---
 
 # Hyper Token-Efficient & Long-Run Practices (for uninterrupted agentic completion) [snapshots-first rehydrate; UI-XR runtime evidence consumer; Apple M1 Max 64 GB primary]
@@ -13,7 +13,7 @@ relates-to: AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, d
 To achieve hyper-optimized state for long-running, low-interruption, token-efficient agent work (Grok/Codex/Claude/etc. over days):
 
 **Rehydration (always first, low token):**
-- Read *only* the "Current State Snapshot" blocks (first 20-80 lines) in PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, worker-backlog-and-validation-matrix.md + AGENTS top.
+- Read *only* the "Current State Snapshot" blocks (first 20-80 lines) in PROJECT_STATUS.md, worker-backlog-and-validation-matrix.md + AGENTS top.
 - For history/audit only: use terminal `tail -50 FILE | grep -E '(Next queued|Product path|Blueprint/factory)'` or `tail -100 FILE` – never full read unless synthesizing iteration.
 - Use `read_file` with `offset` + `limit` (e.g. limit=30) on any file >100 lines.
 

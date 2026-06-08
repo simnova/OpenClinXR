@@ -21,8 +21,7 @@ export type CoordinationAlignmentReport = {
 
 const requiredFiles = [
   "AGENTS.md",
-  "PROJECT_COORDINATION_INDEX.md",
-  "AUTONOMOUS_WORK_PLAN.md",
+  "PROJECT_STATUS.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md",
   "docs/openclinxr/doc-authority-registry-2026-05-27.md",

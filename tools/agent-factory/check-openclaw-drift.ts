@@ -27,8 +27,7 @@ const root = process.cwd();
 
 const requiredFiles = [
   "AGENTS.md",
-  "PROJECT_COORDINATION_INDEX.md",
-  "AUTONOMOUS_WORK_PLAN.md",
+  "PROJECT_STATUS.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/openclaw-runbook-2026-05-27.md",
   "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md",
@@ -44,15 +43,11 @@ const requiredMarkers: Record<string, string[]> = {
     "Required Per-Slice Record",
     "openclaw-tool-adapters-2026-05-27.md",
   ],
-  "PROJECT_COORDINATION_INDEX.md": [
+  "PROJECT_STATUS.md": [
     "openclaw-runbook-2026-05-27.md",
     "docs:drift-check",
     "Required Per-Slice Record",
     "openclaw-tool-adapters-2026-05-27.md",
-  ],
-  "AUTONOMOUS_WORK_PLAN.md": [
-    "openclaw-runbook-2026-05-27.md",
-    "docs:drift-check",
   ],
   "docs/openclinxr/worker-backlog-and-validation-matrix.md": [
     "openclaw-runbook-2026-05-27.md",
@@ -94,6 +89,7 @@ const generatedArtifactRoots = [
 const generatedArtifactExtensions = new Set([".json", ".png", ".jpg", ".jpeg", ".webp", ".glb", ".gltf", ".bin", ".mp3", ".wav", ".ogg", ".txt"]);
 const oneOffMarkdownNamePattern = /(?:checkpoint|status|progress|scratch|temporary|temp|handoff|prompt|continuation|notes?)(?:[-_].*)?\.md$/iu;
 const allowedOneOffMarkdownPaths = new Set([
+  "PROJECT_STATUS.md",
   "docs/openclinxr/openclaw-runbook-2026-05-27.md",
 ]);
 

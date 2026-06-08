@@ -198,7 +198,7 @@ export const GROK_TIER_SAFEGUARDS = [
   "Grok harness only: Codex Desktop keeps .codex/agents tier models unchanged.",
   "Never use Cursor Task for tier0–tier2 read-only scouts; prefer spawn_subagent explore or local consult.",
   "Composer owns lease, state files, post-slice guards, and integration — not parallel write subagents.",
-  "Record tier used per slice in AUTONOMOUS_WORK_PLAN.md (tier: flash|pro|compose|frontier).",
+  "Record tier used per slice in PROJECT_STATUS.md (tier: flash|pro|compose|frontier).",
   "Run pnpm grok:tier:introspect before multi-subagent waves and after context compaction.",
   "Upgrade on explicit triggers only; do not skip to frontier for routine implementation.",
   "Protected promotion gates stay false unless Patrick explicitly approves scope expansion.",

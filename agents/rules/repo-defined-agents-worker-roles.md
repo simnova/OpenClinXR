@@ -42,7 +42,7 @@ When using agents:
 - Scope each agent to one independent worker slice or one focused review question.
 - Avoid overlapping write scopes.
 - Tell agents the repo is shared and they must not revert unrelated changes.
-- Tell agents to respect approved boundaries in `AUTONOMOUS_WORK_PLAN.md`.
+- Tell agents to respect approved boundaries in `PROJECT_STATUS.md`.
 - Continue local non-overlapping work while agents run.
 - Integrate agent results into the plan/status docs before moving on.
 

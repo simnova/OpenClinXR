@@ -6,9 +6,9 @@
   "counts": {
     "agent-methodology": 55,
     "current-reference": 160,
-    "archive-candidate": 9,
+    "archive-candidate": 11,
     "evidence": 31,
-    "protected-policy": 11,
+    "protected-policy": 10,
     "agent-memory": 26,
     "decision-record": 19,
     "historical-synthesis": 9
@@ -1066,13 +1066,20 @@
     },
     {
       "path": "AUTONOMOUS_WORK_PLAN.md",
-      "authority": "protected-policy",
-      "agentInstructionWeight": "highest",
-      "action": "protect",
-      "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "PROJECT_COORDINATION_INDEX.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "PROJECT_STATUS.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
       "action": "protect",

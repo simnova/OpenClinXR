@@ -14,8 +14,8 @@ When task selection feels unfocused, after compaction, suspected drift, or befor
 1. Identify mapped role from worker-backlog-and-validation-matrix.md or queue (e.g. chief-coordinator for orchestration, openclaw-drift-police for drift, implementation-planning-lead for plan, xr-systems-architect for XR, pediatrics-physician for clinical peds, clinical-safety-critic for safety).
 2. Read (with limit): agents/<role-dir>/charter.md (first 30-50 lines) + memory.md (lessons, risks, heuristics).
 3. Consult .agent-factory/memory-index.json for entries by agent_id or topic (use grep or node -e snippet for active).
-4. Cross with current state snapshots (PROJECT_COORDINATION_INDEX etc) and source-of-truth order.
-5. Record the lens/decision in AUTONOMOUS_WORK_PLAN.md or worker matrix (e.g. "consulted chief-coordinator memory: ... ; chose slice X").
+4. Cross with current state snapshots (PROJECT_STATUS.md) and source-of-truth order.
+5. Record the lens/decision in PROJECT_STATUS.md or worker matrix (e.g. "consulted chief-coordinator memory: ... ; chose slice X").
 6. Only then spawn live subagent (if available) as narrow read-only explorer mapped to that role, with explicit prompt including "Target repo: /Volumes/files/src/openclinxr. Confirm AGENTS.md + states + agents/** + tools/agent-factory exist. Return concise findings + recommended next slice."
 
 ## Live Subagent Rule (from AGENTS)

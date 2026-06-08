@@ -10,14 +10,14 @@ Important naming clarification: this repository uses an OpenClaw-style execution
 
 OpenClaw-style / OpenClaw-inspired mode exists to keep unattended work advancing the OpenClinXR product instead of producing scattered notes, one-off scenes, stale screenshots, or generic agent-status artifacts.
 
-Use this runbook with `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`.
+Use this runbook with `AGENTS.md`, `PROJECT_STATUS.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`.
 
 ## OpenClaw-Style Start Sequence
 
 1. Run `pnpm openclaw:preflight` before long unattended work from a supposedly clean checkout.
 2. Read `AGENTS.md`.
-3. Read `PROJECT_COORDINATION_INDEX.md`.
-4. Read `AUTONOMOUS_WORK_PLAN.md`.
+3. Read `PROJECT_STATUS.md` (canonical state: autonomy, priority, active work, backlog, strategy, per-slice checkpoints).
+4. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md` (ownership matrix).
 5. Read `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
 6. Run `pnpm docs:drift-check` before a long unattended batch when the repo has just been reorganized or when drift is suspected.
 6. Select the highest-value approved product slice from the active queue.
@@ -51,7 +51,7 @@ The expected correction is: name the drift, cite the violated guardrail, recomme
 
 ## Required Per-Slice Record
 
-Each autonomous slice must leave a short canonical record in `AUTONOMOUS_WORK_PLAN.md` or the worker backlog with these fields, either as prose or structured bullets:
+Each autonomous slice must leave a short canonical record in `PROJECT_STATUS.md` (Per-Slice Checkpoints section) with these fields, either as prose or structured bullets:
 
 - `Product path advanced`: learner station, faculty review, admin workflow, scenario authoring, XR runtime, persistence, provider facade, asset pipeline, or blueprint-to-runtime factory.
 - `Blueprint/factory tie`: how the slice keeps encounter details/specifications driving generated runtime behavior.
@@ -120,7 +120,7 @@ pnpm openclaw:lease -- status
 
 `openclaw:automation-prompt` prints the canonical automation prompt from this runbook so agent starts and optional external automations can be refreshed from the protected source instead of hand-maintained chat fragments.
 
-`openclaw:run-next` selects the next queued product slice from canonical state and writes `.openclinxr/openclaw/run-next-report.json`, an ignored local runtime report. It does not edit `AUTONOMOUS_WORK_PLAN.md`, `PROJECT_COORDINATION_INDEX.md`, or the worker matrix by itself.
+`openclaw:run-next` selects the next queued product slice from canonical state and writes `.openclinxr/openclaw/run-next-report.json`, an ignored local runtime report. It does not edit `PROJECT_STATUS.md` or the worker matrix by itself.
 
 `openclaw:watchdog` is an optional quiet local check. It recommends `run-next` only when the tree is clean, no active lease is held, the previous local report is stale, and a queued slice exists. If it idles, it writes only the local report; it must not produce repeated canonical heartbeat entries.
 
@@ -133,7 +133,7 @@ Use this prompt for Codex, Claude, Cursor, or another agent host when starting u
 ```text
 Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr. This is not an external OpenClaw runtime.
 
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, and docs/openclinxr/openclaw-runbook-2026-05-27.md as the source of truth. Do not use generic chat autonomy.
+Use AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, and docs/openclinxr/openclaw-runbook-2026-05-27.md as the source of truth. Do not use generic chat autonomy.
 
 Before selecting work, run or mentally apply the OpenClaw drift guard: no scattered markdown, no one-off hand-designed encounters, no unregistered generated artifacts, no evidence refresh unless it unlocks a concrete implementation decision.
 

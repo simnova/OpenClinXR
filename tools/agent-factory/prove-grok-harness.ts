@@ -609,8 +609,7 @@ async function iterationAlignmentGuards(): Promise<Record<string, unknown>> {
 async function iterationTokenEfficiencyEstimate(): Promise<Record<string, unknown>> {
   const agentsMd = await readFileAsync(path.join(repoRoot, "AGENTS.md"), "utf8");
   const snapshots = await Promise.all([
-    readFileAsync(path.join(repoRoot, "PROJECT_COORDINATION_INDEX.md"), "utf8"),
-    readFileAsync(path.join(repoRoot, "AUTONOMOUS_WORK_PLAN.md"), "utf8"),
+    readFileAsync(path.join(repoRoot, "PROJECT_STATUS.md"), "utf8"),
     readFileAsync(path.join(repoRoot, "docs", "openclinxr", "worker-backlog-and-validation-matrix.md"), "utf8"),
   ]);
   const snapshotBytes = snapshots.reduce((sum, text) => sum + text.split("\n").slice(0, 80).join("\n").length, 0);

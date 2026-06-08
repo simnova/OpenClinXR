@@ -6,7 +6,7 @@ This is a protected OpenClaw-style / OpenClaw-inspired control surface for runni
 
 ## Purpose
 
-OpenClaw-style / OpenClaw-inspired execution is repo-native, not Codex-native and not an external OpenClaw runtime. The host tool may change, but the execution contract must remain anchored to `AGENTS.md`, `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, `docs/openclinxr/openclaw-runbook-2026-05-27.md`, and the protected blueprint-factory guardrails.
+OpenClaw-style / OpenClaw-inspired execution is repo-native, not Codex-native and not an external OpenClaw runtime. The host tool may change, but the execution contract must remain anchored to `AGENTS.md`, `PROJECT_STATUS.md`, `docs/openclinxr/worker-backlog-and-validation-matrix.md`, `docs/openclinxr/openclaw-runbook-2026-05-27.md`, and the protected blueprint-factory guardrails.
 
 The goal is easy host swapping without losing focus on the case-definition-driven WebXR encounter factory.
 
@@ -28,7 +28,7 @@ Any host can run OpenClaw if it can do most of the following:
 | Terminal/shell | Run focused verification and repo checks. | Planner/reviewer mode only; record verification blocker with recommended command. |
 | Browser/screenshots | Capture runtime/UI/XR evidence for touched visual behavior. | Use API/tests/static evidence and record visual evidence blocker. |
 | Live subagents | Spawn one non-coding coordinator plus narrow specialists only when useful. | Use local role consultation by reading repo agent charters/memory. |
-| Persistent files | Update `AUTONOMOUS_WORK_PLAN.md` and worker backlog. | Stop; OpenClaw requires file-backed state. |
+| Persistent files | Update `PROJECT_STATUS.md` and worker backlog. | Stop; OpenClaw requires file-backed state. |
 | Git/source control | Inspect/stage/commit only when explicitly requested or cleanup plan requires it. | Avoid destructive changes; report uncommitted work boundaries. |
 | External model/tools | Use only if approved and provider gates allow it. | Keep execution disabled and record provider preflight blockers. |
 
@@ -39,7 +39,7 @@ Use this when the host is unknown or when switching between tools:
 ```text
 Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr. This is not an external OpenClaw runtime.
 
-Use AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as the source of truth.
+Use AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, docs/openclinxr/openclaw-tool-adapters-2026-05-27.md, and docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md as the source of truth.
 
 Do not use generic chat autonomy. Do not hand-design individual encounters. All scene, humanoid, clothing, animation, conversation, emotion, locomotion, gaze/lip-sync, equipment, trace, persistence, provider, and review work must flow from encounter specifications/blueprints through reusable factory/provider/cache pipelines.
 
@@ -59,7 +59,7 @@ Kickoff:
 ```text
 Continue in repo-native OpenClaw-style / OpenClaw-inspired mode in /Volumes/files/src/openclinxr using Codex local tools.
 
-First read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
+First read AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
 
 Run pnpm docs:drift-check and pnpm agent:alignment when starting a long unattended batch or after suspected drift. Use Browser/screenshots for runtime/UI/XR behavior changes. Use repo-defined subagents only when available and materially useful; otherwise use local role consultation.
 
@@ -81,7 +81,7 @@ Kickoff:
 ```text
 Operate as a repo-native OpenClaw-style / OpenClaw-inspired agent for /Volumes/files/src/openclinxr, not as generic Claude chat.
 
-Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md before selecting work.
+Read AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md before selecting work.
 
 If shell access is available, run pnpm docs:drift-check and pnpm agent:alignment before long work. If shell access is not available, explicitly mark verification as blocked and provide exact commands for the next host.
 
@@ -117,7 +117,7 @@ Kickoff:
 ```text
 Run Cursor in repo-native OpenClaw-style / OpenClaw-inspired mode for /Volumes/files/src/openclinxr.
 
-Read AGENTS.md, PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
+Read AGENTS.md, PROJECT_STATUS.md, docs/openclinxr/worker-backlog-and-validation-matrix.md, docs/openclinxr/openclaw-runbook-2026-05-27.md, and docs/openclinxr/openclaw-tool-adapters-2026-05-27.md.
 
 Do not perform broad refactors. Choose one approved product slice from the canonical queue. Before editing, identify exact files. After editing, run focused verification. Do not create scattered markdown/status/checkpoint files. Run pnpm docs:drift-check and pnpm agent:alignment after coordination or cleanup changes.
 ```

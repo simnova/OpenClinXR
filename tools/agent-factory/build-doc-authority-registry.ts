@@ -30,8 +30,7 @@ const outputMd = "docs/openclinxr/doc-authority-registry-2026-05-27.md";
 const excluded = new Set(["node_modules", ".git", ".openclinxr-local", "tmp"]);
 const protectedPaths = new Set([
   "AGENTS.md",
-  "PROJECT_COORDINATION_INDEX.md",
-  "AUTONOMOUS_WORK_PLAN.md",
+  "PROJECT_STATUS.md",
   "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   "docs/openclinxr/blueprint-factory-drift-guardrails-2026-05-27.md",
   "docs/openclinxr/codex-openclaw-operating-bridge-2026-05-27.md",

@@ -18,7 +18,7 @@ The **primary Grok session (Composer / `grok-composer-*`)** is the OpenClaw orch
 
 | Layer | Responsibility |
 | --- | --- |
-| **Composer (main thread)** | Rehydrate snapshots, acquire lease, select next slice, integrate subagent results, update canonical state files, run guards |
+| **Composer (main thread)** | Rehydrate snapshots, acquire lease, select next slice, integrate subagent results, update PROJECT_STATUS.md, run guards |
 | **Repo role embodiment** | Act as orchestration coordinator (chief-coordinator role) for slice selection, delegation, integration, lease, and state (per agentic-lexicon.md) |
 | **`explore` subagent** | Read-only consult mapped to `chief-coordinator`, `openclaw-drift-police`, `implementation-plan-gap-attacker`, `productivity-skeptic` |
 | **`plan` subagent** | Bounded sequencing consult mapped to `implementation-planning-lead` |
@@ -82,7 +82,7 @@ Full policy: `agents/rules/grok-tier-routing.md` + `packages/openclinxr/agent-lo
 3. `pnpm openclaw:run-next` or queue from state files.
 4. `pnpm openclaw:lease -- acquire ...` before edits.
 5. Spawn `explore` for coordinator/drift consult when it saves Composer context.
-6. Per-slice token ritual (required before commit): `pnpm openclaw:slice-token:start -- --slice-id <id> --current-tier <tier>` → work → `pnpm openclaw:slice-token:finish` → paste `stateRecordLine` into latest `AUTONOMOUS_WORK_PLAN.md` checkpoint. `ccusage` tracks Codex cross-harness; Grok/DeepSeek models tracked via `~/.grok/sessions` peaks in the finish report.
+6. Per-slice token ritual (required before commit): `pnpm openclaw:slice-token:start -- --slice-id <id> --current-tier <tier>` → work → `pnpm openclaw:slice-token:finish` → paste `stateRecordLine` into latest `PROJECT_STATUS.md` checkpoint. `ccusage` tracks Codex cross-harness; Grok/DeepSeek models tracked via `~/.grok/sessions` peaks in the finish report.
 7. After slice: state update (with Token introspection line), `pnpm openclaw:post-slice` (fails if token line missing), then dequeue next slice without final chat.
 
 ## Proof and measurement

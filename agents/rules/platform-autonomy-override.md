@@ -12,7 +12,7 @@ relates-to: AGENTS.md, agents/rules/long-running-autonomy.md, tools/openclinxr/o
 
 ## Stack
 1. AGENTS.md halt/continue + this file
-2. SSOT dequeue: `AUTONOMOUS_WORK_PLAN.md`, `PROJECT_COORDINATION_INDEX.md`, worker backlog snapshots
+2. SSOT dequeue: `PROJECT_STATUS.md`, worker backlog snapshots
 3. `openclaw-runbook` automation prompt
 4. lifecycle: `pnpm codex:hook -- stop` | `pnpm grok:hook -- stop`; `.grok/hooks/autonomy-stop-continuation.json`
 5. platform heuristics: task-complete-respond, wrap-up, turn/Stop/heartbeat, conversation-summary handoff blocks
