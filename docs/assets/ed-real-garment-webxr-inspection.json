@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-ed-seed-humanoid-case-def-capture.v1",
+  "generatedAt": "2026-06-08T00:00:00.000Z",
+  "claimScope": "ui_xr_ed_anny_real_garment_sleeve_deform_ed_bay_runtime_evidence_with_promotion_flow",
+  "baseUrl": "http://127.0.0.1:5176/?openclinxrScenarioId=ed_chest_pain_priority_v2&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&humanoidSourceComparator=ed_anny_real_garment_patient&runtimeAssetBundleId=ed_chest_pain_priority_v2:learner-runtime-bundle:v1&capture=mouth-gaze-pose-body-motion-garment-sleeve-deform",
+  "edSeedEvidence": {
+    "frontPath": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_sleeve_deform_front_2026-06-08-ed-seed-v1.png",
+    "threeQuarterPath": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_sleeve_deform_three_quarter_2026-06-08-ed-seed-v1.png",
+    "bodyMotionPath": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_body_motion_deform_2026-06-08-ed-seed-v1.png",
+    "inspection": {
+      "promotionSurfaces": "ed_seed:promotionStatus_wired_via_userData+evidence_types",
+      "garmentDeformEvidence": "exercised_via_ed_anny_real_garment_patient_traverse_in_main.ts (cyan emissive, frustumCulled=false, openClinXrSleeveDeformEvidence, garmentGeometry in MouthGaze)",
+      "sceneAssets": { "note": "ed bay + real garment humanoid loaded via comparator extension" }
+    }
+  },
+  "captureModeDriven": "mouth-gaze-pose-body-motion-garment-sleeve-deform",
+  "promotionFlow": "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_wired_in_UI-XR_evidence_types_for_ed_humanoid_seed",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "validated_adaptive_branching",
+    "b_plus_visual_realism_gate",
+    "website_publication",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness"
+  ],
+  "touchedByXrArchitect": [
+    "apps/ui-xr/src/main.ts (added ed_anny_real_garment_patient comparator+resolver+traverse+camera+evidence types+isRealGarment fn+promotion userData)",
+    "tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts (ed support, fallback, ed capture fn, updated defaults for slice)"
+  ]
+}

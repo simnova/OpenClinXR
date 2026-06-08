@@ -45,6 +45,8 @@ export type GrokRepoAgentSpawnSpec = {
     index: string;
   };
   safeguards: string[];
+  /** True when task/role requires vision/multimodal (images, cagematch/UI-XR evidence screenshots, visual reports). Such efforts are reserved for grok-4-fast (first) then grok-4-pro. */
+  multimodal?: boolean;
 };
 
 export type GrokRepoAgentSpawnRegistryReport = {
@@ -128,13 +130,20 @@ export function buildRepoAgentSpawnPrompt(input: {
   policy: RepoRoleHarnessPolicy;
   task?: string;
   harness?: HarnessKind;
+  multimodal?: boolean;
 }): string {
   const harness = input.harness ?? "grok";
   const modelSpec = resolveHarnessModelSpec(input.policy.policyTier, harness);
+  const isMultimodal = !!input.multimodal;
+  const effectiveModel = isMultimodal ? (modelSpec.model.includes("grok-4") ? modelSpec.model : "grok-4-fast") : modelSpec.model;
+
   const skillNote =
     input.policy.recommendedSkills.length > 0
       ? `Skills: ${input.policy.recommendedSkills.map((s) => skillPaths[s]).join(", ")}.`
       : "";
+  const multimodalNote = isMultimodal
+    ? " MULTIMODAL REASONING: This task involves images, screenshots, cagematch evidence, UI-XR captures, visual reports (png/webm), model-vetting visuals, garment/sleeve geometry evidence or similar. Reserve vision/multimodal analysis for grok-4-fast (try first, cost-effective) then grok-4-pro. Do not use deepseek text-only models for image content."
+    : "";
   return [
     `Persona (Grok Build, .grok/personas/ + charter): ${input.roleId}-expert. See .grok/personas/${input.roleId}.toml or matching expertise toml (expert-terse-bluf base). BLUF + terse + domain jargon only. BOTTOM LINE first sentence. Bullets file:line. ≤100 words target. End exactly "Recommended next: <slice-name> (Q#)". Assume other agents share lexicon per agents/rules/LEX_AGENTIC.md. ORCHESTRATION COORDINATOR (chief-coordinator role) CHUNK VISIBILITY / NOTICEABILITY + SIZABLE COLLABORATIVE VERTICAL SLICE MANDATE (Q1/Q5; see agentic-lexicon.md + chunk-visibility-noticeability.md): every delegated slice/work chunk must be a sizable collaborative vertical slice (multi-role body targeting functional area e.g. WebXR asset/scene factory or exam running/UI-XR or model proving ground/Model Vetting; provable by interacting/showcasing in the apps; productivity-skeptic assesses teamwork/collaboration + website evidence readiness) big enough to be noticeable in tester app (Model Vetting cagematch png/webm + packed model-vetting-report.v1 .candidates) or sample scene (UI-XR peds runtime with garmentGeometry/sleeveDeform/no-cull/cyan); if no visible delta (sub-pixel/same-color/cull-hidden/fixture), expand scope (geo/contrast/motion/no-cull/re-orchestrate with phenotype.garmentLayers) until skeptic-visible 3D/runtime change confirmed; never accept invisible or non-collaborative minor changes as advancement. Anti-toil: expand or pivot after 1 evidence-only or isolated task. Use lowest-cost first (flash for coordinator scoping) + escalation.`,
     `You are the repo-defined role \`${input.roleId}\` for /Volumes/files/src/openclinxr.`,
@@ -142,10 +151,12 @@ export function buildRepoAgentSpawnPrompt(input: {
     "Confirm AGENTS.md, PROJECT_STATUS.md, docs/agent-factory/**, agents/**, tools/agent-factory/** exist.",
     `Read ${input.roleDir}/charter.md (## Persona section = instructions) and ${input.roleDir}/memory.md (tight limit) plus .agent-factory/memory-index.json entries for this role.`,
     "Follow agents/rules/agent-consult.md, agents/rules/subagent-protocol.md, agents/rules/grok-tier-routing.md.",
-    `Policy tier: ${input.policy.policyTier}; model: ${modelSpec.model}; task type: ${input.policy.taskType}.`,
+    `Policy tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? effectiveModel.includes("grok-4") ? " (multimodal)" : "" : ""}; task type: ${input.policy.taskType}.`,
     input.policy.writeScopeNote,
     skillNote,
-    `ESCALATION GUARD (self-escalation on inability): If at any point you determine you are UNABLE to complete the task to the required standard at your current tier (model: ${modelSpec.model}), you MUST explicitly emit a line starting with "UNABLE:" followed by a concise reason and the recommended higher-tier helper. Escalation ladder (start at the cheapest sufficient tier): deepseek-v4-flash (scout/consult/read-only), then deepseek-v4-pro (bounded analysis/execution), then grok-build (frontier synthesis or when lower tiers have failed). The orchestration coordinator (chief-coordinator role) will then spawn a new helper subagent of the recommended higher tier using pnpm grok:agent:spawn-spec for the appropriate role and tier per agentic-lexicon.md (preserving cheap-first and sizable collaborative vertical slice scoping). Do not continue past your confident capability.`,
+    `ESCALATION GUARD (self-escalation on inability): If at any point you determine you are UNABLE to complete the task to the required standard at your current tier (model: ${effectiveModel}), you MUST explicitly emit a line starting with "UNABLE:" followed by a concise reason and the recommended higher-tier helper. ${isMultimodal 
+      ? "For multimodal/vision/reasoning efforts: escalation ladder is grok-4-fast (try first — cost-effective Grok vision+reasoning), then grok-4-pro, then grok-build (frontier). Never fall back to deepseek text-only models when images/screenshots/cagematch visuals are involved."
+      : "Escalation ladder (start at the cheapest sufficient tier): deepseek-v4-flash (scout/consult/read-only), then deepseek-v4-pro (bounded analysis/execution), then grok-build (frontier synthesis or when lower tiers have failed)."} The orchestration coordinator (chief-coordinator role) will then spawn a new helper subagent of the recommended higher tier using pnpm grok:agent:spawn-spec for the appropriate role and tier per agentic-lexicon.md (preserving cheap-first and sizable collaborative vertical slice scoping). Do not continue past your confident capability.`,
     input.task ?? "Return concise findings, blockers, recommended next slice, and file paths. Respect Q1/Q4/Q5 gates.",
     input.policy.sandboxMode === "read-only"
       ? "Read-only: do not edit unless explicitly assigned a non-overlapping write scope."
@@ -153,6 +164,23 @@ export function buildRepoAgentSpawnPrompt(input: {
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+function requiresMultimodalReasoning(roleId: string, task?: string): boolean {
+  const text = `${roleId} ${task || ""}`.toLowerCase();
+  // Visual/multimodal indicators (must be present in task or combined with evidence review).
+  // Pure role name like "productivity-skeptic" alone does not trigger — only when the actual work involves images/screenshots/cagematch visuals etc.
+  const visualIndicators = [
+    "image", "png", "jpg", "jpeg", "screenshot", "capture", "visual evidence", "vision", "multimodal",
+    "cagematch", "model-vetting", "front.png", "three_quarter", "body_motion",
+    "sleeve_deform", "garmentgeometry", "garmentdeform", "ui-xr.*(capture|evidence|png|visual)",
+    "body_motion_probe", "inspection.*(png|image|visual)", "cagematch report", "rigging report.*visual",
+    "model vetting.*(png|image|visual)", "screenshots", "webm", "visuals in"
+  ];
+  const hasVisual = visualIndicators.some((ind) => new RegExp(ind).test(text));
+  // For known visual-adversary roles, still require at least one visual keyword in the task/brief to trigger reservation
+  // (so text-only policy reviews on skeptic stay on cheap flash).
+  return hasVisual;
 }
 
 export function buildGrokRepoAgentSpawnSpec(input: {
@@ -175,13 +203,23 @@ export function buildGrokRepoAgentSpawnSpec(input: {
       writeScopeNote: "Read-only repo-agent consultation unless explicitly assigned a non-overlapping write scope.",
     } satisfies RepoRoleHarnessPolicy);
 
-  const modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
+  const isMultimodal = requiresMultimodalReasoning(input.roleId, input.task);
+
+  let modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
+  if (isMultimodal) {
+    // Harden: multi-modal-reasoning (images, cagematch visuals, UI-XR captures, evidence screenshots, etc.)
+    // is reserved for grok-4-fast (try first — cost-effective Grok vision+reasoning) then grok-4-pro.
+    // Never route these to deepseek-v4-flash/pro text-only models.
+    modelSpec = { model: "grok-4-fast", reasoningEffort: "high" };
+  }
+
   const surface = resolveGrokSpawnSurfaceForPolicy(policy);
   const spawnPrompt = buildRepoAgentSpawnPrompt({
     roleId: input.roleId,
     roleDir: input.roleDir,
     policy,
     task: input.task,
+    multimodal: isMultimodal,
   });
 
   const spawnSubagentCall =
@@ -189,7 +227,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
       ? {
           subagent_type: surface.grokSubagentType,
           capability_mode: surface.capabilityMode,
-          description: `${input.roleId} (${policy.policyTier})`,
+          description: `${input.roleId} (${policy.policyTier}${isMultimodal ? ", multimodal" : ""})`,
           prompt: spawnPrompt,
         }
       : null;
@@ -217,6 +255,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
       index: `${input.roleDir}/index.json`,
     },
     safeguards: GROK_REPO_AGENT_SPAWN_SAFEGUARDS,
+    multimodal: isMultimodal,
   };
 }
 
@@ -254,11 +293,24 @@ export function buildGrokRepoAgentSpawnRegistry(input: {
       note: frontierOnSubagent.length === 0 ? "ok" : `Frontier roles incorrectly spawnable: ${frontierOnSubagent.map((a) => a.roleId).join(", ")}`,
     },
     {
-      checkId: "scouts_use_explore_flash",
+      checkId: "scouts_use_appropriate_model",
       passed: agents
         .filter((a) => a.policyTier === "fast_bounded")
-        .every((a) => a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash"),
-      note: "fast_bounded roles must map to explore + deepseek-v4-flash",
+        .every((a) => {
+          if (a.multimodal) {
+            // Multimodal/vision efforts reserved for grok-4-fast (try first) then grok-4-pro
+            return a.grokSubagentType === "explore" && (a.model === "grok-4-fast" || a.model === "grok-4-pro");
+          }
+          return a.grokSubagentType === "explore" && a.model === "deepseek-v4-flash";
+        }),
+      note: "fast_bounded non-multimodal must use explore + deepseek-v4-flash; multimodal efforts must use explore + grok-4-fast (preferred) or grok-4-pro",
+    },
+    {
+      checkId: "multimodal_reserved_for_grok4",
+      passed: agents
+        .filter((a) => a.multimodal)
+        .every((a) => a.model.startsWith("grok-4-")),
+      note: "Any multimodal-reasoning (vision, cagematch/UI-XR image evidence, screenshots) must resolve to grok-4-fast first then grok-4-pro — never deepseek text-only.",
     },
   ];
 

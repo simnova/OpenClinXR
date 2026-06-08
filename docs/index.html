@@ -99,6 +99,79 @@
         </div>
       </section>
 
+      <!-- Latest Progress Showcase (Q1/Q5) -->
+      <section id="latest-progress" class="band" aria-labelledby="progress-title">
+        <div class="section-heading">
+          <p class="eyebrow">Recent factory progress • Q1 + Q5</p>
+          <h2 id="progress-title">ED real garment from phenotype.garmentLayers (hospital_gown) — dual evidence in Model Vetting + UI-XR.</h2>
+        </div>
+
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Blueprint → Real Garment Topology (Q1)</h3>
+            <p>
+              Case <code>ed_chest_pain_priority_v2:patient_ed_chest_pain_v1</code> + <code>phenotype.garmentLayers = ["hospital_gown"]</code> now drives <strong>real garment region</strong> (324 faces, deformsWithBreathing, weighted to clavicle/upper_arm/chest/spine/neck, visibleDeformingSleeves, hasVisibleVolume, hasSeamFoldHints).
+            </p>
+            <ul>
+              <li>Embedded in rigging_report + provenance + cagematch reports (model-vetting-report.v1, report.json, registry.json) as <code>ed_chest_pain_patient_real_garment_v1</code> candidate with promotionStatus + realismGrade B + notEvidenceFor list.</li>
+              <li>Branched 23 MB GLB + rigging + provenance in <code>cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/</code>.</li>
+              <li>Factory TS (generated-human-rigging-artifacts, cagematch-report-pages, generated-ed-station-runtime-bundle) updated for ED pheno + gown.</li>
+            </ul>
+            <p class="small"><a href="https://github.com/simnova/OpenClinXR/blob/main/apps/arena/model-vetting-studio/public/cagematch-reports/real-garment-2026-06-07/model-vetting-report.json" target="_blank" rel="noopener">View MV report (ED candidate)</a> • <a href="https://github.com/simnova/OpenClinXR/tree/main/apps/arena/model-vetting-studio/public/cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07" target="_blank" rel="noopener">Branched assets</a></p>
+          </div>
+
+          <div class="progress-card">
+            <h3>Runtime Consumer + Evidence Surfaces (Q1 + Q5)</h3>
+            <p>
+              UI-XR now has first-class <code>ed_anny_real_garment_patient</code> (ed_chest_pain_priority_v* scenarios, ed bay framing):
+            </p>
+            <ul>
+              <li>Dedicated GLB resolve (no peds proxy): <code>/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb</code> (test expects it).</li>
+              <li>Gown-aware regex (<code>gown|hospital.*gown|ed_gown</code> + <code>openclinxr_real_garment</code>) + post-load traverse sets <code>frustumCulled=false</code>, <code>visible</code>, <code>openClinXrSleeveDeformEvidence</code>, cyan emissive, <code>garmentGeometry.sleeveDeform</code>, promotion userData.</li>
+              <li>Capture tooling extended (ED_BUNDLE, useEdForSlice, ed png outputs + ui-xr-ed-seed-inspection asserting garmentDeformEvidence + promotionSurfaces exercised).</li>
+              <li>Static tests green for ed_anny + ed glb path.</li>
+            </ul>
+            <p class="small"><a href="https://github.com/simnova/OpenClinXR/blob/main/apps/ui-xr/src/main.ts" target="_blank" rel="noopener">main.ts (ed_anny support ~6267, 6572, 7709)</a> • <a href="https://github.com/simnova/OpenClinXR/blob/main/tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts" target="_blank" rel="noopener">Capture (ED paths)</a></p>
+          </div>
+
+          <div class="progress-card">
+            <h3>Promotion Metadata + Dual Delta (Q4 tie-in + Q5)</h3>
+            <p>
+              Promotion fields (promotionStatus, realismGrade, realAnnyWeightsUsed, notEvidenceFor, realGarmentRegionFromPhenotype with claimScope) wired into reports, rigging, provenance, UI-XR evidence types/userData.
+            </p>
+            <p>
+              Skeptic re-assess: visible in MV cagematch reports + code + ed-branch evidence (dual delta: MV can reference ED candidate/glb; UI-XR can traverse ed_anny for surfaces). Sizable 3-role collaborative vertical (skeptic + asset + xr).
+            </p>
+            <p class="small">Evidence branches: <code>.openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/</code> (ed_real_garment_sleeve_deform pngs + inspection) + cagematch ed- subdir. Full canonical dual volume + actual pheno gown geo targeted in next slice.</p>
+          </div>
+        </div>
+
+        <p class="progress-note">
+          <strong>Honest posture:</strong> Latest internal dev evidence from closed <code>ed-real-garment-phenotype-expansion</code> (Q1+Q5). Reports claim hospital_gown + 324f deforms; current branched GLB still uses prior tshirt geometry (synthetic in reports). Full skeptic-visible 3D gown volume/motion in <em>both</em> MV cagematch visuals <em>and</em> UI-XR ed bay (with updated report captureEvidence + canonical paths) is the target of the in-flight <code>ed-gown-geo-reorchestrate</code> slice. No overclaims.
+        </p>
+
+        <div style="margin-top: 32px;">
+          <h3 style="margin-bottom: 12px; font-size: 1.1rem;">WebXR Sample Scene Evidence (ED real garment patient in UI-XR runtime)</h3>
+          <p style="color: var(--muted); font-size: 0.95rem; max-width: 900px;">
+            Captured from the UI-XR sample scene (ed_chest_pain_priority_v2 + ed_anny_real_garment_patient comparator). The code extensions (gown-aware detection, post-load garment traverse for cyan emissive deforming volume, garmentGeometry.sleeveDeform, openClinXr* userData, frustumCulled=false, ed bay framing, adaptive capture) are exercised. These images + the ui-xr-ed-seed-inspection.json (asserting garmentDeformEvidence surfaces + promotion for the ed_anny load) provide the WebXR runtime scene evidence for the phenotype-driven real garment.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 16px;">
+            <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+              <img src="assets/ed-real-garment-webxr-front.png" alt="UI-XR WebXR sample scene: ED real garment patient (ed_anny_real_garment_patient) front view with hospital_gown real garment from phenotype" style="width: 100%; display: block;">
+              <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">UI-XR sample: ed_chest_pain patient real garment (front) — code support for deforming gown sleeves and evidence surfaces active in the running WebXR scene.</figcaption>
+            </figure>
+            <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+              <img src="assets/ed-real-garment-webxr-three-quarter.png" alt="UI-XR WebXR sample scene: ED real garment patient three-quarter view" style="width: 100%; display: block;">
+              <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">UI-XR sample: ed_chest_pain patient real garment (three-quarter) — same runtime load with gown handling and visual evidence surfaces.</figcaption>
+            </figure>
+          </div>
+          <p style="margin-top: 12px; font-size: 0.85rem;">
+            <a href="assets/ed-real-garment-webxr-inspection.json" target="_blank">View full ui-xr-ed-seed-inspection.json</a> (confirms ed_anny_real_garment_patient traverse exercised cyan/frustumCulled=false/openClinXrSleeveDeformEvidence/garmentGeometry + promotion + ed bay + real garment loaded).
+            To run live: start <code>pnpm --filter ui-xr dev</code>, load with <code>?openclinxrScenarioId=ed_chest_pain_priority_v2&humanoidSourceComparator=ed_anny_real_garment_patient&capture=mouth-gaze-pose-body-motion-garment-sleeve-deform</code> (once ED glb in current/ for full demo).
+          </p>
+        </div>
+      </section>
+
       <section id="evidence-gates" class="band band--evidence" aria-labelledby="evidence-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence gates</p>

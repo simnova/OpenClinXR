@@ -87,6 +87,11 @@ general-purpose = "deepseek-v4-pro"  # bounded execution / write slices (tier 3;
 #   grok models
 #   /model deepseek-v4-pro   (or deepseek-v4-flash, deepseek, deepseek-v4-pro-anthropic, etc.)
 #   grok -m deepseek-v4-pro -p "..."
+#
+# MULTIMODAL HARDENING (spawn builder): tasks involving images/screenshots/cagematch/UI-XR evidence visuals
+# (detected via requiresMultimodalReasoning on task + role keywords) are forced to grok-4-fast (try first)
+# then grok-4-pro in the generated spawn spec + prompt + ESCALATION GUARD.
+# Deepseek text models are never used for vision content. See grok-repo-agent-spawn.ts.
 #   (Moonbridge via-moon is still available as explicit backup.)
 #
 # Subagent routing example (current in user config):

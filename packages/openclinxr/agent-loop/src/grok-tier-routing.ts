@@ -98,13 +98,17 @@ export const GROK_TIER_LADDER: GrokTierSpec[] = [
   },
   {
     tierId: "tier1_deepseek_flash_scout",
-    label: "DeepSeek V4 Flash scout",
+    label: "DeepSeek V4 Flash scout (text-only tasks only)",
     model: "deepseek-v4-flash",
     grokSubagentType: "explore",
     preferredSurface: "grok_native_spawn_subagent",
     capabilityMode: "read-only",
     role: "scout",
   },
+  // NOTE: Multimodal/vision/reasoning efforts (images, cagematch/UI-XR evidence, visual reports, screenshots)
+  // are HARDENED in spawn builder: reserved for grok-4-fast (try first) then grok-4-pro.
+  // See grok-repo-agent-spawn.ts: requiresMultimodalReasoning + buildGrokRepoAgentSpawnSpec override.
+  // Never send image_url / multimodal content to deepseek-v4-flash or -pro.
   {
     tierId: "tier2_deepseek_pro_analysis",
     label: "DeepSeek V4 Pro analysis / plan",

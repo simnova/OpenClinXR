@@ -21,6 +21,7 @@
     "grok:tier:slice-start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
     "grok:tier:slice-introspect": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-introspect",
     "grok:tier:post-slice": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
+    "test:deepseek:capabilities": "tsx tools/openclinxr/openclaw/test-deepseek-capabilities.ts",
     "grok:agent:list": "tsx tools/openclinxr/openclaw/grok-agent-cli.ts list",
     "grok:agent:spawn-spec": "tsx tools/openclinxr/openclaw/grok-agent-cli.ts spawn-spec",
     "grok:agent:validate": "tsx tools/openclinxr/openclaw/grok-agent-cli.ts validate",
