@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "openclinxr.slice-team-template.v1",
+  "id": "admin-packet-replay",
+  "description": "Admin review/replay UI consuming encounter authoring seeds (Q4).",
+  "goal": "Implement admin review/replay surfaces that consume scenario bank review packets, traces, actor turns, and emotional-state timelines with skeptic-noticeable faculty workflow delta.",
+  "q_gate": "Q4",
+  "autonomy": "Execute without human approval. Subagents write handoff JSON only. Integrator appends one line to PROJECT_STATUS.md and dequeues next slice.",
+  "anti_toil_pivot": "If only metadata/schema work with no visible admin UI delta, expand to wired review/replay components with sample packet load.",
+  "roles": {
+    "implementation-planning-lead": {
+      "paths": ["apps/**", "packages/openclinxr/**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "clinical-safety-critic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "productivity-skeptic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "xr-systems-architect": {
+      "paths": ["apps/admin/**", "packages/openclinxr/**"],
+      "mode": "write",
+      "phase": "execute"
+    }
+  },
+  "done_when": [
+    "handoff:productivity-skeptic:done",
+    "handoff:xr-systems-architect:done",
+    "handoffs:all-done"
+  ],
+  "phases": [
+    { "id": "scout", "parallel": true, "roleIds": ["implementation-planning-lead", "clinical-safety-critic", "productivity-skeptic"] },
+    { "id": "execute", "parallel": false, "roleIds": ["xr-systems-architect"] },
+    { "id": "integrate", "parallel": false, "roleIds": [] }
+  ]
+}

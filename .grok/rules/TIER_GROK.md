@@ -1,1 +1,0 @@
-../../agents/rules/TIER_GROK.md

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "openclinxr.slice-team-template.v1",
+  "id": "real-garment-v1",
+  "description": "Phenotype-driven real garment: asset factory + UI-XR consumer + parallel skeptic.",
+  "goal": "Visible deforming real garment sleeves from phenotype.garmentLayers in Model Vetting and/or UI-XR sample scene.",
+  "q_gate": "Q1+Q5",
+  "autonomy": "Execute without human approval. Write handoff JSON only. Integrator updates PROJECT_STATUS.md. Pivot on anti-toil if skeptic returns invisible twice.",
+  "anti_toil_pivot": "Expand sleeve geometry (faces/dims/contrast), re-orchestrate with phenotype.garmentLayers, fix capture report schema, re-run UI-XR exposure (no-cull/cyan/sleeveDeform).",
+  "roles": {
+    "productivity-skeptic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "asset-pipeline-lead": {
+      "paths": [
+        "tools/openclinxr/factory/**",
+        "apps/arena/model-vetting-studio/public/cagematch/**",
+        "docs/openclinxr/cagematch-reports/**"
+      ],
+      "mode": "write",
+      "phase": "execute"
+    },
+    "xr-systems-architect": {
+      "paths": ["apps/ui-xr/**", "tools/openclinxr/evidence/**"],
+      "mode": "write",
+      "phase": "execute"
+    }
+  },
+  "done_when": [
+    "handoff:productivity-skeptic:done",
+    "handoff:asset-pipeline-lead:done",
+    "handoff:xr-systems-architect:done",
+    "exists:.openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/*front*.png",
+    "exists:.openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ui-xr-peds-real-garment-sleeve*.png",
+    "min-bytes:.openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ui-xr-peds-real-garment-sleeve-front_2026-06-07.png:100000",
+    "skeptic:visible"
+  ],
+  "phases": [
+    {
+      "id": "scout",
+      "parallel": true,
+      "roleIds": ["productivity-skeptic"]
+    },
+    {
+      "id": "execute",
+      "parallel": true,
+      "roleIds": ["asset-pipeline-lead", "xr-systems-architect"]
+    },
+    {
+      "id": "integrate",
+      "parallel": false,
+      "roleIds": []
+    }
+  ]
+}

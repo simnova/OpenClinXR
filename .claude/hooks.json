@@ -81,8 +81,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'SessionStart: Composer = primary OpenClaw orchestrator (repo role chief-coordinator). Re-read snapshots first (~60-80 lines). Delegate read-only coordinator/drift consults to explore+deepseek-v4-flash; plan to deepseek-v4-pro. See agents/rules/grok-harness-usage.md.'; cat agents/coordinator/chief-coordinator/{charter,memory}.md 2>/dev/null | head -30; node -e \"const i=require(\\\"./.agent-factory/memory-index.json\\\"); console.log(\\\"memory entries:\\\", i.agent_count, i.entry_count); const cc=i.entries.filter(e=>/chief|coordinator|drift/.test(e.agent_id||e.topic||'')).slice(0,2); console.dir(cc.map(e=>({id:e.id,topic:e.topic})))\" 2>/dev/null || true; echo \"pnpm agent:harness:prove for token/proof report; ccusage for Codex cross-check.\"; pnpm openclaw:lease -- status 2>/dev/null || true",
-            "timeout": 15
+            "command": "echo 'SessionStart: chief-coordinator orchestrator. Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
+            "timeout": 10
           }
         ]
       }

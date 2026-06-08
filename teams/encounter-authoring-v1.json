@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "openclinxr.slice-team-template.v1",
+  "id": "encounter-authoring-v1",
+  "description": "Encounter authoring + review packet loop from case definitions (Q1/Q4).",
+  "goal": "Advance scenario bank authoring, review packets, traces, actor turns, and replay-safe persistence with admin consumption path.",
+  "q_gate": "Q1+Q4",
+  "autonomy": "Execute without human approval. Subagents write handoff JSON only. Integrator appends one line to PROJECT_STATUS.md and dequeues next slice.",
+  "anti_toil_pivot": "If evidence-only on seeds, pivot to wired authoring or admin consumer with visible replay delta.",
+  "roles": {
+    "implementation-planning-lead": {
+      "paths": ["packages/openclinxr/**", "tools/openclinxr/factory/**"],
+      "mode": "write",
+      "phase": "execute"
+    },
+    "pediatrics-physician": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "productivity-skeptic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    }
+  },
+  "done_when": [
+    "handoff:productivity-skeptic:done",
+    "handoff:implementation-planning-lead:done",
+    "handoffs:all-done"
+  ],
+  "phases": [
+    { "id": "scout", "parallel": true, "roleIds": ["pediatrics-physician", "productivity-skeptic"] },
+    { "id": "execute", "parallel": false, "roleIds": ["implementation-planning-lead"] },
+    { "id": "integrate", "parallel": false, "roleIds": [] }
+  ]
+}

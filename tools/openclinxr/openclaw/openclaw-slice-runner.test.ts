@@ -1,37 +1,72 @@
 import { describe, expect, it } from "vitest";
 
-import { buildOpenClawRunNextPlan, buildOpenClawWatchdogDecision } from "./openclaw-slice-runner.js";
+import {
+  buildOpenClawRunNextPlan,
+  buildOpenClawWatchdogDecision,
+  selectNextSlice,
+} from "./openclaw-slice-runner.js";
 
-const stateSnapshot = [
+const projectStatusSnapshot = [
+  "# OpenClinXR Project Status",
+  "",
+  "**Next dequeue:** `admin-packet-replay-surfaces-impl` or peds-parent-nurse-garment-asset",
+  "",
+  "## Backlog (top)",
+  "",
+  "| Area | Next slice | Template | Role lead |",
+  "|------|------------|----------|-----------|",
+  "| UI-XR evidence | `peds-evidence-loop` | peds-evidence-loop | xr-systems-architect |",
+].join("\n");
+
+const legacyPlanSnapshot = [
   "# OpenClinXR Autonomous Work Plan",
   "",
   "## Active Product Advancement Queue",
   "",
   "1. Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only.",
-  "2. Faculty review path determinism.",
   "",
   "## Validation Rules",
 ].join("\n");
 
 describe("openclaw slice runner", () => {
-  it("selects a queued slice while keeping no-op cycles out of canonical state", () => {
+  it("selects slice from PROJECT_STATUS Next dequeue", () => {
+    const selection = selectNextSlice({
+      "PROJECT_STATUS.md": projectStatusSnapshot,
+    });
+    expect(selection).toMatchObject({
+      sliceId: "admin-packet-replay-surfaces-impl",
+      templateId: "admin-packet-replay",
+      source: "next-dequeue",
+    });
+  });
+
+  it("falls back to legacy AUTONOMOUS_WORK_PLAN queue", () => {
+    const selection = selectNextSlice({
+      "PROJECT_STATUS.md": "# status\n",
+      "AUTONOMOUS_WORK_PLAN.md": legacyPlanSnapshot,
+    });
+    expect(selection.source).toBe("legacy-plan");
+    expect(selection.sliceId).toBeTruthy();
+  });
+
+  it("builds slice-team init when brief is missing", () => {
     const plan = buildOpenClawRunNextPlan({
-      now: new Date("2026-06-04T12:00:00.000Z"),
+      now: new Date("2026-06-07T12:00:00.000Z"),
       stateFiles: {
-        "AUTONOMOUS_WORK_PLAN.md": stateSnapshot,
-        "PROJECT_COORDINATION_INDEX.md": "# Index",
-        "docs/openclinxr/worker-backlog-and-validation-matrix.md": "# Matrix",
+        "PROJECT_STATUS.md": projectStatusSnapshot,
       },
       gitStatusShort: "## main...origin/main",
     });
 
-    expect(plan.selectedSlice).toBe("Worker 9/7/11 UI-XR runtime evidence consumer + Admin ReviewReplay stay metadata-only.");
+    expect(plan.selectedSlice).toBe("admin-packet-replay-surfaces-impl");
+    expect(plan.templateId).toBe("admin-packet-replay");
+    expect(plan.sliceBriefExists).toBe(false);
+    expect(plan.nextCommand).toContain("openclaw:slice:init");
+    expect(plan.sliceTeam.teamSpawnCommand).toContain("--phase scout");
     expect(plan.canonicalStateUpdate).toMatchObject({
       allowed: false,
       reason: "No product change, verification result, or blocker has been supplied.",
     });
-    expect(plan.localReportPath).toBe(".openclinxr/openclaw/run-next-report.json");
-    expect(plan.nextCommand).toContain("--slice 'Worker 9/7/11 UI-XR runtime evidence consumer");
   });
 
   it("lets the watchdog trigger run-next only when the tree is clean, no lease is held, and the last run is stale", () => {

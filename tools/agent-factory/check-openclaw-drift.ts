@@ -38,6 +38,8 @@ const requiredFiles = [
 
 const requiredMarkers: Record<string, string[]> = {
   "AGENTS.md": [
+    "GUARD_BLUEPRINT.md",
+    "PROJECT_STATUS.md",
     "openclaw-runbook-2026-05-27.md",
     "docs:drift-check",
     "Required Per-Slice Record",
@@ -144,8 +146,12 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   const scripts = input.packageJson?.scripts ?? {};
-  if (scripts["openclaw:preflight"] !== "pnpm openclaw:ready") {
-    failures.push({ file: "package.json", message: "openclaw:preflight script must run the readiness gate" });
+  const expectedPreflight = "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
+  if (scripts["openclaw:preflight"] !== expectedPreflight) {
+    failures.push({
+      file: "package.json",
+      message: `openclaw:preflight script must be '${expectedPreflight}'`,
+    });
   }
   if (scripts["openclaw:post-slice"] !== "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice") {
     failures.push({ file: "package.json", message: "openclaw:post-slice script must run the operational redundancy checker" });

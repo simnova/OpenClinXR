@@ -1,12 +1,21 @@
 import { access, readdir } from "node:fs/promises";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { readFile } from "node:fs/promises";
 import {
   buildGrokRepoAgentSpawnRegistry,
   buildGrokRepoAgentSpawnSpec,
   formatGrokRepoAgentSpawnBrief,
   recommendRepoAgentsForConsult,
 } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
+import {
+  buildSliceTeamSpawnPrompt,
+  rolesForPhase,
+  sliceBriefPath,
+  type SliceBrief,
+  type SlicePhaseId,
+  type SliceTeamTemplate,
+} from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 
 const repoRoot = process.cwd();
 const DEFAULT_REGISTRY_PATH = ".openclinxr/openclaw/grok-repo-agent-spawn-registry-latest.json";
@@ -45,6 +54,8 @@ function parseArgs(argv: string[]): {
   roleId?: string;
   consultKind?: string;
   task?: string;
+  sliceId?: string;
+  phase?: SlicePhaseId;
   json: boolean;
   outputPath: string;
 } {
@@ -53,6 +64,8 @@ function parseArgs(argv: string[]): {
   let roleId: string | undefined;
   let consultKind: string | undefined;
   let task: string | undefined;
+  let sliceId: string | undefined;
+  let phase: SlicePhaseId | undefined;
   let json = false;
   let outputPath = DEFAULT_REGISTRY_PATH;
   for (let i = 0; i < argv.length; i += 1) {
@@ -61,9 +74,51 @@ function parseArgs(argv: string[]): {
     if (arg === "--role" && argv[i + 1]) roleId = argv[++i];
     if (arg === "--consult" && argv[i + 1]) consultKind = argv[++i];
     if (arg === "--task" && argv[i + 1]) task = argv[++i];
+    if (arg === "--slice-id" && argv[i + 1]) sliceId = argv[++i];
+    if (arg === "--phase" && argv[i + 1]) phase = argv[++i] as SlicePhaseId;
     if (arg === "--output" && argv[i + 1]) outputPath = argv[++i];
   }
-  return { command, roleId, consultKind, task, json, outputPath };
+  return { command, roleId, consultKind, task, sliceId, phase, json, outputPath };
+}
+
+async function loadSliceBrief(sliceId: string): Promise<SliceBrief> {
+  const raw = await readFile(path.join(repoRoot, sliceBriefPath(sliceId)), "utf8");
+  return JSON.parse(raw) as SliceBrief;
+}
+
+async function loadSliceTemplate(templateId: string): Promise<SliceTeamTemplate | null> {
+  try {
+    const raw = await readFile(path.join(repoRoot, "teams", `${templateId}.json`), "utf8");
+    return JSON.parse(raw) as SliceTeamTemplate;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveSliceTeamTask(input: {
+  roleId: string;
+  roleDir: string;
+  sliceId: string;
+  phase: SlicePhaseId;
+}): Promise<string | undefined> {
+  const brief = await loadSliceBrief(input.sliceId);
+  const template = brief.templateId ? await loadSliceTemplate(brief.templateId) : null;
+  const phaseRoles = rolesForPhase(brief, template, input.phase);
+  if (!phaseRoles.includes(input.roleId)) {
+    return undefined;
+  }
+  const assignment = brief.roles[input.roleId];
+  if (!assignment) {
+    return undefined;
+  }
+  return buildSliceTeamSpawnPrompt({
+    repoRoot,
+    roleId: input.roleId,
+    roleDir: input.roleDir,
+    brief,
+    assignment,
+    phase: input.phase,
+  });
 }
 
 async function main(): Promise<void> {
@@ -119,7 +174,22 @@ async function main(): Promise<void> {
       process.exitCode = 1;
       return;
     }
-    const spec = buildGrokRepoAgentSpawnSpec({ ...role, task: args.task });
+    let task = args.task;
+    if (args.sliceId) {
+      const sliceTask = await resolveSliceTeamTask({
+        roleId: role.roleId,
+        roleDir: role.roleDir,
+        sliceId: args.sliceId,
+        phase: args.phase ?? "execute",
+      });
+      if (!sliceTask) {
+        console.error(`Role ${args.roleId} not in slice ${args.sliceId} phase ${args.phase ?? "execute"}`);
+        process.exitCode = 1;
+        return;
+      }
+      task = sliceTask;
+    }
+    const spec = buildGrokRepoAgentSpawnSpec({ ...role, task });
     if (args.json) {
       console.log(JSON.stringify(spec, null, 2));
       return;
@@ -143,7 +213,7 @@ async function main(): Promise<void> {
     console.log(formatGrokRepoAgentSpawnBrief(agent));
   }
   console.log(`\n${registry.roleCount} repo agents; posture ${registry.posture}`);
-  console.log("Use: pnpm grok:agent:spawn-spec -- --role <id> [--task \"...\"]");
+  console.log("Use: pnpm grok:agent:spawn-spec -- --role <id> [--task \"...\"] [--slice-id <id> [--phase scout|execute]]");
 }
 
 await main();

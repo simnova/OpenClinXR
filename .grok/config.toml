@@ -126,8 +126,22 @@ general-purpose = "deepseek-v4-pro"  # bounded execution / write slices (tier 3;
 # Update your personal ~/.grok/config.toml model descriptions or subagent prompts with these patterns for best results. Test small and watch usage/cache stats.
 
 # --- Models (web capabilities for challenge analysis during autonomy) ---
-[models]
-web_search = "grok-4.20-multi-agent"  # High-reasoning web-integrated model. Use specifically when needing to browse the web to analyze options for challenges you get yourself into during long autonomous runs, heartbeats, or when stuck (per user directive). Complements the DeepSeek cost-optimized tiers (explore=deepseek-v4-flash for scouts/coordinator consults, general-purpose=deepseek-v4-pro for execution) and grok-build for frontier/protected. Do not use for routine slices to preserve LOW_TOKEN efficiency and cheap-first policy.
+# NOTE: Project .grok/config.toml does NOT apply [models] or [model.*] sections per Grok docs
+# (only [mcp_servers], [plugins], [permission] merge from project config). Model routing lives in
+# ~/.grok/config.toml. Keep this block as documentation only.
+#
+# Correct setup (in ~/.grok/config.toml only — project [models] is ignored by Grok):
+#   [models]
+#   default = "grok-composer-2.5-fast"
+#   web_search = "grok-4-multi-agent"   # xAI grok-4.20-multi-agent via Responses API
+#
+# grok-4.20-multi-agent is the xAI API id for multi-agent web research (Responses API).
+# It is NOT a valid Grok CLI picker id ("unknown model id"). Optional alias:
+#   [model.grok-4-multi-agent]
+#   model = "grok-4.20-multi-agent"
+#   api_backend = "responses"
+#   supports_backend_search = true
+# Direct /model grok-4-multi-agent sessions require beta access for client-side tools.
 
 # --- Memory (complements the project's persistent agent memory in agents/**/memory.md, .agent-factory/memory-index.json, rehydration from state files) ---
 [memory]

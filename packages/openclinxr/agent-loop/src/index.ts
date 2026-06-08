@@ -1230,6 +1230,23 @@ export type {
   GrokWorkspaceTokenSnapshot,
 } from "./grok-token-introspection.js";
 export {
+  buildSliceTeamSpawnPrompt,
+  buildTeamSpawnReport,
+  formatTeamSpawnBrief,
+  materializeBriefFromTemplate,
+  sliceBriefPath,
+  sliceHandoffPath,
+  sliceRootDir,
+  verifySliceBrief,
+} from "./slice-team.js";
+export type {
+  SliceBrief,
+  SliceHandoff,
+  SliceTeamTemplate,
+  SliceVerifyReport,
+  TeamSpawnReport,
+} from "./slice-team.js";
+export {
   GROK_REPO_AGENT_CONSULT_DEFAULTS,
   GROK_REPO_AGENT_SPAWN_SAFEGUARDS,
   buildGrokRepoAgentSpawnRegistry,

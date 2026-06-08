@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "openclinxr.slice-team-template.v1",
+  "id": "peds-evidence-loop",
+  "description": "Full peds real-garment adaptive dialogue + body motion evidence in UI-XR sample scene.",
+  "goal": "Run/extend peds adaptive capture with peds_anny_real_garment_patient; produce branch screenshots and body-motion evidence with visible deforming sleeves.",
+  "q_gate": "Q1+Q5",
+  "autonomy": "Execute without human approval. Subagents write handoff JSON only. Integrator appends one line to PROJECT_STATUS.md and dequeues next slice.",
+  "anti_toil_pivot": "Use capture fallback paths, extend wait/settle, drive isPedsRealGarmentSleeveDeformCapture modes, direct playwright if script times out.",
+  "roles": {
+    "productivity-skeptic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "xr-systems-architect": {
+      "paths": ["apps/ui-xr/**", "tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts"],
+      "mode": "write",
+      "phase": "execute"
+    },
+    "asset-pipeline-lead": {
+      "paths": [
+        "apps/ui-xr/public/cagematch/**",
+        ".openclinxr/asset-production/**",
+        "tools/openclinxr/factory/**"
+      ],
+      "mode": "write",
+      "phase": "execute"
+    }
+  },
+  "done_when": [
+    "handoff:productivity-skeptic:done",
+    "handoff:xr-systems-architect:done",
+    "handoff:asset-pipeline-lead:done",
+    "exists:.openclinxr/evidence/ui-xr-peds-adaptive-dialogue/**/*real*garment*.png",
+    "skeptic:visible"
+  ],
+  "phases": [
+    {
+      "id": "scout",
+      "parallel": true,
+      "roleIds": ["productivity-skeptic"]
+    },
+    {
+      "id": "execute",
+      "parallel": true,
+      "roleIds": ["xr-systems-architect", "asset-pipeline-lead"]
+    },
+    {
+      "id": "integrate",
+      "parallel": false,
+      "roleIds": []
+    }
+  ]
+}

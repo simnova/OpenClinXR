@@ -47,23 +47,27 @@ const requiredFiles = [
 const requiredMarkers: Record<string, string[]> = {
   "AGENTS.md": [
     "PROJECT_COORDINATION_INDEX.md",
-    "Instruction Source-Of-Truth Order",
-    "Anti-Toil Product Advancement Gate",
-    "blueprint-factory-drift-guardrails-2026-05-27.md",
-    "doc-authority-registry-2026-05-27.md",
-    "generated-artifact-registry-2026-05-27.md",
-    "openclaw-runbook-2026-05-27.md",
-    "openclaw-tool-adapters-2026-05-27.md",
-    "agents/adversarial/openclaw-drift-police/charter.md",
+    "PROJECT_STATUS.md",
+    "GUARD_BLUEPRINT.md",
+    "EXEC_AUTONOMY.md",
+    "EXEC_REHYDRATE.md",
+    "openclaw:team-spawn",
+    "openclaw:run-next",
+    "openclaw-drift-police",
     "docs:drift-check",
-    "Required Per-Slice Record",
     "Conversation tooling is first-class",
-    "Hyper Token-Efficient & Long-Run Practices",
-    "Efficient Rehydration + Working Model",
     "snapshots-first",
     "openclaw:lease",
     "UI-XR runtime evidence consumer",
     "Apple M1 Max 64 GB",
+  ],
+  "PROJECT_STATUS.md": [
+    "Canonical state file",
+    "Next dequeue",
+    "Per-Slice Checkpoints",
+    "Token introspection",
+    "Required Per-Slice Record",
+    "docs:drift-check",
   ],
   "PROJECT_COORDINATION_INDEX.md": [
     "Commit-History Drift Analysis",
@@ -106,15 +110,12 @@ const requiredMarkers: Record<string, string[]> = {
     "Apple M1 Max 64 GB",
   ],
   "docs/openclinxr/worker-backlog-and-validation-matrix.md": [
-    "PROJECT_COORDINATION_INDEX.md",
-    "Active Product Advancement Order",
+    "PROJECT_STATUS.md",
+    "Ownership Matrix",
     "Current State Snapshot",
-    "Worker 7 plus Worker 8 completed-station faculty review path",
-    "Do not toil on evidence refreshes.",
     "openclaw-runbook-2026-05-27.md",
     "docs:drift-check",
-    "Efficient Rehydration + Working Model",
-    "Efficiency Quick Ref",
+    "EXEC_REHYDRATE.md",
     "UI-XR runtime evidence consumer",
     "openclaw:lease",
   ],
@@ -302,10 +303,11 @@ export function buildCoordinationAlignmentReport(input: CoordinationAlignmentInp
   }
 
   const scripts = input.packageJson?.scripts ?? {};
-  if (scripts["openclaw:preflight"] !== "pnpm openclaw:ready") {
+  const expectedPreflight = "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
+  if (scripts["openclaw:preflight"] !== expectedPreflight) {
     failures.push({
       file: "package.json",
-      message: "openclaw:preflight script must run the readiness gate",
+      message: `openclaw:preflight script must be '${expectedPreflight}'`,
     });
   }
   if (scripts["openclaw:post-slice"] !== "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice") {

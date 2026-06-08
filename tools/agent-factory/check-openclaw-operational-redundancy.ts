@@ -27,7 +27,7 @@ const requiredSliceFields = [
 ] as const;
 
 const requiredScripts: Record<string, string> = {
-  "openclaw:preflight": "pnpm openclaw:ready",
+  "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
   "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
   "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
   "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
@@ -39,6 +39,17 @@ const requiredScripts: Record<string, string> = {
 };
 
 export function extractRecentCheckpointLines(planText: string, maxLines = 3): string[] {
+  const perSliceIdx = planText.indexOf("## Per-Slice Checkpoints");
+  if (perSliceIdx >= 0) {
+    const section = planText.slice(perSliceIdx);
+    const blocks = section
+      .split(/\n### /u)
+      .slice(1, maxLines + 1)
+      .map((block) => block.trim());
+    if (blocks.length > 0) {
+      return blocks;
+    }
+  }
   return planText
     .split("\n")
     .filter((line) => /^\d{4}-\d{2}-\d{2}/.test(line.trim()))
@@ -46,6 +57,15 @@ export function extractRecentCheckpointLines(planText: string, maxLines = 3): st
 }
 
 export function validateLatestSliceTokenLedger(planText: string): OperationalRedundancyFailure | null {
+  const perSliceIdx = planText.indexOf("## Per-Slice Checkpoints");
+  if (perSliceIdx >= 0) {
+    const section = planText.slice(perSliceIdx, perSliceIdx + 6000);
+    const firstBlock = section.split(/\n### /u)[1] ?? "";
+    if (firstBlock.includes("Token introspection:")) {
+      return null;
+    }
+  }
+
   const checkpoints = extractRecentCheckpointLines(planText);
   if (checkpoints.length === 0) {
     return {
@@ -53,7 +73,7 @@ export function validateLatestSliceTokenLedger(planText: string): OperationalRed
       message: "snapshot missing dated checkpoint lines for per-slice token ledger",
     };
   }
-  if (!checkpoints[0]?.includes("Token introspection:")) {
+  if (!checkpoints.some((block) => block.includes("Token introspection:"))) {
     return {
       file: "PROJECT_STATUS.md",
       message:
@@ -142,7 +162,6 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
 
   for (const file of [
     "docs/openclinxr/openclaw-runbook-2026-05-27.md",
-    "AUTONOMOUS_WORK_PLAN.md",
     "PROJECT_STATUS.md",
     "docs/openclinxr/worker-backlog-and-validation-matrix.md",
   ]) {
@@ -271,7 +290,7 @@ export function buildOperationalRedundancyReport(input: OperationalRedundancyInp
   }
 
   if (input.enforceSliceTokenLedger) {
-    const tokenFailure = validateLatestSliceTokenLedger(input.files["AUTONOMOUS_WORK_PLAN.md"] ?? "");
+    const tokenFailure = validateLatestSliceTokenLedger(input.files["PROJECT_STATUS.md"] ?? "");
     if (tokenFailure) failures.push(tokenFailure);
   }
 

@@ -1156,16 +1156,16 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         bot_z = min_z + height_z * 0.11
         torso_rows, torso_cols = 8, 12
         sleeve_rows, sleeve_cols = 7, 12
-        sleeve_len = height_z * 0.27  # expanded 0.27+ for obvious visible separate 3D sleeves (not subtle 0.16 bands) at studio/UI-XR distance
+        sleeve_len = height_z * 0.32  # further expanded for garment-apply-role...-expand-v1 Q1 slice (obvious 3D sleeves in tester/UI-XR per visibility)
         verts = []
         faces = []
         # torso shell (better than pure cylinder: chest bulge + shoulder slope) + expanded ripple/bulge for volume
         for i in range(torso_rows):
             t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
             z = bot_z + t * (top_z - bot_z)
-            ripple = 0.006 * math.sin(t * 8.0)
-            bulge = 0.022 if 0.28 < t < 0.68 else 0.010
-            r = r_base + 0.015 + ripple + bulge
+            ripple = 0.008 * math.sin(t * 8.0)
+            bulge = 0.028 if 0.28 < t < 0.68 else 0.012
+            r = r_base + 0.018 + ripple + bulge
             if i == 0:
                 r *= 0.93
             if i == torso_rows - 1:
@@ -1184,7 +1184,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 faces.append((a, b, c, d))
         # short sleeve L (shoulder+upper_arm coverage, attached at shoulder) -- expanded r/rows/cols, protrusion, ripple for obvious 3D volume
         sleeve_attach_z = min_z + height_z * 0.66
-        sleeve_r0 = r_base * 0.35
+        sleeve_r0 = r_base * 0.40
         sL = len(verts)
         for si in range(sleeve_rows):
             st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0

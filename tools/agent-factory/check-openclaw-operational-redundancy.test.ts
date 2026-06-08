@@ -8,7 +8,7 @@ import {
 
 const packageJson = {
   scripts: {
-    "openclaw:preflight": "pnpm openclaw:ready",
+    "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
@@ -65,13 +65,23 @@ function alignedInput(overrides: Partial<OperationalRedundancyInput> = {}): Oper
       ].join("\n"),
       ".agents/plugins/marketplace.json": "openclinxr-openclaw-style\n./plugins/openclinxr-openclaw-style",
       "plugins/openclinxr-openclaw-style/.codex-plugin/plugin.json": "openclinxr-openclaw-style\n\"skills\": \"./skills/\"",
-      "agents/rules/drift-toil-prevention.md": [
+      "agents/rules/GUARD_DRIFT.md": [
         "Model-work product guard",
         "do not spend another model/model-pipeline slice mainly on tests, validators, benchmarks, screenshots, source-currentness checks, or review artifacts",
         "actual model artifacts, model generation/import, rigging/animation/skin/clothing functionality",
       ].join("\n"),
-      "PROJECT_COORDINATION_INDEX.md": "OpenClaw-style / OpenClaw-inspired",
-      "AUTONOMOUS_WORK_PLAN.md": `2026-06-07 sample checkpoint: Token introspection: aligned; tier: compose; ccusageΔ=0; composerΔ=0; ratio=n/a\n${sliceFields}`,
+      "PROJECT_STATUS.md": [
+        "# OpenClinXR Project Status",
+        "Product path advanced",
+        "Blueprint/factory tie",
+        "Touched files",
+        "Evidence",
+        "Next queued slice",
+        "## Per-Slice Checkpoints",
+        "### 2026-06-07 sample-checkpoint (Q5)",
+        "Token introspection: aligned; tier: compose; ccusageΔ=0; composerΔ=0; ratio=n/a",
+        sliceFields,
+      ].join("\n"),
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": sliceFields,
       "docs/openclinxr/openclaw-tool-adapters-2026-05-27.md": "Codex Adapter\nClaude Adapter\nGrok Adapter\nCursor Adapter\nCapability Fallback Matrix\nnot an external OpenClaw runtime",
       "docs/openclinxr/openclaw-runbook-2026-05-27.md": [
@@ -114,7 +124,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
     expect(report.ok).toBe(false);
     expect(report.failures).toContainEqual({
       file: "package.json",
-      message: "openclaw:preflight must be wired to 'pnpm openclaw:ready'",
+      message: "openclaw:preflight must be wired to 'pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status'",
     });
   });
 
@@ -122,7 +132,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
     const input = alignedInput({
       packageJson: {
         scripts: {
-          "openclaw:preflight": "pnpm openclaw:ready",
+          "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
           "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
           "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
         },
@@ -181,7 +191,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
 
   it("fails if the model-work product guard is removed from the methodology rule", () => {
     const input = alignedInput();
-    input.files["agents/rules/drift-toil-prevention.md"] = input.files["agents/rules/drift-toil-prevention.md"].replace(
+    input.files["agents/rules/GUARD_DRIFT.md"] = input.files["agents/rules/GUARD_DRIFT.md"].replace(
       "Model-work product guard",
       "",
     );
@@ -190,7 +200,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
 
     expect(report.ok).toBe(false);
     expect(report.failures).toContainEqual({
-      file: "agents/rules/drift-toil-prevention.md",
+      file: "agents/rules/GUARD_DRIFT.md",
       message: "missing model-work product guard marker: Model-work product guard",
     });
   });
@@ -207,13 +217,17 @@ describe("OpenClaw-style operational redundancy checker", () => {
       ...input,
       files: {
         ...input.files,
-        "AUTONOMOUS_WORK_PLAN.md": "2026-06-07 sample checkpoint without token ledger\nProduct path advanced",
+        "PROJECT_STATUS.md": [
+          "## Per-Slice Checkpoints",
+          "### 2026-06-07 sample without token",
+          "Product path advanced",
+        ].join("\n"),
       },
       enforceSliceTokenLedger: true,
     });
     expect(missing.ok).toBe(false);
     expect(missing.failures).toContainEqual({
-      file: "AUTONOMOUS_WORK_PLAN.md",
+      file: "PROJECT_STATUS.md",
       message:
         "latest checkpoint missing Token introspection line; run pnpm openclaw:slice-token:start → slice work → pnpm openclaw:slice-token:finish and paste stateRecordLine before commit",
     });
@@ -222,7 +236,7 @@ describe("OpenClaw-style operational redundancy checker", () => {
   it("validates token ledger helper independently", () => {
     expect(validateLatestSliceTokenLedger("2026-06-07 x: Token introspection: aligned")).toBeNull();
     expect(validateLatestSliceTokenLedger("2026-06-07 x: no token line")).toMatchObject({
-      file: "AUTONOMOUS_WORK_PLAN.md",
+      file: "PROJECT_STATUS.md",
     });
   });
 

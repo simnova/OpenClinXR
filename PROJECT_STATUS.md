@@ -65,7 +65,11 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 ## Per-Slice Checkpoints
 
-(Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership.)
+(Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-06-07 instruction-stack-optimization (Q5 harness)
+
+Product path advanced: Pruned worker-backlog snapshot (~100→45 lines); fixed `openclaw:run-next` + post-slice SSOT to `PROJECT_STATUS.md` **Next dequeue**; tiered Grok rules (6 core vs 16); merged `EXEC_AUTONOMY` + `EXEC_REHYDRATE`; trimmed `AGENTS.md` (~253→115) with BLUF; wired slice-team init/spawn in run-next; added `admin-packet-replay` + `encounter-authoring-v1` team templates + checkpoint archive CLI. Blueprint/factory tie: Q5 factory instruction verification + reliable autonomous dequeue for next Q1/Q4 verticals. Touched files: AGENTS.md, agents/rules/{EXEC_*,stubs,README}, worker-backlog, openclaw-slice-runner.ts, check-openclaw-operational-redundancy.ts, sync-harness-agent-files.sh, teams/*.json, package.json, .grok/hooks/session-start. Evidence: focused tests pass; `pnpm openclaw:run-next` selects `admin-packet-replay-surfaces-impl` with template `admin-packet-replay`. Token introspection: aligned; tier: compose. Next: admin-packet-replay-surfaces-impl (Q4).
 
 ### 2026-06-07 state-consolidation (Q5 harness)
 
