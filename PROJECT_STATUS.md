@@ -87,7 +87,7 @@ Last updated: 2026-06-07
 
 ### 2026-08-02 — garment-sleeve-fit-parent-nurse-v1 (Q1+Q5) verify ok
 
-Product path advanced: Fixed boxy mid-torso shell — torso radius from shoulder band (not full arm-span); sleeves extruded along upper_arm bone; faceCount 380; parent/nurse 21.5/23.1MB staged. UI-XR recapture shows short-sleeve cyan t-shirt silhouette. Blueprint/factory tie: Q1 phenotype garmentLayers → fitted sleeve volume. Touched: automate_blender.py apply_role_clothing; public GLBs+rigging; inventory. Evidence: verify ok; fronts ≥116kB. Token: compose. Next: continue-autonomy-run-next.
+Product path advanced: Fixed boxy mid-torso shell — torso radius from shoulder band (not full arm-span); sleeves extruded along upper_arm bone; faceCount 380; parent/nurse 21.5/23.1MB staged. UI-XR recapture shows short-sleeve cyan t-shirt silhouette. Blueprint/factory tie: Q1 phenotype garmentLayers → fitted sleeve volume. Touched: automate_blender.py apply_role_clothing; public GLBs+rigging; inventory; MV branch parent-nurse-sleeve-fit-2026-08-02. Evidence: verify ok; fronts ≥116kB; revision embed_real_garment_sleeve_fit_along_arms_v1; skeptic:visible (xr). Token introspection: aligned; tier: pro; ccusageΔ=0; grok flash=12 pro=20 composer=83; subagents=107 subPeak=314570; ratio=2.79. Task cost: $1.40 est; subagents=3; subTokens=233538; models=grok-4.5:$1.40. Next: continue-autonomy-run-next.
 
 
 ### 2026-08-02 — parent-nurse-ui-xr-recapture-after-bind-fix-v1 (Q5) verify ok
