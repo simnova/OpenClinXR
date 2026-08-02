@@ -29,7 +29,9 @@
     "G4_product": {
       "status": "pass",
       "bar": "Authoring follow-on done_when met (not peds template); verify ok",
-      "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination"
+      "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination",
+      "latest": "wire-api+mongo+emission+admin-replay Q4 stack landed 2026-08-02",
+      "pass": true
     },
     "G5_os_goal": {
       "status": "pass",
@@ -54,5 +56,6 @@
     ".openclinxr/openclaw/grok-tier-slice-token-latest.json",
     "tools/openclinxr/scenario-authoring-roundtrip.ts",
     "packages/openclinxr/scenario-runtime/src/index.ts"
-  ]
+  ],
+  "updatedAt": "2026-08-02T16:03:56.598Z"
 }
