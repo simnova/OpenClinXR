@@ -38,6 +38,8 @@ describe("docs-archive-cli pure helpers", () => {
       "TEMPORAL-DECISIONS.md",
       "temporal-decisions-catalog.json",
       "temporal-review-queue.md",
+      "TASK-COST-ROLLUP.md",
+      "OPENCLAW-EPIC-CONTINUITY.md",
       "README.md",
     ]) {
       expect(NEVER_ARCHIVE_BASENAMES.has(name)).toBe(true);

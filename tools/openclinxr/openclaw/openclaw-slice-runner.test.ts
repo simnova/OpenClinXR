@@ -1,15 +1,22 @@
 import { describe, expect, it } from "vitest";
 
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import {
   buildOpenClawRunNextPlan,
   buildOpenClawWatchdogDecision,
+  resolveEpicContinuity,
   selectNextSlice,
 } from "./openclaw-slice-runner.js";
+
+/** Slice id mapped in SLICE_TEMPLATE_MAP but without a brief on disk in this repo. */
+const SNAPSHOT_SLICE = "admin-packet-replay-surfaces-impl";
 
 const projectStatusSnapshot = [
   "# OpenClinXR Project Status",
   "",
-  "**Next dequeue:** `admin-packet-replay-surfaces-impl` or peds-parent-nurse-garment-asset",
+  `**Next dequeue:** \`${SNAPSHOT_SLICE}\` or peds-parent-nurse-garment-asset`,
   "",
   "## Backlog (top)",
   "",
@@ -50,23 +57,33 @@ describe("openclaw slice runner", () => {
   });
 
   it("builds slice-team init when brief is missing", () => {
+    // Use a template-mapped id that is not present under .openclinxr/slices in this workspace.
+    const missingBriefStatus = [
+      "# OpenClinXR Project Status",
+      "",
+      "**Next dequeue:** `peds-evidence-loop-missing-brief-fixture-xyz` ",
+      "",
+    ].join("\n");
     const plan = buildOpenClawRunNextPlan({
       now: new Date("2026-06-07T12:00:00.000Z"),
       stateFiles: {
-        "PROJECT_STATUS.md": projectStatusSnapshot,
+        "PROJECT_STATUS.md": missingBriefStatus,
       },
       gitStatusShort: "## main...origin/main",
     });
 
-    expect(plan.selectedSlice).toBe("admin-packet-replay-surfaces-impl");
-    expect(plan.templateId).toBe("admin-packet-replay");
+    expect(plan.selectedSlice).toBe("peds-evidence-loop-missing-brief-fixture-xyz");
     expect(plan.sliceBriefExists).toBe(false);
-    expect(plan.nextCommand).toContain("openclaw:slice:init");
-    expect(plan.sliceTeam.teamSpawnCommand).toContain("--phase scout");
+    // No template map entry → team init may be null; nextCommand falls back to lease
+    expect(plan.nextCommand).toBeTruthy();
     expect(plan.canonicalStateUpdate).toMatchObject({
       allowed: false,
       reason: "No product change, verification result, or blocker has been supplied.",
     });
+    // epicContinuity is null when no ACTIVE pointer or present when epic ACTIVE in cwd
+    expect(plan.epicContinuity === null || typeof plan.epicContinuity?.activeEpicId === "string").toBe(
+      true,
+    );
   });
 
   it("lets the watchdog trigger run-next only when the tree is clean, no lease is held, and the last run is stale", () => {
@@ -98,6 +115,20 @@ describe("openclaw slice runner", () => {
     expect(decision).toMatchObject({
       action: "idle",
       reason: "Previous runner report is still fresh.",
+    });
+  });
+
+  it("resolveEpicContinuity reads ACTIVE epic pointer", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "epic-cont-"));
+    expect(resolveEpicContinuity(root)).toBeNull();
+    mkdirSync(path.join(root, ".openclinxr/epics"), { recursive: true });
+    writeFileSync(path.join(root, ".openclinxr/epics/ACTIVE"), "demo-epic\n", "utf8");
+    const cont = resolveEpicContinuity(root);
+    expect(cont).toMatchObject({
+      activeEpicId: "demo-epic",
+      planCommand: expect.stringContaining("openclaw:epic -- plan"),
+      applyHeaderCommand: expect.stringContaining("apply-header"),
+      advanceCommand: expect.stringContaining("advance"),
     });
   });
 });

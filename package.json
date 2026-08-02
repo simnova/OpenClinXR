@@ -289,6 +289,7 @@
     "openclaw:slice-token:start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
     "openclaw:slice-token:finish": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
+    "openclaw:epic": "tsx tools/openclinxr/openclaw/openclaw-epic-cli.ts",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
     "openclaw:lease": "tsx tools/openclinxr/openclaw/openclaw-automation-lease.ts",

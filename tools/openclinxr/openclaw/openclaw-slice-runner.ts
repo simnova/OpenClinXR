@@ -49,7 +49,18 @@ export type OpenClawRunNextPlan = {
     teamSpawnCommand: string | null;
     verifyCommand: string | null;
   };
-  suggestedHeaderUpdate?: string | null;  // NEW: when the runner auto-advanced a closed slice, this contains the exact text + instructions the orchestrator must apply to the PROJECT_STATUS.md header so the autonomous loop keeps moving without manual drift on every close.
+  /** When runner auto-advanced a closed slice: exact Next dequeue text + instructions for PROJECT_STATUS. */
+  suggestedHeaderUpdate?: string | null;
+  /**
+   * When `.openclinxr/epics/ACTIVE` exists: epic outer-loop continuity commands.
+   * Prefer `pnpm openclaw:epic -- apply-header` over hand-editing Next dequeue.
+   */
+  epicContinuity?: {
+    activeEpicId: string;
+    planCommand: string;
+    applyHeaderCommand: string;
+    advanceCommand: string;
+  } | null;
 };
 
 export type OpenClawWatchdogInput = {
@@ -206,7 +217,7 @@ export function buildOpenClawRunNextPlan(input: OpenClawRunNextInput): OpenClawR
 
   // Prevention for loop stall: when we auto-advanced past a closed slice (via verify or checkpoint "closed" marker),
   // compute the exact header text the orchestrator must apply to PROJECT_STATUS.md so the *next* run-next
-  // will see the forward pointer. This eliminates the previous pattern of manual "Next dequeue" edits after every close.
+  // will see the forward pointer. Prefer epic apply-header when an ACTIVE epic exists.
   let suggestedHeaderUpdate: string | null = null;
   const statusForHeader = input.stateFiles["PROJECT_STATUS.md"] ?? "";
   if (canonicalAllowed && selection.sliceId) {
@@ -217,9 +228,11 @@ export function buildOpenClawRunNextPlan(input: OpenClawRunNextInput): OpenClawR
     const nextFromCheckpoint = cpMatch ? cpMatch[1].trim().split(/\s+or\s+/i)[0].trim() : null;
 
     if (nextFromCheckpoint) {
-      suggestedHeaderUpdate = `**Next dequeue:** ${nextFromCheckpoint}\n\n(Replace the previous "Next dequeue" line and add a closed row for ${selection.sliceId} in the Active Work table. This is the required post-close step to keep the autonomous loop moving without manual drift.)`;
+      suggestedHeaderUpdate = `**Next dequeue:** ${nextFromCheckpoint}\n\n(Replace the previous "Next dequeue" line and add a closed row for ${selection.sliceId} in the Active Work table. Prefer: pnpm openclaw:epic -- apply-header --next ${JSON.stringify(nextFromCheckpoint)} when an epic is ACTIVE. Required post-close step so the autonomous loop keeps moving.)`;
     }
   }
+
+  const epicContinuity = resolveEpicContinuity(process.cwd());
 
   return {
     schemaVersion: "openclinxr.openclaw-run-next.v1",
@@ -235,8 +248,27 @@ export function buildOpenClawRunNextPlan(input: OpenClawRunNextInput): OpenClawR
     },
     nextCommand,
     sliceTeam,
-    suggestedHeaderUpdate,   // NEW: when the runner auto-advanced a closed slice, this contains the exact text + instructions the orchestrator must apply to the PROJECT_STATUS.md header so the autonomous loop keeps moving without manual drift on every close.
+    suggestedHeaderUpdate,
+    epicContinuity,
   };
+}
+
+/** Read ACTIVE epic pointer for outer-loop continuity (multi-hour). */
+export function resolveEpicContinuity(repoRoot: string): OpenClawRunNextPlan["epicContinuity"] {
+  const activePath = path.join(repoRoot, ".openclinxr/epics/ACTIVE");
+  if (!existsSync(activePath)) return null;
+  try {
+    const activeEpicId = readFileSync(activePath, "utf8").trim();
+    if (!activeEpicId) return null;
+    return {
+      activeEpicId,
+      planCommand: `pnpm openclaw:epic -- plan --epic-id ${activeEpicId}`,
+      applyHeaderCommand: `pnpm openclaw:epic -- apply-header --epic-id ${activeEpicId}`,
+      advanceCommand: `pnpm openclaw:epic -- advance --epic-id ${activeEpicId}`,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function buildOpenClawWatchdogDecision(input: OpenClawWatchdogInput): OpenClawWatchdogDecision {

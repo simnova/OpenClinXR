@@ -223,19 +223,32 @@ const rolePathScopes: Record<string, RolePathScope> = {
   "chief-coordinator": {
     writeRoots: [
       "PROJECT_STATUS.md",
+      "README.md",
+      "docs/index.html",
+      "docs/styles.css",
+      "docs/agent-ops/**",
       "docs/openclinxr/worker-backlog-and-validation-matrix.md",
       "operator-*.md",
       ".openclinxr/slices/**",
+      ".openclinxr/epics/**",
       "agents/coordinator/chief-coordinator/**",
+      "tools/openclinxr/openclaw/**",
     ],
     readRoots: [],
     forbidden: ["apps/**", "packages/**"],
     outputRoots: [".openclinxr/slices/**/handoffs/chief-coordinator.json"],
-    preferredCli: ["pnpm openclaw:*", "pnpm env:doctor", "pnpm agent:alignment", "pnpm docs:drift-check"],
+    preferredCli: [
+      "pnpm openclaw:*",
+      "pnpm openclaw:epic",
+      "pnpm env:doctor",
+      "pnpm agent:alignment",
+      "pnpm docs:drift-check",
+    ],
   },
   hrbp: {
     writeRoots: [
       "docs/agent-ops/**",
+      "README.md",
       ".grok/agents/**",
       ".grok/personas/**",
       ".grok/roles/**",

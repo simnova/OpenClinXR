@@ -262,6 +262,21 @@ describe("role-harness-policy", () => {
   });
 
   describe("formatPathScopeBlock", () => {
+    it("chief-coordinator pathScope covers root README/docs for promote", () => {
+      const scope = getRolePathScope("chief-coordinator");
+      expect(scope.writeRoots).toEqual(
+        expect.arrayContaining([
+          "PROJECT_STATUS.md",
+          "README.md",
+          "docs/index.html",
+          "docs/agent-ops/**",
+          ".openclinxr/epics/**",
+          "tools/openclinxr/openclaw/**",
+        ]),
+      );
+      expect(scope.preferredCli).toEqual(expect.arrayContaining(["pnpm openclaw:epic"]));
+    });
+
     it("emits PATH SCOPE heading", () => {
       const scope = getRolePathScope("chief-coordinator");
       const block = formatPathScopeBlock(scope);

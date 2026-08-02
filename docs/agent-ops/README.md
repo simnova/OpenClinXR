@@ -13,6 +13,7 @@ Governance for the **agent roster** (not product XR runtime). Owner role: **`hrb
 | `DOC-HYGIENE-CADENCE.md` | **Cadence SSOT (owner `pmo`):** thresholds + weekly + SessionStart `--auto-run` unattended catch-up; mermaid; `pnpm docs:hygiene:*` |
 | `TEMPORAL-DECISIONS.md` | **Temporal revisit workflow (owner `pmo`):** catalog time-bound decisions (workarounds, pins, model gaps); `pnpm temporal:review` |
 | `TASK-COST-ROLLUP.md` | **Per-task cost:** subagent+model breakdown + grand total est. via `pnpm openclaw:slice-token:finish` |
+| `OPENCLAW-EPIC-CONTINUITY.md` | **Multi-hour outer loop:** epic brief + cursor + `pnpm openclaw:epic` (plan/advance/apply-header); not an external daemon |
 | `temporal-decisions-catalog.json` | Machine catalog of open/due decisions + analysis/execute owners |
 | `temporal-review-queue.md` | Warm regenerated queue of due analyses (not product law) |
 | `REVISION-INDEX.md` | **Warm catalog:** frozen batches + wiki topic pointers (not living law) · cold home [`docs/_archive/README.md`](../_archive/README.md) |

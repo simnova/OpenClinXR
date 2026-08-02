@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** website-marketing-state-roadmap-v1 closed; product next remains wire-api-durableStore-consumer-v1.
+**Active slice:** openclaw-pre-epic-kit-v1 closed; product next remains wire-api-durableStore-consumer-v1.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| openclaw-pre-epic-kit-v1 | execute+verify | verify ok (Q5) — epic CLI + apply-header + pathScope README/docs + run-next epicContinuity; dry-run advance; epic completed |
 | readme-dev-workstation-v1 | execute+verify | verify ok — delegated scout+writer; README overview/prereqs/get-started; Task cost ~$0.41 (2 subagents) |
 | website-marketing-state-roadmap-v1 | execute+verify | verify ok — public site rewrite (now/roadmap/evidence); pages:validate green; cost ritual sample |
 | implementation-authoring-follow-on-v1 | execute+verify | **verify ok + PROGRESS** product-under-os-v1 (Q1+Q4) — durableStore + roundtrip CLI; isolation+promote+pathScope+token; scorecard PROGRESS |
@@ -93,6 +94,19 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 openclaw-pre-epic-kit-v1 (Q5 harness)
+
+Product path advanced: **Pre-epic continuity kit** for multi-hour OpenClaw-style autonomy. Schema `openclinxr.epic-brief.v1`; CLI `pnpm openclaw:epic` (init/status/plan/advance/apply-header/set-active); `run-next` reports `epicContinuity` when `.openclinxr/epics/ACTIVE` exists; chief-coordinator (+hrbp) pathScope covers root README/docs/index + epics + openclaw tools for promote; NEVER_ARCHIVE `OPENCLAW-EPIC-CONTINUITY.md`; dry-run then real advance completed example epic `pre-epic-continuity-dry-run`; Next dequeue restored to product.
+
+Blueprint/factory tie: Q5 factory instruction verification — outer loop binds ordered slices + header advancement so false-halt after compaction does not require chat re-prompt (not an external daemon).
+
+Touched files: tools/openclinxr/openclaw/openclaw-epic-cli.ts(+tests); openclaw-slice-runner.ts(+tests epicContinuity); docs-archive-cli NEVER_ARCHIVE; role-harness-policy chief-coordinator/hrbp writeRoots; docs/agent-ops/OPENCLAW-EPIC-CONTINUITY.md + README; package.json `openclaw:epic`.
+
+Evidence: vitest 75/75 (epic+runner+archive+pathScope); init/status/plan/apply-header dry-run + advance complete; run-next shows epicContinuity; Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=5 pro=8 composer=28; flashΔ=0 proΔ=0 composerΔ=0; subagents=33 subPeak=144118; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79  
+Cost line: Task cost: $0.00 est; subagents=0; subTokens=0; subUsd=$0.00; parentTokens=0; parentUsd=$0.00; models=none (solo integrate window; child sessions pre-baseline).
+
+Next queued slice: wire-api-durableStore-consumer-v1 (Q4) — multi-hour product epic optional via `pnpm openclaw:epic -- init`.
 
 ### 2026-08-02 readme-dev-workstation-v1 (Q5)
 
