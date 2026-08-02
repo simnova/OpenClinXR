@@ -8,6 +8,7 @@ This checklist documents what is proven and what blocks promotion of
 into production runtime paths (`apps/ui-xr`, `apps/ui-admin`, `apps/api`).
 
 **Governing MADR:** [0030-arena-physics-clinical-touch-realbind-proven.md](../madr/0030-arena-physics-clinical-touch-realbind-proven.md)
+**Supplement MADR:** [0031-physics-baked-vs-live-consumer-split.md](../madr/0031-physics-baked-vs-live-consumer-split.md) (split-gate model)
 
 ---
 
@@ -24,14 +25,15 @@ into production runtime paths (`apps/ui-xr`, `apps/ui-admin`, `apps/api`).
 
 ---
 
-## BLOCKERS — Must Resolve Before Promotion
+## BLOCKERS — Must Resolve Before Production Promotion
 
 | Blocker | Current Value | Required | Source |
 |---|---|---|---|
-| `contactStability` | 88.6 mm | < 2 mm (aspirational) | MADR 0030 §Consequences |
+| `contactStability` | ~1.05 mm (redefined settle metric) | **CLEARED** — residual definition accepted under MADR 0031 settle-metric redefinition; gate split means live engine still gated regardless | MADR 0031 |
 | No headset evidence | None | Required (R7 deferred, OD-4) | MADR 0030 §Scope |
 | `determinismScope` | `local` only | Cross-platform C5 (future) | MADR 0030 §Scope |
 | `runtimePromotionAllowed` | `false` | Human-only flip | `src/promotion-gates.ts` |
+| `liveEngineProductionAllowed` | `false` | Human-only flip | `src/promotion-gates.ts` (split gate, MADR 0031) |
 | `promotionStatus` | `false` (registry.json) | Human-only flip | registry.json |
 | `realismGrade` | `"B"` | Gate-dependent | registry.json |
 
@@ -39,7 +41,7 @@ into production runtime paths (`apps/ui-xr`, `apps/ui-admin`, `apps/api`).
 
 ## HUMAN-ONLY — Gate Flip Required
 
-The following gate is **explicitly named for human review** and must be flipped
+The following gates are **explicitly named for human review** and must be flipped
 in a successor MADR or BOD decision:
 
 > **`runtimePromotionAllowed`** — controls whether physics-touch config consumers
@@ -47,39 +49,54 @@ in a successor MADR or BOD decision:
 > `tools/openclinxr/factory` into production packages (e.g., `apps/ui-xr`
 > production runtime path).
 
-**Current value:** `false` (see `packages/openclinxr/arena/physics-touch-contract/src/promotion-gates.ts`)
+> **`liveEngineProductionAllowed`** — controls whether live Rapier WASM may run
+> in production app runtime paths. Split gate from `runtimePromotionAllowed`
+> per MADR 0031 split-gate model.
 
-No agent, automated pipeline, or subagent may flip this gate.
+> **`bakedTransformsCaptureAllowed`** — already `true` (MADR 0031).
+> Baked offline JSON bone transforms may be captured in arena and consumed
+> by production apps via `@openclinxr/physics-touch-artifacts`.
+
+**Current values:** all human-review gates `false` except `bakedTransformsCaptureAllowed = true`
+(see `packages/openclinxr/arena/physics-touch-contract/src/promotion-gates.ts`)
+
+No agent, automated pipeline, or subagent may flip `runtimePromotionAllowed` or
+`liveEngineProductionAllowed`.
 
 ---
 
 ## Required Architecture-Rule Green
 
-The following architecture-rule tests must pass before any promotion claim:
+The following architecture-rule tests must pass before any production promotion claim:
 
 - [ ] Production apps (`apps/ui-xr`, `apps/ui-admin`, `apps/api`) free of `@openclinxr/physics-touch-contract` dependency
+- [x] Production apps (`apps/ui-xr`, `apps/ui-admin`, `apps/api`) MAY depend on `@openclinxr/physics-touch-artifacts` (baked path)
 - [ ] Production apps free of `@dimforge/rapier3d` / `@dimforge/rapier3d-compat` dependency
 - [ ] Production apps free of relative-path imports from `apps/arena/physics-clinical-touch/`
 - [ ] Production apps free of relative-path imports from `packages/openclinxr/arena/physics-touch-contract/`
-- [ ] Arena MADR link expectations include 0030 for physics package + app READMEs
+- [x] `@openclinxr/physics-touch-artifacts` package.json contains zero `@dimforge/rapier*` entries
+- [ ] Arena MADR link expectations include 0030 + 0031 for physics package + app READMEs
 
 Enforced by `packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts`.
 
 ---
 
-## Consumer Model: Baked vs Live
+## Consumer Model: Baked vs Live (Split-Gate, MADR 0031)
 
 | Consumer | Engine | Status |
 |---|---|---|
 | Arena cagematch | Live WASM (`@dimforge/rapier3d-compat`) | Arena-only, allowed |
-| UI-XR capture evidence | Offline baked JSON transforms | Opt-in only, no live engine |
-| Production `apps/ui-xr` runtime | Live WASM | **FORBIDDEN** until gate flip |
+| UI-XR capture evidence | Offline baked JSON transforms | Opt-in only, `bakedTransformsCaptureAllowed: true` |
+| Production `apps/ui-xr` runtime | Live WASM | **FORBIDDEN** (`liveEngineProductionAllowed: false`) |
+| Production `apps/ui-xr` runtime | Baked JSON transforms (via `@openclinxr/physics-touch-artifacts`) | **Allowed** (MADR 0031) |
 | Production `apps/api` | Any physics import | **FORBIDDEN** |
 | Production `apps/ui-admin` | Any physics import | **FORBIDDEN** |
 
 Live Rapier WASM stays in arena (`apps/arena/physics-clinical-touch`).
-Production consumers may only use offline-baked JSON transforms, and only
-after `runtimePromotionAllowed` is flipped by a human.
+Production consumers may only use offline-baked JSON transforms via
+`@openclinxr/physics-touch-artifacts` (zero Rapier dependency), and
+live-engine promotion requires a human to flip both `runtimePromotionAllowed`
+and `liveEngineProductionAllowed`.
 
 ---
 

@@ -13,8 +13,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 58
 - archive-candidate: 14
-- current-reference: 196
-- decision-record: 21
+- current-reference: 197
+- decision-record: 22
 - evidence: 32
 - historical-synthesis: 56
 - protected-policy: 10
@@ -224,6 +224,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/physics-touch-contract/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/physics-touch-artifacts/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

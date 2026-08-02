@@ -2,7 +2,7 @@
 
 App shell for the arena physics clinical touch cage match (epic `arena-physics-clinical-touch-v1`).
 
-**Governing decisions:** [MADR 0021](../../../docs/madr/0021-local-first-no-cloud-implementation-spikes.md), [MADR 0027](../../../docs/madr/0027-quest3-usb-webxr-smoke-gate.md), [MADR 0028](../../../docs/madr/0028-iwsdk-sidecar-spike.md), [MADR 0029](../../../docs/madr/0029-arena-physics-clinical-touch-determinism.md), [MADR 0030](../../../docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md).
+**Governing decisions:** [MADR 0021](../../../docs/madr/0021-local-first-no-cloud-implementation-spikes.md), [MADR 0027](../../../docs/madr/0027-quest3-usb-webxr-smoke-gate.md), [MADR 0028](../../../docs/madr/0028-iwsdk-sidecar-spike.md), [MADR 0029](../../../docs/madr/0029-arena-physics-clinical-touch-determinism.md), [MADR 0030](../../../docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md), [MADR 0031](../../../docs/madr/0031-physics-baked-vs-live-consumer-split.md).
 
 **Promotion status:** `runtimePromotionAllowed = false`. MADR 0030 PROVEN local dual evidence only — not a production runtime root. See [pre-production readiness checklist](../../../docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md).
 

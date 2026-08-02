@@ -525,6 +525,44 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...sourceViolations, ...relativePathViolations].sort()).toEqual([]);
   });
 
+  it("allows production apps to depend on @openclinxr/physics-touch-artifacts (baked path, MADR 0031)", () => {
+    // Production apps MAY depend on @openclinxr/physics-touch-artifacts
+    // (the production-safe baked-transform schema package with zero Rapier dependency).
+    // This test verifies the artifacts package is NOT in the forbidden arena/physics lists.
+    const allowedProductionDep = "@openclinxr/physics-touch-artifacts";
+    expect(capabilityArenaPackages).not.toContain(allowedProductionDep);
+    expect(forbiddenProductionAppDependencies).not.toContain(allowedProductionDep);
+    expect(physicsEngineDependencies).not.toContain(allowedProductionDep);
+
+    // And the artifacts package must not be classified under capability arena roots
+    expect(capabilityArenaPackageRoots.some((root) =>
+      root.includes("physics-touch-artifacts")
+    )).toBe(false);
+  });
+
+  it("prevents physics-touch-artifacts package.json from containing dimforge/rapier", () => {
+    const manifestPath = join(workspaceRoot,
+      "packages/openclinxr/physics-touch-artifacts/package.json");
+    expect(existsSync(manifestPath)).toBe(true);
+
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+      peerDependencies?: Record<string, string>;
+      optionalDependencies?: Record<string, string>;
+    };
+
+    for (const field of dependencyFields) {
+      const deps = manifest[field];
+      if (deps) {
+        for (const dep of Object.keys(deps)) {
+          expect(dep).not.toContain("dimforge");
+          expect(dep).not.toContain("rapier");
+        }
+      }
+    }
+  });
+
   it("keeps production app source out of evidence, sidecar, and arena physics implementation paths", () => {
     const forbiddenPathImports = [
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*tools\/openclinxr\/evidence\//,
@@ -780,6 +818,7 @@ describe("workspace architecture rules", () => {
           "0028-iwsdk-sidecar-spike.md",
           "0029-arena-physics-clinical-touch-determinism.md",
           "0030-arena-physics-clinical-touch-realbind-proven.md",
+          "0031-physics-baked-vs-live-consumer-split.md",
         ],
       },
       {
@@ -790,6 +829,14 @@ describe("workspace architecture rules", () => {
           "0028-iwsdk-sidecar-spike.md",
           "0029-arena-physics-clinical-touch-determinism.md",
           "0030-arena-physics-clinical-touch-realbind-proven.md",
+          "0031-physics-baked-vs-live-consumer-split.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/physics-touch-artifacts/README.md",
+        decisions: [
+          "0030-arena-physics-clinical-touch-realbind-proven.md",
+          "0031-physics-baked-vs-live-consumer-split.md",
         ],
       },
     ];

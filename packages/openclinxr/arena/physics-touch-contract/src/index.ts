@@ -176,4 +176,6 @@ export type {
 } from "./factory/habitus-tables.js";
 
 // Promotion gates (pre-production fence)
-export { PHYSICS_TOUCH_PROMOTION, runtimePromotionAllowed } from "./promotion-gates.js";
+export { PHYSICS_TOUCH_PROMOTION, runtimePromotionAllowed, liveEngineProductionAllowed, bakedTransformsCaptureAllowed } from "./promotion-gates.js";
+export { runMeasuredMetrics } from './metrics/measure.js';
+export type { MeasuredMetric, MeasuredMetricsReport } from './metrics/measure.js';

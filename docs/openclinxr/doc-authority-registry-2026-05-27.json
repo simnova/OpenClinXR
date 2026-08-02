@@ -5,13 +5,13 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 196,
+    "current-reference": 197,
     "archive-candidate": 14,
     "evidence": 32,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
-    "decision-record": 21
+    "decision-record": 22
   },
   "entries": [
     {
@@ -2381,6 +2381,13 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/madr/README.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
@@ -2921,6 +2928,13 @@
     },
     {
       "path": "packages/openclinxr/arena/physics-touch-contract/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "packages/openclinxr/physics-touch-artifacts/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",

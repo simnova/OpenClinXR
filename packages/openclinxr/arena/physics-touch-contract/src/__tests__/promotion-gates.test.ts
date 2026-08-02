@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { PHYSICS_TOUCH_PROMOTION, runtimePromotionAllowed } from "../promotion-gates.js";
+import {
+  PHYSICS_TOUCH_PROMOTION,
+  runtimePromotionAllowed,
+  liveEngineProductionAllowed,
+  bakedTransformsCaptureAllowed,
+} from "../promotion-gates.js";
 
 describe("promotion gates", () => {
   it("keeps runtimePromotionAllowed false (pre-production fence)", () => {
@@ -10,12 +15,22 @@ describe("promotion gates", () => {
     expect(PHYSICS_TOUCH_PROMOTION.runtimePromotionAllowed).toBe(false);
   });
 
+  it("keeps liveEngineProductionAllowed false (live WASM forbidden in production)", () => {
+    expect(liveEngineProductionAllowed).toBe(false);
+    expect(PHYSICS_TOUCH_PROMOTION.liveEngineProductionAllowed).toBe(false);
+  });
+
+  it("allows bakedTransformsCaptureAllowed true (baked opt-in capture path)", () => {
+    expect(bakedTransformsCaptureAllowed).toBe(true);
+    expect(PHYSICS_TOUCH_PROMOTION.bakedTransformsCaptureAllowed).toBe(true);
+  });
+
   it("declares determinismScope as local", () => {
     expect(PHYSICS_TOUCH_PROMOTION.determinismScope).toBe("local");
   });
 
-  it("declares the correct governing MADR", () => {
-    expect(PHYSICS_TOUCH_PROMOTION.governingMadr).toBe("0030");
+  it("declares governingMadrs as [0030, 0031]", () => {
+    expect(PHYSICS_TOUCH_PROMOTION.governingMadrs).toEqual(["0030", "0031"]);
   });
 
   it("declares notEvidenceFor list covering clinical, exam, scoring, learner readiness", () => {
@@ -34,5 +49,15 @@ describe("promotion gates", () => {
     expect(typeof runtimePromotionAllowed).toBe("boolean");
     expect(runtimePromotionAllowed).toBe(false);
     expect(runtimePromotionAllowed === false).toBe(true);
+  });
+
+  it("split gates: runtime+live false, baked true (MADR 0031 consumer model)", () => {
+    expect(runtimePromotionAllowed).toBe(false);
+    expect(liveEngineProductionAllowed).toBe(false);
+    expect(bakedTransformsCaptureAllowed).toBe(true);
+    // Verify the object gate matches
+    expect(PHYSICS_TOUCH_PROMOTION.runtimePromotionAllowed).toBe(false);
+    expect(PHYSICS_TOUCH_PROMOTION.liveEngineProductionAllowed).toBe(false);
+    expect(PHYSICS_TOUCH_PROMOTION.bakedTransformsCaptureAllowed).toBe(true);
   });
 });

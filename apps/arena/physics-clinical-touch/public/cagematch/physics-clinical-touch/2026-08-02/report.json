@@ -6,32 +6,32 @@
     "generatorVersion": "0.2.0",
     "seed": 42,
     "fixedDt": 0.016666666666666666,
-    "generatedAt": "2026-08-02T19:53:16.388Z"
+    "generatedAt": "2026-08-02T20:42:29.465Z"
   },
   "stepCostMs": {
     "p50": {
       "value": 0.012,
       "source": "measured",
       "unit": "ms",
-      "timestamp": "2026-08-02T19:53:16.389Z"
+      "timestamp": "2026-08-02T20:42:29.466Z"
     },
     "p95": {
-      "value": 0.022,
+      "value": 0.021,
       "source": "measured",
       "unit": "ms",
-      "timestamp": "2026-08-02T19:53:16.389Z"
+      "timestamp": "2026-08-02T20:42:29.466Z"
     },
     "min": {
-      "value": 0.011,
+      "value": 0.01,
       "source": "measured",
       "unit": "ms",
-      "timestamp": "2026-08-02T19:53:16.389Z"
+      "timestamp": "2026-08-02T20:42:29.466Z"
     },
     "max": {
-      "value": 4.522,
+      "value": 4.376,
       "source": "measured",
       "unit": "ms",
-      "timestamp": "2026-08-02T19:53:16.389Z"
+      "timestamp": "2026-08-02T20:42:29.466Z"
     },
     "sampleCount": 361
   },
@@ -39,37 +39,37 @@
     "value": 16.645,
     "source": "measured",
     "unit": "ms",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "contactStability": {
-    "value": 88.643,
+    "value": 1.051,
     "source": "measured",
     "unit": "mm",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:53:46.113Z"
   },
   "poseReturnError": {
     "value": 0,
     "source": "measured",
     "unit": "°",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "jointExplosionRate": {
     "value": 0,
     "source": "measured",
     "unit": "fraction",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "replayEquivalence": {
     "value": true,
     "source": "measured",
     "unit": "boolean",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "snapshotSupport": {
     "value": true,
     "source": "measured",
     "unit": "boolean",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "garmentCoherence": {
     "grade": "B",
@@ -79,16 +79,13 @@
       "real-time_cloth_simulation_within_physics_contract",
       "ui-xr_garment_geometry_in_arena_inspection"
     ],
-    "pngPaths": [
-      "physics-touch-ed-patient-front.png",
-      "physics-touch-ed-patient-palpation.png"
-    ]
+    "pngPaths": []
   },
   "licenceClean": {
     "value": true,
     "source": "measured",
     "unit": "boolean",
-    "timestamp": "2026-08-02T19:53:16.389Z"
+    "timestamp": "2026-08-02T20:42:29.466Z"
   },
   "notEvidenceFor": [
     "clinical_validity",

@@ -330,7 +330,8 @@
     "temporal:queue": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts queue",
     "encounter:runtime-emission": "tsx tools/openclinxr/encounter-runtime-emission.ts",
     "openclaw:task-cost": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts task-cost",
-    "encounter:admin-replay-from-emission": "tsx tools/openclinxr/admin-replay-from-emission.ts"
+    "encounter:admin-replay-from-emission": "tsx tools/openclinxr/admin-replay-from-emission.ts",
+    "evidence:physics-touch:portless": "node tools/openclinxr/evidence/physics-touch-capture.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

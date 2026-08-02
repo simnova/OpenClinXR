@@ -98,14 +98,21 @@ describe("MeasuredMetrics — populated from real run (AD-4)", () => {
   });
 
   // -------------------------------------------------------------------------
-  // contactStability — MUST be a non-zero mm displacement from real sim
+  // contactStability — residual displacement after hand retracts (< 2 mm)
   // -------------------------------------------------------------------------
   it("contactStability: populated (>0, measured, mm unit)", () => {
     const cs = report.contactStability;
     expect(cs.source).toBe("measured");
     expect(cs.unit).toBe("mm");
-    // With real palpation forces, abdomen displaces >0 mm
+    // With real palpation press-hold-release-settle cycle, residual > 0
     expect(cs.value).toBeGreaterThan(0);
+  });
+
+  it("contactStability: < 2 mm (MADR 0030 / checklist blocker)", () => {
+    // Stability = residual displacement during settle phase after hand retracts,
+    // NOT peak press deflection. Spring-damper is tuned for sub-2mm residual.
+    const cs = report.contactStability;
+    expect(cs.value).toBeLessThan(2);
   });
 
   // -------------------------------------------------------------------------
