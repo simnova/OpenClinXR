@@ -79,6 +79,17 @@ Last updated: 2026-06-07
 **Blockers:** none
 
 
+
+### 2026-08-02 — framing-polish-parent-nurse-garment-ui-xr-v1 (Q5) verify ok
+
+Product path advanced: **UI-XR parent/nurse real-garment framing polish** — closer/lower camera (framing_polish labels), hide teal whiteboard/UI chrome during clean/sleeve capture only; dual-role sleeveDeform re-capture fronts ≥118kB. No re-orchestrate.
+Blueprint/factory tie: Q5 verification of multi-role real-garment runtime visibility after Q1 reorchestrate residual.
+Touched files: apps/ui-xr/src/main.ts; static-assets.test.ts; tools/openclinxr/evidence capture CLIs; .openclinxr/evidence/framing-polish-parent-nurse-garment-ui-xr-2026-08-02/*.
+Evidence: parent front 118229B; nurse front 122014B; ui-xr 95/95; slice-verify ok=true; skeptic_verdict=visible.
+Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=14 pro=18 composer=69; flashΔ=2 proΔ=0 composerΔ=0; subagents=93 subPeak=280403; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5|grok-4.5-build; ratio=2.79
+Task cost: $4.66 est; subagents=7; subTokens=817422; subUsd=$4.66; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$4.66|deepseek-v4-flash:$0.0083
+Next queued slice: optimize/scorecard (Q5) or matrix next Q1 vertical.
+
 ### 2026-08-02 — peds-parent-nurse-real-garment-reorchestrate-v1 (Q1+Q5) verify ok
 
 Product path advanced: **Re-orchestrated parent + nurse phenotype.garmentLayers real garment topology** (casual_top/open_cardigan; scrub_top/scrub_pocket) via orchestrate_character presets → public GLBs + rigging reports with realGarmentRegionFromPhenotype (324f, sleeve 0.28/0.42, 7x12, deformsWithBreathing, weighted clavicle/upper_arm). Dual MV turntable fronts show **role-distinct colorways** (parent pink vs nurse teal) vs prior bare white mannequins; UI-XR capture + inspection garmentGeometry names openclinxr_real_garment_from_phenotype_*. Residual: separate garment mesh bind offset under feet in MV (follow-on bind-pose fix).

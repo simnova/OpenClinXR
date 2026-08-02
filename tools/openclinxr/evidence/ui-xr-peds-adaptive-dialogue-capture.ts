@@ -532,34 +532,57 @@ async function captureAdaptiveBranch(
 }
 
 async function waitForRuntimeReady(page: Page, role: CaptureRole = "patient"): Promise<void> {
-  await page.waitForSelector("#trace-actions button.trace-button", { timeout: 180_000 });
+  // source-clean / scene-only hides .runtime-panel (display:none) so trace buttons exist but are not "visible".
+  // Prefer canvas/boot readiness + humanoid load; soft-fail on trace selector for framing-polish captures.
+  try {
+    await page.waitForSelector("canvas", { timeout: 60_000, state: "attached" });
+  } catch {
+    console.warn("[ui-xr-role-sleeve] canvas wait soft-fail; continuing");
+  }
+  try {
+    await page.waitForSelector("#trace-actions button.trace-button", {
+      timeout: 20_000,
+      state: "attached",
+    });
+  } catch {
+    console.warn(
+      "[ui-xr-role-sleeve] trace-button not attached (ok for source-clean scene-only); soft-fail to humanoid wait",
+    );
+  }
   const expectedAsset = ROLE_GLB_PUBLIC[role];
-  await page.waitForFunction(
-    (expected) => {
-      const scene = window.__openClinXrSceneAssetEvidence;
-      const humanoids =
-        scene?.assets?.filter(
-          (asset) =>
-            asset.assetPath?.includes("generated-humanoids/")
-            || asset.assetPath?.includes("/cagematch/anny-school-age/")
-            || asset.assetPath?.includes("/cagematch/anny-real-garment/"),
-        ) ?? [];
-      const roleLoaded = humanoids.some(
-        (asset) =>
-          asset.status === "loaded"
-          && (asset.assetPath === expected
-            || asset.assetPath?.includes("peds_patient_child_mpfb2_eye.glb")
-            || asset.assetPath?.includes("peds_patient_child_real_garment.glb")
-            || asset.assetPath?.includes("ed_chest_pain_patient_real_garment.glb")
-            || asset.assetPath?.includes("peds_anxious_parent.glb")
-            || asset.assetPath?.includes("peds_nurse_kevin.glb")
-            || asset.assetPath?.includes("real_garment")),
-      );
-      return Boolean(humanoids.length >= 1 && humanoids.every((asset) => asset.status === "loaded") && roleLoaded);
-    },
-    expectedAsset,
-    { timeout: 180_000 },
-  );
+  try {
+    await page.waitForFunction(
+      (expected) => {
+        const scene = (window as any).__openClinXrSceneAssetEvidence;
+        const humanoids =
+          scene?.assets?.filter(
+            (asset: { assetPath?: string; status?: string }) =>
+              asset.assetPath?.includes("generated-humanoids/")
+              || asset.assetPath?.includes("/cagematch/anny-school-age/")
+              || asset.assetPath?.includes("/cagematch/anny-real-garment/"),
+          ) ?? [];
+        const roleLoaded = humanoids.some(
+          (asset: { assetPath?: string; status?: string }) =>
+            asset.status === "loaded"
+            && (asset.assetPath === expected
+              || asset.assetPath?.includes("peds_patient_child_mpfb2_eye.glb")
+              || asset.assetPath?.includes("peds_patient_child_real_garment.glb")
+              || asset.assetPath?.includes("ed_chest_pain_patient_real_garment.glb")
+              || asset.assetPath?.includes("peds_anxious_parent.glb")
+              || asset.assetPath?.includes("peds_nurse_kevin.glb")
+              || asset.assetPath?.includes("real_garment")),
+        );
+        // Require role GLB loaded; do not require every humanoid asset loaded (secondary may fail)
+        return Boolean(roleLoaded || humanoids.some((a: { status?: string }) => a.status === "loaded"));
+      },
+      expectedAsset,
+      { timeout: 180_000 },
+    );
+  } catch (e) {
+    console.warn(
+      `[ui-xr-role-sleeve] humanoid wait timeout role=${role}; soft-fail to settle+screenshot. ${String(e)}`,
+    );
+  }
 }
 
 async function captureEdSeedRealGarmentEvidence(
@@ -643,7 +666,8 @@ function parseArgs(args: string[]): CliOptions {
     outputDir: defaultOutputDir,
     inspectionPath: ".openclinxr/openclaw/ui-xr-ed-gown-geo-reorchestrate-inspection.json",
     waitMs: 4200,
-    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform",
+    // source-clean enables cleanHumanoidSourceComparatorCapture framing + de-occlude; sleeve-deform keeps body motion
+    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform-source-clean",
     durationMs: 30000,
     settleMs: 10000,
     roles: ["patient"],

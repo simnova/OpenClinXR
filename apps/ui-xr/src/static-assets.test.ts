@@ -318,9 +318,17 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("bounds_based_force_highlight_parent_nurse_capture");
     expect(mainSource).toContain("realGarmentParentAssetPath");
     expect(mainSource).toContain("realGarmentNurseAssetPath");
-    expect(mainSource).toContain("clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture");
-    expect(mainSource).toContain("clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture");
+    expect(mainSource).toContain("clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture_framing_polish");
+    expect(mainSource).toContain("clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture_framing_polish");
+    expect(mainSource).toContain("shouldDeclutterParentNurseRealGarmentCapture");
+    expect(mainSource).toContain("parent_nurse_real_garment_primary_centered_for_torso_sleeve_framing_polish");
+    expect(mainSource).toContain("hidden_for_parent_nurse_real_garment_framing_polish_deocclude");
     expect(mainSource).toContain("isRealGarmentSleeveDeformCapture");
+    // framing-polish camera seed points (closer/lower torso framing)
+    expect(mainSource).toContain("camera.position.set(0.15, 0.88, 2.85)");
+    expect(mainSource).toContain("camera.lookAt(0.12, 0.72, -0.55)");
+    expect(mainSource).toContain("camera.position.set(-0.15, 0.88, 2.85)");
+    expect(mainSource).toContain("camera.lookAt(-0.12, 0.72, -0.55)");
     expect(mainSource).toContain("garment-sleeve");
     expect(mainSource).toContain("sleeve-deform");
     expect(mainSource).toContain("openClinXrSleeveDeformEvidence");

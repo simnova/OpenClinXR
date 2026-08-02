@@ -220,7 +220,8 @@ function parseArgs(args: string[]): CliOptions {
     inspectionPath: ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/inspection.json",
     settleMs: 10000,
     durationMs: 30000,
-    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform",
+    // source-clean: framing_polish camera + de-occlude teal panels; sleeve-deform: body motion retained
+    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform-source-clean",
   };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
