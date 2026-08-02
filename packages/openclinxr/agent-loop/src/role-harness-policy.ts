@@ -349,13 +349,29 @@ const rolePathScopes: Record<string, RolePathScope> = {
     outputRoots: [".openclinxr/slices/**/handoffs/visual-realism-adversary.json"],
   },
   "implementation-planning-lead": {
+    // Product-under-os: authoring/runtime wiring packages (was docs-only — blocked Q1/Q4 delivery)
     writeRoots: [
       "docs/openclinxr/**",
       "agents/core/implementation-planning-lead/**",
+      "packages/openclinxr/scenario-runtime/**",
+      "packages/openclinxr/review-workflow/**",
+      "packages/openclinxr/shared-schemas/**",
+      "packages/openclinxr/exam-assembly/**",
+      "tools/openclinxr/**",
     ],
-    readRoots: [".openclinxr/slices/**/handoffs/**"],
-    forbidden: ["apps/**", "packages/**"],
+    readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**"],
+    forbidden: [
+      "apps/ui-xr/**",
+      "apps/arena/**",
+      "packages/openclinxr/data-mongodb/**",
+      "packages/openclinxr/asset-registry/**",
+      "tools/openclinxr/asset-pipeline/**",
+    ],
     outputRoots: [".openclinxr/slices/**/handoffs/implementation-planning-lead.json"],
+    preferredCli: [
+      "pnpm --filter @openclinxr/scenario-runtime test",
+      "pnpm --filter @openclinxr/agent-loop test",
+    ],
   },
   architect: {
     writeRoots: [

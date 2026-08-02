@@ -153,12 +153,40 @@ type GenerateActorResponseFromContextInput = {
   conversationTurn: number;
 };
 
+/**
+ * Optional durable persistence hooks for review packets and actor turns.
+ * When unset, ScenarioRuntime remains fully in-memory (ledger-only).
+ * Callers may supply Mongo/API sinks without coupling the runtime package
+ * to data-mongodb.
+ */
+export type ScenarioRuntimeActorTurn = {
+  turnId: string;
+  stationRunId: string;
+  actorId: string;
+  atSecond: number;
+  conversationTurn: number;
+  learnerUtterance: string;
+  responseText: string;
+  responseKind: string;
+  traceContextTags: string[];
+  durableEventRef: string;
+  learnerEventSequence: number;
+  actorResponseEventSequence: number;
+};
+
+export type ScenarioRuntimeDurableStore = {
+  saveReviewPacket?(stationRunId: string, packet: ReviewPacket): void | Promise<void>;
+  saveActorTurn?(stationRunId: string, turn: ScenarioRuntimeActorTurn): void | Promise<void>;
+};
+
 export type ScenarioRuntimeOptions = {
   scenario: Scenario;
   ledger: InMemoryTraceLedger;
   assetRegistry: InMemoryAssetRegistry;
   modelGateway: ModelGateway;
   voiceGateway: VoiceGateway;
+  /** Optional durable sink. In-memory default when unset. */
+  durableStore?: ScenarioRuntimeDurableStore;
 };
 
 export class ScenarioRuntime {
@@ -394,19 +422,21 @@ export class ScenarioRuntime {
   }
 
   reviewPacket(stationRunId: string): ReviewPacket {
-    const session = this.requireSession(stationRunId);
-    return buildReviewPacket({
-      stationRunId,
-      scenarioId: this.options.scenario.scenarioId,
-      requiredTraceTags: this.options.scenario.requiredTraceTags,
-      traceEvents: this.options.ledger.replay(stationRunId),
-      ...(session.run.note ? { patientNote: session.run.note } : {}),
-      facultyScoreDraft: session.facultyScoreDraft ?? {
-        reviewerId: "faculty_001",
-        status: "draft",
-        comments: "Generated from local in-memory scenario runtime.",
-      },
-    });
+    const packet = this.buildReviewPacketForSession(stationRunId);
+    // Sync signature preserved for API/GraphQL callers; awaitable stores fire-and-forget here.
+    // Prefer reviewPacketAndPersist when durable callbacks must complete before return.
+    settleDurableStoreCall(this.options.durableStore?.saveReviewPacket?.(stationRunId, packet));
+    return packet;
+  }
+
+  /**
+   * Build review packet and await optional durableStore.saveReviewPacket.
+   * Use from CLI/async hosts that need durable completion guarantees.
+   */
+  async reviewPacketAndPersist(stationRunId: string): Promise<ReviewPacket> {
+    const packet = this.buildReviewPacketForSession(stationRunId);
+    await this.options.durableStore?.saveReviewPacket?.(stationRunId, packet);
+    return packet;
   }
 
   saveFacultyScoreDraft(stationRunId: string, input: SaveFacultyScoreDraftInput): ReviewPacket {
@@ -475,6 +505,22 @@ export class ScenarioRuntime {
       throw new Error(`Session not found: ${stationRunId}`);
     }
     return session;
+  }
+
+  private buildReviewPacketForSession(stationRunId: string): ReviewPacket {
+    const session = this.requireSession(stationRunId);
+    return buildReviewPacket({
+      stationRunId,
+      scenarioId: this.options.scenario.scenarioId,
+      requiredTraceTags: this.options.scenario.requiredTraceTags,
+      traceEvents: this.options.ledger.replay(stationRunId),
+      ...(session.run.note ? { patientNote: session.run.note } : {}),
+      facultyScoreDraft: session.facultyScoreDraft ?? {
+        reviewerId: "faculty_001",
+        status: "draft",
+        comments: "Generated from local in-memory scenario runtime.",
+      },
+    });
   }
 
   private appendTrace(
@@ -569,6 +615,7 @@ export class ScenarioRuntime {
       });
       throw new Error("Actor response generation failed");
     }
+    const actorResponseDurableRef = durableEventRef(session.run.stationRunId, session.nextSequence);
     const actorResponseEvent = this.appendTrace(session, {
       eventType: "actor.response.generated",
       atSecond: input.atSecond,
@@ -580,9 +627,25 @@ export class ScenarioRuntime {
         responseKind: response.responseKind,
         traceTags: response.traceTags,
         provenance: response.provenance,
-        durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
+        durableEventRef: actorResponseDurableRef,
       },
     });
+
+    const actorTurn: ScenarioRuntimeActorTurn = {
+      turnId: `turn_${input.conversationTurn}_${input.actorId}_${input.atSecond}`,
+      stationRunId: session.run.stationRunId,
+      actorId: input.actorId,
+      atSecond: input.atSecond,
+      conversationTurn: input.conversationTurn,
+      learnerUtterance: input.learnerUtterance,
+      responseText: response.text,
+      responseKind: response.responseKind,
+      traceContextTags,
+      durableEventRef: actorResponseDurableRef,
+      learnerEventSequence: learnerEvent.sequence,
+      actorResponseEventSequence: actorResponseEvent.sequence,
+    };
+    await this.options.durableStore?.saveActorTurn?.(session.run.stationRunId, actorTurn);
 
     return {
       conversationTurn: input.conversationTurn,
@@ -590,6 +653,15 @@ export class ScenarioRuntime {
       learnerEvent,
       actorResponseEvent,
     };
+  }
+}
+
+/** Attach rejection guard for fire-and-forget durable hooks from sync APIs. */
+function settleDurableStoreCall(result: void | Promise<void> | undefined): void {
+  if (result != null && typeof (result as Promise<void>).then === "function") {
+    void (result as Promise<void>).catch(() => {
+      // Durable sink failures must not break in-memory runtime paths.
+    });
   }
 }
 

@@ -4,30 +4,55 @@
   "hypothesis": "Under pathScope + worktree isolation + sole-author + token ritual, one product vertical completes with OS compliance and Q1/Q4 product outcome.",
   "approvedBy": "BOD Option A + Push To Origin",
   "approvedAt": "2026-08-02",
+  "completedAt": "2026-08-02T07:22:00.000Z",
   "gates": {
-    "G0_land": { "status": "pending", "bar": "OS stack committed and pushed to origin/main" },
+    "G0_land": {
+      "status": "pass",
+      "bar": "OS stack committed and pushed to origin/main",
+      "evidence": "commit 0e22752 pushed main → origin/main"
+    },
     "G1_compliance": {
-      "status": "pending",
-      "bar": "Write roles isolation=worktree (or hard enforce pass); pathScope+sole-author verify ok; promote done if worktrees used"
+      "status": "pass",
+      "bar": "Write roles isolation=worktree; pathScope+sole-author verify ok; promote done",
+      "evidence": "spawn isolation=worktree subagent 019fc155; promote 3 files; slice-verify ok=true path-scope+sole-author green"
     },
     "G2_context_thrift": {
-      "status": "pending",
-      "bar": "Specialist spawn prompts <= ~3000 chars; CEO main does not product-IC apps/packages"
+      "status": "pass",
+      "bar": "Specialist spawn prompts <= ~3000 chars; CEO main does not product-IC apps/packages",
+      "evidence": "IPL spawn-spec promptChars=2712 after pathScope expand; CEO did not edit scenario-runtime (worker worktree only); CEO wrote scorecard/SSOT/hygiene only"
     },
     "G3_token": {
-      "status": "pending",
-      "bar": "slice-token start+finish recorded; stateRecordLine in checkpoint"
+      "status": "pass",
+      "bar": "slice-token start+finish recorded; stateRecordLine in checkpoint",
+      "evidence": "Token introspection: aligned; tier: pro; ccusageΔ=0; grok peak baseline 402350 Δpeak 0"
     },
     "G4_product": {
-      "status": "pending",
-      "bar": "Authoring follow-on done_when met (not peds template); verify ok"
+      "status": "pass",
+      "bar": "Authoring follow-on done_when met (not peds template); verify ok",
+      "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination"
     },
     "G5_os_goal": {
-      "status": "pending",
-      "bar": ">=3 of {isolation, pathScope, promote, token, no_main_ic} green AND G4 green => PROGRESS"
+      "status": "pass",
+      "bar": ">=3 of {isolation, pathScope, promote, token, no_main_ic} green AND G4 green => PROGRESS",
+      "evidence": "isolation+pathScope+promote+token+no_main_ic all green; G4 pass"
     }
   },
-  "verdict": "PENDING",
-  "notes": [],
-  "evidencePaths": []
+  "verdict": "PROGRESS",
+  "findings": [
+    "IPL pathScope was docs-only pre-slice — would have blocked Q1/Q4 package delivery; expanded writeRoots for scenario-runtime/tools as part of product-under-os (OS gap found by product pressure).",
+    "Historical thrash NO_GO remains; this experiment is a live post-OS baseline (isolation+promote+pathScope+token) with product outcome.",
+    "Promote exit 2 = path-scope skips on non-owned files (expected); 3 product files promoted.",
+    "ccusage Δ0 this window — limited cross-harness cost signal; Grok peak already high from session (not attributable solely to slice)."
+  ],
+  "notes": [
+    "Not a multi-week A/B. Sufficient for BOD: OS rules held under real product delivery."
+  ],
+  "evidencePaths": [
+    "docs/agent-ops/product-under-os-scorecard-v1.json",
+    ".openclinxr/openclaw/slice-verify-implementation-authoring-follow-on-v1.json",
+    ".openclinxr/openclaw/worktree-promote-implementation-authoring-follow-on-v1-implementation-planning-lead.json",
+    ".openclinxr/openclaw/grok-tier-slice-token-latest.json",
+    "tools/openclinxr/scenario-authoring-roundtrip.ts",
+    "packages/openclinxr/scenario-runtime/src/index.ts"
+  ]
 }

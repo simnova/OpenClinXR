@@ -4,6 +4,7 @@ import {
   type ActorResponseResult,
   createDefaultModelGateway,
   LocalModelProviderAdapter,
+  MockModelProviderAdapter,
   type ModelCapability,
   type ModelProviderAdapter,
 } from "@openclinxr/model-gateway";
@@ -11,7 +12,11 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
-import { createDefaultScenarioRuntime, ScenarioRuntime } from "./index.js";
+import {
+  createDefaultScenarioRuntime,
+  ScenarioRuntime,
+  type ScenarioRuntimeDurableStore,
+} from "./index.js";
 
 describe("scenario runtime", () => {
   it("starts an ED station with provider and asset readiness visible", async () => {
@@ -601,6 +606,79 @@ describe("scenario runtime", () => {
     ).toThrow("Session not found");
     expect(() => runtime.reviewPacket("missing-run")).toThrow("Session not found");
   });
+
+  it("invokes optional durableStore callbacks for actor turns and review packets", async () => {
+    const savedTurns: Array<{ stationRunId: string; turnId: string; actorId: string }> = [];
+    const savedPackets: Array<{ stationRunId: string; scenarioId: string; eventCount: number }> = [];
+
+    const runtime = createRuntimeWithDurableStore({
+      saveActorTurn(stationRunId, turn) {
+        savedTurns.push({ stationRunId, turnId: turn.turnId, actorId: turn.actorId });
+      },
+      saveReviewPacket(stationRunId, packet) {
+        savedPackets.push({
+          stationRunId,
+          scenarioId: packet.scenarioId,
+          eventCount: packet.traceQuality.eventCount,
+        });
+      },
+    });
+
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    const generated = await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "When did the pressure start?",
+      atSecond: 120,
+      traceContextTags: ["history_opqrst"],
+    });
+
+    expect(savedTurns).toEqual([
+      {
+        stationRunId: session.stationRunId,
+        turnId: `turn_1_patient_robert_hayes_v1_120`,
+        actorId: "patient_robert_hayes_v1",
+      },
+    ]);
+    expect(generated.actorResponseEvent.payload).toMatchObject({
+      durableEventRef: expect.stringContaining("/events/"),
+    });
+
+    runtime.submitNote(session.stationRunId, {
+      atSecond: 1260,
+      text: "Concern for ACS. History elicited.",
+    });
+
+    const packet = await runtime.reviewPacketAndPersist(session.stationRunId);
+    expect(packet.scenarioId).toBe(edChestPainScenario.scenarioId);
+    expect(savedPackets).toEqual([
+      {
+        stationRunId: session.stationRunId,
+        scenarioId: edChestPainScenario.scenarioId,
+        eventCount: packet.traceQuality.eventCount,
+      },
+    ]);
+
+    // Sync reviewPacket also invokes saveReviewPacket (fire-and-forget for async sinks).
+    runtime.reviewPacket(session.stationRunId);
+    expect(savedPackets).toHaveLength(2);
+  });
+
+  it("keeps in-memory default when durableStore is unset", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "When did the pressure start?",
+      atSecond: 120,
+      traceContextTags: ["history_opqrst"],
+    });
+    const packet = runtime.reviewPacket(session.stationRunId);
+    expect(packet.stationRunId).toBe(session.stationRunId);
+    expect(packet.timeline.length).toBeGreaterThan(0);
+  });
 });
 
 class CapturingModelProviderAdapter implements ModelProviderAdapter {
@@ -697,6 +775,28 @@ function createRuntimeWithModelProvider(provider: ModelProviderAdapter): Scenari
       routeId: "voice-offline-v1",
       adapters: [new MockVoiceProviderAdapter()],
     }),
+  });
+}
+
+function createRuntimeWithDurableStore(durableStore: ScenarioRuntimeDurableStore): ScenarioRuntime {
+  const assetRegistry = new InMemoryAssetRegistry();
+  for (const manifest of createEdChestPainPlaceholderManifests()) {
+    assetRegistry.upsert(manifest);
+  }
+
+  return new ScenarioRuntime({
+    scenario: edChestPainScenario,
+    ledger: new InMemoryTraceLedger(),
+    assetRegistry,
+    modelGateway: createDefaultModelGateway({
+      routeId: "actor-dialogue-offline-v1",
+      adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
+    }),
+    voiceGateway: createDefaultVoiceGateway({
+      routeId: "voice-offline-v1",
+      adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
+    }),
+    durableStore,
   });
 }
 
