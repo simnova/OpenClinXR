@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** ui-admin-emission-autoload-cli-latest-v1 closed (Q4); continue autonomy.
+**Active slice:** parent-nurse-ui-xr-recapture-after-bind-fix-v1 closed (Q5); autonomy continues via heartbeat.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| parent-nurse-ui-xr-recapture-after-bind-fix-v1 | execute+verify | **verify ok (Q5)** — UI-XR recapture post bind+cyan-strict; fronts ≥110kB; garmentGeometry ready; role color limbs |
 | ui-admin-emission-autoload-cli-latest-v1 | execute+verify | **verify ok (Q4)** — auto-load CLI latest fixture on mount; SAMPLE fallback; 5/5 panel tests |
 | ui-admin-emission-live-artifact-load-v1 | execute+verify | **verify ok (Q4)** — Load CLI latest + file pick; fixtures/admin-replay-from-emission-latest.json; 15 panel/App tests |
 | garment-bind-pose-fix-parent-nurse-v1 | execute+verify | **verify ok (Q1)** — body local-Y garment embed; revision bind_pose_fix_v1; parent/nurse GLBs re-export 324f |
@@ -75,13 +76,18 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** parent-nurse-ui-xr-recapture-after-bind-fix-v1 (Q5) — dual UI-XR/MV recapture after bind-pose+cyan-strict; or next Q4 authoring residual if thrash.
+**Next dequeue:** continue-autonomy-run-next — residual empty / optimize; garment silhouette fit deferred (boxy cyan residual); no thrash.
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
 **Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
 
 **Blockers:** none
+
+### 2026-08-02 — parent-nurse-ui-xr-recapture-after-bind-fix-v1 (Q5) verify ok
+
+Product path advanced: Fresh UI-XR parent/nurse sleeveDeform capture after bind-pose + cyan-strict (99bd9c1). PNGs ≥110kB with garmentGeometry ready, role color limbs. Blueprint/factory tie: Q5 verification of Q1 garment path. Evidence: `.openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/*front*` parent 113k nurse 117k. Claim honesty: cyan mesh still boxy mid-torso (fit residual deferred). Token: compose residual. Next: continue-autonomy-run-next.
+
 
 
 ### 2026-08-02 — ui-admin-emission-autoload-cli-latest-v1 (Q4) verify ok
