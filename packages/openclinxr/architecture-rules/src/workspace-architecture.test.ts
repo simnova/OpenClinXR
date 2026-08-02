@@ -77,6 +77,10 @@ const forbiddenProductionAppDependencies = [
   ...capabilityArenaPackages,
   ...nonProductionSupportPackages,
 ] as const;
+const physicsEngineDependencies = [
+  "@dimforge/rapier3d",
+  "@dimforge/rapier3d-compat",
+] as const;
 
 type DependencyField = typeof dependencyFields[number];
 
@@ -501,13 +505,35 @@ describe("workspace architecture rules", () => {
     expect([...manifestViolations, ...sourceViolations].sort()).toEqual([]);
   });
 
-  it("keeps production app source out of evidence and sidecar implementation paths", () => {
+  it("keeps production apps free of physics engine and arena physics dependencies (pre-prod fence)", () => {
+    const allForbiddenPhysicsDeps = [
+      ...capabilityArenaPackages.filter((pkg) => pkg === "@openclinxr/physics-touch-contract"),
+      ...physicsEngineDependencies,
+    ];
+    const manifestViolations = workspacePackageDependencyReferences(allForbiddenPhysicsDeps)
+      .filter(({ manifestPath }) => productionAppRoots.some((root) => manifestPath.startsWith(root)))
+      .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`);
+    const sourceViolations = allForbiddenPhysicsDeps.flatMap((dependency) =>
+      sourceImportReferences(dependency, productionAppSourceFiles())
+        .map(({ filePath, specifier }) => `source:${filePath}:${specifier}`)
+    );
+    const relativePathViolations = productionAppSourceFiles().filter((filePath) => {
+      const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+      return /(?:from\s+["']|import\s*\(\s*["'])[^"']*(?:apps\/arena\/physics-clinical-touch|packages\/openclinxr\/arena\/physics-touch-contract)\//.test(sourceText);
+    }).map((filePath) => `path-import:${filePath}`);
+
+    expect([...manifestViolations, ...sourceViolations, ...relativePathViolations].sort()).toEqual([]);
+  });
+
+  it("keeps production app source out of evidence, sidecar, and arena physics implementation paths", () => {
     const forbiddenPathImports = [
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*tools\/openclinxr\/evidence\//,
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/ui-xr-iwsdk-spike\//,
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/ui-quest-voice-godot\//,
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/api-python-backend\//,
       /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/mock-realtime-voice-server\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*apps\/arena\/physics-clinical-touch\//,
+      /(?:from\s+["']|import\s*\(\s*["'])[^"']*packages\/openclinxr\/arena\/physics-touch-contract\//,
     ];
     const violations = productionAppSourceFiles().filter((filePath) => {
       const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
@@ -753,6 +779,7 @@ describe("workspace architecture rules", () => {
           "0027-quest3-usb-webxr-smoke-gate.md",
           "0028-iwsdk-sidecar-spike.md",
           "0029-arena-physics-clinical-touch-determinism.md",
+          "0030-arena-physics-clinical-touch-realbind-proven.md",
         ],
       },
       {
@@ -762,6 +789,7 @@ describe("workspace architecture rules", () => {
           "0027-quest3-usb-webxr-smoke-gate.md",
           "0028-iwsdk-sidecar-spike.md",
           "0029-arena-physics-clinical-touch-determinism.md",
+          "0030-arena-physics-clinical-touch-realbind-proven.md",
         ],
       },
     ];

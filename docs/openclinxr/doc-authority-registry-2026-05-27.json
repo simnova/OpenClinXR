@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 195,
+    "current-reference": 196,
     "archive-candidate": 14,
     "evidence": 32,
     "protected-policy": 10,
@@ -2659,6 +2659,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/psychometric-and-review-governance.md",

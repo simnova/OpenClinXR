@@ -106,6 +106,7 @@ const currentReferences = new Set([
   "docs/openclinxr/session-state-websocket-message-design.md",
   "docs/openclinxr/technology-approach-brief.md",
   "docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md",
+  "docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md",
   "templates/decision-record.md",
   "templates/risk-record.md",
   "templates/source-record.md",

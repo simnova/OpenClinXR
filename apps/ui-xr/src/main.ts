@@ -119,10 +119,19 @@ import {
 } from "./runtime-state.js";
 import "./styles.css";
 
-// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms from Rapier palpation
-// Generated offline by packages/openclinxr/arena/physics-touch-contract/src/cli/generate-physics-bone-transforms.ts
-// UI-XR consumes only the JSON artifact — no @dimforge/rapier in prod deps.
+// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms from Rapier palpation.
+// Generated offline by packages/openclinxr/arena/physics-touch-contract/src/cli/generate-physics-bone-transforms.ts.
+// UI-XR consumes only the static JSON artifact — NO @dimforge/rapier or @openclinxr/physics-touch-contract in prod deps.
+//
+// PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
+//   Physics bone transforms are opt-in capture only via capture=physics-clinical-touch|physics-touch.
+//   Default session path does NOT apply physics transforms (gated by isPhysicsClinicalTouchCapture).
+//   UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false (not yet promoted to runtime default).
+//   userData claim: notEvidenceFor production_physics_readiness, learner_readiness.
 import physicsBoneTransformsArtifact from "./physics-touch/ed-palpation-bone-transforms.json" with { type: "json" };
+
+/** Pre-production fence: physics bone apply is opt-in capture only. Default session path does NOT apply physics transforms. */
+export const UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false;
 
 type NavigatorWithXr = Navigator & {
   xr?: {
@@ -1027,7 +1036,13 @@ function isRealGarmentSleeveDeformCapture(): boolean {
 
 /**
  * arena-physics-realbind-r3-ui-xr-bind (R3 / AD-3):
- * Physics-driven palpation bone transforms on real garment comparator.
+ * Physics-driven palpation bone transforms on real garment comparator — OPT-IN CAPTURE ONLY.
+ *
+ * PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
+ *   Returns true only when capture mode explicitly includes "physics-clinical-touch" or "physics-touch".
+ *   Default session path returns false → physics transforms NOT applied.
+ *   Gate ensures UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED=false is enforced at runtime.
+ *
  * Requires comparator=ed_anny_real_garment_patient (preferred) or peds_anny_real_garment_patient
  * and capture mode including "physics-clinical-touch" or "physics-touch".
  */
@@ -1636,7 +1651,7 @@ function recordSceneAssetStatus(input: SceneAssetEvidence["assets"][number]): Sc
       ).length,
       physicsProbeMode: "runtime_proxy_cues_with_offline_rapier_gate",
       latestProbeReportPath: "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
-      notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics"],
+      notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics", "learner_readiness"],
     },
     assets,
     productionAssetReadinessClaimed: false,
@@ -7723,6 +7738,13 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
  * arena-physics-realbind-r3-ui-xr-bind (R3 / AD-3):
  * Apply precomputed Rapier palpation bone transforms to the patient humanoid.
  *
+ * PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
+ *   Gated by isPhysicsClinicalTouchCapture() — only applies when capture mode is
+ *   "physics-clinical-touch" or "physics-touch". Default session path returns early.
+ *   UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false (not yet promoted to runtime default).
+ *   userData.notEvidenceFor: production_physics_readiness, learner_readiness.
+ *   This function is CAPTURE-EVIDENCE-ONLY; not enabled for production or learner sessions.
+ *
  * Reads tick from elapsed time (loops every 6s = 360 ticks at 60Hz),
  * looks up bone deltas from the precomputed JSON artifact, and applies
  * position/rotation deltas to the named bones on the patient slot.
@@ -7796,8 +7818,11 @@ function applyPhysicsBoneTransforms(nowMs: number): void {
   }
 
   // --- Physics touch evidence surfaces (R3 / AD-3) ---
-  // Tag the real garment mesh with physics-touch evidence; frustumCulled off
-  // for capture readability; distinct orange emissive for palpation visibility.
+  // PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
+  //   Tag the real garment mesh with physics-touch evidence for CAPTURE MODE ONLY.
+  //   frustumCulled=false and distinct orange emissive for capture readability.
+  //   These userData tags are NOT applied in default session path.
+  //   userData.notEvidenceFor includes production_physics_readiness, learner_readiness.
   patientSlot.root.traverse((obj) => {
     if (!(obj instanceof Mesh)) return;
     const nm = obj.name || "";
@@ -7823,7 +7848,12 @@ function applyPhysicsBoneTransforms(nowMs: number): void {
       currentTick: tick,
       spineDz: frame.boneDeltas.spine?.position.z ?? 0,
       guardingAngle: frame.boneDeltas["upper_arm.L"]?.rotation.x ?? 0,
-      notEvidenceFor: artifact.notEvidenceFor,
+      runtimePromotionAllowed: false,
+      notEvidenceFor: [
+        ...artifact.notEvidenceFor,
+        "production_physics_readiness",
+        "learner_readiness",
+      ],
     };
   });
 }

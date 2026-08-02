@@ -1111,4 +1111,36 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("postop_fever_consult_pressure_v1");
     expect(mainSource).toContain("oncology_bad_news_family_v1");
   });
+
+  it("enforces physics-touch pre-production fence: no rapier/physics-touch-contract deps, static artifact only, promotion false", () => {
+    const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    // No @dimforge/rapier or @openclinxr/physics-touch-contract in prod OR dev deps
+    const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
+    expect(allDeps).not.toHaveProperty("@dimforge/rapier");
+    expect(allDeps).not.toHaveProperty("@openclinxr/physics-touch-contract");
+
+    // Static JSON artifact exists
+    const artifactUrl = new URL("./physics-touch/ed-palpation-bone-transforms.json", import.meta.url);
+    expect(existsSync(artifactUrl)).toBe(true);
+
+    // JSON artifact contains pre-prod fence claims
+    const artifact = JSON.parse(readFileSync(artifactUrl, "utf8")) as {
+      notEvidenceFor: string[];
+      bones: string[];
+      engineId: string;
+    };
+    expect(artifact.notEvidenceFor).toContain("learner_readiness");
+    expect(artifact.notEvidenceFor).toContain("production_asset_readiness");
+
+    // main.ts contains the pre-production fence const
+    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    expect(mainSource).toContain("UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false");
+    expect(mainSource).toContain("PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1)");
+    expect(mainSource).toContain("OPT-IN CAPTURE ONLY");
+    expect(mainSource).toContain("notEvidenceFor: [\n        ...artifact.notEvidenceFor,\n        \"production_physics_readiness\",\n        \"learner_readiness\",\n      ]");
+  });
 });

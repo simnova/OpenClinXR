@@ -174,3 +174,6 @@ export type {
   JointLimitTable,
   MassTable,
 } from "./factory/habitus-tables.js";
+
+// Promotion gates (pre-production fence)
+export { PHYSICS_TOUCH_PROMOTION, runtimePromotionAllowed } from "./promotion-gates.js";
