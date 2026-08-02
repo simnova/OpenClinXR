@@ -370,6 +370,7 @@ const rolePathScopes: Record<string, RolePathScope> = {
   },
   "implementation-planning-lead": {
     // Product-under-os: authoring/runtime wiring packages (was docs-only — blocked Q1/Q4 delivery)
+    // apps/ui-admin: Q4 admin-ui-emission-bind (faculty review/replay bind to runtime emission)
     writeRoots: [
       "docs/openclinxr/**",
       "agents/core/implementation-planning-lead/**",
@@ -378,8 +379,9 @@ const rolePathScopes: Record<string, RolePathScope> = {
       "packages/openclinxr/shared-schemas/**",
       "packages/openclinxr/exam-assembly/**",
       "tools/openclinxr/**",
+      "apps/ui-admin/**",
     ],
-    readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**"],
+    readRoots: [".openclinxr/slices/**/handoffs/**", "packages/openclinxr/**", "apps/api/**", "apps/ui-admin/**"],
     forbidden: [
       "apps/ui-xr/**",
       "apps/arena/**",
@@ -390,6 +392,7 @@ const rolePathScopes: Record<string, RolePathScope> = {
     outputRoots: [".openclinxr/slices/**/handoffs/implementation-planning-lead.json"],
     preferredCli: [
       "pnpm --filter @openclinxr/scenario-runtime test",
+      "pnpm --filter @openclinxr/ui-admin test",
       "pnpm --filter @openclinxr/agent-loop test",
     ],
   },

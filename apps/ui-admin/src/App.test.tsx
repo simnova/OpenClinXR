@@ -380,7 +380,15 @@ describe("AdminApp", () => {
     expect(await screen.findByRole("heading", { name: "Review Replay" })).toBeInTheDocument();
     expect(getReviewPacketReplay).toHaveBeenCalledWith({ stationRunId: "run_ed_chest_pain_priority_v1_learner_001" });
     expect(getReviewReplayReadinessSummary).toHaveBeenCalledWith({ stationRunId: "run_ed_chest_pain_priority_v1_learner_001" });
-    expect(screen.getByText("ed_chest_pain_priority_v1")).toBeInTheDocument();
+    // Emission bind panel (always visible) + packet both surface scenario id
+    expect(screen.getAllByText("ed_chest_pain_priority_v1").length).toBeGreaterThan(0);
+    const emissionBind = screen.getByLabelText("Runtime emission admin replay bind");
+    expect(within(emissionBind).getByLabelText("Turn source badge")).toHaveTextContent(
+      "turnSource=runtime_emission_real_turns",
+    );
+    expect(within(emissionBind).getByLabelText("Emission replay claim boundary")).toHaveTextContent(
+      "admin_replay_from_runtime_emission_not_clinical_validity",
+    );
     expect(screen.getAllByText("team_communication").length).toBeGreaterThan(0);
     expect(screen.getByText("Learner requested an ECG.")).toBeInTheDocument();
     expect(screen.getByText("Chest pain requires urgent ECG escalation.")).toBeInTheDocument();
@@ -515,11 +523,15 @@ describe("AdminApp", () => {
     render(<AdminApp initialPath="/reviews" controlPlaneClient={client} />);
 
     expect(await screen.findByText("Station run required")).toBeInTheDocument();
+    // Always-visible emission bind (Q4 real-turn projection) is present even before seed load
+    expect(screen.getByLabelText("Runtime emission admin replay bind")).toHaveTextContent(
+      "runtime_emission_real_turns",
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Create seed replay" }));
 
-    expect(await screen.findByText("ed_chest_pain_priority_v1")).toBeInTheDocument();
     expect(createLocalReviewReplaySeed).toHaveBeenCalledWith();
+    expect(await screen.findByDisplayValue("run_ed_chest_pain_priority_v1_admin_review_seed")).toBeInTheDocument();
     expect(getReviewPacketReplay).toHaveBeenCalledWith({
       stationRunId: "run_ed_chest_pain_priority_v1_admin_review_seed",
     });

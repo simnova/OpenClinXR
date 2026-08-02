@@ -1,0 +1,278 @@
+import { Tag, Typography } from "antd";
+import type { ReactElement } from "react";
+
+/**
+ * Admin UI bind surface for `openclinxr.admin-replay-from-emission.v1`
+ * (from `pnpm encounter:admin-replay-from-emission` / mapEmissionToAdminReplayProps).
+ * Real turns only — not seeds-only. No clinical/scoring/Quest/production claims.
+ */
+
+export type EmissionReplayTimelineEntry = {
+  sequence: number;
+  atSecond: number;
+  eventType: string;
+  source: string;
+  actorId?: string;
+  tag?: string;
+  summary: string;
+};
+
+export type AdminReplayFromEmissionV1 = {
+  schemaVersion: "openclinxr.admin-replay-from-emission.v1";
+  generatedAt: string;
+  sourceEmissionPath: string;
+  sourceEmissionSchemaVersion: string;
+  stationRunId: string;
+  scenarioId: string;
+  scenarioVersion: number;
+  phase: string;
+  learnerId: string;
+  actorTurnRefs: string[];
+  actorTurnCount: number;
+  timeline: EmissionReplayTimelineEntry[];
+  timelineEntryCount: number;
+  traceEventTypes: string[];
+  reviewPacket: {
+    stationRunId: string;
+    scenarioId: string;
+    eventCount: number;
+    observedTraceTags: string[];
+    missingRequiredTraceTags: string[];
+  };
+  privatePayloadRedacted: true;
+  turnSource: "runtime_emission_real_turns";
+  wiring?: {
+    input: string;
+    projection: string;
+    path: string;
+  };
+  claimBoundary: "admin_replay_from_runtime_emission_not_clinical_validity";
+  notEvidenceFor: readonly [
+    "clinical_validity",
+    "scoring_validity",
+    "quest_readiness",
+    "production_readiness",
+  ];
+};
+
+/** Sample projection aligned with tools/openclinxr/admin-replay-from-emission.test.ts (mapEmissionToAdminReplayProjection). */
+export const SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1: AdminReplayFromEmissionV1 = {
+  schemaVersion: "openclinxr.admin-replay-from-emission.v1",
+  generatedAt: "2026-08-02T12:00:00.000Z",
+  sourceEmissionPath: "(embedded-sample-from-admin-replay-from-emission.test)",
+  sourceEmissionSchemaVersion: "openclinxr.encounter-runtime-emission.v1",
+  stationRunId: "run_ed_chest_pain_priority_v1_test",
+  scenarioId: "ed_chest_pain_priority_v1",
+  scenarioVersion: 1,
+  phase: "review",
+  learnerId: "runtime_emission_learner_001",
+  actorTurnRefs: [
+    "actor_turn:run_ed_chest_pain_priority_v1_test:turn_1_patient_robert_hayes_v1_120",
+  ],
+  actorTurnCount: 1,
+  timeline: [
+    {
+      sequence: 0,
+      atSecond: 120,
+      eventType: "learner.utterance",
+      source: "learner",
+      actorId: "patient_robert_hayes_v1",
+      tag: "history_opqrst",
+      summary: "Learner utterance: When did the chest pressure start?",
+    },
+    {
+      sequence: 1,
+      atSecond: 120,
+      eventType: "actor.response.generated",
+      source: "runtime_emission",
+      actorId: "patient_robert_hayes_v1",
+      tag: "history_opqrst",
+      summary:
+        "Actor response (spoken_actor_response): Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest",
+    },
+  ],
+  timelineEntryCount: 2,
+  traceEventTypes: [
+    "station.started",
+    "consent.accepted",
+    "encounter.started",
+    "learner.utterance",
+    "actor.response.generated",
+  ],
+  reviewPacket: {
+    stationRunId: "run_ed_chest_pain_priority_v1_test",
+    scenarioId: "ed_chest_pain_priority_v1",
+    eventCount: 8,
+    observedTraceTags: ["history_opqrst", "ecg_request"],
+    missingRequiredTraceTags: ["risk_factor_question"],
+  },
+  privatePayloadRedacted: true,
+  turnSource: "runtime_emission_real_turns",
+  wiring: {
+    input: "encounter-runtime-emission.v1",
+    projection: "admin_replay_review_packet_summary",
+    path: "loadEmission→mapActorTurns→writeAdminReplay",
+  },
+  claimBoundary: "admin_replay_from_runtime_emission_not_clinical_validity",
+  notEvidenceFor: [
+    "clinical_validity",
+    "scoring_validity",
+    "quest_readiness",
+    "production_readiness",
+  ],
+};
+
+export type EmissionReplayBindPanelProps = {
+  /** CLI projection or embedded sample; defaults to SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1. */
+  projection?: AdminReplayFromEmissionV1;
+};
+
+export function parseAdminReplayFromEmissionV1(value: unknown): AdminReplayFromEmissionV1 {
+  if (!value || typeof value !== "object") {
+    throw new Error("Admin replay projection is not an object");
+  }
+  const record = value as Record<string, unknown>;
+  if (record.schemaVersion !== "openclinxr.admin-replay-from-emission.v1") {
+    throw new Error(
+      `Unexpected schemaVersion: ${String(record.schemaVersion)} (expected openclinxr.admin-replay-from-emission.v1)`,
+    );
+  }
+  if (record.turnSource !== "runtime_emission_real_turns") {
+    throw new Error(
+      `Unexpected turnSource: ${String(record.turnSource)} (expected runtime_emission_real_turns, not seeds-only)`,
+    );
+  }
+  if (!Array.isArray(record.actorTurnRefs) || record.actorTurnRefs.length < 1) {
+    throw new Error("Admin replay projection requires actorTurnRefs (≥1 real turn)");
+  }
+  if (record.privatePayloadRedacted !== true) {
+    throw new Error("Admin replay projection requires privatePayloadRedacted=true");
+  }
+  if (record.claimBoundary !== "admin_replay_from_runtime_emission_not_clinical_validity") {
+    throw new Error(
+      `Unexpected claimBoundary: ${String(record.claimBoundary)}`,
+    );
+  }
+  return value as AdminReplayFromEmissionV1;
+}
+
+export function EmissionReplayBindPanel({
+  projection = SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
+}: EmissionReplayBindPanelProps): ReactElement {
+  const safe = parseAdminReplayFromEmissionV1(projection);
+
+  return (
+    <section className="workbench-panel" aria-label="Runtime emission admin replay bind">
+      <div className="workbench-title-row">
+        <div>
+          <Typography.Text className="eyebrow">Runtime emission → faculty replay (Q4)</Typography.Text>
+          <Typography.Title level={4}>Emission Replay Bind</Typography.Title>
+        </div>
+        <Tag color="cyan" aria-label="Turn source badge">
+          turnSource={safe.turnSource}
+        </Tag>
+      </div>
+      <Typography.Paragraph>
+        Faculty review surface bound to real actor turns from{" "}
+        <Typography.Text code>pnpm encounter:admin-replay-from-emission</Typography.Text>
+        {" "}
+        (<Typography.Text code>{safe.schemaVersion}</Typography.Text>
+        ). Not seeds-only.
+      </Typography.Paragraph>
+      <Typography.Paragraph type="secondary">
+        Local review/replay projection only; this does not establish clinical validity, scoring validity,
+        Quest readiness, or production readiness.
+      </Typography.Paragraph>
+
+      <div className="readiness-strip review-replay-strip" aria-label="Emission replay summary metrics">
+        <EmissionReplayMetric
+          label={safe.scenarioId}
+          detail={safe.stationRunId}
+        />
+        <EmissionReplayMetric
+          label={`${safe.actorTurnCount} real actor ${pluralize(safe.actorTurnCount, "turn")}`}
+          detail={`${safe.timelineEntryCount} timeline ${pluralize(safe.timelineEntryCount, "entry")}`}
+        />
+        <EmissionReplayMetric
+          label={safe.privatePayloadRedacted ? "Private payload redacted" : "Private payload visible"}
+          detail="summary-only projection"
+        />
+        <EmissionReplayMetric
+          label={`${safe.traceEventTypes.length} trace event types`}
+          detail={safe.phase}
+        />
+      </div>
+
+      <Typography.Text strong>Claim boundary</Typography.Text>
+      <Typography.Paragraph type="secondary" aria-label="Emission replay claim boundary">
+        {safe.claimBoundary}
+      </Typography.Paragraph>
+      <Typography.Text strong>Not evidence for</Typography.Text>
+      <ul className="compact-list" aria-label="Emission replay not evidence for">
+        {safe.notEvidenceFor.map((item) => (
+          <li key={item}>
+            <Typography.Text type="secondary">{item}</Typography.Text>
+          </li>
+        ))}
+      </ul>
+
+      <Typography.Text strong>Actor turn refs (runtime emission real turns)</Typography.Text>
+      <ul className="compact-list" aria-label="Emission actor turn refs">
+        {safe.actorTurnRefs.map((ref) => (
+          <li key={ref}>
+            <Typography.Text code>{ref}</Typography.Text>
+          </li>
+        ))}
+      </ul>
+
+      <Typography.Text strong>Timeline (summary-only; private payloads redacted)</Typography.Text>
+      <ol className="compact-list" aria-label="Emission replay timeline">
+        {safe.timeline.map((entry) => (
+          <li key={`${entry.sequence}-${entry.eventType}`}>
+            <Typography.Text>
+              {`#${entry.sequence} @${entry.atSecond}s · ${entry.eventType} · ${entry.source}`}
+              {entry.actorId ? ` · ${entry.actorId}` : ""}
+              {entry.tag ? ` · ${entry.tag}` : ""}
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ display: "block" }}>
+              {entry.summary}
+            </Typography.Text>
+          </li>
+        ))}
+      </ol>
+
+      <Typography.Text strong>Review packet summary (from emission)</Typography.Text>
+      <div className="readiness-strip review-replay-strip" aria-label="Emission review packet summary">
+        <EmissionReplayMetric
+          label={`${safe.reviewPacket.eventCount} events`}
+          detail={safe.reviewPacket.scenarioId}
+        />
+        <EmissionReplayMetric
+          label={`${safe.reviewPacket.observedTraceTags.length} observed tags`}
+          detail={safe.reviewPacket.observedTraceTags.join(", ") || "none"}
+        />
+        <EmissionReplayMetric
+          label={`${safe.reviewPacket.missingRequiredTraceTags.length} missing required`}
+          detail={safe.reviewPacket.missingRequiredTraceTags.join(", ") || "none"}
+        />
+      </div>
+
+      <Typography.Paragraph type="secondary" aria-label="Emission private payload posture">
+        privatePayloadRedacted={String(safe.privatePayloadRedacted)}; raw learner/actor payloads are not shown.
+      </Typography.Paragraph>
+    </section>
+  );
+}
+
+function EmissionReplayMetric({ label, detail }: { label: string; detail: string }): ReactElement {
+  return (
+    <div className="readiness-metric">
+      <Typography.Text strong>{label}</Typography.Text>
+      <Typography.Text type="secondary">{detail}</Typography.Text>
+    </div>
+  );
+}
+
+function pluralize(count: number, noun: string): string {
+  return count === 1 ? noun : `${noun}s`;
+}

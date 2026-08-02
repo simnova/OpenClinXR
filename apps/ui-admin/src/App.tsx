@@ -36,6 +36,7 @@ import {
   type ScenarioSceneGenerationRequestQueue,
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
+import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
@@ -352,6 +353,9 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
       {state.status === "error" ? (
         <Alert type="error" title="Review replay unavailable" description={state.message} showIcon />
       ) : null}
+
+      {/* Q4: always-visible bind of runtime-emission real turns (not seeds-only) into faculty review/replay */}
+      <EmissionReplayBindPanel />
 
       {state.status === "ready" && !packet ? (
         <Alert type="warning" title="Review packet not found" description={state.stationRunId} showIcon />
