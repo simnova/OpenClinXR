@@ -4,7 +4,7 @@ This file tracks non-blocking operator questions that need a better answer after
 
 ## 2026-08-02 arena-physics post-epic (non-blocking defaults)
 
-Epic `arena-physics-clinical-touch-v1` **closed** under MADR 0029 (arena-only, candidates, non-promotion). Spec residual ledger claim-aligned the same day. Product Next remains **`wire-api-durableStore-consumer-v1`** unless BOD pivots.
+Epic `arena-physics-clinical-touch-v1` **closed** under MADR 0029 (arena-only, candidates, non-promotion). Spec residual ledger claim-aligned the same day. Product queue since closed: wire-api → emission → admin-replay → EmissionReplayBindPanel live load; parent/nurse real-garment reorch+bind+UI-XR recapture. **Current residual empty** (tip `80f77f1`); garment silhouette fit deferred; physics WASM/UI-XR still deferred.
 
 | # | Question | Recommended default |
 |---|----------|---------------------|
@@ -18,7 +18,7 @@ Epic `arena-physics-clinical-touch-v1` **closed** under MADR 0029 (arena-only, c
 | 8 | Website / skeptic marketing of physics epic? | **No.** Fixture-grade arena contract; no dual MV/UI-XR physics PNG evidence. |
 
 - Current answer: defaults above; no steering blocker.
-- Recommended default: execute product **wire-api** queue; re-open physics only via new epic + MADR.
+- Recommended default: continue-autonomy optimize; re-open physics only via new epic + MADR; garment fit only as explicit Q1 residual.
 
 ## 2026-06-07 garment-hint-v1 aborted per anti-toil gate
 

@@ -49,7 +49,8 @@
   "notes": [
     "Not a multi-week A/B. Sufficient for BOD: OS rules held under real product delivery.",
     "2026-08-02 optimize pulse: alignment+drift green; Autonomy RUNNING; tip 87454dc parent/nurse dual Q1+Q5 visible; Q4 faculty emission bind closed.",
-    "2026-08-02 heartbeat hygiene: dual 15m race pruned to 1x15m+1x30m; skip-closed-slice rule in prompts; tip a82fcc8 live-artifact load + bind-pose + framing."
+    "2026-08-02 heartbeat hygiene: dual 15m race pruned to 1x15m+1x30m; skip-closed-slice rule in prompts; tip a82fcc8 live-artifact load + bind-pose + framing.",
+    "2026-08-02 residual empty post recapture 80f77f1; operator-open-questions product next de-staled from wire-api."
   ],
   "evidencePaths": [
     "docs/agent-ops/product-under-os-scorecard-v1.json",
@@ -59,5 +60,5 @@
     "tools/openclinxr/scenario-authoring-roundtrip.ts",
     "packages/openclinxr/scenario-runtime/src/index.ts"
   ],
-  "updatedAt": "2026-08-02T17:24:30.276275+00:00"
+  "updatedAt": "2026-08-02T17:35:37.460079+00:00"
 }
