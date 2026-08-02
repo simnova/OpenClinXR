@@ -47,6 +47,15 @@ describe("openclaw slice runner", () => {
     });
   });
 
+  it("extracts camelCase-segment slice ids from Next dequeue", () => {
+    const selection = selectNextSlice({
+      "PROJECT_STATUS.md":
+        "# S\n\n**Next dequeue:** wire-api-durableStore-consumer-v1 (Q4) — wire sink\n",
+    });
+    expect(selection.sliceId).toBe("wire-api-durableStore-consumer-v1");
+    expect(selection.source).toBe("next-dequeue");
+  });
+
   it("falls back to legacy AUTONOMOUS_WORK_PLAN queue", () => {
     const selection = selectNextSlice({
       "PROJECT_STATUS.md": "# status\n",

@@ -78,9 +78,10 @@ export type OpenClawWatchdogDecision = {
 };
 
 export function extractSliceIdFromText(text: string): string | null {
-  const backtick = text.match(/`([a-z0-9][a-z0-9-]*)`/u)?.[1];
+  // Allow camelCase segments (e.g. wire-api-durableStore-consumer-v1).
+  const backtick = text.match(/`([a-z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)+)`/u)?.[1];
   if (backtick) return backtick;
-  const kebab = text.match(/\b([a-z][a-z0-9]*(?:-[a-z0-9]+)+)\b/u)?.[1];
+  const kebab = text.match(/\b([a-z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)+)\b/u)?.[1];
   return kebab ?? null;
 }
 
