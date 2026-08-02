@@ -31,6 +31,7 @@ Last updated: 2026-06-07
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| readme-dev-workstation-v1 | execute+verify | verify ok — delegated scout+writer; README overview/prereqs/get-started; Task cost ~$0.41 (2 subagents) |
 | website-marketing-state-roadmap-v1 | execute+verify | verify ok — public site rewrite (now/roadmap/evidence); pages:validate green; cost ritual sample |
 | implementation-authoring-follow-on-v1 | execute+verify | **verify ok + PROGRESS** product-under-os-v1 (Q1+Q4) — durableStore + roundtrip CLI; isolation+promote+pathScope+token; scorecard PROGRESS |
 | warehouse-wiki-cruft-audit-v1 | execute+verify | verify ok (Q5) — wiki-style docs/_archive; freeze cruft-audit 17 files; multi-area manifests; 15 archive tests |
@@ -92,6 +93,19 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 readme-dev-workstation-v1 (Q5)
+
+Product path advanced: **Delegated** README rewrite (scout explore + GP writer worktree). Developer-facing overview, must/optional prereqs (mise/Node24/pnpm/Python/direnv), get-started host→clone→verify→run, PROJECT_STATUS SSOT (archived ledgers demoted). Parent integrated README (promote CLI pathScope skipped root README—manual promote).
+
+Blueprint/factory tie: Q5 contributor onboarding / factory accessibility.
+
+Touched: README.md. Handoffs: openclaw-drift-police scout + implementation-planning-lead write.
+
+Token introspection: aligned; tier: pro; flashΔ=2 …  
+Cost line: Task cost: $0.41 est; subagents=2; subTokens=144410; subUsd=$0.41; models=grok-4.5:$0.39|deepseek-v4-flash:$0.02
+
+Next: wire-api-durableStore-consumer-v1 or expand pathScope for root README owner.
 
 ### 2026-08-02 website-marketing-state-roadmap-v1 (Q5 visibility)
 
