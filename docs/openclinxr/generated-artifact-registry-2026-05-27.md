@@ -10,10 +10,10 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 1702
+- ignore-local-cache: 1705
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 99
+- keep-evidence: 103
 - keep-template: 6
 
 ## Cleanup Actions
@@ -1246,6 +1246,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/s7-upgrade-evidence-check.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/device-probe-unauthorized.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/device-probe.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-connection-test/connection-probe.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/physics-touch-ed-patient-front.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/physics-touch-ed-patient-palpation.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1696,6 +1697,8 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/slices/physics-realbind-prod-refine-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/physics-realbind-prod-refine-v1/handoffs/implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/physics-realbind-prod-refine-v1/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/quest-portless-http-2026-08-02/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/quest-power-through-2026-08-02/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/readme-dev-workstation-v1/handoffs/implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/readme-dev-workstation-v1/handoffs/openclaw-drift-police.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/scenario-bank-review-packet-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1920,9 +1923,13 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-07.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/quest-cdp-smoke-enter-vr-iwsdk-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-cdp-smoke-physics-ragdoll-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-cdp-smoke-portless-http-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-physics-ragdoll-probe-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

@@ -42,6 +42,11 @@ describe("IWSDK sidecar Vite config", () => {
           height: 500,
         },
       },
+      workspace: {
+        open: false,
+        headless: true,
+      },
+      https: false,
       verbose: true,
     });
     expect(openClinXrIwsdkSpikeDevPluginOptions.emulator?.userAgentException).toBeInstanceOf(RegExp);
@@ -51,6 +56,26 @@ describe("IWSDK sidecar Vite config", () => {
     expect(plugins.filter((plugin) => plugin.name.includes("iwsdk")).every((plugin) => plugin.apply === "serve")).toBe(
       true,
     );
+  });
+
+  it("keeps portless HTTP so Quest Browser can load via adb reverse without cert privacy errors", async () => {
+    const { default: viteConfig } = await import("./vite.config.js");
+    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
+    expect(resolved.server?.https).toBe(false);
+    expect(resolved.server?.hmr).toMatchObject({ overlay: false });
+    expect(openClinXrIwsdkSpikeDevPluginOptions.https).toBe(false);
+  });
+
+  it("disables Vite HMR error overlay so non-fatal dynamic-import failures on Quest do not block shellLoaded CDP gate", async () => {
+    const { default: viteConfig } = await import("./vite.config.js");
+    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
+    expect(resolved.server?.hmr?.overlay).toBe(false);
+  });
+
+  it("pre-bundles @pmndrs/uikitml so Quest Browser can load it without failing on dynamic Vite deps import", async () => {
+    const { default: viteConfig } = await import("./vite.config.js");
+    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
+    expect(resolved.optimizeDeps?.include).toContain("@pmndrs/uikitml");
   });
 
   it("compiles UIKitML text sources with absolute paths for portless/worktree safety", () => {

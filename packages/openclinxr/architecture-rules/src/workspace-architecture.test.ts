@@ -1421,9 +1421,16 @@ describe("workspace architecture rules", () => {
     });
     expect(manifest.devDependencies?.["vite"]).toMatch(/^8\./);
     expect(manifest.dependencies?.["@iwsdk/vite-plugin-dev"]).toBeUndefined();
+    // IWSDK 0.5.x vite-plugin-dev pulls scene-composition; allow direct pin for resolver stability.
     expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>
       dependency.startsWith("@iwsdk/")
-      && !["@iwsdk/core", "@iwsdk/xr-input", "@iwsdk/vite-plugin-dev", "@iwsdk/vite-plugin-uikitml"].includes(dependency)
+      && ![
+        "@iwsdk/core",
+        "@iwsdk/xr-input",
+        "@iwsdk/scene-composition",
+        "@iwsdk/vite-plugin-dev",
+        "@iwsdk/vite-plugin-uikitml",
+      ].includes(dependency)
     )).toEqual([]);
   });
 

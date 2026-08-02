@@ -4,8 +4,8 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 99,
-    "ignore-local-cache": 1702,
+    "keep-evidence": 103,
+    "ignore-local-cache": 1705,
     "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 6
@@ -8692,6 +8692,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-connection-test/connection-probe.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/inspection.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -11842,6 +11849,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/slices/quest-portless-http-2026-08-02/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/quest-power-through-2026-08-02/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/slices/readme-dev-workstation-v1/handoffs/implementation-planning-lead.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -13312,6 +13333,13 @@
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
+      "path": "docs/openclinxr/quest-cdp-smoke-enter-vr-iwsdk-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -13326,7 +13354,21 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/quest-cdp-smoke-physics-ragdoll-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/quest-cdp-smoke-portless-http-2026-08-02.json",
       "authority": "keep-evidence",
       "tracked": true,
       "action": "keep",
@@ -13352,6 +13394,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
+    },
+    {
+      "path": "docs/openclinxr/quest-physics-ragdoll-probe-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png",

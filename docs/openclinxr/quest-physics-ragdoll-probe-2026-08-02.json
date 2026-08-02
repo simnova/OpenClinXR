@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-08-02T23:10:16.311Z",
+  "source": "quest_power_through_multi_param_launch",
+  "claim": "multi_query_url_adb_launch_works_shell_loaded_baked_physics_path_opt_in",
+  "smokeVerdict": {
+    "shellLoaded": true,
+    "interactionAdvanced": false,
+    "frameSampleComplete": true,
+    "immersiveEntryOutcome": "not_requested",
+    "blockers": [
+      "quest_trace_interaction_not_advanced"
+    ]
+  },
+  "url": "http://localhost:5173/?humanoidSourceComparator=ed_anny_real_garment_patient&capture=physics-clinical-touch&openclinxrScenarioId=ed_chest_pain_priority_v1&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&questSmoke=physics-ragdoll-power-through-2026-08-02",
+  "title": "OpenClinXR Station Runtime",
+  "shellLoaded": true,
+  "note": "prior CDP probe showed openClinXrPhysicsTouchEvidence engineId=rapier on garment; this run reconfirmed multi-param launch without --skip-launch",
+  "notEvidenceFor": [
+    "live_rapier_on_quest",
+    "immersive_session",
+    "production_physics_readiness",
+    "clinical_validity"
+  ]
+}

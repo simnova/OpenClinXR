@@ -23,7 +23,7 @@ describe("UIKitML spatial text sidecar posture", () => {
     expect(packageJson.devDependencies).toMatchObject({
       "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@pmndrs/uikitml": "0.1.12",
-      "@pmndrs/uikit": "1.0.66",
+      "@pmndrs/uikit": "1.0.74",
       vite: "8.0.16",
     });
     expect({ ...rootPackageJson.dependencies, ...rootPackageJson.devDependencies }).not.toHaveProperty(

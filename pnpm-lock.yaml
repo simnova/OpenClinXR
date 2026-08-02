@@ -236,6 +236,9 @@ importers:
       '@iwsdk/core':
         specifier: 0.5.1
         version: 0.5.1(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@types/react@19.2.14)(react@19.2.8)(supports-color@7.2.0)
+      '@iwsdk/scene-composition':
+        specifier: 0.5.1
+        version: 0.5.1
       '@iwsdk/xr-input':
         specifier: 0.5.1
         version: 0.5.1(three@0.184.0)
@@ -256,14 +259,17 @@ importers:
         specifier: 0.4.2
         version: 0.4.2(three@0.184.0)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
       '@pmndrs/uikit':
-        specifier: 1.0.66
-        version: 1.0.66(three@0.184.0)
+        specifier: 1.0.74
+        version: 1.0.74(three@0.184.0)
       '@pmndrs/uikitml':
         specifier: 0.1.12
         version: 0.1.12(three@0.184.0)
       '@types/three':
         specifier: 0.184.0
         version: 0.184.0
+      three-viewport-gizmo:
+        specifier: 2.2.0
+        version: 2.2.0(three@0.184.0)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -2822,9 +2828,6 @@ packages:
   '@pmndrs/handle@6.6.30':
     resolution: {integrity: sha512-KPutdaLpCNPZoqXX2HvlRc+cQMETXdHTF0nKqFHMrJrne34apqELRVig53lO469rJhheedsRVepfdyo4g9Rukw==}
 
-  '@pmndrs/msdfonts@1.0.66':
-    resolution: {integrity: sha512-xU6aipDBXmpuP2GRytc+UoTS12QAQ1ndE8XjQqbygU0mYhFQ+i2F0Z4NvuLK6IFrrcCnHED6dQzUuzp5vGDDNA==}
-
   '@pmndrs/msdfonts@1.0.74':
     resolution: {integrity: sha512-cRMUq0RhvszDe4JfEZ8O8ZnZfZc0PsuiiMvwSb7CvFAQ156riCr1AueBvf4NEvLXHvBO7ZEMmgdODLSdEgg/HA==}
 
@@ -2837,16 +2840,8 @@ packages:
   '@pmndrs/uikit-lucide@1.0.74':
     resolution: {integrity: sha512-tZ/g++iW6KEK3KdB2pRh/WpWgUh0Fs9k+S2SXBhEL5GidhDfBb3+mj/SZR8fe3oo+H3HkDoFIUT+UBz7hVbsCA==}
 
-  '@pmndrs/uikit-pub-sub@1.0.66':
-    resolution: {integrity: sha512-kLHfAlYADg8FodAom0+YAQmuaPqNW9EvuYEZFm1ilEs8CyRSDFsE2KpwEWJ/esAuqTUDp2wnuk6K8QYq9r2GAQ==}
-
   '@pmndrs/uikit-pub-sub@1.0.74':
     resolution: {integrity: sha512-piiYQX/hjuXzTwBAjGbWqycEZsMFlsCKxoczs6G7M7kPWWmfLuFf9woOXHLtW5x6cnJJ19YrNuaQDtzG3SXj3Q==}
-
-  '@pmndrs/uikit@1.0.66':
-    resolution: {integrity: sha512-DhC4Gv1KDcVSdT30sgp8v8TmQ8+y0ZAM2yNix9oEnwoLUfZre4p7q+w+M50WbqXq9ImZImsrX71BSSNXK6/qwA==}
-    peerDependencies:
-      three: 0.184.0
 
   '@pmndrs/uikit@1.0.74':
     resolution: {integrity: sha512-GF7Uwqile6UnbXQPXpbB9hkDSXJA2d0P3Vv33kLom4Q57JqCPoGGsjy4CzjsZlZwXb1riIUpu5CN5xnBtpPkmQ==}
@@ -3393,9 +3388,6 @@ packages:
 
   '@types/emscripten@1.41.5':
     resolution: {integrity: sha512-cMQm7pxu6BxtHyqJ7mQZ2kXWV5SLmugybFdHCBbJ5eHzOo6VhBckEgAT3//rP5FwPHNPeEiq4SmQ5ucBwsOo4Q==}
-
-  '@types/estree@1.0.8':
-    resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -8471,8 +8463,6 @@ snapshots:
       - immer
       - react
 
-  '@pmndrs/msdfonts@1.0.66': {}
-
   '@pmndrs/msdfonts@1.0.74': {}
 
   '@pmndrs/pointer-events@6.6.30': {}
@@ -8491,22 +8481,9 @@ snapshots:
     transitivePeerDependencies:
       - three
 
-  '@pmndrs/uikit-pub-sub@1.0.66':
-    dependencies:
-      '@preact/signals-core': 1.14.1
-
   '@pmndrs/uikit-pub-sub@1.0.74':
     dependencies:
       '@preact/signals-core': 1.14.4
-
-  '@pmndrs/uikit@1.0.66(three@0.184.0)':
-    dependencies:
-      '@pmndrs/msdfonts': 1.0.66
-      '@pmndrs/uikit-pub-sub': 1.0.66
-      '@preact/signals-core': 1.14.1
-      '@zappar/msdf-generator': 1.2.4
-      three: 0.184.0
-      yoga-layout: 3.2.1
 
   '@pmndrs/uikit@1.0.74(three@0.184.0)':
     dependencies:
@@ -8520,7 +8497,7 @@ snapshots:
 
   '@pmndrs/uikitml@0.1.12(three@0.184.0)':
     dependencies:
-      '@pmndrs/uikit': 1.0.66(three@0.184.0)
+      '@pmndrs/uikit': 1.0.74(three@0.184.0)
       '@preact/signals-core': 1.14.1
       chai: 5.3.3
       inline-style-parser: 0.2.7
@@ -9076,8 +9053,6 @@ snapshots:
   '@types/deep-eql@4.0.2': {}
 
   '@types/emscripten@1.41.5': {}
-
-  '@types/estree@1.0.8': {}
 
   '@types/estree@1.0.9': {}
 
@@ -9941,7 +9916,7 @@ snapshots:
 
   estree-walker@3.0.3:
     dependencies:
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
 
   eventemitter3@5.0.4: {}
 

@@ -9,6 +9,14 @@ type OpenClinXrIwsdkSpikeDevPluginOptions = DevPluginOptions & {
   };
 };
 
+/**
+ * Quest-friendly portless defaults:
+ * - `https: false` so Quest Browser via `adb reverse` can load `http://localhost:<port>`
+ *   without a self-signed-cert "Privacy error" (localhost is a secure context for WebXR).
+ * - IWSDK 0.5.x defaults https:true for self-signed certs; that works for managed
+ *   Playwright (auto-accepts cert) but blocks Quest Browser shell smoke.
+ * - `workspace.open: false` avoids auto-launching a desktop browser on every portless start.
+ */
 export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
   emulator: {
     device: "metaQuest3",
@@ -24,6 +32,12 @@ export const openClinXrIwsdkSpikeDevPluginOptions = Object.freeze({
       height: 500,
     },
   },
+  workspace: {
+    open: false,
+    headless: true,
+  },
+  /** Prefer HTTP for Quest USB reverse + CDP smoke; override via Vite server.https if needed. */
+  https: false,
   verbose: true,
 } satisfies OpenClinXrIwsdkSpikeDevPluginOptions);
 
@@ -74,6 +88,24 @@ export function createOpenClinXrIwsdkSpikePlugins() {
 
 export default defineConfig({
   plugins: createOpenClinXrIwsdkSpikePlugins(),
+  // Explicit HTTP for Quest adb reverse. Plugin `https: false` opts out of IWSDK
+  // self-signed cert generation; Vite server.https false wins if plugin re-enables.
+  server: {
+    https: false,
+    host: "127.0.0.1",
+    strictPort: true,
+    /** Disable Vite error overlay so non-fatal dynamic-import failures
+     *  (e.g. @pmndrs/uikitml on Quest Browser) do not inject
+     *  <vite-error-overlay> and block the shellLoaded CDP gate. */
+    hmr: {
+      overlay: false,
+    },
+  },
+  /** Pre-bundle deps that fail dynamic import on Quest Browser (e.g. @pmndrs/uikitml
+   *  resolves to .vite/deps/... but Quest cannot fetch them from Vite dev server). */
+  optimizeDeps: {
+    include: ["@pmndrs/uikitml"],
+  },
   build: {
     chunkSizeWarningLimit: openClinXrIwsdkSpikeChunkSizeWarningLimitKb,
     modulePreload: {

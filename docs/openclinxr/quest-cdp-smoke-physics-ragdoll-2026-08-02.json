@@ -1,0 +1,778 @@
+{
+  "generatedAt": "2026-08-02T23:09:43.119Z",
+  "url": "http://localhost:5173/?humanoidSourceComparator=ed_anny_real_garment_patient&capture=physics-clinical-touch&openclinxrScenarioId=ed_chest_pain_priority_v1&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&questSmoke=physics-ragdoll-power-through-2026-08-02",
+  "target": "station",
+  "adb": {
+    "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.5.0 (arm64)",
+    "deviceLine": "2G0YC5ZGB5000J         device usb:2-1 product:eureka model:Quest_3 device:eureka transport_id:1",
+    "reverseList": "UsbFfs tcp:5183 tcp:5183\nUsbFfs tcp:5173 tcp:5173"
+  },
+  "browser": {
+    "title": "OpenClinXR Station Runtime",
+    "url": "http://localhost:5173/?humanoidSourceComparator=ed_anny_real_garment_patient&capture=physics-clinical-touch&openclinxrScenarioId=ed_chest_pain_priority_v1&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&questSmoke=physics-ragdoll-power-through-2026-08-02",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/149.1.0.10.52.1018773329 Chrome/149.0.7827.197 VR Safari/537.36",
+    "devicePixelRatio": 1,
+    "visibilityState": "visible",
+    "hidden": false,
+    "hasFocus": true,
+    "bodyHasEdChestPain": true,
+    "hasViteOverlay": false,
+    "hasNavigatorXr": true,
+    "xrStatus": "Full VR ready",
+    "trace": "Trace 0/3",
+    "bootEvidence": {
+      "app": "ui-xr",
+      "events": [
+        {
+          "phase": "controls_start",
+          "atMs": 2.8
+        },
+        {
+          "phase": "controls_ready",
+          "atMs": 3.9
+        },
+        {
+          "phase": "clock_started",
+          "atMs": 4.6
+        },
+        {
+          "phase": "learner_runtime_asset_bundle_static_generated_loaded_for_visual_review_with_blocked_learner_use",
+          "atMs": 11.9
+        },
+        {
+          "phase": "learner_runtime_asset_bundle_static_generated_loaded",
+          "atMs": 11.9
+        },
+        {
+          "phase": "station_scene_start",
+          "atMs": 12.7
+        },
+        {
+          "phase": "station_render_loop_started",
+          "atMs": 54.1
+        },
+        {
+          "phase": "station_scene_ready",
+          "atMs": 54.1
+        },
+        {
+          "phase": "generated_environment_asset_loaded",
+          "atMs": 170.2
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 173.4
+        },
+        {
+          "phase": "generated_equipment_placeholder_suppressed",
+          "atMs": 173.8
+        },
+        {
+          "phase": "generated_humanoid_animation_clips_started",
+          "atMs": 364.1
+        },
+        {
+          "phase": "generated_humanoid_asset_loaded",
+          "atMs": 364.3
+        },
+        {
+          "phase": "generated_humanoid_animation_clips_started",
+          "atMs": 366.7
+        },
+        {
+          "phase": "generated_humanoid_asset_loaded",
+          "atMs": 366.8
+        }
+      ]
+    },
+    "iwsdkEvidence": null,
+    "frameStats": {
+      "sampleCount": 6,
+      "avgFrameMs": 119.32,
+      "p95FrameMs": 527,
+      "maxFrameMs": 527,
+      "approxFps": 8.4,
+      "framesObserved": 7,
+      "firstFrameAtMs": 358.4,
+      "latestFrameAtMs": 1074.3,
+      "sampleWindowSize": 6,
+      "latestFrameDeltaMs": 527,
+      "sampleWindowMs": 715.9,
+      "longFrameCountOver33Ms": 4,
+      "longFrameRatio": 0.67,
+      "previewFramesObserved": 7,
+      "immersiveFramesObserved": 0,
+      "qualitySource": "flat_preview_fallback",
+      "renderLoopMode": "webxr_animation_loop_with_preview_fallback",
+      "isPresenting": false,
+      "visibilityState": "visible"
+    },
+    "inputEvidence": {
+      "handModelCount": 0,
+      "handModelStatus": "pending_immersive_session",
+      "handRepresentationKind": "not_visible",
+      "handInputsObserved": 0,
+      "locomotionMode": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
+      "locomotionAttempt": "not_attempted",
+      "lastInputObservedAtMs": null,
+      "lastLocomotionAtMs": null,
+      "activeLocomotionSource": "none",
+      "inputSourceCount": 0,
+      "inputSourceKinds": [],
+      "keyboardVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrHandGestureVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrHandGestureState": {
+        "armed": false,
+        "dwellMs": 0,
+        "leftPinch": false,
+        "rightPinch": false,
+        "gestureDeadzoneMeters": 0.045,
+        "turnCooldownMs": 450,
+        "blockedReason": "missing_joints"
+      },
+      "xrInputSources": [],
+      "locomotionDiagnostics": {
+        "claimScope": "attempt_diagnostics_only",
+        "gamepadDeadzone": 0.18,
+        "handPinchThresholdMeters": 0.035,
+        "handGestureDeadzoneMeters": 0.045,
+        "handGestureTurnDeadzoneMeters": 0.055,
+        "gamepadSources": [],
+        "handGestureHands": [
+          {
+            "handedness": "left",
+            "jointsVisible": {
+              "wrist": false,
+              "indexTip": false,
+              "thumbTip": false
+            },
+            "pinchDistanceMeters": null,
+            "pinching": false,
+            "armed": false,
+            "dwellMs": 0,
+            "relativeOffsetMeters": null,
+            "movementCrossedDeadzone": false,
+            "blockedReason": "missing_joints"
+          },
+          {
+            "handedness": "right",
+            "jointsVisible": {
+              "wrist": false,
+              "indexTip": false,
+              "thumbTip": false
+            },
+            "pinchDistanceMeters": null,
+            "pinching": false,
+            "armed": false,
+            "dwellMs": 0,
+            "relativeOffsetMeters": null,
+            "movementCrossedDeadzone": false,
+            "blockedReason": "missing_joints"
+          }
+        ]
+      },
+      "rigPosition": {
+        "x": 0,
+        "z": -0.62
+      },
+      "xrHandSelectState": {
+        "status": "blocked",
+        "armed": false,
+        "dwellMs": 0,
+        "rightPinch": false,
+        "firedCount": 0,
+        "lastFiredAtMs": null,
+        "blockedReason": "trace_unavailable"
+      }
+    },
+    "textPanelEvidence": {
+      "source": "window.__openClinXrTextPanelEvidence",
+      "panelCount": 6,
+      "panels": [
+        {
+          "name": "openclinxr.ed_chest_pain_priority_v1.scenario-expectation-visual-review-panel",
+          "title": "ED Chest Pain",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 2.25,
+            "height": 0.82
+          },
+          "lineCount": 3,
+          "previewLines": [
+            "Crushing substernal chest pressure",
+            "BP 152/92, HR 104, RR 20, SpO2 96%",
+            "Nurse repeats vitals at minute seven"
+          ],
+          "contentHash": "46268a78",
+          "lastUpdatedAtMs": 378.4,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+          "title": "Actor Realism Requirements",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.8,
+            "height": 0.82
+          },
+          "lineCount": 3,
+          "previewLines": [
+            "No active dialogue actor requirement yet.",
+            "Select a trace action to show case-defined obligations.",
+            "Boundary: display only, not readiness proof."
+          ],
+          "contentHash": "bc14cf34",
+          "lastUpdatedAtMs": 1075.5,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "title": "Simulated EHR",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 2.3,
+            "height": 1.15
+          },
+          "lineCount": 10,
+          "previewLines": [
+            "Chief concern: Crushing substernal chest pressure",
+            "Vitals/context: BP 152/92, HR 104, RR 20, SpO2 96%",
+            "Interruption: Nurse repeats vitals at minute seven",
+            "Scenario: ED Chest Pain",
+            "Bundle scenario: ed_chest_pain_priority_v1 (selected match)",
+            "Station context: ED Chest Pain",
+            "Actor roster: patient_robert_hayes_v1:patient, nurse_maria_alvarez_v1:nurse, spouse_anna_hayes_v1:family",
+            "Equipment IDs: ecg_cart_equipment",
+            "Dialogue turns: opening_patient_chest_pain->patient_robert_hayes_v1, nurse_interruption_ecg->nurse_maria_alvarez_v1, spouse_anxiety_conte...",
+            "Room props: monitor"
+          ],
+          "contentHash": "fef800e8",
+          "lastUpdatedAtMs": 1075.2,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "title": "Live Dialogue",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.85,
+            "height": 0.95
+          },
+          "lineCount": 2,
+          "previewLines": [
+            "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
+            "Trace 0/3; missing 3"
+          ],
+          "contentHash": "4cc42020",
+          "lastUpdatedAtMs": 1075.3,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "title": "Input Evidence",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.65,
+            "height": 0.72
+          },
+          "lineCount": 9,
+          "previewLines": [
+            "Session: Desktop preview",
+            "Exam: 1/5 encounter; next ob_headache_preeclampsia_triage_v1",
+            "Note: 0 chars; not ready",
+            "Hands: pending_immersive_session; observed 0; rep not_visible",
+            "Gesture: missing_joints",
+            "Trace hand select: blocked; dwell 0ms; trace_unavailable",
+            "Movement: none observed; probe no_gamepad_sources; ctrl 0/0; hand 0/2",
+            "Speech affect: speech affect pending",
+            "Capture: 22 blockers; vr 0; window 5; gap headset_select_trace_latency_missing"
+          ],
+          "contentHash": "32ab7a05",
+          "lastUpdatedAtMs": 1076,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.reusable-pre-encounter-anteroom.patient-note-capture-cue",
+          "title": "Pre-Encounter",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.55,
+            "height": 0.72
+          },
+          "lineCount": 3,
+          "previewLines": [
+            "Review doorway context, then enter.",
+            "Patient note capture remains in this reusable exterior room.",
+            "Clinical scene beyond portal is encounter-generated."
+          ],
+          "contentHash": "27e76c6b",
+          "lastUpdatedAtMs": 375.2,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        }
+      ],
+      "limitations": [
+        "metadata_only_requires_foreground_headset_confirmation"
+      ]
+    },
+    "sceneAssetEvidence": {
+      "source": "window.__openClinXrSceneAssetEvidence",
+      "generatedAtMs": 711.4,
+      "expectedAssetCount": 5,
+      "loadedCount": 4,
+      "failedCount": 0,
+      "pendingCount": 1,
+      "fallbackActiveCount": 1,
+      "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+      "visualFidelityCueIds": [
+        "generated_humanoid_front_fidelity_badge",
+        "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+        "room_prop_label_occlusion_reduced",
+        "generated_humanoid_generator_native_front_orientation_preserved",
+        "humanoid_interaction_target_decluttered",
+        "generated_humanoid_facial_features_unobscured",
+        "visible_runtime_mouth_eye_expression_cues"
+      ],
+      "interactionCollisionEvidence": {
+        "proxyCueCount": 2,
+        "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+        "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+        "notEvidenceFor": [
+          "production_physics_readiness",
+          "validated_ragdoll_biomechanics",
+          "learner_readiness"
+        ]
+      },
+      "assets": [
+        {
+          "assetId": "ecg",
+          "assetPath": "/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+          "sceneObjectName": "ecg",
+          "status": "loaded",
+          "fallbackActive": true,
+          "affordanceCueIds": [
+            "ecg:case_definition_equipment_loaded_from_runtime_bundle",
+            "ecg:mismatched_placeholder_equipment_glb_suppressed",
+            "ecg:semantic_pediatric_equipment_cues_visible"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "ed_environment",
+          "assetPath": "/xr-assets/environment/ed-exam-bay-shell.glb",
+          "sceneObjectName": "ed_environment",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "ed_environment:room_boundary_reference",
+            "ed_environment:spatial_orientation_cue"
+          ],
+          "animationPlayback": "not_applicable"
+        },
+        {
+          "assetId": "nurse",
+          "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+          "sceneObjectName": "nurse",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "nurse:dialogue_target",
+            "nurse:clinical_observation_target",
+            "nurse:generated_humanoid_hair_clothing_eye_detail_cue",
+            "nurse:phoneme_viseme_dialogue_cue",
+            "nurse:dialogue_gaze_target_cue",
+            "nurse:dialogue_eye_focus_target_cue",
+            "nurse:scenario_emotion_expression_cue",
+            "nurse:visible_runtime_mouth_shape_cue",
+            "nurse:visible_runtime_eye_focus_cue",
+            "nurse:visible_runtime_eyebrow_jaw_cheek_cue",
+            "nurse:face_lip_eye_rig_contract_cue",
+            "nurse:ragdoll_collision_proxy_cue",
+            "nurse:physician_interaction_target_cue",
+            "nurse:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "gltf_animation_clips_playing",
+          "roleAnimationClipNames": [],
+          "activeRoleAnimationClipName": null,
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "gaze_probe_clip_missing"
+        },
+        {
+          "assetId": "patient",
+          "assetPath": "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb",
+          "sceneObjectName": "patient",
+          "status": "pending",
+          "fallbackActive": false,
+          "humanoidSourceProvenance": {
+            "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+            "sourceKind": "source_comparator_candidate",
+            "usesRealAnnyForwardPass": true,
+            "realAnnyWeightsUsed": false,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+            "realismGrade": "B",
+            "notEvidenceFor": [
+              "b_plus_visual_realism_gate",
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity",
+              "default_runtime_asset_replacement",
+              "generated_output_committed_to_git"
+            ],
+            "provenanceManifestPath": "ignored_public_cagematch/anny-real-garment/current/peds_patient_child_real_garment_rigging_report.json"
+          }
+        },
+        {
+          "assetId": "spouse",
+          "assetPath": "/xr-assets/humanoids/neutral-generated-human.glb",
+          "sceneObjectName": "spouse",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "spouse:dialogue_target",
+            "spouse:clinical_observation_target",
+            "spouse:generated_humanoid_hair_clothing_eye_detail_cue",
+            "spouse:phoneme_viseme_dialogue_cue",
+            "spouse:dialogue_gaze_target_cue",
+            "spouse:dialogue_eye_focus_target_cue",
+            "spouse:scenario_emotion_expression_cue",
+            "spouse:visible_runtime_mouth_shape_cue",
+            "spouse:visible_runtime_eye_focus_cue",
+            "spouse:visible_runtime_eyebrow_jaw_cheek_cue",
+            "spouse:face_lip_eye_rig_contract_cue",
+            "spouse:ragdoll_collision_proxy_cue",
+            "spouse:physician_interaction_target_cue",
+            "spouse:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "gltf_animation_clips_playing",
+          "roleAnimationClipNames": [],
+          "activeRoleAnimationClipName": null,
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "gaze_probe_clip_missing"
+        }
+      ],
+      "productionAssetReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity"
+      ]
+    },
+    "traceLatencyEvidence": {
+      "lastTraceTag": null,
+      "lastSelectLatencyMs": null,
+      "source": "xr_hand_select",
+      "measuredAtMs": 1074.3,
+      "productionControllerLatencySubstitute": false,
+      "interactionDetail": {
+        "modality": "hand_pinch_select",
+        "handedness": "right",
+        "status": "blocked",
+        "blockedReason": "trace_unavailable",
+        "dwellMs": 0,
+        "firedCount": 0,
+        "rightPinch": false
+      }
+    },
+    "xrEntryEvidence": {
+      "sessionMode": "immersive-vr",
+      "attempts": 0,
+      "lastStatus": "not_requested",
+      "lastRequestedAtMs": null,
+      "lastUpdatedAtMs": 345.2,
+      "lastError": null
+    },
+    "manualPerformanceDraft": {
+      "generatedAt": "2026-08-02T23:09:42.179Z",
+      "runContext": {
+        "performedBy": "",
+        "durationMinutes": 0,
+        "notes": "Complete this during a foreground in-headset Quest Browser run."
+      },
+      "setup": {
+        "foregroundPageConfirmed": true,
+        "devtoolsScreencastDisabled": false,
+        "extraBrowserWindowsClosed": false
+      },
+      "station": {
+        "shellLoaded": true,
+        "traceInteractionPassed": false,
+        "traceInteractionAttempt": "xr_hand_select_attempted_no_runtime_event",
+        "textReadable": true,
+        "immersiveSessionStarted": false,
+        "consoleErrors": []
+      },
+      "experience": {
+        "modeId": "full_vr",
+        "phaseLabel": "Phase 1 Full VR",
+        "requestedSessionMode": "immersive-vr",
+        "mixedRealityPassthroughImplemented": false,
+        "handTrackingPosture": "optional_feature_with_local_mesh_hand_model_and_primitive_fallback",
+        "locomotionPosture": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly"
+      },
+      "input": {
+        "handModelCount": 0,
+        "handModelStatus": "pending_immersive_session",
+        "handRepresentationKind": "not_visible",
+        "handInputsObserved": 0,
+        "locomotionMode": "room_scale_keyboard_thumbstick_and_hand_gesture_dolly",
+        "locomotionAttempt": "not_attempted",
+        "lastInputObservedAtMs": null,
+        "lastLocomotionAtMs": null,
+        "activeLocomotionSource": "none",
+        "inputSourceCount": 0,
+        "inputSourceKinds": [],
+        "keyboardVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrHandGestureVector": {
+          "forward": 0,
+          "strafe": 0,
+          "turn": 0
+        },
+        "xrHandGestureState": {
+          "armed": false,
+          "dwellMs": 0,
+          "leftPinch": false,
+          "rightPinch": false,
+          "gestureDeadzoneMeters": 0.045,
+          "turnCooldownMs": 450,
+          "blockedReason": "missing_joints"
+        },
+        "xrInputSources": [],
+        "locomotionDiagnostics": {
+          "claimScope": "attempt_diagnostics_only",
+          "gamepadDeadzone": 0.18,
+          "handPinchThresholdMeters": 0.035,
+          "handGestureDeadzoneMeters": 0.045,
+          "handGestureTurnDeadzoneMeters": 0.055,
+          "gamepadSources": [],
+          "handGestureHands": [
+            {
+              "handedness": "left",
+              "jointsVisible": {
+                "wrist": false,
+                "indexTip": false,
+                "thumbTip": false
+              },
+              "pinchDistanceMeters": null,
+              "pinching": false,
+              "armed": false,
+              "dwellMs": 0,
+              "relativeOffsetMeters": null,
+              "movementCrossedDeadzone": false,
+              "blockedReason": "missing_joints"
+            },
+            {
+              "handedness": "right",
+              "jointsVisible": {
+                "wrist": false,
+                "indexTip": false,
+                "thumbTip": false
+              },
+              "pinchDistanceMeters": null,
+              "pinching": false,
+              "armed": false,
+              "dwellMs": 0,
+              "relativeOffsetMeters": null,
+              "movementCrossedDeadzone": false,
+              "blockedReason": "missing_joints"
+            }
+          ]
+        },
+        "rigPosition": {
+          "x": 0,
+          "z": -0.62
+        },
+        "xrHandSelectState": {
+          "status": "blocked",
+          "armed": false,
+          "dwellMs": 0,
+          "rightPinch": false,
+          "firedCount": 0,
+          "lastFiredAtMs": null,
+          "blockedReason": "trace_unavailable"
+        }
+      },
+      "traceLatencyProxy": {
+        "lastTraceTag": null,
+        "lastSelectLatencyMs": null,
+        "source": "xr_hand_select",
+        "measuredAtMs": 1074.3,
+        "productionControllerLatencySubstitute": false,
+        "interactionDetail": {
+          "modality": "hand_pinch_select",
+          "handedness": "right",
+          "status": "blocked",
+          "blockedReason": "trace_unavailable",
+          "dwellMs": 0,
+          "firedCount": 0,
+          "rightPinch": false
+        }
+      },
+      "performance": {
+        "avgFps": 8.4,
+        "p95FrameMs": 527,
+        "minimumObservedFps": 1.9,
+        "controllerSelectLatencyMs": null,
+        "source": "window.__openClinXrFrameStats",
+        "framesObserved": 7,
+        "sampleWindowSize": 6,
+        "firstFrameAtMs": 358.4,
+        "previewFramesObserved": 7,
+        "immersiveFramesObserved": 0
+      },
+      "reproducibility": {
+        "source": "browser_runtime",
+        "url": "http://localhost:5173/?humanoidSourceComparator=ed_anny_real_garment_patient&capture=physics-clinical-touch&openclinxrScenarioId=ed_chest_pain_priority_v1&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&questSmoke=physics-ragdoll-power-through-2026-08-02",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/149.1.0.10.52.1018773329 Chrome/149.0.7827.197 VR Safari/537.36",
+        "browserVersionHints": {
+          "oculusBrowser": "149.1.0.10.52.1018773329",
+          "chrome": "149.0.7827.197"
+        },
+        "app": {
+          "packageName": "@openclinxr/ui-xr",
+          "version": "0.1.0",
+          "gitCommit": "0e7d4839bd32",
+          "buildTime": "2026-08-02T23:09:22.473Z",
+          "mode": "development"
+        },
+        "webXr": {
+          "navigatorXrPresent": true,
+          "immersiveVrSupported": true,
+          "immersiveVrSupportCheckedAtMs": 354.6,
+          "immersiveArSupported": true,
+          "immersiveArSupportCheckedAtMs": 399.2,
+          "supportError": null
+        },
+        "display": {
+          "viewportWidth": 1280,
+          "viewportHeight": 670,
+          "screenWidth": 1280,
+          "screenHeight": 800,
+          "devicePixelRatio": 1,
+          "visibilityState": "visible"
+        },
+        "limitations": [
+          "browser_reported_metadata_not_device_firmware_proof",
+          "display_refresh_rate_inferred_from_frame_cadence"
+        ]
+      },
+      "comfort": {
+        "motionComfort": "not_run",
+        "heatConcern": null,
+        "batteryDropPercent": null
+      }
+    },
+    "canvas": {
+      "width": 860,
+      "height": 670,
+      "clientWidth": 860,
+      "clientHeight": 670,
+      "dataUrlLength": 87658
+    }
+  },
+  "interaction": {
+    "beforeTrace": "Trace 0/3",
+    "afterTrace": "Trace 0/3",
+    "traceActionsAdvancedBy": 0,
+    "clickedEcg": false,
+    "clickedUrgent": false,
+    "hasViteOverlay": false,
+    "dialogue": "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
+    "traceLatencyEvidence": {
+      "lastTraceTag": null,
+      "lastSelectLatencyMs": null,
+      "source": "xr_hand_select",
+      "measuredAtMs": 1891.8,
+      "productionControllerLatencySubstitute": false,
+      "interactionDetail": {
+        "modality": "hand_pinch_select",
+        "handedness": "right",
+        "status": "blocked",
+        "blockedReason": "trace_unavailable",
+        "dwellMs": 0,
+        "firedCount": 0,
+        "rightPinch": false
+      }
+    }
+  },
+  "frameSample": {
+    "framesObserved": 116,
+    "framesObservedDuringProbe": 93,
+    "sampleCount": 115,
+    "timedOut": false,
+    "elapsedWallMs": 2002.2,
+    "latestFrameAgeMs": 22,
+    "avgFrameMs": 30.82,
+    "p95FrameMs": 69.8,
+    "maxFrameMs": 548.7,
+    "approxFps": 32.4,
+    "latestFrameDeltaMs": 11.2,
+    "sampleWindowMs": 3544.6,
+    "longFrameCountOver33Ms": 31,
+    "longFrameRatio": 0.27,
+    "previewFramesObserved": 116,
+    "immersiveFramesObserved": 0,
+    "qualitySource": "webxr_animation_loop",
+    "renderLoopMode": "webxr_animation_loop_with_preview_fallback",
+    "isPresenting": false,
+    "visibilityState": "visible",
+    "iwsdkEvidence": null
+  },
+  "verdict": {
+    "shellLoaded": true,
+    "interactionAdvanced": false,
+    "frameSampleComplete": true,
+    "immersiveEntryOutcome": "not_requested",
+    "blockers": [
+      "quest_trace_interaction_not_advanced"
+    ]
+  }
+}

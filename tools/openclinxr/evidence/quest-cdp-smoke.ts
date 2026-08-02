@@ -175,7 +175,9 @@ async function main(): Promise<void> {
   await adb(["reverse", `tcp:${options.appPort}`, `tcp:${options.appPort}`]);
   await adb(["forward", `tcp:${options.cdpPort}`, "localabstract:chrome_devtools_remote"]);
   if (!options.skipLaunch) {
-    await adb(["shell", "am", "start", "-a", "android.intent.action.VIEW", "-d", options.url, "com.oculus.browser"]);
+    // Multi-query URLs contain `&`; remote `sh` splits argv unless -d is single-quoted
+    // inside one `adb shell` remote command string (see buildQuestBrowserViewIntentArgs).
+    await adb(buildQuestBrowserViewIntentArgs(options.url));
     await delay(750);
   }
 
@@ -409,6 +411,28 @@ function requireValue(args: string[], index: number, flag: string): string {
     throw new Error(`${flag} requires a value`);
   }
   return value;
+}
+
+/**
+ * Build `adb` argv that opens Quest Browser with a VIEW intent for `url`.
+ *
+ * Multi-query URLs contain `&`. Passing them as separate `adb shell am start … -d <url>`
+ * argv tokens is unsafe: the device remote shell still joins and re-parses the line, so
+ * `&` backgrounds the process and yields `com.oculus.browser: inaccessible or not found`.
+ *
+ * Fix: one remote shell command string with single-quoted `-d 'url'` (classic `'` → `'\''`).
+ */
+export function buildQuestBrowserViewIntentArgs(url: string): string[] {
+  const remoteShellQuotedUrl = escapeForRemoteShellSingleQuotes(url);
+  return [
+    "shell",
+    `am start -a android.intent.action.VIEW -d '${remoteShellQuotedUrl}' com.oculus.browser`,
+  ];
+}
+
+/** Escape a string for inclusion inside single quotes on Android remote `sh`. */
+export function escapeForRemoteShellSingleQuotes(value: string): string {
+  return value.replace(/'/g, "'\\''");
 }
 
 async function adb(args: string[]): Promise<string> {

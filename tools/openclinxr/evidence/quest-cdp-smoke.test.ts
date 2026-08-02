@@ -3,11 +3,13 @@ import {
   browserSnapshotExpression,
   buildCdpUnavailableReport,
   buildManualEvidenceHarvestPayload,
+  buildQuestBrowserViewIntentArgs,
   buildQuestSmokeEvidenceCheck,
   buildReport,
   type CdpPage,
   enterVrButtonRectExpression,
   enterVrCompletionExpression,
+  escapeForRemoteShellSingleQuotes,
   fetchQuestCdpPages,
   frameSampleExpression,
   interactionExpression,
@@ -71,6 +73,45 @@ function healthyFrameSampleRuntimeEvidence(): Record<string, unknown> {
 }
 
 describe("Quest CDP smoke probe", () => {
+  describe("buildQuestBrowserViewIntentArgs", () => {
+    it("keeps multi-query URLs intact via single-quoted -d inside one remote shell command", () => {
+      const url = "http://localhost:5183/?scene=ed&physics=1&tick=2";
+      const args = buildQuestBrowserViewIntentArgs(url);
+
+      expect(args).toEqual([
+        "shell",
+        "am start -a android.intent.action.VIEW -d 'http://localhost:5183/?scene=ed&physics=1&tick=2' com.oculus.browser",
+      ]);
+      // Remote shell must see one command string (not split argv) so `&` is not job-control.
+      expect(args).toHaveLength(2);
+      expect(args[1]).toContain("&");
+      expect(args[1]).toMatch(/-d 'http:\/\/localhost:5183\/\?scene=ed&physics=1&tick=2'/);
+      // Must not use separate unquoted -d tokens that adb shell re-parses.
+      expect(args).not.toContain(url);
+    });
+
+    it("quotes plain URLs without query strings", () => {
+      const url = "http://localhost:5173/";
+      expect(buildQuestBrowserViewIntentArgs(url)).toEqual([
+        "shell",
+        "am start -a android.intent.action.VIEW -d 'http://localhost:5173/' com.oculus.browser",
+      ]);
+    });
+
+    it("escapes single quotes in the URL for remote shell single-quoting", () => {
+      const url = "http://localhost:5173/?q=o'brien&scene=ed";
+      const args = buildQuestBrowserViewIntentArgs(url);
+      const remoteCommand = args[1] ?? "";
+
+      expect(args[0]).toBe("shell");
+      expect(escapeForRemoteShellSingleQuotes("o'brien")).toBe("o'\\''brien");
+      // Classic sh: '…'\''…' so the embedded apostrophe is literal; multi-& still quoted.
+      expect(remoteCommand).toBe(
+        "am start -a android.intent.action.VIEW -d 'http://localhost:5173/?q=o'\\''brien&scene=ed' com.oculus.browser",
+      );
+    });
+  });
+
   it("parses default and explicit CLI options", () => {
     expect(parseArgs([])).toMatchObject({
       url: "http://localhost:5173/",
