@@ -16,7 +16,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - current-reference: 190
 - decision-record: 19
 - evidence: 31
-- historical-synthesis: 55
+- historical-synthesis: 56
 - protected-policy: 10
 
 ## Highest-Value Current Navigation

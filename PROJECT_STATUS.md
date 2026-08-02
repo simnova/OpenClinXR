@@ -92,6 +92,16 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-02 temporal-review-grok-tokens-weekly (Q5)
+
+Product path advanced: Weekly cadence for Turbo + Grok token temporal items. **Executed** grok token revisit: native Grok already emits tokens on child sessions + signals.json; wired `parseGrokSubagentCompletions` (31/31 sample peaks). ccusage demoted to optional cross-harness secondary. Review note `docs/agent-ops/2026-08-02-temporal-review-grok-tokens.md`.
+
+Blueprint/factory tie: Q5 harness measurement truthfulness.
+
+Evidence: agent-loop 115/115; live subagent token probe; catalog nextReview 2026-08-09 weekly.
+
+Next: weekly recheck; optional Turbo weekly pin review 2026-08-09.
+
 ### 2026-08-02 temporal-decisions-workflow-v1 (Q5 harness)
 
 Product path advanced: Operationalized **temporal decision revisit** under PMO — catalog time-bound workarounds/pins so they are not left permanent (ccusage dual-path, Grok subagent tokens, DeepSeek vision, IWSDK/Turbo pins, product-under-os metrics). CLI `pnpm temporal:review` list/due/measure/queue/register/mark/reschedule; SessionStart hygiene banner includes TEMPORAL DUE line; warm queue `temporal-review-queue.md`. Analysis is analysisOwnerRole; PMO catalogs only.

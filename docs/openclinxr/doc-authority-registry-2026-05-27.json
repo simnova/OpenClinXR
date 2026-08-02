@@ -10,7 +10,7 @@
     "evidence": 31,
     "protected-policy": 10,
     "agent-memory": 34,
-    "historical-synthesis": 55,
+    "historical-synthesis": 56,
     "decision-record": 19
   },
   "entries": [
@@ -2081,6 +2081,13 @@
     },
     {
       "path": "docs/agent-ops/2026-08-02-roster-review.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-temporal-review-grok-tokens.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",

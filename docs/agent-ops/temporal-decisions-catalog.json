@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.temporal-decisions-catalog.v1",
-  "updatedAt": "2026-08-02T08:00:00.000Z",
+  "updatedAt": "2026-08-02T07:41:12.202Z",
   "ownerRole": "pmo",
   "processDoc": "docs/agent-ops/TEMPORAL-DECISIONS.md",
   "items": [
@@ -10,8 +10,8 @@
       "decidedAt": "2026-06-06",
       "context": "Grok Build lacked reliable post-subagent token emission at the time; slice-token ritual uses ccusage daily deltas plus ~/.grok/sessions updates.jsonl peaks.",
       "revisitWhy": "If Grok now emits tokens used after spawn_subagent completes (or native session accounting is sufficient), simplify or retire ccusage dual-path.",
-      "cadenceDays": 60,
-      "nextReviewAt": "2026-10-01",
+      "cadenceDays": 7,
+      "nextReviewAt": "2026-08-09",
       "priority": 1,
       "status": "open",
       "analysisOwnerRole": "openclaw-drift-police",
@@ -23,7 +23,15 @@
         "agents/rules/grok-harness-usage.md"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["grok", "tokens", "workaround", "harness"]
+      "tags": [
+        "grok",
+        "tokens",
+        "workaround",
+        "harness"
+      ],
+      "notes": "2026-08-02: KEEP as optional cross-harness only; not required for Grok-only slices. Weekly recheck.",
+      "lastReviewAt": "2026-08-02",
+      "lastVerdict": "KEEP_secondary"
     },
     {
       "id": "grok-subagent-token-emit",
@@ -31,8 +39,8 @@
       "decidedAt": "2026-08-02",
       "context": "product-under-os experiment noted weak ccusage signal; desire for harness to report tokens per child completion.",
       "revisitWhy": "Check Grok Build / spawn_subagent APIs for completion token fields; wire into slice-token finish if available.",
-      "cadenceDays": 45,
-      "nextReviewAt": "2026-09-16",
+      "cadenceDays": 7,
+      "nextReviewAt": "2026-08-09",
       "priority": 1,
       "status": "open",
       "analysisOwnerRole": "openclaw-drift-police",
@@ -42,7 +50,14 @@
         "tools/openclinxr/openclaw/grok-token-io.ts"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["grok", "tokens", "harness"]
+      "tags": [
+        "grok",
+        "tokens",
+        "harness"
+      ],
+      "notes": "2026-08-02 review: Grok emits totalTokens on child sessions + signals.json. Implemented parseGrokSubagentCompletions; ccusage demoted to optional Codex cross-check. Primary=native Grok.",
+      "lastReviewAt": "2026-08-02",
+      "lastVerdict": "REPLACE_primary_KEEP_ccusage_secondary"
     },
     {
       "id": "deepseek-vision-routing",
@@ -62,7 +77,11 @@
         "docs/agent-ops/CAPABILITY-EVOLUTION.md"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["deepseek", "vision", "models"]
+      "tags": [
+        "deepseek",
+        "vision",
+        "models"
+      ]
     },
     {
       "id": "iwsdk-sidecar-version-pin",
@@ -82,7 +101,11 @@
         "docs/openclinxr/iwsdk-codex-mcp-runbook.md"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["iwsdk", "stack", "xr"]
+      "tags": [
+        "iwsdk",
+        "stack",
+        "xr"
+      ]
     },
     {
       "id": "turborepo-version-and-cache",
@@ -90,8 +113,8 @@
       "decidedAt": "2026-05-27",
       "context": "Turbo used for monorepo tasks; remote cache optional/deferred; some cache policies in architecture tests.",
       "revisitWhy": "Review Turbo major/minor for task graph, affected, and remote-cache options within approved boundaries (no unapproved cloud).",
-      "cadenceDays": 120,
-      "nextReviewAt": "2026-12-01",
+      "cadenceDays": 7,
+      "nextReviewAt": "2026-08-09",
       "priority": 3,
       "status": "open",
       "analysisOwnerRole": "architect",
@@ -102,7 +125,12 @@
         "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["turbo", "stack", "monorepo"]
+      "tags": [
+        "turbo",
+        "stack",
+        "monorepo"
+      ],
+      "notes": "cadence→weekly 2026-08-02 (Turbo releases fast)"
     },
     {
       "id": "product-under-os-metrics-dual-path",
@@ -121,7 +149,11 @@
         "docs/agent-ops/TEMPORAL-DECISIONS.md"
       ],
       "outcomeCreatesWork": true,
-      "tags": ["metrics", "os", "experiment"]
+      "tags": [
+        "metrics",
+        "os",
+        "experiment"
+      ]
     }
   ]
 }

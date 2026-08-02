@@ -42,6 +42,28 @@ export type GrokSessionTokenSnapshot = {
   modelIdsSeen: string[];
   toolCallCount: number;
   turnCount: number;
+  /** signals.json contextTokensUsed when available (structured Grok native) */
+  signalsContextTokens?: number;
+  /** parent | subagent-child */
+  kind?: "session" | "subagent";
+  parentSessionId?: string;
+  subagentType?: string;
+  effectiveModelId?: string;
+};
+
+export type GrokSubagentTokenSnapshot = {
+  subagentId: string;
+  parentSessionId: string;
+  childSessionId: string;
+  subagentType: string;
+  status: string;
+  durationMs: number | null;
+  toolCalls: number | null;
+  effectiveModelId: string | null;
+  peakTotalTokens: number;
+  finalTotalTokens: number;
+  signalsContextTokens: number | null;
+  source: "child_session_updates" | "child_session_signals" | "meta_only";
 };
 
 export type GrokWorkspaceTokenSnapshot = {
@@ -53,6 +75,10 @@ export type GrokWorkspaceTokenSnapshot = {
   flashSessionCount: number;
   proSessionCount: number;
   composerSessionCount: number;
+  /** Completed subagent child-session token peaks (native Grok; 2026-08 review) */
+  subagentCompletions?: GrokSubagentTokenSnapshot[];
+  subagentPeakMax?: number;
+  subagentCount?: number;
 };
 
 export type GrokSliceTokenBaseline = {
@@ -109,9 +135,19 @@ export const GROK_TOKEN_THRESHOLDS = {
 export function classifyGrokModelTier(modelId: string): GrokModelTierClass {
   const normalized = modelId.toLowerCase();
   if (normalized.includes("deepseek") && normalized.includes("flash")) return "flash";
-  if (normalized.includes("deepseek") && normalized.includes("pro")) return "pro";
+  if (normalized.includes("deepseek") && (normalized.includes("pro") || normalized.includes("v4-pro"))) {
+    return "pro";
+  }
   if (normalized.includes("grok-build")) return "frontier";
-  if (normalized.includes("composer") || normalized.includes("grok-composer")) return "composer";
+  // Parent/main Grok models count as composer-class for thrash detection
+  if (
+    normalized.includes("composer") ||
+    normalized.includes("grok-composer") ||
+    normalized.includes("grok-4") ||
+    normalized === "grok-4.5"
+  ) {
+    return "composer";
+  }
   return "unknown";
 }
 
@@ -141,7 +177,10 @@ export function parseCcusageDailyPayload(payload: unknown, period?: string): Ccu
   };
 }
 
-export function summarizeGrokWorkspaceSessions(sessions: GrokSessionTokenSnapshot[]): GrokWorkspaceTokenSnapshot {
+export function summarizeGrokWorkspaceSessions(
+  sessions: GrokSessionTokenSnapshot[],
+  subagentCompletions: GrokSubagentTokenSnapshot[] = [],
+): GrokWorkspaceTokenSnapshot {
   let maxPeakTotalTokens = 0;
   let scoutPeakBaseline = 0;
   let proPeakBaseline = 0;
@@ -167,6 +206,23 @@ export function summarizeGrokWorkspaceSessions(sessions: GrokSessionTokenSnapsho
     }
   }
 
+  let subagentPeakMax = 0;
+  for (const sub of subagentCompletions) {
+    subagentPeakMax = Math.max(subagentPeakMax, sub.peakTotalTokens);
+    maxPeakTotalTokens = Math.max(maxPeakTotalTokens, sub.peakTotalTokens);
+    const tier = classifyGrokModelTier(sub.effectiveModelId ?? "");
+    if (tier === "flash") {
+      flashSessionCount += 1;
+      scoutPeakBaseline = Math.max(scoutPeakBaseline, sub.peakTotalTokens);
+    } else if (tier === "pro") {
+      proSessionCount += 1;
+      proPeakBaseline = Math.max(proPeakBaseline, sub.peakTotalTokens);
+    } else if (tier === "composer" || tier === "frontier") {
+      composerSessionCount += 1;
+      composerPeakBaseline = Math.max(composerPeakBaseline, sub.peakTotalTokens);
+    }
+  }
+
   return {
     sessions,
     maxPeakTotalTokens,
@@ -176,6 +232,9 @@ export function summarizeGrokWorkspaceSessions(sessions: GrokSessionTokenSnapsho
     flashSessionCount,
     proSessionCount,
     composerSessionCount,
+    subagentCompletions,
+    subagentPeakMax,
+    subagentCount: subagentCompletions.length,
   };
 }
 
@@ -185,6 +244,7 @@ export function buildGrokSliceTokenBaseline(input: {
   capturedAt?: string;
   ccusageDaily: CcusageSnapshot;
   grokSessions: GrokSessionTokenSnapshot[];
+  subagentCompletions?: GrokSubagentTokenSnapshot[];
 }): GrokSliceTokenBaseline {
   return {
     schemaVersion: "openclinxr.grok-tier-slice-baseline.v1",
@@ -192,7 +252,10 @@ export function buildGrokSliceTokenBaseline(input: {
     declaredTier: input.declaredTier,
     capturedAt: input.capturedAt ?? new Date().toISOString(),
     ccusageDaily: input.ccusageDaily,
-    grokWorkspace: summarizeGrokWorkspaceSessions(input.grokSessions),
+    grokWorkspace: summarizeGrokWorkspaceSessions(
+      input.grokSessions,
+      input.subagentCompletions ?? [],
+    ),
   };
 }
 
@@ -294,9 +357,13 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
   baseline: GrokSliceTokenBaseline | null;
   currentCcusage: CcusageSnapshot;
   currentGrokSessions: GrokSessionTokenSnapshot[];
+  subagentCompletions?: GrokSubagentTokenSnapshot[];
   generatedAt?: string;
 }): GrokSliceTokenIntrospectionReport {
-  const currentGrok = summarizeGrokWorkspaceSessions(input.currentGrokSessions);
+  const currentGrok = summarizeGrokWorkspaceSessions(
+    input.currentGrokSessions,
+    input.subagentCompletions ?? [],
+  );
   const baselineCcusage = input.baseline?.ccusageDaily ?? {
     available: false,
     period: input.currentCcusage.period,
@@ -355,11 +422,18 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
         : "pro";
   const newProSessions = Math.max(0, currentGrok.proSessionCount - baselineGrok.proSessionCount);
   const grokModelsSeen = [
-    ...new Set(currentGrok.sessions.flatMap((session) => session.modelIdsSeen)),
+    ...new Set([
+      ...currentGrok.sessions.flatMap((session) => session.modelIdsSeen),
+      ...(currentGrok.subagentCompletions ?? [])
+        .map((s) => s.effectiveModelId)
+        .filter((m): m is string => Boolean(m)),
+    ]),
   ].sort();
   const ccusageModels = input.currentCcusage.modelsUsed.length > 0
     ? input.currentCcusage.modelsUsed.join("|")
     : "none";
+  const subCount = currentGrok.subagentCount ?? 0;
+  const subPeak = currentGrok.subagentPeakMax ?? 0;
 
   return {
     schemaVersion: "openclinxr.grok-tier-slice-token-introspection.v1",
@@ -385,7 +459,8 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
     },
     violations,
     recommendations: [
-      "Record token posture in slice ledger: Token introspection + tier line.",
+      "Primary token source: Grok native sessions (updates.jsonl + signals.json) including subagent child sessions.",
+      "ccusage is optional cross-harness (Codex) check — not required for Grok-only slices.",
       hasViolation
         ? "Next slice: force explore+deepseek-v4-flash for read-only work before Composer integration."
         : "Token posture aligned with tier routing guidance.",
@@ -398,6 +473,7 @@ export function buildGrokSliceTokenIntrospectionReport(input: {
       `ccusageModels=${ccusageModels}`,
       `grok flash=${currentGrok.flashSessionCount} pro=${currentGrok.proSessionCount} composer=${currentGrok.composerSessionCount}`,
       `flashΔ=${newFlashSessions} proΔ=${newProSessions} composerΔ=${composerPeakDelta}`,
+      `subagents=${subCount} subPeak=${subPeak}`,
       `grokModels=${grokModelsSeen.join("|") || "none"}`,
       `ratio=${scoutVsComposerPeakRatio ?? "n/a"}`,
     ].join("; "),

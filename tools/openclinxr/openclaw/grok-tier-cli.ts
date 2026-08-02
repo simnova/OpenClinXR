@@ -24,6 +24,7 @@ import {
   captureSliceTokenBaseline,
   fetchCcusageDailySnapshot,
   parseGrokSessionTokens,
+  parseGrokSubagentCompletions,
   readSliceTokenBaseline,
 } from "./grok-token-io.js";
 
@@ -222,26 +223,35 @@ async function runSliceIntrospect(args: CliArgs): Promise<void> {
   const baseline = args.fromBaseline ? await readSliceTokenBaseline(repoRoot) : null;
   const sliceId = baseline?.sliceId ?? args.sliceId;
   const declaredTier = baseline?.declaredTier ?? args.currentTier;
+  const subagentCompletions = parseGrokSubagentCompletions();
   const report = buildGrokSliceTokenIntrospectionReport({
     sliceId,
     declaredTier,
     baseline,
     currentCcusage: await fetchCcusageDailySnapshot(),
     currentGrokSessions: parseGrokSessionTokens(),
+    subagentCompletions,
   });
   const outputPath = path.join(repoRoot, args.outputPath === DEFAULT_INTROSPECTION_PATH ? DEFAULT_SLICE_TOKEN_REPORT_PATH : args.outputPath);
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
+  // Also write subagent completion snapshot for debugging native token path
+  await writeFile(
+    path.join(repoRoot, ".openclinxr/openclaw/grok-subagent-tokens-latest.json"),
+    `${JSON.stringify({ generatedAt: report.generatedAt, count: subagentCompletions.length, items: subagentCompletions.slice(0, 40) }, null, 2)}\n`,
+  );
   await appendSliceTokenHistory(repoRoot, JSON.stringify({
     generatedAt: report.generatedAt,
     sliceId: report.sliceId,
     posture: report.posture,
     stateRecordLine: report.stateRecordLine,
+    subagentCount: subagentCompletions.length,
   }));
   if (args.json) {
     console.log(JSON.stringify(report, null, 2));
   } else {
     console.log(formatGrokSliceTokenBrief(report));
+    console.log(`Subagent completions with tokens: ${subagentCompletions.filter((s) => s.peakTotalTokens > 0).length}/${subagentCompletions.length}`);
     console.log(`\nWrote ${path.relative(repoRoot, outputPath)}`);
     console.log(`Ledger line: ${report.stateRecordLine}`);
   }
