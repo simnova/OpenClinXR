@@ -322,17 +322,21 @@
     ],
     "realGarmentRegion": {
       "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
+      "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
       "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
-      "faceCount": 324,
+      "faceCount": 380,
       "hasSleeveGeometry": true,
-      "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
-      "sleeveLenFactor": 0.28,
-      "sleeveRows": 7,
+      "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+      "sleeveLenFactor": 0.58,
+      "sleeveAlongArmM": 0.1915,
+      "sleeveRows": 9,
       "sleeveCols": 12,
-      "sleeveRFactor": 0.42,
+      "sleeveR0M": 0.0646,
+      "sleeveRFactor": 0.264,
+      "torsoRBaseM": 0.2446,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
+      "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
       "weightedBones": [
         "clavicle.L",
         "clavicle.R",
@@ -348,26 +352,26 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.557456,
-          0.6608,
-          0.093661
+          -0.357948,
+          0.8096,
+          0.03453
         ],
         "max": [
-          0.557456,
-          1.2686,
-          0.285135
+          0.357948,
+          1.3536,
+          0.344266
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.557456,
-          -0.285135,
-          0.6608
+          -0.357948,
+          -0.344266,
+          0.8096
         ],
         "max": [
-          0.557456,
-          -0.09366,
-          1.2686
+          0.357948,
+          -0.03453,
+          1.3536
         ]
       },
       "bodyLocalHeightRange": [
@@ -386,23 +390,27 @@
         "clinical_validity",
         "scoring_validity"
       ],
-      "evidenceForThisSlice": "garment-bind-pose-fix-parent-nurse-v1"
+      "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
     "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
+    "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
     "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
-    "faceCount": 324,
+    "faceCount": 380,
     "hasSleeveGeometry": true,
-    "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
-    "sleeveLenFactor": 0.28,
-    "sleeveRows": 7,
+    "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+    "sleeveLenFactor": 0.58,
+    "sleeveAlongArmM": 0.1915,
+    "sleeveRows": 9,
     "sleeveCols": 12,
-    "sleeveRFactor": 0.42,
+    "sleeveR0M": 0.0646,
+    "sleeveRFactor": 0.264,
+    "torsoRBaseM": 0.2446,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
+    "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
     "weightedBones": [
       "clavicle.L",
       "clavicle.R",
@@ -418,26 +426,26 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.557456,
-        0.6608,
-        0.093661
+        -0.357948,
+        0.8096,
+        0.03453
       ],
       "max": [
-        0.557456,
-        1.2686,
-        0.285135
+        0.357948,
+        1.3536,
+        0.344266
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.557456,
-        -0.285135,
-        0.6608
+        -0.357948,
+        -0.344266,
+        0.8096
       ],
       "max": [
-        0.557456,
-        -0.09366,
-        1.2686
+        0.357948,
+        -0.03453,
+        1.3536
       ]
     },
     "bodyLocalHeightRange": [
@@ -456,7 +464,7 @@
       "clinical_validity",
       "scoring_validity"
     ],
-    "evidenceForThisSlice": "garment-bind-pose-fix-parent-nurse-v1"
+    "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -544,7 +552,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-02T17:15:40.017320Z",
+    "generatedAt": "2026-08-02T17:40:59.350803Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

@@ -324,17 +324,21 @@
     ],
     "realGarmentRegion": {
       "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
+      "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
       "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
-      "faceCount": 324,
+      "faceCount": 380,
       "hasSleeveGeometry": true,
-      "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
-      "sleeveLenFactor": 0.28,
-      "sleeveRows": 7,
+      "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+      "sleeveLenFactor": 0.58,
+      "sleeveAlongArmM": 0.1813,
+      "sleeveRows": 9,
       "sleeveCols": 12,
-      "sleeveRFactor": 0.42,
+      "sleeveR0M": 0.0618,
+      "sleeveRFactor": 0.264,
+      "torsoRBaseM": 0.234,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
+      "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
       "weightedBones": [
         "clavicle.L",
         "clavicle.R",
@@ -350,26 +354,26 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.535008,
-          0.6228,
-          0.088938
+          -0.343258,
+          0.7636,
+          0.031857
         ],
         "max": [
-          0.535008,
-          1.1976,
-          0.271928
+          0.343258,
+          1.2776,
+          0.329009
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.535008,
-          -0.271928,
-          0.6228
+          -0.343258,
+          -0.329009,
+          0.7636
         ],
         "max": [
-          0.535008,
-          -0.088938,
-          1.1976
+          0.343258,
+          -0.031857,
+          1.2776
         ]
       },
       "bodyLocalHeightRange": [
@@ -388,23 +392,27 @@
         "clinical_validity",
         "scoring_validity"
       ],
-      "evidenceForThisSlice": "garment-bind-pose-fix-parent-nurse-v1"
+      "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
     "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
+    "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
     "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
-    "faceCount": 324,
+    "faceCount": 380,
     "hasSleeveGeometry": true,
-    "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
-    "sleeveLenFactor": 0.28,
-    "sleeveRows": 7,
+    "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+    "sleeveLenFactor": 0.58,
+    "sleeveAlongArmM": 0.1813,
+    "sleeveRows": 9,
     "sleeveCols": 12,
-    "sleeveRFactor": 0.42,
+    "sleeveR0M": 0.0618,
+    "sleeveRFactor": 0.264,
+    "torsoRBaseM": 0.234,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
+    "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
     "weightedBones": [
       "clavicle.L",
       "clavicle.R",
@@ -420,26 +428,26 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.535008,
-        0.6228,
-        0.088938
+        -0.343258,
+        0.7636,
+        0.031857
       ],
       "max": [
-        0.535008,
-        1.1976,
-        0.271928
+        0.343258,
+        1.2776,
+        0.329009
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.535008,
-        -0.271928,
-        0.6228
+        -0.343258,
+        -0.329009,
+        0.7636
       ],
       "max": [
-        0.535008,
-        -0.088938,
-        1.1976
+        0.343258,
+        -0.031857,
+        1.2776
       ]
     },
     "bodyLocalHeightRange": [
@@ -458,7 +466,7 @@
       "clinical_validity",
       "scoring_validity"
     ],
-    "evidenceForThisSlice": "garment-bind-pose-fix-parent-nurse-v1"
+    "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -543,7 +551,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-02T17:15:32.131610Z",
+    "generatedAt": "2026-08-02T17:40:49.693866Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

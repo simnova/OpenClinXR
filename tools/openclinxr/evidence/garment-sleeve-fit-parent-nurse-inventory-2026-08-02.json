@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "openclinxr.garment-sleeve-fit-parent-nurse-inventory.v1",
+  "sliceId": "garment-sleeve-fit-parent-nurse-v1",
+  "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
+  "generatedAt": "2026-08-02T17:41:52.243676+00:00",
+  "method": "blender_stage_on_existing_real_anny_base_obj (reuse public 13348-vert real_anny OBJs; no full Anny re-gen)",
+  "geometryChange": {
+    "problem": "boxy cyan mid-torso shell; sleeves hung -Y mid-body not along arms",
+    "before": {
+      "r_base": "max(body_width,body_depth)*0.47 \u2248 0.48 (arm-span driven)",
+      "sleeve_r0": "r_base*0.42 \u2248 0.20",
+      "sleeve_dir": "vertical -Y hang sleeve_len=body_height*0.28",
+      "sleeve_x": "fixed \u00b10.18..0.24 only",
+      "solidify": 0.014,
+      "torso_rows_cols": "8x12",
+      "sleeve_rows_cols": "7x12",
+      "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1"
+    },
+    "after": {
+      "r_base": "torso_half_w*1.06 from shoulder-band/depth \u2248 0.23-0.25",
+      "sleeve_r0": "body_depth*0.14 \u2248 0.06",
+      "sleeve_dir": "along upper_arm bone clavicle\u2192elbow (0.58*arm_len)",
+      "sleeve_x": "reaches elbow X (~\u00b10.34)",
+      "solidify": 0.008,
+      "torso_rows_cols": "9x14",
+      "sleeve_rows_cols": "9x12",
+      "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
+      "bindPose": "body_local_y_height preserved (Y upper torso not feet)"
+    }
+  },
+  "roles": {
+    "parent": {
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "glbBytes": 21550404,
+      "glbMB": 21.55,
+      "realGarmentRegion": {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
+        "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
+        "faceCount": 380,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+        "sleeveLenFactor": 0.58,
+        "sleeveAlongArmM": 0.1813,
+        "sleeveRows": 9,
+        "sleeveCols": 12,
+        "sleeveR0M": 0.0618,
+        "sleeveRFactor": 0.264,
+        "torsoRBaseM": 0.234,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.343258,
+            0.7636,
+            0.031857
+          ],
+          "max": [
+            0.343258,
+            1.2776,
+            0.329009
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.343258,
+            -0.329009,
+            0.7636
+          ],
+          "max": [
+            0.343258,
+            -0.031857,
+            1.2776
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.66
+        ],
+        "garmentLayers": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "role": "parent",
+        "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
+      }
+    },
+    "nurse": {
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "glbBytes": 23137552,
+      "glbMB": 23.14,
+      "realGarmentRegion": {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
+        "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+        "faceCount": 380,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_short_sleeve",
+        "sleeveLenFactor": 0.58,
+        "sleeveAlongArmM": 0.1915,
+        "sleeveRows": 9,
+        "sleeveCols": 12,
+        "sleeveR0M": 0.0646,
+        "sleeveRFactor": 0.264,
+        "torsoRBaseM": 0.2446,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.357948,
+            0.8096,
+            0.03453
+          ],
+          "max": [
+            0.357948,
+            1.3536,
+            0.344266
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.357948,
+            -0.344266,
+            0.8096
+          ],
+          "max": [
+            0.357948,
+            -0.03453,
+            1.3536
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.76
+        ],
+        "garmentLayers": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "role": "nurse",
+        "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1"
+      }
+    }
+  }
+}
