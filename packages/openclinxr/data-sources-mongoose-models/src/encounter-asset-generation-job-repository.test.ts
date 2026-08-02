@@ -82,8 +82,8 @@ describe("Encounter asset generation job Mongoose repository", () => {
       requestId: "encounter_assets_ed_chest_pain_001",
       azureQueueMessageId: "queue-message-1",
       status: "review_blocked",
-      createdAt: "2026-05-23T12:00:00.000Z",
-      updatedAt: "2026-05-23T12:09:00.000Z",
+      createdAt: "2026-05-23T12:01:00.000Z",
+      updatedAt: "2026-05-23T12:10:00.000Z",
       optimizationWindow: {
         expectedMaximumHours: 96,
         mayRunForDays: true,
