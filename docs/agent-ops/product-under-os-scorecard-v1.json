@@ -30,7 +30,7 @@
       "status": "pass",
       "bar": "Authoring follow-on done_when met (not peds template); verify ok",
       "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination; admin-ui-emission-bind-v1; peds-parent-nurse-real-garment-reorchestrate-v1; framing-polish-parent-nurse-garment-ui-xr-v1 (87454dc)",
-      "latest": "Q4 stack: wire-api+mongo+emission+admin-replay+EmissionReplayBindPanel; Q1/Q5 parent/nurse real garment reorch 324f + framing polish cyan capture 2026-08-02",
+      "latest": "Q4 live-artifact load a82fcc8; Q1 bind-pose + reorch parent/nurse; Q5 framing polish",
       "pass": true
     },
     "G5_os_goal": {
@@ -48,7 +48,8 @@
   ],
   "notes": [
     "Not a multi-week A/B. Sufficient for BOD: OS rules held under real product delivery.",
-    "2026-08-02 optimize pulse: alignment+drift green; Autonomy RUNNING; tip 87454dc parent/nurse dual Q1+Q5 visible; Q4 faculty emission bind closed."
+    "2026-08-02 optimize pulse: alignment+drift green; Autonomy RUNNING; tip 87454dc parent/nurse dual Q1+Q5 visible; Q4 faculty emission bind closed.",
+    "2026-08-02 heartbeat hygiene: dual 15m race pruned to 1x15m+1x30m; skip-closed-slice rule in prompts; tip a82fcc8 live-artifact load + bind-pose + framing."
   ],
   "evidencePaths": [
     "docs/agent-ops/product-under-os-scorecard-v1.json",
@@ -58,5 +59,5 @@
     "tools/openclinxr/scenario-authoring-roundtrip.ts",
     "packages/openclinxr/scenario-runtime/src/index.ts"
   ],
-  "updatedAt": "2026-08-02T17:12:28.100402+00:00"
+  "updatedAt": "2026-08-02T17:24:30.276275+00:00"
 }

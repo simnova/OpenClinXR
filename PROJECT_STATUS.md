@@ -25,7 +25,7 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** ui-admin-emission-live-artifact-load-v1 closed (Q4); autonomy continues via heartbeat.
+**Active slice:** residual empty post live-artifact+bind-pose; autonomy via 15m+30m heartbeats (skip-closed rule).
 
 ## Active Work
 
@@ -81,6 +81,11 @@ Last updated: 2026-06-07
 **Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
 
 **Blockers:** none
+
+### 2026-08-02 — heartbeat-hygiene-v1 (Q5) verify ok
+
+Product path advanced: Pruned triple concurrent 15m heartbeats that re-executed closed slices; recreated 1×15m + 1×30m durable schedulers with skip-closed + tip-first rehydrate. Blueprint/factory tie: Q5 factory continuity without toil. Evidence: schedulers recreated; alignment+drift green; tip a82fcc8. Next: continue-autonomy-run-next.
+
 
 ### 2026-08-02 — ui-admin-emission-live-artifact-load-v1 (Q4) verify ok
 
