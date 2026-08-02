@@ -18,14 +18,14 @@ export type UikitmlSpatialTextEvidence = {
   compiledConfigPath: typeof uikitmlSpatialTextCompiledConfigPath;
   documentName: typeof uikitmlSpatialTextDocumentName;
   packageVersions: {
-    vite: "8.0.10";
+    vite: "8.0.16";
     vitePluginUikitml: "0.4.2";
     pmndrsUikitml: "0.1.12";
     pmndrsUikit: "1.0.66";
   };
   vitePeerCompatibility: {
     pluginPeerRange: "^7.0.0";
-    observedViteVersion: "8.0.10";
+    observedViteVersion: "8.0.16";
     status: "peer_mismatch_runtime_verified_by_sidecar_build";
   };
   licensePosture: {
@@ -78,14 +78,14 @@ export function buildUikitmlSpatialTextEvidence(input: {
     compiledConfigPath: uikitmlSpatialTextCompiledConfigPath,
     documentName: uikitmlSpatialTextDocumentName,
     packageVersions: {
-      vite: "8.0.10",
+      vite: "8.0.16",
       vitePluginUikitml: "0.4.2",
       pmndrsUikitml: "0.1.12",
       pmndrsUikit: "1.0.66",
     },
     vitePeerCompatibility: {
       pluginPeerRange: "^7.0.0",
-      observedViteVersion: "8.0.10",
+      observedViteVersion: "8.0.16",
       status: "peer_mismatch_runtime_verified_by_sidecar_build",
     },
     licensePosture: {

@@ -24,7 +24,7 @@ describe("UIKitML spatial text sidecar posture", () => {
       "@iwsdk/vite-plugin-uikitml": "0.4.2",
       "@pmndrs/uikitml": "0.1.12",
       "@pmndrs/uikit": "1.0.66",
-      vite: "8.0.10",
+      vite: "8.0.16",
     });
     expect({ ...rootPackageJson.dependencies, ...rootPackageJson.devDependencies }).not.toHaveProperty(
       "@iwsdk/vite-plugin-uikitml",
@@ -49,7 +49,7 @@ describe("UIKitML spatial text sidecar posture", () => {
       readyForProductionSpatialUi: false,
       vitePeerCompatibility: {
         pluginPeerRange: "^7.0.0",
-        observedViteVersion: "8.0.10",
+        observedViteVersion: "8.0.16",
         status: "peer_mismatch_runtime_verified_by_sidecar_build",
       },
     });
