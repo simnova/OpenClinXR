@@ -1150,26 +1150,43 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # ed-gown-geo-reorchestrate: explicit is_gown branch for actual hospital_gown topology (looser/longer sleeves, denser folds, gown drape vs short tshirt); phenotype.garmentLayers drives; Q1 case->gown geo + Q5 cagematch/UI-XR visible; per skeptic handoff + MANDATE (expand geo/contrast for dual visible 3D deforming gown volume)
     if any(k in " ".join(garment_layers_lower) for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve", "casual_top", "open_cardigan", "scrub_top", "scrub_pocket", "scrub")) or any(r in role for r in ("patient", "parent", "nurse", "guardian")) or is_gown:
         import math
-        cx = bounds["center_x"]
-        cy = bounds.get("center_y", 0.0)
-        r_base = max(bounds["width"], bounds.get("depth_y", bounds["width"])) * 0.47
-        top_z = min_z + height_z * 0.71
-        bot_z = min_z + height_z * 0.11
+        # BIND-POSE FIX (garment-bind-pose-fix residual): Anny body + canonical armature use
+        # local-Y as height (see create_canonical_armature / generate_mesh Y-up rewrite). Prior
+        # embed authored verts with world-Z height (mesh_world_bounds height_z), so after
+        # export_yup the garment sat at feet (GLB Y≈[-0.08,0.04]) with "height" along Z.
+        # Author garment in body local space: X=width, Y=height, Z=depth — match clavicle/
+        # upper_arm / chest weighted region of the skinned mesh AABB.
+        body_vs = list(mesh_obj.data.vertices)
+        bxs = [v.co.x for v in body_vs]
+        bys = [v.co.y for v in body_vs]
+        bzs = [v.co.z for v in body_vs]
+        body_min_x, body_max_x = min(bxs), max(bxs)
+        body_min_y, body_max_y = min(bys), max(bys)
+        body_min_z, body_max_z = min(bzs), max(bzs)
+        body_height = max(body_max_y - body_min_y, 0.001)
+        body_width = max(body_max_x - body_min_x, 0.001)
+        body_depth = max(body_max_z - body_min_z, 0.001)
+        cx = (body_min_x + body_max_x) * 0.5
+        cz = (body_min_z + body_max_z) * 0.5
+        r_base = max(body_width, body_depth) * 0.47
+        top_y = body_min_y + body_height * 0.71  # shoulders / upper chest
+        bot_y = body_min_y + body_height * 0.42  # upper-body hem (not ground/feet)
         torso_rows, torso_cols = 8, 12
         if is_gown:
             sleeve_rows, sleeve_cols = 9, 14  # denser for gown fabric folds/volume
-            sleeve_len = height_z * 0.36  # longer for hospital gown sleeve coverage (vs 0.28 tshirt)
+            sleeve_len = body_height * 0.36  # longer for hospital gown sleeve coverage (vs 0.28 tshirt)
             sleeve_r0_factor = 0.45  # slightly wider base for gown drape/protrusion
+            bot_y = body_min_y + body_height * 0.28  # gown drape slightly lower on torso
         else:
             sleeve_rows, sleeve_cols = 7, 12
-            sleeve_len = height_z * 0.28  # 0.28+ per peds-parent-nurse-garment-asset + visibility/noticeability mandate (expand from 0.27; r0 0.35+; 7x12+; extra ripples sin(0.004+); vivid; deformsWithBreathing; userData; for obvious 3D volume in Model Vetting cagematch front/three_quarter/body_motion + UI-XR)
+            sleeve_len = body_height * 0.28  # 0.28+ per peds-parent-nurse-garment-asset + visibility/noticeability mandate
             sleeve_r0_factor = 0.42  # >0.35 for sleeve base radius relative to torso for visible protrusion
         verts = []
         faces = []
-        # torso shell (better than pure cylinder: chest bulge + shoulder slope) + expanded ripple/bulge for volume; additional sin ripples for noticeability
+        # torso shell in local-Y height (chest bulge + shoulder slope + ripple/folds)
         for i in range(torso_rows):
             t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
-            z = bot_z + t * (top_z - bot_z)
+            y = bot_y + t * (top_y - bot_y)
             ripple = 0.008 * math.sin(t * 8.0) + 0.004 * math.sin(t * 12.0)
             bulge = 0.028 if 0.28 < t < 0.68 else 0.012
             r = r_base + 0.018 + ripple + bulge
@@ -1180,7 +1197,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             for j in range(torso_cols):
                 ang = (j / torso_cols) * 2.0 * math.pi
                 x = cx + r * math.cos(ang)
-                y = cy - 0.006 + (0.01 * math.sin(ang))
+                z = cz - 0.006 + (0.01 * math.sin(ang))  # slight forward (face +Z in Anny local)
                 verts.append((x, y, z))
         for i in range(torso_rows - 1):
             for j in range(torso_cols):
@@ -1189,21 +1206,21 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 c = (i + 1) * torso_cols + ((j + 1) % torso_cols)
                 d = (i + 1) * torso_cols + j
                 faces.append((a, b, c, d))
-        # short sleeve L (shoulder+upper_arm coverage, attached at shoulder) -- expanded r/rows/cols per mandate (r0 0.35+ factor), protrusion, ripple/folds for obvious 3D deforming volume in cagematch/UI-XR (Q1 parent/nurse too)
-        sleeve_attach_z = min_z + height_z * 0.66
+        # short sleeve L/R — attach at shoulder height, hang down along -Y (toward elbow)
+        sleeve_attach_y = body_min_y + body_height * 0.66
         sleeve_r0 = r_base * sleeve_r0_factor
         sL = len(verts)
         for si in range(sleeve_rows):
             st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0
-            sz = sleeve_attach_z - st * sleeve_len
+            sy = sleeve_attach_y - st * sleeve_len
             ripple = 0.005 * math.sin(st * 12.0)
             sr = sleeve_r0 * (1.0 - st * 0.20) + ripple
             sx = 0.18 + st * 0.06  # increased protrusion for visible separate sleeve at camera distance
             for sj in range(sleeve_cols):
                 sang = (sj / sleeve_cols) * 2.0 * math.pi
                 x = cx + sx + sr * 0.55 * math.cos(sang)
-                y = cy - 0.004 + sr * 0.45 * math.sin(sang)
-                verts.append((x, y, sz))
+                z = cz - 0.004 + sr * 0.45 * math.sin(sang)
+                verts.append((x, sy, z))
         for si in range(sleeve_rows - 1):
             for sj in range(sleeve_cols):
                 a = sL + si * sleeve_cols + sj
@@ -1215,15 +1232,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         sR = len(verts)
         for si in range(sleeve_rows):
             st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0
-            sz = sleeve_attach_z - st * sleeve_len
+            sy = sleeve_attach_y - st * sleeve_len
             ripple = 0.005 * math.sin(st * 12.0)
             sr = sleeve_r0 * (1.0 - st * 0.20) + ripple
             sx = -0.18 - st * 0.06
             for sj in range(sleeve_cols):
                 sang = (sj / sleeve_cols) * 2.0 * math.pi
                 x = cx + sx + sr * 0.55 * math.cos(sang)
-                y = cy - 0.004 + sr * 0.45 * math.sin(sang)
-                verts.append((x, y, sz))
+                z = cz - 0.004 + sr * 0.45 * math.sin(sang)
+                verts.append((x, sy, z))
         for si in range(sleeve_rows - 1):
             for sj in range(sleeve_cols):
                 a = sR + si * sleeve_cols + sj
@@ -1231,14 +1248,14 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 c = sR + (si + 1) * sleeve_cols + ((sj + 1) % sleeve_cols)
                 d = sR + (si + 1) * sleeve_cols + sj
                 faces.append((a, b, c, d))
-        # collar seam band (visible fold/seam geometry) -- +1 row for more band detail
+        # collar seam band (visible fold/seam geometry) at top of torso shell
         col0 = len(verts)
         for ci in range(3):
-            zc = top_z + 0.005 + ci * 0.007
+            yc = top_y + 0.005 + ci * 0.007
             rc = r_base * 0.40
             for j in range(torso_cols):
                 ang = (j / torso_cols) * 2.0 * math.pi
-                verts.append((cx + rc * math.cos(ang), cy - 0.003, zc))
+                verts.append((cx + rc * math.cos(ang), yc, cz - 0.003))
         for ci in range(2):
             for j in range(torso_cols):
                 a = col0 + ci * torso_cols + j
@@ -1247,14 +1264,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 d = col0 + (ci + 1) * torso_cols + j
                 faces.append((a, b, c, d))
         # sleeve cuff bands (hem) -- +1 row for volume
+        cuff_y = (sleeve_attach_y - sleeve_len) if sleeve_rows > 1 else sleeve_attach_y
         for sbase, sgn in [(sL, 1.0), (sR, -1.0)]:
             c0 = len(verts)
             for ci in range(3):
-                zc = (sleeve_attach_z - (sleeve_rows-1)/float(sleeve_rows-1) * sleeve_len if sleeve_rows > 1 else sleeve_attach_z) - ci * 0.004
+                yc = cuff_y - ci * 0.004
                 rc = sleeve_r0 * 0.72
                 for j in range(sleeve_cols):
                     ang = (j / sleeve_cols) * 2.0 * math.pi
-                    verts.append((cx + sgn*0.13 + rc * 0.5 * math.cos(ang), cy - 0.002, zc))
+                    verts.append((cx + sgn * 0.13 + rc * 0.5 * math.cos(ang), yc, cz - 0.002))
             for ci in range(2):
                 for j in range(sleeve_cols):
                     a = c0 + ci * sleeve_cols + j
@@ -1267,12 +1285,12 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             c0 = len(verts)
             for ci in range(2):
                 st_mid = 0.42 + ci * 0.12
-                zc = sleeve_attach_z - st_mid * sleeve_len
+                yc = sleeve_attach_y - st_mid * sleeve_len
                 rc = sleeve_r0 * (1.0 - st_mid * 0.20) * 0.94 + 0.004 * math.sin(ci * 3.14)
                 for j in range(sleeve_cols):
                     ang = (j / sleeve_cols) * 2.0 * math.pi
                     xoff = (0.012 if ci % 2 == 0 else -0.004)
-                    verts.append((cx + sgn*0.13 + rc * 0.5 * math.cos(ang) + xoff, cy - 0.002, zc))
+                    verts.append((cx + sgn * 0.13 + rc * 0.5 * math.cos(ang) + xoff, yc, cz - 0.002))
             for ci in range(1):
                 for j in range(sleeve_cols):
                     a = c0 + ci * sleeve_cols + j
@@ -1294,7 +1312,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
         sol.thickness = 0.016 if is_gown else 0.014  # thicker for gown volume
         garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
-        # skin to armature for breathing deform (clav/upper_arm etc)
+        # skin to armature for breathing deform (clav/upper_arm etc) — same local-Y basis as body
         weighted_bones: List[str] = []
         if arm_obj is None:
             arm_obj = bpy.data.objects.get("openclinxr_canonical_humanoid_armature")
@@ -1307,7 +1325,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             for bn in ["clavicle.L", "clavicle.R", "upper_arm.L", "upper_arm.R", "chest", "spine", "neck"]:
                 if bn in bone_names:
                     groups[bn] = garment.vertex_groups.get(bn) or garment.vertex_groups.new(name=bn)
-            # bounds-based weights targeted to upper torso/sleeves (analogous to ensure_deterministic_skinning_fallback)
+            # bounds-based weights targeted to upper torso/sleeves (local-Y height; matches ensure_deterministic_skinning_fallback)
             gvs = list(garment.data.vertices)
             if gvs:
                 gys = [v.co.y for v in gvs]
@@ -1345,8 +1363,37 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                             if "spine" in groups:
                                 groups["spine"].add([vi], 0.32, "ADD")
             weighted_bones = list(groups.keys())
+        # Parent into body local space (same bind basis as skinned mesh). Identity parent
+        # inverse keeps garment local Y-height verts aligned with body/armature bind pose.
         garment.parent = mesh_obj
+        garment.matrix_parent_inverse = Matrix.Identity(4)
+        garment.location = (0.0, 0.0, 0.0)
+        garment.rotation_euler = (0.0, 0.0, 0.0)
+        garment.scale = (1.0, 1.0, 1.0)
         garment["openClinXrRealGarmentFromPhenotype"] = "embed_real_garment_region_v1"
+        garment["openClinXrGarmentCoordinateBasis"] = "body_local_y_height_bind_pose_v1"
+        # Prove bind-pose placement: garment local + world AABB must sit on upper torso (not feet)
+        gxs2 = [v.co.x for v in garment.data.vertices]
+        gys2 = [v.co.y for v in garment.data.vertices]
+        gzs2 = [v.co.z for v in garment.data.vertices]
+        local_bbox = {
+            "min": [round(min(gxs2), 6), round(min(gys2), 6), round(min(gzs2), 6)],
+            "max": [round(max(gxs2), 6), round(max(gys2), 6), round(max(gzs2), 6)],
+        }
+        bpy.context.view_layer.update()
+        world_corners = [garment.matrix_world @ v.co for v in garment.data.vertices]
+        wxs = [c.x for c in world_corners]
+        wys = [c.y for c in world_corners]
+        wzs = [c.z for c in world_corners]
+        world_bbox = {
+            "min": [round(min(wxs), 6), round(min(wys), 6), round(min(wzs), 6)],
+            "max": [round(max(wxs), 6), round(max(wys), 6), round(max(wzs), 6)],
+        }
+        print(
+            f"[blender] real garment bind-pose local bbox min={local_bbox['min']} max={local_bbox['max']} "
+            f"world bbox min={world_bbox['min']} max={world_bbox['max']} "
+            f"(body local-Y height [{body_min_y:.3f},{body_max_y:.3f}]; garment must occupy upper torso not feet)"
+        )
         face_count = len(faces)
         sleeve_cov = "torso+shoulder+prominent_upper_arm_rippled_folded_hospital_gown_sleeve" if is_gown else "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve"
         slf = 0.36 if is_gown else 0.28
@@ -1355,7 +1402,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         srf = 0.45 if is_gown else 0.42
         real_garment = {
             "mode": "phenotype_embedded_real_garment_region_v1",
-            "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1",
+            "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
             "objectName": garment.name,
             "faceCount": face_count,
             "hasSleeveGeometry": True,
@@ -1370,11 +1417,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             "deformsWithBreathing": True,
             "hasVisibleVolume": True,
             "hasSeamFoldHints": True,
+            "coordinateBasis": "body_local_y_height_bind_pose_v1",
+            "bindPoseLocalBBox": local_bbox,
+            "bindPoseWorldBBox": world_bbox,
+            "bodyLocalHeightRange": [round(body_min_y, 6), round(body_max_y, 6)],
             "garmentLayers": [str(g) for g in garment_layers if g],
             "role": role,
             "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
             "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
-            "evidenceForThisSlice": "ed-gown-geo-reorchestrate",
+            "evidenceForThisSlice": "garment-bind-pose-fix-parent-nurse-v1",
         }
     if real_garment:
         ret["realGarmentRegion"] = real_garment
