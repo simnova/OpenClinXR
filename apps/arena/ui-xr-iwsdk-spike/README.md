@@ -8,7 +8,7 @@
 
 **Production relationship:** this sidecar may prove IWSDK capability, MCP/tooling, scene hierarchy, bundle, and Quest behavior. It is not the production learner runtime. `apps/ui-xr` remains the production XR shell until a MADR update or successor MADR explicitly promotes IWSDK behind stable runtime contracts.
 
-**Current IWSDK pin:** `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, and `@iwsdk/vite-plugin-uikitml@0.4.2`. The IWSDK Vite plugins still declare `vite: ^7.0.0`; OpenClinXR keeps this as a sidecar validation exception while the repo remains on Vite `8.0.16`.
+**Current IWSDK pin:** `@iwsdk/core@0.5.1`, `@iwsdk/xr-input@0.5.1`, `@iwsdk/vite-plugin-dev@0.5.1`, and `@iwsdk/vite-plugin-uikitml@0.4.2`. The IWSDK Vite plugins still declare `vite: ^7.0.0`; OpenClinXR keeps this as a sidecar validation exception while the repo remains on Vite `8.0.16`.
 
 Useful checks:
 

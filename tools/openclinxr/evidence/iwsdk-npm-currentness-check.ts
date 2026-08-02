@@ -70,13 +70,13 @@ export type IwsdkNpmCurrentnessReport = {
 type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 
 const expectedPackages: ExpectedIwsdkPackage[] = [
-  { name: "@iwsdk/core", latestVersion: "0.4.2", license: "MIT" },
-  { name: "@iwsdk/xr-input", latestVersion: "0.4.2", license: "MIT" },
-  { name: "@iwsdk/locomotor", latestVersion: "0.4.2", license: "MIT" },
+  { name: "@iwsdk/core", latestVersion: "0.5.1", license: "MIT" },
+  { name: "@iwsdk/xr-input", latestVersion: "0.5.1", license: "MIT" },
+  { name: "@iwsdk/locomotor", latestVersion: "0.5.1", license: "MIT" },
   { name: "@iwsdk/glxf", latestVersion: "0.4.2", license: "MIT" },
   {
     name: "@iwsdk/vite-plugin-dev",
-    latestVersion: "0.4.2",
+    latestVersion: "0.5.1",
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
@@ -98,8 +98,12 @@ const expectedPackages: ExpectedIwsdkPackage[] = [
     license: "MIT",
     expectedPeerDependencies: { vite: "^7.0.0" },
   },
-  { name: "@iwsdk/reference", latestVersion: "0.4.2", license: "MIT" },
-  { name: "@meta-quest/hzdb", latestVersion: "1.2.1", license: "UNLICENSED" },
+  { name: "@iwsdk/reference", latestVersion: "0.5.1", license: "MIT" },
+  {
+    name: "@meta-quest/hzdb",
+    latestVersion: "1.3.2",
+    license: "Meta Platform Technologies SDK License",
+  },
 ];
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
@@ -295,8 +299,10 @@ function adoptionBlockersForPackage(
   sourceLicense: string | null,
 ): string[] {
   return unique([
-    packageName === "@meta-quest/hzdb" && sourceLicense === "UNLICENSED"
-      ? "package_license_requires_legal_procurement_approval:@meta-quest/hzdb:UNLICENSED"
+    packageName === "@meta-quest/hzdb"
+      && (sourceLicense === "UNLICENSED"
+        || sourceLicense === "Meta Platform Technologies SDK License")
+      ? `package_license_requires_legal_procurement_approval:@meta-quest/hzdb:${sourceLicense}`
       : undefined,
     peerDependencies.vite && !vitePeerRangeAcceptsRepoMajor(peerDependencies.vite, repoViteVersion)
       ? `vite_peer_range_does_not_accept_repo_vite_major:${packageName}:${peerDependencies.vite}_vs_${repoViteVersion}`

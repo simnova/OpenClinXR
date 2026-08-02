@@ -125,7 +125,8 @@ export async function createUikitmlSpatialTextPanel(): Promise<UikitmlSpatialTex
     throw new Error("UIKitML interpret returned no root component");
   }
 
-  const document = new UIKitDocument(rootComponent) as Group & {
+  // IWSDK 0.5.x: UIKitDocument / Component generics tightened; cast via unknown for sidecar-only panel host.
+  const document = new UIKitDocument(rootComponent as never) as unknown as Group & {
     setTargetDimensions(width: number, height: number): void;
   };
   document.name = uikitmlSpatialTextDocumentName;

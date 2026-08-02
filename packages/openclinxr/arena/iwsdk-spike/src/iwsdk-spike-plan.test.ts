@@ -1037,7 +1037,7 @@ describe("IWSDK spike plan", () => {
       unavailableReason: "iwsdk_dev_mcp_bin_not_published_by_iwsdk_0_4_2",
     });
     expect(template.tomlSnippet).toContain("IWSDK stdio MCP is intentionally not configured");
-    expect(template.tomlSnippet).toContain("@iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary");
+    expect(template.tomlSnippet).toContain("/vite-plugin-dev.5.1 does not publish an iwsdk-dev-mcp binary");
     expect(template.tomlSnippet).not.toContain("[mcp_servers.iwsdk-runtime]");
     expect(template.validationCommandOrder).toEqual([
       "iwsdk dev status",
@@ -1102,7 +1102,7 @@ describe("IWSDK spike plan", () => {
     expect(contract).toEqual({
       sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
       packageName: "@iwsdk/vite-plugin-dev",
-      packageVersion: "0.4.2",
+      packageVersion: "0.5.1",
       requiredNodeMajor: 22,
       openclinxrViteMajor: 8,
       iwsdkVitePluginPeerRange: "^7.0.0",
@@ -1196,9 +1196,9 @@ describe("IWSDK spike plan", () => {
       runnable: true,
       approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md",
       approvedPackages: [
-        "@iwsdk/core@0.4.2",
-        "@iwsdk/xr-input@0.4.2",
-        "@iwsdk/vite-plugin-dev@0.4.2",
+        "@iwsdk/core@0.5.1",
+        "@iwsdk/xr-input@0.5.1",
+        "@iwsdk/vite-plugin-dev@0.5.1",
         "@iwsdk/vite-plugin-uikitml@0.4.2",
         "three@0.184.0",
       ],

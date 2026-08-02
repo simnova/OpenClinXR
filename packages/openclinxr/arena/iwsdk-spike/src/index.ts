@@ -379,7 +379,7 @@ export type IwsdkViteAiDevConfigContract = {
 export type IwsdkCompatibilityContract = {
   sourceRecordIds: string[];
   packageName: "@iwsdk/vite-plugin-dev";
-  packageVersion: "0.4.2";
+  packageVersion: "0.5.1";
   requiredNodeMajor: 22;
   openclinxrViteMajor: 8;
   iwsdkVitePluginPeerRange: "^7.0.0";
@@ -1055,9 +1055,9 @@ export function buildIwsdkSidecarReadinessContract(): IwsdkSidecarReadinessContr
     runnable: true,
     approvedProposal: "proposals/approved/proposal-iwsdk-sidecar-install.md",
     approvedPackages: [
-      "@iwsdk/core@0.4.2",
-      "@iwsdk/xr-input@0.4.2",
-      "@iwsdk/vite-plugin-dev@0.4.2",
+      "@iwsdk/core@0.5.1",
+      "@iwsdk/xr-input@0.5.1",
+      "@iwsdk/vite-plugin-dev@0.5.1",
       "@iwsdk/vite-plugin-uikitml@0.4.2",
       "three@0.184.0",
     ],
@@ -2057,7 +2057,7 @@ export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplat
     command,
     tomlSnippet: [
       "# IWSDK stdio MCP is intentionally not configured.",
-      "# @iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary.",
+      "# /vite-plugin-dev.5.1 does not publish an iwsdk-dev-mcp binary.",
       "# Use Playwright/agent-browser CLIs (docs/TOOLING.md) plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.",
     ].join("\n"),
     prerequisites: [
@@ -2132,7 +2132,7 @@ export function buildIwsdkCompatibilityContract(): IwsdkCompatibilityContract {
   return {
     sourceRecordIds: ["src-iwsdk-npm-metadata-2026-05-04", "src-iwsdk-local-spike-2026-05-04"],
     packageName: "@iwsdk/vite-plugin-dev",
-    packageVersion: "0.4.2",
+    packageVersion: "0.5.1",
     requiredNodeMajor: 22,
     openclinxrViteMajor: 8,
     iwsdkVitePluginPeerRange: "^7.0.0",

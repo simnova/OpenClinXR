@@ -51,8 +51,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/core"),
     ).toMatchObject({
       name: "@iwsdk/core",
-      latest_version: "0.4.2",
-      expected_latest_version: "0.4.2",
+      latest_version: "0.5.1",
+      expected_latest_version: "0.5.1",
       license: {
         source: "MIT",
         expected: "MIT",
@@ -65,8 +65,8 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@iwsdk/vite-plugin-dev"),
     ).toMatchObject({
       name: "@iwsdk/vite-plugin-dev",
-      latest_version: "0.4.2",
-      expected_latest_version: "0.4.2",
+      latest_version: "0.5.1",
+      expected_latest_version: "0.5.1",
       peer_dependencies: {
         vite: "^7.0.0",
       },
@@ -79,14 +79,14 @@ describe("IWSDK npm currentness check", () => {
       packageByName("@meta-quest/hzdb"),
     ).toMatchObject({
       name: "@meta-quest/hzdb",
-      latest_version: "1.2.1",
+      latest_version: "1.3.2",
       license: {
-        source: "UNLICENSED",
-        expected: "UNLICENSED",
+        source: "Meta Platform Technologies SDK License",
+        expected: "Meta Platform Technologies SDK License",
         accepted: true,
       },
       adoption_blockers: [
-        "package_license_requires_legal_procurement_approval:@meta-quest/hzdb:UNLICENSED",
+        "package_license_requires_legal_procurement_approval:@meta-quest/hzdb:Meta Platform Technologies SDK License",
       ],
     });
   });
@@ -94,7 +94,7 @@ describe("IWSDK npm currentness check", () => {
   it("blocks when a captured IWSDK package latest version moves beyond the approved snapshot", () => {
     const snapshot = metadataSnapshot();
     snapshot.packages = snapshot.packages.map((entry) =>
-      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.4.3" } : entry,
+      entry.name === "@iwsdk/core" ? { ...entry, latestVersion: "0.5.2" } : entry,
     );
 
     const report = buildIwsdkNpmCurrentnessReport({
@@ -106,7 +106,7 @@ describe("IWSDK npm currentness check", () => {
 
     expect(report.ready).toBe(false);
     expect(report.currentness.blockers).toEqual([
-      "npm_latest_version_moved:@iwsdk/core:expected_0.4.2_actual_0.4.3",
+      "npm_latest_version_moved:@iwsdk/core:expected_0.5.1_actual_0.5.2",
     ]);
   });
 
@@ -144,16 +144,16 @@ function metadataSnapshot(): IwsdkNpmMetadataSnapshot {
       registry: "https://registry.npmjs.org/",
     },
     packages: [
-      packageMetadata("@iwsdk/core", "0.4.2", "MIT"),
-      packageMetadata("@iwsdk/xr-input", "0.4.2", "MIT"),
-      packageMetadata("@iwsdk/locomotor", "0.4.2", "MIT"),
+      packageMetadata("@iwsdk/core", "0.5.1", "MIT"),
+      packageMetadata("@iwsdk/xr-input", "0.5.1", "MIT"),
+      packageMetadata("@iwsdk/locomotor", "0.5.1", "MIT"),
       packageMetadata("@iwsdk/glxf", "0.4.2", "MIT"),
-      packageMetadata("@iwsdk/vite-plugin-dev", "0.4.2", "MIT", { vite: "^7.0.0" }),
+      packageMetadata("@iwsdk/vite-plugin-dev", "0.5.1", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-gltf-optimizer", "0.4.2", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-uikitml", "0.4.2", "MIT", { vite: "^7.0.0" }),
       packageMetadata("@iwsdk/vite-plugin-metaspatial", "0.4.2", "MIT", { vite: "^7.0.0" }),
-      packageMetadata("@iwsdk/reference", "0.4.2", "MIT"),
-      packageMetadata("@meta-quest/hzdb", "1.2.1", "UNLICENSED"),
+      packageMetadata("@iwsdk/reference", "0.5.1", "MIT"),
+      packageMetadata("@meta-quest/hzdb", "1.3.2", "Meta Platform Technologies SDK License"),
     ],
   };
 }
