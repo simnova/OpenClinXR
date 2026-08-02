@@ -306,6 +306,16 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb");
     expect(mainSource).toContain("/generated-humanoids/peds_anxious_parent.glb");
     expect(mainSource).toContain("/generated-humanoids/peds_nurse_kevin.glb");
+    // parent/nurse comparators resolve role GLB onto patient primary slot (camera-centered) + role slot
+    expect(mainSource).toContain(
+      'humanoidSourceComparator === "peds_anny_real_garment_parent"\n      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeFamilyActorId() || role === "parent" || role === "family")',
+    );
+    expect(mainSource).toContain(
+      'humanoidSourceComparator === "peds_anny_real_garment_nurse"\n      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeClinicalTeamActorId() || role === "nurse")',
+    );
+    expect(mainSource).toContain("applyRealGarmentEvidenceSurfaces");
+    expect(mainSource).toContain("bounds_based_clothing_region_fallback");
+    expect(mainSource).toContain("bounds_based_force_highlight_parent_nurse_capture");
     expect(mainSource).toContain("realGarmentParentAssetPath");
     expect(mainSource).toContain("realGarmentNurseAssetPath");
     expect(mainSource).toContain("clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture");
