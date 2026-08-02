@@ -92,3 +92,40 @@ export type {
   ThreeWayCagematchReport,
   ThreeWayVerdict,
 } from "./cagematch/three-way.js";
+
+// Winner-path scenarios (passive ROM, guarding, positioning)
+export {
+  buildPassiveRomInputLog,
+  DEFAULT_PASSIVE_ROM_CONFIG,
+} from "./scenarios/passive-rom.js";
+export type {
+  PassiveRomConfig,
+  RomDirection,
+  RomJoint,
+  RomSide,
+} from "./scenarios/passive-rom.js";
+
+export {
+  buildGuardingInputLog,
+  DEFAULT_GUARDING_CONFIG,
+} from "./scenarios/guarding.js";
+export type {
+  GuardingConfig,
+  GuardingThresholdEvent,
+} from "./scenarios/guarding.js";
+
+export {
+  buildPositioningInputLog,
+  DEFAULT_POSITIONING_CONFIG,
+} from "./scenarios/positioning.js";
+export type { PositioningConfig } from "./scenarios/positioning.js";
+
+// Scenario inspection
+export { buildScenarioInspectionReport } from "./inspection/scenario-inspection.js";
+export type {
+  BuildInspectionReportOptions,
+  GarmentCoherenceClaim,
+  ScenarioEntry,
+  ScenarioInspectionReport,
+  ScenarioInspectionResult,
+} from "./inspection/scenario-inspection.js";

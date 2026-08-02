@@ -25,7 +25,8 @@ test/*.test.ts
 Slice `arena-physics-s1-determinism-harness` — contract package scaffolded ✅ (25/25 tests).
 Slice `arena-physics-s2-havok-adapter` — ✅ `HavokCandidateAdapter` + palpation scenario + C6 proofs + cagematch report. Real WASM gated on `@babylonjs/havok` dep install; candidate path exercises full step/snapshot/reset/C6 determinism. `engineId: "havok-candidate"`.
 Slice `arena-physics-s3-rapier-jolt-cagematch` — ✅ `RapierCandidateAdapter` (engineId `rapier-candidate`, SplitMix32 PRNG, Verlet integration, SOR impulses), `JoltCandidateAdapter` (engineId `jolt-candidate`, Xoshiro128** PRNG, sub-stepped velocity integration, speculative contacts, broad-phase grid), `runThreeWayCagematch(log)` producing per-engine C6 reports + winner/eliminated verdict. All three engines have distinct checksums. Real WASM gated on `@dimforge/rapier3d` / Jolt napi-rs; candidate paths exercise full step/snapshot/reset/C6 determinism.
-Slice `arena-physics-s4-winner-scenarios` — pending.
+Slice `arena-physics-s4-winner-scenarios` — ✅ passive-rom, guarding, positioning InputLog builders + C6 HavokCandidateAdapter tests + scenarioInspectionReport. GuardingThresholdEvent emission hooks (case-def shaped, not clinical scoring). Inspection-shaped JSON for evidence. Garment coherence: metadata-only claim that existing ED real-garment GLB path is out of band — does NOT rewrite apps/ui-xr; notEvidenceFor garment visual recorded in arena report.
+Slice `arena-physics-s5-factory-physics-config` — pending.
 
 ## Gates
 

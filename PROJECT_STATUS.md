@@ -25,14 +25,15 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** arena-physics-s4-winner-scenarios (epic arena-physics-clinical-touch-v1). Autonomous mayPush.
+**Active slice:** arena-physics-s5-factory-physics-config (epic arena-physics-clinical-touch-v1). Autonomous mayPush.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| arena-physics-s4-winner-scenarios | execute | next — passive ROM + guarding on winner candidate |
-| arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way Havok/Rapier/Jolt candidates; 84/84; C6 order-stable |
+| arena-physics-s5-factory-physics-config | execute | next — physics_config.v1 from phenotype.bodyMechanics |
+| arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection; 116/116 |
+| arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way Havok/Rapier/Jolt candidates; C6 order-stable |
 | arena-physics-s2-havok-adapter | execute+verify | verify ok (Q1+Q5) — HavokCandidateAdapter + palpation C6 + metrics; WASM deferred |
 | arena-physics-s1-determinism-harness | execute+verify | verify ok (Q5) — physics-touch-contract C1–C7 + stub; 25/25 tests; cost ~$0.17 |
 | openclaw-pre-epic-kit-v1 | execute+verify | verify ok (Q5) — epic CLI + apply-header + pathScope README/docs + run-next epicContinuity; dry-run advance; epic completed |
@@ -58,7 +59,7 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** arena-physics-s4-winner-scenarios (Q1) — Winner: passive ROM + guarding; garment coherence vs existing ED real-garment GLB; inspection JSON
+**Next dequeue:** arena-physics-s5-factory-physics-config (Q1) — Factory generator physics_config.v1 from phenotype.bodyMechanics; remove hand-tuned constants from adapters
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
@@ -98,6 +99,12 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 arena-physics-s4-winner-scenarios (Q1)
+
+Product path advanced: passive-ROM, guarding (threshold→emotionEventId), positioning scenarios on HavokCandidateAdapter; C6; scenario inspection report with garment_visual notEvidenceFor (no ui-xr). 116/116 tests.
+
+Next: s5 factory physics_config.v1.
 
 ### 2026-08-02 arena-physics-s3-rapier-jolt-cagematch (Q5)
 
