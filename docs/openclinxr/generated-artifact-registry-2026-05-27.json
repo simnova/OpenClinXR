@@ -4,7 +4,7 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 103,
+    "keep-evidence": 106,
     "ignore-local-cache": 1705,
     "keep-current": 95,
     "keep-compatibility-input": 24,
@@ -13340,6 +13340,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/quest-cdp-smoke-enter-vr-worn-iwsdk-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -13382,6 +13389,13 @@
       "rationale": "Template/license/provenance/source artifact; never prune as generated clutter."
     },
     {
+      "path": "docs/openclinxr/quest-manual-immersive-worn-iwsdk-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/quest-manual-performance-template.json",
       "authority": "keep-template",
       "tracked": true,
@@ -13399,6 +13413,13 @@
       "path": "docs/openclinxr/quest-physics-ragdoll-probe-2026-08-02.json",
       "authority": "keep-evidence",
       "tracked": true,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/quest-worn-immersive-probe-iwsdk-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": false,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },

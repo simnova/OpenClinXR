@@ -1,0 +1,128 @@
+{
+  "manualPerformanceDraft": null,
+  "captureSummary": null,
+  "textPanelEvidence": {
+    "source": "window.__openClinXrTextPanelEvidence",
+    "panelCount": 3,
+    "panels": [
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "title": "Simulated EHR",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 2.3,
+          "height": 1.15
+        },
+        "lineCount": 4,
+        "previewLines": [
+          "Chief concern: crushing substernal pressure",
+          "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+          "Actors: patient, nurse, spouse",
+          "Priority: obtain ECG and escalate urgently"
+        ],
+        "contentHash": "835e2cd8",
+        "lastUpdatedAtMs": 498.2,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "title": "Live Dialogue",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.85,
+          "height": 0.95
+        },
+        "lineCount": 2,
+        "previewLines": [
+          "Robert Hayes: The pressure is heavy and I feel sweaty.",
+          "Trace 0/10; missing 10"
+        ],
+        "contentHash": "0a37436c",
+        "lastUpdatedAtMs": 157189.3,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      },
+      {
+        "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "title": "Input Evidence",
+        "source": "canvas_texture_metadata",
+        "canvasPixels": {
+          "width": 1280,
+          "height": 640
+        },
+        "worldMeters": {
+          "width": 1.65,
+          "height": 0.72
+        },
+        "lineCount": 3,
+        "previewLines": [
+          "Session: In Full VR",
+          "Hands: installed; primitive_spheres; observed 2",
+          "Movement: none; x 0, z 0"
+        ],
+        "contentHash": "4c5924b6",
+        "lastUpdatedAtMs": 157189.6,
+        "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+      }
+    ],
+    "limitations": [
+      "metadata_only_requires_foreground_headset_confirmation"
+    ]
+  },
+  "sceneAssetEvidence": null,
+  "harvestSummary": {
+    "source": "quest_cdp_manual_evidence_harvest",
+    "ready": false,
+    "timedOut": true,
+    "blockers": [
+      "manual_performance_draft_missing",
+      "manual_performance_capture_summary_missing",
+      "immersive_session_not_started",
+      "frame_stats_stale_or_unsampled",
+      "immersive_frame_sample_under_90",
+      "rolling_frame_window_under_30",
+      "headset_trace_latency_missing",
+      "locomotion_evidence_missing"
+    ],
+    "elapsedWallMs": 180402.6,
+    "signalSnapshot": {
+      "textPanelMetadataPresent": true,
+      "textPanelCount": 3,
+      "frameStatsFresh": false,
+      "immersiveFramesObserved": null,
+      "sampleWindowSize": null,
+      "immersiveFrameReady": false,
+      "sampleWindowReady": false,
+      "sceneAssetEvidencePresent": false,
+      "generatedSceneAssetsLoaded": false,
+      "generatedSceneAssetExpectedCount": null,
+      "generatedSceneAssetLoadedCount": null,
+      "generatedSceneAssetFallbackCount": null,
+      "traceSource": null,
+      "lastTraceTag": null,
+      "lastTraceLatencyMs": null,
+      "headsetTraceEvidencePresent": false,
+      "activeLocomotionSource": null,
+      "locomotionAttempt": null,
+      "lastLocomotionAtMs": null,
+      "locomotionDelta": null,
+      "locomotionDistanceMeters": null,
+      "locomotionTurnRadians": null,
+      "locomotionEvidencePresent": false,
+      "locomotionProbeReasonCodes": [],
+      "technicalGaps": []
+    }
+  },
+  "postMortem": {
+    "note": "harvestReady=false because pre-fix harvest required UI-XR draft globals; operator WAS in Full VR (see quest-worn-immersive-probe-iwsdk-2026-08-02.json). Fixed: iwsdk-sidecar target uses frameStats path.",
+    "wornProbePath": "docs/openclinxr/quest-worn-immersive-probe-iwsdk-2026-08-02.json",
+    "fix": "manualEvidenceHarvestExpression target=iwsdk-sidecar → iwsdk_sidecar_frame_stats"
+  }
+}

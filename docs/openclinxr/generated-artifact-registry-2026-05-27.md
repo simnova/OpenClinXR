@@ -13,7 +13,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - ignore-local-cache: 1705
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 103
+- keep-evidence: 106
 - keep-template: 6
 
 ## Cleanup Actions
@@ -1924,12 +1924,15 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/quest-cdp-smoke-enter-vr-iwsdk-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-cdp-smoke-enter-vr-worn-iwsdk-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-physics-ragdoll-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-cdp-smoke-portless-http-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-manual-immersive-worn-iwsdk-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/quest-physics-ragdoll-probe-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-worn-immersive-probe-iwsdk-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

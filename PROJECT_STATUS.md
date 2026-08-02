@@ -101,6 +101,10 @@ Last updated: 2026-08-02
 
 **Blockers:** none
 
+### 2026-08-02 — quest-worn-immersive-iwsdk-v1 (Q5) verify ok
+
+Product path advanced: **Operator-worn Full VR on IWSDK sidecar**. CDP probe: xrStatus In Full VR, isPresenting true, ~10.5k immersive frames, ~85–90 FPS, hands installed. Manual harvest adapted for `iwsdk-sidecar` (frameStats path when draft globals absent). enterVrCompletion treats In Full VR / isPresenting. Evidence: quest-worn-immersive-probe-iwsdk + enter-vr-worn + manual harvest postmortem. Not production promotion. Blueprint/factory tie: Q5 headset verification. Next: optional re-harvest with fixed profile when operator available.
+
 ### 2026-08-02 — quest-portless-physics-power-through-v1 (Q5) verify ok
 
 Product path advanced: **Quest USB smoke path hardened**. (1) IWSDK sidecar `dev:portless` HTTP (`https:false`, `hmr.overlay:false`) so Quest Browser loads without cert privacy wall. (2) `quest-cdp-smoke` multi-query URL adb launch fix (`buildQuestBrowserViewIntentArgs` remote-shell single-quote). (3) Physics-clinical-touch (baked Rapier bone deltas) multi-param URL launches without `--skip-launch`; shellLoaded true. (4) `--enter-vr` clicks Enter Full VR but immersive session not started (`activation_missed` — headset gesture/foreground still required). (5) CEO process: tracked portless PIDs, killed after smoke; ADB reverse/forward cleared. Blueprint/factory tie: Q5 headset verification of portless + opt-in capture fence; no gate flip. Evidence: `docs/openclinxr/quest-cdp-smoke-portless-http-2026-08-02.json` shellLoaded true; physics-ragdoll smoke shellLoaded true; enter-vr-iwsdk activation_missed; quest-cdp-smoke 28/28; iwsdk-spike 36; arch 72. Residual: UIKitML dynamic import soft-block; not live Rapier; not immersive. Next: worn-headset immersive harvest if operator available; do not flip runtimePromotionAllowed.

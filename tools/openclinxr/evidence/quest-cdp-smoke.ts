@@ -223,6 +223,7 @@ async function main(): Promise<void> {
         timeoutMs: options.manualEvidenceTimeoutMs,
         minImmersiveFrames: options.manualEvidenceMinImmersiveFrames,
         minSampleWindowSize: options.manualEvidenceMinSampleWindowSize,
+        target: options.target,
       }), options.manualEvidenceTimeoutMs + 3000);
       await emitManualEvidenceHarvestPayload(buildManualEvidenceHarvestPayload(harvest), options.outputPath);
       return;
@@ -678,32 +679,38 @@ export function enterVrCompletionExpression(timeoutMs: number): string {
     const readStatus = () => document.querySelector("#xr-status")?.textContent ?? null;
     const readManualPerformanceDraft = () => window.__openClinXrManualPerformanceDraft ?? null;
     const readXrEntryEvidence = () => window.__openClinXrXrEntryEvidence ?? null;
+    const readFrameStats = () => window.__openClinXrFrameStats ?? null;
+    const isImmersiveStarted = (status, draft, entry, stats) =>
+      status === "In Full VR"
+      || draft?.station?.immersiveSessionStarted === true
+      || entry?.lastStatus === "started"
+      || stats?.isPresenting === true;
     let xrStatusAfter = readStatus();
     let manualPerformanceDraft = readManualPerformanceDraft();
     let xrEntryEvidence = readXrEntryEvidence();
-    let immersiveSessionStarted = manualPerformanceDraft?.station?.immersiveSessionStarted === true
-      || xrEntryEvidence?.lastStatus === "started";
+    let frameStats = readFrameStats();
+    let immersiveSessionStarted = isImmersiveStarted(xrStatusAfter, manualPerformanceDraft, xrEntryEvidence, frameStats);
     while (performance.now() - started < ${timeoutMs}) {
       xrStatusAfter = readStatus();
       manualPerformanceDraft = readManualPerformanceDraft();
       xrEntryEvidence = readXrEntryEvidence();
-      immersiveSessionStarted = manualPerformanceDraft?.station?.immersiveSessionStarted === true
-        || xrEntryEvidence?.lastStatus === "started";
-      if ((xrStatusAfter === "In Full VR" && immersiveSessionStarted) || xrStatusAfter === "WebXR entry blocked") {
+      frameStats = readFrameStats();
+      immersiveSessionStarted = isImmersiveStarted(xrStatusAfter, manualPerformanceDraft, xrEntryEvidence, frameStats);
+      if (immersiveSessionStarted || xrStatusAfter === "WebXR entry blocked") {
         break;
       }
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
     manualPerformanceDraft = readManualPerformanceDraft();
     xrEntryEvidence = readXrEntryEvidence();
-    immersiveSessionStarted = xrStatusAfter === "In Full VR"
-      || manualPerformanceDraft?.station?.immersiveSessionStarted === true
-      || xrEntryEvidence?.lastStatus === "started";
+    frameStats = readFrameStats();
+    immersiveSessionStarted = isImmersiveStarted(xrStatusAfter, manualPerformanceDraft, xrEntryEvidence, frameStats);
     return {
       xrStatusAfter,
       immersiveSessionStarted,
       manualPerformanceDraft,
       xrEntryEvidence,
+      frameStats,
       inputEvidence: window.__openClinXrInputEvidence ?? null,
       elapsedWallMs: Number((performance.now() - started).toFixed(2)),
     };
@@ -800,23 +807,37 @@ export function manualEvidenceHarvestExpression(input: {
   timeoutMs: number;
   minImmersiveFrames: number;
   minSampleWindowSize: number;
+  /** When iwsdk-sidecar, accept frameStats presenting path without production UI-XR draft globals. */
+  target?: QuestSmokeTarget;
 }): string {
+  const harvestMode = input.target === "iwsdk-sidecar" ? "iwsdk_sidecar_frame_stats" : "ui_xr_manual_performance";
   return String.raw`(async () => {
     const started = performance.now();
+    const harvestMode = ${JSON.stringify(harvestMode)};
     const readHarvest = () => {
       const manualPerformanceDraft = window.__openClinXrManualPerformanceDraft ?? null;
       const captureSummary = window.__openClinXrManualPerformanceCaptureSummary ?? null;
       const textPanelEvidence = window.__openClinXrTextPanelEvidence ?? null;
       const sceneAssetEvidence = window.__openClinXrSceneAssetEvidence ?? null;
+      const frameStats = window.__openClinXrFrameStats ?? null;
+      const liveInputEvidence = window.__openClinXrInputEvidence ?? null;
+      const xrStatus = document.querySelector("#xr-status")?.textContent ?? null;
       const performanceEvidence = manualPerformanceDraft?.performance ?? {};
       const stationEvidence = manualPerformanceDraft?.station ?? {};
-      const inputEvidence = manualPerformanceDraft?.input ?? {};
+      const inputEvidence = {
+        ...(manualPerformanceDraft?.input ?? {}),
+        ...(liveInputEvidence && typeof liveInputEvidence === "object" ? liveInputEvidence : {}),
+      };
       const traceEvidence = manualPerformanceDraft?.traceLatencyProxy ?? {};
       const locomotionDelta = inputEvidence?.locomotionDelta ?? {};
       const immersiveFramesObserved = performanceEvidence?.immersiveFramesObserved
         ?? captureSummary?.immersiveFramesObserved
+        ?? frameStats?.immersiveFramesObserved
         ?? null;
-      const sampleWindowSize = performanceEvidence?.sampleWindowSize ?? captureSummary?.sampleWindowSize ?? null;
+      const sampleWindowSize = performanceEvidence?.sampleWindowSize
+        ?? captureSummary?.sampleWindowSize
+        ?? frameStats?.sampleWindowSize
+        ?? null;
       const traceSource = traceEvidence?.source ?? captureSummary?.traceLatencySource ?? null;
       const lastTraceTag = traceEvidence?.lastTraceTag ?? captureSummary?.lastTraceTag ?? null;
       const lastTraceLatencyMs = traceEvidence?.lastSelectLatencyMs ?? captureSummary?.lastTraceLatencyMs ?? null;
@@ -830,8 +851,13 @@ export function manualEvidenceHarvestExpression(input: {
           typeof reason === "string" && reason !== "locomotion_observed"
         )
         : [];
-      const immersiveSessionStarted = stationEvidence?.immersiveSessionStarted === true;
-      const frameStatsFresh = captureSummary?.frameStatsFresh === true;
+      const isPresenting = frameStats?.isPresenting === true || xrStatus === "In Full VR";
+      const immersiveSessionStarted = stationEvidence?.immersiveSessionStarted === true || isPresenting;
+      const frameStatsFresh = captureSummary?.frameStatsFresh === true
+        || (harvestMode === "iwsdk_sidecar_frame_stats"
+          && !!frameStats
+          && typeof immersiveFramesObserved === "number"
+          && immersiveFramesObserved > 0);
       const immersiveFrameReady = typeof immersiveFramesObserved === "number" && immersiveFramesObserved >= ${input.minImmersiveFrames};
       const sampleWindowReady = typeof sampleWindowSize === "number" && sampleWindowSize >= ${input.minSampleWindowSize};
       const hasHeadsetTraceEvidence = (traceSource === "xr_controller_select" || traceSource === "xr_hand_select")
@@ -855,20 +881,33 @@ export function manualEvidenceHarvestExpression(input: {
         && sceneAssetEvidence.pendingCount === 0
         && (sceneAssetEvidence.fallbackCount ?? sceneAssetEvidence.fallbackActiveCount) === 0
         && sceneAssetEvidence.productionAssetReadinessClaimed !== true;
-      const blockers = [
-        manualPerformanceDraft ? undefined : "manual_performance_draft_missing",
-        captureSummary ? undefined : "manual_performance_capture_summary_missing",
-        immersiveSessionStarted ? undefined : "immersive_session_not_started",
-        frameStatsFresh ? undefined : "frame_stats_stale_or_unsampled",
-        immersiveFrameReady ? undefined : "immersive_frame_sample_under_${input.minImmersiveFrames}",
-        sampleWindowReady ? undefined : "rolling_frame_window_under_${input.minSampleWindowSize}",
-        hasHeadsetTraceEvidence ? undefined : "headset_trace_latency_missing",
-        hasLocomotionEvidence ? undefined : "locomotion_evidence_missing",
-        technicalGaps.length > 0 ? "capture_summary_technical_gaps_present" : undefined,
-        ...technicalGaps.map((gap) => "capture_summary_technical_gap:" + gap),
-        ...locomotionProbeReasons.map((reason) => "capture_summary_locomotion_probe:" + reason),
-      ].filter((blocker) => typeof blocker === "string");
+      // IWSDK sidecar does not publish UI-XR manualPerformanceDraft / captureSummary / locomotion harness.
+      // Sidecar ready = presenting + immersive frame sample + rolling window (frameStats path).
+      const blockers = harvestMode === "iwsdk_sidecar_frame_stats"
+        ? [
+          immersiveSessionStarted ? undefined : "immersive_session_not_started",
+          frameStatsFresh ? undefined : "frame_stats_stale_or_unsampled",
+          immersiveFrameReady ? undefined : "immersive_frame_sample_under_${input.minImmersiveFrames}",
+          sampleWindowReady ? undefined : "rolling_frame_window_under_${input.minSampleWindowSize}",
+        ].filter((blocker) => typeof blocker === "string")
+        : [
+          manualPerformanceDraft ? undefined : "manual_performance_draft_missing",
+          captureSummary ? undefined : "manual_performance_capture_summary_missing",
+          immersiveSessionStarted ? undefined : "immersive_session_not_started",
+          frameStatsFresh ? undefined : "frame_stats_stale_or_unsampled",
+          immersiveFrameReady ? undefined : "immersive_frame_sample_under_${input.minImmersiveFrames}",
+          sampleWindowReady ? undefined : "rolling_frame_window_under_${input.minSampleWindowSize}",
+          hasHeadsetTraceEvidence ? undefined : "headset_trace_latency_missing",
+          hasLocomotionEvidence ? undefined : "locomotion_evidence_missing",
+          technicalGaps.length > 0 ? "capture_summary_technical_gaps_present" : undefined,
+          ...technicalGaps.map((gap) => "capture_summary_technical_gap:" + gap),
+          ...locomotionProbeReasons.map((reason) => "capture_summary_locomotion_probe:" + reason),
+        ].filter((blocker) => typeof blocker === "string");
       const signalSnapshot = {
+        harvestMode,
+        xrStatus,
+        isPresenting,
+        handModelStatus: inputEvidence?.handModelStatus ?? null,
         textPanelMetadataPresent: textPanelEvidence?.source === "window.__openClinXrTextPanelEvidence"
           && typeof textPanelEvidence?.panelCount === "number"
           && textPanelEvidence.panelCount >= 3,
@@ -894,7 +933,9 @@ export function manualEvidenceHarvestExpression(input: {
         activeLocomotionSource: inputEvidence?.activeLocomotionSource ?? captureSummary?.activeLocomotionSource ?? null,
         locomotionAttempt: inputEvidence?.locomotionAttempt ?? captureSummary?.locomotionAttempt ?? null,
         lastLocomotionAtMs: inputEvidence?.lastLocomotionAtMs ?? captureSummary?.lastLocomotionAtMs ?? null,
-        locomotionDelta: sanitizeLocomotionDeltaForHarvest(locomotionDelta),
+        // Browser evaluate cannot call Node-only sanitizeLocomotionDeltaForHarvest —
+        // pass raw delta; Node re-sanitizes in sanitizeManualEvidenceHarvestSignalSnapshot.
+        locomotionDelta: locomotionDelta && typeof locomotionDelta === "object" ? locomotionDelta : null,
         locomotionDistanceMeters,
         locomotionTurnRadians,
         locomotionEvidencePresent: hasLocomotionEvidence,
@@ -910,6 +951,7 @@ export function manualEvidenceHarvestExpression(input: {
         captureSummary,
         textPanelEvidence,
         sceneAssetEvidence,
+        frameStats,
         signalSnapshot,
       };
     };
@@ -930,22 +972,33 @@ export function manualEvidenceHarvestExpression(input: {
 
 export function buildManualEvidenceHarvestPayload(input: unknown): Record<string, unknown> {
   const result = asRecord(input);
+  const signalSnapshot = sanitizeManualEvidenceHarvestSignalSnapshot(result.signalSnapshot);
   return {
     manualPerformanceDraft: result.manualPerformanceDraft ?? null,
     captureSummary: result.captureSummary ?? null,
     textPanelEvidence: result.textPanelEvidence ?? null,
     sceneAssetEvidence: result.sceneAssetEvidence ?? null,
+    frameStats: result.frameStats ?? null,
     harvestSummary: {
       source: "quest_cdp_manual_evidence_harvest",
       ready: result.ready === true,
       timedOut: result.timedOut === true,
+      harvestMode: typeof asRecord(result.signalSnapshot).harvestMode === "string"
+        ? asRecord(result.signalSnapshot).harvestMode
+        : null,
+      notEvidenceFor: [
+        "production_physics_readiness",
+        "clinical_validity",
+        "learner_readiness",
+        "runtimePromotionAllowed",
+      ],
       blockers: Array.isArray(result.blockers)
         ? result.blockers.filter((blocker): blocker is string => typeof blocker === "string")
         : ["manual_evidence_harvest_result_invalid"],
       elapsedWallMs: typeof result.elapsedWallMs === "number" && Number.isFinite(result.elapsedWallMs)
         ? result.elapsedWallMs
         : null,
-      signalSnapshot: sanitizeManualEvidenceHarvestSignalSnapshot(result.signalSnapshot),
+      signalSnapshot,
     },
   };
 }
@@ -957,6 +1010,10 @@ function sanitizeManualEvidenceHarvestSignalSnapshot(value: unknown): Record<str
   }
 
   return {
+    harvestMode: stringOrNull(record.harvestMode),
+    xrStatus: stringOrNull(record.xrStatus),
+    isPresenting: record.isPresenting === true,
+    handModelStatus: stringOrNull(record.handModelStatus),
     textPanelMetadataPresent: record.textPanelMetadataPresent === true,
     textPanelCount: finiteNumberOrNull(record.textPanelCount),
     frameStatsFresh: record.frameStatsFresh === true,

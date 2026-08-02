@@ -1,0 +1,109 @@
+{
+  "generatedAt": "2026-08-02T23:18:57.931Z",
+  "source": "quest_cdp_worn_session_probe",
+  "claim": "operator_entered_full_vr_iwsdk_sidecar_presenting",
+  "verdict": {
+    "shellLoaded": true,
+    "immersivePresenting": true,
+    "xrStatus": "In Full VR",
+    "immersiveFramesObserved": 10501,
+    "approxFps": 85.5,
+    "handModelStatus": "installed"
+  },
+  "notEvidenceFor": [
+    "production_physics_readiness",
+    "clinical_validity",
+    "learner_readiness",
+    "runtimePromotionAllowed"
+  ],
+  "probe": {
+    "url": "http://localhost:5183/?questSmoke=manual-immersive-worn-2026-08-02&openclinxrAcceleratedExam=1",
+    "title": "OpenClinXR IWSDK Spike",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/149.1.0.10.52.1018773329 Chrome/149.0.7827.197 VR Safari/537.36",
+    "xrStatus": "In Full VR",
+    "enterButton": "Exit Full VR",
+    "hasNavigatorXr": true,
+    "frameStats": {
+      "sampleCount": 180,
+      "avgFrameMs": 11.7,
+      "p95FrameMs": 11.9,
+      "maxFrameMs": 64.88,
+      "approxFps": 85.5,
+      "framesObserved": 13306,
+      "latestFrameAtMs": 151512.31,
+      "sampleWindowSize": 180,
+      "previewFramesObserved": 2805,
+      "immersiveFramesObserved": 10501,
+      "qualitySource": "webxr_animation_loop",
+      "isPresenting": true,
+      "visibilityState": "visible"
+    },
+    "inputEvidence": {
+      "handModelCount": 2,
+      "handModelStatus": "installed",
+      "handRepresentationKind": "primitive_spheres",
+      "handInputsObserved": 2,
+      "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
+      "lastLocomotionAtMs": null,
+      "activeLocomotionSource": "none",
+      "inputSourceCount": 2,
+      "inputSourceKinds": [
+        "xr_gamepad",
+        "xr_hand"
+      ],
+      "keyboardVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrInputSources": [
+        {
+          "handedness": "right",
+          "hasHand": true,
+          "hasGamepad": true,
+          "axisCount": 0
+        },
+        {
+          "handedness": "left",
+          "hasHand": true,
+          "hasGamepad": true,
+          "axisCount": 0
+        }
+      ],
+      "locomotionDelta": null,
+      "rigPosition": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    "iwsdkEvidence": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "phaseLabel": "Phase 1 Full VR",
+      "requestedSessionMode": "immersive-vr"
+    },
+    "bootPhases": [
+      "controls_start",
+      "controls_ready",
+      "station_scene_start",
+      "uikitml_spatial_text_load_start",
+      "station_render_loop_started",
+      "station_scene_ready",
+      "clock_started",
+      "uikitml_spatial_text_blocked",
+      "iwsdk_evidence_load_start",
+      "iwsdk_evidence_failed",
+      "full_vr_entry_operator_button"
+    ],
+    "canvas": {
+      "width": 3360,
+      "height": 1760,
+      "clientWidth": 880,
+      "clientHeight": 924
+    }
+  }
+}

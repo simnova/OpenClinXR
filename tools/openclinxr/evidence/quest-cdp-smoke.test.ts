@@ -358,7 +358,9 @@ describe("Quest CDP smoke probe", () => {
     expect(enterVrCompletionExpression(3000)).toContain("xr-status");
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrManualPerformanceDraft");
     expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrXrEntryEvidence");
-    expect(enterVrCompletionExpression(3000)).toContain('xrStatusAfter === "In Full VR" && immersiveSessionStarted');
+    expect(enterVrCompletionExpression(3000)).toContain("window.__openClinXrFrameStats");
+    expect(enterVrCompletionExpression(3000)).toContain('status === "In Full VR"');
+    expect(enterVrCompletionExpression(3000)).toContain("stats?.isPresenting === true");
     expect(manualEvidenceHarvestExpression({
       timeoutMs: 9000,
       minImmersiveFrames: 600,
@@ -414,6 +416,62 @@ describe("Quest CDP smoke probe", () => {
       minImmersiveFrames: 600,
       minSampleWindowSize: 120,
     })).toContain("generatedSceneAssetsLoaded");
+    // IWSDK sidecar harvest: frameStats path, no draft/locomotion hard blockers
+    const iwsdkHarvest = manualEvidenceHarvestExpression({
+      timeoutMs: 9000,
+      minImmersiveFrames: 90,
+      minSampleWindowSize: 30,
+      target: "iwsdk-sidecar",
+    });
+    expect(iwsdkHarvest).toContain("iwsdk_sidecar_frame_stats");
+    expect(iwsdkHarvest).toContain("window.__openClinXrFrameStats");
+    expect(iwsdkHarvest).toContain('xrStatus === "In Full VR"');
+    expect(iwsdkHarvest).toContain('const harvestMode = "iwsdk_sidecar_frame_stats"');
+    expect(iwsdkHarvest).toContain("immersiveFramesObserved >= 90");
+  });
+
+  it("builds IWSDK sidecar harvest payload ready from frameStats-style signals", () => {
+    const payload = buildManualEvidenceHarvestPayload({
+      ready: true,
+      timedOut: false,
+      blockers: [],
+      elapsedWallMs: 1200,
+      manualPerformanceDraft: null,
+      captureSummary: null,
+      textPanelEvidence: null,
+      sceneAssetEvidence: null,
+      frameStats: {
+        immersiveFramesObserved: 500,
+        sampleWindowSize: 180,
+        isPresenting: true,
+        approxFps: 90,
+      },
+      signalSnapshot: {
+        harvestMode: "iwsdk_sidecar_frame_stats",
+        xrStatus: "In Full VR",
+        isPresenting: true,
+        handModelStatus: "installed",
+        frameStatsFresh: true,
+        immersiveFramesObserved: 500,
+        sampleWindowSize: 180,
+        immersiveFrameReady: true,
+        sampleWindowReady: true,
+      },
+    });
+    expect(payload.harvestSummary).toMatchObject({
+      ready: true,
+      timedOut: false,
+      harvestMode: "iwsdk_sidecar_frame_stats",
+      blockers: [],
+    });
+    const summary = payload.harvestSummary as Record<string, unknown>;
+    expect(summary.signalSnapshot).toMatchObject({
+      harvestMode: "iwsdk_sidecar_frame_stats",
+      xrStatus: "In Full VR",
+      isPresenting: true,
+      immersiveFramesObserved: 500,
+    });
+    expect(payload.frameStats).toMatchObject({ immersiveFramesObserved: 500, isPresenting: true });
   });
 
   it("wraps harvested in-app Quest evidence without upgrading it to manual readiness", () => {
@@ -570,13 +628,25 @@ describe("Quest CDP smoke probe", () => {
       },
       textPanelEvidence,
       sceneAssetEvidence,
+      frameStats: null,
       harvestSummary: {
         source: "quest_cdp_manual_evidence_harvest",
         ready: true,
         timedOut: false,
+        harvestMode: null,
+        notEvidenceFor: [
+          "production_physics_readiness",
+          "clinical_validity",
+          "learner_readiness",
+          "runtimePromotionAllowed",
+        ],
         blockers: [],
         elapsedWallMs: 601_234,
         signalSnapshot: {
+          harvestMode: null,
+          xrStatus: null,
+          isPresenting: false,
+          handModelStatus: null,
           textPanelMetadataPresent: true,
           textPanelCount: 3,
           frameStatsFresh: true,
