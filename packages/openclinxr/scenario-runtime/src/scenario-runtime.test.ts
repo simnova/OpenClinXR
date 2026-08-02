@@ -14,9 +14,14 @@ import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProvider
 import { describe, expect, it } from "vitest";
 import {
   createDefaultScenarioRuntime,
+  createDurableStoreFromPersistenceHooks,
+  createScenarioRuntimeWithPersistenceHooks,
   ScenarioRuntime,
+  type DurableStorePersistenceHooks,
+  type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "./index.js";
+import type { ReviewPacket } from "@openclinxr/shared-schemas";
 
 describe("scenario runtime", () => {
   it("starts an ED station with provider and asset readiness visible", async () => {
@@ -680,15 +685,75 @@ describe("scenario runtime", () => {
     expect(packet.timeline.length).toBeGreaterThan(0);
   });
 
-  it("accepts durableStore via createDefaultScenarioRuntime options", async () => {
-    const savedTurns: string[] = [];
-    const runtime = createDefaultScenarioRuntime({
-      durableStore: {
-        saveActorTurn(_stationRunId, turn) {
-          savedTurns.push(turn.turnId);
-        },
+  it("createDurableStoreFromPersistenceHooks forwards saveActorTurn + saveReviewPacket", async () => {
+    const actorTurns: ScenarioRuntimeActorTurn[] = [];
+    const reviewPackets: ReviewPacket[] = [];
+    const hooks: DurableStorePersistenceHooks = {
+      saveActorTurn(_stationRunId, turn) {
+        actorTurns.push(turn);
       },
+      saveReviewPacket(_stationRunId, packet) {
+        reviewPackets.push(packet);
+      },
+    };
+
+    const store = createDurableStoreFromPersistenceHooks(hooks);
+    const sampleTurn: ScenarioRuntimeActorTurn = {
+      turnId: "turn_1_patient_robert_hayes_v1_120",
+      stationRunId: "run_test",
+      actorId: "patient_robert_hayes_v1",
+      atSecond: 120,
+      conversationTurn: 1,
+      learnerUtterance: "When did the pressure start?",
+      responseText: "It started upstairs.",
+      responseKind: "spoken_actor_response",
+      traceContextTags: ["history_opqrst"],
+      durableEventRef: "durable://station-runs/run_test/events/4",
+      learnerEventSequence: 3,
+      actorResponseEventSequence: 4,
+    };
+
+    await store.saveActorTurn?.("run_test", sampleTurn);
+    await store.saveReviewPacket?.("run_test", {
+      stationRunId: "run_test",
+      scenarioId: edChestPainScenario.scenarioId,
+      requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
+      observedTraceTags: ["history_opqrst"],
+      missingRequiredTraceTags: [],
+      timeline: [],
+      traceQuality: {
+        eventCount: 0,
+        hasPatientNote: false,
+        hasFacultyScoreDraft: false,
+      },
+      facultyScoreDraft: {
+        reviewerId: "faculty_001",
+        status: "draft",
+        comments: "hooks forward test",
+      },
+    } as ReviewPacket);
+
+    expect(actorTurns).toHaveLength(1);
+    expect(actorTurns[0]?.turnId).toBe(sampleTurn.turnId);
+    expect(reviewPackets).toHaveLength(1);
+    expect(reviewPackets[0]?.stationRunId).toBe("run_test");
+  });
+
+  it("createDefaultScenarioRuntime({ durableStore }) invokes hooks on actor turn + review packet", async () => {
+    const savedTurns: ScenarioRuntimeActorTurn[] = [];
+    const savedPackets: ReviewPacket[] = [];
+    const hooks: DurableStorePersistenceHooks = {
+      saveActorTurn(_stationRunId, turn) {
+        savedTurns.push(turn);
+      },
+      saveReviewPacket(_stationRunId, packet) {
+        savedPackets.push(packet);
+      },
+    };
+    const runtime = createDefaultScenarioRuntime({
+      durableStore: createDurableStoreFromPersistenceHooks(hooks),
     });
+
     const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
     runtime.startEncounter(session.stationRunId, { atSecond: 60 });
     await runtime.generateActorResponse(session.stationRunId, {
@@ -697,7 +762,48 @@ describe("scenario runtime", () => {
       atSecond: 120,
       traceContextTags: ["history_opqrst"],
     });
-    expect(savedTurns).toEqual(["turn_1_patient_robert_hayes_v1_120"]);
+    runtime.submitNote(session.stationRunId, {
+      atSecond: 1260,
+      text: "Hooks consumer note: ACS concern.",
+    });
+    const packet = await runtime.reviewPacketAndPersist(session.stationRunId);
+
+    expect(savedTurns).toHaveLength(1);
+    expect(savedTurns[0]?.actorId).toBe("patient_robert_hayes_v1");
+    expect(savedPackets).toHaveLength(1);
+    expect(savedPackets[0]?.stationRunId).toBe(session.stationRunId);
+    expect(packet.stationRunId).toBe(session.stationRunId);
+  });
+
+  it("createScenarioRuntimeWithPersistenceHooks wires ApiPersistenceSink-shaped hooks end-to-end", async () => {
+    const savedTurns: ScenarioRuntimeActorTurn[] = [];
+    const savedPackets: ReviewPacket[] = [];
+    const runtime = createScenarioRuntimeWithPersistenceHooks({
+      saveActorTurn(_stationRunId, turn) {
+        savedTurns.push(turn);
+      },
+      saveReviewPacket(_stationRunId, packet) {
+        savedPackets.push(packet);
+      },
+    });
+
+    const session = await runtime.startSession({ learnerId: "hooks_learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "Does the pain radiate?",
+      atSecond: 130,
+      traceContextTags: ["history_opqrst"],
+    });
+    runtime.submitNote(session.stationRunId, {
+      atSecond: 1260,
+      text: "Convenience factory note.",
+    });
+    await runtime.reviewPacketAndPersist(session.stationRunId);
+
+    expect(savedTurns).toHaveLength(1);
+    expect(savedPackets).toHaveLength(1);
+    expect(savedTurns[0]?.stationRunId).toBe(session.stationRunId);
   });
 });
 

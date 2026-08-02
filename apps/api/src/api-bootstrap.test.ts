@@ -776,9 +776,8 @@ describe("OpenClinXR API startup", () => {
       new Request(`http://localhost/sessions/${session.stationRunId}/review-packet`),
     );
     expect(packetResponse.status).toBe(200);
-    // Dual path: runtime.reviewPacket settles durableStore (wired to same sink) AND
-    // GET handler also calls persistence.saveReviewPacket — both are correct for hosts
-    // that inject runtime without durableStore. Assert at least one durable save.
+    // Dual path: runtime.reviewPacket settles durableStore (same sink) AND GET handler
+    // also calls persistence.saveReviewPacket for hosts without durableStore wiring.
     expect(savedPackets.length).toBeGreaterThanOrEqual(1);
     expect(savedPackets).toContainEqual(
       expect.objectContaining({

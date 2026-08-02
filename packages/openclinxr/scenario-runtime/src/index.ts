@@ -179,6 +179,33 @@ export type ScenarioRuntimeDurableStore = {
   saveActorTurn?(stationRunId: string, turn: ScenarioRuntimeActorTurn): void | Promise<void>;
 };
 
+/**
+ * ApiPersistenceSink-shaped hooks for review packets + actor turns.
+ * Hosts (API bootstrap residual, CLIs) attach sinks without coupling
+ * scenario-runtime to apps/api or data-mongodb.
+ */
+export type DurableStorePersistenceHooks = {
+  saveReviewPacket?(stationRunId: string, packet: ReviewPacket): void | Promise<void>;
+  saveActorTurn?(stationRunId: string, turn: ScenarioRuntimeActorTurn): void | Promise<void>;
+};
+
+/**
+ * Forward persistence hooks into a ScenarioRuntimeDurableStore.
+ * Optional methods stay undefined when the host omits them.
+ */
+export function createDurableStoreFromPersistenceHooks(
+  hooks: DurableStorePersistenceHooks,
+): ScenarioRuntimeDurableStore {
+  const store: ScenarioRuntimeDurableStore = {};
+  if (hooks.saveReviewPacket) {
+    store.saveReviewPacket = (stationRunId, packet) => hooks.saveReviewPacket?.(stationRunId, packet);
+  }
+  if (hooks.saveActorTurn) {
+    store.saveActorTurn = (stationRunId, turn) => hooks.saveActorTurn?.(stationRunId, turn);
+  }
+  return store;
+}
+
 export type ScenarioRuntimeOptions = {
   scenario: Scenario;
   ledger: InMemoryTraceLedger;
@@ -186,6 +213,10 @@ export type ScenarioRuntimeOptions = {
   modelGateway: ModelGateway;
   voiceGateway: VoiceGateway;
   /** Optional durable sink. In-memory default when unset. */
+  durableStore?: ScenarioRuntimeDurableStore;
+};
+
+export type CreateDefaultScenarioRuntimeOptions = {
   durableStore?: ScenarioRuntimeDurableStore;
 };
 
@@ -688,13 +719,8 @@ function withDurableEventRef<T extends Record<string, unknown>>(
   };
 }
 
-export type CreateDefaultScenarioRuntimeOptions = {
-  /** Optional durable sink (API persistence adapter, authoring store, etc.). In-memory default when unset. */
-  durableStore?: ScenarioRuntimeDurableStore;
-};
-
 export function createDefaultScenarioRuntime(
-  options: CreateDefaultScenarioRuntimeOptions = {},
+  options?: CreateDefaultScenarioRuntimeOptions,
 ): ScenarioRuntime {
   const assetRegistry = new InMemoryAssetRegistry();
   for (const manifest of createScenarioPlaceholderManifests(edChestPainScenario)) {
@@ -713,7 +739,20 @@ export function createDefaultScenarioRuntime(
       routeId: "voice-offline-v1",
       adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
     }),
-    ...(options.durableStore ? { durableStore: options.durableStore } : {}),
+    ...(options?.durableStore ? { durableStore: options.durableStore } : {}),
+  });
+}
+
+/**
+ * Convenience: createDefaultScenarioRuntime with ApiPersistenceSink-shaped hooks
+ * forwarded via createDurableStoreFromPersistenceHooks.
+ * apps/api bootstrap residual is a one-liner over this (or createDefaultScenarioRuntime + hooks).
+ */
+export function createScenarioRuntimeWithPersistenceHooks(
+  hooks: DurableStorePersistenceHooks,
+): ScenarioRuntime {
+  return createDefaultScenarioRuntime({
+    durableStore: createDurableStoreFromPersistenceHooks(hooks),
   });
 }
 
