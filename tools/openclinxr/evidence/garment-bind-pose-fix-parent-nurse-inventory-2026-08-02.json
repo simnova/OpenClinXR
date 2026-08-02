@@ -1,0 +1,16 @@
+{
+  "revision": "embed_real_garment_body_local_y_height_bind_pose_fix_v1",
+  "parentGlbBytes": 21532392,
+  "nurseGlbBytes": 23119544,
+  "faceCount": 324,
+  "bindPoseLocalY": {
+    "parent": [
+      0.623,
+      1.198
+    ],
+    "nurse": [
+      0.661,
+      1.269
+    ]
+  }
+}
