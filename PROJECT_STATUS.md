@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** ui-xr-parent-nurse-runtime-comparator-v1 closed; continue autonomy.
+**Active slice:** ui-xr-parent-nurse-sleeve-deform-capture-v1 closed; continue autonomy.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| ui-xr-parent-nurse-sleeve-deform-capture-v1 | execute+verify | **verify ok (Q5)** — parent+nurse UI-XR sleeveDeform PNGs ≥250kB fronts; capture --role both; skeptic visible |
 | ui-xr-parent-nurse-runtime-comparator-v1 | execute+verify | **verify ok (Q1)** — humanoidSourceComparator parent+nurse real garment; sleeveDeform/cyan/userData; 95 ui-xr tests |
 | peds-parent-nurse-garment-dual-capture-v1 | execute+verify | **verify ok (Q1+Q5)** — dual MV turntable front/three_quarter parent+nurse (~139kB each); no re-orchestrate |
 | admin-replay-real-turns-v1 | execute+verify | **verify ok (Q4)** — emission→admin replay projection (real turns not seeds); `pnpm encounter:admin-replay-from-emission` |
@@ -67,7 +68,7 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** ui-xr-parent-nurse-sleeve-deform-capture-v1 (Q5) — capture parent/nurse real-garment sleeveDeform in UI-XR sample (or matrix Q4 admin bind of emission).
+**Next dequeue:** admin-ui-emission-bind-v1 (Q4) — bind emission/admin replay to real turns; or matrix next Q1 vertical.
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
@@ -77,6 +78,17 @@ Last updated: 2026-06-07
 
 
 
+
+
+### 2026-08-02 — ui-xr-parent-nurse-sleeve-deform-capture-v1 (Q5) verify ok
+
+Product path advanced: **UI-XR parent+nurse real-garment sleeveDeform capture** (front/three_quarter/body_motion PNGs dual-role ≥250kB fronts). Capture CLI `--role both` via ui-xr-peds-adaptive-dialogue-capture; comparators from prior Q1 wire; no re-orchestrate. Inspection + skeptic visible.
+Blueprint/factory tie: Q5 verification of multi-role real-garment runtime consumers in UI-XR sample (parent/nurse beyond patient-only).
+Touched files: tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts; tools/openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-capture.ts (if present); .openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/*; handoffs.
+Evidence: parent/nurse front PNGs 255k–342k; nurse fronts ~301k; slice-verify ok=true; skeptic_verdict=visible.
+Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=9 pro=15 composer=49; flashΔ=0 proΔ=1 composerΔ=0; subagents=65 subPeak=222699; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5|grok-4.5-build; ratio=2.79
+**Task cost: $1.25 est; subagents=4; subTokens=243441; subUsd=$1.25; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$1.15|deepseek-v4-pro-anthropic:$0.09**
+Next queued slice: admin-ui-emission-bind-v1 (Q4).
 
 ### 2026-08-02 — ui-xr-parent-nurse-runtime-comparator-v1 (Q1) verify ok
 
