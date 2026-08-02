@@ -69,8 +69,10 @@ export type { ReplayResult, ReplayTrace } from "./replay.js";
 export type { PhysicsAdapter, PhysicsStateSnapshot } from "./adapters/stub.js";
 export { StubPhysicsAdapter } from "./adapters/stub.js";
 
-// Havok candidate adapter
+// Engine candidate adapters
 export { HavokCandidateAdapter } from "./adapters/havok.js";
+export { RapierCandidateAdapter } from "./adapters/rapier.js";
+export { JoltCandidateAdapter } from "./adapters/jolt.js";
 
 // Palpation scenario (C2 input log)
 export {
@@ -82,3 +84,11 @@ export type { PalpationConfig, PalpationQuadrant, PalpationSite } from "./scenar
 // Cagematch metrics
 export { buildPhysicsCagematchReport } from "./metrics/report.js";
 export type { BuildCagematchReportOptions, PhysicsCagematchReport } from "./metrics/report.js";
+
+// Three-way cagematch (Havok vs Rapier vs Jolt)
+export { runThreeWayCagematch } from "./cagematch/three-way.js";
+export type {
+  EngineResult,
+  ThreeWayCagematchReport,
+  ThreeWayVerdict,
+} from "./cagematch/three-way.js";
