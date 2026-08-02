@@ -1,16 +1,34 @@
-# Arena Cage Match: Deterministic Physics-Compliant Clinical Touch (UI-XR)
+# Arena Cage Match: Deterministic Physics-Compliant Clinical Touch (arena residual ledger)
 
-**Doc id**: `arena-physics-clinical-touch-cagematch-2026-08-01`
-**Target path on merge**: `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md`
-**Status**: active epic source (BOD 2026-08-02). Epic id `arena-physics-clinical-touch-v1`. Not protected-policy; subordinate to AGENTS + PROJECT_STATUS.
-**Supersedes**: `WebXR_Interactive_Humanoid_Physics_Plan.md` (external, unvetted, engine/licence/determinism errors — see §2).
-**Authority order**: `AGENTS.md` > `PROJECT_STATUS.md` > `docs/openclinxr/worker-backlog-and-validation-matrix.md` > this doc. Legacy ledgers (`PROJECT_COORDINATION_INDEX`, `AUTONOMOUS_WORK_PLAN`) are audit/archive only. On conflict, canonical wins; record the conflict, do not silently reconcile.
-**Gate posture**: all provider/runtime/learner/Quest/production/clinical/scoring gates remain `false` for the entire duration of this spec. Nothing here promotes to production apps.
-**Thrash guard**: >60 minutes of **agentic (token-burning)** toil on the same slice task → stop/pivot/block. Long **scripted** non-token work (tests, builds, installs, captures) does **not** count. Max 2 execute retries per slice. See `docs/agent-ops/OPENCLAW-EPIC-CONTINUITY.md`.
+**Doc id**: `arena-physics-clinical-touch-cagematch-2026-08-01`  
+**Path**: `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md`  
+**Status**: **COMPLETED epic residual ledger** (BOD 2026-08-02 execute; claim-align review 2026-08-02). Epic id `arena-physics-clinical-touch-v1` is **closed**. This file is **not** an active marching order. Governing decision: [MADR 0029](../madr/0029-arena-physics-clinical-touch-determinism.md) — **arena-only evaluation; not promoted** to production XR.  
+**Not protected-policy**; subordinate to AGENTS + PROJECT_STATUS.  
+**Supersedes**: `WebXR_Interactive_Humanoid_Physics_Plan.md` (external, unvetted — see §2).  
+**Authority order**: `AGENTS.md` > `PROJECT_STATUS.md` > `docs/openclinxr/worker-backlog-and-validation-matrix.md` > this doc. Legacy ledgers are audit/archive only.  
+**Gate posture**: all provider/runtime/learner/Quest/production/clinical/scoring gates remain **`false`**. Nothing here promotes to production apps.  
+**Thrash guard**: >60 minutes of **agentic (token-burning)** toil on the same slice task → stop/pivot/block. Scripted non-token work does not count. See `docs/agent-ops/OPENCLAW-EPIC-CONTINUITY.md`.
+
+### Delivered vs deferred (claim control — 2026-08-02 CEO + team)
+
+| Delivered (contract met under local determinism) | Deferred (not done; do not claim complete) |
+|--------------------------------------------------|--------------------------------------------|
+| `@openclinxr/physics-touch-contract` C1–C7 + vitest (144/144 at close) | Real Havok/Rapier/Jolt **WASM** engines |
+| `*-candidate` adapters + three-way unit cagematch | Production engine ids / license-installed cage match |
+| InputLog scenarios: palpation, passive-ROM, guarding, positioning | IWSDK MCP as primary trajectory instrument |
+| Package-local `physics_config.v1` + habitus tables | `schemas/` `bodyMechanics` + `tools/openclinxr/factory` emitter |
+| MADR 0029 explicit **non-promotion** | Bind into `apps/ui-xr` / skinned GLB bone drive |
+| Quest s7: USB CDP **`foreground_ready`** (shell + preview frames) | Immersive session, controller hands, physics-on-headset |
+| Inspection + metrics **types** / unit report builders | Full §5.3 hard metrics (mm/°, garment PNG, registry.json tree) |
+| App shell README under `apps/arena/physics-clinical-touch/` | Runnable app `src/` + `public/cagematch/...` PNG tree |
+
+**Honest residual north star (successor epic only, after successor MADR):** optional real-WASM cage match and/or UI-XR consumer — **not** this ledger’s open work. Product **Next dequeue** remains `wire-api-durableStore-consumer-v1` unless BOD pivots.
 
 ---
 
-## 0. Preconditions (execute before reading further)
+## 0. Preconditions (historical — for re-running related work)
+
+```bash
 
 ```bash
 nvm use                          # Node >=24.15.0 per .nvmrc
@@ -41,14 +59,22 @@ Mandatory codebase reads before writing code (grep-scoped, not full-file):
 
 ## 1. Objective
 
-Prove or disprove, with committed artifacts, that a **physics-compliant patient body** can be driven inside the UI-XR runtime **without breaking replay determinism or the evidence contract**.
+### 1.1 Completed epic objective (what s1–s7 actually closed)
 
-Product-side interaction target (Step 2 CS-relevant, seated/supine patient):
+Prove or disprove, with **arena-committed artifacts and tests**, that a **deterministic clinical-touch physics contract** (C1–C7) can evaluate candidate solvers and InputLog scenarios **without** production UI-XR promotion or clinical/scoring claims. Governing: MADR 0029.
+
+### 1.2 Residual product north star (successor only — not open work in this ledger)
+
+A later epic *may* prove a **physics-compliant patient body** can be driven in the UI-XR runtime **without breaking replay determinism or the evidence contract**, only after a **successor MADR** and explicit BOD queue pivot.
+
+Product-side interaction targets (Step 2 CS–relevant, seated/supine patient) for that residual:
 
 - **Palpation compliance** — learner hand contacts abdomen/chest; tissue-analogue yields, returns on release.
 - **Passive ROM** — learner grasps forearm/wrist; limb follows with joint-limited compliance and a return-to-pose motor.
 - **Guarding / withdrawal** — contact force + region crosses case-def threshold → emotion-timeline event → scripted withdrawal + dialogue policy trigger.
 - **Positioning assist** — arm/leg repositioned for auscultation or exam access; new pose persists.
+
+**As of epic close:** these exist as **InputLog + candidate-adapter unit scenarios**, not as skinned-GLB / UI-XR runtime behavior.
 
 Explicitly **out of scope** (delete from any inherited plan): full active-ragdoll locomotion, push-to-step recovery, balance/COM recovery controllers, motion-matching database construction, get-up clips, multiplayer/server reconciliation.
 
@@ -216,9 +242,9 @@ Hard rule: if a value is tuned by hand during the cage match, it must land back 
 
 ---
 
-## 7. Slice plan
+## 7. Slice plan (historical — epic executed and closed)
 
-Each slice closes with `pnpm openclaw:post-slice && pnpm docs:drift-check`, a Per-Slice record (product path, blueprint tie, touched, evidence, next) in canonical state files only, and focused verification (`-t "name"`) — never full-suite.
+Each slice closed with `pnpm openclaw:post-slice && pnpm docs:drift-check` where applicable, Per-Slice records in `PROJECT_STATUS.md`, and focused package tests. **Do not re-open this table as an active queue.**
 
 | # | Slice | Exit artifact |
 |---|---|---|
@@ -260,10 +286,21 @@ Every report, page, and per-slice entry must state, without softening:
 
 ## 10. Definition of done
 
-- C1–C7 implemented and enforced by tests.
-- Three adapters evaluated against one input log; `report.json` + `registry.json` + PNGs + inspection JSON committed.
-- `physics_config.v1` generated from case-def; zero hand-tuned constants in adapter code.
-- `pnpm security:licenses` and `pnpm security:audit-policy` clean; no UE-sourced asset anywhere in the tree.
-- MADR landed with an explicit promote / do-not-promote decision.
-- `pnpm docs:drift-check`, `pnpm agent:alignment`, `pnpm hooks:strict` pass (strict TS baseline caveat per `operator-open-questions.md` applies).
-- All gates still `false`.
+### 10.1 Epic close DoD (met under thrash fences + MADR 0029)
+
+- [x] C1–C7 implemented and enforced by package tests.
+- [x] Three **candidate** adapters evaluated against one InputLog class (three-way unit report builders); **not** real WASM + committed PNG cagematch tree.
+- [x] `physics_config.v1` generator exists (package-local phenotype-shaped input); habitus tables committed.
+- [x] No UE-sourced assets introduced.
+- [x] MADR 0029 landed with explicit **do-not-promote**.
+- [x] Quest optional path: either skip or foreground CDP evidence (s7 upgraded to `foreground_ready`; immersive not claimed).
+- [x] All gates still `false`.
+
+### 10.2 Successor DoD (explicitly **not** claimed by epic close)
+
+- [ ] Real engine WASM adapters with C6 + license posture.
+- [ ] Committed `public/cagematch/physics-clinical-touch/<date>/` report + PNGs + registry entry.
+- [ ] Full §5.3 hard metrics measured (or explicitly waived with original thresholds recorded).
+- [ ] `schemas/` `bodyMechanics` + factory tool path if product needs case-def SSOT.
+- [ ] UI-XR consumer of physics without rewriting evidence surfaces (successor MADR).
+- [ ] Immersive Quest session evidence if readiness claims are ever sought.

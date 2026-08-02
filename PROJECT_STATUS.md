@@ -25,13 +25,14 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** epic arena-physics-clinical-touch-v1 **completed**; Next = wire-api-durableStore-consumer-v1.
+**Active slice:** product Next = wire-api-durableStore-consumer-v1. Physics epic closed + **spec claim-aligned** (2026-08-02).
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + **s7 upgraded** Quest CDP foreground_ready (not immersive); MADR 0029; 144 tests |
+| arena-physics-spec-review-execute-v1 | execute+verify | verify ok (Q5) — CEO+team Grok 4.5: SPEC_ALIGN yes; WASM/UI-XR/schema defer; open-Q defaults; residual ledger |
+| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + s7 foreground_ready; MADR 0029; 144 tests; ledger claim-aligned |
 | arena-physics-s5-factory-physics-config | execute+verify | verify ok (Q1) — physics_config.v1 + habitus tables |
 | arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection |
 | arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way candidates C6 |
@@ -100,6 +101,19 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 arena-physics-spec-review-execute-v1 (Q5)
+
+Product path advanced: **CEO team consult (Grok 4.5)** — xr-systems-architect, openclaw-drift-police, productivity-skeptic, implementation-planning-lead. Unanimous: **SPEC_ALIGN now**; **REAL_WASM / UI_XR_BIND / FACTORY_SCHEMA defer**; product queue stays **wire-api**. Executed: claim-align residual ledger on cagematch MD (Delivered vs deferred + DoD split); MADR 0029 Related link; `operator-open-questions.md` post-epic defaults (8 rows). No WASM install; no UI-XR physics thrash.
+
+Blueprint/factory tie: Q5 factory instruction verification (anti-drift: prevent agents re-opening closed epic as UI-XR complete).
+
+Touched: `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md`; `docs/madr/0029-…`; `operator-open-questions.md`; `PROJECT_STATUS.md`.
+
+Evidence: four consult subagents; consensus votes logged in checkpoint narrative. Token introspection: aligned; tier: compose.  
+Cost line: Task cost: estimate via consult windows; subagents=4 consult (read-only); no package code delta.
+
+Next queued slice: wire-api-durableStore-consumer-v1 (Q4).
 
 ### 2026-08-02 arena-physics-s7-quest-upgrade (Q5)
 

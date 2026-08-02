@@ -38,5 +38,6 @@ Negative:
 
 ## Related
 
-- Spec: `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md`
-- MADR 0021 (local-first spikes), 0027 (Quest gate), 0028 (IWSDK sidecar)
+- Spec residual ledger (claim-aligned 2026-08-02): `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` — **completed epic ledger**, not active marching order; Delivered vs deferred table is authoritative over older “UI-XR objective” prose still retained as residual north star.
+- Open questions defaults: `operator-open-questions.md` (2026-08-02 arena-physics post-epic).
+- MADR 0021 (local-first spikes), 0027 (Quest gate), 0028 (IWSDK sidecar).
