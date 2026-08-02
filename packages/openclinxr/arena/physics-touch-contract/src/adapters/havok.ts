@@ -23,6 +23,7 @@
  * Same seed + same input log → same checksums (C6).
  */
 
+import type { PhysicsConfigV1 } from "../factory/physics-config-v1.js";
 import type {
   DeterminismScope,
   PhysicsArtifactMeta,
@@ -80,6 +81,19 @@ export class HavokCandidateAdapter implements PhysicsAdapter {
   static readonly PALP_HAND_RB = "palp_hand";
   static readonly ABDOMEN_RB = "abdomen";
   static readonly EXAM_TABLE_RB = "exam_table";
+
+  /**
+   * Create a HavokCandidateAdapter from a PhysicsConfigV1.
+   *
+   * Minimal wiring: uses config.seed and config.fixedDt for meta.
+   * The existing constructor handles seed injection; meta.fixedDt is
+   * always 1/60 per C1.
+   *
+   * Does not break existing tests — only seed is forwarded.
+   */
+  static fromPhysicsConfig(config: PhysicsConfigV1): HavokCandidateAdapter {
+    return new HavokCandidateAdapter(config.seed);
+  }
 
   constructor(seed = 42) {
     this._state = this._buildInitialState(seed);

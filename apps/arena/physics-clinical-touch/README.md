@@ -2,7 +2,7 @@
 
 App shell for the arena physics clinical touch cage match (epic `arena-physics-clinical-touch-v1`).
 
-**Governing decisions:** [MADR 0021](../../../docs/madr/0021-local-first-no-cloud-implementation-spikes.md), [MADR 0027](../../../docs/madr/0027-quest3-usb-webxr-smoke-gate.md), [MADR 0028](../../../docs/madr/0028-iwsdk-sidecar-spike.md). Dedicated physics MADR lands in epic slice s6.
+**Governing decisions:** [MADR 0021](../../../docs/madr/0021-local-first-no-cloud-implementation-spikes.md), [MADR 0027](../../../docs/madr/0027-quest3-usb-webxr-smoke-gate.md), [MADR 0028](../../../docs/madr/0028-iwsdk-sidecar-spike.md), [MADR 0029](../../../docs/madr/0029-arena-physics-clinical-touch-determinism.md).
 
 ## Package
 
@@ -26,7 +26,7 @@ Slice `arena-physics-s1-determinism-harness` — contract package scaffolded ✅
 Slice `arena-physics-s2-havok-adapter` — ✅ `HavokCandidateAdapter` + palpation scenario + C6 proofs + cagematch report. Real WASM gated on `@babylonjs/havok` dep install; candidate path exercises full step/snapshot/reset/C6 determinism. `engineId: "havok-candidate"`.
 Slice `arena-physics-s3-rapier-jolt-cagematch` — ✅ `RapierCandidateAdapter` (engineId `rapier-candidate`, SplitMix32 PRNG, Verlet integration, SOR impulses), `JoltCandidateAdapter` (engineId `jolt-candidate`, Xoshiro128** PRNG, sub-stepped velocity integration, speculative contacts, broad-phase grid), `runThreeWayCagematch(log)` producing per-engine C6 reports + winner/eliminated verdict. All three engines have distinct checksums. Real WASM gated on `@dimforge/rapier3d` / Jolt napi-rs; candidate paths exercise full step/snapshot/reset/C6 determinism.
 Slice `arena-physics-s4-winner-scenarios` — ✅ passive-rom, guarding, positioning InputLog builders + C6 HavokCandidateAdapter tests + scenarioInspectionReport. GuardingThresholdEvent emission hooks (case-def shaped, not clinical scoring). Inspection-shaped JSON for evidence. Garment coherence: metadata-only claim that existing ED real-garment GLB path is out of band — does NOT rewrite apps/ui-xr; notEvidenceFor garment visual recorded in arena report.
-Slice `arena-physics-s5-factory-physics-config` — pending.
+Slice `arena-physics-s5-factory-physics-config` — ✅ `PhysicsConfigV1` type + `generatePhysicsConfigFromPhenotype(input)` factory in `packages/openclinxr/arena/physics-touch-contract/src/factory/`. Committed habitable-tables.ts with `AVERAGE|OBESE|FRAIL_MASS|COMPLIANCE|JOINT_LIMITS|GUARDING_TRIGGERS` + selectors. Deterministic: same phenotype → same config hash; different habitus → different masses/compliance/limits/triggers. `HavokCandidateAdapter.fromPhysicsConfig(config)` static factory for minimal seed/fixedDt wiring. Plain TS types only — no schemas/ package dependency.
 
 ## Gates
 

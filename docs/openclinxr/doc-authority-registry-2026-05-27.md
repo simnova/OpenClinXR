@@ -14,8 +14,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-methodology: 58
 - archive-candidate: 14
 - current-reference: 194
-- decision-record: 19
-- evidence: 31
+- decision-record: 20
+- evidence: 32
 - historical-synthesis: 56
 - protected-policy: 10
 

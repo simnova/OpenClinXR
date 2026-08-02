@@ -129,3 +129,45 @@ export type {
   ScenarioInspectionReport,
   ScenarioInspectionResult,
 } from "./inspection/scenario-inspection.js";
+
+// Physics config v1 factory (s5)
+export {
+  createDefaultPhysicsConfigV1,
+  generatePhysicsConfigFromPhenotype,
+} from "./factory/physics-config-v1.js";
+export type {
+  PhenotypeBodyMechanics,
+  PhysicsConfigPhenotypeInput,
+  PhysicsConfigV1,
+} from "./factory/physics-config-v1.js";
+
+// Habitus tables (s5)
+export {
+  AVERAGE_COMPLIANCE,
+  AVERAGE_GUARDING_TRIGGERS,
+  AVERAGE_JOINT_LIMITS,
+  AVERAGE_MASS,
+  FRAIL_COMPLIANCE,
+  FRAIL_GUARDING_TRIGGERS,
+  FRAIL_JOINT_LIMITS,
+  FRAIL_MASS,
+  OBESE_COMPLIANCE,
+  OBESE_GUARDING_TRIGGERS,
+  OBESE_JOINT_LIMITS,
+  OBESE_MASS,
+  selectComplianceTable,
+  selectGuardingTriggers,
+  selectJointLimitTable,
+  selectMassTable,
+} from "./factory/habitus-tables.js";
+export type {
+  ComplianceRegion,
+  ComplianceTable,
+  GuardingTriggerEntry,
+  Habitus,
+  HabitusBodyRegion,
+  HabitusJoint,
+  JointLimit,
+  JointLimitTable,
+  MassTable,
+} from "./factory/habitus-tables.js";

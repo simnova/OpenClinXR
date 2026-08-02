@@ -752,6 +752,7 @@ describe("workspace architecture rules", () => {
           "0021-local-first-no-cloud-implementation-spikes.md",
           "0027-quest3-usb-webxr-smoke-gate.md",
           "0028-iwsdk-sidecar-spike.md",
+          "0029-arena-physics-clinical-touch-determinism.md",
         ],
       },
       {
@@ -760,6 +761,7 @@ describe("workspace architecture rules", () => {
           "0021-local-first-no-cloud-implementation-spikes.md",
           "0027-quest3-usb-webxr-smoke-gate.md",
           "0028-iwsdk-sidecar-spike.md",
+          "0029-arena-physics-clinical-touch-determinism.md",
         ],
       },
     ];

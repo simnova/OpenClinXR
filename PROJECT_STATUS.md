@@ -25,15 +25,16 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** arena-physics-s5-factory-physics-config (epic arena-physics-clinical-touch-v1). Autonomous mayPush.
+**Active slice:** epic arena-physics-clinical-touch-v1 **completed**; Next = wire-api-durableStore-consumer-v1.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| arena-physics-s5-factory-physics-config | execute | next — physics_config.v1 from phenotype.bodyMechanics |
-| arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection; 116/116 |
-| arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way Havok/Rapier/Jolt candidates; C6 order-stable |
+| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + s7 skipped_no_device; MADR 0029; 144 contract tests; mayPush autonomous |
+| arena-physics-s5-factory-physics-config | execute+verify | verify ok (Q1) — physics_config.v1 + habitus tables |
+| arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection |
+| arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way candidates C6 |
 | arena-physics-s2-havok-adapter | execute+verify | verify ok (Q1+Q5) — HavokCandidateAdapter + palpation C6 + metrics; WASM deferred |
 | arena-physics-s1-determinism-harness | execute+verify | verify ok (Q5) — physics-touch-contract C1–C7 + stub; 25/25 tests; cost ~$0.17 |
 | openclaw-pre-epic-kit-v1 | execute+verify | verify ok (Q5) — epic CLI + apply-header + pathScope README/docs + run-next epicContinuity; dry-run advance; epic completed |
@@ -59,7 +60,7 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** arena-physics-s5-factory-physics-config (Q1) — Factory generator physics_config.v1 from phenotype.bodyMechanics; remove hand-tuned constants from adapters
+**Next dequeue:** wire-api-durableStore-consumer-v1 (Q4) — optional follow-on: ApiPersistenceSink through runtime durableStore (or next matrix Q1 vertical).
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
@@ -99,6 +100,21 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 arena-physics-clinical-touch-v1 COMPLETE (Q1+Q5)
+
+Product path advanced: Full epic autonomous (push+continue). **s1** C1–C7 harness; **s2** Havok candidate + palpation; **s3** three-way Rapier/Jolt; **s4** ROM/guarding/positioning; **s5** physics_config.v1 factory; **s6** MADR 0029 non-promotion; **s7** skipped_no_device. Package `@openclinxr/physics-touch-contract` 144/144 tests. Gates false. Product Next restored to wire-api-durableStore-consumer-v1.
+
+Blueprint/factory tie: Q1 phenotype→physics_config; Q5 arena cagematch determinism; not production UI-XR.
+
+Touched: packages/openclinxr/arena/physics-touch-contract/**; apps/arena/physics-clinical-touch/**; docs/madr/0029; architecture-rules; OPENCLAW epic thrash; PROJECT_STATUS.
+
+Evidence: 144 tests; epic status completed; Quest checklist only.
+
+Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=5 pro=12 composer=28; flashΔ=0 proΔ=0 composerΔ=0; subagents=37 subPeak=144118; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79  
+Cost line: Task cost: $0.15 est; subagents=1; subTokens=81435; subUsd=$0.15; models=deepseek-v4-pro:$0.15 (s5 window; epic multi-slice autonomous)
+
+Next queued slice: wire-api-durableStore-consumer-v1 (Q4).
 
 ### 2026-08-02 arena-physics-s4-winner-scenarios (Q1)
 

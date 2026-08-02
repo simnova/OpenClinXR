@@ -7,11 +7,11 @@
     "agent-methodology": 58,
     "current-reference": 194,
     "archive-candidate": 14,
-    "evidence": 31,
+    "evidence": 32,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
-    "decision-record": 19
+    "decision-record": 20
   },
   "entries": [
     {
@@ -1059,6 +1059,13 @@
     },
     {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-skip/quest-rerun.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -2354,6 +2361,13 @@
     },
     {
       "path": "docs/madr/0028-iwsdk-sidecar-spike.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0029-arena-physics-clinical-touch-determinism.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
