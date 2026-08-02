@@ -22,8 +22,8 @@ test/*.test.ts
 
 ## Current status
 
-Slice `arena-physics-s1-determinism-harness` — contract package scaffolded.
-Slice `arena-physics-s2-havok-adapter` — pending (Havok adapter + IWSDK harness integration).
+Slice `arena-physics-s1-determinism-harness` — contract package scaffolded ✅ (25/25 tests).
+Slice `arena-physics-s2-havok-adapter` — ✅ `HavokCandidateAdapter` + palpation scenario + C6 proofs + cagematch report. Real WASM gated on `@babylonjs/havok` dep install; candidate path exercises full step/snapshot/reset/C6 determinism. `engineId: "havok-candidate"`.
 Slice `arena-physics-s3-rapier-adapter` — pending.
 Slice `arena-physics-s4-jolt-adapter` — pending.
 
