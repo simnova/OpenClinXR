@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "openclinxr.model-vetting-report.v1",
+  "generatedAt": "2026-08-02T18:30:00.000Z",
+  "claimScope": "isolated_model_vetting_metadata_structural_and_lab_contract_only",
+  "sourceReport": {
+    "kind": "anny_candidate_preflight",
+    "schemaVersion": "openclinxr.anny-candidate-preflight.v1",
+    "generatedAt": "2026-08-02T18:30:00.000Z",
+    "note": "dual-role subset of docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-07.json parent+nurse only"
+  },
+  "tracking": {
+    "canonicalPlanPath": "docs/openclinxr/asset-pipeline-vetting-and-cagematch-plan-2026-06-05.md",
+    "sliceId": "peds-parent-nurse-garment-dual-capture-v1"
+  },
+  "providerBoundary": {
+    "providerId": "anny_local_or_anny_compatible_import",
+    "policyMode": "local_metadata_only",
+    "approvalStatus": "not_required_for_metadata_only",
+    "localOnly": true,
+    "providerExecutionEnabled": false,
+    "externalNetworkUsed": false,
+    "paidApiUsed": false,
+    "credentialsRequired": false,
+    "blockedProviderExecutionReasons": [
+      "provider_execution_not_requested_for_this_metadata_only_slice",
+      "no_paid_api_credentials_or_network_execution_allowed"
+    ]
+  },
+  "candidates": [
+    {
+      "candidateId": "peds_anxious_parent_anny_compatible_candidate",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "actorRole": "family",
+      "actorDisplayRole": "anxious parent",
+      "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+      "sourcePreflightStatus": "ready_for_webxr_visual_evidence",
+      "sourceKind": "real_anny_candidate_unverified",
+      "usesRealAnnyForwardPass": true,
+      "gateResult": "blocked_before_scene",
+      "labModes": [
+        {
+          "modeId": "static_model_inspection",
+          "status": "block",
+          "evidence": ["glb_sha256:f84d7cb410523be983b6aac51736b2b5e86f294dd05ff9c50ffc72b9f93ce9f2", "vertices:53384", "materials:3"],
+          "requiredArtifactKinds": ["json", "screenshot"],
+          "capturedArtifactPaths": [],
+          "blockers": ["fixed_camera_screenshots_missing"]
+        },
+        {
+          "modeId": "rig_inspection",
+          "status": "pass",
+          "evidence": ["skins:1", "canonicalSkeletonNodesPresent:true"],
+          "requiredArtifactKinds": ["json"],
+          "capturedArtifactPaths": [],
+          "blockers": []
+        },
+        {
+          "modeId": "morph_phoneme_inspection",
+          "status": "block",
+          "evidence": ["morph:viseme_silence", "morph:openclinxr_mouth_open"],
+          "requiredArtifactKinds": ["json", "video"],
+          "capturedArtifactPaths": [],
+          "blockers": ["morph_viseme_timeline_capture_missing", "emotion_transition_capture_missing"]
+        },
+        {
+          "modeId": "animation_clip_inspection",
+          "status": "block",
+          "evidence": ["animations:5", "clinicalIdlePoseClipCount:3"],
+          "requiredArtifactKinds": ["json", "video"],
+          "capturedArtifactPaths": [],
+          "blockers": ["turntable_animation_video_missing"]
+        },
+        {
+          "modeId": "material_realism_inspection",
+          "status": "block",
+          "evidence": ["materials:3", "role:parent", "garmentLayers:casual_top,open_cardigan"],
+          "requiredArtifactKinds": ["json", "screenshot"],
+          "capturedArtifactPaths": [],
+          "blockers": ["material_fixed_camera_screenshots_missing"]
+        },
+        {
+          "modeId": "optimization_inspection",
+          "status": "block",
+          "evidence": ["bytes:34048820", "vertices:53384"],
+          "requiredArtifactKinds": ["json"],
+          "capturedArtifactPaths": [],
+          "blockers": ["glb_byte_budget_exceeded_for_lab_gate"]
+        }
+      ],
+      "structuralMetrics": {
+        "byteLength": 34048820,
+        "sha256": "f84d7cb410523be983b6aac51736b2b5e86f294dd05ff9c50ffc72b9f93ce9f2",
+        "sceneCount": 1,
+        "nodeCount": 22,
+        "meshCount": 1,
+        "materialCount": 3,
+        "skinCount": 1,
+        "animationCount": 5,
+        "morphTargetPrimitiveCount": 3,
+        "vertexCount": 53384
+      },
+      "rigAndAnimation": {
+        "canonicalSkeletonNodesPresent": true,
+        "faceRigNodesPresent": true,
+        "gazeEyeNodesPresent": true,
+        "blinkControlPresent": true,
+        "requiredMorphTargetsPresent": true,
+        "requiredMorphTargets": ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
+        "missingMorphTargets": [],
+        "observedMorphTargets": ["viseme_silence", "viseme_AA", "openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
+        "locomotionPostureClipPresent": true,
+        "clinicalIdlePoseClipCount": 3
+      },
+      "roleMaterialHandoff": {
+        "actorRole": "parent",
+        "roleVisualCue": "anxious_parent_guardian",
+        "clothingStyle": "muted_rose_guardian_cardigan",
+        "objectNames": [],
+        "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+        "topMaterialName": "openclinxr_role_mesh_clothing_parent_top",
+        "lowerMaterialName": "openclinxr_role_mesh_clothing_parent_lower",
+        "wardrobeRole": "anxious_parent_casual",
+        "garmentLayers": ["casual_top", "open_cardigan"],
+        "fabricPalette": "muted_rose_and_neutral",
+        "materialFinish": "cotton_knit_matte",
+        "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"]
+      },
+      "roleAnimationHandoff": {
+        "actorRole": "parent",
+        "roleSpecificClipNames": ["openclinxr_role_parent_anxious_fidget_guard"],
+        "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+        "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"]
+      },
+      "provenance": {
+        "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+        "textureMode": "procedural_fallback",
+        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+        "realismGrade": "B",
+        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+        "notEvidenceFor": ["b_plus_visual_realism_gate", "provider_runtime_readiness", "production_asset_readiness", "quest_readiness", "learner_readiness", "clinical_validity", "scoring_validity"],
+        "documentSha256": "6f4e3a129868c19ed96f2c23cc9e9f242957fbe6f9a5c69b2d5fc8b53591ea46",
+        "sourceOriginChainPresent": true,
+        "licenseChainPresent": true,
+        "derivativeLineagePresent": true,
+        "toolVersionPresent": true,
+        "promptOrCaseParameterHashPresent": true,
+        "sourceReportCandidateId": "peds_anxious_parent_anny_compatible_candidate",
+        "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+        "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+        "auditPointers": [
+          "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+          "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb"
+        ]
+      },
+      "captureArtifacts": {
+        "fixedCameraScreenshots": []
+      },
+      "providerBoundary": {
+        "providerId": "anny_local_or_anny_compatible_import",
+        "policyMode": "local_metadata_only",
+        "approvalStatus": "not_required_for_metadata_only",
+        "localOnly": true,
+        "providerExecutionEnabled": false,
+        "externalNetworkUsed": false,
+        "paidApiUsed": false,
+        "credentialsRequired": false,
+        "blockedProviderExecutionReasons": [
+          "provider_execution_not_requested_for_this_metadata_only_slice",
+          "no_paid_api_credentials_or_network_execution_allowed"
+        ]
+      },
+      "falseGates": {
+        "realAnny": true,
+        "bPlusRealism": false,
+        "scenePlacementReadiness": false,
+        "questReadiness": false,
+        "productionReadiness": false,
+        "learnerReadiness": false,
+        "clinicalValidity": false,
+        "scoringValidity": false
+      },
+      "blockers": [
+        "fixed_camera_screenshots_missing",
+        "material_fixed_camera_screenshots_missing",
+        "morph_viseme_timeline_capture_missing",
+        "emotion_transition_capture_missing",
+        "turntable_animation_video_missing",
+        "glb_byte_budget_exceeded_for_lab_gate"
+      ],
+      "nextEvidenceRequired": [
+        "fixed_camera_front_side_three_quarter_lab_screenshots",
+        "isolated_model_vetting_video_and_visual_realism_review_for_real_anny_candidate"
+      ]
+    },
+    {
+      "candidateId": "peds_nurse_kevin_anny_compatible_candidate",
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "actorRole": "nurse",
+      "actorDisplayRole": "pediatric clinic nurse",
+      "reuseKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
+      "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
+      "sourcePreflightStatus": "ready_for_webxr_visual_evidence",
+      "sourceKind": "real_anny_candidate_unverified",
+      "usesRealAnnyForwardPass": true,
+      "gateResult": "blocked_before_scene",
+      "labModes": [
+        {
+          "modeId": "static_model_inspection",
+          "status": "block",
+          "evidence": ["glb_sha256:70a9cd6d984f3652cb3a29bfcdeb52d29ed5f0b979f80c02087179b56f3098f1", "vertices:53384", "materials:3"],
+          "requiredArtifactKinds": ["json", "screenshot"],
+          "capturedArtifactPaths": [],
+          "blockers": ["fixed_camera_screenshots_missing"]
+        },
+        {
+          "modeId": "rig_inspection",
+          "status": "pass",
+          "evidence": ["skins:1", "canonicalSkeletonNodesPresent:true"],
+          "requiredArtifactKinds": ["json"],
+          "capturedArtifactPaths": [],
+          "blockers": []
+        },
+        {
+          "modeId": "morph_phoneme_inspection",
+          "status": "block",
+          "evidence": ["morph:viseme_silence", "morph:openclinxr_mouth_open"],
+          "requiredArtifactKinds": ["json", "video"],
+          "capturedArtifactPaths": [],
+          "blockers": ["morph_viseme_timeline_capture_missing", "emotion_transition_capture_missing"]
+        },
+        {
+          "modeId": "animation_clip_inspection",
+          "status": "block",
+          "evidence": ["animations:5"],
+          "requiredArtifactKinds": ["json", "video"],
+          "capturedArtifactPaths": [],
+          "blockers": ["turntable_animation_video_missing"]
+        },
+        {
+          "modeId": "material_realism_inspection",
+          "status": "block",
+          "evidence": ["materials:3", "role:nurse", "garmentLayers:scrub_top,scrub_pocket"],
+          "requiredArtifactKinds": ["json", "screenshot"],
+          "capturedArtifactPaths": [],
+          "blockers": ["material_fixed_camera_screenshots_missing"]
+        },
+        {
+          "modeId": "optimization_inspection",
+          "status": "block",
+          "evidence": ["bytes:34256012"],
+          "requiredArtifactKinds": ["json"],
+          "capturedArtifactPaths": [],
+          "blockers": ["glb_byte_budget_exceeded_for_lab_gate"]
+        }
+      ],
+      "structuralMetrics": {
+        "byteLength": 34256012,
+        "sha256": "70a9cd6d984f3652cb3a29bfcdeb52d29ed5f0b979f80c02087179b56f3098f1",
+        "sceneCount": 1,
+        "nodeCount": 22,
+        "meshCount": 1,
+        "materialCount": 3,
+        "skinCount": 1,
+        "animationCount": 5,
+        "morphTargetPrimitiveCount": 3,
+        "vertexCount": 53384
+      },
+      "rigAndAnimation": {
+        "canonicalSkeletonNodesPresent": true,
+        "faceRigNodesPresent": true,
+        "gazeEyeNodesPresent": true,
+        "blinkControlPresent": true,
+        "requiredMorphTargetsPresent": true,
+        "requiredMorphTargets": ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
+        "missingMorphTargets": [],
+        "observedMorphTargets": ["viseme_silence", "viseme_AA", "openclinxr_mouth_open"],
+        "locomotionPostureClipPresent": true,
+        "clinicalIdlePoseClipCount": 3
+      },
+      "roleMaterialHandoff": {
+        "actorRole": "nurse",
+        "roleVisualCue": "clinical_nurse",
+        "clothingStyle": "teal_clinical_scrubs_with_name_badge",
+        "objectNames": [],
+        "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+        "topMaterialName": "openclinxr_role_mesh_clothing_nurse_top",
+        "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
+        "wardrobeRole": "pediatric_nurse_scrubs",
+        "garmentLayers": ["scrub_top", "scrub_pocket"],
+        "fabricPalette": "teal_scrubs_and_white_badge",
+        "materialFinish": "poly_cotton_slight_sheen",
+        "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
+        "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"]
+      },
+      "roleAnimationHandoff": {
+        "actorRole": "nurse",
+        "roleSpecificClipNames": ["openclinxr_role_nurse_clinical_check_reassure"],
+        "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+        "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"]
+      },
+      "provenance": {
+        "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+        "textureMode": "procedural_fallback",
+        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+        "realismGrade": "B",
+        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+        "notEvidenceFor": ["b_plus_visual_realism_gate", "provider_runtime_readiness", "production_asset_readiness", "quest_readiness", "learner_readiness", "clinical_validity", "scoring_validity"],
+        "documentSha256": "a3c641dfbe42451be3fc2c4907058017e1f8f5dcec2ffbd462226ce4ea05627a",
+        "sourceOriginChainPresent": true,
+        "licenseChainPresent": true,
+        "derivativeLineagePresent": true,
+        "toolVersionPresent": true,
+        "promptOrCaseParameterHashPresent": true,
+        "sourceReportCandidateId": "peds_nurse_kevin_anny_compatible_candidate",
+        "sourceGlbPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+        "provenancePath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
+        "auditPointers": [
+          "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
+          "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb"
+        ]
+      },
+      "captureArtifacts": {
+        "fixedCameraScreenshots": []
+      },
+      "providerBoundary": {
+        "providerId": "anny_local_or_anny_compatible_import",
+        "policyMode": "local_metadata_only",
+        "approvalStatus": "not_required_for_metadata_only",
+        "localOnly": true,
+        "providerExecutionEnabled": false,
+        "externalNetworkUsed": false,
+        "paidApiUsed": false,
+        "credentialsRequired": false,
+        "blockedProviderExecutionReasons": [
+          "provider_execution_not_requested_for_this_metadata_only_slice",
+          "no_paid_api_credentials_or_network_execution_allowed"
+        ]
+      },
+      "falseGates": {
+        "realAnny": true,
+        "bPlusRealism": false,
+        "scenePlacementReadiness": false,
+        "questReadiness": false,
+        "productionReadiness": false,
+        "learnerReadiness": false,
+        "clinicalValidity": false,
+        "scoringValidity": false
+      },
+      "blockers": [
+        "fixed_camera_screenshots_missing",
+        "material_fixed_camera_screenshots_missing",
+        "morph_viseme_timeline_capture_missing",
+        "emotion_transition_capture_missing",
+        "turntable_animation_video_missing",
+        "glb_byte_budget_exceeded_for_lab_gate"
+      ],
+      "nextEvidenceRequired": [
+        "fixed_camera_front_side_three_quarter_lab_screenshots",
+        "isolated_model_vetting_video_and_visual_realism_review_for_real_anny_candidate"
+      ]
+    }
+  ],
+  "decision": {
+    "status": "blocked_before_scene",
+    "isolatedLabCaptureComplete": false,
+    "scenePlacementEvidenceAllowed": false,
+    "runtimePromotionAllowed": false,
+    "productionManifestPromotionAllowed": false,
+    "nextSafeStep": "Run model-vetting turntable front capture for parent+nurse candidates only; no re-orchestrate."
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "scene_placement_readiness",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}
