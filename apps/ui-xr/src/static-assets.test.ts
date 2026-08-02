@@ -314,8 +314,13 @@ describe("static browser assets", () => {
       'humanoidSourceComparator === "peds_anny_real_garment_nurse"\n      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeClinicalTeamActorId() || role === "nurse")',
     );
     expect(mainSource).toContain("applyRealGarmentEvidenceSurfaces");
-    expect(mainSource).toContain("bounds_based_clothing_region_fallback");
-    expect(mainSource).toContain("bounds_based_force_highlight_parent_nurse_capture");
+    // cyan evidence restricted to separate real garment meshes only — never anny_base role clothing slots
+    expect(mainSource).toContain("openclinxr_real_garment|real_garment_from_phenotype");
+    expect(mainSource).toContain("role_mesh_clothing");
+    expect(mainSource).toContain("anny_base_role_clothing_material_not_real_garment_evidence_surface");
+    expect(mainSource).toContain("static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake");
+    expect(mainSource).not.toContain("bounds_based_clothing_region_fallback");
+    expect(mainSource).not.toContain("bounds_based_force_highlight_parent_nurse_capture");
     expect(mainSource).toContain("realGarmentParentAssetPath");
     expect(mainSource).toContain("realGarmentNurseAssetPath");
     expect(mainSource).toContain("clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture");
