@@ -31,6 +31,7 @@ Last updated: 2026-06-07
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| optimize-product-under-os-v1 | execute+verify | **verify ok (Q5)** — alignment+drift green; scorecard notes + G4 latest updated; verdict PROGRESS |
 | framing-polish-parent-nurse-garment-ui-xr-v1 | execute+verify | **verify ok (Q5)** — clean capture; hide XR controllers; cyan torso volume parent/nurse PNGs; 95 ui-xr tests |
 | peds-parent-nurse-real-garment-reorchestrate-v1 | execute+verify | **verify ok (Q1+Q5)** — re-orchestrated parent/nurse realGarmentRegionFromPhenotype 324f; dual MV role colorways (pink/teal) + UI-XR capture; residual mesh bind offset |
 | admin-ui-emission-bind-v1 | execute+verify | **verify ok (Q4)** — EmissionReplayBindPanel + App ReviewReplayWorkbench bind turnSource=runtime_emission_real_turns; pathScope IPL+ui-admin; 12 ui-admin tests; promote worktree |
@@ -71,13 +72,18 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** optimize-product-under-os-v1 (Q5) — scorecard refresh + drift/alignment + pathScope/docs hygiene; no new product P0 unless hole.
+**Next dequeue:** continue-autonomy-run-next (product residual empty) — run-next or website-evidence if skeptic-ready; no thrash on closed GLBs.
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
 **Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
 
 **Blockers:** none
+
+### 2026-08-02 — optimize-product-under-os-v1 (Q5) verify ok
+
+Product path advanced: Post-product optimize pulse — alignment + drift-check green; product-under-os scorecard G4 latest notes for Q4 emission bind + parent/nurse Q1/Q5 reorch/framing; verdict PROGRESS. Blueprint/factory tie: Q5 factory verification of OS under product load. Touched: docs/agent-ops/product-under-os-scorecard-v1.json, PROJECT_STATUS.md. Evidence: pnpm agent:alignment + docs:drift-check ok; tip 87454dc. Token introspection: compose. Next: heartbeat run-next / residual product if any.
+
 
 
 

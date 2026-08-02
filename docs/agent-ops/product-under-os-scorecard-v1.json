@@ -9,7 +9,7 @@
     "G0_land": {
       "status": "pass",
       "bar": "OS stack committed and pushed to origin/main",
-      "evidence": "commit 0e22752 pushed main → origin/main"
+      "evidence": "commit 0e22752 pushed main \u2192 origin/main"
     },
     "G1_compliance": {
       "status": "pass",
@@ -24,13 +24,13 @@
     "G3_token": {
       "status": "pass",
       "bar": "slice-token start+finish recorded; stateRecordLine in checkpoint",
-      "evidence": "Token introspection: aligned; tier: pro; ccusageΔ=0; grok peak baseline 402350 Δpeak 0"
+      "evidence": "Token introspection: aligned; tier: pro; ccusage\u0394=0; grok peak baseline 402350 \u0394peak 0"
     },
     "G4_product": {
       "status": "pass",
       "bar": "Authoring follow-on done_when met (not peds template); verify ok",
-      "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination",
-      "latest": "wire-api+mongo+emission+admin-replay Q4 stack landed 2026-08-02",
+      "evidence": "durableStore + scenario-authoring-roundtrip CLI + 19/19 scenario-runtime tests; verify ok=true; brief fixed from peds contamination; admin-ui-emission-bind-v1; peds-parent-nurse-real-garment-reorchestrate-v1; framing-polish-parent-nurse-garment-ui-xr-v1 (87454dc)",
+      "latest": "Q4 stack: wire-api+mongo+emission+admin-replay+EmissionReplayBindPanel; Q1/Q5 parent/nurse real garment reorch 324f + framing polish cyan capture 2026-08-02",
       "pass": true
     },
     "G5_os_goal": {
@@ -41,13 +41,14 @@
   },
   "verdict": "PROGRESS",
   "findings": [
-    "IPL pathScope was docs-only pre-slice — would have blocked Q1/Q4 package delivery; expanded writeRoots for scenario-runtime/tools as part of product-under-os (OS gap found by product pressure).",
+    "IPL pathScope was docs-only pre-slice \u2014 would have blocked Q1/Q4 package delivery; expanded writeRoots for scenario-runtime/tools as part of product-under-os (OS gap found by product pressure).",
     "Historical thrash NO_GO remains; this experiment is a live post-OS baseline (isolation+promote+pathScope+token) with product outcome.",
     "Promote exit 2 = path-scope skips on non-owned files (expected); 3 product files promoted.",
-    "ccusage Δ0 this window — limited cross-harness cost signal; Grok peak already high from session (not attributable solely to slice)."
+    "ccusage \u03940 this window \u2014 limited cross-harness cost signal; Grok peak already high from session (not attributable solely to slice)."
   ],
   "notes": [
-    "Not a multi-week A/B. Sufficient for BOD: OS rules held under real product delivery."
+    "Not a multi-week A/B. Sufficient for BOD: OS rules held under real product delivery.",
+    "2026-08-02 optimize pulse: alignment+drift green; Autonomy RUNNING; tip 87454dc parent/nurse dual Q1+Q5 visible; Q4 faculty emission bind closed."
   ],
   "evidencePaths": [
     "docs/agent-ops/product-under-os-scorecard-v1.json",
@@ -57,5 +58,5 @@
     "tools/openclinxr/scenario-authoring-roundtrip.ts",
     "packages/openclinxr/scenario-runtime/src/index.ts"
   ],
-  "updatedAt": "2026-08-02T16:03:56.598Z"
+  "updatedAt": "2026-08-02T17:12:28.100402+00:00"
 }
