@@ -3,7 +3,7 @@ import type {
   AzureStorageQueueEncounterAssetMessage,
   EncounterAssetGenerationQueueMessageEnvelope,
   EncounterAssetGenerationWorkerExecution,
-} from "../../capability-gateway/src/index.js";
+} from "@openclinxr/capability-gateway";
 import type {
   EncounterAssetGenerationJobCheckpointRecord,
   EncounterAssetGenerationJobEvidenceGateRefRecord,

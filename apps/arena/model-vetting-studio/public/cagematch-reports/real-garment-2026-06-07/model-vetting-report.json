@@ -3,7 +3,7 @@
   "reportId": "real-garment-2026-06-07",
   "lane": "real-garment-pivot",
   "runId": "2026-06-07-real-garment",
-  "title": "Peds real garment from phenotype (expanded sleeves) - Q1/Q5 evidence",
+  "title": "Peds real garment from phenotype (expanded sleeves) parent/nurse + ED adult/ed gown phenotype expansion - Q1+Q5 ed-real-garment-phenotype-expansion",
   "claimScope": "isolated_model_vetting_metadata_structural_and_lab_contract_only",
   "providerBoundary": {
     "type": "local_only",
@@ -12,20 +12,57 @@
   "candidates": [
     {
       "candidateId": "peds_real_garment_v1",
-      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_patient_child.glb"
+      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_patient_child.glb",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "realismGrade": "B",
+      "realAnnyWeightsUsed": false,
+      "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity", "quest_readiness", "learner_readiness"]
+    },
+    {
+      "candidateId": "peds_anxious_parent_real_garment_v1",
+      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_anxious_parent.glb",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "realismGrade": "B",
+      "realAnnyWeightsUsed": false,
+      "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity", "quest_readiness", "learner_readiness"],
+      "garmentLayers": ["casual_top", "open_cardigan"],
+      "realGarmentRegionFromPhenotype": {"hasSleeveGeometry": true, "deformsWithBreathing": true, "sleeveLenFactor": 0.28, "sleeveRFactor": 0.42, "weightedBones": ["clavicle.L","clavicle.R","upper_arm.L","upper_arm.R","chest","spine","neck"], "faceCount": 312, "garmentLayers": ["casual_top", "open_cardigan"]}
+    },
+    {
+      "candidateId": "peds_nurse_kevin_real_garment_v1",
+      "sourceGlbPath": "/cagematch/anny-real-garment-2026-06-07/peds_nurse_kevin.glb",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "realismGrade": "B",
+      "realAnnyWeightsUsed": false,
+      "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity", "quest_readiness", "learner_readiness"],
+      "garmentLayers": ["scrub_top", "scrub_pocket"],
+      "realGarmentRegionFromPhenotype": {"hasSleeveGeometry": true, "deformsWithBreathing": true, "sleeveLenFactor": 0.28, "sleeveRFactor": 0.42, "weightedBones": ["clavicle.L","clavicle.R","upper_arm.L","upper_arm.R","chest","spine","neck"], "faceCount": 308, "garmentLayers": ["scrub_top", "scrub_pocket"]}
+    },
+    {
+      "candidateId": "ed_chest_pain_patient_real_garment_v1",
+      "sourceGlbPath": "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb",
+      "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+      "realismGrade": "B",
+      "realAnnyWeightsUsed": false,
+      "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity", "quest_readiness", "learner_readiness"],
+      "garmentLayers": ["hospital_gown"],
+      "realGarmentRegionFromPhenotype": {"mode": "phenotype_embedded_real_garment_region_v1", "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1", "objectName": "openclinxr_real_garment_from_phenotype_hospital_gown", "faceCount": 324, "hasSleeveGeometry": true, "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_hospital_gown_sleeve", "sleeveLenFactor": 0.36, "sleeveRows": 9, "sleeveCols": 14, "sleeveRFactor": 0.45, "hasProminentSleeves": true, "hasExpandedVolumeDetail": true, "weightedBones": ["clavicle.L", "clavicle.R", "upper_arm.L", "upper_arm.R", "chest", "spine", "neck"], "deformsWithBreathing": true, "hasVisibleVolume": true, "hasSeamFoldHints": true, "garmentLayers": ["hospital_gown"], "role": "patient", "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production", "evidenceBranch": "anny-real-garment-2026-06-07", "visibleDeformingSleeves": true, "evidenceForThisSlice": "ed-gown-geo-reorchestrate"}
     }
   ],
   "objectives": [
-    "Verify real sleeved garment geometry from peds_asthma_parent_anxiety_v1 phenotype.garmentLayers",
-    "Confirm 324-face expanded obvious sleeve mesh (0.27 len, 0.35 r base, 7r/12c + ripples/bulge/folds, vivid blue contrast) with weights on clavicle/upper_arm/chest/spine/neck; separate 'openclinxr_real_garment_from_phenotype_short_sleeve_tshirt' prominent",
-    "deformsWithBreathing true during asthma clip",
-    "No promotion gates (notEvidenceFor: production, b_plus, clinical, scoring)"
+    "Verify real sleeved garment geometry from peds_asthma_parent_anxiety_v1 phenotype.garmentLayers for patient + parent (anxious_parent) + nurse roles; re-orchestrate ED case ed_chest_pain_priority_v2:patient_ed_chest_pain_v1 with phenotype.garmentLayers for adult/ed gown (hospital_gown) real garment",
+    "Confirm expanded obvious sleeve mesh (0.28 len, 0.42 r base, 7r/12c + ripples/bulge/folds, vivid contrast) with weights on clavicle/upper_arm/chest/spine/neck; separate openclinxr_real_garment_from_phenotype_* mesh for peds roles + ED adult gown; deformsWithBreathing true",
+    "Embed promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + realAnnyWeightsUsed + notEvidenceFor lists + realGarmentRegionFromPhenotype (gown variant) in rigging_report + provenance + bundle + model-vetting-report.v1 for cagematch",
+    "Update cagematch assets (GLB + rigging + provenance copied to model-vetting public/cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/); no promotion gates (notEvidenceFor: production, b_plus, clinical, scoring); visible 3D deforming sleeve volume per skeptic mandate + visibility/noticeability in Model Vetting cagematch"
   ],
-  "process": "orchestrate (re-orchestrated patient_maya_johnson_v1 preset) with real garment path in apply_role_clothing_material_regions (v2 expanded); export includes openclinxr_real_garment_peds_tshirt_v1_mesh; rigging_report has realGarmentRegionFromPhenotype (faceCount:324); patient preset re-orchestrated for Q1 peds blueprint",
+  "process": "orchestrate_character re-orchestrated peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1 + parent_tara_johnson_v1 + nurse_kevin_lee_v1 (added sleeveGeometryExpansion; garmentLayers respected); real garment path generalized in apply_role_clothing_material_regions (v3 for parent/nurse); exports include role-specific openclinxr_real_garment_from_phenotype_* ; rigging_report has realGarmentRegionFromPhenotype; promotion metadata in provenance/bundle/handoffs; Q1 peds blueprint + Q5 factory verif. For ed-real-garment-phenotype-expansion (asset-pipeline-lead execute): re-orchestrate ED case with phenotype.garmentLayers (hospital_gown for adult/ed gown patient_robert_hayes); updated cagematch reports + assets in factory/model-vetting scope (added ED candidate to report with gown fields, promotion embedded); cp GLB/rigging/provenance to cagematch branch for Model Vetting visible deforming sleeves; Q1+Q5 per brief + anti_toil_pivot",
   "captureEvidence": {
     "front": "front.png",
     "three_quarter": "three_quarter.png",
-    "body_motion_probe": "body_motion_probe.webm"
+    "body_motion_probe": "body_motion_probe.webm",
+    "ui-xr-peds-real-garment-sleeve": "ui-xr-peds-real-garment-sleeve-front_2026-06-07.png",
+    "ed-gown-geo-reorchestrate": "ed_chest_pain_patient_real_garment.glb + _rigging_report (gown 0.36/9x14/0.45 from pheno hospital_gown + is_gown branch) in .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ + current/ + reports updated; re-run turntable capture for ED front/three/body in target dir per done_when + skeptic",
+    "ed-model-vetting-candidate": "ed_chest_pain_patient_real_garment_v1 in model-vetting-report.json with hospital_gown + realGarmentRegionFromPhenotype (gown geo) + promotionStatus etc; source now current/ for canonical load"
   },
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
@@ -36,6 +73,6 @@
   ],
   "decision": {
     "status": "evidence_only",
-    "notes": "Q1/Q5 for blueprint-driven real garment; sleeves expanded per visibility rule until noticeable"
+    "notes": "Q1/Q5 ed-gown-geo-reorchestrate: preset garmentLayers=hospital_gown + is_gown gown-specific geo (0.36 len/9r14c/0.45r + thicker solidify + gown color + metadata) in py pipeline; re-gen via orchestrate with pheno; cp glb/rigging to current/ + .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ + dated; updated model-vetting-report + registry + factory ts (generated-*.ts, cagematch-report-pages); re-run capture for ED visuals in target dir; per MANDATE_VISIBILITY + skeptic (actual gown topology + dual visible in MV cagematch); Q1 (pheno.garmentLayers -> gown geo) + Q5 (verif via cagematch report/captures); asset-pipeline-lead handoff only (no coord); no protected weaken."
   }
 }

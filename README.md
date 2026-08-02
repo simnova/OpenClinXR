@@ -168,9 +168,14 @@ Do not hand-design scenes; all flows from blueprints through factory/ (tools/ope
 
 ## Verification (Focused, per Anti-Toil)
 
-Engines: Node `>=24.15.0` (.nvmrc), pnpm `>=11.4.0` (pinned). Use `nvm use` if needed.
+Engines: Node `>=24.15.0` (mise `node = "24"` LTS / `.nvmrc`), pnpm `11.18.0` (`packageManager` + mise), Python **3.13** (mise). Prefer **mise** over nvm/system Python. See [docs/TOOLING.md](docs/TOOLING.md).
 
 ```bash
+# Toolchain (once per shell / use direnv — see docs/TOOLING.md)
+mise trust && mise install
+eval "$(mise env -s zsh)"   # or: mise activate zsh
+pnpm env:doctor        # consolidated env (mise + turbo + MCP→CLI); also: mise run doctor
+
 pnpm agent:alignment   # cheap first (0.5s)
 pnpm docs:drift-check
 pnpm --filter @openclinxr/api test -- app.test.ts -t "name"   # example focused

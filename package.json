@@ -5,9 +5,9 @@
   "type": "module",
   "engines": {
     "node": ">=24.15.0",
-    "pnpm": ">=11.4.0"
+    "pnpm": ">=11.18.0"
   },
-  "packageManager": "pnpm@11.4.0+sha512.f0febc7e37552ab485494a914241b338e0b3580b93d54ce31f00933015880863129038a1b4ae4e414a0ee63ac35bf21197e990172c4a68256450b5636310968f",
+  "packageManager": "pnpm@11.18.0",
   "scripts": {
     "agent:generate": "tsx tools/agent-factory/generate-agent-scaffold.ts",
     "agent:harness:sync": "tsx tools/agent-factory/generate-harness-agents.ts",
@@ -43,6 +43,7 @@
     "agent:loop:verify": "tsx tools/agent-factory/check-agent-loop-artifacts.ts",
     "agent:maturity": "tsx tools/agent-factory/build-maturity-report.ts",
     "docs:authority": "tsx tools/agent-factory/build-doc-authority-registry.ts",
+    "docs:archive": "tsx tools/openclinxr/openclaw/docs-archive-cli.ts",
     "agent:verify": "pnpm agent:alignment && pnpm agent:validate && pnpm agent:index && pnpm agent:sources && pnpm agent:pins && pnpm agent:loop:verify && pnpm agent:risks && pnpm agent:evidence && pnpm agent:maturity && pnpm agent:benchmarks && pnpm local:model:cache:validate && pnpm local:model:source-currentness:validate && pnpm local:model:quality:validate && pnpm local:voice:runtime:validate && pnpm local:voice:model-source-currentness:validate && pnpm local:voice:qwen-tts-smoke:validate && pnpm local:voice:moshi-package:validate && pnpm local:voice:bun-websocket-smoke:validate && pnpm local:voice:python-backend-smoke:validate && pnpm local:voice:bun-python-proxy-smoke:validate && pnpm local:voice:blueprint-simulation:validate && pnpm local:voice:realtime-spike:validate && pnpm local:voice:live-dialog:validate && pnpm godot:project:import-check:validate && pnpm asset:gltf-transform:smoke:validate && pnpm asset:production:readiness:validate && pnpm asset:production:artifact-evidence:validate && pnpm pages:validate && pnpm agent:benchmark-ids",
     "packages:typecheck": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run typecheck --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:test": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run test --filter '@openclinxr/*' --filter '@cellix/*'",
@@ -52,6 +53,12 @@
     "packages:build:affected": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run build --affected --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:lint": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run lint --filter '@openclinxr/*' --filter '@cellix/*'",
     "packages:lint:affected": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run lint --affected --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:typecheck:agent": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run typecheck --ui=stream --output-logs=errors-only --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:test:agent": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run test --ui=stream --output-logs=errors-only --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:lint:agent": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run lint --ui=stream --output-logs=errors-only --filter '@openclinxr/*' --filter '@cellix/*'",
+    "packages:build:agent": "TURBO_TELEMETRY_DISABLED=1 DO_NOT_TRACK=1 turbo run build --ui=stream --output-logs=errors-only --filter '@openclinxr/*' --filter '@cellix/*'",
+    "verify:packages": "pnpm packages:typecheck && pnpm packages:test && pnpm packages:lint && pnpm boundaries",
+    "verify:packages:agent": "pnpm packages:typecheck:agent && pnpm packages:test:agent && pnpm packages:lint:agent && pnpm boundaries",
     "playwright:codegen": "playwright codegen",
     "playwright:test": "playwright test",
     "playwright:install": "playwright install --with-deps",
@@ -273,7 +280,10 @@
     "hooks:local-exam": "tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam",
     "codex:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
     "grok:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",
-    "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
+    "env:doctor": "tsx tools/openclinxr/openclaw/env-doctor.ts",
+    "env:doctor:json": "tsx tools/openclinxr/openclaw/env-doctor.ts --json",
+    "env:doctor:strict": "tsx tools/openclinxr/openclaw/env-doctor.ts --strict-warn",
+    "openclaw:preflight": "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
     "openclaw:checkpoint:archive": "tsx tools/openclinxr/openclaw/checkpoint-archive-cli.ts",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:slice-token:start": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts slice-start",
@@ -287,6 +297,9 @@
     "openclaw:slice:verify": "tsx tools/openclinxr/openclaw/slice-team-cli.ts verify",
     "openclaw:slice:status": "tsx tools/openclinxr/openclaw/slice-team-cli.ts status",
     "openclaw:ready": "tsx tools/agent-factory/check-openclaw-readiness.ts",
+    "openclaw:worktree:list": "tsx tools/openclinxr/openclaw/worktree-promote.ts list",
+    "openclaw:worktree:status": "tsx tools/openclinxr/openclaw/worktree-promote.ts status",
+    "openclaw:worktree:promote": "tsx tools/openclinxr/openclaw/worktree-promote.ts promote",
     "docs:artifacts": "tsx tools/agent-factory/build-generated-artifact-registry.ts",
     "docs:drift-check": "tsx tools/agent-factory/check-openclaw-drift.ts",
     "docs:evidence-index": "tsx tools/agent-factory/build-evidence-index.ts",
@@ -299,7 +312,16 @@
     "asset:review-glb:optimization-benchmark:validate": "tsx tools/openclinxr/evidence/review-glb-optimization-benchmark.ts --validate-latest",
     "asset:review-glb:optimization-visual-cagematch": "tsx tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts",
     "asset:review-glb:optimization-visual-cagematch:validate": "tsx tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts --validate-latest",
-    "benchmark:glb-optimization": "tsx benchmarks/glb-optimization/benchmark-glb-optimization.ts"
+    "benchmark:glb-optimization": "tsx benchmarks/glb-optimization/benchmark-glb-optimization.ts",
+    "gh:status": "gh auth status",
+    "browser:agent": "agent-browser",
+    "browser:agent:help": "agent-browser --help",
+    "playwright:help": "playwright --help",
+    "hygiene:lsp": "node tooling/scripts/check-lsp-config.mjs",
+    "check:lsp": "node tooling/scripts/check-lsp-config.mjs",
+    "docs:hygiene:measure": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts measure",
+    "docs:hygiene:session-start": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts session-start",
+    "docs:hygiene:run": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts run"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
@@ -309,6 +331,7 @@
     "@gltf-transform/core": "^4.3.0",
     "@gltf-transform/extensions": "^4.3.0",
     "@gltf-transform/functions": "^4.3.0",
+    "@knip/language-server": "^3.0.5",
     "@playwright/test": "^1.59.1",
     "@types/node": "25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260503.1",
@@ -320,10 +343,12 @@
     "meshoptimizer": "1.0.1",
     "mongoose": "9.6.1",
     "playwright": "1.59.1",
+    "pyright": "^1.1.411",
     "tinyglobby": "^0.2.16",
     "tsx": "4.21.0",
     "turbo": "2.9.14",
     "typescript": "6.0.3",
+    "typescript-language-server": "^5.3.0",
     "vitest": "4.1.5"
   }
 }

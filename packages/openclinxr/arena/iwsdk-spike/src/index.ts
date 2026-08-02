@@ -1131,7 +1131,7 @@ export function buildIwsdkVerificationToolSelectionContract(): IwsdkVerification
       toolId: "browser_use_playwright",
       posture: "default_local",
       sourceRecordIds: ["src-local-hardware-spike-2026-05-03"],
-      useWhen: "Use Browser Use, Playwright, or Chrome DevTools MCP against local desktop/mobile browser surfaces before headset work.",
+      useWhen: "Use Playwright CLI (pnpm playwright:*) or agent-browser CLI (pnpm browser:agent) against local desktop/mobile browser surfaces before headset work. Prefer CLIs over disabled browser MCPs (see docs/TOOLING.md).",
       requiredEvidence: [
         "page_loads_without_error_overlay",
         "webgl_canvas_nonblank",
@@ -2058,7 +2058,7 @@ export function buildIwsdkCodexMcpAdapterTemplate(): IwsdkCodexMcpAdapterTemplat
     tomlSnippet: [
       "# IWSDK stdio MCP is intentionally not configured.",
       "# @iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary.",
-      "# Use Chrome DevTools MCP plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.",
+      "# Use Playwright/agent-browser CLIs (docs/TOOLING.md) plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.",
     ].join("\n"),
     prerequisites: [
       "Use only after apps/arena/ui-xr-iwsdk-spike exists with exact IWSDK package versions installed.",

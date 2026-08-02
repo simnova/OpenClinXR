@@ -49,3 +49,19 @@
 - Confidence: 0.8
 - Recorded by: agent:memory:append
 - Policy tier: fast_bounded
+
+## Lesson 2026-06-08 — servant-leadership-for-long-running-team (Q5 orchestration, full docs review)
+- Summary: Adopted explicit servant leadership operating model for chief-coordinator. Subagents (via exact spawnSubagentCall payloads + resume_from on subagentThreadId) are the stars who own handoff content and do the work on sizable collaborative verticals. Coordinator's non-idle duties: consume exact payloads from team-spawn reports, default to short-delta resume_from for refinement (instead of full re-spawn), never author handoffs, immediately apply suggestedHeaderUpdate + closed row after verify ok, re-bake via spawn-spec on heavy context, knock out barriers (stale SSOT, missing roles, tool gaps), and point the team at the next thematic step in the Strategic Grouping Plan for full project completion. Codified in chief-coordinator/charter.md (new Servant Leadership section), LEX_AGENTIC.md (new discipline subsection), .grok/personas/chief-coordinator.toml (updated instructions), and this memory. Directly addresses repeated peds sustain loops, direct-spawn vision failures, and orchestrator over-ownership observed in prior cycles. After edits: alignment + drift-check required. Next demonstration: encounter-authoring-loop using the new discipline.
+- Confidence: 0.85
+- Recorded by: agent:memory:append (orchestrator self-update per new model)
+- Policy tier: fast_bounded
+## Lesson 2026-06-08 (follow-up full docs review + introspection)
+- One more complete pass after reading all /Users/patrick/.grok/docs/user-guide/*.md + tool surface introspection: the servant leadership model (subagents as stars via resume_from/chaining, worktree, capability_mode, background, monitor, scheduler, todo, MCP, plan mode, image tools, OpenClaw CLIs for barriers, parallel spawns, persona overlays per docs) is now precisely aligned with 16-subagents.md (independent child sessions, spawn_subagent call, inheritance on resume, tasks pane) and 20-background-tasks (monitor best practices, scheduler, background control). Introspected extras (parallel tool use, custom skills, MCP dispatch, enter_plan_mode, image/video for evidence) codified to let coordinator remove obstacles (using full harness) so the team handles large bodies for entire project. Changes applied to charter, LEX, persona; guards to follow. This iteration strengthens "orchestrator helps team continue working" for ambitious tasks like encounter-authoring-loop.
+- Confidence: 0.9
+- Recorded by: agent:memory:append
+- Policy tier: fast_bounded
+## Lesson 2026-08-02 — toolchain
+- Summary: CLI-first barrier removal (2026-08): prefer gh, pnpm playwright:*, pnpm browser:agent, pnpm env:doctor over disabled MCPs playwright/chrome-devtools/agent-browser/grok_com_github. Optional MCP only for drawio/mongodb. See docs/TOOLING.md + chief-coordinator charter/persona + LEX_AGENTIC.
+- Confidence: 0.8
+- Recorded by: agent:memory:append
+- Policy tier: fast_bounded

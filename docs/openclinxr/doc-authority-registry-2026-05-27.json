@@ -4,14 +4,14 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 57,
-    "current-reference": 154,
+    "agent-methodology": 58,
+    "current-reference": 188,
     "archive-candidate": 12,
     "evidence": 31,
     "protected-policy": 10,
-    "agent-memory": 26,
-    "decision-record": 19,
-    "historical-synthesis": 9
+    "agent-memory": 34,
+    "historical-synthesis": 55,
+    "decision-record": 19
   },
   "entries": [
     {
@@ -232,6 +232,20 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".claude/agents/architect.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".claude/agents/archivist.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".claude/agents/asset-pipeline-lead.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -247,6 +261,13 @@
     },
     {
       "path": ".claude/agents/clinical-safety-critic.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".claude/agents/hrbp.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -282,6 +303,13 @@
     },
     {
       "path": ".claude/agents/pediatrics-physician.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".claude/agents/pmo.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -456,6 +484,20 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".codex/agents/architect.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".codex/agents/archivist.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".codex/agents/asset-pipeline-lead.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -471,6 +513,13 @@
     },
     {
       "path": ".codex/agents/clinical-safety-critic.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".codex/agents/hrbp.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -506,6 +555,13 @@
     },
     {
       "path": ".codex/agents/pediatrics-physician.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".codex/agents/pmo.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -554,6 +610,20 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".cursor/agents/architect.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".cursor/agents/archivist.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".cursor/agents/asset-pipeline-lead.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -569,6 +639,13 @@
     },
     {
       "path": ".cursor/agents/clinical-safety-critic.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".cursor/agents/hrbp.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -604,6 +681,13 @@
     },
     {
       "path": ".cursor/agents/pediatrics-physician.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".cursor/agents/pmo.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -778,6 +862,20 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".grok/agents/architect.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".grok/agents/archivist.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".grok/agents/asset-pipeline-lead.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -793,6 +891,13 @@
     },
     {
       "path": ".grok/agents/clinical-safety-critic.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".grok/agents/hrbp.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -827,7 +932,21 @@
       "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
     },
     {
+      "path": ".grok/agents/orchestrator.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
       "path": ".grok/agents/pediatrics-physician.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules."
+    },
+    {
+      "path": ".grok/agents/pmo.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -876,6 +995,13 @@
       "rationale": "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails."
     },
     {
+      "path": ".grok/prompts/agentic-io-contract.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Agentic I/O contract for role-mapped children; subordinate to AGENTS.md and protected guardrails."
+    },
+    {
       "path": ".grok/rules/EXEC_AUTONOMY.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -918,6 +1044,13 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".grok/rules/orchestrator-only-main.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".openclinxr/README.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -930,6 +1063,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": ".openclinxr/tool-runtimes/anny-py311/anny/data/mpfb2/LICENSE.md",
@@ -1121,6 +1261,20 @@
       "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
     },
     {
+      "path": "agents/coordinator/archivist/charter.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/coordinator/archivist/memory.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
       "path": "agents/coordinator/chief-coordinator/charter.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
@@ -1129,6 +1283,48 @@
     },
     {
       "path": "agents/coordinator/chief-coordinator/memory.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/coordinator/hrbp/charter.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/coordinator/hrbp/memory.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/coordinator/pmo/charter.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/coordinator/pmo/memory.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/core/architect/charter.md",
+      "authority": "agent-memory",
+      "agentInstructionWeight": "medium",
+      "action": "summarize-before-use",
+      "rationale": "Repo-defined role memory/charter; use as a lens, not as active task queue."
+    },
+    {
+      "path": "agents/core/architect/memory.md",
       "authority": "agent-memory",
       "agentInstructionWeight": "medium",
       "action": "summarize-before-use",
@@ -1324,6 +1520,13 @@
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     },
     {
+      "path": "agents/rules/orchestrator-only-main.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
       "path": "agents/rules/persistent-memory-scoring.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -1499,6 +1702,251 @@
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
+      "path": "docs/TOOLING.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index."
+    },
+    {
+      "path": "docs/_archive/README.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-ceo-bod-voice-revision.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-grok45-v2.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-higher-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-thrash-evidence.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-a-enforce.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-b-tools.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-c.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-path-scope-policy-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/agent-ops/2026-08/2026-08-02-roster-review.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/00-brief.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/01-core-plan.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/03-adversarial-counterplan.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/05-core-revision.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/06-leadership-review.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/08-memory-update-log.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/iterations/0009/leadership-packet.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-05/gltf-transform-replacement-decision-2026-05-27.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-05/research-brief-step2cs-llm-vsp.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-05/typescript-strictness-gap-matrix-2026-05-27.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-06/anny-character-asset-pipeline-implementation-2026-06-03.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-06/dependency-hygiene-and-e18e-policy.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-06/generated-output-storage-policy-2026-06-06.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/wiki/index.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
       "path": "docs/agent-factory/README.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -1560,6 +2008,181 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-ceo-bod-voice-revision.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-grok45-v2.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-higher-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-thrash-evidence.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-context-opt-wave-c.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-docs-warehouse-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-path-scope-policy-v1.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/2026-08-02-roster-review.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law."
+    },
+    {
+      "path": "docs/agent-ops/CAPABILITY-EVOLUTION.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/CEO-VOICE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/COMPOSITION-ROOTS.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/DOC-HYGIENE-CADENCE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
+    },
+    {
+      "path": "docs/agent-ops/DOC-WAREHOUSE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/PATH-SCOPE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/RACI.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index."
+    },
+    {
+      "path": "docs/agent-ops/REVIEW-CADENCE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/REVISION-INDEX.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/WORKTREE-PROMOTE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "high",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/capability-requests/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
+    },
+    {
+      "path": "docs/agent-ops/capability-requests/TEMPLATE.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
     },
     {
       "path": "docs/madr/0011-step2cs-inspired-sequential-exam.md",
@@ -2003,13 +2626,6 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
-      "path": "docs/openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": "docs/openclinxr/spikes/vibevoice-local-voice-spike.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -2078,6 +2694,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "iterations/README.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "low",
+      "action": "summarize-before-use",
+      "rationale": "Historical planning/synthesis evidence; not active marching orders."
     },
     {
       "path": "iterations/iteration-0009/00-brief.md",

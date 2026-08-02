@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "openclinxr.docs-archive-manifest.v1",
+  "batchId": "context-opt-2026-08-02",
+  "archivedAt": "2026-08-02T06:29:51.699Z",
+  "warehouseDir": "docs/_archive/agent-ops/2026-08",
+  "dryRun": false,
+  "files": [
+    {
+      "source": "docs/agent-ops/2026-08-02-ceo-bod-voice-revision.md",
+      "basename": "2026-08-02-ceo-bod-voice-revision.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-ceo-bod-voice-revision.md",
+      "successor": "docs/agent-ops/CEO-VOICE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "basename": "2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-grok45-v2.md",
+      "basename": "2026-08-02-context-opt-grok45-v2.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-grok45-v2.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-higher-v1.md",
+      "basename": "2026-08-02-context-opt-higher-v1.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-higher-v1.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-thrash-evidence.md",
+      "basename": "2026-08-02-context-opt-thrash-evidence.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-thrash-evidence.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md",
+      "basename": "2026-08-02-context-opt-wave-a-enforce.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-a-enforce.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md",
+      "basename": "2026-08-02-context-opt-wave-b-tools.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-b-tools.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-context-opt-wave-c.md",
+      "basename": "2026-08-02-context-opt-wave-c.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-c.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md (+ COMPOSITION-ROOTS.md / WORKTREE-PROMOTE.md)",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-docs-warehouse-v1.md",
+      "basename": "2026-08-02-docs-warehouse-v1.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md",
+      "successor": "docs/agent-ops/DOC-WAREHOUSE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-path-scope-policy-v1.md",
+      "basename": "2026-08-02-path-scope-policy-v1.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-path-scope-policy-v1.md",
+      "successor": "docs/agent-ops/PATH-SCOPE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    },
+    {
+      "source": "docs/agent-ops/2026-08-02-roster-review.md",
+      "basename": "2026-08-02-roster-review.md",
+      "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-roster-review.md",
+      "successor": "docs/agent-ops/REVIEW-CADENCE.md",
+      "reason": "dated revision freeze; living SSOT supersedes"
+    }
+  ]
+}

@@ -4,6 +4,13 @@ import { buildCoordinationAlignmentReport } from "./check-coordination-alignment
 const alignedFiles = {
   "AGENTS.md": [
     "PROJECT_COORDINATION_INDEX.md",
+    "PROJECT_STATUS.md",
+    "GUARD_BLUEPRINT.md",
+    "EXEC_AUTONOMY.md",
+    "EXEC_REHYDRATE.md",
+    "openclaw:team-spawn",
+    "openclaw:run-next",
+    "openclaw-drift-police",
     "Instruction Source-Of-Truth Order",
     "Anti-Toil Product Advancement Gate",
     "blueprint-factory-drift-guardrails-2026-05-27.md",
@@ -21,6 +28,14 @@ const alignedFiles = {
     "openclaw:lease",
     "UI-XR runtime evidence consumer",
     "Apple M1 Max 64 GB",
+  ].join("\n"),
+  "PROJECT_STATUS.md": [
+    "Canonical state file",
+    "Next dequeue",
+    "Per-Slice Checkpoints",
+    "Token introspection",
+    "Required Per-Slice Record",
+    "docs:drift-check",
   ].join("\n"),
   "PROJECT_COORDINATION_INDEX.md": [
     "Commit-History Drift Analysis",
@@ -63,15 +78,12 @@ const alignedFiles = {
     "Apple M1 Max 64 GB",
   ].join("\n"),
   "docs/openclinxr/worker-backlog-and-validation-matrix.md": [
-    "PROJECT_COORDINATION_INDEX.md",
-    "Active Product Advancement Order",
+    "PROJECT_STATUS.md",
+    "Ownership Matrix",
     "Current State Snapshot",
-    "Worker 7 plus Worker 8 completed-station faculty review path",
-    "Do not toil on evidence refreshes.",
     "openclaw-runbook-2026-05-27.md",
     "docs:drift-check",
-    "Efficient Rehydration + Working Model",
-    "Efficiency Quick Ref",
+    "EXEC_REHYDRATE.md",
     "UI-XR runtime evidence consumer",
     "openclaw:lease",
   ].join("\n"),
@@ -219,14 +231,15 @@ const alignedFiles = {
     "PROJECT_COORDINATION_INDEX.md",
     "focus memory",
   ].join("\n"),
-  "iterations/iteration-0009/07-final-synthesis.md": [
+  "docs/_archive/iterations/0009/07-final-synthesis.md": [
     "do not let evidence closure become the product",
     "learner, faculty, admin, XR runtime, scenario bank, persistence, provider, or asset pipeline",
   ].join("\n"),
 };
 
 const alignedScripts = {
-  "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
+  "openclaw:preflight":
+    "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
   "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
   "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
   "openclaw:ready": "tsx tools/agent-factory/check-openclaw-readiness.ts",
@@ -253,14 +266,16 @@ describe("coordination alignment hook", () => {
     const report = buildCoordinationAlignmentReport({
       files: {
         ...alignedFiles,
-        "AUTONOMOUS_WORK_PLAN.md": `${alignedFiles["AUTONOMOUS_WORK_PLAN.md"]}\nNext Task C slice: refresh another evidence report.\n`,
+        // Prefer warehouse body after freeze; tests inject stale line there.
+        "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md": `${alignedFiles["AUTONOMOUS_WORK_PLAN.md"]}\nNext Task C slice: refresh another evidence report.\n`,
+        "AUTONOMOUS_WORK_PLAN.md": "# ARCHIVED stub\n",
       },
       packageJson: { scripts: alignedScripts },
     });
 
     expect(report.ok).toBe(false);
     expect(report.failures).toContainEqual({
-      file: "AUTONOMOUS_WORK_PLAN.md",
+      file: "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       message: "stale historical breadcrumb remains: ^Next Task C\\b",
     });
   });

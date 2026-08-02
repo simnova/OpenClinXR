@@ -2,12 +2,27 @@
   "schemaVersion": "openclinxr.slice-team-template.v1",
   "id": "peds-evidence-loop",
   "description": "Full peds real-garment adaptive dialogue + body motion evidence in UI-XR sample scene.",
-  "goal": "Run/extend peds adaptive capture with peds_anny_real_garment_patient; produce branch screenshots and body-motion evidence with visible deforming sleeves.",
+  "goal": "Complete peds real-garment adaptive evidence vertical as integrated multi-role team: phenotype-driven real garment in peds_anny_real_garment_patient + full adaptive dialogue capture + body-motion probe + visible 3D deforming sleeves (cyan, garmentGeometry, userData, deformsWithBreathing) in BOTH Model Vetting cagematch AND UI-XR sample scene; produce skeptic-visible dual evidence artifacts + integrated capture tooling + UI-XR consumer updates provable by running the apps and capturing.",
   "q_gate": "Q1+Q5",
-  "autonomy": "Execute without human approval. Subagents write handoff JSON only. Integrator appends one line to PROJECT_STATUS.md and dequeues next slice.",
-  "anti_toil_pivot": "Use capture fallback paths, extend wait/settle, drive isPedsRealGarmentSleeveDeformCapture modes, direct playwright if script times out.",
+  "autonomy": "Execute without human approval. Subagents write handoff JSON only. Integrator appends one line to PROJECT_STATUS.md and dequeues next slice. All roles must contribute to shared artifacts and joint visible output per MANDATE_VISIBILITY sizable collaborative requirement.",
+  "anti_toil_pivot": "Expand sleeve geometry/contrast/ripples, re-orchestrate with full phenotype.garmentLayers, extend capture duration/settle, drive isPedsRealGarmentSleeveDeformCapture + body_motion in both tester and sample, force visible 3D volume in front/three/body_motion for skeptic; do not close on per-role isolated pngs.",
   "roles": {
     "productivity-skeptic": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "openclaw-drift-police": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "visual-realism-adversary": {
+      "paths": ["**"],
+      "mode": "read-only",
+      "phase": "scout"
+    },
+    "pediatrics-physician": {
       "paths": ["**"],
       "mode": "read-only",
       "phase": "scout"
@@ -25,30 +40,46 @@
       ],
       "mode": "write",
       "phase": "execute"
+    },
+    "rigging-animation-specialist": {
+      "paths": [
+        "apps/ui-xr/public/cagematch/**",
+        ".openclinxr/asset-production/**",
+        "tools/openclinxr/factory/**"
+      ],
+      "mode": "write",
+      "phase": "execute"
     }
   },
   "done_when": [
     "handoff:productivity-skeptic:done",
+    "handoff:openclaw-drift-police:done",
+    "handoff:visual-realism-adversary:done",
+    "handoff:pediatrics-physician:done",
     "handoff:xr-systems-architect:done",
     "handoff:asset-pipeline-lead:done",
+    "handoff:rigging-animation-specialist:done",
     "exists:.openclinxr/evidence/ui-xr-peds-adaptive-dialogue/**/*real*garment*.png",
+    "exists:.openclinxr/evidence/cagematch/anny-real-garment-*/ui-xr-peds-real-garment-sleeve-front*.png",
+    "exists:.openclinxr/evidence/cagematch/anny-real-garment-*/ui-xr-peds-real-garment-sleeve-body-motion*.png",
+    "min-bytes:.openclinxr/evidence/cagematch/anny-real-garment-*/ui-xr-peds-real-garment-sleeve-front*.png:100000",
     "skeptic:visible"
   ],
   "phases": [
     {
       "id": "scout",
       "parallel": true,
-      "roleIds": ["productivity-skeptic"]
+      "roleIds": ["productivity-skeptic", "openclaw-drift-police", "visual-realism-adversary", "pediatrics-physician"]
     },
     {
       "id": "execute",
       "parallel": true,
-      "roleIds": ["xr-systems-architect", "asset-pipeline-lead"]
+      "roleIds": ["xr-systems-architect", "asset-pipeline-lead", "rigging-animation-specialist"]
     },
     {
       "id": "integrate",
       "parallel": false,
-      "roleIds": []
+      "roleIds": ["xr-systems-architect", "asset-pipeline-lead", "productivity-skeptic", "openclaw-drift-police", "visual-realism-adversary", "pediatrics-physician", "rigging-animation-specialist"]
     }
   ]
 }

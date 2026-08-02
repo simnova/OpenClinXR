@@ -3,10 +3,12 @@
 Repo-level operating contract for Codex, Grok, Claude, Cursor, and OpenClaw-style agents.
 
 ## BLUF (execute immediately)
+- **Main session = orchestrator CEO only (HARD)** — `.grok/config.toml` `[agent] name = "orchestrator"`. Never product IC on main. Rule: `agents/rules/orchestrator-only-main.md`. Voice: `docs/agent-ops/CEO-VOICE.md`. Escape hatch only if human explicitly says implement yourself / exit orchestrator mode.
 - Dequeue from `PROJECT_STATUS.md` **Next dequeue** — not chat. Run `pnpm openclaw:run-next` → lease → slice-team.
 - Every slice: Q1/Q4/Q5 gate + skeptic-visible evidence in Model Vetting **or** UI-XR (expand scope if invisible).
 - State only in `PROJECT_STATUS.md` + worker-backlog snapshots; details in `agents/rules/*`.
 - No propose-and-wait. Human override via `PAUSED` in `PROJECT_STATUS.md` or explicit pause/stop.
+- CLI-first barriers: `pnpm env:doctor`, `gh`, `pnpm playwright:*`, `pnpm browser:agent` — not disabled MCPs.
 
 ## Original Mission
 

@@ -8,7 +8,8 @@ import {
 
 const packageJson = {
   scripts: {
-    "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
+    "openclaw:preflight":
+      "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
     "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
     "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
@@ -124,7 +125,8 @@ describe("OpenClaw-style operational redundancy checker", () => {
     expect(report.ok).toBe(false);
     expect(report.failures).toContainEqual({
       file: "package.json",
-      message: "openclaw:preflight must be wired to 'pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status'",
+      message:
+        "openclaw:preflight must be wired to 'pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status'",
     });
   });
 
@@ -132,7 +134,8 @@ describe("OpenClaw-style operational redundancy checker", () => {
     const input = alignedInput({
       packageJson: {
         scripts: {
-          "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
+          "openclaw:preflight":
+            "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
           "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
           "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
         },

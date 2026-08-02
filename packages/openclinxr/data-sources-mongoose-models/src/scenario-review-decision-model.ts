@@ -40,6 +40,6 @@ scenarioReviewDecisionSchema.index({ reviewerId: 1, reviewedAt: -1 });
 scenarioReviewDecisionSchema.index({ evidenceRefs: 1 });
 
 export function createScenarioReviewDecisionModel(mongoose: Mongoose): Model<ScenarioReviewDecisionRecord> {
-  return mongoose.models.ScenarioReviewDecision as Model<ScenarioReviewDecisionRecord> | undefined
+  return mongoose.models["ScenarioReviewDecision"] as Model<ScenarioReviewDecisionRecord> | undefined
     ?? mongoose.model<ScenarioReviewDecisionRecord>("ScenarioReviewDecision", scenarioReviewDecisionSchema);
 }

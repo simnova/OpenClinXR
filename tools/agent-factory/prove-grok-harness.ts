@@ -518,11 +518,15 @@ async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
   }
   const roleDirs = [
     { roleId: "chief-coordinator", roleDir: "agents/coordinator/chief-coordinator", group: "coordinator" },
+    { roleId: "hrbp", roleDir: "agents/coordinator/hrbp", group: "coordinator" },
+    { roleId: "archivist", roleDir: "agents/coordinator/archivist", group: "coordinator" },
+    { roleId: "pmo", roleDir: "agents/coordinator/pmo", group: "coordinator" },
     { roleId: "openclaw-drift-police", roleDir: "agents/adversarial/openclaw-drift-police", group: "adversarial" },
     { roleId: "implementation-plan-gap-attacker", roleDir: "agents/adversarial/implementation-plan-gap-attacker", group: "adversarial" },
     { roleId: "productivity-skeptic", roleDir: "agents/adversarial/productivity-skeptic", group: "adversarial" },
     { roleId: "visual-realism-adversary", roleDir: "agents/adversarial/visual-realism-adversary", group: "adversarial" },
     { roleId: "implementation-planning-lead", roleDir: "agents/core/implementation-planning-lead", group: "core" },
+    { roleId: "architect", roleDir: "agents/core/architect", group: "core" },
     { roleId: "asset-pipeline-lead", roleDir: "agents/core/asset-pipeline-lead", group: "core" },
     { roleId: "rigging-animation-specialist", roleDir: "agents/core/rigging-animation-specialist", group: "core" },
     { roleId: "xr-systems-architect", roleDir: "agents/core/xr-systems-architect", group: "core" },

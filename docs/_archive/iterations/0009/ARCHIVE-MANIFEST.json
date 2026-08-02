@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "openclinxr.docs-archive-manifest.v1",
+  "batchId": "cruft-audit-2026-08-02",
+  "archivedAt": "2026-08-02T06:59:26.151Z",
+  "warehouseDir": "docs/_archive/iterations/0009",
+  "dryRun": false,
+  "files": [
+    {
+      "source": "iterations/iteration-0009/00-brief.md",
+      "basename": "00-brief.md",
+      "warehouse": "docs/_archive/iterations/0009/00-brief.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/01-core-plan.md",
+      "basename": "01-core-plan.md",
+      "warehouse": "docs/_archive/iterations/0009/01-core-plan.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/03-adversarial-counterplan.md",
+      "basename": "03-adversarial-counterplan.md",
+      "warehouse": "docs/_archive/iterations/0009/03-adversarial-counterplan.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/05-core-revision.md",
+      "basename": "05-core-revision.md",
+      "warehouse": "docs/_archive/iterations/0009/05-core-revision.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/06-leadership-review.md",
+      "basename": "06-leadership-review.md",
+      "warehouse": "docs/_archive/iterations/0009/06-leadership-review.md",
+      "successor": "docs/agent-factory/leadership-gates.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/07-final-synthesis.md",
+      "basename": "07-final-synthesis.md",
+      "warehouse": "docs/_archive/iterations/0009/07-final-synthesis.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/08-memory-update-log.md",
+      "basename": "08-memory-update-log.md",
+      "warehouse": "docs/_archive/iterations/0009/08-memory-update-log.md",
+      "successor": "docs/agent-factory/operating-loop.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    },
+    {
+      "source": "iterations/iteration-0009/leadership-packet.md",
+      "basename": "leadership-packet.md",
+      "warehouse": "docs/_archive/iterations/0009/leadership-packet.md",
+      "successor": "docs/agent-factory/leadership-gates.md",
+      "reason": "completed agent-factory iteration; cold historical synthesis",
+      "topic": "agent-factory-iterations"
+    }
+  ]
+}

@@ -297,10 +297,12 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("peds_anny_school_age_mpfb2_eye_patient");
     expect(mainSource).toContain("peds_anny_comfy_masked_skin");
     expect(mainSource).toContain("peds_anny_real_garment_patient");
+    expect(mainSource).toContain("ed_anny_real_garment_patient");
     expect(mainSource).toContain("/cagematch/anny-mpfb2-eye-rig/current/peds_patient_child_mpfb2_eye_rig.glb");
     expect(mainSource).toContain("/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb");
     expect(mainSource).toContain("/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb");
-    expect(mainSource).toContain("isPedsRealGarmentSleeveDeformCapture");
+    expect(mainSource).toContain("/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb");
+    expect(mainSource).toContain("isRealGarmentSleeveDeformCapture");
     expect(mainSource).toContain("garment-sleeve");
     expect(mainSource).toContain("sleeve-deform");
     expect(mainSource).toContain("openClinXrSleeveDeformEvidence");

@@ -1050,15 +1050,12 @@ def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
 def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any], arm_obj: Optional[bpy.types.Object] = None) -> Dict[str, Any]:
     """
     Assign simple case-driven clothing materials to the humanoid mesh itself.
-    EXPANDED (pivot embed-real-garment-region-from-phenotype Q1 Q5): reads phenotype.garmentLayers
-    (e.g. ["short_sleeve_exam_tshirt"] from peds_asthma_parent_anxiety_v1 patient preset).
-    When tshirt layer present, emits REAL (not post-cylinder-hint) torso+shoulder+upper-arm short-sleeve
-    geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine)
-    + ARMATURE modifier so sleeves deform during openclinxr_role_patient_asthma_breathing_effort clip
-    (spine/chest/upper_arm motion in breathing effort). Keeps body mesh-native material regions.
-    SOLIDIFY + weighted normals for volume. Expanded sleeve geo (0.27 len, 0.35r base, 7r/12c + extra
-    ripple/bulge/fold bands + vivid blue contrast) for obvious separate 3D clothing visibility in
-    Model Vetting studio renders + UI-XR scene (not subtle bands). Report metadata wired.
+    EXPANDED (pivot embed-real-garment-region-from-phenotype Q1 Q5 + peds-parent-nurse-garment-asset):
+    reads phenotype.garmentLayers (e.g. ["short_sleeve_exam_tshirt"] patient; ["casual_top","open_cardigan"] parent_tara_johnson_v1; ["scrub_top","scrub_pocket"] nurse_kevin_lee_v1 from peds_asthma_parent_anxiety_v1).
+    For upper garment layers on patient/parent/nurse, emits REAL (not post-cylinder-hint) torso+shoulder+upper-arm short-sleeve
+    geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine, neck)
+    + ARMATURE modifier so sleeves deform (deformsWithBreathing=true). Keeps body mesh-native material regions.
+    SOLIDIFY + weighted normals for volume. Expanded sleeve geo per asset-pipeline-lead + visibility mandate (sleeve_len 0.28+, r0 0.35+ factor, 7x12+, ripples sin, bulge, folds; vivid separate (0.08,0.52,0.95) material; userData openClinXr*; faceCount~300+; prominent in cagematch/UI-XR) for obvious 3D deforming volume. Report metadata (realGarmentRegion, promotion fields via orchestrate) wired. Re-orchestrate of parent/nurse presets includes sleeveGeometryExpansion.
     """
     role = actor_role.lower()
     base_color = role_marker_color(phenotype, role)
@@ -1147,7 +1144,11 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # prominent separate mesh deforming on breathing. Q1 peds blueprint drives visible 3D garment.
     garment_layers = phenotype.get("garmentLayers", []) or [phenotype.get("clothing_style", "")]
     real_garment = None
-    if any(any(k in str(g).lower() for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve")) for g in garment_layers) or "patient" in role:
+    garment_layers_lower = [str(g).lower() for g in garment_layers]
+    is_gown = any(k in " ".join(garment_layers_lower) for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
+    # re-orchestrated for peds-parent-nurse: trigger real sleeved garment for parent (casual_top, open_cardigan) + nurse (scrub_top) garmentLayers too; generalized from patient-only tshirt
+    # ed-gown-geo-reorchestrate: explicit is_gown branch for actual hospital_gown topology (looser/longer sleeves, denser folds, gown drape vs short tshirt); phenotype.garmentLayers drives; Q1 case->gown geo + Q5 cagematch/UI-XR visible; per skeptic handoff + MANDATE (expand geo/contrast for dual visible 3D deforming gown volume)
+    if any(k in " ".join(garment_layers_lower) for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve", "casual_top", "open_cardigan", "scrub_top", "scrub_pocket", "scrub")) or any(r in role for r in ("patient", "parent", "nurse", "guardian")) or is_gown:
         import math
         cx = bounds["center_x"]
         cy = bounds.get("center_y", 0.0)
@@ -1155,15 +1156,21 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         top_z = min_z + height_z * 0.71
         bot_z = min_z + height_z * 0.11
         torso_rows, torso_cols = 8, 12
-        sleeve_rows, sleeve_cols = 7, 12
-        sleeve_len = height_z * 0.32  # further expanded for garment-apply-role...-expand-v1 Q1 slice (obvious 3D sleeves in tester/UI-XR per visibility)
+        if is_gown:
+            sleeve_rows, sleeve_cols = 9, 14  # denser for gown fabric folds/volume
+            sleeve_len = height_z * 0.36  # longer for hospital gown sleeve coverage (vs 0.28 tshirt)
+            sleeve_r0_factor = 0.45  # slightly wider base for gown drape/protrusion
+        else:
+            sleeve_rows, sleeve_cols = 7, 12
+            sleeve_len = height_z * 0.28  # 0.28+ per peds-parent-nurse-garment-asset + visibility/noticeability mandate (expand from 0.27; r0 0.35+; 7x12+; extra ripples sin(0.004+); vivid; deformsWithBreathing; userData; for obvious 3D volume in Model Vetting cagematch front/three_quarter/body_motion + UI-XR)
+            sleeve_r0_factor = 0.42  # >0.35 for sleeve base radius relative to torso for visible protrusion
         verts = []
         faces = []
-        # torso shell (better than pure cylinder: chest bulge + shoulder slope) + expanded ripple/bulge for volume
+        # torso shell (better than pure cylinder: chest bulge + shoulder slope) + expanded ripple/bulge for volume; additional sin ripples for noticeability
         for i in range(torso_rows):
             t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
             z = bot_z + t * (top_z - bot_z)
-            ripple = 0.008 * math.sin(t * 8.0)
+            ripple = 0.008 * math.sin(t * 8.0) + 0.004 * math.sin(t * 12.0)
             bulge = 0.028 if 0.28 < t < 0.68 else 0.012
             r = r_base + 0.018 + ripple + bulge
             if i == 0:
@@ -1182,9 +1189,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 c = (i + 1) * torso_cols + ((j + 1) % torso_cols)
                 d = (i + 1) * torso_cols + j
                 faces.append((a, b, c, d))
-        # short sleeve L (shoulder+upper_arm coverage, attached at shoulder) -- expanded r/rows/cols, protrusion, ripple for obvious 3D volume
+        # short sleeve L (shoulder+upper_arm coverage, attached at shoulder) -- expanded r/rows/cols per mandate (r0 0.35+ factor), protrusion, ripple/folds for obvious 3D deforming volume in cagematch/UI-XR (Q1 parent/nurse too)
         sleeve_attach_z = min_z + height_z * 0.66
-        sleeve_r0 = r_base * 0.40
+        sleeve_r0 = r_base * sleeve_r0_factor
         sL = len(verts)
         for si in range(sleeve_rows):
             st = si / float(sleeve_rows - 1) if sleeve_rows > 1 else 0.0
@@ -1273,15 +1280,19 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                     c = c0 + (ci + 1) * sleeve_cols + ((j + 1) % sleeve_cols)
                     d = c0 + (ci + 1) * sleeve_cols + j
                     faces.append((a, b, c, d))
-        gmesh = bpy.data.meshes.new("openclinxr_real_garment_peds_tshirt_v1_mesh")
+        gmesh = bpy.data.meshes.new("openclinxr_real_garment_peds_upper_v1_mesh")
         gmesh.from_pydata(verts, [], faces)
         gmesh.update()
-        garment = bpy.data.objects.new("openclinxr_real_garment_from_phenotype_short_sleeve_tshirt", gmesh)
+        # dynamic per phenotype garmentLayers for parent/nurse re-orchestrate (Q1 slice); keeps vivid contrast for skeptic-visible volume in cagematch + UI-XR regardless of role color
+        gkey = (garment_layers[0] if garment_layers else role).replace(" ", "_").lower()[:32]
+        gname = f"openclinxr_real_garment_from_phenotype_{gkey}"
+        garment = bpy.data.objects.new(gname, gmesh)
         bpy.context.collection.objects.link(garment)
-        gmat = create_role_marker_material("openclinxr_real_garment_exam_tshirt_phenotype", (0.08, 0.52, 0.95, 1.0))  # vivid blue contrast vs skin/body top; makes separate 'openclinxr_real_garment_from_phenotype_short_sleeve_tshirt' mesh prominent
+        gown_color = (0.15, 0.55, 0.82, 1.0) if is_gown else (0.08, 0.52, 0.95, 1.0)
+        gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype", gown_color)  # vivid separate for evidence (gown variant slightly diff blue); per MANDATE_VISIBILITY + ed-gown-geo-reorchestrate for skeptic-visible 3D deforming gown volume in cagematch/UI-XR
         garment.data.materials.append(gmat)
         sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
-        sol.thickness = 0.014  # thicker for visible volume as 3D clothing layer
+        sol.thickness = 0.016 if is_gown else 0.014  # thicker for gown volume
         garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
         # skin to armature for breathing deform (clav/upper_arm etc)
         weighted_bones: List[str] = []
@@ -1337,17 +1348,22 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         garment.parent = mesh_obj
         garment["openClinXrRealGarmentFromPhenotype"] = "embed_real_garment_region_v1"
         face_count = len(faces)
+        sleeve_cov = "torso+shoulder+prominent_upper_arm_rippled_folded_hospital_gown_sleeve" if is_gown else "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve"
+        slf = 0.36 if is_gown else 0.28
+        srows = 9 if is_gown else 7
+        scols = 14 if is_gown else 12
+        srf = 0.45 if is_gown else 0.42
         real_garment = {
             "mode": "phenotype_embedded_real_garment_region_v1",
-            "revision": "embed_real_garment_from_phenotype_garmentLayers_pediatric_school_age_v2_obvious_sleeves",
+            "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1",
             "objectName": garment.name,
             "faceCount": face_count,
             "hasSleeveGeometry": True,
-            "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
-            "sleeveLenFactor": 0.27,
-            "sleeveRows": 7,
-            "sleeveCols": 12,
-            "sleeveRFactor": 0.35,
+            "sleeveCoverage": sleeve_cov,
+            "sleeveLenFactor": slf,
+            "sleeveRows": srows,
+            "sleeveCols": scols,
+            "sleeveRFactor": srf,
             "hasProminentSleeves": True,
             "hasExpandedVolumeDetail": True,
             "weightedBones": weighted_bones,
@@ -1355,8 +1371,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             "hasVisibleVolume": True,
             "hasSeamFoldHints": True,
             "garmentLayers": [str(g) for g in garment_layers if g],
+            "role": role,
             "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
             "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
+            "evidenceForThisSlice": "ed-gown-geo-reorchestrate",
         }
     if real_garment:
         ret["realGarmentRegion"] = real_garment

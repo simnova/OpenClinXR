@@ -146,7 +146,8 @@ export function buildOpenClawDriftReport(input: OpenClawDriftInput): OpenClawDri
   }
 
   const scripts = input.packageJson?.scripts ?? {};
-  const expectedPreflight = "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
+  const expectedPreflight =
+    "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
   if (scripts["openclaw:preflight"] !== expectedPreflight) {
     failures.push({
       file: "package.json",

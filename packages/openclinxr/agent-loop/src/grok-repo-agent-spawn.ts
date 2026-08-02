@@ -5,7 +5,9 @@
 
 import type { GrokSubagentType } from "./grok-tier-routing.js";
 import {
+  formatPathScopeBlock,
   getRepoRoleHarnessPolicy,
+  getRolePathScope,
   repoRoleHarnessPolicies,
   resolveHarnessModelSpec,
   type BackgroundAgentPolicyTier,
@@ -13,7 +15,12 @@ import {
   type HarnessKind,
   type RepoRoleHarnessPolicy,
   type RepoWorkflowSkillId,
+  type RolePathScope,
 } from "./role-harness-policy.js";
+import {
+  buildParentSpawnChecklist,
+  type ParentSpawnChecklist,
+} from "./spawn-isolation.js";
 
 export type GrokRepoAgentSpawnSurface = "grok_native_spawn_subagent" | "composer_main_thread";
 
@@ -30,14 +37,21 @@ export type GrokRepoAgentSpawnSpec = {
   grokSubagentType: GrokSubagentType | null;
   capabilityMode: "read-only" | "read-write" | null;
   spawnSurface: GrokRepoAgentSpawnSurface;
+  /** Worktree isolation for write roles (sandboxMode=workspace-write + read-write capability). Read-only / frontier → none. */
+  isolation: "none" | "worktree";
+  /** Parent must forward isolation into spawn_subagent when mustPassIsolationToHarness. */
+  parentChecklist: ParentSpawnChecklist;
   recommendedSkills: RepoWorkflowSkillId[];
   writeScopeNote: string;
+  pathScope: RolePathScope;
   spawnPrompt: string;
   spawnSubagentCall: {
     subagent_type: GrokSubagentType;
     capability_mode: "read-only" | "read-write";
     description: string;
     prompt: string;
+    /** Worktree isolation: "worktree" for workspace-write writers, "none" otherwise. */
+    isolation: "none" | "worktree";
   } | null;
   memoryConsultPaths: {
     charter: string;
@@ -63,6 +77,7 @@ export type GrokRepoAgentSpawnRegistryReport = {
 export const GROK_REPO_AGENT_SPAWN_SAFEGUARDS = [
   "Spawn only repo-defined roles from agents/** with charter.md + memory.md + index.json.",
   "Never use Cursor Task for repo-agent consults; use native spawn_subagent with role-mapped subagent_type.",
+  "Never spawn bare harness general-purpose/explore/plan for product delivery without a mapped repo role (assertDeliveryRoleMapped); use pnpm grok:agent:spawn-spec --role <roleId>.",
   "Regenerate pointers after policy changes: pnpm agent:harness:sync.",
   "Frontier roles (vp-engineering-delivery) stay on Composer/grok-build — do not spawn as cheap subagents.",
   "After spawn, run pnpm grok:tier:post-slice and pnpm agent:memory:append when the role learns something durable.",
@@ -86,6 +101,14 @@ export const GROK_REPO_AGENT_CONSULT_DEFAULTS: Record<string, string[]> = {
   license: ["license-provenance-specialist"],
   realism: ["visual-realism-adversary", "productivity-skeptic"],
   leadership: ["vp-engineering-delivery"],
+  architecture: ["architect"],
+  topology: ["architect"],
+  docs_warehouse: ["archivist"],
+  archive: ["archivist"],
+  pmo: ["pmo"],
+  temporal: ["pmo"],
+  hygiene: ["pmo"],
+  cadence: ["pmo", "hrbp"],
 };
 
 export function resolveGrokSpawnSurfaceForPolicy(policy: RepoRoleHarnessPolicy): {
@@ -142,25 +165,32 @@ export function buildRepoAgentSpawnPrompt(input: {
       ? `Skills: ${input.policy.recommendedSkills.map((s) => skillPaths[s]).join(", ")}.`
       : "";
   const multimodalNote = isMultimodal
-    ? " MULTIMODAL REASONING: This task involves images, screenshots, cagematch evidence, UI-XR captures, visual reports (png/webm), model-vetting visuals, garment/sleeve geometry evidence or similar. Reserve vision/multimodal analysis for grok-4-fast (try first, cost-effective) then grok-4-pro. Do not use deepseek text-only models for image content."
+    ? " MULTIMODAL: images/cagematch/UI-XR/png/webm → grok-4-fast first, then grok-4-pro; never deepseek text-only for vision."
     : "";
+  const escalateLadder = isMultimodal
+    ? "UNABLE: escalate grok-4-fast → grok-4-pro → grok-build (no deepseek for vision)."
+    : "UNABLE: escalate flash → pro → grok-build (cheap-first).";
+  const compositionPointer =
+    input.policy.sandboxMode === "workspace-write"
+      ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
+      : "";
   return [
-    `Persona (Grok Build, .grok/personas/ + charter): ${input.roleId}-expert. See .grok/personas/${input.roleId}.toml or matching expertise toml (expert-terse-bluf base). BLUF + terse + domain jargon only. BOTTOM LINE first sentence. Bullets file:line. ≤100 words target. End exactly "Recommended next: <slice-name> (Q#)". Assume other agents share lexicon per agents/rules/LEX_AGENTIC.md. ORCHESTRATION COORDINATOR (chief-coordinator role) CHUNK VISIBILITY / NOTICEABILITY + SIZABLE COLLABORATIVE VERTICAL SLICE MANDATE (Q1/Q5; see agentic-lexicon.md + chunk-visibility-noticeability.md): every delegated slice/work chunk must be a sizable collaborative vertical slice (multi-role body targeting functional area e.g. WebXR asset/scene factory or exam running/UI-XR or model proving ground/Model Vetting; provable by interacting/showcasing in the apps; productivity-skeptic assesses teamwork/collaboration + website evidence readiness) big enough to be noticeable in tester app (Model Vetting cagematch png/webm + packed model-vetting-report.v1 .candidates) or sample scene (UI-XR peds runtime with garmentGeometry/sleeveDeform/no-cull/cyan); if no visible delta (sub-pixel/same-color/cull-hidden/fixture), expand scope (geo/contrast/motion/no-cull/re-orchestrate with phenotype.garmentLayers) until skeptic-visible 3D/runtime change confirmed; never accept invisible or non-collaborative minor changes as advancement. Anti-toil: expand or pivot after 1 evidence-only or isolated task. Use lowest-cost first (flash for coordinator scoping) + escalation.`,
-    `You are the repo-defined role \`${input.roleId}\` for /Volumes/files/src/openclinxr.`,
-    "OpenClaw-style file-backed workflow — not an external runtime.",
-    "Confirm AGENTS.md, PROJECT_STATUS.md, docs/agent-factory/**, agents/**, tools/agent-factory/** exist.",
-    `Read ${input.roleDir}/charter.md (## Persona section = instructions) and ${input.roleDir}/memory.md (tight limit) plus .agent-factory/memory-index.json entries for this role.`,
-    "Follow agents/rules/agent-consult.md, agents/rules/subagent-protocol.md, agents/rules/grok-tier-routing.md.",
-    `Policy tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? effectiveModel.includes("grok-4") ? " (multimodal)" : "" : ""}; task type: ${input.policy.taskType}.`,
+    `Persona: ${input.roleId}-expert (.grok/personas/ + charter ## Persona). BLUF; bullets file:line; ≤100w; end "Recommended next: <slice> (Q#)".`,
+    `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
+    "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed. Do NOT load full AGENTS.md/LEX unless UNABLE.",
+    `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,
+    "MANDATE_VISIBILITY: see agents/rules/MANDATE_VISIBILITY.md + LEX (pointer only; do not restate).",
+    compositionPointer,
+    `Tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? " (multimodal)" : ""}; task: ${input.policy.taskType}.`,
     input.policy.writeScopeNote,
     skillNote,
-    `ESCALATION GUARD (self-escalation on inability): If at any point you determine you are UNABLE to complete the task to the required standard at your current tier (model: ${effectiveModel}), you MUST explicitly emit a line starting with "UNABLE:" followed by a concise reason and the recommended higher-tier helper. ${isMultimodal 
-      ? "For multimodal/vision/reasoning efforts: escalation ladder is grok-4-fast (try first — cost-effective Grok vision+reasoning), then grok-4-pro, then grok-build (frontier). Never fall back to deepseek text-only models when images/screenshots/cagematch visuals are involved."
-      : "Escalation ladder (start at the cheapest sufficient tier): deepseek-v4-flash (scout/consult/read-only), then deepseek-v4-pro (bounded analysis/execution), then grok-build (frontier synthesis or when lower tiers have failed)."} The orchestration coordinator (chief-coordinator role) will then spawn a new helper subagent of the recommended higher tier using pnpm grok:agent:spawn-spec for the appropriate role and tier per agentic-lexicon.md (preserving cheap-first and sizable collaborative vertical slice scoping). Do not continue past your confident capability.`,
-    input.task ?? "Return concise findings, blockers, recommended next slice, and file paths. Respect Q1/Q4/Q5 gates.",
+    formatPathScopeBlock(input.policy.pathScope),
+    `ESCALATION: if below tier capability emit line "UNABLE:" + reason + recommended helper. ${escalateLadder} Coordinator spawns via spawn-spec.`,
+    input.task ?? "Return findings, blockers, recommended next slice, file paths. Q1/Q4/Q5.",
     input.policy.sandboxMode === "read-only"
-      ? "Read-only: do not edit unless explicitly assigned a non-overlapping write scope."
-      : "Bounded write scope only; do not edit coordination files unless the slice owns them.",
+      ? "Read-only unless assigned non-overlapping write scope."
+      : "Bounded write only; no coordination files unless slice owns them.",
+    "RESUME_FROM: if continuation, short deltas only; still update the same handoff JSON (status/evidence/touched/blockers/recommended_next).",
   ]
     .filter(Boolean)
     .join(" ");
@@ -201,6 +231,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
       recommendedSkills: ["openclinxr-openclaw"],
       moonbridgeAssistOnCodex: true,
       writeScopeNote: "Read-only repo-agent consultation unless explicitly assigned a non-overlapping write scope.",
+      pathScope: getRolePathScope(input.roleId),
     } satisfies RepoRoleHarnessPolicy);
 
   const isMultimodal = requiresMultimodalReasoning(input.roleId, input.task);
@@ -218,8 +249,23 @@ export function buildGrokRepoAgentSpawnSpec(input: {
     roleId: input.roleId,
     roleDir: input.roleDir,
     policy,
-    task: input.task,
+    ...(input.task !== undefined ? { task: input.task } : {}),
     multimodal: isMultimodal,
+  });
+
+  // Worktree isolation for writers: workspace-write + read-write capability + grok_native_spawn
+  const isolation: "none" | "worktree" =
+    policy.sandboxMode === "workspace-write" &&
+    surface.capabilityMode === "read-write" &&
+    surface.spawnSurface === "grok_native_spawn_subagent"
+      ? "worktree"
+      : "none";
+
+  const parentChecklist = buildParentSpawnChecklist({
+    isolation,
+    pathScope: policy.pathScope,
+    capabilityMode: surface.capabilityMode,
+    sandboxMode: policy.sandboxMode,
   });
 
   const spawnSubagentCall =
@@ -229,6 +275,7 @@ export function buildGrokRepoAgentSpawnSpec(input: {
           capability_mode: surface.capabilityMode,
           description: `${input.roleId} (${policy.policyTier}${isMultimodal ? ", multimodal" : ""})`,
           prompt: spawnPrompt,
+          isolation,
         }
       : null;
 
@@ -247,7 +294,10 @@ export function buildGrokRepoAgentSpawnSpec(input: {
     spawnSurface: surface.spawnSurface,
     recommendedSkills: policy.recommendedSkills,
     writeScopeNote: policy.writeScopeNote,
+    pathScope: policy.pathScope,
     spawnPrompt,
+    isolation,
+    parentChecklist,
     spawnSubagentCall,
     memoryConsultPaths: {
       charter: `${input.roleDir}/charter.md`,
@@ -339,5 +389,10 @@ export function formatGrokRepoAgentSpawnBrief(spec: GrokRepoAgentSpawnSpec): str
   if (!call) {
     return `${spec.roleId}: Composer/grok-build only (${spec.model}) — ${spec.writeScopeNote}`;
   }
-  return `${spec.roleId}: spawn_subagent ${call.subagent_type} (${call.capability_mode}) model=${spec.model} — ${spec.policyTier}`;
+  const iso = call.isolation === "worktree" ? " isolation=worktree" : "";
+  const checklist =
+    spec.parentChecklist.mustPassIsolationToHarness
+      ? " parentChecklist.mustPassIsolationToHarness=true"
+      : "";
+  return `${spec.roleId}: spawn_subagent ${call.subagent_type} (${call.capability_mode})${iso}${checklist} model=${spec.model} — ${spec.policyTier}`;
 }

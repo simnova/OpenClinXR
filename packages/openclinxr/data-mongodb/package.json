@@ -13,6 +13,7 @@
     "test:mongo": "vitest run --root ."
   },
   "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/session-state": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",

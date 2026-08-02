@@ -1,0 +1,176 @@
+{
+  "generatedAt": "2026-08-02T04:38:54.054Z",
+  "auditEvidence": {
+    "supplied": true,
+    "sourcePath": "docs/openclinxr/security-audit-2026-08-02.json",
+    "totalFindingCount": 0,
+    "blockingFindingCount": 0,
+    "blockingSeverityThreshold": "high"
+  },
+  "activeExceptions": [],
+  "activePackageManagerOverrides": [
+    {
+      "packageName": "brace-expansion",
+      "pinnedVersion": "5.0.9",
+      "rationale": "Force transitive minimatch users onto the patched release that resolves brace-expansion DoS advisories (GHSA-3jxr / GHSA-mh99 on the 5.x line).",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all lockfile paths resolve `brace-expansion >=5.0.8` without a root override."
+    },
+    {
+      "packageName": "minimatch@9>brace-expansion",
+      "pinnedVersion": "2.1.4",
+      "rationale": "Path-specific pin for minimatch 9 (glob/@donmccurdy/caporal) onto brace-expansion 2.1.4 while the default override remains on the 5.x line.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when minimatch 9 consumers resolve `brace-expansion >=2.1.3` without a path override."
+    },
+    {
+      "packageName": "fast-uri",
+      "pinnedVersion": "3.1.4",
+      "rationale": "Force AJV's transitive URI parser onto the patched 3.x line (GHSA-v2hh / GHSA-4c8g).",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when `ajv` or the lockfile resolves `fast-uri >=3.1.4` without a root override."
+    },
+    {
+      "packageName": "form-data",
+      "pinnedVersion": "4.0.6",
+      "rationale": "Force transitive form-data (gltf-transform / node-fetch types) onto the CRLF-injection fix.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all lockfile paths resolve `form-data >=4.0.6` without a root override."
+    },
+    {
+      "packageName": "hono",
+      "pinnedVersion": "4.12.33",
+      "rationale": "Keep API and mock voice server on the patched Hono release for GHSA-88fw.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when every workspace package and transitive path resolves `hono >=4.12.25` without a root override."
+    },
+    {
+      "packageName": "immutable",
+      "pinnedVersion": "5.1.8",
+      "rationale": "Force graphql-codegen / relay-compiler transitive immutable onto the patched 5.1.8 line.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when codegen paths resolve `immutable >=5.1.8` without a root override."
+    },
+    {
+      "packageName": "ip-address",
+      "pinnedVersion": "10.1.1",
+      "rationale": "Force express-rate-limit transitive resolution in the IWSDK dev-tool spike onto the patched release while preserving the isolated sidecar evaluation.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when the IWSDK dev-tool path resolves `ip-address >=10.1.1` without a root override or the sidecar spike is removed."
+    },
+    {
+      "packageName": "js-yaml",
+      "pinnedVersion": "4.3.0",
+      "rationale": "Force cosmiconfig / graphql-codegen transitive js-yaml onto the prototype pollution fix.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all lockfile paths resolve `js-yaml >=4.3.0` without a root override."
+    },
+    {
+      "packageName": "postcss",
+      "pinnedVersion": "8.5.18",
+      "rationale": "Force Vite/Vitest transitive postcss onto the source-map path traversal fix.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all lockfile paths resolve `postcss >=8.5.18` without a root override."
+    },
+    {
+      "packageName": "protobufjs",
+      "pinnedVersion": "8.4.1",
+      "rationale": "Force Cesium/gltf-pipeline transitive protobufjs onto the patched release.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when `gltf-pipeline` is removed/isolated or remaining GLTF tooling resolves `protobufjs >=8.4.1` without a root override."
+    },
+    {
+      "packageName": "qs",
+      "pinnedVersion": "6.15.2",
+      "rationale": "Force transitive Express/MCP/IWSDK dev-tool resolution onto the patched release that resolves the qs prototype pollution advisory.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all lockfile paths resolve `qs >=6.15.2` without a root override."
+    },
+    {
+      "packageName": "react-router",
+      "pinnedVersion": "8.3.0",
+      "rationale": "Align ui-admin and any transitive react-router consumers on 8.3.0 (closes GHSA-8x6r, GHSA-chx6, GHSA-qwww). Requires React >=19.2.7.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when ui-admin declares `react-router >=8.3.0` without a root override."
+    },
+    {
+      "packageName": "rolldown",
+      "pinnedVersion": "1.0.0-rc.18",
+      "rationale": "Keep packaging and local preview bundling aligned while the existing build scripts are validated against this pinned `rolldown` version.",
+      "owner": "frontend-platform-lead",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when the full stack lockfile and workspace overrides can be moved to a newer pinned version after compatibility validation."
+    },
+    {
+      "packageName": "sharp",
+      "pinnedVersion": "0.35.0",
+      "rationale": "Force gltf-transform CLI and IWSDK dev-tool sharp onto the libvips advisory floor while those tools remain local/dev-only.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when `@gltf-transform/*` and IWSDK paths resolve `sharp >=0.35.0` without a root override, or sharp is isolated behind a capability gate."
+    },
+    {
+      "packageName": "shell-quote",
+      "pinnedVersion": "1.10.0",
+      "rationale": "Force graphql-codegen transitive shell-quote onto the critical newline-escape and follow-on fixes.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when codegen paths resolve `shell-quote >=1.8.4` (and >=1.9.0 for GHSA-395f) without a root override."
+    },
+    {
+      "packageName": "three",
+      "pinnedVersion": "0.184.0",
+      "rationale": "Keep IWSDK sidecar and production XR packages on one reviewed Three.js version while `@iwsdk/core` permits a broad Three.js range.",
+      "owner": "frontend-platform-lead",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all workspace packages declare the same exact Three.js version without a root override."
+    },
+    {
+      "packageName": "undici",
+      "pinnedVersion": "7.28.0",
+      "rationale": "Force vitest/jsdom transitive undici onto the patched release for TLS/proxy/WebSocket advisories.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when vitest/jsdom paths resolve `undici >=7.28.0` without a root override."
+    },
+    {
+      "packageName": "vite",
+      "pinnedVersion": "8.0.16",
+      "rationale": "Force workspace Vite (apps + vitest) onto the patched 8.0.16 floor for GHSA-fx2h.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all workspace packages declare `vite >=8.0.16` without a root override."
+    },
+    {
+      "packageName": "ws",
+      "pinnedVersion": "8.21.1",
+      "rationale": "Keep mock realtime voice server and transitive GraphQL/IWSDK WebSocket paths on the memory-exhaustion fix.",
+      "owner": "security-posture-steward",
+      "reviewBy": "2026-09-01",
+      "removalCondition": "Remove when all workspace packages and transitive lockfile paths resolve `ws >=8.21.0` without a root override."
+    }
+  ],
+  "scriptFindings": [],
+  "exceptionFindings": [],
+  "packageManagerOverrideFindings": [],
+  "unresolvedAuditFindings": [],
+  "verdict": {
+    "passed": true,
+    "scriptFindingCount": 0,
+    "exceptionFindingCount": 0,
+    "packageManagerOverrideFindingCount": 0,
+    "unresolvedAuditFindingCount": 0
+  }
+}

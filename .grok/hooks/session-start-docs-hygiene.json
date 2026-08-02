@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm docs:hygiene:session-start -- --auto-run 2>/dev/null || echo 'DOC HYGIENE: run pnpm docs:hygiene:session-start -- --auto-run (install/tsx if needed)'",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}

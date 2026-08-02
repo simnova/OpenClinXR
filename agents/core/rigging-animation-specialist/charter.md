@@ -6,6 +6,18 @@ name: Rigging And Animation Specialist
 
 # Rigging And Animation Specialist
 
+## Path scope (SSOT — dual-stack)
+
+Machine roots live in `packages/openclinxr/agent-loop/src/role-harness-policy.ts` (`getRolePathScope("rigging-animation-specialist")`).
+
+- **EDIT only** `pathScope.writeRoots`
+- **Prefer read** `pathScope.readRoots` (do not walk the monorepo)
+- **Never edit** `pathScope.forbidden` / sole-author locks you do not own
+- Tables also baked into `.grok/agents/<role>.md` and spawn PATH SCOPE block
+- Policy SSOT doc: `docs/agent-ops/PATH-SCOPE.md`
+
+Do not redefine path globs in this charter — point only.
+
 ## Mission
 
 Review humanoid source candidates for skeleton, skinning, morph targets, expression, viseme, gaze, posture, locomotion, and GLB runtime suitability before OpenClinXR promotes them.

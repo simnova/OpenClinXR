@@ -1,0 +1,54 @@
+# Toolchain for OpenClinXR
+# https://mise.jdx.dev — activate with `mise activate` or direnv (see .envrc.example)
+# Pattern aligned with atlantis-cameras-v2; OCX adds python for Anny/asset/voice scripts.
+
+[tools]
+# Pin major so agents/CI don't float across Node majors. package.json engines: >=24.15.0.
+# Node 24 = Active LTS (not Current 26 until that line is LTS).
+node = "24"
+# Current stable pnpm 11.x (mise latest); do not use corepack — mise owns this pin.
+pnpm = "11.18.0"
+# Optional local scripts / arena experiments that call bun.
+bun = "1.3.13"
+# Asset / evidence / voice scripts (python3). Bugfix line (prefer over security-only 3.11).
+python = "3.13"
+
+[settings]
+experimental = true
+
+[env]
+# Applied only when mise is **activated** (not shim-only). See docs/TOOLING.md.
+# Root workspace bins: turbo, tsx, vitest, biome, …
+# Package-local bins still need: pnpm --filter <pkg> exec|run …
+_.path = [
+	"{{config_root}}/node_modules/.bin",
+	"{{config_root}}/bin",
+]
+# Optional local env (gitignored). Prefer secrets in .env.local, not .envrc.
+_.file = [".env", ".env.local"]
+
+# Do NOT use postinstall = corepack enable — mise manages pnpm@11.18.0.
+# corepack rewires node/pnpm and fights the project pin.
+
+[tasks.pnpm-install]
+description = "Installs dependencies with pnpm"
+run = "pnpm install"
+sources = ["package.json", "pnpm-lock.yaml", "mise.toml", "pnpm-workspace.yaml"]
+outputs = ["node_modules/.pnpm/lock.yaml"]
+
+[tasks.doctor]
+description = "Consolidated env doctor (mise + turbo + MCP→CLI matrix)"
+run = "pnpm env:doctor"
+
+[tasks.env-doctor]
+description = "Alias for doctor — JSON at .openclinxr/env-doctor-latest.json"
+run = "pnpm env:doctor"
+
+[tasks.agent-alignment]
+description = "Cheap coordination alignment guard"
+run = "pnpm agent:alignment"
+
+[tasks.preflight]
+description = "OpenClaw preflight (env doctor + alignment + drift + lease)"
+run = "pnpm openclaw:preflight"
+depends = ["pnpm-install"]

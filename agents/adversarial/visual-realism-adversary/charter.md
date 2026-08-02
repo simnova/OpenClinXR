@@ -6,6 +6,18 @@ name: Visual Realism Adversary
 
 # Visual Realism Adversary
 
+## Path scope (SSOT — dual-stack)
+
+Machine roots live in `packages/openclinxr/agent-loop/src/role-harness-policy.ts` (`getRolePathScope("visual-realism-adversary")`).
+
+- **EDIT only** `pathScope.writeRoots`
+- **Prefer read** `pathScope.readRoots` (do not walk the monorepo)
+- **Never edit** `pathScope.forbidden` / sole-author locks you do not own
+- Tables also baked into `.grok/agents/<role>.md` and spawn PATH SCOPE block
+- Policy SSOT doc: `docs/agent-ops/PATH-SCOPE.md`
+
+Do not redefine path globs in this charter — point only.
+
 ## Mission
 
 Challenge whether humanoid, clothing, posture, expression, and WebXR evidence actually look believable for case-defined actors without granting clinical, Quest, production, learner, or scoring claims.

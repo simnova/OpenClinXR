@@ -110,6 +110,7 @@ PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
                 "materialFinish": "cotton_knit_matte",
                 "accessoryMarkers": [],
                 "fitProfile": "adult_parent_average_fit",
+                "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",  # re-orchestrated parent preset for expanded real garment in apply_role_clothing_material_regions (Q1 peds-parent-nurse-garment-asset slice)
             },
         },
     },
@@ -145,14 +146,55 @@ PEDS_ASTHMA_PARENT_ANXIETY_PRESETS: Dict[str, Dict[str, Any]] = {
                 "materialFinish": "poly_cotton_slight_sheen",
                 "accessoryMarkers": ["name_badge", "scrub_pocket"],
                 "fitProfile": "adult_clinical_team_fit",
+                "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",  # re-orchestrated nurse preset for expanded real garment in apply_role_clothing_material_regions (Q1 peds-parent-nurse-garment-asset slice)
+            },
+        },
+    },
+}
+
+ED_CHEST_PAIN_PRESETS: Dict[str, Dict[str, Any]] = {
+    "patient_ed_chest_pain_v1": {
+        "case_id": "ed_chest_pain_priority_v2",
+        "actor_id": "patient_ed_chest_pain_v1",
+        "actor_role": "patient",
+        "output_name": "ed_chest_pain_patient_adult.glb",
+        "params": {
+            "age": 52,
+            "body_profile": "adult_standard",
+            "pose": "standing_neutral_chest_pain_priority",
+            "seed": 2001,
+            "phenotype": {
+                "skin_tone": "warm_medium",
+                "hair_color": "brown",
+                "eye_color": "brown",
+                "anny_topology": "default",
+                "gender_presentation": "adult_male",
+                "height_cm": 178,
+                "build": "average_adult",
+                "hair_density": 0.65,
+                "brow_tension": 0.55,
+                "anxious": 0.65,
+                "flush": 0.15,
+                "age_wrinkle": 0.18,
+                "bmi": 26.0,
+                "clothing_style": "clinical_exam_tshirt_chest_pain",
+                "clothing_color": "soft_blue",
+                "role_visual_cue": "ed_chest_pain_patient",
+                "wardrobeRole": "ed_patient_exam",
+                "garmentLayers": ["hospital_gown"],
+                "fabricPalette": "hospital_gown_blue_pattern",
+                "materialFinish": "cotton_slight_sheen",
+                "accessoryMarkers": [],
+                "fitProfile": "adult_standard_fit",
+                "sleeveGeometryExpansion": "v2_gown_sleeves_0.35_len_r0.38_9r14c_rippled_folds_vivid_gown_blue",  # ed-gown-geo-reorchestrate (Q1): set hospital_gown from phenotype.garmentLayers for actual ED adult gown topology + expanded sleeve geo (longer/looser for gown vs tshirt); deformsWithBreathing + realGarmentRegion; cagematch + UI-XR dual visible per MANDATE_VISIBILITY + skeptic handoff; cp to current/ + 2026-06-07/ evidence dir; update reports
             },
         },
     },
 }
 
 CASE_ACTOR_PRESETS = {
-    f"peds_asthma_parent_anxiety_v1:{actor_id}": preset
-    for actor_id, preset in PEDS_ASTHMA_PARENT_ANXIETY_PRESETS.items()
+    **{f"peds_asthma_parent_anxiety_v1:{actor_id}": preset for actor_id, preset in PEDS_ASTHMA_PARENT_ANXIETY_PRESETS.items()},
+    **{f"ed_chest_pain_priority_v2:{actor_id}": preset for actor_id, preset in ED_CHEST_PAIN_PRESETS.items()},
 }
 
 

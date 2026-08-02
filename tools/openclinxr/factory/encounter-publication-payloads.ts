@@ -38,7 +38,7 @@ import type {
 import type { EncounterMaterializationEvidenceReport } from "./encounter-materialization-evidence.js";
 import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
 import type { GeneratedEdStationRuntimeBundleReport } from "./generated-ed-station-runtime-bundle.js";
-import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
+import type { VisualQaRemediationWorkOrderRef } from "../evidence/visual-qa-evidence-check.js";
 
 type CliOptions = {
   queueReportPath?: string;

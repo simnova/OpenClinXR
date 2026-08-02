@@ -1,0 +1,31 @@
+{
+  "agent_id": "archivist",
+  "display_name": "Archivist (docs warehouse)",
+  "group": "coordinator",
+  "role": "Retrieve historical docs from warehouse; map successors; never rewrite hot law or product IC",
+  "charter": "charter.md",
+  "memory": "memory.md",
+  "topics": [
+    "docs-warehouse",
+    "archive-retrieval",
+    "revision-index",
+    "successor-mapping",
+    "cold-ods"
+  ],
+  "last_updated": "2026-08-02",
+  "entries": [
+    {
+      "id": "archivist-lesson-0001",
+      "type": "lesson",
+      "topic": "docs-warehouse",
+      "summary": "docs-warehouse-v1: dual-stack archivist is read-only explore retrieval for docs/_archive + manifests; CLI owns freezes; never rewrites hot SSOT or product code.",
+      "confidence": 1,
+      "source_ids": [
+        "src-docs-warehouse-v1-archivist-role-2026-08-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

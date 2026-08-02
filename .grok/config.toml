@@ -1,7 +1,7 @@
 # Project-scoped Grok configuration for openclinxr
 # Augments user ~/.grok/config.toml. Repo-root takes precedence over user for supported sections.
 # See https://docs (or ~/.grok/docs/user-guide/05-configuration.md) for full options.
-# This config is tuned for the project's heavy agentic workflows (per AGENTS.md, docs/agent-factory/, .agent-factory/, agents/** roles with charters+memory, subagent orchestration, persistent rehydration from snapshots in PROJECT_COORDINATION_INDEX.md etc., monorepo with turbo/pnpm, GitHub ops via grok_com_github MCP, custom skills in .agents/skills/ + lock).
+# This config is tuned for the project's heavy agentic workflows (per AGENTS.md, docs/agent-factory/, .agent-factory/, agents/** roles with charters+memory, subagent orchestration, persistent rehydration from snapshots in PROJECT_COORDINATION_INDEX.md etc., monorepo with turbo/pnpm, GitHub via `gh` CLI, custom skills in .agents/skills/ + lock).
 
 # --- Skills (already set for multi-harness standardization) ---
 [skills]
@@ -9,16 +9,34 @@ paths = [".agents/skills"]
 # The .agents/skills/ (with antd, turborepo + future from skills-lock.json and workflow-skill-policy.md) is the canonical location.
 # Other harnesses should point their equivalent "additional skills" at the same dir.
 
+# --- Main session agent (CEO / orchestrator only) ---
+# HARD: main transcript is CEO, not product IC. See agents/rules/orchestrator-only-main.md
+# and docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md. New session required after change.
+[agent]
+name = "orchestrator"
+
 # --- Composer orchestration entrypoint (primary Grok session) ---
-# The primary Grok session (Composer / grok-composer-*) is the OpenClaw orchestrator.
-# Embody repo role: chief-coordinator. Own rehydrate, lease, slice selection, state updates, integration.
-# Do NOT delegate orchestration to subagents; delegate bounded consults and disjoint work only.
+# Primary session binds to agent `orchestrator` (above). OpenClaw embodiment = chief-coordinator
+# servant leadership. Own rehydrate, lease, slice selection, state hygiene; spawn specialists for product IC.
+# Do NOT implement apps/** or packages/** features on main — spawn role-mapped subagents.
 # Mapping:
 #   explore subagent → chief-coordinator, openclaw-drift-police, gap-attacker (read-only, cheap)
 #   plan subagent    → implementation-planning-lead (sequencing)
 #   specialists      → asset-pipeline-lead, xr-systems-architect, etc. (disjoint write scopes)
 # Token efficiency: keep Composer context lean; push scout/review reads to explore+deepseek-v4-flash.
 # Measure: pnpm agent:harness:prove (parses ~/.grok/sessions + ccusage codex where available).
+#
+# SERVANT LEADERSHIP DISCIPLINE (codified 2026-06-08):
+# Subagents are the stars. Coordinator consumes exact spawnSubagentCall payloads from
+# team-spawn reports (ensures grok-4-fast multimodal + full bake), defaults to resume_from
+# + short deltas on captured subagentThreadIds for long-running team refinement, NEVER
+# authors handoff JSON content, immediately applies suggestedHeaderUpdate + closed row
+# after every verify ok=true (same turn), re-bakes via spawn-spec on heavy context, and
+# removes barriers so the team can keep delivering toward entire project completion
+# (Strategic Grouping Plan). See agents/coordinator/chief-coordinator/charter.md (Servant
+# Leadership Operating Model), agents/rules/LEX_AGENTIC.md (new discipline section),
+# and .grok/personas/chief-coordinator.toml. After any change here or to chief-coordinator
+# surfaces: pnpm agent:alignment && pnpm docs:drift-check.
 
 # --- Subagents (coordinator first per AGENTS.md + agents/rules/subagent-protocol.md + LEX_AGENTIC) ---
 [subagents]
@@ -179,51 +197,46 @@ lsp_tools = true           # useful for TS navigation in the monorepo (apps/, pa
 timeout_secs = 600         # 10min for pnpm agent:*, pnpm openclaw:*, full verifies, builds
 output_byte_limit = 1048576  # 1MB for logs from vitest, turbo, agent traces
 
-# --- MCP: GitHub integration (grok_com_github provides the rich GitHub tools seen in sessions: PRs, issues, code search, push_files, etc.) ---
-# Configure explicitly for project so GitHub ops are reliably available in this workspace.
-# If the server is special/built-in (grok_com_github), this may register or augment it.
-# Use `grok mcp doctor` or `grok mcp list` after to verify.
-[mcp_servers.grok_com_github]
-# The exact transport/command is typically provided by the connected GitHub integration in the Grok env.
-# If it requires explicit setup, use:
-# command = "..." 
-# args = ["..."]
-# env = { GITHUB_TOKEN = "..." }  # prefer env or keychain
-# For now, declaring the name helps discovery in project context.
-# See also the project's use of GitHub MCP in arena spikes and tools.
+# --- MCP policy (CLI-first; see docs/TOOLING.md + pnpm env:doctor mcpCliMatrix) ---
+# Prefer shell CLIs over always-on MCP to cut agent context/tool-schema bloat.
+# Re-enable a server only for a bounded session that truly needs the MCP surface.
+#
+# disabled by default in this project (use CLI instead):
+#   playwright, chrome-devtools, grok_com_github
+# kept optional at user level when needed:
+#   drawio (diagrams), mongodb (Atlas agent work)
+# never add: mise MCP — use pnpm env:doctor / mise CLI
 
-# Chrome DevTools MCP is enabled for runtime/browser validation evidence.
-# Current npm metadata checked 2026-06-05: chrome-devtools-mcp@1.1.1, Apache-2.0.
-# Use pnpm dlx so the workspace stays aligned with the repo package manager.
+# --- GitHub: use `gh` CLI (never a transport-less grok_com_github stub) ---
+#   gh auth status
+#   gh pr list / gh issue list / gh api ...
+#   pnpm gh:status
+
+# --- Chrome DevTools: DISABLED (prefer CLI capture) ---
+# CLI: pnpm exec playwright | pnpm browser:agent | package evidence scripts
+# Re-enable only for CDP-specific profiling sessions:
+# [mcp_servers.chrome-devtools]
+# command = "pnpm"
+# args = ["dlx", "chrome-devtools-mcp@1.1.1", "--headless"]
+# enabled = true
+
 [mcp_servers.chrome-devtools]
 command = "pnpm"
 args = ["dlx", "chrome-devtools-mcp@1.1.1", "--headless"]
+enabled = false
 
-# Playwright support (Microsoft):
-# - CLI (via @playwright/test): the `playwright` command
-#   for codegen, test, trace, etc. Use via the bash/terminal tool:
-#     pnpm exec playwright codegen ...
-#     pnpm run playwright:test
-#   This is usually the more token-efficient option.
-# - MCP server (@playwright/mcp): exposes structured browser automation tools
-#   (navigate, click, screenshot, evaluate, etc.) for agent/tool-calling.
-#   Available when you need fine-grained, stateful control that is awkward
-#   to express as shell commands.
-#
-# Token-efficiency rule (per hyper-token-efficient-long-run-practices.md):
-#   Try the CLI first in most cases. Escalate to the MCP only when the
-#   structured tool surface provides clear value (complex multi-step flows,
-#   heavy interaction with page state, etc.).
-#
-# Use pnpm dlx for the MCP and pnpm exec for the CLI to stay consistent
-# with the monorepo. @playwright/test is the recommended package (CLI + test
-# runner). The old `playwright-cli` standalone is deprecated.
+# --- Playwright: DISABLED (prefer CLI; @playwright/test is a devDependency) ---
+# CLI:
+#   pnpm playwright:codegen
+#   pnpm playwright:test
+#   pnpm playwright:install
+#   pnpm exec playwright --help
+# Re-enable MCP only for multi-step stateful browser agent loops that shell cannot express.
+
 [mcp_servers.playwright]
 command = "pnpm"
 args = ["dlx", "@playwright/mcp@0.0.75"]
-
-# Note: @playwright/test is declared in devDependencies so `pnpm exec playwright`
-# (the CLI) is reliably available to the agent and scripts.
+enabled = false
 
 # --- UI / UX for long agentic sessions (rehydrations, autonomous loops, subagent threads) ---
 [ui]

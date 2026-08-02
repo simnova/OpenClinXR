@@ -9,8 +9,8 @@ import type {
 import { projectDurableClinicalEventForReview } from "@openclinxr/session-state";
 import { type ReviewPacket, type Scenario, type TraceEvent, validateReviewPacket, validateScenario, validateTraceEvent } from "@openclinxr/shared-schemas";
 import type { Collection, Db } from "mongodb";
-import { promoteEncounterRuntimeAssetBundleForLocalUse } from "../../asset-registry/src/runtime-asset-review.js";
-import type { EncounterRuntimeAssetBundle, LearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
+import { promoteEncounterRuntimeAssetBundleForLocalUse } from "@openclinxr/asset-registry/runtime-asset-review";
+import type { EncounterRuntimeAssetBundle, LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 
 export type ExamStationRunQueueSnapshot = {
   snapshotId: string;
@@ -483,25 +483,25 @@ export async function saveLearnerRuntimeAssetBundleFromGeneratedReport(
   if (!isRecord(reportValue)) {
     throw new Error("generated runtime bundle report must be an object");
   }
-  if (reportValue.schemaVersion !== "openclinxr.generated-ed-station-runtime-bundle.v1") {
+  if (reportValue["schemaVersion"] !== "openclinxr.generated-ed-station-runtime-bundle.v1") {
     throw new Error("generated runtime bundle report schemaVersion is unsupported");
   }
-  if (reportValue.status !== "bundle_ready") {
-    throw new Error(`generated runtime bundle report is not bundle_ready: ${String(reportValue.status)}`);
+  if (reportValue["status"] !== "bundle_ready") {
+    throw new Error(`generated runtime bundle report is not bundle_ready: ${String(reportValue["status"])}`);
   }
-  if (!isRecord(reportValue.learnerBundle)) {
+  if (!isRecord(reportValue["learnerBundle"])) {
     throw new Error("generated runtime bundle report requires learnerBundle");
   }
-  if (isRecord(reportValue.bundle)) {
+  if (isRecord(reportValue["bundle"])) {
     const promotion = promoteEncounterRuntimeAssetBundleForLocalUse({
-      bundle: reportValue.bundle as EncounterRuntimeAssetBundle,
-      decisions: Array.isArray(reportValue.runtimeAssetReviewDecisions) ? reportValue.runtimeAssetReviewDecisions : [],
+      bundle: reportValue["bundle"] as EncounterRuntimeAssetBundle,
+      decisions: Array.isArray(reportValue["runtimeAssetReviewDecisions"]) ? reportValue["runtimeAssetReviewDecisions"] : [],
     });
     if (!promotion.promoted) {
       throw new Error(`generated runtime bundle report did not pass local runtime promotion: ${promotion.blockers.join(", ")}`);
     }
   }
-  const learnerBundle = reportValue.learnerBundle as LearnerRuntimeAssetBundle;
+  const learnerBundle = reportValue["learnerBundle"] as LearnerRuntimeAssetBundle;
   await repository.saveLearnerBundle(learnerBundle);
   return learnerBundle;
 }

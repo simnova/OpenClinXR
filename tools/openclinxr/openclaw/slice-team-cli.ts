@@ -6,6 +6,10 @@ import {
 } from "../../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
 import { getRepoRoleHarnessPolicy } from "../../../packages/openclinxr/agent-loop/src/role-harness-policy.js";
 import {
+  assertWriterIsolation,
+  buildParentSpawnChecklist,
+} from "../../../packages/openclinxr/agent-loop/src/spawn-isolation.js";
+import {
   buildTeamSpawnReport,
   formatTeamSpawnBrief,
   materializeBriefFromTemplate,
@@ -37,11 +41,12 @@ async function discoverRoles(): Promise<RoleEntry[]> {
 }
 
 function parseArgs(argv: string[]): Record<string, string | boolean> {
-  const out: Record<string, string | boolean> = { json: false };
+  const out: Record<string, string | boolean> = { json: false, soft: false };
   const positional: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--json") out.json = true;
+    else if (arg === "--soft") out.soft = true;
     else if (arg.startsWith("--") && argv[i + 1] && !argv[i + 1]!.startsWith("--")) {
       out[arg.slice(2)] = argv[++i]!;
     } else if (!arg.startsWith("--")) positional.push(arg);
@@ -103,8 +108,11 @@ async function cmdInit(args: Record<string, string | boolean>): Promise<void> {
 async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<void> {
   const sliceId = String(args["slice-id"] ?? "");
   const phase = String(args.phase ?? "execute") as "scout" | "execute" | "integrate";
+  const soft = Boolean(args.soft);
   if (!sliceId) {
-    console.error("Usage: team-spawn --slice-id <id> [--phase scout|execute|integrate] [--json]");
+    console.error(
+      "Usage: team-spawn --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft]",
+    );
     process.exitCode = 1;
     return;
   }
@@ -133,22 +141,92 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
         })
       : null;
     const surface = policy ? resolveGrokSpawnSurfaceForPolicy(policy) : null;
+    // Prefer spawn-spec isolation when present; fall back to report-level isolation from path-scope wiring.
+    const isolation = spawnSpec?.isolation ?? roleSpec.isolation ?? "none";
+    const capabilityMode =
+      spawnSpec?.spawnSubagentCall?.capability_mode ??
+      spawnSpec?.capabilityMode ??
+      (roleSpec.mode === "write" ? "read-write" : "read-only");
+    const parentChecklist =
+      spawnSpec?.parentChecklist ??
+      buildParentSpawnChecklist({
+        isolation,
+        pathScope: policy?.pathScope,
+        capabilityMode,
+        sandboxMode: policy?.sandboxMode,
+      });
     return {
       ...roleSpec,
+      isolation,
+      parentChecklist,
+      pathWarnings: roleSpec.pathWarnings,
       model: spawnSpec?.model,
       grokSubagentType: spawnSpec?.grokSubagentType,
-      capabilityMode: spawnSpec?.spawnSubagentCall?.capability_mode,
+      capabilityMode,
       spawnSubagentCall: spawnSpec?.spawnSubagentCall
-        ? { ...spawnSpec.spawnSubagentCall, prompt: roleSpec.spawnPrompt }
+        ? { ...spawnSpec.spawnSubagentCall, prompt: roleSpec.spawnPrompt, isolation }
         : null,
       spawnSurface: surface?.spawnSurface,
+      // subagentThreadId will be populated by harness result if native spawn_subagent returns id (for resume_from chaining on refinement within handoff contract)
     };
   });
 
-  const output = { ...report, roles: enriched };
+  // Wave A: assert workspace-write writers have isolation=worktree (hard fail default; --soft warns).
+  const isolationFailures: string[] = [];
+  for (const role of enriched) {
+    const policy = getRepoRoleHarnessPolicy(role.roleId);
+    if (!policy) continue;
+    const result = assertWriterIsolation({
+      roleId: role.roleId,
+      isolation: role.isolation ?? "none",
+      sandboxMode: policy.sandboxMode,
+      capabilityMode: role.capabilityMode,
+    });
+    if (!result.ok && result.error) {
+      isolationFailures.push(result.error);
+    }
+  }
+
+  const mustPassRoles = enriched
+    .filter((r) => r.parentChecklist?.mustPassIsolationToHarness)
+    .map((r) => r.roleId);
+
+  const output = {
+    ...report,
+    roles: enriched,
+    isolationEnforce: {
+      soft,
+      ok: isolationFailures.length === 0,
+      failures: isolationFailures,
+      mustPassIsolationRoles: mustPassRoles,
+    },
+  };
   const outPath = path.join(repoRoot, ".openclinxr", "openclaw", `slice-team-spawn-${sliceId}-${phase}.json`);
   await mkdir(path.dirname(outPath), { recursive: true });
   await writeFile(outPath, `${JSON.stringify(output, null, 2)}\n`);
+
+  if (mustPassRoles.length > 0) {
+    console.log(
+      `PARENT CHECKLIST: pass isolation=worktree to spawn_subagent for: ${mustPassRoles.join(", ")}`,
+    );
+  }
+
+  if (isolationFailures.length > 0) {
+    for (const err of isolationFailures) {
+      console.error(`ISOLATION ASSERT: ${err}`);
+    }
+    if (!soft) {
+      console.error(
+        `team-spawn isolation enforce failed (${isolationFailures.length} writer(s)); use --soft to warn only`,
+      );
+      process.exitCode = 2;
+      if (args.json) {
+        console.log(JSON.stringify(output, null, 2));
+      }
+      return;
+    }
+    console.error(`ISOLATION ASSERT: soft mode — continuing with warnings`);
+  }
 
   if (args.json) {
     console.log(JSON.stringify(output, null, 2));
@@ -158,14 +236,25 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
   console.log(formatTeamSpawnBrief(report));
   console.log(`Wrote ${outPath}`);
   for (const role of enriched) {
+    const writeRootsN = role.pathScopeWriteRoots?.length ?? 0;
+    const checklistFlag = role.parentChecklist?.mustPassIsolationToHarness
+      ? " mustPassIsolation=true"
+      : "";
+    console.log(
+      `role ${role.roleId} isolation=${role.isolation ?? "none"} writeRoots=${writeRootsN}${checklistFlag}`,
+    );
     console.log(`\n## ${role.roleId} (${role.phase}, ${role.mode})`);
     console.log(`handoff → ${role.handoffPath}`);
+    if (role.subagentThreadId) {
+      console.log(`  subagentThreadId (for resume_from refinement): ${role.subagentThreadId}`);
+    }
     if (role.spawnSubagentCall) {
       console.log(JSON.stringify(role.spawnSubagentCall, null, 2));
     } else {
       console.log("Use Composer integrator for this role.");
     }
   }
+  console.log('\nFollow-up note: for bounded refinement on a role (e.g. capture params or visibility expand), use native spawn_subagent with resume_from=<subagentThreadId> + short delta prompt. Subagent must still update the exact same handoff JSON. See LEX_AGENTIC subagent chaining + chief-coordinator charter.');
 }
 
 async function cmdVerify(args: Record<string, string | boolean>): Promise<void> {
@@ -239,9 +328,12 @@ async function main(): Promise<void> {
 
 Commands:
   init        --template <id> --slice-id <id>
-  team-spawn  --slice-id <id> [--phase scout|execute|integrate] [--json]
+  team-spawn  --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft]
   verify      --slice-id <id> [--json]
   status      --slice-id <id>
+
+Flags:
+  --soft      team-spawn: warn on isolation assert failures instead of exit 2
 `);
   }
 }

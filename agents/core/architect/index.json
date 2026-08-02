@@ -1,0 +1,20 @@
+{
+  "agent_id": "architect",
+  "team": "core",
+  "last_updated": "2026-08-02",
+  "entries": [
+    {
+      "id": "architect-lesson-0001",
+      "type": "lesson",
+      "topic": "composition-roots",
+      "summary": "Wave C-arch: architect sole-authors composition roots doctrine, cellix seedwork, and architecture-rules; does not implement product features in apps or domain packages.",
+      "confidence": 1,
+      "source_ids": [
+        "src-context-opt-wave-c-arch-2026-08-02"
+      ],
+      "iteration": 0,
+      "status": "active",
+      "supersedes": []
+    }
+  ]
+}

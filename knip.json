@@ -7,12 +7,14 @@
     "tools/openclinxr/evidence/garment-cache-index.mjs",
     "tools/openclinxr/evidence/garment-hundred-slice-runner.mjs",
     "tools/openclinxr/evidence/garment-ingest-and-fit.mjs",
-    "tools/openclinxr/garment-promotion-gate.mjs",
-    "tools/openclinxr/garment-provider-gate.mjs",
-    "tools/openclinxr/garment-work-order.mjs",
-    "tools/openclinxr/humanoid-source-closeup-comparator.mjs",
-    "tools/openclinxr/materialize-ob-humanoid-source-variants.ts",
-    "tools/openclinxr/strip-humanoid-primitive-proxies.ts"
+    "tools/openclinxr/evidence/garment-promotion-gate.mjs",
+    "tools/openclinxr/evidence/garment-provider-gate.mjs",
+    "tools/openclinxr/evidence/garment-work-order.mjs",
+    "tools/openclinxr/evidence/humanoid-source-closeup-comparator.mjs",
+    "tools/openclinxr/evidence/materialize-ob-humanoid-source-variants.ts",
+    "tools/openclinxr/evidence/strip-humanoid-primitive-proxies.ts",
+    "tools/openclinxr/evidence/anny-skin-texture-cagematch-manifest.ts",
+    "tools/openclinxr/asset-pipeline/anny/optimize_glb_meshopt.mjs"
   ],
   "project": [
     "vitest.config.ts",
@@ -24,11 +26,18 @@
     "@gltf-transform/cli",
     "@gltf-transform/extensions",
     "@gltf-transform/functions",
+    "@knip/language-server",
     "@pmndrs/uikit",
     "archunit",
-    "gltf-pipeline"
+    "gltf-pipeline",
+    "gltfpack",
+    "pyright",
+    "typescript-language-server"
   ],
   "ignoreBinaries": [
+    "agent-browser",
+    "blender",
+    "gh",
     "python3"
   ],
   "ignoreIssues": {

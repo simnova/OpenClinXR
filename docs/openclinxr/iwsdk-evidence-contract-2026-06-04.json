@@ -234,7 +234,7 @@
         "sourceRecordIds": [
           "src-local-hardware-spike-2026-05-03"
         ],
-        "useWhen": "Use Browser Use, Playwright, or Chrome DevTools MCP against local desktop/mobile browser surfaces before headset work.",
+        "useWhen": "Use Playwright CLI (pnpm playwright:*) or agent-browser CLI (pnpm browser:agent) against local desktop/mobile browser surfaces before headset work. Prefer CLIs over disabled browser MCPs (see docs/TOOLING.md).",
         "requiredEvidence": [
           "page_loads_without_error_overlay",
           "webgl_canvas_nonblank",

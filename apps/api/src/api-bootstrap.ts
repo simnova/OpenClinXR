@@ -113,22 +113,25 @@ export type OpenClinXrApiStartupOptions = {
   protocolPostureEnvironmentOptions?: OpenClinXrApiProtocolPostureEnvironmentOptions;
 };
 
-export type BunRealtimeVoiceGatewayPostureEnvironment = {
+/** Env bag for Bun voice posture — compatible with NodeJS.ProcessEnv (index signature). */
+export type BunRealtimeVoiceGatewayPostureEnvironment = Readonly<{
+  [key: string]: string | undefined;
   OPENCLINXR_PYTHON_VOICE_BACKEND_WS_URL?: string;
   OPENCLINXR_PYTHON_VOICE_PROXY_EVIDENCE_FILE?: string;
   OPENCLINXR_PYTHON_VOICE_BACKEND_RUNTIME_EVIDENCE_FILE?: string;
-};
+}>;
 
 export type BunRealtimeVoiceGatewayPostureEnvironmentOptions = {
   readEvidenceFile?: (filePath: string) => unknown;
 };
 
-export type OpenClinXrApiProtocolPostureEnvironment = {
+export type OpenClinXrApiProtocolPostureEnvironment = Readonly<{
+  [key: string]: string | undefined;
   OPENCLINXR_API_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
   OPENCLINXR_BUN_WEBSOCKET_RUNTIME_EVIDENCE_FILE?: string;
   VITEST?: string;
   NODE_ENV?: string;
-};
+}>;
 
 export type OpenClinXrApiProtocolPostureEnvironmentOptions = {
   readEvidenceFile?: (filePath: string) => unknown;
@@ -406,10 +409,10 @@ function resolveApiBunWebSocketRuntimeEvidencePath(
 }
 
 function isProtocolPostureEvidenceDiscoverySuppressed(environment: OpenClinXrApiProtocolPostureEnvironment): boolean {
-  return environment.VITEST === "true"
-    || environment.NODE_ENV === "test"
-    || process.env.VITEST === "true"
-    || process.env.NODE_ENV === "test";
+  return environment["VITEST"] === "true"
+    || environment["NODE_ENV"] === "test"
+    || process.env["VITEST"] === "true"
+    || process.env["NODE_ENV"] === "test";
 }
 
 function findLatestApiBunWebSocketRuntimeSmokeEvidencePath(): string | undefined {

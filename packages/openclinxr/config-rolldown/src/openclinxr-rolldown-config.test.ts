@@ -58,8 +58,8 @@ describe("OpenClinXR Rolldown config adoption", () => {
         sourcemap: true,
       },
     });
-    expect(config.resolve.alias.hono).toContain("hono");
-    expect(config.resolve.alias.vitest).toContain("vitest");
+    expect(config.resolve.alias["hono"]).toContain("hono");
+    expect(config.resolve.alias["vitest"]).toContain("vitest");
     expect(config.resolve.alias).not.toHaveProperty("definitely-missing-package");
     expect(config.transform.define.__dirname).toBe("import.meta.dirname");
     expect(config.output.banner).toContain("globalThis.require");

@@ -80,6 +80,27 @@ export function FacultyReviewDecisionPanel({
           </li>
         ))}
       </ul>
+      <div className="promotion-gates-section" style={{ marginTop: 12, padding: 8, border: "1px solid #eee", borderRadius: 4 }}>
+        <Typography.Text strong>Promotion Readiness (local faculty review artifact only; all gates remain false)</Typography.Text>
+        <div style={{ margin: "4px 0" }}>
+          <Tag color="orange">promotionStatus: runtime_candidate_not_realism_gate_pass</Tag>
+          <Tag>realismGrade: B</Tag>
+          <Tag>realAnnyWeightsUsed: false</Tag>
+        </div>
+        <Typography.Text type="secondary" style={{ fontSize: "0.8em" }}>
+          notEvidenceFor: production_asset_readiness, quest_readiness, clinical_validity, scoring_validity, learner_launch_readiness (from asset pipeline / peds real garment case)
+        </Typography.Text>
+        <Typography.Text type="secondary" style={{ fontSize: "0.8em", display: "block" }}>
+          runtimePromotionAllowed: false | productionManifestPromotionAllowed: false
+        </Typography.Text>
+        <button
+          type="button"
+          onClick={() => { alert("Local promotion decision recorded (review artifact only). No runtime promotion, no production manifest, gates stay false per notEvidenceFor. This is Q4 review surface consuming authored packet seeds + pipeline promotionStatus."); }}
+          style={{ marginTop: 6, fontSize: "0.8em" }}
+        >
+          Record local promote / hold decision (demo — wires promotion capability into review replay)
+        </button>
+      </div>
       {reviewReplayReadinessSummary ? (
         <>
           <Typography.Text strong>Canonical replay readiness</Typography.Text>

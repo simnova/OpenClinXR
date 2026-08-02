@@ -2,7 +2,7 @@ import { createApiApp } from "@openclinxr/api";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
+import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import { createMongoApiPersistenceSink } from "./index.js";
 import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
 

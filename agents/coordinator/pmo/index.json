@@ -1,0 +1,7 @@
+{
+  "agent_id": "pmo",
+  "team": "coordinator",
+  "name": "PMO",
+  "charter": "charter.md",
+  "memory": "memory.md"
+}

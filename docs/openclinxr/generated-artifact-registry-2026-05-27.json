@@ -4,11 +4,11 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 94,
-    "ignore-local-cache": 1136,
+    "keep-evidence": 95,
+    "ignore-local-cache": 1413,
     "keep-current": 95,
     "keep-compatibility-input": 24,
-    "keep-template": 5
+    "keep-template": 6
   },
   "entries": [
     {
@@ -17,6 +17,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it."
+    },
+    {
+      "path": ".agent-factory/e18e-hygiene-summary-current.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "delete-if-untracked",
+      "rationale": "Untracked transient agent-factory check output; safe to delete or ignore."
     },
     {
       "path": ".agent-factory/evidence-debt-report.json",
@@ -279,6 +286,41 @@
     },
     {
       "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-morph-basis/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient-real-garment-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -559,6 +601,41 @@
     },
     {
       "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-school-aged-patient/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -852,6 +929,41 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/anny/smoke/mesh.manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1006,7 +1118,42 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/anny-real-garment/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/artifact-map.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-real-garment/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-real-garment/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_patient_child_real_garment_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/cagematch/anny-school-age/2026-06-07-school-aged-patient-face-eye-continuity-v1/peds_patient_child_face_eye_continuity_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_patient_child_mpfb2_eye.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/peds_patient_child_mpfb2_eye.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1132,6 +1279,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/ed-seed-humanoid-case-def-2026-06-07/ed_chest_pain_patient_real_garment.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/cagematch/mpfb-peds-patient-comparator/2026-06-07-mpfb-body-motion-probe/mpfb-blender-report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1140,6 +1294,41 @@
     },
     {
       "path": ".openclinxr/asset-production/cagematch/mpfb-peds-patient-comparator/2026-06-07-mpfb-peds-comparator/mpfb-blender-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -1252,6 +1441,34 @@
     },
     {
       "path": ".openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/env-doctor-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/admin-review-packet-replay-ui-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/replay-ui-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/review-packet-replay-ui-seed.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -5577,6 +5794,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/2026-06-07-ed-seed-new-v1/ed-chest-pain-humanoid-front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/2026-06-07-garment-expand-v1/garment-apply-role-expand-front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/2026-06-07-comfy-face-inpaint-v6/peds_patient_child_comfy_masked_face_front_2026-06-07.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -6187,6 +6418,13 @@
     },
     {
       "path": ".openclinxr/evidence/cagematch/anny-embedded-eye-material/2026-06-06-042459/visual-audit-marker-cleanup/peds_patient_child_anny_compatible_candidate.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-garment-hint-v1/peds_patient_child_rigging_report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -6851,6 +7089,139 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/artifact-map.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed-gown-real-garment-front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed_chest_pain_patient_real_garment.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed_chest_pain_patient_real_garment.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ed_chest_pain_patient_real_garment_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_patient_child_body_motion_probe_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_patient_child_front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_patient_child_front_2026-06-08.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_patient_child_three_quarter_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_patient_child_three_quarter_2026-06-08.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_adaptive_breathing_effort_acknowledged_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_adaptive_breathing_effort_acknowledged_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_adaptive_ignored_breathing_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_adaptive_ignored_breathing_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_body_motion_deform_breathing_effort_acknowledged_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/peds_real_garment_body_motion_deform_ignored_breathing_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ui-xr-peds-real-garment-sleeve-body-motion_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ui-xr-peds-real-garment-sleeve-front_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ui-xr-peds-real-garment-sleeve-three-quarter_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-face-eye-continuity-v1/head-detail-texture.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -6866,6 +7237,48 @@
     },
     {
       "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-face-eye-continuity-v1/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/anny-school-age-mpfb2-eye-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/capture-manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/captures/peds_patient_child_mpfb2_eye_front_2026-06-07-school-aged-patient-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/captures/peds_patient_child_mpfb2_eye_three_quarter_2026-06-07-school-aged-patient-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-mpfb2-eye-v1/mpfb2-eye-rig-report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -6985,6 +7398,48 @@
     },
     {
       "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-hair-v3/visual-audit-marker-cleanup/peds_patient_child_anny_compatible_candidate.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/anny-school-age-mpfb2-eye-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/capture-manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/captures/peds_patient_child_mpfb2_eye_front_2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/captures/peds_patient_child_mpfb2_eye_three_quarter_2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/anny-school-age/2026-06-07-school-aged-patient-scalp-mpfb2-eye-v1/mpfb2-eye-rig-report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7285,6 +7740,90 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_mpfb2_eye_rig_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-asthma-blueprint-eye-joint-integration-v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_mpfb2_eye_rig_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/peds-school-age-blueprint-eye-joint-full-extend-v1/peds_patient_child_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/realvisxl-direct-texture/2026-06-06-035551/tool.stdout.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -7341,7 +7880,210 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/complete-authoring-admin-ui-complete-v1/2026-06-07/complete-authoring-admin-ui-complete-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/complete-authoring-admin-ui-complete-v1/2026-06-07/complete-authoring-admin-ui-complete-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/complete-authoring-admin-ui-v1/2026-06-07/complete-authoring-admin-ui-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/complete-authoring-admin-ui-v1/2026-06-07/complete-authoring-admin-ui-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/complete-authoring-loop-v1/2026-06-07/complete-authoring-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/complete-authoring-loop-v1/2026-06-07/complete-authoring-loop-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_adult.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_real_garment_front_2026-06-08.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_real_garment_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_real_garment_three_quarter_2026-06-08.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07/ed-seed-cagematch-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07/ed-seed-humanoid-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07/ed-seed-humanoid-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07/ed-seed-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/README.txt",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_body_motion_deform_2026-06-08-ed-seed-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_sleeve_deform_front_2026-06-08-ed-seed-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ed_real_garment_sleeve_deform_three_quarter_2026-06-08-ed-seed-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/ui-xr-ed-seed-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/full-encounter-authoring-v1/2026-06-07/authoring-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/full-encounter-authoring-v1/2026-06-07/full-encounter-authoring-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/full-review-packet-persistence-impl/2026-06-07/actor-turns-sample.txt",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/full-review-packet-persistence-impl/2026-06-07/persistence-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/full-review-packet-persistence-impl/2026-06-07/review-packet-persistence-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/humanoid-source-decision-tree-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/implementation-authoring-follow-on-v1/2026-06-07/implementation-authoring-follow-on-seed.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/implementation-authoring-follow-on-v1/2026-06-07/implementation-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07/capture-run.log.txt",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07/model-vetting-capture-artifact-map.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7621,6 +8363,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/scenario-bank-review-packet-v1/2026-06-07/review-packet-evidence.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/scenario-bank-review-packet-v1/2026-06-07/sample-review-packet.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/ui-xr-clean-mpfb2-comparator-framing-2026-06-06/devtools-morphs.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -7684,7 +8440,147 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/openclaw/automation-lease.json",
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-ed-seed-support/ed-seed-real-garment-support.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_adaptive_breathing_effort_acknowledged_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_adaptive_breathing_effort_acknowledged_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_adaptive_ignored_breathing_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_adaptive_ignored_breathing_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_body_motion_deform_breathing_effort_acknowledged_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/peds_real_garment_body_motion_deform_ignored_breathing_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-new-sleeve-deform-v1/peds_real_garment_adaptive_sleeve_deform_body_motion_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-peds-real-garment-evidence-loop/peds_real_garment_adaptive_breathing_effort_acknowledged_2026-06-07-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-peds-real-garment-evidence-loop/peds_real_garment_adaptive_ignored_breathing_2026-06-07-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_adaptive_breathing_effort_acknowledged_2026-06-07-school-aged-patient-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_adaptive_breathing_effort_acknowledged_midturn_live_lipsync_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_adaptive_ignored_breathing_2026-06-07-school-aged-patient-mpfb2-eye-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_adaptive_ignored_breathing_midturn_live_lipsync_2026-06-07.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_adaptive_breathing_effort_acknowledged_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_adaptive_breathing_effort_acknowledged_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_adaptive_ignored_breathing_midturn_live_lipsync_sleeve_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_adaptive_ignored_breathing_sleeve_deform_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_body_motion_deform_breathing_effort_acknowledged_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_body_motion_deform_ignored_breathing_2026-06-08-peds-patient-child-real-garment-v1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/ui-xr-peds-school-age-mouth-gaze/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_mpfb2_eye_mouth_gaze_pose_2026-06-07-school-aged-patient-mpfb2-eye-v1.png",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7818,6 +8714,34 @@
     },
     {
       "path": ".openclinxr/openclaw/grok-harness-proof-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/grok-repo-agent-spawn-registry-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/grok-tier-introspection-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/grok-tier-slice-baseline-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/grok-tier-slice-token-latest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7964,7 +8888,378 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/slice-team-spawn-admin-packet-replay-surfaces-impl-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-admin-packet-replay-surfaces-impl-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-admin-review-packet-replay-ui-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-admin-review-packet-replay-ui-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-admin-ui-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-admin-ui-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-integrate.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-gown-geo-reorchestrate-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-gown-geo-reorchestrate-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-real-garment-phenotype-expansion-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-real-garment-phenotype-expansion-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-seed-humanoid-case-def-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-ed-seed-humanoid-case-def-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-encounter-authoring-loop-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-encounter-authoring-loop-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-full-encounter-authoring-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-full-review-packet-persistence-impl-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-full-review-packet-persistence-impl-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-implementation-authoring-follow-on-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-implementation-authoring-follow-on-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-new-peds-adaptive-sleeve-deform-evidence-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-evidence-loop-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-evidence-loop-integrate.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-evidence-loop-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-parent-nurse-garment-asset-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-parent-nurse-garment-asset-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-peds-real-garment-sleeve-evidence-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-scenario-bank-review-packet-v1-execute.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-scenario-bank-review-packet-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-admin-packet-replay-surfaces-impl.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-admin-review-packet-replay-ui-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-complete-authoring-admin-ui-complete-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-complete-authoring-admin-ui-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-complete-authoring-loop-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-ed-gown-geo-reorchestrate.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-ed-real-garment-phenotype-expansion.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-ed-seed-humanoid-case-def.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-encounter-authoring-loop.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-full-encounter-authoring-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-full-review-packet-persistence-impl.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-garment-apply-role-clothing-material-regions-expand-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-implementation-authoring-follow-on-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-new-ed-seed-humanoid-case-def-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-new-peds-adaptive-sleeve-deform-evidence-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-peds-evidence-loop.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-peds-parent-nurse-garment-asset.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-peds-real-garment-sleeve-evidence.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-scenario-bank-review-packet-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-ed-gown-geo-reorchestrate-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/openclaw/ui-xr-peds-actor-player-runtime-playback-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-adaptive-dialogue-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-adaptive-sleeve-deform-inspection.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7993,6 +9288,13 @@
     },
     {
       "path": ".openclinxr/openclaw/ui-xr-peds-multi-actor-trace-sequence-runtime-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/ui-xr-peds-school-age-mouth-gaze-inspection.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8028,6 +9330,643 @@
     },
     {
       "path": ".openclinxr/openclaw/ui-xr-scene-asset-failure-inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/clinical-safety-critic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-review-packet-replay-ui-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-complete-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-complete-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-complete-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-complete-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-admin-ui-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-loop-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-loop-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-loop-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/complete-authoring-loop-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-gown-geo-reorchestrate/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-gown-geo-reorchestrate/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-gown-geo-reorchestrate/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-gown-geo-reorchestrate/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-real-garment-phenotype-expansion/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-real-garment-phenotype-expansion/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-real-garment-phenotype-expansion/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-real-garment-phenotype-expansion/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-seed-humanoid-case-def/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-seed-humanoid-case-def/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-seed-humanoid-case-def/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/ed-seed-humanoid-case-def/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/encounter-authoring-loop/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/encounter-authoring-loop/handoffs/implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/encounter-authoring-loop/handoffs/pediatrics-physician.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/encounter-authoring-loop/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-encounter-authoring-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-encounter-authoring-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-encounter-authoring-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-encounter-authoring-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-review-packet-persistence-impl/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-review-packet-persistence-impl/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-review-packet-persistence-impl/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/full-review-packet-persistence-impl/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-ed-seed-humanoid-case-def-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-ed-seed-humanoid-case-def-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-ed-seed-humanoid-case-def-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-ed-seed-humanoid-case-def-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-peds-adaptive-sleeve-deform-evidence-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-peds-adaptive-sleeve-deform-evidence-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-peds-adaptive-sleeve-deform-evidence-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/new-peds-adaptive-sleeve-deform-evidence-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/path-scope-policy-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/path-scope-policy-v1/handoffs/chief-coordinator.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/path-scope-policy-v1/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/path-scope-policy-v1/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/path-scope-policy-v1/handoffs/path-scope-audit.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/asset-augment.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/capture-reexecutor.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/openclaw-drift-police.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/pediatrics-physician.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/rigging-animation-specialist.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/verify-fixer.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/visual-realism-adversary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/xr-augment.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/xr-capture-executor.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-evidence-loop/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-parent-nurse-garment-asset/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-parent-nurse-garment-asset/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-parent-nurse-garment-asset/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-parent-nurse-garment-asset/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-real-garment-sleeve-evidence/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/scenario-bank-review-packet-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/scenario-bank-review-packet-v1/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/scenario-bank-review-packet-v1/handoffs/productivity-skeptic.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/scenario-bank-review-packet-v1/handoffs/xr-systems-architect.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9460,6 +11399,20 @@
       "tracked": true,
       "action": "review-before-change",
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
+    },
+    {
+      "path": "docs/openclinxr/security-audit-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/security-audit-policy-2026-08-02.json",
+      "authority": "keep-template",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Reusable template/checklist/policy fixture."
     },
     {
       "path": "docs/openclinxr/stablegen-blender-background-trial-2026-06-06.json",

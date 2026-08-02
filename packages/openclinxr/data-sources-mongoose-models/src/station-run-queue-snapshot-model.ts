@@ -74,6 +74,6 @@ stationRunQueueSnapshotSchema.index({ "queue.stationQueue.scenarioId": 1 });
 stationRunQueueSnapshotSchema.index({ "queue.canStartLearnerExam": 1 });
 
 export function createStationRunQueueSnapshotModel(mongoose: Mongoose): Model<StationRunQueueSnapshotRecord> {
-  return mongoose.models.StationRunQueueSnapshot as Model<StationRunQueueSnapshotRecord> | undefined
+  return mongoose.models["StationRunQueueSnapshot"] as Model<StationRunQueueSnapshotRecord> | undefined
     ?? mongoose.model<StationRunQueueSnapshotRecord>("StationRunQueueSnapshot", stationRunQueueSnapshotSchema);
 }

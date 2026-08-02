@@ -6,7 +6,7 @@ import {
 import { buildDynamicEncounterFactoryPlanningProjection } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
 import type { EncounterLocalLaunchSelectionReport } from "./encounter-local-launch-selection.js";
-import type { CaseDefinedActorRealismRequirement } from "./humanoid-realism-gate.js";
+import type { CaseDefinedActorRealismRequirement } from "../evidence/humanoid-realism-gate.js";
 
 type CliOptions = {
   launchSelectionPath?: string;

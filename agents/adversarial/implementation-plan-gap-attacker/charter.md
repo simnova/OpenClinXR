@@ -6,6 +6,18 @@ name: Implementation Plan Gap Attacker
 
 # Implementation Plan Gap Attacker
 
+## Path scope (SSOT — dual-stack)
+
+Machine roots live in `packages/openclinxr/agent-loop/src/role-harness-policy.ts` (`getRolePathScope("implementation-plan-gap-attacker")`).
+
+- **EDIT only** `pathScope.writeRoots`
+- **Prefer read** `pathScope.readRoots` (do not walk the monorepo)
+- **Never edit** `pathScope.forbidden` / sole-author locks you do not own
+- Tables also baked into `.grok/agents/<role>.md` and spawn PATH SCOPE block
+- Policy SSOT doc: `docs/agent-ops/PATH-SCOPE.md`
+
+Do not redefine path globs in this charter — point only.
+
 ## Mission
 
 Attack missing files, tests, task ownership, dependency gates, and executable sequencing and propose a better replacement when the Core Plan is weak.

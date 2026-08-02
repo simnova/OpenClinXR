@@ -144,7 +144,7 @@ describe("session state", () => {
         traceTag: "ecg_request",
       },
     ]);
-    expect(session.spatialState.actorTransforms.nurse_maria_alvarez_v1).toMatchObject({
+    expect(session.spatialState.actorTransforms['nurse_maria_alvarez_v1']).toMatchObject({
       position: { x: 1.2, y: 0, z: -0.6 },
       rotationYRadians: -0.4,
       interactionState: "holding_equipment",
@@ -168,7 +168,7 @@ describe("session state", () => {
       })
     ).toThrow("Spatial transform contains non-finite numeric values for actor nurse_maria_alvarez_v1");
 
-    expect(session.spatialState.actorTransforms.nurse_maria_alvarez_v1?.position).toEqual({ x: 0.9, y: 0, z: -0.8 });
+    expect(session.spatialState.actorTransforms['nurse_maria_alvarez_v1']?.position).toEqual({ x: 0.9, y: 0, z: -0.8 });
   });
 
   it("keeps Phase 2 durable actor history authoritative while realtime cache remains disposable", () => {
@@ -626,7 +626,7 @@ describe("session state", () => {
     nestedPrivate.reviewerSuppressionReasons.push("mutated_by_caller");
     nestedPrivate.serverOnlyDetail = "mutated_by_caller";
 
-    expect(stores.durable.listClinicalEvents(stationRunId)[0]?.payload.private?.nestedPrivate).toEqual({
+    expect(stores.durable.listClinicalEvents(stationRunId)[0]?.payload.private?.['nestedPrivate']).toEqual({
       serverOnlyDetail: "Recent cocaine use remains hidden until elicited.",
       reviewerSuppressionReasons: ["hidden_fact_not_elicited"],
     });
@@ -691,7 +691,7 @@ describe("session state", () => {
     ]);
     expect(JSON.stringify(message)).not.toContain("Recent cocaine use");
     expect(JSON.stringify(message)).not.toContain("Repeat blood pressure is falling");
-    expect(message.spatial.actorTransforms.patient_robert_hayes_v1?.position).toEqual({ x: 0, y: 0, z: -1.15 });
+    expect(message.spatial.actorTransforms['patient_robert_hayes_v1']?.position).toEqual({ x: 0, y: 0, z: -1.15 });
   });
 
   it("models route, routed, clinical-event, and spatial messages as design-only deltas", () => {
@@ -727,7 +727,7 @@ describe("session state", () => {
       routingReason: routed.routingReason,
       traceContextTags: ["vitals_review", "ecg_request"],
     });
-    const nurseTransform = session.spatialState.actorTransforms.nurse_maria_alvarez_v1;
+    const nurseTransform = session.spatialState.actorTransforms['nurse_maria_alvarez_v1'];
     if (!nurseTransform) {
       throw new Error("Expected nurse_maria_alvarez_v1 transform to exist before creating spatial actor transform message.");
     }

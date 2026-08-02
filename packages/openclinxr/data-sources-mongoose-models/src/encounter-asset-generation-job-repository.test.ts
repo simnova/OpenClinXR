@@ -4,7 +4,7 @@ import {
   type EncounterAssetGenerationQueueMessageEnvelope,
   encodeAzureStorageQueueMessage,
   processEncounterAssetGenerationQueueMessage,
-} from "../../capability-gateway/src/index.js";
+} from "@openclinxr/capability-gateway";
 import {
   createEncounterAssetGenerationJobModel,
   EncounterAssetGenerationJobMongooseRepository,

@@ -27,12 +27,12 @@
       "reportId": "real-garment-2026-06-07",
       "lane": "real-garment-pivot",
       "runId": "2026-06-07-real-garment",
-      "title": "Peds real garment from phenotype garmentLayers (short_sleeve_exam_tshirt) - Q1/Q5 pivot evidence",
+      "title": "Peds real garment from phenotype garmentLayers (patient/parent/nurse) + ED adult/ed gown (hospital_gown) phenotype expansion - Q1+Q5 ed-real-garment-phenotype-expansion",
       "family": "Asset pipeline / real garment from phenotype",
       "reportUrlPath": "/cagematch-reports/real-garment-2026-06-07/report.json",
       "pageUrlQuery": "?cagematchReport=real-garment-2026-06-07",
       "thumbnailUrlPath": "/cagematch-reports/real-garment-2026-06-07/front.png",
-      "captureEvidenceUpdated": "2026-06-07 (re-launched/fixed model-vetting-turntable-capture.ts:6500ms+alias+timeout; report+rigging_report verified 134f sleeves weights; map in .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ + pngs/webm on run; tools/openclinxr/evidence/model-vetting-turntable-capture.ts + apps/arena/model-vetting-studio/public/cagematch-reports/real-garment-2026-06-07/report.json + peds_patient_child.glb + rigging_report)"
+      "captureEvidenceUpdated": "2026-06-08 (asset-pipeline-lead ed-gown-geo-reorchestrate execute: ED preset garmentLayers=hospital_gown + is_gown branch in automate (0.36len/9x14/0.45r thicker gown geo + metadata); re-gen glb via pheno params; cp glb/rigging/provenance to current/ (for UI-XR ed_anny) + .openclinxr/evidence/cagematch/anny-real-garment-2026-06-07/ + dated branch; updated model-vetting-report (source current/, realGarmentRegion gown factors, captureEvidence) + report.json + registry + factory ts (generated-human-rigging-artifacts, cagematch-report-pages, ed-bundle); ran turntable-capture (front/three/body produced incl ed-gown-*-front png + peds refresh); Q1 (pheno -> actual gown topology) + Q5 (MV cagematch evidence + reports); per brief/done_when + MANDATE + skeptic handoff (actual gown not tshirt mismatch); handoff only"
     }
   ]
 }

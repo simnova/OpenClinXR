@@ -65,11 +65,24 @@ Full policy: `agents/rules/grok-tier-routing.md` + `packages/openclinxr/agent-lo
 
 ## Key Components
 
-- `.grok/config.toml` — MCP, skills, subagents, memory, hooks
+- `.grok/config.toml` — MCP (CLI-first; see `docs/TOOLING.md`), skills, subagents, memory, hooks
 - `.grok/skills/` — via `[skills] paths = [".agents/skills"]`
 - `.grok/rules/` — symlinked from `agents/rules/`
 - `.grok/agents/` — repo role pointers (canonical content in `agents/**`)
 - `.grok/hooks/` — SessionStart, PostToolUse guards, PreCompact rehydrate
+
+### MCP → CLI (agent barrier removal)
+
+Disabled by default (prefer shell CLIs): `playwright`, `chrome-devtools`, `agent-browser`, `grok_com_github`.
+
+| Need | CLI |
+|------|-----|
+| Toolchain | `pnpm env:doctor` / `mise` |
+| GitHub | `pnpm gh:status` / `gh pr` / `gh issue` |
+| Browser evidence | `pnpm playwright:*` / `pnpm browser:agent` |
+| Optional MCP | drawio (diagrams), mongodb (Atlas only) |
+
+Do not instruct subagents to use disabled MCPs. Policy SSOT: `docs/TOOLING.md` + `pnpm env:doctor` `mcpCliMatrix`.
 
 ## Multi-Harness Sync
 

@@ -1,7 +1,7 @@
 # IWSDK Codex MCP Runbook
 
 Date: 2026-05-04
-Status: Phase 2 validation sidecar promoted; Chrome DevTools MCP available; IWSDK stdio MCP blocked
+Status: Phase 2 validation sidecar promoted; browser evidence via **Playwright/agent-browser CLIs** (Chrome DevTools MCP disabled project-wide); IWSDK stdio MCP blocked
 
 ## Purpose
 
@@ -9,7 +9,7 @@ This runbook defines how Codex should evaluate Meta Immersive Web SDK tooling no
 
 This runbook does not install production IWSDK, does not warm the IWSDK reference corpus, and does not replace physical Quest 3 validation.
 
-Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable validation sidecar using `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, `@iwsdk/vite-plugin-uikitml@0.4.2`, and `three@0.184.0`. Chrome DevTools MCP is configured through `pnpm dlx chrome-devtools-mcp@1.1.1` for local browser/runtime evidence. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains blocked/future instead of being added to Codex/Grok MCP config. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
+Current state: `apps/arena/ui-xr-iwsdk-spike` is a runnable validation sidecar using `@iwsdk/core@0.4.2`, `@iwsdk/xr-input@0.4.2`, `@iwsdk/vite-plugin-dev@0.4.2`, `@iwsdk/vite-plugin-uikitml@0.4.2`, and `three@0.184.0`. Local browser/runtime evidence should use **CLIs** (`pnpm playwright:*`, `pnpm browser:agent`) per `docs/TOOLING.md` MCP→CLI policy — project chrome-devtools/playwright MCPs are disabled. IWSDK 0.4.2 does not publish an installed `iwsdk-dev-mcp` stdio binary, so IWSDK MCP remains blocked/future instead of being added to Codex/Grok MCP config. It is not production-ready: the IWSDK vendor bundle remains over budget, Vite 8 is still outside the plugin's declared Vite 7 peer range, scene hierarchy/ECS tools are not yet wired to an IWSDK framework runtime, and physical Quest foreground metrics are still missing.
 
 Latest IWER managed-browser evidence:
 
@@ -76,7 +76,7 @@ Blocked template:
 ```toml
 # IWSDK stdio MCP is intentionally not configured.
 # @iwsdk/vite-plugin-dev@0.4.2 does not publish an iwsdk-dev-mcp binary.
-# Use Chrome DevTools MCP plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.
+# Use Playwright or agent-browser CLIs plus the IWSDK sidecar Vite/plugin evidence path until a package-managed stdio server exists.
 ```
 
 Keep any future adapter local and reversible until the installed IWSDK packages expose a real stdio MCP server.
@@ -87,7 +87,7 @@ Keep any future adapter local and reversible until the installed IWSDK packages 
 
 Use the tool ladder this way:
 
-- Browser Use, Playwright, or Chrome DevTools MCP against a local desktop/mobile browser can prove desktop fallback, nonblank WebGL canvas, trace controls, and clean console behavior. It cannot prove Quest shell delivery, foreground frame pacing, controller latency, comfort, or in-headset readability.
+- Playwright CLI or agent-browser CLI against a local desktop/mobile browser can prove desktop fallback, nonblank WebGL canvas, trace controls, and clean console behavior. It cannot prove Quest shell delivery, foreground frame pacing, controller latency, comfort, or in-headset readability.
 - Quest CDP through USB-C, ADB reverse, and Quest Browser remote inspection can prove Quest Browser shell delivery, WebXR feature detection, and basic trace-control interaction. It cannot prove foreground frame pacing when the CDP report is hidden or inactive.
 - Future IWSDK MCP evidence can prove emulated XR session readiness, scene hierarchy parity, controller-select trace behavior, screenshots, console logs, and ECS inspection only after the approved sidecar exists and the MCP evidence gates pass.
 - Manual foreground Quest evidence remains required before any production-readiness claim about frame pacing, controller latency, comfort, thermal behavior, or readable in-headset text.

@@ -64,7 +64,7 @@ scenarioBankSchema.index({ status: 1, specialty: 1 });
 scenarioBankSchema.index({ learningTargets: 1 });
 
 export function createScenarioBankModel(mongoose: Mongoose): Model<ScenarioBankRecord> {
-  return mongoose.models.ScenarioBank as Model<ScenarioBankRecord> | undefined
+  return mongoose.models["ScenarioBank"] as Model<ScenarioBankRecord> | undefined
     ?? mongoose.model<ScenarioBankRecord>("ScenarioBank", scenarioBankSchema);
 }
 

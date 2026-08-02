@@ -1004,13 +1004,14 @@ function isActorPoseReviewCaptureMode(): boolean {
 
 function isHumanoidMouthGazePoseReviewCaptureMode(): boolean {
   const captureMode = selectedCaptureMode();
-  return captureMode.includes("mouth-gaze-pose") || captureMode.includes("actor-pose") || captureMode.includes("pose-review");
+  return captureMode.includes("mouth-gaze-pose") || captureMode.includes("actor-pose") || captureMode.includes("pose-review") || isRealGarmentSleeveDeformCapture();
 }
 
-function isPedsRealGarmentSleeveDeformCapture(): boolean {
+function isRealGarmentSleeveDeformCapture(): boolean {
   const cmp = selectedHumanoidSourceComparator();
   const mode = selectedCaptureMode();
-  return cmp === "peds_anny_real_garment_patient" && (mode.includes("garment-sleeve") || mode.includes("sleeve-deform") || mode.includes("body-motion-garment") || mode.includes("real-garment-body"));
+  // ed-gown-geo-reorchestrate (Q1+Q5 + visibility mandate): support ED real garment patient (ed_anny_real_garment_patient) from phenotype.garmentLayers=['hospital_gown']; drives visible 3D deforming gown sleeves (separate skinned geo, deformsWithBreathing), garmentGeometry/sleeveDeform, no-frustum-cull, cyan emissive, userData.openClinXrSleeveDeformEvidence, promotion in runtime evidence (Q1 case/phenotype->UI-XR; Q5 sample verifier in ed bay)
+  return (cmp === "peds_anny_real_garment_patient" || cmp === "ed_anny_real_garment_patient") && (mode.includes("garment-sleeve") || mode.includes("sleeve-deform") || mode.includes("body-motion-garment") || mode.includes("real-garment-body") || mode.includes("sleeve"));
 }
 
 function isDynamicGeneratedEncounterSceneMode(): boolean {
@@ -1460,8 +1461,8 @@ type PedsActorPlayerRuntimeSequenceEvidence = {
 type MouthGazePoseComparatorEvidence = {
   source: "window.__openClinXrMouthGazePoseComparatorEvidence";
   captureMode: string;
-  comparator: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient";
-  scenarioId: "peds_asthma_parent_anxiety_v1";
+  comparator: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "ed_anny_real_garment_patient";
+  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
   actorId: string;
   dialogueText: string;
   traceTag: "work_of_breathing_assessment";
@@ -1490,7 +1491,7 @@ type MouthGazePoseComparatorEvidence = {
 };
 type PedsAdaptiveDialogueEvidence = {
   source: "window.__openClinXrPedsAdaptiveDialogueEvidence";
-  scenarioId: "peds_asthma_parent_anxiety_v1";
+  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
   latestRequestedTraceTag: string;
   latestPolicyTrigger: PedsAdaptiveDialogueBranchResolution["policyTrigger"];
   latestBranchType: PedsAdaptiveDialogueBranchResolution["branchType"];
@@ -1499,14 +1500,15 @@ type PedsAdaptiveDialogueEvidence = {
   mappingMode: PedsAdaptiveDialogueBranchResolution["mappingMode"];
   reviewSafeMetadata: PedsAdaptiveDialogueBranchResolution["reviewSafeMetadata"];
   latestSequenceSource: "bundle_dialogue_adaptive_branch";
-  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient";
+  humanoidSourceComparator?: "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "ed_anny_real_garment_patient";
   schoolAgePatientAssetPath?: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb";
   realGarmentPatientAssetPath?: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
+  edRealGarmentPatientAssetPath?: "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"; // ed-gown-geo-reorchestrate: hospital_gown from pheno.garmentLayers in ed_chest_pain_priority_v2
   notEvidenceFor: string[];
 };
 type PedsActorPlayerRuntimePlaybackEvidence = {
   source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence";
-  scenarioId: "peds_asthma_parent_anxiety_v1";
+  scenarioId: "peds_asthma_parent_anxiety_v1" | "ed_chest_pain_priority_v1" | "ed_chest_pain_priority_v2";
   playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples";
   sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json";
   scheduled: boolean;
@@ -2903,6 +2905,12 @@ function createStationScene(): StationSceneRuntime {
       camera.position.set(-0.08, 0.86, 3.45);
       camera.lookAt(-0.08, 0.82, -0.96);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
+    } else if (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient") {
+      // ed-gown-geo-reorchestrate (Q1+Q5): expanded framing for hospital_gown sleeves (baggier adult topology vs peds tshirt); lower/closer to expose 3D deforming sleeve volume + motion in ed bay (cyan/no-cull/userData/garmentGeometry visible in screenshots)
+      camera.fov = 50;
+      camera.position.set(0.12, 0.92, 2.95);
+      camera.lookAt(0.08, 0.68, -0.72);
+      camera.userData.openClinXrCameraFraming = "clean_ed_anny_real_garment_source_comparator_full_body_ed_gown_sleeve_deform_capture_ed_bay_ed-gown-geo-reorchestrate";
     } else {
       camera.fov = 48;
       camera.position.set(-0.08, 0.86, 3.45);
@@ -6257,22 +6265,27 @@ function loadGeneratedHumanoidIntoActorSlot(
         humanoid.userData.openClinXrHumanoidComparatorTransform =
           `${humanoidSourceComparator}_source_alignment_for_webxr_visual_comparison_only_target_facing`;
       }
-      if (humanoidSourceComparator === "peds_anny_real_garment_patient" && options.actorId === runtimePatientActorId()) {
+      if ((humanoidSourceComparator === "peds_anny_real_garment_patient" || humanoidSourceComparator === "ed_anny_real_garment_patient") && options.actorId === runtimePatientActorId()) {
         humanoid.traverse((object: any) => {
           if (object instanceof Mesh) {
             const nm = (object.name || "").toLowerCase();
-            const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
+            // xr-augment peds-evidence-loop + ed-gown: broadened regex for peds short_sleeve_exam_tshirt (from peds_asthma_parent_anxiety_v1 phenotype.garmentLayers) + gown; force frustumCulled=false, userData.openClinXrSleeveDeformEvidence, cyan emissive (0x00ffcc) for skeptic-visible 3D deforming sleeves + garmentGeometry in BOTH peds_anny_real_garment_patient (UI-XR sample + adaptive body_motion) AND ed (MANDATE_VISIBILITY + Q1 case-driven)
+            const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve|ed.*top|clinical.*top|gown|hospital.*gown|ed_gown|hospitalgown|gown_mesh|edgown|scrub/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
             if (isGarment) {
               object.visible = true;
               object.frustumCulled = false;
               object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
               object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
-              object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers_short_sleeve_exam_tshirt;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath";
+              if (humanoidSourceComparator === "peds_anny_real_garment_patient") {
+                object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient";
+              } else {
+                object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;ed-gown-geo-reorchestrate;hospital_gown";
+              }
               if (!Array.isArray(object.material) && object.material && typeof (object.material as any).emissive !== "undefined") {
                 const mat: any = object.material;
-                // highlight separate garment for Q1 consumer evidence: cyan sleeves vs body to make deforming sleeve geo noticeably visible in peds real_garment captures
+                // highlight separate garment for Q1 consumer evidence: cyan sleeves vs body to make deforming sleeve geo noticeably visible in peds/ed real_garment captures; promotion flow surfaces in userData + evidence types
                 mat.emissive = new Color(0x00ffcc);
-                mat.emissiveIntensity = 0.55;
+                mat.emissiveIntensity = 0.75;
               }
             } else if (/body|skin|torso|head/i.test(nm)) {
               object.visible = true;
@@ -6281,6 +6294,11 @@ function loadGeneratedHumanoidIntoActorSlot(
           }
         });
         humanoid.userData.openClinXrRealGarmentTopology = "embedded_from_phenotype_garmentLayers";
+        if (humanoidSourceComparator === "peds_anny_real_garment_patient") {
+          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_real_garment";
+        } else {
+          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate";
+        }
       }
       if (!cleanSourceComparatorCapture) {
         tintGeneratedSceneMaterials(humanoid, options.roleTintColor, options.actorId);
@@ -6368,8 +6386,8 @@ function loadGeneratedHumanoidIntoActorSlot(
         animationClips: gltf.animations,
         roleAnimationClipNames,
         gazeProbeAnimationClipNames,
-        playbackEnabled: !cleanSourceComparatorCapture || isPedsRealGarmentSleeveDeformCapture(),
-        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture && !isPedsRealGarmentSleeveDeformCapture() ? 0.18 : null,
+        playbackEnabled: !cleanSourceComparatorCapture || isRealGarmentSleeveDeformCapture(),
+        fixedSourcePoseSampleSeconds: cleanSourceComparatorCapture && !isRealGarmentSleeveDeformCapture() ? 0.18 : null,
       });
       recordSceneAssetStatus({
         assetId: options.assetId,
@@ -6559,6 +6577,14 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     }
   }
 
+  if (scenarioId === 'ed_chest_pain_priority_v1' || scenarioId === 'ed_chest_pain_priority_v2') {
+    const humanoidSourceComparator = selectedHumanoidSourceComparator();
+    if (humanoidSourceComparator === "ed_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
+      // ED real garment from phenotype.garmentLayers (ed-gown-geo-reorchestrate Q1): resolves dedicated /current/ed_chest_pain_patient_real_garment.glb (adult/ed gown/hospital_gown variant produced by asset pipeline from case ed_chest_pain_priority_v2 + preset garmentLayers); enables visible 3D deforming sleeves in ed bay UI-XR sample + promotion flow. No peds proxy.
+      return "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb";
+    }
+  }
+
   if (/older|elder|geriatric|delirium/u.test(`${scenarioId} ${actorId} ${role}`)) {
     return '/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb';
   }
@@ -6566,9 +6592,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   return fallbackPath;
 }
 
-function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | "peds_anny_real_garment_patient" | null {
+function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | "peds_anny_real_garment_patient" | "ed_anny_real_garment_patient" | null {
   const selected = new URLSearchParams(window.location.search).get("humanoidSourceComparator")?.trim();
-  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" || selected === "peds_anny_real_garment_patient" ? selected : null;
+  return selected === "mpfb_ob_patient" || selected === "charmorph_antonia_patient" || selected === "charmorph_reom_patient" || selected === "reom_local_fitted_garment_patient" || selected === "reom_local_authored_curved_garment_patient" || selected === "reom_shirts01_cc0_patient" || selected === "reom_toigo_basic_tucked_tshirt_patient" || selected === "reom_namuhekam_polo_patient" || selected === "peds_anny_mpfb2_eye_rig_patient" || selected === "peds_anny_school_age_mpfb2_eye_patient" || selected === "peds_anny_comfy_masked_skin" || selected === "peds_anny_real_garment_patient" || selected === "ed_anny_real_garment_patient" ? selected : null;
 }
 
 function pedsAsthmaPatientBundleVisemeUtterance(): string {
@@ -6695,16 +6721,16 @@ function registerGeneratedHumanoidAnimation(input: {
   }
   if (input.actorId === runtimePatientActorId() && !slot.sourceComparatorFreezeEnabled) {
     const comparator = selectedHumanoidSourceComparator();
-    const isPedsRealGarmentOrSchool = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient";
-    const dialogueText = isPedsRealGarmentOrSchool
+    const isRealGarmentOrSchoolOrEd = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient" || comparator === "ed_anny_real_garment_patient";
+    const dialogueText = isRealGarmentOrSchoolOrEd && comparator !== "ed_anny_real_garment_patient"
       ? pedsAsthmaPatientBundleVisemeUtterance()
       : dialogueLine.textContent?.trim() || initialDialogueText;
     window.requestAnimationFrame(() => {
       triggerHumanoidDialogue(input.actorId, dialogueText, {
         kind: "learner_camera",
         actorId: null,
-      }, isPedsRealGarmentOrSchool ? "anxious" : undefined);
-      if (isPedsRealGarmentOrSchool) {
+      }, isRealGarmentOrSchoolOrEd && comparator !== "ed_anny_real_garment_patient" ? "anxious" : undefined);
+      if (isRealGarmentOrSchoolOrEd) {
         input.humanoid.userData.openClinXrVisemeTimelineComparatorEvidence = {
           comparator,
           dialogueText,
@@ -6792,12 +6818,12 @@ function triggerPedsAdaptiveDialogueBranch(
   pedsActorPlayerRuntimePlaybackLastTraceAtMs = performance.now();
   pedsActorPlayerRuntimeSequenceActiveUntilMs = pedsActorPlayerRuntimePlaybackLastTraceAtMs + (turns.length * 1250) + 2600;
   playPedsActorPlayerRuntimeSequence(sequence, pedsActorPlayerRuntimeTurns());
-  const pedsRealGarmentOrSchoolComparator = ["peds_anny_school_age_mpfb2_eye_patient", "peds_anny_real_garment_patient"].includes(selectedHumanoidSourceComparator() || "") 
-    ? (selectedHumanoidSourceComparator() as "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient")
+  const pedsRealGarmentOrSchoolComparator = ["peds_anny_school_age_mpfb2_eye_patient", "peds_anny_real_garment_patient", "ed_anny_real_garment_patient"].includes(selectedHumanoidSourceComparator() || "") 
+    ? (selectedHumanoidSourceComparator() as "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_real_garment_patient" | "ed_anny_real_garment_patient")
     : undefined;
   window.__openClinXrPedsAdaptiveDialogueEvidence = {
     source: "window.__openClinXrPedsAdaptiveDialogueEvidence",
-    scenarioId: "peds_asthma_parent_anxiety_v1",
+    scenarioId: selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v1" : "peds_asthma_parent_anxiety_v1",
     latestRequestedTraceTag: branch.requestedTraceTag,
     latestPolicyTrigger: branch.policyTrigger,
     latestBranchType: branch.branchType,
@@ -6811,7 +6837,9 @@ function triggerPedsAdaptiveDialogueBranch(
         humanoidSourceComparator: pedsRealGarmentOrSchoolComparator,
         ...(pedsRealGarmentOrSchoolComparator === "peds_anny_real_garment_patient"
           ? { realGarmentPatientAssetPath: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb" }
-          : { schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb" }),
+          : pedsRealGarmentOrSchoolComparator === "ed_anny_real_garment_patient"
+            ? { edRealGarmentPatientAssetPath: "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb", promotionFlow: "ed_gown_geo_reorchestrate:promotionStatus_from_rigging_report+realGarmentRegionFromPhenotype" }
+            : { schoolAgePatientAssetPath: "/cagematch/anny-school-age/current/peds_patient_child_mpfb2_eye.glb" }),
       }
       : {}),
     notEvidenceFor: branch.reviewSafeMetadata.notEvidenceFor,
@@ -7151,7 +7179,7 @@ function recordPedsActorPlayerRuntimePlaybackEvidence(input: {
   const bundleDialogueTurnCount = encounterRuntimeAssetBundle.sceneManifest.dialogueTurns?.length ?? 0;
   window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence = {
     source: "window.__openClinXrPedsActorPlayerRuntimePlaybackEvidence",
-    scenarioId: "peds_asthma_parent_anxiety_v1",
+    scenarioId: (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v1" : "peds_asthma_parent_anxiety_v1"),
     playbackMode: "local_desktop_preview_from_bundle_dialogue_or_actor_player_samples",
     sourceArtifactPath: "docs/openclinxr/model-vetting-actor-player-runtime-evidence-peds-asthma-parent-anxiety-2026-06-05.json",
     scheduled: input.scheduled,
@@ -7700,7 +7728,7 @@ function recordMouthGazePoseComparatorEvidence(
     return;
   }
   const comparator = selectedHumanoidSourceComparator();
-  const isPedsRealGarmentOrSchoolForEvidence = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient";
+  const isPedsRealGarmentOrSchoolForEvidence = comparator === "peds_anny_school_age_mpfb2_eye_patient" || comparator === "peds_anny_real_garment_patient" || comparator === "ed_anny_real_garment_patient";
   if (!isPedsRealGarmentOrSchoolForEvidence || speech.actorId !== runtimePatientActorId()) {
     return;
   }
@@ -7710,30 +7738,35 @@ function recordMouthGazePoseComparatorEvidence(
   const liveTurnForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.activeDialogueTurnRef;
   const liveSrcForMouth = (window.__openClinXrHumanoidSpeechEvidence as any)?.liveSource;
   let garmentGeometry: MouthGazePoseComparatorEvidence["garmentGeometry"] = null;
-  if (comparator === "peds_anny_real_garment_patient") {
+  if (comparator === "peds_anny_real_garment_patient" || comparator === "ed_anny_real_garment_patient") {
     slot.root.traverse((object: any) => {
       if (object instanceof Mesh) {
         const nm = (object.name || "").toLowerCase();
-        const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
+        // xr-augment peds-evidence-loop: peds-specific (peds_asthma_parent_anxiety_v1:short_sleeve_exam_tshirt) + ed; re-apply frustumCulled=false / cyan emissive / userData.openClinXrSleeveDeformEvidence / garmentGeometry.sleeveDeform during runtime speech/motion for visible 3D deforms in peds_anny_real_garment_patient adaptive body_motion (Q1/Q5 + MANDATE_VISIBILITY dual evidence)
+        const isGarment = /garment|clothing|shirt|tshirt|sleeve|exam.*top|clothe|openclinxr_real_garment|peds_tshirt|short_sleeve|ed.*top|clinical.*top|gown|hospital.*gown|ed_gown|hospitalgown|gown_mesh|edgown|scrub/i.test(nm) || !!object.userData?.openClinXrGarmentEvidenceSurface || !!object.userData?.garmentLayer;
         if (isGarment) {
           object.visible = true;
           object.frustumCulled = false;
           object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
           object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
-          object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers_short_sleeve_exam_tshirt;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath";
+          if (comparator === "peds_anny_real_garment_patient") {
+            object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient";
+          } else {
+            object.userData.openClinXrSleeveDeformEvidence = "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;ed-gown-geo-reorchestrate;hospital_gown";
+          }
           if (!Array.isArray(object.material) && object.material && typeof (object.material as any).emissive !== "undefined") {
             const mat: any = object.material;
             mat.emissive = new Color(0x00ffcc);
-            mat.emissiveIntensity = 0.55;
+            mat.emissiveIntensity = 0.75;
           }
           if (!garmentGeometry) {
             garmentGeometry = {
               name: object.name || "real_garment_mesh",
               visible: object.visible,
-              source: "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb",
+              source: comparator === "ed_anny_real_garment_patient" ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb" : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb",
               hasVisibleVolume: true,
               hasSeamFoldHints: true,
-              sleeveDeform: "skinned_from_phenotype;separate_sleeve_geo;deform_with_body",
+              sleeveDeform: comparator === "peds_anny_real_garment_patient" ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient" : "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;ed-gown-geo-reorchestrate;hospital_gown",
             };
           }
         } else if (/body|skin|torso|head|mesh/i.test(nm)) {
@@ -7747,7 +7780,7 @@ function recordMouthGazePoseComparatorEvidence(
     source: "window.__openClinXrMouthGazePoseComparatorEvidence",
     captureMode: selectedCaptureMode(),
     comparator,
-    scenarioId: "peds_asthma_parent_anxiety_v1",
+    scenarioId: comparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
     actorId: speech.actorId,
     dialogueText: speech.text,
     traceTag: "work_of_breathing_assessment",
@@ -7778,7 +7811,7 @@ function recordMouthGazePoseComparatorEvidence(
       "learner_readiness",
     ],
   };
-  // traverse ensures extra real-garment meshes (from phenotype.garmentLayers embed) + body visible + frustum off + cyan emissive highlight + sleeveDeform userData; supports body-motion via isPedsRealGarmentSleeveDeformCapture for moving sleeves in peds UI-XR captures (Q1)
+  // traverse ensures extra real-garment meshes (phenotype.garmentLayers) + body + frustum off + cyan + sleeveDeform userData; body-motion for ed_anny/peds real garment in UI-XR (Q1); supports gown variants + promotion surfaces for ed-real-garment-phenotype-expansion (Q1+Q5 per visibility mandate)
 }
 
 function applyHumanoidFaceRigControls(

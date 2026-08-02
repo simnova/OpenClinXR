@@ -630,6 +630,7 @@ export function recommendBackgroundAgentModel(input: RecommendBackgroundAgentMod
   const harness = input.harness ?? "openai_default";
   const policyTier = policyTierForTaskType(input.taskType);
   const { model, reasoningEffort } = harnessModelForTask(input.taskType, harness);
+  const openaiEq = openaiEquivalentForTier(policyTier);
   const recommendation: BackgroundAgentModelRecommendation = {
     taskType: input.taskType,
     model,
@@ -637,7 +638,7 @@ export function recommendBackgroundAgentModel(input: RecommendBackgroundAgentMod
     policyTier,
     rationale: rationaleForTaskType(input.taskType),
     harness,
-    openaiEquivalent: openaiEquivalentForTier(policyTier),
+    ...(openaiEq !== undefined ? { openaiEquivalent: openaiEq } : {}),
     productionPipelineAssistNote:
       "Factory asset generation and scene optimization may require agentic evaluation behind a swappable ModelAssistProvider; procedural-only pipelines are a goal, not the current guarantee.",
   };
@@ -1176,11 +1177,17 @@ function roundScore(value: number): number {
 }
 
 export {
+  assertDeliveryRoleMapped,
+  disallowedToolsForRole,
+  findSoleAuthorLockViolations,
   getRepoRoleHarnessPolicy,
+  PREFERRED_CLI_SOFT_WARN,
   productionPipelineAssistNote,
   repoRoleHarnessPolicies,
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
+  soleAuthorLocks,
+  VISUAL_MULTIMODAL_ROLE_IDS,
 } from "./role-harness-policy.js";
 export {
   GROK_CURSOR_TASK_WARNING,
@@ -1230,10 +1237,14 @@ export type {
   GrokWorkspaceTokenSnapshot,
 } from "./grok-token-introspection.js";
 export {
+  auditHandoffsPathScope,
+  auditHandoffsSoleAuthorLocks,
   buildSliceTeamSpawnPrompt,
   buildTeamSpawnReport,
+  constrainPathsToWriteRoots,
   formatTeamSpawnBrief,
   materializeBriefFromTemplate,
+  resolveTeamSpawnIsolation,
   sliceBriefPath,
   sliceHandoffPath,
   sliceRootDir,
@@ -1245,6 +1256,7 @@ export type {
   SliceTeamTemplate,
   SliceVerifyReport,
   TeamSpawnReport,
+  TeamSpawnRoleSpec,
 } from "./slice-team.js";
 export {
   GROK_REPO_AGENT_CONSULT_DEFAULTS,
@@ -1261,10 +1273,23 @@ export type {
   GrokRepoAgentSpawnSpec,
   GrokRepoAgentSpawnSurface,
 } from "./grok-repo-agent-spawn.js";
+export {
+  assertWriterIsolation,
+  buildParentSpawnChecklist,
+} from "./spawn-isolation.js";
+export type {
+  AssertWriterIsolationInput,
+  AssertWriterIsolationResult,
+  BuildParentSpawnChecklistInput,
+  ParentSpawnChecklist,
+} from "./spawn-isolation.js";
 export type {
   CodexSandboxMode,
   HarnessKind,
   HarnessModelSpec,
   RepoRoleHarnessPolicy,
   RepoWorkflowSkillId,
+  RolePathScope,
+  SoleAuthorLock,
+  SoleAuthorLockViolation,
 } from "./role-harness-policy.js";

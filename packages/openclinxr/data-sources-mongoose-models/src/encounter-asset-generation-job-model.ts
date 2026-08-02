@@ -119,6 +119,6 @@ encounterAssetGenerationJobSchema.index({ queueName: 1, status: 1, updatedAt: 1 
 encounterAssetGenerationJobSchema.index({ scenarioId: 1, stationId: 1 });
 
 export function createEncounterAssetGenerationJobModel(mongoose: Mongoose): Model<EncounterAssetGenerationJobRecord> {
-  return mongoose.models.EncounterAssetGenerationJob as Model<EncounterAssetGenerationJobRecord> | undefined
+  return mongoose.models["EncounterAssetGenerationJob"] as Model<EncounterAssetGenerationJobRecord> | undefined
     ?? mongoose.model<EncounterAssetGenerationJobRecord>("EncounterAssetGenerationJob", encounterAssetGenerationJobSchema);
 }

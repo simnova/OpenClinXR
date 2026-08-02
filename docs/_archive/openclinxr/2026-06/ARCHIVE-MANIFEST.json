@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "openclinxr.docs-archive-manifest.v1",
+  "batchId": "cruft-audit-2026-08-02",
+  "archivedAt": "2026-08-02T06:59:26.151Z",
+  "warehouseDir": "docs/_archive/openclinxr/2026-06",
+  "dryRun": false,
+  "files": [
+    {
+      "source": "docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md",
+      "basename": "anny-character-asset-pipeline-implementation-2026-06-03.md",
+      "warehouse": "docs/_archive/openclinxr/2026-06/anny-character-asset-pipeline-implementation-2026-06-03.md",
+      "successor": "docs/openclinxr/asset-generation-pipeline.md",
+      "reason": "authority archive-candidate; living pipeline doc supersedes",
+      "topic": "openclinxr-product-docs"
+    },
+    {
+      "source": "docs/openclinxr/dependency-hygiene-and-e18e-policy.md",
+      "basename": "dependency-hygiene-and-e18e-policy.md",
+      "warehouse": "docs/_archive/openclinxr/2026-06/dependency-hygiene-and-e18e-policy.md",
+      "successor": "docs/TOOLING.md",
+      "reason": "authority archive-candidate; tooling SSOT supersedes",
+      "topic": "openclinxr-product-docs"
+    },
+    {
+      "source": "docs/openclinxr/generated-output-storage-policy-2026-06-06.md",
+      "basename": "generated-output-storage-policy-2026-06-06.md",
+      "warehouse": "docs/_archive/openclinxr/2026-06/generated-output-storage-policy-2026-06-06.md",
+      "successor": "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
+      "reason": "authority archive-candidate; registry is living catalog",
+      "topic": "openclinxr-product-docs"
+    },
+    {
+      "source": "docs/openclinxr/turbo-remote-cache-setup.md",
+      "basename": "turbo-remote-cache-setup.md",
+      "warehouse": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
+      "successor": "docs/TOOLING.md",
+      "reason": "authority archive-candidate; optional turbo setup note",
+      "topic": "openclinxr-product-docs"
+    }
+  ]
+}

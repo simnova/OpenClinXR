@@ -1,5 +1,6 @@
 import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 export type DocAuthority =
   | "protected-policy"
@@ -43,8 +44,37 @@ const protectedPaths = new Set([
   "docs/openclinxr/evidence-index-2026-05-27.md",
   "docs/openclinxr/evidence-index-2026-05-27.json",
 ]);
+
+/** Living agent-ops SSOT basenames with elevated instruction weight. */
+export const HOT_AGENT_OPS_SSOT = new Set([
+  "PATH-SCOPE.md",
+  "CEO-VOICE.md",
+  "COMPOSITION-ROOTS.md",
+  "DOC-WAREHOUSE.md",
+  "MAIN-SESSION-ORCHESTRATOR-ONLY.md",
+  "WORKTREE-PROMOTE.md",
+  "RACI.md",
+  "REVIEW-CADENCE.md",
+  "CAPABILITY-EVOLUTION.md",
+  "REVISION-INDEX.md",
+]);
+
+/** Explicit current-reference set (product + tooling + hot agent-ops). */
 const currentReferences = new Set([
   "README.md",
+  "docs/TOOLING.md",
+  "docs/agent-ops/README.md",
+  "docs/agent-ops/PATH-SCOPE.md",
+  "docs/agent-ops/CEO-VOICE.md",
+  "docs/agent-ops/COMPOSITION-ROOTS.md",
+  "docs/agent-ops/DOC-WAREHOUSE.md",
+  "docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md",
+  "docs/agent-ops/WORKTREE-PROMOTE.md",
+  "docs/agent-ops/RACI.md",
+  "docs/agent-ops/REVIEW-CADENCE.md",
+  "docs/agent-ops/CAPABILITY-EVOLUTION.md",
+  "docs/agent-ops/REVISION-INDEX.md",
+  ".grok/prompts/agentic-io-contract.md",
   "docs/openclinxr/README.md",
   "docs/openclinxr/exam-scenario-architecture.md",
   "docs/openclinxr/virtual-patient-agent-model.md",
@@ -98,6 +128,9 @@ const retainedEvidence = new Set([
   "docs/openclinxr/uikitml-spatial-text-sidecar-2026-05-05.md",
 ]);
 
+const DATED_AGENT_OPS = /docs\/agent-ops\/\d{4}-\d{2}-\d{2}-/u;
+const DATED_SEGMENT = /\/\d{4}-\d{2}-\d{2}-/u;
+
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     if (excluded.has(name)) continue;
@@ -110,84 +143,339 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-function classify(file: string): DocAuthorityEntry {
+/**
+ * Classify a repo-relative markdown path for the doc authority registry.
+ * Exported for unit tests; order matters — warehouse / agent-ops before archive-candidate.
+ */
+export function classify(file: string): DocAuthorityEntry {
   if (protectedPaths.has(file)) {
-    return { path: file, authority: "protected-policy", agentInstructionWeight: "highest", action: "protect", rationale: "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it." };
+    return {
+      path: file,
+      authority: "protected-policy",
+      agentInstructionWeight: "highest",
+      action: "protect",
+      rationale:
+        "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.",
+    };
   }
+
+  // Cold warehouse (docs/_archive/**) — historical only; never rehydrate as law.
+  if (file.startsWith("docs/_archive/")) {
+    return {
+      path: file,
+      authority: "historical-synthesis",
+      agentInstructionWeight: "none",
+      action: "summarize-before-use",
+      rationale:
+        "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md.",
+    };
+  }
+
+  // Child agent I/O contract (hot methodology reference).
+  if (file.includes("agentic-io-contract")) {
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "high",
+      action: "use-as-current",
+      rationale:
+        "Agentic I/O contract for role-mapped children; subordinate to AGENTS.md and protected guardrails.",
+    };
+  }
+
+  // Explicit tooling + agent-ops index (not dated).
+  if (file === "docs/TOOLING.md" || file === "docs/agent-ops/README.md") {
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "high",
+      action: "use-as-current",
+      rationale:
+        "Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index.",
+    };
+  }
+
+  // Dated agent-ops revision records (before/after freeze stubs).
+  if (DATED_AGENT_OPS.test(file)) {
+    return {
+      path: file,
+      authority: "historical-synthesis",
+      agentInstructionWeight: "low",
+      action: "summarize-before-use",
+      rationale:
+        "Dated agent-ops revision record (or freeze stub); use successor living SSOT, not this file, as law.",
+    };
+  }
+
+  // Living agent-ops SSOT under docs/agent-ops/ (not dated, not capability-request payloads).
+  if (
+    file.startsWith("docs/agent-ops/") &&
+    !DATED_SEGMENT.test(file) &&
+    !file.includes("capability-requests/")
+  ) {
+    const base = path.posix.basename(file);
+    const high = HOT_AGENT_OPS_SSOT.has(base);
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: high ? "high" : "medium",
+      action: "use-as-current",
+      rationale: high
+        ? "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+        : "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.",
+    };
+  }
+
+  // Capability request queue (warm living templates / open requests).
+  if (file.startsWith("docs/agent-ops/capability-requests/")) {
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "medium",
+      action: "use-as-current",
+      rationale:
+        "Agent capability request queue/template (warm); not a dated freeze candidate.",
+    };
+  }
+
   if (file.startsWith("agents/") && (file.endsWith("/charter.md") || file.endsWith("/memory.md"))) {
-    return { path: file, authority: "agent-memory", agentInstructionWeight: "medium", action: "summarize-before-use", rationale: "Repo-defined role memory/charter; use as a lens, not as active task queue." };
+    return {
+      path: file,
+      authority: "agent-memory",
+      agentInstructionWeight: "medium",
+      action: "summarize-before-use",
+      rationale: "Repo-defined role memory/charter; use as a lens, not as active task queue.",
+    };
   }
   if (file.startsWith("docs/agent-factory/")) {
-    return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents." };
+    return {
+      path: file,
+      authority: "agent-methodology",
+      agentInstructionWeight: "medium",
+      action: "use-as-current",
+      rationale:
+        "OpenClaw-style methodology and agent-factory operating manual; applies when planning or realigning agents.",
+    };
   }
   if (file.startsWith("agents/rules/") || file === "agents/rules/README.md") {
-    return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)." };
+    return {
+      path: file,
+      authority: "agent-methodology",
+      agentInstructionWeight: "medium",
+      action: "use-as-current",
+      rationale:
+        "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order).",
+    };
   }
   if (file.startsWith(".agents/skills/")) {
-    return { path: file, authority: "agent-methodology", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files." };
+    return {
+      path: file,
+      authority: "agent-methodology",
+      agentInstructionWeight: "medium",
+      action: "use-as-current",
+      rationale:
+        "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files.",
+    };
   }
   if (/^\.(grok|claude|cursor)\/rules\//.test(file)) {
-    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml." };
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "low",
+      action: "use-as-current",
+      rationale:
+        "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.",
+    };
   }
   if (file.startsWith(".grok/plugins/")) {
-    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails." };
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "low",
+      action: "use-as-current",
+      rationale:
+        "Project plugin for harness automation (hooks, LSP, skills, agents). See 09-plugins.md and .grok/config.toml [plugins]. Subordinate to protected guardrails.",
+    };
   }
   if (/^\.(grok|claude|cursor|codex)\/agents\//.test(file)) {
-    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules." };
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "low",
+      action: "use-as-current",
+      rationale:
+        "Safe pointers (no content dup) to repo-defined agents/** roles for first-class subagent discovery/mapping (gap2 in agentex-openclaw-full-autonomy-gaps.md). Canonical defs in root agents/<role>/. See .grok/agents/README.md, agent-consult.md, subagent-protocol.md, .grok/config.toml. Subordinate to protected + drift rules.",
+    };
   }
   if (file.startsWith("iterations/")) {
-    return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Historical planning/synthesis evidence; not active marching orders." };
+    return {
+      path: file,
+      authority: "historical-synthesis",
+      agentInstructionWeight: "low",
+      action: "summarize-before-use",
+      rationale: "Historical planning/synthesis evidence; not active marching orders.",
+    };
   }
   if (file.startsWith("proposals/")) {
-    return { path: file, authority: "proposal", agentInstructionWeight: "low", action: "treat-as-evidence", rationale: "Approved/recorded scope evidence; check current guardrails before acting on it." };
+    return {
+      path: file,
+      authority: "proposal",
+      agentInstructionWeight: "low",
+      action: "treat-as-evidence",
+      rationale: "Approved/recorded scope evidence; check current guardrails before acting on it.",
+    };
   }
   if (file.startsWith("docs/madr/")) {
-    return { path: file, authority: "decision-record", agentInstructionWeight: "medium", action: "treat-as-evidence", rationale: "Architecture decision record; durable context but subordinate to protected guardrails and active queue." };
+    return {
+      path: file,
+      authority: "decision-record",
+      agentInstructionWeight: "medium",
+      action: "treat-as-evidence",
+      rationale:
+        "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
+    };
   }
-  if (file.includes("temporary") || file.includes("unattended-runs") || file.includes("handoff") || file.includes("continuation") || file === "blender-bake-temporary-note.md") {
-    return { path: file, authority: "temporary", agentInstructionWeight: "none", action: "archive-or-inline-summary", rationale: "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue." };
+  if (
+    file.includes("temporary") ||
+    file.includes("unattended-runs") ||
+    file.includes("handoff") ||
+    file.includes("continuation") ||
+    file === "blender-bake-temporary-note.md"
+  ) {
+    return {
+      path: file,
+      authority: "temporary",
+      agentInstructionWeight: "none",
+      action: "archive-or-inline-summary",
+      rationale:
+        "Temporary/handoff/continuation artifact; preserve only as historical evidence unless linked by current queue.",
+    };
   }
-  if (file.startsWith("docs/openclinxr/evidence/") || /evidence|screenshot|smoke|benchmark|runtime|quest|iwsdk|audit|review|score|gate|source-currentness/u.test(file)) {
-    return { path: file, authority: "evidence", agentInstructionWeight: "low", action: "treat-as-evidence", rationale: "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision." };
+  if (
+    file.startsWith("docs/openclinxr/evidence/") ||
+    /evidence|screenshot|smoke|benchmark|runtime|quest|iwsdk|audit|review|score|gate|source-currentness/u.test(
+      file,
+    )
+  ) {
+    return {
+      path: file,
+      authority: "evidence",
+      agentInstructionWeight: "low",
+      action: "treat-as-evidence",
+      rationale:
+        "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision.",
+    };
   }
   if (currentReferences.has(file)) {
-    return { path: file, authority: "current-reference", agentInstructionWeight: "medium", action: "use-as-current", rationale: "Current product reference, subordinate to protected guardrails and active queue." };
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "medium",
+      action: "use-as-current",
+      rationale: "Current product reference, subordinate to protected guardrails and active queue.",
+    };
   }
   if (historicalSyntheses.has(file)) {
-    return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Substantive historical design or milestone synthesis; use as background, not active instruction." };
+    return {
+      path: file,
+      authority: "historical-synthesis",
+      agentInstructionWeight: "low",
+      action: "summarize-before-use",
+      rationale:
+        "Substantive historical design or milestone synthesis; use as background, not active instruction.",
+    };
   }
   if (retainedEvidence.has(file)) {
-    return { path: file, authority: "evidence", agentInstructionWeight: "low", action: "treat-as-evidence", rationale: "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation." };
+    return {
+      path: file,
+      authority: "evidence",
+      agentInstructionWeight: "low",
+      action: "treat-as-evidence",
+      rationale:
+        "Retained spike/evidence record; use only to verify touched behavior or avoid repeating settled investigation.",
+    };
   }
   if (file.startsWith("docs/superpowers/")) {
-    return { path: file, authority: "historical-synthesis", agentInstructionWeight: "low", action: "summarize-before-use", rationale: "Skill-era implementation/spec planning history; use as evidence, not active queue." };
+    return {
+      path: file,
+      authority: "historical-synthesis",
+      agentInstructionWeight: "low",
+      action: "summarize-before-use",
+      rationale: "Skill-era implementation/spec planning history; use as evidence, not active queue.",
+    };
   }
   if (file.startsWith("apps/") || file.startsWith("packages/")) {
-    return { path: file, authority: "current-reference", agentInstructionWeight: "low", action: "use-as-current", rationale: "Package/app-local README or provenance reference; local to its module." };
+    return {
+      path: file,
+      authority: "current-reference",
+      agentInstructionWeight: "low",
+      action: "use-as-current",
+      rationale: "Package/app-local README or provenance reference; local to its module.",
+    };
   }
-  return { path: file, authority: "archive-candidate", agentInstructionWeight: "none", action: "summarize-before-use", rationale: "Unclassified Markdown; review before using as instruction." };
+  return {
+    path: file,
+    authority: "archive-candidate",
+    agentInstructionWeight: "none",
+    action: "summarize-before-use",
+    rationale: "Unclassified Markdown; review before using as instruction.",
+  };
 }
 
-const files = walk(root).sort();
-const entries = files.map(classify);
-const counts = entries.reduce<Record<string, number>>((acc, entry) => {
-  acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
-  return acc;
-}, {});
-const registry = {
-  schemaVersion: "2026-05-27",
-  claimBoundary: "documentation authority registry for agentic navigation only; not product, clinical, Quest, scoring, or production readiness evidence",
-  protectedRule: "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
-  usageRule: "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
-  counts,
-  entries,
-};
+export function buildDocAuthorityRegistry(cwd: string = root): {
+  outputJson: string;
+  outputMd: string;
+  total: number;
+  counts: Record<string, number>;
+} {
+  const files = walk(cwd).sort();
+  const entries = files.map(classify);
+  const counts = entries.reduce<Record<string, number>>((acc, entry) => {
+    acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
+    return acc;
+  }, {});
+  const registry = {
+    schemaVersion: "2026-05-27",
+    claimBoundary:
+      "documentation authority registry for agentic navigation only; not product, clinical, Quest, scoring, or production readiness evidence",
+    protectedRule:
+      "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
+    usageRule:
+      "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
+    counts,
+    entries,
+  };
 
-mkdirSync(path.dirname(path.resolve(root, outputJson)), { recursive: true });
-writeFileSync(path.resolve(root, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
+  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
+  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
 
-const top = entries.filter((entry) => entry.authority === "protected-policy" || entry.authority === "canonical" || entry.authority === "active-plan" || entry.authority === "current-reference");
-const temporary = entries.filter((entry) => entry.authority === "temporary" || entry.authority === "archive-candidate");
-const md = `# Doc Authority Registry\n\nDate: 2026-05-27\n\nThis generated registry helps agents avoid treating all Markdown as equal. Protected and canonical files control autonomous work; historical, evidence, temporary, and archive-candidate files are context only unless the active queue links them.\n\n## Protected Rule\n\nProtected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.\n\n## Counts\n\n${Object.entries(counts).sort().map(([key, value]) => `- ${key}: ${value}`).join("\n")}\n\n## Highest-Value Current Navigation\n\n${top.map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`).join("\n")}\n\n## Cleanup Candidates\n\nThese files should be summarized, archived, or explicitly marked historical before agents use them as instructions.\n\n${temporary.map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`).join("\n")}\n`;
-writeFileSync(path.resolve(root, outputMd), md);
-console.log(JSON.stringify({ outputJson, outputMd, total: entries.length, counts }, null, 2));
+  const top = entries.filter(
+    (entry) =>
+      entry.authority === "protected-policy" ||
+      entry.authority === "canonical" ||
+      entry.authority === "active-plan" ||
+      entry.authority === "current-reference",
+  );
+  const temporary = entries.filter(
+    (entry) => entry.authority === "temporary" || entry.authority === "archive-candidate",
+  );
+  const md = `# Doc Authority Registry\n\nDate: 2026-05-27\n\nThis generated registry helps agents avoid treating all Markdown as equal. Protected and canonical files control autonomous work; historical, evidence, temporary, and archive-candidate files are context only unless the active queue links them.\n\n## Protected Rule\n\nProtected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.\n\n## Counts\n\n${Object.entries(counts)
+    .sort()
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join("\n")}\n\n## Highest-Value Current Navigation\n\n${top
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
+    .join("\n")}\n\n## Cleanup Candidates\n\nThese files should be summarized, archived, or explicitly marked historical before agents use them as instructions.\n\n${temporary
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
+    .join("\n")}\n`;
+  writeFileSync(path.resolve(cwd, outputMd), md);
+  return { outputJson, outputMd, total: entries.length, counts };
+}
+
+async function main(): Promise<void> {
+  const result = buildDocAuthorityRegistry();
+  console.log(JSON.stringify(result, null, 2));
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

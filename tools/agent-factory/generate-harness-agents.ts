@@ -5,7 +5,10 @@ import {
   formatGrokRepoAgentSpawnBrief,
 } from "../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
 import {
+  disallowedToolsForRole,
   getRepoRoleHarnessPolicy,
+  getRolePathScope,
+  PREFERRED_CLI_SOFT_WARN,
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
   type RepoWorkflowSkillId,
@@ -109,6 +112,23 @@ function codexTomlForRole(role: RoleEntry): string {
   ].join("\n");
 }
 
+function defaultPolicy(roleId: string) {
+  return (
+    getRepoRoleHarnessPolicy(roleId) ?? {
+      roleId,
+      policyTier: "fast_bounded" as const,
+      taskType: "bounded_scout" as const,
+      sandboxMode: "read-only" as const,
+      recommendedSkills: ["openclinxr-openclaw" as const],
+      moonbridgeAssistOnCodex: true,
+      writeScopeNote:
+        "Read-only repo-agent consultation unless explicitly assigned a non-overlapping write scope.",
+      pathScope: getRolePathScope(roleId),
+    }
+  );
+}
+
+/** Cross-harness lightweight pointer (no multi-KB spawn seed). */
 function pointerMarkdown(role: RoleEntry): string {
   const spawn = buildGrokRepoAgentSpawnSpec({
     roleId: role.role,
@@ -118,7 +138,7 @@ function pointerMarkdown(role: RoleEntry): string {
   const spawnLines = spawn.spawnSubagentCall
     ? [
         "",
-        "## Grok spawn spec (generated from role-harness-policy)",
+        "## Grok spawn spec (from role-harness-policy)",
         "",
         `- ${formatGrokRepoAgentSpawnBrief(spawn)}`,
         `- CLI: \`pnpm grok:agent:spawn-spec -- --role ${role.role}\``,
@@ -126,13 +146,15 @@ function pointerMarkdown(role: RoleEntry): string {
         `- capability_mode: \`${spawn.spawnSubagentCall.capability_mode}\``,
         `- model: \`${spawn.model}\` (${spawn.policyTier})`,
         "",
+        "Build full spawn prompts at runtime via spawn-spec — do not embed fat seeds here.",
+        "",
       ].join("\n")
     : [
         "",
-        "## Grok spawn spec (generated from role-harness-policy)",
+        "## Grok spawn spec (from role-harness-policy)",
         "",
         `- ${formatGrokRepoAgentSpawnBrief(spawn)}`,
-        `- CLI: use Composer / grok-build — \`pnpm grok:agent:spawn-spec -- --role ${role.role}\``,
+        `- CLI: Composer / grok-build — \`pnpm grok:agent:spawn-spec -- --role ${role.role}\``,
         "",
       ].join("\n");
 
@@ -142,33 +164,139 @@ Canonical: \`${role.roleDir}/charter.md\`, \`${role.roleDir}/memory.md\`, and \`
 
 Group: \`${role.group}\`.
 
-Use for: role-mapped repo-agent consultation or a live subagent prompt when the current harness supports subagents and the task materially reduces drift, review cost, or implementation risk.
+Use for: role-mapped repo-agent consultation or a live subagent when this role reduces drift/review/implementation risk.
 
-This is an OpenClaw-style / OpenClaw-inspired workflow pointer, not an external OpenClaw runtime.
+OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: \`/Volumes/files/src/openclinxr\`.
 
-Target repo /Volumes/files/src/openclinxr.
+**CLI-first barriers:** \`docs/TOOLING.md\` — prefer \`gh\`, \`pnpm playwright:*\`, \`pnpm browser:agent\`, \`pnpm env:doctor\` over disabled MCPs.
 ${spawnLines}
-Spawn/local-consult prompt seed: "${spawn.spawnPrompt}"
+Read charter ## Persona first. Follow \`agents/rules/agent-consult.md\` + LEX_AGENTIC.
 `;
+}
+
+/**
+ * Grok-native agent definition (user-guide 16-subagents): YAML frontmatter + short body.
+ * Avoids legacy multi-KB spawn seeds; CLI-first MCP policy.
+ */
+function grokNativeAgentMarkdown(role: RoleEntry): string {
+  const policy = defaultPolicy(role.role);
+  const modelSpec = resolveHarnessModelSpec(policy.policyTier, "grok");
+  const spawn = buildGrokRepoAgentSpawnSpec({
+    roleId: role.role,
+    roleDir: role.roleDir,
+    group: role.group,
+  });
+  const readOnly = policy.sandboxMode === "read-only";
+  const permissionMode = readOnly ? "plan" : "default";
+  // Wave B1: per-role tool surface (image tools for non-visual; workflow/spawn bans)
+  const disallowed = disallowedToolsForRole(role.role, policy);
+  const description = [
+    `OpenClinXR role ${role.role} (${role.group}).`,
+    policy.writeScopeNote,
+    "CLI-first tools; see docs/TOOLING.md.",
+  ].join(" ");
+
+  const yaml = [
+    "---",
+    `name: ${role.role}`,
+    "description: >",
+    `  ${description}`,
+    "prompt_mode: full",
+    `model: ${modelSpec.model}`,
+    `permission_mode: ${permissionMode}`,
+    // Specialists: false so role agents do not auto-inject full AGENTS.md (orchestrator.md is hand-written, agents_md: true).
+    "agents_md: false",
+    "disallowedTools:",
+    ...disallowed.map((t) => `  - ${t}`),
+    "mcpInheritance: none",
+    "---",
+    "",
+  ].join("\n");
+
+  const body = [
+    `ROLE: **${role.role}** (group \`${role.group}\`).`,
+    "",
+    "## Canonical OpenClaw sources",
+    "",
+    `- Charter: \`${role.roleDir}/charter.md\` (read ## Persona first)`,
+    `- Memory: \`${role.roleDir}/memory.md\``,
+    `- Index: \`${role.roleDir}/index.json\``,
+    "",
+    "## Tool policy (Grok 4.5+)",
+    "",
+    "| Prefer | Avoid |",
+    "|--------|-------|",
+    "| Shell CLIs: `gh`, `pnpm playwright:*`, `pnpm browser:agent`, `pnpm env:doctor` | Disabled MCPs: playwright, chrome-devtools, agent-browser, grok_com_github |",
+    "| `pnpm grok:agent:spawn-spec` for full prompts | Fat spawn seeds in this file |",
+    "| Optional MCP: drawio / mongodb when no CLI | Always-on browser/GitHub MCP |",
+    "",
+    "## Scope",
+    "",
+    policy.writeScopeNote,
+    "",
+    `Policy tier: \`${policy.policyTier}\` · model: \`${modelSpec.model}\` · effort: \`${modelSpec.reasoningEffort}\` · sandbox: \`${policy.sandboxMode}\`.`,
+    spawn.spawnSubagentCall
+      ? `Spawn: subagent_type=\`${spawn.spawnSubagentCall.subagent_type}\` capability_mode=\`${spawn.spawnSubagentCall.capability_mode}\`.`
+      : "Spawn: Composer / frontier surface (not a cheap subagent).",
+    "",
+    "## Path scope (ATL-style)",
+    "",
+    "### Write roots",
+    "| Path |",
+    "|------|",
+    ...policy.pathScope.writeRoots.map((p) => `| \`${p}\` |`),
+    "",
+    "### Forbidden",
+    "| Path |",
+    "|------|",
+    ...policy.pathScope.forbidden.map((p) => `| \`${p}\` |`),
+    "",
+    "### Read preference",
+    ...policy.pathScope.readRoots.slice(0, 10).map((p) => `- \`${p}\``),
+    ...(policy.pathScope.readRoots.length > 10 ? [`- ... +${policy.pathScope.readRoots.length - 10} more`] : []),
+    "",
+    "### Output roots",
+    ...policy.pathScope.outputRoots.map((p) => `- \`${p}\``),
+    ...(policy.pathScope.preferredCli && policy.pathScope.preferredCli.length > 0
+      ? [
+          "",
+          "### Preferred CLI",
+          ...policy.pathScope.preferredCli.map((c) => `- \`${c}\``),
+          "",
+          PREFERRED_CLI_SOFT_WARN,
+        ]
+      : []),
+    "",
+    "## Contract",
+    "",
+    "- Obey `.grok/prompts/agentic-io-contract.md` for FINAL when reporting to parent.",
+    "- Q1/Q4/Q5 + visibility mandate when product-facing.",
+    "- Escalate with `UNABLE:` when below tier capability.",
+    "",
+  ].join("\n");
+
+  return yaml + body;
 }
 
 async function main(): Promise<void> {
   const roles = await discoverRoles();
   const list = roles.map(({ role }) => `- ${role}`).join("\n");
-  const readme = `# Repo-defined agent role pointers
+  const readme = `# Repo-defined agent roles (multi-harness)
 
-Canonical role definitions live under root \`agents/**\` with \`charter.md\`, \`memory.md\`, and \`index.json\`.
+Canonical mission/memory: root \`agents/**\` (\`charter.md\`, \`memory.md\`, \`index.json\`).
 
-These files are safe harness-local pointers only. They do not duplicate role memory or replace the source-of-truth order in \`AGENTS.md\`.
+| Harness | Generated form |
+|---------|----------------|
+| **\`.grok/agents/*.md\`** | **Grok-native** YAML frontmatter (\`name\`, \`description\`, \`disallowedTools\`, \`mcpInheritance: none\`) per user-guide 16-subagents — not fat spawn seeds |
+| **\`.claude\` / \`.cursor\`** | Lightweight pointers |
+| **\`.codex\`** | Pointers + native \`.toml\` from \`role-harness-policy.ts\` |
 
-This repo uses an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an external OpenClaw runtime.
+**CLI-first MCP policy:** \`docs/TOOLING.md\` + \`pnpm env:doctor\`. Roster governance: **hrbp** + \`docs/agent-ops/\`.
 
 Roles:
 ${list}
 
-Use \`agents/rules/agent-consult.md\` and \`agents/rules/subagent-protocol.md\` before mapping a live subagent or local role consultation.
-
-For Codex, sibling \`.toml\` files are native project custom-agent definitions generated from \`packages/openclinxr/agent-loop/src/role-harness-policy.ts\`; the Markdown files remain lightweight human/cross-harness pointers.
+Use \`agents/rules/agent-consult.md\`, \`PROTO_SUBAGENT\`, \`LEX_AGENTIC\`. Regenerate: \`pnpm agent:harness:sync\`.
 `;
 
   for (const harness of harnesses) {
@@ -176,7 +304,8 @@ For Codex, sibling \`.toml\` files are native project custom-agent definitions g
     await mkdir(dir, { recursive: true });
     await writeFile(path.join(dir, "README.md"), readme);
     for (const role of roles) {
-      await writeFile(path.join(dir, `${role.role}.md`), pointerMarkdown(role));
+      const body = harness === ".grok" ? grokNativeAgentMarkdown(role) : pointerMarkdown(role);
+      await writeFile(path.join(dir, `${role.role}.md`), body);
       if (harness === ".codex") {
         await writeFile(path.join(dir, `${role.role}.toml`), codexTomlForRole(role));
       }
@@ -184,7 +313,7 @@ For Codex, sibling \`.toml\` files are native project custom-agent definitions g
   }
 
   console.log(
-    `Generated ${roles.length} role pointer files for ${harnesses.join(", ")} plus Codex TOML custom agents from role-harness-policy.`,
+    `Generated ${roles.length} agents for ${harnesses.join(", ")} (.grok = native frontmatter; others = pointers; Codex + TOML).`,
   );
 }
 

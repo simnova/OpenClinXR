@@ -13,7 +13,7 @@ import type {
 import type { ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
 import type { Document } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle, toLearnerRuntimeAssetBundle } from "../../asset-registry/src/runtime-bundles.js";
+import { createEdChestPainLocalEncounterRuntimeAssetBundle, createEdChestPainLocalLearnerRuntimeAssetBundle, type EncounterRuntimeAsset, type EncounterRuntimeAssetBundle, toLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import {
   createMongoApiPersistenceSink,
   createMongoDurableMultiActorSessionStore,
@@ -294,15 +294,15 @@ it("rejects durable actor-turn and emotional-state timeline records with blank i
 });
 
 function planUsesIndex(plan: Document, indexName: string): boolean {
-  return visitPlan(plan, (node) => node.indexName === indexName);
+  return visitPlan(plan, (node) => node["indexName"] === indexName);
 }
 
 function planHasStage(plan: Document, stage: string): boolean {
-  return visitPlan(plan, (node) => node.stage === stage);
+  return visitPlan(plan, (node) => node["stage"] === stage);
 }
 
 function winningPlanFromExplain(explain: Document): Document {
-  const winningPlan = explain.queryPlanner?.winningPlan;
+  const winningPlan = explain["queryPlanner"]?.winningPlan;
   if (!winningPlan || typeof winningPlan !== "object") {
     throw new Error("Expected MongoDB explain output to include queryPlanner.winningPlan");
   }

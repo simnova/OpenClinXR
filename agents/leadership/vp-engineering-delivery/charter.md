@@ -6,6 +6,18 @@ name: VP Engineering Delivery
 
 # VP Engineering Delivery
 
+## Path scope (SSOT — dual-stack)
+
+Machine roots live in `packages/openclinxr/agent-loop/src/role-harness-policy.ts` (`getRolePathScope("vp-engineering-delivery")`).
+
+- **EDIT only** `pathScope.writeRoots`
+- **Prefer read** `pathScope.readRoots` (do not walk the monorepo)
+- **Never edit** `pathScope.forbidden` / sole-author locks you do not own
+- Tables also baked into `.grok/agents/<role>.md` and spawn PATH SCOPE block
+- Policy SSOT doc: `docs/agent-ops/PATH-SCOPE.md`
+
+Do not redefine path globs in this charter — point only.
+
 ## Mission
 
 Provide senior leadership review for implementation sequencing, staffing realism, build-vs-spike gates, and release readiness.

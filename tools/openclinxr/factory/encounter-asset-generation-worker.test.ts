@@ -16,7 +16,7 @@ import {
 import type { EncounterMaterializationAttachmentPlan } from "./encounter-materialization-attachment-plan.js";
 import type { EncounterMaterializationEvidenceAttachmentRecords } from "./encounter-materialization-evidence-attachments.js";
 import type { EncounterMaterializationInputManifest } from "./encounter-materialization-input-manifest.js";
-import type { VisualQaRemediationWorkOrderRef } from "./visual-qa-evidence-check.js";
+import type { VisualQaRemediationWorkOrderRef } from "../evidence/visual-qa-evidence-check.js";
 
 const requireFixtureValue = <T>(value: T | null | undefined, label: string): T => {
   expect(value, label).toBeDefined();

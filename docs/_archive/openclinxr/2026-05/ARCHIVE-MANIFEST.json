@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "openclinxr.docs-archive-manifest.v1",
+  "batchId": "cruft-audit-2026-08-02",
+  "archivedAt": "2026-08-02T06:59:26.151Z",
+  "warehouseDir": "docs/_archive/openclinxr/2026-05",
+  "dryRun": false,
+  "files": [
+    {
+      "source": "docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md",
+      "basename": "gltf-transform-replacement-decision-2026-05-27.md",
+      "warehouse": "docs/_archive/openclinxr/2026-05/gltf-transform-replacement-decision-2026-05-27.md",
+      "successor": "docs/madr/",
+      "reason": "authority archive-candidate; decision folded into MADR trail",
+      "topic": "openclinxr-product-docs"
+    },
+    {
+      "source": "docs/openclinxr/research-brief-step2cs-llm-vsp.md",
+      "basename": "research-brief-step2cs-llm-vsp.md",
+      "warehouse": "docs/_archive/openclinxr/2026-05/research-brief-step2cs-llm-vsp.md",
+      "successor": "AGENTS.md",
+      "reason": "historical-synthesis research brief; mission lives in AGENTS/product goal",
+      "topic": "openclinxr-product-docs"
+    },
+    {
+      "source": "docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md",
+      "basename": "typescript-strictness-gap-matrix-2026-05-27.md",
+      "warehouse": "docs/_archive/openclinxr/2026-05/typescript-strictness-gap-matrix-2026-05-27.md",
+      "successor": "docs/openclinxr/code-implementation-plan.md",
+      "reason": "authority archive-candidate; gap matrix was one-shot audit",
+      "topic": "openclinxr-product-docs"
+    }
+  ]
+}

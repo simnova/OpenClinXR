@@ -12,7 +12,8 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "mongoose": "9.6.1"
+    "mongoose": "9.6.1",
+    "@openclinxr/capability-gateway": "workspace:*"
   },
   "devDependencies": {
     "mongodb-memory-server": "11.1.0",

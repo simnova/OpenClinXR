@@ -27,7 +27,8 @@ const requiredSliceFields = [
 ] as const;
 
 const requiredScripts: Record<string, string> = {
-  "openclaw:preflight": "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
+  "openclaw:preflight":
+    "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status",
   "openclaw:post-slice": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --post-slice",
   "openclaw:automation-prompt": "tsx tools/agent-factory/check-openclaw-operational-redundancy.ts --print-automation-prompt",
   "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",

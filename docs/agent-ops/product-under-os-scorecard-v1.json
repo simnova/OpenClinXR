@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "openclinxr.product-under-os-scorecard.v1",
+  "experimentId": "product-under-os-v1",
+  "hypothesis": "Under pathScope + worktree isolation + sole-author + token ritual, one product vertical completes with OS compliance and Q1/Q4 product outcome.",
+  "approvedBy": "BOD Option A + Push To Origin",
+  "approvedAt": "2026-08-02",
+  "gates": {
+    "G0_land": { "status": "pending", "bar": "OS stack committed and pushed to origin/main" },
+    "G1_compliance": {
+      "status": "pending",
+      "bar": "Write roles isolation=worktree (or hard enforce pass); pathScope+sole-author verify ok; promote done if worktrees used"
+    },
+    "G2_context_thrift": {
+      "status": "pending",
+      "bar": "Specialist spawn prompts <= ~3000 chars; CEO main does not product-IC apps/packages"
+    },
+    "G3_token": {
+      "status": "pending",
+      "bar": "slice-token start+finish recorded; stateRecordLine in checkpoint"
+    },
+    "G4_product": {
+      "status": "pending",
+      "bar": "Authoring follow-on done_when met (not peds template); verify ok"
+    },
+    "G5_os_goal": {
+      "status": "pending",
+      "bar": ">=3 of {isolation, pathScope, promote, token, no_main_ic} green AND G4 green => PROGRESS"
+    }
+  },
+  "verdict": "PENDING",
+  "notes": [],
+  "evidencePaths": []
+}

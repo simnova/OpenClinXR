@@ -4,6 +4,8 @@ node_modules/
 .DS_Store
 .env.openclinxr.local
 .envrc
+.env.local
+.env
 .openclinxr/
 .openclinxr-local/
 .agent-factory/browser-evidence/

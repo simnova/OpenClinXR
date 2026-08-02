@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "openclinxr.docs-archive-manifest.v1",
+  "batchId": "cruft-audit-2026-08-02",
+  "archivedAt": "2026-08-02T06:59:26.150Z",
+  "warehouseDir": "docs/_archive/coordination/2026-08",
+  "dryRun": false,
+  "files": [
+    {
+      "source": "AUTONOMOUS_WORK_PLAN.md",
+      "basename": "AUTONOMOUS_WORK_PLAN.md",
+      "warehouse": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
+      "successor": "PROJECT_STATUS.md",
+      "reason": "historical audit ledger; not canonical state",
+      "topic": "coordination-ledgers"
+    },
+    {
+      "source": "PROJECT_COORDINATION_INDEX.md",
+      "basename": "PROJECT_COORDINATION_INDEX.md",
+      "warehouse": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
+      "successor": "PROJECT_STATUS.md",
+      "reason": "historical audit ledger; not canonical state",
+      "topic": "coordination-ledgers"
+    }
+  ]
+}

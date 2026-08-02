@@ -4,8 +4,8 @@ import {
   buildActorResponseRequestsForDialogueSeeds,
   createDefaultModelGateway,
   MockModelProviderAdapter,
-} from "../../model-gateway/src/index.js";
-import { scenarioBank, scenarioDialogueSeedBank } from "../../scenario-fixtures/src/scenario-bank.js";
+} from "@openclinxr/model-gateway";
+import { scenarioBank, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 
 export type SimulationResult = {
   stationRunId: string;

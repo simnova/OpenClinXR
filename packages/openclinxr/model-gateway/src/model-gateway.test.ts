@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scenarioBank, scenarioDialogueSeedBank } from "../../scenario-fixtures/src/scenario-bank.js";
+import { scenarioBank, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
   buildActorCommunicationProfilePromptContext,
   buildActorResponseProviderPromptInput,

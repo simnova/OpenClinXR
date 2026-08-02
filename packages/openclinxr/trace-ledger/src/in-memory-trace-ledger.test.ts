@@ -53,11 +53,11 @@ describe("in-memory trace ledger", () => {
     };
     const appended = ledger.append(event);
 
-    (event.payload.provenance as { providerId: string }).providerId = "mutated-input";
-    (appended.payload.provenance as { providerId: string }).providerId = "mutated-return";
+    (event.payload['provenance'] as { providerId: string }).providerId = "mutated-input";
+    (appended.payload['provenance'] as { providerId: string }).providerId = "mutated-return";
     const replayed = ledger.replay("run_001");
-    (replayed[0]?.payload.provenance as { providerId: string }).providerId = "mutated-replay";
+    (replayed[0]?.payload['provenance'] as { providerId: string }).providerId = "mutated-replay";
 
-    expect((ledger.replay("run_001")[0]?.payload.provenance as { providerId: string }).providerId).toBe("mock-model");
+    expect((ledger.replay("run_001")[0]?.payload['provenance'] as { providerId: string }).providerId).toBe("mock-model");
   });
 });

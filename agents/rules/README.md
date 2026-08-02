@@ -13,6 +13,7 @@ Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rule
 - `MANDATE_VISIBILITY.md` — sizable collaborative vertical slices + noticeability
 - `PROTO_SUBAGENT.md` — coordinator-first delegation
 - `EXEC_AUTONOMY.md` — platform override, stop conditions, post-slice loop
+- `orchestrator-only-main.md` — **main session = CEO / orchestrator only** (symlink in `.grok/rules/`)
 
 ## Supplemental (grep/spawn on demand)
 - `EXEC_REHYDRATE.md` — LOW_TOKEN rehydration, lease, guards, token saving

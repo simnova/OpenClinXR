@@ -508,7 +508,7 @@ export function validateGrokHarnessTierConfig(configToml: string): {
   if (!configToml.includes("tier routing") && !configToml.includes("grok-tier-routing")) {
     errors.push("Missing grok tier routing reference in .grok/config.toml");
   }
-  return { ok: errors.length === 0, errors, exploreModel: explore, planModel: plan };
+  return { ok: errors.length === 0, errors, ...(explore !== undefined ? { exploreModel: explore } : {}), ...(plan !== undefined ? { planModel: plan } : {}) };
 }
 
 export function buildGrokTierIntrospectionReport(input: {

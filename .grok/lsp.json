@@ -1,15 +1,19 @@
 {
   "typescript": {
-    "command": "typescript-language-server",
+    "command": "./node_modules/.bin/typescript-language-server",
     "args": ["--stdio"],
     "extensionToLanguage": {
       ".ts": "typescript",
       ".tsx": "typescriptreact",
       ".mts": "typescript",
       ".cts": "typescript",
+      ".js": "javascript",
+      ".jsx": "javascriptreact",
+      ".mjs": "javascript",
+      ".cjs": "javascript",
       ".json": "json"
     },
-    "startupTimeout": 30000,
+    "startupTimeout": 60000,
     "initializationOptions": {
       "preferences": {
         "importModuleSpecifierPreference": "non-relative",
@@ -30,14 +34,30 @@
       }
     }
   },
+  "knip": {
+    "command": "./node_modules/.bin/knip-language-server",
+    "args": ["--stdio"],
+    "extensionToLanguage": {
+      ".ts": "typescript",
+      ".tsx": "typescriptreact",
+      ".mts": "typescript",
+      ".cts": "typescript",
+      ".js": "javascript",
+      ".jsx": "javascriptreact",
+      ".mjs": "javascript",
+      ".cjs": "javascript",
+      ".json": "json"
+    },
+    "startupTimeout": 90000
+  },
   "python": {
-    "command": "pyright-langserver",
+    "command": "./node_modules/.bin/pyright-langserver",
     "args": ["--stdio"],
     "extensionToLanguage": {
       ".py": "python",
       ".pyi": "python"
     },
-    "startupTimeout": 30000,
+    "startupTimeout": 60000,
     "settings": {
       "python": {
         "analysis": {

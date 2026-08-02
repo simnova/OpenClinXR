@@ -1,0 +1,20 @@
+# Copy to `.envrc` (gitignored) and run: `direnv allow`
+#
+# Layout (mise-first, same pattern as atlantis-cameras-v2):
+#   1) `use mise` activates tools + mise.toml [env] (including _.file → .env / .env.local)
+#   2) Secrets only in `.env.local` (gitignored) — never in this file
+#
+# One-time host setup for the mise direnv helper:
+#   mkdir -p ~/.config/direnv/lib
+#   mise direnv activate > ~/.config/direnv/lib/use_mise.sh
+#   # ensure: eval "$(direnv hook zsh)" in ~/.zshrc
+#
+# Then:
+#   cp .envrc.example .envrc
+#   cp .env.local.example .env.local   # fill DEEPSEEK_API_KEY etc.
+#   direnv allow
+
+use mise
+
+# Optional: if you prefer dotenv *instead of* mise _.file, uncomment (usually redundant):
+# dotenv_if_exists .env

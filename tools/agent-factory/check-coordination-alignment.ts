@@ -41,7 +41,8 @@ const requiredFiles = [
   "agents/core/asset-pipeline-lead/charter.md",
   "agents/core/xr-systems-architect/charter.md",
   "docs/agent-factory/README.md",
-  "iterations/iteration-0009/07-final-synthesis.md",
+  // Cold warehouse body (hot path is archive stub after cruft-audit-2026-08-02)
+  "docs/_archive/iterations/0009/07-final-synthesis.md",
 ] as const;
 
 const requiredMarkers: Record<string, string[]> = {
@@ -224,7 +225,7 @@ const requiredMarkers: Record<string, string[]> = {
     "PROJECT_COORDINATION_INDEX.md",
     "focus memory",
   ],
-  "iterations/iteration-0009/07-final-synthesis.md": [
+  "docs/_archive/iterations/0009/07-final-synthesis.md": [
     "do not let evidence closure become the product",
     "learner, faculty, admin, XR runtime, scenario bank, persistence, provider, or asset pipeline",
   ],
@@ -292,18 +293,23 @@ export function buildCoordinationAlignmentReport(input: CoordinationAlignmentInp
     }
   }
 
-  const autonomousPlan = input.files["AUTONOMOUS_WORK_PLAN.md"] ?? "";
+  // Prefer cold warehouse body after freeze; fall back to hot path (tests / pre-freeze).
+  const autonomousPlan =
+    input.files["docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md"] ??
+    input.files["AUTONOMOUS_WORK_PLAN.md"] ??
+    "";
   for (const pattern of staleAutonomousBreadcrumbPatterns) {
     if (pattern.test(autonomousPlan)) {
       failures.push({
-        file: "AUTONOMOUS_WORK_PLAN.md",
+        file: "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
         message: `stale historical breadcrumb remains: ${pattern.source}`,
       });
     }
   }
 
   const scripts = input.packageJson?.scripts ?? {};
-  const expectedPreflight = "pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
+  const expectedPreflight =
+    "pnpm env:doctor && pnpm agent:alignment && pnpm docs:drift-check && pnpm openclaw:lease -- status";
   if (scripts["openclaw:preflight"] !== expectedPreflight) {
     failures.push({
       file: "package.json",

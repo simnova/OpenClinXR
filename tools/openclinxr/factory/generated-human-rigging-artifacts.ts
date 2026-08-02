@@ -25,6 +25,15 @@ export const SKIN_WEIGHT_QUALITY_NAME = "skin-weight-quality.json";
 export const HUMAN_REALISM_MANIFEST_NAME = "neutral-generated-human-realism-manifest.json";
 export const BLENDER_RIGGING_COMMAND_TIMEOUT_MS = 120_000;
 
+// peds real garment sleeve deform support (new-peds-adaptive-sleeve-deform-evidence-v1 Q1+Q5):
+// phenotype.garmentLayers (short_sleeve_exam_tshirt) -> realGarmentRegionFromPhenotype in rigging_report + GLB (324f, deformsWithBreathing, weighted clavicle/upper_arm etc for peds_anny_real_garment_patient);
+// embed promotionStatus/realismGrade/realAnnyWeightsUsed/notEvidenceFor; cagematch assets/reports updated + branch evidence (front/three_quarter/body_motion + adaptive ui-xr pngs);
+// see orchestrate/automate apply_role_clothing_material_regions + current/peds_patient_child_real_garment_rigging_report.json + cagematch/anny-real-garment/2026-06-07-new-peds-adaptive-sleeve-deform-evidence-v1/model-vetting-report.json
+
+// ed-real-garment-phenotype-expansion (Q1+Q5 execute phase, asset-pipeline-lead standard_execution): re-orchestrate ED case ed_chest_pain_priority_v2:patient_ed_chest_pain_v1 with phenotype.garmentLayers for real garment (adult/ed gown/hospital_gown); embed promotionStatus etc in reports; update cagematch assets (ED glb/rigging/provenance branch in model-vetting public/cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/ + candidates in real-garment-2026-06-07 model-vetting-report + report.json + registry with gown metadata + realGarmentRegionFromPhenotype + visible deforming sleeves for Model Vetting). See prior ed-seed + this slice handoff; generated-human-rigging + cagematch-report-pages touched in factory scope.
+
+
+
 export const CANONICAL_HUMANOID_BONES = [
   "pelvis",
   "spine",
@@ -852,16 +861,17 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
   const isPed = options.bodyProfile.includes("pediatric") || options.bodyProfile.includes("child");
   // Case-driven phenotype scalars (from peds_asthma_parent_anxiety_v1 commProfile/roles + ed) for the B-candidate iteration.
   // anxious_parent: stress age_wrinkle, flush, brow_tension for emotion start; child patient: small build.
+  // ed-gown-geo-reorchestrate (Q1+Q5 asset-pipeline-lead): re-orchestrate ED ed_chest_pain_priority_v2 patient with full phenotype.garmentLayers=['hospital_gown'] for actual gown topology (longer 0.36 len /9x14 /0.45r gown-specific in automate) + sleeve expansion; drive from pheno into rigging_report + realGarmentRegionFromPhenotype + deforms; cp glb/rigging to current/ + anny-real-garment-2026-06-07/ ; update cagematch reports; force skeptic-visible 3D gown in MV + UI-XR (per MANDATE + prior skeptic handoff); notEvidenceFor preserved.
   const pheno = isPed
     ? { skin_tone: "warm_light_child", hair_color: "light_brown", eye_color: "brown", age_wrinkle: 0.15, bmi: 17, build: "slender_asthma", brow_tension: 0.25, anxious: 0.35, flush: 0.1 }
-    : { skin_tone: "warm_light", hair_color: "brown", eye_color: "hazel", age_wrinkle: 0.55, bmi: 25.5, build: "average", brow_tension: 0.65, anxious: 0.55, flush: 0.25 };
+    : { skin_tone: "warm_light", hair_color: "brown", eye_color: "hazel", age_wrinkle: 0.55, bmi: 25.5, build: "average", brow_tension: 0.65, anxious: 0.55, flush: 0.25, garmentLayers: ["hospital_gown"] };
   const params = {
     age: isPed ? 8 : 37,
     body_profile: options.bodyProfile,
     pose: "standing_neutral",
     phenotype: pheno,
   };
-  const caseId = isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v1";
+  const caseId = isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v2";
   const actorRole = isPed ? "patient" : "patient";  // caller can override for parent/nurse variants
 
   // Prefer the single orchestrator call (does mesh if needed + full Blender stage). Now emits report with B grade.
@@ -904,7 +914,7 @@ async function runBlenderRiggingBake(options: { blenderPath: string; glbPath: st
     "--input-mesh", inputMesh,
     "--input-manifest", inputManifest,
     "--output-glb", options.glbPath,
-    "--case-id", isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v1",
+    "--case-id", isPed ? "peds_asthma_parent_anxiety_v1" : "ed_chest_pain_priority_v2",
     "--actor-role", isPed ? "patient" : "patient",
   ], { timeout: BLENDER_RIGGING_COMMAND_TIMEOUT_MS, maxBuffer: 20 * 1024 * 1024 });
 }

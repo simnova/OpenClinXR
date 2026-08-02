@@ -41,7 +41,7 @@ export type GeneratedEdStationRuntimeBundleReport = {
         ageBand: "child" | "adult";
         bodyScale: "small_child" | "adult_standard";
         hairFaceRequired: true;
-        clothingLayer: "patient_gown" | "clinical_scrubs" | "civilian_family" | "role_specific";
+        clothingLayer: "patient_gown" | "clinical_scrubs" | "civilian_family" | "role_specific";  // ed-gown-geo-reorchestrate + ed-real-garment-phenotype-expansion: hospital_gown / patient_gown from phenotype.garmentLayers for ed_chest_pain_priority_v2 adult patient real garment (Q1+Q5; gown-specific geo in pipeline)
         faceEyeLipRigRequired: true;
         idlePoseRequired: true;
         locomotionRequired: boolean;
