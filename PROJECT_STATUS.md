@@ -73,6 +73,17 @@ Last updated: 2026-06-07
 **Blockers:** none
 
 
+
+### 2026-08-02 — encounter-authoring-runtime-emission-v1 (Q4) verify ok
+
+Product path advanced: **Runtime emission of real actor turns + review packet + ledger traces into durable-store sink** with published replay-safe artifact (`openclinxr.encounter-runtime-emission.v1`). CLI `pnpm encounter:runtime-emission` uses `createScenarioRuntimeWithPersistenceHooks`; path startSession→startEncounter→generateActorResponse→submitNote→reviewPacketAndPersist; saveActorTurnCount≥1, saveReviewPacketCount≥1; claimBoundary not clinical/production.
+Blueprint/factory tie: Q4 review/persistence/replay — authoring-loop follow-on: live runtime emission (not seeds-only) into durable store for admin replay consumption.
+Touched files: tools/openclinxr/encounter-runtime-emission.ts(+test); package.json script encounter:runtime-emission; .openclinxr/encounter-publication/encounter-runtime-emission-latest.json; handoffs.
+Evidence: vitest emission 3/3; scenario-runtime 22/22; CLI ok; slice-verify ok=true.
+Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=6 pro=13 composer=40; flashΔ=0 proΔ=0 composerΔ=0; subagents=51 subPeak=149865; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79
+Task cost: $0.00 est; subagents=0; subTokens=0; subUsd=$0.00; parentTokens=0; parentUsd=$0.00; models=none
+Next queued slice: admin-replay-real-turns-v1 (Q4).
+
 ### 2026-08-02 — wire-api-durableStore-consumer-v1 (Q4) verify ok
 
 Product path advanced: **ApiPersistenceSink wired as ScenarioRuntime durableStore consumer**. Adapter `createScenarioRuntimeDurableStoreFromApiPersistence` + bootstrap `createDefaultScenarioRuntime({ durableStore })` so actor-response path invokes `saveActorTurn`; package exports `DurableStorePersistenceHooks` / `createDurableStoreFromPersistenceHooks` / `createScenarioRuntimeWithPersistenceHooks`; CLI consumer proof; memory sink records turns+packets. Claim: not clinical/production readiness.
