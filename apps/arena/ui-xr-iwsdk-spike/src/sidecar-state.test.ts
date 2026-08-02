@@ -78,14 +78,16 @@ describe("IWSDK sidecar runtime state", () => {
       scenarioId: "peds_asthma_parent_anxiety_v1",
       sidecar: "apps/arena/ui-xr-iwsdk-spike",
       expectedActorRoles: ["patient", "anxious_parent"],
-      observedActorRoles: ["patient", "anxious_parent"],
+      observedActorRoles: ["patient", "anxious_parent", "nurse"],
       runtimeAssetPaths: [
         "/generated-humanoids/peds_patient_child.glb",
         "/generated-humanoids/peds_anxious_parent.glb",
+        "/generated-humanoids/peds_nurse_kevin.glb",
       ],
       provenanceManifestPaths: [
         "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
         "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
+        "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
       ],
       readyForSidecarParityEvidence: true,
       readyForProductionRuntime: false,
