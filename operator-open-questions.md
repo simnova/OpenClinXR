@@ -2,23 +2,30 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
-## 2026-08-02 arena-physics post-epic (non-blocking defaults)
+## 2026-08-02 arena-physics realbind epic (ACTIVE — BOD pivot)
 
-Epic `arena-physics-clinical-touch-v1` **closed** under MADR 0029 (arena-only, candidates, non-promotion). Spec residual ledger claim-aligned the same day. Product queue since closed: wire-api → emission → admin-replay → EmissionReplayBindPanel live load; parent/nurse real-garment reorch+bind+UI-XR recapture. **Current residual empty** (tip `80f77f1`); garment silhouette fit deferred; physics WASM/UI-XR still deferred.
+**Supersedes** prior “post-epic defer WASM/UI-XR” defaults. BOD 2026-08-02 incorporated Desktop `Xxxyyy-arena.md.md` → epic `arena-physics-clinical-touch-realbind-v1` + brief `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. Residual product lane was empty; explicit queue pivot (not silent preemption).
+
+| Id | Decision | Frozen (epic OD) |
+|----|----------|------------------|
+| OD-1 | Required real engine | **Rapier** (`@dimforge/rapier3d` deterministic) |
+| OD-2 | `bodyMechanics` home | Extend canonical phenotype type at real def site, additive+optional |
+| OD-3 | Cross-platform C5 | **`determinismScope: "local"`** accepted |
+| OD-4 | Immersive/headset physics | R7 operator-gated; desktop/`foreground_ready` suffices for DoD |
+| OD-5 | Per-slice thrash | **90 min** agentic → escalate, never abandon objective |
+
+Still non-blocking (unchanged from v1):
 
 | # | Question | Recommended default |
 |---|----------|---------------------|
-| 1 | `schemas/` phenotype extension for mechanics? | **New additive optional** `phenotype.bodyMechanics` when a case-def consumer needs it; package-local factory stands until then. |
-| 2 | Cross-platform determinism (C5)? | **`determinismScope: "local"`** until ≥2 architectures produce identical checksums. |
-| 3 | IWSDK MCP config location? | **Arena-scoped optional** instrumentation; not production law; InputLog is replay SSOT (MADR 0029). |
-| 4 | Fixed step 60 Hz vs 72 Hz? | **60 Hz** — decouple physics from display refresh. |
-| 5 | Capture tool `capture=` mode for physics visuals? | **Extend enum only if** a successor visual slice needs it; keep existing modes byte-identical. |
-| 6 | Real Havok/Rapier/Jolt WASM now? | **Defer.** Optional successor epic only after license + C6 on real solvers + successor MADR; candidates remain valid baselines. |
-| 7 | UI-XR physics bind now? | **Defer.** Forbidden by MADR 0029 until successor MADR + BOD queue pivot. |
-| 8 | Website / skeptic marketing of physics epic? | **No.** Fixture-grade arena contract; no dual MV/UI-XR physics PNG evidence. |
+| 3 | IWSDK MCP config location? | Arena-scoped optional; InputLog remains replay SSOT (MADR 0029). |
+| 4 | Fixed step 60 Hz vs 72 Hz? | **60 Hz** |
+| 5 | Capture tool `capture=` for physics visuals? | Extend enum only if R3/R4 needs it; keep existing modes byte-identical. |
+| 8 | Website / skeptic marketing of physics? | **No** until dual visible evidence + skeptic sign-off on realbind close. |
 
-- Current answer: defaults above; no steering blocker.
-- Recommended default: continue-autonomy optimize; re-open physics only via new epic + MADR; garment fit only as explicit Q1 residual.
+- Current answer (2026-08-02 autonomous close path): R1–R5 delivered (real Rapier + factory + UI-XR bind + measured metrics + arena cagematch). R6 successor MADR records PROVEN under local determinism; **all production/Quest/clinical/scoring gates remain false** until a human flips the named gate.
+- **R7 (OD-4) pre-declared deferral:** immersive/headset physics re-run is **not required for epic DoD**. Desktop/`foreground_ready` evidence suffices. Re-open R7 only with operator headset + explicit queue pivot. Recorded 2026-08-02 fully-autonomous close.
+- Recommended default: after R6+R7 deferral, epic complete; product Next may return to non-physics backlog without garment thrash.
 
 ## 2026-06-07 garment-hint-v1 aborted per anti-toil gate
 

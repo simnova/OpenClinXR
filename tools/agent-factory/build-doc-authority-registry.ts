@@ -105,6 +105,7 @@ const currentReferences = new Set([
   "docs/openclinxr/mongodb-memory-server-test-strategy.md",
   "docs/openclinxr/session-state-websocket-message-design.md",
   "docs/openclinxr/technology-approach-brief.md",
+  "docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md",
   "templates/decision-record.md",
   "templates/risk-record.md",
   "templates/source-record.md",

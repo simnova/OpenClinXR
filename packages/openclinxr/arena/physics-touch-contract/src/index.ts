@@ -74,6 +74,9 @@ export { HavokCandidateAdapter } from "./adapters/havok.js";
 export { RapierCandidateAdapter } from "./adapters/rapier.js";
 export { JoltCandidateAdapter } from "./adapters/jolt.js";
 
+// Real engine adapter (AD-1: engineId="rapier", NOT /-candidate$/)
+export { RapierRealAdapter, initRapier, isRapierInitialized } from "./adapters/rapier-real.js";
+
 // Palpation scenario (C2 input log)
 export {
   buildPalpationInputLog,

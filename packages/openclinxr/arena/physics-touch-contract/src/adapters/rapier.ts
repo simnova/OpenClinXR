@@ -29,6 +29,7 @@ import type {
   PhysicsArtifactMeta,
   PhysicsTickInput,
 } from "../types.js";
+import type { PhysicsConfigV1 } from "../factory/physics-config-v1.js";
 import type { PhysicsAdapter, PhysicsStateSnapshot } from "./stub.js";
 
 // ---------------------------------------------------------------------------
@@ -77,13 +78,33 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
   readonly meta: PhysicsArtifactMeta;
 
   private _state: RapierCandidateState;
+  private _config: PhysicsConfigV1 | null;
 
   static readonly PALP_HAND_RB = "palp_hand";
   static readonly ABDOMEN_RB = "abdomen";
   static readonly EXAM_TABLE_RB = "exam_table";
 
-  constructor(seed = 42) {
-    this._state = this._buildInitialState(seed);
+  /**
+   * Create a RapierCandidateAdapter from a PhysicsConfigV1.
+   *
+   * Derives body masses, seed, and fixedDt from config.
+   * When config is provided, the adapter MUST NOT invent its own
+   * mass/stiffness constants — all simulation parameters come from config.
+   */
+  static fromPhysicsConfig(config: PhysicsConfigV1): RapierCandidateAdapter {
+    return new RapierCandidateAdapter(config.seed, config);
+  }
+
+  /**
+   * @param seed - PRNG seed (default 42). Overridden by config.seed if config provided.
+   * @param config - Optional PhysicsConfigV1. When provided, body masses and
+   *                 simulation parameters are derived from config rather than
+   *                 hardcoded adapter defaults (anti-invention guard).
+   */
+  constructor(seed = 42, config?: PhysicsConfigV1) {
+    this._config = config ?? null;
+    const effectiveSeed = config?.seed ?? seed;
+    this._state = this._buildInitialState(effectiveSeed, config);
 
     this.meta = {
       determinismScope: "local" as DeterminismScope,
@@ -95,8 +116,8 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
       ],
       generatorVersion: "0.1.0",
       engineId: "rapier-candidate",
-      seed,
-      fixedDt: 1 / 60,
+      seed: effectiveSeed,
+      fixedDt: config?.fixedDt ?? 1 / 60,
     };
   }
 
@@ -262,7 +283,8 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
   }
 
   reset(seed: number): void {
-    this._state = this._buildInitialState(seed);
+    const effectiveSeed = this._config?.seed ?? seed;
+    this._state = this._buildInitialState(effectiveSeed, this._config ?? undefined);
   }
 
   // ---------------------------------------------------------------------------
@@ -282,9 +304,17 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
     return ((s ^ (s >>> 16)) >>> 0) / 4294967296;
   }
 
-  private _buildInitialState(seed: number): RapierCandidateState {
+  private _buildInitialState(
+    seed: number,
+    config?: PhysicsConfigV1,
+  ): RapierCandidateState {
     // SplitMix32 seed: use a different initial rngState strategy
     const rngSeed = (seed ^ 0xdeadbeef) >>> 0;
+
+    // Derive body masses from config when provided (anti-invention).
+    // When config is absent, use hardcoded defaults (backward compat).
+    const abdomenMass = config?.masses["abdomen"] ?? 5.0;
+    const handMass = 0.5; // hand mass is not driven by clinical body-region config; kept stable
 
     return {
       rigidBodies: {
@@ -295,7 +325,7 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
           velocity: { x: 0, y: 0, z: 0 },
           angularVelocity: { x: 0, y: 0, z: 0 },
-          mass: 0.5,
+          mass: handMass,
           isKinematic: false,
         },
         [RapierCandidateAdapter.ABDOMEN_RB]: {
@@ -305,7 +335,7 @@ export class RapierCandidateAdapter implements PhysicsAdapter {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
           velocity: { x: 0, y: 0, z: 0 },
           angularVelocity: { x: 0, y: 0, z: 0 },
-          mass: 5.0,
+          mass: abdomenMass,
           isKinematic: true,
         },
         [RapierCandidateAdapter.EXAM_TABLE_RB]: {

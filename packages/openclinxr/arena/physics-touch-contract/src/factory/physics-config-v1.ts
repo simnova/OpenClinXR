@@ -10,6 +10,19 @@
  *   - Per-contact-region tissue compliance
  *   - Guarding trigger thresholds
  *   - Determinism metadata (seed, fixedDt, notEvidenceFor)
+ *
+ * ## SSOT (Single Source of Truth)
+ *
+ * **Emission/artifact authority:** `tools/openclinxr/factory/` is the
+ * canonical source that emits PhysicsConfigV1 artifacts into the pipeline.
+ *
+ * **This file** (`packages/openclinxr/arena/physics-touch-contract/src/factory/`)
+ * is a **library** consumed by tools. It provides the `generatePhysicsConfigFromPhenotype`
+ * function and the `PhysicsConfigV1` type. Tools invoke this library to
+ * produce config artifacts; adapters consume the resulting config objects.
+ *
+ * Do NOT duplicate the generator logic into tools/ — import from here.
+ * Do NOT add artifact persistence logic here — that belongs in tools/.
  */
 
 import type { DeterminismScope } from "../types.js";

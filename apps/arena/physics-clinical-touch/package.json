@@ -1,21 +1,21 @@
 {
-  "name": "@openclinxr/physics-touch-contract",
+  "name": "physics-clinical-touch",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "scripts": {
-    "lint": "biome check --no-errors-on-unmatched .",
+    "start": "npx tsx src/main.ts",
+    "cagematch": "npx tsx src/main.ts",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@dimforge/rapier3d-compat": "^0.19.3"
+    "@dimforge/rapier3d-compat": "^0.19.3",
+    "@openclinxr/physics-touch-contract": "workspace:*"
   },
   "devDependencies": {
     "typescript": "6.0.3",
+    "tsx": "^4.19.0",
     "vitest": "4.1.5"
   }
 }

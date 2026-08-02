@@ -5,13 +5,13 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 194,
+    "current-reference": 195,
     "archive-candidate": 14,
     "evidence": 32,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
-    "decision-record": 20
+    "decision-record": 21
   },
   "entries": [
     {
@@ -2374,6 +2374,13 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/madr/README.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
@@ -2407,6 +2414,13 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/openclinxr/asset-generation-pipeline.md",

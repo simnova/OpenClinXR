@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "schemaVersion": "openclinxr.measured-physics-metrics.v1",
+    "engineId": "rapier",
+    "determinismScope": "local",
+    "generatorVersion": "0.2.0",
+    "seed": 42,
+    "fixedDt": 0.016666666666666666,
+    "generatedAt": "2026-08-02T19:53:16.388Z"
+  },
+  "stepCostMs": {
+    "p50": {
+      "value": 0.012,
+      "source": "measured",
+      "unit": "ms",
+      "timestamp": "2026-08-02T19:53:16.389Z"
+    },
+    "p95": {
+      "value": 0.022,
+      "source": "measured",
+      "unit": "ms",
+      "timestamp": "2026-08-02T19:53:16.389Z"
+    },
+    "min": {
+      "value": 0.011,
+      "source": "measured",
+      "unit": "ms",
+      "timestamp": "2026-08-02T19:53:16.389Z"
+    },
+    "max": {
+      "value": 4.522,
+      "source": "measured",
+      "unit": "ms",
+      "timestamp": "2026-08-02T19:53:16.389Z"
+    },
+    "sampleCount": 361
+  },
+  "frameBudgetHeadroom": {
+    "value": 16.645,
+    "source": "measured",
+    "unit": "ms",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "contactStability": {
+    "value": 88.643,
+    "source": "measured",
+    "unit": "mm",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "poseReturnError": {
+    "value": 0,
+    "source": "measured",
+    "unit": "°",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "jointExplosionRate": {
+    "value": 0,
+    "source": "measured",
+    "unit": "fraction",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "replayEquivalence": {
+    "value": true,
+    "source": "measured",
+    "unit": "boolean",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "snapshotSupport": {
+    "value": true,
+    "source": "measured",
+    "unit": "boolean",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "garmentCoherence": {
+    "grade": "B",
+    "claim": "ED real-garment GLB provides visual garment evidence; out-of-band for arena physics",
+    "notEvidenceFor": [
+      "garment_visual_in_physics_scenarios",
+      "real-time_cloth_simulation_within_physics_contract",
+      "ui-xr_garment_geometry_in_arena_inspection"
+    ],
+    "pngPaths": [
+      "physics-touch-ed-patient-front.png",
+      "physics-touch-ed-patient-palpation.png"
+    ]
+  },
+  "licenceClean": {
+    "value": true,
+    "source": "measured",
+    "unit": "boolean",
+    "timestamp": "2026-08-02T19:53:16.389Z"
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring",
+    "learner_readiness"
+  ]
+}

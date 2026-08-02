@@ -15,7 +15,7 @@ parseable_sections: 6
 
 **Canonical state file** for the OpenClaw-style / OpenClaw-inspired agent workflow. This is the single source of truth for autonomy status, current priority, active work, backlog, and stable direction. Rehydrate from the first ~60-80 lines only; all transient WIP (file:line, subagent IDs, capture logs) belongs in dated per-slice checkpoints below and registered artifacts. Pair with `worker-backlog-and-validation-matrix.md` for ownership matrix. Required Per-Slice Record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice. See `docs/openclinxr/openclaw-runbook-2026-05-27.md` and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`. Post-slice: run `pnpm docs:drift-check`.
 
-Last updated: 2026-06-07
+Last updated: 2026-08-02
 
 ## Autonomy
 
@@ -23,14 +23,27 @@ Last updated: 2026-06-07
 
 ## Current Priority
 
-**Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
+**Program phase: PRODUCT ACTIVE — realbind epic COMPLETED** — BOD 2026-08-02 autonomous close of `arena-physics-clinical-touch-realbind-v1` R1–R7. **MADR 0030 PROVEN** (local determinism, dual evidence). Named gate `runtimePromotionAllowed` **not flipped**. All clinical/Quest/scoring/production gates remain **false**. No further garment thrash.
 
-**Active slice:** garment-sleeve-fit-parent-nurse-v1 closed (Q1+Q5); autonomy continues via heartbeat.
+**Locked objective (AD-6 — satisfied as PROVEN):** Physics-compliant patient body via real Rapier → factory physics_config.v1 → UI-XR bone bind with dual evidence. Closures achieved: **PROVEN** (not DISPROVEN-BY-KILL).
+
+**Active epic / slice:** `arena-physics-clinical-touch-realbind-v1` **completed** (cursor 7/7). Spec: `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. MADR: `docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md`.
+
+
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| arena-physics-clinical-touch-realbind-v1 | epic closed | **completed** R1–R7; MADR 0030 PROVEN local; gates false; OD-4 R7 deferred |
+| arena-physics-realbind-r1-rapier-wasm | execute+verify | **verify ok (Q5)** — RapierRealAdapter real WASM; engineId `rapier`; 161/161 tests; AD-1 |
+| arena-physics-realbind-r2-factory-physics-config | execute+verify | **verify ok (Q1)** — tools factory physics_config.v1 generator; 21+177 tests; AD-2 |
+| arena-physics-realbind-r3-ui-xr-bind | execute+verify | **verify ok (Q1)** — bone transforms on ed_anny; PNGs ~192kB; physicsTouch evidence; 195+95 tests |
+| arena-physics-realbind-r3-ui-xr-bind | execute+verify | **verify ok (Q1)** — UI-XR bone bind + 192kB PNGs; physicsTouch evidence |
+| arena-physics-realbind-r4-measured-metrics | execute+verify | **verify ok (Q5)** — measured metrics report; 221 tests; AD-4 |
+| arena-physics-realbind-r5-arena-app-cagematch | execute+verify | **verify ok (Q5)** — arena src + public/cagematch/2026-08-02 |
+| arena-physics-realbind-r6-successor-madr | execute+verify | **verify ok (Q5)** — MADR 0030 PROVEN; runtimePromotionAllowed named not flipped |
+| arena-physics-realbind-r7-quest-optional | execute+verify | **verify ok (Q5)** — OD-4 pre-declared deferral in operator-open-questions |
 | garment-sleeve-fit-parent-nurse-v1 | execute+verify | **verify ok (Q1+Q5)** — sleeve_fit_along_arms_v1 faceCount=380; short-sleeve cyan silhouette; UI-XR fronts ≥116kB |
 | parent-nurse-ui-xr-recapture-after-bind-fix-v1 | execute+verify | **verify ok (Q5)** — UI-XR recapture post bind+cyan-strict; fronts ≥110kB; garmentGeometry ready; role color limbs |
 | ui-admin-emission-autoload-cli-latest-v1 | execute+verify | **verify ok (Q4)** — auto-load CLI latest fixture on mount; SAMPLE fallback; 5/5 panel tests |
@@ -77,13 +90,36 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** continue-autonomy-run-next — residual empty; optimize; no further garment thrash without BOD.
+**Next dequeue:** continue-autonomy-run-next — realbind epic completed (MADR 0030 PROVEN local; gates false; no garment thrash)
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
 **Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
 
 **Blockers:** none
+
+### 2026-08-02 — arena-physics-clinical-touch-realbind-v1 COMPLETE (Q1+Q5)
+
+Product path advanced: **Successor realbind epic closed autonomously** (R1–R7). Real Rapier WASM (D1); tools factory physics_config.v1 (D2); UI-XR bone bind + dual PNG evidence (D3); measured metrics (D4); arena cagematch tree (D5); MADR 0030 **PROVEN** local determinism; R7 headset pre-declared deferred (OD-4). Named human gate `runtimePromotionAllowed` not flipped. Blueprint/factory tie: Q1 phenotype→physics_config→UI-XR; Q5 dual evidence + MADR. Touched: packages/openclinxr/arena/physics-touch-contract/**; tools/openclinxr/factory/generated-physics-config-artifacts.*; apps/ui-xr/src/main.ts + physics-touch; apps/arena/physics-clinical-touch/**; docs/madr/0030-*; docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md; operator-open-questions. Evidence: physics-touch-contract 221/221; factory 21/21; ui-xr 95/95; PNGs ~192kB; cagematch report+registry; slice-verify ok R1–R7; epic status completed. Claim honesty: contactStability mm may exceed aspirational <2mm (recorded in MADR); notEvidenceFor retained; no clinical/Quest claims. Token introspection: multi-slice autonomous; see per-slice finish lines. Task cost: est ~$2+ across R1–R7 subagents. Next: continue-autonomy-run-next — product residual; no garment thrash; physics promotion only via human gate flip.
+
+
+
+
+### 2026-08-02 — arena-physics-realbind-r3-ui-xr-bind (Q1) verify ok
+
+Product path advanced: Offline Rapier→bone transform JSON drives UI-XR `ed_anny_real_garment_patient` skinned GLB compose with breathing/sleeveDeform; orange emissive + openClinXrPhysicsTouchEvidence; capture PNGs ~192kB under `.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/`. No rapier in ui-xr prod deps. Blueprint/factory tie: Q1 D3 UI-XR bind. Evidence: verify ok; skeptic:visible; 195 physics + 95 ui-xr tests. Next: R4 measured metrics.
+
+### 2026-08-02 — arena-physics-realbind-r2-factory-physics-config (Q1) verify ok
+
+Product path advanced: Landed `tools/openclinxr/factory/generated-physics-config-artifacts.ts` (SCHEMA/KIND/OUTPUT_DIR/provenance); reuses physics-touch-contract habitus tables; adapters consume PhysicsConfigV1 (anti-invention tests). OD-2 phenotype bodyMechanics at package factory types. Blueprint/factory tie: Q1 phenotype→physics_config.v1 factory path (D2). Evidence: factory 21/21; physics-touch-contract 177/177; verify ok. Token introspection: see slice finish. Next: arena-physics-realbind-r3-ui-xr-bind (Q1).
+
+### 2026-08-02 — arena-physics-realbind-r1-rapier-wasm (Q5) verify ok
+
+Product path advanced: Real **Rapier WASM** (`@dimforge/rapier3d-compat`) behind `PhysicsAdapter` as `RapierRealAdapter` with `engineId: "rapier"` (not `/-candidate$/`). `real-engine-loaded.test.ts` proves AD-1 + C6 via real `world.takeSnapshot()` / restore; body re-track after restore uses `isKinematic()`. Candidates remain labeled baselines. Blueprint/factory tie: Q5 factory verification of real-engine determinism contract (D1); unblocks R2 factory generator (D2). Touched: packages/openclinxr/arena/physics-touch-contract/{package.json,src/adapters/rapier-real.ts,src/__tests__/real-engine-loaded.test.ts,src/index.ts}. Evidence: verify ok; 161/161 package tests; slice-verify ok. Token introspection: aligned; tier: pro; ccusageΔ=73896; grok flash=12 pro=23 composer=87; subagents=114 subPeak=314570; ratio=2.79. Task cost: $1.03 est; subagents=4; subTokens=430541; models=deepseek-v4-pro:$0.67|grok-4.5:$0.36. Next: arena-physics-realbind-r2-factory-physics-config (Q1).
+
+### 2026-08-02 — BOD incorporate arena realbind epic (plan massage)
+
+Product path advanced: Incorporated Desktop draft `Xxxyyy-arena.md.md` into autonomous work effort as successor epic **`arena-physics-clinical-touch-realbind-v1`**. Landed marching brief at `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` (ACTIVE; AD-1..AD-7 anti-descope; OD-1..5 frozen defaults). Epic brief `.openclinxr/epics/ACTIVE`; residual product lane was empty (no silent preemption of open Q4). Operator-open-questions physics defer rows superseded. Blueprint/factory tie: Q1 factory physics_config + UI-XR bind path; Q5 real-engine C6. Evidence: epic ACTIVE; authority current-reference. Token introspection: n/a (CEO coordination). Next: R1 (closed this day).
 
 ### 2026-08-02 — garment-sleeve-fit-parent-nurse-v1 (Q1+Q5) verify ok
 
@@ -239,9 +275,13 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 ## Strategy (stable)
 
-1. Complete peds real-garment factory + UI-XR evidence surfaces (Q1/Q5)
-2. Full peds adaptive evidence loop (Q1/Q5)
-3. Encounter authoring + review packet loop (Q1/Q4)
+**Horizon (sizable collaborative verticals):**
+
+1. **Arena physics realbind epic (COMPLETED 2026-08-02)** — MADR 0030 PROVEN local; dual evidence; `runtimePromotionAllowed` human-only. Spec closed: realbind brief.
+2. Peds/ED real-garment factory + UI-XR evidence (Q1/Q5) — **parked**; no further garment thrash without BOD.
+3. Encounter authoring + review packet / durableStore / admin replay (Q1/Q4) — **batch closed enough**.
+
+**Human gate (optional future):** flip `runtimePromotionAllowed` only after BOD review of MADR 0030 + dual evidence — not autonomous.
 
 ## Per-Slice Checkpoints
 

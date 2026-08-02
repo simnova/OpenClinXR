@@ -23,18 +23,19 @@ parseable_sections: 4
 
 **Stable emphasis**: Sizable collaborative vertical slices; visibility/noticeability mandate; Q1/Q4/Q5; anti-toil; conversation tooling first-class; cheap-first tiering + self-escalation.
 
-**Next priority**: On resume (`pnpm openclaw:run-next` → lease → slice-team), orchestration coordinator dequeues from `PROJECT_STATUS.md` **Next dequeue** and selects a slice provable in Model Vetting, UI-XR, or asset pipeline.
+**Next priority**: Epic **`arena-physics-clinical-touch-realbind-v1`** (ACTIVE). Dequeue `PROJECT_STATUS.md` **Next dequeue** = `arena-physics-realbind-r2-factory-physics-config` (Q1). R1 real Rapier WASM closed. Spec: `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. Continuity: `pnpm openclaw:epic -- plan` → lease → team-spawn → verify → advance → apply-header.
 
-**Recent summary**: Real garment sleeves from `phenotype.garmentLayers` closed in tester + UI-XR (Q1/Q5). Encounter authoring + review packet loop batch closed (Q1/Q4). Harness optimization slice in flight (Q5).
+**Recent summary**: Garment + Q4 durableStore/admin emission batch closed. Arena physics v1 closed (MADR 0029, candidates). BOD 2026-08-02 pivoted queue to realbind successor (real WASM + factory + UI-XR bind).
 
 ## Ownership Matrix
 
 | Worker | Area | Next slice | Template | Role lead |
 |--------|------|------------|----------|-----------|
-| 9/11 | UI-XR evidence | `peds-evidence-loop` | peds-evidence-loop | xr-systems-architect |
-| 10/11 | Asset factory | `peds-parent-nurse-garment-asset` | real-garment-v1 | asset-pipeline-lead |
-| 7/8/9 | Admin review/replay | `admin-packet-replay-surfaces-impl` | admin-packet-replay | implementation-planning-lead |
-| 0 | Harness/autonomy | instruction-stack optimization | — | chief-coordinator |
+| arena | Physics realbind epic | `arena-physics-realbind-r2-factory-physics-config` → R3..R7 | epic ACTIVE | asset-pipeline / factory + xr-systems-architect + skeptic + drift-police |
+| 9/11 | UI-XR evidence | R3 bind (after R1/R2) | — | xr-systems-architect |
+| 10/11 | Asset factory | **parked** (no garment thrash) | real-garment-v1 | asset-pipeline-lead |
+| 7/8/9 | Admin review/replay | **parked** (batch closed) | admin-packet-replay | implementation-planning-lead |
+| 0 | Harness/autonomy | epic continuity + thrash 90m | — | chief-coordinator |
 
 Required per-slice record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice.
 

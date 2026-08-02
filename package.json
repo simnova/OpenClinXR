@@ -196,6 +196,7 @@
     "asset:blender:bake": "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts",
     "asset:blender:bake:validate": "tsx tools/openclinxr/evidence/blender-asset-bake-smoke.ts --validate-latest",
     "asset:human-rigging:generate": "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts",
+    "factory:physics-config": "tsx tools/openclinxr/factory/generated-physics-config-artifacts.ts",
     "asset:character:anny-pipeline": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
     "asset:human-rigging:validate": "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts --validate-latest",
     "asset:human-rigging:variant-matrix": "tsx tools/openclinxr/factory/generated-human-rigging-variant-matrix.ts",

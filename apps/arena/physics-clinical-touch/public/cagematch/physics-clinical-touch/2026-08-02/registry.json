@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "openclinxr.model-vetting-registry.v1",
+  "kind": "physics_clinical_touch_cagematch",
+  "generatedAt": "2026-08-02T19:53:16.395Z",
+  "engine": {
+    "id": "rapier",
+    "version": "0.19.3"
+  },
+  "promotionStatus": false,
+  "realismGrade": "B",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring",
+    "learner_readiness"
+  ],
+  "artifacts": {
+    "reportJson": "report.json",
+    "registryJson": "registry.json",
+    "pngs": [
+      "physics-touch-ed-patient-front.png",
+      "physics-touch-ed-patient-palpation.png"
+    ]
+  },
+  "metrics": {
+    "stepCostMsP50": 0.012,
+    "stepCostMsP95": 0.022,
+    "contactStabilityMm": 88.643,
+    "poseReturnErrorDeg": 0,
+    "jointExplosionRate": 0,
+    "frameBudgetHeadroomMs": 16.645,
+    "replayEquivalence": true,
+    "snapshotSupport": true,
+    "licenceClean": true,
+    "garmentCoherenceGrade": "B"
+  }
+}

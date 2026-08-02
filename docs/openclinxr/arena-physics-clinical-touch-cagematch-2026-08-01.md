@@ -22,7 +22,7 @@
 | Inspection + metrics **types** / unit report builders | Full §5.3 hard metrics (mm/°, garment PNG, registry.json tree) |
 | App shell README under `apps/arena/physics-clinical-touch/` | Runnable app `src/` + `public/cagematch/...` PNG tree |
 
-**Honest residual north star (successor epic only, after successor MADR):** optional real-WASM cage match and/or UI-XR consumer — **not** this ledger’s open work. Product **Next dequeue** remains `wire-api-durableStore-consumer-v1` unless BOD pivots.
+**Successor epic (BOD 2026-08-02):** open work lives in **`arena-physics-clinical-touch-realbind-v1`** / brief `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` (real WASM + factory + UI-XR bind). **This ledger remains closed residual only** — do not re-open as marching order. Product **Next dequeue** = realbind R1 (not this file).
 
 ---
 

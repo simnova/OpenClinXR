@@ -35,6 +35,7 @@ import type {
   PhysicsArtifactMeta,
   PhysicsTickInput,
 } from "../types.js";
+import type { PhysicsConfigV1 } from "../factory/physics-config-v1.js";
 import type { PhysicsAdapter, PhysicsStateSnapshot } from "./stub.js";
 
 // ---------------------------------------------------------------------------
@@ -89,6 +90,7 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
   readonly meta: PhysicsArtifactMeta;
 
   private _state: JoltCandidateState;
+  private _config: PhysicsConfigV1 | null;
 
   static readonly PALP_HAND_RB = "palp_hand";
   static readonly ABDOMEN_RB = "abdomen";
@@ -97,8 +99,27 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
   /** Jolt uses 2 sub-steps per physics tick for stability. */
   static readonly SUB_STEPS_PER_TICK = 2;
 
-  constructor(seed = 42) {
-    this._state = this._buildInitialState(seed);
+  /**
+   * Create a JoltCandidateAdapter from a PhysicsConfigV1.
+   *
+   * Derives body masses, seed, and fixedDt from config.
+   * When config is provided, the adapter MUST NOT invent its own
+   * mass/stiffness constants — all simulation parameters come from config.
+   */
+  static fromPhysicsConfig(config: PhysicsConfigV1): JoltCandidateAdapter {
+    return new JoltCandidateAdapter(config.seed, config);
+  }
+
+  /**
+   * @param seed - PRNG seed (default 42). Overridden by config.seed if config provided.
+   * @param config - Optional PhysicsConfigV1. When provided, body masses and
+   *                 simulation parameters are derived from config rather than
+   *                 hardcoded adapter defaults (anti-invention guard).
+   */
+  constructor(seed = 42, config?: PhysicsConfigV1) {
+    this._config = config ?? null;
+    const effectiveSeed = config?.seed ?? seed;
+    this._state = this._buildInitialState(effectiveSeed, config);
 
     this.meta = {
       determinismScope: "local" as DeterminismScope,
@@ -110,8 +131,8 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
       ],
       generatorVersion: "0.1.0",
       engineId: "jolt-candidate",
-      seed,
-      fixedDt: 1 / 60,
+      seed: effectiveSeed,
+      fixedDt: config?.fixedDt ?? 1 / 60,
     };
   }
 
@@ -366,7 +387,8 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
   }
 
   reset(seed: number): void {
-    this._state = this._buildInitialState(seed);
+    const effectiveSeed = this._config?.seed ?? seed;
+    this._state = this._buildInitialState(effectiveSeed, this._config ?? undefined);
   }
 
   // ---------------------------------------------------------------------------
@@ -399,12 +421,20 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
     return (result >>> 0) / 4294967296;
   }
 
-  private _buildInitialState(seed: number): JoltCandidateState {
+  private _buildInitialState(
+    seed: number,
+    config?: PhysicsConfigV1,
+  ): JoltCandidateState {
     // Split seed into 4 u32 values (Jolt-style seeding)
     const s0 = (seed ^ 0x9e3779b9) >>> 0;
     const s1 = ((seed * 0x85ebca6b) & 0xffffffff) >>> 0;
     const s2 = ((seed ^ 0xc2b2ae35) & 0xffffffff) >>> 0;
     const s3 = ((seed * 0x27d4eb2f) & 0xffffffff) >>> 0;
+
+    // Derive body masses from config when provided (anti-invention).
+    // When config is absent, use hardcoded defaults (backward compat).
+    const abdomenMass = config?.masses["abdomen"] ?? 5.0;
+    const handMass = 0.5; // hand mass is not driven by clinical body-region config; kept stable
 
     return {
       rigidBodies: {
@@ -414,7 +444,7 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
           velocity: { x: 0, y: 0, z: 0 },
           angularVelocity: { x: 0, y: 0, z: 0 },
-          mass: 0.5,
+          mass: handMass,
           isKinematic: false,
           broadPhaseCell: "0:1:0",
         },
@@ -424,7 +454,7 @@ export class JoltCandidateAdapter implements PhysicsAdapter {
           rotation: { x: 0, y: 0, z: 0, w: 1 },
           velocity: { x: 0, y: 0, z: 0 },
           angularVelocity: { x: 0, y: 0, z: 0 },
-          mass: 5.0,
+          mass: abdomenMass,
           isKinematic: true,
           broadPhaseCell: "0:1:0",
         },

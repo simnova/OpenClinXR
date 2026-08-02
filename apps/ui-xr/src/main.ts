@@ -119,6 +119,11 @@ import {
 } from "./runtime-state.js";
 import "./styles.css";
 
+// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms from Rapier palpation
+// Generated offline by packages/openclinxr/arena/physics-touch-contract/src/cli/generate-physics-bone-transforms.ts
+// UI-XR consumes only the JSON artifact — no @dimforge/rapier in prod deps.
+import physicsBoneTransformsArtifact from "./physics-touch/ed-palpation-bone-transforms.json" with { type: "json" };
+
 type NavigatorWithXr = Navigator & {
   xr?: {
     isSessionSupported(mode: "immersive-vr" | "immersive-ar"): Promise<boolean>;
@@ -1018,6 +1023,19 @@ function isRealGarmentSleeveDeformCapture(): boolean {
     || cmp === "peds_anny_real_garment_parent"
     || cmp === "peds_anny_real_garment_nurse";
   return isRealGarmentCmp && (mode.includes("garment-sleeve") || mode.includes("sleeve-deform") || mode.includes("body-motion-garment") || mode.includes("real-garment-body") || mode.includes("sleeve"));
+}
+
+/**
+ * arena-physics-realbind-r3-ui-xr-bind (R3 / AD-3):
+ * Physics-driven palpation bone transforms on real garment comparator.
+ * Requires comparator=ed_anny_real_garment_patient (preferred) or peds_anny_real_garment_patient
+ * and capture mode including "physics-clinical-touch" or "physics-touch".
+ */
+function isPhysicsClinicalTouchCapture(): boolean {
+  const mode = selectedCaptureMode();
+  if (!mode.includes("physics-clinical-touch") && !mode.includes("physics-touch")) return false;
+  const cmp = selectedHumanoidSourceComparator();
+  return cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient";
 }
 
 function isDynamicGeneratedEncounterSceneMode(): boolean {
@@ -3546,6 +3564,7 @@ function createStationScene(): StationSceneRuntime {
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
+    applyPhysicsBoneTransforms(now);
     updateEnvironmentRealismAnimations(deltaSeconds, now);
     // Deeper visual cue from drive in per-frame for live transitions on env world in launched player (richer integration of caseDerived env + gen drive/emotion). Uses deeperVisualCue from handoff (set at load from pedsRuntimeDrive/scaffold) and current emotion cues. Modulates emissive/scale on gltfEnvContainer/children for affect (e.g. anxious/urgent). Called every frame in renderSceneFrame (and fallback). Makes the virtual env world react dynamically in the full WebXR/desktop experience when running the app. (Previously only at load; now live per drive.)
     if (typeof gltfEnvContainer !== 'undefined' && gltfEnvContainer) {
@@ -7698,6 +7717,115 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
   }
   recordRuntimeHumanoidActingCueEvidence(actorCues);
   updateVirtualDeviceActorSpeechPulses(nowMs);
+}
+
+/**
+ * arena-physics-realbind-r3-ui-xr-bind (R3 / AD-3):
+ * Apply precomputed Rapier palpation bone transforms to the patient humanoid.
+ *
+ * Reads tick from elapsed time (loops every 6s = 360 ticks at 60Hz),
+ * looks up bone deltas from the precomputed JSON artifact, and applies
+ * position/rotation deltas to the named bones on the patient slot.
+ *
+ * Garment mesh (skinned to clavicle/upper_arm/chest) deforms as bones move.
+ */
+function applyPhysicsBoneTransforms(nowMs: number): void {
+  if (!isPhysicsClinicalTouchCapture()) return;
+
+  const artifact = physicsBoneTransformsArtifact;
+  const totalTicks = artifact.frames.length;
+  if (totalTicks === 0) return;
+
+  // 6s scenario, loop every 6 seconds
+  const scenarioDurationMs = (totalTicks / 60) * 1000;
+  const elapsedInCycle = nowMs % scenarioDurationMs;
+  const tick = Math.floor((elapsedInCycle / scenarioDurationMs) * totalTicks);
+  const frame = artifact.frames[Math.min(tick, totalTicks - 1)]!;
+
+  // Find patient slot
+  const patientSlot = generatedHumanoidAnimationSlots.find(
+    (s) => s.actorId === runtimePatientActorId(),
+  );
+  if (!patientSlot) return;
+
+  // Cache: build bone name → object map once per slot
+  if (!(patientSlot as any)._physicsBoneMap) {
+    const map = new Map<string, Group["children"][number]>();
+    patientSlot.root.traverse((obj) => {
+      if (artifact.bones.includes(obj.name)) {
+        map.set(obj.name, obj);
+      }
+    });
+    (patientSlot as any)._physicsBoneMap = map;
+  }
+
+  const boneMap = (patientSlot as any)._physicsBoneMap as Map<string, Group["children"][number]>;
+
+  for (const [boneName, delta] of Object.entries(frame.boneDeltas)) {
+    const bone = boneMap.get(boneName);
+    if (!bone) continue;
+
+    // Save bind pose on first application
+    if (!(bone as any)._physicsBindPos) {
+      (bone as any)._physicsBindPos = bone.position.clone();
+      (bone as any)._physicsBindRot = bone.quaternion.clone();
+    }
+
+    const bindPos = (bone as any)._physicsBindPos as Vector3;
+    const bindRot = (bone as any)._physicsBindRot as { x: number; y: number; z: number; w: number };
+
+    // Apply position delta on top of bind pose
+    bone.position.set(
+      bindPos.x + delta.position.x,
+      bindPos.y + delta.position.y,
+      bindPos.z + delta.position.z,
+    );
+
+    // Apply rotation delta (multiply quaternion)
+    bone.quaternion.set(
+      bindRot.x, bindRot.y, bindRot.z, bindRot.w,
+    );
+    // Multiply by delta quaternion
+    const dq = { x: delta.rotation.x, y: delta.rotation.y, z: delta.rotation.z, w: delta.rotation.w };
+    const q = bone.quaternion;
+    const x = q.x, y = q.y, z = q.z, w = q.w;
+    q.x = w * dq.x + x * dq.w + y * dq.z - z * dq.y;
+    q.y = w * dq.y - x * dq.z + y * dq.w + z * dq.x;
+    q.z = w * dq.z + x * dq.y - y * dq.x + z * dq.w;
+    q.w = w * dq.w - x * dq.x - y * dq.y - z * dq.z;
+  }
+
+  // --- Physics touch evidence surfaces (R3 / AD-3) ---
+  // Tag the real garment mesh with physics-touch evidence; frustumCulled off
+  // for capture readability; distinct orange emissive for palpation visibility.
+  patientSlot.root.traverse((obj) => {
+    if (!(obj instanceof Mesh)) return;
+    const nm = obj.name || "";
+    if (!/openclinxr_real_garment|real_garment_from_phenotype/i.test(nm)) return;
+
+    obj.frustumCulled = false;
+    obj.visible = true;
+
+    // Distinct emissive: orange-red glow on palpated garment region
+    const mat = obj.material as MeshStandardMaterial;
+    if (mat && mat.emissive && !(obj.userData as any).openClinXrPhysicsTouchEvidenceApplied) {
+      mat.emissive = new Color(0xff4400);
+      mat.emissiveIntensity = 0.8;
+      mat.needsUpdate = true;
+      (obj.userData as any).openClinXrPhysicsTouchEvidenceApplied = true;
+    }
+
+    (obj.userData as any).openClinXrPhysicsTouchEvidence = {
+      engineId: artifact.engineId,
+      seed: artifact.seed,
+      scenarioId: artifact.scenarioId,
+      bonesAffected: artifact.bones,
+      currentTick: tick,
+      spineDz: frame.boneDeltas.spine?.position.z ?? 0,
+      guardingAngle: frame.boneDeltas["upper_arm.L"]?.rotation.x ?? 0,
+      notEvidenceFor: artifact.notEvidenceFor,
+    };
+  });
 }
 
 function isGeneratedRuntimeDrive(value: unknown): value is GeneratedRuntimeDrive {
