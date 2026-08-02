@@ -79,6 +79,21 @@ async function captureComparator(
   console.log(`[parent-nurse-capture] ${run.label} humanoid loaded, settling ${options.settleMs}ms...`);
   await page.waitForTimeout(options.settleMs);
 
+  // Prefer non-null garmentGeometry (seeded on primary load for sleeve-deform; speech path also writes it)
+  try {
+    await page.waitForFunction(
+      () => {
+        const mg = (window as any).__openClinXrMouthGazePoseComparatorEvidence;
+        return Boolean(mg?.garmentGeometry?.name);
+      },
+      undefined,
+      { timeout: 45_000 },
+    );
+    console.log(`[parent-nurse-capture] ${run.label} garmentGeometry ready`);
+  } catch {
+    console.warn(`[parent-nurse-capture] ${run.label} garmentGeometry still null after wait; capturing anyway`);
+  }
+
   // Front capture
   const frontPath = path.join(options.outputDir, `${run.label}_real_garment_sleeve_front_2026-08-02.png`);
   await page.screenshot({ path: frontPath, fullPage: false });

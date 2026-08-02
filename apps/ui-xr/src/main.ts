@@ -2914,16 +2914,16 @@ function createStationScene(): StationSceneRuntime {
       camera.lookAt(-0.08, 0.82, -0.96);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_parent") {
-      // framing-polish-parent-nurse-garment-ui-xr-v1: center patient primary; medium pull-back so torso+sleeve cyan fills frame
-      camera.fov = 48;
-      camera.position.set(-0.72, 1.18, 3.25);
-      camera.lookAt(-0.72, 1.0, -0.12);
+      // bindfix re-capture: center primary humanoid (x≈0) closer so torso/sleeve cyan fills frame (≥100kB PNG)
+      camera.fov = 42;
+      camera.position.set(0.0, 1.05, 2.55);
+      camera.lookAt(0.0, 0.95, 0.0);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_nurse") {
-      // framing-polish-parent-nurse-garment-ui-xr-v1: same patient-primary centering for nurse scrub sleeveDeform volume
-      camera.fov = 48;
-      camera.position.set(-0.72, 1.18, 3.25);
-      camera.lookAt(-0.72, 1.0, -0.12);
+      // bindfix re-capture: same patient-primary centering for nurse scrub sleeveDeform volume
+      camera.fov = 42;
+      camera.position.set(0.0, 1.05, 2.55);
+      camera.lookAt(0.0, 0.95, 0.0);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient") {
       // ed-gown-geo-reorchestrate (Q1+Q5): expanded framing for hospital_gown sleeves (baggier adult topology vs peds tshirt); lower/closer to expose 3D deforming sleeve volume + motion in ed bay (cyan/no-cull/userData/garmentGeometry visible in screenshots)
@@ -6576,7 +6576,7 @@ function loadGeneratedHumanoidIntoActorSlot(
           || humanoidSourceComparator === "peds_anny_real_garment_nurse")
         && isRealGarmentPrimaryActor
       ) {
-        applyRealGarmentEvidenceSurfaces(humanoid, humanoidSourceComparator);
+        const taggedGarment = applyRealGarmentEvidenceSurfaces(humanoid, humanoidSourceComparator);
         humanoid.userData.openClinXrRealGarmentTopology = "embedded_from_phenotype_garmentLayers";
         if (humanoidSourceComparator === "peds_anny_real_garment_patient") {
           humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_real_garment";
@@ -6586,6 +6586,72 @@ function loadGeneratedHumanoidIntoActorSlot(
           humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_nurse_real_garment";
         } else {
           humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate";
+        }
+        // Seed MouthGaze garmentGeometry on primary load for sleeve-deform capture so inspection is
+        // not gated on patient-speech timing (recordMouthGaze only fires when speech.actorId === patient).
+        if (
+          taggedGarment
+          && isRealGarmentSleeveDeformCapture()
+          && options.actorId === runtimePatientActorId()
+        ) {
+          const garmentSource =
+            humanoidSourceComparator === "ed_anny_real_garment_patient"
+              ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
+              : humanoidSourceComparator === "peds_anny_real_garment_parent"
+                ? "/generated-humanoids/peds_anxious_parent.glb"
+                : humanoidSourceComparator === "peds_anny_real_garment_nurse"
+                  ? "/generated-humanoids/peds_nurse_kevin.glb"
+                  : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
+          const sleeveDeformCue =
+            humanoidSourceComparator === "peds_anny_real_garment_patient"
+              ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
+              : humanoidSourceComparator === "peds_anny_real_garment_parent"
+                ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;parent_cardigan_casual_top;peds_anny_real_garment_parent"
+                : humanoidSourceComparator === "peds_anny_real_garment_nurse"
+                  ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;nurse_scrub;peds_anny_real_garment_nurse"
+                  : "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;ed-gown-geo-reorchestrate;hospital_gown";
+          const existingMouth = window.__openClinXrMouthGazePoseComparatorEvidence;
+          window.__openClinXrMouthGazePoseComparatorEvidence = {
+            source: "window.__openClinXrMouthGazePoseComparatorEvidence",
+            captureMode: selectedCaptureMode(),
+            comparator: humanoidSourceComparator as MouthGazePoseComparatorEvidence["comparator"],
+            scenarioId: humanoidSourceComparator === "ed_anny_real_garment_patient" ? "ed_chest_pain_priority_v2" : "peds_asthma_parent_anxiety_v1",
+            actorId: options.actorId,
+            dialogueText: existingMouth?.dialogueText ?? "",
+            traceTag: "work_of_breathing_assessment",
+            activeViseme: existingMouth?.activeViseme ?? "sil",
+            activeMouthOpenness: existingMouth?.activeMouthOpenness ?? 0,
+            activeEmotionState: existingMouth?.activeEmotionState ?? "neutral",
+            activeExpressionTransitionMs: existingMouth?.activeExpressionTransitionMs ?? 0,
+            activeExpressionWeights: existingMouth?.activeExpressionWeights ?? {
+              mouthOpen: 0, browConcern: 0, cheekTension: 0,
+            },
+            gazeProbePlayback: existingMouth?.gazeProbePlayback ?? null,
+            activeGazeProbeAnimationClipName: existingMouth?.activeGazeProbeAnimationClipName ?? null,
+            morphTargetAppliedTargetCount: existingMouth?.morphTargetAppliedTargetCount ?? 0,
+            morphTargetPlaybackMode: "glb_morph_target_timeline_from_bundle_dialogue_with_emotion_transition",
+            emotionTransitionCuePresent: existingMouth?.emotionTransitionCuePresent ?? false,
+            visemeTimelineComparatorEvidencePresent: existingMouth?.visemeTimelineComparatorEvidencePresent ?? false,
+            activeDialogueTurnRef: existingMouth?.activeDialogueTurnRef,
+            liveSource: existingMouth?.liveSource,
+            garmentGeometry: {
+              name: taggedGarment.name || "real_garment_mesh",
+              visible: taggedGarment.visible,
+              source: garmentSource,
+              hasVisibleVolume: true,
+              hasSeamFoldHints: true,
+              sleeveDeform: sleeveDeformCue,
+            },
+            notEvidenceFor: [
+              "production phoneme timing",
+              "validated facial animation",
+              "clinical affect scoring",
+              "b_plus_visual_realism_gate",
+              "quest_readiness",
+              "production_asset_readiness",
+              "learner_readiness",
+            ],
+          };
         }
       }
       if (!cleanSourceComparatorCapture) {
