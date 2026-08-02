@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** product Next = wire-api-durableStore-consumer-v1. Physics epic closed + **spec claim-aligned** (2026-08-02).
+**Active slice:** wire-api-durableStore-consumer-v1 closed; continue product queue / optimize under autonomy.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| wire-api-durableStore-consumer-v1 | execute+verify | **verify ok (Q4)** — ApiPersistenceSink→ScenarioRuntime durableStore; actor-turn + review packet; 20+98 tests |
 | arena-physics-spec-review-execute-v1 | execute+verify | verify ok (Q5) — CEO+team Grok 4.5: SPEC_ALIGN yes; WASM/UI-XR/schema defer; open-Q defaults; residual ledger |
 | arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + s7 foreground_ready; MADR 0029; 144 tests; ledger claim-aligned |
 | arena-physics-s5-factory-physics-config | execute+verify | verify ok (Q1) — physics_config.v1 + habitus tables |
@@ -61,7 +62,7 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** wire-api-durableStore-consumer-v1 (Q4) — optional follow-on: ApiPersistenceSink through runtime durableStore (or next matrix Q1 vertical).
+**Next dequeue:** peds-evidence-loop (Q1) — or next worker-matrix Q1 vertical; wire-api durableStore consumer closed.
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
@@ -101,6 +102,19 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 wire-api-durableStore-consumer-v1 (Q4)
+
+Product path advanced: Wired **ApiPersistenceSink as ScenarioRuntime durableStore consumer**. Bootstrap creates runtime with `createScenarioRuntimeDurableStoreFromApiPersistence(persistence)` so `generateActorResponse` → `saveActorTurn` and review packet hooks share the API sink. Memory sink records turns/packets. Adapter unit tests + bootstrap e2e.
+
+Blueprint/factory tie: Q4 review/persistence/replay — runtime emission path into durable sink (Mongo-ready sink interface; default in-memory).
+
+Touched: `apps/api/src/runtime-durable-store.ts(+test)`; `api-bootstrap.ts(+test)`; `app.ts` saveActorTurn; `scenario-runtime` createDefaultScenarioRuntime options.
+
+Evidence: scenario-runtime 20/20; api 98/98. Token introspection: aligned; tier: pro.  
+Cost line: Task cost: est via 1 general-purpose writer (~4m agentic); models=grok-4.5.
+
+Next queued slice: peds-evidence-loop (Q1) or matrix next Q1 vertical.
 
 ### 2026-08-02 arena-physics-spec-review-execute-v1 (Q5)
 

@@ -11,6 +11,7 @@ import {
   type OpenClinXrApiProtocolPosture,
   type OpenClinXrApiProtocolSupport,
 } from "./protocol-support.js";
+import { createScenarioRuntimeDurableStoreFromApiPersistence } from "./runtime-durable-store.js";
 
 export type AzureFunctionHttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE" | "OPTIONS" | "HEAD";
 
@@ -203,7 +204,11 @@ export class OpenClinXrApiStartupBuilder {
 
 export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions = {}): OpenClinXrApiStartupBuilder {
   const persistence = options.persistence ?? createSingleUserMemoryPersistenceSink();
-  const runtime = options.runtime ?? createDefaultScenarioRuntime();
+  // Wire ScenarioRuntime durableStore to API persistence unless caller injects a full runtime.
+  const runtime = options.runtime
+    ?? createDefaultScenarioRuntime({
+      durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
+    });
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
@@ -790,6 +795,9 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
   const examForms = new Map<string, ExamForm>();
   const stationRunQueueSnapshots = new Map<string, ApiStationRunQueueSnapshot>();
   const scenarioReviewDecisions: ApiScenarioReviewDecisionRecord[] = [];
+  /** In-memory durable surfaces for Q4 observability (default single-user sink). */
+  const reviewPacketsByStationRunId = new Map<string, unknown[]>();
+  const actorTurnsByStationRunId = new Map<string, unknown[]>();
 
   return {
     saveExamForm: (form) => {
@@ -813,6 +821,15 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
         .map((record) => ({ ...record, evidenceRefs: [...record.evidenceRefs] }))
         .sort((left, right) => Date.parse(left.reviewedAt) - Date.parse(right.reviewedAt)),
     saveTraceEvents: () => undefined,
-    saveReviewPacket: () => undefined,
+    saveReviewPacket: (stationRunId, packet) => {
+      const packets = reviewPacketsByStationRunId.get(stationRunId) ?? [];
+      packets.push(packet);
+      reviewPacketsByStationRunId.set(stationRunId, packets);
+    },
+    saveActorTurn: (stationRunId, turn) => {
+      const turns = actorTurnsByStationRunId.get(stationRunId) ?? [];
+      turns.push(turn);
+      actorTurnsByStationRunId.set(stationRunId, turns);
+    },
   };
 }

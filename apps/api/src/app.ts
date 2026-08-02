@@ -59,6 +59,7 @@ import {
   type ReviewerEvidence,
   type RouteRuntimeActorInteractionInput,
   type ScenarioRuntime,
+  type ScenarioRuntimeActorTurn,
 } from "@openclinxr/scenario-runtime";
 import {
   createNoopTelemetryRecorder,
@@ -559,6 +560,12 @@ export type ApiPersistenceSink = {
   listScenarioReviewDecisions?: () => Promise<ApiScenarioReviewDecisionRecord[]> | ApiScenarioReviewDecisionRecord[];
   saveTraceEvents?: (stationRunId: string, events: RuntimeTraceEvents) => Promise<void> | void;
   saveReviewPacket?: (stationRunId: string, packet: RuntimeReviewPacket) => Promise<void> | void;
+  /**
+   * Optional durable actor-turn sink. Wired into ScenarioRuntime via
+   * `createScenarioRuntimeDurableStoreFromApiPersistence` so generateActorResponse
+   * hooks persist turns without a separate API call.
+   */
+  saveActorTurn?: (stationRunId: string, turn: ScenarioRuntimeActorTurn) => Promise<void> | void;
   listClinicalEventReviewProjections?: (stationRunId: string) => Promise<ApiClinicalEventReviewProjection[]> | ApiClinicalEventReviewProjection[];
   getLearnerRuntimeAssetBundle?: (
     bundleId: string,

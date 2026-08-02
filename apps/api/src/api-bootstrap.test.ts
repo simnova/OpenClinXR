@@ -709,6 +709,84 @@ describe("OpenClinXR API startup", () => {
       provenance: { spendCents: 0, externalNetworkUsed: false },
     });
   });
+
+  it("wires ScenarioRuntime durableStore so actor-response invokes sink.saveActorTurn", async () => {
+    const savedTurns: Array<{ stationRunId: string; turnId: string; actorId: string }> = [];
+    const savedPackets: Array<{ stationRunId: string; scenarioId: string }> = [];
+
+    const startup = createOpenClinXrApiStartup({
+      persistence: {
+        saveActorTurn: (stationRunId, turn) => {
+          savedTurns.push({
+            stationRunId,
+            turnId: turn.turnId,
+            actorId: turn.actorId,
+          });
+        },
+        saveReviewPacket: (stationRunId, packet) => {
+          savedPackets.push({
+            stationRunId,
+            scenarioId: packet.scenarioId,
+          });
+        },
+      },
+    }).startUp();
+
+    const sessionResponse = await startup.fetch(
+      new Request("http://localhost/sessions", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ learnerId: "learner_durable_wire", consentAccepted: true }),
+      }),
+    );
+    expect(sessionResponse.status).toBe(201);
+    const session = (await sessionResponse.json()) as { stationRunId: string };
+
+    await startup.fetch(
+      new Request(`http://localhost/sessions/${session.stationRunId}/start-encounter`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ atSecond: 60 }),
+      }),
+    );
+
+    const actorResponse = await startup.fetch(
+      new Request(`http://localhost/sessions/${session.stationRunId}/actor-response`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          actorId: "patient_robert_hayes_v1",
+          learnerUtterance: "When did the pressure start?",
+          atSecond: 120,
+          traceContextTags: ["history_opqrst"],
+        }),
+      }),
+    );
+    expect(actorResponse.status).toBe(201);
+
+    expect(savedTurns).toEqual([
+      {
+        stationRunId: session.stationRunId,
+        turnId: "turn_1_patient_robert_hayes_v1_120",
+        actorId: "patient_robert_hayes_v1",
+      },
+    ]);
+
+    const packetResponse = await startup.fetch(
+      new Request(`http://localhost/sessions/${session.stationRunId}/review-packet`),
+    );
+    expect(packetResponse.status).toBe(200);
+    // Dual path: runtime.reviewPacket settles durableStore (wired to same sink) AND
+    // GET handler also calls persistence.saveReviewPacket — both are correct for hosts
+    // that inject runtime without durableStore. Assert at least one durable save.
+    expect(savedPackets.length).toBeGreaterThanOrEqual(1);
+    expect(savedPackets).toContainEqual(
+      expect.objectContaining({
+        stationRunId: session.stationRunId,
+        scenarioId: "ed_chest_pain_priority_v1",
+      }),
+    );
+  });
 });
 
 class FakeBackendWebSocket {

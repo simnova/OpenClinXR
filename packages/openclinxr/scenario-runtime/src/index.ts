@@ -688,7 +688,14 @@ function withDurableEventRef<T extends Record<string, unknown>>(
   };
 }
 
-export function createDefaultScenarioRuntime(): ScenarioRuntime {
+export type CreateDefaultScenarioRuntimeOptions = {
+  /** Optional durable sink (API persistence adapter, authoring store, etc.). In-memory default when unset. */
+  durableStore?: ScenarioRuntimeDurableStore;
+};
+
+export function createDefaultScenarioRuntime(
+  options: CreateDefaultScenarioRuntimeOptions = {},
+): ScenarioRuntime {
   const assetRegistry = new InMemoryAssetRegistry();
   for (const manifest of createScenarioPlaceholderManifests(edChestPainScenario)) {
     assetRegistry.upsert(manifest);
@@ -706,6 +713,7 @@ export function createDefaultScenarioRuntime(): ScenarioRuntime {
       routeId: "voice-offline-v1",
       adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
     }),
+    ...(options.durableStore ? { durableStore: options.durableStore } : {}),
   });
 }
 

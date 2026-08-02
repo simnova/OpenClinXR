@@ -679,6 +679,26 @@ describe("scenario runtime", () => {
     expect(packet.stationRunId).toBe(session.stationRunId);
     expect(packet.timeline.length).toBeGreaterThan(0);
   });
+
+  it("accepts durableStore via createDefaultScenarioRuntime options", async () => {
+    const savedTurns: string[] = [];
+    const runtime = createDefaultScenarioRuntime({
+      durableStore: {
+        saveActorTurn(_stationRunId, turn) {
+          savedTurns.push(turn.turnId);
+        },
+      },
+    });
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "When did the pressure start?",
+      atSecond: 120,
+      traceContextTags: ["history_opqrst"],
+    });
+    expect(savedTurns).toEqual(["turn_1_patient_robert_hayes_v1_120"]);
+  });
 });
 
 class CapturingModelProviderAdapter implements ModelProviderAdapter {
