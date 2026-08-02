@@ -5,27 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="OpenClinXR is a Step 2 CS-inspired XR clinical skills exam platform built as an evidence-gated encounter factory, with clinical asset commons, capability arenas, and local/offline plus connected Azure deployment modes."
+      content="OpenClinXR: timed XR clinical skills encounters from case blueprint to WebXR runtime—with evidence gates, not exam-equivalence claims."
     >
     <meta property="og:title" content="OpenClinXR">
     <meta
       property="og:description"
-      content="Step 2 CS-inspired XR clinical skills exam platform. Encounter blueprints drive WebXR runtime, actors, assets, review, replay, and evidence gates."
+      content="Build, review, and run timed clinical skills stations in WebXR. Blueprint-driven factory. Honest proof boundaries."
     >
     <meta property="og:type" content="website">
     <title>OpenClinXR</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <!-- Top Navigation -->
     <nav class="top-nav" aria-label="Main navigation">
       <div class="nav-inner">
         <a href="#" class="nav-logo">OpenClinXR</a>
         <div class="nav-links">
           <a href="#platform">Platform</a>
-          <a href="#evidence-gates">Evidence Docs</a>
-          <a href="#deployment">Deployment</a>
-          <a href="#agents">Build Model</a>
+          <a href="#now">Now</a>
+          <a href="#see-it">See it</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#evidence-docs">Evidence Docs</a>
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
@@ -34,272 +34,297 @@
     <main>
       <section class="hero" aria-labelledby="openclinxr-title">
         <div class="hero__copy">
-          <p class="eyebrow">XR clinical skills exam platform • Evidence-gated encounter factory</p>
+          <p class="eyebrow">Clinical skills simulation · WebXR-first</p>
           <h1 id="openclinxr-title">OpenClinXR</h1>
           <p class="lede">
-            OpenClinXR is a Step 2 CS-inspired XR clinical skills exam platform for building,
-            reviewing, and running timed clinical encounters from blueprint to runtime. It includes an
-            encounter factory, clinical asset commons, capability arenas, and local/offline plus connected
-            Azure deployment modes. OpenClaw is the build operating model behind the platform.
+            Timed clinical skills stations—from case blueprint to WebXR runtime—
+            with faculty review, traces, and promotion gates that stay off until the evidence is real.
+          </p>
+          <p class="lede" style="margin-top: 14px; font-size: 1.05rem;">
+            Inspired by Step&nbsp;2&nbsp;CS-style multi-station flow. Built as an
+            <strong>encounter factory</strong>, not a pile of one-off scenes.
+            Not an exam-equivalence or clinical-validity product.
           </p>
           <div class="actions" aria-label="Project links">
-            <a class="button button--primary" href="#platform">Explore Platform</a>
-            <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">Evidence Docs</a>
-            <a class="button" href="#deployment">View Deployment Modes</a>
-            <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub Repo</a>
+            <a class="button button--primary" href="#now">Where we are</a>
+            <a class="button" href="#see-it">Runtime evidence</a>
+            <a class="button" href="#roadmap">What’s queued</a>
+            <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub</a>
           </div>
         </div>
-        <div class="hero__panel" aria-label="Current evidence posture">
+        <div class="hero__panel" aria-label="At a glance">
           <figure class="hero__image">
-            <img src="assets/openclinxr-xr-evidence.png" alt="OpenClinXR XR runtime posture evidence screen">
+            <img
+              src="assets/openclinxr-xr-evidence.png"
+              alt="OpenClinXR XR runtime evidence posture"
+            >
           </figure>
           <div>
-            <span class="metric">Who it is for</span>
-            <strong>Simulation programs, clinical education teams, and platform builders</strong>
-            <p>Scenario authors define encounters, learners run timed stations, faculty reviews trace/replay evidence, and admins manage review gates.</p>
+            <span class="metric">Who it’s for</span>
+            <strong>Simulation programs &amp; clinical education teams</strong>
+            <p>Authors define stations. Learners run timed encounters. Faculty review traces and packets. Admins hold the gates.</p>
           </div>
           <div>
-            <span class="metric">Current proof boundary</span>
-            <strong>Blueprint-to-runtime evidence gates</strong>
-            <p>Current work is deterministic UI-XR runtime evidence consumer + peds/ED materialization. Gates remain false until committed artifacts prove more.</p>
+            <span class="metric">What we prove today</span>
+            <strong>Blueprint → runtime evidence—not licensure</strong>
+            <p>
+              Case fields (including clothing layers) drive generated actors and garments.
+              WebXR sample scenes and Model Vetting captures are committed artifacts, not marketing fiction.
+            </p>
           </div>
           <div>
-            <span class="metric">Trust boundary</span>
-            <strong>Not an exam-equivalence or clinical-validity claim</strong>
-            <p>Evidence is scoped to the committed artifacts and current runtime gates. OpenClaw keeps the build process disciplined; it is not the product promise.</p>
+            <span class="metric">Trust line</span>
+            <strong>No clinical scoring or Quest readiness claims</strong>
+            <p>Promotion and readiness flags stay false until hardware and policy say otherwise. We document limits in public.</p>
           </div>
         </div>
       </section>
 
       <section id="platform" class="band" aria-labelledby="what-title">
         <div class="section-heading">
-          <p class="eyebrow">Platform overview</p>
-          <h2 id="what-title">A production exam platform, encounter factory, asset commons, and capability arena.</h2>
+          <p class="eyebrow">Platform</p>
+          <h2 id="what-title">Four pieces. One factory.</h2>
         </div>
         <div class="grid">
           <article>
-            <h3>Encounter Blueprint Factory</h3>
+            <h3>Exam surface</h3>
             <p>
-              Reviewed encounter specifications (scenarios, actors, dialogue, emotion, traces, rubrics, asset needs)
-              drive generated runtime, publication, launch selection, review packets, persistence, and evidence. Case definitions drive scenes; hand-built one-off rooms do not.
+              Author, assemble, run, and replay timed stations for learners, faculty, and admins—
+              with traces, actor turns, and review packets in the loop.
             </p>
           </article>
           <article>
-            <h3>Clinical Asset Commons</h3>
+            <h3>Encounter factory</h3>
             <p>
-              Generated or approved assets such as rooms, floors, nurses, equipment, clothing, humanoids, animation clips, and provenance records can be reused across encounters instead of regenerated each time.
+              Reviewed case definitions drive scenes, actors, dialogue posture, emotion timelines,
+              asset needs, and persistence—so work scales past hand-built demos.
             </p>
           </article>
           <article>
-            <h3>Capability Arena</h3>
+            <h3>Asset commons</h3>
             <p>
-              Candidate technologies such as TTS, speech recognition, humanoid generation, IWSDK sidecars, and provider adapters compete in repeatable cage matches before production promotion.
+              Rooms, humanoids, clothing, equipment, and provenance intended for reuse across encounters—
+              with cage-match style comparison before anything is treated as “ready.”
+            </p>
+          </article>
+          <article>
+            <h3>Capability arena</h3>
+            <p>
+              Sidecars for humanoid generation, voice, IWSDK spikes, and providers stay isolated
+              until evidence supports a promotion decision. Experiments don’t become product by accident.
             </p>
           </article>
         </div>
       </section>
 
-      <!-- Latest Progress Showcase (Q1/Q5) -->
-      <section id="latest-progress" class="band" aria-labelledby="progress-title">
+      <section id="now" class="band band--evidence" aria-labelledby="now-title">
         <div class="section-heading">
-          <p class="eyebrow">Recent factory progress • Q1 + Q5</p>
-          <h2 id="progress-title">ED real garment from phenotype.garmentLayers (hospital_gown) — dual evidence in Model Vetting + UI-XR.</h2>
+          <p class="eyebrow">Current state · August 2026</p>
+          <h2 id="now-title">Shipping the factory spine—and measuring how we build it.</h2>
         </div>
-
         <div class="progress-grid">
           <div class="progress-card">
-            <h3>Blueprint → Real Garment Topology (Q1)</h3>
-            <p>
-              Case <code>ed_chest_pain_priority_v2:patient_ed_chest_pain_v1</code> + <code>phenotype.garmentLayers = ["hospital_gown"]</code> now drives <strong>real garment region</strong> (324 faces, deformsWithBreathing, weighted to clavicle/upper_arm/chest/spine/neck, visibleDeformingSleeves, hasVisibleVolume, hasSeamFoldHints).
-            </p>
+            <h3>Product proof in the loop</h3>
             <ul>
-              <li>Embedded in rigging_report + provenance + cagematch reports (model-vetting-report.v1, report.json, registry.json) as <code>ed_chest_pain_patient_real_garment_v1</code> candidate with promotionStatus + realismGrade B + notEvidenceFor list.</li>
-              <li>Branched 23 MB GLB + rigging + provenance in <code>cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/</code>.</li>
-              <li>Factory TS (generated-human-rigging-artifacts, cagematch-report-pages, generated-ed-station-runtime-bundle) updated for ED pheno + gown.</li>
+              <li><strong>ED real garment path:</strong> hospital gown from case phenotype into Model Vetting + UI-XR sample evidence (committed screenshots below).</li>
+              <li><strong>Peds real-garment work:</strong> patient/parent/nurse clothing layers expanded from phenotype; adaptive dialogue and sleeve-deform evidence tracks exist in-repo.</li>
+              <li><strong>Authoring / review spine:</strong> scenario bank, review packets, admin faculty review UI with promotion-status surfaces (gates remain off).</li>
+              <li><strong>Runtime durability hook:</strong> optional <code>durableStore</code> on scenario runtime + local authoring roundtrip CLI that emits replay-safe JSON (actor turns + timeline).</li>
             </ul>
-            <p class="small"><a href="https://github.com/simnova/OpenClinXR/blob/main/apps/arena/model-vetting-studio/public/cagematch-reports/real-garment-2026-06-07/model-vetting-report.json" target="_blank" rel="noopener">View MV report (ED candidate)</a> • <a href="https://github.com/simnova/OpenClinXR/tree/main/apps/arena/model-vetting-studio/public/cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07" target="_blank" rel="noopener">Branched assets</a></p>
           </div>
-
           <div class="progress-card">
-            <h3>Runtime Consumer + Evidence Surfaces (Q1 + Q5)</h3>
-            <p>
-              UI-XR now has first-class <code>ed_anny_real_garment_patient</code> (ed_chest_pain_priority_v* scenarios, ed bay framing):
-            </p>
+            <h3>How the team builds</h3>
             <ul>
-              <li>Dedicated GLB resolve (no peds proxy): <code>/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb</code> (test expects it).</li>
-              <li>Gown-aware regex (<code>gown|hospital.*gown|ed_gown</code> + <code>openclinxr_real_garment</code>) + post-load traverse sets <code>frustumCulled=false</code>, <code>visible</code>, <code>openClinXrSleeveDeformEvidence</code>, cyan emissive, <code>garmentGeometry.sleeveDeform</code>, promotion userData.</li>
-              <li>Capture tooling extended (ED_BUNDLE, useEdForSlice, ed png outputs + ui-xr-ed-seed-inspection asserting garmentDeformEvidence + promotionSurfaces exercised).</li>
-              <li>Static tests green for ed_anny + ed glb path.</li>
+              <li>OpenClaw-style slices: lease, path-scoped roles, worktree isolation for writers, verify gates.</li>
+              <li>Docs warehouse + PMO cadence so history freezes without choking rehydrate.</li>
+              <li>Per-slice token thrash checks and <strong>task cost rollups</strong> (subagent × model → estimated USD)—estimate only, not invoices.</li>
+              <li>Temporal decision catalog so workarounds (e.g. token accounting) get weekly revisit, not permanent debt.</li>
             </ul>
-            <p class="small"><a href="https://github.com/simnova/OpenClinXR/blob/main/apps/ui-xr/src/main.ts" target="_blank" rel="noopener">main.ts (ed_anny support ~6267, 6572, 7709)</a> • <a href="https://github.com/simnova/OpenClinXR/blob/main/tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts" target="_blank" rel="noopener">Capture (ED paths)</a></p>
           </div>
-
           <div class="progress-card">
-            <h3>Promotion Metadata + Dual Delta (Q4 tie-in + Q5)</h3>
-            <p>
-              Promotion fields (promotionStatus, realismGrade, realAnnyWeightsUsed, notEvidenceFor, realGarmentRegionFromPhenotype with claimScope) wired into reports, rigging, provenance, UI-XR evidence types/userData.
-            </p>
-            <p>
-              Skeptic re-assess: visible in MV cagematch reports + code + ed-branch evidence (dual delta: MV can reference ED candidate/glb; UI-XR can traverse ed_anny for surfaces). Sizable 3-role collaborative vertical (skeptic + asset + xr).
-            </p>
-            <p class="small">Evidence branches: <code>.openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-08-ed-real-garment-seed-v1/</code> (ed_real_garment_sleeve_deform pngs + inspection) + cagematch ed- subdir. Full canonical dual volume + actual pheno gown geo targeted in next slice.</p>
+            <h3>Still deliberately false</h3>
+            <ul>
+              <li>No clinical scoring or licensure claims.</li>
+              <li>No Quest headset readiness claim without worn-device evidence.</li>
+              <li>No unapproved cloud/paid production path.</li>
+              <li>Promotion / realism gates stay candidate-scoped until policy says otherwise.</li>
+            </ul>
           </div>
         </div>
-
         <p class="progress-note">
-          <strong>Honest posture:</strong> Latest internal dev evidence from closed <code>ed-gown-geo-reorchestrate</code> + <code>ed-real-garment-phenotype-expansion</code> (Q1+Q5). Case <code>ed_chest_pain_priority_v2</code> + <code>phenotype.garmentLayers=["hospital_gown"]</code> produces real 416f gown topology (deformsWithBreathing, visibleDeformingSleeves, weighted, hasVisibleVolume) + promotion metadata in rigging/provenance/reports. Accurate UI-XR WebXR sample scene screenshots (front + three-quarter) in <code>docs/assets/ed-real-garment-webxr-*.png</code> now replaced (139kB/143kB real captures from ed_anny_real_garment_patient + gown glb + main.ts gown traverse/cyan/sleeveDeform/garmentGeometry surfaces; no longer MV "Report unavailable" errors or blue-suit proxies). Dual MV + UI-XR evidence + website visuals now match. No overclaims.
+          Source of truth for status is the repo ledger (<code>PROJECT_STATUS.md</code>), not this page.
+          Public copy here is a snapshot for humans—updated when the product story actually moves.
         </p>
+      </section>
 
-        <div style="margin-top: 32px;">
-          <h3 style="margin-bottom: 12px; font-size: 1.1rem;">WebXR Sample Scene Evidence (ED real garment patient in UI-XR runtime)</h3>
-          <p style="color: var(--muted); font-size: 0.95rem; max-width: 900px;">
-            Captured from the UI-XR sample scene (ed_chest_pain_priority_v2 + ed_anny_real_garment_patient comparator). The code extensions (gown-aware detection, post-load garment traverse for cyan emissive deforming volume, garmentGeometry.sleeveDeform, openClinXr* userData, frustumCulled=false, ed bay framing, adaptive capture) are exercised. These images + the ui-xr-ed-seed-inspection.json (asserting garmentDeformEvidence surfaces + promotion for the ed_anny load) provide the WebXR runtime scene evidence for the phenotype-driven real garment.
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 16px;">
-            <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-              <img src="assets/ed-real-garment-webxr-front.png" alt="UI-XR WebXR sample scene: ED real garment patient (ed_anny_real_garment_patient) front view with hospital_gown real garment from phenotype" style="width: 100%; display: block;">
-              <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">UI-XR sample: ed_chest_pain patient real garment (front) — code support for deforming gown sleeves and evidence surfaces active in the running WebXR scene.</figcaption>
-            </figure>
-            <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-              <img src="assets/ed-real-garment-webxr-three-quarter.png" alt="UI-XR WebXR sample scene: ED real garment patient three-quarter view" style="width: 100%; display: block;">
-              <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">UI-XR sample: ed_chest_pain patient real garment (three-quarter) — same runtime load with gown handling and visual evidence surfaces.</figcaption>
-            </figure>
+      <section id="see-it" class="band" aria-labelledby="see-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="see-title">WebXR sample: ED patient, phenotype-driven gown.</h2>
+        </div>
+        <p class="status-copy">
+          Captured from the UI-XR sample scene (ED chest-pain case, real-garment patient path).
+          These are runtime captures—not mockups. They show the factory path from case clothing layers into a live WebXR load.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/ed-real-garment-webxr-front.png"
+              alt="UI-XR front: ED real garment patient"
+              style="width: 100%; display: block;"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Front — UI-XR sample scene
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/ed-real-garment-webxr-three-quarter.png"
+              alt="UI-XR three-quarter: ED real garment patient"
+              style="width: 100%; display: block;"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Three-quarter — same runtime load
+            </figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note" style="margin-top: 16px;">
+          Inspection packet:
+          <a href="assets/ed-real-garment-webxr-inspection.json">ed-real-garment-webxr-inspection.json</a>.
+          Deeper factory reports live under
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr</a>
+          and Model Vetting cagematch outputs in the repo.
+        </p>
+      </section>
+
+      <section id="roadmap" class="band band--evidence" aria-labelledby="roadmap-title">
+        <div class="section-heading">
+          <p class="eyebrow">Roadmap · from the queue only</p>
+          <h2 id="roadmap-title">What’s next is what’s queued—not a product brochure.</h2>
+        </div>
+        <p class="status-copy">
+          These items come from the current project ledger. Dates are not SLAs. Nothing here promises production deployment,
+          headset certification, or clinical validation.
+        </p>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Next up (dequeue)</h3>
+            <ul>
+              <li>
+                <strong>Wire API durableStore consumer</strong> —
+                connect the new runtime durable hooks to persistence/API sinks so review packets and actor turns can land beyond local CLI artifacts.
+              </li>
+              <li>
+                <strong>Authoring follow-through</strong> —
+                keep the scenario bank → runtime emission → admin replay path honest with real turns (not seed-only panels).
+              </li>
+            </ul>
           </div>
-          <p style="margin-top: 12px; font-size: 0.85rem;">
-            <a href="assets/ed-real-garment-webxr-inspection.json" target="_blank">View full ui-xr-ed-seed-inspection.json</a> (confirms ed_anny_real_garment_patient traverse exercised cyan/frustumCulled=false/openClinXrSleeveDeformEvidence/garmentGeometry + promotion + ed bay + real garment loaded).
-            To run live: start <code>pnpm --filter ui-xr dev</code>, load with <code>?openclinxrScenarioId=ed_chest_pain_priority_v2&humanoidSourceComparator=ed_anny_real_garment_patient&capture=mouth-gaze-pose-body-motion-garment-sleeve-deform</code> (once ED glb in current/ for full demo).
-          </p>
+          <div class="progress-card">
+            <h3>Active product tracks</h3>
+            <ul>
+              <li>Peds evidence / adaptive dialogue loops in UI-XR when the next visible slice is selected.</li>
+              <li>ED / multi-role garment realism continuation only where dual Model Vetting + UI-XR evidence stays visible.</li>
+              <li>Faculty review and replay surfaces for authored encounters (gates remain review-only).</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Operating hygiene (ongoing)</h3>
+            <ul>
+              <li>Weekly temporal reviews (e.g. Turbo version posture, Grok/DeepSeek token cost rates).</li>
+              <li>Docs warehouse freeze when thresholds hit—not after every task.</li>
+              <li>Task cost rollups on slice finish for subagent × model estimates.</li>
+            </ul>
+          </div>
         </div>
-      </section>
-
-      <section id="evidence-gates" class="band band--evidence" aria-labelledby="evidence-title">
-        <div class="section-heading">
-          <p class="eyebrow">Evidence gates</p>
-          <h2 id="evidence-title">Every capability carries its own proof boundary.</h2>
-        </div>
-        <div class="evidence-list">
-          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/asset-generation-pipeline.md">
-            Automated asset generation pipeline
-          </a>
-          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/local-ai-voice-model-strategy.md">
-            Local AI voice model strategy
-          </a>
-          <a href="https://github.com/simnova/OpenClinXR/blob/main/AGENTS.md">
-            AGENTS.md (OpenClaw + Hyper Token-Efficient Practices)
-          </a>
-          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/openclaw-runbook-2026-05-27.md">
-            OpenClaw Runbook (Token/Long-Run Hyper-Opt Rules)
-          </a>
-        </div>
-        <p class="evidence-note">
-          Full evidence + current snapshots (UI-XR consumer, peds materialization, 05-28) in <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr/</a>.
-          Run <code>pnpm pages:sync-evidence-links</code> and <code>pnpm pages:validate</code> to keep snapshots current. Rehydrate via snapshots in state files.
+        <p class="progress-note">
+          Queue source: <code>PROJECT_STATUS.md</code> (Next dequeue + Active Work).
+          If the ledger changes, this section should change with it—or stay quiet.
         </p>
       </section>
 
-      <!-- Architecture Decisions Section -->
-      <section id="deployment" class="band" aria-labelledby="architecture-title">
+      <section id="deployment" class="band" aria-labelledby="deployment-title">
         <div class="section-heading">
-          <p class="eyebrow">Deployment modes</p>
-          <h2 id="architecture-title">Local/offline first, connected when useful, Azure-ready for the production app surface.</h2>
+          <p class="eyebrow">Deployment posture</p>
+          <h2 id="deployment-title">Local-first by default.</h2>
         </div>
-        <p>
-          Local/offline mode is the default development and validation path, using deterministic providers and preconfigured assets wherever possible.
-          Connected mode can use approved provider/API adapters behind explicit gates. Azure is a target for API, orchestration, review, and deployment surfaces,
-          while heavy local generation and capability cage matches stay separate until promoted.
+        <p class="status-copy">
+          Development and validation run locally with deterministic providers and preconfigured assets where possible.
+          Connected adapters exist behind explicit gates. Azure is a long-term home for API, orchestration, and admin surfaces—
+          not a claim that production is live today.
         </p>
         <div class="actions" style="margin-top: 24px;">
-          <a class="button button--primary" href="https://github.com/simnova/OpenClinXR/tree/main/docs/madr" target="_blank" rel="noopener">
-            Browse MADRs (docs/madr)
-          </a>
-          <a class="button" href="AGENTS.md">Build Operating Model</a>
+          <a class="button button--primary" href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">Repository</a>
+          <a class="button" href="https://github.com/simnova/OpenClinXR/blob/main/AGENTS.md">Build operating contract</a>
+          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/docs/madr">Architecture decisions</a>
         </div>
-        <p class="muted" style="margin-top: 12px; font-size: 0.9rem;">
-          Current: blueprint factory (case-def drives runtime/review/persist/assets). See snapshots in PROJECT/AUTONOMOUS/worker-backlog for active lanes.
-        </p>
       </section>
 
-      <!-- Agent System Section -->
       <section id="agents" class="band band--evidence" aria-labelledby="agents-title">
         <div class="section-heading">
-          <p class="eyebrow">How we build it</p>
-          <h2 id="agents-title">OpenClaw-style agentic execution keeps the product direction from drifting.</h2>
+          <p class="eyebrow">Build model</p>
+          <h2 id="agents-title">Disciplined multi-agent execution—not vibes.</h2>
         </div>
-        <p>
-          Repo-native OpenClaw is the build operating model, not an external daemon and not the product itself. It supports long-running, token-efficient autonomous work.
-          Persistent indexed memory in <code>agents/**</code> + <code>.agent-factory/</code>. Snapshots + Efficiency Quick Refs in state files for low-token rehydration. Lease, drift/alignment guards, focused verification. Full iteration loop reserved for plateau/synthesis.
-          Live subagents or local role consultation. Always record in canonical state only.
+        <p class="status-copy">
+          The repo runs an OpenClaw-<em>style</em> operating model: role charters, path scopes, leases, drift guards, and slice records.
+          That keeps long autonomous work from inventing features outside the blueprint-factory mission.
+          It is how we build OpenClinXR—not a separate product you install.
         </p>
-        <div class="actions" style="margin-top: 24px;">
-          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/agents" target="_blank" rel="noopener">
-            Explore Agent Personas (charters + memory)
-          </a>
-          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/.agent-factory" target="_blank" rel="noopener">
-            View Generated Reports
-          </a>
-          <a class="button" href="AGENTS.md">AGENTS.md (Full Contract + Hyper-Opt)</a>
-        </div>
       </section>
 
-      <section class="band" aria-labelledby="evidence-snapshots-title">
+      <section id="evidence-docs" class="band" aria-labelledby="evidence-docs-title">
         <div class="section-heading">
-          <p class="eyebrow">Live snapshots</p>
-          <h2 id="evidence-snapshots-title">Current evidence posts (including 05-28 peds/UI-XR consumer) are committed under one folder.</h2>
+          <p class="eyebrow">Evidence Docs</p>
+          <h2 id="evidence-docs-title">Deeper artifacts stay in the repository.</h2>
         </div>
+        <p class="status-copy">
+          Marketing pages should not replace the ledger. The following links are committed factory and evidence posts for operators and auditors.
+        </p>
         <div class="evidence-list">
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">
+            Evidence Docs folder
+          </a>
           <a
             data-pages-snapshot="asset-production-evidence-ladder"
             href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-2026-05-28.json"
           >
-            Materialization evidence attachments (05-28 peds)
+            Materialization evidence attachments (peds)
           </a>
           <a
             data-pages-snapshot="asset-production-artifact-evidence"
             href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json"
           >
-            Asset generation worker (05-28 peds)
+            Asset generation worker (peds)
           </a>
           <a
             data-pages-snapshot="asset-production-readiness-benchmark"
             href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"
           >
-            Local launch selection (05-28 peds)
+            Local launch selection (peds)
           </a>
           <a
             data-pages-snapshot="github-pages-site"
             href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json"
           >
-            Runtime evidence capture scaffold (05-28 peds)
+            Runtime evidence capture scaffold (peds)
           </a>
         </div>
-        <p class="evidence-note">
-          Current evidence in docs/openclinxr/ (05-28 peds/UI-XR). Active in root snapshots + Efficiency Quick Ref. Run <code>pnpm pages:sync-evidence-links && pnpm pages:validate</code>.
-        </p>
-      </section>
-
-      <section class="band" aria-labelledby="status-title">
-        <div class="section-heading">
-          <p class="eyebrow">Current posture</p>
-          <h2 id="status-title">Early product and factory tooling, deliberately gated and honest about current proof.</h2>
-        </div>
-        <p class="status-copy">
-          Current (per snapshots): UI-XR consumer (operator-selectable to guarded + projections) + materialization for peds_asthma_parent_anxiety_v1 and an ED seed.
-          All gates false; raw hidden; M1 Max 64GB target; Quest evidence requires a disconnected-headset re-run. No overclaims and no exam-equivalence or clinical-validity claim.
-        </p>
       </section>
     </main>
 
-    <!-- Footer -->
     <footer class="site-footer">
       <div class="footer-inner">
         <p>
-          OpenClinXR • Step 2 CS-inspired XR clinical skills exam platform and evidence-gated encounter factory<br>
-          <small>Current (per snapshots): UI-XR consumer + materialization (peds/ED). Gates false. Local-first, connected/Azure-capable. See AGENTS.md for the build operating model.</small>
+          OpenClinXR · XR clinical skills encounters · evidence-gated factory<br>
+          <small>
+            Snapshot page for humans. Status ledger in-repo. No exam-equivalence or clinical-validity claim.
+            Local-first; connected/Azure-capable when approved.
+          </small>
         </p>
         <div class="footer-links">
           <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
-          <a href="AGENTS.md">Build Operating Model</a>
-          <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">Evidence + Snapshots (05-28)</a>
+          <a href="#now">Current state</a>
+          <a href="#roadmap">Roadmap</a>
           <a href="https://github.com/simnova/OpenClinXR/issues" target="_blank" rel="noopener">Issues</a>
         </div>
       </div>

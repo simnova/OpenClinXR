@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** `implementation-authoring-follow-on-v1` (Q1+Q4) under product-under-os-v1 scorecard (pathScope + worktree + token + no main IC).
+**Active slice:** website-marketing-state-roadmap-v1 closed; product next remains wire-api-durableStore-consumer-v1.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| website-marketing-state-roadmap-v1 | execute+verify | verify ok — public site rewrite (now/roadmap/evidence); pages:validate green; cost ritual sample |
 | implementation-authoring-follow-on-v1 | execute+verify | **verify ok + PROGRESS** product-under-os-v1 (Q1+Q4) — durableStore + roundtrip CLI; isolation+promote+pathScope+token; scorecard PROGRESS |
 | warehouse-wiki-cruft-audit-v1 | execute+verify | verify ok (Q5) — wiki-style docs/_archive; freeze cruft-audit 17 files; multi-area manifests; 15 archive tests |
 | pmo-temporal-unattended-v1 | execute+verify | verify ok (Q5) — dual-stack pmo (roster 17); SessionStart --auto-run force hygiene; DOC-HYGIENE-CADENCE+RACI owner pmo; 115 agent-loop + hygiene tests |
@@ -91,6 +92,18 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-02 website-marketing-state-roadmap-v1 (Q5 visibility)
+
+Product path advanced: Rewrote public GitHub Pages site for humans—marketing clarity without AI-slop jargon walls. Sections: platform, current state (Aug 2026), runtime evidence (ED gown captures), **roadmap from PROJECT_STATUS queue only** (no invented promises), local-first posture. Restored validator anchors (title, hero asset, Evidence Docs + pages-snapshot links).
+
+Blueprint/factory tie: Q5 visibility / noticeability for external viewers; skeptic-safe claim control.
+
+Touched files: docs/index.html; PROJECT_STATUS.md.
+
+Evidence: `pnpm pages:validate` green. Token introspection: aligned; tier: pro; … Cost line: Task cost: $0.00 est; subagents=0 (solo integrate; no child spawns this window)—proves windowed rollup; ad-hoc full history still via `pnpm openclaw:task-cost`.
+
+Next queued slice: wire-api-durableStore-consumer-v1 (Q4).
 
 ### 2026-08-02 temporal-review-grok-tokens-weekly (Q5)
 
