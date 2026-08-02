@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CLI_LATEST_FIXTURE_URL,
@@ -17,6 +17,7 @@ describe("EmissionReplayBindPanel", () => {
   });
 
   it("renders embedded sample with turnSource badge, actorTurnRefs, timeline, and claim boundary", () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("fetch not available")));
     render(<EmissionReplayBindPanel />);
 
     const panel = screen.getByLabelText("Runtime emission admin replay bind");
@@ -117,7 +118,7 @@ describe("EmissionReplayBindPanel", () => {
     }
   });
 
-  it("Load CLI latest fetches fixture, shows stationRunId from CLI artifact, and source=cli_latest_fixture", async () => {
+  it("auto-loads CLI latest on mount when no projection prop, source=cli_latest_fixture", async () => {
     const cliFixture: AdminReplayFromEmissionV1 = {
       ...SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
       stationRunId: "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
@@ -139,12 +140,8 @@ describe("EmissionReplayBindPanel", () => {
     render(<EmissionReplayBindPanel />);
 
     const panel = screen.getByLabelText("Runtime emission admin replay bind");
-    expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
-      "source=embedded_sample",
-    );
 
-    fireEvent.click(within(panel).getByRole("button", { name: "Load CLI latest" }));
-
+    // Auto-load fires on mount — fetch called with fixture URL
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(CLI_LATEST_FIXTURE_URL);
     });
@@ -170,6 +167,29 @@ describe("EmissionReplayBindPanel", () => {
     const notEvidence = within(panel).getByLabelText("Emission replay not evidence for");
     expect(notEvidence).toHaveTextContent("clinical_validity");
     expect(notEvidence).toHaveTextContent("scoring_validity");
+  });
+
+  it("falls back to embedded_sample when auto-load fetch fails on mount", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error("Network unavailable"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<EmissionReplayBindPanel />);
+
+    const panel = screen.getByLabelText("Runtime emission admin replay bind");
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(CLI_LATEST_FIXTURE_URL);
+    });
+
+    // Source badge stays embedded_sample after failed auto-load
+    expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
+      "source=embedded_sample",
+    );
+
+    // Error alert is shown
+    expect(within(panel).getByLabelText("Emission projection load error")).toHaveTextContent(
+      "Network unavailable",
+    );
   });
 
   it("parseAdminReplayFromEmissionV1 accepts valid v1 and rejects seeds-only or wrong schema", () => {

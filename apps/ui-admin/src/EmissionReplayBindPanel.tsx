@@ -1,6 +1,6 @@
 import { Alert, Button, Space, Tag, Typography } from "antd";
 import type { ChangeEvent, ReactElement } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Admin UI bind surface for `openclinxr.admin-replay-from-emission.v1`
@@ -172,9 +172,11 @@ export function parseAdminReplayFromEmissionV1(value: unknown): AdminReplayFromE
 }
 
 export function EmissionReplayBindPanel({
-  projection: initialProjection = SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
+  projection: controlledProjection,
 }: EmissionReplayBindPanelProps): ReactElement {
-  const [projection, setProjection] = useState<AdminReplayFromEmissionV1>(initialProjection);
+  const [projection, setProjection] = useState<AdminReplayFromEmissionV1>(
+    controlledProjection ?? SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
+  );
   const [source, setSource] = useState<EmissionReplayProjectionSource>("embedded_sample");
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadingCli, setLoadingCli] = useState(false);
@@ -199,6 +201,13 @@ export function EmissionReplayBindPanel({
       setLoadingCli(false);
     }
   }
+
+  useEffect(() => {
+    if (controlledProjection === undefined) {
+      void loadCliLatest();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function onUserFileSelected(event: ChangeEvent<HTMLInputElement>): void {
     const file = event.target.files?.[0];
