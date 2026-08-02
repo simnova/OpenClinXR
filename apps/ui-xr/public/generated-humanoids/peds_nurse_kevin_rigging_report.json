@@ -2,14 +2,12 @@
   "ok": true,
   "schemaVersion": "openclinxr.generated-humanoid-realism-manifest.v1",
   "canonicalSkeleton": {
-    "boneCount": 52,
+    "boneCount": 23,
     "root": "pelvis",
-    "hasTwistBones": true,
-    "fingersPerHand": 5,
-    "twistNames": [
-      "upper_arm_twist",
-      "forearm_twist"
-    ]
+    "hasTwistBones": false,
+    "fingersPerHand": 0,
+    "twistNames": [],
+    "claimScope": "minimal_canonical_body_armature_for_local_candidate_motion_probe_not_production_rig"
   },
   "morphTargets": {
     "count": 25,
@@ -138,6 +136,156 @@
       "scoring_validity"
     ]
   },
+  "bodyRigDiagnostics": {
+    "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
+    "coordinateBasis": "blender_mesh_local_y_height_exported_y_up_glb",
+    "armatureName": "openclinxr_canonical_humanoid_armature",
+    "boneNames": [
+      "pelvis",
+      "spine",
+      "chest",
+      "neck",
+      "head",
+      "eye.L",
+      "eye.R",
+      "clavicle.L",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "index_finger_base.L",
+      "clavicle.R",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "index_finger_base.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ],
+    "boneCount": 23,
+    "vertexCount": 13348,
+    "unweightedVertexCount": 0,
+    "weightedVertexCount": 13348,
+    "weightedVertexCountsByBone": {
+      "pelvis": 532,
+      "spine": 1094,
+      "chest": 5527,
+      "neck": 5814,
+      "head": 4491,
+      "eye.L": 1441,
+      "eye.R": 535,
+      "clavicle.L": 550,
+      "upper_arm.L": 1821,
+      "forearm.L": 0,
+      "hand.L": 0,
+      "index_finger_base.L": 0,
+      "clavicle.R": 550,
+      "upper_arm.R": 1821,
+      "forearm.R": 0,
+      "hand.R": 0,
+      "index_finger_base.R": 0,
+      "thigh.L": 236,
+      "shin.L": 1399,
+      "foot.L": 1163,
+      "thigh.R": 236,
+      "shin.R": 1399,
+      "foot.R": 1163
+    },
+    "dominantVertexCountsByBone": {
+      "pelvis": 532,
+      "spine": 562,
+      "chest": 1323,
+      "neck": 0,
+      "head": 4491,
+      "eye.L": 0,
+      "eye.R": 0,
+      "clavicle.L": 0,
+      "upper_arm.L": 1821,
+      "forearm.L": 0,
+      "hand.L": 0,
+      "index_finger_base.L": 0,
+      "clavicle.R": 0,
+      "upper_arm.R": 1821,
+      "forearm.R": 0,
+      "hand.R": 0,
+      "index_finger_base.R": 0,
+      "thigh.L": 236,
+      "shin.L": 1163,
+      "foot.L": 0,
+      "thigh.R": 236,
+      "shin.R": 1163,
+      "foot.R": 0
+    },
+    "leftRightSymmetry": [
+      {
+        "leftBone": "upper_arm.L",
+        "rightBone": "upper_arm.R",
+        "leftDominantVertexCount": 1821,
+        "rightDominantVertexCount": 1821,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "forearm.L",
+        "rightBone": "forearm.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "hand.L",
+        "rightBone": "hand.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "thigh.L",
+        "rightBone": "thigh.R",
+        "leftDominantVertexCount": 236,
+        "rightDominantVertexCount": 236,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "shin.L",
+        "rightBone": "shin.R",
+        "leftDominantVertexCount": 1163,
+        "rightDominantVertexCount": 1163,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "foot.L",
+        "rightBone": "foot.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      }
+    ],
+    "shoulderTorsoArmBleedVertexCount": 3642,
+    "pelvisSpineChestSplitVertexCounts": {
+      "pelvis": 532,
+      "spine": 1094,
+      "chest": 5527
+    },
+    "poseProbe": {
+      "actorRole": "nurse",
+      "bodyMotionProbeClipName": "openclinxr_role_nurse_clinical_check_reassure",
+      "animatedClipCount": 5,
+      "probeScope": "report_side_body_rig_coverage_and_clip_selection_not_mocap_or_quality_grade"
+    },
+    "claimScope": "deterministic_body_rig_skinning_diagnostics_not_deformation_quality_or_readiness",
+    "notEvidenceFor": [
+      "motion_capture_quality",
+      "speech2motion_quality",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
   "roleVisualMarkers": {
     "status": "abandoned_rejected_experiment",
     "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
@@ -157,14 +305,113 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+    "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
     "topMaterialName": "openclinxr_role_mesh_clothing_nurse_top",
     "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
-    "topFaceCount": 2152,
-    "lowerFaceCount": 744,
+    "trimMaterialName": "openclinxr_role_mesh_clothing_nurse_soft_trim",
+    "topFaceCount": 1530,
+    "lowerFaceCount": 684,
+    "trimFaceCount": 288,
+    "skippedBackFaceCount": 0,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "realGarmentRegion": {
+      "mode": "phenotype_embedded_real_garment_region_v1",
+      "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1",
+      "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+      "faceCount": 324,
+      "hasSleeveGeometry": true,
+      "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
+      "sleeveLenFactor": 0.28,
+      "sleeveRows": 7,
+      "sleeveCols": 12,
+      "sleeveRFactor": 0.42,
+      "hasProminentSleeves": true,
+      "hasExpandedVolumeDetail": true,
+      "weightedBones": [
+        "clavicle.L",
+        "clavicle.R",
+        "upper_arm.L",
+        "upper_arm.R",
+        "chest",
+        "spine",
+        "neck"
+      ],
+      "deformsWithBreathing": true,
+      "hasVisibleVolume": true,
+      "hasSeamFoldHints": true,
+      "garmentLayers": [
+        "scrub_top",
+        "scrub_pocket"
+      ],
+      "role": "nurse",
+      "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity"
+      ],
+      "evidenceForThisSlice": "ed-gown-geo-reorchestrate"
+    }
+  },
+  "garmentSourceGeometryHint": null,
+  "realGarmentRegionFromPhenotype": {
+    "mode": "phenotype_embedded_real_garment_region_v1",
+    "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1",
+    "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+    "faceCount": 324,
+    "hasSleeveGeometry": true,
+    "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
+    "sleeveLenFactor": 0.28,
+    "sleeveRows": 7,
+    "sleeveCols": 12,
+    "sleeveRFactor": 0.42,
+    "hasProminentSleeves": true,
+    "hasExpandedVolumeDetail": true,
+    "weightedBones": [
+      "clavicle.L",
+      "clavicle.R",
+      "upper_arm.L",
+      "upper_arm.R",
+      "chest",
+      "spine",
+      "neck"
+    ],
+    "deformsWithBreathing": true,
+    "hasVisibleVolume": true,
+    "hasSeamFoldHints": true,
+    "garmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "role": "nurse",
+    "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "evidenceForThisSlice": "ed-gown-geo-reorchestrate"
+  },
+  "scalpHairMaterialRegion": {
+    "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
+    "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+    "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+    "hairColor": "black",
+    "scalpFaceCount": 3022,
+    "crownFaceCount": 1680,
+    "skippedFaceFrontFaceCount": 0,
+    "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
       "clinical_validity",
       "scoring_validity"
     ]
@@ -219,217 +466,8 @@
   "morphTargetDiagnostics": {
     "defaultWeightThreshold": 0.001,
     "extremeDeltaThreshold": 0.05,
-    "nonzeroDefaultWeights": [
-      {
-        "name": "viseme_silence",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_AA",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_E",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_IH",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_OH",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_OU",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_FV",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_L",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "viseme_TH",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "openclinxr_mouth_open",
-        "defaultValue": 0.1
-      },
-      {
-        "name": "openclinxr_brow_concern",
-        "defaultValue": 0.045
-      },
-      {
-        "name": "openclinxr_cheek_tension",
-        "defaultValue": 0.045
-      },
-      {
-        "name": "brow_raise",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "brow_furrow",
-        "defaultValue": 0.156
-      },
-      {
-        "name": "eye_squint",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "smile",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "frown",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "concern",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "pain",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "anxious",
-        "defaultValue": 0.18
-      },
-      {
-        "name": "jaw_open",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "gaze_yaw",
-        "defaultValue": 1.0
-      },
-      {
-        "name": "gaze_pitch",
-        "defaultValue": 1.0
-      }
-    ],
-    "extremeMorphDeltas": [
-      {
-        "name": "viseme_E",
-        "maxDelta": 0.088011,
-        "maxAxisDelta": 0.088
-      },
-      {
-        "name": "viseme_IH",
-        "maxDelta": 0.176023,
-        "maxAxisDelta": 0.176
-      },
-      {
-        "name": "viseme_OH",
-        "maxDelta": 0.352046,
-        "maxAxisDelta": 0.351999
-      },
-      {
-        "name": "viseme_OU",
-        "maxDelta": 0.704113,
-        "maxAxisDelta": 0.703999
-      },
-      {
-        "name": "viseme_FV",
-        "maxDelta": 1.408204,
-        "maxAxisDelta": 1.407997
-      },
-      {
-        "name": "viseme_L",
-        "maxDelta": 2.816408,
-        "maxAxisDelta": 2.815995
-      },
-      {
-        "name": "viseme_TH",
-        "maxDelta": 5.632816,
-        "maxAxisDelta": 5.631989
-      },
-      {
-        "name": "openclinxr_mouth_open",
-        "maxDelta": 11.265632,
-        "maxAxisDelta": 11.263979
-      },
-      {
-        "name": "openclinxr_brow_concern",
-        "maxDelta": 22.509272,
-        "maxAxisDelta": 22.505959
-      },
-      {
-        "name": "openclinxr_cheek_tension",
-        "maxDelta": 45.018934,
-        "maxAxisDelta": 45.011917
-      },
-      {
-        "name": "brow_raise",
-        "maxDelta": 90.037473,
-        "maxAxisDelta": 90.023834
-      },
-      {
-        "name": "brow_furrow",
-        "maxDelta": 180.074964,
-        "maxAxisDelta": 180.047684
-      },
-      {
-        "name": "eye_blink_l",
-        "maxDelta": 360.149919,
-        "maxAxisDelta": 360.095367
-      },
-      {
-        "name": "eye_blink_r",
-        "maxDelta": 720.299904,
-        "maxAxisDelta": 720.190796
-      },
-      {
-        "name": "eye_squint",
-        "maxDelta": 1440.599808,
-        "maxAxisDelta": 1440.381592
-      },
-      {
-        "name": "smile",
-        "maxDelta": 2881.206734,
-        "maxAxisDelta": 2880.770264
-      },
-      {
-        "name": "frown",
-        "maxDelta": 5762.402187,
-        "maxAxisDelta": 5761.529297
-      },
-      {
-        "name": "concern",
-        "maxDelta": 11524.804375,
-        "maxAxisDelta": 11523.058594
-      },
-      {
-        "name": "pain",
-        "maxDelta": 23049.608749,
-        "maxAxisDelta": 23046.117188
-      },
-      {
-        "name": "anxious",
-        "maxDelta": 46099.217499,
-        "maxAxisDelta": 46092.234375
-      },
-      {
-        "name": "jaw_open",
-        "maxDelta": 92198.418339,
-        "maxAxisDelta": 92184.453125
-      },
-      {
-        "name": "gaze_yaw",
-        "maxDelta": 184396.8701,
-        "maxAxisDelta": 184368.9375
-      },
-      {
-        "name": "gaze_pitch",
-        "maxDelta": 368793.740098,
-        "maxAxisDelta": 368737.875
-      }
-    ],
+    "nonzeroDefaultWeights": [],
+    "extremeMorphDeltas": [],
     "claimScope": "morph_target_diagnostic_not_readiness",
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -448,8 +486,8 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-06-07T00:05:23.731150Z",
-    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
+    "generatedAt": "2026-08-02T16:53:36.080832Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,
   "realismGrade": "B",
@@ -480,7 +518,8 @@
       "name_badge",
       "scrub_pocket"
     ],
-    "fitProfile": "adult_clinical_team_fit"
+    "fitProfile": "adult_clinical_team_fit",
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
   },
   "sourceProvenance": {
     "generatorMode": "anny_compatible_stub_plus_blender_procedural",

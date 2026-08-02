@@ -25,12 +25,13 @@ Last updated: 2026-06-07
 
 **Program phase: PRODUCT ACTIVE (optimization CLOSED enough)** — BOD Option A 2026-08-02: land agent OS + one product-under-os scored slice. Context-opt Waves A–C, warehouse, PMO, wiki archive = **done enough**; no further OS waves unless measured failure.
 
-**Active slice:** ui-xr-parent-nurse-sleeve-deform-capture-v1 + admin-ui-emission-bind-v1 closed; Next = parent/nurse real-garment re-orchestrate (Q1 residual).
+**Active slice:** peds-parent-nurse-real-garment-reorchestrate-v1 closed (Q1); continue autonomy / optimize.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| peds-parent-nurse-real-garment-reorchestrate-v1 | execute+verify | **verify ok (Q1)** — parent/nurse GLBs 21–23MB with 324f realGarmentRegionFromPhenotype deformsWithBreathing; UI-XR re-capture cyan/sleeve fragments |
 | admin-ui-emission-bind-v1 | execute+verify | **verify ok (Q4)** — EmissionReplayBindPanel + App ReviewReplayWorkbench bind turnSource=runtime_emission_real_turns; pathScope IPL+ui-admin; 12 ui-admin tests; promote worktree |
 | ui-xr-parent-nurse-sleeve-deform-capture-v1 | execute+verify | **verify ok (Q5 tooling)** — capture CLI + patient-slot resolve + PNG≥100k; skeptic:invisible bare GLB residual → re-orchestrate Q1 |
 | ui-xr-parent-nurse-runtime-comparator-v1 | execute+verify | **verify ok (Q1)** — humanoidSourceComparator parent+nurse real garment; sleeveDeform/cyan/userData; 95 ui-xr tests |
@@ -69,13 +70,18 @@ Last updated: 2026-06-07
 | ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
 | ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
 
-**Next dequeue:** peds-parent-nurse-real-garment-reorchestrate-v1 (Q1) — phenotype.garmentLayers real garment for parent/nurse (bare GLB residual; dual MV + UI-XR capture skeptic:invisible); then re-capture sleeveDeform.
+**Next dequeue:** framing-polish-parent-nurse-garment-ui-xr-v1 (Q5 optional) or optimize/scorecard — product queue residual; prefer optimize if no P0 product hole.
 
 **OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
 
 **Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
 
 **Blockers:** none
+
+### 2026-08-02 — peds-parent-nurse-real-garment-reorchestrate-v1 (Q1) verify ok
+
+Product path advanced: Parent + nurse public humanoids re-embedded with phenotype.garmentLayers real garment topology (324-face sleeved mesh, deformsWithBreathing, clavicle/upper_arm weights) via Blender apply_role_clothing_material_regions on real-Anny bases; staged to apps/ui-xr/public/generated-humanoids. UI-XR re-capture shows cyan/pink sleeve fragments vs prior bare mannequin. Blueprint/factory tie: Q1 case phenotype.garmentLayers → generated actor clothing runtime. Touched: peds_anxious_parent.glb (21.5MB), peds_nurse_kevin.glb (23.1MB), rigging/provenance/bundle. Evidence: realGarmentRegionFromPhenotype faceCount=324; capture PNGs ~262kB; inventory under .openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/. Claim honesty: torso may still be occluded by teal board in default framing; not website-beauty full wardrobe. Token introspection: tier3 execution + compose integrate. Next: optimize or framing polish.
+
 
 
 

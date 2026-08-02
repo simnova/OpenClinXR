@@ -49,5 +49,46 @@
     "learner_readiness",
     "clinical_validity",
     "scoring_validity"
-  ]
+  ],
+  "realGarmentRegionFromPhenotype": {
+    "mode": "phenotype_embedded_real_garment_region_v1",
+    "revision": "embed_real_garment_from_phenotype_garmentLayers_ed_gown_geo_reorchestrate_v1",
+    "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+    "faceCount": 324,
+    "hasSleeveGeometry": true,
+    "sleeveCoverage": "torso+shoulder+prominent_upper_arm_rippled_folded_short_sleeve",
+    "sleeveLenFactor": 0.28,
+    "sleeveRows": 7,
+    "sleeveCols": 12,
+    "sleeveRFactor": 0.42,
+    "hasProminentSleeves": true,
+    "hasExpandedVolumeDetail": true,
+    "weightedBones": [
+      "clavicle.L",
+      "clavicle.R",
+      "upper_arm.L",
+      "upper_arm.R",
+      "chest",
+      "spine",
+      "neck"
+    ],
+    "deformsWithBreathing": true,
+    "hasVisibleVolume": true,
+    "hasSeamFoldHints": true,
+    "garmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "role": "nurse",
+    "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "evidenceForThisSlice": "ed-gown-geo-reorchestrate"
+  },
+  "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+  "realismGrade": "B"
 }

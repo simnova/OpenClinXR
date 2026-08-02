@@ -1,0 +1,86 @@
+{
+  "schema": "openclinxr.evidence-inventory.v1",
+  "slice": "peds-parent-nurse-real-garment-reorchestrate-v1",
+  "generatedAt": "2026-08-02T16:53:56.276919+00:00",
+  "method": "blender_stage_on_existing_real_anny_base_obj (anny package ModuleNotFoundError in worktree python3.13; reused public 13348-vert real_anny OBJs)",
+  "case_id": "peds_asthma_parent_anxiety_v1",
+  "presets": [
+    "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1",
+    "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1"
+  ],
+  "items": [
+    {
+      "role": "peds_anxious_parent",
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "bytes": 21532396,
+      "sha256": "e3a76fd616be687ab7af7f97c490d39901fa8f229735f2ae26f6cc448762bfaf",
+      "realGarmentRegionFromPhenotype": {
+        "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
+        "faceCount": 324,
+        "deformsWithBreathing": true,
+        "garmentLayers": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "hasSleeveGeometry": true,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production"
+      },
+      "realismGrade": "B"
+    },
+    {
+      "role": "peds_nurse_kevin",
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "bytes": 23119544,
+      "sha256": "cd4bd2dd745de40b4386bc41fc6187cef88c89660664e3c1a3380705d3025dae",
+      "realGarmentRegionFromPhenotype": {
+        "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+        "faceCount": 324,
+        "deformsWithBreathing": true,
+        "garmentLayers": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "hasSleeveGeometry": true,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity"
+        ],
+        "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production"
+      },
+      "realismGrade": "B"
+    }
+  ],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "b_plus_visual_realism_gate",
+    "clinical_validity",
+    "scoring_validity",
+    "quest_readiness"
+  ]
+}
