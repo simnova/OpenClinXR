@@ -1,10 +1,16 @@
-import { Tag, Typography } from "antd";
-import type { ReactElement } from "react";
+import { Alert, Button, Space, Tag, Typography } from "antd";
+import type { ChangeEvent, ReactElement } from "react";
+import { useState } from "react";
 
 /**
  * Admin UI bind surface for `openclinxr.admin-replay-from-emission.v1`
  * (from `pnpm encounter:admin-replay-from-emission` / mapEmissionToAdminReplayProps).
  * Real turns only — not seeds-only. No clinical/scoring/Quest/production claims.
+ *
+ * Projection sources:
+ * - embedded_sample: in-module SAMPLE (default)
+ * - cli_latest_fixture: static Vite asset from public/fixtures (CLI latest snapshot)
+ * - user_file: client-side .json file pick
  */
 
 export type EmissionReplayTimelineEntry = {
@@ -54,6 +60,15 @@ export type AdminReplayFromEmissionV1 = {
     "production_readiness",
   ];
 };
+
+/** Active projection origin for faculty-facing source badge. */
+export type EmissionReplayProjectionSource =
+  | "embedded_sample"
+  | "cli_latest_fixture"
+  | "user_file";
+
+/** Static Vite asset path for CLI `admin-replay-from-emission-latest.json` snapshot. */
+export const CLI_LATEST_FIXTURE_URL = "/fixtures/admin-replay-from-emission-latest.json";
 
 /** Sample projection aligned with tools/openclinxr/admin-replay-from-emission.test.ts (mapEmissionToAdminReplayProjection). */
 export const SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1: AdminReplayFromEmissionV1 = {
@@ -157,9 +172,57 @@ export function parseAdminReplayFromEmissionV1(value: unknown): AdminReplayFromE
 }
 
 export function EmissionReplayBindPanel({
-  projection = SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
+  projection: initialProjection = SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
 }: EmissionReplayBindPanelProps): ReactElement {
+  const [projection, setProjection] = useState<AdminReplayFromEmissionV1>(initialProjection);
+  const [source, setSource] = useState<EmissionReplayProjectionSource>("embedded_sample");
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadingCli, setLoadingCli] = useState(false);
+
   const safe = parseAdminReplayFromEmissionV1(projection);
+
+  async function loadCliLatest(): Promise<void> {
+    setLoadingCli(true);
+    setLoadError(null);
+    try {
+      const response = await fetch(CLI_LATEST_FIXTURE_URL);
+      if (!response.ok) {
+        throw new Error(`Failed to load CLI latest fixture (HTTP ${response.status})`);
+      }
+      const json: unknown = await response.json();
+      const parsed = parseAdminReplayFromEmissionV1(json);
+      setProjection(parsed);
+      setSource("cli_latest_fixture");
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLoadingCli(false);
+    }
+  }
+
+  function onUserFileSelected(event: ChangeEvent<HTMLInputElement>): void {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    setLoadError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = String(reader.result ?? "");
+        const json: unknown = JSON.parse(text);
+        const parsed = parseAdminReplayFromEmissionV1(json);
+        setProjection(parsed);
+        setSource("user_file");
+      } catch (error) {
+        setLoadError(error instanceof Error ? error.message : String(error));
+      }
+    };
+    reader.onerror = () => {
+      setLoadError(`Failed to read file: ${file.name}`);
+    };
+    reader.readAsText(file);
+  }
 
   return (
     <section className="workbench-panel" aria-label="Runtime emission admin replay bind">
@@ -168,9 +231,14 @@ export function EmissionReplayBindPanel({
           <Typography.Text className="eyebrow">Runtime emission → faculty replay (Q4)</Typography.Text>
           <Typography.Title level={4}>Emission Replay Bind</Typography.Title>
         </div>
-        <Tag color="cyan" aria-label="Turn source badge">
-          turnSource={safe.turnSource}
-        </Tag>
+        <Space wrap>
+          <Tag color="cyan" aria-label="Turn source badge">
+            turnSource={safe.turnSource}
+          </Tag>
+          <Tag color="blue" aria-label="Projection source badge">
+            source={source}
+          </Tag>
+        </Space>
       </div>
       <Typography.Paragraph>
         Faculty review surface bound to real actor turns from{" "}
@@ -183,6 +251,40 @@ export function EmissionReplayBindPanel({
         Local review/replay projection only; this does not establish clinical validity, scoring validity,
         Quest readiness, or production readiness.
       </Typography.Paragraph>
+
+      <Space wrap style={{ marginBottom: 12 }} aria-label="Emission projection load controls">
+        <Button
+          type="primary"
+          loading={loadingCli}
+          onClick={() => {
+            void loadCliLatest();
+          }}
+          aria-label="Load CLI latest"
+        >
+          Load CLI latest
+        </Button>
+        <label>
+          <Typography.Text type="secondary" style={{ marginRight: 8 }}>
+            Load projection file
+          </Typography.Text>
+          <input
+            type="file"
+            accept="application/json,.json"
+            aria-label="Load projection JSON file"
+            onChange={onUserFileSelected}
+          />
+        </label>
+      </Space>
+      {loadError ? (
+        <Alert
+          type="error"
+          showIcon
+          message="Projection load failed"
+          description={loadError}
+          aria-label="Emission projection load error"
+          style={{ marginBottom: 12 }}
+        />
+      ) : null}
 
       <div className="readiness-strip review-replay-strip" aria-label="Emission replay summary metrics">
         <EmissionReplayMetric
@@ -274,5 +376,11 @@ function EmissionReplayMetric({ label, detail }: { label: string; detail: string
 }
 
 function pluralize(count: number, noun: string): string {
-  return count === 1 ? noun : `${noun}s`;
+  if (count === 1) {
+    return noun;
+  }
+  if (noun === "entry") {
+    return "entries";
+  }
+  return `${noun}s`;
 }

@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  CLI_LATEST_FIXTURE_URL,
   EmissionReplayBindPanel,
   parseAdminReplayFromEmissionV1,
   SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
@@ -11,6 +12,8 @@ import {
 describe("EmissionReplayBindPanel", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("renders embedded sample with turnSource badge, actorTurnRefs, timeline, and claim boundary", () => {
@@ -20,6 +23,9 @@ describe("EmissionReplayBindPanel", () => {
     expect(panel).toHaveTextContent("Emission Replay Bind");
     expect(within(panel).getByLabelText("Turn source badge")).toHaveTextContent(
       "turnSource=runtime_emission_real_turns",
+    );
+    expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
+      "source=embedded_sample",
     );
     expect(panel).toHaveTextContent("openclinxr.admin-replay-from-emission.v1");
     expect(panel).toHaveTextContent("ed_chest_pain_priority_v1");
@@ -93,6 +99,9 @@ describe("EmissionReplayBindPanel", () => {
     expect(within(panel).getByLabelText("Turn source badge")).toHaveTextContent(
       "runtime_emission_real_turns",
     );
+    expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
+      "source=embedded_sample",
+    );
     expect(panel).toHaveTextContent("peds_asthma_parent_anxiety_v1");
     expect(panel).toHaveTextContent("run_fixture_bind_001");
     expect(panel).toHaveTextContent("2 real actor turns");
@@ -106,6 +115,61 @@ describe("EmissionReplayBindPanel", () => {
     for (const item of fixture.notEvidenceFor) {
       expect(notEvidence).toHaveTextContent(item);
     }
+  });
+
+  it("Load CLI latest fetches fixture, shows stationRunId from CLI artifact, and source=cli_latest_fixture", async () => {
+    const cliFixture: AdminReplayFromEmissionV1 = {
+      ...SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1,
+      stationRunId: "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
+      actorTurnRefs: [
+        "actor_turn:run_ed_chest_pain_priority_v1_runtime_emission_learner_001:turn_1_patient_robert_hayes_v1_120",
+      ],
+      reviewPacket: {
+        ...SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1.reviewPacket,
+        stationRunId: "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
+      },
+    };
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => cliFixture,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<EmissionReplayBindPanel />);
+
+    const panel = screen.getByLabelText("Runtime emission admin replay bind");
+    expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
+      "source=embedded_sample",
+    );
+
+    fireEvent.click(within(panel).getByRole("button", { name: "Load CLI latest" }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(CLI_LATEST_FIXTURE_URL);
+    });
+
+    await waitFor(() => {
+      expect(within(panel).getByLabelText("Projection source badge")).toHaveTextContent(
+        "source=cli_latest_fixture",
+      );
+    });
+
+    expect(panel).toHaveTextContent(
+      "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
+    );
+    expect(within(panel).getByLabelText("Turn source badge")).toHaveTextContent(
+      "turnSource=runtime_emission_real_turns",
+    );
+    expect(within(panel).getByLabelText("Emission replay claim boundary")).toHaveTextContent(
+      "admin_replay_from_runtime_emission_not_clinical_validity",
+    );
+    expect(within(panel).getByLabelText("Emission private payload posture")).toHaveTextContent(
+      "privatePayloadRedacted=true",
+    );
+    const notEvidence = within(panel).getByLabelText("Emission replay not evidence for");
+    expect(notEvidence).toHaveTextContent("clinical_validity");
+    expect(notEvidence).toHaveTextContent("scoring_validity");
   });
 
   it("parseAdminReplayFromEmissionV1 accepts valid v1 and rejects seeds-only or wrong schema", () => {

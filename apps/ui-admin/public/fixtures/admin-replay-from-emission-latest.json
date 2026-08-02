@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "openclinxr.admin-replay-from-emission.v1",
+  "generatedAt": "2026-08-02T00:00:00.000Z",
+  "sourceEmissionPath": "/Volumes/files/src/openclinxr/.openclinxr/encounter-publication/encounter-runtime-emission-latest.json",
+  "sourceEmissionSchemaVersion": "openclinxr.encounter-runtime-emission.v1",
+  "stationRunId": "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "scenarioVersion": 1,
+  "phase": "review",
+  "learnerId": "runtime_emission_learner_001",
+  "actorTurnRefs": [
+    "actor_turn:run_ed_chest_pain_priority_v1_runtime_emission_learner_001:turn_1_patient_robert_hayes_v1_120"
+  ],
+  "actorTurnCount": 1,
+  "timeline": [
+    {
+      "sequence": 0,
+      "atSecond": 120,
+      "eventType": "learner.utterance",
+      "source": "learner",
+      "actorId": "patient_robert_hayes_v1",
+      "tag": "history_opqrst",
+      "summary": "Learner utterance: When did the chest pressure start?"
+    },
+    {
+      "sequence": 1,
+      "atSecond": 120,
+      "eventType": "actor.response.generated",
+      "source": "runtime_emission",
+      "actorId": "patient_robert_hayes_v1",
+      "tag": "history_opqrst",
+      "summary": "Actor response (spoken_actor_response): Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest"
+    }
+  ],
+  "timelineEntryCount": 2,
+  "traceEventTypes": [
+    "station.started",
+    "consent.accepted",
+    "encounter.started",
+    "learner.utterance",
+    "actor.response.generated",
+    "learner.order",
+    "encounter.ended",
+    "note.submitted"
+  ],
+  "reviewPacket": {
+    "stationRunId": "run_ed_chest_pain_priority_v1_runtime_emission_learner_001",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "eventCount": 8,
+    "observedTraceTags": [
+      "history_opqrst",
+      "ecg_request",
+      "patient_note_submitted"
+    ],
+    "missingRequiredTraceTags": [
+      "risk_factor_question",
+      "associated_symptom_question",
+      "vitals_review",
+      "urgent_escalation",
+      "team_communication",
+      "family_communication",
+      "empathy_statement"
+    ]
+  },
+  "privatePayloadRedacted": true,
+  "turnSource": "runtime_emission_real_turns",
+  "wiring": {
+    "input": "encounter-runtime-emission.v1",
+    "projection": "admin_replay_review_packet_summary",
+    "path": "loadEmission→mapActorTurns→writeAdminReplay"
+  },
+  "claimBoundary": "admin_replay_from_runtime_emission_not_clinical_validity",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "quest_readiness",
+    "production_readiness"
+  ]
+}
