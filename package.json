@@ -327,7 +327,8 @@
     "temporal:due": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts due",
     "temporal:queue": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts queue",
     "encounter:runtime-emission": "tsx tools/openclinxr/encounter-runtime-emission.ts",
-    "openclaw:task-cost": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts task-cost"
+    "openclaw:task-cost": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts task-cost",
+    "encounter:admin-replay-from-emission": "tsx tools/openclinxr/admin-replay-from-emission.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
