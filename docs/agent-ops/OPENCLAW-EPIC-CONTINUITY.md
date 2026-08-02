@@ -27,7 +27,8 @@ Single-slice `run-next` + chat turns false-halt multi-hour work. Epics bind **or
 | `slices[]` | Ordered sliceId + goal (+ optional templateId) |
 | `cursor` | Index of current slice |
 | `autonomy.mayCommit` / `mayPush` | Land policy for the run |
-| `stopConditions` | PAUSED, maxHours, maxEstimatedUsd, allLanesBlocked |
+| `stopConditions` | PAUSED, maxHours, maxEstimatedUsd, allLanesBlocked, **maxAgenticToilMinutesPerSlice** (default 60), maxExecuteRetriesPerSlice |
+| Thrash rule | **>1 hour of agentic (token-burning) toil on the same slice task** → stop, handoff, escalate or pivot. Long **scripted** work (tests, builds, captures, WASM installs) that is **not** burning model tokens does **not** count toward the hour. |
 
 ## Commands
 
@@ -74,6 +75,18 @@ rehydrate PROJECT_STATUS + ACTIVE epic
 | Push | Only if `mayPush` + explicit BOD (this kit default `mayPush: false`) |
 | Hooks red | Fix and retry; do not `OPENCLAW_SKIP_HOOKS` unless BOD emergency |
 | Dirty tree | Prefer finish promote / commit mid-slice over starting parallel epic |
+
+## Agentic thrash circuit-breaker (1 hour)
+
+**Sense:** “Are we still paying for model turns on the same stuck task?”
+
+| Counts toward 1h toil | Does **not** count |
+|----------------------|---------------------|
+| Subagent / Composer **model** work on same slice goal | `vitest` / `turbo` / install / long capture CLI with no model turns |
+| Re-planning, re-spawning, thrash fix loops | Waiting on human Quest headset |
+| Same adapter failing C6 after repeated agent edits | Background `pnpm` / WASM compile |
+
+**On trip:** set slice/epic `blocked` or advance only with explicit pivot handoff; record in `PROJECT_STATUS.md` + handoff; do **not** “one more hour.” Prefer eliminate candidate (physics epic) or escalate UNABLE.
 
 ## Path-scope note
 

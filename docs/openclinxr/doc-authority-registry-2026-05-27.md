@@ -12,8 +12,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 58
-- archive-candidate: 13
-- current-reference: 192
+- archive-candidate: 14
+- current-reference: 194
 - decision-record: 19
 - evidence: 31
 - historical-synthesis: 56
@@ -147,6 +147,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -220,6 +221,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/openclinxr/arena/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/multi-actor-state-spike/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/openclinxr/arena/physics-touch-contract/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `templates/decision-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/risk-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `templates/source-record.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -234,6 +236,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/generated-output-storage-policy-2026-06-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

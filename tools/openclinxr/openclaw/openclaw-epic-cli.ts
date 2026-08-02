@@ -40,6 +40,15 @@ export type EpicBrief = {
     maxHours?: number | null;
     maxEstimatedUsd?: number | null;
     allLanesBlocked: boolean;
+    /**
+     * Agentic thrash circuit-breaker (wall clock of *token-burning* agent work on the same slice task).
+     * Does NOT count long scripted builds/tests/captures that are not burning model tokens.
+     */
+    maxAgenticToilMinutesPerSlice?: number | null;
+    /** When true (default), pure CLI/script runtime without model turns does not trip thrash. */
+    excludeScriptedNonTokenWorkFromToil?: boolean;
+    /** Max failed execute cycles on same slice before blocked (default 2). */
+    maxExecuteRetriesPerSlice?: number | null;
   };
   autonomy: {
     mayCommit: boolean;

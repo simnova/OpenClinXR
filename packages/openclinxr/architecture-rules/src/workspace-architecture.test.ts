@@ -48,6 +48,7 @@ const capabilityArenaAppRoots = [
   "apps/arena/api-python-backend/",
   "apps/arena/model-vetting-studio/",
   "apps/arena/mock-realtime-voice-server/",
+  "apps/arena/physics-clinical-touch/",
   "apps/arena/ui-quest-voice-godot/",
   "apps/arena/ui-xr-iwsdk-spike/",
 ] as const;
@@ -61,11 +62,13 @@ const capabilityArenaPackageRoots = [
   "packages/openclinxr/arena/iwsdk-spike/",
   "packages/openclinxr/arena/model-vetting/",
   "packages/openclinxr/arena/multi-actor-state-spike/",
+  "packages/openclinxr/arena/physics-touch-contract/",
 ] as const;
 const capabilityArenaPackages = [
   "@openclinxr/iwsdk-spike",
   "@openclinxr/model-vetting",
   "@openclinxr/multi-actor-state-spike",
+  "@openclinxr/physics-touch-contract",
 ] as const;
 const nonProductionSupportPackages = [
   "@openclinxr/test-harness",
@@ -592,6 +595,7 @@ describe("workspace architecture rules", () => {
       "apps/arena/api-python-backend/",
       "apps/arena/mock-realtime-voice-server/",
       "apps/arena/model-vetting-studio/",
+      "apps/arena/physics-clinical-touch/",
       "apps/arena/ui-quest-voice-godot/",
       "apps/arena/ui-xr-iwsdk-spike/",
     ]);
@@ -649,6 +653,7 @@ describe("workspace architecture rules", () => {
       "packages/openclinxr/arena/iwsdk-spike/package.json",
       "packages/openclinxr/arena/model-vetting/package.json",
       "packages/openclinxr/arena/multi-actor-state-spike/package.json",
+      "packages/openclinxr/arena/physics-touch-contract/package.json",
     ]);
     expect(misplacedSpikeManifestPaths).toEqual([]);
   });
@@ -739,6 +744,22 @@ describe("workspace architecture rules", () => {
         decisions: [
           "0014-cellixjs-inspired-domain-contexts.md",
           "0018-first-class-communication-style-layer.md",
+        ],
+      },
+      {
+        readmePath: "packages/openclinxr/arena/physics-touch-contract/README.md",
+        decisions: [
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
+        ],
+      },
+      {
+        readmePath: "apps/arena/physics-clinical-touch/README.md",
+        decisions: [
+          "0021-local-first-no-cloud-implementation-spikes.md",
+          "0027-quest3-usb-webxr-smoke-gate.md",
+          "0028-iwsdk-sidecar-spike.md",
         ],
       },
     ];

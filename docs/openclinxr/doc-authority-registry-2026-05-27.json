@@ -5,8 +5,8 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 192,
-    "archive-candidate": 13,
+    "current-reference": 194,
+    "archive-candidate": 14,
     "evidence": 31,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -1604,6 +1604,13 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "apps/arena/physics-clinical-touch/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
       "path": "apps/arena/ui-quest-voice-godot/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
@@ -2381,6 +2388,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
+      "path": "docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": "docs/openclinxr/asset-generation-pipeline.md",
       "authority": "current-reference",
       "agentInstructionWeight": "medium",
@@ -2865,6 +2879,13 @@
     },
     {
       "path": "packages/openclinxr/arena/multi-actor-state-spike/README.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "packages/openclinxr/arena/physics-touch-contract/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
