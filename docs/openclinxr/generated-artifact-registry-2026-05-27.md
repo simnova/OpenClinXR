@@ -10,10 +10,10 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 1413
+- ignore-local-cache: 1480
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 95
+- keep-evidence: 98
 - keep-template: 6
 
 ## Cleanup Actions
@@ -207,11 +207,15 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup_resample_sparse.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/prune_dedup.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/review-glb-optimization/2026-06-07-current-peds-review-fixtures/peds_patient_child/quantize_no_meshopt.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/docs-hygiene/last-run.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/learner-runtime-bundle.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/encounter-publication/local_tenant/peds_asthma_parent_anxiety_v1/peds_asthma_parent_anxiety_encounter_v1/scene-manifest.v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/encounter-publication/scenario-authoring-roundtrip-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/env-doctor-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/epics/arena-physics-clinical-touch-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/epics/pre-epic-continuity-dry-run/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/admin-review-packet-replay-ui-seed.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/replay-ui-evidence.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/admin-review-packet-replay-ui-v1/2026-06-07/review-packet-replay-ui-seed.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1136,6 +1140,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/complete-authoring-admin-ui-v1/2026-06-07/complete-authoring-admin-ui-seed.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/complete-authoring-loop-v1/2026-06-07/complete-authoring-evidence.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/complete-authoring-loop-v1/2026-06-07/complete-authoring-loop-seed.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/context-opt-thrash-evidence/thrash-evidence-2026-08-02.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_adult.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_real_garment_front_2026-06-08.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_real_garment_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1161,6 +1166,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07/capture-run.log.txt` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/peds-garment-hint-separate-shell-v1-2026-06-07/model-vetting-capture-artifact-map.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/peds-mpfb2-source-clean-2026-06-06-browser.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/device-probe.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/s7-upgrade-evidence-check.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/meshopt_delivery/front.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/meshopt_delivery/side.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/review-glb-optimization-visual/2026-06-07-current-peds-review-fixtures/captures/nurse_kevin_lee_v1/meshopt_delivery/three_quarter.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1231,6 +1239,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_body_motion_deform_breathing_effort_acknowledged_2026-06-08-peds-patient-child-real-garment-v1.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_body_motion_deform_ignored_breathing_2026-06-08-peds-patient-child-real-garment-v1.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ui-xr-peds-school-age-mouth-gaze/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_mpfb2_eye_mouth_gaze_pose_2026-06-07-school-aged-patient-mpfb2-eye-v1.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/automation-lease.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-eye-rig.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-gaze-probe.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-runtime-import.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1251,6 +1260,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/github-tree-payload-ui-xr-mpfb2-comparator.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/grok-harness-proof-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/grok-repo-agent-spawn-registry-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/grok-subagent-tokens-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/grok-tier-introspection-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/grok-tier-slice-baseline-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/grok-tier-slice-token-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1273,6 +1283,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/model-vetting-real-anny-skin-material-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/model-vetting-real-anny-world-bounds-patient-three-quarter-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/moonbridge-role-clip-review.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/product-under-os-scorecard-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/run-next-report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-admin-packet-replay-surfaces-impl-execute.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-admin-packet-replay-surfaces-impl-scout.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1283,6 +1294,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-execute.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-integrate.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-scout.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-team-spawn-context-opt-thrash-evidence-execute.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-ed-gown-geo-reorchestrate-execute.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-ed-gown-geo-reorchestrate-scout.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-team-spawn-ed-real-garment-phenotype-expansion-execute.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1307,6 +1319,13 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/slice-team-spawn-scenario-bank-review-packet-v1-scout.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-admin-packet-replay-surfaces-impl.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-admin-review-packet-replay-ui-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s1-determinism-harness.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s2-havok-adapter.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s3-rapier-jolt-cagematch.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s4-winner-scenarios.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s5-factory-physics-config.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s6-madr.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/slice-verify-arena-physics-s7-quest-optional.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-complete-authoring-admin-ui-complete-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-complete-authoring-admin-ui-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-complete-authoring-loop-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1324,6 +1343,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/slice-verify-peds-parent-nurse-garment-asset.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-peds-real-garment-sleeve-evidence.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/slice-verify-scenario-bank-review-packet-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/task-cost-latest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/ui-xr-ed-gown-geo-reorchestrate-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/ui-xr-peds-actor-player-runtime-playback-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/ui-xr-peds-adaptive-dialogue-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1338,6 +1358,14 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/openclaw/ui-xr-regenerated-role-clip-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/ui-xr-role-clip-runtime-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/ui-xr-scene-asset-failure-inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-arena-physics-s1-determinism-harness-xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-arena-physics-s2-havok-adapter-xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-arena-physics-s3-rapier-jolt-cagematch-xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-arena-physics-s4-winner-scenarios-xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-arena-physics-s5-factory-physics-config-xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-context-opt-wave-c-hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-implementation-authoring-follow-on-v1-implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/worktree-promote-readme-dev-workstation-v1-implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/admin-packet-replay-surfaces-impl/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/clinical-safety-critic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/admin-packet-replay-surfaces-impl/handoffs/implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1347,6 +1375,15 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s1-determinism-harness/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s1-determinism-harness/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s2-havok-adapter/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s2-havok-adapter/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s3-rapier-jolt-cagematch/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s4-winner-scenarios/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s5-factory-physics-config/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s7-quest-optional/handoffs/chief-coordinator.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/arena-physics-s7-quest-optional/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/complete-authoring-admin-ui-complete-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/complete-authoring-admin-ui-complete-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/complete-authoring-admin-ui-complete-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1359,6 +1396,34 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/slices/complete-authoring-loop-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/complete-authoring-loop-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/complete-authoring-loop-v1/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-charter-agentsmd-v3/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-charter-agentsmd-v3/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-charter-agentsmd-v3/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-grok45-v2/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-grok45-v2/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-grok45-v2/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-grok45-v2/handoffs/openclaw-drift-police.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-higher-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-higher-v1/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-higher-v1/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-thrash-evidence/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-thrash-evidence/handoffs/chief-coordinator.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-a-enforce/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-a-enforce/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-a-enforce/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-a-enforce/handoffs/openclaw-drift-police.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-b-tools/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-b-tools/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-b-tools/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-c/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-c/handoffs/c-arch.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-c/handoffs/c-worktree.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/context-opt-wave-c/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/docs-warehouse-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/docs-warehouse-v1/handoffs/archivist-role.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/docs-warehouse-v1/handoffs/hrbp-cadence.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/docs-warehouse-v1/handoffs/hrbp.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/docs-warehouse-v1/handoffs/implementation.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/ed-gown-geo-reorchestrate/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/ed-gown-geo-reorchestrate/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/ed-gown-geo-reorchestrate/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1388,9 +1453,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/garment-apply-role-clothing-material-regions-expand-v1/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/implementation-authoring-follow-on-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/pediatrics-physician.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
-- `.openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/new-ed-seed-humanoid-case-def-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/new-ed-seed-humanoid-case-def-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/new-ed-seed-humanoid-case-def-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1425,6 +1490,8 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/xr-systems-architect.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/readme-dev-workstation-v1/handoffs/implementation-planning-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/slices/readme-dev-workstation-v1/handoffs/openclaw-drift-police.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/scenario-bank-review-packet-v1/brief.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/scenario-bank-review-packet-v1/handoffs/asset-pipeline-lead.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/slices/scenario-bank-review-packet-v1/handoffs/productivity-skeptic.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1630,6 +1697,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/model-vetting-report-peds-asthma-parent-anxiety-2026-06-07.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/ob-humanoid-source-variants-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-2026-06-06/peds_patient_child_realvisxl_skin_albedo.png` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-artifact-map-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/realvisxl-direct-texture-cagematch-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.

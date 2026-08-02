@@ -1,0 +1,334 @@
+{
+  "generatedAt": "2026-08-02T15:11:06.394Z",
+  "url": "http://localhost:5183/?questSmoke=physics-s7-upgrade-2026-08-02",
+  "target": "iwsdk-sidecar",
+  "adb": {
+    "version": "Android Debug Bridge version 1.0.41\nVersion 37.0.0-14910828\nInstalled as /opt/homebrew/bin/adb\nRunning on Darwin 25.5.0 (arm64)",
+    "deviceLine": "2G0YC5ZGB5000J         device usb:0-1 product:eureka model:Quest_3 device:eureka transport_id:1",
+    "reverseList": "UsbFfs tcp:5173 tcp:5173\nUsbFfs tcp:5174 tcp:5174\nUsbFfs tcp:5183 tcp:5183"
+  },
+  "browser": {
+    "title": "OpenClinXR IWSDK Spike",
+    "url": "http://localhost:5183/?questSmoke=physics-s7-upgrade-2026-08-02",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; Quest 3) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/149.1.0.10.52.1018773329 Chrome/149.0.7827.197 VR Safari/537.36",
+    "devicePixelRatio": 1,
+    "visibilityState": "visible",
+    "hidden": false,
+    "hasFocus": true,
+    "bodyHasEdChestPain": true,
+    "hasViteOverlay": false,
+    "hasNavigatorXr": true,
+    "xrStatus": "Full VR ready",
+    "trace": "Trace 0/10",
+    "bootEvidence": {
+      "app": "ui-xr-iwsdk-spike",
+      "events": [
+        {
+          "phase": "controls_start",
+          "atMs": 0.4
+        },
+        {
+          "phase": "controls_ready",
+          "atMs": 0.6
+        },
+        {
+          "phase": "station_scene_start",
+          "atMs": 0.8
+        },
+        {
+          "phase": "uikitml_spatial_text_load_start",
+          "atMs": 20.6
+        },
+        {
+          "phase": "station_render_loop_started",
+          "atMs": 21.8
+        },
+        {
+          "phase": "station_scene_ready",
+          "atMs": 21.8
+        },
+        {
+          "phase": "clock_started",
+          "atMs": 21.9
+        },
+        {
+          "phase": "uikitml_spatial_text_loaded",
+          "atMs": 125.2
+        }
+      ]
+    },
+    "iwsdkEvidence": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "sidecar": "apps/arena/ui-xr-iwsdk-spike",
+      "iwsdkCoreExportCount": 0,
+      "iwsdkXrInputExportCount": 0,
+      "phaseLabel": "Phase 1 Full VR",
+      "requestedSessionMode": "immersive-vr",
+      "mixedRealityPassthroughImplemented": false,
+      "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+      "locomotionPosture": "experimental_keyboard_and_thumbstick_dolly",
+      "requiredSceneObjectNames": [
+        "openclinxr.ed-chest-pain.station-root",
+        "openclinxr.ed-chest-pain.ambient-light",
+        "openclinxr.ed-chest-pain.key-light",
+        "openclinxr.ed-chest-pain.floor",
+        "openclinxr.ed-chest-pain.environment-shell",
+        "openclinxr.ed-chest-pain.environment-shell.generated-glb",
+        "openclinxr.ed-chest-pain.bed",
+        "openclinxr.ed-chest-pain.monitor",
+        "openclinxr.ed-chest-pain.ecg-cart-12-lead",
+        "openclinxr.ed-chest-pain.ecg-cart-12-lead.generated-glb",
+        "openclinxr.ed-chest-pain.iv-pole-with-pump",
+        "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
+        "openclinxr.ed-chest-pain.patient-robert-hayes",
+        "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.wall-clock",
+        "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+        "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "openclinxr.ed-chest-pain.controller-grip-left",
+        "openclinxr.ed-chest-pain.controller-grip-right"
+      ],
+      "traceActionTags": [
+        "history_opqrst",
+        "risk_factor_question",
+        "associated_symptom_question",
+        "vitals_review",
+        "ecg_request",
+        "urgent_escalation",
+        "team_communication",
+        "family_communication",
+        "empathy_statement",
+        "patient_note_submitted"
+      ]
+    },
+    "frameStats": {
+      "sampleCount": 25,
+      "avgFrameMs": 13.55,
+      "p95FrameMs": 22.3,
+      "maxFrameMs": 61.03,
+      "approxFps": 73.8,
+      "framesObserved": 26,
+      "latestFrameAtMs": 748.8,
+      "sampleWindowSize": 25,
+      "previewFramesObserved": 26,
+      "immersiveFramesObserved": 0,
+      "qualitySource": "webxr_animation_loop",
+      "isPresenting": false,
+      "visibilityState": "visible"
+    },
+    "inputEvidence": {
+      "handModelCount": 0,
+      "handModelStatus": "pending_immersive_session",
+      "handRepresentationKind": "primitive_spheres",
+      "handInputsObserved": 0,
+      "locomotionMode": "experimental_keyboard_and_thumbstick_dolly",
+      "lastLocomotionAtMs": null,
+      "activeLocomotionSource": "none",
+      "inputSourceCount": 0,
+      "inputSourceKinds": [],
+      "keyboardVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrVector": {
+        "forward": 0,
+        "strafe": 0,
+        "turn": 0
+      },
+      "xrInputSources": [],
+      "locomotionDelta": null,
+      "rigPosition": {
+        "x": 0,
+        "z": 0
+      }
+    },
+    "textPanelEvidence": {
+      "source": "window.__openClinXrTextPanelEvidence",
+      "panelCount": 3,
+      "panels": [
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+          "title": "Simulated EHR",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 2.3,
+            "height": 1.15
+          },
+          "lineCount": 4,
+          "previewLines": [
+            "Chief concern: crushing substernal pressure",
+            "Vitals: BP 152/92  HR 104  RR 20  SpO2 96%",
+            "Actors: patient, nurse, spouse",
+            "Priority: obtain ECG and escalate urgently"
+          ],
+          "contentHash": "835e2cd8",
+          "lastUpdatedAtMs": 422,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+          "title": "Live Dialogue",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.85,
+            "height": 0.95
+          },
+          "lineCount": 2,
+          "previewLines": [
+            "Robert Hayes: The pressure is heavy and I feel sweaty.",
+            "Trace 0/10; missing 10"
+          ],
+          "contentHash": "0a37436c",
+          "lastUpdatedAtMs": 430,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        },
+        {
+          "name": "openclinxr.ed-chest-pain.in-vr-input-panel",
+          "title": "Input Evidence",
+          "source": "canvas_texture_metadata",
+          "canvasPixels": {
+            "width": 1280,
+            "height": 640
+          },
+          "worldMeters": {
+            "width": 1.65,
+            "height": 0.72
+          },
+          "lineCount": 3,
+          "previewLines": [
+            "Session: Desktop preview",
+            "Hands: pending_immersive_session; primitive_spheres; observed 0",
+            "Movement: none; x 0, z 0"
+          ],
+          "contentHash": "fe77a20a",
+          "lastUpdatedAtMs": 430.4,
+          "readabilityClaim": "metadata_only_requires_foreground_headset_confirmation"
+        }
+      ],
+      "limitations": [
+        "metadata_only_requires_foreground_headset_confirmation"
+      ]
+    },
+    "sceneAssetEvidence": null,
+    "traceLatencyEvidence": null,
+    "xrEntryEvidence": null,
+    "manualPerformanceDraft": null,
+    "canvas": {
+      "width": 880,
+      "height": 924,
+      "clientWidth": 880,
+      "clientHeight": 924,
+      "dataUrlLength": 26062
+    }
+  },
+  "interaction": {
+    "beforeTrace": "Trace 0/10",
+    "afterTrace": "Trace 2/10",
+    "traceActionsAdvancedBy": 2,
+    "clickedEcg": true,
+    "clickedUrgent": true,
+    "hasViteOverlay": false,
+    "dialogue": "Spouse: Please tell me what you are worried about.",
+    "traceLatencyEvidence": {
+      "lastTraceTag": "urgent_escalation",
+      "lastSelectLatencyMs": 0.5,
+      "source": "dom_click_trace_button",
+      "measuredAtMs": 871.4,
+      "productionControllerLatencySubstitute": false
+    }
+  },
+  "frameSample": {
+    "framesObserved": 78,
+    "framesObservedDuringProbe": 32,
+    "sampleCount": 77,
+    "timedOut": false,
+    "elapsedWallMs": 353.2,
+    "latestFrameAgeMs": 4.8,
+    "avgFrameMs": 11.91,
+    "p95FrameMs": 11.2,
+    "maxFrameMs": 61.03,
+    "approxFps": 84,
+    "latestFrameDeltaMs": null,
+    "sampleWindowMs": null,
+    "longFrameCountOver33Ms": null,
+    "longFrameRatio": null,
+    "previewFramesObserved": 78,
+    "immersiveFramesObserved": 0,
+    "qualitySource": "webxr_animation_loop",
+    "renderLoopMode": null,
+    "isPresenting": false,
+    "visibilityState": "visible",
+    "iwsdkEvidence": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "sidecar": "apps/arena/ui-xr-iwsdk-spike",
+      "iwsdkCoreExportCount": 0,
+      "iwsdkXrInputExportCount": 0,
+      "phaseLabel": "Phase 1 Full VR",
+      "requestedSessionMode": "immersive-vr",
+      "mixedRealityPassthroughImplemented": false,
+      "handTrackingPosture": "optional_feature_with_primitive_hand_model",
+      "locomotionPosture": "experimental_keyboard_and_thumbstick_dolly",
+      "requiredSceneObjectNames": [
+        "openclinxr.ed-chest-pain.station-root",
+        "openclinxr.ed-chest-pain.ambient-light",
+        "openclinxr.ed-chest-pain.key-light",
+        "openclinxr.ed-chest-pain.floor",
+        "openclinxr.ed-chest-pain.environment-shell",
+        "openclinxr.ed-chest-pain.environment-shell.generated-glb",
+        "openclinxr.ed-chest-pain.bed",
+        "openclinxr.ed-chest-pain.monitor",
+        "openclinxr.ed-chest-pain.ecg-cart-12-lead",
+        "openclinxr.ed-chest-pain.ecg-cart-12-lead.generated-glb",
+        "openclinxr.ed-chest-pain.iv-pole-with-pump",
+        "openclinxr.ed-chest-pain.iv-pole-with-pump.generated-glb",
+        "openclinxr.ed-chest-pain.patient-robert-hayes",
+        "openclinxr.ed-chest-pain.patient-robert-hayes.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez",
+        "openclinxr.ed-chest-pain.nurse-maria-alvarez.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes",
+        "openclinxr.ed-chest-pain.spouse-anna-hayes.generated-humanoid-glb",
+        "openclinxr.ed-chest-pain.wall-clock",
+        "openclinxr.ed-chest-pain.in-vr-clinical-panel",
+        "openclinxr.ed-chest-pain.in-vr-dialogue-panel",
+        "openclinxr.ed-chest-pain.in-vr-actor-realism-requirements-panel",
+        "openclinxr.ed-chest-pain.in-vr-input-panel",
+        "openclinxr.ed-chest-pain.controller-grip-left",
+        "openclinxr.ed-chest-pain.controller-grip-right"
+      ],
+      "traceActionTags": [
+        "history_opqrst",
+        "risk_factor_question",
+        "associated_symptom_question",
+        "vitals_review",
+        "ecg_request",
+        "urgent_escalation",
+        "team_communication",
+        "family_communication",
+        "empathy_statement",
+        "patient_note_submitted"
+      ]
+    }
+  },
+  "verdict": {
+    "shellLoaded": true,
+    "interactionAdvanced": true,
+    "frameSampleComplete": true,
+    "immersiveEntryOutcome": "not_requested",
+    "blockers": []
+  }
+}

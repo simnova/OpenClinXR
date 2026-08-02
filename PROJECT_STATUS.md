@@ -31,7 +31,7 @@ Last updated: 2026-06-07
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + s7 skipped_no_device; MADR 0029; 144 contract tests; mayPush autonomous |
+| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + **s7 upgraded** Quest CDP foreground_ready (not immersive); MADR 0029; 144 tests |
 | arena-physics-s5-factory-physics-config | execute+verify | verify ok (Q1) — physics_config.v1 + habitus tables |
 | arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection |
 | arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way candidates C6 |
@@ -101,15 +101,27 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-02 arena-physics-s7-quest-upgrade (Q5)
+
+Product path advanced: **s7 upgraded** from `skipped_no_device` → live Quest 3 USB CDP smoke on IWSDK sidecar. Device `2G0YC5ZGB5000J` authorized + Awake; Meta Browser visible on `localhost:5183`; verdict shellLoaded+interactionAdvanced+frameSampleComplete; classification **`foreground_ready`**; immersiveEntryOutcome **`not_requested`** (preview ~74 FPS; immersiveFrames=0). No production Quest readiness / physics-on-Quest claims.
+
+Blueprint/factory tie: Q5 factory verification of headset link for arena IWSDK path (MADR 0028/0029); not physics-touch-contract runtime on Quest.
+
+Touched/evidence: `docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json`; `.openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/*`; slice-verify s7; PROJECT_STATUS.
+
+Token introspection: n/a (device smoke CLI; no model thrash). Cost line: Task cost: $0.00 est; subagents=0; models=none.
+
+Next queued slice: wire-api-durableStore-consumer-v1 (Q4).
+
 ### 2026-08-02 arena-physics-clinical-touch-v1 COMPLETE (Q1+Q5)
 
-Product path advanced: Full epic autonomous (push+continue). **s1** C1–C7 harness; **s2** Havok candidate + palpation; **s3** three-way Rapier/Jolt; **s4** ROM/guarding/positioning; **s5** physics_config.v1 factory; **s6** MADR 0029 non-promotion; **s7** skipped_no_device. Package `@openclinxr/physics-touch-contract` 144/144 tests. Gates false. Product Next restored to wire-api-durableStore-consumer-v1.
+Product path advanced: Full epic autonomous (push+continue). **s1** C1–C7 harness; **s2** Havok candidate + palpation; **s3** three-way Rapier/Jolt; **s4** ROM/guarding/positioning; **s5** physics_config.v1 factory; **s6** MADR 0029 non-promotion; **s7** initially skipped_no_device then **upgraded** to Quest CDP foreground_ready (see s7-quest-upgrade checkpoint). Package `@openclinxr/physics-touch-contract` 144/144 tests. Gates false. Product Next restored to wire-api-durableStore-consumer-v1.
 
 Blueprint/factory tie: Q1 phenotype→physics_config; Q5 arena cagematch determinism; not production UI-XR.
 
 Touched: packages/openclinxr/arena/physics-touch-contract/**; apps/arena/physics-clinical-touch/**; docs/madr/0029; architecture-rules; OPENCLAW epic thrash; PROJECT_STATUS.
 
-Evidence: 144 tests; epic status completed; Quest checklist only.
+Evidence: 144 tests; epic status completed; Quest s7 upgrade report linked above.
 
 Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=5 pro=12 composer=28; flashΔ=0 proΔ=0 composerΔ=0; subagents=37 subPeak=144118; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79  
 Cost line: Task cost: $0.15 est; subagents=1; subTokens=81435; subUsd=$0.15; models=deepseek-v4-pro:$0.15 (s5 window; epic multi-slice autonomous)

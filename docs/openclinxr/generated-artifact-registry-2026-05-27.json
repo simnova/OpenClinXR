@@ -4,8 +4,8 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 95,
-    "ignore-local-cache": 1413,
+    "keep-evidence": 98,
+    "ignore-local-cache": 1480,
     "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 6
@@ -1419,6 +1419,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/docs-hygiene/last-run.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/encounter-publication/local_tenant/ed_chest_pain_priority_v2/ed_chest_pain_priority_encounter_v1/learner-runtime-bundle.v1.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1447,7 +1454,28 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/encounter-publication/scenario-authoring-roundtrip-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/env-doctor-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/epics/arena-physics-clinical-touch-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/epics/pre-epic-continuity-dry-run/brief.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -7922,6 +7950,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/context-opt-thrash-evidence/thrash-evidence-2026-08-02.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/ed-seed-humanoid-case-def/2026-06-07-ed-real-garment-capture/ed_chest_pain_patient_adult.provenance.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8091,6 +8126,27 @@
     },
     {
       "path": ".openclinxr/evidence/peds-mpfb2-source-clean-2026-06-06-browser.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/device-probe.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attached/s7-upgrade-evidence-check.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8587,6 +8643,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/automation-lease.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/openclaw/github-commit-payload-mpfb2-eye-rig.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8721,6 +8784,13 @@
     },
     {
       "path": ".openclinxr/openclaw/grok-repo-agent-spawn-registry-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/grok-subagent-tokens-latest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -8881,6 +8951,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/product-under-os-scorecard-v1.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/openclaw/run-next-report.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8945,6 +9022,13 @@
     },
     {
       "path": ".openclinxr/openclaw/slice-team-spawn-complete-authoring-loop-v1-scout.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-team-spawn-context-opt-thrash-evidence-execute.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9119,6 +9203,55 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s1-determinism-harness.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s2-havok-adapter.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s3-rapier-jolt-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s4-winner-scenarios.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s5-factory-physics-config.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s6-madr.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/slice-verify-arena-physics-s7-quest-optional.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/openclaw/slice-verify-complete-authoring-admin-ui-complete-v1.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -9238,6 +9371,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/task-cost-latest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/openclaw/ui-xr-ed-gown-geo-reorchestrate-inspection.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -9336,6 +9476,62 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/openclaw/worktree-promote-arena-physics-s1-determinism-harness-xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-arena-physics-s2-havok-adapter-xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-arena-physics-s3-rapier-jolt-cagematch-xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-arena-physics-s4-winner-scenarios-xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-arena-physics-s5-factory-physics-config-xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-context-opt-wave-c-hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-implementation-authoring-follow-on-v1-implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/openclaw/worktree-promote-readme-dev-workstation-v1-implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/slices/admin-packet-replay-surfaces-impl/brief.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -9393,6 +9589,69 @@
     },
     {
       "path": ".openclinxr/slices/admin-review-packet-replay-ui-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s1-determinism-harness/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s1-determinism-harness/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s2-havok-adapter/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s2-havok-adapter/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s3-rapier-jolt-cagematch/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s4-winner-scenarios/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s5-factory-physics-config/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s7-quest-optional/handoffs/chief-coordinator.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/arena-physics-s7-quest-optional/handoffs/xr-systems-architect.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9477,6 +9736,202 @@
     },
     {
       "path": ".openclinxr/slices/complete-authoring-loop-v1/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-charter-agentsmd-v3/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-charter-agentsmd-v3/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-charter-agentsmd-v3/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-grok45-v2/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-grok45-v2/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-grok45-v2/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-grok45-v2/handoffs/openclaw-drift-police.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-higher-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-higher-v1/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-higher-v1/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-thrash-evidence/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-thrash-evidence/handoffs/chief-coordinator.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-a-enforce/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-a-enforce/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-a-enforce/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-a-enforce/handoffs/openclaw-drift-police.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-b-tools/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-b-tools/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-b-tools/handoffs/implementation.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-c/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-c/handoffs/c-arch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-c/handoffs/c-worktree.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/context-opt-wave-c/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/docs-warehouse-v1/brief.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/docs-warehouse-v1/handoffs/archivist-role.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/docs-warehouse-v1/handoffs/hrbp-cadence.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/docs-warehouse-v1/handoffs/hrbp.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/docs-warehouse-v1/handoffs/implementation.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9686,7 +10141,14 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
-      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/asset-pipeline-lead.json",
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/pediatrics-physician.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9694,13 +10156,6 @@
     },
     {
       "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/productivity-skeptic.json",
-      "authority": "ignore-local-cache",
-      "tracked": false,
-      "action": "ignore",
-      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
-    },
-    {
-      "path": ".openclinxr/slices/implementation-authoring-follow-on-v1/handoffs/xr-systems-architect.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -9939,6 +10394,20 @@
     },
     {
       "path": ".openclinxr/slices/peds-real-garment-sleeve-evidence/handoffs/xr-systems-architect.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/readme-dev-workstation-v1/handoffs/implementation-planning-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/slices/readme-dev-workstation-v1/handoffs/openclaw-drift-police.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -11282,6 +11751,27 @@
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
     },
     {
+      "path": "docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02b.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/quest-cdp-smoke-iwsdk-access-2026-08-02c.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/quest-cdp-smoke-physics-s7-upgrade-2026-08-02.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/quest-http3-compatibility-template.json",
       "authority": "keep-template",
       "tracked": true,
@@ -11403,14 +11893,14 @@
     {
       "path": "docs/openclinxr/security-audit-2026-08-02.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
       "path": "docs/openclinxr/security-audit-policy-2026-08-02.json",
       "authority": "keep-template",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Reusable template/checklist/policy fixture."
     },
