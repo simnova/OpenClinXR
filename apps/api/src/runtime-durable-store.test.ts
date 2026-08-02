@@ -42,7 +42,8 @@ describe("createScenarioRuntimeDurableStoreFromApiPersistence", () => {
 
   it("no-ops when sink methods are unset", async () => {
     const store = createScenarioRuntimeDurableStoreFromApiPersistence({});
-    expect(await Promise.resolve(store.saveReviewPacket?.("run_x", {} as never))).toBeUndefined();
-    expect(await Promise.resolve(store.saveActorTurn?.("run_x", {} as never))).toBeUndefined();
+    // Sink methods optional → adapter returns void (undefined), not a Promise.
+    await expect(Promise.resolve(store.saveReviewPacket?.("run_x", {} as never))).resolves.toBeUndefined();
+    await expect(Promise.resolve(store.saveActorTurn?.("run_x", {} as never))).resolves.toBeUndefined();
   });
 });

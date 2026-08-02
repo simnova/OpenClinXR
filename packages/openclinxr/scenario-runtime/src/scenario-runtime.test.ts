@@ -714,24 +714,36 @@ describe("scenario runtime", () => {
     };
 
     await store.saveActorTurn?.("run_test", sampleTurn);
-    await store.saveReviewPacket?.("run_test", {
-      stationRunId: "run_test",
-      scenarioId: edChestPainScenario.scenarioId,
-      requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
-      observedTraceTags: ["history_opqrst"],
-      missingRequiredTraceTags: [],
-      timeline: [],
-      traceQuality: {
-        eventCount: 0,
-        hasPatientNote: false,
-        hasFacultyScoreDraft: false,
-      },
-      facultyScoreDraft: {
-        reviewerId: "faculty_001",
-        status: "draft",
-        comments: "hooks forward test",
-      },
-    } as ReviewPacket);
+    await store.saveReviewPacket?.(
+      "run_test",
+      {
+        stationRunId: "run_test",
+        scenarioId: edChestPainScenario.scenarioId,
+        requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
+        observedTraceTags: ["history_opqrst"],
+        missingRequiredTraceTags: [],
+        lateTraceTags: [],
+        unsafeEvents: [],
+        timeline: [],
+        traceQuality: {
+          eventCount: 0,
+          modelGeneratedEventCount: 0,
+          modelFailedEventCount: 0,
+          voiceAudioEventCount: 0,
+          blockedGuardrailCount: 0,
+          unsafeEventCount: 0,
+          missingRequiredTraceTagCount: 0,
+          hasPatientNote: false,
+          hasFacultyScoreDraft: false,
+          hasModelProvenance: false,
+        },
+        facultyScoreDraft: {
+          reviewerId: "faculty_001",
+          status: "draft",
+          comments: "hooks forward test",
+        },
+      } as unknown as ReviewPacket,
+    );
 
     expect(actorTurns).toHaveLength(1);
     expect(actorTurns[0]?.turnId).toBe(sampleTurn.turnId);

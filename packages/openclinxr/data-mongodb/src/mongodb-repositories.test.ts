@@ -633,6 +633,16 @@ describe("MongoDB memory repositories", () => {
       stationRunId: "run_sink",
       patientNote: { ...patientNote, stationRunId: "run_sink" },
     });
+    await sink.saveActorTurn("run_sink", {
+      turnId: "turn_1_patient_sink_120",
+      stationRunId: "run_sink",
+      actorId: "patient_robert_hayes_v1",
+      atSecond: 120,
+      responseText: "It started this morning.",
+      learnerUtterance: "When did the pressure start?",
+      traceContextTags: ["history_opqrst"],
+      durableEventRef: "durable://station-runs/run_sink/events/4",
+    });
     await sink.saveScenarioReviewDecision(scenarioReviewDecision);
     await sink.saveStationRunQueueSnapshot({
       snapshotId: "queue_snapshot_sink_001",
@@ -647,6 +657,15 @@ describe("MongoDB memory repositories", () => {
     await expect(new MongoReviewPacketRepository(context.db).findByStationRunId("run_sink")).resolves.toMatchObject({
       stationRunId: "run_sink",
     });
+    await expect(sink.listConversationTurns("run_sink")).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          turnId: "turn_1_patient_sink_120",
+          actorId: "patient_robert_hayes_v1",
+          durableStore: "database_source_of_truth",
+        }),
+      ]),
+    );
     await expect(new MongoScenarioReviewDecisionRepository(context.db).list()).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({

@@ -565,6 +565,47 @@ export class MongoApiPersistenceSink {
     await this.reviewPackets.save(packet);
   }
 
+  /**
+   * Map ScenarioRuntime actor turns into durable conversation turns.
+   * Structural type avoids coupling data-mongodb → scenario-runtime package graph.
+   * claimScope: conversation_turns only — not clinical validity / scoring.
+   */
+  async saveActorTurn(
+    stationRunId: string,
+    turn: {
+      turnId: string;
+      stationRunId: string;
+      actorId: string;
+      atSecond: number;
+      responseText: string;
+      learnerUtterance?: string;
+      traceContextTags?: string[];
+      durableEventRef?: string;
+    },
+  ): Promise<void> {
+    if (turn.stationRunId !== stationRunId) {
+      throw new Error("Actor turn stationRunId must match sink stationRunId");
+    }
+    const text = turn.responseText.trim().length > 0 ? turn.responseText : (turn.learnerUtterance ?? "").trim();
+    if (text.length === 0) {
+      throw new Error("Actor turn requires non-empty responseText or learnerUtterance");
+    }
+    await this.saveConversationTurn({
+      turnId: turn.turnId,
+      stationRunId,
+      actorId: turn.actorId,
+      atSecond: turn.atSecond,
+      sourceKind: "text",
+      text,
+      traceContextTags: [...(turn.traceContextTags ?? [])],
+      emotionalState: "neutral",
+      routingReason: "single_patient_default",
+      rawAudioStored: false,
+      provenanceRefs: turn.durableEventRef ? [turn.durableEventRef] : [`runtime_actor_turn:${turn.turnId}`],
+      durableStore: "database_source_of_truth",
+    });
+  }
+
   async saveScenarioReviewDecision(record: ScenarioReviewDecisionRecord): Promise<void> {
     await this.scenarioReviewDecisions.save(record);
   }
