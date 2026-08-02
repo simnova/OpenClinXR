@@ -95,7 +95,7 @@ Do not instruct subagents to use disabled MCPs. Policy SSOT: `docs/TOOLING.md` +
 3. `pnpm openclaw:run-next` or queue from state files.
 4. `pnpm openclaw:lease -- acquire ...` before edits.
 5. Spawn `explore` for coordinator/drift consult when it saves Composer context.
-6. Per-slice token ritual (required before commit): `pnpm openclaw:slice-token:start -- --slice-id <id> --current-tier <tier>` → work → `pnpm openclaw:slice-token:finish` → paste `stateRecordLine` into latest `PROJECT_STATUS.md` checkpoint. `ccusage` tracks Codex cross-harness; Grok/DeepSeek models tracked via `~/.grok/sessions` peaks in the finish report.
+6. Per-slice token + **cost** ritual (required before commit): `pnpm openclaw:slice-token:start -- --slice-id <id> --current-tier <tier>` → work → `pnpm openclaw:slice-token:finish` → paste **both** `Token introspection:` and `Task cost:` lines into the latest `PROJECT_STATUS.md` checkpoint. Finish also writes `.openclinxr/openclaw/task-cost-latest.{json,md}` (subagent+model breakdown). Ad-hoc full rollup: `pnpm openclaw:task-cost`. Rates: `model-pricing.ts`. SSOT: `docs/agent-ops/TASK-COST-ROLLUP.md`.
 7. After slice: state update (with Token introspection line), `pnpm openclaw:post-slice` (fails if token line missing), then dequeue next slice without final chat.
 
 ## Proof and measurement

@@ -68,6 +68,7 @@ export const NEVER_ARCHIVE_BASENAMES = new Set([
   "TEMPORAL-DECISIONS.md",
   "temporal-decisions-catalog.json",
   "temporal-review-queue.md",
+  "TASK-COST-ROLLUP.md",
   "README.md",
 ]);
 

@@ -64,6 +64,10 @@ export type GrokSubagentTokenSnapshot = {
   finalTotalTokens: number;
   signalsContextTokens: number | null;
   source: "child_session_updates" | "child_session_signals" | "meta_only";
+  /** ISO from meta.started_at when present */
+  startedAt?: string;
+  /** ISO from meta.completed_at when present */
+  completedAt?: string;
 };
 
 export type GrokWorkspaceTokenSnapshot = {

@@ -5,8 +5,8 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 190,
-    "archive-candidate": 12,
+    "current-reference": 191,
+    "archive-candidate": 13,
     "evidence": 31,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -1063,6 +1063,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/openclaw/task-cost-latest.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
@@ -2169,6 +2176,13 @@
       "agentInstructionWeight": "high",
       "action": "use-as-current",
       "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/TASK-COST-ROLLUP.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
       "path": "docs/agent-ops/TEMPORAL-DECISIONS.md",

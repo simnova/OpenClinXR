@@ -76,7 +76,8 @@ Queue artifact: `docs/agent-ops/temporal-review-queue.md` (warm; PMO regenerates
 
 | Class | Default cadenceDays | Examples |
 |-------|---------------------|----------|
-| Tooling workaround | 60–90 | ccusage vs native Grok token emit |
+| Tooling workaround | 7–90 | ccusage vs native Grok token emit (weekly for Grok/Turbo) |
+| Task cost rates | 7–30 | `model-pricing.ts` blended rates for rollups |
 | Model capability | 45–90 | DeepSeek vision; multimodal routing |
 | Stack version pin | 90–180 | IWSDK, Turbo, vitest major |
 | Process/OS experiment | 90 | product-under-os metrics dual-path |

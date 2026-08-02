@@ -239,6 +239,8 @@ export function parseGrokSubagentCompletions(limitParents = 6): GrokSubagentToke
         tool_calls?: number;
         effective_model_id?: string;
         worktree_path?: string;
+        started_at?: string;
+        completed_at?: string;
       };
       try {
         meta = JSON.parse(readFileSync(metaPath, "utf8")) as typeof meta;
@@ -295,6 +297,8 @@ export function parseGrokSubagentCompletions(limitParents = 6): GrokSubagentToke
         finalTotalTokens: final,
         signalsContextTokens: signalsContext,
         source,
+        ...(meta.started_at ? { startedAt: meta.started_at } : {}),
+        ...(meta.completed_at ? { completedAt: meta.completed_at } : {}),
       });
     }
   }

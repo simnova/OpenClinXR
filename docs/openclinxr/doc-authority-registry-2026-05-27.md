@@ -12,8 +12,8 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 58
-- archive-candidate: 12
-- current-reference: 190
+- archive-candidate: 13
+- current-reference: 191
 - decision-record: 19
 - evidence: 31
 - historical-synthesis: 56
@@ -169,6 +169,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/agent-ops/README.md` - current-reference; Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index.
 - `docs/agent-ops/REVIEW-CADENCE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/REVISION-INDEX.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
+- `docs/agent-ops/TASK-COST-ROLLUP.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/TEMPORAL-DECISIONS.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/WORKTREE-PROMOTE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/capability-requests/README.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
@@ -227,6 +228,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

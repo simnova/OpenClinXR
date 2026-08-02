@@ -42,7 +42,8 @@ type CliArgs = {
     | "upgrade"
     | "slice-start"
     | "slice-introspect"
-    | "post-slice";
+    | "post-slice"
+    | "task-cost";
   outputPath: string;
   sliceId: string;
   sliceSummary: string;
@@ -224,12 +225,13 @@ async function runSliceIntrospect(args: CliArgs): Promise<void> {
   const sliceId = baseline?.sliceId ?? args.sliceId;
   const declaredTier = baseline?.declaredTier ?? args.currentTier;
   const subagentCompletions = parseGrokSubagentCompletions();
+  const sessions = parseGrokSessionTokens();
   const report = buildGrokSliceTokenIntrospectionReport({
     sliceId,
     declaredTier,
     baseline,
     currentCcusage: await fetchCcusageDailySnapshot(),
-    currentGrokSessions: parseGrokSessionTokens(),
+    currentGrokSessions: sessions,
     subagentCompletions,
   });
   const outputPath = path.join(repoRoot, args.outputPath === DEFAULT_INTROSPECTION_PATH ? DEFAULT_SLICE_TOKEN_REPORT_PATH : args.outputPath);
@@ -240,23 +242,121 @@ async function runSliceIntrospect(args: CliArgs): Promise<void> {
     path.join(repoRoot, ".openclinxr/openclaw/grok-subagent-tokens-latest.json"),
     `${JSON.stringify({ generatedAt: report.generatedAt, count: subagentCompletions.length, items: subagentCompletions.slice(0, 40) }, null, 2)}\n`,
   );
-  await appendSliceTokenHistory(repoRoot, JSON.stringify({
+
+  // Task cost rollup (subagent+model breakdown + total)
+  const { buildTaskCostRollup } = await import("../../../packages/openclinxr/agent-loop/src/task-cost-rollup.js");
+  const parentPeak = report.grok.current.maxPeakTotalTokens;
+  const baselinePeak = report.grok.baseline.maxPeakTotalTokens;
+  const parentDelta = Math.max(0, parentPeak - baselinePeak);
+  const parentModel =
+    sessions[0]?.modelIdsSeen.find((m) => m.includes("grok")) ?? sessions[0]?.modelIdsSeen[0] ?? "grok-4.5";
+  const costRollup = buildTaskCostRollup({
+    taskId: sliceId,
+    subagents: subagentCompletions,
+    sinceIso: baseline?.capturedAt ?? null,
+    untilIso: report.generatedAt,
+    parentTokens: parentDelta,
+    parentModelId: parentModel,
     generatedAt: report.generatedAt,
-    sliceId: report.sliceId,
-    posture: report.posture,
-    stateRecordLine: report.stateRecordLine,
-    subagentCount: subagentCompletions.length,
-  }));
+  });
+  const costPath = path.join(repoRoot, ".openclinxr/openclaw/task-cost-latest.json");
+  await writeFile(costPath, `${JSON.stringify(costRollup, null, 2)}\n`);
+  const costMdPath = path.join(repoRoot, ".openclinxr/openclaw/task-cost-latest.md");
+  await writeFile(
+    costMdPath,
+    [
+      `# Task cost rollup — \`${sliceId}\``,
+      ``,
+      `Generated: ${costRollup.generatedAt}`,
+      ``,
+      costRollup.disclaimer,
+      ``,
+      `**${costRollup.costRecordLine}**`,
+      ``,
+      costRollup.markdownTable,
+      ``,
+      `Estimate method: ${costRollup.estimateMethod}`,
+      `Window: since=${costRollup.window.sinceIso ?? "null"} until=${costRollup.window.untilIso}`,
+      ``,
+      `See docs/agent-ops/TASK-COST-ROLLUP.md`,
+      ``,
+    ].join("\n"),
+  );
+  await appendSliceTokenHistory(
+    repoRoot,
+    JSON.stringify({
+      generatedAt: report.generatedAt,
+      sliceId: report.sliceId,
+      posture: report.posture,
+      stateRecordLine: report.stateRecordLine,
+      costRecordLine: costRollup.costRecordLine,
+      grandEstimatedUsd: costRollup.totals.grandEstimatedUsd,
+      subagentCount: subagentCompletions.length,
+    }),
+  );
   if (args.json) {
-    console.log(JSON.stringify(report, null, 2));
+    console.log(JSON.stringify({ token: report, cost: costRollup }, null, 2));
   } else {
     console.log(formatGrokSliceTokenBrief(report));
-    console.log(`Subagent completions with tokens: ${subagentCompletions.filter((s) => s.peakTotalTokens > 0).length}/${subagentCompletions.length}`);
+    console.log(
+      `Subagent completions with tokens: ${subagentCompletions.filter((s) => s.peakTotalTokens > 0).length}/${subagentCompletions.length}`,
+    );
+    console.log(costRollup.costRecordLine);
     console.log(`\nWrote ${path.relative(repoRoot, outputPath)}`);
+    console.log(`Wrote ${path.relative(repoRoot, costPath)}`);
+    console.log(`Wrote ${path.relative(repoRoot, costMdPath)}`);
     console.log(`Ledger line: ${report.stateRecordLine}`);
+    console.log(`Cost line: ${costRollup.costRecordLine}`);
   }
   if (report.posture === "violation") process.exitCode = 1;
   if (report.posture === "drift") process.exitCode = 2;
+}
+
+async function runTaskCost(args: CliArgs): Promise<void> {
+  const { buildTaskCostRollup } = await import("../../../packages/openclinxr/agent-loop/src/task-cost-rollup.js");
+  const baseline = args.fromBaseline ? await readSliceTokenBaseline(repoRoot) : null;
+  const subagentCompletions = parseGrokSubagentCompletions(12);
+  const sessions = parseGrokSessionTokens();
+  const parentModel =
+    sessions[0]?.modelIdsSeen.find((m) => m.includes("grok")) ?? sessions[0]?.modelIdsSeen[0] ?? "grok-4.5";
+  const rollup = buildTaskCostRollup({
+    taskId: baseline?.sliceId ?? args.sliceId ?? "ad-hoc",
+    subagents: subagentCompletions,
+    // without --from-baseline, include all discovered completions (ad-hoc full rollup)
+    sinceIso: args.fromBaseline ? baseline?.capturedAt ?? null : null,
+    parentTokens: args.fromBaseline
+      ? Math.max(
+          0,
+          (sessions[0]?.peakTotalTokens ?? 0) - (baseline?.grokWorkspace.maxPeakTotalTokens ?? 0),
+        )
+      : 0,
+    parentModelId: parentModel,
+  });
+  const costPath = path.join(repoRoot, ".openclinxr/openclaw/task-cost-latest.json");
+  const costMdPath = path.join(repoRoot, ".openclinxr/openclaw/task-cost-latest.md");
+  await mkdir(path.dirname(costPath), { recursive: true });
+  await writeFile(costPath, `${JSON.stringify(rollup, null, 2)}\n`);
+  await writeFile(
+    costMdPath,
+    [
+      `# Task cost rollup — \`${rollup.taskId}\``,
+      ``,
+      rollup.disclaimer,
+      ``,
+      `**${rollup.costRecordLine}**`,
+      ``,
+      rollup.markdownTable,
+      ``,
+      `See docs/agent-ops/TASK-COST-ROLLUP.md`,
+      ``,
+    ].join("\n"),
+  );
+  if (args.json) console.log(JSON.stringify(rollup, null, 2));
+  else {
+    console.log(rollup.costRecordLine);
+    console.log(rollup.markdownTable);
+    console.log(`\nWrote ${costPath}`);
+  }
 }
 
 async function main(): Promise<void> {
@@ -276,6 +376,9 @@ async function main(): Promise<void> {
       break;
     case "upgrade":
       await runUpgrade(args);
+      break;
+    case "task-cost":
+      await runTaskCost(args);
       break;
     case "slice-start":
       await runSliceStart(args);
