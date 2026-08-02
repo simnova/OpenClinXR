@@ -445,11 +445,16 @@ const rolePathScopes: Record<string, RolePathScope> = {
       "apps/arena/**",
       "packages/openclinxr/arena/**",
       "packages/openclinxr/xr/**",
+      "tools/openclinxr/evidence/**",
     ],
     readRoots: [],
     forbidden: ["apps/api/**", "packages/data-mongodb/**"],
     outputRoots: [".openclinxr/slices/**/handoffs/xr-systems-architect.json"],
-    preferredCli: ["pnpm --filter @openclinxr/ui-xr"],
+    preferredCli: [
+      "pnpm --filter @openclinxr/ui-xr",
+      "pnpm asset:ui-xr:peds-adaptive-dialogue-capture",
+      "pnpm asset:model-vetting:turntable-capture",
+    ],
   },
   "pediatrics-physician": {
     writeRoots: [
