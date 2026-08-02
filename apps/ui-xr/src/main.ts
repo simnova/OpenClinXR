@@ -1091,7 +1091,7 @@ function shouldShowInSceneEvidencePanels(): boolean {
 
 function shouldShowActorRealismRequirementPanel(evidence: HumanoidSpeechEvidence | null = window.__openClinXrHumanoidSpeechEvidence ?? null): boolean {
   const captureMode = selectedCaptureMode();
-  if (shouldUseCleanHumanoidSourceComparatorCapture() || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
     return false;
   }
   return shouldShowInSceneEvidencePanels()
@@ -2914,17 +2914,17 @@ function createStationScene(): StationSceneRuntime {
       camera.lookAt(-0.08, 0.82, -0.96);
       camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_parent") {
-      // framing-polish-parent-nurse-garment-ui-xr-v1: closer/lower torso+sleeves framing (ED gown spirit ~2.85z) so cardigan/casual_top volume is skeptic-visible without teal whiteboard/UI chrome occlusion
+      // framing-polish-parent-nurse-garment-ui-xr-v1: center patient primary; medium pull-back so torso+sleeve cyan fills frame
       camera.fov = 48;
-      camera.position.set(0.15, 0.88, 2.85);
-      camera.lookAt(0.12, 0.72, -0.55);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture_framing_polish";
+      camera.position.set(-0.72, 1.18, 3.25);
+      camera.lookAt(-0.72, 1.0, -0.12);
+      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_nurse") {
-      // framing-polish-parent-nurse-garment-ui-xr-v1: mirrored closer/lower framing for nurse scrub sleeveDeform torso volume (skeptic-visible, de-occluded)
+      // framing-polish-parent-nurse-garment-ui-xr-v1: same patient-primary centering for nurse scrub sleeveDeform volume
       camera.fov = 48;
-      camera.position.set(-0.15, 0.88, 2.85);
-      camera.lookAt(-0.12, 0.72, -0.55);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture_framing_polish";
+      camera.position.set(-0.72, 1.18, 3.25);
+      camera.lookAt(-0.72, 1.0, -0.12);
+      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture";
     } else if (selectedHumanoidSourceComparator() === "ed_anny_real_garment_patient") {
       // ed-gown-geo-reorchestrate (Q1+Q5): expanded framing for hospital_gown sleeves (baggier adult topology vs peds tshirt); lower/closer to expose 3D deforming sleeve volume + motion in ed bay (cyan/no-cull/userData/garmentGeometry visible in screenshots)
       camera.fov = 50;
@@ -2936,23 +2936,6 @@ function createStationScene(): StationSceneRuntime {
       camera.position.set(-0.08, 0.86, 3.45);
       camera.lookAt(-0.08, 0.82, -0.96);
       camera.userData.openClinXrCameraFraming = "clean_humanoid_source_comparator_full_body_candidate_capture";
-    }
-  } else if (
-    isRealGarmentSleeveDeformCapture()
-    && (selectedHumanoidSourceComparator() === "peds_anny_real_garment_parent"
-      || selectedHumanoidSourceComparator() === "peds_anny_real_garment_nurse")
-  ) {
-    // framing-polish: sleeve-deform capture without source-clean still needs closer torso framing for parent/nurse
-    if (selectedHumanoidSourceComparator() === "peds_anny_real_garment_parent") {
-      camera.fov = 48;
-      camera.position.set(0.15, 0.88, 2.85);
-      camera.lookAt(0.12, 0.72, -0.55);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_parent_source_comparator_full_body_candidate_capture_framing_polish";
-    } else {
-      camera.fov = 48;
-      camera.position.set(-0.15, 0.88, 2.85);
-      camera.lookAt(-0.12, 0.72, -0.55);
-      camera.userData.openClinXrCameraFraming = "clean_peds_anny_real_garment_nurse_source_comparator_full_body_candidate_capture_framing_polish";
     }
   } else if (actorPoseReviewCapture) {
     camera.position.set(-0.12, 1.22, 4.05);
@@ -3064,8 +3047,7 @@ function createStationScene(): StationSceneRuntime {
       gltfEnvContainer.userData.actualGltfLoadSetupError = String(e);
     }
   }
-  // framing-polish: skip room shell + set-dressing for parent/nurse real-garment clean|sleeve so teal chrome does not occlude torso
-  if (!cleanHumanoidSourceComparatorCapture && !shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (!cleanHumanoidSourceComparatorCapture) {
     addDynamicEncounterRoomShell(scene, doorwayTheme);
     addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
   }
@@ -3089,7 +3071,7 @@ function createStationScene(): StationSceneRuntime {
     mismatchPanel.mesh.userData.openClinXrScenarioMismatchPolicy =
       "selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence";
     scene.add(mismatchPanel.mesh);
-  } else if (!cleanHumanoidSourceComparatorCapture && !shouldDeclutterParentNurseRealGarmentCapture()) {
+  } else if (!cleanHumanoidSourceComparatorCapture) {
     addScenarioExpectationPanel(scene, selectedStationContext);
   }
 
@@ -3276,14 +3258,6 @@ function createStationScene(): StationSceneRuntime {
   patient.visible = !selectedScenarioRuntimeMismatch;
   patient.scale.set(patientPlacement.scale.x, patientPlacement.scale.y, patientPlacement.scale.z);
   applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
-  // framing-polish-parent-nurse-garment-ui-xr-v1: center primary (role GLB on patient slot) so closer torso camera lookAt hits sleeved volume
-  if (shouldDeclutterParentNurseRealGarmentCapture()) {
-    patient.position.set(0.05, 0, 0.05);
-    patient.rotation.y = 0.08;
-    patient.scale.setScalar(0.92);
-    patient.userData.openClinXrCaptureFramingPolicy =
-      "parent_nurse_real_garment_primary_centered_for_torso_sleeve_framing_polish";
-  }
   patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
   scene.add(patient);
   loadGeneratedHumanoidIntoActorSlot(patient, {
@@ -3376,11 +3350,9 @@ function createStationScene(): StationSceneRuntime {
   }
   scene.add(clockMesh);
   const clinicalPanel = createClinicalPanel();
-  if (cleanHumanoidSourceComparatorCapture || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (cleanHumanoidSourceComparatorCapture) {
     clinicalPanel.mesh.visible = false;
-    clinicalPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = cleanHumanoidSourceComparatorCapture
-      ? "hidden_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_parent_nurse_real_garment_framing_polish_deocclude";
+    clinicalPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     clinicalPanel.mesh.visible = false;
     clinicalPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
@@ -3397,11 +3369,9 @@ function createStationScene(): StationSceneRuntime {
   });
   dialoguePanel.mesh.position.set(0.85, 2.58, -1.42);
   dialoguePanel.mesh.rotation.y = -0.28;
-  if (cleanHumanoidSourceComparatorCapture || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (cleanHumanoidSourceComparatorCapture) {
     dialoguePanel.mesh.visible = false;
-    dialoguePanel.mesh.userData.openClinXrComparatorVisibilityPolicy = cleanHumanoidSourceComparatorCapture
-      ? "hidden_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_parent_nurse_real_garment_framing_polish_deocclude";
+    dialoguePanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     dialoguePanel.mesh.visible = false;
     dialoguePanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
@@ -3440,11 +3410,9 @@ function createStationScene(): StationSceneRuntime {
   });
   inputPanel.mesh.position.set(1.6, 1.32, -1.08);
   inputPanel.mesh.rotation.y = -0.42;
-  if (cleanHumanoidSourceComparatorCapture || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (cleanHumanoidSourceComparatorCapture) {
     inputPanel.mesh.visible = false;
-    inputPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = cleanHumanoidSourceComparatorCapture
-      ? "hidden_for_clean_humanoid_source_comparator_capture"
-      : "hidden_for_parent_nurse_real_garment_framing_polish_deocclude";
+    inputPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   } else if (!shouldShowInSceneEvidencePanels()) {
     inputPanel.mesh.visible = false;
     inputPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
@@ -3909,8 +3877,7 @@ function addDynamicEncounterRoomShell(scene: Scene, doorwayTheme: ScenarioDoorwa
 }
 
 function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  // framing-polish: skip set-dressing clutter (incl. whiteboard-adjacent props) for parent/nurse real-garment clean|sleeve capture only
-  if (shouldUseCleanHumanoidSourceComparatorCapture() || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
     return;
   }
   const sid = encounterRuntimeAssetBundle.scenarioId;
@@ -4640,8 +4607,7 @@ function recordRoleDistinctHumanoidCue(actorId: string, cueId: string, sceneObje
 }
 
 function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<typeof stationContextForSelectedScenario>): void {
-  // framing-polish: hide scenario expectation (teal/theme panel) during parent/nurse real-garment clean|sleeve capture so torso is not occluded
-  if (shouldUseCleanHumanoidSourceComparatorCapture() || shouldDeclutterParentNurseRealGarmentCapture()) {
+  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
     return;
   }
   const doorwayTheme = scenarioDoorwayVisualTheme();
@@ -4982,6 +4948,11 @@ function addControllerAffordances(
     iwsdkStationSceneObjects.controllerGripLeft,
     iwsdkStationSceneObjects.controllerGripRight,
   ];
+  // framing-polish-parent-nurse-garment-ui-xr-v1: default XR controller models sit mid-frame as teal/chevron
+  // boards over the torso during desktop sleeve-deform capture — hide until immersive present.
+  const hideControllersForCleanCapture = shouldUseCleanHumanoidSourceComparatorCapture()
+    || isRealGarmentSleeveDeformCapture()
+    || isHumanoidMouthGazePoseReviewCaptureMode();
   for (let index = 0; index < 2; index += 1) {
     const controller = renderer.xr.getController(index);
     controller.name = `${runtimeSceneObjectPrefix()}.controller-${index + 1}`;
@@ -4993,11 +4964,19 @@ function addControllerAffordances(
     );
     ray.name = `${runtimeSceneObjectPrefix()}.controller-ray-${index + 1}`;
     controller.add(ray);
+    if (hideControllersForCleanCapture) {
+      controller.visible = false;
+      controller.userData.openClinXrComparatorVisibilityPolicy = "hidden_xr_controller_for_clean_humanoid_garment_capture";
+    }
     scene.add(controller);
     const controllerGrip = renderer.xr.getControllerGrip(index);
     controllerGrip.userData.openClinXrIwsdkStableObjectName = gripNames[index] ?? null;
     controllerGrip.name = `${runtimeSceneObjectPrefix()}.controller-grip-${index + 1}`;
     controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
+    if (hideControllersForCleanCapture) {
+      controllerGrip.visible = false;
+      controllerGrip.userData.openClinXrComparatorVisibilityPolicy = "hidden_xr_controller_grip_for_clean_humanoid_garment_capture";
+    }
     scene.add(controllerGrip);
   }
 }
@@ -6271,12 +6250,123 @@ function applyRealGarmentEvidenceSurfaces(
           ? "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;nurse_scrub;peds_anny_real_garment_nurse"
           : "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;ed-gown-geo-reorchestrate;hospital_gown";
 
+  const orientPhenotypeGarmentForYUpCapture = (object: Mesh, root: Group): void => {
+    // Parent/nurse phenotype garment embeds as thin XZ sheet near y≈0 (Z-as-height bind) under armature skin.
+    // Bake (x,y,z)->(x,z,-y), hide skinned original, and reparent a static cyan evidence mesh on the humanoid
+    // root so torso+sleeve volume is skeptic-visible (not floor blob / skinned cube under armature).
+    const nm = object.name || "";
+    if (!/openclinxr_real_garment|real_garment_from_phenotype/i.test(nm)) return;
+    if (object.userData.openClinXrGarmentYUpOrientApplied) return;
+    const geom = object.geometry as {
+      boundingBox?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } } | null;
+      computeBoundingBox?: () => void;
+      computeVertexNormals?: () => void;
+      computeBoundingSphere?: () => void;
+      attributes?: { position?: { count: number; getX: (i: number) => number; getY: (i: number) => number; getZ: (i: number) => number; setXYZ: (i: number, x: number, y: number, z: number) => void; needsUpdate?: boolean } };
+      clone?: () => typeof geom;
+    } | undefined;
+    if (!geom) return;
+    if (typeof geom.computeBoundingBox === "function") geom.computeBoundingBox();
+    const bb = geom.boundingBox;
+    if (!bb) return;
+    const ySpan = Math.abs(bb.max.y - bb.min.y);
+    const zSpan = Math.abs(bb.max.z - bb.min.z);
+    const yCenter = (bb.max.y + bb.min.y) / 2;
+    // Heuristic: thin in Y, tall in Z, center near origin → authored Z-up / floor-plane
+    if (!(zSpan > ySpan * 2 && yCenter < 0.35 && zSpan > 0.4)) return;
+
+    const working = typeof geom.clone === "function" ? geom.clone()! : geom;
+    const pos = working.attributes?.position;
+    if (!pos || typeof pos.count !== "number") return;
+    for (let i = 0; i < pos.count; i += 1) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      // rotate -90° about X: (x,y,z) -> (x, z, -y)
+      pos.setXYZ(i, x, z, -y);
+    }
+    pos.needsUpdate = true;
+    if (typeof working.computeVertexNormals === "function") working.computeVertexNormals();
+    if (typeof working.computeBoundingBox === "function") working.computeBoundingBox();
+    if (typeof working.computeBoundingSphere === "function") working.computeBoundingSphere();
+
+    // Static evidence mesh on humanoid root (avoids armature bind collapse)
+    const cyanMat = new MeshStandardMaterial({
+      color: new Color(0x00ffcc),
+      emissive: new Color(0x00ffcc),
+      emissiveIntensity: 1.1,
+      roughness: 0.55,
+      metalness: 0.05,
+      side: DoubleSide,
+    });
+    // Idempotent: one evidence mesh per humanoid root
+    const evidenceName = `${object.name}:y_up_capture_evidence`;
+    const existing = root.getObjectByName(evidenceName);
+    if (existing) {
+      object.visible = false;
+      object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
+      object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
+      return;
+    }
+    const evidence = new Mesh(working as never, cyanMat);
+    evidence.name = evidenceName;
+    evidence.frustumCulled = false;
+    evidence.renderOrder = 3;
+    evidence.visible = true;
+    // Bake y≈0.18–1.2; scale slightly for shoulder width match and lift to mid-torso silhouette
+    // Geometry X span ~1.07 already ≈ shoulder width; Y covers torso. Mild uniform scale if oversize.
+    if (typeof working.computeBoundingBox === "function") working.computeBoundingBox();
+    const ebb = working.boundingBox;
+    if (ebb) {
+      const height = Math.abs(ebb.max.y - ebb.min.y);
+      const width = Math.abs(ebb.max.x - ebb.min.x);
+      // target adult torso ~0.55m wide × ~0.7m tall; shrink if oversize cube-like
+      const s = Math.min(1, 0.55 / Math.max(width, 0.01), 0.75 / Math.max(height, 0.01));
+      if (s < 0.99) {
+        evidence.scale.setScalar(s);
+      }
+      const yMid = ((ebb.max.y + ebb.min.y) / 2) * (s < 0.99 ? s : 1);
+      // Raise so cyan covers chest/upper torso (not only abdomen)
+      evidence.position.set(0, 1.22 - yMid, 0.08);
+    } else {
+      evidence.position.set(0, 0.35, 0.08);
+    }
+    evidence.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
+    evidence.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso_y_up_oriented";
+    evidence.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
+    evidence.userData.openClinXrGarmentYUpOrientApplied = "baked_neg_x_90_static_reparent_for_sleeve_deform_capture";
+    evidence.userData.openClinXrGarmentSkinDetachedForCapture =
+      "phenotype_garment_static_evidence_mesh_on_humanoid_root_for_capture_noticeability";
+    root.add(evidence);
+
+    // Detach mis-oriented skinned original so it cannot reappear as floor fragment under armature
+    object.visible = false;
+    object.frustumCulled = true;
+    object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
+    object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
+    if (object.parent) {
+      object.parent.remove(object);
+    }
+  };
+
   const tagGarment = (object: Mesh): void => {
+    // Do not resurrect skinned originals already superseded by Y-up evidence (second evidence pass)
+    if (object.userData?.openClinXrComparatorVisibilityPolicy === "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence") {
+      object.visible = false;
+      object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
+      return;
+    }
     object.visible = true;
     object.frustumCulled = false;
+    object.renderOrder = 2;
     object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
     object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
     object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
+    orientPhenotypeGarmentForYUpCapture(object, root);
+    // orient may hide this mesh and spawn static evidence — skip cyan re-apply on hidden original
+    if (object.userData?.openClinXrComparatorVisibilityPolicy === "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence") {
+      return;
+    }
     const applyCyan = (raw: unknown): unknown => {
       if (!raw || typeof raw !== "object") return raw;
       const src = raw as {
@@ -6286,6 +6376,8 @@ function applyRealGarmentEvidenceSurfaces(
         color?: Color;
         map?: unknown;
         needsUpdate?: boolean;
+        depthWrite?: boolean;
+        transparent?: boolean;
       };
       const mat = typeof src.clone === "function" ? src.clone()! : src;
       if (mat.emissive) {
@@ -6534,7 +6626,7 @@ function loadGeneratedHumanoidIntoActorSlot(
       }
       humanoid.userData.openClinXrAffordances = ["dialogue_target", "clinical_observation_target"];
       const dialogueTargetMarker = createAffordanceMarker(`${options.objectName}:dialogue_target`, options.roleTintColor);
-      if (isHumanoidMouthGazePoseReviewCaptureMode()) {
+      if (isHumanoidMouthGazePoseReviewCaptureMode() || cleanSourceComparatorCapture || isRealGarmentSleeveDeformCapture()) {
         dialogueTargetMarker.visible = false;
         dialogueTargetMarker.userData.openClinXrCaptureVisibilityPolicy = "hidden_for_mouth_gaze_pose_realism_review";
       }
@@ -6655,22 +6747,24 @@ function loadGeneratedHumanoidIntoActorSlot(
 
 function shouldUseCleanHumanoidSourceComparatorCapture(): boolean {
   const captureMode = selectedCaptureMode();
-  return captureMode.includes("source-clean") || new URLSearchParams(window.location.search).get("humanoidSourceCleanCapture") === "1";
-}
-
-/** Parent/nurse real-garment sleeve/clean capture: hide teal whiteboard / large UI panels that occlude torso+sleeves (framing-polish-parent-nurse-garment-ui-xr-v1). Learner UX unchanged outside clean/sleeve capture. */
-function shouldDeclutterParentNurseRealGarmentCapture(): boolean {
-  const cmp = selectedHumanoidSourceComparator();
-  if (cmp !== "peds_anny_real_garment_parent" && cmp !== "peds_anny_real_garment_nurse") {
-    return false;
-  }
-  return shouldUseCleanHumanoidSourceComparatorCapture() || isRealGarmentSleeveDeformCapture();
+  // framing-polish-parent-nurse-garment-ui-xr-v1 (Q5): sleeve-deform / real-garment body-motion capture must declutter
+  // teal dialogue/clinical/input panels, nameplates, equipment boxes, and XR controller models so the cyan
+  // phenotype garment torso+sleeve volume is skeptic-visible (not occluded by affordance boards).
+  return captureMode.includes("source-clean")
+    || new URLSearchParams(window.location.search).get("humanoidSourceCleanCapture") === "1"
+    || isRealGarmentSleeveDeformCapture();
 }
 
 function suppressRuntimeDiagnosticOverlaysForSourceComparator(humanoid: Group): void {
+  // Never hide phenotype real-garment meshes (name includes openclinxr_real_garment / casual_top / scrub).
   const scaffoldingNamePattern = /comparator|diagnostic|gown|blanket|wrist_band|visible_lip|eye_focus|hair_cap|patient_lap|patient_gown|patient_visible|actor-specific|specific|clothing|accent|pregnancy|abdomen|belly|morph_target|wardrobe|torso|cue/u;
+  const protectGarmentPattern = /openclinxr_real_garment|real_garment_from_phenotype|real_garment_peds|casual_top|scrub_top|cardigan/i;
   humanoid.traverse((object) => {
     const name = object.name.toLowerCase();
+    if (protectGarmentPattern.test(object.name) || object.userData?.openClinXrGarmentEvidenceSurface || object.userData?.openClinXrSleeveDeformEvidence) {
+      object.visible = true;
+      return;
+    }
     if (!scaffoldingNamePattern.test(name)) return;
     object.visible = false;
     object.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_source_realism_review_to_avoid_scaffolding_dominating_grade";

@@ -42,7 +42,10 @@ function buildUrl(port: number, comparator: string, captureMode: string): string
     openclinxrAcceleratedExam: "1",
     humanoidSourceComparator: comparator,
     runtimeAssetBundleId: "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
-    capture: captureMode,
+    // framing-polish-parent-nurse-garment-ui-xr-v1: force clean comparator path (hide teal boards/panels/controllers)
+    // even if capture mode string omits source-clean; main.ts also auto-enables via isRealGarmentSleeveDeformCapture.
+    humanoidSourceCleanCapture: "1",
+    capture: captureMode.includes("source-clean") ? captureMode : `${captureMode}-source-clean`,
   });
   return `http://127.0.0.1:${port}/?${params.toString()}`;
 }
@@ -220,8 +223,7 @@ function parseArgs(args: string[]): CliOptions {
     inspectionPath: ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/inspection.json",
     settleMs: 10000,
     durationMs: 30000,
-    // source-clean: framing_polish camera + de-occlude teal panels; sleeve-deform: body motion retained
-    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform-source-clean",
+    captureMode: "mouth-gaze-pose-body-motion-garment-sleeve-deform",
   };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
