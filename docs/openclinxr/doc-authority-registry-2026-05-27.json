@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 188,
+    "current-reference": 190,
     "archive-candidate": 12,
     "evidence": 31,
     "protected-policy": 10,
@@ -2164,6 +2164,13 @@
       "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
     },
     {
+      "path": "docs/agent-ops/TEMPORAL-DECISIONS.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
+    },
+    {
       "path": "docs/agent-ops/WORKTREE-PROMOTE.md",
       "authority": "current-reference",
       "agentInstructionWeight": "high",
@@ -2183,6 +2190,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
+    },
+    {
+      "path": "docs/agent-ops/temporal-review-queue.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
       "path": "docs/madr/0011-step2cs-inspired-sequential-exam.md",

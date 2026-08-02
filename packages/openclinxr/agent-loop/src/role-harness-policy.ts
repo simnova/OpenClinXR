@@ -279,12 +279,16 @@ const rolePathScopes: Record<string, RolePathScope> = {
     preferredCli: ["pnpm docs:archive status", "rg"],
   },
   pmo: {
-    // Temporal cadence owner — hygiene state, revision index, cadence SSOT; CLIs do the heavy lifts.
+    // Temporal cadence owner — hygiene + temporal-decision catalog; CLIs do the heavy lifts.
     writeRoots: [
       "docs/agent-ops/DOC-HYGIENE-CADENCE.md",
       "docs/agent-ops/REVISION-INDEX.md",
       "docs/agent-ops/DOC-WAREHOUSE.md",
+      "docs/agent-ops/TEMPORAL-DECISIONS.md",
+      "docs/agent-ops/temporal-decisions-catalog.json",
+      "docs/agent-ops/temporal-review-queue.md",
       ".openclinxr/docs-hygiene/**",
+      ".openclinxr/temporal-review/**",
       "agents/coordinator/pmo/**",
       "tooling/scripts/docs-hygiene-weekly.sh",
       ".grok/hooks/session-start-docs-hygiene.json",
@@ -309,6 +313,9 @@ const rolePathScopes: Record<string, RolePathScope> = {
       "pnpm docs:hygiene:measure",
       "pnpm docs:hygiene:run",
       "pnpm docs:hygiene:session-start",
+      "pnpm temporal:review",
+      "pnpm temporal:due",
+      "pnpm temporal:queue",
       "pnpm docs:archive status",
       "pnpm openclaw:checkpoint:archive",
       "pnpm openclaw:worktree:list",
@@ -666,7 +673,7 @@ export const repoRoleHarnessPolicies: RepoRoleHarnessPolicy[] = [
     recommendedSkills: ["openclinxr-openclaw"],
     moonbridgeAssistOnCodex: true,
     writeScopeNote:
-      "PMO temporal cadence: DOC-HYGIENE-CADENCE, REVISION-INDEX, hygiene last-run state, weekly script. Prefer CLIs (docs:hygiene:*, docs:archive, checkpoint:archive). Never product IC; never agent roster (hrbp); never cold rewrite (archivist).",
+      "PMO temporal cadence: DOC-HYGIENE-CADENCE, TEMPORAL-DECISIONS catalog/queue, REVISION-INDEX, hygiene last-run, weekly script. Prefer CLIs (docs:hygiene:*, temporal:review, docs:archive). Never product IC; never agent roster (hrbp); never cold rewrite (archivist). Analysis of due items is analysisOwnerRole — PMO only catalogs/surfaces/queues.",
     pathScope: getRolePathScope("pmo"),
   },
   {

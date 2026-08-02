@@ -23,6 +23,7 @@ import {
   listFreezeCandidates,
 } from "./docs-archive-cli.js";
 import { splitCheckpointSections } from "./checkpoint-archive-cli.js";
+import { measureTemporalReview } from "./temporal-review-cli.js";
 
 export const DOCS_HYGIENE_STATE_SCHEMA = "openclinxr.docs-hygiene-last-run.v1" as const;
 
@@ -48,6 +49,8 @@ export type DocsHygieneMeasure = {
   forceHygiene: boolean;
   reason: string[];
   banner: string;
+  temporalDueCount?: number;
+  temporalBannerLine?: string;
 };
 
 const DEFAULT_CHECKPOINT_THRESHOLD = 20;
@@ -202,6 +205,20 @@ export function measureDocsHygiene(options: {
     (stale && checkpointBlocks > 0);
 
   const actionList = [...actions];
+  let temporalBannerLine = "TEMPORAL: (catalog not measured)";
+  let temporalDueCount = 0;
+  try {
+    const temporal = measureTemporalReview({
+      repoRoot: options.repoRoot,
+      now,
+      topN: 3,
+    });
+    temporalBannerLine = temporal.bannerLine;
+    temporalDueCount = temporal.dueCount;
+  } catch {
+    temporalBannerLine = "TEMPORAL: measure skipped";
+  }
+
   const banner = buildBanner({
     forceHygiene,
     reason,
@@ -210,6 +227,7 @@ export function measureDocsHygiene(options: {
     daysSinceLastHygiene,
     basenames,
     actionList,
+    temporalBannerLine,
   });
 
   return {
@@ -227,6 +245,8 @@ export function measureDocsHygiene(options: {
     forceHygiene,
     reason,
     banner,
+    temporalDueCount,
+    temporalBannerLine,
   };
 }
 
@@ -239,6 +259,7 @@ function buildBanner(input: {
   basenames: string[];
   actionList: string[];
   autoRun?: boolean;
+  temporalBannerLine?: string;
 }): string {
   const lines = [
     "=== DOC HYGIENE (PMO session-start; unattended) ===",
@@ -250,6 +271,9 @@ function buildBanner(input: {
     lines.push(`candidates: ${input.basenames.join(", ")}`);
   } else if (input.basenames.length > 12) {
     lines.push(`candidates: ${input.basenames.slice(0, 8).join(", ")} … +${input.basenames.length - 8}`);
+  }
+  if (input.temporalBannerLine) {
+    lines.push(input.temporalBannerLine);
   }
   if (input.forceHygiene) {
     lines.push(">>> FORCE HYGIENE BEFORE PRODUCT DEQUEUE <<<");
@@ -263,6 +287,7 @@ function buildBanner(input: {
   } else {
     lines.push("Hygiene quiet — product dequeue OK (still skip per-task archive).");
   }
+  lines.push("Temporal catalog: docs/agent-ops/TEMPORAL-DECISIONS.md · pnpm temporal:review");
   lines.push("=== END DOC HYGIENE ===");
   return lines.join("\n");
 }

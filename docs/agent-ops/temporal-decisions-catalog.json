@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "openclinxr.temporal-decisions-catalog.v1",
+  "updatedAt": "2026-08-02T08:00:00.000Z",
+  "ownerRole": "pmo",
+  "processDoc": "docs/agent-ops/TEMPORAL-DECISIONS.md",
+  "items": [
+    {
+      "id": "ccusage-grok-token-workaround",
+      "title": "ccusage + Grok session peaks as dual token accounting",
+      "decidedAt": "2026-06-06",
+      "context": "Grok Build lacked reliable post-subagent token emission at the time; slice-token ritual uses ccusage daily deltas plus ~/.grok/sessions updates.jsonl peaks.",
+      "revisitWhy": "If Grok now emits tokens used after spawn_subagent completes (or native session accounting is sufficient), simplify or retire ccusage dual-path.",
+      "cadenceDays": 60,
+      "nextReviewAt": "2026-10-01",
+      "priority": 1,
+      "status": "open",
+      "analysisOwnerRole": "openclaw-drift-police",
+      "executeOwnerRole": "implementation-planning-lead",
+      "workProductHints": [
+        "tools/openclinxr/openclaw/grok-tier-cli.ts",
+        "tools/openclinxr/openclaw/grok-token-io.ts",
+        "packages/openclinxr/agent-loop/src/grok-token-introspection.ts",
+        "agents/rules/grok-harness-usage.md"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["grok", "tokens", "workaround", "harness"]
+    },
+    {
+      "id": "grok-subagent-token-emit",
+      "title": "Native Grok token emission after subagent completion",
+      "decidedAt": "2026-08-02",
+      "context": "product-under-os experiment noted weak ccusage signal; desire for harness to report tokens per child completion.",
+      "revisitWhy": "Check Grok Build / spawn_subagent APIs for completion token fields; wire into slice-token finish if available.",
+      "cadenceDays": 45,
+      "nextReviewAt": "2026-09-16",
+      "priority": 1,
+      "status": "open",
+      "analysisOwnerRole": "openclaw-drift-police",
+      "executeOwnerRole": "implementation-planning-lead",
+      "workProductHints": [
+        "packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts",
+        "tools/openclinxr/openclaw/grok-token-io.ts"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["grok", "tokens", "harness"]
+    },
+    {
+      "id": "deepseek-vision-routing",
+      "title": "DeepSeek vision / multimodal routing assumptions",
+      "decidedAt": "2026-06-07",
+      "context": "Flash scout failed or was unreliable on image_url for evidence review; skeptics fell back to local image read or non-vision models.",
+      "revisitWhy": "Re-test DeepSeek vision capability and update role-harness / tier routing for productivity-skeptic multimodal scouts.",
+      "cadenceDays": 60,
+      "nextReviewAt": "2026-10-01",
+      "priority": 2,
+      "status": "open",
+      "analysisOwnerRole": "hrbp",
+      "executeOwnerRole": "implementation-planning-lead",
+      "workProductHints": [
+        "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+        "packages/openclinxr/agent-loop/src/grok-tier-routing.ts",
+        "docs/agent-ops/CAPABILITY-EVOLUTION.md"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["deepseek", "vision", "models"]
+    },
+    {
+      "id": "iwsdk-sidecar-version-pin",
+      "title": "IWSDK sidecar package pin review",
+      "decidedAt": "2026-05-27",
+      "context": "IWSDK isolated to apps/arena/ui-xr-iwsdk-spike with pinned @iwsdk/* and vite; production ui-xr stays free of IWSDK.",
+      "revisitWhy": "Review new IWSDK releases for API/runtime changes; update architecture-rules pins only with evidence; no silent production promotion.",
+      "cadenceDays": 120,
+      "nextReviewAt": "2026-12-01",
+      "priority": 3,
+      "status": "open",
+      "analysisOwnerRole": "xr-systems-architect",
+      "executeOwnerRole": "xr-systems-architect",
+      "workProductHints": [
+        "apps/arena/ui-xr-iwsdk-spike/package.json",
+        "packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts",
+        "docs/openclinxr/iwsdk-codex-mcp-runbook.md"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["iwsdk", "stack", "xr"]
+    },
+    {
+      "id": "turborepo-version-and-cache",
+      "title": "TurboRepo version and remote-cache posture",
+      "decidedAt": "2026-05-27",
+      "context": "Turbo used for monorepo tasks; remote cache optional/deferred; some cache policies in architecture tests.",
+      "revisitWhy": "Review Turbo major/minor for task graph, affected, and remote-cache options within approved boundaries (no unapproved cloud).",
+      "cadenceDays": 120,
+      "nextReviewAt": "2026-12-01",
+      "priority": 3,
+      "status": "open",
+      "analysisOwnerRole": "architect",
+      "executeOwnerRole": "architect",
+      "workProductHints": [
+        "package.json",
+        "turbo.json",
+        "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["turbo", "stack", "monorepo"]
+    },
+    {
+      "id": "product-under-os-metrics-dual-path",
+      "title": "product-under-os metrics sufficiency (ccusage + compliance gates)",
+      "decidedAt": "2026-08-02",
+      "context": "First product-under-os scorecard used compliance gates + weak ccusage Δ; declared PROGRESS with noted measurement limits.",
+      "revisitWhy": "After 1–2 more product slices under OS, reassess whether scorecard gates are sufficient or need thrash telemetry upgrade.",
+      "cadenceDays": 90,
+      "nextReviewAt": "2026-11-01",
+      "priority": 2,
+      "status": "open",
+      "analysisOwnerRole": "productivity-skeptic",
+      "executeOwnerRole": "chief-coordinator",
+      "workProductHints": [
+        "docs/agent-ops/product-under-os-scorecard-v1.json",
+        "docs/agent-ops/TEMPORAL-DECISIONS.md"
+      ],
+      "outcomeCreatesWork": true,
+      "tags": ["metrics", "os", "experiment"]
+    }
+  ]
+}

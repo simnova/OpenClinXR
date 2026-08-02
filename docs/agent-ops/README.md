@@ -11,6 +11,9 @@ Governance for the **agent roster** (not product XR runtime). Owner role: **`hrb
 | `WORKTREE-PROMOTE.md` | **Wave C-worktree:** parent promote flow after `isolation=worktree` (`pnpm openclaw:worktree:{list,status,promote}`) |
 | `DOC-WAREHOUSE.md` | **Process (docs-warehouse-v1):** hot ODS vs cold **wiki-capable** warehouse; never-archive list; freeze CLI (`--set agent-ops\|cruft\|all`); rehydrate excludes `docs/_archive/**` |
 | `DOC-HYGIENE-CADENCE.md` | **Cadence SSOT (owner `pmo`):** thresholds + weekly + SessionStart `--auto-run` unattended catch-up; mermaid; `pnpm docs:hygiene:*` |
+| `TEMPORAL-DECISIONS.md` | **Temporal revisit workflow (owner `pmo`):** catalog time-bound decisions (workarounds, pins, model gaps); `pnpm temporal:review` |
+| `temporal-decisions-catalog.json` | Machine catalog of open/due decisions + analysis/execute owners |
+| `temporal-review-queue.md` | Warm regenerated queue of due analyses (not product law) |
 | `REVISION-INDEX.md` | **Warm catalog:** frozen batches + wiki topic pointers (not living law) · cold home [`docs/_archive/README.md`](../_archive/README.md) |
 | `REVIEW-CADENCE.md` | Who reviews whom, how often (includes doc warehouse hygiene row → DOC-HYGIENE-CADENCE) |
 | `RACI.md` | RACI across agent types |

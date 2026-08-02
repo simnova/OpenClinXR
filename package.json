@@ -321,7 +321,10 @@
     "check:lsp": "node tooling/scripts/check-lsp-config.mjs",
     "docs:hygiene:measure": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts measure",
     "docs:hygiene:session-start": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts session-start",
-    "docs:hygiene:run": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts run"
+    "docs:hygiene:run": "tsx tools/openclinxr/openclaw/docs-hygiene-cli.ts run",
+    "temporal:review": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts",
+    "temporal:due": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts due",
+    "temporal:queue": "tsx tools/openclinxr/openclaw/temporal-review-cli.ts queue"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

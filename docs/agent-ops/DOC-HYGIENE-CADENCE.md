@@ -3,7 +3,7 @@
 **Temporal owner (when):** `pmo` · **Roster/process SSOT:** `hrbp` · **Cold verify (optional):** `archivist` · **Product dequeue gate:** orchestrator (respect force) · **Process holes:** openclaw-drift-police  
 **Policy tier:** standard_execution · **BOD intent:** checkpointing/cleanup is **part of doing business** — unattended via SessionStart `--auto-run` + weekly script; not every task, not rare enough to backlog  
 **Process SSOT (what to freeze):** [`DOC-WAREHOUSE.md`](./DOC-WAREHOUSE.md) · **Warm index:** [`REVISION-INDEX.md`](./REVISION-INDEX.md)  
-**Related cadence:** [`REVIEW-CADENCE.md`](./REVIEW-CADENCE.md) (roster)
+**Related cadence:** [`REVIEW-CADENCE.md`](./REVIEW-CADENCE.md) (roster) · [`TEMPORAL-DECISIONS.md`](./TEMPORAL-DECISIONS.md) (time-bound decision revisit)
 
 ## Purpose
 
@@ -43,6 +43,7 @@ Hygiene fires on **event + threshold** or **scheduled cadence** only (matrix bel
 | **docs:authority** | Always **after** a freeze batch (and after registry-touching MD adds) | `pnpm docs:authority` |
 | **Worktree list / residual** | **Weekly** | `pnpm openclaw:worktree:list` (+ status); **promote leftovers only if handoffs done** — see [`WORKTREE-PROMOTE.md`](./WORKTREE-PROMOTE.md) |
 | **Roster review** | **Monthly** (or major program replan) | Dated `docs/agent-ops/YYYY-MM-DD-roster-review.md` — see [`REVIEW-CADENCE.md`](./REVIEW-CADENCE.md) |
+| **Temporal decision due** | Per item `nextReviewAt` in catalog | SessionStart banner line + `pnpm temporal:review -- queue` — see [`TEMPORAL-DECISIONS.md`](./TEMPORAL-DECISIONS.md) |
 
 Tune keep/thresholds only via edit to **this** living file (not ad-hoc per session).
 

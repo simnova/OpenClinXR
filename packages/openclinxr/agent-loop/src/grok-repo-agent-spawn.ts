@@ -109,6 +109,9 @@ export const GROK_REPO_AGENT_CONSULT_DEFAULTS: Record<string, string[]> = {
   temporal: ["pmo"],
   hygiene: ["pmo"],
   cadence: ["pmo", "hrbp"],
+  temporal_decision: ["pmo"],
+  temporal_review: ["pmo", "openclaw-drift-police"],
+  workaround: ["pmo", "openclaw-drift-police"],
 };
 
 export function resolveGrokSpawnSurfaceForPolicy(policy: RepoRoleHarnessPolicy): {

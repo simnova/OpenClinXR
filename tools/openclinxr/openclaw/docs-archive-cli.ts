@@ -65,6 +65,9 @@ export const NEVER_ARCHIVE_BASENAMES = new Set([
   "CAPABILITY-EVOLUTION.md",
   "REVISION-INDEX.md",
   "DOC-HYGIENE-CADENCE.md",
+  "TEMPORAL-DECISIONS.md",
+  "temporal-decisions-catalog.json",
+  "temporal-review-queue.md",
   "README.md",
 ]);
 

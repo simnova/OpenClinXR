@@ -38,7 +38,8 @@ Protected + living agent-ops SSOT (non-dated):
 | `docs/agent-ops/WORKTREE-PROMOTE.md` | Worktree promote loop |
 | `docs/agent-ops/DOC-WAREHOUSE.md` | This file |
 | `docs/agent-ops/DOC-HYGIENE-CADENCE.md` | Periodic enough cadence + SessionStart catch-up |
-| `docs/agent-ops/DOC-HYGIENE-CADENCE.md` | When to freeze/archive (periodic; never per-task) |
+| `docs/agent-ops/TEMPORAL-DECISIONS.md` | Time-bound decision revisit process (PMO) |
+| `docs/agent-ops/temporal-decisions-catalog.json` | Machine catalog of workarounds/pins to re-review |
 | `docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md` | Main = orchestrator CEO only |
 | `docs/agent-ops/RACI.md` | RACI |
 | `docs/agent-ops/REVIEW-CADENCE.md` | Roster review cadence |

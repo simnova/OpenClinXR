@@ -35,6 +35,9 @@ describe("docs-archive-cli pure helpers", () => {
       "CAPABILITY-EVOLUTION.md",
       "REVISION-INDEX.md",
       "DOC-HYGIENE-CADENCE.md",
+      "TEMPORAL-DECISIONS.md",
+      "temporal-decisions-catalog.json",
+      "temporal-review-queue.md",
       "README.md",
     ]) {
       expect(NEVER_ARCHIVE_BASENAMES.has(name)).toBe(true);

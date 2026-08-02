@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 58
 - archive-candidate: 12
-- current-reference: 188
+- current-reference: 190
 - decision-record: 19
 - evidence: 31
 - historical-synthesis: 55
@@ -169,9 +169,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/agent-ops/README.md` - current-reference; Hot agent-ops / CLI-first tooling SSOT; living reference for barrier removal and roster index.
 - `docs/agent-ops/REVIEW-CADENCE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/REVISION-INDEX.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
+- `docs/agent-ops/TEMPORAL-DECISIONS.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/WORKTREE-PROMOTE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/capability-requests/README.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
 - `docs/agent-ops/capability-requests/TEMPLATE.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
+- `docs/agent-ops/temporal-review-queue.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/openclinxr/README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/admin-ux-and-testing-brief.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/asset-generation-pipeline.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

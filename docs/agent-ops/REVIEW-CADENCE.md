@@ -9,5 +9,6 @@
 | **Path-lock / SoD incident** | Spot audit of violated roles; patch definitions | hrbp + chief-coordinator |
 | **Capability constraint residual** | Triage `docs/agent-ops/capability-requests/` | hrbp |
 | **Doc warehouse hygiene** (checkpoint archive, dated freeze, worktree residual, anti-backlog) | **Not** per-task — thresholds + weekly/biweekly/monthly defaults; see **[`DOC-HYGIENE-CADENCE.md`](./DOC-HYGIENE-CADENCE.md)** (SSOT) | **pmo** (temporal + unattended SessionStart auto-run) · hrbp (roster process) · archivist (optional cold verify) · orchestrator (force gate) · drift-police (process holes) |
+| **Temporal decision revisit** (workarounds, stack pins, model capability assumptions) | Per catalog `nextReviewAt` (not every session thrash) — see **[`TEMPORAL-DECISIONS.md`](./TEMPORAL-DECISIONS.md)** | **pmo** (catalog/due/queue) · **analysisOwnerRole** (verdict) · **executeOwnerRole** (work) · orchestrator (promote to product dequeue) |
 
 **Critical:** main Composer session doing IC product work while claiming orchestration-only — restore chief-coordinator discipline (LEX_AGENTIC servant leadership).

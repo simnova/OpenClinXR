@@ -92,6 +92,18 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-02 temporal-decisions-workflow-v1 (Q5 harness)
+
+Product path advanced: Operationalized **temporal decision revisit** under PMO — catalog time-bound workarounds/pins so they are not left permanent (ccusage dual-path, Grok subagent tokens, DeepSeek vision, IWSDK/Turbo pins, product-under-os metrics). CLI `pnpm temporal:review` list/due/measure/queue/register/mark/reschedule; SessionStart hygiene banner includes TEMPORAL DUE line; warm queue `temporal-review-queue.md`. Analysis is analysisOwnerRole; PMO catalogs only.
+
+Blueprint/factory tie: Q5 factory instruction verification (anti-toil: due surface not every-task thrash).
+
+Touched files: TEMPORAL-DECISIONS.md, temporal-decisions-catalog.json, temporal-review-cli.ts(+tests), docs-hygiene-cli temporal line, pmo pathScope/charter, RACI/REVIEW/DOC-HYGIENE, NEVER_ARCHIVE basenames, package.json scripts.
+
+Evidence: temporal tests 5/5; due=0 now (future nextReviewAt); list 6 open; hygiene banner TEMPORAL line present.
+
+Token introspection: n/a (PMO hygiene). Next: when due, spawn analysisOwnerRole; or continue product dequeue.
+
 ### 2026-08-02 product-under-os-v1 (Q1+Q4) — PROGRESS
 
 Product path advanced: BOD Option A — OS landed (`0e22752` → origin/main) then product-under-os experiment. Fixed authoring brief (was peds-contaminated). Expanded IPL pathScope for scenario-runtime/tools (docs-only was blocking product). Worker isolation=worktree; promote 3 files; optional `durableStore` on ScenarioRuntime + `tools/openclinxr/scenario-authoring-roundtrip.ts` + 19/19 tests; verify ok=true.
