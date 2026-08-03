@@ -763,16 +763,45 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     if "parent" in (prompt or "").lower() or age_w > 0.5:
         base_color = (base_color[0] - 0.03, base_color[1] - 0.02, base_color[2] - 0.01, 1.0)  # subtle stress paleness
 
+    # Skin BSDF (procedural realism pass): proper subsurface skin, not plastic mannequin.
+    # Radius ~[0.36, 0.18, 0.10] (R>G>B scatter), low specular, roughness ~0.5, no external textures.
+    # Base Color stays a solid factor (glTF-safe); subtle hue variation is baked into the factor +
+    # sidecar PNGs below — complex Base Color node graphs can be dropped by the exporter.
     bsdf.inputs["Base Color"].default_value = base_color
     mat.diffuse_color = base_color
-    bsdf.inputs["Roughness"].default_value = 0.58 + (age_w * 0.10) + (max(0.0, bmi-24)*0.01)
-    bsdf.inputs["Specular IOR Level"].default_value = 0.24
-    # Transmission + subsurface for skin depth/SSS approx under exam light.
-    bsdf.inputs["Transmission Weight"].default_value = 0.03
-    bsdf.inputs["Subsurface Weight"].default_value = 0.035
-    bsdf.inputs["Subsurface Radius"].default_value = (0.45, 0.28, 0.20)  # local fallback only
+    # Soft dermal roughness (~0.5); age/BMI nudge only slightly so it does not read wax/plastic.
+    bsdf.inputs["Roughness"].default_value = min(0.72, 0.50 + (age_w * 0.08) + (max(0.0, bmi - 24.0) * 0.008))
+    # Low specular / IOR level — hard specular is the main plastic-mannequin cue.
+    if "Specular IOR Level" in bsdf.inputs:
+        bsdf.inputs["Specular IOR Level"].default_value = 0.16
+    elif "Specular" in bsdf.inputs:
+        bsdf.inputs["Specular"].default_value = 0.16
+    # Transmission reads as glassy/plastic under exam light — keep off for skin.
+    if "Transmission Weight" in bsdf.inputs:
+        bsdf.inputs["Transmission Weight"].default_value = 0.0
+    # Stronger SSS weight + skin-like scatter radius (red penetrates farther than blue).
+    if "Subsurface Weight" in bsdf.inputs:
+        bsdf.inputs["Subsurface Weight"].default_value = 0.18 + min(0.08, age_w * 0.04)
+    elif "Subsurface" in bsdf.inputs:
+        bsdf.inputs["Subsurface"].default_value = 0.18 + min(0.08, age_w * 0.04)
+    if "Subsurface Radius" in bsdf.inputs:
+        bsdf.inputs["Subsurface Radius"].default_value = (0.36, 0.18, 0.10)
+    if "Subsurface Scale" in bsdf.inputs:
+        bsdf.inputs["Subsurface Scale"].default_value = 0.12
+    if "Subsurface IOR" in bsdf.inputs:
+        bsdf.inputs["Subsurface IOR"].default_value = 1.4
+    # Soft sheen / coat for dry-skin micro-reflect without hard plastic highlight.
+    if "Sheen Weight" in bsdf.inputs:
+        bsdf.inputs["Sheen Weight"].default_value = 0.04
+        if "Sheen Roughness" in bsdf.inputs:
+            bsdf.inputs["Sheen Roughness"].default_value = 0.55
+    elif "Coat Weight" in bsdf.inputs:
+        bsdf.inputs["Coat Weight"].default_value = 0.02
+        if "Coat Roughness" in bsdf.inputs:
+            bsdf.inputs["Coat Roughness"].default_value = 0.45
 
-    # Multi-octave noise: pores (fine) + spots/wrinkle (mid) driven by phenotype
+    # Multi-octave noise: pores (fine) + spots/wrinkle (mid) driven by phenotype — bump only
+    # (normals travel better through glTF than complex Base Color graphs).
     tex_fine = nt.nodes.new("ShaderNodeTexNoise")
     tex_fine.inputs["Scale"].default_value = 120.0
     tex_fine.inputs["Detail"].default_value = 6.0
@@ -790,20 +819,28 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     nt.links.new(tex_mid.outputs["Fac"], mix.inputs["Color2"])
 
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.035 + (age_w * 0.015)
+    bump.inputs["Strength"].default_value = 0.028 + (age_w * 0.012)
     nt.links.new(mix.outputs["Color"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
 
-    # Color variation ramp (pores darker, spots/age lighter variation)
+    # Sidecar bake path: subtle color variation ramp (pores darker, spots/age lighter).
+    # Not wired to Base Color (glTF-safe solid factor above); used only for albedo PNG evidence.
     color_ramp = nt.nodes.new("ShaderNodeValToRGB")
     nt.links.new(mix.outputs["Color"], color_ramp.inputs["Fac"])
-    color_ramp.color_ramp.elements[0].color = (base_color[0] - 0.09 - age_w*0.03, base_color[1] - 0.07, base_color[2] - 0.06, 1)
-    color_ramp.color_ramp.elements[1].color = (base_color[0] + 0.05 + flush*0.02, base_color[1] + 0.03, base_color[2] + 0.02, 1)
-    # Keep the export material glTF-friendly: complex procedural node graphs on
-    # Base Color can be dropped by the exporter, yielding a white body in WebXR.
-    # Sidecar PNGs below preserve the procedural texture evidence; the runtime
-    # GLB uses the phenotype-driven base color factor until image-texture baking
-    # is promoted.
+    color_ramp.color_ramp.elements[0].color = (
+        max(0.0, base_color[0] - 0.07 - age_w * 0.025),
+        max(0.0, base_color[1] - 0.055),
+        max(0.0, base_color[2] - 0.045),
+        1.0,
+    )
+    color_ramp.color_ramp.elements[1].color = (
+        min(1.0, base_color[0] + 0.04 + flush * 0.02),
+        min(1.0, base_color[1] + 0.025),
+        min(1.0, base_color[2] + 0.015),
+        1.0,
+    )
+    # Runtime GLB uses the phenotype-driven base color factor + SSS; sidecar PNGs preserve
+    # procedural pore/spot variation until image-texture baking is promoted.
 
     if mesh_obj.data.materials:
         mesh_obj.data.materials[0] = mat
@@ -1223,23 +1260,29 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         for i in range(torso_rows):
             t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
             y = bot_y + t * (top_y - bot_y)
-            ripple = 0.005 * math.sin(t * 8.0) + 0.003 * math.sin(t * 12.0)
-            bulge = 0.014 if 0.28 < t < 0.68 else 0.006
+            # Gentle fabric drape: multi-freq ripple + angular folds (less boxy hard-band).
+            ripple = 0.007 * math.sin(t * 8.0) + 0.0045 * math.sin(t * 12.0) + 0.003 * math.sin(t * 5.5)
+            bulge = 0.016 if 0.28 < t < 0.68 else 0.007
             # shoulder slope: widen slightly at top for sleeve attach; taper hem
             shoulder_flare = 1.0 + 0.12 * max(0.0, (t - 0.72) / 0.28) if t > 0.72 else 1.0
-            rx = (r_base + bulge + ripple) * shoulder_flare
-            rz = (r_base * 0.72 + bulge * 0.6 + ripple)  # flatter front/back ellipse
+            rx0 = (r_base + bulge + ripple) * shoulder_flare
+            rz0 = (r_base * 0.72 + bulge * 0.6 + ripple)  # flatter front/back ellipse
             if i == 0:
-                rx *= 0.90
-                rz *= 0.90
+                rx0 *= 0.90
+                rz0 *= 0.90
             if i == torso_rows - 1:
-                rx *= 0.96  # keep shoulder width for sleeve join
-                rz *= 0.88
+                rx0 *= 0.96  # keep shoulder width for sleeve join
+                rz0 *= 0.88
             for j in range(torso_cols):
                 ang = (j / torso_cols) * 2.0 * math.pi
+                # circumferential folds + slight hem droop so cloth is not a rigid cylinder
+                fold = 0.0055 * math.sin(ang * 3.0 + t * 4.2) + 0.0035 * math.sin(ang * 5.0 - t * 2.5)
+                hem_droop = 0.004 * (1.0 - t) * (0.5 + 0.5 * math.sin(ang * 2.0))
+                rx = rx0 + fold
+                rz = rz0 + fold * 0.7
                 x = cx + rx * math.cos(ang)
                 z = cz - 0.004 + rz * math.sin(ang) * 0.85  # slight forward bias
-                verts.append((x, y, z))
+                verts.append((x, y - hem_droop, z))
         for i in range(torso_rows - 1):
             for j in range(torso_cols):
                 a = i * torso_cols + j
@@ -1283,15 +1326,18 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 cx_s = shoulder[0] + arm_dir_n[0] * t_along
                 cy_s = shoulder[1] + arm_dir_n[1] * t_along
                 cz_s = shoulder[2] + arm_dir_n[2] * t_along
-                ripple = 0.004 * math.sin(st * 14.0)
+                ripple = 0.0055 * math.sin(st * 14.0) + 0.003 * math.sin(st * 9.0)
                 # taper toward cuff
                 sr = r0 * (1.0 - st * 0.28) + ripple
                 for sj in range(cols):
                     sang = (sj / cols) * 2.0 * math.pi
+                    # gentle sleeve fabric fold (not hard tube band)
+                    fold = 0.0035 * math.sin(sang * 3.0 + st * 6.0)
                     ca, sa = math.cos(sang), math.sin(sang)
-                    x = cx_s + sr * (ca * sx + sa * px)
-                    y = cy_s + sr * (ca * sy + sa * py)
-                    z = cz_s + sr * (ca * sz + sa * pz)
+                    srr = sr + fold
+                    x = cx_s + srr * (ca * sx + sa * px)
+                    y = cy_s + srr * (ca * sy + sa * py)
+                    z = cz_s + srr * (ca * sz + sa * pz)
                     verts.append((x, y, z))
             for si in range(rows - 1):
                 for sj in range(cols):
@@ -1373,9 +1419,35 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         gown_color = (0.15, 0.55, 0.82, 1.0) if is_gown else (0.08, 0.52, 0.95, 1.0)
         gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype", gown_color)  # vivid separate for evidence (gown variant slightly diff blue); per MANDATE_VISIBILITY + ed-gown-geo-reorchestrate for skeptic-visible 3D deforming gown volume in cagematch/UI-XR
         garment.data.materials.append(gmat)
+        # Fabric thickness + light density + weighted normals so cloth reads less boxy/hard-band.
+        # Order: SOLIDIFY → SUBSURF(1) → WEIGHTED_NORMAL → ARMATURE (weights preserved; no apply).
         sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
-        sol.thickness = 0.012 if is_gown else 0.008  # thinner for fitted (was 0.014 puffy box)
-        garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
+        sol.thickness = 0.012 if is_gown else 0.009  # fabric shell thickness (not puffy box)
+        sol.offset = 1.0  # grow outward from body
+        if hasattr(sol, "use_even_offset"):
+            sol.use_even_offset = True
+        if hasattr(sol, "use_quality_normals"):
+            sol.use_quality_normals = True
+        if not any(m.type == "SUBSURF" for m in garment.modifiers):
+            gsub = garment.modifiers.new("openclinxr_real_garment_subsurf_v1", "SUBSURF")
+            gsub.levels = 1
+            gsub.render_levels = 1
+            if hasattr(gsub, "subdivision_type"):
+                gsub.subdivision_type = "CATMULL_CLARK"
+        if not any(m.type == "WEIGHTED_NORMAL" for m in garment.modifiers):
+            gwn = garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
+            if hasattr(gwn, "mode"):
+                try:
+                    gwn.mode = "FACE_AREA_WITH_ANGLE"
+                except (TypeError, ValueError, AttributeError):
+                    try:
+                        gwn.mode = "FACE_AREA"
+                    except (TypeError, ValueError, AttributeError):
+                        pass
+            if hasattr(gwn, "keep_sharp"):
+                gwn.keep_sharp = False
+        for poly in garment.data.polygons:
+            poly.use_smooth = True
         # skin to armature for breathing deform (clav/upper_arm etc) — same local-Y basis as body
         weighted_bones: List[str] = []
         if arm_obj is None:
@@ -1492,6 +1564,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             "deformsWithBreathing": True,
             "hasVisibleVolume": True,
             "hasSeamFoldHints": True,
+            "hasFabricThicknessSolidify": True,
+            "hasLightSubsurf": True,
+            "hasGentleDisplacementFolds": True,
             "coordinateBasis": "body_local_y_height_bind_pose_v1",
             "bindPoseLocalBBox": local_bbox,
             "bindPoseWorldBBox": world_bbox,
@@ -1587,7 +1662,17 @@ def create_garment_source_geometry_hint(mesh_obj: bpy.types.Object, actor_role: 
     garment.data.materials.append(gmat)
     sol = garment.modifiers.new("openclinxr_garment_hint_thickness_v1", "SOLIDIFY")
     sol.thickness = 0.011
-    garment.modifiers.new("openclinxr_garment_hint_weighted_normals", "WEIGHTED_NORMAL")
+    sol.offset = 1.0
+    if hasattr(sol, "use_even_offset"):
+        sol.use_even_offset = True
+    if not any(m.type == "SUBSURF" for m in garment.modifiers):
+        hsub = garment.modifiers.new("openclinxr_garment_hint_subsurf_v1", "SUBSURF")
+        hsub.levels = 1
+        hsub.render_levels = 1
+    if not any(m.type == "WEIGHTED_NORMAL" for m in garment.modifiers):
+        garment.modifiers.new("openclinxr_garment_hint_weighted_normals", "WEIGHTED_NORMAL")
+    for poly in garment.data.polygons:
+        poly.use_smooth = True
     # v1: parent to body mesh for basic transform follow in body-motion views (no full vertex weights yet)
     garment.parent = mesh_obj
     garment["openClinXrGarmentSourceHint"] = "garment_source_geometry_hint_v1_separate_shell"
@@ -1742,6 +1827,132 @@ def add_role_clothing_markers(mesh_obj: bpy.types.Object, actor_role: str, pheno
     }
 
 
+def finalize_body_mesh_shading_and_density(mesh_obj: bpy.types.Object) -> Dict[str, Any]:
+    """
+    Body mesh finalize pass immediately before export diagnostics.
+
+    Reduces the "low-poly faceted / hard facets" read without breaking skinning:
+      1) shade-smooth (per-face use_smooth=True) so exported normals are averaged
+      2) light Catmull-Clark SUBSURF levels=1 (evaluation density only; NOT applied —
+         vertex groups, shape keys, and ARMATURE weights stay intact; base V-count unchanged)
+      3) WEIGHTED_NORMAL after subsurf for softer silhouette normals
+
+    Modifier order forced to: SUBSURF → WEIGHTED_NORMAL → existing ARMATURE(s).
+    Vertex groups / shape keys are never rewritten. Base mesh vertex count is preserved
+    (<2x constraint) because modifiers are not applied.
+    """
+    mesh = mesh_obj.data
+    for poly in mesh.polygons:
+        poly.use_smooth = True
+    # Blender 3.x auto-smooth; 4.x may ignore — best-effort only.
+    if hasattr(mesh, "use_auto_smooth"):
+        try:
+            mesh.use_auto_smooth = True
+            if hasattr(mesh, "auto_smooth_angle"):
+                import math as _math
+                mesh.auto_smooth_angle = _math.radians(60.0)
+        except Exception:
+            pass
+
+    # Snapshot ARMATURE modifiers, then rebuild stack so subsurf runs before deform.
+    arm_snapshots: List[Dict[str, Any]] = []
+    for mod in list(mesh_obj.modifiers):
+        if mod.type == "ARMATURE":
+            arm_snapshots.append(
+                {
+                    "name": mod.name,
+                    "object": mod.object,
+                    "use_vertex_groups": bool(getattr(mod, "use_vertex_groups", True)),
+                    "use_deform_preserve_volume": bool(getattr(mod, "use_deform_preserve_volume", False)),
+                }
+            )
+            mesh_obj.modifiers.remove(mod)
+
+    subsurf_name = "openclinxr_body_density_subsurf_v1"
+    if not any(m.type == "SUBSURF" for m in mesh_obj.modifiers):
+        sub = mesh_obj.modifiers.new(subsurf_name, "SUBSURF")
+        sub.levels = 1
+        sub.render_levels = 1
+        if hasattr(sub, "subdivision_type"):
+            sub.subdivision_type = "CATMULL_CLARK"
+        if hasattr(sub, "show_only_control_edges"):
+            sub.show_only_control_edges = False
+    else:
+        subsurf_name = next(m.name for m in mesh_obj.modifiers if m.type == "SUBSURF")
+        sub = mesh_obj.modifiers[subsurf_name]
+        sub.levels = min(int(getattr(sub, "levels", 1) or 1), 1)
+        sub.render_levels = min(int(getattr(sub, "render_levels", 1) or 1), 1)
+
+    wn_name = "openclinxr_body_weighted_normal_v1"
+    if not any(m.type == "WEIGHTED_NORMAL" for m in mesh_obj.modifiers):
+        wn = mesh_obj.modifiers.new(wn_name, "WEIGHTED_NORMAL")
+        if hasattr(wn, "mode"):
+            try:
+                wn.mode = "FACE_AREA_WITH_ANGLE"
+            except (TypeError, ValueError, AttributeError):
+                try:
+                    wn.mode = "FACE_AREA"
+                except (TypeError, ValueError, AttributeError):
+                    pass
+        if hasattr(wn, "keep_sharp"):
+            wn.keep_sharp = False
+        if hasattr(wn, "weight"):
+            try:
+                wn.weight = 50
+            except (TypeError, ValueError, AttributeError):
+                pass
+    else:
+        wn_name = next(m.name for m in mesh_obj.modifiers if m.type == "WEIGHTED_NORMAL")
+
+    # Re-append ARMATURE last so deformation uses subdivided rest pose when evaluated.
+    restored_armatures: List[str] = []
+    for snap in arm_snapshots:
+        am = mesh_obj.modifiers.new(snap["name"], "ARMATURE")
+        am.object = snap["object"]
+        if hasattr(am, "use_vertex_groups"):
+            am.use_vertex_groups = snap["use_vertex_groups"]
+        if hasattr(am, "use_deform_preserve_volume"):
+            am.use_deform_preserve_volume = snap["use_deform_preserve_volume"]
+        restored_armatures.append(am.name)
+
+    # Prefer shade_smooth operator when an active object context is available (no-op safe).
+    try:
+        view_layer = bpy.context.view_layer
+        prev_active = view_layer.objects.active
+        mesh_obj.select_set(True)
+        view_layer.objects.active = mesh_obj
+        bpy.ops.object.shade_smooth()
+        if prev_active is not None:
+            view_layer.objects.active = prev_active
+    except Exception:
+        pass  # per-face use_smooth already set above
+
+    base_v = len(mesh.vertices)
+    base_f = len(mesh.polygons)
+    print(
+        f"[blender] body shading/density finalize: shade_smooth=True subsurf_levels=1 "
+        f"weighted_normal=True base_verts={base_v} base_faces={base_f} "
+        f"(modifiers not applied; skinning/shape keys preserved)"
+    )
+    return {
+        "shadeSmooth": True,
+        "subsurfLevels": 1,
+        "subsurfApplied": False,
+        "weightedNormal": True,
+        "baseVertexCount": base_v,
+        "baseFaceCount": base_f,
+        "modifierOrder": [m.name for m in mesh_obj.modifiers],
+        "restoredArmatures": restored_armatures,
+        "claimScope": "procedural_body_shade_smooth_light_subsurf_weighted_normal_not_production_sculpt",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity",
+        ],
+    }
+
+
 def export_final_glb(output_path: str) -> None:
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     bpy.ops.export_scene.gltf(
@@ -1785,6 +1996,8 @@ def main() -> None:
         garment_source_geometry_hint = create_garment_source_geometry_hint(mesh_obj, args.actor_role, phenotype)
     print("[blender] assigning mesh-native scalp/hair material region")
     scalp_hair_material_region = apply_mesh_native_scalp_hair_material_region(mesh_obj, phenotype)
+    print("[blender] finalizing body mesh shading + light density (shade-smooth / subsurf L1 / weighted normal)")
+    body_shading_density = finalize_body_mesh_shading_and_density(mesh_obj)
     morph_diagnostics = morph_target_diagnostics(mesh_obj)
     body_diagnostics = body_rig_diagnostics(mesh_obj, arm_obj, animation_clips, args.actor_role)
 
@@ -1884,6 +2097,7 @@ def main() -> None:
             "notEvidenceFor": ["motion_capture_quality", "speech2motion_quality", "b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"]
         },
         "bodyRigDiagnostics": body_diagnostics,
+        "bodyShadingDensity": body_shading_density,
         "roleVisualMarkers": role_visual_markers,
         "roleClothingMaterialRegions": role_clothing_material_regions,
         "garmentSourceGeometryHint": garment_source_geometry_hint,
