@@ -27,7 +27,8 @@
     const params = new URLSearchParams(location.search);
     const glb = params.get("glb")
       || "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb";
-    const hideGarment = params.get("hideGarment") !== "0";
+    // Default SHOW real garment shell (clinical attire). Pass hideGarment=1 only for bare-body debug.
+    const hideGarment = params.get("hideGarment") === "1" || params.get("hideGarment") === "true";
     const animClip = params.get("anim"); // name substring or "1" = first clip; "0"/absent = off unless only anim mode
     const animOnly = params.get("anim") != null && params.get("anim") !== "0";
     // Physics defaults off when proving GLB clips (avoids fighting AnimationMixer).
@@ -55,8 +56,10 @@
     const scene = new THREE.Scene();
     // Slightly lighter ground/bg so transparent skin reads
     scene.background = new THREE.Color(0x1a2230);
-    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.05, 50);
-    camera.position.set(0.9, 1.35, 2.4);
+    // Wider FOV + later fit-to-bbox framing so full figure (incl. head/face) is never clipped.
+    const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.05, 80);
+    camera.position.set(0.9, 1.2, 3.2);
+    const framingMode = String(params.get("framing") || "full").toLowerCase(); // full | face
     const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(innerWidth, innerHeight);
@@ -912,9 +915,63 @@
       window.__isoAlign = alignResult;
 
       const glassCount = applySemiTransparentSkin(root, skinOpacity);
-      controls.target.set(0, size.y * 0.45, 0);
-      camera.position.set(size.y * 0.55, size.y * 0.75, size.y * 1.35);
+      // Recompute world AABB after feet-on-ground centering so framing fits the TRUE figure.
+      root.updateMatrixWorld(true);
+      const fitBox = new THREE.Box3().setFromObject(root);
+      const fitSize = fitBox.getSize(new THREE.Vector3());
+      const fitCenter = fitBox.getCenter(new THREE.Vector3());
+      const aspect = Math.max(camera.aspect || (innerWidth / Math.max(innerHeight, 1)), 0.5);
+      const vFov = (camera.fov * Math.PI) / 180;
+      const fitFull = () => {
+        // Full figure incl head + headroom (top of bbox fully in frame; slight bottom margin).
+        const padY = 1.14; // headroom so crown is never clipped
+        const padX = 1.18;
+        const halfH = (fitSize.y * padY) * 0.5;
+        const halfW = (Math.max(fitSize.x, fitSize.z) * padX) * 0.5;
+        const distForH = halfH / Math.tan(vFov * 0.5);
+        const distForW = halfW / (Math.tan(vFov * 0.5) * aspect);
+        const dist = Math.max(distForH, distForW, 0.8) * 1.08;
+        // Look at mid-torso slightly below true center so head has extra pixel margin at top.
+        const targetY = fitCenter.y + fitSize.y * 0.02;
+        controls.target.set(fitCenter.x, targetY, fitCenter.z);
+        camera.position.set(fitCenter.x + dist * 0.22, targetY + fitSize.y * 0.04, fitCenter.z + dist);
+      };
+      const fitFace = () => {
+        // Head/face close-up: upper ~28% of figure height.
+        const headH = Math.max(fitSize.y * 0.28, 0.22);
+        const headCenterY = fitBox.max.y - headH * 0.45;
+        const halfH = headH * 0.62;
+        const halfW = Math.max(fitSize.x * 0.35, headH * 0.45);
+        const distForH = halfH / Math.tan(vFov * 0.5);
+        const distForW = halfW / (Math.tan(vFov * 0.5) * aspect);
+        const dist = Math.max(distForH, distForW, 0.35) * 1.12;
+        controls.target.set(fitCenter.x, headCenterY, fitCenter.z);
+        camera.position.set(fitCenter.x + dist * 0.12, headCenterY + headH * 0.05, fitCenter.z + dist);
+      };
+      if (framingMode === "face" || framingMode === "head" || framingMode === "closeup") {
+        fitFace();
+      } else {
+        fitFull();
+      }
       controls.update();
+      camera.lookAt(controls.target);
+      window.__isoFraming = framingMode === "face" || framingMode === "head" || framingMode === "closeup" ? "face" : "full";
+      window.__isoFit = {
+        size: { x: fitSize.x, y: fitSize.y, z: fitSize.z },
+        center: { x: fitCenter.x, y: fitCenter.y, z: fitCenter.z },
+        min: { x: fitBox.min.x, y: fitBox.min.y, z: fitBox.min.z },
+        max: { x: fitBox.max.x, y: fitBox.max.y, z: fitBox.max.z },
+      };
+      window.__isoSetFraming = (mode) => {
+        const m = String(mode || "full").toLowerCase();
+        if (m === "face" || m === "head" || m === "closeup") fitFace();
+        else fitFull();
+        controls.update();
+        camera.lookAt(controls.target);
+        window.__isoFraming = m === "face" || m === "head" || m === "closeup" ? "face" : "full";
+        renderer.render(scene, camera);
+        return window.__isoFraming;
+      };
 
       let meshCount = 0;
       let visibleMeshes = 0;
