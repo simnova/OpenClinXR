@@ -360,4 +360,25 @@ describe("review packet workflow", () => {
     ]);
     expect(packet.timeline.map((entry) => entry.sequence)).toEqual([0, 1, 2, 3]);
   });
+
+  it("summarizes clinical touch events with physical exam touch wording and a notEvidenceFor claim boundary", () => {
+    const packet = buildReviewPacket({
+      scenarioId: "ed_chest_pain_priority_v1",
+      requiredTraceTags: [],
+      traceEvents: [
+        {
+          eventType: "clinical.touch.guarding",
+          actorId: "patient_x",
+          atSecond: 5,
+          sequence: 1,
+          source: "dom_click_trace_button",
+          payload: { region: "chest_R" },
+        },
+      ],
+      stationRunId: "run_001",
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Review clinical touch evidence." },
+    });
+
+    expect(packet.timeline[0]?.summary).toContain("physical exam touch");
+  });
 });

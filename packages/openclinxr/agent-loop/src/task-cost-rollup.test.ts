@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estimateUsdFromTotalTokens, resolveModelPrice, formatUsd } from "./model-pricing.js";
+import { estimateUsdFromSplit, estimateUsdFromTotalTokens, resolveModelPrice, formatUsd } from "./model-pricing.js";
 import { buildTaskCostRollup, filterSubagentsSince } from "./task-cost-rollup.js";
 import type { GrokSubagentTokenSnapshot } from "./grok-token-introspection.js";
 
@@ -25,8 +25,20 @@ describe("model-pricing + task-cost-rollup", () => {
   it("resolves model price rows", () => {
     expect(resolveModelPrice("deepseek-v4-flash").id).toBe("deepseek-v4-flash");
     expect(resolveModelPrice("grok-4.5").id).toBe("grok-4.5");
-    expect(estimateUsdFromTotalTokens(1_000_000, "deepseek-v4-flash").usd).toBeCloseTo(0.2, 5);
+    expect(estimateUsdFromTotalTokens(1_000_000, "deepseek-v4-flash").usd).toBeCloseTo(0.18, 5);
     expect(formatUsd(0.004)).toMatch(/\$0\.00/);
+  });
+
+  it("resolves fetched Claude + Grok rows and computes exact split cost (real 2026-08-03 rates)", () => {
+    expect(resolveModelPrice("claude-opus").inputPer1M).toBe(5.0);
+    expect(resolveModelPrice("claude-haiku").outputPer1M).toBe(5.0);
+    expect(resolveModelPrice("grok-4.5-build").id).toBe("grok-4.5"); // CLI alias resolves
+    // Grok-4.5 vision judgment (P1): 41k in / 800 out at real 2/6 -> ~$0.087, not $0.25.
+    const p1 = estimateUsdFromSplit(41_000, 800, "grok-4.5");
+    expect(p1.usd).toBeCloseTo(0.0868, 3);
+    // DeepSeek-flash cached input billed 50x cheaper than fresh.
+    const cached = estimateUsdFromSplit(100_000, 0, "deepseek-v4-flash", 100_000);
+    expect(cached.usd).toBeCloseTo((100_000 / 1_000_000) * 0.0028, 6);
   });
 
   it("filters subagents by completion window", () => {

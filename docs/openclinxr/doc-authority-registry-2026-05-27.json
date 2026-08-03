@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 197,
+    "current-reference": 198,
     "archive-candidate": 16,
     "evidence": 33,
     "protected-policy": 10,
@@ -2141,6 +2141,13 @@
       "agentInstructionWeight": "high",
       "action": "use-as-current",
       "rationale": "Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list."
+    },
+    {
+      "path": "docs/agent-ops/DELEGATION-OPTIMIZATION-PLAN.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
       "path": "docs/agent-ops/DOC-HYGIENE-CADENCE.md",

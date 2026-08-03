@@ -213,6 +213,12 @@ function summarizeTimelineEvent(
     return [`${event.actorId} voice audio generated`, durableEventSummary(event)].join("; ");
   }
 
+  if (event.eventType?.startsWith("clinical.touch.") && event.actorId) {
+    const region = payloadString(event.payload, "region") ?? "region";
+    const kind = event.eventType.slice("clinical.touch.".length);
+    return [`${event.actorId} physical exam touch: ${kind} at ${region}`, tagSummary(event), durableEventSummary(event, { includeUnavailable: false }), "notEvidenceFor clinical_validity/scoring"].filter(Boolean).join("; ");
+  }
+
   if (event.eventType === "note.submitted") {
     return "Patient note submitted";
   }

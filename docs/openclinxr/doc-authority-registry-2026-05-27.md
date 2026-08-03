@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 58
 - archive-candidate: 16
-- current-reference: 197
+- current-reference: 198
 - decision-record: 22
 - evidence: 33
 - historical-synthesis: 56
@@ -162,6 +162,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/agent-ops/CAPABILITY-EVOLUTION.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/CEO-VOICE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/COMPOSITION-ROOTS.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
+- `docs/agent-ops/DELEGATION-OPTIMIZATION-PLAN.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/DOC-HYGIENE-CADENCE.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/DOC-WAREHOUSE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/MAIN-SESSION-ORCHESTRATOR-ONLY.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
