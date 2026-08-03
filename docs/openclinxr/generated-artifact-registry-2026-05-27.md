@@ -13,7 +13,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - ignore-local-cache: 2030
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 110
+- keep-evidence: 111
 - keep-template: 6
 
 ## Cleanup Actions
@@ -2230,6 +2230,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/generated-ed-station-runtime-bundle-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/godot-project-import-check-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/humanoid-source-bplus-scorecard-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
+- `docs/openclinxr/humanoid-vision-score-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/iwsdk-evidence-contract-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/iwsdk-npm-currentness-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/iwsdk-npm-metadata-snapshot-2026-06-04.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

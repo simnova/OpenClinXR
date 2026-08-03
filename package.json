@@ -200,6 +200,7 @@
     "asset:bvh-retarget:lab-smoke": "tsx tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts",
     "asset:bvh-retarget:lab-smoke:validate": "tsx tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts --validate-latest",
     "asset:guard-withdraw-clip": "tsx tools/openclinxr/evidence/materialize-guard-withdraw-clip.ts",
+    "asset:humanoid:vision-score": "tsx tools/openclinxr/evidence/humanoid-vision-score.ts",
     "asset:clinical-touch:smoke": "tsx tools/openclinxr/evidence/clinical-touch-smoke.ts",
     "asset:clinical-touch:smoke:validate": "tsx tools/openclinxr/evidence/clinical-touch-smoke.ts --validate-latest",
     "asset:human-rigging:generate": "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts",

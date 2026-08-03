@@ -1,0 +1,65 @@
+{
+  "generatedAt": "2026-08-03T20:34:16.555Z",
+  "notEvidenceFor": [
+    "aesthetic_only_not_clinical_validity"
+  ],
+  "scores": {
+    "peds_patient_child": {
+      "realism_0to1": 0.05,
+      "clothing_0to1": 0.02,
+      "reason": "No readable child humanoid—only abstract beige banded planes; clothing unassessable"
+    },
+    "peds_anxious_parent": {
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0.48,
+      "reason": "Clear multi-region bodysuit+trim+pants on body, but heavy low-poly facets and mannequin skin kill realism"
+    },
+    "peds_nurse_kevin": {
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0.48,
+      "reason": "Readable humanoid silhouette but hard low-poly facets; teal full-body suit present and fitted with arm/thigh bands, no fabric detail or natural seams."
+    },
+    "ed_chest_pain_patient_real_garment": {
+      "realism_0to1": 0.3,
+      "clothing_0to1": 0.38,
+      "reason": "Low-poly mannequin; snug color-block bodysuit present but hard-band mesh, no fabric drape"
+    },
+    "ed_chest_pain_patient_adult_bod_cmu_bvh_full": {
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0,
+      "reason": "Low-poly nude mannequin mesh; no garments, seams, or fitted clothing present"
+    }
+  },
+  "ranked": [
+    {
+      "id": "ed_chest_pain_patient_real_garment",
+      "realism_0to1": 0.3,
+      "clothing_0to1": 0.38,
+      "reason": "Low-poly mannequin; snug color-block bodysuit present but hard-band mesh, no fabric drape"
+    },
+    {
+      "id": "peds_anxious_parent",
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0.48,
+      "reason": "Clear multi-region bodysuit+trim+pants on body, but heavy low-poly facets and mannequin skin kill realism"
+    },
+    {
+      "id": "peds_nurse_kevin",
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0.48,
+      "reason": "Readable humanoid silhouette but hard low-poly facets; teal full-body suit present and fitted with arm/thigh bands, no fabric detail or natural seams."
+    },
+    {
+      "id": "ed_chest_pain_patient_adult_bod_cmu_bvh_full",
+      "realism_0to1": 0.28,
+      "clothing_0to1": 0,
+      "reason": "Low-poly nude mannequin mesh; no garments, seams, or fitted clothing present"
+    },
+    {
+      "id": "peds_patient_child",
+      "realism_0to1": 0.05,
+      "clothing_0to1": 0.02,
+      "reason": "No readable child humanoid—only abstract beige banded planes; clothing unassessable"
+    }
+  ]
+}
