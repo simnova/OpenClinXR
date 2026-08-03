@@ -303,6 +303,12 @@ importers:
       '@openclinxr/review-workflow':
         specifier: workspace:*
         version: link:../../packages/openclinxr/review-workflow
+      '@openclinxr/scenario-fixtures':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/scenario-fixtures
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/shared-schemas
       '@openclinxr/ui-route-admin':
         specifier: workspace:*
         version: link:../../packages/openclinxr/ui-route-admin

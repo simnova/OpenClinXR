@@ -19,6 +19,8 @@
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/rest": "workspace:*",
+    "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/ui-route-admin": "workspace:*",
     "@openclinxr/ui-shared": "workspace:*",
     "antd": "6.3.7",

@@ -2,6 +2,13 @@ import { createRouteManifest, findRouteByPath } from "@openclinxr/ui-route-share
 
 export const adminWorkbenchRoutes = createRouteManifest([
   {
+    id: "case-authoring",
+    path: "/authoring",
+    label: "Case Authoring",
+    description: "Create and edit encounter cases that drive the factory; export scenario-bank JSON.",
+    capabilityTags: ["Ant Design 6", "ScenarioSchema"],
+  },
+  {
     id: "scenario-bank",
     path: "/scenarios",
     label: "Scenario Bank",

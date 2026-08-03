@@ -36,6 +36,7 @@ import {
   type ScenarioSceneGenerationRequestQueue,
   type SubmitRuntimeVisualEvidenceAttachmentInput,
 } from "./api-client.js";
+import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
@@ -114,6 +115,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
 
               <Routes>
                 <Route path="/" element={<WorkbenchOverview />} />
+                <Route path="/authoring" element={<CaseAuthoringWorkbench />} />
                 <Route path="/scenarios" element={<ScenarioBankWorkbench controlPlaneClient={client} />} />
                 <Route path="/scenarios/:scenarioId" element={<ScenarioDetailWorkbench controlPlaneClient={client} />} />
                 <Route path="/reviews" element={<ReviewReplayWorkbench controlPlaneClient={client} />} />

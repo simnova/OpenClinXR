@@ -159,25 +159,25 @@ export function parseAdminReplayFromEmissionV1(value: unknown): AdminReplayFromE
     throw new Error("Admin replay projection is not an object");
   }
   const record = value as Record<string, unknown>;
-  if (record.schemaVersion !== "openclinxr.admin-replay-from-emission.v1") {
+  if (record["schemaVersion"] !== "openclinxr.admin-replay-from-emission.v1") {
     throw new Error(
-      `Unexpected schemaVersion: ${String(record.schemaVersion)} (expected openclinxr.admin-replay-from-emission.v1)`,
+      `Unexpected schemaVersion: ${String(record["schemaVersion"])} (expected openclinxr.admin-replay-from-emission.v1)`,
     );
   }
-  if (record.turnSource !== "runtime_emission_real_turns") {
+  if (record["turnSource"] !== "runtime_emission_real_turns") {
     throw new Error(
-      `Unexpected turnSource: ${String(record.turnSource)} (expected runtime_emission_real_turns, not seeds-only)`,
+      `Unexpected turnSource: ${String(record["turnSource"])} (expected runtime_emission_real_turns, not seeds-only)`,
     );
   }
-  if (!Array.isArray(record.actorTurnRefs) || record.actorTurnRefs.length < 1) {
+  if (!Array.isArray(record["actorTurnRefs"]) || record["actorTurnRefs"].length < 1) {
     throw new Error("Admin replay projection requires actorTurnRefs (≥1 real turn)");
   }
-  if (record.privatePayloadRedacted !== true) {
+  if (record["privatePayloadRedacted"] !== true) {
     throw new Error("Admin replay projection requires privatePayloadRedacted=true");
   }
-  if (record.claimBoundary !== "admin_replay_from_runtime_emission_not_clinical_validity") {
+  if (record["claimBoundary"] !== "admin_replay_from_runtime_emission_not_clinical_validity") {
     throw new Error(
-      `Unexpected claimBoundary: ${String(record.claimBoundary)}`,
+      `Unexpected claimBoundary: ${String(record["claimBoundary"])}`,
     );
   }
   return value as AdminReplayFromEmissionV1;
