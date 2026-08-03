@@ -504,7 +504,7 @@ describe("OpenClinXR shared schemas", () => {
       displayName: "Maria Alvarez",
       communicationProfile,
     }).ok).toBe(true);
-    // Additive optional bodyMechanics: abdomen_rlq clinical-touch response (not clinical validity).
+    // Additive optional bodyMechanics: multi-region clinical-touch map (not clinical validity).
     expect(
       validateActorCard({
         actorId: "patient_robert_hayes_v1",
@@ -516,12 +516,32 @@ describe("OpenClinXR shared schemas", () => {
             {
               region: "abdomen_rlq",
               responseKind: "guarding",
-              forceThreshold: 0.4,
+              forceThreshold: 0.32,
               emotionEventId: "guard_rlq_v1",
               emotion: "pain",
               responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
-              dialogueLine: "Ow— that hurts, please don't push there.",
+              dialogueLine: "Ow— that hurts a lot, please don't push there.",
               traceTag: "clinical_touch_guard_rlq",
+            },
+            {
+              region: "abdomen_ruq",
+              responseKind: "guarding",
+              forceThreshold: 0.55,
+              emotionEventId: "guard_ruq_v1",
+              emotion: "concerned",
+              responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+              dialogueLine: "A little tender up there.",
+              traceTag: "clinical_touch_guard_ruq",
+            },
+            {
+              region: "chest_R",
+              responseKind: "guarding",
+              forceThreshold: 0.42,
+              emotionEventId: "guard_chest_r_v1",
+              emotion: "pain",
+              responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+              dialogueLine: "That's where the pressure is— careful on that side.",
+              traceTag: "clinical_touch_guard_chest_r",
             },
           ],
         },

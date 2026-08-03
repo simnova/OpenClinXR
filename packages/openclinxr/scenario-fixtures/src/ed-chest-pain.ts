@@ -47,21 +47,71 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["plain English", "respectful direct language", "avoid caricature"],
       },
       hiddenFacts: ["Pain started while walking upstairs", "Father died of myocardial infarction at 54"],
-      // Animation-driven clinical-touch interaction (notEvidenceFor clinical validity):
-      // RLQ abdomen palpation produces guarding/withdraw + pain emotion + reflexive dialogue.
-      // Region vocabulary mirrors physics-touch-contract; same config can later drive live physics.
+      // Multi-region clinical-touch map (notEvidenceFor clinical validity / scoring).
+      // RLQ maximal guarding (rebound-style); other abdomen + chest milder — exam-distinct responses.
+      // Region vocabulary mirrors physics-touch-contract; shared guard clip + per-region emotion/dialogue/trace.
       bodyMechanics: {
         habitus: "average",
         touchResponses: [
           {
             region: "abdomen_rlq",
             responseKind: "guarding",
-            forceThreshold: 0.4,
+            forceThreshold: 0.32,
             emotionEventId: "guard_rlq_v1",
             emotion: "pain",
             responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
-            dialogueLine: "Ow— that hurts, please don't push there.",
+            dialogueLine: "Ow— that hurts a lot, please don't push there.",
             traceTag: "clinical_touch_guard_rlq",
+          },
+          {
+            region: "abdomen_ruq",
+            responseKind: "guarding",
+            forceThreshold: 0.55,
+            emotionEventId: "guard_ruq_v1",
+            emotion: "concerned",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "A little tender up there, not as bad as lower right.",
+            traceTag: "clinical_touch_guard_ruq",
+          },
+          {
+            region: "abdomen_luq",
+            responseKind: "guarding",
+            forceThreshold: 0.55,
+            emotionEventId: "guard_luq_v1",
+            emotion: "concerned",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "Mild discomfort on that side— nothing sharp.",
+            traceTag: "clinical_touch_guard_luq",
+          },
+          {
+            region: "abdomen_llq",
+            responseKind: "guarding",
+            forceThreshold: 0.5,
+            emotionEventId: "guard_llq_v1",
+            emotion: "anxious",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "Sensitive, but the worst is still the lower right.",
+            traceTag: "clinical_touch_guard_llq",
+          },
+          {
+            region: "chest_R",
+            responseKind: "guarding",
+            forceThreshold: 0.42,
+            emotionEventId: "guard_chest_r_v1",
+            emotion: "pain",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "That's where the pressure is— careful on that side.",
+            traceTag: "clinical_touch_guard_chest_r",
+          },
+          {
+            region: "chest_L",
+            responseKind: "guarding",
+            forceThreshold: 0.5,
+            emotionEventId: "guard_chest_l_v1",
+            emotion: "anxious",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "Some tightness there, not quite as sharp as the right.",
+            traceTag: "clinical_touch_guard_chest_l",
           },
         ],
       },

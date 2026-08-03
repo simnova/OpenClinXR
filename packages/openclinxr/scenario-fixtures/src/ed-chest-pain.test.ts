@@ -43,18 +43,34 @@ describe("ED chest pain fixture", () => {
     }
   });
 
-  it("drives an animation-driven clinical-touch response from case bodyMechanics", () => {
+  it("drives multi-region animation-driven clinical-touch responses from case bodyMechanics", () => {
     const patient = edChestPainScenario.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
-    expect(patient?.bodyMechanics?.touchResponses.length).toBe(1);
-    const guard = patient?.bodyMechanics?.touchResponses[0];
-    expect(guard?.region).toBe("abdomen_rlq");
-    expect(guard?.responseKind).toBe("guarding");
-    expect(guard?.forceThreshold).toBe(0.4);
-    expect(guard?.emotionEventId).toBe("guard_rlq_v1");
-    expect(guard?.emotion).toBe("pain");
-    expect(guard?.responseClip).toBe("openclinxr_role_patient_guard_withdraw_rlq");
-    expect(guard?.dialogueLine).toBeTruthy();
-    expect(guard?.traceTag).toBe("clinical_touch_guard_rlq");
+    const responses = patient?.bodyMechanics?.touchResponses ?? [];
+    expect(responses.length).toBe(6);
+    const byRegion = Object.fromEntries(responses.map((r) => [r.region, r]));
+    // Required multi-region set (abdomen quadrants + bilateral chest).
+    for (const region of [
+      "abdomen_rlq",
+      "abdomen_ruq",
+      "abdomen_luq",
+      "abdomen_llq",
+      "chest_R",
+      "chest_L",
+    ] as const) {
+      expect(byRegion[region], region).toBeTruthy();
+      expect(byRegion[region]?.responseKind).toBe("guarding");
+      expect(byRegion[region]?.responseClip).toBe("openclinxr_role_patient_guard_withdraw_rlq");
+      expect(byRegion[region]?.dialogueLine).toBeTruthy();
+      expect(byRegion[region]?.traceTag).toMatch(/^clinical_touch_guard_/);
+      expect(byRegion[region]?.emotionEventId).toBeTruthy();
+    }
+    // RLQ maximal (lowest force threshold = most sensitive / rebound-style guarding).
+    const rlq = byRegion.abdomen_rlq!;
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_ruq!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_luq!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_llq!.forceThreshold);
+    expect(rlq.emotion).toBe("pain");
+    expect(rlq.traceTag).toBe("clinical_touch_guard_rlq");
     // Additive + optional: actors without bodyMechanics remain valid.
     const nurse = edChestPainScenario.actors.find((actor) => actor.role === "nurse");
     expect(nurse?.bodyMechanics).toBeUndefined();

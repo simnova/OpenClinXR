@@ -18,6 +18,8 @@ export type TraceActionRequest = {
   atSecond: number;
   tag?: string;
   actorId?: string;
+  /** Optional review-safe payload (e.g. clinical.touch region); additive. */
+  payload?: Record<string, unknown>;
 };
 
 export type ActorResponseRequest = {

@@ -90,9 +90,21 @@ describe("encounter-runtime-emission", () => {
         "encounter.started",
         "learner.utterance",
         "actor.response.generated",
+        "clinical.touch.guarding",
       ]),
     );
-    expect(artifact.durableStoreInvoked.saveActorTurnCount).toBeGreaterThanOrEqual(1);
+    expect(artifact.clinicalTouchEvents.length).toBeGreaterThanOrEqual(1);
+    expect(artifact.clinicalTouchEvents[0]).toMatchObject({
+      eventType: "clinical.touch.guarding",
+      region: "abdomen_rlq",
+      responseKind: "guarding",
+      actorId: "patient_robert_hayes_v1",
+    });
+    expect(artifact.clinicalTouchEvents[0]?.dialogueLine.length).toBeGreaterThan(0);
+    expect(artifact.actorTurns.some((t) => t.traceContextTags.includes("clinical_touch_guard_rlq"))).toBe(
+      true,
+    );
+    expect(artifact.durableStoreInvoked.saveActorTurnCount).toBeGreaterThanOrEqual(2);
     expect(artifact.durableStoreInvoked.saveReviewPacketCount).toBeGreaterThanOrEqual(1);
     expect(artifact.wiring.factory).toBe("createScenarioRuntimeWithPersistenceHooks");
     expect(artifact.claimBoundary).toBe(
@@ -107,6 +119,7 @@ describe("encounter-runtime-emission", () => {
 
     const onDisk = JSON.parse(await readFile(outputPath, "utf8")) as EncounterRuntimeEmissionArtifact;
     expect(onDisk.actorTurns.length).toBe(artifact.actorTurns.length);
+    expect(onDisk.clinicalTouchEvents.length).toBe(artifact.clinicalTouchEvents.length);
     expect(onDisk.schemaVersion).toBe("openclinxr.encounter-runtime-emission.v1");
   });
 });

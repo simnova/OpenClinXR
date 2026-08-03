@@ -30,6 +30,18 @@ export type EncounterRuntimeEmissionReviewPacketSummary = {
   missingRequiredTraceTags: string[];
 };
 
+/** Review-safe clinical-touch ledger summary (region + kind; no private clinical claims). */
+export type EncounterRuntimeEmissionClinicalTouchEvent = {
+  atSecond: number;
+  eventType: string;
+  actorId: string;
+  tag: string;
+  region: string;
+  responseKind: string;
+  dialogueLine: string;
+  summary: string;
+};
+
 export type EncounterRuntimeEmissionArtifact = {
   schemaVersion: "openclinxr.encounter-runtime-emission.v1";
   generatedAt: string;
@@ -44,6 +56,11 @@ export type EncounterRuntimeEmissionArtifact = {
   reviewPacket: EncounterRuntimeEmissionReviewPacketSummary;
   /** Distinct eventType values from ledger.replay via runtime.traceEvents. */
   traceEventTypes: string[];
+  /**
+   * Clinical-touch ledger entries (touch → guard → dialogue) for Q4 faculty review.
+   * notEvidenceFor clinical validity / scoring.
+   */
+  clinicalTouchEvents: EncounterRuntimeEmissionClinicalTouchEvent[];
   durableStoreInvoked: {
     saveActorTurnCount: number;
     saveReviewPacketCount: number;
@@ -51,7 +68,7 @@ export type EncounterRuntimeEmissionArtifact = {
   wiring: {
     factory: "createScenarioRuntimeWithPersistenceHooks";
     hooksShape: "DurableStorePersistenceHooks";
-    emissionPath: "startSession→startEncounter→generateActorResponse→submitNote→reviewPacketAndPersist";
+    emissionPath: "startSession→startEncounter→generateActorResponse→clinicalTouch→submitNote→reviewPacketAndPersist";
   };
   claimBoundary: "encounter_runtime_emission_not_clinical_validity_or_production_readiness";
   notEvidenceFor: readonly [
@@ -131,6 +148,55 @@ export function uniqueTraceEventTypes(
 }
 
 /**
+ * Project review-safe clinical.touch.* ledger events (region + kind + dialogue summary).
+ * Private payload text is truncated; notEvidenceFor clinical validity / scoring.
+ */
+export function summarizeClinicalTouchEvents(
+  events: ReadonlyArray<{
+    eventType: string;
+    atSecond: number;
+    actorId?: string;
+    tag?: string;
+    payload?: Record<string, unknown>;
+  }>,
+): EncounterRuntimeEmissionClinicalTouchEvent[] {
+  const out: EncounterRuntimeEmissionClinicalTouchEvent[] = [];
+  for (const event of events) {
+    if (!event.eventType.startsWith("clinical.touch.")) continue;
+    const payload = event.payload ?? {};
+    const region = typeof payload.region === "string" ? payload.region : "region";
+    const responseKind =
+      typeof payload.responseKind === "string"
+        ? payload.responseKind
+        : event.eventType.slice("clinical.touch.".length);
+    const dialogueLine =
+      typeof payload.dialogueLine === "string" ? payload.dialogueLine : "";
+    const actorId = event.actorId ?? "unknown_actor";
+    const tag = event.tag ?? "";
+    const dialogueClip =
+      dialogueLine.length > 60 ? `${dialogueLine.slice(0, 57)}...` : dialogueLine;
+    out.push({
+      atSecond: event.atSecond,
+      eventType: event.eventType,
+      actorId,
+      tag,
+      region,
+      responseKind,
+      dialogueLine,
+      summary: [
+        `${actorId} physical exam touch: ${responseKind} at ${region}`,
+        tag ? `tag ${tag}` : undefined,
+        dialogueClip ? `dialogue ${dialogueClip}` : undefined,
+        "notEvidenceFor clinical_validity/scoring",
+      ]
+        .filter(Boolean)
+        .join("; "),
+    });
+  }
+  return out;
+}
+
+/**
  * Run a short deterministic encounter session and emit a replay-safe artifact
  * proving durable-store capture of ≥1 real actor turn + review packet + ledger traces.
  */
@@ -154,6 +220,41 @@ export async function runEncounterRuntimeEmission(
     traceContextTags: ["history_opqrst"],
   });
 
+  // Q4 clinical-touch turn: ledger clinical.touch.guarding + real actor-turn dialogue.
+  // Region from case bodyMechanics (RLQ maximal guarding); notEvidenceFor clinical validity.
+  const patient = edChestPainScenario.actors.find((a) => a.actorId === "patient_robert_hayes_v1");
+  const rlqTouch =
+    patient?.bodyMechanics?.touchResponses.find((r) => r.region === "abdomen_rlq") ??
+    patient?.bodyMechanics?.touchResponses[0];
+  const touchRegion = rlqTouch?.region ?? "abdomen_rlq";
+  const touchTag = rlqTouch?.traceTag ?? "clinical_touch_guard_rlq";
+  const touchDialogue =
+    rlqTouch?.dialogueLine ?? "Ow— that hurts a lot, please don't push there.";
+  const touchKind = rlqTouch?.responseKind ?? "guarding";
+  const touchAtSecond = 210;
+
+  runtime.appendLearnerEvent(session.stationRunId, {
+    eventType: `clinical.touch.${touchKind}`,
+    atSecond: touchAtSecond,
+    tag: touchTag,
+    actorId: "patient_robert_hayes_v1",
+    payload: {
+      region: touchRegion,
+      responseKind: touchKind,
+      dialogueLine: touchDialogue,
+      emotion: rlqTouch?.emotion ?? "pain",
+      responseClip: rlqTouch?.responseClip ?? "openclinxr_role_patient_guard_withdraw_rlq",
+      notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
+    },
+  });
+
+  await runtime.generateActorResponse(session.stationRunId, {
+    actorId: "patient_robert_hayes_v1",
+    learnerUtterance: `[physical exam palpation at ${touchRegion}]`,
+    atSecond: touchAtSecond,
+    traceContextTags: [touchTag],
+  });
+
   runtime.appendLearnerEvent(session.stationRunId, {
     eventType: "learner.order",
     atSecond: 480,
@@ -163,7 +264,7 @@ export async function runEncounterRuntimeEmission(
 
   runtime.submitNote(session.stationRunId, {
     atSecond: 1260,
-    text: "Runtime emission note: ACS concern; ECG requested; history elicited.",
+    text: "Runtime emission note: ACS concern; ECG requested; history elicited; multi-region palpation including RLQ guarding response.",
   });
 
   const reviewPacket = await runtime.reviewPacketAndPersist(session.stationRunId);
@@ -181,6 +282,13 @@ export async function runEncounterRuntimeEmission(
     );
   }
 
+  const clinicalTouchEvents = summarizeClinicalTouchEvents(ledgerEvents);
+  if (clinicalTouchEvents.length < 1) {
+    throw new Error(
+      "Runtime emission failed: expected ≥1 clinical.touch.* ledger event for Q4 faculty review",
+    );
+  }
+
   const artifact: EncounterRuntimeEmissionArtifact = {
     schemaVersion: "openclinxr.encounter-runtime-emission.v1",
     generatedAt,
@@ -192,6 +300,7 @@ export async function runEncounterRuntimeEmission(
     actorTurns: [...actorTurns],
     reviewPacket: summarizeReviewPacket(reviewPacket),
     traceEventTypes: uniqueTraceEventTypes(ledgerEvents),
+    clinicalTouchEvents,
     durableStoreInvoked: {
       saveActorTurnCount: counts.saveActorTurnCount,
       saveReviewPacketCount: counts.saveReviewPacketCount,
@@ -200,7 +309,7 @@ export async function runEncounterRuntimeEmission(
       factory: "createScenarioRuntimeWithPersistenceHooks",
       hooksShape: "DurableStorePersistenceHooks",
       emissionPath:
-        "startSession→startEncounter→generateActorResponse→submitNote→reviewPacketAndPersist",
+        "startSession→startEncounter→generateActorResponse→clinicalTouch→submitNote→reviewPacketAndPersist",
     },
     claimBoundary: "encounter_runtime_emission_not_clinical_validity_or_production_readiness",
     notEvidenceFor: [

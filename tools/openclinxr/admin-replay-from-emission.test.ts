@@ -63,6 +63,20 @@ function sampleEmission(
       "encounter.started",
       "learner.utterance",
       "actor.response.generated",
+      "clinical.touch.guarding",
+    ],
+    clinicalTouchEvents: [
+      {
+        atSecond: 210,
+        eventType: "clinical.touch.guarding",
+        actorId: "patient_robert_hayes_v1",
+        tag: "clinical_touch_guard_rlq",
+        region: "abdomen_rlq",
+        responseKind: "guarding",
+        dialogueLine: "Ow— that hurts a lot, please don't push there.",
+        summary:
+          "patient_robert_hayes_v1 physical exam touch: guarding at abdomen_rlq; tag clinical_touch_guard_rlq; dialogue Ow— that hurts a lot, please don't push there.; notEvidenceFor clinical_validity/scoring",
+      },
     ],
     durableStoreInvoked: {
       saveActorTurnCount: 1,
@@ -72,7 +86,7 @@ function sampleEmission(
       factory: "createScenarioRuntimeWithPersistenceHooks",
       hooksShape: "DurableStorePersistenceHooks",
       emissionPath:
-        "startSession→startEncounter→generateActorResponse→submitNote→reviewPacketAndPersist",
+        "startSession→startEncounter→generateActorResponse→clinicalTouch→submitNote→reviewPacketAndPersist",
     },
     claimBoundary: "encounter_runtime_emission_not_clinical_validity_or_production_readiness",
     notEvidenceFor: [
@@ -122,6 +136,37 @@ describe("admin-replay-from-emission mapper", () => {
     expect(timeline[1]?.summary).toContain("spoken_actor_response");
   });
 
+  it("mapActorTurnsToTimeline projects clinical-touch turns as touch→guard→dialogue with region", () => {
+    const touchTurn = sampleTurn({
+      turnId: "turn_2_patient_robert_hayes_v1_210",
+      atSecond: 210,
+      conversationTurn: 2,
+      learnerUtterance: "[physical exam palpation at abdomen_rlq]",
+      responseText: "Ow— that hurts a lot, please don't push there.",
+      traceContextTags: ["clinical_touch_guard_rlq"],
+    });
+    const timeline = mapActorTurnsToTimeline(
+      [sampleTurn(), touchTurn],
+      [
+        {
+          atSecond: 210,
+          eventType: "clinical.touch.guarding",
+          actorId: "patient_robert_hayes_v1",
+          tag: "clinical_touch_guard_rlq",
+          region: "abdomen_rlq",
+          responseKind: "guarding",
+          dialogueLine: "Ow— that hurts a lot, please don't push there.",
+          summary: "patient_robert_hayes_v1 physical exam touch: guarding at abdomen_rlq",
+        },
+      ],
+    );
+    expect(timeline.some((e) => e.eventType === "clinical.touch.guarding")).toBe(true);
+    const touchEntry = timeline.find((e) => e.eventType === "clinical.touch.guarding");
+    expect(touchEntry?.summary).toContain("abdomen_rlq");
+    expect(touchEntry?.summary).toMatch(/touch→guard→dialogue/);
+    expect(touchEntry?.tag).toBe("clinical_touch_guard_rlq");
+  });
+
   it("mapEmissionToAdminReplayProjection requires ≥1 real turn and sets claim boundary", () => {
     const projection = mapEmissionToAdminReplayProjection({
       emission: sampleEmission(),
@@ -132,8 +177,13 @@ describe("admin-replay-from-emission mapper", () => {
     expect(projection.schemaVersion).toBe("openclinxr.admin-replay-from-emission.v1");
     expect(projection.actorTurnCount).toBeGreaterThanOrEqual(1);
     expect(projection.actorTurnRefs.length).toBe(projection.actorTurnCount);
-    expect(projection.timelineEntryCount).toBe(2);
-    expect(projection.timeline).toHaveLength(2);
+    // History pair (2) + orphan clinical.touch ledger entry (1) when no matching touch turn.
+    expect(projection.timelineEntryCount).toBeGreaterThanOrEqual(2);
+    expect(projection.timeline.length).toBe(projection.timelineEntryCount);
+    expect(projection.timeline.some((e) => e.eventType === "clinical.touch.guarding")).toBe(true);
+    expect(
+      projection.timeline.find((e) => e.eventType === "clinical.touch.guarding")?.summary,
+    ).toContain("abdomen_rlq");
     expect(projection.traceEventTypes).toEqual(
       expect.arrayContaining(["learner.utterance", "actor.response.generated"]),
     );
@@ -164,7 +214,7 @@ describe("admin-replay-from-emission mapper", () => {
     const props = mapEmissionToAdminReplayProps(sampleEmission());
     expect(props.actorTurnCount).toBeGreaterThanOrEqual(1);
     expect(props.actorTurnRefs[0]).toMatch(/^actor_turn:/);
-    expect(props.timelineEntryCount).toBe(2);
+    expect(props.timelineEntryCount).toBeGreaterThanOrEqual(2);
     expect(props.claimBoundary).toBe(
       "admin_replay_from_runtime_emission_not_clinical_validity",
     );

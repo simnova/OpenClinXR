@@ -301,18 +301,69 @@ export const FRAIL_JOINT_LIMITS: JointLimitTable = {
 /**
  * Default guarding triggers for average habitus.
  * Abdominal regions guard at moderate force; chest guards at higher force.
+ * Optional interaction fields align with shared-schemas TouchResponse (not clinical claims).
+ * RLQ is most sensitive (maximal guarding); other abdomen/chest milder by default.
  */
 export const AVERAGE_GUARDING_TRIGGERS: GuardingTriggerEntry[] = [
-  { region: "abdomen_ruq", forceThreshold: 0.45, responseStrength: 0.5 },
-  { region: "abdomen_rlq", forceThreshold: 0.40, responseStrength: 0.6 },
-  { region: "abdomen_luq", forceThreshold: 0.45, responseStrength: 0.5 },
-  { region: "abdomen_llq", forceThreshold: 0.40, responseStrength: 0.6 },
+  {
+    region: "abdomen_ruq",
+    forceThreshold: 0.55,
+    responseStrength: 0.45,
+    emotionEventId: "guard_ruq_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "A little tender up there, not as bad as lower right.",
+    traceTag: "clinical_touch_guard_ruq",
+  },
+  {
+    region: "abdomen_rlq",
+    forceThreshold: 0.32,
+    // responseStrength kept below frail (0.75) so habitus ordering tests hold; maximal = lower forceThreshold.
+    responseStrength: 0.65,
+    emotionEventId: "guard_rlq_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "Ow— that hurts a lot, please don't push there.",
+    traceTag: "clinical_touch_guard_rlq",
+  },
+  {
+    region: "abdomen_luq",
+    forceThreshold: 0.55,
+    responseStrength: 0.45,
+    emotionEventId: "guard_luq_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "Mild discomfort on that side— nothing sharp.",
+    traceTag: "clinical_touch_guard_luq",
+  },
+  {
+    region: "abdomen_llq",
+    forceThreshold: 0.5,
+    responseStrength: 0.55,
+    emotionEventId: "guard_llq_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "Sensitive, but the worst is still the lower right.",
+    traceTag: "clinical_touch_guard_llq",
+  },
   { region: "abdomen_epigastric", forceThreshold: 0.35, responseStrength: 0.7 },
-  { region: "abdomen_suprapubic", forceThreshold: 0.50, responseStrength: 0.4 },
-  { region: "chest_R", forceThreshold: 0.60, responseStrength: 0.3 },
-  { region: "chest_L", forceThreshold: 0.60, responseStrength: 0.3 },
-  { region: "neck_anterior", forceThreshold: 0.30, responseStrength: 0.6 },
-  { region: "neck_posterior", forceThreshold: 0.40, responseStrength: 0.4 },
+  { region: "abdomen_suprapubic", forceThreshold: 0.5, responseStrength: 0.4 },
+  {
+    region: "chest_R",
+    forceThreshold: 0.42,
+    responseStrength: 0.55,
+    emotionEventId: "guard_chest_r_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "That's where the pressure is— careful on that side.",
+    traceTag: "clinical_touch_guard_chest_r",
+  },
+  {
+    region: "chest_L",
+    forceThreshold: 0.5,
+    responseStrength: 0.4,
+    emotionEventId: "guard_chest_l_v1",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueLine: "Some tightness there, not quite as sharp as the right.",
+    traceTag: "clinical_touch_guard_chest_l",
+  },
+  { region: "neck_anterior", forceThreshold: 0.3, responseStrength: 0.6 },
+  { region: "neck_posterior", forceThreshold: 0.4, responseStrength: 0.4 },
 ];
 
 /**

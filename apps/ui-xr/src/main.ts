@@ -2128,7 +2128,11 @@ function recordTraceSelectLatency(
   return lastTraceSelectLatencyMs;
 }
 
-function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatencyEvidence["source"]): void {
+function completeTraceActionFromInput(
+  tag: string,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+  payload?: Record<string, unknown>,
+): void {
   const traceSelectStartedAtMs = performance.now();
   const priorCompletedTraceTags = state.completedTraceTags;
   state = completeTraceAction(state, tag);
@@ -2137,17 +2141,23 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
     priorCompletedTraceTags,
     encounterRuntimeAssetBundle.scenarioId,
   );
+  // Clinical-touch already fires case-driven dialogue in handleClinicalTouch; skip generic dialogue overwrite.
+  const skipGenericDialogue = Boolean(payload?.clinicalTouch);
   const dialogueText = dialogueFor(tag);
-  dialogueLine.textContent = dialogueText;
+  if (!skipGenericDialogue) {
+    dialogueLine.textContent = dialogueText;
+  }
   if (adaptiveBranch && triggerPedsAdaptiveDialogueBranch(adaptiveBranch, "trace_action")) {
     // Adaptive bundle branch already drove actor turns, viseme, gaze, and emotion transitions.
-  } else if (!triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
+  } else if (!skipGenericDialogue && !triggerPedsActorPlayerRuntimeTurnForTrace(tag)) {
     triggerHumanoidDialogueForTrace(tag, dialogueText);
   }
   updateEnvironmentStateForTrace(tag);
   renderControls();
   updateReadiness();
   const selectLatencyMs = recordTraceSelectLatency(traceSelectStartedAtMs, tag, source);
+  const region = typeof payload?.region === "string" ? payload.region : undefined;
+  const actorIdFromPayload = typeof payload?.actorId === "string" ? payload.actorId : undefined;
   traceActionHandoffActions = [
     ...traceActionHandoffActions,
     {
@@ -2155,14 +2165,15 @@ function completeTraceActionFromInput(tag: string, source: OpenClinXrTraceLatenc
       traceTag: tag,
       source,
       eventType: eventTypeForTraceTag(tag),
-      actorId: localDialogueActorIdForTraceTag(tag) ?? null,
+      actorId: actorIdFromPayload ?? localDialogueActorIdForTraceTag(tag) ?? null,
       completedAtSecond: state.elapsedSecond,
       completedAtMs: roundPerformanceNow(),
       selectLatencyMs,
+      ...(region ? { region } : {}),
     },
   ];
   updateTraceActionHandoffEvidence();
-  void recordRemoteTraceAction(tag);
+  void recordRemoteTraceAction(tag, payload);
 }
 
 function updateEnvironmentStateForTrace(tag: string): EnvironmentStateEvidence {
@@ -2393,19 +2404,33 @@ async function initializeRemoteTraceSession(client: StationApiClient | undefined
   }
 }
 
-async function recordRemoteTraceAction(tag: string): Promise<void> {
+async function recordRemoteTraceAction(
+  tag: string,
+  payload?: Record<string, unknown>,
+): Promise<void> {
   if (!stationApi || !remoteStationRunId) {
     return;
   }
 
   const atSecond = state.elapsedSecond;
   try {
-    const actorId = actorIdForTraceTag(tag);
+    const actorId =
+      (typeof payload?.actorId === "string" ? payload.actorId : undefined) ?? actorIdForTraceTag(tag);
     await stationApi.recordTraceAction(remoteStationRunId, {
       eventType: eventTypeForTraceTag(tag),
       atSecond,
       tag,
       ...(actorId ? { actorId } : {}),
+      ...(payload
+        ? {
+            payload: {
+              region: payload.region,
+              responseKind: payload.responseKind,
+              dialogueLine: payload.dialogueLine,
+              notEvidenceFor: payload.notEvidenceFor,
+            },
+          }
+        : {}),
     });
   } catch {
     remoteStationRunId = undefined;
@@ -6487,8 +6512,17 @@ function handleClinicalTouch(
   const now = performance.now();
 
   const clipPlayed = respondToTouch(actorId, cfg, "animation");
-  // Durable trace + remote actor-turn first (Q4), then the reflexive line wins activeSpeech.
-  completeTraceActionFromInput(cfg.traceTag, source);
+  // Durable multi-region trace + remote actor-turn first (Q4), then the reflexive line wins activeSpeech.
+  completeTraceActionFromInput(cfg.traceTag, source, {
+    clinicalTouch: true,
+    actorId,
+    region: regionId,
+    responseKind: cfg.responseKind,
+    dialogueLine: cfg.dialogueLine,
+    emotion: cfg.emotion,
+    responseClip: cfg.responseClip,
+    notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
+  });
   if (slot) startHumanoidEmotionTransition(slot, cfg.emotion, now);
   triggerHumanoidDialogue(actorId, cfg.dialogueLine, { kind: "learner_camera", actorId: null }, cfg.emotion);
 

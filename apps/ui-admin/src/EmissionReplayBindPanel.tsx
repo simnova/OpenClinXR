@@ -83,8 +83,9 @@ export const SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1: AdminReplayFromEmissionV1 = {
   learnerId: "runtime_emission_learner_001",
   actorTurnRefs: [
     "actor_turn:run_ed_chest_pain_priority_v1_test:turn_1_patient_robert_hayes_v1_120",
+    "actor_turn:run_ed_chest_pain_priority_v1_test:turn_2_patient_robert_hayes_v1_210",
   ],
-  actorTurnCount: 1,
+  actorTurnCount: 2,
   timeline: [
     {
       sequence: 0,
@@ -105,20 +106,31 @@ export const SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1: AdminReplayFromEmissionV1 = {
       summary:
         "Actor response (spoken_actor_response): Robert Hayes: Demeanor: anxious, diaphoretic, protective of chest",
     },
+    {
+      sequence: 2,
+      atSecond: 210,
+      eventType: "clinical.touch.guarding",
+      source: "runtime_emission",
+      actorId: "patient_robert_hayes_v1",
+      tag: "clinical_touch_guard_rlq",
+      summary:
+        "touch→guard→dialogue at abdomen_rlq; kind guarding; dialogue Ow— that hurts a lot, please don't push there.; notEvidenceFor clinical_validity/scoring",
+    },
   ],
-  timelineEntryCount: 2,
+  timelineEntryCount: 3,
   traceEventTypes: [
     "station.started",
     "consent.accepted",
     "encounter.started",
     "learner.utterance",
     "actor.response.generated",
+    "clinical.touch.guarding",
   ],
   reviewPacket: {
     stationRunId: "run_ed_chest_pain_priority_v1_test",
     scenarioId: "ed_chest_pain_priority_v1",
     eventCount: 8,
-    observedTraceTags: ["history_opqrst", "ecg_request"],
+    observedTraceTags: ["history_opqrst", "ecg_request", "clinical_touch_guard_rlq"],
     missingRequiredTraceTags: ["risk_factor_question"],
   },
   privatePayloadRedacted: true,
@@ -126,7 +138,7 @@ export const SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1: AdminReplayFromEmissionV1 = {
   wiring: {
     input: "encounter-runtime-emission.v1",
     projection: "admin_replay_review_packet_summary",
-    path: "loadEmission→mapActorTurns→writeAdminReplay",
+    path: "loadEmission→mapActorTurns+clinicalTouch→writeAdminReplay",
   },
   claimBoundary: "admin_replay_from_runtime_emission_not_clinical_validity",
   notEvidenceFor: [

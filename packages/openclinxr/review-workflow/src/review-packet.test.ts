@@ -361,7 +361,7 @@ describe("review packet workflow", () => {
     expect(packet.timeline.map((entry) => entry.sequence)).toEqual([0, 1, 2, 3]);
   });
 
-  it("summarizes clinical touch events with physical exam touch wording and a notEvidenceFor claim boundary", () => {
+  it("summarizes clinical touch events with physical exam touch wording, region, and a notEvidenceFor claim boundary", () => {
     const packet = buildReviewPacket({
       scenarioId: "ed_chest_pain_priority_v1",
       requiredTraceTags: [],
@@ -372,7 +372,17 @@ describe("review packet workflow", () => {
           atSecond: 5,
           sequence: 1,
           source: "dom_click_trace_button",
-          payload: { region: "chest_R" },
+          tag: "clinical_touch_guard_chest_r",
+          payload: { region: "chest_R", responseKind: "guarding" },
+        },
+        {
+          eventType: "clinical.touch.guarding",
+          actorId: "patient_x",
+          atSecond: 8,
+          sequence: 2,
+          source: "dom_click_trace_button",
+          tag: "clinical_touch_guard_rlq",
+          payload: { region: "abdomen_rlq", responseKind: "guarding" },
         },
       ],
       stationRunId: "run_001",
@@ -380,5 +390,8 @@ describe("review packet workflow", () => {
     });
 
     expect(packet.timeline[0]?.summary).toContain("physical exam touch");
+    expect(packet.timeline[0]?.summary).toContain("chest_R");
+    expect(packet.timeline[0]?.summary).toContain("notEvidenceFor");
+    expect(packet.timeline[1]?.summary).toContain("abdomen_rlq");
   });
 });

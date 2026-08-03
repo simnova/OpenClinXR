@@ -64,6 +64,8 @@ export type LearnerEventInput = {
   atSecond: number;
   tag?: string;
   actorId?: string;
+  /** Optional review-safe payload (e.g. clinical.touch region); additive. */
+  payload?: Record<string, unknown>;
 };
 
 export type SubmitNoteInput = {
@@ -284,6 +286,9 @@ export class ScenarioRuntime {
     }
     if (input.actorId) {
       eventInput.actorId = input.actorId;
+    }
+    if (input.payload) {
+      eventInput.payload = input.payload;
     }
 
     const event = traceEvent(eventInput);

@@ -406,6 +406,8 @@ export type XrTraceActionHandoffAction = {
   completedAtSecond: number;
   completedAtMs: number;
   selectLatencyMs: number | null;
+  /** Optional multi-region clinical-touch region id (additive). */
+  region?: string;
 };
 
 export type XrTraceActionHandoffEvidence = {
@@ -1755,11 +1757,18 @@ export function eventTypeForTraceTag(tag: string): string {
     empathy_statement: "learner.empathy",
     patient_note_submitted: "learner.note",
     clinical_touch_guard_rlq: "clinical.touch.guarding",
+    clinical_touch_guard_ruq: "clinical.touch.guarding",
+    clinical_touch_guard_luq: "clinical.touch.guarding",
+    clinical_touch_guard_llq: "clinical.touch.guarding",
+    clinical_touch_guard_chest_r: "clinical.touch.guarding",
+    clinical_touch_guard_chest_l: "clinical.touch.guarding",
     physical_exam_chest_palpation: "clinical.touch.guarding",
   };
   if (eventTypes[tag]) return eventTypes[tag];
-  // Animation-driven clinical-touch tags surface as clinical.touch.* for faculty review (not scoring).
-  if (/^clinical_touch_|guard_rlq|physical_exam_/i.test(tag)) return "clinical.touch.guarding";
+  // Animation-driven multi-region clinical-touch tags surface as clinical.touch.* for faculty review (not scoring).
+  if (/^clinical_touch_|guard_(rlq|ruq|luq|llq|chest)|physical_exam_/i.test(tag)) {
+    return "clinical.touch.guarding";
+  }
   if (/history|trigger|inhaler|medication|symptom|question|known_well/i.test(tag)) return "learner.history";
   if (/assessment|exam|work_of_breathing|neuro|orientation/i.test(tag)) return "learner.exam";
   if (/oxygen|bronchodilator|plan|order|request|activation/i.test(tag)) return "learner.order";

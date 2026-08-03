@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.clinical-touch-smoke.v1",
-  "generatedAt": "2026-08-03T22:16:05.729Z",
+  "generatedAt": "2026-08-03T22:49:10.355Z",
   "claimScope": "animation_interaction_response_not_clinical_validity",
   "providerBoundary": {
     "localOnly": true,
@@ -10,9 +10,14 @@
   "input": {
     "scenarioId": "ed_chest_pain_priority_v1",
     "comparator": "ed_anny_real_garment_patient",
+    "regions": [
+      "abdomen_rlq",
+      "chest_R",
+      "abdomen_luq"
+    ],
     "region": "abdomen_rlq",
     "port": 5288,
-    "runId": "2026-08-03T22-15-56-419Z"
+    "runId": "2026-08-03T22-48-57-540Z"
   },
   "expectedEvidenceShape": {
     "region": "string",
@@ -21,21 +26,160 @@
     "dialogueFired": "boolean",
     "traceTag": "string"
   },
+  "expectedRegions": [
+    {
+      "region": "abdomen_rlq",
+      "emotion": "pain",
+      "traceTag": "clinical_touch_guard_rlq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "dialogueIncludes": "hurts"
+    },
+    {
+      "region": "chest_R",
+      "emotion": "pain",
+      "traceTag": "clinical_touch_guard_chest_r",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "dialogueIncludes": "pressure"
+    },
+    {
+      "region": "abdomen_luq",
+      "emotion": "concerned",
+      "traceTag": "clinical_touch_guard_luq",
+      "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+      "dialogueIncludes": "Mild discomfort"
+    }
+  ],
+  "regionResults": [
+    {
+      "region": "abdomen_rlq",
+      "passed": true,
+      "blockers": [],
+      "evidence": {
+        "schemaVersion": "openclinxr.clinical-touch.v1",
+        "actorId": "patient_robert_hayes_v1",
+        "region": "abdomen_rlq",
+        "responseKind": "guarding",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "clipPlayed": true,
+        "emotion": "pain",
+        "emotionTransitioned": true,
+        "dialogueFired": true,
+        "dialogueLine": "Ow— that hurts a lot, please don't push there.",
+        "traceTag": "clinical_touch_guard_rlq",
+        "traceEventType": "clinical.touch.guarding",
+        "source": "dom_click_trace_button",
+        "atMs": 3707.9,
+        "notEvidenceFor": [
+          "clinical_validity",
+          "exam_equivalence",
+          "scoring",
+          "learner_readiness"
+        ]
+      },
+      "screen": {
+        "x": 240.58670426708096,
+        "y": 575.9396717065285
+      },
+      "expected": {
+        "region": "abdomen_rlq",
+        "emotion": "pain",
+        "traceTag": "clinical_touch_guard_rlq",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "dialogueIncludes": "hurts"
+      }
+    },
+    {
+      "region": "chest_R",
+      "passed": true,
+      "blockers": [],
+      "evidence": {
+        "schemaVersion": "openclinxr.clinical-touch.v1",
+        "actorId": "patient_robert_hayes_v1",
+        "region": "chest_R",
+        "responseKind": "guarding",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "clipPlayed": true,
+        "emotion": "pain",
+        "emotionTransitioned": true,
+        "dialogueFired": true,
+        "dialogueLine": "That's where the pressure is— careful on that side.",
+        "traceTag": "clinical_touch_guard_chest_r",
+        "traceEventType": "clinical.touch.guarding",
+        "source": "dom_click_trace_button",
+        "atMs": 6561.6,
+        "notEvidenceFor": [
+          "clinical_validity",
+          "exam_equivalence",
+          "scoring",
+          "learner_readiness"
+        ]
+      },
+      "screen": {
+        "x": 241.90859793600973,
+        "y": 501.5769781663367
+      },
+      "expected": {
+        "region": "chest_R",
+        "emotion": "pain",
+        "traceTag": "clinical_touch_guard_chest_r",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "dialogueIncludes": "pressure"
+      }
+    },
+    {
+      "region": "abdomen_luq",
+      "passed": true,
+      "blockers": [],
+      "evidence": {
+        "schemaVersion": "openclinxr.clinical-touch.v1",
+        "actorId": "patient_robert_hayes_v1",
+        "region": "abdomen_luq",
+        "responseKind": "guarding",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "clipPlayed": true,
+        "emotion": "concerned",
+        "emotionTransitioned": true,
+        "dialogueFired": true,
+        "dialogueLine": "Mild discomfort on that side— nothing sharp.",
+        "traceTag": "clinical_touch_guard_luq",
+        "traceEventType": "clinical.touch.guarding",
+        "source": "dom_click_trace_button",
+        "atMs": 9209.5,
+        "notEvidenceFor": [
+          "clinical_validity",
+          "exam_equivalence",
+          "scoring",
+          "learner_readiness"
+        ]
+      },
+      "screen": {
+        "x": 265.8916604618127,
+        "y": 552.2126250243373
+      },
+      "expected": {
+        "region": "abdomen_luq",
+        "emotion": "concerned",
+        "traceTag": "clinical_touch_guard_luq",
+        "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
+        "dialogueIncludes": "Mild discomfort"
+      }
+    }
+  ],
   "evidence": {
     "schemaVersion": "openclinxr.clinical-touch.v1",
     "actorId": "patient_robert_hayes_v1",
-    "region": "abdomen_rlq",
+    "region": "abdomen_luq",
     "responseKind": "guarding",
     "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
     "clipPlayed": true,
-    "emotion": "pain",
+    "emotion": "concerned",
     "emotionTransitioned": true,
     "dialogueFired": true,
-    "dialogueLine": "Ow— that hurts, please don't push there.",
-    "traceTag": "clinical_touch_guard_rlq",
+    "dialogueLine": "Mild discomfort on that side— nothing sharp.",
+    "traceTag": "clinical_touch_guard_luq",
     "traceEventType": "clinical.touch.guarding",
     "source": "dom_click_trace_button",
-    "atMs": 5631.8,
+    "atMs": 9209.5,
     "notEvidenceFor": [
       "clinical_validity",
       "exam_equivalence",
@@ -44,8 +188,8 @@
     ]
   },
   "pageErrors": [],
-  "screenshotPath": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-15-56-419Z/rlq-guard-wince.png",
-  "evidenceDir": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-15-56-419Z",
+  "screenshotPath": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-48-57-540Z/abdomen_rlq-guard-wince.png",
+  "evidenceDir": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-48-57-540Z",
   "verdict": {
     "passed": true,
     "blockers": []

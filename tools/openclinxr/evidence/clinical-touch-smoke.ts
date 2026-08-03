@@ -1,18 +1,19 @@
 /**
- * clinical-touch-smoke.ts — headless gate for animation-driven clinical-touch
- * interaction evidence on the real UI-XR patient path.
+ * clinical-touch-smoke.ts — headless gate for multi-region animation-driven
+ * clinical-touch interaction evidence on the real UI-XR patient path.
  *
- * Spawns UI-XR dev:portless (default PORT 5320), loads the ED chest-pain patient
- * scenario, pointer-raycasts the abdomen_rlq hit-region via the real canvas path,
- * asserts window.__openClinXrClinicalTouchEvidence shows clipPlayed + emotion=pain +
- * dialogueFired + traceTag, requires empty pageErrors, and writes a dated report +
- * wince screenshot under docs/openclinxr/.
+ * Spawns UI-XR dev:portless (default PORT 5330; fan-out 5330-5339), loads the ED
+ * chest-pain patient scenario, pointer-raycasts 2–3 DIFFERENT body regions via the
+ * real canvas path, asserts each produces its case-driven emotion/dialogue/trace,
+ * requires empty pageErrors, and writes a dated report under docs/openclinxr/.
+ *
+ * A miss (no hit-box / offscreen) still falls through without crashing (graceful fail).
  *
  * CRITICAL: if runtime wiring / globals are absent, FAIL GRACEFULLY — write a report
  * with clear blockers, exit non-zero, and do NOT throw/crash. Do not implement UI-XR.
  *
  * Run:             pnpm asset:clinical-touch:smoke
- *                  tsx tools/openclinxr/evidence/clinical-touch-smoke.ts --port 5321
+ *                  tsx tools/openclinxr/evidence/clinical-touch-smoke.ts --port 5331
  * Validate latest: pnpm asset:clinical-touch:smoke:validate
  *
  * Modeled on tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts (CLI + spawn + report).
@@ -30,11 +31,40 @@ const SCHEMA_VERSION = "openclinxr.clinical-touch-smoke.v1";
 const REPORT_GLOB = "docs/openclinxr/clinical-touch-smoke-*.json";
 const SCENARIO_ID = "ed_chest_pain_priority_v1";
 const COMPARATOR = "ed_anny_real_garment_patient";
-const TOUCH_REGION = "abdomen_rlq";
-/** Soft expectation when case fixture is present; missing runtime still graceful-fails. */
-const EXPECTED_CLIP = "openclinxr_role_patient_guard_withdraw_rlq";
-const EXPECTED_EMOTION = "pain";
-const EXPECTED_TRACE_TAG = "clinical_touch_guard_rlq";
+
+/** Multi-region exercise set (case bodyMechanics); each has distinct dialogue/trace. */
+type ExpectedRegion = {
+  region: string;
+  emotion: string;
+  traceTag: string;
+  responseClip: string;
+  /** Substring expected in dialogueLine when present. */
+  dialogueIncludes: string;
+};
+
+const EXERCISE_REGIONS: ExpectedRegion[] = [
+  {
+    region: "abdomen_rlq",
+    emotion: "pain",
+    traceTag: "clinical_touch_guard_rlq",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueIncludes: "hurts",
+  },
+  {
+    region: "chest_R",
+    emotion: "pain",
+    traceTag: "clinical_touch_guard_chest_r",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueIncludes: "pressure",
+  },
+  {
+    region: "abdomen_luq",
+    emotion: "concerned",
+    traceTag: "clinical_touch_guard_luq",
+    responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+    dialogueIncludes: "Mild discomfort",
+  },
+];
 
 /** Evidence shape asserted by this gate (runtime may expose additional fields). */
 type ClinicalTouchEvidenceShape = {
@@ -43,13 +73,20 @@ type ClinicalTouchEvidenceShape = {
   emotion: string;
   dialogueFired: boolean;
   traceTag: string;
-  // optional richer fields when runtime is fully wired
   responseClip?: string;
   emotionTransitioned?: boolean;
   dialogueLine?: string;
   schemaVersion?: string;
   actorId?: string;
   [key: string]: unknown;
+};
+
+type RegionResult = {
+  region: string;
+  expected: ExpectedRegion;
+  evidence: ClinicalTouchEvidenceShape | null;
+  blockers: string[];
+  screen: { x: number; y: number } | null;
 };
 
 type CliOptions = {
@@ -64,15 +101,15 @@ const defaultOutputPath = () =>
   `docs/openclinxr/clinical-touch-smoke-${new Date().toISOString().slice(0, 10)}.json`;
 
 /** Local evidence dir (registry-ignore); durable gate report stays at docs/openclinxr/clinical-touch-smoke-*.json. */
-const defaultScreenshotPath = (runId: string) =>
-  path.join(".openclinxr/evidence/clinical-touch-smoke", runId, "rlq-guard-wince.png");
+const defaultScreenshotPath = (runId: string, region: string) =>
+  path.join(".openclinxr/evidence/clinical-touch-smoke", runId, `${region}-guard-wince.png`);
 
 function parseArgs(argv: string[]): CliOptions {
   const args = argv[0] === "--" ? argv.slice(1) : argv;
   const opts: CliOptions = {
     validateLatest: false,
-    // Portless fan-out range: 5320-5323; default avoids colliding with concurrent lanes.
-    port: 5320,
+    // Portless fan-out range: 5330-5339; default avoids colliding with concurrent lanes.
+    port: 5330,
     runId: new Date().toISOString().replace(/[:.]/g, "-"),
   };
   for (let i = 0; i < args.length; i++) {
@@ -122,19 +159,27 @@ function evidenceShapeBlockers(ev: ClinicalTouchEvidenceShape | null | undefined
 }
 
 /**
- * Soft product expectations once shape is present (case-driven abdomen_rlq guarding).
+ * Per-region product expectations once shape is present.
  */
-function evidenceValueBlockers(ev: ClinicalTouchEvidenceShape): string[] {
+function evidenceValueBlockers(ev: ClinicalTouchEvidenceShape, expected: ExpectedRegion): string[] {
   const b: string[] = [];
-  if (ev.region !== TOUCH_REGION) b.push(`wrong_region:${String(ev.region)}`);
-  if (ev.clipPlayed !== true) b.push(`clip_not_played:${String((ev as { responseClip?: string }).responseClip ?? ev.clipPlayed)}`);
-  if (ev.emotion !== EXPECTED_EMOTION) b.push(`wrong_emotion:${String(ev.emotion)}`);
+  if (ev.region !== expected.region) b.push(`wrong_region:${String(ev.region)}!=${expected.region}`);
+  if (ev.clipPlayed !== true) {
+    b.push(`clip_not_played:${String((ev as { responseClip?: string }).responseClip ?? ev.clipPlayed)}`);
+  }
+  if (ev.emotion !== expected.emotion) b.push(`wrong_emotion:${String(ev.emotion)}!=${expected.emotion}`);
   if (ev.dialogueFired !== true) b.push("dialogue_not_fired");
   if (!ev.traceTag) b.push("no_trace_tag");
-  if (ev.traceTag && ev.traceTag !== EXPECTED_TRACE_TAG) b.push(`wrong_trace_tag:${String(ev.traceTag)}`);
+  if (ev.traceTag && ev.traceTag !== expected.traceTag) {
+    b.push(`wrong_trace_tag:${String(ev.traceTag)}!=${expected.traceTag}`);
+  }
   const responseClip = (ev as { responseClip?: string }).responseClip;
-  if (responseClip !== undefined && responseClip !== EXPECTED_CLIP) {
+  if (responseClip !== undefined && responseClip !== expected.responseClip) {
     b.push(`wrong_clip:${String(responseClip)}`);
+  }
+  const dialogueLine = (ev as { dialogueLine?: string }).dialogueLine;
+  if (dialogueLine !== undefined && !dialogueLine.includes(expected.dialogueIncludes)) {
+    b.push(`wrong_dialogue:${String(dialogueLine)}`);
   }
   const emotionTransitioned = (ev as { emotionTransitioned?: boolean }).emotionTransitioned;
   if (emotionTransitioned !== undefined && emotionTransitioned !== true) {
@@ -146,7 +191,8 @@ function evidenceValueBlockers(ev: ClinicalTouchEvidenceShape): string[] {
 async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
   const blockers: string[] = [];
   const pageErrors: string[] = [];
-  let evidence: ClinicalTouchEvidenceShape | null = null;
+  const regionResults: RegionResult[] = [];
+  let lastEvidence: ClinicalTouchEvidenceShape | null = null;
   let screenshotPath: string | null = null;
   const outDir = path.join(".openclinxr/evidence/clinical-touch-smoke", opts.runId);
 
@@ -161,7 +207,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
     await mkdir(outDir, { recursive: true });
     await mkdir("docs/openclinxr", { recursive: true });
   } catch (e) {
-    return envelope(opts, null, [`mkdir_failed:${String(e)}`], null, pageErrors, null);
+    return envelope(opts, null, [`mkdir_failed:${String(e)}`], null, pageErrors, null, regionResults);
   }
 
   const server = spawn("pnpm", ["--filter", "@openclinxr/ui-xr", "dev:portless"], {
@@ -175,7 +221,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
       await waitForServer(opts.port, server);
     } catch (e) {
       blockers.push(`ui_xr_server_not_ready:${String(e)}`);
-      return envelope(opts, null, blockers, outDir, pageErrors, null);
+      return envelope(opts, null, blockers, outDir, pageErrors, null, regionResults);
     }
 
     let browser: Awaited<ReturnType<typeof chromium.launch>> | null = null;
@@ -209,8 +255,9 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
         );
         regionsReady = await page.evaluate(
           () =>
-            (window as unknown as { __openClinXrClinicalTouchRegionsReady?: { count?: number; regions?: string[]; actorId?: string } })
-              .__openClinXrClinicalTouchRegionsReady ?? null,
+            (window as unknown as {
+              __openClinXrClinicalTouchRegionsReady?: { count?: number; regions?: string[]; actorId?: string };
+            }).__openClinXrClinicalTouchRegionsReady ?? null,
         );
       } catch {
         blockers.push(
@@ -218,69 +265,122 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
         );
       }
 
-      // Attempt real canvas click via projection helper when available.
       if (regionsReady && (regionsReady.count ?? 0) > 0) {
-        const screen = await page.evaluate((region) => {
-          const project = (
-            window as unknown as {
-              __openClinXrProjectTouchRegionToScreen?: (id: string) => { x: number; y: number } | null;
-            }
-          ).__openClinXrProjectTouchRegionToScreen;
-          return project ? project(region) : null;
-        }, TOUCH_REGION);
+        const readyRegions = new Set(regionsReady.regions ?? []);
+        for (const expected of EXERCISE_REGIONS) {
+          if (readyRegions.size > 0 && !readyRegions.has(expected.region)) {
+            regionResults.push({
+              region: expected.region,
+              expected,
+              evidence: null,
+              blockers: [`region_not_registered:${expected.region}`],
+              screen: null,
+            });
+            continue;
+          }
 
-        if (!screen) {
-          blockers.push(
-            "region_projection_unavailable:window.__openClinXrProjectTouchRegionToScreen missing or returned null",
-          );
-        } else if (screen.x < 0 || screen.y < 0 || screen.x > 1280 || screen.y > 1024) {
-          blockers.push(`region_offscreen:${Math.round(screen.x)},${Math.round(screen.y)}`);
-        } else {
-          try {
-            await page.mouse.click(screen.x, screen.y);
-          } catch (e) {
-            blockers.push(`mouse_click_failed:${String(e)}`);
-          }
-          try {
-            await page.waitForFunction(
-              () =>
-                Boolean(
-                  (window as unknown as { __openClinXrClinicalTouchEvidence?: unknown })
-                    .__openClinXrClinicalTouchEvidence,
-                ),
-              { timeout: 15_000 },
+          // Clear prior evidence so each region is independently asserted.
+          await page.evaluate(() => {
+            delete (window as unknown as { __openClinXrClinicalTouchEvidence?: unknown })
+              .__openClinXrClinicalTouchEvidence;
+          });
+
+          const screen = await page.evaluate((region) => {
+            const project = (
+              window as unknown as {
+                __openClinXrProjectTouchRegionToScreen?: (id: string) => { x: number; y: number } | null;
+              }
+            ).__openClinXrProjectTouchRegionToScreen;
+            return project ? project(region) : null;
+          }, expected.region);
+
+          const regionBlockers: string[] = [];
+          let evidence: ClinicalTouchEvidenceShape | null = null;
+
+          if (!screen) {
+            // Miss falls through — record blocker, do not throw.
+            regionBlockers.push(
+              `region_projection_unavailable:${expected.region}:window.__openClinXrProjectTouchRegionToScreen missing or returned null`,
             );
-          } catch {
-            blockers.push(
-              "no_touch_evidence_after_click:window.__openClinXrClinicalTouchEvidence still absent after region click",
-            );
+          } else if (screen.x < 0 || screen.y < 0 || screen.x > 1280 || screen.y > 1024) {
+            regionBlockers.push(`region_offscreen:${expected.region}:${Math.round(screen.x)},${Math.round(screen.y)}`);
+          } else {
+            try {
+              await page.mouse.click(screen.x, screen.y);
+            } catch (e) {
+              regionBlockers.push(`mouse_click_failed:${expected.region}:${String(e)}`);
+            }
+            try {
+              await page.waitForFunction(
+                (regionId) => {
+                  const ev = (
+                    window as unknown as { __openClinXrClinicalTouchEvidence?: { region?: string } }
+                  ).__openClinXrClinicalTouchEvidence;
+                  return Boolean(ev && ev.region === regionId);
+                },
+                expected.region,
+                { timeout: 15_000 },
+              );
+            } catch {
+              regionBlockers.push(
+                `no_touch_evidence_after_click:${expected.region}:window.__openClinXrClinicalTouchEvidence still absent or wrong region after click`,
+              );
+            }
+            await page.waitForTimeout(400);
+
+            try {
+              evidence = await page.evaluate(
+                () =>
+                  ((window as unknown as { __openClinXrClinicalTouchEvidence?: ClinicalTouchEvidenceShape })
+                    .__openClinXrClinicalTouchEvidence ?? null) as ClinicalTouchEvidenceShape | null,
+              );
+            } catch (e) {
+              regionBlockers.push(`evidence_evaluate_failed:${expected.region}:${String(e)}`);
+            }
+
+            const shapeB = evidenceShapeBlockers(evidence);
+            regionBlockers.push(...shapeB.map((s) => `${expected.region}:${s}`));
+            if (evidence && shapeB.length === 0) {
+              regionBlockers.push(
+                ...evidenceValueBlockers(evidence, expected).map((s) => `${expected.region}:${s}`),
+              );
+            }
+
+            // Per-region screenshot under local evidence dir.
+            try {
+              const shot = defaultScreenshotPath(opts.runId, expected.region);
+              await mkdir(path.dirname(shot), { recursive: true });
+              await page.screenshot({ path: shot });
+              await page.screenshot({ path: path.join(outDir, `${expected.region}-guard-wince.png`) });
+              if (!screenshotPath) screenshotPath = shot;
+            } catch (e) {
+              regionBlockers.push(`screenshot_failed:${expected.region}:${String(e)}`);
+            }
           }
-          // Let wince clip / emotion play a beat, then capture.
-          await page.waitForTimeout(500);
+
+          lastEvidence = evidence;
+          regionResults.push({
+            region: expected.region,
+            expected,
+            evidence,
+            blockers: regionBlockers,
+            screen,
+          });
+          blockers.push(...regionBlockers);
         }
       }
 
-      // Always read evidence if present (may already be set by other paths).
-      try {
-        evidence = await page.evaluate(
-          () =>
-            ((window as unknown as { __openClinXrClinicalTouchEvidence?: ClinicalTouchEvidenceShape })
-              .__openClinXrClinicalTouchEvidence ?? null) as ClinicalTouchEvidenceShape | null,
-        );
-      } catch (e) {
-        blockers.push(`evidence_evaluate_failed:${String(e)}`);
-      }
-
-      // Screenshot under .openclinxr/evidence (registry-ignore local cache).
-      // Durable gate report remains docs/openclinxr/clinical-touch-smoke-*.json (registered).
-      screenshotPath = defaultScreenshotPath(opts.runId);
-      try {
-        await mkdir(path.dirname(screenshotPath), { recursive: true });
-        await page.screenshot({ path: screenshotPath });
-        await page.screenshot({ path: path.join(outDir, "rlq-guard-wince.png") });
-      } catch (e) {
-        blockers.push(`screenshot_failed:${String(e)}`);
-        screenshotPath = null;
+      // Final composite screenshot if none yet.
+      if (!screenshotPath) {
+        screenshotPath = defaultScreenshotPath(opts.runId, "composite");
+        try {
+          await mkdir(path.dirname(screenshotPath), { recursive: true });
+          await page.screenshot({ path: screenshotPath });
+          await page.screenshot({ path: path.join(outDir, "composite.png") });
+        } catch (e) {
+          blockers.push(`screenshot_failed:${String(e)}`);
+          screenshotPath = null;
+        }
       }
 
       await page.close();
@@ -303,15 +403,16 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
     }
   }
 
-  // Shape + value assertions (never throw).
-  const shapeBlockers = evidenceShapeBlockers(evidence);
-  blockers.push(...shapeBlockers);
-  if (evidence && shapeBlockers.length === 0) {
-    blockers.push(...evidenceValueBlockers(evidence));
-  }
   if (pageErrors.length > 0) blockers.push(`page_errors:${pageErrors.length}`);
 
-  return envelope(opts, evidence, blockers, outDir, pageErrors, screenshotPath);
+  // Require all exercise regions to have been attempted with zero blockers.
+  if (regionResults.length < EXERCISE_REGIONS.length) {
+    blockers.push(
+      `incomplete_region_coverage:${regionResults.length}/${EXERCISE_REGIONS.length}`,
+    );
+  }
+
+  return envelope(opts, lastEvidence, blockers, outDir, pageErrors, screenshotPath, regionResults);
 }
 
 function envelope(
@@ -321,6 +422,7 @@ function envelope(
   outDir: string | null,
   pageErrors: string[],
   screenshotPath: string | null,
+  regionResults: RegionResult[],
 ): Record<string, unknown> {
   const uniq = [...new Set(blockers)];
   return {
@@ -331,7 +433,9 @@ function envelope(
     input: {
       scenarioId: SCENARIO_ID,
       comparator: COMPARATOR,
-      region: TOUCH_REGION,
+      regions: EXERCISE_REGIONS.map((r) => r.region),
+      // Back-compat single region field (first exercised).
+      region: EXERCISE_REGIONS[0]?.region ?? "abdomen_rlq",
       port: opts.port,
       runId: opts.runId,
     },
@@ -342,6 +446,15 @@ function envelope(
       dialogueFired: "boolean",
       traceTag: "string",
     },
+    expectedRegions: EXERCISE_REGIONS,
+    regionResults: regionResults.map((r) => ({
+      region: r.region,
+      passed: r.blockers.length === 0 && r.evidence !== null,
+      blockers: r.blockers,
+      evidence: r.evidence,
+      screen: r.screen,
+      expected: r.expected,
+    })),
     evidence,
     pageErrors,
     screenshotPath,
@@ -358,6 +471,17 @@ function validateReport(r: Record<string, unknown>): { ok: boolean; errors: stri
   if (r?.claimScope !== "animation_interaction_response_not_clinical_validity") errors.push("claimScope wrong");
   if (typeof verdict?.passed !== "boolean") errors.push("verdict.passed missing");
   if (verdict?.passed !== true) errors.push(`verdict not passed: ${JSON.stringify(verdict?.blockers)}`);
+  // Multi-region: require regionResults when present (new reports).
+  const regionResults = r?.regionResults as Array<{ passed?: boolean; region?: string }> | undefined;
+  if (Array.isArray(regionResults) && regionResults.length > 0) {
+    const failed = regionResults.filter((x) => x.passed !== true);
+    if (failed.length > 0) {
+      errors.push(`region_failures:${failed.map((f) => f.region).join(",")}`);
+    }
+    if (regionResults.length < 2) {
+      errors.push(`insufficient_regions:${regionResults.length}`);
+    }
+  }
   return { ok: errors.length === 0, errors };
 }
 
@@ -409,6 +533,7 @@ async function main(): Promise<void> {
       null,
       [],
       null,
+      [],
     );
   }
 
@@ -423,6 +548,10 @@ async function main(): Promise<void> {
   }
 
   const verdict = r.verdict as { passed: boolean; blockers: string[] };
+  const regionResults = (r.regionResults as Array<{ region: string; passed: boolean }> | undefined) ?? [];
+  for (const rr of regionResults) {
+    console.log(`region ${rr.region}: ${rr.passed ? "PASS" : "FAIL"}`);
+  }
   console.log(`verdict.passed=${verdict.passed} blockers=${JSON.stringify(verdict.blockers)}`);
   if (verdict.blockers.length > 0) {
     console.error("[clinical-touch-smoke] BLOCKERS:");

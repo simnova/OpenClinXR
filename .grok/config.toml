@@ -5,7 +5,7 @@
 
 # --- Skills (already set for multi-harness standardization) ---
 [skills]
-paths = [".agents/skills", ".grok/skills"]
+paths = [".agents/skills"]
 # .agents/skills/ = product skills (antd, turborepo, openclinxr-openclaw, anny, provider-boundary)
 # .grok/skills/   = harness delegation skills (large-task-orchestration, worker-scoped-session,
 #                   per-job-temp, regen-score-report). See ~/.grok/docs/user-guide/08-skills.md.

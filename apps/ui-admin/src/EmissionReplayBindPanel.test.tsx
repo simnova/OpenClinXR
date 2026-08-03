@@ -31,8 +31,8 @@ describe("EmissionReplayBindPanel", () => {
     expect(panel).toHaveTextContent("openclinxr.admin-replay-from-emission.v1");
     expect(panel).toHaveTextContent("ed_chest_pain_priority_v1");
     expect(panel).toHaveTextContent("run_ed_chest_pain_priority_v1_test");
-    expect(panel).toHaveTextContent("1 real actor turn");
-    expect(panel).toHaveTextContent("2 timeline entries");
+    expect(panel).toHaveTextContent("2 real actor turns");
+    expect(panel).toHaveTextContent("3 timeline entries");
     expect(panel).toHaveTextContent("Private payload redacted");
 
     const claimBoundary = within(panel).getByLabelText("Emission replay claim boundary");
@@ -56,6 +56,10 @@ describe("EmissionReplayBindPanel", () => {
     expect(timeline).toHaveTextContent("actor.response.generated");
     expect(timeline).toHaveTextContent("When did the chest pressure start?");
     expect(timeline).toHaveTextContent("spoken_actor_response");
+    // Q4 clinical-touch faculty review: touch→guard→dialogue with region.
+    expect(timeline).toHaveTextContent("clinical.touch.guarding");
+    expect(timeline).toHaveTextContent("abdomen_rlq");
+    expect(timeline).toHaveTextContent("touch→guard→dialogue");
 
     expect(within(panel).getByLabelText("Emission private payload posture")).toHaveTextContent(
       "privatePayloadRedacted=true",
@@ -193,7 +197,7 @@ describe("EmissionReplayBindPanel", () => {
   });
 
   it("parseAdminReplayFromEmissionV1 accepts valid v1 and rejects seeds-only or wrong schema", () => {
-    expect(parseAdminReplayFromEmissionV1(SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1).actorTurnCount).toBe(1);
+    expect(parseAdminReplayFromEmissionV1(SAMPLE_ADMIN_REPLAY_FROM_EMISSION_V1).actorTurnCount).toBe(2);
 
     expect(() =>
       parseAdminReplayFromEmissionV1({

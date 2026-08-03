@@ -20,6 +20,7 @@ import path from "node:path";
 import {
   runEncounterRuntimeEmission,
   type EncounterRuntimeEmissionArtifact,
+  type EncounterRuntimeEmissionClinicalTouchEvent,
   type EncounterRuntimeEmissionReviewPacketSummary,
 } from "./encounter-runtime-emission.js";
 
@@ -63,7 +64,7 @@ export type AdminReplayFromEmissionProjection = {
   /** Refs for real actor turns from emission (not seed fixtures). */
   actorTurnRefs: string[];
   actorTurnCount: number;
-  /** Timeline projected from emission actorTurns (learner utterance + actor response pairs). */
+  /** Timeline projected from emission actorTurns + clinical.touch events (Q4). */
   timeline: AdminReplayTimelineEntry[];
   timelineEntryCount: number;
   /** Distinct ledger event types from emission. */
@@ -77,7 +78,7 @@ export type AdminReplayFromEmissionProjection = {
   wiring: {
     input: "encounter-runtime-emission.v1";
     projection: "admin_replay_review_packet_summary";
-    path: "loadEmission→mapActorTurns→writeAdminReplay";
+    path: "loadEmission→mapActorTurns+clinicalTouch→writeAdminReplay";
   };
   claimBoundary: "admin_replay_from_runtime_emission_not_clinical_validity";
   notEvidenceFor: readonly [
@@ -127,14 +128,57 @@ export function mapActorTurnsToRefs(
 /**
  * Project timeline entries from emission actorTurns (learner utterance + actor response).
  * Summary-only; response text truncated for private-payload redaction posture.
+ * Clinical-touch-tagged turns render as touch → guard → dialogue with region.
  */
 export function mapActorTurnsToTimeline(
   turns: ReadonlyArray<EmissionActorTurn>,
+  clinicalTouchEvents: ReadonlyArray<EncounterRuntimeEmissionClinicalTouchEvent> = [],
 ): AdminReplayTimelineEntry[] {
   const entries: AdminReplayTimelineEntry[] = [];
   let sequence = 0;
+  const touchByTag = new Map(
+    clinicalTouchEvents.filter((e) => e.tag).map((e) => [e.tag, e] as const),
+  );
+
   for (const turn of turns) {
     const tag = turn.traceContextTags[0];
+    const touch = tag ? touchByTag.get(tag) : undefined;
+    const isClinicalTouch =
+      Boolean(touch) ||
+      (typeof tag === "string" && /^clinical_touch_/i.test(tag)) ||
+      /\[physical exam palpation/i.test(turn.learnerUtterance);
+
+    if (isClinicalTouch) {
+      const region =
+        touch?.region ??
+        turn.learnerUtterance.match(/palpation at ([a-zA-Z0-9_]+)/)?.[1] ??
+        "region";
+      const kind = touch?.responseKind ?? "guarding";
+      const dialogue =
+        touch?.dialogueLine ||
+        (turn.responseText.length > 0 ? turn.responseText : "");
+      const dialogueClip =
+        dialogue.length > 80 ? `${dialogue.slice(0, 77)}...` : dialogue;
+      entries.push({
+        sequence,
+        atSecond: turn.atSecond,
+        eventType: touch?.eventType ?? `clinical.touch.${kind}`,
+        source: "runtime_emission",
+        actorId: turn.actorId,
+        ...(tag ? { tag } : {}),
+        summary: [
+          `touch→guard→dialogue at ${region}`,
+          `kind ${kind}`,
+          dialogueClip ? `dialogue ${dialogueClip}` : undefined,
+          "notEvidenceFor clinical_validity/scoring",
+        ]
+          .filter(Boolean)
+          .join("; "),
+      });
+      sequence += 1;
+      continue;
+    }
+
     entries.push({
       sequence,
       atSecond: turn.atSecond,
@@ -156,6 +200,24 @@ export function mapActorTurnsToTimeline(
     });
     sequence += 1;
   }
+
+  // Ledger clinical.touch events without a matching actor-turn tag still surface for faculty.
+  for (const touch of clinicalTouchEvents) {
+    if (touch.tag && turns.some((t) => t.traceContextTags.includes(touch.tag))) {
+      continue;
+    }
+    entries.push({
+      sequence,
+      atSecond: touch.atSecond,
+      eventType: touch.eventType,
+      source: "runtime_emission",
+      actorId: touch.actorId,
+      ...(touch.tag ? { tag: touch.tag } : {}),
+      summary: touch.summary,
+    });
+    sequence += 1;
+  }
+
   return entries;
 }
 
@@ -196,7 +258,10 @@ export function mapEmissionToAdminReplayProjection(
   }
 
   const actorTurnRefs = mapActorTurnsToRefs(actorTurns);
-  const timeline = mapActorTurnsToTimeline(actorTurns);
+  const clinicalTouchEvents = Array.isArray(emission.clinicalTouchEvents)
+    ? emission.clinicalTouchEvents
+    : [];
+  const timeline = mapActorTurnsToTimeline(actorTurns, clinicalTouchEvents);
 
   return {
     schemaVersion: "openclinxr.admin-replay-from-emission.v1",
@@ -219,7 +284,7 @@ export function mapEmissionToAdminReplayProjection(
     wiring: {
       input: "encounter-runtime-emission.v1",
       projection: "admin_replay_review_packet_summary",
-      path: "loadEmission→mapActorTurns→writeAdminReplay",
+      path: "loadEmission→mapActorTurns+clinicalTouch→writeAdminReplay",
     },
     claimBoundary: "admin_replay_from_runtime_emission_not_clinical_validity",
     notEvidenceFor: [
