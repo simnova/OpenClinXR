@@ -1,0 +1,1 @@
+MB-Lab BVH samples are from MB-Lab (AGPL-3.0). Used only for local retarget validation; do not redistribute as product assets without AGPL compliance.

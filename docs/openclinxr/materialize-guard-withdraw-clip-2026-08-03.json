@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "openclinxr.materialize-guard-withdraw-clip.v1",
+  "generatedAt": "2026-08-03T17:27:00.102Z",
+  "animationName": "openclinxr_role_patient_guard_withdraw",
+  "inputPath": "apps/ui-xr/public/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb",
+  "outputPath": "apps/ui-xr/public/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb",
+  "backupPath": ".openclinxr/asset-production/realism-backups/ed_chest_pain_patient_real_garment-pre-guard-withdraw-2026-08-03.glb",
+  "keyframeTimes": [
+    0,
+    0.32,
+    0.9
+  ],
+  "appliedNodeCount": 8,
+  "appliedNodes": [
+    "spine",
+    "chest",
+    "head",
+    "clavicle.R",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+    "upper_arm.L"
+  ],
+  "missingNodes": [],
+  "claimScope": "animation_interaction_response_not_clinical_validity",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "biomechanical_validity",
+    "production_animation_quality",
+    "quest_readiness"
+  ]
+}

@@ -28,13 +28,16 @@ import {
   Line,
   LineBasicMaterial,
   LoadingManager,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
   PerspectiveCamera,
   PlaneGeometry,
+  Raycaster,
   Scene,
   SphereGeometry,
+  Vector2,
   Vector3,
   WebGLRenderer,
 } from "three";
@@ -1442,6 +1445,7 @@ type GeneratedHumanoidAnimationSlot = {
   sourceComparatorFreezeEnabled: boolean;
   activeSpeech?: HumanoidSpeechPlayback | undefined;
   mixer?: AnimationMixer;
+  responseClips?: AnimationClip[];
   activeRoleAnimationClipName?: string | undefined;
   activeGazeProbeAnimationClipName?: string | undefined;
 };
@@ -3465,11 +3469,35 @@ function createStationScene(): StationSceneRuntime {
   scene.add(inputPanel.mesh);
   let lastPanelSignature = "";
   addControllerAffordances(renderer, scene, (event) => {
+    // XR ray: a controller select that hits a body region is a clinical touch;
+    // otherwise fall through to the position-independent trace advance.
+    if (tryClinicalTouchFromControllerEvent(event, "xr_controller_select")) return;
     completeNextTraceActionFromXrSelect(
       () => Boolean(activeXrSession && renderer.xr.isPresenting),
       classifyXrSelectSource(event),
     );
   });
+  // Desktop pointer ray: pointerdown on the canvas that hits a body region fires a
+  // clinical touch (headless-capturable). A miss does nothing (touch-only input).
+  renderer.domElement.addEventListener("pointerdown", (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    const ndcX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const ndcY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+    tryClinicalTouchFromNdc(camera, ndcX, ndcY, "dom_click_trace_button");
+  });
+  // Test hook: project a touch-region center to a client pixel so the headless
+  // clinical-touch gate can click the real canvas and exercise the real ray path.
+  (window as unknown as {
+    __openClinXrProjectTouchRegionToScreen?: (regionId: string) => { x: number; y: number } | null;
+  }).__openClinXrProjectTouchRegionToScreen = (regionId) => {
+    const mesh = clinicalTouchRegionTargets.find((target) => target.userData.openClinXrTouchRegionId === regionId);
+    if (!mesh) return null;
+    mesh.updateWorldMatrix(true, false);
+    const ndc = new Vector3().setFromMatrixPosition(mesh.matrixWorld).project(camera);
+    const rect = renderer.domElement.getBoundingClientRect();
+    return { x: rect.left + ((ndc.x + 1) / 2) * rect.width, y: rect.top + ((1 - ndc.y) / 2) * rect.height };
+  };
   const keyboardLocomotion = createKeyboardLocomotion();
   let handModelStatus: OpenClinXrInputEvidence["handModelStatus"] = "pending_immersive_session";
   let handModelsInstalled = false;
@@ -6267,6 +6295,175 @@ function createHumanoidInteractionCollisionCues(assetId: string): Group {
   return group;
 }
 
+// ---------------------------------------------------------------------------
+// Animation-driven clinical-touch interaction (examinee examines the patient).
+// Case-def bodyMechanics.touchResponses -> invisible per-region hit boxes ->
+// raycast (pointer + XR ray) -> handleClinicalTouch fires a one-shot response
+// clip + emotion transition + reflexive dialogue + durable trace/actor-turn.
+// respondToTouch() is the seam where live physics later swaps in behind the
+// identical trigger. notEvidenceFor clinical validity / scoring.
+// ---------------------------------------------------------------------------
+type ClinicalTouchResponseConfig = {
+  region: string;
+  responseKind: string;
+  forceThreshold: number;
+  emotionEventId: string;
+  emotion: HumanoidExpressionEmotion;
+  responseClip: string;
+  dialogueLine: string;
+  traceTag: string;
+};
+
+const clinicalTouchRegionTargets: Mesh[] = [];
+const clinicalTouchConfigByActorRegion = new Map<string, { actorId: string; config: ClinicalTouchResponseConfig }>();
+const clinicalTouchRaycaster = new Raycaster();
+
+// Local-to-humanoid placement for each anatomical region hit box (front = -Z).
+const CLINICAL_TOUCH_REGION_LAYOUT: Record<string, { x: number; y: number; z: number; w: number; h: number; d: number }> = {
+  chest_R: { x: -0.12, y: 1.28, z: -0.14, w: 0.22, h: 0.24, d: 0.22 },
+  chest_L: { x: 0.12, y: 1.28, z: -0.14, w: 0.22, h: 0.24, d: 0.22 },
+  abdomen_ruq: { x: -0.11, y: 1.06, z: -0.12, w: 0.2, h: 0.2, d: 0.2 },
+  abdomen_rlq: { x: -0.1, y: 0.92, z: -0.12, w: 0.2, h: 0.2, d: 0.2 },
+  abdomen_luq: { x: 0.11, y: 1.06, z: -0.12, w: 0.2, h: 0.2, d: 0.2 },
+  abdomen_llq: { x: 0.1, y: 0.92, z: -0.12, w: 0.2, h: 0.2, d: 0.2 },
+  abdomen_epigastric: { x: 0, y: 1.14, z: -0.12, w: 0.22, h: 0.18, d: 0.2 },
+  abdomen_suprapubic: { x: 0, y: 0.86, z: -0.12, w: 0.22, h: 0.18, d: 0.2 },
+  neck_anterior: { x: 0, y: 1.5, z: -0.1, w: 0.16, h: 0.14, d: 0.16 },
+  neck_posterior: { x: 0, y: 1.5, z: 0.1, w: 0.16, h: 0.14, d: 0.16 },
+};
+const CLINICAL_TOUCH_REGION_FALLBACK = { x: 0, y: 1.1, z: -0.12, w: 0.24, h: 0.24, d: 0.22 };
+
+function registerClinicalTouchRegions(actorId: string, humanoid: Group, responses: ClinicalTouchResponseConfig[]): void {
+  if (responses.length === 0) return;
+  const group = new Group();
+  group.name = `${runtimeSceneObjectPrefix()}.clinical-touch-regions.${actorId}`;
+  group.userData.openClinXrClinicalTouchRegionHost = "examinee_touch_hit_targets_invisible_raycastable";
+  for (const cfg of responses) {
+    const layout = CLINICAL_TOUCH_REGION_LAYOUT[cfg.region] ?? CLINICAL_TOUCH_REGION_FALLBACK;
+    const box = new Mesh(
+      new BoxGeometry(layout.w, layout.h, layout.d),
+      new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }),
+    );
+    box.name = `${runtimeSceneObjectPrefix()}.clinical-touch-region.${actorId}.${cfg.region}`;
+    box.position.set(layout.x, layout.y, layout.z);
+    box.visible = true; // must stay visible to be raycastable; invisible via opacity 0
+    box.frustumCulled = false;
+    box.userData.openClinXrTouchRegionId = cfg.region;
+    box.userData.openClinXrTouchRegionActorId = actorId;
+    box.userData.openClinXrTouchRegionResponseKind = cfg.responseKind;
+    group.add(box);
+    clinicalTouchRegionTargets.push(box);
+    clinicalTouchConfigByActorRegion.set(`${actorId}:${cfg.region}`, { actorId, config: cfg });
+  }
+  humanoid.add(group);
+  (window as unknown as { __openClinXrClinicalTouchRegionsReady?: unknown }).__openClinXrClinicalTouchRegionsReady = {
+    actorId,
+    regions: responses.map((response) => response.region),
+    count: clinicalTouchRegionTargets.length,
+  };
+}
+
+function resolveClinicalTouchTarget(): { actorId: string; regionId: string } | null {
+  if (clinicalTouchRegionTargets.length === 0) return null;
+  const hit = clinicalTouchRaycaster.intersectObjects(clinicalTouchRegionTargets, false)[0];
+  if (!hit) return null;
+  const regionId = hit.object.userData.openClinXrTouchRegionId as string | undefined;
+  const actorId = hit.object.userData.openClinXrTouchRegionActorId as string | undefined;
+  if (!regionId || !actorId) return null;
+  return { actorId, regionId };
+}
+
+function tryClinicalTouchFromNdc(
+  camera: PerspectiveCamera,
+  ndcX: number,
+  ndcY: number,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): boolean {
+  clinicalTouchRaycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
+  const target = resolveClinicalTouchTarget();
+  return target ? handleClinicalTouch(target.actorId, target.regionId, source) : false;
+}
+
+function tryClinicalTouchFromWorldRay(
+  origin: Vector3,
+  direction: Vector3,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): boolean {
+  clinicalTouchRaycaster.set(origin, direction.clone().normalize());
+  const target = resolveClinicalTouchTarget();
+  return target ? handleClinicalTouch(target.actorId, target.regionId, source) : false;
+}
+
+function tryClinicalTouchFromControllerEvent(
+  event: XrSelectControllerEvent,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): boolean {
+  const controller = (event as unknown as { target?: Group }).target;
+  if (!controller) return false;
+  controller.updateMatrixWorld(true);
+  const origin = new Vector3().setFromMatrixPosition(controller.matrixWorld);
+  const direction = new Vector3(0, 0, -1).transformDirection(controller.matrixWorld);
+  return tryClinicalTouchFromWorldRay(origin, direction, source);
+}
+
+function playOneShotResponseClip(actorId: string, clipName: string): boolean {
+  const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
+  if (!slot?.mixer || !slot.responseClips) return false;
+  const clip = slot.responseClips.find((candidate) => candidate.name === clipName);
+  if (!clip) return false;
+  const action = slot.mixer.clipAction(clip);
+  action.stop();
+  action.reset();
+  action.setLoop(LoopOnce, 1);
+  action.clampWhenFinished = false;
+  action.play();
+  return true;
+}
+
+// Slice F seam: animation-driven today; a "physics" mode later gates the baked
+// replay (applyPhysicsBoneTransforms) on this hit without changing the caller.
+function respondToTouch(actorId: string, config: ClinicalTouchResponseConfig, mode: "animation" | "physics"): boolean {
+  if (mode === "physics") return false;
+  return playOneShotResponseClip(actorId, config.responseClip);
+}
+
+function handleClinicalTouch(
+  actorId: string,
+  regionId: string,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): boolean {
+  const entry = clinicalTouchConfigByActorRegion.get(`${actorId}:${regionId}`);
+  if (!entry) return false;
+  const cfg = entry.config;
+  const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
+  const now = performance.now();
+
+  const clipPlayed = respondToTouch(actorId, cfg, "animation");
+  // Durable trace + remote actor-turn first (Q4), then the reflexive line wins activeSpeech.
+  completeTraceActionFromInput(cfg.traceTag, source);
+  if (slot) startHumanoidEmotionTransition(slot, cfg.emotion, now);
+  triggerHumanoidDialogue(actorId, cfg.dialogueLine, { kind: "learner_camera", actorId: null }, cfg.emotion);
+
+  (window as unknown as { __openClinXrClinicalTouchEvidence?: unknown }).__openClinXrClinicalTouchEvidence = {
+    schemaVersion: "openclinxr.clinical-touch.v1",
+    actorId,
+    region: regionId,
+    responseKind: cfg.responseKind,
+    responseClip: cfg.responseClip,
+    clipPlayed,
+    emotion: cfg.emotion,
+    emotionTransitioned: Boolean(slot),
+    dialogueFired: true,
+    dialogueLine: cfg.dialogueLine,
+    traceTag: cfg.traceTag,
+    traceEventType: `clinical.touch.${cfg.responseKind}`,
+    source,
+    atMs: Number(now.toFixed(1)),
+    notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
+  };
+  return true;
+}
+
 /**
  * Tag SEPARATE phenotype real-garment meshes with cyan + sleeveDeform userData.
  * ONLY meshes named openclinxr_real_garment* / real_garment_from_phenotype* (or their
@@ -7098,6 +7295,7 @@ function registerGeneratedHumanoidAnimation(input: {
     expressionCue: input.expressionCue,
     emotionExpression: createHumanoidEmotionExpressionState(),
     sourceComparatorFreezeEnabled: !input.playbackEnabled && input.fixedSourcePoseSampleSeconds !== null,
+    responseClips: input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip),
     ...(mixer ? { mixer } : {}),
     ...(activeRoleAnimationClipName ? { activeRoleAnimationClipName } : {}),
     ...(activeGazeProbeAnimationClipName ? { activeGazeProbeAnimationClipName } : {}),
@@ -7105,6 +7303,13 @@ function registerGeneratedHumanoidAnimation(input: {
   generatedHumanoidAnimationSlots.push(slot);
   generatedHumanoidAnimationSlotsByActorId.set(input.actorId, slot);
   generatedHumanoidActorSlotsByActorId.set(input.actorId, input.actorSlot);
+  // Register case-driven clinical-touch hit regions for this actor, if any.
+  const clinicalTouchScenario =
+    scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId()) ?? edChestPainScenario;
+  const clinicalTouchActor = clinicalTouchScenario.actors.find((actor) => actor.actorId === input.actorId);
+  if (clinicalTouchActor?.bodyMechanics?.touchResponses?.length) {
+    registerClinicalTouchRegions(input.actorId, input.humanoid, clinicalTouchActor.bodyMechanics.touchResponses);
+  }
   input.humanoid.userData.openClinXrAnimationPlayback = !input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null
     ? "source_comparator_fixed_pose_sampled"
     : mixer

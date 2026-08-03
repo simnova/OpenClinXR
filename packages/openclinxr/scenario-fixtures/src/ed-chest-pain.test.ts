@@ -42,4 +42,19 @@ describe("ED chest pain fixture", () => {
       expect(seed.expectedTraceTags.every((tag) => allowedTraceTags.has(tag)), seed.seedId).toBe(true);
     }
   });
+
+  it("drives an animation-driven clinical-touch response from case bodyMechanics", () => {
+    const patient = edChestPainScenario.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
+    expect(patient?.bodyMechanics?.touchResponses.length).toBe(1);
+    const guard = patient?.bodyMechanics?.touchResponses[0];
+    expect(guard?.region).toBe("chest_R");
+    expect(guard?.responseKind).toBe("guarding");
+    expect(guard?.emotion).toBe("pain");
+    expect(guard?.responseClip).toBe("openclinxr_role_patient_guard_withdraw");
+    expect(guard?.traceTag).toBe("physical_exam_chest_palpation");
+    // Additive + optional: actors without bodyMechanics remain valid.
+    const nurse = edChestPainScenario.actors.find((actor) => actor.role === "nurse");
+    expect(nurse?.bodyMechanics).toBeUndefined();
+    expect(validateScenario(edChestPainScenario).ok).toBe(true);
+  });
 });

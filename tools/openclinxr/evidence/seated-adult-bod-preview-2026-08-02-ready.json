@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "openclinxr.seated-adult-bod-preview-ready.v1",
+  "sliceId": "seated-adult-humanoid-bod-preview-2026-08-02",
+  "role": "asset-pipeline-lead",
+  "generatedAt": "2026-08-02T20:00:00.000Z",
+  "status": "pipeline_ready_awaiting_shell_execution",
+  "intent": "Brand-new adult ED patient humanoid for BOD isolated human-likeness lab (target vision ≥~0.7); not multi-actor ED bay.",
+  "caseActorPreset": "ed_chest_pain_priority_v2:patient_ed_chest_pain_v1",
+  "qualityChanges": {
+    "generate_mesh.py": "adult_male gender → 0.08 (masculine Anny param; was falling through to 0.35)",
+    "automate_blender.py": [
+      "warm_medium skin base (0.70,0.50,0.40)",
+      "hospital_gown muted cotton (0.38,0.52,0.64) roughness 0.88 — not neon debug blue",
+      "body under gown soft white/blue-gray mesh clothing regions",
+      "gown SOLIDIFY 0.010 (no puffy box)",
+      "cube role markers already abandoned_rejected_experiment"
+    ],
+    "orchestrate_character.py": "ED preset seed 2002 (brand-new vs 2001); sleeveGeometryExpansion v3_bod_humanlike; anny_topology default"
+  },
+  "runCommand": "bash tools/openclinxr/asset-pipeline/anny/run_seated_adult_bod_preview_2026_08_02.sh",
+  "manualEquivalent": [
+    "Prefer python3.11 with import anny,torch (user site); avoid mise python3.13 stub fallback",
+    "python3.11 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset ed_chest_pain_priority_v2:patient_ed_chest_pain_v1 --output-glb .openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb --mpfb2-eye-rig",
+    "If stub (uses_real_anny_forward_pass false): re-stage blender on apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj (13348-vert real Anny adult male) + ED hospital_gown phenotype manifest",
+    "Mirror to apps/arena/model-vetting-studio/public/cagematch/seated-adult-bod-preview-2026-08-02/",
+    "Verify GLB bytes > 5000000"
+  ],
+  "expectedOutputs": {
+    "glb": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb",
+    "riggingReport": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_rigging_report.json",
+    "provenance": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.provenance.json",
+    "cagematchMirror": "apps/arena/model-vetting-studio/public/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb",
+    "labUrlPath": "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb",
+    "isolatedLabHint": "apps/ui-xr/public/_isolated-humanoid-lab/index.html?glb=/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb"
+  },
+  "claimScope": "local_real_anny_candidate_bundle_not_readiness",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "provider_runtime_readiness"
+  ],
+  "promotionGates": false,
+  "capabilityConstraint": {
+    "type": "tool",
+    "missing": "run_terminal_command / shell",
+    "blocked": "Cannot execute blender/python orchestrate or verify GLB bytes from this subagent tool allowlist",
+    "template": "docs/agent-ops/capability-requests/TEMPLATE.md"
+  },
+  "recommendedVisionCapture": "After GLB exists: serve model-vetting-studio or isolated lab; capture single-mesh front + three_quarter; run grok-vision human-likeness score. Suggested: pnpm --filter @openclinxr/model-vetting-studio dev:portless then open /? or isolated lab with glb path. Parent: vision isolated lab capture of new GLB (Q5)."
+}

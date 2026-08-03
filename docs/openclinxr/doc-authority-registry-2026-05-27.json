@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 58,
     "current-reference": 197,
-    "archive-candidate": 14,
-    "evidence": 32,
+    "archive-candidate": 16,
+    "evidence": 33,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
@@ -1059,6 +1059,13 @@
     },
     {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/quest-rerun.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
@@ -2974,6 +2981,20 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-HANDOFF-2026-08-03.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     }
   ]
 }

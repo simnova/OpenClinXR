@@ -1,0 +1,1296 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OpenClinXR Isolated Humanoid Lab</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; overflow: hidden; font-family: system-ui, sans-serif; }
+    #hud { position: fixed; left: 12px; top: 12px; color: #eee; font-size: 13px; z-index: 2; background: rgba(0,0,0,.55); padding: 8px 10px; border-radius: 8px; max-width: 520px; line-height: 1.35; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="hud">Isolated humanoid lab</div>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.184.0",
+      "three/addons/": "https://esm.sh/three@0.184.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const params = new URLSearchParams(location.search);
+    const glb = params.get("glb")
+      || "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb";
+    const hideGarment = params.get("hideGarment") !== "0";
+    const animClip = params.get("anim"); // name substring or "1" = first clip; "0"/absent = off unless only anim mode
+    const animOnly = params.get("anim") != null && params.get("anim") !== "0";
+    // Physics defaults off when proving GLB clips (avoids fighting AnimationMixer).
+    const physicsOn = animOnly ? params.get("physics") === "1" : params.get("physics") !== "0";
+    const physicsUrl = params.get("physicsUrl") || "/physics-touch/ed-palpation-bone-transforms.json";
+    // Skin glass + skeleton overlay (defaults on for ragdoll inspection)
+    const showSkeleton = params.get("skeleton") !== "0";
+    // Default low opacity so bones read through mesh. Override: &skinOpacity=0.55
+    // depthWrite is forced off below so translucent skin does not occlude skeleton.
+    const skinOpacity = Math.min(1, Math.max(0.05, Number(params.get("skinOpacity") || "0.28")));
+    // Align Anny rest pose (pelvis ~-90° X lying chain) to standing mesh; align=0 to skip.
+    // Procedural proof anims need align ON (deltas from standing rest). glTF clips: align=0.
+    const alignSkeleton = animOnly
+      ? (String(animClip || "").toLowerCase().startsWith("glb:") ||
+          String(animClip || "").toLowerCase().startsWith("clip:")
+          ? params.get("align") === "1"
+          : params.get("align") !== "0")
+      : params.get("align") !== "0";
+    // Optional Anny rigging_report (attachmentPoints + bindBones). Default: sibling of glb.
+    const reportUrl = params.get("reportUrl")
+      || (glb.endsWith(".glb") ? glb.replace(/\.glb$/i, "_rigging_report.json") : "");
+    const hud = document.getElementById("hud");
+    hud.textContent = "Loading " + glb;
+
+    const scene = new THREE.Scene();
+    // Slightly lighter ground/bg so transparent skin reads
+    scene.background = new THREE.Color(0x1a2230);
+    const camera = new THREE.PerspectiveCamera(35, innerWidth / innerHeight, 0.05, 50);
+    camera.position.set(0.9, 1.35, 2.4);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    document.body.appendChild(renderer.domElement);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.0, 0);
+    controls.update();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+    const key = new THREE.DirectionalLight(0xffffff, 1.2);
+    key.position.set(2.2, 4, 2.5);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xb0c4ff, 0.45);
+    fill.position.set(-2, 1.5, -1);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0x88aaff, 0.35);
+    rim.position.set(0, 1.5, -3);
+    scene.add(rim);
+    const ground = new THREE.Mesh(
+      new THREE.CircleGeometry(1.6, 48),
+      new THREE.MeshStandardMaterial({ color: 0x1a2030, roughness: 0.9 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    window.__isoReady = false;
+    window.__isoError = null;
+    window.__isoStats = null;
+    window.__isoPhysics = null;
+    window.__isoAnimEvidence = null;
+    window.__isoPageErrors = [];
+    window.addEventListener("error", (e) => {
+      window.__isoPageErrors.push(String(e?.message || e?.error || e));
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      window.__isoPageErrors.push("unhandledrejection:" + String(e?.reason || e));
+    });
+
+    const garmentRe = /garment|gown|clothing|scrub|tshirt|t_shirt|shirt|cloth|sleeve|real_garment|openclinxr_real_garment/i;
+
+    function hideNonBaseline(root) {
+      let hidden = 0;
+      root.traverse((o) => {
+        if (!o.isMesh && !o.isSkinnedMesh) return;
+        const n = o.name || "";
+        if (hideGarment && garmentRe.test(n)) {
+          o.visible = false;
+          hidden++;
+        }
+        if (/openclinxr_mpfb2_eye_look_target/i.test(n)) {
+          o.visible = false;
+          hidden++;
+        }
+      });
+      return hidden;
+    }
+
+    /**
+     * Glass skin so skeleton shows through: MeshStandardMaterial with real opacity
+     * and depthWrite OFF (otherwise translucent fragments still occlude bones).
+     */
+    function applySemiTransparentSkin(root, opacity) {
+      let count = 0;
+      root.traverse((o) => {
+        if (!o.isMesh && !o.isSkinnedMesh) return;
+        if (!o.visible) return;
+        const n = o.name || "";
+        if (garmentRe.test(n)) return;
+        const isEye = /eye|iris|pupil|mpfb2/i.test(n);
+        // Eyes slightly more solid so they don't vanish at low body opacity
+        const op = isEye ? Math.min(0.75, Math.max(opacity + 0.15, 0.35)) : opacity;
+        const prev = Array.isArray(o.material) ? o.material[0] : o.material;
+        const map = prev && prev.map ? prev.map : null;
+        const baseColor = new THREE.Color(0xd4a574); // warm skin so mesh always reads
+        if (prev?.color && prev.color.getHex() !== 0xffffff) {
+          baseColor.copy(prev.color);
+        }
+        const mat = new THREE.MeshStandardMaterial({
+          color: baseColor,
+          map: map || null,
+          transparent: true,
+          opacity: op,
+          // Critical: do not write depth — lets SkeletonHelper/joints draw under glass
+          depthWrite: false,
+          depthTest: true,
+          side: THREE.DoubleSide,
+          metalness: 0.05,
+          roughness: 0.72,
+        });
+        if (map) {
+          map.colorSpace = THREE.SRGBColorSpace;
+          mat.map = map;
+        }
+        mat.needsUpdate = true;
+        o.material = mat;
+        o.frustumCulled = false;
+        // Skin first; skeleton overlay uses higher renderOrder
+        o.renderOrder = 1;
+        // Ensure skinned mesh still bound after material swap
+        if (o.isSkinnedMesh) {
+          o.normalizeSkinWeights?.();
+        }
+        count++;
+      });
+      return count;
+    }
+
+    /** Prefer real skeleton.bones from SkinnedMesh (skinning truth). */
+    function collectBones(root) {
+      const map = new Map();
+      root.traverse((o) => {
+        if (o.isSkinnedMesh && o.skeleton?.bones) {
+          for (const b of o.skeleton.bones) {
+            if (b?.name) map.set(b.name, b);
+          }
+        }
+      });
+      // Alias upper_armL -> upper_arm.L (three sometimes strips dots)
+      for (const [n, b] of [...map.entries()]) {
+        if (n.includes(".")) continue;
+        const m = n.match(/^(upper_arm|clavicle|forearm|hand|thigh|shin|foot|eye|index_finger_base)([LR])$/);
+        if (m) map.set(`${m[1]}.${m[2]}`, b);
+      }
+      window.__isoBoneNames = [...map.keys()].sort();
+      return map;
+    }
+
+    /**
+     * Deterministic align spec v1.
+     * Same GLB + same mesh bind bbox → same bone rest (no soft pulls / random).
+     * Fractions are of mesh AABB (Y from min, X from center/edges, Z from min→max).
+     * Face convention: character faces +Z; posterior spine uses low Z fraction.
+     */
+    const ALIGN_SPEC_V1 = Object.freeze({
+      id: "align-spec-v1",
+      // Axial landmarks (mesh Y fraction from feet, Z fraction from back)
+      hipY: 0.52,
+      headY: 0.94,
+      spineZFromBack: 0.28, // 0 = back (min.z), 1 = front (max.z)
+      // A-pose hand proxies
+      handY: 0.58,
+      handXFromCenter: 0.86, // |x| = halfWidth * this
+      handZFromBack: 0.42,
+      // Feet
+      footY: 0.02,
+      footXFromCenter: 0.22,
+      footZFromBack: 0.38,
+      // Exact chain scale clamps (still deterministic)
+      spineScaleMin: 0.5,
+      spineScaleMax: 2.5,
+      armScaleMin: 0.55,
+      armScaleMax: 1.35,
+      legScaleMin: 0.65,
+      legScaleMax: 1.35,
+      // Already-aligned epsilon (world meters)
+      eps: 1e-4,
+      // Quantization for fingerprint (decimal places)
+      quantDigits: 6,
+    });
+
+    /** Resolve bone by dotted or stripped name (upper_arm.L | upper_armL). */
+    function findBone(skeleton, ...names) {
+      for (const name of names) {
+        const b =
+          skeleton.getBoneByName?.(name) ||
+          skeleton.bones.find((x) => x.name === name);
+        if (b) return b;
+      }
+      for (const name of names) {
+        const stripped = name.replace(/\./g, "");
+        const b = skeleton.bones.find(
+          (x) => x.name === stripped || x.name.replace(/\./g, "") === stripped,
+        );
+        if (b) return b;
+      }
+      return null;
+    }
+
+    function quantN(n, digits = ALIGN_SPEC_V1.quantDigits) {
+      const p = 10 ** digits;
+      return Math.round(n * p) / p;
+    }
+
+    function quantVec3(v, digits = ALIGN_SPEC_V1.quantDigits) {
+      return [quantN(v.x, digits), quantN(v.y, digits), quantN(v.z, digits)];
+    }
+
+    function worldPosOf(bone, out = new THREE.Vector3()) {
+      bone.getWorldPosition(out);
+      return out;
+    }
+
+    /** World-space set bone position (deterministic local solve via parent inverse). */
+    function setBoneWorldPosition(bone, worldTarget) {
+      if (!bone.parent) {
+        bone.position.copy(worldTarget);
+        bone.updateMatrix();
+        return;
+      }
+      bone.parent.updateMatrixWorld(true);
+      const parentInv = new THREE.Matrix4().copy(bone.parent.matrixWorld).invert();
+      bone.position.copy(worldTarget).applyMatrix4(parentInv);
+      bone.updateMatrix();
+    }
+
+    /**
+     * Scale local positions on path start→end (exclusive start, inclusive end)
+     * so world length equals targetLen exactly (clamped). Deterministic.
+     */
+    function scaleChainToLength(start, end, targetLen, minS, maxS) {
+      if (!start || !end) return { factor: 1, applied: false, reason: "missing" };
+      const a = new THREE.Vector3();
+      const b = new THREE.Vector3();
+      start.getWorldPosition(a);
+      end.getWorldPosition(b);
+      const cur = Math.max(1e-9, a.distanceTo(b));
+      const raw = targetLen / cur;
+      const factor = Math.min(maxS, Math.max(minS, raw));
+      // Path end→start (exclusive start). Scale every node on the path that has a local position.
+      const path = [];
+      let n = end;
+      let guard = 0;
+      while (n && n !== start && guard++ < 48) {
+        path.push(n);
+        n = n.parent;
+      }
+      if (n !== start) return { factor: 1, applied: false, reason: "not_ancestor", raw, cur };
+      if (Math.abs(factor - 1) < 1e-12) {
+        return { factor: 1, applied: false, reason: "noop", raw, cur, targetLen };
+      }
+      for (const node of path) node.position.multiplyScalar(factor);
+      return { factor, applied: true, reason: "scaled", raw, cur, targetLen };
+    }
+
+    /**
+     * Deterministic landmarks from mesh AABB + ALIGN_SPEC_V1.
+     * Pure function of meshBox + spec — same box ⇒ same landmarks.
+     */
+    function landmarksFromMeshBox(meshBox, spec = ALIGN_SPEC_V1) {
+      const min = meshBox.min;
+      const size = meshBox.getSize(new THREE.Vector3());
+      const cx = min.x + size.x * 0.5;
+      const zAt = (frac) => min.z + size.z * frac;
+      const yAt = (frac) => min.y + size.y * frac;
+      const halfW = size.x * 0.5;
+      const spineZ = zAt(spec.spineZFromBack);
+      return {
+        pelvis: new THREE.Vector3(cx, yAt(spec.hipY), spineZ),
+        head: new THREE.Vector3(cx, yAt(spec.headY), spineZ),
+        handL: new THREE.Vector3(
+          cx + halfW * spec.handXFromCenter,
+          yAt(spec.handY),
+          zAt(spec.handZFromBack),
+        ),
+        handR: new THREE.Vector3(
+          cx - halfW * spec.handXFromCenter,
+          yAt(spec.handY),
+          zAt(spec.handZFromBack),
+        ),
+        footL: new THREE.Vector3(
+          cx + halfW * spec.footXFromCenter,
+          yAt(spec.footY),
+          zAt(spec.footZFromBack),
+        ),
+        footR: new THREE.Vector3(
+          cx - halfW * spec.footXFromCenter,
+          yAt(spec.footY),
+          zAt(spec.footZFromBack),
+        ),
+        spineZ,
+        source: "mesh_aabb_spec",
+        mesh: {
+          min: quantVec3(min),
+          max: quantVec3(meshBox.max),
+          size: quantVec3(size),
+          cx: quantN(cx),
+        },
+      };
+    }
+
+    /**
+     * Upgrade AABB landmarks using Anny rigging_report when present.
+     * Priority: bindBones.landmarks → attachmentPoints → AABB fractions.
+     * Report coords are standing Y-up meters; mapped into current meshBox
+     * via height scale + foot origin (mesh.min.y) so lab centering is absorbed.
+     * Pure: same meshBox + report ⇒ same landmarks.
+     */
+    function landmarksFromReport(meshBox, report, spec = ALIGN_SPEC_V1) {
+      const base = landmarksFromMeshBox(meshBox, spec);
+      if (!report || typeof report !== "object") return base;
+
+      const min = meshBox.min;
+      const size = meshBox.getSize(new THREE.Vector3());
+      const cx = min.x + size.x * 0.5;
+      const meshH = Math.max(size.y, 1e-6);
+
+      const ap = report.attachmentPoints || {};
+      const reportH = Math.max(
+        1e-6,
+        Number(ap.bodyHeightM)
+          || (Array.isArray(report.realGarmentRegionFromPhenotype?.bodyLocalHeightRange)
+            ? report.realGarmentRegionFromPhenotype.bodyLocalHeightRange[1]
+            : 0)
+          || (report.phenotype?.height_cm ? Number(report.phenotype.height_cm) / 100 : 0)
+          || 1.78,
+      );
+      const yScale = meshH / reportH;
+      const spineZ = min.z + size.z * spec.spineZFromBack;
+      /**
+       * Map report standing Y-up meters → current meshBox.
+       * @param {number[]} pt
+       * @param {{ keepX?: boolean, zFrac?: number }} opts
+       */
+      const mapReportPt = (pt, opts = {}) => {
+        if (!pt || pt.length < 3) return null;
+        const x = opts.keepX ? cx + Number(pt[0]) * yScale : cx;
+        const y = min.y + Number(pt[1]) * yScale;
+        const zf = opts.zFrac != null ? opts.zFrac : spec.spineZFromBack;
+        const z = min.z + size.z * zf;
+        return new THREE.Vector3(x, y, z);
+      };
+
+      const sources = ["mesh_aabb_spec"];
+      const bind = report.bindBones || report.bodyRigDiagnostics?.bindBones;
+      const lm = bind?.landmarks || {};
+
+      // Axial: prefer bind pelvis/head; else attachmentPoints head_top
+      if (lm.pelvis) {
+        const p = mapReportPt(lm.pelvis);
+        if (p) {
+          base.pelvis.copy(p);
+          sources.push("bindBones.pelvis");
+        }
+      }
+      if (lm.head) {
+        const h = mapReportPt(lm.head);
+        if (h) {
+          base.head.copy(h);
+          sources.push("bindBones.head");
+        }
+      } else if (ap.head_top) {
+        const h = mapReportPt(ap.head_top);
+        if (h) {
+          // head joint slightly below crown
+          base.head.set(cx, Math.min(h.y, min.y + meshH * 0.96), spineZ);
+          sources.push("attachmentPoints.head_top");
+        }
+      }
+      if (ap.nose_tip && !lm.head) {
+        const noseY = min.y + Number(ap.nose_tip[1]) * yScale;
+        base.head.y = quantN((base.head.y * 2 + noseY) / 3);
+        sources.push("attachmentPoints.nose_tip");
+      }
+      // Keep axial chain on posterior midline
+      base.pelvis.x = cx;
+      base.pelvis.z = spineZ;
+      base.head.x = cx;
+      base.head.z = spineZ;
+
+      // Limbs from bind landmarks when present
+      const limbMap = [
+        ["handL", "hand.L", spec.handZFromBack],
+        ["handR", "hand.R", spec.handZFromBack],
+        ["footL", "foot.L", spec.footZFromBack],
+        ["footR", "foot.R", spec.footZFromBack],
+      ];
+      for (const [field, boneName, zFrac] of limbMap) {
+        const pt = lm[boneName];
+        if (!pt) continue;
+        const mapped = mapReportPt(pt, { keepX: true, zFrac });
+        if (!mapped) continue;
+        base[field].copy(mapped);
+        if (field.startsWith("foot")) {
+          base[field].y = min.y + size.y * spec.footY;
+        }
+        sources.push("bindBones." + boneName);
+      }
+
+      base.spineZ = spineZ;
+      base.source = sources.join("+");
+      base.reportMeta = {
+        hasBindBones: Boolean(bind?.bones?.length),
+        hasAttachmentPoints: Boolean(ap.head_top),
+        reportH: quantN(reportH),
+        yScale: quantN(yScale),
+        exportBasis: report.exportBasis?.method || null,
+      };
+      return base;
+    }
+
+    /**
+     * Fit one limb: scale chain to target length, then snap end effector to
+     * exact landmark (fully determined by parent matrix + target).
+     */
+    function fitLimbExact(root, start, end, target, minS, maxS) {
+      if (!start || !end || !target) {
+        return { factor: 1, snapped: false };
+      }
+      root.updateMatrixWorld(true);
+      const s = new THREE.Vector3();
+      start.getWorldPosition(s);
+      const targetLen = Math.max(1e-6, s.distanceTo(target));
+      const sc = scaleChainToLength(start, end, targetLen, minS, maxS);
+      root.updateMatrixWorld(true);
+      setBoneWorldPosition(end, target);
+      root.updateMatrixWorld(true);
+      return { factor: sc.factor, snapped: true, scale: sc };
+    }
+
+    function fingerprintAlign(spec, landmarks, bonesWorld) {
+      const payload = {
+        spec: spec.id,
+        landmarkSource: landmarks.source || "mesh_aabb_spec",
+        mesh: landmarks.mesh,
+        targets: {
+          pelvis: quantVec3(landmarks.pelvis),
+          head: quantVec3(landmarks.head),
+          handL: quantVec3(landmarks.handL),
+          handR: quantVec3(landmarks.handR),
+          footL: quantVec3(landmarks.footL),
+          footR: quantVec3(landmarks.footR),
+        },
+        bones: bonesWorld,
+      };
+      // FNV-1a 32-bit over stable JSON
+      const s = JSON.stringify(payload);
+      let h = 0x811c9dc5;
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+      }
+      return {
+        specId: spec.id,
+        hash: (h >>> 0).toString(16).padStart(8, "0"),
+        payload,
+      };
+    }
+
+    /**
+     * Deterministic Anny rest-pose align (v1).
+     * Pipeline (fixed order, pure geometry, no soft pulls):
+     *  1) pose() reset + measure mesh AABB (skinned meshes sorted by name)
+     *  2) landmarks = f(meshBox, report?, ALIGN_SPEC_V1)
+     *  3) stand: identity pelvis if lying / -90°X
+     *  4) scale path pelvis→head to |targetHead-targetPelvis|
+     *  5) set pelvis world = targetPelvis
+     *  6) fit limbs: scale + exact end snap to hand/foot landmarks
+     *  7) rebind skin from new rest
+     * Same inputs ⇒ same bone locals / fingerprint.
+     * If exportBasis already produced upright glTF, early-out as already_aligned.
+     */
+    function alignSkeletonWithStandingMesh(root, report = null, spec = ALIGN_SPEC_V1) {
+      const meshes = [];
+      root.traverse((o) => {
+        if (o.isSkinnedMesh && o.skeleton?.bones?.length) meshes.push(o);
+      });
+      // Deterministic mesh order for bbox
+      meshes.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      if (!meshes.length) return { fixed: false, reason: "no_skinned_mesh", specId: spec.id };
+
+      const skeleton = meshes[0].skeleton;
+      skeleton.pose();
+      root.updateMatrixWorld(true);
+
+      const pelvis = findBone(skeleton, "pelvis");
+      const head = findBone(skeleton, "head");
+      if (!pelvis || !head) {
+        return { fixed: false, reason: "missing_pelvis_or_head", specId: spec.id };
+      }
+
+      const meshBox = new THREE.Box3();
+      for (const mesh of meshes) {
+        if (mesh.visible === false) continue;
+        meshBox.expandByObject(mesh);
+      }
+      if (meshBox.isEmpty()) meshBox.setFromObject(root);
+
+      const L = landmarksFromReport(meshBox, report, spec);
+      const meshSize = meshBox.getSize(new THREE.Vector3());
+      const meshCenter = meshBox.getCenter(new THREE.Vector3());
+
+      const p0 = new THREE.Vector3();
+      const h0 = new THREE.Vector3();
+      worldPosOf(pelvis, p0);
+      worldPosOf(head, h0);
+      const before = {
+        pelvis: quantVec3(p0),
+        head: quantVec3(h0),
+        boneUp: quantVec3(h0.clone().sub(p0)),
+        pelvisQuat: [
+          quantN(pelvis.quaternion.x),
+          quantN(pelvis.quaternion.y),
+          quantN(pelvis.quaternion.z),
+          quantN(pelvis.quaternion.w),
+        ],
+      };
+
+      // Fast path: mesh already tall-Y and bone chain already stands +Y → do not rebind.
+      // (Export-axis normalize is experimental/broken; healthy path is lying joints + this align.)
+      const meshTallY = meshSize.y >= meshSize.z * 1.15;
+      const boneUp0 = h0.clone().sub(p0);
+      const bonesStandY =
+        boneUp0.y > 0.2 && Math.abs(boneUp0.y) >= Math.abs(boneUp0.z) * 1.2;
+      const pelvisNearIdentity = Math.abs(pelvis.quaternion.x) < 0.15;
+      if (meshTallY && bonesStandY && pelvisNearIdentity) {
+        const fp = fingerprintAlign(spec, L, {
+          pelvis: quantVec3(p0),
+          head: quantVec3(h0),
+          handL: null,
+          handR: null,
+          footL: null,
+          footR: null,
+        });
+        return {
+          fixed: false,
+          ok: true,
+          reason: "already_y_up_no_rebind",
+          deterministic: true,
+          specId: spec.id,
+          method: "det/" + spec.id + ":skip_already_upright",
+          before,
+          landmarksSource: L.source || "mesh_aabb_spec",
+          fingerprint: fp,
+          after: {
+            bones: { pelvis: quantVec3(p0), head: quantVec3(h0) },
+            fingerprint: fp.hash,
+            landmarks: {
+              pelvis: quantVec3(L.pelvis),
+              head: quantVec3(L.head),
+            },
+          },
+        };
+      }
+
+      // Early-out only if already matching landmarks (deterministic eps)
+      const already =
+        p0.distanceTo(L.pelvis) < spec.eps &&
+        h0.distanceTo(L.head) < spec.eps * 3 &&
+        Math.abs(h0.y - p0.y) > Math.abs(h0.z - p0.z) * 0.9;
+      if (already) {
+        return {
+          fixed: false,
+          reason: "already_aligned",
+          specId: spec.id,
+          deterministic: true,
+          before,
+          landmarks: {
+            pelvis: quantVec3(L.pelvis),
+            head: quantVec3(L.head),
+          },
+        };
+      }
+
+      const steps = [];
+      let method = "det/" + spec.id;
+
+      // 1) Stand: clear lying pelvis rest rot (do NOT absorb into children)
+      const d0 = h0.clone().sub(p0);
+      const lying = Math.abs(d0.z) > Math.abs(d0.y) * 1.2;
+      const pelvisNearMinus90X = Math.abs(pelvis.quaternion.x) > 0.5;
+      if (lying || pelvisNearMinus90X) {
+        pelvis.quaternion.identity();
+        pelvis.updateMatrix();
+        root.updateMatrixWorld(true);
+        steps.push("pelvis_identity");
+        const pMid = new THREE.Vector3();
+        const hMid = new THREE.Vector3();
+        worldPosOf(pelvis, pMid);
+        worldPosOf(head, hMid);
+        if (Math.abs(hMid.z - pMid.z) > Math.abs(hMid.y - pMid.y) * 1.2) {
+          pelvis.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+          pelvis.updateMatrix();
+          root.updateMatrixWorld(true);
+          steps.push("pelvis_plus_90x");
+        }
+      }
+
+      // 2) Spine path scale pelvis→head (limbs not on this path)
+      root.updateMatrixWorld(true);
+      const spineTargetLen = L.pelvis.distanceTo(L.head);
+      const spineScale = scaleChainToLength(
+        pelvis,
+        head,
+        spineTargetLen,
+        spec.spineScaleMin,
+        spec.spineScaleMax,
+      );
+      root.updateMatrixWorld(true);
+      if (spineScale.applied) steps.push("spineScale");
+
+      // 3) Exact pelvis snap to hip landmark (carries chain)
+      setBoneWorldPosition(pelvis, L.pelvis);
+      root.updateMatrixWorld(true);
+      steps.push("pelvisSnap");
+
+      // 4) Exact limb fit (scale + end snap) — fixed order L then R
+      const upperL = findBone(skeleton, "upper_arm.L", "upper_armL");
+      const handL = findBone(skeleton, "hand.L", "handL");
+      const upperR = findBone(skeleton, "upper_arm.R", "upper_armR");
+      const handR = findBone(skeleton, "hand.R", "handR");
+      const thighL = findBone(skeleton, "thigh.L", "thighL");
+      const footL = findBone(skeleton, "foot.L", "footL");
+      const thighR = findBone(skeleton, "thigh.R", "thighR");
+      const footR = findBone(skeleton, "foot.R", "footR");
+
+      const limbScales = {
+        armL: fitLimbExact(root, upperL, handL, L.handL, spec.armScaleMin, spec.armScaleMax),
+        armR: fitLimbExact(root, upperR, handR, L.handR, spec.armScaleMin, spec.armScaleMax),
+        legL: fitLimbExact(root, thighL, footL, L.footL, spec.legScaleMin, spec.legScaleMax),
+        legR: fitLimbExact(root, thighR, footR, L.footR, spec.legScaleMin, spec.legScaleMax),
+      };
+      steps.push("limbExact");
+
+      // 5) Rebind from new rest (bindMatrix = mesh.matrixWorld at rebind)
+      for (const mesh of meshes) mesh.updateMatrixWorld(true);
+      skeleton.calculateInverses();
+      for (const mesh of meshes) {
+        mesh.bind(mesh.skeleton, mesh.matrixWorld.clone());
+        mesh.normalizeSkinWeights?.();
+      }
+      root.updateMatrixWorld(true);
+      steps.push("rebind");
+
+      const p1 = new THREE.Vector3();
+      const h1 = new THREE.Vector3();
+      const handLp = new THREE.Vector3();
+      const handRp = new THREE.Vector3();
+      const footLp = new THREE.Vector3();
+      const footRp = new THREE.Vector3();
+      worldPosOf(pelvis, p1);
+      worldPosOf(head, h1);
+      if (handL) worldPosOf(handL, handLp);
+      if (handR) worldPosOf(handR, handRp);
+      if (footL) worldPosOf(footL, footLp);
+      if (footR) worldPosOf(footR, footRp);
+
+      const bonesWorld = {
+        pelvis: quantVec3(p1),
+        head: quantVec3(h1),
+        handL: handL ? quantVec3(handLp) : null,
+        handR: handR ? quantVec3(handRp) : null,
+        footL: footL ? quantVec3(footLp) : null,
+        footR: footR ? quantVec3(footRp) : null,
+      };
+      const fp = fingerprintAlign(spec, L, bonesWorld);
+
+      // Acceptance: landmarks matched within eps (exact snap ⇒ near-zero residual)
+      const err = {
+        pelvis: quantN(p1.distanceTo(L.pelvis)),
+        head: quantN(h1.distanceTo(L.head)),
+        handL: handL ? quantN(handLp.distanceTo(L.handL)) : null,
+        handR: handR ? quantN(handRp.distanceTo(L.handR)) : null,
+        footL: footL ? quantN(footLp.distanceTo(L.footL)) : null,
+        footR: footR ? quantN(footRp.distanceTo(L.footR)) : null,
+      };
+      const yUp = h1.y - p1.y > Math.abs(h1.z - p1.z) * 0.9 && h1.y > p1.y + 0.15;
+      const snapsOk =
+        err.pelvis <= spec.eps &&
+        (err.handL == null || err.handL <= spec.eps) &&
+        (err.handR == null || err.handR <= spec.eps) &&
+        (err.footL == null || err.footL <= spec.eps) &&
+        (err.footR == null || err.footR <= spec.eps);
+      // Head rides spine path — allow slightly larger residual after limb parent edits
+      const headOk = err.head <= Math.max(spec.eps * 50, meshSize.y * 0.04);
+      const ok = yUp && snapsOk && headOk;
+
+      method = method + ":" + steps.join("+");
+
+      return {
+        fixed: true,
+        ok,
+        deterministic: true,
+        specId: spec.id,
+        method,
+        steps,
+        before,
+        after: {
+          bones: bonesWorld,
+          spineScale: quantN(spineScale.factor),
+          limbScales: {
+            armL: quantN(limbScales.armL.factor),
+            armR: quantN(limbScales.armR.factor),
+            legL: quantN(limbScales.legL.factor),
+            legR: quantN(limbScales.legR.factor),
+          },
+          err,
+          landmarks: {
+            pelvis: quantVec3(L.pelvis),
+            head: quantVec3(L.head),
+            handL: quantVec3(L.handL),
+            handR: quantVec3(L.handR),
+            footL: quantVec3(L.footL),
+            footR: quantVec3(L.footR),
+            spineZ: quantN(L.spineZ),
+          },
+          fingerprint: fp.hash,
+        },
+        fingerprint: fp,
+        reason: ok ? "aligned_deterministic_v1" : yUp ? "y_up_landmark_residual" : "partial",
+      };
+    }
+
+    /**
+     * Skeleton overlay parented under `root` so bones and mesh share one transform
+     * tree (alignment). Joints/lines update from bone world positions after skinning.
+     */
+    function addSkeletonOverlay(root, boneMap) {
+      const group = new THREE.Group();
+      group.name = "openclinxr_skeleton_overlay";
+
+      root.traverse((o) => {
+        if (o.isSkinnedMesh && o.skeleton) {
+          const helper = new THREE.SkeletonHelper(o);
+          const mats = Array.isArray(helper.material) ? helper.material : [helper.material];
+          for (const m of mats) {
+            m.color = new THREE.Color(0x3dff8a);
+            // Draw on top of glass skin (skin depthWrite is off)
+            m.depthTest = false;
+            m.depthWrite = false;
+            m.transparent = true;
+            m.opacity = 1;
+          }
+          helper.renderOrder = 30;
+          // Parent to root (same space as mesh) — SkeletonHelper tracks bones in place
+          root.add(helper);
+        }
+      });
+
+      const jointGeo = new THREE.SphereGeometry(0.028, 12, 12);
+      // Extremity bones (fingers/toes/thumb) sit ~1.5cm apart; a 2.8cm marker overlaps them
+      // into a "blob". Use a tiny marker so undriven hands read as fingers, not a clump.
+      const fingerGeo = new THREE.SphereGeometry(0.006, 8, 8);
+      const extremityRe = /finger|thumb|toe/i;
+      const jointMat = new THREE.MeshBasicMaterial({
+        color: 0xffcc33,
+        depthTest: false,
+        depthWrite: false,
+        transparent: true,
+        opacity: 1,
+      });
+      const lineMat = new THREE.LineBasicMaterial({
+        color: 0x55ffaa,
+        depthTest: false,
+        depthWrite: false,
+        transparent: true,
+        opacity: 1,
+      });
+      const joints = new Map();
+      for (const [name, bone] of boneMap) {
+        // skip alias duplicates (upper_armL and upper_arm.L)
+        if (joints.has(name)) continue;
+        const isExtremity = extremityRe.test(name);
+        const j = new THREE.Mesh(isExtremity ? fingerGeo : jointGeo, jointMat);
+        j.name = `joint:${name}`;
+        j.renderOrder = 21;
+        if (!isExtremity && /^(spine|chest|upper_arm|clavicle)/i.test(name)) {
+          j.scale.setScalar(1.5);
+          j.material = jointMat.clone();
+          j.material.color.setHex(0x00e5ff);
+        }
+        joints.set(name, j);
+        group.add(j);
+      }
+      const linePairs = [];
+      const seen = new Set();
+      for (const [name, bone] of boneMap) {
+        let p = bone.parent;
+        while (p && !boneMap.has(p.name) && p !== root) p = p.parent;
+        if (p && boneMap.has(p.name)) {
+          const key = `${p.name}->${name}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const geo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(),
+            new THREE.Vector3(),
+          ]);
+          const line = new THREE.Line(geo, lineMat);
+          line.renderOrder = 20;
+          line.userData = { child: bone, parent: p };
+          group.add(line);
+          linePairs.push(line);
+        }
+      }
+
+      // Keep overlay under scene but joints track world positions of bones on root
+      // (same world matrix as skinned mesh → alignment proof)
+      scene.add(group);
+
+      const _w = new THREE.Vector3();
+      const _a = new THREE.Vector3();
+      const _b = new THREE.Vector3();
+      function update() {
+        for (const [name, bone] of boneMap) {
+          const j = joints.get(name);
+          if (!j) continue;
+          bone.getWorldPosition(_w);
+          j.position.copy(_w);
+        }
+        for (const line of linePairs) {
+          const { child, parent } = line.userData;
+          parent.getWorldPosition(_a);
+          child.getWorldPosition(_b);
+          const arr = line.geometry.attributes.position.array;
+          arr[0] = _a.x; arr[1] = _a.y; arr[2] = _a.z;
+          arr[3] = _b.x; arr[4] = _b.y; arr[5] = _b.z;
+          line.geometry.attributes.position.needsUpdate = true;
+        }
+      }
+
+      return { group, update, jointCount: joints.size };
+    }
+
+    try {
+      // Fetch Anny rigging_report (optional). Used for attachmentPoints + bindBones landmarks.
+      let riggingReport = null;
+      if (reportUrl) {
+        try {
+          const rr = await fetch(reportUrl, { cache: "no-store" });
+          if (rr.ok) {
+            riggingReport = await rr.json();
+            window.__isoReport = {
+              url: reportUrl,
+              hasBindBones: Boolean(riggingReport?.bindBones?.bones?.length),
+              hasAttachmentPoints: Boolean(riggingReport?.attachmentPoints?.head_top),
+              exportBasis: riggingReport?.exportBasis?.method || null,
+            };
+          } else {
+            window.__isoReport = { url: reportUrl, error: "http_" + rr.status };
+          }
+        } catch (e) {
+          window.__isoReport = { url: reportUrl, error: String(e?.message || e) };
+        }
+      }
+
+      const gltf = await new GLTFLoader().loadAsync(glb);
+      const root = gltf.scene;
+      const box = new THREE.Box3().setFromObject(root);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      root.position.sub(center);
+      root.position.y += size.y / 2;
+      const hidden = hideNonBaseline(root);
+      scene.add(root);
+      root.updateMatrixWorld(true);
+      window.__isoRoot = root;
+
+      // Must run before glass rebind-adjacent work, skeleton overlay, and physics bind capture
+      let alignResult = { fixed: false, reason: "skipped" };
+      if (alignSkeleton) {
+        alignResult = alignSkeletonWithStandingMesh(root, riggingReport);
+      }
+      window.__isoAlign = alignResult;
+
+      const glassCount = applySemiTransparentSkin(root, skinOpacity);
+      controls.target.set(0, size.y * 0.45, 0);
+      camera.position.set(size.y * 0.55, size.y * 0.75, size.y * 1.35);
+      controls.update();
+
+      let meshCount = 0;
+      let visibleMeshes = 0;
+      root.traverse((o) => {
+        if (o.isMesh || o.isSkinnedMesh) {
+          meshCount++;
+          if (o.visible) visibleMeshes++;
+        }
+      });
+
+      const boneMap = collectBones(root);
+      // three.js glTF often strips '.' from bone names (upper_arm.L -> upper_armL)
+      for (const [n, b] of [...boneMap.entries()]) {
+        if (n.includes(".")) continue;
+        const m = n.match(/^(upper_arm|clavicle|forearm|hand|thigh|shin|foot|eye|index_finger_base)([LR])$/);
+        if (m) boneMap.set(`${m[1]}.${m[2]}`, b);
+      }
+
+      const boneNames = [...boneMap.keys()];
+      let skeletonOverlay = null;
+      if (showSkeleton) {
+        skeletonOverlay = addSkeletonOverlay(root, boneMap);
+      }
+
+      // Animation proof:
+      // - prefer post-align procedural walk/dance on runtime bones (correct rest)
+      // - optional GLB mixer when anim=glb:clipName
+      let mixer = null;
+      let proceduralAnim = null;
+      const clipNames = (gltf.animations || []).map((c) => c.name);
+      window.__isoClips = clipNames;
+      const animWant = String(animClip || "").toLowerCase();
+      const useGlbClip = animWant.startsWith("glb:") || animWant.startsWith("clip:");
+      if (animOnly && useGlbClip && gltf.animations?.length) {
+        mixer = new THREE.AnimationMixer(root);
+        const key = animWant.replace(/^glb:/, "").replace(/^clip:/, "");
+        let clip =
+          gltf.animations.find((c) => c.name.toLowerCase().includes(key)) ||
+          gltf.animations.find((c) => /walk|dance|proof/i.test(c.name)) ||
+          gltf.animations[0];
+        mixer.clipAction(clip).reset().setLoop(THREE.LoopRepeat, Infinity).play();
+        window.__isoAnim = { clip: clip.name, duration: clip.duration, playing: true, mode: "gltf" };
+      } else if (animOnly) {
+        // Procedural proof on the (aligned) runtime bone rest — Apache-2.0 in-lab
+        const mode = animWant.includes("dance") ? "dance" : "walk";
+        const bones = {
+          pelvis: boneMap.get("pelvis"),
+          spine: boneMap.get("spine"),
+          chest: boneMap.get("chest"),
+          neck: boneMap.get("neck"),
+          head: boneMap.get("head"),
+          thighL: boneMap.get("thigh.L") || boneMap.get("thighL"),
+          thighR: boneMap.get("thigh.R") || boneMap.get("thighR"),
+          shinL: boneMap.get("shin.L") || boneMap.get("shinL"),
+          shinR: boneMap.get("shin.R") || boneMap.get("shinR"),
+          footL: boneMap.get("foot.L") || boneMap.get("footL"),
+          footR: boneMap.get("foot.R") || boneMap.get("footR"),
+          armL: boneMap.get("upper_arm.L") || boneMap.get("upper_armL"),
+          armR: boneMap.get("upper_arm.R") || boneMap.get("upper_armR"),
+          foreL: boneMap.get("forearm.L") || boneMap.get("forearmL"),
+          foreR: boneMap.get("forearm.R") || boneMap.get("forearmR"),
+          clavL: boneMap.get("clavicle.L") || boneMap.get("clavicleL"),
+          clavR: boneMap.get("clavicle.R") || boneMap.get("clavicleR"),
+        };
+        // Capture rest after align
+        const rest = new Map();
+        for (const [k, b] of Object.entries(bones)) {
+          if (!b) continue;
+          rest.set(k, {
+            pos: b.position.clone(),
+            quat: b.quaternion.clone(),
+            euler: new THREE.Euler().setFromQuaternion(b.quaternion, "XYZ"),
+          });
+        }
+        proceduralAnim = { mode, rest, bones, t0: performance.now() };
+        window.__isoAnim = {
+          clip: mode === "dance" ? "openclinxr_proof_dance_sway_procedural" : "openclinxr_proof_walk_cycle_procedural",
+          duration: mode === "dance" ? 1.6 : 1.2,
+          playing: true,
+          mode: "procedural_post_align",
+          license: "Apache-2.0 in-lab",
+        };
+      }
+
+      let physicsState = null;
+      if (physicsOn) {
+        const res = await fetch(physicsUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error("physics json " + res.status);
+        const artifact = await res.json();
+        const bind = new Map();
+        for (const name of artifact.bones || []) {
+          const bone = boneMap.get(name);
+          if (!bone) continue;
+          bind.set(name, {
+            bone,
+            pos: bone.position.clone(),
+            quat: bone.quaternion.clone(),
+          });
+        }
+        physicsState = {
+          artifact,
+          bind,
+          tick: 0,
+          matchedBones: [...bind.keys()],
+          missingBones: (artifact.bones || []).filter((b) => !bind.has(b)),
+        };
+        window.__isoPhysics = {
+          engineId: artifact.engineId,
+          frameCount: artifact.frames?.length ?? 0,
+          matchedBones: physicsState.matchedBones,
+          missingBones: physicsState.missingBones,
+        };
+      }
+
+      window.__isoStats = {
+        glb,
+        hideGarment,
+        physicsOn,
+        showSkeleton,
+        skinOpacity,
+        alignSkeleton,
+        animOnly,
+        animClip: window.__isoAnim?.clip || null,
+        clipNames,
+        align: alignResult,
+        glassMeshCount: glassCount,
+        meshCount,
+        visibleMeshes,
+        hiddenGarmentOrDebug: hidden,
+        boneCount: boneNames.length,
+        skeletonJoints: skeletonOverlay?.jointCount ?? 0,
+        size: { x: size.x, y: size.y, z: size.z },
+        animCount: gltf.animations?.length ?? 0,
+      };
+      window.__isoCamera = camera;
+      window.__isoControls = controls;
+      window.__isoScene = scene;
+      window.__isoSetView = (pos, target) => {
+        camera.position.set(pos[0], pos[1], pos[2]);
+        controls.target.set(target[0], target[1], target[2]);
+        controls.update();
+        camera.lookAt(controls.target);
+        renderer.render(scene, camera);
+      };
+      window.__isoReady = true;
+      const fp = alignResult.fingerprint?.hash || alignResult.after?.fingerprint || "";
+      const rep = window.__isoReport;
+      const reportHud = rep?.hasBindBones
+        ? "report:bindBones"
+        : rep?.hasAttachmentPoints
+          ? "report:attach"
+          : rep?.error
+            ? "report:miss"
+            : "report:off";
+      const alignHud = alignResult.fixed
+        ? (alignResult.ok
+          ? `ALIGN OK det/${alignResult.specId || "v1"}${fp ? " #" + fp : ""}`
+          : "ALIGN partial")
+        : `align ${alignResult.reason || "off"}`;
+      const animHud = window.__isoAnim
+        ? `anim=${window.__isoAnim.clip}`
+        : clipNames.length
+          ? `clips=${clipNames.length} (pass &anim=walk|dance|1)`
+          : "no clips";
+      hud.textContent =
+        `Skin opacity ${skinOpacity} · skeleton ${showSkeleton ? "ON" : "OFF"} · ${alignHud}\n` +
+        `${reportHud} · ${animHud} · physics=${physicsOn} · joints ${skeletonOverlay?.jointCount ?? 0}\n` +
+        (physicsState
+          ? `ragdoll: ${physicsState.matchedBones.join(", ") || "(none)"}`
+          : mixer
+            ? "proof animation playing"
+            : "physics off");
+
+      // --- Animation evidence sampler: three.js-side explode / motion / finger-clump guard.
+      // Samples the *deformed* (skinned) vertex bbox over ~one cycle so a rest-pose
+      // explosion or a static bake is detectable in the runtime, not just in Blender.
+      const animEvidenceSkinned = [];
+      root.traverse((o) => { if (o.isSkinnedMesh) animEvidenceSkinned.push(o); });
+      const animEvidenceRestMaxDim = Math.max(size.x, size.y, size.z);
+      const animEvidenceFingerBones = boneNames
+        .filter((n) => /finger|index|middle|ring|pinky|thumb|wrist|hand/i.test(n))
+        .map((n) => boneMap.get(n))
+        .filter(Boolean);
+      let animEvidenceMaxDim = 0;
+      let animEvidenceMotionLo = null;
+      let animEvidenceMotionHi = null;
+      let animEvidenceFingerSpread = 0;
+      let animEvidenceBackPitchMax = 0;
+      let animEvidenceSamples = 0;
+      let animEvidenceFrame = 0;
+      const _tmpEvV = new THREE.Vector3();
+      const _tmpEvA = new THREE.Vector3();
+      const _tmpEvB = new THREE.Vector3();
+      const animEvidenceRootBone = boneMap.get("root") || boneMap.get("pelvis");
+      const animEvidenceNeckBone = boneMap.get("neck01") || boneMap.get("neck02") || boneMap.get("neck");
+
+      function sampleAnimEvidence() {
+        if (!animEvidenceSkinned.length) return;
+        root.updateMatrixWorld(true);
+        const lo = new THREE.Vector3(Infinity, Infinity, Infinity);
+        const hi = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+        for (const sm of animEvidenceSkinned) {
+          const pos = sm.geometry?.attributes?.position;
+          if (!pos || typeof sm.getVertexPosition !== "function") continue;
+          const step = Math.max(1, Math.floor(pos.count / 200));
+          for (let i = 0; i < pos.count; i += step) {
+            sm.getVertexPosition(i, _tmpEvV);
+            sm.localToWorld(_tmpEvV);
+            lo.min(_tmpEvV);
+            hi.max(_tmpEvV);
+          }
+        }
+        if (isFinite(lo.x) && isFinite(hi.x)) {
+          const dx = hi.x - lo.x, dy = hi.y - lo.y, dz = hi.z - lo.z;
+          animEvidenceMaxDim = Math.max(animEvidenceMaxDim, dx, dy, dz);
+          const c = new THREE.Vector3((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, (lo.z + hi.z) / 2);
+          if (!animEvidenceMotionLo) { animEvidenceMotionLo = c.clone(); animEvidenceMotionHi = c.clone(); }
+          else { animEvidenceMotionLo.min(c); animEvidenceMotionHi.max(c); }
+        }
+        if (animEvidenceFingerBones.length) {
+          const flo = new THREE.Vector3(Infinity, Infinity, Infinity);
+          const fhi = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+          for (const b of animEvidenceFingerBones) { b.getWorldPosition(_tmpEvV); flo.min(_tmpEvV); fhi.max(_tmpEvV); }
+          if (isFinite(flo.x)) animEvidenceFingerSpread = Math.max(animEvidenceFingerSpread, fhi.distanceTo(flo));
+        }
+        // Back pitch (root->neck vector angle from world +Y): catches a torso dive/hunch.
+        if (animEvidenceRootBone && animEvidenceNeckBone) {
+          animEvidenceRootBone.getWorldPosition(_tmpEvA);
+          animEvidenceNeckBone.getWorldPosition(_tmpEvB);
+          const dx = _tmpEvB.x - _tmpEvA.x, dy = _tmpEvB.y - _tmpEvA.y, dz = _tmpEvB.z - _tmpEvA.z;
+          const pitch = Math.atan2(Math.sqrt(dx * dx + dz * dz), Math.abs(dy)) * 180 / Math.PI;
+          animEvidenceBackPitchMax = Math.max(animEvidenceBackPitchMax, pitch);
+        }
+        animEvidenceSamples++;
+      }
+
+      function finalizeAnimEvidence() {
+        const explodeRatio = animEvidenceRestMaxDim > 1e-6 ? animEvidenceMaxDim / animEvidenceRestMaxDim : 0;
+        const motionRange = (animEvidenceMotionLo && animEvidenceMotionHi)
+          ? animEvidenceMotionHi.distanceTo(animEvidenceMotionLo) : 0;
+        window.__isoAnimEvidence = {
+          ready: true,
+          samples: animEvidenceSamples,
+          restMaxDimM: +animEvidenceRestMaxDim.toFixed(4),
+          animMaxDimM: +animEvidenceMaxDim.toFixed(4),
+          explodeRatio: +explodeRatio.toFixed(3),
+          motionRangeM: +motionRange.toFixed(4),
+          animating: !!window.__isoAnim?.playing,
+          jointCount: skeletonOverlay?.jointCount ?? boneNames.length,
+          skinnedMeshCount: animEvidenceSkinned.length,
+          fingerBoneCount: animEvidenceFingerBones.length,
+          fingerSpreadM: +animEvidenceFingerSpread.toFixed(4),
+          backPitchMaxDeg: +animEvidenceBackPitchMax.toFixed(2),
+          pageErrors: (window.__isoPageErrors || []).slice(),
+        };
+      }
+
+      const clock = new THREE.Clock();
+      function tick() {
+        requestAnimationFrame(tick);
+        const dt = clock.getDelta();
+        if (mixer) mixer.update(dt);
+        if (proceduralAnim) {
+          const { mode, rest, bones } = proceduralAnim;
+          const elapsed = (performance.now() - proceduralAnim.t0) / 1000;
+          const period = mode === "dance" ? 1.6 : 1.2;
+          const phase = ((elapsed % period) / period) * Math.PI * 2;
+          const setE = (key, dx, dy, dz) => {
+            const b = bones[key];
+            const r = rest.get(key);
+            if (!b || !r) return;
+            const e = r.euler.clone();
+            e.x += dx;
+            e.y += dy;
+            e.z += dz;
+            b.quaternion.setFromEuler(e);
+          };
+          const setP = (key, dx, dy, dz) => {
+            const b = bones[key];
+            const r = rest.get(key);
+            if (!b || !r) return;
+            b.position.set(r.pos.x + dx, r.pos.y + dy, r.pos.z + dz);
+          };
+          if (mode === "walk") {
+            const legL = Math.sin(phase);
+            const legR = Math.sin(phase + Math.PI);
+            const armL = Math.sin(phase + Math.PI);
+            const armR = Math.sin(phase);
+            setP("pelvis", 0, 0.012 * Math.abs(Math.sin(phase * 2)), 0);
+            setE("pelvis", 0.05 * Math.sin(phase * 2), 0.06 * Math.sin(phase), 0);
+            setE("spine", 0.06 * Math.sin(phase * 2), 0.05 * Math.sin(phase), 0);
+            setE("chest", 0.04 * Math.sin(phase * 2), 0.04 * Math.sin(phase), 0);
+            setE("head", -0.03 * Math.sin(phase * 2), 0.05 * Math.sin(phase + Math.PI), 0);
+            setE("thighL", 0.55 * legL, 0, 0.06 * legL);
+            setE("thighR", 0.55 * legR, 0, 0.06 * legR);
+            setE("shinL", Math.max(0, -legL) * 0.85 + 0.1 * Math.abs(legL), 0, 0);
+            setE("shinR", Math.max(0, -legR) * 0.85 + 0.1 * Math.abs(legR), 0, 0);
+            setE("footL", -0.2 * legL, 0, 0);
+            setE("footR", -0.2 * legR, 0, 0);
+            setE("armL", 0.4 * armL, 0, 0.1);
+            setE("armR", 0.4 * armR, 0, -0.1);
+            setE("foreL", 0.2 + 0.15 * Math.abs(armL), 0, 0);
+            setE("foreR", 0.2 + 0.15 * Math.abs(armR), 0, 0);
+          } else {
+            const bounce = Math.sin(phase * 2);
+            const sway = Math.sin(phase);
+            setP("pelvis", 0.025 * sway, 0.025 * Math.abs(bounce), 0);
+            setE("pelvis", 0.08 * bounce, 0.22 * sway, 0.08 * bounce);
+            setE("spine", 0.1 * bounce, 0.3 * sway, 0.06 * bounce);
+            setE("chest", 0.12 * bounce, 0.35 * sway, 0.08 * Math.sin(phase + 0.4));
+            setE("neck", 0.05 * bounce, 0.12 * sway, 0);
+            setE("head", 0.08 * bounce, 0.18 * sway, 0.05 * Math.sin(phase * 3));
+            setE("clavL", 0, 0, 0.12 + 0.08 * sway);
+            setE("clavR", 0, 0, -0.12 - 0.08 * sway);
+            setE("armL", -0.85 - 0.35 * sway, 0.15 * bounce, 0.45 + 0.25 * sway);
+            setE("armR", -0.85 + 0.35 * sway, -0.15 * bounce, -0.45 - 0.25 * sway);
+            setE("foreL", 0.35 + 0.25 * Math.abs(sway), 0, 0.15 * bounce);
+            setE("foreR", 0.35 + 0.25 * Math.abs(sway), 0, -0.15 * bounce);
+            setE("thighL", 0.22 * Math.max(0, Math.sin(phase)), 0, 0.08 * sway);
+            setE("thighR", 0.22 * Math.max(0, Math.sin(phase + Math.PI)), 0, -0.08 * sway);
+          }
+          root.updateMatrixWorld(true);
+        }
+        if (physicsState && physicsState.bind.size && !mixer && !proceduralAnim) {
+          const frames = physicsState.artifact.frames;
+          const n = frames.length;
+          const t = clock.getElapsedTime();
+          const frameIdx = Math.floor((t * 60) % n);
+          const frame = frames[frameIdx];
+          physicsState.tick = frameIdx;
+          for (const [name, entry] of physicsState.bind) {
+            const d = frame.boneDeltas?.[name];
+            if (!d) continue;
+            entry.bone.position.set(
+              entry.pos.x + (d.position?.x ?? 0),
+              entry.pos.y + (d.position?.y ?? 0),
+              entry.pos.z + (d.position?.z ?? 0),
+            );
+            const q = entry.quat.clone();
+            const dq = d.rotation || { x: 0, y: 0, z: 0, w: 1 };
+            const x = q.x, y = q.y, z = q.z, w = q.w;
+            entry.bone.quaternion.set(
+              w * dq.x + x * dq.w + y * dq.z - z * dq.y,
+              w * dq.y - x * dq.z + y * dq.w + z * dq.x,
+              w * dq.z + x * dq.y - y * dq.x + z * dq.w,
+              w * dq.w - x * dq.x - y * dq.y - z * dq.z,
+            );
+          }
+          if (frameIdx % 30 === 0) {
+            const spine = frame.boneDeltas?.spine?.position;
+            hud.textContent =
+              `Glass skin ${skinOpacity} · RIG VISIBLE · NO CLOTHES · tick ${frameIdx}/${n}\n` +
+              `matched: ${physicsState.matchedBones.join(", ")}\n` +
+              `spine Δy=${(spine?.y ?? 0).toFixed(4)} Δz=${(spine?.z ?? 0).toFixed(4)} · cyan=ragdoll joints`;
+          }
+        }
+        skeletonOverlay?.update();
+        controls.update();
+        renderer.render(scene, camera);
+
+        // Collect animation evidence over ~one cycle (12 samples every 6th frame), then finalize.
+        animEvidenceFrame++;
+        if (!window.__isoAnimEvidence) {
+          if (animEvidenceSamples < 12) {
+            if (animEvidenceFrame % 6 === 0) sampleAnimEvidence();
+          } else {
+            finalizeAnimEvidence();
+          }
+        }
+      }
+      tick();
+      window.__isoRenderer = renderer;
+    } catch (e) {
+      window.__isoError = String(e);
+      hud.textContent = "FAIL " + e;
+    }
+  </script>
+</body>
+</html>

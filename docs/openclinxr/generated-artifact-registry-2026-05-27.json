@@ -4,8 +4,8 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 106,
-    "ignore-local-cache": 1705,
+    "keep-evidence": 110,
+    "ignore-local-cache": 2030,
     "keep-current": 95,
     "keep-compatibility-input": 24,
     "keep-template": 6
@@ -1097,6 +1097,69 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/_params_regen.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.anny_base.anny_rest_skeleton.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.anny_manifest.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.bundle.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.provenance.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_mpfb2_eye_rig_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/stub-model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/anny/smoke/mesh.manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1433,6 +1496,20 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/asset-production/cagematch/seated-adult-bod-preview/2026-08-02-comfy-face/peds_patient_child_comfy_masked_face_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/cagematch/seated-adult-bod-preview/2026-08-02-comfy-face/realvisxl_base_fallback_albedo.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/asset-production/ed-chest-pain/2026-06-07-ed-real-garment-v1/ed_chest_pain_patient_adult.anny_manifest.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -1532,6 +1609,13 @@
     },
     {
       "path": ".openclinxr/asset-production/peds-parent-nurse-reorchestrate/peds_nurse_kevin_rigging_report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/asset-production/realism-backups/ed_chest_pain_patient_real_garment-pre-guard-withdraw-2026-08-03.glb",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -6053,6 +6137,76 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-29-14-336Z/inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-29-14-336Z/mblab-run.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-29-14-336Z/mblab-walk.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-35-00-255Z/inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-35-00-255Z/mblab-run.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-35-00-255Z/mblab-walk.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/cmu-walk.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/inspection.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/mblab-run.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/mblab-walk.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/cagematch/2026-06-07-ed-seed-new-v1/ed-chest-pain-humanoid-front_2026-06-07.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8139,6 +8293,83 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/anny-source-uv-masks.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/eye_region_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/face_front_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/head_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/mask-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview-2026-08-02/uv-masks/scalp_mask.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview/2026-08-02-comfy-face/comfy-masked-face-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview/2026-08-02-comfy-textured-glb/model-vetting-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/cagematch/seated-adult-bod-preview/2026-08-02-comfy-textured-glb/realvisxl-direct-texture-cagematch.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-37-35-225Z/chest-guard-wince.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-39-50-750Z/chest-guard-wince.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/evidence/complete-authoring-admin-ui-complete-v1/2026-06-07/complete-authoring-admin-ui-complete-evidence.png",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -8714,6 +8945,2043 @@
     },
     {
       "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/physics-touch-ed-patient-palpation.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/desktop-chrome-2026-08-02/probe.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/desktop-chrome-2026-08-02/seated-ragdoll-desktop-chrome.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/baseline-anny-ragdoll-probe.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/bod-preview-status.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/comfy-face-raw.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/comfy-option-a-status.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/inventory.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/isolated-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/isolated-three-quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-adult-standard-generated-human.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-baseline-anny-no-clothes-ragdoll-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-baseline-anny-no-clothes-ragdoll.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-candidates.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_adult_bod_comfy_textured.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-ed_chest_pain_patient_real_garment.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-glass-skin-skeleton-ragdoll.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-glass-skin-visible-skeleton.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-mesh-vs-skeleton-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-mesh-vs-skeleton-yaw90.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-peds_patient_child_comfy_masked_face.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-peds_patient_child_mpfb2_eye.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-peds_patient_child_scalp_hair_realvisxl_face.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-peds_patient_child_track_a_mit_pbr.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/lab-textured-candidates.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-alignment-probe-v14-partial.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/arm_L_detail.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/arm_R_detail.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/arms_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/back.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/head_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/left_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/legs_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/limb-review-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/right_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/three_quarter_L.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/three_quarter_R.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/top_down.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v14/visual-orbit-review.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/arm_L_detail.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/back.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/head_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/left_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/legs_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics-motion-deep.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics_front_t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics_left_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/physics_three_quarter.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/right_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/three_quarter_L.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v15/v15-all3-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/arm_L_detail.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/left_profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/legs_close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/three_quarter_L.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/limb-review-v16/v16-deterministic-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-skeleton-aligned-try-v10.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-skeleton-aligned-try-v11.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-skeleton-aligned-try-v13.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-vs-skeleton-alignment-probe.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-vs-skeleton-alignment-try-v10.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-vs-skeleton-alignment-try-v11.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-vs-skeleton-alignment-try-v13.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/mesh-vs-skeleton-vision-verdict.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/align0-export-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/align0-export-profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/align0-mesh-check.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/align1-report-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/align1-report-profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17-summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17b-align0-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17b-align0-profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17b-align1-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17b-summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17final-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17final-profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v17-report-export/v17final-summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v19-anny-rest/front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v19-anny-rest/profile.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v19-anny-rest/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/dance-fixed.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/dance-procedural-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/dance-procedural.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/dance-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/dance-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/procedural-summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/walk-fixed.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/walk-procedural-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/walk-procedural.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/walk-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v20-proof-anim/walk-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/ed_chest_pain_patient_adult_bod.cmu-bvh-full.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/lab-metrics.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/run-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/run-tq.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/walk-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v21-cmu-bvh-full/walk-tq.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/ed_chest_pain_patient_adult_bod.cmu-bvh-full.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/run-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/run-tq.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/walk-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v22-cmu-bvh-align-fix/walk-tq.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/ed_chest_pain_patient_adult_bod.cmu-bvh-full.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/run-feet.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/run-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/walk-feet.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v23-plantigrade-feet/walk-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/ed_chest_pain_patient_adult_bod.cmu-bvh-full.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/rest-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/run-feet.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/walk-feet.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v24-bind-snap/walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/rest-heel-close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/rest-knee-3q.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/rest-knee-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/walk-heel-close.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/walk-knee-3q.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v25-knee-heel-check/walk-knee-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fix-note.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t4.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t5.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t6.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/fixed-side-t7.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/knee-bend-analysis.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t4.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t5.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t6.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/pole-side-t7.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t4.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t5.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t6.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v26-knee-backwards/walk-side-t7.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/ed_chest_pain_patient_adult_bod.cmu-bvh-full.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/rest-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t4.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t5.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t6.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v27-local-basis/walk-side-t7.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v28-glass-skin/walk-front-018.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v28-glass-skin/walk-front-default.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v28-glass-skin/walk-side-default.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/bandai-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/bandai-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/bandai-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/mblab-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v29-alt-anim/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-01-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-01-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-01-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-02-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-02-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-07-02-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-16-15-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-16-15-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-16-15-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-run-noroots-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-run-noroots-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-run-noroots-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-walk-noroots-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-walk-noroots-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/cmu-walk-noroots-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/ed_chest_pain_patient_adult_bod.cmu-diag.bvh-retarget-report.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/mblab-walk-side-compare.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v30-cmu-diag/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/cmu-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/mblab-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v31-axis-aware/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/cmu-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/mblab-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v32-parent-local/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-axis-probe/findings.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-axis-probe/mblab-anny-rest-axes.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/cmu-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/mblab-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v33-world-delta/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/cmu-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-run-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/mblab-walk-side.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v34-roll-align/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/REVIEW.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-run-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-walk-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-walk-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/cmu-walk-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-run-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-run-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-run-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-run-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-run-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-walk-front.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-walk-side-t0.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-walk-side-t1.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-walk-side-t2.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/mblab-walk-side-t3.png",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/v35-full-align/summary.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
+      "path": ".openclinxr/evidence/physics-clinical-touch/isolated-humanoid-vision-2026-08-02/vision-verdict.json",
       "authority": "ignore-local-cache",
       "tracked": false,
       "action": "ignore",
@@ -11905,6 +14173,13 @@
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
     {
+      "path": ".openclinxr/slices/seated-adult-humanoid-bod-preview-2026-08-02/handoffs/asset-pipeline-lead.json",
+      "authority": "ignore-local-cache",
+      "tracked": false,
+      "action": "ignore",
+      "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
+    },
+    {
       "path": ".openclinxr/slices/ui-admin-emission-autoload-cli-latest-v1/brief.json",
       "authority": "ignore-local-cache",
       "tracked": false,
@@ -12878,6 +15153,27 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/bvh-retarget-lab-smoke-2026-08-03.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/bvh-retarget-smoke-2026-08-03.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/clinical-touch-smoke-2026-08-03.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -13221,6 +15517,13 @@
       "rationale": "Historical artifact still referenced by tests, provenance, or validation scripts; keep only until that consumer is refactored to a fixture or current generated output."
     },
     {
+      "path": "docs/openclinxr/materialize-guard-withdraw-clip-2026-08-03.json",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/model-vetting-captures/anny-skin-realvisxl-direct/peds_patient_child_realvisxl_direct_skin_front_2026-06-06.png",
       "authority": "keep-evidence",
       "tracked": false,
@@ -13342,7 +15645,7 @@
     {
       "path": "docs/openclinxr/quest-cdp-smoke-enter-vr-worn-iwsdk-2026-08-02.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
@@ -13391,7 +15694,7 @@
     {
       "path": "docs/openclinxr/quest-manual-immersive-worn-iwsdk-2026-08-02.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
@@ -13419,7 +15722,7 @@
     {
       "path": "docs/openclinxr/quest-worn-immersive-probe-iwsdk-2026-08-02.json",
       "authority": "keep-evidence",
-      "tracked": false,
+      "tracked": true,
       "action": "keep",
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "openclinxr.clinical-touch-smoke.v1",
+  "generatedAt": "2026-08-03T17:39:57.397Z",
+  "claimScope": "animation_interaction_response_not_clinical_validity",
+  "providerBoundary": {
+    "localOnly": true,
+    "externalNetworkUsed": true,
+    "paidApiUsed": false
+  },
+  "input": {
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "comparator": "ed_anny_real_garment_patient",
+    "region": "chest_R"
+  },
+  "evidence": {
+    "schemaVersion": "openclinxr.clinical-touch.v1",
+    "actorId": "patient_robert_hayes_v1",
+    "region": "chest_R",
+    "responseKind": "guarding",
+    "responseClip": "openclinxr_role_patient_guard_withdraw",
+    "clipPlayed": true,
+    "emotion": "pain",
+    "emotionTransitioned": true,
+    "dialogueFired": true,
+    "dialogueLine": "Ah— that's the spot, please, go easy there.",
+    "traceTag": "physical_exam_chest_palpation",
+    "traceEventType": "clinical.touch.guarding",
+    "source": "dom_click_trace_button",
+    "atMs": 3609.1,
+    "notEvidenceFor": [
+      "clinical_validity",
+      "exam_equivalence",
+      "scoring",
+      "learner_readiness"
+    ]
+  },
+  "pageErrors": [],
+  "evidenceDir": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-39-50-750Z",
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring",
+    "learner_readiness"
+  ]
+}

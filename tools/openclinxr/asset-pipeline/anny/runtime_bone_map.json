@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "openclinxr.anny-runtime-bone-map.v1",
+  "description": "Maps Anny/MakeHuman (~163) rest-skeleton bones to OpenClinXR lean runtime subset. Author in Anny space; ship runtime subset. Revisit if animation retarget needs richer DOF.",
+  "claimScope": "rig_interop_map_not_clinical_validity",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "production_asset_readiness",
+    "b_plus_visual_realism_gate"
+  ],
+  "sourceRig": "anny.create_fullbody_model(rig=default) MakeHuman-style labels",
+  "runtimeSubsetCount": 23,
+  "coordinateNote": "Anny model space is Z-up (height on Z). generate_mesh rewrites mesh+bones to local Y-up for Blender (y=(z-min_z)*scale, z=-y*scale).",
+  "runtimeBones": [
+    {
+      "name": "pelvis",
+      "parent": null,
+      "primary": "pelvis.L",
+      "headFrom": ["pelvis.L", "pelvis.R"],
+      "headCombine": "average",
+      "tailFrom": "spine05",
+      "weightSources": ["pelvis.L", "pelvis.R", "root", "spine05"]
+    },
+    {
+      "name": "spine",
+      "parent": "pelvis",
+      "primary": "spine04",
+      "tailFrom": "spine03",
+      "weightSources": ["spine04", "spine03", "spine05"]
+    },
+    {
+      "name": "chest",
+      "parent": "spine",
+      "primary": "spine02",
+      "tailFrom": "spine01",
+      "weightSources": ["spine02", "spine01", "breast.L", "breast.R"]
+    },
+    {
+      "name": "neck",
+      "parent": "chest",
+      "primary": "neck02",
+      "tailFrom": "neck03",
+      "weightSources": ["neck01", "neck02", "neck03"]
+    },
+    {
+      "name": "head",
+      "parent": "neck",
+      "primary": "head",
+      "tailFrom": "head",
+      "tailOffsetY": 0.08,
+      "weightSources": ["head", "jaw"]
+    },
+    {
+      "name": "eye.L",
+      "parent": "head",
+      "primary": "eye.L",
+      "weightSources": ["eye.L"]
+    },
+    {
+      "name": "eye.R",
+      "parent": "head",
+      "primary": "eye.R",
+      "weightSources": ["eye.R"]
+    },
+    {
+      "name": "clavicle.L",
+      "parent": "chest",
+      "primary": "clavicle.L",
+      "tailFrom": "shoulder01.L",
+      "weightSources": ["clavicle.L", "shoulder01.L"]
+    },
+    {
+      "name": "upper_arm.L",
+      "parent": "clavicle.L",
+      "primary": "upperarm01.L",
+      "tailFrom": "upperarm02.L",
+      "weightSources": ["upperarm01.L", "upperarm02.L", "shoulder01.L"]
+    },
+    {
+      "name": "forearm.L",
+      "parent": "upper_arm.L",
+      "primary": "lowerarm01.L",
+      "tailFrom": "lowerarm02.L",
+      "weightSources": ["lowerarm01.L", "lowerarm02.L"]
+    },
+    {
+      "name": "hand.L",
+      "parent": "forearm.L",
+      "primary": "wrist.L",
+      "tailFrom": "finger1-1.L",
+      "weightSources": ["wrist.L", "metacarpal1.L", "metacarpal2.L", "metacarpal3.L", "metacarpal4.L"]
+    },
+    {
+      "name": "index_finger_base.L",
+      "parent": "hand.L",
+      "primary": "finger2-1.L",
+      "weightSources": ["finger2-1.L", "finger2-2.L", "finger1-1.L", "metacarpal1.L"]
+    },
+    {
+      "name": "clavicle.R",
+      "parent": "chest",
+      "primary": "clavicle.R",
+      "tailFrom": "shoulder01.R",
+      "weightSources": ["clavicle.R", "shoulder01.R"]
+    },
+    {
+      "name": "upper_arm.R",
+      "parent": "clavicle.R",
+      "primary": "upperarm01.R",
+      "tailFrom": "upperarm02.R",
+      "weightSources": ["upperarm01.R", "upperarm02.R", "shoulder01.R"]
+    },
+    {
+      "name": "forearm.R",
+      "parent": "upper_arm.R",
+      "primary": "lowerarm01.R",
+      "tailFrom": "lowerarm02.R",
+      "weightSources": ["lowerarm01.R", "lowerarm02.R"]
+    },
+    {
+      "name": "hand.R",
+      "parent": "forearm.R",
+      "primary": "wrist.R",
+      "tailFrom": "finger1-1.R",
+      "weightSources": ["wrist.R", "metacarpal1.R", "metacarpal2.R", "metacarpal3.R", "metacarpal4.R"]
+    },
+    {
+      "name": "index_finger_base.R",
+      "parent": "hand.R",
+      "primary": "finger2-1.R",
+      "weightSources": ["finger2-1.R", "finger2-2.R", "finger1-1.R", "metacarpal1.R"]
+    },
+    {
+      "name": "thigh.L",
+      "parent": "pelvis",
+      "primary": "upperleg01.L",
+      "tailFrom": "upperleg02.L",
+      "weightSources": ["upperleg01.L", "upperleg02.L", "pelvis.L"]
+    },
+    {
+      "name": "shin.L",
+      "parent": "thigh.L",
+      "primary": "lowerleg01.L",
+      "tailFrom": "lowerleg02.L",
+      "weightSources": ["lowerleg01.L", "lowerleg02.L"]
+    },
+    {
+      "name": "foot.L",
+      "parent": "shin.L",
+      "primary": "foot.L",
+      "weightSources": ["foot.L", "toe1-1.L", "toe2-1.L", "toe3-1.L"]
+    },
+    {
+      "name": "thigh.R",
+      "parent": "pelvis",
+      "primary": "upperleg01.R",
+      "tailFrom": "upperleg02.R",
+      "weightSources": ["upperleg01.R", "upperleg02.R", "pelvis.R"]
+    },
+    {
+      "name": "shin.R",
+      "parent": "thigh.R",
+      "primary": "lowerleg01.R",
+      "tailFrom": "lowerleg02.R",
+      "weightSources": ["lowerleg01.R", "lowerleg02.R"]
+    },
+    {
+      "name": "foot.R",
+      "parent": "shin.R",
+      "primary": "foot.R",
+      "weightSources": ["foot.R", "toe1-1.R", "toe2-1.R", "toe3-1.R"]
+    }
+  ]
+}

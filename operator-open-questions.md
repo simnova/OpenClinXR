@@ -2,6 +2,18 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
+## 2026-08-03 BVH→Anny locomotion retarget hardening (non-blocking)
+
+Context: `tools/openclinxr/asset-pipeline/anny/apply_bvh_to_anny_full.py` hardened with fail-loud diagnostics + gates (`asset:bvh-retarget:smoke` / `:lab-smoke`). Three open product questions:
+
+| # | Question | Recommended default |
+|---|----------|---------------------|
+| 1 | **Seated exam body vs walking motion.** The base mesh is `seated-adult-bod`; locomotion (walk/run) is retarget-validation, not an obvious clinical need. Where (if anywhere) does a *walking* patient belong in the Step 2 CS station flow? | Do **not** auto-wire a walking patient into a seated station. Ship the capability + clean asset; product owner decides placement. Locomotion stays lab/validation until a station needs it. |
+| 2 | **License for the shippable clip.** MB-Lab walk/run is the highest-quality result but **AGPL** (local-validation only). CMU (`cmu_07_01_walk`) is license-clean (free-all-uses) and now passes all safety gates (explode ~1.0, torso pitch ~10°, 0 unweighted). | For any product-facing locomotion, use **CMU** (license-clean). Keep MB-Lab as the local quality reference only. |
+| 3 | **CMU arm over-swing (cosmetic).** CMU torso is at parity with MB-Lab (measured back-pitch 13.7° max vs 10.2°), but CMU upper-arm delta reaches ~96° (arms swing up higher than natural). Not gated (cosmetic); MB-Lab arms are more natural. | Acceptable for validation now. Before product ship, tune CMU arm mapping (upperarm delta clamp / rest-axis) to MB-Lab-like swing. Tracked follow-on. |
+
+- Guards: `pnpm asset:bvh-retarget:smoke` (bake + diagnostics + `--assert-deterministic` + `--product` license gate) and `pnpm asset:bvh-retarget:lab-smoke` (three.js explode/motion/torso-pitch). Both green 2026-08-03.
+
 ## 2026-08-02 arena-physics realbind epic (ACTIVE — BOD pivot)
 
 **Supersedes** prior “post-epic defer WASM/UI-XR” defaults. BOD 2026-08-02 incorporated Desktop `Xxxyyy-arena.md.md` → epic `arena-physics-clinical-touch-realbind-v1` + brief `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. Residual product lane was empty; explicit queue pivot (not silent preemption).

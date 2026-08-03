@@ -1,0 +1,3 @@
+CMU Graphics Lab Motion Capture Database — free for all uses (http://mocap.cs.cmu.edu/).
+BVH: cgspeed conversion mirror (una-dinosauria/cmu-mocap).
+OpenClinXR: DIAGNOSTIC retarget validation only — not production SSOT.

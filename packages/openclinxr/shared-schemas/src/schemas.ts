@@ -50,6 +50,71 @@ export const CommunicationProfileSchema = Type.Object({
   culturalLanguageNotes: Type.Array(Type.String({ minLength: 1 })),
 });
 
+/**
+ * Body region a physician can touch/examine. Vocabulary mirrors the
+ * physics-touch-contract `ComplianceRegion` so the same case config can later
+ * drive live physics behind the same interaction trigger.
+ */
+export const ComplianceRegionSchema = Type.Union([
+  Type.Literal("abdomen_ruq"),
+  Type.Literal("abdomen_rlq"),
+  Type.Literal("abdomen_luq"),
+  Type.Literal("abdomen_llq"),
+  Type.Literal("abdomen_epigastric"),
+  Type.Literal("abdomen_suprapubic"),
+  Type.Literal("chest_R"),
+  Type.Literal("chest_L"),
+  Type.Literal("neck_anterior"),
+  Type.Literal("neck_posterior"),
+]);
+
+/**
+ * Emotions the runtime expression system can transition to
+ * (`expressionWeightsForEmotion` in apps/ui-xr/src/main.ts).
+ */
+export const InteractionEmotionSchema = Type.Union([
+  Type.Literal("pain"),
+  Type.Literal("anxious"),
+  Type.Literal("concerned"),
+  Type.Literal("reassured"),
+  Type.Literal("neutral"),
+]);
+
+/**
+ * Case-driven examinee-touch response for one body region. When the examinee
+ * touches `region`, the runtime plays `responseClip`, transitions emotion via
+ * `emotionEventId`/`emotion`, speaks `dialogueLine`, and records `traceTag`.
+ * `notEvidenceFor` clinical validity — this is interaction behavior, not a finding.
+ */
+export const TouchResponseSchema = Type.Object({
+  region: ComplianceRegionSchema,
+  responseKind: Type.Union([
+    Type.Literal("guarding"),
+    Type.Literal("palpation"),
+    Type.Literal("passive_rom"),
+    Type.Literal("positioning"),
+  ]),
+  forceThreshold: Type.Number({ minimum: 0, maximum: 1 }),
+  emotionEventId: Type.String({ minLength: 1 }),
+  emotion: InteractionEmotionSchema,
+  responseClip: Type.String({ minLength: 1 }),
+  dialogueLine: Type.String({ minLength: 1 }),
+  traceTag: Type.String({ minLength: 1 }),
+});
+
+/**
+ * Optional per-actor body-mechanics interaction config (additive). Mirrors the
+ * physics-touch-contract `PhenotypeBodyMechanics` habitus and supplies the
+ * runtime touch-response map. Absence = no touch interactions, so every existing
+ * case remains valid without change.
+ */
+export const BodyMechanicsSchema = Type.Object({
+  habitus: Type.Optional(
+    Type.Union([Type.Literal("average"), Type.Literal("obese"), Type.Literal("frail")]),
+  ),
+  touchResponses: Type.Array(TouchResponseSchema),
+});
+
 export const ActorCardSchema = Type.Object({
   actorId: Type.String({ minLength: 1 }),
   role: ActorRoleSchema,
@@ -57,6 +122,7 @@ export const ActorCardSchema = Type.Object({
   demeanor: Type.Optional(Type.String()),
   hiddenFacts: Type.Optional(Type.Array(Type.String())),
   communicationProfile: Type.Optional(CommunicationProfileSchema),
+  bodyMechanics: Type.Optional(BodyMechanicsSchema),
 });
 
 export const EventScheduleEntrySchema = Type.Object({
@@ -471,6 +537,10 @@ export const VoiceProviderAuditSchema = ProviderAuditRecordSchema;
 
 export type ActorCard = Static<typeof ActorCardSchema>;
 export type CommunicationProfile = Static<typeof CommunicationProfileSchema>;
+export type ComplianceRegion = Static<typeof ComplianceRegionSchema>;
+export type InteractionEmotion = Static<typeof InteractionEmotionSchema>;
+export type TouchResponse = Static<typeof TouchResponseSchema>;
+export type BodyMechanics = Static<typeof BodyMechanicsSchema>;
 export type ExamBlueprintTiming = Static<typeof ExamBlueprintTimingSchema>;
 export type ExamStationSlot = Static<typeof ExamStationSlotSchema>;
 export type ExamBlueprint = Static<typeof ExamBlueprintSchema>;

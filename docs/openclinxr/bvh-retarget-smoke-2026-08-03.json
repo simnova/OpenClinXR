@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "openclinxr.bvh-retarget-smoke.v1",
+  "generatedAt": "2026-08-03T05:27:36.440Z",
+  "claimScope": "animation_retarget_validation_not_clinical_validity",
+  "providerBoundary": {
+    "localOnly": true,
+    "externalNetworkUsed": false,
+    "paidApiUsed": false
+  },
+  "tool": {
+    "command": "blender",
+    "package": "Blender",
+    "version": "Blender 5.1.1",
+    "license": "GPL-3.0-or-later-tooling"
+  },
+  "input": {
+    "mapSet": "mblab",
+    "product": false,
+    "assertDeterministic": false,
+    "mesh": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.anny_base.obj"
+  },
+  "bake": {
+    "exitCode": 0,
+    "glbBytes": 3318884,
+    "fingerprints": [
+      "bd463196121b50df15a5d4aae5ef3127"
+    ]
+  },
+  "diagnostics": {
+    "thresholds": {
+      "minMotionDeg": 5,
+      "minThighSwingDeg": 10,
+      "maxExplodeRatio": 3,
+      "maxUnweightedFraction": 0.01,
+      "standingYoverZmin": 1.15
+    },
+    "restPose": {
+      "standing": true,
+      "skeletonYoverZ": 4.054,
+      "pelvisToHeadUpY": true,
+      "restLeanDeg": 9.03
+    },
+    "restMaxDimM": 1.78,
+    "skinning": {
+      "vertexCount": 13718,
+      "unweightedVertexCount": 0,
+      "unweightedFraction": 0,
+      "maxWeightsPerVertex": 8
+    },
+    "fingerprint": "bd463196121b50df15a5d4aae5ef3127",
+    "product": false,
+    "strict": false,
+    "clips": [
+      {
+        "action": "openclinxr_bvh_mblab_mblab_walking",
+        "license": "AGPL-local-only",
+        "maxJointDeltaDeg": 54.956,
+        "meanJointDeltaDeg": 21.471,
+        "thighSwingDeg": 40.427,
+        "explodeRatio": 1.015,
+        "spineLeanDeg": 10.43,
+        "fcurveCount": 75,
+        "keyedBones": 18
+      },
+      {
+        "action": "openclinxr_bvh_mblab_mblab_running",
+        "license": "AGPL-local-only",
+        "maxJointDeltaDeg": 88.876,
+        "meanJointDeltaDeg": 29.329,
+        "thighSwingDeg": 58.723,
+        "explodeRatio": 1.005,
+        "spineLeanDeg": 14.19,
+        "fcurveCount": 75,
+        "keyedBones": 18
+      }
+    ],
+    "blockers": [],
+    "healthy": true
+  },
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "production_asset_readiness",
+    "quest_readiness"
+  ]
+}

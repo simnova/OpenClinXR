@@ -47,6 +47,25 @@ export const edChestPainScenario: Scenario = {
         culturalLanguageNotes: ["plain English", "respectful direct language", "avoid caricature"],
       },
       hiddenFacts: ["Pain started while walking upstairs", "Father died of myocardial infarction at 54"],
+      // Animation-driven clinical-touch interaction (notEvidenceFor clinical validity):
+      // palpating the right chest wall reproduces guarding + a pain-emotion transition +
+      // reflexive dialogue. Region vocabulary mirrors physics-touch-contract; this same
+      // config later drives live physics behind the identical trigger.
+      bodyMechanics: {
+        habitus: "average",
+        touchResponses: [
+          {
+            region: "chest_R",
+            responseKind: "guarding",
+            forceThreshold: 0.4,
+            emotionEventId: "guard_chest_r_v1",
+            emotion: "pain",
+            responseClip: "openclinxr_role_patient_guard_withdraw",
+            dialogueLine: "Ah— that's the spot, please, go easy there.",
+            traceTag: "physical_exam_chest_palpation",
+          },
+        ],
+      },
     },
     {
       actorId: "spouse_anna_hayes_v1",
