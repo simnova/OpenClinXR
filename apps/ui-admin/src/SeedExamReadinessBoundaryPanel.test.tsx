@@ -151,8 +151,9 @@ describe("SeedExamReadinessBoundaryPanel", () => {
     expect(screen.getByText("Realtime voice posture: websocket-media selected, Python proxy not_configured, cloud APIs used: no.")).toBeInTheDocument();
     expect(screen.getByLabelText("Provider gate warning IDs")).toHaveTextContent("local-development:deterministic_mock_only_not_live_provider_readiness");
     expect(screen.getByLabelText("Provider gate recommended next actions")).toHaveTextContent("local-development:local/manual:asset-generation:attach_manual_asset_generation_review_evidence");
-    expect(screen.getByLabelText("Missing voice provider gates")).toHaveTextContent("stt:attach_stt_medical_vocabulary_and_latency_evidence");
-    expect(screen.getByLabelText("Missing voice provider gates")).toHaveTextContent("lip_sync_timing:attach_lip_sync_timing_and_viseme_alignment_evidence");
+    const missingVoiceGatesText = screen.getByText(/Voice\/speech gates pending evidence:/);
+    expect(missingVoiceGatesText).toHaveTextContent("stt:attach_stt_medical_vocabulary_and_latency_evidence");
+    expect(missingVoiceGatesText).toHaveTextContent("lip_sync_timing:attach_lip_sync_timing_and_viseme_alignment_evidence");
     expect(screen.getByText("1 planned provider capabilities")).toBeInTheDocument();
     expect(screen.getByText("0 blocked, 0 not configured")).toBeInTheDocument();
     expect(findUnsafeClaimLanguage(screen.getByLabelText("Seed exam readiness boundary").textContent ?? "")).toEqual([]);

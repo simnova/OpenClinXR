@@ -82,7 +82,7 @@ const requiredMarkers: Record<string, string[]> = {
   ],
 };
 
-const ignoredDirectoryNames = new Set([".git", "node_modules", ".turbo", ".openclinxr", ".openclinxr-local", "dist", "tmp", "openclaw"]);
+const ignoredDirectoryNames = new Set([".git", ".claude", "node_modules", ".turbo", ".openclinxr", ".openclinxr-local", "dist", "tmp", "openclaw"]);
 const generatedArtifactRoots = [
   ".agent-factory",
   "docs/openclinxr",
