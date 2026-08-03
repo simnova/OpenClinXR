@@ -13,9 +13,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 58
 - archive-candidate: 16
-- current-reference: 198
+- current-reference: 199
 - decision-record: 22
-- evidence: 33
+- evidence: 34
 - historical-synthesis: 56
 - protected-policy: 10
 
@@ -177,6 +177,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `docs/agent-ops/WORKTREE-PROMOTE.md` - current-reference; Living agent-ops SSOT (hot tier); never archive; see DOC-WAREHOUSE.md never-archive list.
 - `docs/agent-ops/capability-requests/README.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
 - `docs/agent-ops/capability-requests/TEMPLATE.md` - current-reference; Agent capability request queue/template (warm); not a dated freeze candidate.
+- `docs/agent-ops/delegation-scorecard.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/agent-ops/temporal-review-queue.md` - current-reference; Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails.
 - `docs/openclinxr/README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
 - `docs/openclinxr/admin-ux-and-testing-brief.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.

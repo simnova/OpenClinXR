@@ -5,9 +5,9 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 58,
-    "current-reference": 198,
+    "current-reference": 199,
     "archive-candidate": 16,
-    "evidence": 33,
+    "evidence": 34,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
@@ -1056,6 +1056,13 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/delegation/scorecard.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
@@ -2246,6 +2253,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Agent capability request queue/template (warm); not a dated freeze candidate."
+    },
+    {
+      "path": "docs/agent-ops/delegation-scorecard.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Living agent-ops documentation under docs/agent-ops/; subordinate to protected guardrails."
     },
     {
       "path": "docs/agent-ops/temporal-review-queue.md",
