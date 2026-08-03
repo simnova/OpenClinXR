@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 58
-- archive-candidate: 16
+- archive-candidate: 19
 - current-reference: 199
 - decision-record: 22
-- evidence: 34
+- evidence: 35
 - historical-synthesis: 56
 - protected-policy: 10
 
@@ -235,6 +235,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
+- `.grok/skills/large-task-orchestration/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/skills/per-job-temp/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.grok/skills/worker-scoped-session/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

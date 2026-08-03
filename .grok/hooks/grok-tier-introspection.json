@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Grok tier routing (grok-harness-only): before delegating read-only work use spawn_subagent explore+deepseek-v4-flash, NOT Cursor Task. Run pnpm grok:tier:brief for introspection prompts.'; pnpm grok:tier:brief 2>/dev/null | head -20 || echo 'Run: pnpm grok:tier:introspect after install'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'Tier introspect: skipped (worker/subagent)'; exit 0; fi; echo 'Grok tier routing (grok-harness-only): before delegating read-only work use spawn_subagent explore+deepseek-v4-flash, NOT Cursor Task. Run pnpm grok:tier:brief for introspection prompts.'; pnpm grok:tier:brief 2>/dev/null | head -20 || echo 'Run: pnpm grok:tier:introspect after install'",
             "timeout": 20
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'PreCompact tier introspection: re-read snapshot blocks only; run pnpm grok:tier:brief; downgrade scouts to explore+flash after compaction.'; pnpm grok:tier:brief 2>/dev/null | head -12 || true",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; echo 'PreCompact tier introspection: re-read snapshot blocks only; run pnpm grok:tier:brief; downgrade scouts to explore+flash after compaction.'; pnpm grok:tier:brief 2>/dev/null | head -12 || true",
             "timeout": 15
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; echo 'Stop tier introspection:'; pnpm grok:tier:post-slice 2>/dev/null | tail -12 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'Stop tier: skipped (worker/subagent; parent owns post-slice)'; exit 0; fi; pnpm grok:hook -- stop 2>/dev/null || pnpm codex:hook -- stop; echo 'Stop tier introspection:'; pnpm grok:tier:post-slice 2>/dev/null | tail -12 || echo 'Run: pnpm grok:tier:slice-start at slice begin; pnpm grok:tier:post-slice at end'",
             "timeout": 60
           }
         ]

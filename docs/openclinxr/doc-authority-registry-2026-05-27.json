@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 58,
     "current-reference": 199,
-    "archive-candidate": 16,
-    "evidence": 34,
+    "archive-candidate": 19,
+    "evidence": 35,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
@@ -1049,6 +1049,34 @@
       "agentInstructionWeight": "low",
       "action": "use-as-current",
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".grok/skills/large-task-orchestration/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".grok/skills/per-job-temp/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".grok/skills/regen-score-report/SKILL.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": ".grok/skills/worker-scoped-session/SKILL.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": ".openclinxr/README.md",

@@ -3,6 +3,9 @@ import {
   buildGrokRepoAgentSpawnRegistry,
   buildGrokRepoAgentSpawnSpec,
   formatGrokRepoAgentSpawnBrief,
+  formatWorkerHeadlessEnvPrefix,
+  looksLikeLargeParallelTask,
+  OPENCLINXR_WORKER_ENV,
   recommendRepoAgentsForConsult,
   resolveGrokSpawnSurfaceForPolicy,
 } from "./grok-repo-agent-spawn.js";
@@ -172,6 +175,7 @@ describe("grok repo agent spawn", () => {
       const brief = formatGrokRepoAgentSpawnBrief(spec);
       expect(brief).toContain("isolation=worktree");
       expect(brief).toContain("parentChecklist.mustPassIsolationToHarness=true");
+      expect(brief).toContain("headlessEnv=OPENCLINXR_WORKER=1");
     });
 
     it("formatGrokRepoAgentSpawnBrief does not show isolation for non-worktree", () => {
@@ -183,6 +187,50 @@ describe("grok repo agent spawn", () => {
       const brief = formatGrokRepoAgentSpawnBrief(spec);
       expect(brief).not.toContain("isolation=worktree");
       expect(brief).not.toContain("mustPassIsolationToHarness=true");
+    });
+  });
+
+  describe("worker env + large-task bake", () => {
+    it("writer spawn prompt documents OPENCLINXR_WORKER and job tmp", () => {
+      const spec = buildGrokRepoAgentSpawnSpec({
+        roleId: "asset-pipeline-lead",
+        roleDir: "agents/core/asset-pipeline-lead",
+        group: "core",
+        task: "Implement garment sleeve expand in package only",
+      });
+      expect(spec.spawnPrompt).toContain("OPENCLINXR_WORKER=1");
+      expect(spec.spawnPrompt).toContain("OPENCLINXR_JOB_TMP");
+      expect(spec.spawnPrompt).toContain("openclinxr_skin_albedo_mixed.png");
+      expect(spec.spawnPrompt).toContain("worker-scoped-session");
+    });
+
+    it("large parallel task forces fan-out skill language", () => {
+      expect(looksLikeLargeParallelTask("parallel blender batch all meshes")).toBe(true);
+      const spec = buildGrokRepoAgentSpawnSpec({
+        roleId: "asset-pipeline-lead",
+        roleDir: "agents/core/asset-pipeline-lead",
+        group: "core",
+        task: "Large task: parallel blender batch across all meshes with fan-out",
+      });
+      expect(spec.spawnPrompt).toContain("LARGE-TASK FAN-OUT");
+      expect(spec.spawnPrompt).toContain("large-task-orchestration");
+    });
+
+    it("formatWorkerHeadlessEnvPrefix exports worker flag + job tmp", () => {
+      const prefix = formatWorkerHeadlessEnvPrefix("mesh-a");
+      expect(prefix).toContain(OPENCLINXR_WORKER_ENV.headlessPrefix);
+      expect(prefix).toContain("OPENCLINXR_JOB_ID=mesh-a");
+      expect(prefix).toContain("OPENCLINXR_JOB_TMP=");
+    });
+
+    it("read-only scouts omit worker env headless mandate", () => {
+      const spec = buildGrokRepoAgentSpawnSpec({
+        roleId: "chief-coordinator",
+        roleDir: "agents/coordinator/chief-coordinator",
+        group: "coordinator",
+        task: "Scout next slice",
+      });
+      expect(spec.spawnPrompt).not.toContain("WORKER ENV:");
     });
   });
 });

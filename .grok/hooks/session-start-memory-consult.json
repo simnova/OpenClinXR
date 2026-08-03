@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'SessionStart: chief-coordinator orchestrator. Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
+            "command": "if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then echo 'SessionStart: worker/subagent — skip CEO rehydrate banner'; exit 0; fi; echo 'SessionStart: chief-coordinator orchestrator. Rehydrate PROJECT_STATUS.md snapshot (~60 lines) + LEX_AGENTIC.md. Cheap consult: pnpm grok:tier:brief 2>/dev/null || true; pnpm openclaw:lease -- status 2>/dev/null || true'",
             "timeout": 10
           }
         ]

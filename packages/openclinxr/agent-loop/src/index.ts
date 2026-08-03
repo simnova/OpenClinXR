@@ -1261,10 +1261,15 @@ export type {
 export {
   GROK_REPO_AGENT_CONSULT_DEFAULTS,
   GROK_REPO_AGENT_SPAWN_SAFEGUARDS,
+  LARGE_TASK_ORCHESTRATION_SKILL,
+  OPENCLINXR_JOB_TMP_CONVENTION,
+  OPENCLINXR_WORKER_ENV,
   buildGrokRepoAgentSpawnRegistry,
   buildGrokRepoAgentSpawnSpec,
   buildRepoAgentSpawnPrompt,
   formatGrokRepoAgentSpawnBrief,
+  formatWorkerHeadlessEnvPrefix,
+  looksLikeLargeParallelTask,
   recommendRepoAgentsForConsult,
   resolveGrokSpawnSurfaceForPolicy,
 } from "./grok-repo-agent-spawn.js";

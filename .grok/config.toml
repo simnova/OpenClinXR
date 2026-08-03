@@ -5,9 +5,11 @@
 
 # --- Skills (already set for multi-harness standardization) ---
 [skills]
-paths = [".agents/skills"]
-# The .agents/skills/ (with antd, turborepo + future from skills-lock.json and workflow-skill-policy.md) is the canonical location.
-# Other harnesses should point their equivalent "additional skills" at the same dir.
+paths = [".agents/skills", ".grok/skills"]
+# .agents/skills/ = product skills (antd, turborepo, openclinxr-openclaw, anny, provider-boundary)
+# .grok/skills/   = harness delegation skills (large-task-orchestration, worker-scoped-session,
+#                   per-job-temp, regen-score-report). See ~/.grok/docs/user-guide/08-skills.md.
+# Worker sessions: set OPENCLINXR_WORKER=1 so mutating SessionStart hooks NO-OP (docs hygiene, etc.).
 
 # --- Main session agent (CEO / orchestrator only) ---
 # HARD: main transcript is CEO, not product IC. See agents/rules/orchestrator-only-main.md
@@ -245,6 +247,19 @@ compact_mode = false
 permission_mode = "always-approve"  # or "ask" for safety in autonomous work
 # simple_mode = true   # toggle based on preference for scrollback
 
+# --- Permission hard limits (always-approve still honors deny; 22-permissions-and-safety.md) ---
+# Tighter for accidental destructive shell from any session (CEO or worker). Does not loosen Q-gate.
+# Path-scope for product writes remains role pathScope + OPENCLINXR_WORKER hook NO-OP, not these globs.
+[permission]
+deny = [
+  "Bash(rm -rf /)",
+  "Bash(rm -rf /*)",
+  "Bash(git push --force*)",
+  "Bash(git push -f *)",
+  "Bash(git reset --hard*)",
+]
+# Note: project [permission] merges per 05-configuration.md. Keep protected-claim gates false elsewhere.
+
 # --- Compat (keep scanning other harness files for skills/rules/AGENTS.md/hooks if you switch harnesses; see 05-configuration.md) ---
 [compat.cursor]
 agents = true
@@ -325,9 +340,16 @@ description = "Universal token-efficient expert overlay (BLUF + terse + jargon).
 
 # --- Hooks (lifecycle automation for AgenticEx) ---
 # Project hooks in .grok/hooks/*.json (trusted on first use via /hooks or Ctrl+L).
-# The example post-coord-edit-guards.json provides reminders on PostToolUse (after edits to coord files) to run guards,
-# and PreCompact reminders for rehydration.
-# This automates the "after edits to coordination files, always run pnpm agent:alignment && pnpm docs:drift-check" rule.
-# See .grok/hooks/ (synced to compat locations). Customize for auto-running guards, lease checks, etc.
-# Full events and format in Grok hooks doc.
-# Leverage harness strengths (scheduler_create, monitor, spawn_subagent background) in hook commands for recurring slices / background evidence / team delegation.
+# Docs: ~/.grok/docs/user-guide/10-hooks.md
+#
+# WORKER / SUBAGENT GATE (OPENCLINXR_WORKER=1 or GROK_SUBAGENT set):
+# All mutating/expensive SessionStart + Stop + PostToolUse coord hooks NO-OP when
+# OPENCLINXR_WORKER=1|true or GROK_SUBAGENT is non-empty. Prevents --yolo worktree
+# workers from rewriting docs/openclinxr/*registry*, PROJECT_STATUS.md, docs/_archive.
+# CEO main session must NOT set these flags (hygiene + lease banners remain).
+# Spawn bake: packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts
+# Skills: .grok/skills/worker-scoped-session, large-task-orchestration, per-job-temp
+#
+# post-coord-edit-guards: PostToolUse alignment+drift only on CEO sessions.
+# session-start-docs-hygiene: --auto-run only when not a worker.
+# Full events/format: 10-hooks.md. Leverage scheduler_create/monitor/spawn_subagent background.

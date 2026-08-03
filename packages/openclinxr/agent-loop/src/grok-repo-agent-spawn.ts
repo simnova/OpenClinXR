@@ -81,7 +81,73 @@ export const GROK_REPO_AGENT_SPAWN_SAFEGUARDS = [
   "Regenerate pointers after policy changes: pnpm agent:harness:sync.",
   "Frontier roles (vp-engineering-delivery) stay on Composer/grok-build — do not spawn as cheap subagents.",
   "After spawn, run pnpm grok:tier:post-slice and pnpm agent:memory:append when the role learns something durable.",
+  "Headless/--yolo workers MUST set OPENCLINXR_WORKER=1 so SessionStart docs hygiene and CEO coord hooks NO-OP (workers must not mutate registries/PROJECT_STATUS/docs/_archive).",
+  "Large tasks: decompose into N disjoint path-scoped workstreams with isolation=worktree, distinct ports, and per-job temp dirs (never shared /tmp basenames).",
 ];
+
+/**
+ * Env flag managers must export when launching delegated headless/--yolo workers.
+ * Project hooks (.grok/hooks/*) NO-OP mutating SessionStart/Stop/PostToolUse coord work when set.
+ * Docs: ~/.grok/docs/user-guide/10-hooks.md, 14-headless-mode.md; skill: worker-scoped-session.
+ */
+export const OPENCLINXR_WORKER_ENV = {
+  flag: "OPENCLINXR_WORKER",
+  value: "1",
+  altSignals: ["GROK_SUBAGENT"] as const,
+  exportLine: "export OPENCLINXR_WORKER=1",
+  headlessPrefix: "OPENCLINXR_WORKER=1",
+  skill: ".grok/skills/worker-scoped-session/SKILL.md",
+} as const;
+
+/** Per-job temp root convention — avoids parallel Blender/skin races on fixed /tmp names. */
+export const OPENCLINXR_JOB_TMP_CONVENTION = {
+  envVar: "OPENCLINXR_JOB_TMP",
+  pattern: "${TMPDIR:-/tmp}/openclinxr-job-${USER:-u}-$$-${OPENCLINXR_JOB_ID:-job}",
+  filePattern: "$OPENCLINXR_JOB_TMP/<meshId>_<stage>_$$.<ext>",
+  forbidExample: "/tmp/openclinxr_skin_albedo_mixed.png",
+  skill: ".grok/skills/per-job-temp/SKILL.md",
+} as const;
+
+/** Large-task fan-out skill (force parallel cheap workers instead of solo frontier). */
+export const LARGE_TASK_ORCHESTRATION_SKILL = ".grok/skills/large-task-orchestration/SKILL.md" as const;
+
+export function looksLikeLargeParallelTask(task?: string): boolean {
+  if (!task) return false;
+  const t = task.toLowerCase();
+  const signals = [
+    "large task",
+    "parallel",
+    "fan-out",
+    "fan out",
+    "workstream",
+    "multi-package",
+    "multi package",
+    "batch",
+    "all meshes",
+    "every mesh",
+    "blender",
+    "across packages",
+    "disjoint",
+    "n workers",
+    "multiple workers",
+    "worktrees",
+    "decompose",
+  ];
+  return signals.some((s) => t.includes(s));
+}
+
+/**
+ * Shell prefix for manager-launched headless workers (bake into dispatch scripts).
+ * Example: `OPENCLINXR_WORKER=1 OPENCLINXR_JOB_TMP=... grok -p "..." --yolo --cwd <wt>`
+ */
+export function formatWorkerHeadlessEnvPrefix(jobId?: string): string {
+  const job = jobId ?? "job";
+  return [
+    "OPENCLINXR_WORKER=1",
+    `OPENCLINXR_JOB_ID=${job}`,
+    'OPENCLINXR_JOB_TMP="${TMPDIR:-/tmp}/openclinxr-job-${USER:-u}-$$-' + job + '"',
+  ].join(" ");
+}
 
 const skillPaths: Record<RepoWorkflowSkillId, string> = {
   "openclinxr-openclaw": ".agents/skills/openclinxr-openclaw/SKILL.md",
@@ -162,11 +228,19 @@ export function buildRepoAgentSpawnPrompt(input: {
   const modelSpec = resolveHarnessModelSpec(input.policy.policyTier, harness);
   const isMultimodal = !!input.multimodal;
   const effectiveModel = isMultimodal ? (modelSpec.model.includes("grok-4") ? modelSpec.model : "grok-4-fast") : modelSpec.model;
+  const isWriter = input.policy.sandboxMode === "workspace-write";
+  const largeTask = looksLikeLargeParallelTask(input.task);
 
   const skillNote =
     input.policy.recommendedSkills.length > 0
       ? `Skills: ${input.policy.recommendedSkills.map((s) => skillPaths[s]).join(", ")}.`
       : "";
+  const harnessSkills = [
+    skillNote,
+    isWriter || largeTask ? `Harness skills: ${LARGE_TASK_ORCHESTRATION_SKILL}; ${OPENCLINXR_WORKER_ENV.skill}; ${OPENCLINXR_JOB_TMP_CONVENTION.skill}.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
   const multimodalNote = isMultimodal
     ? " MULTIMODAL: images/cagematch/UI-XR/png/webm → grok-4-fast first, then grok-4-pro; never deepseek text-only for vision."
     : "";
@@ -174,9 +248,23 @@ export function buildRepoAgentSpawnPrompt(input: {
     ? "UNABLE: escalate grok-4-fast → grok-4-pro → grok-build (no deepseek for vision)."
     : "UNABLE: escalate flash → pro → grok-build (cheap-first).";
   const compositionPointer =
-    input.policy.sandboxMode === "workspace-write"
+    isWriter
       ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
       : "";
+  // Headless/--yolo workers: manager must export OPENCLINXR_WORKER=1 (hooks NO-OP docs hygiene).
+  const workerEnvBlock = isWriter
+    ? [
+        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} (or ${OPENCLINXR_WORKER_ENV.exportLine}).`,
+        "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP — stay in pathScope; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
+        `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files as ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
+        "PORTS: distinct portless/dev ports per job (never share one fixed port across parallel workers).",
+      ].join(" ")
+    : "";
+  const fanOutBlock = largeTask || isWriter
+    ? largeTask
+      ? `LARGE-TASK FAN-OUT (required): decompose into N≥2 disjoint file-scoped workstreams; each gets worktree isolation + unique ${OPENCLINXR_JOB_TMP_CONVENTION.envVar} + distinct ports; prefer deepseek-v4-pro workers over solo frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
+      : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
+    : "";
   return [
     `Persona: ${input.roleId}-expert (.grok/personas/ + charter ## Persona). BLUF; bullets file:line; ≤100w; end "Recommended next: <slice> (Q#)".`,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
@@ -186,13 +274,15 @@ export function buildRepoAgentSpawnPrompt(input: {
     compositionPointer,
     `Tier: ${input.policy.policyTier}; model: ${effectiveModel}${multimodalNote ? " (multimodal)" : ""}; task: ${input.policy.taskType}.`,
     input.policy.writeScopeNote,
-    skillNote,
+    harnessSkills,
+    workerEnvBlock,
+    fanOutBlock,
     formatPathScopeBlock(input.policy.pathScope),
     `ESCALATION: if below tier capability emit line "UNABLE:" + reason + recommended helper. ${escalateLadder} Coordinator spawns via spawn-spec.`,
     input.task ?? "Return findings, blockers, recommended next slice, file paths. Q1/Q4/Q5.",
     input.policy.sandboxMode === "read-only"
       ? "Read-only unless assigned non-overlapping write scope."
-      : "Bounded write only; no coordination files unless slice owns them.",
+      : "Bounded write only; no coordination files unless slice owns them. Parent/CEO owns PROJECT_STATUS + registries + post-slice.",
     "RESUME_FROM: if continuation, short deltas only; still update the same handoff JSON (status/evidence/touched/blockers/recommended_next).",
   ]
     .filter(Boolean)
@@ -397,5 +487,9 @@ export function formatGrokRepoAgentSpawnBrief(spec: GrokRepoAgentSpawnSpec): str
     spec.parentChecklist.mustPassIsolationToHarness
       ? " parentChecklist.mustPassIsolationToHarness=true"
       : "";
-  return `${spec.roleId}: spawn_subagent ${call.subagent_type} (${call.capability_mode})${iso}${checklist} model=${spec.model} — ${spec.policyTier}`;
+  const worker =
+    call.capability_mode === "read-write"
+      ? ` headlessEnv=${OPENCLINXR_WORKER_ENV.headlessPrefix}`
+      : "";
+  return `${spec.roleId}: spawn_subagent ${call.subagent_type} (${call.capability_mode})${iso}${checklist}${worker} model=${spec.model} — ${spec.policyTier}`;
 }
