@@ -78,8 +78,22 @@ a {
 .seed-workbench,
 .scenario-bank-workbench,
 .scenario-detail-workbench,
-.review-replay-workbench {
+.review-replay-workbench,
+.case-authoring-workbench {
   max-width: 1180px;
+}
+
+.case-authoring-output-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 0.9fr 1.1fr;
+  margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+  .case-authoring-output-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .workbench-title-row {

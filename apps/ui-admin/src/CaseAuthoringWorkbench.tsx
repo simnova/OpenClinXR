@@ -1,0 +1,526 @@
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import type { Scenario } from "@openclinxr/shared-schemas";
+import {
+  Alert,
+  Button,
+  Card,
+  Collapse,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Space,
+  Steps,
+  Tag,
+  Typography,
+} from "antd";
+import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  actorRoleOptions,
+  caseAuthoringClaimBoundary,
+  collectTouchResponseTraceTags,
+  complianceRegionOptions,
+  createActorDraft,
+  createEmptyScenarioDraft,
+  createTouchResponseDraft,
+  exportScenarioJson,
+  habitusOptions,
+  interactionEmotionOptions,
+  mergeFormValuesIntoScenario,
+  type ScenarioFormValues,
+  scenarioStatusOptions,
+  scenarioToFormValues,
+  touchResponseKindOptions,
+  validateScenarioDraft,
+} from "./case-authoring-model.js";
+
+const { TextArea } = Input;
+
+function toOptions(values: readonly string[]): { label: string; value: string }[] {
+  return values.map((value) => ({ label: value, value }));
+}
+
+const roleSelectOptions = toOptions(actorRoleOptions);
+const statusSelectOptions = toOptions(scenarioStatusOptions);
+const regionSelectOptions = toOptions(complianceRegionOptions);
+const emotionSelectOptions = toOptions(interactionEmotionOptions);
+const responseKindSelectOptions = toOptions(touchResponseKindOptions);
+const habitusSelectOptions = toOptions(habitusOptions);
+
+type ValidationView = { ok: true } | { ok: false; errors: string[] };
+
+export type CaseAuthoringWorkbenchProps = {
+  initialScenario?: Scenario;
+};
+
+/**
+ * Faculty case-authoring surface. Authors create/edit an encounter case whose
+ * exported JSON is shape-identical to `@openclinxr/scenario-fixtures` bank entries
+ * and validates against the shared `ScenarioSchema` (Q1 blueprint input surface).
+ *
+ * This surface produces case *definitions* only. It is notEvidenceFor clinical
+ * validity, exam equivalence, scoring, or learner readiness.
+ */
+export function CaseAuthoringWorkbench({ initialScenario }: CaseAuthoringWorkbenchProps): ReactElement {
+  const [form] = Form.useForm<ScenarioFormValues>();
+  const [baseDraft, setBaseDraft] = useState<Scenario>(() => initialScenario ?? createEmptyScenarioDraft());
+  const [formKey, setFormKey] = useState(0);
+  const [validation, setValidation] = useState<ValidationView>(() =>
+    validateScenarioDraft(initialScenario ?? createEmptyScenarioDraft()),
+  );
+  const [exportJson, setExportJson] = useState<string>(() =>
+    exportScenarioJson(initialScenario ?? createEmptyScenarioDraft()),
+  );
+  const [touchTags, setTouchTags] = useState<string[]>(() =>
+    collectTouchResponseTraceTags(initialScenario ?? createEmptyScenarioDraft()),
+  );
+  const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const initialValues = useMemo(() => scenarioToFormValues(baseDraft), [baseDraft]);
+
+  // antd keeps the useForm store across the key remount, so re-apply the loaded
+  // case imperatively whenever the base draft changes (Load example / Import / New).
+  useEffect(() => {
+    form.setFieldsValue(scenarioToFormValues(baseDraft));
+  }, [baseDraft, form, formKey]);
+
+  const recompute = useCallback(() => {
+    const values = form.getFieldsValue(true) as ScenarioFormValues;
+    const merged = mergeFormValuesIntoScenario(baseDraft, values);
+    setValidation(validateScenarioDraft(merged));
+    setExportJson(exportScenarioJson(merged));
+    setTouchTags(collectTouchResponseTraceTags(merged));
+    setCopied(false);
+  }, [baseDraft, form]);
+
+  const loadScenario = useCallback(
+    (scenario: Scenario) => {
+      setBaseDraft(scenario);
+      setValidation(validateScenarioDraft(scenario));
+      setExportJson(exportScenarioJson(scenario));
+      setTouchTags(collectTouchResponseTraceTags(scenario));
+      setImportError(null);
+      setImportText("");
+      setCopied(false);
+      setFormKey((key) => key + 1);
+    },
+    [],
+  );
+
+  const handleImport = useCallback(() => {
+    // Lazy import to avoid a hard dependency cycle in the model module surface.
+    import("./case-authoring-model.js")
+      .then(({ parseScenarioJson }) => {
+        const result = parseScenarioJson(importText);
+        if (result.ok) {
+          loadScenario(result.scenario);
+        } else {
+          setImportError(result.errors.join("; "));
+        }
+      })
+      .catch((error: unknown) => {
+        setImportError(error instanceof Error ? error.message : "Import failed");
+      });
+  }, [importText, loadScenario]);
+
+  const handleDownload = useCallback(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const values = form.getFieldsValue(true) as ScenarioFormValues;
+    const merged = mergeFormValuesIntoScenario(baseDraft, values);
+    const blob = new Blob([exportScenarioJson(merged)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${merged.scenarioId || "encounter_case"}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }, [baseDraft, form]);
+
+  const handleCopy = useCallback(() => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      void navigator.clipboard.writeText(exportJson);
+    }
+    setCopied(true);
+  }, [exportJson]);
+
+  return (
+    <section className="case-authoring-workbench" aria-label="Encounter case authoring">
+      <div className="workbench-title-row">
+        <div>
+          <Typography.Text className="eyebrow">Blueprint input surface</Typography.Text>
+          <Typography.Title level={3} style={{ margin: "4px 0 0" }}>
+            Encounter Case Authoring
+          </Typography.Title>
+        </div>
+        <Space wrap>
+          <Tag color="blue">antd Form authoring</Tag>
+          <Tag color={validation.ok ? "green" : "gold"} aria-label="Case validation status">
+            {validation.ok ? "valid against ScenarioSchema" : "validation blocked"}
+          </Tag>
+        </Space>
+      </div>
+
+      <Alert
+        type="info"
+        showIcon
+        style={{ marginBottom: 16 }}
+        message="Formative authoring surface"
+        description={
+          <span aria-label="Authoring claim boundary">
+            Authored cases are synthetic encounter definitions for local faculty review. This surface is{" "}
+            <Typography.Text strong>notEvidenceFor</Typography.Text>: {caseAuthoringClaimBoundary.join(", ")}.
+          </span>
+        }
+      />
+
+      <Steps
+        size="small"
+        style={{ marginBottom: 20 }}
+        items={[
+          { title: "Case metadata", description: "Identity, status, objectives" },
+          { title: "Actors & interactions", description: "Roles, body mechanics, touch responses" },
+          { title: "Validate & export", description: "ScenarioSchema check + JSON" },
+        ]}
+      />
+
+      <Card title="Load a case" size="small" style={{ marginBottom: 16 }}>
+        <Space wrap style={{ marginBottom: 12 }}>
+          <Button onClick={() => loadScenario(structuredCloneScenario(edChestPainScenario))}>
+            Load ED Chest Pain example
+          </Button>
+          <Button onClick={() => loadScenario(createEmptyScenarioDraft())}>New empty case</Button>
+        </Space>
+        <Form.Item
+          label="Import scenario JSON"
+          htmlFor="case-authoring-import"
+          validateStatus={importError ? "error" : ""}
+          help={importError ?? "Paste a scenario-bank-shaped JSON case to edit it."}
+          style={{ marginBottom: 8 }}
+        >
+          <TextArea
+            id="case-authoring-import"
+            aria-label="Import scenario JSON"
+            rows={3}
+            value={importText}
+            onChange={(event) => setImportText(event.target.value)}
+            placeholder='{"scenarioId":"...","title":"...", ...}'
+          />
+        </Form.Item>
+        <Button onClick={handleImport} disabled={importText.trim().length === 0}>
+          Import JSON
+        </Button>
+      </Card>
+
+      <Form<ScenarioFormValues>
+        key={formKey}
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        onValuesChange={recompute}
+        aria-label="Encounter case form"
+      >
+        <Card title="Case metadata" size="small" style={{ marginBottom: 16 }}>
+          <Form.Item label="Scenario ID" name="scenarioId" rules={[{ required: true, message: "Scenario ID is required" }]}>
+            <Input aria-label="Scenario ID" />
+          </Form.Item>
+          <Form.Item label="Title" name="title" rules={[{ required: true, message: "Title is required" }]}>
+            <Input aria-label="Case title" />
+          </Form.Item>
+          <Space wrap size="large">
+            <Form.Item label="Version" name="version">
+              <InputNumber min={1} aria-label="Case version" />
+            </Form.Item>
+            <Form.Item label="Status" name="status">
+              <Select options={statusSelectOptions} style={{ minWidth: 160 }} aria-label="Case status" />
+            </Form.Item>
+          </Space>
+          <StringListField
+            name="clinicalObjectives"
+            label="Clinical objectives"
+            addLabel="Add objective"
+            itemLabel="Objective"
+          />
+          <StringListField
+            name="requiredTraceTags"
+            label="Required trace tags"
+            addLabel="Add trace tag"
+            itemLabel="Trace tag"
+          />
+        </Card>
+
+        <Card title="Actors & interactions" size="small" style={{ marginBottom: 16 }}>
+          <Form.List name="actors">
+            {(fields, { add, remove }) => (
+              <div>
+                <Collapse
+                  items={fields.map((field) => ({
+                    key: field.key,
+                    label: <ActorPanelLabel form={form} fieldName={field.name} />,
+                    children: <ActorFields fieldName={field.name} onRemove={() => remove(field.name)} />,
+                  }))}
+                />
+                <Button
+                  type="dashed"
+                  block
+                  style={{ marginTop: 12 }}
+                  onClick={() => add(actorFormFromDraft(createActorDraft(fields.length + 1)))}
+                >
+                  Add actor
+                </Button>
+              </div>
+            )}
+          </Form.List>
+        </Card>
+
+        <Card title="Scenario steps (event schedule)" size="small" style={{ marginBottom: 16 }}>
+          <Form.List name="eventSchedule">
+            {(fields, { add, remove }) => (
+              <div>
+                {fields.map((field) => (
+                  <Space key={field.key} align="baseline" wrap style={{ display: "flex", marginBottom: 8 }}>
+                    <Form.Item name={[field.name, "eventId"]} label="Event ID">
+                      <Input aria-label="Event ID" />
+                    </Form.Item>
+                    <Form.Item name={[field.name, "atSecond"]} label="At second">
+                      <InputNumber min={0} aria-label="Event at second" />
+                    </Form.Item>
+                    <Form.Item name={[field.name, "actorId"]} label="Actor ID">
+                      <Input aria-label="Event actor ID" />
+                    </Form.Item>
+                    <Form.Item name={[field.name, "tag"]} label="Trace tag">
+                      <Input aria-label="Event trace tag" />
+                    </Form.Item>
+                    <Button danger size="small" onClick={() => remove(field.name)}>
+                      Remove step
+                    </Button>
+                  </Space>
+                ))}
+                <Button
+                  type="dashed"
+                  onClick={() => add({ eventId: `event_${fields.length + 1}`, atSecond: 0, actorId: "", tag: "" })}
+                >
+                  Add scenario step
+                </Button>
+              </div>
+            )}
+          </Form.List>
+        </Card>
+      </Form>
+
+      <div className="case-authoring-output-grid">
+        <Card title="Validation" size="small">
+          {validation.ok ? (
+            <Alert type="success" showIcon message="Case validates against ScenarioSchema." />
+          ) : (
+            <Alert
+              type="warning"
+              showIcon
+              message="Resolve validation issues before export"
+              description={
+                <ul aria-label="Validation errors" style={{ margin: 0, paddingLeft: 18 }}>
+                  {validation.errors.map((error, index) => (
+                    <li key={`${index}-${error}`}>{error}</li>
+                  ))}
+                </ul>
+              }
+            />
+          )}
+          <Divider style={{ margin: "12px 0" }} />
+          <Typography.Text type="secondary">Touch-response trace tags</Typography.Text>
+          <div className="tag-row" aria-label="Touch response trace tags" style={{ marginTop: 6 }}>
+            {touchTags.length === 0 ? (
+              <Typography.Text type="secondary">No touch responses authored yet.</Typography.Text>
+            ) : (
+              touchTags.map((tag) => <Tag key={tag}>{tag}</Tag>)
+            )}
+          </div>
+        </Card>
+
+        <Card
+          title="Export scenario JSON"
+          size="small"
+          extra={
+            <Space>
+              <Button size="small" onClick={handleCopy}>
+                {copied ? "Copied" : "Copy JSON"}
+              </Button>
+              <Button size="small" type="primary" onClick={handleDownload} disabled={!validation.ok}>
+                Download JSON
+              </Button>
+            </Space>
+          }
+        >
+          <TextArea
+            aria-label="Exported scenario JSON"
+            readOnly
+            value={exportJson}
+            autoSize={{ minRows: 8, maxRows: 20 }}
+          />
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function ActorPanelLabel({ form, fieldName }: { form: ReturnType<typeof Form.useForm<ScenarioFormValues>>[0]; fieldName: number }): ReactElement {
+  // Watch the whole actors array so collapsed (unrendered) panels still show live
+  // identity; deep per-item watch paths do not resolve while a panel is collapsed.
+  const actors = Form.useWatch("actors", form) as ScenarioFormValues["actors"] | undefined;
+  const actor = actors?.[fieldName];
+  return (
+    <span>
+      <Typography.Text strong>{actor?.displayName || "New actor"}</Typography.Text>
+      {actor?.role ? <Tag style={{ marginLeft: 8 }}>{actor.role}</Tag> : null}
+    </span>
+  );
+}
+
+function ActorFields({ fieldName, onRemove }: { fieldName: number; onRemove: () => void }): ReactElement {
+  return (
+    <div>
+      <Space wrap size="large">
+        <Form.Item name={[fieldName, "actorId"]} label="Actor ID" rules={[{ required: true, message: "Actor ID is required" }]}>
+          <Input aria-label="Actor ID" />
+        </Form.Item>
+        <Form.Item name={[fieldName, "displayName"]} label="Display name" rules={[{ required: true, message: "Display name is required" }]}>
+          <Input aria-label="Actor display name" />
+        </Form.Item>
+        <Form.Item name={[fieldName, "role"]} label="Role">
+          <Select options={roleSelectOptions} style={{ minWidth: 180 }} aria-label="Actor role" />
+        </Form.Item>
+      </Space>
+      <Form.Item name={[fieldName, "demeanor"]} label="Demeanor">
+        <Input aria-label="Actor demeanor" placeholder="e.g. anxious, guarded, protective of chest" />
+      </Form.Item>
+
+      <StringListField
+        name={[fieldName, "hiddenFacts"]}
+        label="Hidden facts"
+        addLabel="Add hidden fact"
+        itemLabel="Hidden fact"
+      />
+
+      <Divider style={{ margin: "8px 0" }}>Body mechanics (optional)</Divider>
+      <Form.Item name={[fieldName, "habitus"]} label="Habitus">
+        <Select
+          allowClear
+          options={habitusSelectOptions}
+          style={{ minWidth: 160 }}
+          aria-label="Actor habitus"
+          placeholder="none"
+        />
+      </Form.Item>
+
+      <Form.List name={[fieldName, "touchResponses"]}>
+        {(fields, { add, remove }) => (
+          <div aria-label="Touch responses">
+            {fields.map((field) => (
+              <Card
+                key={field.key}
+                size="small"
+                type="inner"
+                style={{ marginBottom: 10 }}
+                title={`Touch response ${field.name + 1}`}
+                extra={
+                  <Button danger size="small" onClick={() => remove(field.name)}>
+                    Remove
+                  </Button>
+                }
+              >
+                <Space wrap size="large">
+                  <Form.Item name={[field.name, "region"]} label="Region">
+                    <Select options={regionSelectOptions} style={{ minWidth: 180 }} aria-label="Touch region" />
+                  </Form.Item>
+                  <Form.Item name={[field.name, "responseKind"]} label="Response kind">
+                    <Select options={responseKindSelectOptions} style={{ minWidth: 160 }} aria-label="Touch response kind" />
+                  </Form.Item>
+                  <Form.Item name={[field.name, "forceThreshold"]} label="Force threshold">
+                    <InputNumber min={0} max={1} step={0.01} aria-label="Touch force threshold" />
+                  </Form.Item>
+                  <Form.Item name={[field.name, "emotion"]} label="Emotion">
+                    <Select options={emotionSelectOptions} style={{ minWidth: 150 }} aria-label="Touch emotion" />
+                  </Form.Item>
+                </Space>
+                <Space wrap size="large">
+                  <Form.Item name={[field.name, "emotionEventId"]} label="Emotion event ID">
+                    <Input aria-label="Touch emotion event ID" />
+                  </Form.Item>
+                  <Form.Item name={[field.name, "responseClip"]} label="Response clip">
+                    <Input aria-label="Touch response clip" />
+                  </Form.Item>
+                  <Form.Item name={[field.name, "traceTag"]} label="Trace tag">
+                    <Input aria-label="Touch trace tag" />
+                  </Form.Item>
+                </Space>
+                <Form.Item name={[field.name, "dialogueLine"]} label="Dialogue line">
+                  <Input aria-label="Touch dialogue line" />
+                </Form.Item>
+              </Card>
+            ))}
+            <Button type="dashed" onClick={() => add(createTouchResponseDraft())}>
+              Add touch response
+            </Button>
+          </div>
+        )}
+      </Form.List>
+
+      <Divider style={{ margin: "12px 0" }} />
+      <Button danger onClick={onRemove}>
+        Remove actor
+      </Button>
+    </div>
+  );
+}
+
+type StringListFieldProps = {
+  name: string | (string | number)[];
+  label: string;
+  addLabel: string;
+  itemLabel: string;
+};
+
+function StringListField({ name, label, addLabel, itemLabel }: StringListFieldProps): ReactElement {
+  return (
+    <Form.Item label={label} style={{ marginBottom: 8 }}>
+      <Form.List name={name}>
+        {(fields, { add, remove }) => (
+          <div>
+            {fields.map((field) => (
+              <Space key={field.key} align="baseline" style={{ display: "flex", marginBottom: 6 }}>
+                <Form.Item name={field.name} noStyle>
+                  <Input aria-label={itemLabel} style={{ minWidth: 320 }} />
+                </Form.Item>
+                <Button size="small" danger onClick={() => remove(field.name)}>
+                  Remove
+                </Button>
+              </Space>
+            ))}
+            <Button type="dashed" size="small" onClick={() => add("")}>
+              {addLabel}
+            </Button>
+          </div>
+        )}
+      </Form.List>
+    </Form.Item>
+  );
+}
+
+function actorFormFromDraft(actor: ReturnType<typeof createActorDraft>) {
+  return {
+    actorId: actor.actorId,
+    role: actor.role,
+    displayName: actor.displayName,
+    demeanor: actor.demeanor ?? "",
+    hiddenFacts: [],
+    touchResponses: [],
+  };
+}
+
+function structuredCloneScenario(scenario: Scenario): Scenario {
+  return JSON.parse(JSON.stringify(scenario)) as Scenario;
+}
