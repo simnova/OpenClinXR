@@ -2990,7 +2990,7 @@
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
     },
     {
-      "path": "tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-HANDOFF-2026-08-03.md",
+      "path": "tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",

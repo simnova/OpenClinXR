@@ -248,5 +248,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-HANDOFF-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
