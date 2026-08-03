@@ -70,6 +70,7 @@ def parse_cli() -> argparse.Namespace:
     ap.add_argument("--comfy-url", default="http://127.0.0.1:8188", help="ComfyUI server URL (used when --use-comfy)")
     ap.add_argument("--bake-textures", action="store_true", default=True, help="Always do a local procedural bake as fallback (safe, no external diffusion).")
     ap.add_argument("--hair-density", type=float, default=0.6, help="Simple scalar for hair density in the demo hair system / geo nodes.")
+    ap.add_argument("--skin-albedo-image", default=None, help="Optional seamless tileable skin-albedo PNG (e.g. RealVisXL output from realvisxl-skin-generate.ts). Wired as a glTF-safe Base Color IMAGE texture (survives export, unlike procedural node graphs). Guarded: missing/failed load leaves the solid factor intact.")
     ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (garment-hint-v1 aborted per chief/skeptic pivot 2026-06-07; Q1 violation, sub-pixel, no weights, no sleeve geo despite phenotype). Real garment now from phenotype.garmentLayers (e.g. short_sleeve_exam_tshirt) via expanded apply_role_clothing_material_regions (real torso+shoulder+upper-arm sleeve geo + vertex weights on clavicle/upper_arm for breathing deform). Flag kept for compat only; default OFF.")
     return ap.parse_args(argv)
 
@@ -907,6 +908,473 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     print(f"[blender] baked normal -> {normal_path}")
 
     return {"albedo": albedo_path, "rough": rough_path, "normal": normal_path}
+
+
+def bake_skin_surface_micro_detail_for_gltf(
+    mesh_obj: bpy.types.Object,
+    phenotype: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Bake procedural pore/dermal micro-relief to a packed normal-map image so glTF
+    export retains skin surface detail (procedural shader nodes are dropped by the
+    glTF exporter; image textures are not).
+
+    Guarded stage: any bake/setup failure logs a warning and leaves the current flat
+    material intact so export is never broken. Call after skin BSDF setup + UVs,
+    before glTF export.
+    """
+    result: Dict[str, Any] = {
+        "ok": False,
+        "baked": False,
+        "bakeType": None,
+        "imageName": None,
+        "resolution": 1024,
+        "packed": False,
+        "uvSource": None,
+        "claimScope": "procedural_skin_micro_detail_baked_normal_for_gltf_not_production_skin_scan",
+        "notEvidenceFor": [
+            "b_plus_visual_realism_gate",
+            "production_asset_readiness",
+            "clinical_validity",
+            "scoring_validity",
+        ],
+    }
+    phenotype = phenotype or {}
+    age_w = float(phenotype.get("age_wrinkle", 0.3))
+
+    scene = bpy.context.scene
+    prev_engine = getattr(scene.render, "engine", "BLENDER_EEVEE")
+    prev_samples = None
+    prev_denoise = None
+    prev_bake_type = None
+    prev_active = bpy.context.view_layer.objects.active
+    prev_selected = [obj for obj in bpy.context.selected_objects]
+    temp_node_names: List[str] = []
+    bake_img = None
+    mat = None
+    nt = None
+
+    def _tag(node: bpy.types.Node, suffix: str) -> bpy.types.Node:
+        node.name = f"openclinxr_skin_micro_{suffix}"
+        node.label = node.name
+        temp_node_names.append(node.name)
+        return node
+
+    def _find_skin_material() -> Optional[bpy.types.Material]:
+        mats = list(mesh_obj.data.materials) if mesh_obj.data.materials else []
+        for candidate in mats:
+            if candidate and candidate.name == "anny_generated_pbr":
+                return candidate
+        for candidate in mats:
+            if not candidate or not getattr(candidate, "use_nodes", False) or not candidate.node_tree:
+                continue
+            for node in candidate.node_tree.nodes:
+                if node.type == "BSDF_PRINCIPLED":
+                    return candidate
+        return None
+
+    def _ensure_uv_map() -> str:
+        me = mesh_obj.data
+        if me.uv_layers and len(me.uv_layers) > 0:
+            return "existing"
+        # Fallback: smart project so bake has a UV target.
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        mesh_obj.select_set(True)
+        bpy.context.view_layer.objects.active = mesh_obj
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        try:
+            bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+        except TypeError:
+            # Older Blender keyword variants.
+            bpy.ops.uv.smart_project()
+        bpy.ops.object.mode_set(mode="OBJECT")
+        if not me.uv_layers:
+            raise RuntimeError("smart UV project produced no UV layers")
+        return "smart_project_fallback"
+
+    def _find_bsdf(tree: bpy.types.NodeTree) -> Optional[bpy.types.Node]:
+        for node in tree.nodes:
+            if node.type == "BSDF_PRINCIPLED":
+                return node
+        return None
+
+    def _clear_normal_links(tree: bpy.types.NodeTree, bsdf_node: bpy.types.Node) -> None:
+        if "Normal" not in bsdf_node.inputs:
+            return
+        for link in list(bsdf_node.inputs["Normal"].links):
+            tree.links.remove(link)
+
+    def _remove_named_nodes(tree: bpy.types.NodeTree, names: List[str]) -> None:
+        for name in names:
+            node = tree.nodes.get(name)
+            if node is not None:
+                tree.nodes.remove(node)
+
+    def _remove_orphaned_procedural_detail(tree: bpy.types.NodeTree, keep: set) -> None:
+        # Drop prior pore/bump graph from add_simple_procedural_pbr_and_bake once baked.
+        removable_types = {
+            "TEX_NOISE",
+            "TEX_VORONOI",
+            "MIX_RGB",
+            "MIX",
+            "BUMP",
+            "VALTORGB",
+            "NORMAL_MAP",
+            "TEX_IMAGE",
+        }
+        # Only remove untagged image/normal_map if they are not the keep set.
+        changed = True
+        while changed:
+            changed = False
+            for node in list(tree.nodes):
+                if node in keep or node.name in {n.name for n in keep if hasattr(n, "name")}:
+                    continue
+                if node.name.startswith("openclinxr_skin_micro_"):
+                    continue
+                if node.type not in removable_types:
+                    continue
+                # Keep if any output still linked into a kept node (e.g. future graphs).
+                still_used = False
+                for out in node.outputs:
+                    for link in out.links:
+                        if link.to_node in keep:
+                            still_used = True
+                            break
+                    if still_used:
+                        break
+                if still_used:
+                    continue
+                # Prefer removing nodes with no users, or only feeding removed chain.
+                tree.nodes.remove(node)
+                changed = True
+
+    try:
+        if mesh_obj is None or mesh_obj.type != "MESH":
+            raise RuntimeError("bake_skin_surface_micro_detail_for_gltf requires a mesh object")
+
+        mat = _find_skin_material()
+        if mat is None:
+            raise RuntimeError("no skin/Principled BSDF material found on body mesh")
+        mat.use_nodes = True
+        nt = mat.node_tree
+        if nt is None:
+            raise RuntimeError("skin material has no node tree")
+
+        bsdf = _find_bsdf(nt)
+        if bsdf is None:
+            raise RuntimeError("skin material missing Principled BSDF")
+
+        # --- Cycles bake settings (restore in finally) ---
+        prev_samples = getattr(getattr(scene, "cycles", None), "samples", None)
+        prev_denoise = getattr(getattr(scene, "cycles", None), "use_denoising", None)
+        prev_bake_type = getattr(getattr(scene, "cycles", None), "bake_type", None)
+        scene.render.engine = "CYCLES"
+        if hasattr(scene, "cycles"):
+            scene.cycles.samples = 16
+            if hasattr(scene.cycles, "use_denoising"):
+                scene.cycles.use_denoising = False
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        mesh_obj.select_set(True)
+        bpy.context.view_layer.objects.active = mesh_obj
+
+        result["uvSource"] = _ensure_uv_map()
+
+        # --- Temporary procedural pore / dermal micro-relief graph ---
+        # High-frequency noise (pores) + finer Voronoi/noise mix → Bump → BSDF Normal.
+        tex_coord = _tag(nt.nodes.new("ShaderNodeTexCoord"), "texcoord")
+        mapping = _tag(nt.nodes.new("ShaderNodeMapping"), "mapping")
+        nt.links.new(tex_coord.outputs["UV"], mapping.inputs["Vector"])
+
+        noise_pores = _tag(nt.nodes.new("ShaderNodeTexNoise"), "noise_pores")
+        noise_pores.inputs["Scale"].default_value = 180.0
+        noise_pores.inputs["Detail"].default_value = 12.0
+        noise_pores.inputs["Roughness"].default_value = 0.72
+        if "Distortion" in noise_pores.inputs:
+            noise_pores.inputs["Distortion"].default_value = 0.15
+        nt.links.new(mapping.outputs["Vector"], noise_pores.inputs["Vector"])
+
+        voronoi_dermal = _tag(nt.nodes.new("ShaderNodeTexVoronoi"), "voronoi_dermal")
+        voronoi_dermal.inputs["Scale"].default_value = 95.0 + age_w * 20.0
+        if "Randomness" in voronoi_dermal.inputs:
+            voronoi_dermal.inputs["Randomness"].default_value = 0.85
+        nt.links.new(mapping.outputs["Vector"], voronoi_dermal.inputs["Vector"])
+
+        noise_fine = _tag(nt.nodes.new("ShaderNodeTexNoise"), "noise_fine")
+        noise_fine.inputs["Scale"].default_value = 320.0
+        noise_fine.inputs["Detail"].default_value = 8.0
+        noise_fine.inputs["Roughness"].default_value = 0.55
+        nt.links.new(mapping.outputs["Vector"], noise_fine.inputs["Vector"])
+
+        # MixRGB / Mix (ShaderNodeMix in 4.x) compatibility.
+        try:
+            mix_mid = _tag(nt.nodes.new("ShaderNodeMixRGB"), "mix_dermal")
+            mix_mid.blend_type = "MIX"
+            mix_mid.inputs["Fac"].default_value = 0.45
+            fac_in, c1, c2, mix_out = "Fac", "Color1", "Color2", "Color"
+        except Exception:
+            mix_mid = _tag(nt.nodes.new("ShaderNodeMix"), "mix_dermal")
+            if hasattr(mix_mid, "data_type"):
+                mix_mid.data_type = "FLOAT"
+            fac_in, c1, c2, mix_out = "Factor", "A", "B", "Result"
+            if fac_in in mix_mid.inputs:
+                mix_mid.inputs[fac_in].default_value = 0.45
+
+        voronoi_fac = "Distance" if "Distance" in voronoi_dermal.outputs else (
+            "Fac" if "Fac" in voronoi_dermal.outputs else voronoi_dermal.outputs[0].name
+        )
+        nt.links.new(voronoi_dermal.outputs[voronoi_fac], mix_mid.inputs[c1])
+        nt.links.new(noise_fine.outputs["Fac"], mix_mid.inputs[c2])
+
+        try:
+            mix_pores = _tag(nt.nodes.new("ShaderNodeMixRGB"), "mix_pores")
+            mix_pores.blend_type = "MIX"
+            mix_pores.inputs["Fac"].default_value = 0.62
+            p_fac, p_c1, p_c2, p_out = "Fac", "Color1", "Color2", "Color"
+        except Exception:
+            mix_pores = _tag(nt.nodes.new("ShaderNodeMix"), "mix_pores")
+            if hasattr(mix_pores, "data_type"):
+                mix_pores.data_type = "FLOAT"
+            p_fac, p_c1, p_c2, p_out = "Factor", "A", "B", "Result"
+            if p_fac in mix_pores.inputs:
+                mix_pores.inputs[p_fac].default_value = 0.62
+
+        nt.links.new(noise_pores.outputs["Fac"], mix_pores.inputs[p_c1])
+        nt.links.new(mix_mid.outputs[mix_out], mix_pores.inputs[p_c2])
+
+        bump = _tag(nt.nodes.new("ShaderNodeBump"), "bump")
+        bump.inputs["Strength"].default_value = 0.035 + age_w * 0.015
+        if "Distance" in bump.inputs:
+            bump.inputs["Distance"].default_value = 0.008
+        nt.links.new(mix_pores.outputs[p_out], bump.inputs["Height"])
+
+        # Replace any prior Normal link with temporary procedural bump for bake.
+        _clear_normal_links(nt, bsdf)
+        nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+        # Bake target image + Image Texture node (must be selected/active for bake).
+        res = 1024
+        img_name = "openclinxr_skin_micro_normal"
+        if img_name in bpy.data.images:
+            bake_img = bpy.data.images[img_name]
+            bake_img.scale(res, res)
+        else:
+            bake_img = bpy.data.images.new(img_name, width=res, height=res, alpha=True, float_buffer=False)
+        bake_img.colorspace_settings.name = "Non-Color"
+        bake_img.generated_color = (0.5, 0.5, 1.0, 1.0)
+
+        # Image Texture is the durable bake target — do NOT tag as temp (must survive cleanup).
+        img_tex = nt.nodes.new("ShaderNodeTexImage")
+        img_tex.name = "openclinxr_skin_micro_normal_tex"
+        img_tex.label = "Skin Micro Normal (baked)"
+        img_tex.image = bake_img
+        img_tex.interpolation = "Smart"
+        img_tex.location = (-900, -200)
+
+        for node in nt.nodes:
+            node.select = False
+        img_tex.select = True
+        nt.nodes.active = img_tex
+
+        # Bake settings (tangent-space normal preferred).
+        if hasattr(scene.render, "bake"):
+            bake_settings = scene.render.bake
+            if hasattr(bake_settings, "normal_space"):
+                bake_settings.normal_space = "TANGENT"
+            if hasattr(bake_settings, "use_selected_to_active"):
+                bake_settings.use_selected_to_active = False
+            if hasattr(bake_settings, "margin"):
+                bake_settings.margin = 4
+            if hasattr(bake_settings, "use_clear"):
+                bake_settings.use_clear = True
+
+        bake_type_used = None
+        bake_error: Optional[str] = None
+
+        # Prefer NORMAL bake (tangent-space map from procedural bump).
+        try:
+            if hasattr(scene, "cycles"):
+                scene.cycles.bake_type = "NORMAL"
+            bpy.ops.object.bake(type="NORMAL", use_clear=True)
+            bake_type_used = "NORMAL"
+        except Exception as normal_exc:
+            bake_error = f"NORMAL bake failed: {normal_exc}"
+            print(f"[blender] WARNING: skin micro-detail NORMAL bake failed ({normal_exc}); trying EMIT fallback")
+            # EMIT fallback: emit procedural height as grayscale, bake EMIT.
+            try:
+                emit = _tag(nt.nodes.new("ShaderNodeEmission"), "emit_fallback")
+                # Grayscale height → emission color.
+                nt.links.new(mix_pores.outputs[p_out], emit.inputs["Color"])
+                if "Strength" in emit.inputs:
+                    emit.inputs["Strength"].default_value = 1.0
+                out_node = None
+                for node in nt.nodes:
+                    if node.type == "OUTPUT_MATERIAL":
+                        out_node = node
+                        break
+                if out_node is None:
+                    out_node = nt.nodes.new("ShaderNodeOutputMaterial")
+                # Temporarily drive surface from emission for EMIT bake.
+                for link in list(out_node.inputs["Surface"].links):
+                    nt.links.remove(link)
+                nt.links.new(emit.outputs["Emission"], out_node.inputs["Surface"])
+
+                for node in nt.nodes:
+                    node.select = False
+                img_tex.select = True
+                nt.nodes.active = img_tex
+
+                if hasattr(scene, "cycles"):
+                    scene.cycles.bake_type = "EMIT"
+                bpy.ops.object.bake(type="EMIT", use_clear=True)
+                bake_type_used = "EMIT"
+
+                # Restore Principled surface link.
+                for link in list(out_node.inputs["Surface"].links):
+                    nt.links.remove(link)
+                nt.links.new(bsdf.outputs["BSDF"], out_node.inputs["Surface"])
+            except Exception as emit_exc:
+                bake_error = f"{bake_error}; EMIT bake failed: {emit_exc}"
+                raise RuntimeError(bake_error) from emit_exc
+
+        # Pack so glTF/GLB export embeds the image bytes.
+        try:
+            bake_img.pack()
+        except TypeError:
+            # Some Blender versions accept as_png=
+            try:
+                bake_img.pack(as_png=True)
+            except Exception:
+                bake_img.pack()
+        result["packed"] = True
+        result["imageName"] = bake_img.name
+        result["bakeType"] = bake_type_used
+
+        # --- Final glTF-safe wiring: Image Texture → Normal Map → BSDF Normal ---
+        # Drop temporary procedural nodes first so only the baked image path remains.
+        _clear_normal_links(nt, bsdf)
+        _remove_named_nodes(nt, list(temp_node_names))
+        temp_node_names.clear()
+
+        # Non-color for normal/height data.
+        try:
+            bake_img.colorspace_settings.name = "Non-Color"
+        except Exception:
+            pass
+
+        # Ensure bake target image texture still present after temp cleanup.
+        img_tex = nt.nodes.get("openclinxr_skin_micro_normal_tex")
+        if img_tex is None:
+            img_tex = nt.nodes.new("ShaderNodeTexImage")
+            img_tex.name = "openclinxr_skin_micro_normal_tex"
+            img_tex.label = "Skin Micro Normal (baked)"
+        img_tex.image = bake_img
+
+        if bake_type_used == "NORMAL":
+            nmap = nt.nodes.new("ShaderNodeNormalMap")
+            nmap.name = "openclinxr_skin_micro_normal_map"
+            nmap.label = "Skin Micro Normal Map"
+            if "Strength" in nmap.inputs:
+                nmap.inputs["Strength"].default_value = 0.85 + min(0.25, age_w * 0.2)
+            nt.links.new(img_tex.outputs["Color"], nmap.inputs["Color"])
+            nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+            keep_nodes = {bsdf, img_tex, nmap}
+        else:
+            # EMIT height map → Bump as best-effort (Normal Map would misread grayscale height).
+            final_bump = nt.nodes.new("ShaderNodeBump")
+            final_bump.name = "openclinxr_skin_micro_bump_from_emit"
+            final_bump.label = "Skin Micro Bump (EMIT bake)"
+            final_bump.inputs["Strength"].default_value = 0.04 + age_w * 0.015
+            nt.links.new(img_tex.outputs["Color"], final_bump.inputs["Height"])
+            nt.links.new(final_bump.outputs["Normal"], bsdf.inputs["Normal"])
+            keep_nodes = {bsdf, img_tex, final_bump}
+
+        for node in nt.nodes:
+            if node.type == "OUTPUT_MATERIAL":
+                keep_nodes.add(node)
+
+        # Remove untagged leftover noise/bump from the earlier PBR stage that no longer feed Normal.
+        try:
+            _remove_orphaned_procedural_detail(nt, keep_nodes)
+        except Exception as cleanup_exc:
+            print(f"[blender] WARNING: skin micro-detail node cleanup partial: {cleanup_exc}")
+
+        # Re-assert final links after orphan cleanup.
+        img_tex = nt.nodes.get("openclinxr_skin_micro_normal_tex") or img_tex
+        if bake_type_used == "NORMAL":
+            nmap = nt.nodes.get("openclinxr_skin_micro_normal_map")
+            if nmap is not None and img_tex is not None:
+                if not nmap.inputs["Color"].links:
+                    nt.links.new(img_tex.outputs["Color"], nmap.inputs["Color"])
+                if "Normal" in bsdf.inputs and not bsdf.inputs["Normal"].links:
+                    nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+        else:
+            fb = nt.nodes.get("openclinxr_skin_micro_bump_from_emit")
+            if fb is not None and img_tex is not None:
+                if not fb.inputs["Height"].links:
+                    nt.links.new(img_tex.outputs["Color"], fb.inputs["Height"])
+                if "Normal" in bsdf.inputs and not bsdf.inputs["Normal"].links:
+                    nt.links.new(fb.outputs["Normal"], bsdf.inputs["Normal"])
+
+        result["ok"] = True
+        result["baked"] = True
+        print(
+            f"[blender] skin micro-detail baked ({bake_type_used}) -> "
+            f"image={bake_img.name} {res}x{res} packed={result['packed']} uv={result['uvSource']}"
+        )
+        return result
+
+    except Exception as exc:
+        print(f"[blender] WARNING: skin surface micro-detail bake skipped (export continues with flat material): {exc}")
+        result["ok"] = False
+        result["baked"] = False
+        result["error"] = str(exc)
+        # Best-effort: disconnect temp nodes so material stays export-safe.
+        try:
+            if nt is not None:
+                _remove_named_nodes(nt, list(temp_node_names))
+                bsdf_safe = _find_bsdf(nt)
+                if bsdf_safe is not None:
+                    # Leave Normal unconnected (flat) rather than dangling temp links.
+                    pass
+        except Exception:
+            pass
+        return result
+
+    finally:
+        # Restore render engine / bake settings and selection.
+        try:
+            scene.render.engine = prev_engine
+        except Exception:
+            pass
+        try:
+            if hasattr(scene, "cycles"):
+                if prev_samples is not None:
+                    scene.cycles.samples = prev_samples
+                if prev_denoise is not None and hasattr(scene.cycles, "use_denoising"):
+                    scene.cycles.use_denoising = prev_denoise
+                if prev_bake_type is not None and hasattr(scene.cycles, "bake_type"):
+                    scene.cycles.bake_type = prev_bake_type
+        except Exception:
+            pass
+        try:
+            bpy.ops.object.mode_set(mode="OBJECT")
+        except Exception:
+            pass
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in prev_selected:
+                try:
+                    obj.select_set(True)
+                except Exception:
+                    pass
+            if prev_active is not None:
+                bpy.context.view_layer.objects.active = prev_active
+        except Exception:
+            pass
 
 
 def mesh_world_bounds(mesh_obj: bpy.types.Object) -> Dict[str, float]:
@@ -1998,6 +2466,11 @@ def main() -> None:
     scalp_hair_material_region = apply_mesh_native_scalp_hair_material_region(mesh_obj, phenotype)
     print("[blender] finalizing body mesh shading + light density (shade-smooth / subsurf L1 / weighted normal)")
     body_shading_density = finalize_body_mesh_shading_and_density(mesh_obj)
+    # Bake procedural pore/dermal micro-relief to a packed normal image so glTF export
+    # retains skin surface detail (procedural nodes are dropped by the exporter).
+    # Guarded: failure logs a warning and continues with the current material.
+    print("[blender] baking skin surface micro-detail normal map for glTF (Cycles, packed image)")
+    skin_micro_detail_bake = bake_skin_surface_micro_detail_for_gltf(mesh_obj, phenotype)
     morph_diagnostics = morph_target_diagnostics(mesh_obj)
     body_diagnostics = body_rig_diagnostics(mesh_obj, arm_obj, animation_clips, args.actor_role)
 
@@ -2079,7 +2552,8 @@ def main() -> None:
             "maps": ["albedo","roughness","normal","metallic","specular","ao"],
             "baked": True,
             "resolution": 1024,
-            "packedInGlb": True
+            "packedInGlb": True,
+            "skinMicroDetail": skin_micro_detail_bake,
         },
         "animationClips": {
             "count": len(animation_clips),
