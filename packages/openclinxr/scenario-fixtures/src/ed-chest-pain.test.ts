@@ -65,10 +65,10 @@ describe("ED chest pain fixture", () => {
       expect(byRegion[region]?.emotionEventId).toBeTruthy();
     }
     // RLQ maximal (lowest force threshold = most sensitive / rebound-style guarding).
-    const rlq = byRegion.abdomen_rlq!;
-    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_ruq!.forceThreshold);
-    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_luq!.forceThreshold);
-    expect(rlq.forceThreshold).toBeLessThan(byRegion.abdomen_llq!.forceThreshold);
+    const rlq = byRegion["abdomen_rlq"]!;
+    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_ruq"]!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_luq"]!.forceThreshold);
+    expect(rlq.forceThreshold).toBeLessThan(byRegion["abdomen_llq"]!.forceThreshold);
     expect(rlq.emotion).toBe("pain");
     expect(rlq.traceTag).toBe("clinical_touch_guard_rlq");
     // Additive + optional: actors without bodyMechanics remain valid.
