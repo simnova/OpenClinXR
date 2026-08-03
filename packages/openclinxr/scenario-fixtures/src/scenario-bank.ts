@@ -157,6 +157,23 @@ export const pediatricAsthmaScenario: Scenario = {
         culturalLanguageNotes: ["child-centered language", "plain English", "ask permission before exam steps"],
       },
       hiddenFacts: ["Rescue inhaler ran out yesterday", "Symptoms worsened after visiting a relative with cats"],
+      // Animation-driven clinical-touch interaction (notEvidenceFor clinical validity):
+      // RLQ abdomen touch produces guarding withdraw + pain transition + reflexive dialogue.
+      bodyMechanics: {
+        habitus: "average",
+        touchResponses: [
+          {
+            region: "abdomen_rlq",
+            responseKind: "guarding",
+            forceThreshold: 0.4,
+            emotionEventId: "guard_rlq_v1",
+            emotion: "pain",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "Ow— that hurts, please don't push there.",
+            traceTag: "clinical_touch_guard_rlq",
+          },
+        ],
+      },
     },
     {
       actorId: "parent_tara_johnson_v1",

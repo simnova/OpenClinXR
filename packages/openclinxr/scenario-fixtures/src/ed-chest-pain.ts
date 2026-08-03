@@ -48,21 +48,20 @@ export const edChestPainScenario: Scenario = {
       },
       hiddenFacts: ["Pain started while walking upstairs", "Father died of myocardial infarction at 54"],
       // Animation-driven clinical-touch interaction (notEvidenceFor clinical validity):
-      // palpating the right chest wall reproduces guarding + a pain-emotion transition +
-      // reflexive dialogue. Region vocabulary mirrors physics-touch-contract; this same
-      // config later drives live physics behind the identical trigger.
+      // RLQ abdomen palpation produces guarding/withdraw + pain emotion + reflexive dialogue.
+      // Region vocabulary mirrors physics-touch-contract; same config can later drive live physics.
       bodyMechanics: {
         habitus: "average",
         touchResponses: [
           {
-            region: "chest_R",
+            region: "abdomen_rlq",
             responseKind: "guarding",
             forceThreshold: 0.4,
-            emotionEventId: "guard_chest_r_v1",
+            emotionEventId: "guard_rlq_v1",
             emotion: "pain",
-            responseClip: "openclinxr_role_patient_guard_withdraw",
-            dialogueLine: "Ah— that's the spot, please, go easy there.",
-            traceTag: "physical_exam_chest_palpation",
+            responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+            dialogueLine: "Ow— that hurts, please don't push there.",
+            traceTag: "clinical_touch_guard_rlq",
           },
         ],
       },

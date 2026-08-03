@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.clinical-touch-smoke.v1",
-  "generatedAt": "2026-08-03T17:39:57.397Z",
+  "generatedAt": "2026-08-03T22:16:05.729Z",
   "claimScope": "animation_interaction_response_not_clinical_validity",
   "providerBoundary": {
     "localOnly": true,
@@ -10,23 +10,32 @@
   "input": {
     "scenarioId": "ed_chest_pain_priority_v1",
     "comparator": "ed_anny_real_garment_patient",
-    "region": "chest_R"
+    "region": "abdomen_rlq",
+    "port": 5288,
+    "runId": "2026-08-03T22-15-56-419Z"
+  },
+  "expectedEvidenceShape": {
+    "region": "string",
+    "clipPlayed": "boolean",
+    "emotion": "string",
+    "dialogueFired": "boolean",
+    "traceTag": "string"
   },
   "evidence": {
     "schemaVersion": "openclinxr.clinical-touch.v1",
     "actorId": "patient_robert_hayes_v1",
-    "region": "chest_R",
+    "region": "abdomen_rlq",
     "responseKind": "guarding",
-    "responseClip": "openclinxr_role_patient_guard_withdraw",
+    "responseClip": "openclinxr_role_patient_guard_withdraw_rlq",
     "clipPlayed": true,
     "emotion": "pain",
     "emotionTransitioned": true,
     "dialogueFired": true,
-    "dialogueLine": "Ah— that's the spot, please, go easy there.",
-    "traceTag": "physical_exam_chest_palpation",
+    "dialogueLine": "Ow— that hurts, please don't push there.",
+    "traceTag": "clinical_touch_guard_rlq",
     "traceEventType": "clinical.touch.guarding",
     "source": "dom_click_trace_button",
-    "atMs": 3609.1,
+    "atMs": 5631.8,
     "notEvidenceFor": [
       "clinical_validity",
       "exam_equivalence",
@@ -35,7 +44,8 @@
     ]
   },
   "pageErrors": [],
-  "evidenceDir": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-39-50-750Z",
+  "screenshotPath": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-15-56-419Z/rlq-guard-wince.png",
+  "evidenceDir": ".openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-15-56-419Z",
   "verdict": {
     "passed": true,
     "blockers": []

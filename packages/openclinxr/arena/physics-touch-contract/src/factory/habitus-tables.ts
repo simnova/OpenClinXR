@@ -91,6 +91,8 @@ export type JointLimitTable = Record<HabitusJoint, JointLimit>;
 
 /**
  * Per-contact-region guarding trigger lookup.
+ * Optional interaction fields align with shared-schemas TouchResponse so
+ * habitus tables can later drive clip/dialogue/trace without clinical claims.
  */
 export type GuardingTriggerEntry = {
   /** Contact region triggering guarding. */
@@ -99,6 +101,14 @@ export type GuardingTriggerEntry = {
   forceThreshold: number;
   /** Response strength multiplier (0-1, higher = stiffer guarding). */
   responseStrength: number;
+  /** Optional emotion-event id for expression/runtime transition. */
+  emotionEventId?: string;
+  /** Optional animation clip id played on trigger. */
+  responseClip?: string;
+  /** Optional actor dialogue line spoken on trigger. */
+  dialogueLine?: string;
+  /** Optional trace tag recorded for review/replay (not clinical validity). */
+  traceTag?: string;
 };
 
 // ---------------------------------------------------------------------------

@@ -504,6 +504,37 @@ describe("OpenClinXR shared schemas", () => {
       displayName: "Maria Alvarez",
       communicationProfile,
     }).ok).toBe(true);
+    // Additive optional bodyMechanics: abdomen_rlq clinical-touch response (not clinical validity).
+    expect(
+      validateActorCard({
+        actorId: "patient_robert_hayes_v1",
+        role: "patient",
+        displayName: "Robert Hayes",
+        bodyMechanics: {
+          habitus: "average",
+          touchResponses: [
+            {
+              region: "abdomen_rlq",
+              responseKind: "guarding",
+              forceThreshold: 0.4,
+              emotionEventId: "guard_rlq_v1",
+              emotion: "pain",
+              responseClip: "openclinxr_role_patient_guard_withdraw_rlq",
+              dialogueLine: "Ow— that hurts, please don't push there.",
+              traceTag: "clinical_touch_guard_rlq",
+            },
+          ],
+        },
+      }).ok,
+    ).toBe(true);
+    // Actors without bodyMechanics remain valid (optional field).
+    expect(
+      validateActorCard({
+        actorId: "patient_no_touch_v1",
+        role: "patient",
+        displayName: "No Touch Patient",
+      }).ok,
+    ).toBe(true);
     expect(validateActorCard({ actorId: "neurology_consultant_phone_v1", role: "consultant", displayName: "Neurology Consultant" }).ok).toBe(true);
     expect(validateActorCard({ actorId: "remote_interpreter_tablet_v1", role: "interpreter", displayName: "Remote Interpreter" }).ok).toBe(true);
     expect(validateActorCard({ actorId: "medical_assistant_jones_v1", role: "medical_assistant", displayName: "Medical Assistant Jones" }).ok).toBe(true);

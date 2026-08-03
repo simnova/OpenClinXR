@@ -47,11 +47,14 @@ describe("ED chest pain fixture", () => {
     const patient = edChestPainScenario.actors.find((actor) => actor.actorId === "patient_robert_hayes_v1");
     expect(patient?.bodyMechanics?.touchResponses.length).toBe(1);
     const guard = patient?.bodyMechanics?.touchResponses[0];
-    expect(guard?.region).toBe("chest_R");
+    expect(guard?.region).toBe("abdomen_rlq");
     expect(guard?.responseKind).toBe("guarding");
+    expect(guard?.forceThreshold).toBe(0.4);
+    expect(guard?.emotionEventId).toBe("guard_rlq_v1");
     expect(guard?.emotion).toBe("pain");
-    expect(guard?.responseClip).toBe("openclinxr_role_patient_guard_withdraw");
-    expect(guard?.traceTag).toBe("physical_exam_chest_palpation");
+    expect(guard?.responseClip).toBe("openclinxr_role_patient_guard_withdraw_rlq");
+    expect(guard?.dialogueLine).toBeTruthy();
+    expect(guard?.traceTag).toBe("clinical_touch_guard_rlq");
     // Additive + optional: actors without bodyMechanics remain valid.
     const nurse = edChestPainScenario.actors.find((actor) => actor.role === "nurse");
     expect(nurse?.bodyMechanics).toBeUndefined();

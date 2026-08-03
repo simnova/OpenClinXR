@@ -1754,8 +1754,12 @@ export function eventTypeForTraceTag(tag: string): string {
     family_communication: "learner.family",
     empathy_statement: "learner.empathy",
     patient_note_submitted: "learner.note",
+    clinical_touch_guard_rlq: "clinical.touch.guarding",
+    physical_exam_chest_palpation: "clinical.touch.guarding",
   };
   if (eventTypes[tag]) return eventTypes[tag];
+  // Animation-driven clinical-touch tags surface as clinical.touch.* for faculty review (not scoring).
+  if (/^clinical_touch_|guard_rlq|physical_exam_/i.test(tag)) return "clinical.touch.guarding";
   if (/history|trigger|inhaler|medication|symptom|question|known_well/i.test(tag)) return "learner.history";
   if (/assessment|exam|work_of_breathing|neuro|orientation/i.test(tag)) return "learner.exam";
   if (/oxygen|bronchodilator|plan|order|request|activation/i.test(tag)) return "learner.order";

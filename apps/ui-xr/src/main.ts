@@ -3568,10 +3568,15 @@ function createStationScene(): StationSceneRuntime {
         now,
         controllerInputActive: locomotionEvidence.inputSourceKinds?.includes("xr_gamepad") === true,
         isFullVrPresenting: () => Boolean(activeXrSession && renderer.xr.isPresenting),
-        onSelect: () => completeNextTraceActionFromXrSelect(
-          () => Boolean(activeXrSession && renderer.xr.isPresenting),
-          "xr_hand_select",
-        ),
+        onSelect: () => {
+          // XR hand pose ray (wrist → index tip): hit body region → clinical touch;
+          // miss → fall through to normal trace advance.
+          if (tryClinicalTouchFromHandPose(renderer, "xr_hand_select")) return true;
+          return completeNextTraceActionFromXrSelect(
+            () => Boolean(activeXrSession && renderer.xr.isPresenting),
+            "xr_hand_select",
+          );
+        },
       }),
     };
     recordHandSelectTraceInteractionDetail(inputEvidence.xrHandSelectState, now);
@@ -6406,16 +6411,59 @@ function tryClinicalTouchFromControllerEvent(
   return tryClinicalTouchFromWorldRay(origin, direction, source);
 }
 
+/** XR hand pose ray: origin at wrist, direction through index-finger tip. */
+function tryClinicalTouchFromHandPose(
+  renderer: WebGLRenderer,
+  source: OpenClinXrTraceLatencyEvidence["source"],
+): boolean {
+  const hand = renderer.xr.getHand(1) as XrHandGroup;
+  const wrist = hand?.joints?.wrist;
+  const indexTip = hand?.joints?.["index-finger-tip"];
+  if (!wrist?.visible || !indexTip?.visible) return false;
+  wrist.updateWorldMatrix(true, false);
+  indexTip.updateWorldMatrix(true, false);
+  const origin = new Vector3().setFromMatrixPosition(wrist.matrixWorld);
+  const tip = new Vector3().setFromMatrixPosition(indexTip.matrixWorld);
+  const direction = tip.sub(origin);
+  if (direction.lengthSq() < 1e-8) return false;
+  return tryClinicalTouchFromWorldRay(origin, direction.normalize(), source);
+}
+
 function playOneShotResponseClip(actorId: string, clipName: string): boolean {
   const slot = generatedHumanoidAnimationSlotsByActorId.get(actorId);
   if (!slot?.mixer || !slot.responseClips) return false;
   const clip = slot.responseClips.find((candidate) => candidate.name === clipName);
   if (!clip) return false;
-  const action = slot.mixer.clipAction(clip);
+  const mixer = slot.mixer;
+  const action = mixer.clipAction(clip);
   action.stop();
   action.reset();
   action.setLoop(LoopOnce, 1);
-  action.clampWhenFinished = false;
+  action.clampWhenFinished = true;
+  action.enabled = true;
+  action.setEffectiveWeight(1);
+
+  // Pause looping role/idle actions while the one-shot response plays.
+  const responseClipNames = new Set(clinicalTouchResponseClipNamesForActor(actorId));
+  const idleActions: ReturnType<AnimationMixer["clipAction"]>[] = [];
+  for (const other of slot.responseClips) {
+    if (other.name === clipName || responseClipNames.has(other.name)) continue;
+    const otherAction = mixer.existingAction(other);
+    if (otherAction?.isRunning()) {
+      otherAction.fadeOut(0.1);
+      idleActions.push(otherAction);
+    }
+  }
+
+  const onFinished = (event: { action?: ReturnType<AnimationMixer["clipAction"]> }) => {
+    if (event.action !== action) return;
+    mixer.removeEventListener("finished", onFinished as (e: unknown) => void);
+    action.fadeOut(0.12);
+    for (const idle of idleActions) {
+      idle.reset().fadeIn(0.18).play();
+    }
+  };
+  mixer.addEventListener("finished", onFinished as (e: unknown) => void);
   action.play();
   return true;
 }
@@ -7254,8 +7302,13 @@ function registerGeneratedHumanoidAnimation(input: {
   fixedSourcePoseSampleSeconds: number | null;
 }): void {
   const mixer = input.playbackEnabled && input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
+  // Response clips are registered on roleAnimationClipNames for discoverability but must not
+  // auto-loop as role idle — they are one-shot via handleClinicalTouch / respondToTouch.
+  const oneShotResponseClipNames = new Set(clinicalTouchResponseClipNamesForActor(input.actorId));
   const selectedRoleClips = input.animationClips.filter((clip): clip is AnimationClip =>
-    clip instanceof AnimationClip && input.roleAnimationClipNames.includes(clip.name)
+    clip instanceof AnimationClip
+    && input.roleAnimationClipNames.includes(clip.name)
+    && !oneShotResponseClipNames.has(clip.name)
   );
   const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
@@ -9708,8 +9761,31 @@ function formatActorPlayerRuntimeMetadataSummary(
   ].join(" | ");
 }
 
+/**
+ * Case-driven one-shot response clip names (bodyMechanics.touchResponses.responseClip).
+ * Registered alongside role clips for discoverability; played only via handleClinicalTouch.
+ */
+function clinicalTouchResponseClipNamesForActor(actorId: string): string[] {
+  const scenario =
+    scenarioBank.find((candidate) => candidate.scenarioId === selectedScenarioId()) ?? edChestPainScenario;
+  const actor = scenario.actors.find((candidate) => candidate.actorId === actorId);
+  const responses = actor?.bodyMechanics?.touchResponses ?? [];
+  return responses.map((response) => response.responseClip).filter((name): name is string => Boolean(name));
+}
+
 function roleAnimationClipNamesForActor(actorId: string): string[] {
-  return window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)?.roleAnimationClipNames ?? [];
+  const fromMetadata =
+    window.__openClinXrActorPlayerRuntimeMetadataSummary?.actorSummaries.find((actor) => actor.actorId === actorId)
+      ?.roleAnimationClipNames ?? [];
+  // ED / non-peds paths have no actor-player metadata; keep a stable idle clip so we do not
+  // auto-play every GLB animation (including the guard/withdraw one-shot) as role idle.
+  const base =
+    fromMetadata.length > 0
+      ? fromMetadata
+      : ["openclinxr_clinical_idle_breathing", "openclinxr_conversation_listen_nod"];
+  // Register clinical-touch response clips here (discoverable via roleAnimationClipNamesForActor);
+  // registerGeneratedHumanoidAnimation excludes them from auto-loop playback.
+  return [...new Set([...base, ...clinicalTouchResponseClipNamesForActor(actorId)])];
 }
 
 function formatLocomotionDiagnosticSummary(
