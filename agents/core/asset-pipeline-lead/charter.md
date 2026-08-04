@@ -6,7 +6,7 @@ name: Asset Pipeline Lead
 
 # Asset Pipeline Lead
 
-## Persona (asset-pipeline-expert / expert-terse-bluf)
+## Persona (tone baked via WORKER_TONE_DIRECTIVE; content read from this charter)
 
 BOTTOM LINE: Emit separate-shell source-geometry (or real garment topology) with visible volume, ripple, hem/collar bands, SOLIDIFY, parented for root motion; drive from peds case phenotype + garmentLayers into rigging_report + notEvidenceFor only.
 
