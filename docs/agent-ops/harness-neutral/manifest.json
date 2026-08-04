@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "maxNestingDepth": 1,
+  "generatedFrom": "packages/openclinxr/agent-loop/src/role-harness-policy.ts",
+  "roles": [
+    {
+      "name": "architect",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "packages/cellix/**",
+        "packages/openclinxr/architecture-rules/**",
+        "packages/openclinxr/config-rolldown/**",
+        "docs/agent-ops/COMPOSITION-ROOTS.md",
+        "docs/madr/**",
+        "agents/core/architect/**"
+      ]
+    },
+    {
+      "name": "archivist",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        ".openclinxr/docs-archive/**",
+        "agents/coordinator/archivist/**"
+      ]
+    },
+    {
+      "name": "asset-pipeline-lead",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "tools/openclinxr/asset-pipeline/**",
+        "apps/arena/model-vetting-studio/**",
+        "tools/openclinxr/evidence/**",
+        "docs/assets/**"
+      ]
+    },
+    {
+      "name": "chief-coordinator",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "PROJECT_STATUS.md",
+        "README.md",
+        "docs/index.html",
+        "docs/styles.css",
+        "docs/agent-ops/**",
+        "docs/openclinxr/worker-backlog-and-validation-matrix.md",
+        "operator-*.md",
+        ".openclinxr/slices/**",
+        ".openclinxr/epics/**",
+        "agents/coordinator/chief-coordinator/**",
+        "tools/openclinxr/openclaw/**"
+      ]
+    },
+    {
+      "name": "clinical-safety-critic",
+      "tier": "expert_review",
+      "effort": "high",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/adversarial/clinical-safety-critic/**"
+      ]
+    },
+    {
+      "name": "hrbp",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "docs/agent-ops/**",
+        "README.md",
+        ".grok/agents/**",
+        ".grok/personas/**",
+        ".grok/roles/**",
+        "agents/**/charter.md",
+        "agents/**/memory.md"
+      ]
+    },
+    {
+      "name": "implementation-plan-gap-attacker",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/adversarial/implementation-plan-gap-attacker/**"
+      ]
+    },
+    {
+      "name": "implementation-planning-lead",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "docs/openclinxr/**",
+        "agents/core/implementation-planning-lead/**",
+        "packages/openclinxr/scenario-runtime/**",
+        "packages/openclinxr/review-workflow/**",
+        "packages/openclinxr/shared-schemas/**",
+        "packages/openclinxr/exam-assembly/**",
+        "tools/openclinxr/**",
+        "apps/ui-admin/**"
+      ]
+    },
+    {
+      "name": "license-provenance-specialist",
+      "tier": "expert_review",
+      "effort": "high",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/legal/**",
+        "docs/**",
+        "tools/**"
+      ]
+    },
+    {
+      "name": "openclaw-drift-police",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "docs/openclinxr/**",
+        ".openclinxr/**",
+        "agents/adversarial/openclaw-drift-police/**"
+      ]
+    },
+    {
+      "name": "pediatrics-physician",
+      "tier": "expert_review",
+      "effort": "high",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/physicians/**",
+        "packages/openclinxr/scenario-fixtures/**"
+      ]
+    },
+    {
+      "name": "pmo",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "docs/agent-ops/DOC-HYGIENE-CADENCE.md",
+        "docs/agent-ops/REVISION-INDEX.md",
+        "docs/agent-ops/DOC-WAREHOUSE.md",
+        "docs/agent-ops/TEMPORAL-DECISIONS.md",
+        "docs/agent-ops/temporal-decisions-catalog.json",
+        "docs/agent-ops/temporal-review-queue.md",
+        ".openclinxr/docs-hygiene/**",
+        ".openclinxr/temporal-review/**",
+        "agents/coordinator/pmo/**",
+        "tooling/scripts/docs-hygiene-weekly.sh",
+        ".grok/hooks/session-start-docs-hygiene.json"
+      ]
+    },
+    {
+      "name": "productivity-skeptic",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/adversarial/productivity-skeptic/**"
+      ]
+    },
+    {
+      "name": "rigging-animation-specialist",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "tools/openclinxr/asset-pipeline/**",
+        "tools/openclinxr/evidence/**"
+      ]
+    },
+    {
+      "name": "visual-realism-adversary",
+      "tier": "fast_bounded",
+      "effort": "low",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/adversarial/visual-realism-adversary/**"
+      ]
+    },
+    {
+      "name": "vp-engineering-delivery",
+      "tier": "frontier_thinking",
+      "effort": "xhigh",
+      "sandboxMode": "read-only",
+      "ownerGlobs": [
+        "agents/leadership/**",
+        "PROJECT_STATUS.md",
+        "docs/**"
+      ]
+    },
+    {
+      "name": "xr-systems-architect",
+      "tier": "standard_execution",
+      "effort": "medium",
+      "sandboxMode": "workspace-write",
+      "ownerGlobs": [
+        "apps/ui-xr/**",
+        "apps/arena/**",
+        "packages/openclinxr/arena/**",
+        "packages/openclinxr/xr/**",
+        "tools/openclinxr/evidence/**"
+      ]
+    }
+  ]
+}

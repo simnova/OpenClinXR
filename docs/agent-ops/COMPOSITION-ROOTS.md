@@ -17,7 +17,7 @@ Inspired by the ATL (atlantis-cameras-v2) path-scope discipline: keep libraries/
 | **H1** | **Features live in packages** (`packages/openclinxr/*`, `packages/cellix/*` seedwork). Domain behavior, UI feature modules, persistence, factory consumers → packages. | SoD **critical** if dumped into apps without package extraction path |
 | **H2** | **Apps compose/boot only** — bootstrap, DI wiring, host shell, route mount, runtime entry. No feature logic growth in apps unless residual is explicit host-only. | Domain role writeRoots may touch app shells; still no feature dumps that belong in packages |
 | **H3** | **Tools are CLI / factory pipelines** (`tools/openclinxr/*`). Headless invocable; not app-only side effects. | Pipeline logic in apps → residual to asset/factory owners |
-| **H4** | **Product delivery is role-mapped** — never spawn bare harness `general-purpose` / `explore` / `plan` for product write. Use `pnpm grok:agent:spawn-spec --role <roleId>` + `assertDeliveryRoleMapped(roleId)`. | PATH-SCOPE Wave C-arch; parent checklist **critical** |
+| **H4** | **Product delivery is role-mapped** — never spawn bare harness `general-purpose` / `explore` / `plan` for product write. Use `pnpm grok:agent:spawn-spec --role <roleId>` + `assertDeliveryRoleMapped(roleId)`. See also `DELIVERY-ROLES.md` (RIF). | PATH-SCOPE Wave C-arch; parent checklist **critical** |
 | **H5** | **Residual out-of-scope topology → `architect`** — cellix, architecture-rules, composition doctrine, cross-package wiring patterns. Domain roles do not “just fix” seedwork. | sole-author lock `composition-roots` hard-fails verify |
 
 ## Architect residual table

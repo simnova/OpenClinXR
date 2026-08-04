@@ -340,7 +340,9 @@
     "encounter:runtime-emission": "tsx tools/openclinxr/encounter-runtime-emission.ts",
     "openclaw:task-cost": "tsx tools/openclinxr/openclaw/grok-tier-cli.ts task-cost",
     "encounter:admin-replay-from-emission": "tsx tools/openclinxr/admin-replay-from-emission.ts",
-    "evidence:physics-touch:portless": "node tools/openclinxr/evidence/physics-touch-capture.mjs"
+    "evidence:physics-touch:portless": "node tools/openclinxr/evidence/physics-touch-capture.mjs",
+    "agent:harness:manifest": "tsx tools/agent-factory/generate-harness-manifest.ts",
+    "agent:harness:boundaries": "tsx tools/agent-factory/validate-harness-boundaries.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

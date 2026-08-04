@@ -26,9 +26,15 @@ auto-load (proven to bind in headless `-p`), not by hope.
   If your change couples to a downstream test's expectation, update that test honestly and
   run the affected package graph (not just the file you touched).
 
+## Commit authority (standing — worktree lane)
+- **Commit + push on green IN LANE (worktree)** without per-commit human ask. Intended files only.
+- **Never force-push**; never rewrite published history; never blind-copy/push worktree → main.
+- **Promotion to main is parent-gated** (`pnpm openclaw:worktree:promote`). Residual: **secrets**.
+- Policy SSOT: `docs/agent-ops/COMMIT-AUTHORITY.md`.
+
 ## Boundaries
-- Do **not** write to any external/shared system — GitHub Projects/issues/PRs, org boards,
-  remote APIs — or publish under the user's identity. Local git branches + your report only.
+- Do **not** write to external/shared product systems — GitHub Projects/issues/PRs, org boards,
+  remote APIs — unless the task explicitly grants that surface. Lane git commit/push (above) is allowed.
 - Integrate intended files only; never revert unrelated changes.
 - Do **not** weaken, delete, rename, or reinterpret the 6 protected guardrail files or the
   Q1/Q4/Q5 slice gate. Additive/optional schema changes only.

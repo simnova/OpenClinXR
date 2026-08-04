@@ -74,6 +74,7 @@ Report path: `.openclinxr/openclaw/worktree-promote-<slice>-<role>.json`
 
 ## Related
 
+- `docs/agent-ops/COMMIT-AUTHORITY.md` — worktree commit standing authority; promote stays parent-gated
 - `docs/agent-ops/PATH-SCOPE.md` — writeRoots + isolation enforcement matrix
 - `packages/openclinxr/agent-loop/src/role-harness-policy.ts` — `pathScope`, `pathMatchesAnyGlob`
 - `tools/openclinxr/openclaw/slice-team-cli.ts` — team-spawn isolation assert

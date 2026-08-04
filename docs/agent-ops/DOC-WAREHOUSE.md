@@ -36,6 +36,9 @@ Protected + living agent-ops SSOT (non-dated):
 | `docs/agent-ops/CEO-VOICE.md` | CEO → BOD voice SSOT |
 | `docs/agent-ops/COMPOSITION-ROOTS.md` | Composition / package topology law |
 | `docs/agent-ops/WORKTREE-PROMOTE.md` | Worktree promote loop |
+| `docs/agent-ops/COMMIT-AUTHORITY.md` | Standing worktree commit + promote-gated main |
+| `docs/agent-ops/TOOLING-TOPOLOGY.md` | CLI-first surface map (owners) |
+| `docs/agent-ops/DELIVERY-ROLES.md` | RIF + skill-stub tax notes |
 | `docs/agent-ops/DOC-WAREHOUSE.md` | This file |
 | `docs/agent-ops/DOC-HYGIENE-CADENCE.md` | Periodic enough cadence + SessionStart catch-up |
 | `docs/agent-ops/TEMPORAL-DECISIONS.md` | Time-bound decision revisit process (PMO) |

@@ -23,3 +23,5 @@ Material block: missing CLI, wrong model tier, need re-enable MCP for a bounded 
 | Toolchain | `pnpm env:doctor` |
 | Diagrams | drawio MCP (optional) |
 | Mongo Atlas agent | mongodb plugin (optional) |
+
+Surface map + owners: **`docs/agent-ops/TOOLING-TOPOLOGY.md`**. Full matrix: **`docs/TOOLING.md`**.
