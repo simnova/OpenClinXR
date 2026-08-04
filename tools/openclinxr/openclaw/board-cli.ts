@@ -60,6 +60,7 @@ export type BoardCliFlags = {
   repo: string;
   pr?: number;
   verdict?: string;
+  method?: string;
   dryRun: boolean;
   json: boolean;
   help: boolean;
@@ -110,6 +111,8 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
       flags.pr = Number(argv[++i]);
     } else if (arg === "--verdict" && argv[i + 1]) {
       flags.verdict = argv[++i];
+    } else if (arg === "--method" && argv[i + 1]) {
+      flags.method = argv[++i];
     } else if (arg.startsWith("--")) {
       if (argv[i + 1] && !argv[i + 1]!.startsWith("--")) i += 1;
     } else {
@@ -531,6 +534,50 @@ export function cmdReview(input: { repo: string; pr: number; verdict: string; ro
   return { reviewPlan, statusPlan, sha, state: input.verdict === "approve" ? "success" : "failure" };
 }
 
+export function planGhMerge(input: { repo: string; pr: number; method: string }): GhCommandPlan {
+  const m = input.method === "merge" ? "--merge" : input.method === "rebase" ? "--rebase" : "--squash";
+  const argv = ["gh", "pr", "merge", String(input.pr), "--repo", input.repo, m, "--delete-branch"];
+  return { argv, display: `gh pr merge ${input.pr} --repo ${input.repo} ${m} --delete-branch` };
+}
+
+/** Read the agent-review/<role> commit status on a PR head (live). */
+export function readReviewStatus(repo: string, pr: number, role: string): { state: string; found: boolean } {
+  const shaRes = spawnSync("gh", ["pr", "view", String(pr), "--repo", repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8" });
+  if (shaRes.status !== 0) throw new Error(`could not resolve PR #${pr}: ${shaRes.stderr}`);
+  const sha = String(shaRes.stdout).trim();
+  const st = spawnSync("gh", ["api", `repos/${repo}/commits/${sha}/status`], { encoding: "utf8" });
+  if (st.status !== 0) throw new Error(`could not read status of ${sha}: ${st.stderr}`);
+  const data = JSON.parse(String(st.stdout)) as { statuses?: Array<{ context: string; state: string }> };
+  const found = (data.statuses ?? []).find((x) => x.context === `agent-review/${role}`);
+  return { state: found?.state ?? "missing", found: !!found };
+}
+
+/**
+ * merge: single-account WORKAROUND for the review gate. Self-approve is blocked by GitHub and
+ * branch protection is admin-bypassable, so we enforce the gate in the TOOL: refuse to merge unless
+ * `agent-review/<role>` is success. The OpenClaw loop merges via this → cannot merge unreviewed work.
+ */
+export function cmdMerge(input: { repo: string; pr: number; role: string; method: string; dryRun: boolean }): {
+  gate: { role: string; state: string; passed: boolean }; mergePlan: GhCommandPlan;
+} {
+  if (!input.repo) throw new Error("merge requires --repo");
+  if (!input.pr) throw new Error("merge requires --pr");
+  if (!input.role) throw new Error("merge requires --role (required reviewer, e.g. skeptic)");
+  const mergePlan = planGhMerge({ repo: input.repo, pr: input.pr, method: input.method || "squash" });
+  if (input.dryRun) {
+    return { gate: { role: input.role, state: "<live-check>", passed: false }, mergePlan };
+  }
+  const st = readReviewStatus(input.repo, input.pr, input.role);
+  const passed = st.state === "success";
+  if (!passed) {
+    throw new Error(
+      `REVIEW GATE BLOCKED merge of PR #${input.pr}: agent-review/${input.role} is "${st.state}" (need success). Run \`openclaw:board review --pr ${input.pr} --repo ${input.repo} --verdict approve --role ${input.role} --body "..."\` first.`,
+    );
+  }
+  runGh(mergePlan, false);
+  return { gate: { role: input.role, state: st.state, passed }, mergePlan };
+}
+
 async function main(): Promise<void> {
   const repoRoot = process.cwd();
   const flags = parseBoardArgs(process.argv.slice(2));
@@ -616,6 +663,22 @@ async function main(): Promise<void> {
         console.log(JSON.stringify({ ok: true, sha: result.sha, state: result.state, reviewPlan: result.reviewPlan, statusPlan: result.statusPlan }, null, 2));
       } else {
         console.log(`review ${flags.dryRun ? "DRY-RUN " : ""}pr=#${flags.pr} role=${flags.role} verdict=${flags.verdict} → agent-review/${flags.role}=${result.state}`);
+      }
+      return;
+    }
+
+    if (flags.command === "merge") {
+      const result = cmdMerge({
+        repo: flags.repo,
+        pr: flags.pr ?? 0,
+        role: flags.role ?? "",
+        method: flags.method ?? "squash",
+        dryRun: flags.dryRun,
+      });
+      if (flags.json) {
+        console.log(JSON.stringify({ ok: true, gate: result.gate, mergePlan: result.mergePlan }, null, 2));
+      } else {
+        console.log(`merge ${flags.dryRun ? "DRY-RUN " : ""}pr=#${flags.pr} gate=agent-review/${flags.role}:${result.gate.state} → ${result.gate.passed ? "MERGED" : (flags.dryRun ? "would-check" : "BLOCKED")}`);
       }
       return;
     }

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import {
   cmdReview,
+  cmdMerge,
   BOARD_FIXED_CHECKLIST,
   BOARD_SCHEMA,
   DEFAULT_BOARD_REPO,
@@ -320,5 +321,20 @@ describe("board review (merge-gate status flow)", () => {
   it("rejects invalid verdict + product-data body", () => {
     expect(() => cmdReview({ repo: "o/r", pr: 7, verdict: "lgtm", role: "s", body: "x", dryRun: true })).toThrow(/verdict/);
     expect(() => cmdReview({ repo: "o/r", pr: 7, verdict: "approve", role: "s", body: "patient name Jane", dryRun: true })).toThrow(/patient name/);
+  });
+});
+
+describe("board merge (single-account review-gate workaround)", () => {
+  it("dry-run builds a squash merge plan + surfaces the gate", () => {
+    const r = cmdMerge({ repo: "o/r", pr: 9, role: "skeptic", method: "squash", dryRun: true });
+    expect(r.mergePlan.argv.slice(0, 5)).toEqual(["gh", "pr", "merge", "9", "--repo"]);
+    expect(r.mergePlan.argv).toContain("--squash");
+    expect(r.gate.role).toBe("skeptic");
+    expect(r.gate.passed).toBe(false); // live status-check deferred in dry-run
+  });
+  it("requires repo/pr/role", () => {
+    expect(() => cmdMerge({ repo: "", pr: 9, role: "s", method: "squash", dryRun: true })).toThrow(/repo/);
+    expect(() => cmdMerge({ repo: "o/r", pr: 0, role: "s", method: "squash", dryRun: true })).toThrow(/pr/);
+    expect(() => cmdMerge({ repo: "o/r", pr: 9, role: "", method: "squash", dryRun: true })).toThrow(/role/);
   });
 });
