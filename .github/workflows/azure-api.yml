@@ -1,0 +1,87 @@
+# Azure API Build (infra only) -----------------------------------------------
+# Builds and smoke-tests the @openclinxr/api Azure bundle, then uploads it as
+# an artifact. It does NOT deploy. No production/readiness/promotion claims are
+# made here; all clinical/scoring/promotion gates remain FALSE and unaffected.
+#
+# Command: pnpm --filter @openclinxr/api run smoke:azure
+#   - runs package:azure (build:azure via tsdown + prepare:deploy) then the
+#     smoke test scripts/smoke-azure-bundle.ts against deploy/dist/index.js
+# Artifact: name "azure-api-bundle", path apps/api/deploy (entry: deploy/dist/index.js)
+#
+# OPERATOR: to wire deployment, add a job after build-and-smoke and set secrets:
+#   AZURE_WEBAPP_PUBLISH_PROFILE  publish profile for azure/webapps-deploy@v3
+#                                 (or AZURE_CREDENTIALS for OIDC federated login)
+#   AZURE_WEBAPP_NAME             target Azure Web App / Function App name
+# Example deploy job (illustrative; adjust for Web App vs Functions):
+#   deploy:
+#     needs: build-and-smoke
+#     runs-on: ubuntu-latest
+#     environment: production
+#     steps:
+#       - uses: actions/download-artifact@v4
+#         with: { name: azure-api-bundle, path: deploy }
+#       - uses: azure/webapps-deploy@v3
+#         with:
+#           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+#           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+#           package: deploy
+# For OIDC instead of a publish profile, run azure/login@v2 with AZURE_CREDENTIALS
+# first, or use azure/functions-action if the target is Azure Functions.
+# ----------------------------------------------------------------------------
+name: Azure API Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/azure-api.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: azure-api-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-azure-${{ github.sha }}
+          restore-keys: |
+            turbo-azure-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build + smoke Azure API bundle
+        run: pnpm --filter @openclinxr/api run smoke:azure
+
+      - name: Upload Azure API bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: azure-api-bundle
+          path: apps/api/deploy
+          if-no-files-found: error
+          retention-days: 7
