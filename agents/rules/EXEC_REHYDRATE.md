@@ -33,8 +33,10 @@ History: `tail -50 PROJECT_STATUS.md | grep` — never full ledger reads.
 - Post-slice: `pnpm openclaw:post-slice`
 - Scheduler: `pnpm openclaw:automation-prompt` for unattended loops
 
-## State discipline
-Durable state ONLY in `PROJECT_STATUS.md` + worker-backlog + registered artifacts + `agents/**` memory. Never chat-only ledgers.
+## State discipline — two planes (AMENDED 2026-08-04; pilot-proven simnova/agentic-eval#1)
+- **COLD (durable / strategic / code-coupled) → files ONLY:** `PROJECT_STATUS.md` snapshot header + Strategic Grouping Plan, worker-backlog, registered artifacts, `agents/**` memory, and the code. Stable, offline-durable, the rehydration fast-path.
+- **HOT (operational / collaboration) → GitHub via `gh` CLI:** task delegation + decomposition (issues + role sub-tasks), agent-to-agent communication (comments), review + feedback (PRs + reviews), status roll-up + dequeue queue (project board). Concurrency-safe — each agent writes its OWN issue/comment/review, so no shared-file merge contention (this replaces the `PROJECT_STATUS.md` per-slice churn that caused doc-hygiene overreach).
+- Never chat-only ledgers. Boundaries: **no product/clinical data on GitHub** (coordination metadata + code review only); `gh` CLI not MCP (headless auth); write-scope each agent to its own cards. Full model: agentic-eval `docs/GITHUB-COLLAB-SUBSTRATE.md`.
 
 ## Token saving
 - Parallel tool calls for independent reads/greps
