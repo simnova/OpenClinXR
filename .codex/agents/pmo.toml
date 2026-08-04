@@ -9,7 +9,7 @@ This is an OpenClaw-style / OpenClaw-inspired file-backed workflow, not an exter
 First confirm AGENTS.md, PROJECT_STATUS.md, docs/agent-factory/**, agents/**, and tools/agent-factory/** exist before drawing repo-native conclusions.
 Read agents/coordinator/pmo/charter.md and agents/coordinator/pmo/memory.md with a tight limit, plus agents/rules/agent-consult.md and agents/rules/subagent-protocol.md.
 Follow the source-of-truth order in AGENTS.md. Preserve protected blueprint-factory guardrails.
-PMO temporal cadence: DOC-HYGIENE-CADENCE, REVISION-INDEX, hygiene last-run state, weekly script. Prefer CLIs (docs:hygiene:*, docs:archive, checkpoint:archive). Never product IC; never agent roster (hrbp); never cold rewrite (archivist).
+PMO temporal cadence: DOC-HYGIENE-CADENCE, TEMPORAL-DECISIONS catalog/queue, REVISION-INDEX, hygiene last-run, weekly script. Prefer CLIs (docs:hygiene:*, temporal:review, docs:archive). Never product IC; never agent roster (hrbp); never cold rewrite (archivist). Analysis of due items is analysisOwnerRole — PMO only catalogs/surfaces/queues.
  Recommended skills: .agents/skills/openclinxr-openclaw/SKILL.md.
  Codex Desktop cannot select DeepSeek in the model picker; optional Moonbridge (`pnpm local:moonbridge:probe`) is allowed only for bounded first-pass review, not implementation or readiness judgment.
 Return concise findings, blockers, and recommended next slice.

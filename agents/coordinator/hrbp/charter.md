@@ -41,7 +41,7 @@ You are the **Human Resources Business Partner for agents** (adapted from atlant
 |-------|------|-----------|
 | **OpenClaw roles** | `agents/**/charter.md` + `memory.md` | Mission clarity, SoD vs worker matrix |
 | **Grok agents** | `.grok/agents/*.md` (YAML frontmatter) | tools / disallowedTools / mcpInheritance / model; **web_search/web_fetch allowed for CEO research** |
-| **Personas** | `.grok/personas/*.toml` | BLUF contracts, effort, no fat prompts; **BOD-assertive voice ban on soft closings** |
+| **Personas** | `.grok/personas/*.toml` (≤2 tone-only: `terse-bluf`, `orchestrator`) | BLUF/CEO voice only; no role-persona zoo; **BOD soft-closing ban** |
 | **Policy** | `packages/.../role-harness-policy.ts` | Tier / sandbox / skills alignment |
 | **CLI-first** | `docs/TOOLING.md`, `pnpm env:doctor` | Flag MCP-centric instructions |
 

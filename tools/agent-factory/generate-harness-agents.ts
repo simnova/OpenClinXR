@@ -8,7 +8,6 @@ import {
   disallowedToolsForRole,
   getRepoRoleHarnessPolicy,
   getRolePathScope,
-  PREFERRED_CLI_SOFT_WARN,
   resolveHarnessModelSpec,
   shouldRecommendMoonbridgeAssist,
   type RepoWorkflowSkillId,
@@ -213,65 +212,15 @@ function grokNativeAgentMarkdown(role: RoleEntry): string {
     "",
   ].join("\n");
 
+  // Essay bodies are soft-bind context waste (agentic-eval agent-defs.md 2026-08-04):
+  // keep structural frontmatter (tools/disallowedTools/model); thin body pointers only.
+  const spawnBrief = spawn.spawnSubagentCall
+    ? `spawn=\`${spawn.spawnSubagentCall.subagent_type}\``
+    : "spawn=composer/frontier";
   const body = [
-    `ROLE: **${role.role}** (group \`${role.group}\`).`,
-    "",
-    "## Canonical OpenClaw sources",
-    "",
-    `- Charter: \`${role.roleDir}/charter.md\` (read ## Persona first)`,
-    `- Memory: \`${role.roleDir}/memory.md\``,
-    `- Index: \`${role.roleDir}/index.json\``,
-    "",
-    "## Tool policy (Grok 4.5+)",
-    "",
-    "| Prefer | Avoid |",
-    "|--------|-------|",
-    "| Shell CLIs: `gh`, `pnpm playwright:*`, `pnpm browser:agent`, `pnpm env:doctor` | Disabled MCPs: playwright, chrome-devtools, agent-browser, grok_com_github |",
-    "| `pnpm grok:agent:spawn-spec` for full prompts | Fat spawn seeds in this file |",
-    "| Optional MCP: drawio / mongodb when no CLI | Always-on browser/GitHub MCP |",
-    "",
-    "## Scope",
-    "",
-    policy.writeScopeNote,
-    "",
-    `Policy tier: \`${policy.policyTier}\` · model: \`${modelSpec.model}\` · effort: \`${modelSpec.reasoningEffort}\` · sandbox: \`${policy.sandboxMode}\`.`,
-    spawn.spawnSubagentCall
-      ? `Spawn: subagent_type=\`${spawn.spawnSubagentCall.subagent_type}\` capability_mode=\`${spawn.spawnSubagentCall.capability_mode}\`.`
-      : "Spawn: Composer / frontier surface (not a cheap subagent).",
-    "",
-    "## Path scope (ATL-style)",
-    "",
-    "### Write roots",
-    "| Path |",
-    "|------|",
-    ...policy.pathScope.writeRoots.map((p) => `| \`${p}\` |`),
-    "",
-    "### Forbidden",
-    "| Path |",
-    "|------|",
-    ...policy.pathScope.forbidden.map((p) => `| \`${p}\` |`),
-    "",
-    "### Read preference",
-    ...policy.pathScope.readRoots.slice(0, 10).map((p) => `- \`${p}\``),
-    ...(policy.pathScope.readRoots.length > 10 ? [`- ... +${policy.pathScope.readRoots.length - 10} more`] : []),
-    "",
-    "### Output roots",
-    ...policy.pathScope.outputRoots.map((p) => `- \`${p}\``),
-    ...(policy.pathScope.preferredCli && policy.pathScope.preferredCli.length > 0
-      ? [
-          "",
-          "### Preferred CLI",
-          ...policy.pathScope.preferredCli.map((c) => `- \`${c}\``),
-          "",
-          PREFERRED_CLI_SOFT_WARN,
-        ]
-      : []),
-    "",
-    "## Contract",
-    "",
-    "- Obey `.grok/prompts/agentic-io-contract.md` for FINAL when reporting to parent.",
-    "- Q1/Q4/Q5 + visibility mandate when product-facing.",
-    "- Escalate with `UNABLE:` when below tier capability.",
+    `ROLE **${role.role}** (\`${role.group}\`). Charter: \`${role.roleDir}/charter.md\` · memory: \`${role.roleDir}/memory.md\`.`,
+    `Tier \`${policy.policyTier}\` · model \`${modelSpec.model}\` · ${spawnBrief}. Path scope: role-harness-policy + PATH-SCOPE.md.`,
+    "Tone: `.grok/personas/terse-bluf.toml`. Contract: `.grok/prompts/agentic-io-contract.md`. Escalate with `UNABLE:`.",
     "",
   ].join("\n");
 

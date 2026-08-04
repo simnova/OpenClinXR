@@ -266,7 +266,7 @@ export function buildRepoAgentSpawnPrompt(input: {
       : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
     : "";
   return [
-    `Persona: ${input.roleId}-expert (.grok/personas/ + charter ## Persona). BLUF; bullets file:line; ≤100w; end "Recommended next: <slice> (Q#)".`,
+    `Tone: .grok/personas/terse-bluf.toml (BLUF only; no role-persona zoo) + charter ## Persona. Bullets file:line; ≤100w; end "Recommended next: <slice> (Q#)".`,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
     "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed. Do NOT load full AGENTS.md/LEX unless UNABLE.",
     `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,
