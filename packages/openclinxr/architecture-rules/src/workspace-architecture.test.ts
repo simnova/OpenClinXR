@@ -1857,7 +1857,7 @@ function walk(root: string): string[] {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const childPath = join(root, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === "dist" || entry.name === "node_modules" || entry.name === ".git") {
+      if (entry.name === "dist" || entry.name === "node_modules" || entry.name === ".git" || entry.name === ".claude") {
         return [];
       }
       return walk(childPath);

@@ -10,6 +10,13 @@ import {
   type PedsHumanoidMaterializationHandoff,
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import {
+  arbitrateTurnTaking,
+  buildHistoryTakingCoverageSpec,
+  initialHistoryTakingCoverageState,
+  updateHistoryTakingCoverage,
+  type HistoryTakingCoverageState,
+} from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import {
@@ -62,9 +69,11 @@ import {
   buildRuntimeEvidencePosture,
   buildRuntimeFrameStats,
   buildXrRuntimeReadinessDecision,
+  buildConversationTurnStateEvidence,
   buildXrTraceActionHandoffEvidence,
   buildXrTraceInteractionEvidenceSummary,
   type ActorPlayerRuntimeMetadataSummary,
+  type ConversationTurnStateEvidence,
   type CaseDefinedHumanoidPerformanceContractEvidence,
   type CaseDefinedHumanoidRuntimeHandoffEvidence,
   completeTraceAction,
@@ -363,6 +372,7 @@ declare global {
     __openClinXrActorPlayerRuntimeMetadataSummary: ActorPlayerRuntimeMetadataSummary | undefined;
     __openClinXrPedsActorPlayerRuntimePlaybackEvidence?: PedsActorPlayerRuntimePlaybackEvidence;
     __openClinXrPedsAdaptiveDialogueEvidence?: PedsAdaptiveDialogueEvidence;
+    __openClinXrConversationTurnStateEvidence?: ConversationTurnStateEvidence;
     __openClinXrMouthGazePoseComparatorEvidence?: MouthGazePoseComparatorEvidence;
     __openClinXrDebugScene?: Scene;
     __openClinXrSelectedRuntimeAssetBundleId?: string;
@@ -1708,6 +1718,17 @@ function recordXrEntryEvidence(status: OpenClinXrXrEntryEvidence["lastStatus"], 
 recordXrEntryEvidence("not_requested");
 
 let state: XrRuntimeState = createInitialRuntimeState();
+/** Deterministic conversation tooling state for HUD (local, not scored). */
+let conversationCurrentTurn = 0;
+let conversationLastActorId: string | null = null;
+let conversationLastBargeInOutcome: string | null = null;
+let conversationActiveBargeIn = false;
+let conversationHistoryCoverage: HistoryTakingCoverageState = initialHistoryTakingCoverageState(
+  buildHistoryTakingCoverageSpec({
+    scenarioId: state.scenarioId,
+    requiredTraceTags: state.requiredTraceTags,
+  }),
+);
 let traceActionHandoffActions: XrTraceActionHandoffAction[] = [];
 const configuredApiBaseUrl = typeof import.meta.env.VITE_OPENCLINXR_API_BASE_URL === "string" ? import.meta.env.VITE_OPENCLINXR_API_BASE_URL : "";
 const stationApi = configuredApiBaseUrl ? createStationApiClient({ baseUrl: configuredApiBaseUrl }) : undefined;
@@ -2128,6 +2149,99 @@ function recordTraceSelectLatency(
   return lastTraceSelectLatencyMs;
 }
 
+function publishConversationTurnStateEvidence(options?: {
+  learnerUtterance?: string;
+  traceTags?: readonly string[];
+  bargeInOutcome?: string | null;
+  activeBargeIn?: boolean;
+}): ConversationTurnStateEvidence {
+  const scenarioId = encounterRuntimeAssetBundle?.scenarioId ?? state.scenarioId;
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)
+    ?? (scenarioId === edChestPainScenario.scenarioId ? edChestPainScenario : null);
+  const actors = (scenario?.actors ?? []).map((actor) => ({
+    actorId: actor.actorId,
+    role: actor.role,
+  }));
+  if (conversationHistoryCoverage.scenarioId !== scenarioId) {
+    // Rebuild coverage domains when the resolved scenario differs from the
+    // initial bundle scenario (keeps HUD domains aligned with scenarioId).
+    conversationHistoryCoverage = initialHistoryTakingCoverageState(
+      buildHistoryTakingCoverageSpec({
+        scenarioId,
+        requiredTraceTags: scenario?.requiredTraceTags ?? state.requiredTraceTags,
+      }),
+    );
+  }
+  if (options?.traceTags || options?.learnerUtterance) {
+    const coverageSpec = buildHistoryTakingCoverageSpec({
+      scenarioId,
+      requiredTraceTags: scenario?.requiredTraceTags ?? state.requiredTraceTags,
+    });
+    const updated = updateHistoryTakingCoverage(
+      conversationHistoryCoverage,
+      {
+        ...(options.traceTags ? { traceTags: options.traceTags } : {}),
+        ...(options.learnerUtterance ? { learnerUtterance: options.learnerUtterance } : {}),
+      },
+      coverageSpec,
+    );
+    conversationHistoryCoverage = updated.state;
+  }
+  if (options?.bargeInOutcome !== undefined) {
+    conversationLastBargeInOutcome = options.bargeInOutcome;
+  }
+  if (options?.activeBargeIn !== undefined) {
+    conversationActiveBargeIn = options.activeBargeIn;
+  }
+  conversationCurrentTurn += 1;
+  const turnDecision = actors.length > 0
+    ? arbitrateTurnTaking({
+      actors,
+      lastActorId: conversationLastActorId,
+      ...(options?.learnerUtterance !== undefined ? { learnerUtterance: options.learnerUtterance } : {}),
+      conversationTurn: conversationCurrentTurn,
+    })
+    : null;
+  if (turnDecision) {
+    conversationLastActorId = turnDecision.nextActorId;
+  }
+  const evidence = buildConversationTurnStateEvidence({
+    scenarioId,
+    currentTurn: conversationCurrentTurn,
+    lastActorId: conversationLastActorId,
+    nextActorId: turnDecision?.nextActorId ?? null,
+    nextTurnReason: turnDecision?.reason ?? null,
+    activeBargeIn: conversationActiveBargeIn,
+    lastBargeInOutcome: conversationLastBargeInOutcome,
+    historyCoverage: conversationHistoryCoverage,
+  });
+  window.__openClinXrConversationTurnStateEvidence = evidence;
+  return evidence;
+}
+
+function formatConversationTurnStatePanelLines(
+  evidence: ConversationTurnStateEvidence | null | undefined = window.__openClinXrConversationTurnStateEvidence,
+): string[] {
+  if (!evidence) {
+    return [
+      "Turn: pending",
+      "Next speaker: pending",
+      "History coverage: 0% (domains traced, not scored)",
+      "Barge-in: idle",
+    ];
+  }
+  const covered = evidence.historyCoverage.coveredDomainIds.slice(0, 4).join(", ") || "(none)";
+  const missing = evidence.historyCoverage.missingDomainIds.slice(0, 4).join(", ") || "(none)";
+  return [
+    `Turn ${evidence.currentTurn} · next ${evidence.nextActorId ?? "n/a"} (${evidence.nextTurnReason ?? "n/a"})`,
+    `Coverage ${evidence.historyCoverage.coveragePercent}% of domains (NOT a clinical score)`,
+    `Covered: ${covered}`,
+    `Missing: ${missing}`,
+    `Barge-in: ${evidence.activeBargeIn ? "ACTIVE" : "idle"}${evidence.lastBargeInOutcome ? ` · last ${evidence.lastBargeInOutcome}` : ""}`,
+    `claimScope: ${evidence.claimScope}`,
+  ];
+}
+
 function completeTraceActionFromInput(
   tag: string,
   source: OpenClinXrTraceLatencyEvidence["source"],
@@ -2136,6 +2250,10 @@ function completeTraceActionFromInput(
   const traceSelectStartedAtMs = performance.now();
   const priorCompletedTraceTags = state.completedTraceTags;
   state = completeTraceAction(state, tag);
+  publishConversationTurnStateEvidence({
+    traceTags: [tag],
+    learnerUtterance: dialogueFor(tag),
+  });
   const adaptiveBranch = resolvePedsAdaptiveDialogueBranch(
     tag,
     priorCompletedTraceTags,
@@ -3492,6 +3610,29 @@ function createStationScene(): StationSceneRuntime {
     inputPanel.mesh.userData.openClinXrCaptureDeclutterPolicy = "actor_close_realism_review_panels_scaled_away_from_face_torso";
   }
   scene.add(inputPanel.mesh);
+  // Conversation / history-taking HUD (deterministic local policy; traced domains, not scored).
+  publishConversationTurnStateEvidence();
+  const conversationPanel = createReadableVrTextPanel({
+    name: `${runtimeSceneObjectPrefix()}.conversation-turn-state-panel`,
+    title: "Conversation Tooling",
+    lines: formatConversationTurnStatePanelLines(),
+    widthMeters: 1.9,
+    heightMeters: 0.95,
+    background: "#fff0f5",
+    accent: "#b83280",
+  });
+  conversationPanel.mesh.position.set(-1.55, 1.28, -1.12);
+  conversationPanel.mesh.rotation.y = 0.38;
+  conversationPanel.mesh.userData.openClinXrConversationToolingPanel =
+    "turn_taking_history_coverage_barge_in_hud_traced_not_scored";
+  if (cleanHumanoidSourceComparatorCapture) {
+    conversationPanel.mesh.visible = false;
+    conversationPanel.mesh.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+  } else if (!shouldShowInSceneEvidencePanels()) {
+    conversationPanel.mesh.visible = false;
+    conversationPanel.mesh.userData.openClinXrDynamicScenePolicy = "hidden_in_generated_encounter_scene_unless_panel_evidence_capture";
+  }
+  scene.add(conversationPanel.mesh);
   let lastPanelSignature = "";
   addControllerAffordances(renderer, scene, (event) => {
     // XR ray: a controller select that hits a body region is a clinical touch;
@@ -3836,6 +3977,10 @@ function createStationScene(): StationSceneRuntime {
       window.__openClinXrHumanoidSpeechEvidence?.activeExpressionCueIds?.includes("emotion_aligned_expression_transition_cue") ? "emotion-transition-cue-present" : "emotion-transition-cue-missing",
       window.__openClinXrHumanoidSpeechEvidence?.activeActorRuntimeRealismRequirement?.actorId ?? "no-active-actor-realism-requirement",
       window.__openClinXrHumanoidSpeechEvidence?.activeActorRuntimeRealismRequirement?.requiredCueIds.join(",") ?? "no-active-actor-realism-cues",
+      window.__openClinXrConversationTurnStateEvidence?.currentTurn ?? 0,
+      window.__openClinXrConversationTurnStateEvidence?.historyCoverage.coveragePercent ?? 0,
+      window.__openClinXrConversationTurnStateEvidence?.nextActorId ?? "no-next-actor",
+      window.__openClinXrConversationTurnStateEvidence?.lastBargeInOutcome ?? "no-barge-in",
     ].join("|");
     if (panelSignature === lastPanelSignature) {
       return;
@@ -3861,6 +4006,10 @@ function createStationScene(): StationSceneRuntime {
       `Speech affect: ${formatHumanoidSpeechAffectEvidence(window.__openClinXrHumanoidSpeechEvidence ?? null)}`,
       `Capture: ${captureReadinessStatus}; gap ${formatTechnicalGapStatus(captureSummary)}`,
     ]);
+    conversationPanel.update(formatConversationTurnStatePanelLines());
+    if (!cleanHumanoidSourceComparatorCapture && shouldShowInSceneEvidencePanels()) {
+      conversationPanel.mesh.visible = true;
+    }
   }
 }
 
@@ -6485,6 +6634,7 @@ function playOneShotResponseClip(actorId: string, clipName: string): boolean {
     mixer.removeEventListener("finished", onFinished as (e: unknown) => void);
     action.fadeOut(0.12);
     for (const idle of idleActions) {
+      if (!idle) continue;
       idle.reset().fadeIn(0.18).play();
     }
   };

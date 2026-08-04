@@ -1015,7 +1015,7 @@ export type SceneAssetEvidence = {
     proxyCueCount: number;
     physicsProbeMode: "runtime_proxy_cues_with_offline_rapier_gate";
     latestProbeReportPath: string;
-    notEvidenceFor: ["production_physics_readiness", "validated_ragdoll_biomechanics"];
+    notEvidenceFor: readonly string[];
   };
   assets: Array<{
     assetId: string;
@@ -3519,6 +3519,74 @@ export function buildXrRuntimeReadinessDecision(
     blockerCount,
     recommendedNextAction,
     notEvidenceFor: input.posture.notEvidenceFor,
+  };
+}
+
+/**
+ * Conversation turn / history-taking coverage evidence for UI-XR HUD.
+ * Coverage is TRACED domain coverage only — not a clinical or performance score.
+ */
+export type ConversationTurnStateEvidence = {
+  source: "window.__openClinXrConversationTurnStateEvidence";
+  scenarioId: string;
+  currentTurn: number;
+  lastActorId: string | null;
+  nextActorId: string | null;
+  nextTurnReason: string | null;
+  activeBargeIn: boolean;
+  lastBargeInOutcome: string | null;
+  historyCoverage: {
+    coveredDomainIds: string[];
+    missingDomainIds: string[];
+    coveragePercent: number;
+    coverageTraceTags: string[];
+  };
+  claimScope: "conversation_turn_state_hud_traced_not_scored";
+  notEvidenceFor: readonly [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring",
+    "learner_readiness",
+  ];
+};
+
+export function buildConversationTurnStateEvidence(input: {
+  scenarioId: string;
+  currentTurn: number;
+  lastActorId?: string | null;
+  nextActorId?: string | null;
+  nextTurnReason?: string | null;
+  activeBargeIn?: boolean;
+  lastBargeInOutcome?: string | null;
+  historyCoverage?: {
+    coveredDomainIds?: readonly string[];
+    missingDomainIds?: readonly string[];
+    coveragePercent?: number;
+    coverageTraceTags?: readonly string[];
+  };
+}): ConversationTurnStateEvidence {
+  return {
+    source: "window.__openClinXrConversationTurnStateEvidence",
+    scenarioId: input.scenarioId,
+    currentTurn: input.currentTurn,
+    lastActorId: input.lastActorId ?? null,
+    nextActorId: input.nextActorId ?? null,
+    nextTurnReason: input.nextTurnReason ?? null,
+    activeBargeIn: input.activeBargeIn === true,
+    lastBargeInOutcome: input.lastBargeInOutcome ?? null,
+    historyCoverage: {
+      coveredDomainIds: [...(input.historyCoverage?.coveredDomainIds ?? [])],
+      missingDomainIds: [...(input.historyCoverage?.missingDomainIds ?? [])],
+      coveragePercent: input.historyCoverage?.coveragePercent ?? 0,
+      coverageTraceTags: [...(input.historyCoverage?.coverageTraceTags ?? [])],
+    },
+    claimScope: "conversation_turn_state_hud_traced_not_scored",
+    notEvidenceFor: [
+      "clinical_validity",
+      "exam_equivalence",
+      "scoring",
+      "learner_readiness",
+    ],
   };
 }
 

@@ -9,6 +9,7 @@ describe("peds adaptive dialogue policy", () => {
       branchType: "escalation",
       adaptiveTraceTags: ["urgent_escalation", "parent_communication"],
       emotionTransition: { from: "frightened", to: "frightened" },
+      historyTakingDomainIds: ["inhaler_history"],
     });
   });
 

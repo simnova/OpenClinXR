@@ -1,4 +1,15 @@
 import { createScenarioPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import {
+  type ActorTurnInProgress,
+  type ArbitrateTurnTakingInput,
+  type BargeInResolution,
+  type ConversationPolicy,
+  createDefaultConversationPolicy,
+  type HistoryTakingCoverageSpec,
+  type HistoryTakingCoverageState,
+  type LearnerBargeInInput,
+  type TurnTakingDecision,
+} from "@openclinxr/conversation-policy";
 import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
 import {
   type ActorResponseResult,
@@ -38,6 +49,14 @@ import {
   type VoiceGateway,
   type VoiceRequestPolicy,
 } from "@openclinxr/voice-gateway";
+
+export type {
+  ActorTurnInProgress,
+  BargeInResolution,
+  ConversationPolicy,
+  HistoryTakingCoverageState,
+  TurnTakingDecision,
+} from "@openclinxr/conversation-policy";
 
 export type { PublicationTargetUse, ReviewerEvidence, ScenarioPublicationReadiness } from "@openclinxr/review-workflow";
 
@@ -115,12 +134,21 @@ export type GenerateActorResponseResult = {
   response: ActorResponseResult;
   learnerEvent: TraceEvent;
   actorResponseEvent: TraceEvent;
+  /** Additive: history-taking domain coverage after this learner turn (traced, not scored). */
+  historyTakingCoverage?: HistoryTakingCoverageState;
 };
 
 export type GenerateRoutedActorResponseResult = GenerateActorResponseResult & {
   routedActorId: string;
   routingReason: InteractionRoutingReason;
   routeEvent: TraceEvent;
+  /** Additive: deterministic who-speaks-next decision for this routed turn. */
+  turnTakingDecision?: TurnTakingDecision;
+};
+
+export type RegisterLearnerBargeInResult = {
+  resolution: BargeInResolution;
+  event: TraceEvent;
 };
 
 export type ScenarioPublicationReadinessInput = {
@@ -144,6 +172,10 @@ type SessionRecord = {
   multiActorSession: MultiActorClinicalSession;
   nextSequence: number;
   facultyScoreDraft?: ReviewPacket["facultyScoreDraft"];
+  actorTurnInProgress: ActorTurnInProgress | null;
+  historyTakingCoverage: HistoryTakingCoverageState;
+  historyTakingCoverageSpec: HistoryTakingCoverageSpec;
+  lastSpeakerActorId: string | null;
 };
 
 type GenerateActorResponseFromContextInput = {
@@ -216,16 +248,25 @@ export type ScenarioRuntimeOptions = {
   voiceGateway: VoiceGateway;
   /** Optional durable sink. In-memory default when unset. */
   durableStore?: ScenarioRuntimeDurableStore;
+  /**
+   * Optional deterministic conversation policy (turn-taking, barge-in, history coverage).
+   * When omitted, a default local policy is constructed internally.
+   */
+  conversationPolicy?: ConversationPolicy;
 };
 
 export type CreateDefaultScenarioRuntimeOptions = {
   durableStore?: ScenarioRuntimeDurableStore;
+  conversationPolicy?: ConversationPolicy;
 };
 
 export class ScenarioRuntime {
   private readonly sessions = new Map<string, SessionRecord>();
+  private readonly conversationPolicy: ConversationPolicy;
 
-  constructor(private readonly options: ScenarioRuntimeOptions) {}
+  constructor(private readonly options: ScenarioRuntimeOptions) {
+    this.conversationPolicy = options.conversationPolicy ?? createDefaultConversationPolicy();
+  }
 
   async startSession(input: StartSessionInput): Promise<RuntimeSessionSummary> {
     if (!input.consentAccepted) {
@@ -235,6 +276,7 @@ export class ScenarioRuntime {
     const run = createStationRun(this.options.scenario.scenarioId, input.learnerId);
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
+    const historyTakingCoverageSpec = this.conversationPolicy.buildHistoryTakingCoverageSpec(this.options.scenario);
     this.sessions.set(run.stationRunId, {
       run,
       multiActorSession: createMultiActorClinicalSession({
@@ -242,6 +284,10 @@ export class ScenarioRuntime {
         stationRunId: run.stationRunId,
       }),
       nextSequence: 2,
+      actorTurnInProgress: null,
+      historyTakingCoverageSpec,
+      historyTakingCoverage: this.conversationPolicy.initialHistoryTakingCoverageState(historyTakingCoverageSpec),
+      lastSpeakerActorId: null,
     });
 
     return {
@@ -366,6 +412,11 @@ export class ScenarioRuntime {
   ): Promise<GenerateRoutedActorResponseResult> {
     const routed = this.routeActorInteractionTurn(stationRunId, input);
     const session = this.requireSession(stationRunId);
+    const turnTakingDecision = this.turnTakingDecision(stationRunId, {
+      routedActorId: routed.routedActorId,
+      learnerUtterance: input.learnerUtterance,
+      conversationTurn: routed.actorContext.conversationTurn,
+    });
     const generated = await this.generateActorResponseFromContext(session, {
       actorId: routed.routedActorId,
       learnerUtterance: input.learnerUtterance,
@@ -379,7 +430,70 @@ export class ScenarioRuntime {
       routedActorId: routed.routedActorId,
       routingReason: routed.routingReason,
       routeEvent: routed.interactionEvent,
+      turnTakingDecision,
     };
+  }
+
+  /**
+   * Register a learner barge-in against any in-progress actor turn.
+   * Always appends a distinct trace event (eventType conversation.learner.barge_in, tag learner_barge_in).
+   */
+  registerLearnerBargeIn(stationRunId: string, input: LearnerBargeInInput): RegisterLearnerBargeInResult {
+    const session = this.requireSession(stationRunId);
+    const resolution = this.conversationPolicy.resolveLearnerBargeIn(session.actorTurnInProgress, input);
+    if (resolution.outcome === "actor_turn_interrupted") {
+      session.actorTurnInProgress = null;
+    }
+    const event = this.appendTrace(session, {
+      eventType: "conversation.learner.barge_in",
+      atSecond: input.atSecond,
+      source: "conversation-policy",
+      tag: resolution.bargeInTraceTag,
+      ...(resolution.interruptedActorId ? { actorId: resolution.interruptedActorId } : {}),
+      payload: {
+        outcome: resolution.outcome,
+        bargeInTraceTag: resolution.bargeInTraceTag,
+        interruptedActorId: resolution.interruptedActorId,
+        interruptedAtSecond: resolution.interruptedAtSecond,
+        truncatedResponse: resolution.truncatedResponse,
+        yieldedToLearner: resolution.yieldedToLearner,
+        claimScope: resolution.claimScope,
+        notEvidenceFor: [...resolution.notEvidenceFor],
+        ...(input.learnerUtterance ? { learnerUtterance: input.learnerUtterance } : {}),
+      },
+    });
+    return { resolution, event };
+  }
+
+  /** Current history-taking domain coverage for a session (traced, not scored). */
+  historyTakingCoverage(stationRunId: string): HistoryTakingCoverageState {
+    return this.requireSession(stationRunId).historyTakingCoverage;
+  }
+
+  /**
+   * Deterministic who-speaks-next helper. Uses session last speaker + scenario actors.
+   */
+  turnTakingDecision(
+    stationRunId: string,
+    input: {
+      routedActorId?: string | null;
+      learnerUtterance?: string;
+      conversationTurn?: number;
+    } = {},
+  ): TurnTakingDecision {
+    const session = this.requireSession(stationRunId);
+    const actors = this.options.scenario.actors.map((actor) => ({
+      actorId: actor.actorId,
+      role: actor.role,
+    }));
+    const arbitrateInput: ArbitrateTurnTakingInput = {
+      actors,
+      lastActorId: session.lastSpeakerActorId,
+      conversationTurn: input.conversationTurn ?? this.nextConversationTurnHint(stationRunId),
+      ...(input.routedActorId !== undefined ? { routedActorId: input.routedActorId } : {}),
+      ...(input.learnerUtterance !== undefined ? { learnerUtterance: input.learnerUtterance } : {}),
+    };
+    return this.conversationPolicy.arbitrateTurnTaking(arbitrateInput);
   }
 
   async synthesizeActorSpeech(stationRunId: string, input: SynthesizeActorSpeechInput): Promise<SynthesizeActorSpeechResult> {
@@ -591,6 +705,58 @@ export class ScenarioRuntime {
     ).length;
   }
 
+  private nextConversationTurnHint(stationRunId: string): number {
+    return this.options.ledger.replay(stationRunId).filter((event) =>
+      event.eventType === "actor.response.generated" || event.eventType === "actor.response.failed"
+    ).length + 1;
+  }
+
+  private applyHistoryTakingCoverageUpdate(
+    session: SessionRecord,
+    input: {
+      atSecond: number;
+      learnerUtterance: string;
+      traceContextTags: string[];
+    },
+  ): HistoryTakingCoverageState {
+    const update = this.conversationPolicy.updateHistoryTakingCoverage(
+      session.historyTakingCoverage,
+      {
+        traceTags: input.traceContextTags,
+        learnerUtterance: input.learnerUtterance,
+      },
+      session.historyTakingCoverageSpec,
+    );
+    session.historyTakingCoverage = update.state;
+
+    // Emit only on state CHANGE (newly covered domains) so unchanged paths stay lean.
+    if (update.newlyCoveredDomainIds.length > 0) {
+      const singleNewTag =
+        update.newlyCoveredDomainIds.length === 1
+          ? update.state.coverageTraceTags.find((tag) =>
+            tag === `history_coverage:${update.newlyCoveredDomainIds[0]}`
+          )
+          : undefined;
+      this.appendTrace(session, {
+        eventType: "conversation.history_coverage.updated",
+        atSecond: input.atSecond,
+        source: "conversation-policy",
+        ...(singleNewTag ? { tag: singleNewTag } : {}),
+        payload: {
+          coveredDomainIds: [...update.state.coveredDomainIds],
+          missingDomainIds: [...update.state.missingDomainIds],
+          newlyCoveredDomainIds: [...update.newlyCoveredDomainIds],
+          coveragePercent: update.state.coveragePercent,
+          coverageTraceTags: [...update.state.coverageTraceTags],
+          claimScope: update.state.claimScope,
+          notEvidenceFor: [...update.state.notEvidenceFor],
+        },
+      });
+    }
+
+    return update.state;
+  }
+
   private async generateActorResponseFromContext(
     session: SessionRecord,
     input: GenerateActorResponseFromContextInput,
@@ -614,6 +780,21 @@ export class ScenarioRuntime {
         durableEventRef: durableEventRef(session.run.stationRunId, session.nextSequence),
       },
     });
+
+    const historyTakingCoverage = this.applyHistoryTakingCoverageUpdate(session, {
+      atSecond: input.atSecond,
+      learnerUtterance: input.learnerUtterance,
+      traceContextTags,
+    });
+
+    session.actorTurnInProgress = {
+      actorId: input.actorId,
+      conversationTurn: input.conversationTurn,
+      startedAtSecond: input.atSecond,
+      learnerUtterance: input.learnerUtterance,
+      stationRunId: session.run.stationRunId,
+    };
+
     let response: ActorResponseResult;
     try {
       response = await this.options.modelGateway.generateActorResponse({
@@ -637,6 +818,7 @@ export class ScenarioRuntime {
         policy: actorResponsePolicy,
       });
     } catch {
+      session.actorTurnInProgress = null;
       this.appendTrace(session, {
         eventType: "actor.response.failed",
         atSecond: input.atSecond,
@@ -651,6 +833,10 @@ export class ScenarioRuntime {
       });
       throw new Error("Actor response generation failed");
     }
+
+    session.actorTurnInProgress = null;
+    session.lastSpeakerActorId = input.actorId;
+
     const actorResponseDurableRef = durableEventRef(session.run.stationRunId, session.nextSequence);
     const actorResponseEvent = this.appendTrace(session, {
       eventType: "actor.response.generated",
@@ -688,6 +874,7 @@ export class ScenarioRuntime {
       response,
       learnerEvent,
       actorResponseEvent,
+      historyTakingCoverage,
     };
   }
 }
@@ -744,6 +931,7 @@ export function createDefaultScenarioRuntime(
       routeId: "voice-offline-v1",
       adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
     }),
+    conversationPolicy: options?.conversationPolicy ?? createDefaultConversationPolicy(),
     ...(options?.durableStore ? { durableStore: options.durableStore } : {}),
   });
 }

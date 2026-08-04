@@ -1,3 +1,4 @@
+import { domainsForTraceTag } from "@openclinxr/conversation-policy";
 import { stepEmotionStateFromCaseMachine } from "./runtime-state.js";
 
 export type PedsAdaptiveDialogueBranchType = "escalation" | "deescalation";
@@ -16,6 +17,11 @@ export type PedsAdaptiveDialogueBranchResolution = {
     source: "bundle_dialogue_adaptive_branch";
     notEvidenceFor: string[];
   };
+  /**
+   * Additive: history-taking domain ids covered by the requested trace tag
+   * (shared source of truth with @openclinxr/conversation-policy).
+   */
+  historyTakingDomainIds?: string[];
 };
 
 const PEDS_ASTHMA_EMOTION_MACHINE = {
@@ -23,6 +29,10 @@ const PEDS_ASTHMA_EMOTION_MACHINE = {
   escalationTriggers: ["ignored_breathing", "rapid_questioning"],
   deescalationTriggers: ["breathing_effort_acknowledged", "simple_next_step"],
 };
+
+export function historyTakingDomainIdsForPedsTraceTag(traceTag: string): string[] {
+  return domainsForTraceTag("peds_asthma_parent_anxiety_v1", traceTag).map((domain) => domain.domainId);
+}
 
 export function resolvePedsAdaptiveDialogueBranch(
   traceTag: string,
@@ -32,6 +42,8 @@ export function resolvePedsAdaptiveDialogueBranch(
   if (scenarioId !== "peds_asthma_parent_anxiety_v1") {
     return null;
   }
+
+  const historyTakingDomainIds = historyTakingDomainIdsForPedsTraceTag(traceTag);
 
   const skippedBreathingAssessment = !completedTraceTags.includes("work_of_breathing_assessment")
     && (traceTag === "inhaler_history" || traceTag === "trigger_history");
@@ -60,6 +72,7 @@ export function resolvePedsAdaptiveDialogueBranch(
           "validated_adaptive_branching",
         ],
       },
+      historyTakingDomainIds,
     };
   }
 
@@ -88,6 +101,7 @@ export function resolvePedsAdaptiveDialogueBranch(
           "validated_adaptive_branching",
         ],
       },
+      historyTakingDomainIds,
     };
   }
 

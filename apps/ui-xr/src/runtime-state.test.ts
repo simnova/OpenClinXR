@@ -13,6 +13,7 @@ import {
   buildRuntimeEvidenceConsumerReadiness,
   buildRuntimeEvidencePosture,
   buildRuntimeFrameStats,
+  buildConversationTurnStateEvidence,
   buildXrTraceActionHandoffEvidence,
   buildXrTraceInteractionEvidenceSummary,
   completeTraceAction,
@@ -335,6 +336,46 @@ describe("XR runtime state", () => {
     expect(eventTypeForTraceTag("parent_communication")).toBe("learner.family");
     expect(eventTypeForTraceTag("empathy_statement")).toBe("learner.empathy");
     expect(eventTypeForTraceTag("patient_note_submitted")).toBe("learner.note");
+  });
+
+  it("builds conversation turn state evidence with claim-control fields", () => {
+    expect(buildConversationTurnStateEvidence({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      currentTurn: 2,
+      lastActorId: "patient_maya_johnson_v1",
+      nextActorId: "parent_jordan_johnson_v1",
+      nextTurnReason: "explicit_addressed_actor",
+      activeBargeIn: false,
+      lastBargeInOutcome: "actor_turn_interrupted",
+      historyCoverage: {
+        coveredDomainIds: ["inhaler_history"],
+        missingDomainIds: ["trigger_history"],
+        coveragePercent: 11.11,
+        coverageTraceTags: ["history_coverage:inhaler_history"],
+      },
+    })).toEqual({
+      source: "window.__openClinXrConversationTurnStateEvidence",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      currentTurn: 2,
+      lastActorId: "patient_maya_johnson_v1",
+      nextActorId: "parent_jordan_johnson_v1",
+      nextTurnReason: "explicit_addressed_actor",
+      activeBargeIn: false,
+      lastBargeInOutcome: "actor_turn_interrupted",
+      historyCoverage: {
+        coveredDomainIds: ["inhaler_history"],
+        missingDomainIds: ["trigger_history"],
+        coveragePercent: 11.11,
+        coverageTraceTags: ["history_coverage:inhaler_history"],
+      },
+      claimScope: "conversation_turn_state_hud_traced_not_scored",
+      notEvidenceFor: [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness",
+      ],
+    });
   });
 
   it("builds a review-safe XR trace action handoff with IWSDK sidecar targets", () => {

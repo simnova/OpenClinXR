@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
+    "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/domain": "workspace:*",
     "@openclinxr/model-gateway": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
