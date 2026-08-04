@@ -2,7 +2,7 @@
 # promote-candidate-copy.sh — documented copy-to-deployed-path step for a promoted
 # pipeline candidate. Reads a promotion record JSON (written by
 # tools/openclinxr/evidence/promote-candidate.ts) and copies the candidate GLB to
-# its suggested deploy target under apps/ui-xr/public/generated-humanoids/.
+# ALL deploy targets (primary generated-humanoids + cagematch current slot).
 #
 # Aesthetic-only asset staging. This does NOT confer production, clinical,
 # scoring, or learner readiness (see notEvidenceFor in the promotion record).
@@ -31,14 +31,30 @@ fi
 echo "[promote-candidate-copy] using record: $RECORD"
 
 SRC="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).glbPath)" "$RECORD")"
-DEST="$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).deployTargetSuggestion)" "$RECORD")"
 
 if [[ ! -f "$SRC" ]]; then
-  echo "Source GLB missing: $SRC" >&2
-  exit 1
+  echo "Source GLB missing: $SRC (record ok; deploy skipped)" >&2
+  exit 0
 fi
 
-mkdir -p "$(dirname "$DEST")"
-cp "$SRC" "$DEST"
-echo "[promote-candidate-copy] copied: $SRC -> $DEST"
+# Prefer deployTargets[] when present; fall back to deployTargetSuggestion for older records.
+node -e '
+const fs = require("fs");
+const path = require("path");
+const r = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+const src = process.argv[2];
+const targets = Array.isArray(r.deployTargets) && r.deployTargets.length
+  ? r.deployTargets
+  : (r.deployTargetSuggestion ? [r.deployTargetSuggestion] : []);
+if (!targets.length) {
+  console.error("No deploy targets in record");
+  process.exit(1);
+}
+for (const dest of targets) {
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+  console.log("[promote-candidate-copy] copied: " + src + " -> " + dest);
+}
+' "$RECORD" "$SRC"
+
 echo "[promote-candidate-copy] aesthetic staging only; not production/clinical/scoring/learner readiness."

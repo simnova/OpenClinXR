@@ -738,9 +738,12 @@ export {
   buildCandidateId,
   buildPipelineCandidateIndex,
   buildPromotionRecord,
+  cagematchDeployTargetForManifest,
   deployTargetForManifest,
+  deployTargetsForManifest,
   deriveCandidateRole,
   deriveManifestId,
+  joinPromotionStatus,
   joinVisionScore,
   PIPELINE_CANDIDATE_INDEX_CLAIM_SCOPE,
   PIPELINE_CANDIDATE_INDEX_SCHEMA_VERSION,
@@ -751,6 +754,7 @@ export {
   validatePipelineCandidateIndex,
 } from "./pipeline-candidate.js";
 export type {
+  CandidatePromotionStatus,
   CandidateRiggingSummary,
   CandidateVisionScore,
   DualFrameVisionScoreRow,

@@ -21,6 +21,7 @@ import {
   buildPipelineCandidateIndex,
   deriveCandidateRole,
   deriveManifestId,
+  joinPromotionStatus,
   joinVisionScore,
   PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
   summarizeRigging,
@@ -34,6 +35,9 @@ const OUT_PATH =
   process.env.OUT_PATH ||
   path.join(REPO_ROOT, ".openclinxr", "asset-production", "pipeline-candidate-index.json");
 const DOCS_DIR = process.env.DOCS_DIR || path.join(REPO_ROOT, "docs", "openclinxr");
+const PROMOTIONS_INDEX_PATH =
+  process.env.PROMOTIONS_INDEX_PATH ||
+  path.join(REPO_ROOT, ".openclinxr", "asset-production", "promotions", "index.json");
 /** Folders that are fixtures/smoke, not vet-able candidates. */
 const EXCLUDED_GROUPS = new Set((process.env.EXCLUDED_GROUPS || "smoke").split(",").map((s) => s.trim()));
 
@@ -157,10 +161,14 @@ async function main(): Promise<void> {
     return b.modifiedAt.localeCompare(a.modifiedAt);
   });
 
+  // Join promotion status from promotions/index.json (if present); newest wins.
+  const promotionsDoc = await readJsonOrNull(PROMOTIONS_INDEX_PATH);
+  const candidatesWithPromotion = joinPromotionStatus(candidates, promotionsDoc);
+
   const index = buildPipelineCandidateIndex({
     generatedAt,
     sourceVisionScoreReportPath,
-    candidates,
+    candidates: candidatesWithPromotion,
   });
 
   const serialized = `${JSON.stringify(index, null, 2)}\n`;

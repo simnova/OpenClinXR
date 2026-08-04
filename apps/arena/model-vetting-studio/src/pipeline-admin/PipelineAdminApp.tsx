@@ -1,6 +1,6 @@
 import type { PipelineCandidate, PipelineCandidateIndex } from "@openclinxr/model-vetting";
-import { Alert, Button, Descriptions, Modal, Progress, Segmented, Space, Spin, Statistic, Table, type TableColumnsType, Tag, Typography } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { Alert, Button, Descriptions, Modal, Progress, Segmented, Space, Spin, Statistic, Table, type TableColumnsType, Tag, Typography, message } from "antd";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CandidateCompare, CandidatePreview } from "./CandidatePreview.js";
 import {
   aggregateClothing,
@@ -40,6 +40,12 @@ function ScoreCell(props: { value: number | null }): React.ReactElement {
   );
 }
 
+function formatPromotedDay(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 10);
+  return d.toISOString().slice(0, 10);
+}
+
 export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): React.ReactElement {
   const [index, setIndex] = useState<PipelineCandidateIndex | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -49,6 +55,15 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
   const [promoteCandidate, setPromoteCandidate] = useState<PipelineCandidate | null>(null);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenMessage, setRegenMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const reloadIndex = useCallback(async (): Promise<void> => {
+    const result = await loadPipelineCandidateIndex({ overrideUrl: props.indexOverrideUrl ?? null });
+    setIndex(result.index);
+    setLoadedFromUrl(result.loadedFromUrl);
+    setLoadError(null);
+  }, [props.indexOverrideUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,8 +87,88 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
     [selectedKeys, candidates],
   );
 
+  async function handleRegenerateIndex(): Promise<void> {
+    setRegenerating(true);
+    setRegenMessage(null);
+    try {
+      const response = await fetch("/__regenerate-index", { method: "POST" });
+      const body = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        stderr?: string;
+        index?: PipelineCandidateIndex;
+      };
+      if (!response.ok || !body.ok) {
+        const detail = body.error || body.stderr || `HTTP ${response.status}`;
+        setRegenMessage({
+          type: "error",
+          text: `Regenerate failed (dev server only): ${detail}`,
+        });
+        return;
+      }
+      await reloadIndex();
+      setRegenMessage({
+        type: "success",
+        text: `Index regenerated (${body.index?.candidateCount ?? "?"} candidates). Aesthetic inventory only.`,
+      });
+      void message.success("Index regenerated");
+    } catch (error) {
+      setRegenMessage({
+        type: "error",
+        text: `Regenerate unavailable (not under vite dev): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      });
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
+  async function handleAfterDeploy(): Promise<void> {
+    // Prefer a quiet index rebuild so Status tags pick up the new promotion record.
+    // Failures are non-fatal — Deploy success is already shown in the promote panel.
+    try {
+      await fetch("/__regenerate-index", { method: "POST" });
+    } catch {
+      // dev-only endpoint may be absent
+    }
+    try {
+      await reloadIndex();
+    } catch {
+      // ignore
+    }
+  }
+
   const columns: TableColumnsType<PipelineCandidate> = useMemo(
     () => [
+      {
+        title: "Status",
+        key: "promotionStatus",
+        width: 140,
+        filters: [
+          { text: "Promoted", value: "promoted" },
+          { text: "Not promoted", value: "not" },
+        ],
+        onFilter: (value, record) => {
+          const isPromoted = Boolean(record.promotion?.promoted);
+          return value === "promoted" ? isPromoted : !isPromoted;
+        },
+        render: (_v, record) =>
+          record.promotion?.promoted ? (
+            <Space orientation="vertical" size={0}>
+              <Tag color="success" data-testid="status-promoted">
+                Promoted
+              </Tag>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                {formatPromotedDay(record.promotion.promotedAt)}
+              </Text>
+            </Space>
+          ) : (
+            <Text type="secondary" data-testid="status-not-promoted">
+              —
+            </Text>
+          ),
+      },
       {
         title: "Role",
         dataIndex: "role",
@@ -213,7 +308,26 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
           >
             Compare {selected.length}/2 selected
           </Button>
+          <Button
+            onClick={() => void handleRegenerateIndex()}
+            loading={regenerating}
+            data-testid="regenerate-index"
+          >
+            Regenerate index
+          </Button>
         </Space>
+
+        {regenMessage ? (
+          <Alert
+            type={regenMessage.type === "success" ? "success" : "error"}
+            showIcon
+            closable
+            onClose={() => setRegenMessage(null)}
+            title={regenMessage.type === "success" ? "Index updated" : "Regenerate failed"}
+            description={regenMessage.text}
+            data-testid="regenerate-message"
+          />
+        ) : null}
 
         <div>
           {index.notEvidenceFor.map((claim) => (
@@ -281,7 +395,14 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
         title={promoteCandidate ? `Promote · ${promoteCandidate.manifestId}` : "Promote"}
         destroyOnHidden
       >
-        {promoteCandidate ? <PromotePanel candidate={promoteCandidate} /> : null}
+        {promoteCandidate ? (
+          <PromotePanel
+            candidate={promoteCandidate}
+            onDeployed={() => {
+              void handleAfterDeploy();
+            }}
+          />
+        ) : null}
       </Modal>
 
       <Modal

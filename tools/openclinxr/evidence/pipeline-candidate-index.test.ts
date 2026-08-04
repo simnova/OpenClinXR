@@ -1,7 +1,11 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  joinPromotionStatus,
+  PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
+  type PipelineCandidate,
+} from "../../../packages/openclinxr/arena/model-vetting/src/pipeline-candidate.js";
 import { deriveGroupAndManifest, selectLatestVisionScoreReport } from "./pipeline-candidate-index.js";
-import { parseArgs, promotionRecordFileName } from "./promote-candidate.js";
 
 describe("deriveGroupAndManifest", () => {
   const annyRoot = "/repo/.openclinxr/asset-production/anny";
@@ -36,18 +40,38 @@ describe("selectLatestVisionScoreReport", () => {
   });
 });
 
-describe("promote-candidate argument + filename helpers", () => {
-  it("parses flags and value pairs", () => {
-    const args = parseArgs(["--candidate-id", "g/a", "--apply-copy", "--reason", "best"]);
-    expect(args["candidate-id"]).toBe("g/a");
-    expect(args["apply-copy"]).toBe(true);
-    expect(args["reason"]).toBe("best");
+describe("promotion-status join (index builder)", () => {
+  const candidate: PipelineCandidate = {
+    candidateId: "pilot-demo/peds_nurse_kevin",
+    group: "pilot-demo",
+    manifestId: "peds_nurse_kevin",
+    role: "nurse",
+    glbPath: ".openclinxr/asset-production/anny/pilot-demo/peds_nurse_kevin.glb",
+    sizeBytes: 100,
+    modifiedAt: "2026-08-03T00:00:00.000Z",
+    visionScore: null,
+    riggingSummary: null,
+    thumbnailPath: null,
+    notEvidenceFor: [...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR],
+  };
+
+  it("sets promotion from promotions index (newest first)", () => {
+    const joined = joinPromotionStatus([candidate], {
+      promotions: [
+        {
+          candidateId: "pilot-demo/peds_nurse_kevin",
+          promotedAt: "2026-08-03T22:00:00.000Z",
+          promotedBy: "faculty_reviewer",
+          recordPath: ".openclinxr/asset-production/promotions/a.json",
+        },
+      ],
+    });
+    expect(joined[0]?.promotion?.promoted).toBe(true);
+    expect(joined[0]?.promotion?.promotedBy).toBe("faculty_reviewer");
+    expect(joined[0]?.promotion?.recordPath).toContain("promotions");
   });
-  it("builds a filesystem-safe record filename", () => {
-    const name = promotionRecordFileName("photoreal/nurse_winner", "2026-08-03T21:00:00.000Z");
-    expect(name).not.toContain("/");
-    expect(name).not.toContain(":");
-    expect(name.endsWith(".json")).toBe(true);
-    expect(name).toContain("photoreal_nurse_winner");
+
+  it("sets promotion null when index absent", () => {
+    expect(joinPromotionStatus([candidate], null)[0]?.promotion).toBeNull();
   });
 });

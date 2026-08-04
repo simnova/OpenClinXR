@@ -2,8 +2,8 @@
 import "@testing-library/jest-dom/vitest";
 import type { PipelineCandidateIndex } from "@openclinxr/model-vetting";
 import { ConfigProvider } from "antd";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "./jsdom-setup.js";
 
 // Stub the three.js preview/compare so jsdom never touches WebGL.
@@ -55,6 +55,12 @@ const smallIndex: PipelineCandidateIndex = {
         claimScope: "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig",
       },
       thumbnailPath: null,
+      promotion: {
+        promoted: true,
+        promotedAt: "2026-08-03T21:30:00.000Z",
+        promotedBy: "faculty_reviewer",
+        recordPath: ".openclinxr/asset-production/promotions/peds_nurse_kevin.json",
+      },
       notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
     },
     {
@@ -68,17 +74,36 @@ const smallIndex: PipelineCandidateIndex = {
       visionScore: null,
       riggingSummary: null,
       thumbnailPath: null,
+      promotion: null,
       notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
     },
   ],
 };
 
-beforeAll(() => {
-  vi.stubGlobal("fetch", (async () =>
-    new Response(JSON.stringify(smallIndex), { status: 200, headers: { "content-type": "application/json" } })) as unknown as typeof fetch);
+let fetchMock: ReturnType<typeof vi.fn>;
+
+beforeEach(() => {
+  fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    if (url.includes("/__regenerate-index") && init?.method === "POST") {
+      return new Response(
+        JSON.stringify({ ok: true, index: smallIndex, stdout: "regenerated" }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
+    // Default: load index JSON for table
+    return new Response(JSON.stringify(smallIndex), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  });
+  vi.stubGlobal("fetch", fetchMock as unknown as typeof fetch);
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 function renderAdmin(): void {
   render(
@@ -92,12 +117,16 @@ describe("PipelineAdminApp", () => {
   it("renders the admin heading, stats, and candidate rows with scores", async () => {
     renderAdmin();
     expect(await screen.findByText("Pipeline Administration & Model Vetting")).toBeInTheDocument();
-    // Sample index has 37 candidates including peds_nurse_kevin rows.
     expect((await screen.findAllByText("peds_nurse_kevin")).length).toBeGreaterThan(0);
-    // notEvidenceFor gates surfaced.
     expect(screen.getAllByText(/not evidence for: clinical validity/i).length).toBeGreaterThan(0);
-    // A role tag renders.
     expect(screen.getAllByText("nurse").length).toBeGreaterThan(0);
+  });
+
+  it("shows Promoted status tag for promoted candidates", async () => {
+    renderAdmin();
+    await screen.findByText("Pipeline Administration & Model Vetting");
+    expect((await screen.findAllByTestId("status-promoted")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Promoted").length).toBeGreaterThan(0);
   });
 
   it("toggles score framing emphasis without crashing", async () => {
@@ -113,5 +142,20 @@ describe("PipelineAdminApp", () => {
     await screen.findByText("Pipeline Administration & Model Vetting");
     expect((await screen.findAllByRole("button", { name: "Promote" })).length).toBeGreaterThan(0);
     expect(screen.getAllByRole("button", { name: "Preview" }).length).toBeGreaterThan(0);
+  });
+
+  it("Regenerate index posts /__regenerate-index and reloads table", async () => {
+    renderAdmin();
+    await screen.findByText("Pipeline Administration & Model Vetting");
+    fireEvent.click(screen.getByTestId("regenerate-index"));
+    await waitFor(() => {
+      expect(screen.getByTestId("regenerate-message")).toBeInTheDocument();
+    });
+    const regenCalls = fetchMock.mock.calls.filter(
+      (c) => String(c[0]).includes("/__regenerate-index"),
+    );
+    expect(regenCalls.length).toBeGreaterThan(0);
+    expect((regenCalls[0]![1] as RequestInit).method).toBe("POST");
+    expect(screen.getByText(/Index regenerated/i)).toBeInTheDocument();
   });
 });

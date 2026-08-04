@@ -3,9 +3,12 @@ import {
   buildCandidateId,
   buildPipelineCandidateIndex,
   buildPromotionRecord,
+  cagematchDeployTargetForManifest,
   deployTargetForManifest,
+  deployTargetsForManifest,
   deriveCandidateRole,
   deriveManifestId,
+  joinPromotionStatus,
   joinVisionScore,
   PIPELINE_CANDIDATE_INDEX_SCHEMA_VERSION,
   PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
@@ -133,6 +136,7 @@ describe("buildPromotionRecord + deployTargetForManifest", () => {
     visionScore: null,
     riggingSummary: null,
     thumbnailPath: null,
+    promotion: null,
     notEvidenceFor: [...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR],
   };
 
@@ -142,7 +146,17 @@ describe("buildPromotionRecord + deployTargetForManifest", () => {
     );
   });
 
-  it("builds a claim-scoped promotion record with copy command and gates", () => {
+  it("lists both runtime deploy targets (primary + cagematch current)", () => {
+    const targets = deployTargetsForManifest("nurse_winner");
+    expect(targets).toEqual([
+      "apps/ui-xr/public/generated-humanoids/nurse_winner.glb",
+      "apps/ui-xr/public/cagematch/anny-real-garment/current/nurse_winner.glb",
+    ]);
+    expect(cagematchDeployTargetForManifest("nurse_winner")).toBe(targets[1]);
+    expect(deployTargetForManifest("nurse_winner")).toBe(targets[0]);
+  });
+
+  it("builds a claim-scoped promotion record with deployTargets, copy command, and gates", () => {
     const record = buildPromotionRecord(candidate, {
       promotedBy: "faculty_reviewer",
       reason: "best nurse realism this batch",
@@ -151,10 +165,63 @@ describe("buildPromotionRecord + deployTargetForManifest", () => {
     expect(record.schemaVersion).toBe(PIPELINE_CANDIDATE_PROMOTION_SCHEMA_VERSION);
     expect(record.candidateId).toBe(candidate.candidateId);
     expect(record.deployTargetSuggestion).toBe("apps/ui-xr/public/generated-humanoids/nurse_winner.glb");
+    expect(record.deployTargets).toEqual([
+      "apps/ui-xr/public/generated-humanoids/nurse_winner.glb",
+      "apps/ui-xr/public/cagematch/anny-real-garment/current/nurse_winner.glb",
+    ]);
+    expect(record.deployTargetSuggestion).toBe(record.deployTargets[0]);
     expect(record.copyCommand).toContain("cp ");
     expect(record.copyCommand).toContain("nurse_winner.glb");
+    expect(record.copyCommand).toContain("cagematch/anny-real-garment/current");
     expect(record.claimScope).toContain("not_production_or_clinical_readiness");
     expect(record.notEvidenceFor).toEqual([...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR]);
+  });
+});
+
+describe("joinPromotionStatus", () => {
+  const base: PipelineCandidate = {
+    candidateId: "pilot-demo/peds_nurse_kevin",
+    group: "pilot-demo",
+    manifestId: "peds_nurse_kevin",
+    role: "nurse",
+    glbPath: ".openclinxr/asset-production/anny/pilot-demo/peds_nurse_kevin.glb",
+    sizeBytes: 10,
+    modifiedAt: "2026-08-03T00:00:00.000Z",
+    visionScore: null,
+    riggingSummary: null,
+    thumbnailPath: null,
+    notEvidenceFor: [...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR],
+  };
+
+  it("sets promotion=null when no promotions index", () => {
+    const joined = joinPromotionStatus([base], null);
+    expect(joined[0]?.promotion).toBeNull();
+  });
+
+  it("joins newest promotion by candidateId (first entry wins)", () => {
+    const joined = joinPromotionStatus([base, { ...base, candidateId: "other/x", manifestId: "x" }], {
+      promotions: [
+        {
+          candidateId: "pilot-demo/peds_nurse_kevin",
+          promotedAt: "2026-08-03T22:00:00.000Z",
+          promotedBy: "faculty_reviewer",
+          recordPath: ".openclinxr/asset-production/promotions/newer.json",
+        },
+        {
+          candidateId: "pilot-demo/peds_nurse_kevin",
+          promotedAt: "2026-08-03T21:00:00.000Z",
+          promotedBy: "old",
+          recordPath: ".openclinxr/asset-production/promotions/older.json",
+        },
+      ],
+    });
+    expect(joined[0]?.promotion).toEqual({
+      promoted: true,
+      promotedAt: "2026-08-03T22:00:00.000Z",
+      promotedBy: "faculty_reviewer",
+      recordPath: ".openclinxr/asset-production/promotions/newer.json",
+    });
+    expect(joined[1]?.promotion).toBeNull();
   });
 });
 

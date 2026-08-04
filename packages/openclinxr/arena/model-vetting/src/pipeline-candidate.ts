@@ -63,6 +63,14 @@ export type CandidateRiggingSummary = {
   claimScope: string;
 };
 
+/** Promotion status joined from `.openclinxr/asset-production/promotions/index.json`. */
+export type CandidatePromotionStatus = {
+  promoted: true;
+  promotedAt: string;
+  promotedBy: string;
+  recordPath: string;
+};
+
 export type PipelineCandidate = {
   candidateId: string;
   group: string;
@@ -74,6 +82,8 @@ export type PipelineCandidate = {
   visionScore: CandidateVisionScore | null;
   riggingSummary: CandidateRiggingSummary | null;
   thumbnailPath: string | null;
+  /** Present when this candidate has a promotion record (newest wins); null otherwise. */
+  promotion?: CandidatePromotionStatus | null;
   notEvidenceFor: string[];
 };
 
@@ -100,7 +110,17 @@ export type PromotionRecord = {
   riggingSummary: CandidateRiggingSummary | null;
   promotedBy: string;
   reason: string;
+  /**
+   * Primary runtime deploy path (back-compat). Always equals `deployTargets[0]`.
+   * Aesthetic asset staging only — not production/clinical readiness.
+   */
   deployTargetSuggestion: string;
+  /**
+   * All runtime deploy paths for this promotion:
+   * 1. apps/ui-xr/public/generated-humanoids/<manifestId>.glb
+   * 2. apps/ui-xr/public/cagematch/anny-real-garment/current/<manifestId>.glb
+   */
+  deployTargets: string[];
   copyCommand: string;
   claimScope: typeof PIPELINE_CANDIDATE_PROMOTION_CLAIM_SCOPE;
   notEvidenceFor: string[];
@@ -245,9 +265,22 @@ export function summarizeRigging(riggingReport: unknown): CandidateRiggingSummar
   };
 }
 
-/** Suggested deployed path for a promoted candidate GLB. */
+/** Primary runtime deploy path (ui-xr generated-humanoids). Back-compat alias for deployTargets[0]. */
 export function deployTargetForManifest(manifestId: string): string {
   return `apps/ui-xr/public/generated-humanoids/${manifestId}.glb`;
+}
+
+/** Cagematch "current" slot path for a promoted candidate GLB. */
+export function cagematchDeployTargetForManifest(manifestId: string): string {
+  return `apps/ui-xr/public/cagematch/anny-real-garment/current/${manifestId}.glb`;
+}
+
+/**
+ * Both runtime deploy targets for aesthetic asset staging.
+ * Order is stable: primary generated-humanoids first, then cagematch current.
+ */
+export function deployTargetsForManifest(manifestId: string): string[] {
+  return [deployTargetForManifest(manifestId), cagematchDeployTargetForManifest(manifestId)];
 }
 
 /** Build a deterministic, claim-scoped promotion record for a candidate. */
@@ -255,7 +288,9 @@ export function buildPromotionRecord(
   candidate: PipelineCandidate,
   options: { promotedBy: string; reason: string; promotedAt: string },
 ): PromotionRecord {
-  const deployTargetSuggestion = deployTargetForManifest(candidate.manifestId);
+  const deployTargets = deployTargetsForManifest(candidate.manifestId);
+  const deployTargetSuggestion = deployTargets[0] ?? deployTargetForManifest(candidate.manifestId);
+  const copyParts = deployTargets.map((dest) => `cp "${candidate.glbPath}" "${dest}"`).join(" && ");
   return {
     schemaVersion: PIPELINE_CANDIDATE_PROMOTION_SCHEMA_VERSION,
     promotedAt: options.promotedAt,
@@ -269,10 +304,43 @@ export function buildPromotionRecord(
     promotedBy: options.promotedBy,
     reason: options.reason,
     deployTargetSuggestion,
-    copyCommand: `cp "${candidate.glbPath}" "${deployTargetSuggestion}"`,
+    deployTargets,
+    copyCommand: copyParts,
     claimScope: PIPELINE_CANDIDATE_PROMOTION_CLAIM_SCOPE,
     notEvidenceFor: [...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR],
   };
+}
+
+/**
+ * Join promotions index entries onto candidates (match by candidateId; newest wins).
+ * Pure helper used by the index builder and tests.
+ */
+export function joinPromotionStatus(
+  candidates: PipelineCandidate[],
+  promotionsIndex: unknown,
+): PipelineCandidate[] {
+  const byId = new Map<string, CandidatePromotionStatus>();
+  if (isRecord(promotionsIndex) && Array.isArray(promotionsIndex["promotions"])) {
+    for (const entry of promotionsIndex["promotions"]) {
+      if (!isRecord(entry)) continue;
+      const candidateId = typeof entry["candidateId"] === "string" ? entry["candidateId"] : "";
+      if (!candidateId || byId.has(candidateId)) continue; // first = newest (index is newest-first)
+      const promotedAt = typeof entry["promotedAt"] === "string" ? entry["promotedAt"] : "";
+      const promotedBy = typeof entry["promotedBy"] === "string" ? entry["promotedBy"] : "unknown";
+      const recordPath = typeof entry["recordPath"] === "string" ? entry["recordPath"] : "";
+      if (!promotedAt) continue;
+      byId.set(candidateId, {
+        promoted: true,
+        promotedAt,
+        promotedBy,
+        recordPath,
+      });
+    }
+  }
+  return candidates.map((c) => ({
+    ...c,
+    promotion: byId.get(c.candidateId) ?? null,
+  }));
 }
 
 /** Assemble a full candidate index document (pure — inputs already gathered). */

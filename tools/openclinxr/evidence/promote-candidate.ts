@@ -4,8 +4,9 @@
  * Reads the pipeline-candidate-index.json, finds the candidate, and writes a
  * claim-scoped promotion record JSON under
  * `.openclinxr/asset-production/promotions/` plus updates a promotions index.
- * The actual copy-to-deployed-path is a documented/scripted step (printed as
- * `copyCommand`, and runnable with --apply-copy or scripts/promote-candidate-copy.sh).
+ * With `--apply-copy`, copies the source GLB to ALL `deployTargets` (primary
+ * generated-humanoids + cagematch current). Missing source GLB does not throw:
+ * the record still writes and deploy reports skipped.
  *
  * Aesthetic metadata only. Not production/clinical/scoring/learner readiness.
  *
@@ -14,7 +15,7 @@
  *     --promoted-by faculty_reviewer --reason "best nurse realism" [--apply-copy]
  */
 
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
@@ -47,6 +48,12 @@ type PromotionsIndex = {
   }>;
 };
 
+export type DeployCopyResult = {
+  sourceExists: boolean;
+  sourcePath: string;
+  results: Array<{ target: string; status: "copied" | "skipped_missing_source" | "error"; error?: string }>;
+};
+
 export function parseArgs(argv: string[]): Record<string, string | boolean> {
   const out: Record<string, string | boolean> = {};
   for (let i = 0; i < argv.length; i += 1) {
@@ -69,6 +76,48 @@ export function promotionRecordFileName(candidateId: string, promotedAt: string)
   const safeId = candidateId.replace(/[^a-zA-Z0-9._-]+/gu, "_");
   const safeStamp = promotedAt.replace(/[:.]/gu, "-");
   return `${safeId}--${safeStamp}.json`;
+}
+
+/**
+ * Copy a source GLB to every deploy target under `repoRoot`.
+ * Does not throw when the source is missing — reports skipped instead.
+ * Creates parent directories as needed.
+ */
+export async function applyDeployCopy(options: {
+  repoRoot: string;
+  sourceGlbPath: string;
+  deployTargets: string[];
+}): Promise<DeployCopyResult> {
+  const sourceAbs = path.resolve(options.repoRoot, options.sourceGlbPath);
+  let sourceExists = false;
+  try {
+    await access(sourceAbs);
+    sourceExists = true;
+  } catch {
+    sourceExists = false;
+  }
+
+  const results: DeployCopyResult["results"] = [];
+  for (const target of options.deployTargets) {
+    if (!sourceExists) {
+      results.push({ target, status: "skipped_missing_source" });
+      continue;
+    }
+    try {
+      const destAbs = path.resolve(options.repoRoot, target);
+      await mkdir(path.dirname(destAbs), { recursive: true });
+      await copyFile(sourceAbs, destAbs);
+      results.push({ target, status: "copied" });
+    } catch (error) {
+      results.push({
+        target,
+        status: "error",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  return { sourceExists, sourcePath: options.sourceGlbPath, results };
 }
 
 async function readIndex(): Promise<PipelineCandidateIndex> {
@@ -133,15 +182,29 @@ async function main(): Promise<void> {
   await writeFile(indexAbs, `${JSON.stringify(promotionsIndex, null, 2)}\n`, "utf8");
 
   console.log(`[promote-candidate] recorded promotion → ${recordRel}`);
-  console.log(`[promote-candidate] deploy target suggestion: ${record.deployTargetSuggestion}`);
+  console.log(`[promote-candidate] deploy targets: ${record.deployTargets.join(", ")}`);
   console.log(`[promote-candidate] copy command: ${record.copyCommand}`);
 
   if (applyCopy) {
-    const srcAbs = path.resolve(REPO_ROOT, candidate.glbPath);
-    const destAbs = path.resolve(REPO_ROOT, record.deployTargetSuggestion);
-    await mkdir(path.dirname(destAbs), { recursive: true });
-    await copyFile(srcAbs, destAbs);
-    console.log(`[promote-candidate] --apply-copy: copied GLB → ${record.deployTargetSuggestion}`);
+    const deploy = await applyDeployCopy({
+      repoRoot: REPO_ROOT,
+      sourceGlbPath: candidate.glbPath,
+      deployTargets: record.deployTargets,
+    });
+    if (!deploy.sourceExists) {
+      console.log(
+        `[promote-candidate] --apply-copy: source GLB missing (${candidate.glbPath}); record written, deploy skipped`,
+      );
+    }
+    for (const row of deploy.results) {
+      if (row.status === "copied") {
+        console.log(`[promote-candidate] --apply-copy: copied GLB → ${row.target}`);
+      } else if (row.status === "skipped_missing_source") {
+        console.log(`[promote-candidate] --apply-copy: skipped (missing source) → ${row.target}`);
+      } else {
+        console.log(`[promote-candidate] --apply-copy: error → ${row.target}: ${row.error ?? "unknown"}`);
+      }
+    }
   } else {
     console.log("[promote-candidate] copy NOT applied (record only). Re-run with --apply-copy or run the copy command.");
   }
