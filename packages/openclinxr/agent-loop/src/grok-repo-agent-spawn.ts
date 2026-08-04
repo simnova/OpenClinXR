@@ -113,6 +113,20 @@ export const GROK_SUBAGENTS_ENV = {
   headlessPrefix: "GROK_SUBAGENTS=1",
 } as const;
 
+/**
+ * Tone directive BAKED DIRECTLY into every worker's `-p` prompt — the proven-reliable mechanism.
+ * PROVEN 2026-08-04 (agentic-eval persona re-exploration): native `[subagents.personas]` do NOT
+ * bind their instructions in headless `-p` (every linkage failed), and `--agent` bodies / role
+ * `prompt_file` only load in a TRUSTED folder — our workers run in untrusted scratch worktrees.
+ * Inlined prompt text is the one mechanism that always takes effect regardless of trust. So we bake.
+ * `.grok/personas/terse-bluf.toml` is a human-editable SSOT MIRROR of this text, NOT a binding
+ * mechanism (native personas are inert in `-p`). Keep the two in sync when editing tone.
+ */
+export const WORKER_TONE_DIRECTIVE =
+  'TONE (obey): BOTTOM LINE first sentence. Bullets only; cite file:line + domain jargon. ' +
+  '≤100 words; no recap, no soft menus, no essay. End exactly "Recommended next: <slice> (Q#)". ' +
+  'Escalate with a line starting "UNABLE:" when below capability.';
+
 /** Per-job temp root convention — avoids parallel Blender/skin races on fixed /tmp names. */
 export const OPENCLINXR_JOB_TMP_CONVENTION = {
   envVar: "OPENCLINXR_JOB_TMP",
@@ -307,7 +321,7 @@ export function buildRepoAgentSpawnPrompt(input: {
       : `If task spans multiple packages/meshes/files: self-decompose into disjoint workstreams (worktree + unique temp + ports) rather than soloing on frontier. See ${LARGE_TASK_ORCHESTRATION_SKILL}.`
     : "";
   return [
-    `Tone: .grok/personas/terse-bluf.toml (BLUF only; no role-persona zoo) + charter ## Persona. Bullets file:line; ≤100w; end "Recommended next: <slice> (Q#)".`,
+    WORKER_TONE_DIRECTIVE,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
     "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed. Do NOT load full AGENTS.md/LEX unless UNABLE.",
     `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,

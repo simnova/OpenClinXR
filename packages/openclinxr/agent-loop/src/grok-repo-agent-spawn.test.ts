@@ -4,6 +4,7 @@ import {
   buildGrokRepoAgentSpawnSpec,
   formatGrokRepoAgentSpawnBrief,
   formatWorkerHeadlessDispatchFlags,
+  WORKER_TONE_DIRECTIVE,
   formatWorkerHeadlessEnvPrefix,
   GROK_SUBAGENTS_ENV,
   looksLikeLargeParallelTask,
@@ -207,6 +208,21 @@ describe("grok repo agent spawn", () => {
       expect(spec.spawnPrompt).toContain("openclinxr_skin_albedo_mixed.png");
       expect(spec.spawnPrompt).toContain("worker-scoped-session");
       expect(spec.spawnPrompt).toContain("spawn_subagent");
+    });
+
+    it("bakes the tone directive inline (proven mechanism) — not a native persona-file binding", () => {
+      const spec = buildGrokRepoAgentSpawnSpec({
+        roleId: "asset-pipeline-lead",
+        roleDir: "agents/core/asset-pipeline-lead",
+        group: "core",
+        task: "any task",
+      });
+      // The full directive is inlined (survives untrusted worktrees); native personas don't bind in -p.
+      expect(spec.spawnPrompt).toContain(WORKER_TONE_DIRECTIVE);
+      expect(spec.spawnPrompt).toContain("BOTTOM LINE first");
+      expect(spec.spawnPrompt).toContain('Recommended next: <slice> (Q#)');
+      // Must NOT tell the child to bind the persona FILE (proven inert in -p).
+      expect(spec.spawnPrompt).not.toContain("Tone: .grok/personas/terse-bluf.toml");
     });
 
     it("large parallel task forces fan-out skill language", () => {

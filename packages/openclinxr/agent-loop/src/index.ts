@@ -1273,6 +1273,7 @@ export {
   formatWorkerHeadlessDispatchFlags,
   formatWorkerHeadlessEnvPrefix,
   WORKER_HEADLESS_DISPATCH_FLAGS,
+  WORKER_TONE_DIRECTIVE,
   looksLikeLargeParallelTask,
   recommendRepoAgentsForConsult,
   resolveGrokSpawnSurfaceForPolicy,

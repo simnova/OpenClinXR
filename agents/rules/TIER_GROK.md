@@ -21,7 +21,7 @@ Corrective notes only; **does not weaken** Q1/Q4/Q5 or the 6 protected blueprint
 | `capability_mode=read-only` | **DISPROVEN** as security boundary (child still wrote files) | Use structural gates: agent `disallowedTools` / CLI deny, `--cwd` isolation, `[permission] deny`, orchestrator intended-files review |
 | Project / worktree **Stop** (and other lifecycle) hooks in `-p` | **DO NOT FIRE** | Verify-before-ship via **task contract** + **orchestrator post-verify** — never depend on Stop hooks in headless workers |
 | Agent def frontmatter `tools` / `disallowedTools` | **BINDS** in `-p` | Keep structural fields; essay bodies are soft-bind token cost (trim) |
-| Role personas | matched ≈ mismatched quality; +~14% longer | Keep ≤2 tone-only personas (`terse-bluf`, `orchestrator`); no role-persona zoo |
+| Native `[subagents.personas]` | **DO NOT BIND in `-p`** — every linkage failed (name-match, role.persona, user-config inline, agent-frontmatter persona, instructions_file); persona-value earlier tested the wrong axis (expertise, not tone) | Tone is BAKED into the worker prompt via `WORKER_TONE_DIRECTIVE` (grok-repo-agent-spawn.ts) — inlined text always binds, incl. untrusted worktrees. `.grok/personas/*.toml` are human SSOT mirrors, NOT functional personas. For grok-SPAWNED children in a TRUSTED folder, role `prompt_file` (ABSOLUTE path) binds tone (proven; relative path did NOT reproduce) |
 
 See: `agentic-eval/docs/CONFIDENCE.md`, `docs/findings/{personas,agent-defs,hooks,tier-routing}.md`.
 

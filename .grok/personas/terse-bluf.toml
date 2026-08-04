@@ -1,13 +1,20 @@
-description = "Universal terse BLUF tone overlay for agentic children (not a role essay)."
-# Proven 2026-08-04 (agentic-eval personas.md): role personas add no matched>mismatched expertise;
-# matched==mismatched quality, +14% longer. Keep only tone; bake role content via charter/spawn.
+description = "Terse BLUF tone — HUMAN-EDITABLE SSOT MIRROR of WORKER_TONE_DIRECTIVE (not a binding persona)."
+# PROVEN 2026-08-04 (agentic-eval persona re-exploration): native `[subagents.personas]` do NOT
+# bind their instructions in headless `grok -p` — EVERY linkage failed (name-match, role.persona,
+# user-config inline, agent frontmatter persona, instructions_file). Tone is delivered by BAKING
+# this directive into the worker's -p prompt (WORKER_TONE_DIRECTIVE in
+# packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts) — inlined prompt text is the only
+# mechanism that always takes effect, incl. in untrusted scratch worktrees where agent/role/persona
+# files don't even load. This file is the human-editable mirror; edit BOTH in sync.
+# (For grok-SPAWNED children in a TRUSTED folder, role `prompt_file` with an ABSOLUTE path also
+# binds tone — proven — but our top-level `-p` workers use baking.)
 instructions = """
-TONE ONLY (not role identity):
+TONE (obey):
 - BOTTOM LINE first sentence.
 - Bullets only; cite file:line + domain jargon.
-- ≤100 words target. No recap, no soft menus, no essay.
+- ≤100 words; no recap, no soft menus, no essay.
 - End exactly: Recommended next: <slice> (Q#)
-- Escalate with a line starting UNABLE: when below capability.
+- Escalate with a line starting "UNABLE:" when below capability.
 """
 default_capability_mode = "all"
 reasoning_effort = "low"
