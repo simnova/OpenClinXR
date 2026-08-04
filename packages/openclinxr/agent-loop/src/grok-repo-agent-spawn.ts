@@ -82,6 +82,7 @@ export const GROK_REPO_AGENT_SPAWN_SAFEGUARDS = [
   "Frontier roles (vp-engineering-delivery) stay on Composer/grok-build — do not spawn as cheap subagents.",
   "After spawn, run pnpm grok:tier:post-slice and pnpm agent:memory:append when the role learns something durable.",
   "Headless/--yolo workers MUST set OPENCLINXR_WORKER=1 so SessionStart docs hygiene and CEO coord hooks NO-OP (workers must not mutate registries/PROJECT_STATUS/docs/_archive).",
+  "Headless `grok -p` workers that may spawn children MUST set GROK_SUBAGENTS=1 — without it spawn_subagent is absent from the -p tool list (agentic-eval A/B).",
   "Large tasks: decompose into N disjoint path-scoped workstreams with isolation=worktree, distinct ports, and per-job temp dirs (never shared /tmp basenames).",
 ];
 
@@ -97,6 +98,19 @@ export const OPENCLINXR_WORKER_ENV = {
   exportLine: "export OPENCLINXR_WORKER=1",
   headlessPrefix: "OPENCLINXR_WORKER=1",
   skill: ".grok/skills/worker-scoped-session/SKILL.md",
+} as const;
+
+/**
+ * Enables `spawn_subagent` in headless `grok -p` sessions.
+ * Proven (agentic-eval persona-binding + spawn-reliability): without GROK_SUBAGENTS=1 the
+ * spawn tool is absent from the -p tool list (0 tool_calls); with it, multi-level
+ * grok→deepseek cost-tiering can fire.
+ */
+export const GROK_SUBAGENTS_ENV = {
+  flag: "GROK_SUBAGENTS",
+  value: "1",
+  exportLine: "export GROK_SUBAGENTS=1",
+  headlessPrefix: "GROK_SUBAGENTS=1",
 } as const;
 
 /** Per-job temp root convention — avoids parallel Blender/skin races on fixed /tmp names. */
@@ -138,12 +152,14 @@ export function looksLikeLargeParallelTask(task?: string): boolean {
 
 /**
  * Shell prefix for manager-launched headless workers (bake into dispatch scripts).
- * Example: `OPENCLINXR_WORKER=1 OPENCLINXR_JOB_TMP=... grok -p "..." --yolo --cwd <wt>`
+ * Example: `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_JOB_TMP=... grok -p "..." --yolo --cwd <wt>`
+ * GROK_SUBAGENTS=1 is required so headless -p workers expose spawn_subagent for multi-level tiering.
  */
 export function formatWorkerHeadlessEnvPrefix(jobId?: string): string {
   const job = jobId ?? "job";
   return [
-    "OPENCLINXR_WORKER=1",
+    OPENCLINXR_WORKER_ENV.headlessPrefix,
+    GROK_SUBAGENTS_ENV.headlessPrefix,
     `OPENCLINXR_JOB_ID=${job}`,
     'OPENCLINXR_JOB_TMP="${TMPDIR:-/tmp}/openclinxr-job-${USER:-u}-$$-' + job + '"',
   ].join(" ");
@@ -251,11 +267,12 @@ export function buildRepoAgentSpawnPrompt(input: {
     isWriter
       ? "COMPOSITION-ROOTS: feature→packages; apps compose/boot only; tools CLI. Residual topology/DI/seedwork → architect. See docs/agent-ops/COMPOSITION-ROOTS.md."
       : "";
-  // Headless/--yolo workers: manager must export OPENCLINXR_WORKER=1 (hooks NO-OP docs hygiene).
+  // Headless/--yolo workers: OPENCLINXR_WORKER=1 (hooks NO-OP) + GROK_SUBAGENTS=1 (spawn_subagent in -p).
   const workerEnvBlock = isWriter
     ? [
-        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} (or ${OPENCLINXR_WORKER_ENV.exportLine}).`,
+        `WORKER ENV: headless/--yolo launches MUST use ${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix} (or ${OPENCLINXR_WORKER_ENV.exportLine}; ${GROK_SUBAGENTS_ENV.exportLine}).`,
         "When OPENCLINXR_WORKER=1, SessionStart docs hygiene + CEO coord hooks NO-OP — stay in pathScope; do NOT edit PROJECT_STATUS.md, docs/openclinxr/*registry*, docs/_archive/**, AGENTS.md.",
+        "When GROK_SUBAGENTS=1, headless grok -p exposes spawn_subagent for multi-level cost-tiering (absent without it).",
         `TEMP: export ${OPENCLINXR_JOB_TMP_CONVENTION.envVar}=${OPENCLINXR_JOB_TMP_CONVENTION.pattern}; files as ${OPENCLINXR_JOB_TMP_CONVENTION.filePattern}; FORBID fixed ${OPENCLINXR_JOB_TMP_CONVENTION.forbidExample}.`,
         "PORTS: distinct portless/dev ports per job (never share one fixed port across parallel workers).",
       ].join(" ")
@@ -489,7 +506,7 @@ export function formatGrokRepoAgentSpawnBrief(spec: GrokRepoAgentSpawnSpec): str
       : "";
   const worker =
     call.capability_mode === "read-write"
-      ? ` headlessEnv=${OPENCLINXR_WORKER_ENV.headlessPrefix}`
+      ? ` headlessEnv=${OPENCLINXR_WORKER_ENV.headlessPrefix} ${GROK_SUBAGENTS_ENV.headlessPrefix}`
       : "";
   return `${spec.roleId}: spawn_subagent ${call.subagent_type} (${call.capability_mode})${iso}${checklist}${worker} model=${spec.model} — ${spec.policyTier}`;
 }

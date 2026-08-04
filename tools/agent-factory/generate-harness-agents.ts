@@ -5,6 +5,7 @@ import {
   formatGrokRepoAgentSpawnBrief,
 } from "../../packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.js";
 import {
+  allowedToolsForRole,
   disallowedToolsForRole,
   getRepoRoleHarnessPolicy,
   getRolePathScope,
@@ -189,6 +190,8 @@ function grokNativeAgentMarkdown(role: RoleEntry): string {
   const permissionMode = readOnly ? "plan" : "default";
   // Wave B1: per-role tool surface (image tools for non-visual; workflow/spawn bans)
   const disallowed = disallowedToolsForRole(role.role, policy);
+  // Wave B1.1: positive allowlist for read-only roles (shell-bypass-proof; see allowedToolsForRole)
+  const allowed = allowedToolsForRole(role.role, policy);
   const description = [
     `OpenClinXR role ${role.role} (${role.group}).`,
     policy.writeScopeNote,
@@ -205,6 +208,10 @@ function grokNativeAgentMarkdown(role: RoleEntry): string {
     `permission_mode: ${permissionMode}`,
     // Specialists: false so role agents do not auto-inject full AGENTS.md (orchestrator.md is hand-written, agents_md: true).
     "agents_md: false",
+    // Positive tools: binds for read-only; writers omit (keep shell+write). disallowedTools remains as secondary ban.
+    ...(allowed
+      ? ["tools:", ...allowed.map((t) => `  - ${t}`)]
+      : []),
     "disallowedTools:",
     ...disallowed.map((t) => `  - ${t}`),
     "mcpInheritance: none",
@@ -236,7 +243,7 @@ Canonical mission/memory: root \`agents/**\` (\`charter.md\`, \`memory.md\`, \`i
 
 | Harness | Generated form |
 |---------|----------------|
-| **\`.grok/agents/*.md\`** | **Grok-native** YAML frontmatter (\`name\`, \`description\`, \`disallowedTools\`, \`mcpInheritance: none\`) per user-guide 16-subagents — not fat spawn seeds |
+| **\`.grok/agents/*.md\`** | **Grok-native** YAML frontmatter (\`name\`, \`description\`, positive \`tools:\` for read-only, \`disallowedTools\`, \`mcpInheritance: none\`) per user-guide 16-subagents — not fat spawn seeds |
 | **\`.claude\` / \`.cursor\`** | Lightweight pointers |
 | **\`.codex\`** | Pointers + native \`.toml\` from \`role-harness-policy.ts\` |
 

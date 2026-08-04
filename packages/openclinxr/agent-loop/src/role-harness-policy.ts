@@ -593,11 +593,12 @@ const IMAGE_GEN_DISALLOWED_TOOLS = [
 /**
  * Wave B1: per-role Grok `disallowedTools` for generated `.grok/agents/*.md`.
  *
- * - read-only sandbox: ban search_replace, write, workflow (keep `run_terminal_command` for rg/shell)
+ * - read-only sandbox: ban search_replace, write, workflow
  * - workspace-write: ban workflow (+ spawn_subagent except chief-coordinator); keep shell
  * - non-visual roles: also ban image_gen / image_edit / video tools
  * - visual multimodal roles: keep image tools
- * - never ban `run_terminal_command` here
+ * - never ban `run_terminal_command` here (shell-bypassable; use positive `tools:` via
+ *   `allowedToolsForRole` for real read-only bind — agentic-eval persona-binding)
  * - CEO `orchestrator.md` is hand-written (B3 KEEP write + shell with write-roots discipline)
  */
 export function disallowedToolsForRole(
@@ -618,6 +619,52 @@ export function disallowedToolsForRole(
     disallowed.push(...IMAGE_GEN_DISALLOWED_TOOLS);
   }
   return disallowed;
+}
+
+/**
+ * Positive read/search/lsp allowlist for write-restricted roles (sandboxMode === "read-only").
+ * Proven (agentic-eval persona-binding): `disallowedTools` is shell-bypassable via
+ * `run_terminal_command`; a positive `tools:` frontmatter is the only reliable restriction.
+ * Intentionally omits: write, search_replace, run_terminal_command, workflow, monitor, scheduler_*.
+ */
+const READ_ONLY_BASE_ALLOWED_TOOLS = [
+  "read_file",
+  "list_dir",
+  "grep",
+  "lsp",
+  "web_search",
+  "web_fetch",
+  "open_page",
+  "open_page_with_find",
+  "memory_search",
+  "memory_get",
+  "todo_write",
+  "ask_user_question",
+  "enter_plan_mode",
+  "exit_plan_mode",
+] as const;
+
+/**
+ * Wave B1.1: positive `tools:` allowlist for read-only / scout / review roles.
+ * Returns `undefined` for workspace-write execute roles (asset/xr/architect/hrbp/pmo/…)
+ * so they keep shell + write without an over-restrictive allowlist.
+ */
+export function allowedToolsForRole(
+  roleId: string,
+  policy: Pick<RepoRoleHarnessPolicy, "sandboxMode" | "policyTier">,
+): string[] | undefined {
+  if (policy.sandboxMode !== "read-only") {
+    return undefined;
+  }
+  const tools: string[] = [...READ_ONLY_BASE_ALLOWED_TOOLS];
+  // Coordinator scout may spawn children; still no shell/write (handoffs via parent integrate).
+  if (roleId === "chief-coordinator") {
+    tools.push("spawn_subagent", "get_command_or_subagent_output", "kill_command_or_subagent");
+  }
+  if (VISUAL_MULTIMODAL_ROLE_IDS.has(roleId)) {
+    tools.push(...IMAGE_GEN_DISALLOWED_TOOLS);
+  }
+  return tools;
 }
 
 /**

@@ -15,18 +15,19 @@ Grok self-parallelizes to cheaper models mainly on *large* tasks. For medium/lar
    - Own **worktree** (`isolation=worktree` or `git worktree add` under `~/.grok/worktrees/…`)
    - Own **portless / dev port** (never share a fixed port across jobs)
    - Own **temp directory** (never share `/tmp/openclinxr_*.png` or similar fixed names)
-3. Prefer **deepseek-v4-pro** (bounded write) / **deepseek-v4-flash** (scout) via `spawn_subagent` or `OPENCLINXR_WORKER=1 grok -p … --model deepseek-v4-pro --yolo`. Parent keeps orchestration + integration.
+3. Prefer **deepseek-v4-pro** (bounded write) / **deepseek-v4-flash** (scout) via `spawn_subagent` or `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 grok -p … --model deepseek-v4-pro --yolo`. Parent keeps orchestration + integration.
 4. Parent integrates: verify, merge worktrees, update SSOT once — **workers do not** touch `PROJECT_STATUS.md`, `docs/openclinxr/*registry*`, `docs/_archive/**`, or AGENTS.md.
 
 ## Worker session env (required for headless / --yolo)
 
 ```bash
 export OPENCLINXR_WORKER=1
-# Optional alias signal: GROK_SUBAGENT=1
+export GROK_SUBAGENTS=1
+# Optional alias signal for hooks NO-OP only: GROK_SUBAGENT=1
 grok -p "<scoped task>" --model deepseek-v4-pro --yolo --cwd <worktree> --max-turns 40
 ```
 
-`OPENCLINXR_WORKER=1` makes repo-mutating SessionStart hooks (docs hygiene auto-run, CEO rehydrate, post-slice Stop) **NO-OP** so workers stay in pathScope files. See spawn-spec bake in `packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts`.
+`OPENCLINXR_WORKER=1` makes repo-mutating SessionStart hooks (docs hygiene auto-run, CEO rehydrate, post-slice Stop) **NO-OP** so workers stay in pathScope files. `GROK_SUBAGENTS=1` exposes `spawn_subagent` in headless `-p` (without it the tool is absent — multi-level grok→deepseek tiering cannot fire). See `formatWorkerHeadlessEnvPrefix` in `packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts`.
 
 ## Per-job temp-file convention (anti-race)
 
@@ -61,7 +62,7 @@ Rules:
 ## Fan-out recipe (parent)
 
 1. List N streams with writeRoots + done_when.
-2. Spawn N workers in parallel (`background=true` + `isolation=worktree`, or N headless `OPENCLINXR_WORKER=1` processes in distinct worktrees).
+2. Spawn N workers in parallel (`background=true` + `isolation=worktree`, or N headless `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1` processes in distinct worktrees).
 3. Wait / merge; run focused verify once.
 4. Parent (CEO) updates `PROJECT_STATUS.md` + post-slice — not workers.
 

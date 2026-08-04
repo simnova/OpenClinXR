@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  allowedToolsForRole,
   assertDeliveryRoleMapped,
   assertTouchedWithinWriteRoots,
   disallowedToolsForRole,
@@ -369,6 +370,79 @@ describe("role-harness-policy", () => {
         expect(tools, roleId).toEqual(
           expect.arrayContaining(["image_gen", "image_edit", "image_to_video", "reference_to_video"]),
         );
+      }
+    });
+  });
+
+  describe("allowedToolsForRole (Wave B1.1 positive allowlist)", () => {
+    it("emits read/search/lsp allowlist for read-only scouts without shell or write", () => {
+      const policy = getRepoRoleHarnessPolicy("openclaw-drift-police")!;
+      const tools = allowedToolsForRole("openclaw-drift-police", policy);
+      expect(tools).toBeDefined();
+      expect(tools).toEqual(
+        expect.arrayContaining(["read_file", "grep", "list_dir", "lsp", "web_search", "web_fetch"]),
+      );
+      expect(tools).not.toContain("run_terminal_command");
+      expect(tools).not.toContain("write");
+      expect(tools).not.toContain("search_replace");
+      expect(tools).not.toContain("workflow");
+      expect(tools).not.toContain("spawn_subagent");
+      expect(tools).not.toContain("image_gen");
+    });
+
+    it("chief-coordinator allowlist keeps spawn helpers but not shell/write", () => {
+      const policy = getRepoRoleHarnessPolicy("chief-coordinator")!;
+      const tools = allowedToolsForRole("chief-coordinator", policy);
+      expect(tools).toEqual(
+        expect.arrayContaining([
+          "spawn_subagent",
+          "get_command_or_subagent_output",
+          "kill_command_or_subagent",
+          "read_file",
+          "grep",
+        ]),
+      );
+      expect(tools).not.toContain("run_terminal_command");
+      expect(tools).not.toContain("write");
+      expect(tools).not.toContain("search_replace");
+    });
+
+    it("visual read-only roles keep image tools on the positive allowlist", () => {
+      for (const roleId of ["productivity-skeptic", "visual-realism-adversary"] as const) {
+        const policy = getRepoRoleHarnessPolicy(roleId)!;
+        expect(policy.sandboxMode).toBe("read-only");
+        const tools = allowedToolsForRole(roleId, policy);
+        expect(tools, roleId).toEqual(
+          expect.arrayContaining(["image_gen", "image_edit", "read_file", "grep"]),
+        );
+        expect(tools, roleId).not.toContain("run_terminal_command");
+        expect(tools, roleId).not.toContain("write");
+      }
+    });
+
+    it("workspace-write execute roles get no positive allowlist (keep shell+write)", () => {
+      for (const roleId of [
+        "asset-pipeline-lead",
+        "xr-systems-architect",
+        "rigging-animation-specialist",
+        "architect",
+        "hrbp",
+        "pmo",
+      ] as const) {
+        const policy = getRepoRoleHarnessPolicy(roleId)!;
+        expect(policy.sandboxMode, roleId).toBe("workspace-write");
+        expect(allowedToolsForRole(roleId, policy), roleId).toBeUndefined();
+      }
+    });
+
+    it("every read-only policy role gets an allowlist without shell/write", () => {
+      for (const policy of repoRoleHarnessPolicies) {
+        if (policy.sandboxMode !== "read-only") continue;
+        const tools = allowedToolsForRole(policy.roleId, policy);
+        expect(tools, policy.roleId).toBeDefined();
+        expect(tools, policy.roleId).not.toContain("run_terminal_command");
+        expect(tools, policy.roleId).not.toContain("write");
+        expect(tools, policy.roleId).not.toContain("search_replace");
       }
     });
   });

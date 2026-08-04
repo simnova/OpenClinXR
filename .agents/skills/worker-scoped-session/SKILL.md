@@ -18,19 +18,22 @@ Project SessionStart hooks (especially `session-start-docs-hygiene.json` with `-
 |----------|-------|--------|
 | `OPENCLINXR_WORKER` | `1` or `true` | NO-OP mutating SessionStart/Stop/PostToolUse coord hooks |
 | `GROK_SUBAGENT` | any non-empty | Same NO-OP (optional signal) |
+| `GROK_SUBAGENTS` | `1` | Expose `spawn_subagent` in headless `grok -p` (required for multi-level tiering; absent without it) |
 
-CEO / main orchestrator sessions: **do not** set these flags (hygiene + lease banners stay active).
+CEO / main orchestrator sessions: **do not** set `OPENCLINXR_WORKER` (hygiene + lease banners stay active). Manager-launched headless workers that may spawn children **must** set `GROK_SUBAGENTS=1`.
 
 ## Launch pattern
 
 ```bash
 export OPENCLINXR_WORKER=1
+export GROK_SUBAGENTS=1
 export OPENCLINXR_JOB_TMP="${TMPDIR:-/tmp}/openclinxr-job-$$"
 mkdir -p "$OPENCLINXR_JOB_TMP"
 
 # Prefer spawn-spec prompt for role bake:
 # pnpm grok:agent:spawn-spec -- --role asset-pipeline-lead --task "..."
-OPENCLINXR_WORKER=1 grok -p "<pathScope-bounded task only>" \
+# Shell prefix: formatWorkerHeadlessEnvPrefix (OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 …)
+OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 grok -p "<pathScope-bounded task only>" \
   --model deepseek-v4-pro \
   --yolo \
   --cwd <worktree-path> \
@@ -55,7 +58,7 @@ Stay inside role `pathScope.writeRoots` from spawn-spec. Parent/CEO owns SSOT + 
 # Before worker
 git status --short docs/openclinxr PROJECT_STATUS.md docs/_archive | tee /tmp/before-worker.txt
 
-OPENCLINXR_WORKER=1 grok -p "echo only; no edits" --yolo --max-turns 2
+OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 grok -p "echo only; no edits" --yolo --max-turns 2
 
 # After: registries / PROJECT_STATUS / _archive untouched
 git status --short docs/openclinxr PROJECT_STATUS.md docs/_archive

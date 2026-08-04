@@ -1177,6 +1177,7 @@ function roundScore(value: number): number {
 }
 
 export {
+  allowedToolsForRole,
   assertDeliveryRoleMapped,
   disallowedToolsForRole,
   findSoleAuthorLockViolations,
@@ -1262,6 +1263,7 @@ export {
   GROK_REPO_AGENT_CONSULT_DEFAULTS,
   GROK_REPO_AGENT_SPAWN_SAFEGUARDS,
   LARGE_TASK_ORCHESTRATION_SKILL,
+  GROK_SUBAGENTS_ENV,
   OPENCLINXR_JOB_TMP_CONVENTION,
   OPENCLINXR_WORKER_ENV,
   buildGrokRepoAgentSpawnRegistry,

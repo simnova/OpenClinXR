@@ -4,6 +4,7 @@ import {
   buildGrokRepoAgentSpawnSpec,
   formatGrokRepoAgentSpawnBrief,
   formatWorkerHeadlessEnvPrefix,
+  GROK_SUBAGENTS_ENV,
   looksLikeLargeParallelTask,
   OPENCLINXR_WORKER_ENV,
   recommendRepoAgentsForConsult,
@@ -176,6 +177,7 @@ describe("grok repo agent spawn", () => {
       expect(brief).toContain("isolation=worktree");
       expect(brief).toContain("parentChecklist.mustPassIsolationToHarness=true");
       expect(brief).toContain("headlessEnv=OPENCLINXR_WORKER=1");
+      expect(brief).toContain(GROK_SUBAGENTS_ENV.headlessPrefix);
     });
 
     it("formatGrokRepoAgentSpawnBrief does not show isolation for non-worktree", () => {
@@ -191,7 +193,7 @@ describe("grok repo agent spawn", () => {
   });
 
   describe("worker env + large-task bake", () => {
-    it("writer spawn prompt documents OPENCLINXR_WORKER and job tmp", () => {
+    it("writer spawn prompt documents OPENCLINXR_WORKER, GROK_SUBAGENTS, and job tmp", () => {
       const spec = buildGrokRepoAgentSpawnSpec({
         roleId: "asset-pipeline-lead",
         roleDir: "agents/core/asset-pipeline-lead",
@@ -199,9 +201,11 @@ describe("grok repo agent spawn", () => {
         task: "Implement garment sleeve expand in package only",
       });
       expect(spec.spawnPrompt).toContain("OPENCLINXR_WORKER=1");
+      expect(spec.spawnPrompt).toContain("GROK_SUBAGENTS=1");
       expect(spec.spawnPrompt).toContain("OPENCLINXR_JOB_TMP");
       expect(spec.spawnPrompt).toContain("openclinxr_skin_albedo_mixed.png");
       expect(spec.spawnPrompt).toContain("worker-scoped-session");
+      expect(spec.spawnPrompt).toContain("spawn_subagent");
     });
 
     it("large parallel task forces fan-out skill language", () => {
@@ -216,11 +220,16 @@ describe("grok repo agent spawn", () => {
       expect(spec.spawnPrompt).toContain("large-task-orchestration");
     });
 
-    it("formatWorkerHeadlessEnvPrefix exports worker flag + job tmp", () => {
+    it("formatWorkerHeadlessEnvPrefix exports worker flag + GROK_SUBAGENTS + job tmp", () => {
       const prefix = formatWorkerHeadlessEnvPrefix("mesh-a");
       expect(prefix).toContain(OPENCLINXR_WORKER_ENV.headlessPrefix);
+      expect(prefix).toContain(GROK_SUBAGENTS_ENV.headlessPrefix);
+      expect(prefix).toMatch(/\bGROK_SUBAGENTS=1\b/);
       expect(prefix).toContain("OPENCLINXR_JOB_ID=mesh-a");
       expect(prefix).toContain("OPENCLINXR_JOB_TMP=");
+      // Dispatch-ready order: worker + subagents flags before job tmp
+      expect(prefix.indexOf("OPENCLINXR_WORKER=1")).toBeLessThan(prefix.indexOf("GROK_SUBAGENTS=1"));
+      expect(prefix.indexOf("GROK_SUBAGENTS=1")).toBeLessThan(prefix.indexOf("OPENCLINXR_JOB_TMP="));
     });
 
     it("read-only scouts omit worker env headless mandate", () => {

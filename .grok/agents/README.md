@@ -4,7 +4,7 @@ Canonical mission/memory: root `agents/**` (`charter.md`, `memory.md`, `index.js
 
 | Harness | Generated form |
 |---------|----------------|
-| **`.grok/agents/*.md`** | **Grok-native** YAML frontmatter (`name`, `description`, `disallowedTools`, `mcpInheritance: none`) per user-guide 16-subagents — not fat spawn seeds |
+| **`.grok/agents/*.md`** | **Grok-native** YAML frontmatter (`name`, `description`, positive `tools:` for read-only, `disallowedTools`, `mcpInheritance: none`) per user-guide 16-subagents — not fat spawn seeds |
 | **`.claude` / `.cursor`** | Lightweight pointers |
 | **`.codex`** | Pointers + native `.toml` from `role-harness-policy.ts` |
 

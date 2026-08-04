@@ -6,6 +6,25 @@ prompt_mode: full
 model: deepseek-v4-flash
 permission_mode: plan
 agents_md: false
+tools:
+  - read_file
+  - list_dir
+  - grep
+  - lsp
+  - web_search
+  - web_fetch
+  - open_page
+  - open_page_with_find
+  - memory_search
+  - memory_get
+  - todo_write
+  - ask_user_question
+  - enter_plan_mode
+  - exit_plan_mode
+  - image_gen
+  - image_edit
+  - image_to_video
+  - reference_to_video
 disallowedTools:
   - search_replace
   - write
