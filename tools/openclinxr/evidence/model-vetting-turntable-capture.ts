@@ -29,6 +29,7 @@ async function main(): Promise<void> {
   const artifactMap = await readArtifactMap(options.existingArtifactMapPath);
   await mkdir(options.outputDir, { recursive: true });
 
+  // Prefer spawnPortlessDevServer() from ./lib/portless-server.ts for collision-safe dynamic ports.
   const server = spawn("pnpm", ["--filter", "@openclinxr/model-vetting-studio", "dev:portless"], {
     cwd: process.cwd(),
     env: { ...process.env, PORT: String(options.port) },

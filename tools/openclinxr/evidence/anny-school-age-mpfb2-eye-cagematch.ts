@@ -285,6 +285,7 @@ async function captureStudioEvidence(input: {
   dialogueText: string;
 }): Promise<Array<{ candidateId: string; slotId: string; artifactPath: string }>> {
   const candidate = input.report.candidates[0];
+  // Prefer spawnPortlessDevServer() from ./lib/portless-server.ts for collision-safe dynamic ports.
   const server = spawn("pnpm", ["--filter", "@openclinxr/model-vetting-studio", "dev:portless"], {
     cwd: process.cwd(),
     env: { ...process.env, PORT: String(input.port) },

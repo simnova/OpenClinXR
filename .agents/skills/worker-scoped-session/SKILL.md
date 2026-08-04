@@ -105,3 +105,50 @@ git status --short docs/openclinxr PROJECT_STATUS.md docs/_archive
 ```
 
 Hooks doc: `~/.grok/docs/user-guide/10-hooks.md` (SessionStart). Headless: `14-headless-mode.md`.
+
+## Board (HOT state)
+
+### State-plane split
+
+| Plane | What | Surfaces |
+|-------|------|----------|
+| **HOT** (collab) | Task open/close, role checklists, agent↔agent status, review thread | GitHub issue + comments via `gh` / `pnpm openclaw:board` |
+| **COLD / SSOT** | Durable direction, ownership, checkpoints, handoffs, role memory | `PROJECT_STATUS.md`, worker-backlog, `.openclinxr/slices/**/handoffs`, `agents/**` |
+
+Chat is neither plane. Board comments do **not** replace COLD SSOT.
+
+### When to post board vs files
+
+| Event | Board | Files |
+|-------|-------|-------|
+| Slice team starts | `slice-open` (issue + role task-list) | brief.json / team-spawn report |
+| Role finishes | `status --role <r>` terse BLUF + evidence path | handoff JSON (authoritative) |
+| Verify / review | status comments on checkboxes | `slice:verify` report, PROJECT_STATUS checkpoint |
+| Slice done | `close --body <resolution>` | SSOT dequeue / Active Work closed |
+
+Handoff JSON remains authoritative for `touched[]` and skeptic verdicts. Board is the **comms** surface.
+
+### CLI
+
+```bash
+pnpm openclaw:board -- slice-open --slice-id <id> --title "<coord title>" \
+  --roles asset-pipeline-lead,xr-systems-architect [--repo simnova/OpenClinXR] [--dry-run]
+
+pnpm openclaw:board -- status --slice-id <id> --role <role> \
+  --body '<terse BLUF status + evidence>' [--dry-run]
+
+pnpm openclaw:board -- close --slice-id <id> --body '<resolution>' [--dry-run]
+
+# team-spawn wiring (optional; absent = unchanged)
+pnpm openclaw:team-spawn -- --slice-id <id> --board [--dry-run]
+```
+
+`--dry-run` prints `gh` argv and never executes (tests + safety).
+
+### Write-scope + no product data
+
+- Per-slice artifact only: `.openclinxr/openclaw/board-<sliceId>.json` (ignored runtime).
+- Workers may **comment** status; they do not own PROJECT_STATUS / registries.
+- **Coordination metadata only** — never PHI, patient names, clinical dialogue, scores, scenario content, exam-equivalence claims. CLI rejects known clinical tokens before any `gh` call.
+
+Tool: `tools/openclinxr/openclaw/board-cli.ts`. Tests: `board-cli.test.ts`.

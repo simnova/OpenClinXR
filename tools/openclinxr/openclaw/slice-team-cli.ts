@@ -21,6 +21,11 @@ import {
   type SliceHandoff,
   type SliceTeamTemplate,
 } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
+import {
+  DEFAULT_BOARD_REPO,
+  appendBoardStatusDirective,
+  cmdSliceOpen,
+} from "./board-cli.js";
 
 const repoRoot = process.cwd();
 const TEAMS_DIR = "teams";
@@ -41,12 +46,19 @@ async function discoverRoles(): Promise<RoleEntry[]> {
 }
 
 function parseArgs(argv: string[]): Record<string, string | boolean> {
-  const out: Record<string, string | boolean> = { json: false, soft: false };
+  const out: Record<string, string | boolean> = {
+    json: false,
+    soft: false,
+    board: false,
+    "dry-run": false,
+  };
   const positional: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--json") out.json = true;
     else if (arg === "--soft") out.soft = true;
+    else if (arg === "--board") out.board = true;
+    else if (arg === "--dry-run") out["dry-run"] = true;
     else if (arg.startsWith("--") && argv[i + 1] && !argv[i + 1]!.startsWith("--")) {
       out[arg.slice(2)] = argv[++i]!;
     } else if (!arg.startsWith("--")) positional.push(arg);
@@ -109,9 +121,11 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
   const sliceId = String(args["slice-id"] ?? "");
   const phase = String(args.phase ?? "execute") as "scout" | "execute" | "integrate";
   const soft = Boolean(args.soft);
+  const board = Boolean(args.board);
+  const dryRun = Boolean(args["dry-run"]);
   if (!sliceId) {
     console.error(
-      "Usage: team-spawn --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft]",
+      "Usage: team-spawn --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft] [--board] [--dry-run]",
     );
     process.exitCode = 1;
     return;
@@ -129,7 +143,41 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
     roleDirs,
   });
 
+  // Optional HOT board (GitHub via gh). Absent --board → unchanged behavior.
+  let boardOpen: ReturnType<typeof cmdSliceOpen> | null = null;
+  if (board) {
+    const boardRoles = report.roles.map((r) => r.roleId);
+    const title =
+      brief.goal.length > 0
+        ? `[slice] ${sliceId}: ${brief.goal.slice(0, 120)}`
+        : `[slice] ${sliceId}`;
+    try {
+      boardOpen = cmdSliceOpen(repoRoot, {
+        sliceId,
+        title,
+        roles: boardRoles.length > 0 ? boardRoles : Object.keys(brief.roles),
+        repo: DEFAULT_BOARD_REPO,
+        dryRun,
+      });
+      console.log(
+        `BOARD: ${dryRun ? "DRY-RUN " : ""}slice-open → ${boardOpen.recordPath}` +
+          (boardOpen.record.issueNumber != null
+            ? ` issue=#${boardOpen.record.issueNumber}`
+            : ""),
+      );
+    } catch (err) {
+      console.error(
+        `BOARD: slice-open failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      process.exitCode = 1;
+      return;
+    }
+  }
+
   const enriched = report.roles.map((roleSpec) => {
+    const spawnPrompt = board
+      ? appendBoardStatusDirective(roleSpec.spawnPrompt, sliceId, roleSpec.roleId)
+      : roleSpec.spawnPrompt;
     const role = roles.find((r) => r.roleId === roleSpec.roleId);
     const policy = getRepoRoleHarnessPolicy(roleSpec.roleId);
     const spawnSpec = role
@@ -137,7 +185,7 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
           roleId: role.roleId,
           roleDir: role.roleDir,
           group: role.group,
-          task: roleSpec.spawnPrompt,
+          task: spawnPrompt,
         })
       : null;
     const surface = policy ? resolveGrokSpawnSurfaceForPolicy(policy) : null;
@@ -157,6 +205,7 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
       });
     return {
       ...roleSpec,
+      spawnPrompt,
       isolation,
       parentChecklist,
       pathWarnings: roleSpec.pathWarnings,
@@ -164,7 +213,7 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
       grokSubagentType: spawnSpec?.grokSubagentType,
       capabilityMode,
       spawnSubagentCall: spawnSpec?.spawnSubagentCall
-        ? { ...spawnSpec.spawnSubagentCall, prompt: roleSpec.spawnPrompt, isolation }
+        ? { ...spawnSpec.spawnSubagentCall, prompt: spawnPrompt, isolation }
         : null,
       spawnSurface: surface?.spawnSurface,
       // subagentThreadId will be populated by harness result if native spawn_subagent returns id (for resume_from chaining on refinement within handoff contract)
@@ -200,6 +249,15 @@ async function cmdTeamSpawn(args: Record<string, string | boolean>): Promise<voi
       failures: isolationFailures,
       mustPassIsolationRoles: mustPassRoles,
     },
+    board: board
+      ? {
+          enabled: true,
+          dryRun,
+          recordPath: boardOpen?.recordPath ?? null,
+          issueNumber: boardOpen?.record.issueNumber ?? null,
+          url: boardOpen?.record.url ?? null,
+        }
+      : { enabled: false },
   };
   const outPath = path.join(repoRoot, ".openclinxr", "openclaw", `slice-team-spawn-${sliceId}-${phase}.json`);
   await mkdir(path.dirname(outPath), { recursive: true });
@@ -328,12 +386,14 @@ async function main(): Promise<void> {
 
 Commands:
   init        --template <id> --slice-id <id>
-  team-spawn  --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft]
+  team-spawn  --slice-id <id> [--phase scout|execute|integrate] [--json] [--soft] [--board] [--dry-run]
   verify      --slice-id <id> [--json]
   status      --slice-id <id>
 
 Flags:
   --soft      team-spawn: warn on isolation assert failures instead of exit 2
+  --board     team-spawn: open HOT GitHub issue (pnpm openclaw:board slice-open) + inject status directive into role prompts
+  --dry-run   with --board: print gh commands only (no live issue create)
 `);
   }
 }

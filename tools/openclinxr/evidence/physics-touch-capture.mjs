@@ -5,6 +5,9 @@
  * physics-clinical-touch mode, writes PNGs + inspection.json, asserts size
  * gate (> 100 KB), and SIGTERMs the child process in finally.
  *
+ * Prefer adopting spawnPortlessDevServer() from ./lib/portless-server.ts (parse
+ * Vite Local: line) instead of local findFreePort + assumed PORT bind.
+ *
  * Run from repo root:
  *   node tools/openclinxr/evidence/physics-touch-capture.mjs
  *

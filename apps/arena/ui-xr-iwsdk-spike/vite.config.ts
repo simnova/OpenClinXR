@@ -93,7 +93,9 @@ export default defineConfig({
   server: {
     https: false,
     host: "127.0.0.1",
-    strictPort: true,
+    // package.json dev:portless uses --strictPort=false + PORT:-0 for parallel worktrees;
+    // CLI flag wins when set. Config default stays non-strict so portless is collision-safe.
+    strictPort: false,
     /** Disable Vite error overlay so non-fatal dynamic-import failures
      *  (e.g. @pmndrs/uikitml on Quest Browser) do not inject
      *  <vite-error-overlay> and block the shellLoaded CDP gate. */

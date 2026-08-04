@@ -988,7 +988,8 @@ describe("static browser assets", () => {
       scripts?: Record<string, string>;
     };
 
-    expect(packageJson.scripts?.["dev:portless"]).toBe(`vite --host 127.0.0.1 --port \${PORT:-5173} --strictPort`);
+    // PORT:-0 = OS/Vite ephemeral bind when unset; strictPort=false avoids EADDRINUSE hard-fail on parallel worktrees (helper parses actual Local: port).
+    expect(packageJson.scripts?.["dev:portless"]).toBe(`vite --host 127.0.0.1 --port \${PORT:-0} --strictPort=false`);
   });
 
   it("bounds the desktop XR stage to the viewport while letting the runtime panel scroll", () => {

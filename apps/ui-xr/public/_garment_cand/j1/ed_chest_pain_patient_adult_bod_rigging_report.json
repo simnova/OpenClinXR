@@ -1,0 +1,828 @@
+{
+  "ok": true,
+  "schemaVersion": "openclinxr.generated-humanoid-realism-manifest.v1",
+  "canonicalSkeleton": {
+    "boneCount": 23,
+    "root": "pelvis",
+    "hasTwistBones": false,
+    "fingersPerHand": 0,
+    "twistNames": [],
+    "claimScope": "minimal_canonical_body_armature_for_local_candidate_motion_probe_not_production_rig"
+  },
+  "morphTargets": {
+    "count": 25,
+    "names": [
+      "viseme_silence",
+      "viseme_AA",
+      "viseme_E",
+      "viseme_IH",
+      "viseme_OH",
+      "viseme_OU",
+      "viseme_FV",
+      "viseme_L",
+      "viseme_TH",
+      "openclinxr_mouth_open",
+      "openclinxr_brow_concern",
+      "openclinxr_cheek_tension",
+      "brow_raise",
+      "brow_furrow",
+      "eye_blink_l",
+      "eye_blink_r",
+      "eye_squint",
+      "gaze_yaw",
+      "gaze_pitch",
+      "jaw_open",
+      "smile",
+      "frown",
+      "concern",
+      "pain",
+      "anxious"
+    ],
+    "visemeSet": "typical40",
+    "faceAffect": [
+      "anxious",
+      "pain",
+      "neutral",
+      "reassured",
+      "concern",
+      "frightened"
+    ]
+  },
+  "attachmentPoints": {
+    "ear_anchor_l": [
+      0.12,
+      1.62,
+      0.02
+    ],
+    "ear_anchor_r": [
+      -0.12,
+      1.62,
+      0.02
+    ],
+    "nose_tip": [
+      0.0,
+      1.58,
+      0.14
+    ],
+    "head_top": [
+      0.0,
+      1.78,
+      0.0
+    ],
+    "chin": [
+      0.0,
+      1.52,
+      0.11
+    ]
+  },
+  "skinning": {
+    "maxInfluences": 4,
+    "normalized": true
+  },
+  "textureBake": {
+    "baker": "stablegen-procedural-fallback",
+    "maps": [
+      "albedo",
+      "roughness",
+      "normal",
+      "metallic",
+      "specular",
+      "ao"
+    ],
+    "baked": true,
+    "resolution": 1024,
+    "packedInGlb": true,
+    "skinMicroDetail": {
+      "ok": true,
+      "baked": true,
+      "bakeType": "NORMAL",
+      "imageName": "openclinxr_skin_micro_normal",
+      "resolution": 1024,
+      "packed": true,
+      "uvSource": "existing",
+      "claimScope": "procedural_skin_micro_detail_baked_normal_for_gltf_not_production_skin_scan",
+      "notEvidenceFor": [
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    }
+  },
+  "animationClips": {
+    "count": 5,
+    "names": [
+      "openclinxr_clinical_idle_breathing",
+      "openclinxr_conversation_listen_nod",
+      "openclinxr_posture_shift_standing",
+      "openclinxr_role_patient_asthma_breathing_effort",
+      "openclinxr_conversation_expression_morphs"
+    ],
+    "clinicalIdlePoseClip": "openclinxr_clinical_idle_breathing",
+    "conversationClip": "openclinxr_conversation_listen_nod",
+    "locomotionPostureClip": "openclinxr_posture_shift_standing",
+    "claimScope": "deterministic procedural fallback clips; not motion-capture or Speech2Motion evidence"
+  },
+  "roleAnimationHandoff": {
+    "actorRole": "patient",
+    "roleSpecificClipNames": [
+      "openclinxr_role_patient_asthma_breathing_effort"
+    ],
+    "roleMotionControls": {
+      "roleGesture": "asthma_breathing_effort",
+      "animatedBones": [
+        "spine",
+        "chest",
+        "head",
+        "upper_arm.L",
+        "upper_arm.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R",
+        "thigh.L",
+        "thigh.R",
+        "shin.L",
+        "shin.R",
+        "foot.L",
+        "foot.R"
+      ],
+      "functionalIntent": "repeated work-of-breathing chest/spine effort with subtle guarded arm and stance-shift leg motion"
+    },
+    "claimScope": "deterministic_role_specific_procedural_gesture_not_mocap_or_speech2motion",
+    "notEvidenceFor": [
+      "motion_capture_quality",
+      "speech2motion_quality",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "bodyRigDiagnostics": {
+    "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
+    "coordinateBasis": "blender_mesh_local_y_height_exported_y_up_glb",
+    "armatureName": "openclinxr_canonical_humanoid_armature",
+    "boneNames": [
+      "pelvis",
+      "spine",
+      "chest",
+      "neck",
+      "head",
+      "eye.L",
+      "eye.R",
+      "clavicle.L",
+      "upper_arm.L",
+      "forearm.L",
+      "hand.L",
+      "index_finger_base.L",
+      "clavicle.R",
+      "upper_arm.R",
+      "forearm.R",
+      "hand.R",
+      "index_finger_base.R",
+      "thigh.L",
+      "shin.L",
+      "foot.L",
+      "thigh.R",
+      "shin.R",
+      "foot.R"
+    ],
+    "boneCount": 23,
+    "vertexCount": 13718,
+    "unweightedVertexCount": 0,
+    "weightedVertexCount": 13718,
+    "weightedVertexCountsByBone": {
+      "pelvis": 532,
+      "spine": 1103,
+      "chest": 5491,
+      "neck": 6285,
+      "head": 4931,
+      "eye.L": 770,
+      "eye.R": 39,
+      "clavicle.L": 572,
+      "upper_arm.L": 1783,
+      "forearm.L": 0,
+      "hand.L": 0,
+      "index_finger_base.L": 0,
+      "clavicle.R": 572,
+      "upper_arm.R": 1783,
+      "forearm.R": 0,
+      "hand.R": 0,
+      "index_finger_base.R": 0,
+      "thigh.L": 219,
+      "shin.L": 1382,
+      "foot.L": 1163,
+      "thigh.R": 219,
+      "shin.R": 1382,
+      "foot.R": 1163
+    },
+    "dominantVertexCountsByBone": {
+      "pelvis": 532,
+      "spine": 571,
+      "chest": 1354,
+      "neck": 0,
+      "head": 4931,
+      "eye.L": 0,
+      "eye.R": 0,
+      "clavicle.L": 0,
+      "upper_arm.L": 1783,
+      "forearm.L": 0,
+      "hand.L": 0,
+      "index_finger_base.L": 0,
+      "clavicle.R": 0,
+      "upper_arm.R": 1783,
+      "forearm.R": 0,
+      "hand.R": 0,
+      "index_finger_base.R": 0,
+      "thigh.L": 219,
+      "shin.L": 1163,
+      "foot.L": 0,
+      "thigh.R": 219,
+      "shin.R": 1163,
+      "foot.R": 0
+    },
+    "leftRightSymmetry": [
+      {
+        "leftBone": "upper_arm.L",
+        "rightBone": "upper_arm.R",
+        "leftDominantVertexCount": 1783,
+        "rightDominantVertexCount": 1783,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "forearm.L",
+        "rightBone": "forearm.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "hand.L",
+        "rightBone": "hand.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "thigh.L",
+        "rightBone": "thigh.R",
+        "leftDominantVertexCount": 219,
+        "rightDominantVertexCount": 219,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "shin.L",
+        "rightBone": "shin.R",
+        "leftDominantVertexCount": 1163,
+        "rightDominantVertexCount": 1163,
+        "dominantCountDeltaRatio": 0.0
+      },
+      {
+        "leftBone": "foot.L",
+        "rightBone": "foot.R",
+        "leftDominantVertexCount": 0,
+        "rightDominantVertexCount": 0,
+        "dominantCountDeltaRatio": 0.0
+      }
+    ],
+    "shoulderTorsoArmBleedVertexCount": 3566,
+    "pelvisSpineChestSplitVertexCounts": {
+      "pelvis": 532,
+      "spine": 1103,
+      "chest": 5491
+    },
+    "poseProbe": {
+      "actorRole": "patient",
+      "bodyMotionProbeClipName": "openclinxr_role_patient_asthma_breathing_effort",
+      "animatedClipCount": 5,
+      "probeScope": "report_side_body_rig_coverage_and_clip_selection_not_mocap_or_quality_grade"
+    },
+    "claimScope": "deterministic_body_rig_skinning_diagnostics_not_deformation_quality_or_readiness",
+    "notEvidenceFor": [
+      "motion_capture_quality",
+      "speech2motion_quality",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "bodyShadingDensity": {
+    "shadeSmooth": true,
+    "subsurfLevels": 1,
+    "subsurfApplied": false,
+    "weightedNormal": true,
+    "baseVertexCount": 13718,
+    "baseFaceCount": 13710,
+    "modifierOrder": [
+      "openclinxr_body_density_subsurf_v1",
+      "openclinxr_body_weighted_normal_v1",
+      "openclinxr_canonical_humanoid_armature"
+    ],
+    "restoredArmatures": [
+      "openclinxr_canonical_humanoid_armature"
+    ],
+    "claimScope": "procedural_body_shade_smooth_light_subsurf_weighted_normal_not_production_sculpt",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleVisualMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
+    "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
+    "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
+    "actorRole": "patient",
+    "roleVisualCue": "ed_chest_pain_patient",
+    "clothingStyle": "clinical_exam_tshirt_chest_pain",
+    "objectNames": [],
+    "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "roleClothingMaterialRegions": {
+    "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
+    "clothingRegionRevision": "v7_body_conforming_drape_over_native_paint",
+    "topMaterialName": "openclinxr_role_mesh_clothing_patient_top",
+    "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
+    "trimMaterialName": "openclinxr_role_mesh_clothing_patient_soft_trim",
+    "topFaceCount": 1508,
+    "lowerFaceCount": 648,
+    "trimFaceCount": 240,
+    "skippedBackFaceCount": 0,
+    "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "realGarmentRegion": {
+      "mode": "body_conforming_duplicated_drape_v1",
+      "revision": "body_conforming_drape_gown_scrubs_casual_v1",
+      "objectName": "openclinxr_real_garment_hospital_gown",
+      "objectNames": [
+        "openclinxr_real_garment_hospital_gown"
+      ],
+      "faceCount": 6060,
+      "hasSleeveGeometry": true,
+      "hasPantsGeometry": false,
+      "garmentType": "gown",
+      "sleeveCoverage": "body_conforming_gown_torso_skirt_short_sleeves",
+      "hasProminentSleeves": true,
+      "hasExpandedVolumeDetail": true,
+      "weightedBones": [
+        "chest",
+        "clavicle.L",
+        "clavicle.R",
+        "eye.L",
+        "eye.R",
+        "foot.L",
+        "foot.R",
+        "forearm.L",
+        "forearm.R",
+        "hand.L",
+        "hand.R",
+        "head",
+        "index_finger_base.L",
+        "index_finger_base.R",
+        "neck",
+        "pelvis",
+        "shin.L",
+        "shin.R",
+        "spine",
+        "thigh.L",
+        "thigh.R",
+        "upper_arm.L",
+        "upper_arm.R"
+      ],
+      "deformsWithBreathing": true,
+      "hasVisibleVolume": true,
+      "hasSeamFoldHints": true,
+      "hasFabricThicknessSolidify": true,
+      "hasLightSubsurf": true,
+      "hasGentleDisplacementFolds": true,
+      "coordinateBasis": "body_local_y_height_bind_pose_v1",
+      "bindPoseLocalBBox": {
+        "min": [
+          -0.581015,
+          0.469565,
+          -0.044458
+        ],
+        "max": [
+          0.580237,
+          1.443558,
+          0.452177
+        ]
+      },
+      "bindPoseWorldBBox": {
+        "min": [
+          -0.581015,
+          -0.452176,
+          0.469565
+        ],
+        "max": [
+          0.580237,
+          0.044458,
+          1.443558
+        ]
+      },
+      "bodyLocalHeightRange": [
+        0.0,
+        1.78
+      ],
+      "garmentLayers": [
+        "hospital_gown"
+      ],
+      "role": "patient",
+      "claimScope": "case_role_body_conforming_draped_garment_mesh_q1_factory_not_unitard_not_cylinder_blob_not_production",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity"
+      ],
+      "evidenceForThisSlice": "body-conforming-drape-garment-mesh-2026-08-03"
+    },
+    "garmentType": "gown"
+  },
+  "garmentSourceGeometryHint": null,
+  "realGarmentRegionFromPhenotype": {
+    "mode": "body_conforming_duplicated_drape_v1",
+    "revision": "body_conforming_drape_gown_scrubs_casual_v1",
+    "objectName": "openclinxr_real_garment_hospital_gown",
+    "objectNames": [
+      "openclinxr_real_garment_hospital_gown"
+    ],
+    "faceCount": 6060,
+    "hasSleeveGeometry": true,
+    "hasPantsGeometry": false,
+    "garmentType": "gown",
+    "sleeveCoverage": "body_conforming_gown_torso_skirt_short_sleeves",
+    "hasProminentSleeves": true,
+    "hasExpandedVolumeDetail": true,
+    "weightedBones": [
+      "chest",
+      "clavicle.L",
+      "clavicle.R",
+      "eye.L",
+      "eye.R",
+      "foot.L",
+      "foot.R",
+      "forearm.L",
+      "forearm.R",
+      "hand.L",
+      "hand.R",
+      "head",
+      "index_finger_base.L",
+      "index_finger_base.R",
+      "neck",
+      "pelvis",
+      "shin.L",
+      "shin.R",
+      "spine",
+      "thigh.L",
+      "thigh.R",
+      "upper_arm.L",
+      "upper_arm.R"
+    ],
+    "deformsWithBreathing": true,
+    "hasVisibleVolume": true,
+    "hasSeamFoldHints": true,
+    "hasFabricThicknessSolidify": true,
+    "hasLightSubsurf": true,
+    "hasGentleDisplacementFolds": true,
+    "coordinateBasis": "body_local_y_height_bind_pose_v1",
+    "bindPoseLocalBBox": {
+      "min": [
+        -0.581015,
+        0.469565,
+        -0.044458
+      ],
+      "max": [
+        0.580237,
+        1.443558,
+        0.452177
+      ]
+    },
+    "bindPoseWorldBBox": {
+      "min": [
+        -0.581015,
+        -0.452176,
+        0.469565
+      ],
+      "max": [
+        0.580237,
+        0.044458,
+        1.443558
+      ]
+    },
+    "bodyLocalHeightRange": [
+      0.0,
+      1.78
+    ],
+    "garmentLayers": [
+      "hospital_gown"
+    ],
+    "role": "patient",
+    "claimScope": "case_role_body_conforming_draped_garment_mesh_q1_factory_not_unitard_not_cylinder_blob_not_production",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "evidenceForThisSlice": "body-conforming-drape-garment-mesh-2026-08-03"
+  },
+  "realGarmentRegion": {
+    "mode": "body_conforming_duplicated_drape_v1",
+    "revision": "body_conforming_drape_gown_scrubs_casual_v1",
+    "objectName": "openclinxr_real_garment_hospital_gown",
+    "objectNames": [
+      "openclinxr_real_garment_hospital_gown"
+    ],
+    "faceCount": 6060,
+    "hasSleeveGeometry": true,
+    "hasPantsGeometry": false,
+    "garmentType": "gown",
+    "sleeveCoverage": "body_conforming_gown_torso_skirt_short_sleeves",
+    "hasProminentSleeves": true,
+    "hasExpandedVolumeDetail": true,
+    "weightedBones": [
+      "chest",
+      "clavicle.L",
+      "clavicle.R",
+      "eye.L",
+      "eye.R",
+      "foot.L",
+      "foot.R",
+      "forearm.L",
+      "forearm.R",
+      "hand.L",
+      "hand.R",
+      "head",
+      "index_finger_base.L",
+      "index_finger_base.R",
+      "neck",
+      "pelvis",
+      "shin.L",
+      "shin.R",
+      "spine",
+      "thigh.L",
+      "thigh.R",
+      "upper_arm.L",
+      "upper_arm.R"
+    ],
+    "deformsWithBreathing": true,
+    "hasVisibleVolume": true,
+    "hasSeamFoldHints": true,
+    "hasFabricThicknessSolidify": true,
+    "hasLightSubsurf": true,
+    "hasGentleDisplacementFolds": true,
+    "coordinateBasis": "body_local_y_height_bind_pose_v1",
+    "bindPoseLocalBBox": {
+      "min": [
+        -0.581015,
+        0.469565,
+        -0.044458
+      ],
+      "max": [
+        0.580237,
+        1.443558,
+        0.452177
+      ]
+    },
+    "bindPoseWorldBBox": {
+      "min": [
+        -0.581015,
+        -0.452176,
+        0.469565
+      ],
+      "max": [
+        0.580237,
+        0.044458,
+        1.443558
+      ]
+    },
+    "bodyLocalHeightRange": [
+      0.0,
+      1.78
+    ],
+    "garmentLayers": [
+      "hospital_gown"
+    ],
+    "role": "patient",
+    "claimScope": "case_role_body_conforming_draped_garment_mesh_q1_factory_not_unitard_not_cylinder_blob_not_production",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "evidenceForThisSlice": "body-conforming-drape-garment-mesh-2026-08-03"
+  },
+  "scalpHairMaterialRegion": {
+    "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
+    "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+    "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
+    "hairColor": "brown",
+    "scalpFaceCount": 4166,
+    "crownFaceCount": 2490,
+    "skippedFaceFrontFaceCount": 0,
+    "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "hairRegion": {
+    "mode": "body_conforming_scalp_hair_mesh_v1",
+    "revision": "real_scalp_hair_mesh_not_bald_mannequin_v1",
+    "objectName": "openclinxr_real_hair_scalp_cap",
+    "faceCount": 2190,
+    "hairColor": "brown",
+    "weightedBones": [
+      "chest",
+      "clavicle.L",
+      "clavicle.R",
+      "eye.L",
+      "eye.R",
+      "foot.L",
+      "foot.R",
+      "forearm.L",
+      "forearm.R",
+      "hand.L",
+      "hand.R",
+      "head",
+      "index_finger_base.L",
+      "index_finger_base.R",
+      "neck",
+      "pelvis",
+      "shin.L",
+      "shin.R",
+      "spine",
+      "thigh.L",
+      "thigh.R",
+      "upper_arm.L",
+      "upper_arm.R"
+    ],
+    "hasVisibleVolume": true,
+    "coordinateBasis": "body_local_y_height_bind_pose_v1",
+    "bindPoseLocalBBox": {
+      "min": [
+        -0.095957,
+        1.568076,
+        0.007165
+      ],
+      "max": [
+        0.09785,
+        1.791124,
+        0.22981
+      ]
+    },
+    "bindPoseWorldBBox": {
+      "min": [
+        -0.095957,
+        -0.22981,
+        1.568076
+      ],
+      "max": [
+        0.09785,
+        -0.007165,
+        1.791124
+      ]
+    },
+    "claimScope": "procedural_scalp_hair_mesh_aesthetic_not_production_groom_or_clinical",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ],
+    "evidenceForThisSlice": "body-conforming-drape-garment-mesh-2026-08-03"
+  },
+  "faceDetailMarkers": {
+    "status": "abandoned_rejected_experiment",
+    "rejectedApproach": "manual_bounds_based_hair_eye_and_face_marker_geometry",
+    "reason": "Visual review rejected the procedural hair cap, eye spheres, brow bars, nose marker, and mouth marker as visibly awful and counterproductive for Anny realism.",
+    "nextSafeStep": "Use a real humanoid source-quality path for hair, eyes, and facial topology, or a dedicated local FOSS hair/face cagematch that beats clean Anny-body evidence in isolated screenshots.",
+    "claimScope": "manual_face_hair_markers_disabled_not_realism_evidence",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "sourceTopologyEvidence": {
+    "topology": "default",
+    "topologyIncludesEyes": true,
+    "topologyIncludesTongue": true,
+    "materialSegmentationProvided": false,
+    "embeddedEyeMaterialCagematchStatus": "failed_not_retained",
+    "failureReason": "Bounds-based material assignment to default-topology eye-region faces landed on cheek/under-eye polygons in isolated Model Vetting Studio evidence.",
+    "nextSafeStep": "Use source semantic masks, UV masks, or a stronger local FOSS face/eye/hair generator before coloring Anny default-topology eye regions.",
+    "claimScope": "source_topology_observation_not_production_eye_shader_or_b_plus_realism",
+    "notEvidenceFor": [
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "wardrobeTags": {
+    "wardrobeRole": "ed_patient_exam",
+    "garmentLayers": [
+      "hospital_gown"
+    ],
+    "fabricPalette": "hospital_gown_blue_pattern",
+    "materialFinish": "cotton_slight_sheen",
+    "fitProfile": "adult_standard_fit",
+    "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe"
+  },
+  "materialTagSummary": {
+    "roleColorway": "soft_blue",
+    "skinTone": "warm_medium",
+    "hairColor": "brown",
+    "eyeColor": "brown",
+    "materialFinish": "cotton_slight_sheen"
+  },
+  "morphTargetDiagnostics": {
+    "defaultWeightThreshold": 0.001,
+    "extremeDeltaThreshold": 0.05,
+    "nonzeroDefaultWeights": [],
+    "extremeMorphDeltas": [],
+    "claimScope": "morph_target_diagnostic_not_readiness",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "accessoryPresence": {
+    "markers": [],
+    "generatedObjects": [],
+    "claimScope": "synthetic_role_visual_cue_only"
+  },
+  "provenance": {
+    "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v2, actor=patient)",
+    "generatedAt": "2026-08-04T00:50:10.690963Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.18, \"anny_topology\": \"default\", \"anxious\": 0.65, \"bmi\": 26.0, \"brow_tension\": 0.55, \"build\": \"average_adult\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"clinical_exam_tshirt_chest_pain\", \"eye_color\": \"brown\", \"fabricPalette\": \"hospital_gown_blue_pattern\", \"fitProfile\": \"adult_standard_fit\", \"flush\": 0.15, \"garmentLayers\": [\"hospital_gown\"], \"gender_presentation\": \"adult_male\", \"hair_color\": \"brown\", \"hair_density\": 0.65, \"height_cm\": 178, \"materialFinish\": \"cotton_slight_sheen\", \"role_visual_cue\": \"ed_chest_pain_patient\", \"skin_tone\": \"warm_medium\", \"sleeveGeometryExpansion\": \"v3_bod_humanlike_gown_muted_cotton_sleeve_fit_along_arms_0.72_arm_r0.22\", \"wardrobeRole\": \"ed_patient_exam\"}"
+  },
+  "licenseExceptionRequired": false,
+  "realismGrade": "B",
+  "phenotype": {
+    "skin_tone": "warm_medium",
+    "hair_color": "brown",
+    "eye_color": "brown",
+    "anny_topology": "default",
+    "gender_presentation": "adult_male",
+    "height_cm": 178,
+    "build": "average_adult",
+    "hair_density": 0.65,
+    "brow_tension": 0.55,
+    "anxious": 0.65,
+    "flush": 0.15,
+    "age_wrinkle": 0.18,
+    "bmi": 26.0,
+    "clothing_style": "clinical_exam_tshirt_chest_pain",
+    "clothing_color": "soft_blue",
+    "role_visual_cue": "ed_chest_pain_patient",
+    "wardrobeRole": "ed_patient_exam",
+    "garmentLayers": [
+      "hospital_gown"
+    ],
+    "fabricPalette": "hospital_gown_blue_pattern",
+    "materialFinish": "cotton_slight_sheen",
+    "accessoryMarkers": [],
+    "fitProfile": "adult_standard_fit",
+    "sleeveGeometryExpansion": "v3_bod_humanlike_gown_muted_cotton_sleeve_fit_along_arms_0.72_arm_r0.22"
+  },
+  "sourceProvenance": {
+    "generatorMode": "anny_compatible_stub_plus_blender_procedural",
+    "realAnnyWeightsUsed": false,
+    "textureMode": "procedural_fallback",
+    "animationMode": "procedural_animation_fallback",
+    "notEvidenceFor": [
+      "real_anny_model_output",
+      "b_plus_visual_realism_gate",
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "notes": "B-candidate iteration: multi-octave pores/age/wrinkle from age_wrinkle/bmi, anxious flush, SSS/trans approx, iris+catchlight eyes, density hair, strong viseme/affect deltas for emotion/dialogue from case commProfile. Usable in runtime player for peds+ed actors, but not evidence of real Anny weights or a B+ visual realism gate pass."
+}

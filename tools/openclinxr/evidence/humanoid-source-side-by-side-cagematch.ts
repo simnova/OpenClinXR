@@ -99,6 +99,7 @@ async function main(): Promise<void> {
   const captureDir = path.join(outputHome.localEvidenceDir, "captures");
   await mkdir(captureDir, { recursive: true });
   const reportUrl = `/${path.relative("apps/arena/model-vetting-studio/public", publicReportPath).replaceAll(path.sep, "/")}`;
+  // Prefer spawnPortlessDevServer() from ./lib/portless-server.ts for collision-safe dynamic ports.
   const server = spawn("pnpm", ["--filter", "@openclinxr/model-vetting-studio", "dev:portless"], {
     cwd: process.cwd(),
     env: { ...process.env, PORT: String(options.port) },

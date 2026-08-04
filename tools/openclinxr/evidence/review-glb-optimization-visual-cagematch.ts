@@ -335,6 +335,7 @@ function summarizeVariants(variants: BrowserVariantEvidence[]): ReviewGlbOptimiz
 }
 
 async function startStudioServer(port: number): Promise<ReturnType<typeof spawn>> {
+  // Prefer spawnPortlessDevServer() from ./lib/portless-server.ts for collision-safe dynamic ports.
   const child = spawn("pnpm", ["--filter", "@openclinxr/model-vetting-studio", "dev:portless"], {
     cwd: process.cwd(),
     env: { ...process.env, PORT: String(port) },

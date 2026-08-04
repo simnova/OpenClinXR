@@ -114,6 +114,7 @@ async function buildReport(opts: CliOptions): Promise<any> {
   const outDir = path.join(".openclinxr/evidence/bvh-retarget-lab-smoke", opts.runId);
   await mkdir(outDir, { recursive: true });
 
+  // Prefer spawnPortlessDevServer() from ./lib/portless-server.ts for collision-safe dynamic ports.
   const server = spawn("pnpm", ["--filter", "@openclinxr/ui-xr", "dev:portless"], {
     cwd: process.cwd(),
     env: { ...process.env, PORT: String(opts.port) },

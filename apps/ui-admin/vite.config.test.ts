@@ -34,12 +34,16 @@ describe("ui-admin Vite local API proxy", () => {
     });
   });
 
-  it("keeps the Portless dev script aligned to an injected or admin fallback app port", () => {
+  it("keeps the Portless dev script collision-safe (dynamic PORT:-0, no strictPort hard-fail)", () => {
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts?: Record<string, string>;
     };
-    const portParameter = "$" + "{PORT:-5174}";
+    // PORT unset → 0 (ephemeral); strictPort=false so parallel worktrees never EADDRINUSE-crash.
+    // Evidence jobs must parse Vite's Local: line (see tools/openclinxr/evidence/lib/portless-server.ts).
+    const portParameter = "$" + "{PORT:-0}";
 
-    expect(packageJson.scripts?.["dev:portless"]).toBe(`vite --host 127.0.0.1 --port ${portParameter} --strictPort`);
+    expect(packageJson.scripts?.["dev:portless"]).toBe(
+      `vite --host 127.0.0.1 --port ${portParameter} --strictPort=false`,
+    );
   });
 });

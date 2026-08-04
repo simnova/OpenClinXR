@@ -2,9 +2,10 @@
  * clinical-touch-smoke.ts — headless gate for multi-region animation-driven
  * clinical-touch interaction evidence on the real UI-XR patient path.
  *
- * Spawns UI-XR dev:portless (default PORT 5330; fan-out 5330-5339), loads the ED
- * chest-pain patient scenario, pointer-raycasts 2–3 DIFFERENT body regions via the
- * real canvas path, asserts each produces its case-driven emotion/dialogue/trace,
+ * Spawns UI-XR via `spawnPortlessDevServer` (findFreePort + parse Vite Local:
+ * line — collision-safe; optional `--port N` still preferred when set). Loads the
+ * ED chest-pain patient scenario, pointer-raycasts 2–3 DIFFERENT body regions via
+ * the real canvas path, asserts each produces its case-driven emotion/dialogue/trace,
  * requires empty pageErrors, and writes a dated report under docs/openclinxr/.
  *
  * A miss (no hit-box / offscreen) still falls through without crashing (graceful fail).
@@ -19,13 +20,17 @@
  * Modeled on tools/openclinxr/evidence/bvh-retarget-lab-smoke.ts (CLI + spawn + report).
  */
 
-import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { globFiles, readJson, writeJson } from "../../agent-factory/lib.js";
+import {
+  spawnPortlessDevServer,
+  stopPortlessDevServer,
+} from "./lib/portless-server.js";
 
 const SCHEMA_VERSION = "openclinxr.clinical-touch-smoke.v1";
 const REPORT_GLOB = "docs/openclinxr/clinical-touch-smoke-*.json";
@@ -93,6 +98,7 @@ type CliOptions = {
   validatePath?: string;
   validateLatest: boolean;
   outputPath?: string;
+  /** Preferred port; 0 / unset → spawnPortlessDevServer pre-scans a free port. */
   port: number;
   runId: string;
 };
@@ -108,8 +114,8 @@ function parseArgs(argv: string[]): CliOptions {
   const args = argv[0] === "--" ? argv.slice(1) : argv;
   const opts: CliOptions = {
     validateLatest: false,
-    // Portless fan-out range: 5330-5339; default avoids colliding with concurrent lanes.
-    port: 5330,
+    // 0 = dynamic allocation via spawnPortlessDevServer (collision-safe parallel worktrees).
+    port: 0,
     runId: new Date().toISOString().replace(/[:.]/g, "-"),
   };
   for (let i = 0; i < args.length; i++) {
@@ -121,21 +127,6 @@ function parseArgs(argv: string[]): CliOptions {
     else throw new Error(`Unknown arg: ${a}`);
   }
   return opts;
-}
-
-async function waitForServer(port: number, server: ChildProcessWithoutNullStreams): Promise<void> {
-  const deadline = Date.now() + 120_000;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/`);
-      if (response.ok) return;
-    } catch {
-      // retry
-    }
-    if (server.exitCode !== null) throw new Error("UI-XR dev server exited before ready.");
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  throw new Error(`UI-XR not ready on port ${port}`);
 }
 
 /**
@@ -210,15 +201,17 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
     return envelope(opts, null, [`mkdir_failed:${String(e)}`], null, pageErrors, null, regionResults);
   }
 
-  const server = spawn("pnpm", ["--filter", "@openclinxr/ui-xr", "dev:portless"], {
-    cwd: process.cwd(),
-    env: { ...process.env, PORT: String(opts.port) },
-    stdio: "pipe",
-  });
-
+  let server: ChildProcessWithoutNullStreams | null = null;
   try {
     try {
-      await waitForServer(opts.port, server);
+      const handle = await spawnPortlessDevServer({
+        filter: "@openclinxr/ui-xr",
+        env: opts.port > 0 ? { PORT: String(opts.port) } : undefined,
+        readyTimeoutMs: 120_000,
+      });
+      server = handle.proc;
+      // Use the **actual** bound port (may differ from preferred if race / auto-pick).
+      opts.port = handle.port;
     } catch (e) {
       blockers.push(`ui_xr_server_not_ready:${String(e)}`);
       return envelope(opts, null, blockers, outDir, pageErrors, null, regionResults);
@@ -396,11 +389,7 @@ async function buildReport(opts: CliOptions): Promise<Record<string, unknown>> {
       }
     }
   } finally {
-    try {
-      server.kill("SIGTERM");
-    } catch {
-      // ignore
-    }
+    stopPortlessDevServer(server);
   }
 
   if (pageErrors.length > 0) blockers.push(`page_errors:${pageErrors.length}`);

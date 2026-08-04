@@ -2,10 +2,11 @@
  * humanoid-vision-score.ts — headless generation-quality vision scoring for
  * Humanoid Generation Studio candidates.
  *
- * Spawns portless UI-XR, screenshots each MANIFEST humanoid in the isolated
- * lab at TWO framings (full figure incl head, face/head close-up), scores via
- * Grok vision, writes studio scores.json + a ranked docs report.
- * Aesthetic-only; not clinical.
+ * Spawns portless UI-XR via `spawnPortlessDevServer` (findFreePort + parse
+ * Vite Local: line — collision-safe for parallel worktrees), screenshots each
+ * MANIFEST humanoid in the isolated lab at TWO framings (full figure incl head,
+ * face/head close-up), scores via Grok vision, writes studio scores.json + a
+ * ranked docs report. Aesthetic-only; not clinical.
  *
  * Instrument guarantees (2026-08-04 fix):
  *  1. CLEAN CAPTURE — HUD hidden (?clean=1 + __hideHud); canvas-only PNG;
@@ -21,13 +22,17 @@
  *   REPRO_N=5 ONLY_ID=peds_anxious_parent WRITE_STUDIO_SCORES=0 tsx ...
  */
 
-import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
+import type { ChildProcessWithoutNullStreams } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium, type Page } from "playwright";
 import { estimateUsdFromSplit } from "../../../packages/openclinxr/agent-loop/src/model-pricing.js";
+import {
+  spawnPortlessDevServer,
+  stopPortlessDevServer,
+} from "./lib/portless-server.js";
 
 /** Identical to apps/ui-xr/public/_humanoid-studio/index.html MANIFEST (ids + glb). */
 const DEFAULT_MANIFEST = Object.freeze([
@@ -56,7 +61,8 @@ const DEFAULT_MANIFEST = Object.freeze([
 const FRAMINGS = ["full", "face"] as const;
 type Framing = (typeof FRAMINGS)[number];
 
-const PORT = Number(process.env.PORT || process.env.HUMANOID_VISION_PORT || 5251);
+/** Optional preferred PORT; omit/unset → spawnPortlessDevServer pre-scans a free port. */
+const PREFERRED_PORT = process.env.PORT || process.env.HUMANOID_VISION_PORT || "";
 const MODEL = process.env.GROK_VISION_MODEL || "grok-4.5";
 const SERVER_READY_TIMEOUT_MS = 120_000;
 const ISO_READY_TIMEOUT_MS = 45_000;
@@ -229,23 +235,6 @@ async function loadManifest(): Promise<ManifestEntry[]> {
     }
   }
   return entries;
-}
-
-async function waitForServer(port: number, server: ChildProcessWithoutNullStreams): Promise<void> {
-  const deadline = Date.now() + SERVER_READY_TIMEOUT_MS;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/`);
-      if (response.ok) return;
-    } catch {
-      // retry
-    }
-    if (server.exitCode !== null) {
-      throw new Error(`UI-XR dev server exited before ready (code ${server.exitCode})`);
-    }
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  throw new Error(`UI-XR not ready on port ${port} within ${SERVER_READY_TIMEOUT_MS}ms`);
 }
 
 function extractJsonObject(text: string): unknown {
@@ -766,13 +755,17 @@ async function main(): Promise<void> {
   const day = generatedAt.slice(0, 10);
   const docsPath =
     process.env.DOCS_SCORES_PATH || `docs/openclinxr/humanoid-vision-score-${day}.json`;
-  const workDir = await mkdtemp(path.join(tmpdir(), `humanoid-vision-score-${PORT}-`));
+  const workDir = await mkdtemp(
+    path.join(tmpdir(), `humanoid-vision-score-${process.pid}-`),
+  );
   const manifest = await loadManifest();
   const skipServer = process.env.SKIP_SERVER === "1" || process.env.SKIP_SERVER === "true";
-  const baseUrl = process.env.BASE_URL || `http://127.0.0.1:${PORT}`;
+  let baseUrl = (process.env.BASE_URL || "").replace(/\/$/, "");
   const reproN = Math.max(0, Number(process.env.REPRO_N || 0) || 0);
 
-  console.log(`[humanoid-vision-score] workDir=${workDir} PORT=${PORT} framings=${FRAMINGS.join(",")}`);
+  console.log(
+    `[humanoid-vision-score] workDir=${workDir} preferredPort=${PREFERRED_PORT || "dynamic"} framings=${FRAMINGS.join(",")}`,
+  );
   console.log(
     `[humanoid-vision-score] manifest entries=${manifest.length} clean=1 canvas-only honestyMin=${MIN_SHOT_BYTES}` +
       (reproN > 0 ? ` REPRO_N=${reproN}` : ""),
@@ -795,15 +788,21 @@ async function main(): Promise<void> {
 
   try {
     if (!skipServer) {
-      console.log(`[humanoid-vision-score] spawning UI-XR dev:portless on PORT=${PORT}`);
-      server = spawn("pnpm", ["--filter", "@openclinxr/ui-xr", "dev:portless"], {
-        cwd: process.cwd(),
-        env: { ...process.env, PORT: String(PORT) },
-        stdio: "pipe",
-      }) as ChildProcessWithoutNullStreams;
-      await waitForServer(PORT, server);
-      console.log(`[humanoid-vision-score] UI-XR ready on ${baseUrl}/`);
+      console.log(
+        `[humanoid-vision-score] spawning UI-XR dev:portless via spawnPortlessDevServer (PORT=${PREFERRED_PORT || "0"})`,
+      );
+      const handle = await spawnPortlessDevServer({
+        filter: "@openclinxr/ui-xr",
+        env: PREFERRED_PORT ? { PORT: String(PREFERRED_PORT) } : undefined,
+        readyTimeoutMs: SERVER_READY_TIMEOUT_MS,
+      });
+      server = handle.proc;
+      baseUrl = handle.url.replace(/\/$/, "");
+      console.log(`[humanoid-vision-score] UI-XR ready on ${baseUrl}/ (bound port=${handle.port})`);
     } else {
+      if (!baseUrl) {
+        throw new Error("SKIP_SERVER requires BASE_URL=http://127.0.0.1:<port>");
+      }
       console.log(`[humanoid-vision-score] SKIP_SERVER using BASE_URL=${baseUrl}`);
     }
 
@@ -908,7 +907,7 @@ async function main(): Promise<void> {
       await browser.close();
     }
   } finally {
-    if (server && server.exitCode === null) server.kill("SIGTERM");
+    stopPortlessDevServer(server);
   }
 
   // Repro mode already returned
