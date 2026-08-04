@@ -58,6 +58,24 @@ export type StationApiClientOptions = {
   fetch?: typeof fetch;
 };
 
+export type StationRunQueueSnapshotRequest = {
+  snapshotId?: string;
+  createdAt?: string;
+  reviewerId?: string;
+};
+
+export type StationRunQueueSnapshotResponse = {
+  snapshotId: string;
+  createdAt: string;
+  reviewerId?: string;
+  queue: unknown;
+};
+
+/** Minimal ApiPersistenceSink-compatible surface for station-run-queue snapshots (no mongo rewire). */
+export type StationApiPersistenceSink = {
+  saveStationRunQueueSnapshot?: (snapshot: StationRunQueueSnapshotResponse) => Promise<void> | void;
+};
+
 export type StationApiClient = {
   listLearnerRuntimeAssetBundles(): Promise<LearnerRuntimeAssetBundleListResponse>;
   findLearnerRuntimeAssetBundleByScenarioStation(input: {
@@ -72,6 +90,8 @@ export type StationApiClient = {
   synthesizeActorSpeech(stationRunId: string, input: VoiceSynthesisRequest): Promise<unknown>;
   submitNote(stationRunId: string, input: SubmitNoteRequest): Promise<unknown>;
   listTraceEvents(stationRunId: string): Promise<TraceEventSummary[]>;
+  /** Additive: POST seed station-run-queue snapshot via existing control-plane route. */
+  createStationRunQueueSnapshot(input?: StationRunQueueSnapshotRequest): Promise<StationRunQueueSnapshotResponse>;
 };
 
 export type LearnerRuntimeAssetBundleListResponse = {
@@ -109,6 +129,27 @@ export function createStationApiClient(options: StationApiClientOptions): Statio
     synthesizeActorSpeech: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input),
     submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input),
     listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`),
+    createStationRunQueueSnapshot: (input = {}) =>
+      request(fetcher, baseUrl, "/exam-blueprints/step2cs-seed/station-run-queue/snapshots", input),
+  };
+}
+
+/**
+ * Injected ApiPersistenceSink-shaped adapter over StationApiClient.
+ * Persists station-run-queue snapshots via the existing API route; does not open mongo.
+ */
+export function createStationApiPersistenceSink(client: Pick<StationApiClient, "createStationRunQueueSnapshot">): StationApiPersistenceSink {
+  return {
+    saveStationRunQueueSnapshot: async (snapshot) => {
+      const request: StationRunQueueSnapshotRequest = {
+        snapshotId: snapshot.snapshotId,
+        createdAt: snapshot.createdAt,
+      };
+      if (snapshot.reviewerId !== undefined) {
+        request.reviewerId = snapshot.reviewerId;
+      }
+      await client.createStationRunQueueSnapshot(request);
+    },
   };
 }
 

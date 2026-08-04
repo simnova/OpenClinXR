@@ -406,6 +406,9 @@ importers:
       '@openclinxr/conversation-policy':
         specifier: workspace:*
         version: link:../../packages/openclinxr/conversation-policy
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/exam-assembly
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-fixtures

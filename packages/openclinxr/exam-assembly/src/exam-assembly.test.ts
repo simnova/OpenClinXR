@@ -1,13 +1,23 @@
 import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
 import { describe, expect, it } from "vitest";
 import {
+  advanceExamFormRunStation,
   assembleExamForm,
   createDefaultClinicalSkillsBlueprint,
+  createExamFormRun,
   createExamStationRunQueue,
+  createExamStationRunQueueSnapshot,
   createExamTimingPlan,
   createStep2CsStyleSeedBlueprint,
+  currentExamFormRunStation,
   evaluateBlueprintScenarioReadiness,
   evaluateScenarioVersionDrift,
+  nextExamFormRunStation,
+  persistExamStationRunQueueSnapshot,
+  startExamFormRun,
+  tickExamFormRunClock,
+  type ExamAssemblyPersistenceSink,
+  type ExamStationRunQueueSnapshot,
 } from "./index.js";
 
 describe("exam assembly", () => {
@@ -275,5 +285,122 @@ describe("exam assembly", () => {
       status: "governance_blocked",
       blockers: ["dialogue_seed_replay_not_ready"],
     });
+  });
+
+  it("drives multi-station form run: blueprint → assembleExamForm → queue → form clock → outcomes", () => {
+    // Two activation-ready slots (same approved fixture twice) exercise sequencing without draft blockers.
+    const stationA = edChestPainScenario;
+    const stationB = edChestPainScenario;
+    const blueprint = createStep2CsStyleSeedBlueprint([stationA, stationB]);
+
+    let run = createExamFormRun({
+      examRunId: "exam_run_multi_station_001",
+      examFormId: "form_multi_station_001",
+      blueprint,
+      scenarios: [stationA, stationB],
+    });
+
+    expect(run.examEquivalenceGate).toBe(false);
+    expect(run.notEvidenceFor).toEqual(expect.arrayContaining(["exam_equivalence", "clinical_validity"]));
+    expect(run.form.status).toBe("ready_for_review");
+    expect(run.form.stationRefs).toHaveLength(2);
+    expect(run.queue.canStartLearnerExam).toBe(true);
+    expect(run.queue.stationQueue).toHaveLength(2);
+    expect(run.status).toBe("not_started");
+    expect(run.clock.totalStationTimeSeconds).toBe(3120);
+    expect(run.clock.formElapsedSecond).toBe(0);
+    expect(run.clock.formRemainingSecond).toBe(3120);
+
+    run = startExamFormRun(run);
+    expect(run.status).toBe("in_progress");
+    expect(currentExamFormRunStation(run)?.scenarioId).toBe(stationA.scenarioId);
+    expect(nextExamFormRunStation(run)?.scenarioId).toBe(stationB.scenarioId);
+
+    run = tickExamFormRunClock(run, 1560);
+    expect(run.clock.formElapsedSecond).toBe(1560);
+    expect(run.clock.formRemainingSecond).toBe(1560);
+
+    run = advanceExamFormRunStation(run, {
+      phase: "complete",
+      noteSubmitted: true,
+      advanceReason: "patient_note_submitted_advancing",
+      endedAtFormSecond: 1560,
+      recordedAtIso: "2026-08-03T12:00:00.000Z",
+    });
+
+    expect(run.stationOutcomes).toHaveLength(1);
+    expect(run.stationOutcomes[0]).toMatchObject({
+      stationOrder: 1,
+      scenarioId: stationA.scenarioId,
+      phase: "complete",
+      noteSubmitted: true,
+      startedAtFormSecond: 0,
+      endedAtFormSecond: 1560,
+      advanceReason: "patient_note_submitted_advancing",
+    });
+    expect(run.status).toBe("in_progress");
+    expect(run.currentStationIndex).toBe(1);
+    expect(currentExamFormRunStation(run)?.scenarioId).toBe(stationB.scenarioId);
+
+    run = advanceExamFormRunStation(run, {
+      phase: "complete",
+      noteSubmitted: true,
+      advanceReason: "last_station_note_submitted_exam_complete",
+      endedAtFormSecond: 3120,
+      recordedAtIso: "2026-08-03T12:30:00.000Z",
+    });
+
+    expect(run.status).toBe("complete");
+    expect(run.stationOutcomes).toHaveLength(2);
+    expect(run.stationOutcomes.map((outcome) => outcome.stationOrder)).toEqual([1, 2]);
+    expect(run.examEquivalenceGate).toBe(false);
+  });
+
+  it("keeps single-station form run additive and complete after one advance", () => {
+    const blueprint = createDefaultClinicalSkillsBlueprint();
+    let run = createExamFormRun({
+      examRunId: "exam_run_single_001",
+      examFormId: "form_single_001",
+      blueprint,
+      scenarios: [edChestPainScenario],
+    });
+    run = startExamFormRun(run);
+    expect(run.queue.stationQueue).toHaveLength(1);
+    expect(nextExamFormRunStation(run)).toBeNull();
+
+    run = advanceExamFormRunStation(run, {
+      phase: "complete",
+      noteSubmitted: true,
+      advanceReason: "last_station_note_submitted_exam_complete",
+      endedAtFormSecond: 1560,
+      recordedAtIso: "2026-08-03T12:00:00.000Z",
+    });
+
+    expect(run.status).toBe("complete");
+    expect(run.stationOutcomes).toHaveLength(1);
+    expect(run.stationOutcomes[0]?.scenarioId).toBe(edChestPainScenario.scenarioId);
+  });
+
+  it("persists station-run-queue snapshot via injected ApiPersistenceSink-shaped sink (no mongo)", async () => {
+    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(), [edChestPainScenario]);
+    const saved: ExamStationRunQueueSnapshot[] = [];
+    const sink: ExamAssemblyPersistenceSink = {
+      saveStationRunQueueSnapshot: (snapshot) => {
+        saved.push(snapshot);
+      },
+    };
+
+    const snapshot = createExamStationRunQueueSnapshot({
+      snapshotId: "queue_snapshot_learner_001",
+      queue,
+      reviewerId: "learner_runtime_local",
+      createdAt: "2026-08-03T12:00:00.000Z",
+    });
+    const persisted = await persistExamStationRunQueueSnapshot(sink, snapshot);
+
+    expect(persisted).toEqual(snapshot);
+    expect(saved).toEqual([snapshot]);
+    expect(saved[0]?.queue.stationQueue).toHaveLength(1);
+    expect(saved[0]?.queue.canStartLearnerExam).toBe(true);
   });
 });

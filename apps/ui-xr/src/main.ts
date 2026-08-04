@@ -52,7 +52,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
-import { createStationApiClient, type StationApiClient } from "./api-client.js";
+import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -60,6 +60,7 @@ import {
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
+  advanceExamFormRunStation,
   buildManualPerformanceCaptureSummary,
   buildManualPerformanceDraft,
   buildManualPerformanceEvidencePayload,
@@ -78,10 +79,15 @@ import {
   type CaseDefinedHumanoidRuntimeHandoffEvidence,
   completeTraceAction,
   createInitialRuntimeState,
+  createMultiStationExamRuntime,
   createRuntimeStateFromBundle,
+  currentExamFormRunStation,
+  type ExamFormRunState,
   type EnvironmentStateEvidence,
   type ExamineeLocomotionEvidence,
   eventTypeForTraceTag,
+  examFormRunScenarioSequence,
+  formatExamFormRunClock,
   formatManualEvidenceCopyStatus,
   formatStationClock,
   type HumanoidSpeechEvidence,
@@ -104,6 +110,8 @@ import {
   mapHandGestureLocomotionVector,
   meshHandModelProfile,
   meshHandRepresentationKind,
+  nextExamFormRunStation,
+  persistExamFormRunQueueSnapshot,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
   type ReadableVrTextPanelEvidence,
@@ -118,6 +126,7 @@ import {
   remoteActorTurnForTraceTag,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
+  tickExamFormRunClock,
   type XrExperienceModeEvidence,
   type XrHandGestureStateEvidence,
   type XrHandSelectStateEvidence,
@@ -329,6 +338,11 @@ type ExamRunStationOutcome = {
   noteSubmitted: boolean;
   lastAdvanceReason: string | null;
   recordedAtIso: string;
+  /** Additive multi-station form fields (optional for backward-compatible localStorage). */
+  stationOrder?: number;
+  slotId?: string;
+  startedAtFormSecond?: number;
+  endedAtFormSecond?: number | null;
 };
 
 type OpenClinXrExamRunSummaryEvidence = {
@@ -336,6 +350,32 @@ type OpenClinXrExamRunSummaryEvidence = {
   examRunId: string;
   totalScenarios: number;
   stationOutcomes: ExamRunStationOutcome[];
+  formElapsedSecond?: number;
+  formRemainingSecond?: number;
+  examFormRunStatus?: ExamFormRunState["status"];
+  examEquivalenceGate?: false;
+  notEvidenceFor?: readonly string[];
+};
+
+type OpenClinXrExamFormRunEvidence = {
+  source: "exam_assembly_form_run";
+  examRunId: string;
+  examFormId: string;
+  blueprintId: string;
+  status: ExamFormRunState["status"];
+  currentStationOrder: number | null;
+  currentScenarioId: string | null;
+  nextScenarioId: string | null;
+  scenarioSequence: string[];
+  formElapsedSecond: number;
+  formRemainingSecond: number;
+  totalStationTimeSeconds: number;
+  formClockDisplay: ReturnType<typeof formatExamFormRunClock>;
+  stationOutcomeCount: number;
+  canStartLearnerExam: boolean;
+  examEquivalenceGate: false;
+  claimBoundary: ExamFormRunState["claimBoundary"];
+  notEvidenceFor: ExamFormRunState["notEvidenceFor"];
 };
 
 type StationSceneRuntime = {
@@ -381,6 +421,7 @@ declare global {
     __openClinXrLastStationSceneBootErrorStack?: string;
     __openClinXrExamFlowEvidence?: OpenClinXrExamFlowEvidence;
     __openClinXrExamRunSummaryEvidence?: OpenClinXrExamRunSummaryEvidence;
+    __openClinXrExamFormRunEvidence?: OpenClinXrExamFormRunEvidence;
     __openClinXrDynamicSceneObjectNamingEvidence?: DynamicSceneObjectNamingEvidence;
     __openClinXrRoleDistinctHumanoidCueEvidence?: RoleDistinctHumanoidCueEvidence;
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
@@ -1765,6 +1806,19 @@ let examLastAdvanceReason: string | null = null;
 const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
 const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
+/** Multi-station form run: blueprint → assembleExamForm → createExamStationRunQueue (exam-assembly). */
+let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(examRunId, examNormalizedSequence);
+const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
+if (examFormRunState && examFormRunPersistenceSink) {
+  void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
+    snapshotId: `queue_snapshot_${examRunId}_boot`,
+    reviewerId: "ui_xr_learner_runtime",
+  }).catch(() => {
+    // Best-effort control-plane snapshot; local form-run evidence still advances offline.
+  });
+}
+updateExamFormRunEvidence();
+
 app.innerHTML = `
   <main class="station-shell${isSceneOnlyVisualReviewCaptureMode() ? " scene-only-visual-review" : ""}">
     <section class="stage" aria-label="${selectedStationContext.stageAriaLabel}">
@@ -1995,6 +2049,13 @@ function renderControls(): void {
 }
 
 function nextExamScenarioId(): string | null {
+  if (examFormRunState) {
+    const nextFromForm = nextExamFormRunStation(examFormRunState)?.scenarioId ?? null;
+    if (nextFromForm) {
+      return nextFromForm;
+    }
+    // Form run may be single-station while URL sequence still has more entries.
+  }
   return examNormalizedSequence[examScenarioIndex + 1] ?? null;
 }
 
@@ -2009,6 +2070,78 @@ function navigateToExamScenario(nextScenarioId: string): void {
   window.location.assign(nextUrl.toString());
 }
 
+function createLearnerExamFormRunState(runId: string, sequence: readonly string[]): ExamFormRunState | null {
+  const resolved = sequence
+    .map((scenarioId) => scenarioBank.find((scenario) => scenario.scenarioId === scenarioId)
+      ?? (scenarioId === edChestPainScenario.scenarioId ? edChestPainScenario : null))
+    .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
+
+  if (resolved.length === 0) {
+    return null;
+  }
+
+  // assembleExamForm requires approved scenarios; prefer activation-ready subset, else single ED pilot.
+  const approved = resolved.filter((scenario) => scenario.status === "approved");
+  const scenariosForForm = approved.length > 0 ? approved : [edChestPainScenario];
+
+  try {
+    const run = createMultiStationExamRuntime({
+      examRunId: runId,
+      examFormId: `form_${runId}`,
+      scenarios: scenariosForForm,
+      start: true,
+    });
+    // Align current station index to the loaded scenario when possible.
+    const index = run.queue.stationQueue.findIndex((station) => station.scenarioId === examScenarioId);
+    if (index >= 0) {
+      return { ...run, currentStationIndex: index, examEquivalenceGate: false };
+    }
+    return run;
+  } catch {
+    return null;
+  }
+}
+
+function formElapsedSecondForCurrentStation(): number {
+  if (!examFormRunState) {
+    return state.elapsedSecond;
+  }
+  const station = currentExamFormRunStation(examFormRunState);
+  const stationOffset = station?.timing.doorway.startsAtSecond ?? 0;
+  return stationOffset + state.elapsedSecond;
+}
+
+function updateExamFormRunEvidence(): OpenClinXrExamFormRunEvidence | null {
+  if (!examFormRunState) {
+    delete window.__openClinXrExamFormRunEvidence;
+    return null;
+  }
+  const current = currentExamFormRunStation(examFormRunState);
+  const next = nextExamFormRunStation(examFormRunState);
+  const evidence: OpenClinXrExamFormRunEvidence = {
+    source: "exam_assembly_form_run",
+    examRunId: examFormRunState.examRunId,
+    examFormId: examFormRunState.examFormId,
+    blueprintId: examFormRunState.blueprintId,
+    status: examFormRunState.status,
+    currentStationOrder: current?.stationOrder ?? null,
+    currentScenarioId: current?.scenarioId ?? null,
+    nextScenarioId: next?.scenarioId ?? null,
+    scenarioSequence: examFormRunScenarioSequence(examFormRunState),
+    formElapsedSecond: examFormRunState.clock.formElapsedSecond,
+    formRemainingSecond: examFormRunState.clock.formRemainingSecond,
+    totalStationTimeSeconds: examFormRunState.clock.totalStationTimeSeconds,
+    formClockDisplay: formatExamFormRunClock(examFormRunState),
+    stationOutcomeCount: examFormRunState.stationOutcomes.length,
+    canStartLearnerExam: examFormRunState.queue.canStartLearnerExam,
+    examEquivalenceGate: false,
+    claimBoundary: examFormRunState.claimBoundary,
+    notEvidenceFor: examFormRunState.notEvidenceFor,
+  };
+  window.__openClinXrExamFormRunEvidence = evidence;
+  return evidence;
+}
+
 function readExamRunSummaryOutcomes(): ExamRunStationOutcome[] {
   try {
     const parsed = JSON.parse(window.localStorage.getItem(examRunSummaryStorageKey) ?? "[]") as ExamRunStationOutcome[];
@@ -2019,17 +2152,53 @@ function readExamRunSummaryOutcomes(): ExamRunStationOutcome[] {
 }
 
 function updateExamRunSummaryEvidence(): OpenClinXrExamRunSummaryEvidence {
+  const formClock = examFormRunState ? formatExamFormRunClock(examFormRunState) : null;
   const evidence: OpenClinXrExamRunSummaryEvidence = {
     source: "local_exam_run_summary",
     examRunId,
     totalScenarios: examNormalizedSequence.length,
     stationOutcomes: readExamRunSummaryOutcomes(),
+    examEquivalenceGate: false,
   };
+  if (formClock) {
+    evidence.formElapsedSecond = formClock.formElapsedSecond;
+    evidence.formRemainingSecond = formClock.formRemainingSecond;
+  }
+  if (examFormRunState) {
+    evidence.examFormRunStatus = examFormRunState.status;
+    evidence.notEvidenceFor = examFormRunState.notEvidenceFor;
+  }
   window.__openClinXrExamRunSummaryEvidence = evidence;
   return evidence;
 }
 
 function recordExamRunStationOutcome(): void {
+  const formSecond = formElapsedSecondForCurrentStation();
+  if (examFormRunState) {
+    examFormRunState = tickExamFormRunClock(examFormRunState, formSecond);
+    examFormRunState = advanceExamFormRunStation(examFormRunState, {
+      phase: examFlowPhase === "complete" ? "complete" : examNoteSubmitted ? "complete" : examFlowPhase,
+      noteSubmitted: examNoteSubmitted,
+      advanceReason: examLastAdvanceReason,
+      endedAtFormSecond: formSecond,
+      recordedAtIso: new Date().toISOString(),
+    });
+    updateExamFormRunEvidence();
+    if (examFormRunPersistenceSink) {
+      void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
+        snapshotId: `queue_snapshot_${examRunId}_station_${examScenarioIndex + 1}`,
+        reviewerId: "ui_xr_learner_runtime",
+      }).catch(() => {
+        // Best-effort; local outcomes still recorded.
+      });
+    }
+  }
+
+  const formOutcome = examFormRunState?.stationOutcomes.find(
+    (outcome) => outcome.stationOrder === examScenarioIndex + 1,
+  ) ?? examFormRunState?.stationOutcomes.find(
+    (outcome) => outcome.scenarioId === examScenarioId,
+  );
   const outcomes = readExamRunSummaryOutcomes();
   const nextOutcome: ExamRunStationOutcome = {
     scenarioId: examScenarioId,
@@ -2038,9 +2207,17 @@ function recordExamRunStationOutcome(): void {
     noteTextLength: patientNoteText.value.trim().length,
     noteSubmitted: examNoteSubmitted,
     lastAdvanceReason: examLastAdvanceReason,
-    recordedAtIso: new Date().toISOString(),
+    recordedAtIso: formOutcome?.recordedAtIso ?? new Date().toISOString(),
+    stationOrder: formOutcome?.stationOrder ?? examScenarioIndex + 1,
+    endedAtFormSecond: formOutcome?.endedAtFormSecond ?? formSecond,
   };
-  const withoutCurrent = outcomes.filter((outcome) => outcome.scenarioId !== examScenarioId);
+  if (formOutcome?.slotId !== undefined) {
+    nextOutcome.slotId = formOutcome.slotId;
+  }
+  if (formOutcome?.startedAtFormSecond !== undefined) {
+    nextOutcome.startedAtFormSecond = formOutcome.startedAtFormSecond;
+  }
+  const withoutCurrent = outcomes.filter((outcome) => outcome.scenarioId !== examScenarioId || outcome.scenarioIndex !== examScenarioIndex);
   window.localStorage.setItem(examRunSummaryStorageKey, JSON.stringify([...withoutCurrent, nextOutcome]));
   updateExamRunSummaryEvidence();
 }
@@ -10021,6 +10198,10 @@ let start = performance.now();
 function tick(): void {
   state = { ...state, elapsedSecond: Math.floor((performance.now() - start) / 1000) };
   clock.textContent = formatStationClock(state.elapsedSecond);
+  if (examFormRunState) {
+    examFormRunState = tickExamFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());
+    updateExamFormRunEvidence();
+  }
   advanceExamFlowForElapsedTime();
   advanceExamNoteForElapsedTime();
   updateExamFlowEvidence();

@@ -14,6 +14,7 @@
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/conversation-policy": "workspace:*",
+    "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "three": "0.184.0"
   },

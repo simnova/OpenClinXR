@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createStationApiClient } from "./api-client.js";
+import { createStationApiClient, createStationApiPersistenceSink } from "./api-client.js";
 
 describe("XR station API client", () => {
   it("starts a consented session and encounter through the API contract", async () => {
@@ -90,6 +90,56 @@ describe("XR station API client", () => {
         url: "http://localhost:8787/runtime/asset-bundles",
         method: "GET",
         body: undefined,
+      },
+    ]);
+  });
+
+  it("creates station-run-queue snapshots via control-plane route and sink adapter", async () => {
+    const requests: RecordedRequest[] = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787/",
+      fetch: recordingFetch(requests, {
+        snapshotId: "queue_snapshot_ui_xr_001",
+        createdAt: "2026-08-03T12:00:00.000Z",
+        reviewerId: "ui_xr_learner_runtime",
+        queue: { canStartLearnerExam: true, stationQueue: [] },
+      }),
+    });
+
+    await expect(client.createStationRunQueueSnapshot({
+      snapshotId: "queue_snapshot_ui_xr_001",
+      reviewerId: "ui_xr_learner_runtime",
+      createdAt: "2026-08-03T12:00:00.000Z",
+    })).resolves.toMatchObject({
+      snapshotId: "queue_snapshot_ui_xr_001",
+    });
+
+    const sink = createStationApiPersistenceSink(client);
+    await sink.saveStationRunQueueSnapshot?.({
+      snapshotId: "queue_snapshot_ui_xr_002",
+      createdAt: "2026-08-03T12:01:00.000Z",
+      reviewerId: "ui_xr_learner_runtime",
+      queue: { canStartLearnerExam: true },
+    });
+
+    expect(requests).toEqual([
+      {
+        url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue/snapshots",
+        method: "POST",
+        body: {
+          snapshotId: "queue_snapshot_ui_xr_001",
+          reviewerId: "ui_xr_learner_runtime",
+          createdAt: "2026-08-03T12:00:00.000Z",
+        },
+      },
+      {
+        url: "http://localhost:8787/exam-blueprints/step2cs-seed/station-run-queue/snapshots",
+        method: "POST",
+        body: {
+          snapshotId: "queue_snapshot_ui_xr_002",
+          createdAt: "2026-08-03T12:01:00.000Z",
+          reviewerId: "ui_xr_learner_runtime",
+        },
       },
     ]);
   });

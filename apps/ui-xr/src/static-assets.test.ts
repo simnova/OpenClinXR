@@ -187,6 +187,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain(`Note: \${examFlowEvidence.noteTextLength} chars`);
     expect(mainSource).toContain("lastObservedLocomotionSummary");
     expect(mainSource).toContain("formatRuntimeLocomotionLine");
+    expect(mainSource).toContain("createMultiStationExamRuntime");
+    expect(mainSource).toContain("__openClinXrExamFormRunEvidence");
+    expect(mainSource).toContain("persistExamFormRunQueueSnapshot");
+    expect(mainSource).toContain("createStationApiPersistenceSink");
+    expect(mainSource).toContain("examEquivalenceGate");
     expect(styles).toContain(".exam-flow-panel");
     expect(styles).toContain(".patient-note-text");
   });

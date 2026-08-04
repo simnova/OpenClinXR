@@ -5,6 +5,26 @@ import type {
   LearnerRuntimeAssetBundle,
   RuntimeAssetStoreKind,
 } from "@openclinxr/asset-registry/runtime-bundles";
+import {
+  advanceExamFormRunStation,
+  createDefaultClinicalSkillsBlueprint,
+  createExamFormRun,
+  createExamStationRunQueueSnapshot,
+  createStep2CsStyleSeedBlueprint,
+  currentExamFormRunStation,
+  examFormRunNotEvidenceFor,
+  nextExamFormRunStation,
+  persistExamStationRunQueueSnapshot,
+  startExamFormRun,
+  tickExamFormRunClock,
+  type AdvanceExamFormRunStationInput,
+  type CreateExamFormRunInput,
+  type ExamAssemblyPersistenceSink,
+  type ExamBlueprint,
+  type ExamFormRunState,
+  type ExamRunStationOutcome,
+  type ExamStationRunQueueSnapshot,
+} from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 
 export type XrRuntimeState = {
@@ -3617,4 +3637,106 @@ export function stepEmotionStateFromCaseMachine(
 export function getDialoguePolicyForActorFromCase(policy: { actors: Array<{ actorId: string; style: string; baselineMood: string[]; topicsToAvoid: string[]; adverseResponse: string }> } | null, actorId: string) {
   if (!policy) return null;
   return policy.actors.find((actor) => actor.actorId === actorId) || null;
+}
+
+// ---------------------------------------------------------------------------
+// Multi-station exam form run (learner runtime bridge to exam-assembly)
+// blueprint → assembleExamForm → createExamStationRunQueue → station advance
+// Form-level clock + ExamRunStationOutcome. examEquivalenceGate always false.
+// ---------------------------------------------------------------------------
+
+export type {
+  AdvanceExamFormRunStationInput,
+  ExamAssemblyPersistenceSink,
+  ExamFormRunState,
+  ExamRunStationOutcome,
+  ExamStationRunQueueSnapshot,
+};
+
+export {
+  advanceExamFormRunStation,
+  createExamStationRunQueueSnapshot,
+  currentExamFormRunStation,
+  examFormRunNotEvidenceFor,
+  nextExamFormRunStation,
+  persistExamStationRunQueueSnapshot,
+  startExamFormRun,
+  tickExamFormRunClock,
+};
+
+export type CreateMultiStationExamRuntimeInput = {
+  examRunId: string;
+  examFormId?: string;
+  scenarios: CreateExamFormRunInput["scenarios"];
+  /** Defaults to step2cs-style seed blueprint sized to scenarios; single-station uses clinical pilot blueprint. */
+  blueprint?: ExamBlueprint;
+  start?: boolean;
+};
+
+/**
+ * Build learner multi-station runtime state from blueprint assembly + station run queue.
+ * Additive: single-station (1 scenario) still produces a valid complete-after-one-advance run.
+ */
+export function createMultiStationExamRuntime(input: CreateMultiStationExamRuntimeInput): ExamFormRunState {
+  const scenarios = [...input.scenarios];
+  const blueprint = input.blueprint
+    ?? (scenarios.length <= 1
+      ? createDefaultClinicalSkillsBlueprint()
+      : createStep2CsStyleSeedBlueprint(scenarios));
+  const run = createExamFormRun({
+    examRunId: input.examRunId,
+    examFormId: input.examFormId ?? `form_${input.examRunId}`,
+    blueprint,
+    scenarios,
+  });
+  return input.start === false ? run : startExamFormRun(run);
+}
+
+/**
+ * Scenario id sequence for station-to-station navigation (null entries filtered).
+ */
+export function examFormRunScenarioSequence(run: ExamFormRunState): string[] {
+  return run.queue.stationQueue
+    .map((station) => station.scenarioId)
+    .filter((scenarioId): scenarioId is string => typeof scenarioId === "string" && scenarioId.length > 0);
+}
+
+/**
+ * Form-level clock display helper (mm:ss form elapsed / remaining).
+ */
+export function formatExamFormRunClock(run: ExamFormRunState): {
+  elapsed: string;
+  remaining: string;
+  total: string;
+  formElapsedSecond: number;
+  formRemainingSecond: number;
+} {
+  return {
+    elapsed: formatStationClock(run.clock.formElapsedSecond),
+    remaining: formatStationClock(run.clock.formRemainingSecond),
+    total: formatStationClock(run.clock.totalStationTimeSeconds),
+    formElapsedSecond: run.clock.formElapsedSecond,
+    formRemainingSecond: run.clock.formRemainingSecond,
+  };
+}
+
+/**
+ * Persist current station-run-queue snapshot via injected sink (ApiPersistenceSink-compatible).
+ * Does not open mongo — caller supplies sink (e.g. createStationApiPersistenceSink).
+ */
+export async function persistExamFormRunQueueSnapshot(
+  run: ExamFormRunState,
+  sink: ExamAssemblyPersistenceSink,
+  options?: { snapshotId?: string; reviewerId?: string; createdAt?: string },
+): Promise<ExamStationRunQueueSnapshot> {
+  const snapshotInput: Parameters<typeof createExamStationRunQueueSnapshot>[0] = {
+    snapshotId: options?.snapshotId ?? `queue_snapshot_${run.examRunId}`,
+    queue: run.queue,
+    reviewerId: options?.reviewerId ?? "ui_xr_learner_runtime",
+  };
+  if (options?.createdAt !== undefined) {
+    snapshotInput.createdAt = options.createdAt;
+  }
+  const snapshot = createExamStationRunQueueSnapshot(snapshotInput);
+  return persistExamStationRunQueueSnapshot(sink, snapshot);
 }

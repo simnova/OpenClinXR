@@ -3,6 +3,7 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain
 import { describe, expect, it } from "vitest";
 import {
   actorResponseTextFromApiResult,
+  advanceExamFormRunStation,
   buildIwsdkStationMcpSmokePlan,
   buildManualPerformanceCaptureSummary,
   buildManualPerformanceDraft,
@@ -18,12 +19,16 @@ import {
   buildXrTraceInteractionEvidenceSummary,
   completeTraceAction,
   createInitialRuntimeState,
+  createMultiStationExamRuntime,
   createRuntimeStateFromBundle,
+  currentExamFormRunStation,
   deriveRuntimeTraceActionTags,
   evaluateIwsdkStationMcpSmokeEvidence,
   evaluateXrExperienceModeReadiness,
   eventTypeForTraceTag,
+  examFormRunScenarioSequence,
   findXrExperienceModeContract,
+  formatExamFormRunClock,
   formatManualEvidenceCopyStatus,
   formatStationClock,
   getDialoguePolicyForActorFromCase,
@@ -39,10 +44,13 @@ import {
   mapHandGestureLocomotionVector,
   meshHandModelProfile,
   meshHandRepresentationKind,
+  nextExamFormRunStation,
   parseBrowserVersionHints,
+  persistExamFormRunQueueSnapshot,
   primitiveHandModelProfile,
   primitiveHandRepresentationKind,
   type ActorPlayerRuntimeMetadataSummary,
+  type ExamStationRunQueueSnapshot,
   type ReadableVrTextPanelEvidenceSet,
   type RuntimeInteractionEvidence,
   readRuntimeActorEquipmentMaterializationGate,
@@ -52,11 +60,77 @@ import {
   stepEmotionStateFromCaseMachine,
   summarizeFrameDeltas,
   summarizeTraceReadiness,
+  tickExamFormRunClock,
   xrExperienceModeContracts,
   xrExperienceModeEvidence,
 } from "./runtime-state.js";
 
 describe("XR runtime state", () => {
+  it("creates multi-station exam runtime from blueprint assembly with form clock and station outcomes", async () => {
+    let run = createMultiStationExamRuntime({
+      examRunId: "exam_run_ui_xr_multi_001",
+      scenarios: [edChestPainScenario, edChestPainScenario],
+    });
+
+    expect(run.examEquivalenceGate).toBe(false);
+    expect(run.notEvidenceFor).toEqual(expect.arrayContaining(["exam_equivalence"]));
+    expect(run.status).toBe("in_progress");
+    expect(run.queue.stationQueue).toHaveLength(2);
+    expect(examFormRunScenarioSequence(run)).toEqual([
+      edChestPainScenario.scenarioId,
+      edChestPainScenario.scenarioId,
+    ]);
+    expect(currentExamFormRunStation(run)?.stationOrder).toBe(1);
+    expect(nextExamFormRunStation(run)?.stationOrder).toBe(2);
+
+    run = tickExamFormRunClock(run, 100);
+    expect(formatExamFormRunClock(run)).toMatchObject({
+      formElapsedSecond: 100,
+      elapsed: "01:40",
+    });
+
+    run = advanceExamFormRunStation(run, {
+      phase: "complete",
+      noteSubmitted: true,
+      advanceReason: "patient_note_submitted_advancing",
+      endedAtFormSecond: 1560,
+      recordedAtIso: "2026-08-03T12:00:00.000Z",
+    });
+    expect(run.currentStationIndex).toBe(1);
+    expect(run.stationOutcomes).toHaveLength(1);
+
+    run = advanceExamFormRunStation(run, {
+      phase: "complete",
+      noteSubmitted: true,
+      advanceReason: "last_station_complete",
+      endedAtFormSecond: 3120,
+      recordedAtIso: "2026-08-03T12:30:00.000Z",
+    });
+    expect(run.status).toBe("complete");
+    expect(run.stationOutcomes).toHaveLength(2);
+
+    const saved: ExamStationRunQueueSnapshot[] = [];
+    await persistExamFormRunQueueSnapshot(run, {
+      saveStationRunQueueSnapshot: (snapshot) => {
+        saved.push(snapshot);
+      },
+    }, { snapshotId: "queue_snapshot_ui_xr_001", createdAt: "2026-08-03T12:31:00.000Z" });
+    expect(saved).toHaveLength(1);
+    expect(saved[0]?.snapshotId).toBe("queue_snapshot_ui_xr_001");
+    expect(saved[0]?.queue.stationQueue).toHaveLength(2);
+  });
+
+  it("keeps single-station multi-station runtime additive for existing ED flow", () => {
+    const run = createMultiStationExamRuntime({
+      examRunId: "exam_run_ui_xr_single_001",
+      scenarios: [edChestPainScenario],
+    });
+    expect(run.queue.stationQueue).toHaveLength(1);
+    expect(run.form.stationRefs[0]?.scenarioId).toBe(edChestPainScenario.scenarioId);
+    expect(run.examEquivalenceGate).toBe(false);
+    expect(nextExamFormRunStation(run)).toBeNull();
+  });
+
   it("treats renderer presentation or an active session as immersive frame evidence", () => {
     expect(isImmersiveFrameEvidenceActive({
       rendererPresenting: false,
