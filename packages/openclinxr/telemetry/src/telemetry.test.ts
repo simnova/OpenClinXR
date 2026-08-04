@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFile, rm } from "node:fs/promises";
 import {
   createInMemoryTelemetryRecorder,
   createNoopTelemetryRecorder,
+  createTelemetryRecorder,
   openClinXrSpanNames,
   safeTelemetryAttributes,
   summarizeTelemetrySpans,
@@ -187,5 +189,178 @@ describe("OpenClinXR telemetry contract", () => {
         },
       ],
     });
+  });
+});
+
+describe("createTelemetryRecorder", () => {
+  it("records spans and retrieves them", () => {
+    const recorder = createTelemetryRecorder();
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: telemetryRouteAttributes({ routeId: "actor-response", routeSurface: "xr-runtime" }),
+      durationMs: 5,
+      statusCode: 200,
+    });
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.graphqlOperation,
+      attributes: telemetryRouteAttributes({ graphqlOperationName: "StationRunQueueSnapshots" }),
+      durationMs: 12,
+      statusCode: 500,
+      errorType: "TimeoutError",
+    });
+
+    const spans = recorder.spans();
+    expect(spans).toHaveLength(2);
+    expect(spans[0]!.name).toBe("openclinxr.api.route");
+    expect(spans[1]!.name).toBe("openclinxr.graphql.operation");
+  });
+
+  it("tracks run counters correctly", () => {
+    const recorder = createTelemetryRecorder();
+
+    expect(recorder.counters()).toEqual({
+      runsStarted: 0,
+      runsCompleted: 0,
+      runsFailed: 0,
+      encountersStarted: 0,
+      encountersCompleted: 0,
+      encountersFailed: 0,
+    });
+
+    recorder.incrementRun("started");
+    recorder.incrementRun("started");
+    recorder.incrementRun("completed");
+    recorder.incrementRun("failed");
+
+    expect(recorder.counters()).toMatchObject({
+      runsStarted: 2,
+      runsCompleted: 1,
+      runsFailed: 1,
+    });
+  });
+
+  it("tracks encounter counters correctly", () => {
+    const recorder = createTelemetryRecorder();
+
+    recorder.incrementEncounter("started");
+    recorder.incrementEncounter("started");
+    recorder.incrementEncounter("started");
+    recorder.incrementEncounter("completed");
+    recorder.incrementEncounter("completed");
+    recorder.incrementEncounter("failed");
+
+    expect(recorder.counters()).toMatchObject({
+      encountersStarted: 3,
+      encountersCompleted: 2,
+      encountersFailed: 1,
+    });
+  });
+
+  it("clear resets both spans and counters", () => {
+    const recorder = createTelemetryRecorder();
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: {},
+      durationMs: 1,
+    });
+    recorder.incrementRun("started");
+    recorder.incrementEncounter("started");
+
+    recorder.clear();
+
+    expect(recorder.spans()).toEqual([]);
+    expect(recorder.counters()).toEqual({
+      runsStarted: 0,
+      runsCompleted: 0,
+      runsFailed: 0,
+      encountersStarted: 0,
+      encountersCompleted: 0,
+      encountersFailed: 0,
+    });
+  });
+
+  it("produces a full snapshot with spans, summary, counters, and timestamp", () => {
+    const recorder = createTelemetryRecorder();
+
+    recorder.incrementRun("started");
+    recorder.incrementRun("completed");
+    recorder.incrementEncounter("started");
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: telemetryRouteAttributes({ routeId: "actor-response", routeSurface: "admin" }),
+      durationMs: 7,
+      statusCode: 201,
+    });
+
+    const snapshot = recorder.snapshot();
+
+    expect(snapshot.spans).toHaveLength(1);
+    expect(snapshot.spanSummary.buckets).toHaveLength(1);
+    expect(snapshot.spanSummary.buckets[0]).toMatchObject({
+      name: "openclinxr.api.route",
+      count: 1,
+      errorCount: 0,
+    });
+    expect(snapshot.runCounters).toEqual({
+      runsStarted: 1,
+      runsCompleted: 1,
+      runsFailed: 0,
+      encountersStarted: 1,
+      encountersCompleted: 0,
+      encountersFailed: 0,
+    });
+    expect(snapshot.exportedAt).toBeTruthy();
+    expect(new Date(snapshot.exportedAt).getTime()).toBeGreaterThan(0);
+  });
+
+  it("exports snapshot to a file", async () => {
+    const recorder = createTelemetryRecorder();
+    const filePath = "/tmp/openclinxr-telemetry-export-test.json";
+
+    recorder.incrementRun("started");
+    recorder.incrementRun("completed");
+    recorder.incrementRun("failed");
+    recorder.incrementEncounter("started");
+    recorder.incrementEncounter("completed");
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.apiRoute,
+      attributes: telemetryRouteAttributes({ routeId: "actor-response", stationRunId: "run_001" }),
+      durationMs: 3.5,
+      statusCode: 200,
+    });
+
+    recorder.recordSpan({
+      name: openClinXrSpanNames.modelGenerateActorResponse,
+      attributes: telemetryRouteAttributes({ providerId: "mock-model" }),
+      durationMs: 250,
+      statusCode: 503,
+      errorType: "UpstreamTimeout",
+    });
+
+    try {
+      await recorder.exportToFile(filePath);
+
+      const raw = await readFile(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+
+      expect(parsed.spans).toHaveLength(2);
+      expect(parsed.spanSummary.buckets).toHaveLength(2);
+      expect(parsed.runCounters).toEqual({
+        runsStarted: 1,
+        runsCompleted: 1,
+        runsFailed: 1,
+        encountersStarted: 1,
+        encountersCompleted: 1,
+        encountersFailed: 0,
+      });
+      expect(typeof parsed.exportedAt).toBe("string");
+    } finally {
+      await rm(filePath, { force: true });
+    }
   });
 });

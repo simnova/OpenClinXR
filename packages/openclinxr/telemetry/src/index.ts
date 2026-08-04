@@ -71,6 +71,32 @@ export type InMemoryTelemetryRecorder = TelemetryRecorder & {
   clear: () => void;
 };
 
+export type TelemetryRunCounters = {
+  runsStarted: number;
+  runsCompleted: number;
+  runsFailed: number;
+  encountersStarted: number;
+  encountersCompleted: number;
+  encountersFailed: number;
+};
+
+export type TelemetrySnapshot = {
+  spans: TelemetrySpanRecord[];
+  spanSummary: TelemetrySpanSummary;
+  runCounters: TelemetryRunCounters;
+  exportedAt: string;
+};
+
+export type RealTelemetryRecorder = TelemetryRecorder & {
+  spans: () => TelemetrySpanRecord[];
+  clear: () => void;
+  counters: () => TelemetryRunCounters;
+  incrementRun: (status: "started" | "completed" | "failed") => void;
+  incrementEncounter: (status: "started" | "completed" | "failed") => void;
+  snapshot: () => TelemetrySnapshot;
+  exportToFile: (filePath: string) => Promise<void>;
+};
+
 const allowedInputKeys = Object.keys(telemetryAttributeNames) as Array<keyof typeof telemetryAttributeNames>;
 const telemetrySummaryLabelNames = [
   telemetryAttributeNames.deviceProfile,
@@ -198,6 +224,79 @@ export function createInMemoryTelemetryRecorder(): InMemoryTelemetryRecorder {
     spans: () => records.map((span) => ({ ...span, attributes: { ...span.attributes } })),
     clear: () => {
       records.splice(0, records.length);
+    },
+  };
+}
+
+export function createTelemetryRecorder(): RealTelemetryRecorder {
+  const inMemory = createInMemoryTelemetryRecorder();
+
+  const counters: TelemetryRunCounters = {
+    runsStarted: 0,
+    runsCompleted: 0,
+    runsFailed: 0,
+    encountersStarted: 0,
+    encountersCompleted: 0,
+    encountersFailed: 0,
+  };
+
+  return {
+    recordSpan: (span) => inMemory.recordSpan(span),
+    spans: () => inMemory.spans(),
+    clear: () => {
+      inMemory.clear();
+      counters.runsStarted = 0;
+      counters.runsCompleted = 0;
+      counters.runsFailed = 0;
+      counters.encountersStarted = 0;
+      counters.encountersCompleted = 0;
+      counters.encountersFailed = 0;
+    },
+    counters: () => ({ ...counters }),
+    incrementRun: (status) => {
+      switch (status) {
+        case "started":
+          counters.runsStarted += 1;
+          break;
+        case "completed":
+          counters.runsCompleted += 1;
+          break;
+        case "failed":
+          counters.runsFailed += 1;
+          break;
+      }
+    },
+    incrementEncounter: (status) => {
+      switch (status) {
+        case "started":
+          counters.encountersStarted += 1;
+          break;
+        case "completed":
+          counters.encountersCompleted += 1;
+          break;
+        case "failed":
+          counters.encountersFailed += 1;
+          break;
+      }
+    },
+    snapshot: () => {
+      const spans = inMemory.spans();
+      return {
+        spans,
+        spanSummary: summarizeTelemetrySpans(spans),
+        runCounters: { ...counters },
+        exportedAt: new Date().toISOString(),
+      };
+    },
+    exportToFile: async (filePath) => {
+      const { writeFile } = await import("node:fs/promises");
+      const snapshot: TelemetrySnapshot = {
+        spans: inMemory.spans(),
+        spanSummary: summarizeTelemetrySpans(inMemory.spans()),
+        runCounters: { ...counters },
+        exportedAt: new Date().toISOString(),
+      };
+      await writeFile(filePath, JSON.stringify(snapshot, null, 2), "utf-8");
     },
   };
 }
