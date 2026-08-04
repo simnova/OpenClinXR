@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
+  cmdReview,
   BOARD_FIXED_CHECKLIST,
   BOARD_SCHEMA,
   DEFAULT_BOARD_REPO,
@@ -298,5 +299,26 @@ describe("board-cli dry-run commands (no live gh)", () => {
     });
     expect(parsed.url).toContain("/issues/3");
     expect(rec.issueNumber).toBe(3);
+  });
+});
+
+describe("board review (merge-gate status flow)", () => {
+  it("approve → agent-review/<role> success status + PR comment plan (dry-run)", () => {
+    const r = cmdReview({ repo: "o/r", pr: 7, verdict: "approve", role: "skeptic", body: "no behavior change", dryRun: true });
+    expect(r.state).toBe("success");
+    expect(r.statusPlan.argv).toContain("state=success");
+    expect(r.statusPlan.argv).toContain("context=agent-review/skeptic");
+    expect(r.statusPlan.argv.some((a) => a.includes("statuses/"))).toBe(true);
+    expect(r.reviewPlan.argv.slice(0, 5)).toEqual(["gh", "pr", "review", "7", "--repo"]);
+    expect(r.reviewPlan.argv).toContain("--comment");
+  });
+  it("request-changes → failure status", () => {
+    const r = cmdReview({ repo: "o/r", pr: 7, verdict: "request-changes", role: "skeptic", body: "bug at x.ts:1", dryRun: true });
+    expect(r.state).toBe("failure");
+    expect(r.statusPlan.argv).toContain("state=failure");
+  });
+  it("rejects invalid verdict + product-data body", () => {
+    expect(() => cmdReview({ repo: "o/r", pr: 7, verdict: "lgtm", role: "s", body: "x", dryRun: true })).toThrow(/verdict/);
+    expect(() => cmdReview({ repo: "o/r", pr: 7, verdict: "approve", role: "s", body: "patient name Jane", dryRun: true })).toThrow(/patient name/);
   });
 });

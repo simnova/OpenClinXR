@@ -58,6 +58,8 @@ export type BoardCliFlags = {
   role?: string;
   body?: string;
   repo: string;
+  pr?: number;
+  verdict?: string;
   dryRun: boolean;
   json: boolean;
   help: boolean;
@@ -104,6 +106,10 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
       flags.body = argv[++i];
     } else if (arg === "--repo" && argv[i + 1]) {
       flags.repo = argv[++i]!;
+    } else if (arg === "--pr" && argv[i + 1]) {
+      flags.pr = Number(argv[++i]);
+    } else if (arg === "--verdict" && argv[i + 1]) {
+      flags.verdict = argv[++i];
     } else if (arg.startsWith("--")) {
       if (argv[i + 1] && !argv[i + 1]!.startsWith("--")) i += 1;
     } else {
@@ -480,6 +486,51 @@ ${NO_PRODUCT_DATA_BANNER}
 `);
 }
 
+/** PR review COMMENT plan (feedback surface — a single account can always comment). */
+export function planGhPrReview(input: { repo: string; pr: number; body: string }): GhCommandPlan {
+  const argv = ["gh", "pr", "review", String(input.pr), "--repo", input.repo, "--comment", "--body", input.body];
+  return { argv, display: `gh pr review ${input.pr} --repo ${input.repo} --comment --body <${input.body.length}c>` };
+}
+
+/**
+ * Commit-status plan — the identity-agnostic MERGE GATE (relaxation A; needs PAT statuses:write).
+ * approve → success, request-changes → failure, on context agent-review/<role>. Branch protection
+ * requiring agent-review/* enforces review-before-merge WITHOUT a second identity (verified 2026-08-04).
+ */
+export function planGhReviewStatus(input: { repo: string; sha: string; role: string; verdict: string }): GhCommandPlan {
+  const state = input.verdict === "approve" ? "success" : "failure";
+  const context = `agent-review/${input.role}`;
+  const argv = ["gh", "api", `repos/${input.repo}/statuses/${input.sha}`, "-f", `state=${state}`, "-f", `context=${context}`, "-f", `description=${input.role}: ${input.verdict}`];
+  return { argv, display: `gh api repos/${input.repo}/statuses/${input.sha} state=${state} context=${context}` };
+}
+
+/** review: post PR review feedback (comment) AND set the agent-review/<role> merge-gate status. */
+export function cmdReview(input: { repo: string; pr: number; verdict: string; role: string; body: string; dryRun: boolean }): {
+  reviewPlan: GhCommandPlan; statusPlan: GhCommandPlan; sha: string; state: string;
+} {
+  if (!input.repo) throw new Error("review requires --repo");
+  if (!input.pr) throw new Error("review requires --pr");
+  if (input.verdict !== "approve" && input.verdict !== "request-changes") {
+    throw new Error("review requires --verdict approve|request-changes");
+  }
+  if (!input.role) throw new Error("review requires --role");
+  if (!input.body) throw new Error("review requires --body");
+  assertCoordinationOnlyBody(input.body);
+
+  const reviewBody = `${NO_PRODUCT_DATA_BANNER}\n\n**${input.role} review — ${input.verdict}**\n\n${input.body}`;
+  let sha = "<PR_HEAD_SHA>"; // dry-run placeholder; resolved live below
+  if (!input.dryRun) {
+    const res = spawnSync("gh", ["pr", "view", String(input.pr), "--repo", input.repo, "--json", "headRefOid", "-q", ".headRefOid"], { encoding: "utf8" });
+    if (res.status !== 0) throw new Error(`could not resolve PR #${input.pr} head SHA: ${res.stderr || res.stdout}`);
+    sha = String(res.stdout).trim();
+  }
+  const reviewPlan = planGhPrReview({ repo: input.repo, pr: input.pr, body: reviewBody });
+  const statusPlan = planGhReviewStatus({ repo: input.repo, sha, role: input.role, verdict: input.verdict });
+  runGh(reviewPlan, input.dryRun);
+  runGh(statusPlan, input.dryRun);
+  return { reviewPlan, statusPlan, sha, state: input.verdict === "approve" ? "success" : "failure" };
+}
+
 async function main(): Promise<void> {
   const repoRoot = process.cwd();
   const flags = parseBoardArgs(process.argv.slice(2));
@@ -548,6 +599,23 @@ async function main(): Promise<void> {
         console.log(
           `close ${flags.dryRun ? "DRY-RUN " : ""}issue=#${result.issueNumber}`,
         );
+      }
+      return;
+    }
+
+    if (flags.command === "review") {
+      const result = cmdReview({
+        repo: flags.repo,
+        pr: flags.pr ?? 0,
+        verdict: flags.verdict ?? "",
+        role: flags.role ?? "",
+        body: flags.body ?? "",
+        dryRun: flags.dryRun,
+      });
+      if (flags.json) {
+        console.log(JSON.stringify({ ok: true, sha: result.sha, state: result.state, reviewPlan: result.reviewPlan, statusPlan: result.statusPlan }, null, 2));
+      } else {
+        console.log(`review ${flags.dryRun ? "DRY-RUN " : ""}pr=#${flags.pr} role=${flags.role} verdict=${flags.verdict} → agent-review/${flags.role}=${result.state}`);
       }
       return;
     }
