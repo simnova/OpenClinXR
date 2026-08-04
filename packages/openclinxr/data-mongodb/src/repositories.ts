@@ -257,6 +257,8 @@ export class MongoScenarioRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ scenarioId: 1, version: 1 }, { unique: true });
     await this.collection.createIndex({ status: 1 });
+    // approved() / status-filtered bank list: equality on status + sort scenarioId, version
+    await this.collection.createIndex({ status: 1, scenarioId: 1, version: 1 });
     await this.collection.createIndex({ "governance.sourceIds": 1, status: 1 });
   }
 
@@ -353,6 +355,8 @@ export class MongoReviewPacketRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ stationRunId: 1 }, { unique: true });
     await this.collection.createIndex({ scenarioId: 1 });
+    // listByScenario: equality on scenarioId + sort stationRunId
+    await this.collection.createIndex({ scenarioId: 1, stationRunId: 1 });
     await this.collection.createIndex({ "facultyScoreDraft.status": 1, scenarioId: 1 });
   }
 
@@ -425,6 +429,8 @@ export class MongoFacultyScoreDraftRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ stationRunId: 1, draftId: 1 }, { unique: true });
     await this.collection.createIndex({ stationRunId: 1, savedAt: 1 });
+    // listByStationRunId: equality on stationRunId + sort savedAt, draftId
+    await this.collection.createIndex({ stationRunId: 1, savedAt: 1, draftId: 1 });
     await this.collection.createIndex({ scenarioId: 1, savedAt: 1 });
   }
 
@@ -456,6 +462,8 @@ export class MongoFacultyReviewDecisionRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ stationRunId: 1, decisionId: 1 }, { unique: true });
     await this.collection.createIndex({ stationRunId: 1, savedAt: 1 });
+    // listByStationRunId: equality on stationRunId + sort savedAt, decisionId
+    await this.collection.createIndex({ stationRunId: 1, savedAt: 1, decisionId: 1 });
     await this.collection.createIndex({ scenarioId: 1, savedAt: 1 });
   }
 
@@ -593,6 +601,8 @@ export class MongoStationRunQueueRepository {
   async ensureIndexes(): Promise<void> {
     await this.collection.createIndex({ snapshotId: 1 }, { unique: true });
     await this.collection.createIndex({ "queue.blueprintId": 1, createdAt: -1 });
+    // listByBlueprint: equality on blueprintId + sort createdAt desc, snapshotId
+    await this.collection.createIndex({ "queue.blueprintId": 1, createdAt: -1, snapshotId: 1 });
     await this.collection.createIndex({ "queue.stationQueue.scenarioId": 1 });
   }
 

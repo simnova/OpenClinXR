@@ -23,6 +23,7 @@ import {
   MongoDurableConversationTurnRepository,
   MongoDurableEmotionalStateTimelineRepository,
   MongoExamFormRepository,
+  MongoFacultyScoreDraftRepository,
   MongoReviewPacketRepository,
   MongoRuntimeAssetBundleRepository,
   MongoScenarioRepository,
@@ -1402,6 +1403,199 @@ describe("MongoDB memory repositories", () => {
       .explain("queryPlanner"));
     expect(planUsesIndex(kindReviewPlan, "stationRunId_1_eventKind_1_atSecond_1")).toBe(true);
     expect(planHasStage(kindReviewPlan, "SORT")).toBe(false);
+  });
+
+  it("keeps sessions, traces, review packets, scenarios, faculty drafts, and conversation-turn queries on indexed paths", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+
+    const stationRunId = "station_run_query_path_index_001";
+    const scenarioId = "ed_chest_pain_priority_v1";
+
+    // --- scenarios ---
+    await new MongoScenarioRepository(context.db).save({
+      ...scenario,
+      scenarioId: "index_path_approved_scenario_v1",
+      status: "approved",
+    });
+    const scenarioIndexes = await context.db.collection("scenarios").indexes();
+    expect(scenarioIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { scenarioId: 1, version: 1 }, unique: true }),
+        expect.objectContaining({ key: { status: 1, scenarioId: 1, version: 1 } }),
+      ]),
+    );
+    const approvedPlan = winningPlanFromExplain(
+      await context.db.collection("scenarios")
+        .find({ status: "approved" }, { projection: { _id: 0 } })
+        .sort({ scenarioId: 1, version: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(approvedPlan, "status_1_scenarioId_1_version_1")).toBe(true);
+    expect(planHasStage(approvedPlan, "SORT")).toBe(false);
+    const latestByIdPlan = winningPlanFromExplain(
+      await context.db.collection("scenarios")
+        .find({ scenarioId: "index_path_approved_scenario_v1" }, { projection: { _id: 0 } })
+        .sort({ version: -1 })
+        .limit(1)
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(latestByIdPlan, "scenarioId_1_version_1")).toBe(true);
+
+    // --- trace_events ---
+    const traces = new MongoTraceRepository(context.db);
+    await traces.upsertMany([
+      trace(0, "station_started", stationRunId),
+      trace(1, "ecg_request", stationRunId),
+    ]);
+    const traceIndexes = await context.db.collection("trace_events").indexes();
+    expect(traceIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { stationRunId: 1, sequence: 1 }, unique: true }),
+        expect.objectContaining({ key: { stationRunId: 1, atSecond: 1 } }),
+        expect.objectContaining({ key: { stationRunId: 1, tag: 1 } }),
+      ]),
+    );
+    const traceReplayPlan = winningPlanFromExplain(
+      await context.db.collection("trace_events")
+        .find({ stationRunId }, { projection: { _id: 0 } })
+        .sort({ sequence: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(traceReplayPlan, "stationRunId_1_sequence_1")).toBe(true);
+    expect(planHasStage(traceReplayPlan, "SORT")).toBe(false);
+    const traceTagPlan = winningPlanFromExplain(
+      await context.db.collection("trace_events")
+        .find({ stationRunId, tag: "ecg_request" }, { projection: { _id: 0 } })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(traceTagPlan, "stationRunId_1_tag_1")).toBe(true);
+
+    // --- review_packets ---
+    const patientNote = reviewPacket.patientNote;
+    if (!patientNote) {
+      throw new Error("Expected review packet fixture to include a patient note");
+    }
+    await new MongoReviewPacketRepository(context.db).save({
+      ...reviewPacket,
+      stationRunId,
+      scenarioId,
+      patientNote: { ...patientNote, stationRunId },
+    });
+    const reviewIndexes = await context.db.collection("review_packets").indexes();
+    expect(reviewIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { stationRunId: 1 }, unique: true }),
+        expect.objectContaining({ key: { scenarioId: 1, stationRunId: 1 } }),
+      ]),
+    );
+    const reviewByStationPlan = winningPlanFromExplain(
+      await context.db.collection("review_packets")
+        .find({ stationRunId }, { projection: { _id: 0 } })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(reviewByStationPlan, "stationRunId_1")).toBe(true);
+    const reviewByScenarioPlan = winningPlanFromExplain(
+      await context.db.collection("review_packets")
+        .find({ scenarioId }, { projection: { _id: 0 } })
+        .sort({ stationRunId: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(reviewByScenarioPlan, "scenarioId_1_stationRunId_1")).toBe(true);
+    expect(planHasStage(reviewByScenarioPlan, "SORT")).toBe(false);
+
+    // --- faculty_score_drafts ---
+    await new MongoFacultyScoreDraftRepository(context.db).save({
+      stationRunId,
+      scenarioId,
+      draftId: "faculty_score_draft:query_path:1",
+      savedAt: "2026-08-04T12:00:00.000Z",
+      facultyScoreDraft: {
+        reviewerId: "faculty_index_001",
+        status: "draft",
+        comments: "Index path draft",
+        rubricScores: {},
+        scoringValidityClaimed: false,
+        notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
+      },
+      scoringValidityClaimed: false,
+      notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"],
+      claimScope: "faculty_review_decision_draft_gated_not_score_use",
+    });
+    const facultyIndexes = await context.db.collection("faculty_score_drafts").indexes();
+    expect(facultyIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { stationRunId: 1, draftId: 1 }, unique: true }),
+        expect.objectContaining({ key: { stationRunId: 1, savedAt: 1, draftId: 1 } }),
+        expect.objectContaining({ key: { scenarioId: 1, savedAt: 1 } }),
+      ]),
+    );
+    const facultyListPlan = winningPlanFromExplain(
+      await context.db.collection("faculty_score_drafts")
+        .find({ stationRunId }, { projection: { _id: 0 } })
+        .sort({ savedAt: 1, draftId: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(facultyListPlan, "stationRunId_1_savedAt_1_draftId_1")).toBe(true);
+    expect(planHasStage(facultyListPlan, "SORT")).toBe(false);
+
+    // --- durable_conversation_turns ---
+    const turns = new MongoDurableConversationTurnRepository(context.db);
+    await turns.save({ ...spouseConversationTurn, stationRunId, turnId: "turn_index_path_120" });
+    await turns.save({ ...nurseConversationTurn, stationRunId, turnId: "turn_index_path_180" });
+    const turnIndexes = await context.db.collection("durable_conversation_turns").indexes();
+    expect(turnIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { stationRunId: 1, turnId: 1 }, unique: true }),
+        expect.objectContaining({ key: { stationRunId: 1, atSecond: 1, turnId: 1 } }),
+        expect.objectContaining({ key: { stationRunId: 1, actorId: 1, atSecond: 1 } }),
+      ]),
+    );
+    const turnReplayPlan = winningPlanFromExplain(
+      await context.db.collection("durable_conversation_turns")
+        .find({ stationRunId }, { projection: { _id: 0 } })
+        .sort({ atSecond: 1, turnId: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(turnReplayPlan, "stationRunId_1_atSecond_1_turnId_1")).toBe(true);
+    expect(planHasStage(turnReplayPlan, "SORT")).toBe(false);
+    const turnActorPlan = winningPlanFromExplain(
+      await context.db.collection("durable_conversation_turns")
+        .find({ stationRunId, actorId: "spouse_anna_hayes_v1" }, { projection: { _id: 0 } })
+        .sort({ atSecond: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(turnActorPlan, "stationRunId_1_actorId_1_atSecond_1")).toBe(true);
+    expect(planHasStage(turnActorPlan, "SORT")).toBe(false);
+
+    // --- sessions (station-run queue snapshots for session launch gating) ---
+    const blueprint = createStep2CsStyleSeedBlueprint(seedQueueScenarios);
+    const queue = createExamStationRunQueue(blueprint, seedQueueScenarios);
+    await new MongoStationRunQueueRepository(context.db).save({
+      snapshotId: "queue_snapshot_index_path_001",
+      createdAt: "2026-08-04T12:30:00.000Z",
+      queue,
+    });
+    const sessionIndexes = await context.db.collection("station_run_queue_snapshots").indexes();
+    expect(sessionIndexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: { snapshotId: 1 }, unique: true }),
+        expect.objectContaining({ key: { "queue.blueprintId": 1, createdAt: -1, snapshotId: 1 } }),
+      ]),
+    );
+    const sessionListPlan = winningPlanFromExplain(
+      await context.db.collection("station_run_queue_snapshots")
+        .find({ "queue.blueprintId": blueprint.blueprintId }, { projection: { _id: 0 } })
+        .sort({ createdAt: -1, snapshotId: 1 })
+        .explain("queryPlanner"),
+    );
+    expect(planUsesIndex(sessionListPlan, "queue.blueprintId_1_createdAt_-1_snapshotId_1")).toBe(true);
+    expect(planHasStage(sessionListPlan, "SORT")).toBe(false);
+
+    // Sink-level ensureIndexes is the boot path for all of the above collections.
+    await expect(sink.listConversationTurns(stationRunId)).resolves.toHaveLength(2);
+    await expect(sink.listFacultyScoreDrafts(stationRunId)).resolves.toHaveLength(1);
+    await expect(new MongoTraceRepository(context.db).replay(stationRunId)).resolves.toHaveLength(2);
   });
 
   it("returns redacted durable clinical-event review projections from Mongo replay", async () => {
