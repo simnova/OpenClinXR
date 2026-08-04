@@ -258,6 +258,39 @@ describe("XR station API client", () => {
       "OpenClinXR API request failed: POST http://localhost:8787/sessions/missing-run/events 404 session_not_found",
     );
   });
+
+  it("attaches Authorization bearer when accessToken is provided", async () => {
+    const headersSeen: Array<HeadersInit | undefined> = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787",
+      accessToken: "test-token",
+      fetch: async (_input, init) => {
+        headersSeen.push(init?.headers);
+        return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      },
+    });
+
+    await client.listTraceEvents("run_001");
+    const headers = new Headers(headersSeen[0]);
+    expect(headers.get("authorization")).toBe("Bearer test-token");
+  });
+
+  it("prefers getAccessToken over static accessToken", async () => {
+    const headersSeen: Array<HeadersInit | undefined> = [];
+    const client = createStationApiClient({
+      baseUrl: "http://localhost:8787",
+      accessToken: "static-token",
+      getAccessToken: async () => "dynamic-token",
+      fetch: async (_input, init) => {
+        headersSeen.push(init?.headers);
+        return new Response(JSON.stringify({ ok: true }), { status: 200 });
+      },
+    });
+
+    await client.startSession({ learnerId: "learner_001", consentAccepted: true });
+    const headers = new Headers(headersSeen[0]);
+    expect(headers.get("authorization")).toBe("Bearer dynamic-token");
+  });
 });
 
 type RecordedRequest = {

@@ -51,6 +51,8 @@ describe("scenario bank maturity", () => {
       "oncology_bad_news_family_v1",
       "postop_fever_consult_pressure_v1",
       "primary_care_dyslipidemia_joint_pain_v1",
+      "adult_abdominal_pain_v1",
+      "peds_fever_v1",
     ]);
     expect(scenarioBank.every((scenario) => validateScenario(scenario).ok)).toBe(true);
     expect(
@@ -62,17 +64,17 @@ describe("scenario bank maturity", () => {
         }).ok
       ),
     ).toBe(true);
-    expect(scenarioBank.filter((scenario) => scenario.status === "draft")).toHaveLength(11);
+    expect(scenarioBank.filter((scenario) => scenario.status === "draft")).toHaveLength(13);
   });
 
   it("reports maturity, review blockers, and clinical setting diversity", () => {
     const report = evaluateScenarioBankMaturity(scenarioBank);
 
-    expect(report.scenarioCount).toBe(12);
-    expect(report.targetScenarioCount).toBe(12);
+    expect(report.scenarioCount).toBe(14);
+    expect(report.targetScenarioCount).toBe(14);
     expect(report.missingScenarioCount).toBe(0);
-    expect(report.statusCounts).toEqual({ approved: 1, draft: 11, retired: 0 });
-    expect(report.validationStageCounts.stage_0_synthetic_draft).toBe(11);
+    expect(report.statusCounts).toEqual({ approved: 1, draft: 13, retired: 0 });
+    expect(report.validationStageCounts.stage_0_synthetic_draft).toBe(13);
     expect(report.activationEligibleScenarioIds).toEqual([edChestPainScenario.scenarioId]);
     expect(report.blockedScenarioIds).toEqual([
       { scenarioId: "peds_asthma_parent_anxiety_v1", reason: "not_approved" },
@@ -86,6 +88,8 @@ describe("scenario bank maturity", () => {
       { scenarioId: "oncology_bad_news_family_v1", reason: "not_approved" },
       { scenarioId: "postop_fever_consult_pressure_v1", reason: "not_approved" },
       { scenarioId: "primary_care_dyslipidemia_joint_pain_v1", reason: "not_approved" },
+      { scenarioId: "adult_abdominal_pain_v1", reason: "not_approved" },
+      { scenarioId: "peds_fever_v1", reason: "not_approved" },
     ]);
     expect(report.scenarioMaturityBreakdown[0]).toMatchObject({
       scenarioId: "ed_chest_pain_priority_v1",
@@ -106,12 +110,14 @@ describe("scenario bank maturity", () => {
       recommendedNextAction: "complete_required_review_gates",
     });
     expect(report.clinicalSettings).toEqual([
+      "adult_ed_abdominal_bay_v1",
       "behavioral_health_private_room_v1",
       "ed_exam_bay_v1",
       "ed_stroke_bay_v1",
       "inpatient_ward_room_v1",
       "ob_triage_room_v1",
       "oncology_consult_room_v1",
+      "pediatric_fever_urgent_care_bay_v1",
       "pediatric_urgent_care_bay_v1",
       "primary_care_clinic_room_v1",
       "stepdown_room_v1",
@@ -151,7 +157,7 @@ describe("scenario bank maturity", () => {
     expect(report.pressureActorCoverage).toEqual({
       completeScenarioIds: scenarioBank.map((scenario) => scenario.scenarioId),
       incompleteScenarioIds: [],
-      scenarioCountWithNonPatientActors: 12,
+      scenarioCountWithNonPatientActors: 14,
       minimumNonPatientActorCount: 1,
     });
     expect(report.traceabilityCoverage).toEqual({
@@ -175,6 +181,8 @@ describe("scenario bank maturity", () => {
         "oncology_bad_news_family_v1",
         "postop_fever_consult_pressure_v1",
         "primary_care_dyslipidemia_joint_pain_v1",
+        "adult_abdominal_pain_v1",
+        "peds_fever_v1",
       ],
       missingSeedScenarioIds: [],
       guardrailProbeScenarioIds: [
@@ -190,12 +198,14 @@ describe("scenario bank maturity", () => {
         "oncology_bad_news_family_v1",
         "postop_fever_consult_pressure_v1",
         "primary_care_dyslipidemia_joint_pain_v1",
+        "adult_abdominal_pain_v1",
+        "peds_fever_v1",
       ],
     });
     expect(report.sharedAssetReuseMaturity).toMatchObject({
       claimBoundary: "scenario_bank_shared_asset_reuse_metadata_only",
-      scenarioCountWithLookupKeys: 12,
-      scenarioCountWithReusableKeys: 10,
+      scenarioCountWithLookupKeys: 14,
+      scenarioCountWithReusableKeys: 13,
       notEvidenceFor: [
         "generated_asset_readiness",
         "shared_asset_library_materialization",
@@ -209,10 +219,10 @@ describe("scenario bank maturity", () => {
     expect(report.sharedAssetReuseMaturity.duplicateLookupKeyCount).toBeGreaterThan(0);
     expect(report.sharedAssetReuseMaturity.topReusableLookupKeys).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ lookupKey: "semantic::equipment::bedside_monitor", scenarioCount: 2 }),
+        expect.objectContaining({ lookupKey: "semantic::equipment::bedside_monitor", scenarioCount: 3 }),
       ]),
     );
-    expect(report.sharedAssetReuseMaturity.lruReuseCandidateScenarioIds).toHaveLength(10);
+    expect(report.sharedAssetReuseMaturity.lruReuseCandidateScenarioIds).toHaveLength(13);
     expect(report.sharedAssetReuseMaturity.lruReuseCandidateScenarioIds).toEqual(
       expect.arrayContaining([
         "ed_chest_pain_priority_v1",
@@ -227,13 +237,13 @@ describe("scenario bank maturity", () => {
 
     expect(projection).toMatchObject({
       source: "scenario_bank_ordered_sequence",
-      targetStationCount: 12,
-      stationCount: 12,
+      targetStationCount: 14,
+      stationCount: 14,
       missingStationCount: 0,
       activationEligibleCount: 1,
       learnerUseBoundary: "activation_ready_only",
     });
-    expect(projection.stations).toHaveLength(12);
+    expect(projection.stations).toHaveLength(14);
     expect(projection.stations[0]).toMatchObject({
       stationOrder: 1,
       scenarioId: "ed_chest_pain_priority_v1",

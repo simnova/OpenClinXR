@@ -56,6 +56,10 @@ export type TraceEventSummary = {
 export type StationApiClientOptions = {
   baseUrl: string;
   fetch?: typeof fetch;
+  /** Optional static access token attached as `Authorization: Bearer …`. */
+  accessToken?: string;
+  /** Optional dynamic token provider (preferred when both are set). */
+  getAccessToken?: () => string | undefined | Promise<string | undefined>;
 };
 
 export type StationRunQueueSnapshotRequest = {
@@ -111,26 +115,45 @@ export type LearnerRuntimeAssetBundleListResponse = {
 export function createStationApiClient(options: StationApiClientOptions): StationApiClient {
   const baseUrl = options.baseUrl.replace(/\/$/, "");
   const fetcher = options.fetch ?? fetch;
+  const resolveAuthHeaders = () => resolveAuthorizationHeaders(options);
 
   return {
-    listLearnerRuntimeAssetBundles: () => get(fetcher, baseUrl, "/runtime/asset-bundles"),
+    listLearnerRuntimeAssetBundles: async () => get(fetcher, baseUrl, "/runtime/asset-bundles", await resolveAuthHeaders()),
     findLearnerRuntimeAssetBundleByScenarioStation: async (input) => {
-      const response = await get<LearnerRuntimeAssetBundleListResponse>(fetcher, baseUrl, "/runtime/asset-bundles");
+      const response = await get<LearnerRuntimeAssetBundleListResponse>(
+        fetcher,
+        baseUrl,
+        "/runtime/asset-bundles",
+        await resolveAuthHeaders(),
+      );
       return response.bundles.find((bundle) =>
         bundle.scenarioId === input.scenarioId
           && (input.stationId === undefined || input.stationId === null || bundle.stationId === input.stationId),
       ) ?? null;
     },
-    getLearnerRuntimeAssetBundle: (bundleId) => get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`),
-    startSession: (input) => request(fetcher, baseUrl, "/sessions", input),
-    startEncounter: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input),
-    recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input),
-    requestActorResponse: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input),
-    synthesizeActorSpeech: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input),
-    submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input),
-    listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`),
-    createStationRunQueueSnapshot: (input = {}) =>
-      request(fetcher, baseUrl, "/exam-blueprints/step2cs-seed/station-run-queue/snapshots", input),
+    getLearnerRuntimeAssetBundle: async (bundleId) =>
+      get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`, await resolveAuthHeaders()),
+    startSession: async (input) => request(fetcher, baseUrl, "/sessions", input, await resolveAuthHeaders()),
+    startEncounter: async (stationRunId, input) =>
+      request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input, await resolveAuthHeaders()),
+    recordTraceAction: async (stationRunId, input) =>
+      request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input, await resolveAuthHeaders()),
+    requestActorResponse: async (stationRunId, input) =>
+      request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input, await resolveAuthHeaders()),
+    synthesizeActorSpeech: async (stationRunId, input) =>
+      request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input, await resolveAuthHeaders()),
+    submitNote: async (stationRunId, input) =>
+      request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input, await resolveAuthHeaders()),
+    listTraceEvents: async (stationRunId) =>
+      get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`, await resolveAuthHeaders()),
+    createStationRunQueueSnapshot: async (input = {}) =>
+      request(
+        fetcher,
+        baseUrl,
+        "/exam-blueprints/step2cs-seed/station-run-queue/snapshots",
+        input,
+        await resolveAuthHeaders(),
+      ),
   };
 }
 
@@ -153,11 +176,17 @@ export function createStationApiPersistenceSink(client: Pick<StationApiClient, "
   };
 }
 
-async function request<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string, body: unknown): Promise<TResponse> {
+async function request<TResponse>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  body: unknown,
+  authHeaders: Record<string, string> = {},
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
   const response = await fetcher(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...authHeaders },
     body: JSON.stringify(body),
   });
 
@@ -170,10 +199,16 @@ async function request<TResponse>(fetcher: typeof fetch, baseUrl: string, path: 
   return response.json() as Promise<TResponse>;
 }
 
-async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string): Promise<TResponse> {
+async function get<TResponse>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  authHeaders: Record<string, string> = {},
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
   const response = await fetcher(url, {
     method: "GET",
+    ...(Object.keys(authHeaders).length > 0 ? { headers: authHeaders } : {}),
   });
 
   if (!response.ok) {
@@ -183,6 +218,16 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
   }
 
   return response.json() as Promise<TResponse>;
+}
+
+async function resolveAuthorizationHeaders(
+  options: Pick<StationApiClientOptions, "accessToken" | "getAccessToken">,
+): Promise<Record<string, string>> {
+  const token = options.getAccessToken ? await options.getAccessToken() : options.accessToken;
+  if (typeof token === "string" && token.trim().length > 0) {
+    return { authorization: `Bearer ${token.trim()}` };
+  }
+  return {};
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
