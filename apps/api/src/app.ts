@@ -56,6 +56,14 @@ import {
 } from "@openclinxr/graphql";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import {
+  buildFacultyScoreDraft,
+  buildReviewDecisionDraft,
+  FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
+  FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR,
+  type FacultyScoreDraft,
+  type ReviewDecisionDraft,
+} from "@openclinxr/review-workflow";
+import {
   buildDynamicEncounterFactoryPlanningProjection,
   buildScenarioBankExamSequenceProjection,
   createLearnerScenarioView,
@@ -563,6 +571,40 @@ export type ApiScenarioReviewDecisionRecord = {
   reviewedAt: string;
 };
 
+/**
+ * Durable faculty score-draft record (review-workflow FacultyScoreDraft + session keys).
+ * scoringValidityClaimed always false; notEvidenceFor fixed; no board/external writes.
+ */
+export type ApiFacultyScoreDraftRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  draftId: string;
+  savedAt: string;
+  facultyScoreDraft: FacultyScoreDraft;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: typeof FACULTY_SCORE_DRAFT_CLAIM_SCOPE;
+};
+
+/**
+ * Local faculty review-decision record (promote/hold demo surface).
+ * All promotion gates stay false — notEvidenceFor production/quest/scoring/clinical.
+ */
+export type ApiFacultyReviewDecisionRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  decisionId: string;
+  savedAt: string;
+  localDecision: "hold" | "local_promote_candidate";
+  decisionDraft: ReviewDecisionDraft;
+  facultyScoreDraft: FacultyScoreDraft;
+  runtimePromotionAllowed: false;
+  productionManifestPromotionAllowed: false;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: "faculty_local_review_decision_gated_not_score_use";
+};
+
 export type ApiPersistenceSink = {
   saveExamForm?: (form: ExamForm) => Promise<void> | void;
   saveStationRunQueueSnapshot?: (snapshot: ApiStationRunQueueSnapshot) => Promise<void> | void;
@@ -590,6 +632,12 @@ export type ApiPersistenceSink = {
   saveAuthoredScenario?: (scenario: Scenario) => Promise<void> | void;
   listAuthoredScenarios?: () => Promise<Scenario[]> | Scenario[];
   getAuthoredScenario?: (scenarioId: string) => Promise<Scenario | undefined> | Scenario | undefined;
+  /** Faculty Q4 score-draft persistence (gated FacultyScoreDraft; not score-use). */
+  saveFacultyScoreDraft?: (record: ApiFacultyScoreDraftRecord) => Promise<void> | void;
+  listFacultyScoreDrafts?: (stationRunId: string) => Promise<ApiFacultyScoreDraftRecord[]> | ApiFacultyScoreDraftRecord[];
+  /** Faculty Q4 local review-decision persistence (gates stay false). */
+  saveFacultyReviewDecision?: (record: ApiFacultyReviewDecisionRecord) => Promise<void> | void;
+  listFacultyReviewDecisions?: (stationRunId: string) => Promise<ApiFacultyReviewDecisionRecord[]> | ApiFacultyReviewDecisionRecord[];
 };
 
 export type ApiScenarioSceneGenerationRequestRecord = {
@@ -2018,7 +2066,161 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
+  /**
+   * NEW faculty-only route — do not mirror this gate onto existing routes.
+   * Default dev identity is admin (faculty access) so single-user tests stay green.
+   */
+  app.post(routeById("save-faculty-score-draft").path, async (context) => {
+    if (!hasFacultyAccess(context.get("identity"))) {
+      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
+    }
+
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      reviewerId?: unknown;
+      comments?: unknown;
+      rubricScores?: unknown;
+    };
+
+    try {
+      const facultyScoreDraft = buildFacultyScoreDraft({
+        reviewerId: typeof body.reviewerId === "string" ? body.reviewerId : "",
+        comments: typeof body.comments === "string" ? body.comments : "",
+        ...(isRecord(body.rubricScores) ? { rubricScores: coerceRubricScores(body.rubricScores) } : {}),
+      });
+
+      // Keep runtime packet in sync when session exists (GraphQL path parity).
+      let scenarioId = "unknown_scenario";
+      try {
+        const packet = runtime.saveFacultyScoreDraft(stationRunId, {
+          reviewerId: facultyScoreDraft.reviewerId,
+          comments: facultyScoreDraft.comments.length > 0 ? facultyScoreDraft.comments : "faculty draft",
+          rubricScores: { ...facultyScoreDraft.rubricScores },
+        });
+        scenarioId = packet.scenarioId;
+        await persistTraceSnapshot(runtime, persistence, stationRunId);
+        await persistence.saveReviewPacket?.(stationRunId, packet);
+      } catch {
+        // Session may be absent for pure draft-persistence; continue with sink-only write.
+        try {
+          scenarioId = runtime.reviewPacket(stationRunId).scenarioId;
+        } catch {
+          scenarioId = "unknown_scenario";
+        }
+      }
+
+      const record = createApiFacultyScoreDraftRecord({
+        stationRunId,
+        scenarioId,
+        facultyScoreDraft,
+      });
+      await persistence.saveFacultyScoreDraft?.(record);
+      return context.json(record, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
+  /**
+   * NEW faculty-only route — local promote/hold decision only.
+   * runtimePromotionAllowed / productionManifestPromotionAllowed / scoringValidityClaimed always false.
+   */
+  app.post(routeById("save-faculty-review-decision").path, async (context) => {
+    if (!hasFacultyAccess(context.get("identity"))) {
+      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
+    }
+
+    const stationRunId = context.req.param("stationRunId");
+    const body = (await context.req.json().catch(() => ({}))) as {
+      reviewerId?: unknown;
+      comments?: unknown;
+      rubricScores?: unknown;
+      localDecision?: unknown;
+      hasDurableSummary?: unknown;
+      durableSummaryIsSafe?: unknown;
+      traceEventCount?: unknown;
+      safetyFlagLabels?: unknown;
+    };
+
+    try {
+      const packet = runtime.reviewPacket(stationRunId);
+      const facultyScoreDraftInput = {
+        reviewerId: typeof body.reviewerId === "string" && body.reviewerId.trim().length > 0
+          ? body.reviewerId
+          : packet.facultyScoreDraft.reviewerId,
+        comments: typeof body.comments === "string" ? body.comments : packet.facultyScoreDraft.comments,
+        ...(isRecord(body.rubricScores) ? { rubricScores: coerceRubricScores(body.rubricScores) } : {}),
+      };
+      const decisionDraft = buildReviewDecisionDraft({
+        stationRunId,
+        scenarioId: packet.scenarioId,
+        packet,
+        facultyScoreDraft: facultyScoreDraftInput,
+        hasDurableSummary: body.hasDurableSummary === true,
+        durableSummaryIsSafe: body.durableSummaryIsSafe === true,
+        traceEventCount: typeof body.traceEventCount === "number" ? body.traceEventCount : 0,
+        safetyFlagLabels: parseStringArray(body.safetyFlagLabels),
+      });
+
+      // Persist gated score draft as well (same sink surface).
+      const draftRecord = createApiFacultyScoreDraftRecord({
+        stationRunId,
+        scenarioId: packet.scenarioId,
+        facultyScoreDraft: decisionDraft.facultyScoreDraft,
+      });
+      await persistence.saveFacultyScoreDraft?.(draftRecord);
+
+      const localDecision = body.localDecision === "local_promote_candidate" ? "local_promote_candidate" : "hold";
+      const decisionRecord: ApiFacultyReviewDecisionRecord = {
+        stationRunId,
+        scenarioId: packet.scenarioId,
+        decisionId: `faculty_review_decision:${stationRunId}:${Date.now()}`,
+        savedAt: new Date().toISOString(),
+        localDecision,
+        decisionDraft,
+        facultyScoreDraft: decisionDraft.facultyScoreDraft,
+        runtimePromotionAllowed: false,
+        productionManifestPromotionAllowed: false,
+        scoringValidityClaimed: false,
+        notEvidenceFor: [...FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR, "production_asset_readiness", "quest_readiness"],
+        claimScope: "faculty_local_review_decision_gated_not_score_use",
+      };
+      await persistence.saveFacultyReviewDecision?.(decisionRecord);
+      return context.json(decisionRecord, 201);
+    } catch (error) {
+      return sessionErrorResponse(context, error);
+    }
+  });
+
   return app;
+}
+
+function createApiFacultyScoreDraftRecord(input: {
+  stationRunId: string;
+  scenarioId: string;
+  facultyScoreDraft: FacultyScoreDraft;
+}): ApiFacultyScoreDraftRecord {
+  const savedAt = new Date().toISOString();
+  return {
+    stationRunId: input.stationRunId,
+    scenarioId: input.scenarioId,
+    draftId: `faculty_score_draft:${input.stationRunId}:${savedAt}`,
+    savedAt,
+    facultyScoreDraft: input.facultyScoreDraft,
+    scoringValidityClaimed: false,
+    notEvidenceFor: [...FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR],
+    claimScope: FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
+  };
+}
+
+function coerceRubricScores(value: Record<string, unknown>): Record<string, number> {
+  const scores: Record<string, number> = {};
+  for (const [key, raw] of Object.entries(value)) {
+    if (typeof raw === "number" && Number.isFinite(raw)) {
+      scores[key] = raw;
+    }
+  }
+  return scores;
 }
 
 function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {

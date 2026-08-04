@@ -131,6 +131,9 @@ importers:
       '@openclinxr/rest':
         specifier: workspace:*
         version: link:../../packages/openclinxr/rest
+      '@openclinxr/review-workflow':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/review-workflow
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-fixtures
@@ -601,6 +604,9 @@ importers:
       '@openclinxr/exam-assembly':
         specifier: workspace:*
         version: link:../exam-assembly
+      '@openclinxr/review-workflow':
+        specifier: workspace:*
+        version: link:../review-workflow
       '@openclinxr/session-state':
         specifier: workspace:*
         version: link:../session-state

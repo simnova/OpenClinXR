@@ -95,6 +95,10 @@ export const openClinXrRestRoutes = Object.freeze([
   route("review-replay-readiness-summary", "GET", "/sessions/:stationRunId/review-replay-readiness", "xr-runtime", true),
   route("review-packet", "GET", "/sessions/:stationRunId/review-packet", "xr-runtime", true),
   route("trace-events", "GET", "/sessions/:stationRunId/trace-events", "xr-runtime", true),
+  /** Faculty Q4 score-draft persistence (local review artifact; scoring gates stay false). */
+  route("save-faculty-score-draft", "POST", "/sessions/:stationRunId/faculty-score-draft", "control-plane", true),
+  /** Faculty Q4 review-decision persistence (local promote/hold only; notEvidenceFor preserved). */
+  route("save-faculty-review-decision", "POST", "/sessions/:stationRunId/review-decision", "control-plane", true),
 ] as const);
 
 export type OpenClinXrRestRouteId = (typeof openClinXrRestRoutes)[number]["id"];

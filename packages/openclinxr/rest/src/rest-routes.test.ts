@@ -58,6 +58,8 @@ describe("OpenClinXR REST route contract", () => {
       "review-replay-readiness-summary",
       "review-packet",
       "trace-events",
+      "save-faculty-score-draft",
+      "save-faculty-review-decision",
     ]);
     expect(routeById("actor-response")).toMatchObject({
       method: "POST",

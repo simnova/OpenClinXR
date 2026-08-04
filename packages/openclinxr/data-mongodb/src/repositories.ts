@@ -1,4 +1,10 @@
 import type { ExamForm, ExamStationRunQueue } from "@openclinxr/exam-assembly";
+import {
+  FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
+  FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR,
+  type FacultyScoreDraft,
+  type ReviewDecisionDraft,
+} from "@openclinxr/review-workflow";
 import type {
   AsyncDurableMultiActorSessionStore,
   DurableClinicalEventRecord,
@@ -11,6 +17,34 @@ import { type ReviewPacket, type Scenario, type TraceEvent, validateReviewPacket
 import type { Collection, Db } from "mongodb";
 import { promoteEncounterRuntimeAssetBundleForLocalUse } from "@openclinxr/asset-registry/runtime-asset-review";
 import type { EncounterRuntimeAssetBundle, LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
+
+/** Mirrors apps/api ApiFacultyScoreDraftRecord without importing apps/api. */
+export type FacultyScoreDraftRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  draftId: string;
+  savedAt: string;
+  facultyScoreDraft: FacultyScoreDraft;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: typeof FACULTY_SCORE_DRAFT_CLAIM_SCOPE;
+};
+
+/** Mirrors apps/api ApiFacultyReviewDecisionRecord without importing apps/api. */
+export type FacultyReviewDecisionRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  decisionId: string;
+  savedAt: string;
+  localDecision: "hold" | "local_promote_candidate";
+  decisionDraft: ReviewDecisionDraft;
+  facultyScoreDraft: FacultyScoreDraft;
+  runtimePromotionAllowed: false;
+  productionManifestPromotionAllowed: false;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: "faculty_local_review_decision_gated_not_score_use";
+};
 
 export type ExamStationRunQueueSnapshot = {
   snapshotId: string;
@@ -381,6 +415,131 @@ export class MongoScenarioReviewDecisionRepository {
   }
 }
 
+export class MongoFacultyScoreDraftRepository {
+  private readonly collection: Collection<FacultyScoreDraftRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<FacultyScoreDraftRecord>("faculty_score_drafts");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1, draftId: 1 }, { unique: true });
+    await this.collection.createIndex({ stationRunId: 1, savedAt: 1 });
+    await this.collection.createIndex({ scenarioId: 1, savedAt: 1 });
+  }
+
+  async save(record: FacultyScoreDraftRecord): Promise<void> {
+    assertValidFacultyScoreDraftRecord(record);
+    const stored = cloneFacultyScoreDraftRecord(record);
+    await this.collection.updateOne(
+      { stationRunId: stored.stationRunId, draftId: stored.draftId },
+      { $set: stored },
+      { upsert: true },
+    );
+  }
+
+  async listByStationRunId(stationRunId: string): Promise<FacultyScoreDraftRecord[]> {
+    const rows = await this.collection.find({ stationRunId }, { projection: { _id: 0 } })
+      .sort({ savedAt: 1, draftId: 1 })
+      .toArray();
+    return rows.map(cloneFacultyScoreDraftRecord);
+  }
+}
+
+export class MongoFacultyReviewDecisionRepository {
+  private readonly collection: Collection<FacultyReviewDecisionRecord>;
+
+  constructor(db: Db) {
+    this.collection = db.collection<FacultyReviewDecisionRecord>("faculty_review_decisions");
+  }
+
+  async ensureIndexes(): Promise<void> {
+    await this.collection.createIndex({ stationRunId: 1, decisionId: 1 }, { unique: true });
+    await this.collection.createIndex({ stationRunId: 1, savedAt: 1 });
+    await this.collection.createIndex({ scenarioId: 1, savedAt: 1 });
+  }
+
+  async save(record: FacultyReviewDecisionRecord): Promise<void> {
+    assertValidFacultyReviewDecisionRecord(record);
+    const stored = cloneFacultyReviewDecisionRecord(record);
+    await this.collection.updateOne(
+      { stationRunId: stored.stationRunId, decisionId: stored.decisionId },
+      { $set: stored },
+      { upsert: true },
+    );
+  }
+
+  async listByStationRunId(stationRunId: string): Promise<FacultyReviewDecisionRecord[]> {
+    const rows = await this.collection.find({ stationRunId }, { projection: { _id: 0 } })
+      .sort({ savedAt: 1, decisionId: 1 })
+      .toArray();
+    return rows.map(cloneFacultyReviewDecisionRecord);
+  }
+}
+
+function assertValidFacultyScoreDraftRecord(record: FacultyScoreDraftRecord): void {
+  const errors = [
+    ...(record.stationRunId.trim().length === 0 ? ["stationRunId is required"] : []),
+    ...(record.scenarioId.trim().length === 0 ? ["scenarioId is required"] : []),
+    ...(record.draftId.trim().length === 0 ? ["draftId is required"] : []),
+    ...(record.facultyScoreDraft.reviewerId.trim().length === 0 ? ["facultyScoreDraft.reviewerId is required"] : []),
+    ...(record.facultyScoreDraft.status !== "draft" ? ["facultyScoreDraft.status must be draft"] : []),
+    ...(record.scoringValidityClaimed !== false ? ["scoringValidityClaimed must be false"] : []),
+  ];
+  if (errors.length > 0) {
+    throw new Error(`Invalid faculty score draft: ${errors.join("; ")}`);
+  }
+}
+
+function assertValidFacultyReviewDecisionRecord(record: FacultyReviewDecisionRecord): void {
+  const errors = [
+    ...(record.stationRunId.trim().length === 0 ? ["stationRunId is required"] : []),
+    ...(record.decisionId.trim().length === 0 ? ["decisionId is required"] : []),
+    ...(record.runtimePromotionAllowed !== false ? ["runtimePromotionAllowed must be false"] : []),
+    ...(record.productionManifestPromotionAllowed !== false ? ["productionManifestPromotionAllowed must be false"] : []),
+    ...(record.scoringValidityClaimed !== false ? ["scoringValidityClaimed must be false"] : []),
+  ];
+  if (errors.length > 0) {
+    throw new Error(`Invalid faculty review decision: ${errors.join("; ")}`);
+  }
+}
+
+function cloneFacultyScoreDraftRecord(record: FacultyScoreDraftRecord): FacultyScoreDraftRecord {
+  return {
+    ...record,
+    facultyScoreDraft: {
+      ...record.facultyScoreDraft,
+      rubricScores: { ...record.facultyScoreDraft.rubricScores },
+      notEvidenceFor: [...(record.facultyScoreDraft.notEvidenceFor.length > 0
+        ? record.facultyScoreDraft.notEvidenceFor
+        : FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR)],
+      scoringValidityClaimed: false,
+      status: "draft",
+    },
+    scoringValidityClaimed: false,
+    notEvidenceFor: [...record.notEvidenceFor],
+    claimScope: FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
+  };
+}
+
+function cloneFacultyReviewDecisionRecord(record: FacultyReviewDecisionRecord): FacultyReviewDecisionRecord {
+  return {
+    ...record,
+    facultyScoreDraft: {
+      ...record.facultyScoreDraft,
+      rubricScores: { ...record.facultyScoreDraft.rubricScores },
+      notEvidenceFor: [...record.facultyScoreDraft.notEvidenceFor],
+      scoringValidityClaimed: false,
+      status: "draft",
+    },
+    runtimePromotionAllowed: false,
+    productionManifestPromotionAllowed: false,
+    scoringValidityClaimed: false,
+    notEvidenceFor: [...record.notEvidenceFor],
+    claimScope: "faculty_local_review_decision_gated_not_score_use",
+  };
+}
+
 function assertValidScenarioReviewDecision(record: ScenarioReviewDecisionRecord): void {
   const errors = [
     ...(record.scenarioId.trim().length === 0 ? ["scenarioId is required"] : []),
@@ -520,6 +679,8 @@ export class MongoApiPersistenceSink {
   private readonly traces: MongoTraceRepository;
   private readonly reviewPackets: MongoReviewPacketRepository;
   private readonly scenarioReviewDecisions: MongoScenarioReviewDecisionRepository;
+  private readonly facultyScoreDrafts: MongoFacultyScoreDraftRepository;
+  private readonly facultyReviewDecisions: MongoFacultyReviewDecisionRepository;
   private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
   private readonly runtimeAssetBundles: MongoRuntimeAssetBundleRepository;
   private readonly scenarios: MongoScenarioRepository;
@@ -530,6 +691,8 @@ export class MongoApiPersistenceSink {
     this.traces = new MongoTraceRepository(db);
     this.reviewPackets = new MongoReviewPacketRepository(db);
     this.scenarioReviewDecisions = new MongoScenarioReviewDecisionRepository(db);
+    this.facultyScoreDrafts = new MongoFacultyScoreDraftRepository(db);
+    this.facultyReviewDecisions = new MongoFacultyReviewDecisionRepository(db);
     this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
     this.runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
     this.scenarios = new MongoScenarioRepository(db);
@@ -542,6 +705,8 @@ export class MongoApiPersistenceSink {
       this.traces.ensureIndexes(),
       this.reviewPackets.ensureIndexes(),
       this.scenarioReviewDecisions.ensureIndexes(),
+      this.facultyScoreDrafts.ensureIndexes(),
+      this.facultyReviewDecisions.ensureIndexes(),
       this.durableMultiActorSessions.ensureIndexes(),
       this.runtimeAssetBundles.ensureIndexes(),
       this.scenarios.ensureIndexes(),
@@ -678,6 +843,22 @@ export class MongoApiPersistenceSink {
 
   async getAuthoredScenario(scenarioId: string): Promise<Scenario | undefined> {
     return (await this.scenarios.findLatestById(scenarioId)) ?? undefined;
+  }
+
+  async saveFacultyScoreDraft(record: FacultyScoreDraftRecord): Promise<void> {
+    await this.facultyScoreDrafts.save(record);
+  }
+
+  async listFacultyScoreDrafts(stationRunId: string): Promise<FacultyScoreDraftRecord[]> {
+    return this.facultyScoreDrafts.listByStationRunId(stationRunId);
+  }
+
+  async saveFacultyReviewDecision(record: FacultyReviewDecisionRecord): Promise<void> {
+    await this.facultyReviewDecisions.save(record);
+  }
+
+  async listFacultyReviewDecisions(stationRunId: string): Promise<FacultyReviewDecisionRecord[]> {
+    return this.facultyReviewDecisions.listByStationRunId(stationRunId);
   }
 }
 

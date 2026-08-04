@@ -6,7 +6,14 @@ import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
-import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./app.js";
+import {
+  type ApiFacultyReviewDecisionRecord,
+  type ApiFacultyScoreDraftRecord,
+  type ApiPersistenceSink,
+  type ApiScenarioReviewDecisionRecord,
+  type ApiStationRunQueueSnapshot,
+  createApiApp,
+} from "./app.js";
 import {
   createOpenClinXrApiProtocolPosture,
   type OpenClinXrApiProtocolPosture,
@@ -801,6 +808,9 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
   const actorTurnsByStationRunId = new Map<string, unknown[]>();
   /** Authored scenario drafts keyed by scenarioId::version (list all; get latest by id). */
   const authoredScenarios = new Map<string, Scenario>();
+  /** Faculty score drafts + local review decisions (Q4; gates stay false). */
+  const facultyScoreDraftsByStationRunId = new Map<string, ApiFacultyScoreDraftRecord[]>();
+  const facultyReviewDecisionsByStationRunId = new Map<string, ApiFacultyReviewDecisionRecord[]>();
 
   return {
     saveExamForm: (form) => {
@@ -847,5 +857,51 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
         .sort((a, b) => b.version - a.version);
       return matches[0];
     },
+    saveFacultyScoreDraft: (record) => {
+      const drafts = facultyScoreDraftsByStationRunId.get(record.stationRunId) ?? [];
+      drafts.push({
+        ...record,
+        facultyScoreDraft: {
+          ...record.facultyScoreDraft,
+          rubricScores: { ...record.facultyScoreDraft.rubricScores },
+          notEvidenceFor: [...record.facultyScoreDraft.notEvidenceFor],
+        },
+        notEvidenceFor: [...record.notEvidenceFor],
+      });
+      facultyScoreDraftsByStationRunId.set(record.stationRunId, drafts);
+    },
+    listFacultyScoreDrafts: (stationRunId) =>
+      (facultyScoreDraftsByStationRunId.get(stationRunId) ?? []).map((record) => ({
+        ...record,
+        facultyScoreDraft: {
+          ...record.facultyScoreDraft,
+          rubricScores: { ...record.facultyScoreDraft.rubricScores },
+          notEvidenceFor: [...record.facultyScoreDraft.notEvidenceFor],
+        },
+        notEvidenceFor: [...record.notEvidenceFor],
+      })),
+    saveFacultyReviewDecision: (record) => {
+      const decisions = facultyReviewDecisionsByStationRunId.get(record.stationRunId) ?? [];
+      decisions.push({
+        ...record,
+        facultyScoreDraft: {
+          ...record.facultyScoreDraft,
+          rubricScores: { ...record.facultyScoreDraft.rubricScores },
+          notEvidenceFor: [...record.facultyScoreDraft.notEvidenceFor],
+        },
+        notEvidenceFor: [...record.notEvidenceFor],
+      });
+      facultyReviewDecisionsByStationRunId.set(record.stationRunId, decisions);
+    },
+    listFacultyReviewDecisions: (stationRunId) =>
+      (facultyReviewDecisionsByStationRunId.get(stationRunId) ?? []).map((record) => ({
+        ...record,
+        facultyScoreDraft: {
+          ...record.facultyScoreDraft,
+          rubricScores: { ...record.facultyScoreDraft.rubricScores },
+          notEvidenceFor: [...record.facultyScoreDraft.notEvidenceFor],
+        },
+        notEvidenceFor: [...record.notEvidenceFor],
+      })),
   };
 }

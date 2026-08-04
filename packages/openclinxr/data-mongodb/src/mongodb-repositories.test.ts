@@ -642,6 +642,89 @@ describe("MongoDB memory repositories", () => {
     await expect(sink.getAuthoredScenario("missing_authored_scenario")).resolves.toBeUndefined();
   });
 
+  it("persists faculty score drafts and local review decisions through the Mongo-backed API sink", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+    const facultyScoreDraft = {
+      reviewerId: "faculty_001",
+      status: "draft" as const,
+      comments: "Local draft only",
+      rubricScores: { urgent_recognition: 2 },
+      scoringValidityClaimed: false as const,
+      notEvidenceFor: ["clinical_validity", "exam_equivalence", "scoring", "learner_readiness"] as const,
+    };
+    await sink.saveFacultyScoreDraft({
+      stationRunId: "run_faculty_001",
+      scenarioId: "ed_chest_pain_priority_v1",
+      draftId: "faculty_score_draft:run_faculty_001:1",
+      savedAt: "2026-08-04T00:00:00.000Z",
+      facultyScoreDraft,
+      scoringValidityClaimed: false,
+      notEvidenceFor: [...facultyScoreDraft.notEvidenceFor],
+      claimScope: "faculty_review_decision_draft_gated_not_score_use",
+    });
+    await expect(sink.listFacultyScoreDrafts("run_faculty_001")).resolves.toEqual([
+      expect.objectContaining({
+        draftId: "faculty_score_draft:run_faculty_001:1",
+        facultyScoreDraft: expect.objectContaining({
+          reviewerId: "faculty_001",
+          scoringValidityClaimed: false,
+        }),
+        scoringValidityClaimed: false,
+      }),
+    ]);
+
+    await sink.saveFacultyReviewDecision({
+      stationRunId: "run_faculty_001",
+      scenarioId: "ed_chest_pain_priority_v1",
+      decisionId: "faculty_review_decision:run_faculty_001:1",
+      savedAt: "2026-08-04T00:01:00.000Z",
+      localDecision: "hold",
+      decisionDraft: {
+        stationRunId: "run_faculty_001",
+        scenarioId: "ed_chest_pain_priority_v1",
+        decisionTitle: "Needs scenario iteration",
+        decisionColor: "gold",
+        guidance: "Local faculty review aid only.",
+        reasons: ["missing_required_behavior"],
+        blockers: ["missing_required_behavior:focused_exam"],
+        nextActions: ["iterate scenario"],
+        packetSummary: {
+          stationRunId: "run_faculty_001",
+          scenarioId: "ed_chest_pain_priority_v1",
+          timelineEntryCount: 1,
+          missingRequiredTraceTags: ["focused_exam"],
+          lateTraceTags: [],
+          unsafeEvents: [],
+          hasPatientNote: false,
+          hasModelProvenance: true,
+          modelFailedEventCount: 0,
+          facultyScoreDraftStatus: "draft",
+          facultyReviewerId: "faculty_001",
+        },
+        facultyScoreDraft,
+        scoringValidityClaimed: false,
+        notEvidenceFor: [...facultyScoreDraft.notEvidenceFor],
+        claimScope: "faculty_review_decision_draft_gated_not_score_use",
+      },
+      facultyScoreDraft,
+      runtimePromotionAllowed: false,
+      productionManifestPromotionAllowed: false,
+      scoringValidityClaimed: false,
+      notEvidenceFor: [...facultyScoreDraft.notEvidenceFor, "production_asset_readiness", "quest_readiness"],
+      claimScope: "faculty_local_review_decision_gated_not_score_use",
+    });
+    await expect(sink.listFacultyReviewDecisions("run_faculty_001")).resolves.toEqual([
+      expect.objectContaining({
+        decisionId: "faculty_review_decision:run_faculty_001:1",
+        localDecision: "hold",
+        runtimePromotionAllowed: false,
+        productionManifestPromotionAllowed: false,
+        scoringValidityClaimed: false,
+      }),
+    ]);
+  });
+
   it("persists API snapshots through a Mongo-backed sink", async () => {
     const sink = createMongoApiPersistenceSink(context.db);
     await sink.ensureIndexes();

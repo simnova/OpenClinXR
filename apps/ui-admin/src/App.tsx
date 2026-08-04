@@ -399,6 +399,9 @@ function ReviewReplayWorkbench({ controlPlaneClient }: { controlPlaneClient: Adm
               : {})}
             traceEventCount={traceEventCount}
             safetyFlagLabels={safetyFlagLabels}
+            stationRunId={packet.stationRunId}
+            saveFacultyReviewDecision={(input) => controlPlaneClient.saveFacultyReviewDecision(input)}
+            reviewerId={reviewerId}
           />
 
           {facultyReviewPosture ? (

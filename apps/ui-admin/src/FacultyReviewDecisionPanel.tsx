@@ -1,7 +1,13 @@
 import { buildFacultyReviewPath } from "@openclinxr/review-workflow";
 import { Tag, Typography } from "antd";
-import type { ReactElement } from "react";
-import type { AdminCaseDefinedHumanoidPerformanceContract, AdminCaseDefinedHumanoidRuntimeHandoff, AdminReviewPacketReplay } from "./api-client.js";
+import { type ReactElement, useState } from "react";
+import type {
+  AdminCaseDefinedHumanoidPerformanceContract,
+  AdminCaseDefinedHumanoidRuntimeHandoff,
+  AdminFacultyReviewDecisionRecord,
+  AdminReviewPacketReplay,
+  SaveFacultyReviewDecisionInput,
+} from "./api-client.js";
 
 type ReviewPacket = NonNullable<AdminReviewPacketReplay["reviewPacket"]>;
 type ClinicalEventReviewSummary = AdminReviewPacketReplay["clinicalEventReviewSummary"] | null | undefined;
@@ -14,6 +20,11 @@ export type FacultyReviewDecisionPanelProps = {
   humanoidPerformanceContract?: AdminCaseDefinedHumanoidPerformanceContract;
   traceEventCount: number;
   safetyFlagLabels: readonly string[];
+  /** Station run id for durable local review-decision POST. */
+  stationRunId?: string;
+  /** Persist local promote/hold decision via api-client REST (gates stay false). */
+  saveFacultyReviewDecision?: (input: SaveFacultyReviewDecisionInput) => Promise<AdminFacultyReviewDecisionRecord>;
+  reviewerId?: string;
 };
 
 export function FacultyReviewDecisionPanel({
@@ -23,6 +34,9 @@ export function FacultyReviewDecisionPanel({
   humanoidPerformanceContract,
   traceEventCount,
   safetyFlagLabels,
+  stationRunId,
+  saveFacultyReviewDecision,
+  reviewerId,
 }: FacultyReviewDecisionPanelProps): ReactElement {
   const reviewPath = buildFacultyReviewPath({
     packet,
@@ -32,6 +46,45 @@ export function FacultyReviewDecisionPanel({
     safetyFlagLabels,
   });
   const decision = reviewPath.decision;
+  const [decisionState, setDecisionState] = useState<
+    | { status: "idle" }
+    | { status: "saving" }
+    | { status: "saved"; decisionId: string; localDecision: string }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
+
+  const recordLocalDecision = async () => {
+    if (!saveFacultyReviewDecision || !stationRunId) {
+      setDecisionState({
+        status: "error",
+        message: "Faculty review decision persistence is not wired (missing client or stationRunId).",
+      });
+      return;
+    }
+    setDecisionState({ status: "saving" });
+    try {
+      const saved = await saveFacultyReviewDecision({
+        stationRunId,
+        reviewerId: reviewerId ?? packet.facultyScoreDraft.reviewerId,
+        comments: packet.facultyScoreDraft.comments,
+        localDecision: "hold",
+        hasDurableSummary: Boolean(clinicalEventReviewSummary),
+        durableSummaryIsSafe: clinicalEventReviewSummary?.safeForFacultyReview === true,
+        traceEventCount,
+        safetyFlagLabels: [...safetyFlagLabels],
+      });
+      setDecisionState({
+        status: "saved",
+        decisionId: saved.decisionId,
+        localDecision: saved.localDecision,
+      });
+    } catch (error) {
+      setDecisionState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown faculty review decision error",
+      });
+    }
+  };
 
   return (
     <section className="workbench-panel" aria-label="Faculty review decision handoff">
@@ -95,11 +148,29 @@ export function FacultyReviewDecisionPanel({
         </Typography.Text>
         <button
           type="button"
-          onClick={() => { alert("Local promotion decision recorded (review artifact only). No runtime promotion, no production manifest, gates stay false per notEvidenceFor. This is Q4 review surface consuming authored packet seeds + pipeline promotionStatus."); }}
+          onClick={() => {
+            void recordLocalDecision();
+          }}
+          disabled={decisionState.status === "saving" || !saveFacultyReviewDecision || !stationRunId}
           style={{ marginTop: 6, fontSize: "0.8em" }}
         >
-          Record local promote / hold decision (demo — wires promotion capability into review replay)
+          Record local promote / hold decision (persisted review artifact — gates stay false)
         </button>
+        {decisionState.status === "saving" ? (
+          <Typography.Text type="secondary" style={{ display: "block", fontSize: "0.8em", marginTop: 4 }}>
+            Persisting local faculty decision…
+          </Typography.Text>
+        ) : null}
+        {decisionState.status === "saved" ? (
+          <Typography.Text type="secondary" style={{ display: "block", fontSize: "0.8em", marginTop: 4 }}>
+            {`Local decision saved (${decisionState.localDecision}); id ${decisionState.decisionId}. runtimePromotionAllowed=false; productionManifestPromotionAllowed=false; scoringValidityClaimed=false; notEvidenceFor preserved.`}
+          </Typography.Text>
+        ) : null}
+        {decisionState.status === "error" ? (
+          <Typography.Text type="danger" style={{ display: "block", fontSize: "0.8em", marginTop: 4 }}>
+            {decisionState.message}
+          </Typography.Text>
+        ) : null}
       </div>
       {reviewReplayReadinessSummary ? (
         <>

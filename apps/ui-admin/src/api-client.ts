@@ -89,6 +89,10 @@ export type AdminControlPlaneClient = {
   getReviewReplayReadinessSummary(input: GetReviewPacketReplayInput): Promise<AdminReviewReplayReadinessSummary>;
   submitScenarioReview(input: SubmitScenarioReviewInput): Promise<AdminScenarioReviewResult>;
   saveFacultyScoreDraft(input: SaveFacultyScoreDraftInput): Promise<AdminReviewPacket>;
+  /** REST: persist gated FacultyScoreDraft (review-workflow schema; scoring gates false). */
+  persistFacultyScoreDraft(input: PersistFacultyScoreDraftInput): Promise<AdminFacultyScoreDraftRecord>;
+  /** REST: persist local faculty review decision (promote/hold artifact; gates stay false). */
+  saveFacultyReviewDecision(input: SaveFacultyReviewDecisionInput): Promise<AdminFacultyReviewDecisionRecord>;
   listStep2CsSeedStationRunQueueSnapshots(): Promise<AdminStationRunQueueSnapshot[]>;
   createStep2CsSeedStationRunQueueSnapshot(input: CreateStationRunQueueSnapshotInput): Promise<AdminStationRunQueueSnapshot>;
   getEdChestPainPublicationReadiness(input: GetScenarioPublicationReadinessInput): Promise<AdminScenarioPublicationReadiness>;
@@ -1341,6 +1345,60 @@ export type AdminRealtimeVoicePosture = {
 export type SubmitScenarioReviewInput = SubmitScenarioReviewMutationVariables["input"];
 export type SaveFacultyScoreDraftInput = SaveFacultyScoreDraftMutationVariables["input"];
 
+/** Gated FacultyScoreDraft payload (review-workflow); not score-use evidence. */
+export type AdminFacultyScoreDraft = {
+  reviewerId: string;
+  status: "draft";
+  comments: string;
+  rubricScores: Readonly<Record<string, number>>;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+};
+
+export type AdminFacultyScoreDraftRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  draftId: string;
+  savedAt: string;
+  facultyScoreDraft: AdminFacultyScoreDraft;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: string;
+};
+
+export type PersistFacultyScoreDraftInput = {
+  stationRunId: string;
+  reviewerId: string;
+  comments: string;
+  rubricScores?: Readonly<Record<string, number>>;
+};
+
+export type SaveFacultyReviewDecisionInput = {
+  stationRunId: string;
+  reviewerId: string;
+  comments?: string;
+  rubricScores?: Readonly<Record<string, number>>;
+  localDecision?: "hold" | "local_promote_candidate";
+  hasDurableSummary?: boolean;
+  durableSummaryIsSafe?: boolean;
+  traceEventCount?: number;
+  safetyFlagLabels?: readonly string[];
+};
+
+export type AdminFacultyReviewDecisionRecord = {
+  stationRunId: string;
+  scenarioId: string;
+  decisionId: string;
+  savedAt: string;
+  localDecision: "hold" | "local_promote_candidate";
+  facultyScoreDraft: AdminFacultyScoreDraft;
+  runtimePromotionAllowed: false;
+  productionManifestPromotionAllowed: false;
+  scoringValidityClaimed: false;
+  notEvidenceFor: readonly string[];
+  claimScope: string;
+};
+
 export type AdminScenario = ScenarioBankQuery["scenarios"][number];
 export type AdminScenarioDetail = ScenarioDetailQuery;
 export type AdminScenarioReviewDecision = ScenarioReviewDecisionsQuery["scenarioReviewDecisions"][number];
@@ -1564,6 +1622,39 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         await authHeaders(),
       );
       return data.saveFacultyScoreDraft;
+    },
+    persistFacultyScoreDraft: async (input) => {
+      const { stationRunId, ...body } = input;
+      return post(
+        fetcher,
+        baseUrl,
+        buildSessionRoutePath("save-faculty-score-draft", stationRunId),
+        {
+          reviewerId: body.reviewerId,
+          comments: body.comments,
+          ...(body.rubricScores ? { rubricScores: { ...body.rubricScores } } : {}),
+        },
+        await authHeaders(),
+      );
+    },
+    saveFacultyReviewDecision: async (input) => {
+      const { stationRunId, ...body } = input;
+      return post(
+        fetcher,
+        baseUrl,
+        buildSessionRoutePath("save-faculty-review-decision", stationRunId),
+        {
+          reviewerId: body.reviewerId,
+          ...(typeof body.comments === "string" ? { comments: body.comments } : {}),
+          ...(body.rubricScores ? { rubricScores: { ...body.rubricScores } } : {}),
+          ...(body.localDecision ? { localDecision: body.localDecision } : {}),
+          ...(typeof body.hasDurableSummary === "boolean" ? { hasDurableSummary: body.hasDurableSummary } : {}),
+          ...(typeof body.durableSummaryIsSafe === "boolean" ? { durableSummaryIsSafe: body.durableSummaryIsSafe } : {}),
+          ...(typeof body.traceEventCount === "number" ? { traceEventCount: body.traceEventCount } : {}),
+          ...(body.safetyFlagLabels ? { safetyFlagLabels: [...body.safetyFlagLabels] } : {}),
+        },
+        await authHeaders(),
+      );
     },
     listStep2CsSeedStationRunQueueSnapshots: async () => {
       if (apolloClient) {

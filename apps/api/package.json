@@ -29,6 +29,7 @@
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
     "@openclinxr/rest": "workspace:*",
+    "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
