@@ -43,7 +43,7 @@ pnpm grok:agent:spawn-spec -- --role archivist --task "locate historical revisio
 |-------|----------|
 | OpenClaw roles | `agents/**` (charter + memory) |
 | Grok-native agents | `.grok/agents/*.md` (YAML frontmatter per user-guide 16-subagents) |
-| Personas | `.grok/personas/*.toml` |
+| Personas (≤2 tone) | `.grok/personas/terse-bluf.toml`, `orchestrator.toml` |
 | Tiers / sandbox | `packages/openclinxr/agent-loop/src/role-harness-policy.ts` |
 | CLI-first MCP | `docs/TOOLING.md`, `pnpm env:doctor` |
 

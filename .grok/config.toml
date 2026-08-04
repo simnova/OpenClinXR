@@ -37,13 +37,14 @@ name = "orchestrator"
 # removes barriers so the team can keep delivering toward entire project completion
 # (Strategic Grouping Plan). See agents/coordinator/chief-coordinator/charter.md (Servant
 # Leadership Operating Model), agents/rules/LEX_AGENTIC.md (new discipline section),
-# and .grok/personas/chief-coordinator.toml. After any change here or to chief-coordinator
+# and .grok/personas/terse-bluf.toml. After any change here or to chief-coordinator
 # surfaces: pnpm agent:alignment && pnpm docs:drift-check.
 
 # --- Subagents (coordinator first per AGENTS.md + agents/rules/subagent-protocol.md + LEX_AGENTIC) ---
 [subagents]
 enabled = true
 # Do NOT set default_model here — it overrides per-type routing (see Grok subagents doc + grok-tier-routing.md).
+# Proven 2026-08-04: project [subagents.models] does NOT merge from this file — set child routing in USER ~/.grok/config.toml. Detect spawns via streaming tool_call, not modelUsage alone.
 # Primary Composer session keeps its own model (e.g. grok-composer-2.5-fast).
 # Favor harness capabilities: parallel tool calls, spawn_subagent (explore flash FIRST for coordinator/scouts per protocol, then general-purpose with capability_mode/read-only or execute + isolation/worktree/background as needed), scheduler_create + monitor for recurring/unattended (rehydrate + openclaw:run-next + guards), todo_write for tracking. This pushes token efficiency + autonomy beyond basic TUI/slash flows described in user-guide docs.
 

@@ -2,13 +2,28 @@
 title: Grok Tiered Model Routing and Delegation Safeguards
 authority: agent-methodology
 scope: grok-harness-only
-last-updated: 2026-06-07
-relates-to: .grok/config.toml, agents/rules/grok-harness-usage.md, agents/rules/agent-consult.md, packages/openclinxr/agent-loop/src/grok-tier-routing.ts
+last-updated: 2026-08-04
+relates-to: .grok/config.toml, agents/rules/grok-harness-usage.md, agents/rules/agent-consult.md, packages/openclinxr/agent-loop/src/grok-tier-routing.ts, agentic-eval docs/CONFIDENCE.md
 ---
 
 # Grok Tiered Model Routing (Harness-Only)
 
 This policy applies **only to the Grok code harness**. Codex Desktop (`.codex/agents/*.toml`), Cursor Task defaults, and Moonbridge assist bridges are unchanged.
+
+## Proven headless (`-p`) facts (2026-08-04 agentic-eval — do not re-learn the hard way)
+
+Corrective notes only; **does not weaken** Q1/Q4/Q5 or the 6 protected blueprint-factory guardrail files.
+
+| Claim | Proven status | Operational consequence |
+| --- | --- | --- |
+| `spawn_subagent` in headless `-p` | **WORKS** but **nondeterministic** (sometimes 3/3, sometimes 0) | Measure per invocation; detect spawns via streaming-json `tool_call` events — **not** `modelUsage` alone (false-negatives) |
+| Child model routing | **USER** `~/.grok/config.toml` `[subagents.models]` binds (e.g. `general-purpose = "deepseek-v4-pro"`) | **Project** `.grok/config.toml` does **not** merge `[subagents.models]` (only mcp/plugins/permission merge). Set cost routing in **user** config. Explicit spawn-time `model` overrides config. |
+| `capability_mode=read-only` | **DISPROVEN** as security boundary (child still wrote files) | Use structural gates: agent `disallowedTools` / CLI deny, `--cwd` isolation, `[permission] deny`, orchestrator intended-files review |
+| Project / worktree **Stop** (and other lifecycle) hooks in `-p` | **DO NOT FIRE** | Verify-before-ship via **task contract** + **orchestrator post-verify** — never depend on Stop hooks in headless workers |
+| Agent def frontmatter `tools` / `disallowedTools` | **BINDS** in `-p` | Keep structural fields; essay bodies are soft-bind token cost (trim) |
+| Role personas | matched ≈ mismatched quality; +~14% longer | Keep ≤2 tone-only personas (`terse-bluf`, `orchestrator`); no role-persona zoo |
+
+See: `agentic-eval/docs/CONFIDENCE.md`, `docs/findings/{personas,agent-defs,hooks,tier-routing}.md`.
 
 ## Upgrade ladder
 
@@ -25,9 +40,9 @@ This policy applies **only to the Grok code harness**. Codex Desktop (`.codex/ag
 
 **Do not use Cursor `Task` for tier 0–2 read-only scouts.**
 
-Cursor `Task` only exposes `composer-2.5-fast` subagents. For cheap DeepSeek scouts, use native Grok `spawn_subagent` with `subagent_type=explore` and `capability_mode=read-only`. That honors `.grok/config.toml` `[subagents.models]`.
+Cursor `Task` only exposes `composer-2.5-fast` subagents. For cheap DeepSeek scouts, use native Grok `spawn_subagent` with `subagent_type=explore`. Prefer structural `disallowedTools` for read-only tool surface; treat `capability_mode` as advisory only (not a sandbox). Child model for explore/plan/general-purpose is resolved from **USER** `~/.grok/config.toml` `[subagents.models]` (project config does not merge that section) unless spawn-time `model` overrides.
 
-**Orchestration coordinator rule (chief-coordinator role embodiment):** The orchestration coordinator (Composer main thread embodying chief-coordinator role) must itself be delegated via explore + deepseek-v4-flash when doing coordination/scout work. It must never directly spawn child agents as grok-build for routine slices. All spawns go through `pnpm grok:agent:spawn-spec --role <repo-role>` (enforces tier model per role-harness-policy + bakes Persona from charter + ESCALATION GUARD + visibility/noticeability mandate from agentic-lexicon.md + chunk-visibility-noticeability.md). Composer main thread only integrates + acquires/releases lease + updates PROJECT_STATUS.md.
+**Orchestration coordinator rule (chief-coordinator role embodiment):** The orchestration coordinator (Composer main thread embodying chief-coordinator role) must itself be delegated via explore + deepseek-v4-flash when doing coordination/scout work. It must never directly spawn child agents as grok-build for routine slices. All spawns go through `pnpm grok:agent:spawn-spec --role <repo-role>` (enforces tier model per role-harness-policy + bakes terse-bluf tone + charter ## Persona + ESCALATION GUARD + visibility/noticeability mandate from agentic-lexicon.md + chunk-visibility-noticeability.md). Composer main thread only integrates + acquires/releases lease + updates PROJECT_STATUS.md. Headless `-p` workers: post-verify + task contract (Stop hooks do not fire).
 
 **Self-escalation guard:** Every subagent prompt includes an ESCALATION GUARD (baked in grok-repo-agent-spawn.ts). If a subagent (at any tier) explicitly outputs a line beginning with "UNABLE:", the orchestration coordinator MUST treat it as a valid request and spawn a higher-tier helper for the sub-task via the correct `pnpm grok:agent:spawn-spec` (ladder: deepseek-v4-flash → deepseek-v4-pro → grok-build). Record the reason and escalation in PROJECT_STATUS.md. This is the supported mechanism for a low-tier agent to request a more capable helper when it hits its limit. See agentic-lexicon.md.
 
@@ -108,11 +123,13 @@ Exit code `2` means upgrade recommended.
 ## Safeguards
 
 - Grok harness only; Codex keeps `.codex/agents` tier models unchanged.
-- Never set `[subagents] default_model` in `.grok/config.toml`.
+- Never set `[subagents] default_model` in project `.grok/config.toml` (and do not expect project `[subagents.models]` to apply — route via **user** `~/.grok/config.toml`).
 - Do not skip to frontier for routine implementation.
 - Protected promotion gates stay false unless Patrick explicitly approves scope expansion.
 - Record tier per slice in state files for cost/introspection audit.
 - Run `pnpm agent:harness:prove` after policy changes.
+- Do not treat `capability_mode` as a write sandbox; pair with `disallowedTools` + `--cwd` + permission deny.
+- Do not rely on project/worktree Stop hooks in `-p` for verification gates.
 
 ## CLI commands
 

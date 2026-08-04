@@ -12,7 +12,7 @@ OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: 
 
 ## Grok spawn spec (from role-harness-policy)
 
-- architect: spawn_subagent general-purpose (read-write) isolation=worktree parentChecklist.mustPassIsolationToHarness=true model=deepseek-v4-pro — standard_execution
+- architect: spawn_subagent general-purpose (read-write) isolation=worktree parentChecklist.mustPassIsolationToHarness=true headlessEnv=OPENCLINXR_WORKER=1 model=deepseek-v4-pro — standard_execution
 - CLI: `pnpm grok:agent:spawn-spec -- --role architect`
 - subagent_type: `general-purpose`
 - capability_mode: `read-write`
