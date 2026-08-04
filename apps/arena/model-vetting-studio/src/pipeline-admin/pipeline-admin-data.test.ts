@@ -4,14 +4,17 @@ import type { PipelineCandidate, PipelineCandidateIndex } from "@openclinxr/mode
 import { describe, expect, it } from "vitest";
 import {
   aggregateRealism,
+  batchScorePipelineIndex,
   distinctRoles,
   faceRealism,
   formatMegabytes,
+  formatScoreDelta,
   formatScorePercent,
   fullRealism,
   loadPipelineCandidateIndex,
   pipelineCandidateIndexUrls,
   realismForFraming,
+  requestBatchScore,
 } from "./pipeline-admin-data.js";
 
 const sampleIndex = JSON.parse(
@@ -125,5 +128,60 @@ describe("committed sample index", () => {
     expect(sampleIndex.candidates.length).toBe(37);
     expect(sampleIndex.scoredCandidateCount).toBeGreaterThan(0);
     expect(sampleIndex.notEvidenceFor).toContain("clinical_validity");
+  });
+});
+
+describe("batchScorePipelineIndex + requestBatchScore (studio wrappers)", () => {
+  it("batch-scores sample candidates from a dual-frame scores doc", () => {
+    // Pick two distinct manifestIds so join is unambiguous (sample has many nurse clones).
+    const nurse = sampleIndex.candidates.find((c) => c.manifestId === "peds_nurse_kevin");
+    const parent = sampleIndex.candidates.find((c) => c.manifestId === "peds_anxious_parent");
+    expect(nurse && parent).toBeTruthy();
+    const subset = {
+      ...sampleIndex,
+      candidates: [
+        { ...nurse!, visionScore: null },
+        { ...parent!, visionScore: null },
+      ],
+      scoredCandidateCount: 0,
+      candidateCount: 2,
+    };
+    const scoresDoc = {
+      generatedAt: "2026-08-03T20:59:26.729Z",
+      notEvidenceFor: ["aesthetic_only_not_clinical_validity"],
+      scores: {
+        peds_nurse_kevin: {
+          realism_0to1: 0.42,
+          clothing_0to1: 0.51,
+          reason: "batch",
+        },
+      },
+    };
+    const scored = batchScorePipelineIndex(subset, scoresDoc, {
+      sourceReportPath: "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+      generatedAt: "2026-08-03T22:00:00.000Z",
+    });
+    expect(scored.scoredCandidateCount).toBe(1);
+    expect(scored.candidates[0]?.visionScore?.aggregateRealism_0to1).toBeCloseTo(0.42);
+    expect(scored.candidates[1]?.visionScore).toBeNull();
+    expect(scored.notEvidenceFor).toContain("clinical_validity");
+    expect(scored.claimScope).toContain("aesthetic");
+  });
+
+  it("requestBatchScore posts /__batch-score and validates index", async () => {
+    const fetchImpl = (async () =>
+      new Response(
+        JSON.stringify({ ok: true, index: sampleIndex, scoredCandidateCount: sampleIndex.scoredCandidateCount }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      )) as unknown as typeof fetch;
+    const result = await requestBatchScore({ fetchImpl });
+    expect(result.ok).toBe(true);
+    expect(result.index?.schemaVersion).toBe("openclinxr.pipeline-candidate-index.v1");
+  });
+
+  it("formatScoreDelta signs percent deltas", () => {
+    expect(formatScoreDelta(0.23)).toBe("+23");
+    expect(formatScoreDelta(-0.1)).toBe("-10");
+    expect(formatScoreDelta(null)).toBe("—");
   });
 });

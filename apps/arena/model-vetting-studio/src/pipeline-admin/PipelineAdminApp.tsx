@@ -1,6 +1,7 @@
 import type { PipelineCandidate, PipelineCandidateIndex } from "@openclinxr/model-vetting";
 import { Alert, Button, Descriptions, Modal, Progress, Segmented, Space, Spin, Statistic, Table, type TableColumnsType, Tag, Typography, message } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CandidateDiffView } from "./CandidateDiffView.js";
 import { CandidateCompare, CandidatePreview } from "./CandidatePreview.js";
 import {
   aggregateClothing,
@@ -13,6 +14,7 @@ import {
   fullRealism,
   loadPipelineCandidateIndex,
   realismForFraming,
+  requestBatchScore,
   type ScoreFraming,
 } from "./pipeline-admin-data.js";
 import { PromotePanel } from "./PromotePanel.js";
@@ -57,6 +59,11 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
   const [compareOpen, setCompareOpen] = useState<boolean>(false);
   const [regenerating, setRegenerating] = useState(false);
   const [regenMessage, setRegenMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [batchScoring, setBatchScoring] = useState(false);
+  const [batchScoreMessage, setBatchScoreMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    null,
+  );
+  const [compareTab, setCompareTab] = useState<"diff" | "capture">("diff");
 
   const reloadIndex = useCallback(async (): Promise<void> => {
     const result = await loadPipelineCandidateIndex({ overrideUrl: props.indexOverrideUrl ?? null });
@@ -121,6 +128,41 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
       });
     } finally {
       setRegenerating(false);
+    }
+  }
+
+  async function handleBatchScore(): Promise<void> {
+    setBatchScoring(true);
+    setBatchScoreMessage(null);
+    try {
+      const result = await requestBatchScore();
+      if (!result.ok) {
+        setBatchScoreMessage({
+          type: "error",
+          text: `Batch score failed (dev server only): ${result.error ?? "unknown"}`,
+        });
+        return;
+      }
+      if (result.index) {
+        setIndex(result.index);
+        setLoadedFromUrl("/pipeline-candidate-index.json");
+      } else {
+        await reloadIndex();
+      }
+      setBatchScoreMessage({
+        type: "success",
+        text: `Batch score applied (${result.scoredCandidateCount ?? result.index?.scoredCandidateCount ?? "?"} scored). Aesthetic-only via humanoid-vision-score join; not clinical/scoring validity.`,
+      });
+      void message.success("Batch score applied");
+    } catch (error) {
+      setBatchScoreMessage({
+        type: "error",
+        text: `Batch score unavailable (not under vite dev): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      });
+    } finally {
+      setBatchScoring(false);
     }
   }
 
@@ -315,6 +357,14 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
           >
             Regenerate index
           </Button>
+          <Button
+            type="default"
+            onClick={() => void handleBatchScore()}
+            loading={batchScoring}
+            data-testid="batch-score"
+          >
+            Batch score
+          </Button>
         </Space>
 
         {regenMessage ? (
@@ -326,6 +376,18 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
             title={regenMessage.type === "success" ? "Index updated" : "Regenerate failed"}
             description={regenMessage.text}
             data-testid="regenerate-message"
+          />
+        ) : null}
+
+        {batchScoreMessage ? (
+          <Alert
+            type={batchScoreMessage.type === "success" ? "success" : "error"}
+            showIcon
+            closable
+            onClose={() => setBatchScoreMessage(null)}
+            title={batchScoreMessage.type === "success" ? "Batch score applied" : "Batch score failed"}
+            description={batchScoreMessage.text}
+            data-testid="batch-score-message"
           />
         ) : null}
 
@@ -407,13 +469,37 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
 
       <Modal
         open={compareOpen && selected.length === 2}
-        onCancel={() => setCompareOpen(false)}
+        onCancel={() => {
+          setCompareOpen(false);
+          setCompareTab("diff");
+        }}
         footer={null}
-        width={900}
-        title={selected.length === 2 ? `Compare · ${selected[0]!.manifestId} vs ${selected[1]!.manifestId}` : "Compare"}
+        width={980}
+        title={
+          selected.length === 2
+            ? `DIFF · ${selected[0]!.manifestId} vs ${selected[1]!.manifestId}`
+            : "DIFF"
+        }
         destroyOnHidden
       >
-        {selected.length === 2 ? <CandidateCompare left={selected[0]!} right={selected[1]!} /> : null}
+        {selected.length === 2 ? (
+          <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
+            <Segmented
+              options={[
+                { label: "Score & rigging DIFF", value: "diff" },
+                { label: "Capture compare", value: "capture" },
+              ]}
+              value={compareTab}
+              onChange={(value) => setCompareTab(value as "diff" | "capture")}
+              data-testid="compare-tab"
+            />
+            {compareTab === "diff" ? (
+              <CandidateDiffView left={selected[0]!} right={selected[1]!} />
+            ) : (
+              <CandidateCompare left={selected[0]!} right={selected[1]!} />
+            )}
+          </Space>
+        ) : null}
       </Modal>
     </div>
   );

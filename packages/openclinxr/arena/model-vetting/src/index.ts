@@ -735,6 +735,7 @@ export type {
   MorphTargetEmotionCueEvidence,
 } from "./emotion-transition.js";
 export {
+  batchScorePipelineIndex,
   buildCandidateId,
   buildPipelineCandidateIndex,
   buildPromotionRecord,
@@ -743,8 +744,10 @@ export {
   deployTargetsForManifest,
   deriveCandidateRole,
   deriveManifestId,
+  diffPipelineCandidates,
   joinPromotionStatus,
   joinVisionScore,
+  numericDelta,
   PIPELINE_CANDIDATE_INDEX_CLAIM_SCOPE,
   PIPELINE_CANDIDATE_INDEX_SCHEMA_VERSION,
   PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
@@ -755,10 +758,13 @@ export {
 } from "./pipeline-candidate.js";
 export type {
   CandidatePromotionStatus,
+  CandidateRiggingDelta,
   CandidateRiggingSummary,
+  CandidateScoreDelta,
   CandidateVisionScore,
   DualFrameVisionScoreRow,
   PipelineCandidate,
+  PipelineCandidateDiff,
   PipelineCandidateIndex,
   PipelineCandidateNotEvidenceForClaim,
   PromotionRecord,

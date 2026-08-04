@@ -91,6 +91,38 @@ beforeEach(() => {
         { status: 200, headers: { "content-type": "application/json" } },
       );
     }
+    if (url.includes("/__batch-score") && init?.method === "POST") {
+      const scoredIndex: PipelineCandidateIndex = {
+        ...smallIndex,
+        scoredCandidateCount: 2,
+        candidates: smallIndex.candidates.map((c) =>
+          c.visionScore
+            ? c
+            : {
+                ...c,
+                visionScore: {
+                  full: null,
+                  face: null,
+                  aggregateRealism_0to1: 0.12,
+                  aggregateClothing_0to1: 0.18,
+                  reason: "batch scored",
+                  sourceReportPath: "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+                  scoredAt: "2026-08-03T22:00:00.000Z",
+                  notEvidenceFor: ["aesthetic_only_not_clinical_validity"],
+                },
+              },
+        ),
+      };
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          index: scoredIndex,
+          scoredCandidateCount: 2,
+          sourceReportPath: "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }
     // Default: load index JSON for table
     return new Response(JSON.stringify(smallIndex), {
       status: 200,
@@ -157,5 +189,36 @@ describe("PipelineAdminApp", () => {
     expect(regenCalls.length).toBeGreaterThan(0);
     expect((regenCalls[0]![1] as RequestInit).method).toBe("POST");
     expect(screen.getByText(/Index regenerated/i)).toBeInTheDocument();
+  });
+
+  it("Batch score posts /__batch-score and shows aesthetic success message", async () => {
+    renderAdmin();
+    await screen.findByText("Pipeline Administration & Model Vetting");
+    fireEvent.click(screen.getByTestId("batch-score"));
+    await waitFor(() => {
+      expect(screen.getByTestId("batch-score-message")).toBeInTheDocument();
+    });
+    const batchCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/__batch-score"));
+    expect(batchCalls.length).toBeGreaterThan(0);
+    expect((batchCalls[0]![1] as RequestInit).method).toBe("POST");
+    const alert = screen.getByTestId("batch-score-message");
+    expect(alert).toHaveTextContent(/Batch score applied/i);
+    expect(alert).toHaveTextContent(/Aesthetic-only/i);
+  });
+
+  it("opens DIFF view when two candidates are selected and Compare is clicked", async () => {
+    renderAdmin();
+    await screen.findByText("Pipeline Administration & Model Vetting");
+    const checkboxes = await screen.findAllByRole("checkbox");
+    // antd Table: first checkbox is header select-all; pick two row boxes
+    const rowBoxes = checkboxes.filter((el) => el.getAttribute("aria-label") !== "Select all");
+    expect(rowBoxes.length).toBeGreaterThanOrEqual(2);
+    fireEvent.click(rowBoxes[0]!);
+    fireEvent.click(rowBoxes[1]!);
+    const compareBtn = screen.getByTestId("compare-button");
+    await waitFor(() => expect(compareBtn).not.toBeDisabled());
+    fireEvent.click(compareBtn);
+    expect(await screen.findByTestId("candidate-diff-view")).toBeInTheDocument();
+    expect(screen.getByText(/Score & rigging deltas/i)).toBeInTheDocument();
   });
 });

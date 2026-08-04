@@ -1,8 +1,14 @@
 import {
+  batchScorePipelineIndex,
+  diffPipelineCandidates,
   validatePipelineCandidateIndex,
   type PipelineCandidate,
+  type PipelineCandidateDiff,
   type PipelineCandidateIndex,
 } from "@openclinxr/model-vetting";
+
+export { batchScorePipelineIndex, diffPipelineCandidates };
+export type { PipelineCandidateDiff };
 
 export type PipelineAdminLoadResult = {
   index: PipelineCandidateIndex;
@@ -101,4 +107,74 @@ export function formatDay(iso: string): string {
 /** Distinct roles present in the candidate set (for Table filters). */
 export function distinctRoles(candidates: PipelineCandidate[]): string[] {
   return [...new Set(candidates.map((candidate) => candidate.role))].sort();
+}
+
+/**
+ * Client helper: POST /__batch-score (dev server only) to join humanoid-vision-score
+ * results onto the pipeline candidate index and persist the updated index.
+ * Aesthetic-only; never clinical/scoring validity.
+ */
+export async function requestBatchScore(options?: {
+  fetchImpl?: typeof fetch;
+  scoresDoc?: unknown;
+  sourceReportPath?: string | null;
+}): Promise<{
+  ok: boolean;
+  index?: PipelineCandidateIndex;
+  scoredCandidateCount?: number;
+  sourceReportPath?: string | null;
+  error?: string;
+}> {
+  const fetchImpl = options?.fetchImpl ?? fetch;
+  const body: {
+    scoresDoc?: unknown;
+    sourceReportPath?: string | null;
+  } = {};
+  if (options?.scoresDoc !== undefined) body.scoresDoc = options.scoresDoc;
+  if (options?.sourceReportPath !== undefined) body.sourceReportPath = options.sourceReportPath;
+  const response = await fetchImpl("/__batch-score", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const json = (await response.json().catch(() => ({}))) as {
+    ok?: boolean;
+    index?: PipelineCandidateIndex;
+    scoredCandidateCount?: number;
+    sourceReportPath?: string | null;
+    error?: string;
+  };
+  if (!response.ok || !json.ok) {
+    return {
+      ok: false,
+      error: json.error || `HTTP ${response.status}`,
+    };
+  }
+  if (json.index) {
+    const validation = validatePipelineCandidateIndex(json.index);
+    if (!validation.ok) {
+      return { ok: false, error: `invalid index: ${validation.errors.join(", ")}` };
+    }
+  }
+  const result: {
+    ok: true;
+    index?: PipelineCandidateIndex;
+    scoredCandidateCount?: number;
+    sourceReportPath?: string | null;
+  } = { ok: true };
+  if (json.index) result.index = json.index;
+  if (typeof json.scoredCandidateCount === "number") {
+    result.scoredCandidateCount = json.scoredCandidateCount;
+  }
+  if (json.sourceReportPath !== undefined) {
+    result.sourceReportPath = json.sourceReportPath ?? null;
+  }
+  return result;
+}
+
+/** Format a signed 0..1 score delta as ±percent integer, or em dash. */
+export function formatScoreDelta(value: number | null): string {
+  if (value === null) return "—";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${Math.round(value * 100)}`;
 }

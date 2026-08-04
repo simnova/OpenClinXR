@@ -375,3 +375,206 @@ export function validatePipelineCandidateIndex(
   if (!Array.isArray(value["notEvidenceFor"])) errors.push("notEvidenceFor must be an array");
   return errors.length === 0 ? { ok: true } : { ok: false, errors };
 }
+
+/**
+ * Batch-score every candidate in an index by joining a humanoid-vision-score
+ * report `scores` map (dual-frame or flat). Pure — no filesystem, no network.
+ *
+ * Aesthetic generation-quality only; never flips readiness/clinical gates.
+ * Results are written back onto each candidate's `visionScore` field and the
+ * index `scoredCandidateCount` / `sourceVisionScoreReportPath` are refreshed.
+ */
+export function batchScorePipelineIndex(
+  index: PipelineCandidateIndex,
+  scoresDoc: unknown,
+  options: {
+    sourceReportPath?: string | null;
+    scoredAt?: string | null;
+    generatedAt?: string;
+    /** When true (default), keep prior visionScore if join returns null. */
+    preserveUnmatched?: boolean;
+  } = {},
+): PipelineCandidateIndex {
+  const preserveUnmatched = options.preserveUnmatched !== false;
+  const sourceReportPath =
+    options.sourceReportPath !== undefined
+      ? options.sourceReportPath
+      : index.sourceVisionScoreReportPath;
+  const scoredAt =
+    options.scoredAt ??
+    (isRecord(scoresDoc) && typeof scoresDoc["generatedAt"] === "string"
+      ? scoresDoc["generatedAt"]
+      : null);
+
+  const candidates = index.candidates.map((candidate) => {
+    const joined = joinVisionScore(scoresDoc, candidate.manifestId, {
+      sourceReportPath,
+      scoredAt,
+    });
+    if (joined === null && preserveUnmatched) {
+      return candidate;
+    }
+    return {
+      ...candidate,
+      visionScore: joined,
+      // Re-assert aesthetic-only gates on every batch score write-back.
+      notEvidenceFor: uniquePreserveOrder([
+        ...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
+        ...candidate.notEvidenceFor,
+      ]),
+    };
+  });
+
+  return {
+    ...index,
+    generatedAt: options.generatedAt ?? new Date().toISOString(),
+    claimScope: PIPELINE_CANDIDATE_INDEX_CLAIM_SCOPE,
+    sourceVisionScoreReportPath: sourceReportPath ?? null,
+    candidateCount: candidates.length,
+    scoredCandidateCount: candidates.filter((c) => c.visionScore !== null).length,
+    notEvidenceFor: uniquePreserveOrder([
+      ...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
+      ...index.notEvidenceFor,
+    ]),
+    candidates,
+  };
+}
+
+/** Nullable numeric delta: right − left, or null when either side is null/undefined. */
+export function numericDelta(
+  left: number | null | undefined,
+  right: number | null | undefined,
+): number | null {
+  if (left === null || left === undefined || right === null || right === undefined) return null;
+  if (!Number.isFinite(left) || !Number.isFinite(right)) return null;
+  return right - left;
+}
+
+export type CandidateScoreDelta = {
+  aggregateRealism: number | null;
+  aggregateClothing: number | null;
+  fullRealism: number | null;
+  faceRealism: number | null;
+  fullClothing: number | null;
+  faceClothing: number | null;
+};
+
+export type CandidateRiggingDelta = {
+  boneCount: number | null;
+  morphTargetCount: number | null;
+  garmentRegionFaces: number | null;
+  realismGrade: { left: string | null; right: string | null; changed: boolean };
+  hasRealGarmentRegion: { left: boolean | null; right: boolean | null; changed: boolean };
+  skinningNormalized: { left: boolean | null; right: boolean | null; changed: boolean };
+  wardrobeTagsAdded: string[];
+  wardrobeTagsRemoved: string[];
+};
+
+export type PipelineCandidateDiff = {
+  leftCandidateId: string;
+  rightCandidateId: string;
+  leftManifestId: string;
+  rightManifestId: string;
+  leftRole: string;
+  rightRole: string;
+  scoreDeltas: CandidateScoreDelta;
+  riggingDeltas: CandidateRiggingDelta;
+  claimScope: "aesthetic_candidate_diff_metadata_only_not_clinical_or_production_readiness";
+  notEvidenceFor: string[];
+};
+
+/**
+ * Side-by-side candidate DIFF: score deltas (right − left) + rigging deltas.
+ * Aesthetic-only comparison; not evidence for clinical/scoring/learner readiness.
+ */
+export function diffPipelineCandidates(
+  left: PipelineCandidate,
+  right: PipelineCandidate,
+): PipelineCandidateDiff {
+  const leftScore = left.visionScore;
+  const rightScore = right.visionScore;
+  const leftRig = left.riggingSummary;
+  const rightRig = right.riggingSummary;
+
+  const leftWardrobe = new Set(leftRig?.wardrobeTags ?? []);
+  const rightWardrobe = new Set(rightRig?.wardrobeTags ?? []);
+  const wardrobeTagsAdded = [...rightWardrobe].filter((t) => !leftWardrobe.has(t)).sort();
+  const wardrobeTagsRemoved = [...leftWardrobe].filter((t) => !rightWardrobe.has(t)).sort();
+
+  const leftGrade = leftRig?.realismGrade ?? null;
+  const rightGrade = rightRig?.realismGrade ?? null;
+  const leftGarment = leftRig ? leftRig.hasRealGarmentRegion : null;
+  const rightGarment = rightRig ? rightRig.hasRealGarmentRegion : null;
+  const leftSkin = leftRig?.skinningNormalized ?? null;
+  const rightSkin = rightRig?.skinningNormalized ?? null;
+
+  return {
+    leftCandidateId: left.candidateId,
+    rightCandidateId: right.candidateId,
+    leftManifestId: left.manifestId,
+    rightManifestId: right.manifestId,
+    leftRole: left.role,
+    rightRole: right.role,
+    scoreDeltas: {
+      aggregateRealism: numericDelta(
+        leftScore?.aggregateRealism_0to1 ?? null,
+        rightScore?.aggregateRealism_0to1 ?? null,
+      ),
+      aggregateClothing: numericDelta(
+        leftScore?.aggregateClothing_0to1 ?? null,
+        rightScore?.aggregateClothing_0to1 ?? null,
+      ),
+      fullRealism: numericDelta(leftScore?.full?.realism_0to1 ?? null, rightScore?.full?.realism_0to1 ?? null),
+      faceRealism: numericDelta(leftScore?.face?.realism_0to1 ?? null, rightScore?.face?.realism_0to1 ?? null),
+      fullClothing: numericDelta(
+        leftScore?.full?.clothing_0to1 ?? null,
+        rightScore?.full?.clothing_0to1 ?? null,
+      ),
+      faceClothing: numericDelta(
+        leftScore?.face?.clothing_0to1 ?? null,
+        rightScore?.face?.clothing_0to1 ?? null,
+      ),
+    },
+    riggingDeltas: {
+      boneCount: numericDelta(leftRig?.boneCount ?? null, rightRig?.boneCount ?? null),
+      morphTargetCount: numericDelta(
+        leftRig?.morphTargetCount ?? null,
+        rightRig?.morphTargetCount ?? null,
+      ),
+      garmentRegionFaces: numericDelta(
+        leftRig?.garmentRegionFaces ?? null,
+        rightRig?.garmentRegionFaces ?? null,
+      ),
+      realismGrade: {
+        left: leftGrade,
+        right: rightGrade,
+        changed: leftGrade !== rightGrade,
+      },
+      hasRealGarmentRegion: {
+        left: leftGarment,
+        right: rightGarment,
+        changed: leftGarment !== rightGarment,
+      },
+      skinningNormalized: {
+        left: leftSkin,
+        right: rightSkin,
+        changed: leftSkin !== rightSkin,
+      },
+      wardrobeTagsAdded,
+      wardrobeTagsRemoved,
+    },
+    claimScope: "aesthetic_candidate_diff_metadata_only_not_clinical_or_production_readiness",
+    notEvidenceFor: [...PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR],
+  };
+}
+
+function uniquePreserveOrder(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    if (seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}

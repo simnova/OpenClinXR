@@ -1,20 +1,39 @@
+import { accessSync, constants } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildModelVettingStudioEvidence, optionalJsonFromResponse } from "./studio-state.js";
 
+function repoRelative(rel: string): string {
+  return process.cwd().endsWith(path.join("apps", "arena", "model-vetting-studio"))
+    ? path.join("..", "..", "..", rel)
+    : rel;
+}
+
+function isReadable(rel: string): boolean {
+  try {
+    accessSync(repoRelative(rel), constants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 describe("model vetting studio state", () => {
-  it("builds deterministic capture evidence from the current peds report without weakening gates", async () => {
-    const reportPath = "docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json";
-    const reportFsPath = process.cwd().endsWith(path.join("apps", "arena", "model-vetting-studio"))
-      ? path.join("..", "..", "..", reportPath)
-      : reportPath;
-    const report = JSON.parse(await readFile(reportFsPath, "utf8")) as unknown;
-    const captureManifestPath = "docs/openclinxr/anny-skin-track-a-mit-pbr-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json";
-    const captureManifestFsPath = process.cwd().endsWith(path.join("apps", "arena", "model-vetting-studio"))
-      ? path.join("..", "..", "..", captureManifestPath)
-      : captureManifestPath;
-    const captureManifest = JSON.parse(await readFile(captureManifestFsPath, "utf8")) as unknown;
+  // Local-only Anny track fixtures are gitignored (docs/openclinxr/anny-skin-track-a-mit-pbr-*.json).
+  const reportPath =
+    "docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json";
+  const captureManifestPath =
+    "docs/openclinxr/anny-skin-track-a-mit-pbr-capture-manifest-peds-asthma-parent-anxiety-2026-06-06.json";
+  const hasLocalAnnyFixtures = isReadable(reportPath) && isReadable(captureManifestPath);
+
+  it.skipIf(!hasLocalAnnyFixtures)(
+    "builds deterministic capture evidence from the current peds report without weakening gates",
+    async () => {
+    const report = JSON.parse(await readFile(repoRelative(reportPath), "utf8")) as unknown;
+    const captureManifest = JSON.parse(
+      await readFile(repoRelative(captureManifestPath), "utf8"),
+    ) as unknown;
     const evidence = buildModelVettingStudioEvidence(report, reportPath, null, undefined, captureManifest);
 
     expect(evidence).toMatchObject({
@@ -75,7 +94,8 @@ describe("model vetting studio state", () => {
         "emotion_transition_capture_missing",
       ]));
     }
-  });
+  },
+  );
 
   it("treats optional Vite HTML fallback sidecars as absent", async () => {
     const response = new Response("<!doctype html><title>fallback</title>", {

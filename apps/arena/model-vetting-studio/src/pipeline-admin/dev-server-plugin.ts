@@ -1,20 +1,33 @@
 /**
  * dev-server-plugin.ts — DEV-ONLY Vite middleware for Pipeline Administration
- * one-click promote / regenerate-index actions.
+ * one-click promote / regenerate-index / batch-score actions.
  *
  * IMPORTANT:
  * - Wired only via `configureServer` (Vite serve mode). Never runs in `vite build`
  *   or production static hosting. This is NOT a production API.
  * - Spawns repo tools with `execFile` + arg arrays (no shell string / injection).
  * - Aesthetic asset staging only: not production, clinical, scoring, or learner readiness.
+ * - batch-score joins an existing humanoid-vision-score report (no external network
+ *   score call from this middleware); writes only the studio public index JSON.
  */
 
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
+
+/** Minimal index shape for path loading (avoids static @openclinxr/model-vetting import in vite.config). */
+type PipelineCandidateIndex = {
+  schemaVersion: string;
+  sourceVisionScoreReportPath: string | null;
+  scoredCandidateCount: number;
+  claimScope: string;
+  notEvidenceFor: string[];
+  candidates: unknown[];
+  [key: string]: unknown;
+};
 
 const execFileAsync = promisify(execFile);
 
@@ -69,8 +82,51 @@ async function loadCandidateIds(repoRoot: string): Promise<Set<string>> {
   return candidates;
 }
 
+async function loadPipelineIndexJson(repoRoot: string): Promise<{
+  index: PipelineCandidateIndex;
+  indexPath: string;
+} | null> {
+  // Dynamic import keeps vite.config load free of package TS resolution (Node ESM .js).
+  const { validatePipelineCandidateIndex } = await import("@openclinxr/model-vetting");
+  const paths = [
+    path.join(repoRoot, "apps", "arena", "model-vetting-studio", "public", "pipeline-candidate-index.json"),
+    path.join(repoRoot, ".openclinxr", "asset-production", "pipeline-candidate-index.json"),
+    path.join(repoRoot, "apps", "arena", "model-vetting-studio", "public", "sample-pipeline-candidate-index.json"),
+  ];
+  for (const indexPath of paths) {
+    try {
+      const raw = JSON.parse(await readFile(indexPath, "utf8")) as unknown;
+      const validation = validatePipelineCandidateIndex(raw);
+      if (!validation.ok) continue;
+      return { index: raw as PipelineCandidateIndex, indexPath };
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
+
+/** Newest humanoid-vision-score-*.json under docs/openclinxr (lexicographic date suffix). */
+async function resolveLatestVisionScoreReport(
+  repoRoot: string,
+): Promise<{ path: string; doc: unknown } | null> {
+  const docsDir = path.join(repoRoot, "docs", "openclinxr");
+  try {
+    const names = (await readdir(docsDir))
+      .filter((name) => /^humanoid-vision-score-.*\.json$/u.test(name))
+      .sort();
+    const newest = names.at(-1);
+    if (!newest) return null;
+    const abs = path.join(docsDir, newest);
+    const doc = JSON.parse(await readFile(abs, "utf8")) as unknown;
+    return { path: path.posix.join("docs", "openclinxr", newest), doc };
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Vite plugin: registers POST /__promote and POST /__regenerate-index in dev only.
+ * Vite plugin: registers POST /__promote, /__regenerate-index, /__batch-score in dev only.
  * configureServer runs exclusively for `vite` / `vite dev` (serve), not production build.
  */
 export function modelVettingDevServerPlugin(): Plugin {
@@ -86,7 +142,7 @@ export function modelVettingDevServerPlugin(): Plugin {
         }
 
         const url = req.url.split("?")[0] ?? "";
-        if (url !== "/__promote" && url !== "/__regenerate-index") {
+        if (url !== "/__promote" && url !== "/__regenerate-index" && url !== "/__batch-score") {
           next();
           return;
         }
@@ -95,6 +151,100 @@ export function modelVettingDevServerPlugin(): Plugin {
         const tsxBin = path.join(repoRoot, "node_modules", ".bin", "tsx");
 
         try {
+          if (url === "/__batch-score") {
+            // Join existing humanoid-vision-score report onto the candidate index.
+            // No external network scoring from this endpoint (aesthetic inventory only).
+            const body = (await readJsonBody(req)) as {
+              scoresDoc?: unknown;
+              sourceReportPath?: string | null;
+            };
+            const loaded = await loadPipelineIndexJson(repoRoot);
+            if (!loaded) {
+              sendJson(res, 500, { ok: false, error: "pipeline candidate index not found" });
+              return;
+            }
+
+            let scoresDoc: unknown = body.scoresDoc;
+            let sourceReportPath: string | null =
+              typeof body.sourceReportPath === "string" ? body.sourceReportPath : null;
+
+            if (scoresDoc === undefined) {
+              if (sourceReportPath) {
+                try {
+                  const abs = path.isAbsolute(sourceReportPath)
+                    ? sourceReportPath
+                    : path.join(repoRoot, sourceReportPath);
+                  // Guard: only allow reading under repo root docs/ or .openclinxr.
+                  const rel = path.relative(repoRoot, abs);
+                  if (rel.startsWith("..") || path.isAbsolute(rel)) {
+                    sendJson(res, 400, { ok: false, error: "sourceReportPath escapes repo root" });
+                    return;
+                  }
+                  scoresDoc = JSON.parse(await readFile(abs, "utf8")) as unknown;
+                } catch (error) {
+                  sendJson(res, 400, {
+                    ok: false,
+                    error: `unable to read sourceReportPath: ${
+                      error instanceof Error ? error.message : String(error)
+                    }`,
+                  });
+                  return;
+                }
+              } else if (loaded.index.sourceVisionScoreReportPath) {
+                try {
+                  const abs = path.join(repoRoot, loaded.index.sourceVisionScoreReportPath);
+                  scoresDoc = JSON.parse(await readFile(abs, "utf8")) as unknown;
+                  sourceReportPath = loaded.index.sourceVisionScoreReportPath;
+                } catch {
+                  // fall through to latest docs report
+                }
+              }
+              if (scoresDoc === undefined) {
+                const latest = await resolveLatestVisionScoreReport(repoRoot);
+                if (!latest) {
+                  sendJson(res, 400, {
+                    ok: false,
+                    error: "no humanoid-vision-score report found under docs/openclinxr",
+                  });
+                  return;
+                }
+                scoresDoc = latest.doc;
+                sourceReportPath = latest.path;
+              }
+            } else if (!sourceReportPath) {
+              sourceReportPath =
+                loaded.index.sourceVisionScoreReportPath ??
+                "inline-humanoid-vision-score-batch";
+            }
+
+            const { batchScorePipelineIndex } = await import("@openclinxr/model-vetting");
+            const scored = batchScorePipelineIndex(loaded.index as never, scoresDoc, {
+              sourceReportPath,
+              generatedAt: new Date().toISOString(),
+            });
+
+            // Write only the studio public index (no external/docs/ui-xr writes).
+            const studioIndexPath = path.join(
+              repoRoot,
+              "apps",
+              "arena",
+              "model-vetting-studio",
+              "public",
+              "pipeline-candidate-index.json",
+            );
+            await writeFile(studioIndexPath, `${JSON.stringify(scored, null, 2)}\n`, "utf8");
+
+            sendJson(res, 200, {
+              ok: true,
+              index: scored,
+              scoredCandidateCount: scored.scoredCandidateCount,
+              sourceReportPath,
+              claimScope: scored.claimScope,
+              notEvidenceFor: scored.notEvidenceFor,
+            });
+            return;
+          }
+
           if (url === "/__regenerate-index") {
             const script = path.join(repoRoot, "tools", "openclinxr", "evidence", "pipeline-candidate-index.ts");
             const { stdout, stderr } = await execFileAsync(tsxBin, [script], {
