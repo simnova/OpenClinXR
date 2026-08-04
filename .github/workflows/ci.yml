@@ -1,0 +1,60 @@
+# Hosted-runner-safe subset of `pnpm verify`.
+# Full `pnpm verify` additionally runs local model/voice/godot/asset artifact
+# validations that need local caches unavailable on GitHub-hosted runners.
+# Run the full gate locally or on a self-hosted runner when those caches exist.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-ci-${{ github.sha }}
+          restore-keys: |
+            turbo-ci-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Architecture rules
+        run: pnpm architecture
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Security audit policy
+        run: pnpm security:audit-policy
+
+      - name: Security licenses
+        run: pnpm security:licenses

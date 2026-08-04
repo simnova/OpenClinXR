@@ -1,0 +1,76 @@
+# Deploy Pages (infra only) --------------------------------------------------
+# Publishes the static docs/ directory (no build step) to GitHub Pages at
+# https://developers.simnova.com/OpenClinXR/ (CNAME developers.simnova.com).
+# The validate job runs pnpm pages:sync-validate (non-mutating evidence-link
+# check + site validation) before deploy. Upload uses the docs/ directory only,
+# which the site validator (check-github-pages-site.ts) requires.
+#
+# OPERATOR: enable once in repo Settings -> Pages -> Source = "GitHub Actions".
+# No custom secrets required; uses built-in GITHUB_TOKEN (pages: write + id-token).
+# Infra only: no production/readiness/promotion or clinical/scoring claims.
+# ----------------------------------------------------------------------------
+name: Deploy Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'tools/openclinxr/evidence/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate GitHub Pages site
+        run: pnpm pages:sync-validate
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
