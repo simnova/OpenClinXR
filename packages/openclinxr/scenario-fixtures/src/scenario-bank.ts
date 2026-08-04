@@ -3,20 +3,12 @@ import type {
   Scenario,
 } from "@openclinxr/shared-schemas";
 import {
-  adultAbdominalPainDialogueSeeds,
-  adultAbdominalPainScenario,
-} from "./adult-abdominal-pain.js";
-import {
   type DialogueFixtureSeed,
   edChestPainDialogueSeeds,
   edChestPainScenario,
   edChestPainScenarioV2,
   edChestPainScenarioV3,
 } from "./ed-chest-pain.js";
-import {
-  pedsFeverDialogueSeeds,
-  pedsFeverScenario,
-} from "./peds-fever.js";
 
 export type LearnerScenarioView = Omit<Scenario, "actors"> & {
   actors: Array<Omit<Scenario["actors"][number], "hiddenFacts">>;
@@ -1838,8 +1830,6 @@ export const scenarioBank = [
   oncologyBadNewsScenario,
   postopFeverScenario,
   primaryCareDyslipidemiaScenario,
-  adultAbdominalPainScenario,
-  pedsFeverScenario,
 ] as const satisfies readonly Scenario[];
 
 export function findScenarioFixtureById(
@@ -1872,8 +1862,6 @@ export const scenarioDialogueSeedBank = [
   { scenarioId: oncologyBadNewsScenario.scenarioId, seeds: oncologyBadNewsDialogueSeeds },
   { scenarioId: postopFeverScenario.scenarioId, seeds: postopFeverDialogueSeeds },
   { scenarioId: primaryCareDyslipidemiaScenario.scenarioId, seeds: primaryCareDyslipidemiaDialogueSeeds },
-  { scenarioId: adultAbdominalPainScenario.scenarioId, seeds: adultAbdominalPainDialogueSeeds },
-  { scenarioId: pedsFeverScenario.scenarioId, seeds: pedsFeverDialogueSeeds },
 ] as const satisfies readonly ScenarioDialogueSeedBankEntry[];
 
 export type ScenarioBankMaturityReport = {

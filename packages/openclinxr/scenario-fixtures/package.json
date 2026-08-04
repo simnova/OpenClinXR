@@ -5,9 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./adult-abdominal-pain": "./src/adult-abdominal-pain.ts",
     "./ed-chest-pain": "./src/ed-chest-pain.ts",
-    "./peds-fever": "./src/peds-fever.ts",
     "./scenario-bank": "./src/scenario-bank.ts"
   },
   "scripts": {
