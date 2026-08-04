@@ -27,18 +27,35 @@
     const params = new URLSearchParams(location.search);
     const glb = params.get("glb")
       || "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb";
+    // Clean capture mode for vision scoring: hide HUD/debug text so the PNG is humanoid-only.
+    // Also force skeleton off + opaque skin defaults when clean=1 unless explicitly overridden.
+    const cleanCapture =
+      params.get("clean") === "1" ||
+      params.get("clean") === "true" ||
+      params.get("capture") === "clean";
     // Default SHOW real garment shell (clinical attire). Pass hideGarment=1 only for bare-body debug.
     const hideGarment = params.get("hideGarment") === "1" || params.get("hideGarment") === "true";
     const animClip = params.get("anim"); // name substring or "1" = first clip; "0"/absent = off unless only anim mode
     const animOnly = params.get("anim") != null && params.get("anim") !== "0";
     // Physics defaults off when proving GLB clips (avoids fighting AnimationMixer).
-    const physicsOn = animOnly ? params.get("physics") === "1" : params.get("physics") !== "0";
+    // Clean capture: physics off unless explicitly physics=1.
+    const physicsOn = cleanCapture
+      ? params.get("physics") === "1"
+      : animOnly
+        ? params.get("physics") === "1"
+        : params.get("physics") !== "0";
     const physicsUrl = params.get("physicsUrl") || "/physics-touch/ed-palpation-bone-transforms.json";
-    // Skin glass + skeleton overlay (defaults on for ragdoll inspection)
-    const showSkeleton = params.get("skeleton") !== "0";
+    // Skin glass + skeleton overlay (defaults on for ragdoll inspection; off in clean capture)
+    const showSkeleton = cleanCapture
+      ? params.get("skeleton") === "1"
+      : params.get("skeleton") !== "0";
     // Default low opacity so bones read through mesh. Override: &skinOpacity=0.55
+    // Clean capture defaults to fully opaque skin so the vision judge sees solid figure.
     // depthWrite is forced off below so translucent skin does not occlude skeleton.
-    const skinOpacity = Math.min(1, Math.max(0.05, Number(params.get("skinOpacity") || "0.28")));
+    const skinOpacity = Math.min(
+      1,
+      Math.max(0.05, Number(params.get("skinOpacity") || (cleanCapture ? "1" : "0.28"))),
+    );
     // Align Anny rest pose (pelvis ~-90° X lying chain) to standing mesh; align=0 to skip.
     // Procedural proof anims need align ON (deltas from standing rest). glTF clips: align=0.
     const alignSkeleton = animOnly
@@ -51,7 +68,16 @@
     const reportUrl = params.get("reportUrl")
       || (glb.endsWith(".glb") ? glb.replace(/\.glb$/i, "_rigging_report.json") : "");
     const hud = document.getElementById("hud");
-    hud.textContent = "Loading " + glb;
+    function setHudVisible(visible) {
+      if (!hud) return;
+      hud.style.display = visible ? "" : "none";
+      window.__isoHudVisible = !!visible;
+    }
+    window.__hideHud = () => setHudVisible(false);
+    window.__showHud = () => setHudVisible(true);
+    window.__isoCleanCapture = cleanCapture;
+    if (cleanCapture) setHudVisible(false);
+    else hud.textContent = "Loading " + glb;
 
     const scene = new THREE.Scene();
     // Slightly lighter ground/bg so transparent skin reads
@@ -923,30 +949,31 @@
       const aspect = Math.max(camera.aspect || (innerWidth / Math.max(innerHeight, 1)), 0.5);
       const vFov = (camera.fov * Math.PI) / 180;
       const fitFull = () => {
-        // Full figure incl head + headroom (top of bbox fully in frame; slight bottom margin).
-        const padY = 1.14; // headroom so crown is never clipped
-        const padX = 1.18;
+        // Full figure incl head + generous headroom (crown must never clip at top edge).
+        // padY/padX + pull-back keep tight but safe margins for vision scoring.
+        const padY = 1.22; // headroom so crown is never cropped
+        const padX = 1.20;
         const halfH = (fitSize.y * padY) * 0.5;
         const halfW = (Math.max(fitSize.x, fitSize.z) * padX) * 0.5;
         const distForH = halfH / Math.tan(vFov * 0.5);
         const distForW = halfW / (Math.tan(vFov * 0.5) * aspect);
-        const dist = Math.max(distForH, distForW, 0.8) * 1.08;
-        // Look at mid-torso slightly below true center so head has extra pixel margin at top.
-        const targetY = fitCenter.y + fitSize.y * 0.02;
+        const dist = Math.max(distForH, distForW, 0.8) * 1.12;
+        // Bias look slightly below geometric center so head has extra top margin.
+        const targetY = fitCenter.y - fitSize.y * 0.01;
         controls.target.set(fitCenter.x, targetY, fitCenter.z);
-        camera.position.set(fitCenter.x + dist * 0.22, targetY + fitSize.y * 0.04, fitCenter.z + dist);
+        camera.position.set(fitCenter.x + dist * 0.18, targetY + fitSize.y * 0.02, fitCenter.z + dist);
       };
       const fitFace = () => {
-        // Head/face close-up: upper ~28% of figure height.
-        const headH = Math.max(fitSize.y * 0.28, 0.22);
-        const headCenterY = fitBox.max.y - headH * 0.45;
-        const halfH = headH * 0.62;
-        const halfW = Math.max(fitSize.x * 0.35, headH * 0.45);
+        // Clean head close-up: upper ~30% of figure height, full head in frame.
+        const headH = Math.max(fitSize.y * 0.30, 0.24);
+        const headCenterY = fitBox.max.y - headH * 0.50;
+        const halfH = headH * 0.70; // generous vertical margin around head
+        const halfW = Math.max(fitSize.x * 0.38, headH * 0.50);
         const distForH = halfH / Math.tan(vFov * 0.5);
         const distForW = halfW / (Math.tan(vFov * 0.5) * aspect);
-        const dist = Math.max(distForH, distForW, 0.35) * 1.12;
+        const dist = Math.max(distForH, distForW, 0.35) * 1.15;
         controls.target.set(fitCenter.x, headCenterY, fitCenter.z);
-        camera.position.set(fitCenter.x + dist * 0.12, headCenterY + headH * 0.05, fitCenter.z + dist);
+        camera.position.set(fitCenter.x + dist * 0.10, headCenterY, fitCenter.z + dist);
       };
       if (framingMode === "face" || framingMode === "head" || framingMode === "closeup") {
         fitFace();
@@ -1136,14 +1163,18 @@
         : clipNames.length
           ? `clips=${clipNames.length} (pass &anim=walk|dance|1)`
           : "no clips";
-      hud.textContent =
-        `Skin opacity ${skinOpacity} · skeleton ${showSkeleton ? "ON" : "OFF"} · ${alignHud}\n` +
-        `${reportHud} · ${animHud} · physics=${physicsOn} · joints ${skeletonOverlay?.jointCount ?? 0}\n` +
-        (physicsState
-          ? `ragdoll: ${physicsState.matchedBones.join(", ") || "(none)"}`
-          : mixer
-            ? "proof animation playing"
-            : "physics off");
+      if (!cleanCapture && window.__isoHudVisible !== false) {
+        hud.textContent =
+          `Skin opacity ${skinOpacity} · skeleton ${showSkeleton ? "ON" : "OFF"} · ${alignHud}\n` +
+          `${reportHud} · ${animHud} · physics=${physicsOn} · joints ${skeletonOverlay?.jointCount ?? 0}\n` +
+          (physicsState
+            ? `ragdoll: ${physicsState.matchedBones.join(", ") || "(none)"}`
+            : mixer
+              ? "proof animation playing"
+              : "physics off");
+      } else {
+        setHudVisible(false);
+      }
 
       // --- Animation evidence sampler: three.js-side explode / motion / finger-clump guard.
       // Samples the *deformed* (skinned) vertex bbox over ~one cycle so a rest-pose
@@ -1320,7 +1351,7 @@
               w * dq.w - x * dq.x - y * dq.y - z * dq.z,
             );
           }
-          if (frameIdx % 30 === 0) {
+          if (frameIdx % 30 === 0 && !cleanCapture && window.__isoHudVisible !== false) {
             const spine = frame.boneDeltas?.spine?.position;
             hud.textContent =
               `Glass skin ${skinOpacity} · RIG VISIBLE · NO CLOTHES · tick ${frameIdx}/${n}\n` +
@@ -1346,7 +1377,7 @@
       window.__isoRenderer = renderer;
     } catch (e) {
       window.__isoError = String(e);
-      hud.textContent = "FAIL " + e;
+      if (!cleanCapture) hud.textContent = "FAIL " + e;
     }
   </script>
 </body>
