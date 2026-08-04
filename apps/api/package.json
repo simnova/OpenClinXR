@@ -30,6 +30,7 @@
     "@openclinxr/rest": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/scenario-runtime": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",
     "@openclinxr/voice-gateway": "workspace:*",
     "hono": "4.12.33",

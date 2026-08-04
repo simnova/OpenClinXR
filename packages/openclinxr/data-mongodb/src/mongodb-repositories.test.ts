@@ -612,6 +612,36 @@ describe("MongoDB memory repositories", () => {
     ]);
   });
 
+  it("persists authored scenarios through the Mongo-backed API sink", async () => {
+    const sink = createMongoApiPersistenceSink(context.db);
+    await sink.ensureIndexes();
+    const authored: Scenario = {
+      ...scenario,
+      scenarioId: "authored_mongo_case_v1",
+      version: 2,
+      title: "Authored Mongo Case",
+    };
+
+    await sink.saveAuthoredScenario(authored);
+
+    const listed = await sink.listAuthoredScenarios();
+    expect(listed).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          scenarioId: "authored_mongo_case_v1",
+          version: 2,
+          title: "Authored Mongo Case",
+        }),
+      ]),
+    );
+    await expect(sink.getAuthoredScenario("authored_mongo_case_v1")).resolves.toMatchObject({
+      scenarioId: "authored_mongo_case_v1",
+      version: 2,
+      title: "Authored Mongo Case",
+    });
+    await expect(sink.getAuthoredScenario("missing_authored_scenario")).resolves.toBeUndefined();
+  });
+
   it("persists API snapshots through a Mongo-backed sink", async () => {
     const sink = createMongoApiPersistenceSink(context.db);
     await sink.ensureIndexes();

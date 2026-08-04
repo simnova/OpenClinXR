@@ -5,7 +5,9 @@ import {
 } from "@openclinxr/asset-registry";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import type { Scenario } from "@openclinxr/shared-schemas";
 import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
 import { describe, expect, it } from "vitest";
 import {
@@ -4887,6 +4889,108 @@ describe("OpenClinXR API shell", () => {
 
     expect(response.status).toBe(404);
     expect(await json(response)).toEqual({ error: "session_not_found" });
+  });
+});
+
+describe("authored scenario persistence routes", () => {
+  function createAuthoredScenarioMemorySink(): ApiPersistenceSink {
+    const authoredScenarios = new Map<string, Scenario>();
+    return {
+      saveAuthoredScenario: (scenario) => {
+        authoredScenarios.set(`${scenario.scenarioId}::${scenario.version}`, scenario);
+      },
+      listAuthoredScenarios: () =>
+        Array.from(authoredScenarios.values()).sort(
+          (a, b) => a.scenarioId.localeCompare(b.scenarioId) || a.version - b.version,
+        ),
+      getAuthoredScenario: (scenarioId) => {
+        const matches = Array.from(authoredScenarios.values())
+          .filter((scenario) => scenario.scenarioId === scenarioId)
+          .sort((a, b) => b.version - a.version);
+        return matches[0];
+      },
+    };
+  }
+
+  const authoredScenario: Scenario = {
+    ...edChestPainScenario,
+    scenarioId: "authored_case_v1",
+  };
+
+  it("POST /scenarios saves a valid authored scenario", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    const response = await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: authoredScenario }),
+    });
+
+    expect(response.status).toBe(201);
+    expect(await json(response)).toEqual({
+      saved: true,
+      scenarioId: "authored_case_v1",
+      version: authoredScenario.version,
+    });
+  });
+
+  it("POST /scenarios rejects invalid bodies", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    const response = await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+
+    expect(response.status).toBe(400);
+    const body = await json(response) as { error: string; details: string[] };
+    expect(body.error).toBe("invalid_scenario");
+    expect(Array.isArray(body.details)).toBe(true);
+  });
+
+  it("GET /scenarios lists saved authored scenarios", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: authoredScenario }),
+    });
+
+    const response = await app.request("/scenarios");
+    expect(response.status).toBe(200);
+    const body = await json(response) as { scenarios: Array<{ scenarioId: string }> };
+    expect(body.scenarios.some((scenario) => scenario.scenarioId === "authored_case_v1")).toBe(true);
+  });
+
+  it("GET /scenarios/:scenarioId returns the saved authored scenario", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: authoredScenario }),
+    });
+
+    const response = await app.request("/scenarios/authored_case_v1");
+    expect(response.status).toBe(200);
+    const body = await json(response) as { scenario: { scenarioId: string } };
+    expect(body.scenario.scenarioId).toBe("authored_case_v1");
+  });
+
+  it("GET /scenarios/:scenarioId returns 404 when missing", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    const response = await app.request("/scenarios/nonexistent");
+
+    expect(response.status).toBe(404);
+    expect(await json(response)).toEqual({ error: "authored_scenario_not_found" });
+  });
+
+  it("GET /scenarios/ed-chest-pain still returns the learner-scenario view (not shadowed)", async () => {
+    const app = createApiApp(undefined, createAuthoredScenarioMemorySink());
+    const response = await app.request("/scenarios/ed-chest-pain");
+    const body = await json(response) as { scenarioId: string; actors: Array<{ role: string }> };
+
+    expect(response.status).toBe(200);
+    expect(body.scenarioId).toBe("ed_chest_pain_priority_v1");
+    expect(body.actors.map((actor) => actor.role)).toEqual(["patient", "family", "nurse"]);
   });
 });
 

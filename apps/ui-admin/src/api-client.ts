@@ -37,6 +37,7 @@ import {
   type SubmitScenarioReviewMutationVariables,
 } from "@openclinxr/graphql/client";
 import { buildSessionRoutePath, routeById } from "@openclinxr/rest";
+import type { Scenario } from "@openclinxr/shared-schemas";
 import { print } from "graphql";
 
 export type AdminApolloGraphqlClient = Pick<ApolloClient, "mutate" | "query">;
@@ -101,6 +102,9 @@ export type AdminControlPlaneClient = {
   submitRuntimeRealismEvidenceInputReview(input: SubmitRuntimeRealismEvidenceInputReviewInput): Promise<RuntimeRealismEvidenceInputReviewDecisionRecord>;
   submitRuntimeVisualEvidenceAttachment(input: SubmitRuntimeVisualEvidenceAttachmentInput): Promise<RuntimeVisualEvidenceAttachmentRecord>;
   getScenarioSceneGenerationRequestPublicationReadiness(input: { requestId: string }): Promise<ScenarioSceneGenerationRequestPublicationReadiness>;
+  saveAuthoredScenario(scenario: Scenario): Promise<unknown>;
+  listAuthoredScenarios(): Promise<unknown>;
+  getAuthoredScenario(scenarioId: string): Promise<unknown>;
 };
 
 export type ListScenariosInput = {
@@ -1606,6 +1610,14 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
     submitRuntimeRealismEvidenceInputReview: (input) => post(fetcher, baseUrl, routeById("submit-runtime-realism-evidence-input-review").path, { scenarioId: input.scenarioId, decisions: input.decisions }),
     submitRuntimeVisualEvidenceAttachment: (input) => post(fetcher, baseUrl, routeById("submit-runtime-visual-evidence-attachment").path, { scenarioId: input.scenarioId, attachments: input.attachments }),
     getScenarioSceneGenerationRequestPublicationReadiness: (input) => get(fetcher, baseUrl, routeById("scenario-scene-generation-request-publication-readiness").path.replace(":requestId", encodeURIComponent(input.requestId))),
+    saveAuthoredScenario: (scenario) => post(fetcher, baseUrl, routeById("save-authored-scenario").path, { scenario }),
+    listAuthoredScenarios: () => get(fetcher, baseUrl, routeById("list-authored-scenarios").path),
+    getAuthoredScenario: (scenarioId) =>
+      get(
+        fetcher,
+        baseUrl,
+        routeById("get-authored-scenario").path.replace(":scenarioId", encodeURIComponent(scenarioId)),
+      ),
   };
 }
 

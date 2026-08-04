@@ -2061,5 +2061,8 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       claimBoundary: "publication_readiness_not_learner_bundle_persistence",
       notEvidenceFor: ["provider_availability", "runtime_readiness", "production_asset_readiness", "quest_readiness", "clinical_validity", "scoring_validity", "learner_launch_readiness"],
     }),
+    saveAuthoredScenario: async () => ({ saved: true }),
+    listAuthoredScenarios: async () => ({ scenarios: [] }),
+    getAuthoredScenario: async () => ({ scenario: undefined }),
   };
 }

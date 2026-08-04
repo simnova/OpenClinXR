@@ -9,6 +9,7 @@ import {
   Form,
   Input,
   InputNumber,
+  message,
   Select,
   Space,
   Steps,
@@ -16,6 +17,7 @@ import {
   Typography,
 } from "antd";
 import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import { createAdminControlPlaneClient } from "./api-client.js";
 import {
   actorRoleOptions,
   caseAuthoringClaimBoundary,
@@ -37,6 +39,13 @@ import {
 
 const { TextArea } = Input;
 
+/** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
+export type CaseAuthoringApiClient = {
+  saveAuthoredScenario: (scenario: Scenario) => Promise<unknown>;
+  listAuthoredScenarios: () => Promise<unknown>;
+  getAuthoredScenario: (scenarioId: string) => Promise<unknown>;
+};
+
 function toOptions(values: readonly string[]): { label: string; value: string }[] {
   return values.map((value) => ({ label: value, value }));
 }
@@ -52,6 +61,8 @@ type ValidationView = { ok: true } | { ok: false; errors: string[] };
 
 export type CaseAuthoringWorkbenchProps = {
   initialScenario?: Scenario;
+  /** Optional injected client; defaults to createAdminControlPlaneClient() for server save/list/load. */
+  apiClient?: CaseAuthoringApiClient;
 };
 
 /**
@@ -62,7 +73,7 @@ export type CaseAuthoringWorkbenchProps = {
  * This surface produces case *definitions* only. It is notEvidenceFor clinical
  * validity, exam equivalence, scoring, or learner readiness.
  */
-export function CaseAuthoringWorkbench({ initialScenario }: CaseAuthoringWorkbenchProps): ReactElement {
+export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAuthoringWorkbenchProps): ReactElement {
   const [form] = Form.useForm<ScenarioFormValues>();
   const [baseDraft, setBaseDraft] = useState<Scenario>(() => initialScenario ?? createEmptyScenarioDraft());
   const [formKey, setFormKey] = useState(0);
@@ -78,6 +89,14 @@ export function CaseAuthoringWorkbench({ initialScenario }: CaseAuthoringWorkben
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [serverList, setServerList] = useState<Array<{ scenarioId: string; version: number; label: string }>>([]);
+  const [selectedServerKey, setSelectedServerKey] = useState<string | undefined>(undefined);
+  const [serverBusy, setServerBusy] = useState(false);
+
+  const client = useMemo(
+    () => apiClient ?? createAdminControlPlaneClient(),
+    [apiClient],
+  );
 
   const initialValues = useMemo(() => scenarioToFormValues(baseDraft), [baseDraft]);
 
@@ -140,6 +159,68 @@ export function CaseAuthoringWorkbench({ initialScenario }: CaseAuthoringWorkben
     anchor.click();
     URL.revokeObjectURL(url);
   }, [baseDraft, form]);
+
+  const handleSaveToServer = useCallback(async () => {
+    const values = form.getFieldsValue(true) as ScenarioFormValues;
+    const merged = mergeFormValuesIntoScenario(baseDraft, values);
+    const draftValidation = validateScenarioDraft(merged);
+    if (!draftValidation.ok) {
+      message.error("Fix validation issues before saving to server");
+      return;
+    }
+    setServerBusy(true);
+    try {
+      await client.saveAuthoredScenario(merged);
+      message.success(`Saved ${merged.scenarioId} v${merged.version} to server`);
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : "Save to server failed");
+    } finally {
+      setServerBusy(false);
+    }
+  }, [baseDraft, client, form]);
+
+  const handleRefreshServerList = useCallback(async () => {
+    setServerBusy(true);
+    try {
+      const raw = await client.listAuthoredScenarios();
+      const scenarios = extractScenarioList(raw);
+      setServerList(
+        scenarios.map((scenario) => ({
+          scenarioId: scenario.scenarioId,
+          version: scenario.version,
+          label: `${scenario.scenarioId} v${scenario.version}`,
+        })),
+      );
+      if (scenarios.length === 0) {
+        message.info("No authored scenarios on server yet");
+      }
+    } catch (error: unknown) {
+      message.error(error instanceof Error ? error.message : "List from server failed");
+    } finally {
+      setServerBusy(false);
+    }
+  }, [client]);
+
+  const handleLoadFromServer = useCallback(
+    async (scenarioId: string) => {
+      setServerBusy(true);
+      try {
+        const raw = await client.getAuthoredScenario(scenarioId);
+        const scenario = extractScenario(raw);
+        if (!scenario) {
+          message.error("Server returned no scenario payload");
+          return;
+        }
+        loadScenario(scenario);
+        message.success(`Loaded ${scenario.scenarioId} v${scenario.version} from server`);
+      } catch (error: unknown) {
+        message.error(error instanceof Error ? error.message : "Load from server failed");
+      } finally {
+        setServerBusy(false);
+      }
+    },
+    [client, loadScenario],
+  );
 
   const handleCopy = useCallback(() => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -214,6 +295,40 @@ export function CaseAuthoringWorkbench({ initialScenario }: CaseAuthoringWorkben
         <Button onClick={handleImport} disabled={importText.trim().length === 0}>
           Import JSON
         </Button>
+        <Divider style={{ margin: "16px 0 12px" }} />
+        <Typography.Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
+          Server persistence (authored drafts as full Scenario objects)
+        </Typography.Text>
+        <Space wrap>
+          <Button type="primary" onClick={() => void handleSaveToServer()} loading={serverBusy} disabled={!validation.ok}>
+            Save to server
+          </Button>
+          <Button onClick={() => void handleRefreshServerList()} loading={serverBusy}>
+            Load from server
+          </Button>
+          <Select
+            aria-label="Server authored scenarios"
+            placeholder="Select saved scenario"
+            style={{ minWidth: 260 }}
+            value={selectedServerKey}
+            options={serverList.map((entry) => ({
+              label: entry.label,
+              value: `${entry.scenarioId}::${entry.version}`,
+            }))}
+            onChange={(value: string | undefined) => {
+              setSelectedServerKey(value);
+              if (!value) {
+                return;
+              }
+              const scenarioId = value.split("::")[0] ?? "";
+              if (scenarioId.length > 0) {
+                void handleLoadFromServer(scenarioId);
+              }
+            }}
+            disabled={serverList.length === 0 || serverBusy}
+            allowClear
+          />
+        </Space>
       </Card>
 
       <Form<ScenarioFormValues>
@@ -523,4 +638,41 @@ function actorFormFromDraft(actor: ReturnType<typeof createActorDraft>) {
 
 function structuredCloneScenario(scenario: Scenario): Scenario {
   return JSON.parse(JSON.stringify(scenario)) as Scenario;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function extractScenarioList(raw: unknown): Array<{ scenarioId: string; version: number }> {
+  if (!isRecord(raw)) {
+    return [];
+  }
+  const scenarios = raw["scenarios"];
+  if (!Array.isArray(scenarios)) {
+    return [];
+  }
+  return scenarios
+    .filter(isRecord)
+    .map((entry) => {
+      const scenarioId = typeof entry["scenarioId"] === "string" ? entry["scenarioId"] : "";
+      const version = typeof entry["version"] === "number" ? entry["version"] : 0;
+      return { scenarioId, version };
+    })
+    .filter((entry) => entry.scenarioId.length > 0);
+}
+
+function extractScenario(raw: unknown): Scenario | null {
+  if (!isRecord(raw)) {
+    return null;
+  }
+  const scenario = raw["scenario"];
+  if (!isRecord(scenario) || typeof scenario["scenarioId"] !== "string") {
+    // Allow bare Scenario body if server ever returns it unwrapped.
+    if (typeof raw["scenarioId"] === "string") {
+      return raw as Scenario;
+    }
+    return null;
+  }
+  return scenario as Scenario;
 }

@@ -24,6 +24,7 @@ export type OpenClinXrRestRouteMatch = {
     capabilityId?: string;
     jobId?: string;
     bundleId?: string;
+    scenarioId?: string;
   };
 };
 
@@ -49,6 +50,9 @@ export const openClinXrRestRoutes = Object.freeze([
   route("admin-graphql-documents", "GET", "/admin/graphql/documents", "admin-graphql"),
   route("admin-graphql-execute", "POST", "/admin/graphql", "admin-graphql"),
   route("learner-scenario", "GET", "/scenarios/ed-chest-pain", "control-plane"),
+  route("save-authored-scenario", "POST", "/scenarios", "control-plane"),
+  route("list-authored-scenarios", "GET", "/scenarios", "control-plane"),
+  route("get-authored-scenario", "GET", "/scenarios/:scenarioId", "control-plane"),
   route("scenario-bank-maturity", "GET", "/scenario-bank/maturity", "control-plane"),
   route("scenario-bank-exam-sequence", "GET", "/scenario-bank/exam-sequence", "control-plane"),
   route("scenario-bank-dynamic-encounter-factory-planning", "GET", "/scenario-bank/dynamic-encounter-factory/planning", "control-plane", false, {
@@ -187,6 +191,10 @@ function matchRouteSegments(routePath: string, pathSegments: string[]): OpenClin
     }
     if (routeSegment === ":bundleId") {
       params.bundleId = decodePathSegment(pathSegment ?? "");
+      continue;
+    }
+    if (routeSegment === ":scenarioId") {
+      params.scenarioId = decodePathSegment(pathSegment ?? "");
       continue;
     }
 

@@ -246,6 +246,14 @@ export class MongoScenarioRepository {
   async approved(): Promise<Scenario[]> {
     return this.collection.find({ status: "approved" }, { projection: { _id: 0 } }).sort({ scenarioId: 1, version: 1 }).toArray();
   }
+
+  async listAll(): Promise<Scenario[]> {
+    return this.collection.find({}, { projection: { _id: 0 } }).sort({ scenarioId: 1, version: 1 }).toArray();
+  }
+
+  async findLatestById(scenarioId: string): Promise<Scenario | null> {
+    return this.collection.find({ scenarioId }, { projection: { _id: 0 } }).sort({ version: -1 }).limit(1).next();
+  }
 }
 
 export class MongoTraceRepository {
@@ -514,6 +522,7 @@ export class MongoApiPersistenceSink {
   private readonly scenarioReviewDecisions: MongoScenarioReviewDecisionRepository;
   private readonly durableMultiActorSessions: MongoDurableMultiActorSessionStore;
   private readonly runtimeAssetBundles: MongoRuntimeAssetBundleRepository;
+  private readonly scenarios: MongoScenarioRepository;
 
   constructor(db: Db) {
     this.examForms = new MongoExamFormRepository(db);
@@ -523,6 +532,7 @@ export class MongoApiPersistenceSink {
     this.scenarioReviewDecisions = new MongoScenarioReviewDecisionRepository(db);
     this.durableMultiActorSessions = new MongoDurableMultiActorSessionStore(db);
     this.runtimeAssetBundles = new MongoRuntimeAssetBundleRepository(db);
+    this.scenarios = new MongoScenarioRepository(db);
   }
 
   async ensureIndexes(): Promise<void> {
@@ -534,6 +544,7 @@ export class MongoApiPersistenceSink {
       this.scenarioReviewDecisions.ensureIndexes(),
       this.durableMultiActorSessions.ensureIndexes(),
       this.runtimeAssetBundles.ensureIndexes(),
+      this.scenarios.ensureIndexes(),
     ]);
   }
 
@@ -655,6 +666,18 @@ export class MongoApiPersistenceSink {
 
   async listClinicalEventReviewProjections(stationRunId: string): Promise<DurableClinicalEventReviewProjection[]> {
     return this.durableMultiActorSessions.listClinicalEventReviewProjections(stationRunId);
+  }
+
+  async saveAuthoredScenario(scenario: Scenario): Promise<void> {
+    await this.scenarios.save(scenario);
+  }
+
+  async listAuthoredScenarios(): Promise<Scenario[]> {
+    return this.scenarios.listAll();
+  }
+
+  async getAuthoredScenario(scenarioId: string): Promise<Scenario | undefined> {
+    return (await this.scenarios.findLatestById(scenarioId)) ?? undefined;
   }
 }
 

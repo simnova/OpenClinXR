@@ -3,6 +3,7 @@ import path from "node:path";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
+import type { Scenario } from "@openclinxr/shared-schemas";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./app.js";
@@ -798,6 +799,8 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
   /** In-memory durable surfaces for Q4 observability (default single-user sink). */
   const reviewPacketsByStationRunId = new Map<string, unknown[]>();
   const actorTurnsByStationRunId = new Map<string, unknown[]>();
+  /** Authored scenario drafts keyed by scenarioId::version (list all; get latest by id). */
+  const authoredScenarios = new Map<string, Scenario>();
 
   return {
     saveExamForm: (form) => {
@@ -830,6 +833,19 @@ function createSingleUserMemoryPersistenceSink(): ApiPersistenceSink {
       const turns = actorTurnsByStationRunId.get(stationRunId) ?? [];
       turns.push(turn);
       actorTurnsByStationRunId.set(stationRunId, turns);
+    },
+    saveAuthoredScenario: (scenario) => {
+      authoredScenarios.set(`${scenario.scenarioId}::${scenario.version}`, scenario);
+    },
+    listAuthoredScenarios: () =>
+      Array.from(authoredScenarios.values()).sort(
+        (a, b) => a.scenarioId.localeCompare(b.scenarioId) || a.version - b.version,
+      ),
+    getAuthoredScenario: (scenarioId) => {
+      const matches = Array.from(authoredScenarios.values())
+        .filter((scenario) => scenario.scenarioId === scenarioId)
+        .sort((a, b) => b.version - a.version);
+      return matches[0];
     },
   };
 }

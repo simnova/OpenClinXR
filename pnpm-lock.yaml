@@ -134,6 +134,9 @@ importers:
       '@openclinxr/scenario-runtime':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-runtime
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/shared-schemas
       '@openclinxr/telemetry':
         specifier: workspace:*
         version: link:../../packages/openclinxr/telemetry

@@ -61,6 +61,7 @@ import {
   type ScenarioRuntime,
   type ScenarioRuntimeActorTurn,
 } from "@openclinxr/scenario-runtime";
+import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
 import {
   createNoopTelemetryRecorder,
   openClinXrSpanNames,
@@ -576,6 +577,9 @@ export type ApiPersistenceSink = {
   listLearnerRuntimeAssetBundles?: () =>
     | Promise<Array<ReturnType<typeof createEdChestPainLocalLearnerRuntimeAssetBundle>>>
     | Array<ReturnType<typeof createEdChestPainLocalLearnerRuntimeAssetBundle>>;
+  saveAuthoredScenario?: (scenario: Scenario) => Promise<void> | void;
+  listAuthoredScenarios?: () => Promise<Scenario[]> | Scenario[];
+  getAuthoredScenario?: (scenarioId: string) => Promise<Scenario | undefined> | Scenario | undefined;
 };
 
 export type ApiScenarioSceneGenerationRequestRecord = {
@@ -1644,6 +1648,36 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
 
     return context.json(evaluateScenarioVersionDrift(body.form, [edChestPainScenario]));
+  });
+
+  // Authored scenario persistence (control-plane). Registered after literal
+  // /scenarios/ed-chest-pain* handlers so Hono prefers static learner routes.
+  app.post(routeById("save-authored-scenario").path, async (context) => {
+    const body = (await context.req.json().catch(() => ({}))) as { scenario?: unknown };
+    const validation = validateScenario(body.scenario);
+    if (!validation.ok) {
+      return context.json({ error: "invalid_scenario", details: validation.errors }, 400);
+    }
+    const scenario = body.scenario as Scenario;
+    if (!persistence.saveAuthoredScenario) {
+      return context.json({ error: "authored_scenario_persistence_unavailable" }, 503);
+    }
+    await persistence.saveAuthoredScenario(scenario);
+    return context.json({ saved: true, scenarioId: scenario.scenarioId, version: scenario.version }, 201);
+  });
+
+  app.get(routeById("list-authored-scenarios").path, async (context) => {
+    const scenarios = (await persistence.listAuthoredScenarios?.()) ?? [];
+    return context.json({ scenarios });
+  });
+
+  app.get(routeById("get-authored-scenario").path, async (context) => {
+    const scenarioId = context.req.param("scenarioId");
+    const scenario = await persistence.getAuthoredScenario?.(scenarioId);
+    if (!scenario) {
+      return context.json({ error: "authored_scenario_not_found" }, 404);
+    }
+    return context.json({ scenario });
   });
 
   app.post(routeById("submit-internal-capability-job").path, async (context) => {
