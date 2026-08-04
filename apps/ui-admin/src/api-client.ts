@@ -66,6 +66,10 @@ export type AdminControlPlaneClientOptions = {
   apolloClient?: AdminApolloGraphqlClient;
   baseUrl?: string;
   fetch?: typeof fetch;
+  /** Optional static access token attached as `Authorization: Bearer …`. */
+  accessToken?: string;
+  /** Optional dynamic token provider (preferred when both are set). */
+  getAccessToken?: () => string | undefined | Promise<string | undefined>;
 };
 
 export type AdminControlPlaneClient = {
@@ -1363,17 +1367,19 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
   const baseUrl = normalizeBaseUrl(options.baseUrl ?? defaultAdminApiBaseUrl);
   const fetcher = options.fetch ?? fetch;
   const apolloClient = options.apolloClient;
+  const authHeaders = () => resolveAuthorizationHeaders(options);
 
   return {
-    getStep2CsSeedBlueprint: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint").path),
-    getStep2CsSeedBlueprintReadiness: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path),
-    getStep2CsSeedTimingPlan: () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path),
-    getStep2CsSeedStationRunQueue: () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path),
-    getRuntimeProviderReadiness: () => get(fetcher, baseUrl, routeById("runtime-provider-readiness").path),
-    getRuntimeSelectionReviewPacket: () => get(fetcher, baseUrl, routeById("runtime-selection-review-packet").path),
-    getRuntimeProtocolPosture: () => get(fetcher, baseUrl, routeById("runtime-protocols").path),
-    getRealtimeVoicePosture: () => get(fetcher, baseUrl, routeById("realtime-voice-posture").path),
+    getStep2CsSeedBlueprint: async () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint").path, await authHeaders()),
+    getStep2CsSeedBlueprintReadiness: async () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-blueprint-readiness").path, await authHeaders()),
+    getStep2CsSeedTimingPlan: async () => get(fetcher, baseUrl, routeById("step2cs-seed-exam-timing-plan").path, await authHeaders()),
+    getStep2CsSeedStationRunQueue: async () => get(fetcher, baseUrl, routeById("step2cs-seed-station-run-queue").path, await authHeaders()),
+    getRuntimeProviderReadiness: async () => get(fetcher, baseUrl, routeById("runtime-provider-readiness").path, await authHeaders()),
+    getRuntimeSelectionReviewPacket: async () => get(fetcher, baseUrl, routeById("runtime-selection-review-packet").path, await authHeaders()),
+    getRuntimeProtocolPosture: async () => get(fetcher, baseUrl, routeById("runtime-protocols").path, await authHeaders()),
+    getRealtimeVoicePosture: async () => get(fetcher, baseUrl, routeById("realtime-voice-posture").path, await authHeaders()),
     createLocalReviewReplaySeed: async (input = {}) => {
+      const headers = await authHeaders();
       const session = await post<CreateLocalReviewReplaySeedResult>(
         fetcher,
         baseUrl,
@@ -1382,31 +1388,32 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
           learnerId: input.learnerId ?? "admin_review_seed",
           consentAccepted: true,
         },
+        headers,
       );
       const stationRunId = requireStringField(session, "stationRunId", `POST ${baseUrl}${routeById("start-session").path}`);
-      await post(fetcher, baseUrl, buildSessionRoutePath("start-encounter", stationRunId), { atSecond: 60 });
+      await post(fetcher, baseUrl, buildSessionRoutePath("start-encounter", stationRunId), { atSecond: 60 }, headers);
       await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
         eventType: "learner.action",
         atSecond: 83,
         tag: "ecg_request",
         actorId: "patient_robert_hayes_v1",
-      });
+      }, headers);
       await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
         eventType: "learner.action",
         atSecond: 140,
         tag: "urgent_escalation",
         actorId: "nurse_amelia_singh_v1",
-      });
+      }, headers);
       await post(fetcher, baseUrl, buildSessionRoutePath("append-trace-event", stationRunId), {
         eventType: "learner.action",
         atSecond: 190,
         tag: "team_communication",
         actorId: "spouse_linda_hayes_v1",
-      });
+      }, headers);
       await post(fetcher, baseUrl, buildSessionRoutePath("submit-note", stationRunId), {
         atSecond: 960,
         text: "Chest pain requires urgent ECG escalation and team communication follow-up.",
-      });
+      }, headers);
 
       return { stationRunId };
     },
@@ -1430,6 +1437,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "ScenarioBank",
         scenarioBankDocument,
         variables,
+        await authHeaders(),
       );
       return data.scenarios;
     },
@@ -1456,6 +1464,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "ScenarioDetail",
         scenarioDetailDocument,
         variables,
+        await authHeaders(),
       );
     },
     listScenarioReviewDecisions: async (input) => {
@@ -1481,6 +1490,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "ScenarioReviewDecisions",
         scenarioReviewDecisionsDocument,
         variables,
+        await authHeaders(),
       );
       return data.scenarioReviewDecisions;
     },
@@ -1506,10 +1516,11 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "ReviewPacketReplay",
         reviewPacketReplayDocument,
         variables,
+        await authHeaders(),
       ) as unknown as AdminReviewPacketReplay;
     },
-    getReviewReplayReadinessSummary: (input) =>
-      get(fetcher, baseUrl, buildSessionRoutePath("review-replay-readiness-summary", input.stationRunId)),
+    getReviewReplayReadinessSummary: async (input) =>
+      get(fetcher, baseUrl, buildSessionRoutePath("review-replay-readiness-summary", input.stationRunId), await authHeaders()),
     submitScenarioReview: async (input) => {
       if (apolloClient) {
         const { data } = await apolloClient.mutate<SubmitScenarioReviewMutation, SubmitScenarioReviewMutationVariables>({
@@ -1528,6 +1539,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "SubmitScenarioReview",
         submitScenarioReviewDocument,
         { input },
+        await authHeaders(),
       );
       return data.submitScenarioReview;
     },
@@ -1549,6 +1561,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "SaveFacultyScoreDraft",
         saveFacultyScoreDraftDocument,
         { input },
+        await authHeaders(),
       );
       return data.saveFacultyScoreDraft;
     },
@@ -1571,6 +1584,7 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "StationRunQueueSnapshots",
         stationRunQueueSnapshotsDocument,
         { blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1" },
+        await authHeaders(),
       );
       return data.stationRunQueueSnapshots;
     },
@@ -1592,38 +1606,91 @@ export function createAdminControlPlaneClient(options: AdminControlPlaneClientOp
         "CreateStationRunQueueSnapshot",
         createStationRunQueueSnapshotDocument,
         { input },
+        await authHeaders(),
       );
       return data.createStationRunQueueSnapshot;
     },
-    getEdChestPainPublicationReadiness: (input) => post(fetcher, baseUrl, routeById("scenario-publication-readiness").path, input),
-    getScenarioBankMaturity: () => get(fetcher, baseUrl, routeById("scenario-bank-maturity").path),
-    getScenarioBankExamSequence: () => get(fetcher, baseUrl, routeById("scenario-bank-exam-sequence").path),
-    getDynamicEncounterFactoryPlanning: () => get(fetcher, baseUrl, routeById("scenario-bank-dynamic-encounter-factory-planning").path),
-    getScenarioBankAssetReadiness: () => get(fetcher, baseUrl, routeById("scenario-bank-asset-readiness").path),
-    getScenarioBankEnvironmentGenerationQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-environment-generation-queue").path),
-    getScenarioBankEnvironmentWorkOrderQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-environment-work-order-queue").path),
-    getScenarioBankSceneGenerationPipelineQueue: () => get(fetcher, baseUrl, routeById("scenario-bank-scene-generation-pipeline").path),
-    listScenarioSceneGenerationRequests: () => get(fetcher, baseUrl, routeById("list-scenario-scene-generation-requests").path),
-    createScenarioSceneGenerationRequest: (input) => post(fetcher, baseUrl, routeById("create-scenario-scene-generation-request").path, { scenarioId: input.scenarioId }),
-    submitScenarioSceneGenerationRequestReview: (input) => post(fetcher, baseUrl, routeById("submit-scenario-scene-generation-request-review").path.replace(":requestId", encodeURIComponent(input.requestId)), { decisions: input.decisions }),
-    submitScenarioSceneGenerationMaterializationInputReview: (input) => post(fetcher, baseUrl, routeById("submit-scenario-scene-generation-materialization-input-review").path.replace(":requestId", encodeURIComponent(input.requestId)), { decisions: input.decisions }),
-    submitRuntimeRealismEvidenceInputReview: (input) => post(fetcher, baseUrl, routeById("submit-runtime-realism-evidence-input-review").path, { scenarioId: input.scenarioId, decisions: input.decisions }),
-    submitRuntimeVisualEvidenceAttachment: (input) => post(fetcher, baseUrl, routeById("submit-runtime-visual-evidence-attachment").path, { scenarioId: input.scenarioId, attachments: input.attachments }),
-    getScenarioSceneGenerationRequestPublicationReadiness: (input) => get(fetcher, baseUrl, routeById("scenario-scene-generation-request-publication-readiness").path.replace(":requestId", encodeURIComponent(input.requestId))),
-    saveAuthoredScenario: (scenario) => post(fetcher, baseUrl, routeById("save-authored-scenario").path, { scenario }),
-    listAuthoredScenarios: () => get(fetcher, baseUrl, routeById("list-authored-scenarios").path),
-    getAuthoredScenario: (scenarioId) =>
+    getEdChestPainPublicationReadiness: async (input) =>
+      post(fetcher, baseUrl, routeById("scenario-publication-readiness").path, input, await authHeaders()),
+    getScenarioBankMaturity: async () => get(fetcher, baseUrl, routeById("scenario-bank-maturity").path, await authHeaders()),
+    getScenarioBankExamSequence: async () => get(fetcher, baseUrl, routeById("scenario-bank-exam-sequence").path, await authHeaders()),
+    getDynamicEncounterFactoryPlanning: async () =>
+      get(fetcher, baseUrl, routeById("scenario-bank-dynamic-encounter-factory-planning").path, await authHeaders()),
+    getScenarioBankAssetReadiness: async () => get(fetcher, baseUrl, routeById("scenario-bank-asset-readiness").path, await authHeaders()),
+    getScenarioBankEnvironmentGenerationQueue: async () =>
+      get(fetcher, baseUrl, routeById("scenario-bank-environment-generation-queue").path, await authHeaders()),
+    getScenarioBankEnvironmentWorkOrderQueue: async () =>
+      get(fetcher, baseUrl, routeById("scenario-bank-environment-work-order-queue").path, await authHeaders()),
+    getScenarioBankSceneGenerationPipelineQueue: async () =>
+      get(fetcher, baseUrl, routeById("scenario-bank-scene-generation-pipeline").path, await authHeaders()),
+    listScenarioSceneGenerationRequests: async () =>
+      get(fetcher, baseUrl, routeById("list-scenario-scene-generation-requests").path, await authHeaders()),
+    createScenarioSceneGenerationRequest: async (input) =>
+      post(fetcher, baseUrl, routeById("create-scenario-scene-generation-request").path, { scenarioId: input.scenarioId }, await authHeaders()),
+    submitScenarioSceneGenerationRequestReview: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        routeById("submit-scenario-scene-generation-request-review").path.replace(":requestId", encodeURIComponent(input.requestId)),
+        { decisions: input.decisions },
+        await authHeaders(),
+      ),
+    submitScenarioSceneGenerationMaterializationInputReview: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        routeById("submit-scenario-scene-generation-materialization-input-review").path.replace(":requestId", encodeURIComponent(input.requestId)),
+        { decisions: input.decisions },
+        await authHeaders(),
+      ),
+    submitRuntimeRealismEvidenceInputReview: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        routeById("submit-runtime-realism-evidence-input-review").path,
+        { scenarioId: input.scenarioId, decisions: input.decisions },
+        await authHeaders(),
+      ),
+    submitRuntimeVisualEvidenceAttachment: async (input) =>
+      post(
+        fetcher,
+        baseUrl,
+        routeById("submit-runtime-visual-evidence-attachment").path,
+        { scenarioId: input.scenarioId, attachments: input.attachments },
+        await authHeaders(),
+      ),
+    getScenarioSceneGenerationRequestPublicationReadiness: async (input) =>
+      get(
+        fetcher,
+        baseUrl,
+        routeById("scenario-scene-generation-request-publication-readiness").path.replace(":requestId", encodeURIComponent(input.requestId)),
+        await authHeaders(),
+      ),
+    saveAuthoredScenario: async (scenario) =>
+      post(fetcher, baseUrl, routeById("save-authored-scenario").path, { scenario }, await authHeaders()),
+    listAuthoredScenarios: async () => get(fetcher, baseUrl, routeById("list-authored-scenarios").path, await authHeaders()),
+    getAuthoredScenario: async (scenarioId) =>
       get(
         fetcher,
         baseUrl,
         routeById("get-authored-scenario").path.replace(":scenarioId", encodeURIComponent(scenarioId)),
+        await authHeaders(),
       ),
   };
 }
 
-async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string): Promise<TResponse> {
+async function get<TResponse>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  authHeaders: Record<string, string> = {},
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
-  const response = await fetcher(url, { method: "GET", cache: "no-store" });
+  const response = await fetcher(url, {
+    method: "GET",
+    cache: "no-store",
+    ...(Object.keys(authHeaders).length > 0 ? { headers: authHeaders } : {}),
+  });
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
@@ -1634,11 +1701,17 @@ async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: stri
   return response.json() as Promise<TResponse>;
 }
 
-async function post<TResponse = unknown>(fetcher: typeof fetch, baseUrl: string, path: string, body: Record<string, unknown>): Promise<TResponse> {
+async function post<TResponse = unknown>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  body: Record<string, unknown>,
+  authHeaders: Record<string, string> = {},
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
   const response = await fetcher(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...authHeaders },
     body: JSON.stringify(body),
   });
 
@@ -1657,11 +1730,12 @@ async function graphql<TData>(
   operationName: string,
   query: string,
   variables: Record<string, unknown>,
+  authHeaders: Record<string, string> = {},
 ): Promise<TData> {
   const url = buildAdminGraphqlEndpoint(baseUrl);
   const response = await fetcher(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...authHeaders },
     body: JSON.stringify({ query, operationName, variables }),
   });
 
@@ -1681,6 +1755,16 @@ async function graphql<TData>(
   }
 
   return body.data;
+}
+
+async function resolveAuthorizationHeaders(
+  options: Pick<AdminControlPlaneClientOptions, "accessToken" | "getAccessToken">,
+): Promise<Record<string, string>> {
+  const token = options.getAccessToken ? await options.getAccessToken() : options.accessToken;
+  if (typeof token === "string" && token.trim().length > 0) {
+    return { authorization: `Bearer ${token.trim()}` };
+  }
+  return {};
 }
 
 function normalizeBaseUrl(baseUrl: string): string {

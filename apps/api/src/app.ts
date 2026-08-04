@@ -16,6 +16,16 @@ import {
   type RuntimeAssetReviewDecision,
 } from "@openclinxr/asset-registry";
 import {
+  type AuthIdentity,
+  canReadStationRun,
+  DEFAULT_DEV_AUTH_IDENTITY,
+  DEFAULT_DEV_AUTH_SECRET,
+  hasFacultyAccess,
+  parseBearerAuthorization,
+  resolveSessionLearnerId,
+  verifyAuthToken,
+} from "@openclinxr/auth";
+import {
   AssetGenerationCapabilityFacade,
   type AssetGenerationCapabilityId,
   type AssetGenerationJobPolicyInput,
@@ -904,19 +914,46 @@ export type ApiHumanReviewActionSummary = {
   claimBoundary: "human_review_action_not_automated_approval";
 };
 
+export type ApiAuthOptions = {
+  /**
+   * When true (default), missing Authorization attaches DEFAULT_DEV_AUTH_IDENTITY so existing
+   * single-user tests / memory-sink paths keep working. Invalid Bearer always 401.
+   */
+  allowDevDefaultIdentity?: boolean;
+  /** HMAC secret for local JWT verify (default: DEFAULT_DEV_AUTH_SECRET). */
+  secret?: string;
+  /** Override default identity used when Authorization is absent and allowDevDefaultIdentity. */
+  defaultIdentity?: AuthIdentity;
+};
+
 export type ApiAppOptions = {
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
   realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
   apiProtocolPosture?: OpenClinXrApiProtocolPosture;
+  auth?: ApiAuthOptions;
 };
 
-export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
-  const app = new Hono();
+type ApiAppVariables = {
+  identity: AuthIdentity;
+};
+
+const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
+  "SaveFacultyScoreDraft",
+  "SubmitScenarioReview",
+]);
+
+export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono<{ Variables: ApiAppVariables }> {
+  const app = new Hono<{ Variables: ApiAppVariables }>();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const apiProtocolPosture = options.apiProtocolPosture ?? createOpenClinXrApiProtocolPosture();
+  const allowDevDefaultIdentity = options.auth?.allowDevDefaultIdentity !== false;
+  const authSecret = options.auth?.secret ?? DEFAULT_DEV_AUTH_SECRET;
+  const defaultIdentity = options.auth?.defaultIdentity ?? DEFAULT_DEV_AUTH_IDENTITY;
+  /** stationRunId → owner learnerId (attached at session-create). */
+  const sessionOwners = new Map<string, string>();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
   const sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[] = [];
   const runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[] = [];
@@ -939,10 +976,33 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.use("*", async (context, next) => {
     context.header("access-control-allow-origin", "*");
     context.header("access-control-allow-methods", "GET,POST,OPTIONS");
-    context.header("access-control-allow-headers", "content-type");
+    context.header("access-control-allow-headers", "content-type, authorization");
     if (context.req.method === "OPTIONS") {
       return context.body(null, 204);
     }
+    return next();
+  });
+
+  app.use("*", async (context, next) => {
+    if (context.req.method === "OPTIONS") {
+      return next();
+    }
+
+    const bearer = parseBearerAuthorization(context.req.header("authorization"));
+    if (bearer) {
+      const verified = verifyAuthToken({ token: bearer, secret: authSecret });
+      if (!verified.ok) {
+        return context.json({ error: "unauthorized", reason: verified.error }, 401);
+      }
+      context.set("identity", verified.identity);
+      return next();
+    }
+
+    if (!allowDevDefaultIdentity) {
+      return context.json({ error: "unauthorized", reason: "missing_token" }, 401);
+    }
+
+    context.set("identity", defaultIdentity);
     return next();
   });
 
@@ -1289,6 +1349,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         hasErrors: true,
       });
       return context.json({ errors: [{ message: "query_required" }] }, 400);
+    }
+
+    if (isFacultyOnlyGraphqlOperation(graphqlOperationName, body.query) && !hasFacultyAccess(context.get("identity"))) {
+      await recordGraphqlOperationSpan(telemetry, {
+        operationName: graphqlOperationName,
+        statusCode: 403,
+        durationMs: Number((performance.now() - graphqlStarted).toFixed(2)),
+        hasErrors: true,
+      });
+      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
     }
 
     const result = await executeAdminGraphql(
@@ -1721,11 +1791,13 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     if (body.consentAccepted !== true) {
       return context.json({ error: "consent_required" }, 400);
     }
-    const learnerId = body.learnerId ?? "learner_001";
+    const identity = context.get("identity");
+    const learnerId = resolveSessionLearnerId(identity, body.learnerId);
     if (learnerId.trim().length === 0) {
       return context.json({ error: "learner_id_required" }, 400);
     }
     const run = await runtime.startSession({ learnerId, consentAccepted: true });
+    sessionOwners.set(run.stationRunId, learnerId);
     await persistTraceSnapshot(runtime, persistence, run.stationRunId);
 
     return context.json(run, 201);
@@ -1898,6 +1970,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("review-packet").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
+    const ownershipDenied = denyIfCannotReadStationRun(context.get("identity"), sessionOwners, stationRunId);
+    if (ownershipDenied) {
+      return context.json(ownershipDenied.body, ownershipDenied.status);
+    }
 
     try {
       const packet = runtime.reviewPacket(stationRunId);
@@ -1910,6 +1986,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("trace-events").path, (context) => {
     const stationRunId = context.req.param("stationRunId");
+    const ownershipDenied = denyIfCannotReadStationRun(context.get("identity"), sessionOwners, stationRunId);
+    if (ownershipDenied) {
+      return context.json(ownershipDenied.body, ownershipDenied.status);
+    }
 
     try {
       return context.json(runtime.traceEvents(stationRunId));
@@ -2684,6 +2764,33 @@ function sessionErrorResponse(context: { json: (body: { error: string }, status:
     return context.json({ error: "station_command_invalid" }, 400);
   }
   return context.json({ error: "runtime_error" }, 500);
+}
+
+function isFacultyOnlyGraphqlOperation(operationName: string, query: string): boolean {
+  if (FACULTY_ONLY_GRAPHQL_OPERATIONS.has(operationName)) {
+    return true;
+  }
+  // Fallback when clients omit operationName: detect mutation field names.
+  return /\bsaveFacultyScoreDraft\b/.test(query) || /\bsubmitScenarioReview\b/.test(query);
+}
+
+function denyIfCannotReadStationRun(
+  identity: AuthIdentity,
+  sessionOwners: Map<string, string>,
+  stationRunId: string,
+): { status: 403; body: { error: string; reason: string } } | undefined {
+  const ownerLearnerId = sessionOwners.get(stationRunId);
+  if (!ownerLearnerId) {
+    // Unknown owner (session missing or created outside this app): let handler return 404/error.
+    return undefined;
+  }
+  if (canReadStationRun(identity, ownerLearnerId)) {
+    return undefined;
+  }
+  return {
+    status: 403,
+    body: { error: "forbidden", reason: "run_ownership_required" },
+  };
 }
 
 function parsePublicationTargetUse(value: unknown): PublicationTargetUse {
