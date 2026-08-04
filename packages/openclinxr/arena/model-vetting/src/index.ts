@@ -734,3 +734,28 @@ export type {
   HumanoidExpressionWeights,
   MorphTargetEmotionCueEvidence,
 } from "./emotion-transition.js";
+export {
+  buildCandidateId,
+  buildPipelineCandidateIndex,
+  buildPromotionRecord,
+  deployTargetForManifest,
+  deriveCandidateRole,
+  deriveManifestId,
+  joinVisionScore,
+  PIPELINE_CANDIDATE_INDEX_CLAIM_SCOPE,
+  PIPELINE_CANDIDATE_INDEX_SCHEMA_VERSION,
+  PIPELINE_CANDIDATE_NOT_EVIDENCE_FOR,
+  PIPELINE_CANDIDATE_PROMOTION_CLAIM_SCOPE,
+  PIPELINE_CANDIDATE_PROMOTION_SCHEMA_VERSION,
+  summarizeRigging,
+  validatePipelineCandidateIndex,
+} from "./pipeline-candidate.js";
+export type {
+  CandidateRiggingSummary,
+  CandidateVisionScore,
+  DualFrameVisionScoreRow,
+  PipelineCandidate,
+  PipelineCandidateIndex,
+  PipelineCandidateNotEvidenceForClaim,
+  PromotionRecord,
+} from "./pipeline-candidate.js";

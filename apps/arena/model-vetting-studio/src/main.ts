@@ -20,6 +20,7 @@ import {
   type ModelVettingCandidateCaptureEvidence,
   type ModelVettingDualCandidateCaptureEvidence,
 } from "./candidate-capture.js";
+import { mountPipelineAdmin } from "./pipeline-admin/mount-admin.js";
 import "./styles.css";
 
 declare global {
@@ -60,43 +61,62 @@ if (cagematchReportsIndex) {
       app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
     });
 } else {
-void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifestUrlOverride)
-  .then((evidence) => {
-    window.__openClinXrModelVettingStudioEvidence = evidence;
-    const captureCandidateId = params.get("captureCandidateId");
-    const captureView = params.get("captureView");
-    const dualCompare = params.get("dualCompare") === "true";
-    const leftCandidateId = params.get("leftCandidateId");
-    const rightCandidateId = params.get("rightCandidateId");
-    if (dualCompare && leftCandidateId && rightCandidateId && isFixedCameraView(captureView)) {
-      return renderDualCandidateCapture({
-        mount: app,
-        evidence,
-        leftCandidateId,
-        rightCandidateId,
-        view: captureView,
-      }).then((captureEvidence) => {
-        window.__openClinXrModelVettingDualCaptureEvidence = captureEvidence;
+  const captureCandidateId = params.get("captureCandidateId");
+  const captureView = params.get("captureView");
+  const dualCompare = params.get("dualCompare") === "true";
+  const leftCandidateId = params.get("leftCandidateId");
+  const rightCandidateId = params.get("rightCandidateId");
+  const isCaptureRoute =
+    (dualCompare && leftCandidateId && rightCandidateId && isFixedCameraView(captureView)) ||
+    (captureCandidateId && isCandidateCaptureView(captureView));
+
+  if (isCaptureRoute) {
+    // Isolated three.js capture routes (used by Playwright/evidence tooling).
+    void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifestUrlOverride)
+      .then((evidence) => {
+        window.__openClinXrModelVettingStudioEvidence = evidence;
+        if (dualCompare && leftCandidateId && rightCandidateId && isFixedCameraView(captureView)) {
+          return renderDualCandidateCapture({
+            mount: app,
+            evidence,
+            leftCandidateId,
+            rightCandidateId,
+            view: captureView,
+          }).then((captureEvidence) => {
+            window.__openClinXrModelVettingDualCaptureEvidence = captureEvidence;
+          });
+        }
+        if (captureCandidateId && isCandidateCaptureView(captureView)) {
+          const captureDialogueText = params.get("captureDialogueText");
+          return renderCandidateCapture({
+            mount: app,
+            evidence,
+            candidateId: captureCandidateId,
+            view: captureView,
+            ...(captureDialogueText ? { dialogueText: captureDialogueText } : {}),
+          }).then((captureEvidence) => {
+            window.__openClinXrModelVettingCandidateCaptureEvidence = captureEvidence;
+          });
+        }
+        return undefined;
+      })
+      .catch((error: unknown) => {
+        app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
       });
-    }
-    if (captureCandidateId && isCandidateCaptureView(captureView)) {
-      const captureDialogueText = params.get("captureDialogueText");
-      return renderCandidateCapture({
-        mount: app,
-        evidence,
-        candidateId: captureCandidateId,
-        view: captureView,
-        ...(captureDialogueText ? { dialogueText: captureDialogueText } : {}),
-      }).then((captureEvidence) => {
-        window.__openClinXrModelVettingCandidateCaptureEvidence = captureEvidence;
+  } else if (params.get("legacyStudio") === "1") {
+    // Legacy metadata-only vanilla studio surface (superseded by the admin).
+    void loadModelVettingStudioEvidence(reportUrlOverride, undefined, captureManifestUrlOverride)
+      .then((evidence) => {
+        window.__openClinXrModelVettingStudioEvidence = evidence;
+        app.innerHTML = renderStudio(evidence);
+      })
+      .catch((error: unknown) => {
+        app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
       });
-    }
-    app.innerHTML = renderStudio(evidence);
-    return undefined;
-  })
-  .catch((error: unknown) => {
-    app.innerHTML = renderError(error instanceof Error ? error.message : String(error));
-  });
+  } else {
+    // Default landing: React + antd Pipeline Administration / Model Vetting admin.
+    mountPipelineAdmin(app, params.get("indexUrl"));
+  }
 }
 
 function renderLoading(): string {

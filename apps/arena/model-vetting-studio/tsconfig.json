@@ -7,10 +7,16 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "jsx": "react-jsx",
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
     "composite": true
   },
   "include": [
     "src/**/*.ts",
+    "src/**/*.tsx",
     "vite.config.ts"
   ]
 }

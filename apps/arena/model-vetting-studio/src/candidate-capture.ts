@@ -766,6 +766,12 @@ export function glbUrlForPath(sourceGlbPath: string): string {
   if (sourceGlbPath.includes("peds_asthma_parent_anxiety_v1_garment_hint_v1") || sourceGlbPath.includes("garment_hint_peds_tshirt")) {
     return new URL("../../../../.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.glb", import.meta.url).href;
   }
+  // Generated pipeline candidates (Pipeline Admin surface): resolve any
+  // asset-production GLB via the repo root. Present when the pipeline has run
+  // against .openclinxr in this checkout; falls back to a 404 otherwise.
+  if (sourceGlbPath.startsWith(".openclinxr/asset-production/")) {
+    return new URL(`../../../../${sourceGlbPath}`, import.meta.url).href;
+  }
   return new URL("../../../ui-xr/public/generated-humanoids/peds_patient_child.glb", import.meta.url).href;
 }
 

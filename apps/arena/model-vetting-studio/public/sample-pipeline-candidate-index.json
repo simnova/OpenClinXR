@@ -1,0 +1,1375 @@
+{
+  "schemaVersion": "openclinxr.pipeline-candidate-index.v1",
+  "generatedAt": "2026-08-03T23:37:47.246Z",
+  "claimScope": "aesthetic_pipeline_candidate_inventory_metadata_only_not_clinical_or_production_readiness",
+  "sourceVisionScoreReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+  "candidateCount": 37,
+  "scoredCandidateCount": 15,
+  "notEvidenceFor": [
+    "clinical_validity",
+    "exam_equivalence",
+    "scoring",
+    "learner_readiness"
+  ],
+  "candidates": [
+    {
+      "candidateId": "peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin",
+      "group": "peds-parent-nurse-sleeve-fit-2026-08-02",
+      "manifestId": "peds_nurse_kevin",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin.glb",
+      "sizeBytes": 23137552,
+      "modifiedAt": "2026-08-02T17:44:27.320Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.34,
+        "aggregateClothing_0to1": 0.52,
+        "reason": "Readable low-poly humanoid; teal full-body cover with grey bands present but faceted, crude seams, jumpsuit fit",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin",
+      "group": "peds-parent-nurse-bind-pose-fix-2026-08-02",
+      "manifestId": "peds_nurse_kevin",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_nurse_kevin.glb",
+      "sizeBytes": 23119544,
+      "modifiedAt": "2026-08-02T17:16:08.515Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.34,
+        "aggregateClothing_0to1": 0.52,
+        "reason": "Readable low-poly humanoid; teal full-body cover with grey bands present but faceted, crude seams, jumpsuit fit",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 324,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin",
+      "group": "peds-parent-nurse-real-garment-reorchestrate-2026-08-02",
+      "manifestId": "peds_nurse_kevin",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_nurse_kevin.glb",
+      "sizeBytes": 1926804,
+      "modifiedAt": "2026-08-02T16:53:21.590Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.34,
+        "aggregateClothing_0to1": 0.52,
+        "reason": "Readable low-poly humanoid; teal full-body cover with grey bands present but faceted, crude seams, jumpsuit fit",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 324,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_v1/peds_nurse_kevin",
+      "group": "peds_asthma_parent_anxiety_v1",
+      "manifestId": "peds_nurse_kevin",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_nurse_kevin.glb",
+      "sizeBytes": 34256012,
+      "modifiedAt": "2026-06-07T00:28:50.944Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.34,
+        "aggregateClothing_0to1": 0.52,
+        "reason": "Readable low-poly humanoid; teal full-body cover with grey bands present but faceted, crude seams, jumpsuit fit",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent",
+      "group": "peds-parent-nurse-sleeve-fit-2026-08-02",
+      "manifestId": "peds_anxious_parent",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent.glb",
+      "sizeBytes": 21550404,
+      "modifiedAt": "2026-08-02T17:44:27.311Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.28,
+        "aggregateClothing_0to1": 0.42,
+        "reason": "Low-poly faceted body; flat magenta+grey region clothing with stepped seams, no fabric detail",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent",
+      "group": "peds-parent-nurse-bind-pose-fix-2026-08-02",
+      "manifestId": "peds_anxious_parent",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-bind-pose-fix-2026-08-02/peds_anxious_parent.glb",
+      "sizeBytes": 21532392,
+      "modifiedAt": "2026-08-02T17:16:08.504Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.28,
+        "aggregateClothing_0to1": 0.42,
+        "reason": "Low-poly faceted body; flat magenta+grey region clothing with stepped seams, no fabric detail",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 324,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent",
+      "group": "peds-parent-nurse-real-garment-reorchestrate-2026-08-02",
+      "manifestId": "peds_anxious_parent",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/peds_anxious_parent.glb",
+      "sizeBytes": 1928024,
+      "modifiedAt": "2026-08-02T16:53:17.370Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.28,
+        "aggregateClothing_0to1": 0.42,
+        "reason": "Low-poly faceted body; flat magenta+grey region clothing with stepped seams, no fabric detail",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 324,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_v1/peds_anxious_parent",
+      "group": "peds_asthma_parent_anxiety_v1",
+      "manifestId": "peds_anxious_parent",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
+      "sizeBytes": 34048612,
+      "modifiedAt": "2026-06-07T00:28:46.429Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.28,
+        "aggregateClothing_0to1": 0.42,
+        "reason": "Low-poly faceted body; flat magenta+grey region clothing with stepped seams, no fabric detail",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_v1_garment_hint_v1",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.glb",
+      "sizeBytes": 21834944,
+      "modifiedAt": "2026-06-07T08:19:32.963Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_v1/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_v1",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
+      "sizeBytes": 34932472,
+      "modifiedAt": "2026-06-07T00:28:41.785Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_default_topology_clean_retained",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child.glb",
+      "sizeBytes": 34936480,
+      "modifiedAt": "2026-06-06T08:26:28.658Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v3/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v3",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v3/peds_patient_child.glb",
+      "sizeBytes": 34959108,
+      "modifiedAt": "2026-06-06T08:24:38.141Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v2/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v2",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch_v2/peds_patient_child.glb",
+      "sizeBytes": 34936480,
+      "modifiedAt": "2026-06-06T08:22:19.946Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_embedded_eye_material_cagematch",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_embedded_eye_material_cagematch/peds_patient_child.glb",
+      "sizeBytes": 34936480,
+      "modifiedAt": "2026-06-06T08:21:19.262Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_default_topology_eye_cagematch/peds_patient_child",
+      "group": "peds_asthma_parent_anxiety_default_topology_eye_cagematch",
+      "manifestId": "peds_patient_child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_eye_cagematch/peds_patient_child.glb",
+      "sizeBytes": 34936480,
+      "modifiedAt": "2026-06-06T08:14:48.010Z",
+      "visionScore": {
+        "full": null,
+        "face": null,
+        "aggregateRealism_0to1": 0.08,
+        "aggregateClothing_0to1": 0.12,
+        "reason": "Upper body shredded into horizontal mesh strips; legs/feet low-poly; clothing unreadable amid explode artifacts",
+        "sourceReportPath": "docs/openclinxr/humanoid-vision-score-2026-08-03.json",
+        "scoredAt": "2026-08-03T20:59:26.729Z",
+        "notEvidenceFor": [
+          "aesthetic_only_not_clinical_validity"
+        ]
+      },
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 52,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": false,
+        "garmentRegionFaces": null,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/nurse_winner",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "nurse_winner",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_winner.glb",
+      "sizeBytes": 2473496,
+      "modifiedAt": "2026-08-03T22:25:19.338Z",
+      "visionScore": null,
+      "riggingSummary": null,
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/parent_winner",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "parent_winner",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_winner.glb",
+      "sizeBytes": 2451556,
+      "modifiedAt": "2026-08-03T22:25:19.333Z",
+      "visionScore": null,
+      "riggingSummary": null,
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/child_winner",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "child_winner",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_winner.glb",
+      "sizeBytes": 7612000,
+      "modifiedAt": "2026-08-03T22:25:19.327Z",
+      "visionScore": null,
+      "riggingSummary": null,
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/adult_winner",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "adult_winner",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_winner.glb",
+      "sizeBytes": 8157176,
+      "modifiedAt": "2026-08-03T22:25:19.314Z",
+      "visionScore": null,
+      "riggingSummary": null,
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/child_final",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "child_final",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_final.glb",
+      "sizeBytes": 8433512,
+      "modifiedAt": "2026-08-03T22:23:52.687Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/adult_final",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "adult_final",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_final.glb",
+      "sizeBytes": 8839456,
+      "modifiedAt": "2026-08-03T22:23:52.285Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 448,
+        "wardrobeTags": [
+          "ed_patient_exam",
+          "hospital_gown",
+          "hospital_gown_blue_pattern",
+          "cotton_slight_sheen",
+          "adult_standard_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/nurse_final",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "nurse_final",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_final.glb",
+      "sizeBytes": 3009080,
+      "modifiedAt": "2026-08-03T22:23:35.710Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/parent_final",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "parent_final",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_final.glb",
+      "sizeBytes": 3061576,
+      "modifiedAt": "2026-08-03T22:23:35.581Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/child_iter3",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "child_iter3",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3.glb",
+      "sizeBytes": 7737996,
+      "modifiedAt": "2026-08-03T22:19:06.991Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/adult_iter3",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "adult_iter3",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3.glb",
+      "sizeBytes": 8296456,
+      "modifiedAt": "2026-08-03T22:19:06.707Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 448,
+        "wardrobeTags": [
+          "ed_patient_exam",
+          "hospital_gown",
+          "hospital_gown_blue_pattern",
+          "cotton_slight_sheen",
+          "adult_standard_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/nurse_iter3",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "nurse_iter3",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3.glb",
+      "sizeBytes": 2605092,
+      "modifiedAt": "2026-08-03T22:18:49.197Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/parent_iter3",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "parent_iter3",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3.glb",
+      "sizeBytes": 2588304,
+      "modifiedAt": "2026-08-03T22:18:49.076Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/adult_iter2",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "adult_iter2",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter2.glb",
+      "sizeBytes": 8157192,
+      "modifiedAt": "2026-08-03T22:14:56.164Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 448,
+        "wardrobeTags": [
+          "ed_patient_exam",
+          "hospital_gown",
+          "hospital_gown_blue_pattern",
+          "cotton_slight_sheen",
+          "adult_standard_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/child_iter2",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "child_iter2",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter2.glb",
+      "sizeBytes": 7612020,
+      "modifiedAt": "2026-08-03T22:14:55.712Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/nurse_iter2",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "nurse_iter2",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter2.glb",
+      "sizeBytes": 2473512,
+      "modifiedAt": "2026-08-03T22:14:38.678Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/parent_iter2",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "parent_iter2",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter2.glb",
+      "sizeBytes": 2451572,
+      "modifiedAt": "2026-08-03T22:14:38.476Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/adult",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "adult",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult.glb",
+      "sizeBytes": 8157176,
+      "modifiedAt": "2026-08-03T22:11:42.564Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 448,
+        "wardrobeTags": [
+          "ed_patient_exam",
+          "hospital_gown",
+          "hospital_gown_blue_pattern",
+          "cotton_slight_sheen",
+          "adult_standard_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/child",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "child",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child.glb",
+      "sizeBytes": 7612000,
+      "modifiedAt": "2026-08-03T22:11:42.540Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "patient_casual_child",
+          "short_sleeve_exam_tshirt",
+          "soft_blue_and_warm_white",
+          "cotton_matte",
+          "pediatric_slim_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/parent",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "parent",
+      "role": "parent",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent.glb",
+      "sizeBytes": 2451556,
+      "modifiedAt": "2026-08-03T22:11:22.483Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "anxious_parent_casual",
+          "casual_top",
+          "open_cardigan",
+          "muted_rose_and_neutral",
+          "cotton_knit_matte",
+          "adult_parent_average_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "photoreal-skin-rung-2026-08-03/nurse",
+      "group": "photoreal-skin-rung-2026-08-03",
+      "manifestId": "nurse",
+      "role": "nurse",
+      "glbPath": ".openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse.glb",
+      "sizeBytes": 2473496,
+      "modifiedAt": "2026-08-03T22:11:22.457Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 380,
+        "wardrobeTags": [
+          "pediatric_nurse_scrubs",
+          "scrub_top",
+          "scrub_pocket",
+          "teal_scrubs_and_white_badge",
+          "poly_cotton_slight_sheen",
+          "adult_clinical_team_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod",
+      "group": "seated-adult-bod-preview-2026-08-02",
+      "manifestId": "ed_chest_pain_patient_adult_bod",
+      "role": "adult_patient",
+      "glbPath": ".openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.glb",
+      "sizeBytes": 24019616,
+      "modifiedAt": "2026-08-03T01:24:55.230Z",
+      "visionScore": null,
+      "riggingSummary": {
+        "realismGrade": "B",
+        "boneCount": 23,
+        "morphTargetCount": 25,
+        "hasRealGarmentRegion": true,
+        "garmentRegionFaces": 448,
+        "wardrobeTags": [
+          "ed_patient_exam",
+          "hospital_gown",
+          "hospital_gown_blue_pattern",
+          "cotton_slight_sheen",
+          "adult_standard_fit",
+          "case_driven_role_marker_metadata_not_production_wardrobe"
+        ],
+        "skinningNormalized": true,
+        "claimScope": "aesthetic_structural_rigging_metadata_only_not_clinical_or_production_rig"
+      },
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    },
+    {
+      "candidateId": "peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped",
+      "group": "peds_asthma_parent_anxiety_default_topology_clean_retained",
+      "manifestId": "peds_patient_child_stripped",
+      "role": "pediatric_patient",
+      "glbPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb",
+      "sizeBytes": 34926404,
+      "modifiedAt": "2026-06-06T23:26:26.711Z",
+      "visionScore": null,
+      "riggingSummary": null,
+      "thumbnailPath": null,
+      "notEvidenceFor": [
+        "clinical_validity",
+        "exam_equivalence",
+        "scoring",
+        "learner_readiness"
+      ]
+    }
+  ]
+}
