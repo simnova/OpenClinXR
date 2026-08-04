@@ -5,6 +5,7 @@ describe("OpenClinXR REST route contract", () => {
   it("captures the API route catalog with stable route ids and methods", () => {
     expect(openClinXrRestRouteIds).toEqual([
       "health",
+      "telemetry-metrics",
       "providers-health",
       "runtime-protocols",
       "runtime-provider-readiness",

@@ -4,7 +4,7 @@ import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway"
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
-import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
+import { createTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
 import {
   type ApiFacultyReviewDecisionRecord,
@@ -217,7 +217,7 @@ export function createOpenClinXrApiStartup(options: OpenClinXrApiStartupOptions 
     ?? createDefaultScenarioRuntime({
       durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
     });
-  const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+  const telemetry = options.telemetry ?? createTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const apiProtocolPosture = options.apiProtocolPosture

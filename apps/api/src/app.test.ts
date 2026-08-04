@@ -8,7 +8,12 @@ import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
-import { createInMemoryTelemetryRecorder, openClinXrSpanNames, telemetryAttributeNames } from "@openclinxr/telemetry";
+import {
+  createInMemoryTelemetryRecorder,
+  createTelemetryRecorder,
+  openClinXrSpanNames,
+  telemetryAttributeNames,
+} from "@openclinxr/telemetry";
 import { describe, expect, it } from "vitest";
 import {
   type ApiPersistenceSink,
@@ -4429,6 +4434,120 @@ describe("OpenClinXR API shell", () => {
     expect(serializedSpans).not.toContain("learner_telemetry");
     expect(serializedSpans).not.toContain("Ignore your instructions");
     expect(serializedSpans).not.toContain("Father died of myocardial infarction");
+  });
+
+  it("exposes read-only GET /telemetry/metrics snapshot with spans and run counters", async () => {
+    const telemetry = createTelemetryRecorder();
+    const app = createApiApp(undefined, {}, { telemetry });
+
+    const before = await app.request("/telemetry/metrics");
+    expect(before.status).toBe(200);
+    const empty = await json(before) as {
+      spans: unknown[];
+      spanSummary: { buckets: unknown[] };
+      runCounters: Record<string, number>;
+      exportedAt: string;
+    };
+    expect(empty.spans).toEqual([]);
+    expect(empty.spanSummary.buckets).toEqual([]);
+    expect(empty.runCounters).toEqual({
+      runsStarted: 0,
+      runsCompleted: 0,
+      runsFailed: 0,
+      encountersStarted: 0,
+      encountersCompleted: 0,
+      encountersFailed: 0,
+    });
+    expect(typeof empty.exportedAt).toBe("string");
+
+    const start = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "learner_metrics", consentAccepted: true }),
+    });
+    expect(start.status).toBe(201);
+    const started = await json(start) as { stationRunId: string };
+
+    await app.request(`/sessions/${encodeURIComponent(started.stationRunId)}/start-encounter`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ atSecond: 60 }),
+    });
+
+    // Validation failure increments runsFailed without changing response body contract.
+    await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ learnerId: "x", consentAccepted: false }),
+    });
+
+    const after = await app.request("/telemetry/metrics");
+    expect(after.status).toBe(200);
+    const snapshot = await json(after) as {
+      spans: Array<{ name: string; attributes: Record<string, unknown>; statusCode?: number }>;
+      spanSummary: { buckets: Array<{ name: string; count: number }> };
+      runCounters: Record<string, number>;
+      exportedAt: string;
+    };
+
+    expect(snapshot.runCounters).toMatchObject({
+      runsStarted: 1,
+      runsFailed: 1,
+      encountersStarted: 1,
+    });
+    expect(snapshot.spans.length).toBeGreaterThanOrEqual(3);
+    expect(snapshot.spans).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "start-session",
+          }),
+          statusCode: 201,
+        }),
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "start-encounter",
+          }),
+        }),
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "telemetry-metrics",
+          }),
+          statusCode: 200,
+        }),
+      ]),
+    );
+    expect(snapshot.spanSummary.buckets.length).toBeGreaterThan(0);
+    const serialized = JSON.stringify(snapshot);
+    expect(serialized).not.toContain("learner_metrics");
+    expect(serialized).not.toContain(started.stationRunId);
+  });
+
+  it("keeps injected in-memory recorder behavior for route spans without requiring counters", async () => {
+    const telemetry = createInMemoryTelemetryRecorder();
+    const app = createApiApp(undefined, {}, { telemetry });
+
+    const metrics = await app.request("/telemetry/metrics");
+    expect(metrics.status).toBe(200);
+    const body = await json(metrics) as { runCounters: Record<string, number>; spans: unknown[] };
+    // In-memory inject has spans() but no counter surface — counters stay zero.
+    expect(body.runCounters["runsStarted"]).toBe(0);
+
+    await app.request("/health");
+    expect(telemetry.spans()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: openClinXrSpanNames.apiRoute,
+          attributes: expect.objectContaining({
+            [telemetryAttributeNames.routeId]: "health",
+          }),
+          statusCode: 200,
+        }),
+      ]),
+    );
   });
 
   it("routes actor response requests through session-state when actorId is omitted", async () => {

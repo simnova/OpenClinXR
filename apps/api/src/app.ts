@@ -81,11 +81,15 @@ import {
 } from "@openclinxr/scenario-runtime";
 import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
 import {
-  createNoopTelemetryRecorder,
+  createTelemetryRecorder,
   openClinXrSpanNames,
+  type RealTelemetryRecorder,
   type TelemetryRecorder,
+  type TelemetryRunCounters,
+  type TelemetrySnapshot,
   type TelemetrySpanRecord,
   telemetryRouteAttributes,
+  summarizeTelemetrySpans,
 } from "@openclinxr/telemetry";
 import {
   createRealtimeVoiceGatewayPosture,
@@ -991,9 +995,47 @@ const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
   "SubmitScenarioReview",
 ]);
 
+const EMPTY_RUN_COUNTERS: TelemetryRunCounters = {
+  runsStarted: 0,
+  runsCompleted: 0,
+  runsFailed: 0,
+  encountersStarted: 0,
+  encountersCompleted: 0,
+  encountersFailed: 0,
+};
+
+/** Narrow optional counter/snapshot surface without coupling callers to concrete recorder type. */
+function asRealTelemetryRecorder(telemetry: TelemetryRecorder): RealTelemetryRecorder | undefined {
+  const candidate = telemetry as Partial<RealTelemetryRecorder>;
+  if (
+    typeof candidate.incrementRun === "function"
+    && typeof candidate.incrementEncounter === "function"
+    && typeof candidate.snapshot === "function"
+    && typeof candidate.counters === "function"
+  ) {
+    return telemetry as RealTelemetryRecorder;
+  }
+  return undefined;
+}
+
+function telemetrySnapshotFromRecorder(telemetry: TelemetryRecorder): TelemetrySnapshot {
+  const real = asRealTelemetryRecorder(telemetry);
+  if (real) {
+    return real.snapshot();
+  }
+  const withSpans = telemetry as TelemetryRecorder & { spans?: () => TelemetrySpanRecord[] };
+  const spans = typeof withSpans.spans === "function" ? withSpans.spans() : [];
+  return {
+    spans,
+    spanSummary: summarizeTelemetrySpans(spans),
+    runCounters: { ...EMPTY_RUN_COUNTERS },
+    exportedAt: new Date().toISOString(),
+  };
+}
+
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono<{ Variables: ApiAppVariables }> {
   const app = new Hono<{ Variables: ApiAppVariables }>();
-  const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
+  const telemetry = options.telemetry ?? createTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const apiProtocolPosture = options.apiProtocolPosture ?? createOpenClinXrApiProtocolPosture();
@@ -1080,6 +1122,11 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       service: "openclinxr-api",
       providerHealth: await runtime.providerHealth(),
     }),
+  );
+
+  /** Read-only local metrics snapshot. Does not mutate counters or span buffer. */
+  app.get(routeById("telemetry-metrics").path, (context) =>
+    context.json(telemetrySnapshotFromRecorder(telemetry)),
   );
 
   app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
@@ -1837,18 +1884,25 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.post(routeById("start-session").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string; consentAccepted?: boolean };
     if (body.consentAccepted !== true) {
+      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
       return context.json({ error: "consent_required" }, 400);
     }
     const identity = context.get("identity");
     const learnerId = resolveSessionLearnerId(identity, body.learnerId);
     if (learnerId.trim().length === 0) {
+      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
       return context.json({ error: "learner_id_required" }, 400);
     }
-    const run = await runtime.startSession({ learnerId, consentAccepted: true });
-    sessionOwners.set(run.stationRunId, learnerId);
-    await persistTraceSnapshot(runtime, persistence, run.stationRunId);
-
-    return context.json(run, 201);
+    try {
+      const run = await runtime.startSession({ learnerId, consentAccepted: true });
+      sessionOwners.set(run.stationRunId, learnerId);
+      await persistTraceSnapshot(runtime, persistence, run.stationRunId);
+      asRealTelemetryRecorder(telemetry)?.incrementRun("started");
+      return context.json(run, 201);
+    } catch (error) {
+      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
+      throw error;
+    }
   });
 
   app.post(routeById("start-encounter").path, async (context) => {
@@ -1858,8 +1912,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     try {
       const summary = runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 });
       await persistTraceSnapshot(runtime, persistence, stationRunId);
+      asRealTelemetryRecorder(telemetry)?.incrementEncounter("started");
       return context.json(summary);
     } catch (error) {
+      asRealTelemetryRecorder(telemetry)?.incrementEncounter("failed");
       return sessionErrorResponse(context, error);
     }
   });

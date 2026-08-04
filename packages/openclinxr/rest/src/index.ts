@@ -30,6 +30,8 @@ export type OpenClinXrRestRouteMatch = {
 
 export const openClinXrRestRoutes = Object.freeze([
   route("health", "GET", "/health", "control-plane"),
+  /** Read-only local telemetry snapshot (spans + run/encounter counters). No export/network. */
+  route("telemetry-metrics", "GET", "/telemetry/metrics", "control-plane"),
   route("providers-health", "GET", "/providers/health", "control-plane"),
   route("runtime-protocols", "GET", "/runtime/protocols", "control-plane"),
   route("runtime-provider-readiness", "GET", "/runtime/provider-readiness", "control-plane"),
