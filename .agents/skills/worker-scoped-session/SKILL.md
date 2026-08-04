@@ -35,10 +35,19 @@ mkdir -p "$OPENCLINXR_JOB_TMP"
 # Shell prefix: formatWorkerHeadlessEnvPrefix (OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 …)
 OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 grok -p "<pathScope-bounded task only>" \
   --model deepseek-v4-pro \
-  --yolo \
+  --always-approve --sandbox workspace \
+  --deny 'Bash(rm -rf *)' --deny 'Bash(git push *)' \
   --cwd <worktree-path> \
   --max-turns 40
 ```
+
+> Bounded autonomy over blanket `--yolo`: `--always-approve` avoids interactive hangs. `--deny`
+> rules are the DETERMINISTIC control (VERIFIED: `--deny 'Bash(rm *)'` blocked an `rm`
+> non-interactively). `--sandbox workspace` is BEST-EFFORT only — it fenced out-of-cwd writes when
+> shell-launched but failed OPEN once under a nested spawn, so don't rely on it as a hard boundary.
+> `--cwd` alone is NOT a boundary either (a bare `--always-approve` worker wrote outside it). Real
+> safety = `--deny` + intended-files-only integration. Proofs: agentic-eval `permission-bounds.test.ts`;
+> see `formatWorkerHeadlessDispatchFlags()` in `packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts`.
 
 ## Worker hard denies (tighter, not looser)
 

@@ -151,8 +151,32 @@ export function looksLikeLargeParallelTask(task?: string): boolean {
 }
 
 /**
+ * Bounded-autonomy dispatch flags for manager-launched headless workers.
+ * Replaces blanket `--yolo` (an undocumented alias): `--always-approve` avoids interactive hangs.
+ * Blast radius is bounded by `--deny` rules — the DETERMINISTIC control (VERIFIED 2026-08-04:
+ * `--deny 'Bash(rm *)'` blocked an `rm` non-interactively in every context). `--sandbox workspace`
+ * is BEST-EFFORT defense-in-depth only — it fenced out-of-cwd writes when shell-launched but
+ * FAILED OPEN once under a nested spawn, so do NOT treat it as a hard boundary. `--cwd` alone is
+ * NOT a boundary either (a bare `--always-approve` worker wrote outside it). Real safety = --deny
+ * + intended-files-only integration from an isolated worktree. Proofs: agentic-eval
+ * tests/permission-bounds.test.ts. Caller supplies --model / --cwd / --output-format / --max-turns.
+ */
+export const WORKER_HEADLESS_DISPATCH_FLAGS = [
+  "--always-approve",
+  "--sandbox workspace",
+  "--deny 'Bash(rm -rf *)'",
+  "--deny 'Bash(sudo *)'",
+  "--deny 'Bash(git push *)'",
+] as const;
+
+export function formatWorkerHeadlessDispatchFlags(): string {
+  return WORKER_HEADLESS_DISPATCH_FLAGS.join(" ");
+}
+
+/**
  * Shell prefix for manager-launched headless workers (bake into dispatch scripts).
- * Example: `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_JOB_TMP=... grok -p "..." --yolo --cwd <wt>`
+ * Example: `OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_JOB_TMP=... grok -p "..." --always-approve --sandbox workspace --cwd <wt>`
+ * Pair with formatWorkerHeadlessDispatchFlags() for bounded autonomy (prefer over blanket --yolo).
  * GROK_SUBAGENTS=1 is required so headless -p workers expose spawn_subagent for multi-level tiering.
  */
 export function formatWorkerHeadlessEnvPrefix(jobId?: string): string {

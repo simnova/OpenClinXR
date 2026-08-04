@@ -3,6 +3,7 @@ import {
   buildGrokRepoAgentSpawnRegistry,
   buildGrokRepoAgentSpawnSpec,
   formatGrokRepoAgentSpawnBrief,
+  formatWorkerHeadlessDispatchFlags,
   formatWorkerHeadlessEnvPrefix,
   GROK_SUBAGENTS_ENV,
   looksLikeLargeParallelTask,
@@ -230,6 +231,16 @@ describe("grok repo agent spawn", () => {
       // Dispatch-ready order: worker + subagents flags before job tmp
       expect(prefix.indexOf("OPENCLINXR_WORKER=1")).toBeLessThan(prefix.indexOf("GROK_SUBAGENTS=1"));
       expect(prefix.indexOf("GROK_SUBAGENTS=1")).toBeLessThan(prefix.indexOf("OPENCLINXR_JOB_TMP="));
+    });
+
+    it("formatWorkerHeadlessDispatchFlags emits bounded-autonomy flags (not blanket --yolo)", () => {
+      const flags = formatWorkerHeadlessDispatchFlags();
+      // VERIFIED behaviorally (agentic-eval permission-bounds.test.ts): --sandbox fences
+      // out-of-cwd writes, --deny blocks destructive shell; both non-interactive.
+      expect(flags).toContain("--always-approve");
+      expect(flags).toContain("--sandbox workspace");
+      expect(flags).toContain("--deny 'Bash(rm -rf *)'");
+      expect(flags).not.toContain("--yolo");
     });
 
     it("read-only scouts omit worker env headless mandate", () => {

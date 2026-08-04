@@ -24,7 +24,13 @@ Grok self-parallelizes to cheaper models mainly on *large* tasks. For medium/lar
 export OPENCLINXR_WORKER=1
 export GROK_SUBAGENTS=1
 # Optional alias signal for hooks NO-OP only: GROK_SUBAGENT=1
-grok -p "<scoped task>" --model deepseek-v4-pro --yolo --cwd <worktree> --max-turns 40
+# Bounded autonomy (prefer over blanket --yolo): --always-approve avoids hangs. --deny rules are
+# the DETERMINISTIC control (blocks rm/push non-interactively); --sandbox workspace is BEST-EFFORT
+# (fails open under some spawn contexts). --cwd is NOT a boundary. Real safety = --deny +
+# intended-files-only. VERIFIED in agentic-eval permission-bounds.test.ts; formatWorkerHeadlessDispatchFlags().
+grok -p "<scoped task>" --model deepseek-v4-pro \
+  --always-approve --sandbox workspace --deny 'Bash(rm -rf *)' --deny 'Bash(git push *)' \
+  --cwd <worktree> --max-turns 40
 ```
 
 `OPENCLINXR_WORKER=1` makes repo-mutating SessionStart hooks (docs hygiene auto-run, CEO rehydrate, post-slice Stop) **NO-OP** so workers stay in pathScope files. `GROK_SUBAGENTS=1` exposes `spawn_subagent` in headless `-p` (without it the tool is absent — multi-level grok→deepseek tiering cannot fire). See `formatWorkerHeadlessEnvPrefix` in `packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts`.
