@@ -101,6 +101,20 @@ Last updated: 2026-08-02
 
 **Blockers:** none
 
+### 2026-08-04 — conversation-emotion-engine-v1 (Q4 + conversation tooling) COMPLETE
+
+Product path advanced: **Case-policy-driven actor emotion now flows end-to-end through the encounter runtime.** New `resolveEmotionTransition` (pure) + `EmotionEngine` (stateful) in `conversation-policy/src/emotion-engine.ts` reuse `InteractionEmotion` (pain/anxious/concerned/reassured/neutral); transitions are driven by `CaseEmotionPolicy` (from/triggeredBy rules, clampEmotion bounds) — not hardcoded, so a blueprint case defines its actor affect. scenario-runtime emits `emotion_transition` trace events + carries `currentEmotion` in the durable actor-turn payload (index.ts ~L545). review-workflow extracts `emotionalTimeline` from those traces into the review packet. Header comment fences it: "Pure behavioral taxonomy — not a clinical assessment or scoring input."
+
+Blueprint/factory tie: **Q4** (review/persistence/replay — emotional-state timeline is now a durable review surface) + first-class **conversation tooling** (emotion transitions per LEX_AGENTIC). Not a scoring input; no clinical/exam claim.
+
+Touched files: `conversation-policy/src/emotion-engine.ts` + `fixtures/emotion-policies.ts`; `scenario-runtime/src/index.ts` (emit + currentEmotion); `review-workflow/src/review-packet.ts` (emotionalTimeline extractor + exported `EmotionTransitionTraceShape` contract) + barrel + tests.
+
+Evidence: 45 (conversation-policy) + 33 (scenario-runtime) + 31 (review-workflow, incl. new cross-package composition test asserting review reads scenario-runtime's EXACT emit shape) tests green; guards green; commits 0e3ac0a → 34588ed → 13f9281. **Full OpenClaw loop + GitHub collaboration substrate**: board issue #9 (delegate → parallel deepseek-v4-pro workers → worker comments → skeptic review-gate). Skeptic APPROVED with 2 findings, both closed (dead-doc contract type → fixed+exported+tested; missing cross-package test → added). Board #9 closed with resolution.
+
+Token introspection: 3 deepseek-v4-pro execution workers (P1 engine, P2 runtime+review) + 1 skeptic review pass (cheap tier); Composer/Claude integration + skeptic-fix. resume_from not needed (clean one-shot handoffs).
+
+Next queued slice: surface the emotionalTimeline in an **admin/faculty replay view** (Q4 consumer) OR wire `CaseEmotionPolicy` into the authored case/scenario definition schema so authoring drives affect (Q1). See docs/UP-THE-STACK-QUEUE.md.
+
 ### 2026-08-02 — quest-worn-immersive-iwsdk-v1 (Q5) verify ok
 
 Product path advanced: **Operator-worn Full VR on IWSDK sidecar**. CDP probe: xrStatus In Full VR, isPresenting true, ~10.5k immersive frames, ~85–90 FPS, hands installed. Manual harvest adapted for `iwsdk-sidecar` (frameStats path when draft globals absent). enterVrCompletion treats In Full VR / isPresenting. Evidence: quest-worn-immersive-probe-iwsdk + enter-vr-worn + manual harvest postmortem. Not production promotion. Blueprint/factory tie: Q5 headset verification. Next: optional re-harvest with fixed profile when operator available.
