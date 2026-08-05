@@ -6,14 +6,14 @@ import { type PatientNote, type ReviewPacket, validateReviewPacket } from "@open
 // unmerged Phase-2 types from conversation-policy)
 // ---------------------------------------------------------------------------
 
-/** Pinned structural contract for an emotion_transition trace event. */
-type EmotionTransitionTraceShape = {
-  type: "emotion_transition";
+/**
+ * Pinned structural contract for an emotion_transition trace event AS EMITTED by scenario-runtime
+ * (`eventType` + nested `payload`, per scenario-runtime/src/index.ts). The extractor reads this shape.
+ */
+export type EmotionTransitionTraceShape = {
+  eventType: "emotion_transition";
   actorId?: string;
-  from: string;
-  to: string;
-  trigger: string;
-  turnIndex?: number;
+  payload: { from: string; to: string; trigger: string; turnIndex?: number };
 };
 
 /** Single entry on the review packet emotional timeline. */

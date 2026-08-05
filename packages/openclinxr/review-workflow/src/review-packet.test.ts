@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildReviewPacket } from "./index.js";
+import type { EmotionTransitionTraceShape } from "./review-packet.js";
 
 describe("review packet workflow", () => {
   it("flags observed and missing required behaviors", () => {
@@ -551,5 +552,28 @@ describe("emotional timeline extraction", () => {
     expect(packet.stationRunId).toBe("run_001");
     expect(packet.scenarioId).toBe("ed_chest_pain_priority_v1");
     expect(packet.emotionalTimeline).toHaveLength(1);
+  });
+});
+
+describe("cross-package contract: scenario-runtime emit → review-workflow read", () => {
+  it("reads the EXACT emotion_transition shape scenario-runtime emits (eventType + payload)", () => {
+    // Shape copied from scenario-runtime/src/index.ts:545 emit — the pinned contract.
+    const runtimeEmit: (EmotionTransitionTraceShape & { sequence: number; source: string; atSecond: number })[] = [
+      { sequence: 0, source: "emotion-engine", atSecond: 30, eventType: "emotion_transition", actorId: "patient_maya", payload: { from: "neutral", to: "anxious", trigger: "learner_dismissive", turnIndex: 1 } },
+      { sequence: 2, source: "emotion-engine", atSecond: 60, eventType: "emotion_transition", actorId: "patient_maya", payload: { from: "anxious", to: "reassured", trigger: "learner_empathetic", turnIndex: 3 } },
+    ];
+    const packet = buildReviewPacket({
+      stationRunId: "run_001",
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      requiredTraceTags: [],
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "ok" },
+      traceEvents: [
+        ...runtimeEmit,
+        { sequence: 9, atSecond: 90, eventType: "actor.response.generated", source: "runtime", actorId: "patient_maya", tag: "history_opqrst", payload: { text: "..." } },
+      ],
+    });
+    expect(packet.emotionalTimeline).toHaveLength(2);
+    expect(packet.emotionalTimeline[0]).toMatchObject({ from: "neutral", to: "anxious", trigger: "learner_dismissive", turnIndex: 1 });
+    expect(packet.emotionalTimeline[1]).toMatchObject({ from: "anxious", to: "reassured", turnIndex: 3 });
   });
 });
