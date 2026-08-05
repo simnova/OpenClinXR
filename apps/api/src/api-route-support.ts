@@ -99,7 +99,7 @@ import {
 } from "@openclinxr/voice-gateway";
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
-import { isRecord, parseStringArray } from "./api-support.js";
+import { attachMaterializationAttachmentPlanSummary, attachMaterializationEvidenceAttachmentSummary, attachMaterializationInputManifestSummary, attachMaterializationInputReviewDecisionRecord, attachPedsHumanoidMaterializationHandoff, attachRuntimeEvidenceCaptureScaffold, attachRuntimeRealismEvidenceInputDraft, attachRuntimeRealismEvidenceInputReviewDecisionRecord, attachRuntimeVisualEvidenceAttachmentActionPacket, attachRuntimeVisualEvidenceAttachmentRecord, attachRuntimeVisualEvidenceAttachmentSummary, buildMaterializationInputReviewActionPacket, buildMaterializationInputReviewDecisionRecord, buildRuntimeRealismEvidenceAttachmentSummary, buildRuntimeRealismEvidenceInputReviewDecisionRecord, buildRuntimeVisualEvidenceAttachmentActionPacket, buildRuntimeVisualEvidenceAttachmentRecord, isRecord, parseStringArray, readMaterializationAttachmentPlanSummaryForScenario, readMaterializationEvidenceAttachmentSummaryForScenario, readMaterializationInputManifestSummaryForScenario, readRepoGeneratedJsonIfExists, readRuntimeEvidenceCaptureScaffoldForScenario, realtimeVoiceProtocolPreference } from "./api-support.js";
 
 import type {
   RuntimeTraceEvents,
@@ -695,4 +695,429 @@ export function createSeedBankAssetReadiness() {
     ...registry.evaluateScenarioReadiness(scenario),
     productionReadinessLadder: registry.evaluateScenarioProductionReadinessLadder(scenario),
   }));
+}
+
+export function approvedRuntimeAssetReviewEvidence(decisions: RuntimeAssetReviewDecision[]): string[] {
+  return decisions
+    .filter((decision) => decision.decision === "approved_for_local_runtime")
+    .flatMap((decision) => decision.evidenceRefs)
+    .filter((evidenceRef) => evidenceRef.trim().length > 0);
+}
+
+export function buildHumanReviewActions(input: {
+  scenarioId: string;
+  runtimeAssetReviewDecisions: RuntimeAssetReviewDecision[];
+  learnerRuntimeUseBlockers: string[];
+  humanoidMetadataBlockerIds: string[];
+}): ApiHumanReviewActionSummary[] {
+  const approvedRuntimeEvidenceRefs = approvedRuntimeAssetReviewEvidence(input.runtimeAssetReviewDecisions);
+  const scenarioReviewGate = buildScenarioReviewGateSummary(input.scenarioId);
+
+  return [
+    {
+      actionId: "attach_runtime_asset_review_decisions",
+      status: approvedRuntimeEvidenceRefs.length > 0 ? "complete" : "available",
+      label: "Attach local runtime asset review decisions",
+      blockerIds: approvedRuntimeEvidenceRefs.length > 0 ? [] : ["runtime_asset_review_decisions_missing"],
+      evidenceRefs: approvedRuntimeEvidenceRefs,
+      claimBoundary: "human_review_action_not_automated_approval",
+    },
+    {
+      actionId: "review_humanoid_realism_metadata",
+      status: input.learnerRuntimeUseBlockers.includes("runtime_realism_evidence_not_attached_to_encounter_bundle") ? "available" : "complete",
+      label: "Review humanoid realism metadata and evidence blockers",
+      blockerIds: input.humanoidMetadataBlockerIds,
+      evidenceRefs: [],
+      claimBoundary: "human_review_action_not_automated_approval",
+    },
+    {
+      actionId: "review_runtime_bundle_assembly_audit",
+      status: input.learnerRuntimeUseBlockers.length > 0 ? "available" : "complete",
+      label: "Review runtime bundle assembly audit and learner-use gates",
+      blockerIds: input.learnerRuntimeUseBlockers,
+      evidenceRefs: [],
+      claimBoundary: "human_review_action_not_automated_approval",
+    },
+    {
+      actionId: "resolve_scenario_approval_boundary",
+      status: scenarioReviewGate.learnerUseBlocked ? "blocked" : "complete",
+      label: "Resolve scenario status and no-approval boundary",
+      blockerIds: scenarioReviewGate.blockerIds,
+      evidenceRefs: [],
+      claimBoundary: "human_review_action_not_automated_approval",
+    },
+  ];
+}
+
+export function buildScenarioReviewGateSummary(scenarioId: string): ApiScenarioReviewGateSummary {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
+  const scenarioStatus = scenario?.status ?? "unknown";
+  const blockerIds = scenarioStatus === "approved" ? [] : [`scenario_status:${scenarioStatus}`, "human_scenario_approval_required"];
+
+  return {
+    scenarioStatus,
+    approvalBoundary: scenarioStatus === "approved" ? "approved_scenario_factory_planning_only" : "draft_no_learner_use_without_human_approval",
+    learnerUseBlocked: blockerIds.length > 0,
+    blockerIds,
+    claimBoundary: "scenario_status_gate_not_clinical_or_production_readiness",
+  };
+}
+
+export function checklist(
+  checkId:
+    | "confirm_selector_guard_remains_disabled"
+    | "confirm_provider_execution_disabled"
+    | "confirm_learner_launch_blocked"
+    | "confirm_no_readiness_claims",
+  blockerIds: string[],
+) {
+  return { checkId, status: "required_before_runtime_wiring" as const, blockerIds };
+}
+
+export function createAdminGraphqlRoot(
+  runtime: ScenarioRuntime,
+  persistence: ApiPersistenceSink,
+  scenarioOverrides: Map<string, AdminGraphqlScenario>,
+  state: {
+    runtimeRealismEvidenceInputReviewDecisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
+    runtimeVisualEvidenceAttachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
+  } = {},
+): AdminGraphqlRootValue {
+  return {
+    assetReadiness: ({ scenarioId, version }) => findSeedBankAssetReadiness(String(scenarioId), version),
+    scenario: async ({ scenarioId, version }) =>
+      (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).find((scenario) =>
+        scenario.scenarioId === scenarioId && (version === undefined || scenario.version === version)
+      ),
+    scenarios: async ({ status }) =>
+      (await listAdminGraphqlScenarios(persistence, scenarioOverrides)).filter((scenario) => status === undefined || scenario.status === status),
+    scenarioReviewDecisions: async ({ scenarioId, version }) =>
+      (await listScenarioReviewDecisionRecords(persistence))
+        .filter((decision) => decision.scenarioId === String(scenarioId) && decision.version === version),
+    reviewPacket: ({ stationRunId }) => runtime.reviewPacket(String(stationRunId)),
+    clinicalEventReviewSummary: async ({ stationRunId }) =>
+      summarizeClinicalEventReviewProjections(
+        await persistence.listClinicalEventReviewProjections?.(String(stationRunId)) ?? [],
+      ),
+    reviewReplayReadinessSummary: async ({ stationRunId }) => {
+      const stationRunIdString = String(stationRunId);
+      const clinicalEventReviewSummary = summarizeClinicalEventReviewProjections(
+        await persistence.listClinicalEventReviewProjections?.(stationRunIdString) ?? [],
+      );
+      return summarizeReviewReplayReadiness({
+        stationRunId: stationRunIdString,
+        packet: runtime.reviewPacket(stationRunIdString),
+        clinicalEventReviewSummary,
+        traceEvents: runtime.traceEvents(stationRunIdString),
+        ...(state.runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord: state.runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+        ...(state.runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord: state.runtimeVisualEvidenceAttachmentRecord } : {}),
+      });
+    },
+    traceEvents: ({ stationRunId }) => runtime.traceEvents(String(stationRunId)),
+    submitScenarioReview: async ({ input }) => {
+      const adminScenarios = await listAdminGraphqlScenarios(persistence, scenarioOverrides);
+      const scenario = adminScenarios.find((candidate) => candidate.scenarioId === input.scenarioId && candidate.version === input.version);
+      if (!scenario) {
+        throw new Error(`Scenario not found: ${input.scenarioId} v${input.version}`);
+      }
+
+      const reviewGate = parseScenarioReviewGate(input.reviewerRole);
+      validateScenarioReviewDecisionInput(input);
+
+      const reviewDecision = toApiScenarioReviewDecisionRecord(input, reviewGate);
+      const nextScenario = applyScenarioReviewDecision(scenario, reviewDecision);
+      await persistence.saveScenarioReviewDecision?.(reviewDecision);
+      scenarioOverrides.set(scenarioVersionKey(nextScenario.scenarioId, nextScenario.version), nextScenario);
+
+      return nextScenario;
+    },
+    stationRunQueueSnapshots: async ({ blueprintId }) => Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []),
+    createStationRunQueueSnapshot: async ({ input }) => {
+      const snapshot = createSeedStationRunQueueSnapshot(input);
+      await persistence.saveStationRunQueueSnapshot?.(snapshot);
+      return snapshot;
+    },
+    saveFacultyScoreDraft: async ({ input }) => {
+      const stationRunId = String(input.stationRunId);
+      const packet = runtime.saveFacultyScoreDraft(stationRunId, {
+        reviewerId: String(input.reviewerId),
+        comments: input.comments,
+        rubricScores: isRecord(input.rubricScores) ? input.rubricScores : {},
+      });
+      await persistence.saveTraceEvents?.(stationRunId, runtime.traceEvents(stationRunId));
+      await persistence.saveReviewPacket?.(stationRunId, packet);
+      return packet;
+    },
+  };
+}
+
+export function createSeedBankEnvironmentGenerationQueue() {
+  return buildEnvironmentGenerationQueue(
+    scenarioBank,
+    scenarioBank.flatMap((scenario) => createScenarioPlaceholderManifests(scenario)),
+  );
+}
+
+export function createSeedBankEnvironmentWorkOrderQueue() {
+  return buildEnvironmentGenerationWorkOrderQueue(createSeedBankEnvironmentGenerationQueue());
+}
+
+export function hasApprovedRuntimeAssetReviewEvidence(decisions: RuntimeAssetReviewDecision[]): boolean {
+  return approvedRuntimeAssetReviewEvidence(decisions).length > 0;
+}
+
+export function isFacultyOnlyGraphqlOperation(operationName: string, query: string): boolean {
+  if (FACULTY_ONLY_GRAPHQL_OPERATIONS.has(operationName)) {
+    return true;
+  }
+  // Fallback when clients omit operationName: detect mutation field names.
+  return /\bsaveFacultyScoreDraft\b/.test(query) || /\bsubmitScenarioReview\b/.test(query);
+}
+
+export function isMaterializationInputReviewDecision(value: unknown): value is ApiMaterializationInputReviewDecision {
+  return isRecord(value)
+    && (
+      value["actionId"] === "review_actor_materialization_inputs"
+      || value["actionId"] === "hold_actor_materialization_inputs"
+      || value["actionId"] === "review_equipment_materialization_inputs"
+      || value["actionId"] === "hold_equipment_materialization_inputs"
+    )
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "reviewed_metadata_only" || value["decision"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
+}
+
+export function isRawUiXrManualPerformancePayload(value: Record<string, unknown>): boolean {
+  return "runtimeVisualEvidenceCaptureScaffold" in value
+    || "manualPerformanceDraft" in value
+    || "captureSummary" in value
+    || "runtimeEvidenceConsumerReadiness" in value;
+}
+
+export function isRuntimeAssetReviewDecision(value: unknown): value is RuntimeAssetReviewDecision {
+  return isRecord(value)
+    && typeof value["assetId"] === "string"
+    && ["asset_pipeline", "clinical_simulation", "xr_performance", "security_privacy"].includes(String(value["reviewerRole"]))
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "approved_for_local_runtime" || value["decision"] === "changes_requested")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
+}
+
+export function isRuntimeRealismEvidenceInputReviewDecision(value: unknown): value is ApiRuntimeRealismEvidenceInputReviewDecision {
+  return isRecord(value)
+    && typeof value["inputId"] === "string"
+    && (value["inputKind"] === "runtime_realism_signal_input" || value["inputKind"] === "visual_qa_review_input")
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "reviewed_metadata_only" || value["decision"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
+}
+
+export function isRuntimeVisualEvidenceAttachment(value: unknown): value is ApiRuntimeVisualEvidenceAttachment {
+  return isRecord(value)
+    && (value["actionId"] === "attach_runtime_realism_evidence_refs" || value["actionId"] === "attach_visual_qa_evidence_refs")
+    && typeof value["inputId"] === "string"
+    && (value["inputKind"] === "runtime_realism_signal_input" || value["inputKind"] === "visual_qa_review_input")
+    && typeof value["evidenceRef"] === "string"
+    && typeof value["localArtifactPath"] === "string"
+    && typeof value["reviewerId"] === "string"
+    && (value["attachmentStatus"] === "attached_metadata_only" || value["attachmentStatus"] === "held_metadata_only")
+    && typeof value["comments"] === "string"
+    && typeof value["attachedAt"] === "string";
+}
+
+export function parsePublicationTargetUse(value: unknown): PublicationTargetUse {
+  if (value === "pilot_research" || value === "summative") {
+    return value;
+  }
+  return "local_formative";
+}
+
+export function parseReviewerEvidence(value: unknown): ReviewerEvidence[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isReviewerEvidence);
+}
+
+export async function recordGraphqlOperationSpan(
+  telemetry: TelemetryRecorder,
+  input: {
+    operationName: string;
+    statusCode: number;
+    durationMs: number;
+    hasErrors: boolean;
+  },
+): Promise<void> {
+  await Promise.resolve(telemetry.recordSpan({
+    name: openClinXrSpanNames.graphqlOperation,
+    attributes: telemetryRouteAttributes({
+      graphqlOperationName: input.operationName,
+    }),
+    durationMs: input.durationMs,
+    statusCode: input.statusCode,
+    ...(input.hasErrors ? { errorType: "graphql_errors" } : {}),
+  })).catch(() => undefined);
+}
+
+export const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
+  "SaveFacultyScoreDraft",
+  "SubmitScenarioReview",
+]);
+
+export function applyScenarioReviewDecision(
+  scenario: AdminGraphqlScenario,
+  reviewDecision: ApiScenarioReviewDecisionRecord,
+): AdminGraphqlScenario {
+  const nextReview = {
+    ...scenario.review,
+    [reviewDecision.reviewerRole]: reviewDecision.decision,
+  };
+
+  return {
+    ...scenario,
+    review: nextReview,
+    status: scenarioStatusForReview(nextReview),
+  };
+}
+
+export function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
+  return isRecord(value)
+    && typeof value["reviewerRole"] === "string"
+    && typeof value["reviewerId"] === "string"
+    && (value["decision"] === "approved" || value["decision"] === "changes_requested")
+    && typeof value["comments"] === "string"
+    && Array.isArray(value["evidenceRefs"])
+    && value["evidenceRefs"].every((ref) => typeof ref === "string")
+    && typeof value["reviewedAt"] === "string";
+}
+
+export async function listAdminGraphqlScenarios(
+  persistence: ApiPersistenceSink,
+  scenarioOverrides: Map<string, AdminGraphqlScenario>,
+): Promise<AdminGraphqlScenario[]> {
+  const reviewDecisions = await listScenarioReviewDecisionRecords(persistence);
+
+  return scenarioBank.map((scenario) => {
+    const scenarioKey = scenarioVersionKey(scenario.scenarioId, scenario.version);
+    const baseScenario = scenarioOverrides.get(scenarioKey) ?? toAdminGraphqlScenario(scenario);
+
+    return reviewDecisions
+      .filter((decision) => decision.scenarioId === baseScenario.scenarioId && decision.version === baseScenario.version)
+      .sort(compareScenarioReviewDecisions)
+      .reduce(applyScenarioReviewDecision, baseScenario);
+  });
+}
+
+export async function listScenarioReviewDecisionRecords(
+  persistence: ApiPersistenceSink,
+): Promise<ApiScenarioReviewDecisionRecord[]> {
+  const reviewDecisions = await Promise.resolve(persistence.listScenarioReviewDecisions?.() ?? []);
+  return [...reviewDecisions].sort(compareScenarioReviewDecisions);
+}
+
+export function parseScenarioReviewGate(reviewerRole: string): ApiScenarioReviewerRole {
+  if (reviewerRole === "clinical" || reviewerRole === "psychometric" || reviewerRole === "legal" || reviewerRole === "simulationQa") {
+    return reviewerRole;
+  }
+
+  throw new Error(`Unsupported scenario review gate: ${reviewerRole}`);
+}
+
+export function scenarioVersionKey(scenarioId: string, version: number): string {
+  return `${scenarioId}:${version}`;
+}
+
+export function toApiScenarioReviewDecisionRecord(
+  input: {
+    scenarioId: string | number;
+    version: number;
+    reviewerId: string | number;
+    decision: AdminGraphqlReviewDecision;
+    comments: string;
+    evidenceRefs: Array<string>;
+  },
+  reviewerRole: ApiScenarioReviewerRole,
+): ApiScenarioReviewDecisionRecord {
+  return {
+    scenarioId: String(input.scenarioId),
+    version: input.version,
+    reviewerRole,
+    reviewerId: String(input.reviewerId),
+    decision: input.decision === AdminGraphqlReviewDecision.Approved ? "approved" : "changes_requested",
+    comments: input.comments,
+    evidenceRefs: [...input.evidenceRefs],
+    reviewedAt: new Date().toISOString(),
+  };
+}
+
+export function validateScenarioReviewDecisionInput(input: {
+  reviewerId: string | number;
+  comments: string;
+  evidenceRefs: Array<string>;
+}): void {
+  if (String(input.reviewerId).trim().length === 0) {
+    throw new Error("Scenario review decision requires reviewerId.");
+  }
+  if (input.comments.trim().length === 0) {
+    throw new Error("Scenario review decision requires comments.");
+  }
+  if (input.evidenceRefs.length === 0 || input.evidenceRefs.some((evidenceRef) => evidenceRef.trim().length === 0)) {
+    throw new Error("Scenario review decision requires evidenceRefs.");
+  }
+}
+
+export function compareScenarioReviewDecisions(left: ApiScenarioReviewDecisionRecord, right: ApiScenarioReviewDecisionRecord): number {
+  return Date.parse(left.reviewedAt) - Date.parse(right.reviewedAt)
+    || left.scenarioId.localeCompare(right.scenarioId)
+    || left.version - right.version
+    || left.reviewerRole.localeCompare(right.reviewerRole)
+    || left.reviewerId.localeCompare(right.reviewerId);
+}
+
+export function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminGraphqlScenario["status"] {
+  if (Object.values(review).every((state) => state === "approved")) {
+    return AdminGraphqlScenarioStatus.Approved;
+  }
+  if (Object.values(review).some((state) => state === "changes_requested")) {
+    return AdminGraphqlScenarioStatus.Draft;
+  }
+  return AdminGraphqlScenarioStatus.ReadyForReview;
+}
+
+export function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminGraphqlScenario {
+  return {
+    scenarioId: scenario.scenarioId,
+    version: scenario.version,
+    title: scenario.title,
+    status: toAdminGraphqlScenarioStatus(scenario.status),
+    clinicalObjectives: scenario.clinicalObjectives,
+    actors: scenario.actors.map(({ hiddenFacts: _hiddenFacts, ...actor }) => actor),
+    requiredTraceTags: scenario.requiredTraceTags,
+    review: { ...scenario.review },
+    governance: scenario.governance,
+    equipment: [...(scenario.equipment ?? [])],
+    assetNeeds: [...(scenario.assetNeeds ?? [])],
+    ...(scenario.environment === undefined ? {} : { environment: scenario.environment }),
+  };
+}
+
+export function toAdminGraphqlScenarioStatus(status: (typeof scenarioBank)[number]["status"]): AdminGraphqlScenario["status"] {
+  switch (status) {
+    case "approved":
+      return AdminGraphqlScenarioStatus.Approved;
+    case "retired":
+      return AdminGraphqlScenarioStatus.Archived;
+    case "draft":
+      return AdminGraphqlScenarioStatus.Draft;
+  }
 }
