@@ -48,7 +48,6 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-admin/src/api-client-types.ts": { maxLines: 1410, reason: "residual: admin DTO type surface (generated-adjacent) — split by domain area next; fetch client extracted to api-client.ts (586, under budget)" },
   "packages/openclinxr/asset-registry/src/runtime-bundles.ts": { maxLines: 1638, reason: "bundle builder — split builder/validate/shape" },
   "apps/ui-admin/src/App.tsx": { maxLines: 1631, reason: "admin shell — extract panels/containers" },
-  "packages/openclinxr/session-state/src/internal.ts": { maxLines: 732, reason: "residual: session-state internal helpers + durable-record validators + store classes — split helpers/durable-records next (types + core + messaging already extracted)" },
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
   "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 950, reason: "policy tables — split data from logic" },
