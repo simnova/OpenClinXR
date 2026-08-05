@@ -1,4 +1,4 @@
-import { createDefaultScenarioRuntime } from "@openclinxr/scenario-runtime";
+import { createDefaultScenarioRuntime, type ProviderHealthSnapshot } from "@openclinxr/scenario-runtime";
 import type { ProviderHealth, ReviewPacket } from "@openclinxr/shared-schemas";
 import {
   buildActorResponseRequestsForDialogueSeeds,
@@ -15,12 +15,7 @@ export type SimulationResult = {
   clinicalActionEventCount: number;
   voiceAudioEventCount: number;
   reviewPacket: ReviewPacket;
-  providerHealth: {
-    model: ProviderHealth;
-    voice: ProviderHealth;
-    localModel: ProviderHealth;
-    localVoice: ProviderHealth;
-  };
+  providerHealth: ProviderHealthSnapshot;
   optionalRuntimeSkips: OptionalRuntimeSkip[];
   dialogueSeedReplay: DialogueSeedReplayEvidence;
 };
@@ -183,13 +178,16 @@ export async function runDialogueSeedReplayEvidence(): Promise<DialogueSeedRepla
 }
 
 function optionalRuntimeSkipStatus(providerHealth: SimulationResult["providerHealth"]): OptionalRuntimeSkip[] {
-  const optionalRuntimes: Array<{ runtime: OptionalRuntimeSkip["runtime"]; health: ProviderHealth }> = [
+  const optionalRuntimes: Array<{ runtime: OptionalRuntimeSkip["runtime"]; health: ProviderHealth | undefined }> = [
     { runtime: "local_model", health: providerHealth.localModel },
     { runtime: "local_voice", health: providerHealth.localVoice },
   ];
 
+  // Only report skips for local adapters that are actually wired and not ready.
+  // Absent adapters are not skips — they were never part of this deployment's roster.
   return optionalRuntimes
-    .filter(({ health }) => health.status !== "ready")
+    .filter((entry): entry is { runtime: OptionalRuntimeSkip["runtime"]; health: ProviderHealth } =>
+      entry.health != null && entry.health.status !== "ready")
     .map(({ runtime, health }) => ({
       runtime,
       providerId: health.providerId,

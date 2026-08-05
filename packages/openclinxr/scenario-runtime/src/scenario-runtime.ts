@@ -31,7 +31,7 @@ import {
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
+import { type InteractionEmotion, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
 import {
   type AudioEvent,
   collectVoiceStream,
@@ -41,8 +41,8 @@ import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
   actorInteractionRoutePayload,
   actorResponsePolicy,
+  buildProviderHealthSnapshot,
   modelActorResponseRequestId,
-  requireProviderHealth,
   settleDurableStoreCall,
   voiceSynthesisPolicy,
   voiceSynthesisRequestId,
@@ -499,12 +499,8 @@ export class ScenarioRuntime {
 
   async providerHealth(): Promise<ProviderHealthSnapshot> {
     const [modelHealth, voiceHealth] = await Promise.all([this.options.modelGateway.health(), this.options.voiceGateway.health()]);
-    return {
-      model: requireProviderHealth(modelHealth, "mock-model"),
-      voice: requireProviderHealth(voiceHealth, "mock-voice"),
-      localModel: requireProviderHealth(modelHealth, "local-model"),
-      localVoice: requireProviderHealth(voiceHealth, "local-voice"),
-    };
+    // Snapshot describes what is actually wired — not a fixed four-id roster.
+    return buildProviderHealthSnapshot(modelHealth, voiceHealth);
   }
 
   assetReadiness(): ScenarioAssetReadiness {

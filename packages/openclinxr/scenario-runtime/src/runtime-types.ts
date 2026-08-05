@@ -29,11 +29,28 @@ import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
  * god-file. Values/logic live in scenario-runtime.ts and the feature helper modules.
  */
 
+/**
+ * Runtime-visible provider readiness for whatever adapters are actually wired.
+ *
+ * The four convenience keys (`model` / `voice` / `localModel` / `localVoice`) stay populated
+ * when those historical adapter ids are present, so existing UI/API consumers keep working.
+ * They are optional so a deployment that supplies only a real provider (no mock, no local)
+ * can report health without inventing missing roster entries.
+ *
+ * `adapters` is the complete list of validated health entries from both gateways — the open
+ * set source of truth after gateways became injectable.
+ */
 export type ProviderHealthSnapshot = {
-  model: ProviderHealth;
-  voice: ProviderHealth;
-  localModel: ProviderHealth;
-  localVoice: ProviderHealth;
+  /** Present when `mock-model` is among the model adapters. */
+  model?: ProviderHealth;
+  /** Present when `mock-voice` is among the voice adapters. */
+  voice?: ProviderHealth;
+  /** Present when `local-model` is among the model adapters. */
+  localModel?: ProviderHealth;
+  /** Present when `local-voice` is among the voice adapters. */
+  localVoice?: ProviderHealth;
+  /** Every validated adapter health entry currently wired (model gateway then voice). */
+  adapters: ProviderHealth[];
 };
 
 export type StartSessionInput = {

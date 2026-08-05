@@ -32,6 +32,12 @@ const expectedProviderHealth = {
   voice: { providerId: "mock-voice", status: "ready" },
   localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
   localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
+  adapters: [
+    { providerId: "mock-model", status: "ready" },
+    { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
+    { providerId: "mock-voice", status: "ready" },
+    { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
+  ],
 };
 
 describe("OpenClinXR API shell", () => {
