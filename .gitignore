@@ -26,6 +26,10 @@ benchmarks/glb-optimization/input/
 benchmarks/glb-optimization/output/
 benchmarks/glb-optimization/reports/*.json
 apps/*/deploy/
+# Build output at any nesting depth (arena packages sit 3 levels deep — a fixed-depth
+# glob silently missed them and build artifacts got committed).
+packages/**/dist/
+apps/**/dist/
 packages/*/dist/
 packages/*/*/dist/
 docs/openclinxr/anny-skin-cagematch-mit-pbr-bake-*/
