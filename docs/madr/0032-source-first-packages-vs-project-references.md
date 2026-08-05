@@ -1,7 +1,7 @@
 # MADR 0032: Source-First Packages vs TypeScript Project References
 
 Date: 2026-08-05
-Status: **Accepted (status quo affirmed) — with explicit revisit triggers**
+Status: **SUPERSEDED by [0033](0033-adopt-build-emitting-packages.md)** — decision reversed on strategic grounds 2026-08-05; the factual findings below still stand and informed 0033.
 Related: MADR 0026 (mongodb-memory-server local tests), issue #18, issue #12
 
 ## Context
