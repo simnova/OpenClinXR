@@ -61,7 +61,11 @@ describe("IWSDK sidecar Vite config", () => {
   it("keeps portless HTTP so Quest Browser can load via adb reverse without cert privacy errors", async () => {
     const { default: viteConfig } = await import("./vite.config.js");
     const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
-    expect(resolved.server?.https).toBe(false);
+    // The guarantee is NO TLS, not a specific literal. Vite 8 dropped `false` from the
+    // `server.https` type, so the idiom for plain HTTP is to OMIT the key — `undefined` and
+    // `false` both mean "no TLS". Anything truthy (an object carrying key/cert) does not, and
+    // would give Quest Browser a self-signed cert privacy interstitial over adb reverse.
+    expect(resolved.server?.https ?? false, "server.https must not enable TLS").toBe(false);
     expect(resolved.server?.hmr).toMatchObject({ overlay: false });
     expect(openClinXrIwsdkSpikeDevPluginOptions.https).toBe(false);
   });

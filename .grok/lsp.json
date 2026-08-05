@@ -13,7 +13,7 @@
       ".cjs": "javascript",
       ".json": "json"
     },
-    "startupTimeout": 60000,
+    "startupTimeout": 90000,
     "initializationOptions": {
       "preferences": {
         "importModuleSpecifierPreference": "non-relative",
@@ -28,27 +28,24 @@
     "settings": {
       "typescript": {
         "tsdk": "node_modules/typescript/lib",
+        "tsserver": {
+          "maxTsServerMemory": 8192,
+          "useSyntaxServer": "auto"
+        },
+        "suggest": {
+          "completeFunctionCalls": true
+        },
+        "preferences": {
+          "includePackageJsonAutoImports": "on",
+          "importModuleSpecifier": "non-relative"
+        }
+      },
+      "javascript": {
         "suggest": {
           "completeFunctionCalls": true
         }
       }
     }
-  },
-  "knip": {
-    "command": "./node_modules/.bin/knip-language-server",
-    "args": ["--stdio"],
-    "extensionToLanguage": {
-      ".ts": "typescript",
-      ".tsx": "typescriptreact",
-      ".mts": "typescript",
-      ".cts": "typescript",
-      ".js": "javascript",
-      ".jsx": "javascriptreact",
-      ".mjs": "javascript",
-      ".cjs": "javascript",
-      ".json": "json"
-    },
-    "startupTimeout": 90000
   },
   "python": {
     "command": "./node_modules/.bin/pyright-langserver",
@@ -66,6 +63,10 @@
           "useLibraryCodeForTypes": true,
           "diagnosticMode": "openFilesOnly"
         }
+      },
+      "pyright": {
+        "disableLanguageServices": false,
+        "disableOrganizeImports": false
       }
     }
   }

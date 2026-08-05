@@ -72,23 +72,26 @@ Open a **new** terminal tab after changing `~/.zshenv` / `~/.zshrc`, or run `exe
 
 ## Language servers (Grok LSP)
 
-Configured in **`.grok/lsp.json`** (keep root **`.lsp.json` identical**). Pattern aligned with atlantis-cameras-v2 plus OpenClinXR Python.
+Configured in **`.grok/lsp.json`** (keep root **`.lsp.json` identical**).
 
 | Server | Binary (repo-local) | Role |
 |--------|---------------------|------|
-| **typescript** | `./node_modules/.bin/typescript-language-server` | TS/TSX navigation (timeout 60s) |
-| **knip** | `./node_modules/.bin/knip-language-server` | Live unused export/file diagnostics |
-| **python** | `./node_modules/.bin/pyright-langserver` | Anny/asset/voice Python scripts |
+| **typescript** | `./node_modules/.bin/typescript-language-server` | Sole owner of `.ts`/`.tsx`/`.js` — hover, definition, symbols (timeout 90s) |
+| **python** | `./node_modules/.bin/pyright-langserver` | Anny/asset/voice Python (`pyrightconfig.json`) |
 
-Pins: `typescript-language-server`, `@knip/language-server`, `pyright` in root `devDependencies`.
+**Do not** register **knip-language-server** on the same extensions as typescript in Grok. The agent `lsp` tool **single-routes** by file extension; knip only implements diagnostics/code actions, so shared `.ts` maps yield `-32601 Unhandled method` on hover/definition. Unused-export hygiene stays **CLI**: `pnpm hygiene:knip` / `pnpm knip`. `@knip/language-server` may remain installed for editors that multiplex multiple servers.
+
+Monorepo note: package sources use per-package `tsconfig.json` (see `tsconfig.ide.json` solution for IDE). Root `tsconfig.json` only includes a few guardrail files — file-scoped `lsp` ops (hover/definition) load the nearest package project after open; bare `workspaceSymbol` before any open can report “No Project”.
+
+Pins: `typescript-language-server`, `pyright` in root `devDependencies` (required). `@knip/language-server` optional.
 
 ```bash
-pnpm hygiene:lsp          # structural binary + package pin check
-pnpm hygiene:knip         # CLI knip gate (still the CI-style report)
+pnpm hygiene:lsp          # structural + extension-collision + live tsls hover smoke
+pnpm hygiene:knip         # CLI knip gate (CI-style report; not Grok LSP)
 pnpm env:doctor           # includes LSP bin checks
 ```
 
-After `pnpm install`, restart Grok so LSP servers reload. Prefer **repo-local** bins over PATH globals.
+After changing `.grok/lsp.json`, **restart Grok** so servers reload. Prefer **repo-local** bins over PATH globals. Enable agent tool: `[features] lsp_tools = true` (project + user).
 
 ## Package / turbo scripts (agent vs human)
 

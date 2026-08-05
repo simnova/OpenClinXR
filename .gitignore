@@ -42,3 +42,9 @@ docs/openclinxr/stablegen-blender-background-trial-*.json
 
 # allow doc for local state (see .openclinxr/README.md)
 !.openclinxr/README.md
+
+# Agent worktrees and TS build residue (emitted during composite-reference experiments)
+.claude/worktrees/
+
+# Local screenshots/scratch (not repo artifacts)
+*-screencap.png

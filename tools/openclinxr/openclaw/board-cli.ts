@@ -56,6 +56,7 @@ export type BoardCliFlags = {
   title?: string;
   roles?: string[];
   role?: string;
+  session?: string;
   body?: string;
   repo: string;
   pr?: number;
@@ -101,6 +102,9 @@ export function parseBoardArgs(argv: string[]): BoardCliFlags {
         .split(",")
         .map((r) => r.trim())
         .filter(Boolean);
+    } else if (arg === "--session" && argv[i + 1]) {
+      flags.session = argv[i + 1];
+      i += 1;
     } else if (arg === "--role" && argv[i + 1]) {
       flags.role = argv[++i];
     } else if (arg === "--body" && argv[i + 1]) {
@@ -187,11 +191,22 @@ export function buildSliceIssueBody(input: {
   ].join("\n");
 }
 
-export function buildStatusCommentBody(role: string, body: string): string {
+/**
+ * A status comment may carry the worker's grok `sessionId`. That id is the ONLY way to
+ * `--resume` a worker later, and it otherwise lives just in the dispatching process's memory —
+ * so it dies with the orchestrator session. Persisting it on the issue makes a dead worker
+ * recoverable by whoever picks the slice up next, including a different orchestrator.
+ * It is coordination metadata (an opaque uuid), never product data.
+ */
+export function buildStatusCommentBody(role: string, body: string, session?: string): string {
   assertCoordinationOnlyBody(body);
   assertCoordinationOnlyBody(role);
+  if (session !== undefined && !/^[0-9a-f-]{16,64}$/i.test(session)) {
+    throw new Error(`--session must be an opaque session id (hex + dashes), got: ${session}`);
+  }
   return [
     `**role:** \`${role}\``,
+    ...(session ? [`**worker session:** \`${session}\` — resume with \`grok -p "<delta>" --resume ${session}\``] : []),
     ``,
     body.trim(),
     ``,
@@ -404,6 +419,7 @@ export function cmdStatus(
     sliceId: string;
     role: string;
     body: string;
+    session?: string;
     dryRun: boolean;
   },
 ): { plan: GhCommandPlan; issueNumber: number; commentBody: string } {
@@ -418,7 +434,7 @@ export function cmdStatus(
     );
   }
 
-  const commentBody = buildStatusCommentBody(input.role, input.body);
+  const commentBody = buildStatusCommentBody(input.role, input.body, input.session);
   const plan = planGhIssueComment({
     issueNumber: record.issueNumber,
     repo: record.repo,
