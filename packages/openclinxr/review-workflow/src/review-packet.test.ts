@@ -395,3 +395,161 @@ describe("review packet workflow", () => {
     expect(packet.timeline[1]?.summary).toContain("abdomen_rlq");
   });
 });
+
+describe("emotional timeline extraction", () => {
+  it("extracts emotion_transition trace events into an ordered emotionalTimeline", () => {
+    const packet = buildReviewPacket({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      requiredTraceTags: ["history_taking_started"],
+      traceEvents: [
+        { sequence: 0, eventType: "station.started", source: "system", atSecond: 0 },
+        {
+          sequence: 1,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          actorId: "parent_maya_johnson_v1",
+          atSecond: 30,
+          payload: {
+            from: "neutral",
+            to: "concerned",
+            trigger: "learner_dismissive",
+            turnIndex: 2,
+          },
+        },
+        {
+          sequence: 2,
+          eventType: "learner.utterance",
+          source: "learner",
+          actorId: "parent_maya_johnson_v1",
+          tag: "history_taking_started",
+          atSecond: 45,
+        },
+        {
+          sequence: 3,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          actorId: "parent_maya_johnson_v1",
+          atSecond: 60,
+          payload: {
+            from: "concerned",
+            to: "anxious",
+            trigger: "learner_interruption",
+            turnIndex: 4,
+          },
+        },
+        {
+          sequence: 5,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          actorId: "parent_maya_johnson_v1",
+          atSecond: 90,
+          payload: {
+            from: "anxious",
+            to: "concerned",
+            trigger: "learner_acknowledgement",
+            turnIndex: 6,
+          },
+        },
+      ],
+      stationRunId: "run_001",
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Review emotion timeline." },
+    });
+
+    expect(packet.emotionalTimeline).toHaveLength(3);
+    expect(packet.emotionalTimeline[0]).toEqual({
+      turnIndex: 2,
+      actorId: "parent_maya_johnson_v1",
+      from: "neutral",
+      to: "concerned",
+      trigger: "learner_dismissive",
+    });
+    expect(packet.emotionalTimeline[1]).toEqual({
+      turnIndex: 4,
+      actorId: "parent_maya_johnson_v1",
+      from: "concerned",
+      to: "anxious",
+      trigger: "learner_interruption",
+    });
+    expect(packet.emotionalTimeline[2]).toEqual({
+      turnIndex: 6,
+      actorId: "parent_maya_johnson_v1",
+      from: "anxious",
+      to: "concerned",
+      trigger: "learner_acknowledgement",
+    });
+  });
+
+  it("returns an empty emotionalTimeline when no emotion_transition events are present", () => {
+    const packet = buildReviewPacket({
+      scenarioId: "ed_chest_pain_priority_v1",
+      requiredTraceTags: [],
+      traceEvents: [
+        { sequence: 1, eventType: "learner.order", source: "learner", tag: "ecg_request", atSecond: 240 },
+        { sequence: 2, eventType: "actor.response.generated", source: "model-gateway", actorId: "patient_x", atSecond: 250 },
+      ],
+      stationRunId: "run_001",
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "No emotion events." },
+    });
+
+    expect(packet.emotionalTimeline).toEqual([]);
+  });
+
+  it("sorts emotionalTimeline by turnIndex regardless of input event order", () => {
+    const packet = buildReviewPacket({
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      requiredTraceTags: [],
+      traceEvents: [
+        {
+          sequence: 3,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          atSecond: 90,
+          payload: { from: "anxious", to: "concerned", trigger: "learner_acknowledgement", turnIndex: 6 },
+        },
+        {
+          sequence: 1,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          atSecond: 30,
+          payload: { from: "neutral", to: "concerned", trigger: "learner_dismissive", turnIndex: 2 },
+        },
+        {
+          sequence: 2,
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          atSecond: 60,
+          payload: { from: "concerned", to: "anxious", trigger: "learner_interruption", turnIndex: 4 },
+        },
+      ],
+      stationRunId: "run_001",
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Sort order test." },
+    });
+
+    expect(packet.emotionalTimeline.map((e) => e.turnIndex)).toEqual([2, 4, 6]);
+    expect(packet.emotionalTimeline.map((e) => e.from)).toEqual(["neutral", "concerned", "anxious"]);
+  });
+
+  it("keeps existing review-packet fields unchanged when emotionalTimeline is added", () => {
+    const packet = buildReviewPacket({
+      scenarioId: "ed_chest_pain_priority_v1",
+      requiredTraceTags: ["ecg_request", "team_communication"],
+      traceEvents: [
+        { tag: "ecg_request", atSecond: 500 },
+        {
+          eventType: "emotion_transition",
+          source: "emotion-engine",
+          atSecond: 120,
+          payload: { from: "neutral", to: "concerned", trigger: "learner_dismissive", turnIndex: 1 },
+        },
+      ],
+      stationRunId: "run_001",
+      facultyScoreDraft: { reviewerId: "faculty_001", status: "draft", comments: "Back-compat test." },
+    });
+
+    expect(packet.observedTraceTags).toEqual(["ecg_request"]);
+    expect(packet.missingRequiredTraceTags).toEqual(["team_communication"]);
+    expect(packet.stationRunId).toBe("run_001");
+    expect(packet.scenarioId).toBe("ed_chest_pain_priority_v1");
+    expect(packet.emotionalTimeline).toHaveLength(1);
+  });
+});

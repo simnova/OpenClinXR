@@ -1,6 +1,35 @@
 import { evaluateRequiredTraceTags } from "@openclinxr/domain";
 import { type PatientNote, type ReviewPacket, validateReviewPacket } from "@openclinxr/shared-schemas";
 
+// ---------------------------------------------------------------------------
+// Emotional timeline extraction (Phase 2 — structural contract, no import of
+// unmerged Phase-2 types from conversation-policy)
+// ---------------------------------------------------------------------------
+
+/** Pinned structural contract for an emotion_transition trace event. */
+type EmotionTransitionTraceShape = {
+  type: "emotion_transition";
+  actorId?: string;
+  from: string;
+  to: string;
+  trigger: string;
+  turnIndex?: number;
+};
+
+/** Single entry on the review packet emotional timeline. */
+export type EmotionalTimelineEntry = {
+  turnIndex: number | undefined;
+  actorId: string | undefined;
+  from: string;
+  to: string;
+  trigger: string;
+};
+
+/** Review packet augmented with the Phase 2 emotional timeline (additive, back-compat). */
+export type ReviewPacketWithEmotionTimeline = ReviewPacket & {
+  emotionalTimeline: EmotionalTimelineEntry[];
+};
+
 export type ReviewTraceInput = {
   sequence?: number;
   tag?: string;
@@ -37,13 +66,44 @@ export type StationXrTraceEvidenceSummary = {
   claimBoundary: "xr_trace_evidence_summary_not_score_use_quest_readiness_clinical_validity_or_raw_payload_readiness";
 };
 
-export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacket {
+/**
+ * Deterministic, pure extraction: scan trace events for emotion_transition
+ * entries matching the pinned Phase-2 structural contract, sort by turnIndex,
+ * and return an ordered array.  Empty array when no emotion events are present.
+ */
+function extractEmotionalTimeline(
+  traceEvents: readonly ReviewTraceInput[],
+): EmotionalTimelineEntry[] {
+  return traceEvents
+    .filter((e): e is ReviewTraceInput & { payload: Record<string, unknown> } =>
+      e.eventType === "emotion_transition" && isRecord(e.payload),
+    )
+    .map((e) => {
+      const p = e.payload;
+      return {
+        turnIndex: typeof p["turnIndex"] === "number" ? (p["turnIndex"] as number) : undefined,
+        actorId: e.actorId,
+        from: typeof p["from"] === "string" ? (p["from"] as string) : "",
+        to: typeof p["to"] === "string" ? (p["to"] as string) : "",
+        trigger: typeof p["trigger"] === "string" ? (p["trigger"] as string) : "",
+      };
+    })
+    .sort((a, b) => {
+      const ai = a.turnIndex ?? Number.MAX_SAFE_INTEGER;
+      const bi = b.turnIndex ?? Number.MAX_SAFE_INTEGER;
+      return ai - bi;
+    });
+}
+
+export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacketWithEmotionTimeline {
   if (input.facultyScoreDraft.reviewerId.trim().length === 0) {
     throw new Error("Faculty score draft requires reviewer identity");
   }
   if (input.patientNote && input.patientNote.stationRunId !== input.stationRunId) {
     throw new Error("Patient note station run ID must match review packet station run ID");
   }
+
+  const emotionalTimeline = extractEmotionalTimeline(input.traceEvents);
 
   const { observed, missing } = evaluateRequiredTraceTags(input.requiredTraceTags, input.traceEvents);
   const reviewTraceEvents = input.xrTraceInteractionEvidence
@@ -95,7 +155,7 @@ export function buildReviewPacket(input: BuildReviewPacketInput): ReviewPacket {
     throw new Error(`Invalid review packet: ${validation.errors.join("; ")}`);
   }
 
-  return packet;
+  return { ...packet, emotionalTimeline };
 }
 
 function xrTraceInteractionSummaryEvent(summary: StationXrTraceEvidenceSummary): ReviewTraceInput {

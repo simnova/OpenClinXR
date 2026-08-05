@@ -12,6 +12,7 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
+import type { EmotionEventKind } from "@openclinxr/conversation-policy";
 import {
   createDefaultScenarioRuntime,
   createDurableStoreFromPersistenceHooks,
@@ -715,6 +716,7 @@ describe("scenario runtime", () => {
       durableEventRef: "durable://station-runs/run_test/events/4",
       learnerEventSequence: 3,
       actorResponseEventSequence: 4,
+      currentEmotion: undefined,
     };
 
     await store.saveActorTurn?.("run_test", sampleTurn);
@@ -939,6 +941,218 @@ describe("scenario runtime", () => {
     const first = await runOnce();
     const second = await runOnce();
     expect(second).toEqual(first);
+  });
+
+  // ── Emotion engine wiring ──────────────────────────────────────────
+
+  it("initializes an EmotionEngine per actor on session start", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_001", consentAccepted: true });
+
+    // Both actors start at the default policy baseline ("anxious")
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("anxious");
+    expect(runtime.getActorEmotion(session.stationRunId, "nurse_maria_alvarez_v1")).toBe("anxious");
+  });
+
+  it("throws for unknown actor in getActorEmotion", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_002", consentAccepted: true });
+    expect(() => runtime.getActorEmotion(session.stationRunId, "no_such_actor")).toThrow("No emotion engine for actor");
+  });
+
+  it("emits emotion_transition trace on every state change and records from/to/trigger", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_003", consentAccepted: true });
+
+    // Baseline is "anxious". An empathetic learner should move to "concerned".
+    const t1 = runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 120, turnIndex: 1 });
+    expect(t1.changed).toBe(true);
+    expect(t1.from).toBe("anxious");
+    expect(t1.to).toBe("concerned");
+    expect(t1.trigger).toBe("learner_empathetic");
+
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("concerned");
+
+    // Another empathetic → "reassured"
+    const t2 = runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 180, turnIndex: 2 });
+    expect(t2.changed).toBe(true);
+    expect(t2.from).toBe("concerned");
+    expect(t2.to).toBe("reassured");
+
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("reassured");
+
+    // Verify trace events
+    const emotionTraces = runtime.traceEvents(session.stationRunId).filter((e) => e.eventType === "emotion_transition");
+    expect(emotionTraces).toHaveLength(2);
+
+    expect(emotionTraces[0]).toMatchObject({
+      eventType: "emotion_transition",
+      actorId: "patient_robert_hayes_v1",
+      source: "emotion-engine",
+      payload: {
+        from: "anxious",
+        to: "concerned",
+        trigger: "learner_empathetic",
+        turnIndex: 1,
+      },
+    });
+
+    expect(emotionTraces[1]).toMatchObject({
+      eventType: "emotion_transition",
+      actorId: "patient_robert_hayes_v1",
+      source: "emotion-engine",
+      payload: {
+        from: "concerned",
+        to: "reassured",
+        trigger: "learner_empathetic",
+        turnIndex: 2,
+      },
+    });
+  });
+
+  it("does NOT emit trace when emotion does not change (already at ceiling)", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_004", consentAccepted: true });
+
+    // Baseline is "anxious" (upperBound). Dismissive from anxious → anxious (hold at ceiling).
+    const t = runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_dismissive" as EmotionEventKind, { atSecond: 60, turnIndex: 1 });
+    expect(t.changed).toBe(false);
+    expect(t.from).toBe("anxious");
+    expect(t.to).toBe("anxious");
+
+    const emotionTraces = runtime.traceEvents(session.stationRunId).filter((e) => e.eventType === "emotion_transition");
+    expect(emotionTraces).toHaveLength(0);
+  });
+
+  it("includes currentEmotion in the actor-turn durable payload", async () => {
+    const savedTurns: ScenarioRuntimeActorTurn[] = [];
+    const runtime = createRuntimeWithDurableStore({
+      saveActorTurn(_stationRunId, turn) {
+        savedTurns.push(turn);
+      },
+    });
+    const session = await runtime.startSession({ learnerId: "learner_emo_005", consentAccepted: true });
+    runtime.startEncounter(session.stationRunId, { atSecond: 60 });
+
+    // Baseline is "anxious" — first turn should carry that.
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "I understand this is hard.",
+      atSecond: 120,
+      traceContextTags: ["history_opqrst"],
+    });
+
+    expect(savedTurns).toHaveLength(1);
+    expect(savedTurns[0]?.currentEmotion).toBe("anxious");
+    expect(savedTurns[0]?.turnId).toContain("patient_robert_hayes_v1");
+
+    // Apply de-escalation events manually, then generate another turn.
+    runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 180, turnIndex: 1 });
+    // anxious → concerned
+
+    await runtime.generateActorResponse(session.stationRunId, {
+      actorId: "patient_robert_hayes_v1",
+      learnerUtterance: "Thank you for sharing that.",
+      atSecond: 240,
+      traceContextTags: ["family_collateral"],
+    });
+
+    expect(savedTurns).toHaveLength(2);
+    // Second turn should carry the updated emotion.
+    expect(savedTurns[1]?.currentEmotion).toBe("concerned");
+  });
+
+  it("scripted multi-turn dialogue sequence produces expected emotion_transition trace events", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_006", consentAccepted: true });
+
+    // Simulate a scripted conversation: learner is empathetic → de-escalates,
+    // then dismissive → re-escalates, then interruption → ceiling.
+    const events: Array<{ kind: EmotionEventKind; atSecond: number; turnIndex: number }> = [
+      { kind: "learner_empathetic" as EmotionEventKind, atSecond: 30, turnIndex: 1 },
+      // anxious → concerned (CHANGED)
+
+      { kind: "learner_acknowledgement" as EmotionEventKind, atSecond: 60, turnIndex: 2 },
+      // concerned → reassured (CHANGED)
+
+      { kind: "learner_dismissive" as EmotionEventKind, atSecond: 90, turnIndex: 3 },
+      // reassured → concerned (CHANGED)
+
+      { kind: "learner_dismissive" as EmotionEventKind, atSecond: 120, turnIndex: 4 },
+      // concerned → anxious (CHANGED)
+
+      { kind: "learner_interruption" as EmotionEventKind, atSecond: 150, turnIndex: 5 },
+      // anxious → anxious (NO CHANGE — at ceiling)
+    ];
+
+    for (const ev of events) {
+      runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", ev.kind, {
+        atSecond: ev.atSecond,
+        turnIndex: ev.turnIndex,
+      });
+    }
+
+    const emotionTraces = runtime.traceEvents(session.stationRunId).filter((e) => e.eventType === "emotion_transition");
+    // 4 of 5 events produced a change → 4 traces expected.
+    expect(emotionTraces).toHaveLength(4);
+
+    expect(emotionTraces.map((e) => e.payload)).toEqual([
+      { from: "anxious", to: "concerned", trigger: "learner_empathetic", turnIndex: 1 },
+      { from: "concerned", to: "reassured", trigger: "learner_acknowledgement", turnIndex: 2 },
+      { from: "reassured", to: "concerned", trigger: "learner_dismissive", turnIndex: 3 },
+      { from: "concerned", to: "anxious", trigger: "learner_dismissive", turnIndex: 4 },
+    ]);
+
+    // Final emotion state should be "anxious" (ceiling).
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("anxious");
+  });
+
+  it("interruption on reassured actor escalates to anxious in a single step", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_007", consentAccepted: true });
+
+    // De-escalate first: anxious → concerned → reassured
+    runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 10, turnIndex: 1 });
+    runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 20, turnIndex: 2 });
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("reassured");
+
+    // Interrupt → jumps straight to anxious (per anxiousParentPolicy: reassured + interruption → anxious)
+    const t = runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_interruption" as EmotionEventKind, { atSecond: 30, turnIndex: 3 });
+    expect(t.changed).toBe(true);
+    expect(t.from).toBe("reassured");
+    expect(t.to).toBe("anxious");
+
+    const emotionTraces = runtime.traceEvents(session.stationRunId).filter((e) => e.eventType === "emotion_transition");
+    expect(emotionTraces).toHaveLength(3);
+    expect(emotionTraces[2]?.payload).toMatchObject({
+      from: "reassured",
+      to: "anxious",
+      trigger: "learner_interruption",
+    });
+  });
+
+  it("different actors maintain independent emotion state", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const session = await runtime.startSession({ learnerId: "learner_emo_008", consentAccepted: true });
+
+    // De-escalate patient: anxious → concerned
+    runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_empathetic" as EmotionEventKind, { atSecond: 10, turnIndex: 1 });
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("concerned");
+    // Nurse stays at baseline.
+    expect(runtime.getActorEmotion(session.stationRunId, "nurse_maria_alvarez_v1")).toBe("anxious");
+
+    // Patient traces: 1 change
+    const patientTraces = runtime.traceEvents(session.stationRunId).filter(
+      (e) => e.eventType === "emotion_transition" && e.actorId === "patient_robert_hayes_v1",
+    );
+    expect(patientTraces).toHaveLength(1);
+    expect(patientTraces[0]?.payload).toMatchObject({ from: "anxious", to: "concerned" });
+
+    // Nurse unaffected.
+    const nurseTraces = runtime.traceEvents(session.stationRunId).filter(
+      (e) => e.eventType === "emotion_transition" && e.actorId === "nurse_maria_alvarez_v1",
+    );
+    expect(nurseTraces).toHaveLength(0);
   });
 });
 

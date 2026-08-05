@@ -3,8 +3,12 @@ import {
   type ActorTurnInProgress,
   type ArbitrateTurnTakingInput,
   type BargeInResolution,
+  type CaseEmotionPolicy,
   type ConversationPolicy,
   createDefaultConversationPolicy,
+  EmotionEngine,
+  type EmotionEventKind,
+  type EmotionTransition,
   type HistoryTakingCoverageSpec,
   type HistoryTakingCoverageState,
   type LearnerBargeInInput,
@@ -38,7 +42,7 @@ import {
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import { type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent, validateProviderHealth } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import {
   type AudioEvent,
@@ -176,6 +180,8 @@ type SessionRecord = {
   historyTakingCoverage: HistoryTakingCoverageState;
   historyTakingCoverageSpec: HistoryTakingCoverageSpec;
   lastSpeakerActorId: string | null;
+  emotionEngines: Map<string, EmotionEngine>;
+  emotionPolicy: CaseEmotionPolicy;
 };
 
 type GenerateActorResponseFromContextInput = {
@@ -193,6 +199,44 @@ type GenerateActorResponseFromContextInput = {
  * Callers may supply Mongo/API sinks without coupling the runtime package
  * to data-mongodb.
  */
+/**
+ * Default fallback emotion policy (mirrors anxiousParentPolicy).
+ *
+ * TODO(opt-in): replace with `import { anxiousParentPolicy } from "@openclinxr/conversation-policy"`
+ * once the fixtures subpath is exported from the conversation-policy package.
+ */
+const DEFAULT_EMOTION_POLICY: CaseEmotionPolicy = {
+  baseline: "anxious",
+  upperBound: "anxious",
+  lowerBound: "reassured",
+  transitions: [
+    { from: "anxious", triggeredBy: "learner_empathetic", to: "concerned" },
+    { from: "anxious", triggeredBy: "learner_acknowledgement", to: "concerned" },
+    { from: "concerned", triggeredBy: "learner_empathetic", to: "reassured" },
+    { from: "concerned", triggeredBy: "learner_acknowledgement", to: "reassured" },
+    { from: "reassured", triggeredBy: "learner_empathetic", to: "reassured" },
+    { from: "reassured", triggeredBy: "learner_acknowledgement", to: "reassured" },
+    { from: "neutral", triggeredBy: "learner_empathetic", to: "reassured" },
+    { from: "neutral", triggeredBy: "learner_acknowledgement", to: "reassured" },
+    { from: "reassured", triggeredBy: "learner_dismissive", to: "concerned" },
+    { from: "reassured", triggeredBy: "learner_interruption", to: "anxious" },
+    { from: "concerned", triggeredBy: "learner_dismissive", to: "anxious" },
+    { from: "concerned", triggeredBy: "learner_interruption", to: "anxious" },
+    { from: "neutral", triggeredBy: "learner_dismissive", to: "concerned" },
+    { from: "neutral", triggeredBy: "learner_interruption", to: "concerned" },
+    { from: "anxious", triggeredBy: "learner_dismissive", to: "anxious" },
+    { from: "anxious", triggeredBy: "learner_interruption", to: "anxious" },
+    { from: "anxious", triggeredBy: "actor_silence_timeout", to: "anxious" },
+    { from: "concerned", triggeredBy: "actor_silence_timeout", to: "concerned" },
+    { from: "reassured", triggeredBy: "actor_silence_timeout", to: "reassured" },
+    { from: "neutral", triggeredBy: "actor_silence_timeout", to: "neutral" },
+    { from: "anxious", triggeredBy: "learner_clinical_question", to: "concerned" },
+    { from: "concerned", triggeredBy: "learner_clinical_question", to: "concerned" },
+    { from: "anxious", triggeredBy: "learner_personal_question", to: "concerned" },
+    { from: "concerned", triggeredBy: "learner_personal_question", to: "concerned" },
+  ],
+};
+
 export type ScenarioRuntimeActorTurn = {
   turnId: string;
   stationRunId: string;
@@ -206,6 +250,8 @@ export type ScenarioRuntimeActorTurn = {
   durableEventRef: string;
   learnerEventSequence: number;
   actorResponseEventSequence: number;
+  /** Current affective state at the time this actor turn was produced (additive, back-compat). */
+  currentEmotion: InteractionEmotion | undefined;
 };
 
 export type ScenarioRuntimeDurableStore = {
@@ -277,6 +323,11 @@ export class ScenarioRuntime {
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 0, eventType: "station.started", atSecond: 0, source: "system" }));
     this.options.ledger.append(traceEvent({ stationRunId: run.stationRunId, sequence: 1, eventType: "consent.accepted", atSecond: 0, source: "learner" }));
     const historyTakingCoverageSpec = this.conversationPolicy.buildHistoryTakingCoverageSpec(this.options.scenario);
+    const emotionPolicy = resolveCaseEmotionPolicy(this.options.scenario);
+    const emotionEngines = new Map<string, EmotionEngine>();
+    for (const actor of this.options.scenario.actors) {
+      emotionEngines.set(actor.actorId, new EmotionEngine(emotionPolicy.baseline));
+    }
     this.sessions.set(run.stationRunId, {
       run,
       multiActorSession: createMultiActorClinicalSession({
@@ -288,6 +339,8 @@ export class ScenarioRuntime {
       historyTakingCoverageSpec,
       historyTakingCoverage: this.conversationPolicy.initialHistoryTakingCoverageState(historyTakingCoverageSpec),
       lastSpeakerActorId: null,
+      emotionEngines,
+      emotionPolicy,
     });
 
     return {
@@ -463,6 +516,56 @@ export class ScenarioRuntime {
       },
     });
     return { resolution, event };
+  }
+
+  /**
+   * Apply an emotion event against the actor's EmotionEngine.
+   * When the emotion CHANGES, emits a trace event with the PINNED shape:
+   *   { eventType: "emotion_transition", actorId, payload: { from, to, trigger, turnIndex } }
+   *
+   * Returns the resolved EmotionTransition (changed=true when a transition occurred).
+   */
+  applyEmotionEvent(
+    stationRunId: string,
+    actorId: string,
+    kind: EmotionEventKind,
+    opts?: { atSecond?: number; turnIndex?: number },
+  ): EmotionTransition {
+    const session = this.requireSession(stationRunId);
+    const engine = session.emotionEngines.get(actorId);
+    if (!engine) {
+      throw new Error(`No emotion engine for actor: ${actorId}`);
+    }
+
+    const atSecond = opts?.atSecond ?? 0;
+    const transition = engine.transition({ kind }, session.emotionPolicy, opts?.turnIndex);
+
+    if (transition.changed) {
+      this.appendTrace(session, {
+        eventType: "emotion_transition",
+        atSecond,
+        source: "emotion-engine",
+        actorId,
+        payload: {
+          from: transition.from,
+          to: transition.to,
+          trigger: transition.trigger,
+          turnIndex: transition.turnIndex,
+        },
+      });
+    }
+
+    return transition;
+  }
+
+  /** Return the current InteractionEmotion for an actor in a session. */
+  getActorEmotion(stationRunId: string, actorId: string): InteractionEmotion {
+    const session = this.requireSession(stationRunId);
+    const engine = session.emotionEngines.get(actorId);
+    if (!engine) {
+      throw new Error(`No emotion engine for actor: ${actorId}`);
+    }
+    return engine.currentEmotion;
   }
 
   /** Current history-taking domain coverage for a session (traced, not scored). */
@@ -853,6 +956,8 @@ export class ScenarioRuntime {
       },
     });
 
+    const currentEmotion = session.emotionEngines.get(input.actorId)?.currentEmotion;
+
     const actorTurn: ScenarioRuntimeActorTurn = {
       turnId: `turn_${input.conversationTurn}_${input.actorId}_${input.atSecond}`,
       stationRunId: session.run.stationRunId,
@@ -866,6 +971,7 @@ export class ScenarioRuntime {
       durableEventRef: actorResponseDurableRef,
       learnerEventSequence: learnerEvent.sequence,
       actorResponseEventSequence: actorResponseEvent.sequence,
+      currentEmotion,
     };
     await this.options.durableStore?.saveActorTurn?.(session.run.stationRunId, actorTurn);
 
@@ -947,6 +1053,28 @@ export function createScenarioRuntimeWithPersistenceHooks(
   return createDefaultScenarioRuntime({
     durableStore: createDurableStoreFromPersistenceHooks(hooks),
   });
+}
+
+/**
+ * Resolve the CaseEmotionPolicy for a scenario.
+ *
+ * Checks for an optional emotionPolicy field on the scenario at runtime
+ * (not yet in the shared-schemas type — opt-in future field).
+ * Falls back to DEFAULT_EMOTION_POLICY (anxious-parent mirror).
+ */
+function resolveCaseEmotionPolicy(scenario: Scenario): CaseEmotionPolicy {
+  const s = scenario as Record<string, unknown>;
+  const raw = s["emotionPolicy"];
+  if (raw != null && typeof raw === "object") {
+    const p = raw as Record<string, unknown>;
+    if (
+      typeof p["baseline"] === "string" &&
+      Array.isArray(p["transitions"])
+    ) {
+      return raw as CaseEmotionPolicy;
+    }
+  }
+  return DEFAULT_EMOTION_POLICY;
 }
 
 type TraceEventInput = {
