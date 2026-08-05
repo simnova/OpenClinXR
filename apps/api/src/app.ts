@@ -192,7 +192,13 @@ import {
   asRealTelemetryRecorder,
 } from "./api-support.js";
 import { createApiAppContext } from "./api-app-context.js";
+import { registerReviewRoutes } from "./routes/review-routes.js";
+import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
+import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
+import { registerAuthoringRoutes } from "./routes/authoring-routes.js";
+import { registerExamRoutes } from "./routes/exam-routes.js";
 import { registerPlatformRoutes } from "./routes/platform-routes.js";
+import { buildAssetReleaseLadderReplayProjection, createSeedBankAssetReadiness, createSeedBankSceneGenerationPipelineQueue, createSeedStationRunQueueSnapshot, findSeedBankAssetReadiness, summarizeClinicalEventReviewProjections, summarizeReviewReplayReadiness, uniqueStrings } from "./api-route-support.js";
 
 const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
   "SaveFacultyScoreDraft",
@@ -220,8 +226,6 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     latestMaterializationInputReviewDecisionRecordForPacket,
   } = ctx;
   const { allowDevDefaultIdentity, secret: authSecret, defaultIdentity } = ctx.auth;
-  let runtimeRealismEvidenceInputReviewDecisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined;
-  let runtimeVisualEvidenceAttachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined;
 
   app.use("*", async (context, next) => {
     context.header("access-control-allow-origin", "*");
@@ -286,8 +290,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   );
 
   app.get(routeById("runtime-selection-review-packet").path, (context) => {
-    const inMemoryReviewScenarioId = runtimeVisualEvidenceAttachmentRecord?.scenarioId
-      ?? runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId
+    const inMemoryReviewScenarioId = ctx.state.runtimeVisualEvidenceAttachmentRecord?.scenarioId
+      ?? ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId
       ?? sceneGenerationRequests.find((candidate) => candidate.materializationInputReviewDecisionRecord)?.scenarioId;
     const durablePacket = readRepoGeneratedJsonIfExists(
       "docs/openclinxr/encounter-runtime-selection-review-packet-peds-asthma-parent-anxiety-2026-05-28.json",
@@ -298,15 +302,15 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
           attachMaterializationInputManifestSummary(attachRuntimeRealismEvidenceInputDraft(attachPedsHumanoidMaterializationHandoff(durablePacket))),
         ),
       );
-      const packetWithRuntimeReviewRecord = attachRuntimeRealismEvidenceInputReviewDecisionRecord(packetWithSummary, runtimeRealismEvidenceInputReviewDecisionRecord);
+      const packetWithRuntimeReviewRecord = attachRuntimeRealismEvidenceInputReviewDecisionRecord(packetWithSummary, ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord);
       const packetWithRuntimeEvidenceScaffold = attachMaterializationInputReviewDecisionRecord(
         attachRuntimeVisualEvidenceAttachmentRecord(
           attachRuntimeVisualEvidenceAttachmentActionPacket(
-            attachRuntimeVisualEvidenceAttachmentSummary(packetWithRuntimeReviewRecord, runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord),
-            runtimeRealismEvidenceInputReviewDecisionRecord,
-            runtimeVisualEvidenceAttachmentRecord,
+            attachRuntimeVisualEvidenceAttachmentSummary(packetWithRuntimeReviewRecord, ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, ctx.state.runtimeVisualEvidenceAttachmentRecord),
+            ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord,
+            ctx.state.runtimeVisualEvidenceAttachmentRecord,
           ),
-          runtimeVisualEvidenceAttachmentRecord,
+          ctx.state.runtimeVisualEvidenceAttachmentRecord,
         ),
         latestMaterializationInputReviewDecisionRecordForPacket(packetWithSummary),
       );
@@ -401,14 +405,14 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       materializationAttachmentPlanSummary: readMaterializationAttachmentPlanSummaryForScenario(bundle.scenarioId),
       materializationEvidenceAttachmentSummary: readMaterializationEvidenceAttachmentSummaryForScenario(bundle.scenarioId),
       materializationInputReviewDecisionRecord,
-      runtimeRealismEvidenceInputReviewDecisionRecord,
-      runtimeVisualEvidenceAttachmentSummary: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
-        ? buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord)
+      runtimeRealismEvidenceInputReviewDecisionRecord: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord,
+      runtimeVisualEvidenceAttachmentSummary: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
+        ? buildRuntimeRealismEvidenceAttachmentSummary(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, ctx.state.runtimeVisualEvidenceAttachmentRecord)
         : undefined,
-      runtimeVisualEvidenceAttachmentActionPacket: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
-        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord))
+      runtimeVisualEvidenceAttachmentActionPacket: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === bundle.scenarioId
+        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, ctx.state.runtimeVisualEvidenceAttachmentRecord))
         : undefined,
-      runtimeVisualEvidenceAttachmentRecord: runtimeVisualEvidenceAttachmentRecord?.scenarioId === bundle.scenarioId ? runtimeVisualEvidenceAttachmentRecord : undefined,
+      runtimeVisualEvidenceAttachmentRecord: ctx.state.runtimeVisualEvidenceAttachmentRecord?.scenarioId === bundle.scenarioId ? ctx.state.runtimeVisualEvidenceAttachmentRecord : undefined,
       runtimeEvidenceCaptureScaffold: readRuntimeEvidenceCaptureScaffoldForScenario(bundle.scenarioId),
       runtimeExecutionAllowed: false,
       learnerLaunchAllowed: false,
@@ -439,16 +443,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : "peds_asthma_parent_anxiety_v1";
     const decisions = Array.isArray(body.decisions) ? body.decisions.filter(isRuntimeRealismEvidenceInputReviewDecision) : [];
     runtimeRealismEvidenceInputReviewDecisions.push(...decisions);
-    runtimeRealismEvidenceInputReviewDecisionRecord = buildRuntimeRealismEvidenceInputReviewDecisionRecord({
+    ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord = buildRuntimeRealismEvidenceInputReviewDecisionRecord({
       scenarioId,
       decisions: runtimeRealismEvidenceInputReviewDecisions,
     });
-    return context.json(runtimeRealismEvidenceInputReviewDecisionRecord);
+    return context.json(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord);
   });
 
   app.post(routeById("submit-runtime-visual-evidence-attachment").path, async (context) => {
     const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; attachments?: unknown };
-    const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId ?? "peds_asthma_parent_anxiety_v1";
+    const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId ?? "peds_asthma_parent_anxiety_v1";
     if (isRecord(body) && isRawUiXrManualPerformancePayload(body)) {
       return context.json({
         error: "raw_ui_xr_payload_not_accepted",
@@ -465,13 +469,13 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         claimBoundary: "runtime_visual_evidence_attachment_route_rejects_raw_ui_xr_payloads",
       }, 400);
     }
-    if (!runtimeRealismEvidenceInputReviewDecisionRecord || runtimeRealismEvidenceInputReviewDecisionRecord.scenarioId !== scenarioId) {
+    if (!ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord || ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord.scenarioId !== scenarioId) {
       return context.json({ error: "runtime_realism_evidence_input_review_required", scenarioId }, 400);
     }
     const actionPacket = buildRuntimeVisualEvidenceAttachmentActionPacket(
-      buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, undefined),
+      buildRuntimeRealismEvidenceAttachmentSummary(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, undefined),
     );
-    const reviewedInputIds = new Set(runtimeRealismEvidenceInputReviewDecisionRecord.decisions
+    const reviewedInputIds = new Set(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord.decisions
       .filter((decision) => decision.decision === "reviewed_metadata_only")
       .map((decision) => decision.inputId));
     const allowedActionIds = new Set(actionPacket?.availableActions.map((action) => action.actionId) ?? []);
@@ -486,11 +490,11 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ))
       : [];
     runtimeVisualEvidenceAttachments.push(...attachments);
-    runtimeVisualEvidenceAttachmentRecord = buildRuntimeVisualEvidenceAttachmentRecord({
+    ctx.state.runtimeVisualEvidenceAttachmentRecord = buildRuntimeVisualEvidenceAttachmentRecord({
       scenarioId,
       attachments: runtimeVisualEvidenceAttachments,
     });
-    return context.json(runtimeVisualEvidenceAttachmentRecord);
+    return context.json(ctx.state.runtimeVisualEvidenceAttachmentRecord);
   });
 
   app.get(routeById("learner-runtime-asset-bundle-list").path, async (context) => {
@@ -598,8 +602,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(graphqlOperationName !== "anonymous" ? { operationName: graphqlOperationName } : {}),
       },
       createAdminGraphqlRoot(runtime, persistence, adminScenarioOverrides, {
-        ...(runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
-        ...(runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord } : {}),
+        ...(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
+        ...(ctx.state.runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord: ctx.state.runtimeVisualEvidenceAttachmentRecord } : {}),
       }),
     );
     await recordGraphqlOperationSpan(telemetry, {
@@ -864,16 +868,16 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
       materializationEvidenceAttachmentSummary,
       materializationInputReviewActionPacket: buildMaterializationInputReviewActionPacket(materializationInputManifestSummary, notEvidenceFor),
       materializationInputReviewDecisionRecord: record.materializationInputReviewDecisionRecord,
-      runtimeRealismEvidenceInputReviewDecisionRecord: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
-        ? runtimeRealismEvidenceInputReviewDecisionRecord
+      runtimeRealismEvidenceInputReviewDecisionRecord: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord
         : undefined,
-      runtimeVisualEvidenceAttachmentSummary: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
-        ? buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord)
+      runtimeVisualEvidenceAttachmentSummary: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? buildRuntimeRealismEvidenceAttachmentSummary(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, ctx.state.runtimeVisualEvidenceAttachmentRecord)
         : undefined,
-      runtimeVisualEvidenceAttachmentActionPacket: runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
-        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(runtimeRealismEvidenceInputReviewDecisionRecord, runtimeVisualEvidenceAttachmentRecord))
+      runtimeVisualEvidenceAttachmentActionPacket: ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId === record.scenarioId
+        ? buildRuntimeVisualEvidenceAttachmentActionPacket(buildRuntimeRealismEvidenceAttachmentSummary(ctx.state.runtimeRealismEvidenceInputReviewDecisionRecord, ctx.state.runtimeVisualEvidenceAttachmentRecord))
         : undefined,
-      runtimeVisualEvidenceAttachmentRecord: runtimeVisualEvidenceAttachmentRecord?.scenarioId === record.scenarioId ? runtimeVisualEvidenceAttachmentRecord : undefined,
+      runtimeVisualEvidenceAttachmentRecord: ctx.state.runtimeVisualEvidenceAttachmentRecord?.scenarioId === record.scenarioId ? ctx.state.runtimeVisualEvidenceAttachmentRecord : undefined,
       assetReleaseLadderReplayProjection: buildAssetReleaseLadderReplayProjection(record.scenarioId),
       runtimeEvidenceCaptureScaffold: readRuntimeEvidenceCaptureScaffoldForScenario(record.scenarioId),
       claimBoundary: "publication_readiness_not_learner_bundle_persistence",
@@ -897,522 +901,15 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     );
   });
 
-  app.get(routeById("default-exam-blueprint").path, (context) => context.json(createDefaultClinicalSkillsBlueprint()));
-
-  app.get(routeById("step2cs-seed-exam-blueprint").path, (context) => context.json(createStep2CsStyleSeedBlueprint()));
-
-  app.get(routeById("step2cs-seed-exam-blueprint-readiness").path, (context) =>
-    context.json(evaluateBlueprintScenarioReadiness(createStep2CsStyleSeedBlueprint(), scenarioBank)),
-  );
-
-  app.get(routeById("step2cs-seed-exam-timing-plan").path, (context) =>
-    context.json(createExamTimingPlan(createStep2CsStyleSeedBlueprint())),
-  );
-
-  app.get(routeById("step2cs-seed-station-run-queue").path, (context) =>
-    context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank)),
-  );
-
-  app.get(routeById("list-step2cs-seed-station-run-queue-snapshots").path, async (context) => {
-    const blueprintId = createStep2CsStyleSeedBlueprint().blueprintId;
-    return context.json(await Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []));
-  });
-
-  app.post(routeById("create-step2cs-seed-station-run-queue-snapshot").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as {
-      snapshotId?: unknown;
-      createdAt?: unknown;
-      reviewerId?: unknown;
-    };
-    const snapshot = createSeedStationRunQueueSnapshot(body);
-
-    await persistence.saveStationRunQueueSnapshot?.(snapshot);
-    return context.json(snapshot, 201);
-  });
-
-  app.post(routeById("create-exam-form").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
-    const form = assembleExamForm({
-      examFormId: body.examFormId ?? "form_openclinxr_pilot_001",
-      blueprint: createDefaultClinicalSkillsBlueprint(),
-      scenarios: [edChestPainScenario],
-    });
-    await persistence.saveExamForm?.(form);
-    return context.json(form, 201);
-  });
-
-  app.post(routeById("exam-form-version-drift").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { form?: unknown };
-    if (!isExamForm(body.form)) {
-      return context.json({ error: "invalid_exam_form" }, 400);
-    }
-
-    return context.json(evaluateScenarioVersionDrift(body.form, [edChestPainScenario]));
-  });
-
-  // Authored scenario persistence (control-plane). Registered after literal
-  // /scenarios/ed-chest-pain* handlers so Hono prefers static learner routes.
-  app.post(routeById("save-authored-scenario").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { scenario?: unknown };
-    const validation = validateScenario(body.scenario);
-    if (!validation.ok) {
-      return context.json({ error: "invalid_scenario", details: validation.errors }, 400);
-    }
-    const scenario = body.scenario as Scenario;
-    if (!persistence.saveAuthoredScenario) {
-      return context.json({ error: "authored_scenario_persistence_unavailable" }, 503);
-    }
-    await persistence.saveAuthoredScenario(scenario);
-    return context.json({ saved: true, scenarioId: scenario.scenarioId, version: scenario.version }, 201);
-  });
-
-  app.get(routeById("list-authored-scenarios").path, async (context) => {
-    const scenarios = (await persistence.listAuthoredScenarios?.()) ?? [];
-    return context.json({ scenarios });
-  });
-
-  app.get(routeById("get-authored-scenario").path, async (context) => {
-    const scenarioId = context.req.param("scenarioId");
-    const scenario = await persistence.getAuthoredScenario?.(scenarioId);
-    if (!scenario) {
-      return context.json({ error: "authored_scenario_not_found" }, 404);
-    }
-    return context.json({ scenario });
-  });
-
-  app.post(routeById("submit-internal-capability-job").path, async (context) => {
-    const capabilityId = context.req.param("capabilityId");
-    if (!isAssetGenerationCapabilityId(capabilityId)) {
-      return context.json({ error: "invalid_capability_id" }, 400);
-    }
-
-    const body = (await context.req.json().catch(() => ({}))) as {
-      profile?: unknown;
-      payload?: unknown;
-      policy?: unknown;
-    };
-    const job = await assetGenerationFacade.submit({
-      profile: parseRuntimeProfile(body.profile),
-      capabilityId,
-      payload: body.payload,
-      ...(isRecord(body.policy) ? { policy: body.policy as AssetGenerationJobPolicyInput } : {}),
-    });
-
-    return context.json(job, 201);
-  });
-
-  app.get(routeById("read-internal-capability-job").path, async (context) => {
-    const capabilityId = context.req.param("capabilityId");
-    if (!isAssetGenerationCapabilityId(capabilityId)) {
-      return context.json({ error: "invalid_capability_id" }, 400);
-    }
-
-    const jobId = context.req.param("jobId");
-    const job = await assetGenerationFacade.get(jobId);
-    if (!job || job.request.capabilityId !== capabilityId) {
-      return context.json({ error: "job_not_found" }, 404);
-    }
-
-    return context.json(job);
-  });
-
-  app.post(routeById("start-session").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string; consentAccepted?: boolean };
-    if (body.consentAccepted !== true) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      return context.json({ error: "consent_required" }, 400);
-    }
-    const identity = context.get("identity");
-    const learnerId = resolveSessionLearnerId(identity, body.learnerId);
-    if (learnerId.trim().length === 0) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      return context.json({ error: "learner_id_required" }, 400);
-    }
-    try {
-      const run = await runtime.startSession({ learnerId, consentAccepted: true });
-      sessionOwners.set(run.stationRunId, learnerId);
-      await persistTraceSnapshot(runtime, persistence, run.stationRunId);
-      asRealTelemetryRecorder(telemetry)?.incrementRun("started");
-      return context.json(run, 201);
-    } catch (error) {
-      asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
-      throw error;
-    }
-  });
-
-  app.post(routeById("start-encounter").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
-
-    try {
-      const summary = runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      asRealTelemetryRecorder(telemetry)?.incrementEncounter("started");
-      return context.json(summary);
-    } catch (error) {
-      asRealTelemetryRecorder(telemetry)?.incrementEncounter("failed");
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("append-trace-event").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      eventType?: string;
-      atSecond?: number;
-      tag?: string;
-      actorId?: string;
-    };
-
-    try {
-      const event = runtime.appendLearnerEvent(stationRunId, {
-        eventType: body.eventType ?? "learner.action",
-        atSecond: body.atSecond ?? 0,
-        ...(body.tag ? { tag: body.tag } : {}),
-        ...(body.actorId ? { actorId: body.actorId } : {}),
-      });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json(event, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("record-clinical-action").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      atSecond?: unknown;
-      actorId?: unknown;
-      traceTag?: unknown;
-      actionType?: unknown;
-      label?: unknown;
-    };
-
-    try {
-      const event = runtime.recordClinicalAction(stationRunId, {
-        atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
-        actorId: typeof body.actorId === "string" ? body.actorId : "",
-        traceTag: typeof body.traceTag === "string" ? body.traceTag : "clinical_action",
-        actionType: body.actionType === "finding_observed" ? "finding_observed" : "order_requested",
-        label: typeof body.label === "string" ? body.label : "Clinical action",
-      });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json(event, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("actor-interaction-route").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      learnerUtterance?: unknown;
-      atSecond?: unknown;
-      traceContextTags?: unknown;
-      source?: unknown;
-    };
-    const source = parseActorInteractionSource(body.source);
-
-    try {
-      const result = runtime.routeActorInteractionTurn(stationRunId, {
-        learnerUtterance: typeof body.learnerUtterance === "string" ? body.learnerUtterance : "",
-        atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
-        traceContextTags: parseStringArray(body.traceContextTags),
-        ...(source ? { source } : {}),
-      });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json({
-        routedActorId: result.routedActorId,
-        routingReason: result.routingReason,
-        conversationTurn: result.conversationTurn,
-        interactionEvent: result.interactionEvent,
-      }, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("actor-response").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      actorId?: unknown;
-      learnerUtterance?: unknown;
-      atSecond?: unknown;
-      traceContextTags?: unknown;
-      source?: unknown;
-    };
-    const learnerUtterance = typeof body.learnerUtterance === "string" ? body.learnerUtterance : "";
-    const atSecond = typeof body.atSecond === "number" ? body.atSecond : 0;
-    const traceContextTags = parseStringArray(body.traceContextTags);
-    const actorId = typeof body.actorId === "string" ? body.actorId.trim() : "";
-    const source = parseActorInteractionSource(body.source);
-
-    try {
-      const result = actorId.length > 0
-        ? await runtime.generateActorResponse(stationRunId, {
-            actorId,
-            learnerUtterance,
-            atSecond,
-            traceContextTags,
-          })
-        : await runtime.generateRoutedActorResponse(stationRunId, {
-            learnerUtterance,
-            atSecond,
-            traceContextTags,
-            ...(source ? { source } : {}),
-          });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json(result, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("voice-synthesis").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      actorId?: string;
-      voiceId?: string;
-      text?: string;
-      atSecond?: number;
-    };
-
-    try {
-      const result = await runtime.synthesizeActorSpeech(stationRunId, {
-        actorId: body.actorId ?? "",
-        voiceId: body.voiceId ?? "",
-        text: body.text ?? "",
-        atSecond: body.atSecond ?? 0,
-      });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json(result, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.post(routeById("submit-note").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
-
-    try {
-      const result = runtime.submitNote(stationRunId, {
-        atSecond: body.atSecond ?? 1260,
-        text: body.text ?? "",
-      });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
-      return context.json(result);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.get(routeById("review-packet").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const ownershipDenied = denyIfCannotReadStationRun(context.get("identity"), sessionOwners, stationRunId);
-    if (ownershipDenied) {
-      return context.json(ownershipDenied.body, ownershipDenied.status);
-    }
-
-    try {
-      const packet = runtime.reviewPacket(stationRunId);
-      await persistence.saveReviewPacket?.(stationRunId, packet);
-      return context.json(packet);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.get(routeById("trace-events").path, (context) => {
-    const stationRunId = context.req.param("stationRunId");
-    const ownershipDenied = denyIfCannotReadStationRun(context.get("identity"), sessionOwners, stationRunId);
-    if (ownershipDenied) {
-      return context.json(ownershipDenied.body, ownershipDenied.status);
-    }
-
-    try {
-      return context.json(runtime.traceEvents(stationRunId));
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  app.get(routeById("review-replay-readiness-summary").path, async (context) => {
-    const stationRunId = context.req.param("stationRunId");
-
-    try {
-      const clinicalEventReviewSummary = summarizeClinicalEventReviewProjections(
-        await persistence.listClinicalEventReviewProjections?.(stationRunId) ?? [],
-      );
-      return context.json(summarizeReviewReplayReadiness({
-        stationRunId,
-        packet: runtime.reviewPacket(stationRunId),
-        clinicalEventReviewSummary,
-        traceEvents: runtime.traceEvents(stationRunId),
-        ...(runtimeRealismEvidenceInputReviewDecisionRecord ? { runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
-        ...(runtimeVisualEvidenceAttachmentRecord ? { runtimeVisualEvidenceAttachmentRecord } : {}),
-      }));
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  /**
-   * NEW faculty-only route — do not mirror this gate onto existing routes.
-   * Default dev identity is admin (faculty access) so single-user tests stay green.
-   */
-  app.post(routeById("save-faculty-score-draft").path, async (context) => {
-    if (!hasFacultyAccess(context.get("identity"))) {
-      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
-    }
-
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      reviewerId?: unknown;
-      comments?: unknown;
-      rubricScores?: unknown;
-    };
-
-    try {
-      const facultyScoreDraft = buildFacultyScoreDraft({
-        reviewerId: typeof body.reviewerId === "string" ? body.reviewerId : "",
-        comments: typeof body.comments === "string" ? body.comments : "",
-        ...(isRecord(body.rubricScores) ? { rubricScores: coerceRubricScores(body.rubricScores) } : {}),
-      });
-
-      // Keep runtime packet in sync when session exists (GraphQL path parity).
-      let scenarioId = "unknown_scenario";
-      try {
-        const packet = runtime.saveFacultyScoreDraft(stationRunId, {
-          reviewerId: facultyScoreDraft.reviewerId,
-          comments: facultyScoreDraft.comments.length > 0 ? facultyScoreDraft.comments : "faculty draft",
-          rubricScores: { ...facultyScoreDraft.rubricScores },
-        });
-        scenarioId = packet.scenarioId;
-        await persistTraceSnapshot(runtime, persistence, stationRunId);
-        await persistence.saveReviewPacket?.(stationRunId, packet);
-      } catch {
-        // Session may be absent for pure draft-persistence; continue with sink-only write.
-        try {
-          scenarioId = runtime.reviewPacket(stationRunId).scenarioId;
-        } catch {
-          scenarioId = "unknown_scenario";
-        }
-      }
-
-      const record = createApiFacultyScoreDraftRecord({
-        stationRunId,
-        scenarioId,
-        facultyScoreDraft,
-      });
-      await persistence.saveFacultyScoreDraft?.(record);
-      return context.json(record, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
-  /**
-   * NEW faculty-only route — local promote/hold decision only.
-   * runtimePromotionAllowed / productionManifestPromotionAllowed / scoringValidityClaimed always false.
-   */
-  app.post(routeById("save-faculty-review-decision").path, async (context) => {
-    if (!hasFacultyAccess(context.get("identity"))) {
-      return context.json({ error: "forbidden", reason: "faculty_role_required" }, 403);
-    }
-
-    const stationRunId = context.req.param("stationRunId");
-    const body = (await context.req.json().catch(() => ({}))) as {
-      reviewerId?: unknown;
-      comments?: unknown;
-      rubricScores?: unknown;
-      localDecision?: unknown;
-      hasDurableSummary?: unknown;
-      durableSummaryIsSafe?: unknown;
-      traceEventCount?: unknown;
-      safetyFlagLabels?: unknown;
-    };
-
-    try {
-      const packet = runtime.reviewPacket(stationRunId);
-      const facultyScoreDraftInput = {
-        reviewerId: typeof body.reviewerId === "string" && body.reviewerId.trim().length > 0
-          ? body.reviewerId
-          : packet.facultyScoreDraft.reviewerId,
-        comments: typeof body.comments === "string" ? body.comments : packet.facultyScoreDraft.comments,
-        ...(isRecord(body.rubricScores) ? { rubricScores: coerceRubricScores(body.rubricScores) } : {}),
-      };
-      const decisionDraft = buildReviewDecisionDraft({
-        stationRunId,
-        scenarioId: packet.scenarioId,
-        packet,
-        facultyScoreDraft: facultyScoreDraftInput,
-        hasDurableSummary: body.hasDurableSummary === true,
-        durableSummaryIsSafe: body.durableSummaryIsSafe === true,
-        traceEventCount: typeof body.traceEventCount === "number" ? body.traceEventCount : 0,
-        safetyFlagLabels: parseStringArray(body.safetyFlagLabels),
-      });
-
-      // Persist gated score draft as well (same sink surface).
-      const draftRecord = createApiFacultyScoreDraftRecord({
-        stationRunId,
-        scenarioId: packet.scenarioId,
-        facultyScoreDraft: decisionDraft.facultyScoreDraft,
-      });
-      await persistence.saveFacultyScoreDraft?.(draftRecord);
-
-      const localDecision = body.localDecision === "local_promote_candidate" ? "local_promote_candidate" : "hold";
-      const decisionRecord: ApiFacultyReviewDecisionRecord = {
-        stationRunId,
-        scenarioId: packet.scenarioId,
-        decisionId: `faculty_review_decision:${stationRunId}:${Date.now()}`,
-        savedAt: new Date().toISOString(),
-        localDecision,
-        decisionDraft,
-        facultyScoreDraft: decisionDraft.facultyScoreDraft,
-        runtimePromotionAllowed: false,
-        productionManifestPromotionAllowed: false,
-        scoringValidityClaimed: false,
-        notEvidenceFor: [...FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR, "production_asset_readiness", "quest_readiness"],
-        claimScope: "faculty_local_review_decision_gated_not_score_use",
-      };
-      await persistence.saveFacultyReviewDecision?.(decisionRecord);
-      return context.json(decisionRecord, 201);
-    } catch (error) {
-      return sessionErrorResponse(context, error);
-    }
-  });
-
+  registerExamRoutes(app, ctx);
+  registerAuthoringRoutes(app, ctx);
+  registerCapabilityJobRoutes(app, ctx);
+  registerEncounterSessionRoutes(app, ctx);
+  registerReviewRoutes(app, ctx);
   return app;
 }
 
-function createApiFacultyScoreDraftRecord(input: {
-  stationRunId: string;
-  scenarioId: string;
-  facultyScoreDraft: FacultyScoreDraft;
-}): ApiFacultyScoreDraftRecord {
-  const savedAt = new Date().toISOString();
-  return {
-    stationRunId: input.stationRunId,
-    scenarioId: input.scenarioId,
-    draftId: `faculty_score_draft:${input.stationRunId}:${savedAt}`,
-    savedAt,
-    facultyScoreDraft: input.facultyScoreDraft,
-    scoringValidityClaimed: false,
-    notEvidenceFor: [...FACULTY_SCORE_DRAFT_NOT_EVIDENCE_FOR],
-    claimScope: FACULTY_SCORE_DRAFT_CLAIM_SCOPE,
-  };
-}
 
-function coerceRubricScores(value: Record<string, unknown>): Record<string, number> {
-  const scores: Record<string, number> = {};
-  for (const [key, raw] of Object.entries(value)) {
-    if (typeof raw === "number" && Number.isFinite(raw)) {
-      scores[key] = raw;
-    }
-  }
-  return scores;
-}
 
 
 function createAdminGraphqlRoot(
@@ -1492,393 +989,16 @@ function createAdminGraphqlRoot(
   };
 }
 
-function summarizeClinicalEventReviewProjections(projections: ApiClinicalEventReviewProjection[]) {
-  const stationRunIds = uniqueStrings(projections.map((projection) => projection.stationRunId));
-  const durableStores = uniqueStrings(projections.map((projection) => projection.durableStore));
-  return {
-    stationRunId: stationRunIds.length === 1 ? (stationRunIds[0] ?? null) : null,
-    eventCount: projections.length,
-    redactedEventCount: projections.filter((projection) => projection.privatePayloadRedacted).length,
-    clinicalEventKinds: countBy(projections.map((projection) => projection.eventKind)),
-    traceTags: uniqueStrings(projections.map((projection) => projection.traceTag).filter((tag): tag is string => Boolean(tag))),
-    statusCounts: countBy(projections.map((projection) => projection.status ?? "unknown")),
-    latestAtSecond: projections.length === 0 ? null : Math.max(...projections.map((projection) => projection.atSecond)),
-    durableStore: durableStores.length === 0 ? null : durableStores.length === 1 ? (durableStores[0] ?? null) : "mixed",
-    safeForFacultyReview: projections.every((projection) =>
-      projection.durableStore === "database_source_of_truth"
-      && projection.privatePayloadRedacted
-      && !Object.hasOwn(projection.payload, "private")
-    ),
-  };
-}
 
-function summarizeReviewReplayReadiness(input: {
-  stationRunId: string;
-  packet: RuntimeReviewPacket;
-  clinicalEventReviewSummary: ReturnType<typeof summarizeClinicalEventReviewProjections>;
-  traceEvents: RuntimeTraceEvents;
-  runtimeRealismEvidenceInputReviewDecisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
-  runtimeVisualEvidenceAttachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
-}) {
-  const traceSafetyLabels = input.traceEvents.flatMap((event) => {
-    const tag = event.tag ?? "";
-    return tag.startsWith("unsafe_") || event.eventType.includes("unsafe") || event.eventType.includes("safety")
-      ? [tag || event.eventType]
-      : [];
-  });
-  const safetySignalCount = uniqueStrings([...input.packet.unsafeEvents, ...traceSafetyLabels]).length;
-  const replayEvidenceReady = input.packet.timeline.length > 0
-    && input.traceEvents.length > 0
-    && input.clinicalEventReviewSummary.eventCount > 0
-    && input.clinicalEventReviewSummary.safeForFacultyReview;
-  const iterationSignalPresent = input.packet.missingRequiredTraceTags.length > 0
-    || input.packet.lateTraceTags.length > 0
-    || safetySignalCount > 0;
-  const blockers = [
-    input.packet.timeline.length === 0 ? "review_packet_timeline_missing" : undefined,
-    input.traceEvents.length === 0 ? "trace_events_missing" : undefined,
-    input.clinicalEventReviewSummary.eventCount === 0 ? "durable_clinical_event_summary_empty" : undefined,
-    input.clinicalEventReviewSummary.redactedEventCount < input.clinicalEventReviewSummary.eventCount ? "durable_event_redaction_incomplete" : undefined,
-    input.clinicalEventReviewSummary.safeForFacultyReview ? undefined : "durable_summary_not_safe_for_faculty_review",
-    input.packet.missingRequiredTraceTags.length > 0 ? "missing_required_behaviors_present" : undefined,
-    input.packet.lateTraceTags.length > 0 ? "late_required_behaviors_present" : undefined,
-    safetySignalCount > 0 ? "safety_signals_present" : undefined,
-  ].filter((blocker): blocker is string => Boolean(blocker));
-  const reviewPacketEvidenceHandoff = buildReviewPacketEvidenceHandoff(input);
-  const runtimeVisualEvidenceReplayProjection = buildRuntimeVisualEvidenceReplayProjection({
-    stationRunId: input.stationRunId,
-    scenarioId: input.packet.scenarioId,
-    ...(input.runtimeRealismEvidenceInputReviewDecisionRecord ? { decisionRecord: input.runtimeRealismEvidenceInputReviewDecisionRecord } : {}),
-    ...(input.runtimeVisualEvidenceAttachmentRecord ? { attachmentRecord: input.runtimeVisualEvidenceAttachmentRecord } : {}),
-  });
-  const assetReleaseLadderReplayProjection = buildAssetReleaseLadderReplayProjection(input.packet.scenarioId);
-  const caseDefinedHumanoidPerformanceContract = buildDynamicEncounterFactoryPlanningProjection(
-    scenarioBank,
-    input.packet.scenarioId,
-  ).scenarios.find((scenario) => scenario.scenarioId === input.packet.scenarioId)?.humanoidPerformanceContract;
-  const caseDefinedHumanoidRuntimeHandoff = buildCaseDefinedHumanoidRuntimeHandoffForReview(input.packet.scenarioId);
 
-  return {
-    stationRunId: input.stationRunId,
-    replayEvidenceReady,
-    facultyReviewSafe: replayEvidenceReady,
-    timelineEntryCount: input.packet.timeline.length,
-    traceEventCount: input.traceEvents.length,
-    durableEventCount: input.clinicalEventReviewSummary.eventCount,
-    redactedDurableEventCount: input.clinicalEventReviewSummary.redactedEventCount,
-    missingRequiredBehaviorCount: input.packet.missingRequiredTraceTags.length,
-    lateBehaviorCount: input.packet.lateTraceTags.length,
-    safetySignalCount,
-    blockers,
-    recommendedNextAction: !replayEvidenceReady
-      ? "attach_review_safe_replay_evidence"
-      : iterationSignalPresent
-        ? "use_replay_for_scenario_iteration_before_learner_use"
-        : "prepare_faculty_debrief_with_score_use_gate",
-    replayBoundary: "summary_only_no_private_payloads_or_score_use_claims",
-    runtimeEvidenceGateRefs: runtimeEvidenceGateRefsForReviewReplay(),
-    generatedBundlePosture: generatedBundlePostureForReviewReplay(),
-    reviewPacketEvidenceHandoff,
-    ...(runtimeVisualEvidenceReplayProjection ? { runtimeVisualEvidenceReplayProjection } : {}),
-    ...(assetReleaseLadderReplayProjection ? { assetReleaseLadderReplayProjection } : {}),
-    ...(caseDefinedHumanoidPerformanceContract ? { caseDefinedHumanoidPerformanceContract } : {}),
-    ...(caseDefinedHumanoidRuntimeHandoff.length > 0 ? { caseDefinedHumanoidRuntimeHandoff } : {}),
-    ...(reviewPacketEvidenceHandoff.xrTraceEvidenceSummary
-      ? { xrTraceEvidenceSummary: reviewPacketEvidenceHandoff.xrTraceEvidenceSummary }
-      : {}),
-  };
-}
 
-function buildRuntimeVisualEvidenceReplayProjection(input: {
-  stationRunId: string;
-  scenarioId: string;
-  decisionRecord?: ApiRuntimeRealismEvidenceInputReviewDecisionRecord;
-  attachmentRecord?: ApiRuntimeVisualEvidenceAttachmentRecord;
-}): ApiRuntimeVisualEvidenceReplayProjection | undefined {
-  if (input.attachmentRecord?.scenarioId !== input.scenarioId) {
-    return undefined;
-  }
 
-  const decisionRecord = input.decisionRecord?.scenarioId === input.scenarioId
-    ? input.decisionRecord
-    : undefined;
-  const reviewedMetadataOnlyCount = decisionRecord?.reviewedDecisionCount ?? 0;
-  const heldMetadataOnlyCount = decisionRecord?.heldDecisionCount ?? 0;
-  const acceptedActionIds = Array.from(new Set(input.attachmentRecord.attachments.map((attachment) => attachment.actionId))).sort((left, right) => left.localeCompare(right)) as ApiRuntimeVisualEvidenceReplayProjection["acceptedActionIds"];
-  const blockerIds = [
-    reviewedMetadataOnlyCount === 0 ? "runtime_visual_evidence_review_decisions_missing" : undefined,
-    input.attachmentRecord.runtimeEvidenceAttachmentCount === 0 ? "runtime_realism_evidence_refs_missing" : undefined,
-    input.attachmentRecord.visualQaEvidenceAttachmentCount === 0 ? "visual_qa_evidence_refs_missing" : undefined,
-    "runtime_visual_evidence_refs_are_metadata_only_not_replay_payloads",
-  ].filter((blocker): blocker is string => Boolean(blocker));
-  const nextActions = [
-    input.attachmentRecord.attachmentCount > 0 ? `review ${input.attachmentRecord.attachmentCount} accepted metadata-only runtime/visual refs before scenario iteration` : "attach runtime/visual metadata refs before scenario iteration",
-    blockerIds.length > 0 ? `carry forward projection blockers ${blockerIds.slice(0, 3).join(", ")}` : "confirm no runtime/visual projection blockers before scenario iteration",
-    "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
-  ];
-  const uiXrConsumerOperatorWorkflowSummary = buildUiXrConsumerWorkflowSummary(input.attachmentRecord);
 
-  return {
-    schemaVersion: "openclinxr.runtime-visual-evidence-replay-projection.v1",
-    source: "runtime_visual_evidence_attachment_record_summary",
-    stationRunId: input.stationRunId,
-    scenarioId: input.scenarioId,
-    reviewedMetadataOnlyCount,
-    heldMetadataOnlyCount,
-    acceptedAttachmentRefCount: input.attachmentRecord.attachmentCount,
-    runtimeEvidenceRefCount: input.attachmentRecord.runtimeEvidenceAttachmentCount,
-    visualQaEvidenceRefCount: input.attachmentRecord.visualQaEvidenceAttachmentCount,
-    acceptedActionIds,
-    rawPayloadDisplayed: false,
-    providerExecutionAllowed: false,
-    runtimeExecutionAllowed: false,
-    learnerLaunchAllowed: false,
-    questEvidenceRefreshAllowed: false,
-    productionAssetReadinessClaimed: false,
-    clinicalValidityClaimed: false,
-    scoringValidityClaimed: false,
-    replayEvidenceReady: false,
-    blockerIds,
-    nextActions,
-    ...(uiXrConsumerOperatorWorkflowSummary ? { uiXrConsumerOperatorWorkflowSummary } : {}),
-    claimBoundary: "summary_only_runtime_visual_evidence_replay_projection_not_raw_payload_or_readiness",
-    notEvidenceFor: [
-      "raw_payload_display",
-      "runtime_readiness",
-      "learner_launch_readiness",
-      "quest_readiness",
-      "production_asset_readiness",
-      "clinical_validity",
-      "scoring_validity",
-    ],
-  };
-}
 
-function buildUiXrConsumerWorkflowSummary(
-  attachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord,
-): ApiUiXrRuntimeEvidenceConsumerWorkflowSummary | undefined {
-  const uiXrAttachments = attachmentRecord.attachments.filter((attachment) =>
-    attachment.reviewerId === "ui_xr_manual_runtime_evidence_capture_scaffold"
-    || attachment.evidenceRef.startsWith("ui-xr-manual-runtime-evidence://")
-    || attachment.evidenceRef.startsWith("ui-xr-manual-visual-qa-evidence://")
-  );
-  if (uiXrAttachments.length === 0) return undefined;
-  return {
-    schemaVersion: "openclinxr.ui-xr-runtime-evidence-consumer-workflow-summary.v1",
-    source: "ui_xr_runtime_evidence_consumer_operator_workflow",
-    scenarioId: attachmentRecord['scenarioId'],
-    acceptedAttachmentRefCount: uiXrAttachments.length,
-    runtimeEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_runtime_realism_evidence_refs").length,
-    visualQaEvidenceRefCount: uiXrAttachments.filter((attachment) => attachment.actionId === "attach_visual_qa_evidence_refs").length,
-    targetRoute: "/runtime/visual-evidence-attachments",
-    method: "POST",
-    submitBodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
-    submitPreview: {
-      route: "/runtime/visual-evidence-attachments",
-      bodyRef: "submitRuntimeVisualEvidenceAttachmentInput",
-      attachmentCount: uiXrAttachments.length,
-      operatorSelectableAttachmentCount: uiXrAttachments.length,
-      operatorSelectionEnabled: true,
-      operatorSelectionSupport: 'subset-via-count',
-      actionIds: uiXrAttachments.map((attachment) => attachment.actionId),
-      inputIds: uiXrAttachments.map((attachment) => attachment.inputId),
-      localArtifactPaths: uiXrAttachments.map((attachment) => attachment.localArtifactPath),
-      rawPayloadDisplayed: false,
-      claimBoundary: "ui_xr_consumer_workflow_submit_preview_metadata_only",
-    },
-    reviewerAction: "submit_metadata_only_runtime_visual_evidence_refs",
-    preflightChecks: [
-      "scenario_id_matches_payload_and_expected_scenario",
-      "attachments_non_empty",
-      "raw_payload_hidden",
-      "all_execution_and_readiness_gates_false",
-    ],
-    nextActions: [
-      `submit ${uiXrAttachments.length} metadata-only UI-XR runtime/visual refs through the guarded attachment route`,
-      "confirm Admin replay projection shows raw payload hidden and all readiness gates false",
-      "keep runtime, learner, Quest, production, clinical, and scoring gates blocked until real runtime and visual-QA evidence clears review",
-    ],
-    rawPayloadDisplayed: false,
-    providerExecutionAllowed: false,
-    runtimeExecutionAllowed: false,
-    learnerLaunchAllowed: false,
-    questEvidenceRefreshAllowed: false,
-    productionAssetReadinessClaimed: false,
-    clinicalValidityClaimed: false,
-    scoringValidityClaimed: false,
-    blockerIds: ["ui_xr_consumer_refs_are_metadata_only_not_runtime_or_visual_proof"],
-    claimBoundary: "summary_only_ui_xr_consumer_workflow_not_raw_payload_or_readiness",
-    notEvidenceFor: [
-      "raw_payload_display",
-      "runtime_readiness",
-      "learner_launch_readiness",
-      "quest_readiness",
-      "production_asset_readiness",
-      "clinical_validity",
-      "scoring_validity",
-    ],
-  };
-}
 
-function buildAssetReleaseLadderReplayProjection(scenarioId: string): ApiAssetReleaseLadderReplayProjection | undefined {
-  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
-  if (!scenario) return undefined;
-  const ladder = findSeedBankAssetReadiness(scenarioId, scenario.version).productionReadinessLadder;
-  const blockedAssets = ladder.assetLadders
-    .filter((assetLadder) => !assetLadder.productionReady)
-    .map((assetLadder) => {
-      const firstBlockedStep = assetLadder.steps.find((step) => step.status === "blocked")?.step ?? null;
-      return {
-        assetId: assetLadder.assetId,
-        blockerCount: assetLadder.blockers.length,
-        firstBlockedStep,
-        blockerIds: [...assetLadder.blockers],
-      };
-    });
 
-  return {
-    schemaVersion: "openclinxr.asset-release-ladder-replay-projection.v1",
-    source: "scenario_asset_production_readiness_ladder",
-    scenarioId,
-    productionReady: false,
-    assetCount: ladder.assetCount,
-    productionReadyAssetCount: ladder.productionReadyAssetIds.length,
-    blockedAssetCount: ladder.blockedAssetIds.length,
-    missingRequiredAssetCount: ladder.missingRequiredAssetIds.length,
-    stationBudgetStatus: ladder.stationBudget.blockers.length === 0 ? "ready" : "blocked",
-    blockerCount: ladder.blockers.length,
-    blockerIds: [...ladder.blockers],
-    blockedAssets,
-    providerExecutionAllowed: false,
-    runtimeExecutionAllowed: false,
-    learnerLaunchAllowed: false,
-    questEvidenceRefreshAllowed: false,
-    productionAssetReadinessClaimed: false,
-    clinicalValidityClaimed: false,
-    scoringValidityClaimed: false,
-    claimBoundary: "summary_only_asset_release_ladder_replay_projection_not_release_readiness",
-    notEvidenceFor: [
-      "provider_availability",
-      "runtime_readiness",
-      "production_asset_readiness",
-      "quest_readiness",
-      "clinical_validity",
-      "scoring_validity",
-      "learner_launch_readiness",
-    ],
-  };
-}
 
-function buildCaseDefinedHumanoidRuntimeHandoffForReview(scenarioId: string) {
-  return createSeedBankSceneGenerationPipelineQueue().workOrders
-    .filter((workOrder) => workOrder.scenarioId === scenarioId)
-    .flatMap((workOrder) => workOrder.actorWorkOrders.map((actorWorkOrder) => ({
-      claimBoundary: actorWorkOrder.humanoidRuntimeReadinessHandoff.claimBoundary,
-      actorRole: actorWorkOrder.actorRole,
-      workOrderIds: [actorWorkOrder.workOrderId],
-      locomotionRequired: actorWorkOrder.humanoidRuntimeReadinessHandoff.locomotionRequired,
-      expressionRequired: actorWorkOrder.humanoidRuntimeReadinessHandoff.expressionRequired,
-      gazeRequired: actorWorkOrder.humanoidRuntimeReadinessHandoff.gazeRequired,
-      lipSyncRequired: actorWorkOrder.humanoidRuntimeReadinessHandoff.lipSyncRequired,
-      interactiveRequired: actorWorkOrder.humanoidRuntimeReadinessHandoff.interactiveRequired,
-      requiredSignalIds: actorWorkOrder.humanoidRuntimeReadinessHandoff.requiredSignalIds,
-      blockers: actorWorkOrder.humanoidRuntimeReadinessHandoff.blockers,
-      notEvidenceFor: actorWorkOrder.humanoidRuntimeReadinessHandoff.notEvidenceFor,
-    })));
-}
 
-function runtimeEvidenceGateRefsForReviewReplay() {
-  const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
-  return bundle.evidenceGateRefs.map((gateRef) => ({
-    gateId: gateRef.gateId,
-    status: gateRef.status,
-    evidenceRefs: [...gateRef.evidenceRefs],
-    requiredSignalIds: [...gateRef.requiredSignalIds],
-    blockers: [...gateRef.blockers],
-    notEvidenceFor: [...gateRef.notEvidenceFor],
-    claimBoundary: "runtime_evidence_gate_ref_not_learner_or_quest_readiness" as const,
-  }));
-}
-
-function generatedBundlePostureForReviewReplay() {
-  const bundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
-  const learnerUseGate = evaluateEncounterRuntimeLearnerUseGate(bundle);
-  const publicationMetadata = buildEncounterRuntimeBundlePublicationMetadata(bundle);
-  return {
-    bundleId: bundle.bundleId,
-    scenarioId: bundle.scenarioId,
-    stationId: bundle.stationId,
-    status: publicationMetadata.status,
-    learnerRuntimeUseBlocked: true as const,
-    learnerRuntimeUseBlockers: learnerUseGate.blockers,
-    pendingEvidenceGateIds: learnerUseGate.pendingGateIds,
-    attachedEvidenceGateIds: learnerUseGate.attachedGateIds,
-    publicationArtifactRefs: publicationMetadata.publicationArtifactRefs,
-    claimBoundary: "generated_bundle_posture_blocks_learner_use_until_evidence_gates_attach" as const,
-    notEvidenceFor: [...publicationMetadata.notEvidenceFor],
-  };
-}
-
-function buildReviewPacketEvidenceHandoff(input: {
-  stationRunId: string;
-  packet: RuntimeReviewPacket;
-  traceEvents: RuntimeTraceEvents;
-}) {
-  const actorTurnEventTypes = new Set([
-    "actor.interaction.routed",
-    "actor.response.generated",
-    "actor.response.failed",
-    "voice.audio.generated",
-  ]);
-  const xrTraceEvidenceSummary = buildXrTraceEvidenceSummary(input);
-  return {
-    reviewPacketRef: `review_packet:${input.stationRunId}`,
-    traceEventRefs: input.traceEvents.map((event) => `trace_event:${input.stationRunId}:${event.sequence}`),
-    patientNoteRef: input.packet.patientNote ? `patient_note:${input.stationRunId}:${input.packet.patientNote.submittedAtSecond}` : null,
-    actorTurnRefs: input.traceEvents
-      .filter((event) => actorTurnEventTypes.has(event.eventType))
-      .map((event) => `actor_turn:${input.stationRunId}:${event.sequence}`),
-    timelineEntryCount: input.packet.timeline.length,
-    patientNoteAttached: Boolean(input.packet.patientNote),
-    actorTurnCount: input.traceEvents.filter((event) => actorTurnEventTypes.has(event.eventType)).length,
-    privatePayloadRedacted: true,
-    ...(xrTraceEvidenceSummary ? { xrTraceEvidenceSummary } : {}),
-    claimBoundary: "review_packet_handoff_summary_only_no_private_payloads" as const,
-  };
-}
-
-function buildXrTraceEvidenceSummary(input: {
-  stationRunId: string;
-  traceEvents: RuntimeTraceEvents;
-}) {
-  const xrEvent = [...input.traceEvents].reverse().find((event) => event.eventType === "xr.trace.interaction");
-  if (!xrEvent || !isRecord(xrEvent.payload)) {
-    return null;
-  }
-  const payload = xrEvent.payload;
-  const latestTraceTag = typeof payload["latestTraceTag"] === "string" ? payload["latestTraceTag"] : xrEvent.tag ?? null;
-  return {
-    stationRunId: input.stationRunId,
-    source: typeof payload["source"] === "string" ? payload["source"] : xrEvent.source,
-    evidenceRef: typeof payload["evidenceRef"] === "string" ? payload["evidenceRef"] : `trace_event:${input.stationRunId}:${xrEvent.sequence}`,
-    activeLocomotionSource: typeof payload["activeLocomotionSource"] === "string" ? payload["activeLocomotionSource"] : null,
-    locomotionDistanceMeters: typeof payload["locomotionDistanceMeters"] === "number" ? payload["locomotionDistanceMeters"] : null,
-    locomotionTurnRadians: typeof payload["locomotionTurnRadians"] === "number" ? payload["locomotionTurnRadians"] : null,
-    interactionSignalRefs: Array.isArray(payload["interactionSignalRefs"])
-      ? payload["interactionSignalRefs"].filter((value): value is string => typeof value === "string")
-      : [],
-    latestTraceTag,
-    latestTraceLatencyMs: typeof payload["latestTraceLatencyMs"] === "number" ? payload["latestTraceLatencyMs"] : null,
-    blockers: Array.isArray(payload["blockers"])
-      ? payload["blockers"].filter((value): value is string => typeof value === "string")
-      : [],
-    claimBoundary: "xr_trace_evidence_summary_not_score_use_quest_readiness_clinical_validity_or_raw_payload_readiness" as const,
-  };
-}
-
-function uniqueStrings(values: string[]): string[] {
-  return [...new Set(values)].sort((left, right) => left.localeCompare(right));
-}
 
 function checklist(
   checkId:
@@ -1902,12 +1022,6 @@ function approvedRuntimeAssetReviewEvidence(decisions: RuntimeAssetReviewDecisio
     .filter((evidenceRef) => evidenceRef.trim().length > 0);
 }
 
-function countBy(values: string[]): Record<string, number> {
-  return values.reduce<Record<string, number>>((counts, value) => {
-    counts[value] = (counts[value] ?? 0) + 1;
-    return counts;
-  }, {});
-}
 
 async function listAdminGraphqlScenarios(
   persistence: ApiPersistenceSink,
@@ -2046,14 +1160,6 @@ function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminG
   return AdminGraphqlScenarioStatus.ReadyForReview;
 }
 
-function createSeedStationRunQueueSnapshot(input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown }): ApiStationRunQueueSnapshot {
-  return {
-    snapshotId: typeof input.snapshotId === "string" && input.snapshotId.length > 0 ? input.snapshotId : `queue_snapshot_${Date.now()}`,
-    createdAt: typeof input.createdAt === "string" && input.createdAt.length > 0 ? input.createdAt : new Date().toISOString(),
-    ...(typeof input.reviewerId === "string" && input.reviewerId.length > 0 ? { reviewerId: input.reviewerId } : {}),
-    queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank),
-  };
-}
 
 async function recordApiRouteSpan(
   telemetry: TelemetryRecorder,
@@ -2103,53 +1209,9 @@ async function recordGraphqlOperationSpan(
   })).catch(() => undefined);
 }
 
-async function persistTraceSnapshot(runtime: ScenarioRuntime, persistence: ApiPersistenceSink, stationRunId: string): Promise<void> {
-  await persistence.saveTraceEvents?.(stationRunId, runtime.traceEvents(stationRunId));
-}
 
-function createSeedBankAssetReadiness() {
-  const registry = new InMemoryAssetRegistry();
-  for (const scenario of scenarioBank) {
-    for (const manifest of createScenarioPlaceholderManifests(scenario)) {
-      registry.upsert(manifest);
-    }
-  }
 
-  return scenarioBank.map((scenario) => ({
-    ...registry.evaluateScenarioReadiness(scenario),
-    productionReadinessLadder: registry.evaluateScenarioProductionReadinessLadder(scenario),
-  }));
-}
 
-function findSeedBankAssetReadiness(scenarioId: string, version: number) {
-  const scenarioExists = scenarioBank.some((scenario) => scenario.scenarioId === scenarioId && scenario.version === version);
-  if (!scenarioExists) {
-    throw new Error(`Scenario not found: ${scenarioId} v${version}`);
-  }
-
-  const readiness = createSeedBankAssetReadiness().find((candidate) => candidate.scenarioId === scenarioId);
-  if (!readiness) {
-    throw new Error(`Scenario asset readiness not found: ${scenarioId} v${version}`);
-  }
-
-  return readiness;
-}
-
-function sessionErrorResponse(context: { json: (body: { error: string }, status: 400 | 404 | 500 | 503) => Response }, error: unknown): Response {
-  if (error instanceof Error && error.message.startsWith("Session not found")) {
-    return context.json({ error: "session_not_found" }, 404);
-  }
-  if (error instanceof Error && error.message.startsWith("Actor not found")) {
-    return context.json({ error: "actor_not_found" }, 400);
-  }
-  if (error instanceof Error && error.message.startsWith("Actor response generation failed")) {
-    return context.json({ error: "actor_response_generation_failed" }, 503);
-  }
-  if (error instanceof Error && error.message.startsWith("Cannot ")) {
-    return context.json({ error: "station_command_invalid" }, 400);
-  }
-  return context.json({ error: "runtime_error" }, 500);
-}
 
 function isFacultyOnlyGraphqlOperation(operationName: string, query: string): boolean {
   if (FACULTY_ONLY_GRAPHQL_OPERATIONS.has(operationName)) {
@@ -2159,24 +1221,6 @@ function isFacultyOnlyGraphqlOperation(operationName: string, query: string): bo
   return /\bsaveFacultyScoreDraft\b/.test(query) || /\bsubmitScenarioReview\b/.test(query);
 }
 
-function denyIfCannotReadStationRun(
-  identity: AuthIdentity,
-  sessionOwners: Map<string, string>,
-  stationRunId: string,
-): { status: 403; body: { error: string; reason: string } } | undefined {
-  const ownerLearnerId = sessionOwners.get(stationRunId);
-  if (!ownerLearnerId) {
-    // Unknown owner (session missing or created outside this app): let handler return 404/error.
-    return undefined;
-  }
-  if (canReadStationRun(identity, ownerLearnerId)) {
-    return undefined;
-  }
-  return {
-    status: 403,
-    body: { error: "forbidden", reason: "run_ownership_required" },
-  };
-}
 
 function parsePublicationTargetUse(value: unknown): PublicationTargetUse {
   if (value === "pilot_research" || value === "summative") {
@@ -2193,35 +1237,6 @@ function parseReviewerEvidence(value: unknown): ReviewerEvidence[] {
   return value.filter(isReviewerEvidence);
 }
 
-function parseActorInteractionSource(value: unknown): RouteRuntimeActorInteractionInput["source"] | undefined {
-  if (!isRecord(value)) {
-    return undefined;
-  }
-
-  if (value["kind"] === "voice_transcript"
-    && typeof value["streamId"] === "string"
-    && typeof value["transcriptSegmentId"] === "string"
-    && typeof value["finalTranscriptText"] === "string"
-    && typeof value["provider"] === "string") {
-    return {
-      kind: "voice_transcript",
-      streamId: value["streamId"],
-      transcriptSegmentId: value["transcriptSegmentId"],
-      finalTranscriptText: value["finalTranscriptText"],
-      provider: value["provider"],
-      provenanceRefs: parseStringArray(value["provenanceRefs"]),
-    };
-  }
-
-  if (value["kind"] === "text") {
-    return {
-      kind: "text",
-      provenanceRefs: parseStringArray(value["provenanceRefs"]),
-    };
-  }
-
-  return undefined;
-}
 
 
 function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
@@ -2295,37 +1310,10 @@ function isRawUiXrManualPerformancePayload(value: Record<string, unknown>): bool
     || "runtimeEvidenceConsumerReadiness" in value;
 }
 
-function isExamForm(value: unknown): value is ExamForm {
-  return isRecord(value)
-    && typeof value["examFormId"] === "string"
-    && Array.isArray(value["stationRefs"])
-    && value["stationRefs"].every(isStationRef);
-}
-
-function isStationRef(value: unknown): value is ExamForm["stationRefs"][number] {
-  return isRecord(value)
-    && typeof value["order"] === "number"
-    && typeof value["scenarioId"] === "string"
-    && typeof value["scenarioVersion"] === "number"
-    && typeof value["title"] === "string";
-}
 
 
-function isAssetGenerationCapabilityId(value: string): value is AssetGenerationCapabilityId {
-  return value === "character-generation"
-    || value === "medical-equipment-generation"
-    || value === "voice-asset-generation"
-    || value === "animation-generation"
-    || value === "asset-bake";
-}
 
-function parseRuntimeProfile(value: unknown): RuntimeProfile {
-  if (value === "local-development" || value === "local-production" || value === "production") {
-    return value;
-  }
 
-  return "local-development";
-}
 
 function createSeedBankEnvironmentGenerationQueue() {
   return buildEnvironmentGenerationQueue(
@@ -2338,9 +1326,6 @@ function createSeedBankEnvironmentWorkOrderQueue() {
   return buildEnvironmentGenerationWorkOrderQueue(createSeedBankEnvironmentGenerationQueue());
 }
 
-function createSeedBankSceneGenerationPipelineQueue() {
-  return buildScenarioSceneGenerationPipelineWorkOrderQueue(scenarioBank);
-}
 
 function buildScenarioReviewGateSummary(scenarioId: string): ApiScenarioReviewGateSummary {
   const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
