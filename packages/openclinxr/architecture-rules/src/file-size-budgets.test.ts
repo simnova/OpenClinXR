@@ -42,7 +42,7 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3743, reason: "XR runtime-state god-file — split by state slice" },
   "apps/api/src/app.ts": { maxLines: 3282, reason: "API composition god-file — split into per-route modules registered by the app root" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
-  "packages/openclinxr/scenario-fixtures/src/scenario-bank.ts": { maxLines: 2691, reason: "fixture data — split one scenario per file" },
+  "packages/openclinxr/scenario-fixtures/src/scenario-bank.ts": { maxLines: 920, reason: "residual: scenario-bank maturity/exam-sequence analytics — extract to scenario-bank-maturity.ts next (11 scenarios + builders already extracted to own files)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },
   "apps/ui-admin/src/api-client.ts": { maxLines: 1876, reason: "generated-adjacent DTO+client — split DTO types from the fetch client" },
