@@ -101,6 +101,20 @@ Last updated: 2026-08-02
 
 **Blockers:** none
 
+### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
+
+Product path advanced: **An authored case now drives actor emotion — the blueprint→runtime loop for the emotion feature is closed.** `emotionPolicy` was promoted from a runtime UNTYPED duck-check to a first-class **authored, ajv-validated** field on `ScenarioSchema` (shared-schemas). scenario-runtime `resolveCaseEmotionPolicy` now reads the typed `scenario.emotionPolicy` and validates via `validateCaseEmotionPolicy` (dropping the `Record` cast), falling back to the default only when absent/invalid. So a case definition drives baseline + transition rules → EmotionEngine → emitted `emotion_transition` traces → durable actor-turn payload → review `emotionalTimeline`.
+
+Blueprint/factory tie: **Q1** (blueprint/case definition → generated runtime affect). Builds directly on conversation-emotion-engine-v1 (Q4). Not a scoring input; behavioral taxonomy fence intact.
+
+Touched files: `shared-schemas/src/schemas.ts` (EmotionEventKind/EmotionTransitionRule/CaseEmotionPolicy schemas + `emotionPolicy` on ScenarioSchema + Static type exports) + `validators.ts` (`validateCaseEmotionPolicy`); `scenario-runtime/src/index.ts` (typed+validated resolver) + `scenario-runtime.test.ts` (round-trip + drift-contract tests).
+
+Evidence: 32 (shared-schemas, +5) + 36 (scenario-runtime, +3) tests green; typecheck green; guards green. Commits efa4842 (P1) → a261e06 (P2) → 945d4b9 (review-hardening). Round-trip tests are non-vacuous — verified they'd FAIL under the old code: authored baseline `neutral` vs default `anxious`; invalid `{baseline:"furious",transitions:[]}` (which the OLD duck-check ACCEPTED) is now rejected by the ajv gate. Drift-contract test guards the shared-schemas↔engine `CaseEmotionPolicy` assignment.
+
+Delegation posture: OpenClaw board #10 (P1 deepseek-v4-pro worker landed clean; P2 worker hit max-turns on the 1000-line index.ts + `--cwd` did NOT isolate its edits — completed P2 directly). **Review-gate NOTE: independent grok skeptic failed twice (P2-adjacent max-turns, then killed with no output) → substituted a rigorous adversarial SELF-review** (fail-under-old-code verification + the one surfaced gap closed with the drift-contract test). Transparency: self-review, not independent. Lessons banked to session memory (`--cwd` doesn't isolate edits; large-file workers need >50 turns or in-house handling).
+
+Next queued slice: (a) surface `emotionalTimeline` in an admin/faculty **replay view** (Q4 consumer) OR (b) add `emotionPolicy` to the **case-authoring** persistence + admin UI so authors define affect through the authoring surface (Q1, extends 36ad258). Deferred non-blocker: dedupe `DEFAULT_EMOTION_POLICY` vs the fuller `anxiousParentPolicy` fixture (behavior-converging — needs a deliberate call).
+
 ### 2026-08-04 — conversation-emotion-engine-v1 (Q4 + conversation tooling) COMPLETE
 
 Product path advanced: **Case-policy-driven actor emotion now flows end-to-end through the encounter runtime.** New `resolveEmotionTransition` (pure) + `EmotionEngine` (stateful) in `conversation-policy/src/emotion-engine.ts` reuse `InteractionEmotion` (pain/anxious/concerned/reassured/neutral); transitions are driven by `CaseEmotionPolicy` (from/triggeredBy rules, clampEmotion bounds) — not hardcoded, so a blueprint case defines its actor affect. scenario-runtime emits `emotion_transition` trace events + carries `currentEmotion` in the durable actor-turn payload (index.ts ~L545). review-workflow extracts `emotionalTimeline` from those traces into the review packet. Header comment fences it: "Pure behavioral taxonomy — not a clinical assessment or scoring input."
