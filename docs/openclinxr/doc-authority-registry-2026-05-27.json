@@ -7,7 +7,7 @@
     "agent-methodology": 63,
     "current-reference": 205,
     "archive-candidate": 16,
-    "evidence": 34,
+    "evidence": 35,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
@@ -2533,6 +2533,13 @@
       "agentInstructionWeight": "highest",
       "action": "protect",
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
+    },
+    {
+      "path": "docs/openclinxr/cagematch-spec-local-stt-and-quest-transport-2026-08-05.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/cellix-package-adoption-brief.md",
