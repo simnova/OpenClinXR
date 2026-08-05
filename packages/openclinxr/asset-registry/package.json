@@ -4,16 +4,32 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./runtime-bundles": "./src/runtime-bundles.ts",
-    "./object-store": "./src/object-store.ts",
-    "./asset-writer": "./src/asset-writer.ts",
-    "./runtime-asset-review": "./src/runtime-asset-review.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./runtime-bundles": {
+      "types": "./dist/runtime-bundles.d.ts",
+      "default": "./dist/runtime-bundles.js"
+    },
+    "./object-store": {
+      "types": "./dist/object-store.d.ts",
+      "default": "./dist/object-store.js"
+    },
+    "./asset-writer": {
+      "types": "./dist/asset-writer.d.ts",
+      "default": "./dist/asset-writer.js"
+    },
+    "./runtime-asset-review": {
+      "types": "./dist/runtime-asset-review.d.ts",
+      "default": "./dist/runtime-asset-review.js"
+    }
   },
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@openclinxr/scenario-fixtures": "workspace:*",
@@ -22,5 +38,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

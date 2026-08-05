@@ -211,14 +211,16 @@ describe("workspace architecture rules", () => {
   it("keeps the asset-registry browser barrel free of Node-only object-store runtime exports", () => {
     const barrel = readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/src/index.ts"), "utf8");
     const manifest = JSON.parse(readFileSync(join(workspaceRoot, "packages/openclinxr/asset-registry/package.json"), "utf8")) as {
-      exports?: Record<string, string>;
+      exports?: Record<string, string | { types?: string; default?: string }>;
     };
 
     expect(barrel).not.toContain('export * from "./object-store.js"');
     expect(barrel).toContain("export type {");
     expect(barrel).toContain('} from "./object-store.js"');
-    expect(manifest.exports?.["./object-store"]).toBe("./src/object-store.ts");
-    expect(manifest.exports?.["./asset-writer"]).toBe("./src/asset-writer.ts");
+    const objectStoreExport = manifest.exports?.["./object-store"];
+    const assetWriterExport = manifest.exports?.["./asset-writer"];
+    expect(typeof objectStoreExport === "string" ? objectStoreExport : objectStoreExport?.default ?? objectStoreExport?.types).toBe("./dist/object-store.js");
+    expect(typeof assetWriterExport === "string" ? assetWriterExport : assetWriterExport?.default ?? assetWriterExport?.types).toBe("./dist/asset-writer.js");
   });
 
   it("exposes IWSDK spike verification as an explicit opt-in lane outside the default verify gate", () => {

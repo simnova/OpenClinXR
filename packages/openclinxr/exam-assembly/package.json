@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@openclinxr/scenario-fixtures": "workspace:*",
@@ -18,5 +22,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
