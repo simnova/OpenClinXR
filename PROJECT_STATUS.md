@@ -101,6 +101,20 @@ Last updated: 2026-08-02
 
 **Blockers:** none
 
+### 2026-08-04 — architecture-governance: file-size ratchet + scenario-runtime split (Atlantis pattern) COMPLETE
+
+Product path advanced: **Architecture↔feature separation is now enforced + demonstrated**, adopting the `atlantis-cameras-v2` pattern (Patrick-directed). Two commits:
+- `6935af1` — `architecture-rules/src/file-size-budgets.test.ts`: ArchUnit-style file-size fitness rule (zone budgets packages/openclinxr 500, apps 600) + brownfield `SIZE_FREEZE` ratchet grandfathering the 32 current offenders at exact line count (shrink-only; new files hard-capped; paid-down entries must be removed). In the pre-commit gate.
+- `585ea21` — split the 1162-line `scenario-runtime/src/index.ts` god-file into: `index.ts` (50-line barrel, public API unchanged) + `scenario-runtime.ts` (806, the ScenarioRuntime class) + `runtime-types.ts` (211, type SSOT) + feature/support modules `emotion-policy.ts` / `trace.ts` / `provider-support.ts`. Freeze entry moved from index.ts (removed — now 50) to scenario-runtime.ts (806) → net god-file mass down ~356 lines and index dropped out of the freeze entirely.
+
+Blueprint/factory tie: enabling/maintainability (large files exhaust bounded agent workers before they can edit — observed this session). Not a Q1/Q4 product surface; it's the forcing function that makes future arch/feature splits incremental. Does not weaken the 6 protected blueprint-factory files.
+
+Evidence: scenario-runtime tsgo exit 0 + 36 tests; downstream @openclinxr/api tsgo + 106 tests green; architecture-rules 74 tests; all pre-commit hooks green. Delegation: P1 (schema-scale) + finish worker (deepseek-v4-pro) ran downstream verification + freeze update + commit from a clean green handoff; I reviewed its one type change (`ScenarioRuntimeActorTurn.currentEmotion` → optional) and verified it's a JUSTIFIED fix of a pre-existing latent inconsistency (apps/api test omits the additive/back-compat field), not a hack.
+
+Known pre-existing (NOT caused by this slice; surfaced by the finish worker): `@openclinxr/test-harness` `station-simulation.test.ts` fails on a scenario-COUNT drift (expects `scenarioCount: 12`, fixtures now yield 14). The split touches zero fixtures. Recommend a small fixture-count truing slice (owner: scenario-fixtures).
+
+Next queued slice: continue god-file paydown — `data-mongodb/src/repositories.ts` (1063 → one-repository-per-file) OR decompose the `ScenarioRuntime` class itself (806 → <500 by extracting method groups). Bigger structural piece (tier split: arch/feature/verification packages + one-way dependency arrow) deferred until a couple more splits prove the pattern.
+
 ### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
 
 Product path advanced: **An authored case now drives actor emotion — the blueprint→runtime loop for the emotion feature is closed.** `emotionPolicy` was promoted from a runtime UNTYPED duck-check to a first-class **authored, ajv-validated** field on `ScenarioSchema` (shared-schemas). scenario-runtime `resolveCaseEmotionPolicy` now reads the typed `scenario.emotionPolicy` and validates via `validateCaseEmotionPolicy` (dropping the `Record` cast), falling back to the default only when absent/invalid. So a case definition drives baseline + transition rules → EmotionEngine → emitted `emotion_transition` traces → durable actor-turn payload → review `emotionalTimeline`.
