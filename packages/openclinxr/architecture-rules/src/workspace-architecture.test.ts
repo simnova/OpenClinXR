@@ -1152,7 +1152,7 @@ describe("workspace architecture rules", () => {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
-    const repositorySource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/repositories.ts"), "utf8");
+    const recordsSource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/records.ts"), "utf8");
     const forbiddenRuntimeDependencies = [
       "@colyseus/schema",
       "@openclinxr/rest",
@@ -1182,23 +1182,24 @@ describe("workspace architecture rules", () => {
     expect(manifest.devDependencies).toMatchObject({
       "mongodb-memory-server": "11.1.0",
     });
-    expect(repositorySource).toContain("conversation_turns_and_emotional_state_timeline_only");
-    expect(repositorySource).toContain("clinicalActionsIncluded: false");
-    expect(repositorySource).toContain("redisRedkaIncluded: false");
-    expect(repositorySource).toContain("databaseOnly: true");
+    expect(recordsSource).toContain("conversation_turns_and_emotional_state_timeline_only");
+    expect(recordsSource).toContain("clinicalActionsIncluded: false");
+    expect(recordsSource).toContain("redisRedkaIncluded: false");
+    expect(recordsSource).toContain("databaseOnly: true");
     expect([...manifestViolations, ...sourceViolations]).toEqual([]);
   });
 
   it("keeps durable clinical-event Mongo repositories database-only and separate from actor-turn and realtime lanes", () => {
-    const repositorySource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/repositories.ts"), "utf8");
+    const recordsSource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/records.ts"), "utf8");
+    const conversationSource = readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/src/conversation-repositories.ts"), "utf8");
 
-    expect(repositorySource).toContain("proposals/approved/proposal-durable-clinical-event-persistence.md");
-    expect(repositorySource).toContain("clinical_actions_orders_findings_checklists_rubric_and_case_progress");
-    expect(repositorySource).toContain("actorTurnScopeChanged: false");
-    expect(repositorySource).toContain("redisRedkaIncluded: false");
-    expect(repositorySource).toContain("databaseOnly: true");
-    expect(repositorySource).toContain("durable_clinical_events");
-    expect(repositorySource).not.toMatch(/clinicalEvent[\s\S]{0,120}(?:redis|redka|colyseus|bitecs|websocket|webtransport|quic|web3)/i);
+    expect(recordsSource).toContain("proposals/approved/proposal-durable-clinical-event-persistence.md");
+    expect(recordsSource).toContain("clinical_actions_orders_findings_checklists_rubric_and_case_progress");
+    expect(recordsSource).toContain("actorTurnScopeChanged: false");
+    expect(recordsSource).toContain("redisRedkaIncluded: false");
+    expect(recordsSource).toContain("databaseOnly: true");
+    expect(conversationSource).toContain("durable_clinical_events");
+    expect(conversationSource).not.toMatch(/clinicalEvent[\s\S]{0,120}(?:redis|redka|colyseus|bitecs|websocket|webtransport|quic|web3)/i);
   });
 
   it("prevents production code from importing the superseded multi-actor state spike", () => {

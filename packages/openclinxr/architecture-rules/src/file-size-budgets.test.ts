@@ -52,7 +52,6 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/agent-loop/src/index.ts": { maxLines: 1306, reason: "agent-loop barrel — split by phase" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
-  "packages/openclinxr/data-mongodb/src/repositories.ts": { maxLines: 1063, reason: "repositories — one repository per file" },
   "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 950, reason: "policy tables — split data from logic" },
   "packages/openclinxr/arena/multi-actor-state-spike/src/index.ts": { maxLines: 930, reason: "arena spike barrel — split by concern" },
   "packages/openclinxr/capability-gateway/src/index.ts": { maxLines: 928, reason: "gateway barrel — split routing/matrix/facade" },
