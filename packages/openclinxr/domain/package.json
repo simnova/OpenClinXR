@@ -4,13 +4,20 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./claim-language": "./src/claim-language.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./claim-language": {
+      "types": "./dist/claim-language.d.ts",
+      "default": "./dist/claim-language.js"
+    }
   },
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@openclinxr/shared-schemas": "workspace:*"
@@ -18,5 +25,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

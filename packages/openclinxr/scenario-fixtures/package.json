@@ -4,14 +4,24 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./ed-chest-pain": "./src/ed-chest-pain.ts",
-    "./scenario-bank": "./src/scenario-bank.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ed-chest-pain": {
+      "types": "./dist/ed-chest-pain.d.ts",
+      "default": "./dist/ed-chest-pain.js"
+    },
+    "./scenario-bank": {
+      "types": "./dist/scenario-bank.d.ts",
+      "default": "./dist/scenario-bank.js"
+    }
   },
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "vitest run --root .",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@openclinxr/shared-schemas": "workspace:*"
@@ -19,5 +29,8 @@
   "devDependencies": {
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
