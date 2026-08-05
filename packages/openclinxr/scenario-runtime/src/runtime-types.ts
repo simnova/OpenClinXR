@@ -210,4 +210,15 @@ export type CreateDefaultScenarioRuntimeOptions = {
   scenario?: Scenario;
   durableStore?: ScenarioRuntimeDurableStore;
   conversationPolicy?: ConversationPolicy;
+  /**
+   * Override the model gateway so the composing PROCESS chooses which provider adapters are live.
+   *
+   * Without this the adapter list is fixed inside createDefaultScenarioRuntime (Mock + a
+   * `not_configured` Local), which means a real provider cannot be introduced without editing that
+   * factory — the ports-and-adapters seam exists but nothing can reach it. Adapter selection is a
+   * composition-root decision, not a library default.
+   */
+  modelGateway?: ModelGateway;
+  /** Same rationale as {@link CreateDefaultScenarioRuntimeOptions.modelGateway}, for voice. */
+  voiceGateway?: VoiceGateway;
 };

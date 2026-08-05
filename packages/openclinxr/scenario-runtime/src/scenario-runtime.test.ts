@@ -1486,3 +1486,57 @@ function reviewer(reviewerRole: string, reviewerId: string) {
     reviewedAt: "2026-05-03T17:00:00.000Z",
   };
 }
+
+describe("provider adapter selection is a composition-root decision", () => {
+  /** Stand-in for a real provider (Ollama/MLX/etc.) supplied by the composing process. */
+  class StubInjectedModelAdapter implements ModelProviderAdapter {
+    readonly id = "injected-provider";
+    readonly capabilities = ["actor_response"] as ModelProviderAdapter["capabilities"];
+    async health() {
+      return { providerId: this.id, status: "ready" as const };
+    }
+    async generateActorResponse(): Promise<never> {
+      throw new Error("not exercised by this test");
+    }
+  }
+
+  it("lets the composing process supply the gateway, so a real provider can be added", async () => {
+    // Without this seam a real provider cannot be introduced without editing
+    // default-runtime-factory.ts — the ports exist but nothing can reach them. Adapter selection is
+    // a composition-root decision, not a library default.
+    //
+    // Note the realistic shape: the injected gateway RETAINS mock/local. providerHealth() requires
+    // the four standard ids (scenario-runtime.ts:503-506), so a gateway carrying only a custom
+    // adapter throws "Missing provider health for mock-model". That coupling is tracked separately;
+    // it does not block adding a provider, which is the point of this seam.
+    const injected = createDefaultModelGateway({
+      routeId: "injected-route-v1",
+      adapters: [
+        new MockModelProviderAdapter(),
+        new LocalModelProviderAdapter({ providerId: "local-model" }),
+        new StubInjectedModelAdapter(),
+      ],
+    });
+    let healthCalls = 0;
+    const spied = Object.assign(Object.create(Object.getPrototypeOf(injected) as object), injected, {
+      health: async () => {
+        healthCalls += 1;
+        return injected.health();
+      },
+    }) as typeof injected;
+
+    const runtime = createDefaultScenarioRuntime({ modelGateway: spied });
+    const health = await runtime.providerHealth();
+
+    // the runtime consulted OUR gateway, not the built-in default
+    expect(healthCalls).toBe(1);
+    expect((await injected.health()).map((entry) => entry.providerId)).toContain("injected-provider");
+    expect(health.model).toEqual({ providerId: "mock-model", status: "ready" });
+  });
+
+  it("still falls back to the offline default when no gateway is supplied", async () => {
+    const runtime = createDefaultScenarioRuntime();
+    const health = await runtime.providerHealth();
+    expect(health.model).toEqual({ providerId: "mock-model", status: "ready" });
+  });
+});
