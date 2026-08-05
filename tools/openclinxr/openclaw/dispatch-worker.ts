@@ -14,6 +14,7 @@ import { spawn } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
+import { resolveSharedCoordinationPath } from "./coordination-root.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -106,14 +107,16 @@ export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {
  * still have the id. Four workers were hand-salvaged because the id had been thrown away.
  */
 export function recordSession(repoRoot: string, entry: DispatchLedgerEntry): string {
-  const path = join(repoRoot, LEDGER);
+  // Shared across worktrees: an orchestrator in one worktree must be able to resume a worker
+  // dispatched from another, otherwise the ledger only helps the process that already had the id.
+  const path = resolveSharedCoordinationPath(LEDGER, repoRoot);
   mkdirSync(dirname(path), { recursive: true });
   appendFileSync(path, `${JSON.stringify(entry)}\n`);
   return path;
 }
 
 export function readSessions(repoRoot: string): DispatchLedgerEntry[] {
-  const path = join(repoRoot, LEDGER);
+  const path = resolveSharedCoordinationPath(LEDGER, repoRoot);
   if (!existsSync(path)) return [];
   return readFileSync(path, "utf8")
     .split("\n")

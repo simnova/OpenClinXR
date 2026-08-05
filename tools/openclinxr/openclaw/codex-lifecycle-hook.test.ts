@@ -17,13 +17,31 @@ describe("codex lifecycle hook", () => {
       "post-tool-use",
       JSON.stringify({
         tool: "apply_patch",
-        input: "*** Update File: AUTONOMOUS_WORK_PLAN.md\n",
+        input: "*** Update File: PROJECT_STATUS.md\n",
       }),
     );
 
     expect(decision.runGuards).toBe(true);
     expect(decision.guardCommand).toBe("pnpm agent:alignment && pnpm docs:drift-check");
     expect(decision.reason).toContain("coordination paths");
+  });
+
+  it("does NOT run guards for historical audit ledgers", () => {
+    // AUTONOMOUS_WORK_PLAN.md and PROJECT_COORDINATION_INDEX.md were deliberately demoted to
+    // historical audit ledgers (agents/rules/source-of-truth.md) — they are evidence, not active
+    // marching orders. Editing one must not trigger the heavy coordination guards. This test
+    // previously asserted the OPPOSITE and had been failing silently, because tools/ tests run
+    // under `pnpm test` rather than the `packages:test` filter most agents reach for.
+    const decision = buildCodexLifecycleHookDecision(
+      "post-tool-use",
+      JSON.stringify({
+        tool: "apply_patch",
+        input: "*** Update File: AUTONOMOUS_WORK_PLAN.md\n",
+      }),
+    );
+
+    expect(decision.runGuards).toBe(false);
+    expect(decision.reason).toContain("did not reference coordination paths");
   });
 
   it("skips heavy guards for unrelated tool payloads", () => {

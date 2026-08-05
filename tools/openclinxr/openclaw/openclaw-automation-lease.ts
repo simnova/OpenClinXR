@@ -1,5 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { resolveSharedCoordinationPath } from "./coordination-root.js";
 
 export const OPENCLAW_AUTOMATION_LEASE_SCHEMA_VERSION = "openclinxr.openclaw-automation-lease.v1" as const;
 export const DEFAULT_OPENCLAW_AUTOMATION_LEASE_PATH = ".openclinxr/openclaw/automation-lease.json";
@@ -147,7 +148,10 @@ export async function getOpenClawAutomationLeaseStatus(options: LeaseOperationOp
 }
 
 function resolveLeasePath(leasePath = DEFAULT_OPENCLAW_AUTOMATION_LEASE_PATH, cwd = process.cwd()): string {
-  return path.isAbsolute(leasePath) ? leasePath : path.join(cwd, leasePath);
+  // Shared across worktrees on purpose: a lease resolved per-worktree grants every agent its own
+  // private lease, so acquisition ALWAYS succeeds and the mutual exclusion is imaginary.
+  // See coordination-root.ts.
+  return resolveSharedCoordinationPath(leasePath, cwd);
 }
 
 async function readLease(leasePath: string): Promise<OpenClawAutomationLease | null> {
