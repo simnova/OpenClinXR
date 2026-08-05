@@ -80,7 +80,7 @@
     "security:audit:dev": "pnpm audit --dev --audit-level=high",
     "security:audit-policy": "tsx tools/openclinxr/evidence/check-security-audit-policy.ts",
     "security:licenses": "tsx tools/openclinxr/evidence/check-license-policy.ts",
-    "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses",
+    "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm test:integration && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses",
     "pages:sync-validate": "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts --check && pnpm pages:validate",
     "pages:validate": "tsx tools/openclinxr/evidence/check-github-pages-site.ts",
     "pages:sync-evidence-links": "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts",
@@ -343,7 +343,8 @@
     "encounter:admin-replay-from-emission": "tsx tools/openclinxr/admin-replay-from-emission.ts",
     "evidence:physics-touch:portless": "node tools/openclinxr/evidence/physics-touch-capture.mjs",
     "agent:harness:manifest": "tsx tools/agent-factory/generate-harness-manifest.ts",
-    "agent:harness:boundaries": "tsx tools/agent-factory/validate-harness-boundaries.ts"
+    "agent:harness:boundaries": "tsx tools/agent-factory/validate-harness-boundaries.ts",
+    "test:integration": "pnpm --filter @openclinxr/data-mongodb test:integration"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

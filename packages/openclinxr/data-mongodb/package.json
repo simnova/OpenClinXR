@@ -9,8 +9,8 @@
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root .",
-    "test:mongo": "vitest run --root ."
+    "test": "vitest run --root . --exclude '**/*.integration.test.ts'",
+    "test:integration": "vitest run --root . integration.test"
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",

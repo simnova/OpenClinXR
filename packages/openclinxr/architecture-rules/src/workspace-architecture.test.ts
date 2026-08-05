@@ -238,6 +238,38 @@ describe("workspace architecture rules", () => {
     expect(rootPackage.scripts?.["verify"]).not.toContain("iwsdk:verify");
   });
 
+  it("keeps infrastructure-booting integration tests in an explicit opt-in lane", () => {
+    // Integration tests boot a real MongoMemoryServer. Keeping them in the default `test` lane
+    // made every unit run pay that cost, so they are excluded from `test` and exposed as an
+    // opt-in `test:integration` lane (same idiom as `iwsdk:verify`).
+    const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    const dataMongoPackage = JSON.parse(
+      readFileSync(join(workspaceRoot, "packages/openclinxr/data-mongodb/package.json"), "utf8"),
+    ) as { scripts?: Record<string, string> };
+
+    expect(dataMongoPackage.scripts?.["test"]).toContain("--exclude '**/*.integration.test.ts'");
+    expect(dataMongoPackage.scripts?.["test:integration"]).toContain("integration.test");
+    expect(rootPackage.scripts?.["test:integration"]).toContain("@openclinxr/data-mongodb test:integration");
+    // Out of the fast dev loop, but still gated by `verify` so the lane cannot silently rot.
+    expect(rootPackage.scripts?.["test"]).not.toContain("test:integration");
+    expect(rootPackage.scripts?.["verify"]).toContain("pnpm test:integration");
+
+    // Every integration test must carry the lane-selecting suffix, or it silently rejoins the unit lane.
+    const strays = typescriptFilesUnder("packages")
+      // Actual usage, not a mention: an import of the server or of the shared memory-context helper.
+      .filter((filePath) => {
+        const sourceText = readFileSync(join(workspaceRoot, filePath), "utf8");
+        return /from ["']mongodb-memory-server["']/.test(sourceText)
+          || /createMongoMemoryTestContext\s*\(/.test(sourceText);
+      })
+      .filter((filePath) => /\.test\.tsx?$/.test(filePath))
+      .filter((filePath) => !/\.integration\.test\.tsx?$/.test(filePath));
+
+    expect(strays).toEqual([]);
+  });
+
   it("keeps pnpm audit and license governance in the default verification gate", () => {
     const rootPackage = JSON.parse(readFileSync(join(workspaceRoot, "package.json"), "utf8")) as {
       scripts?: Record<string, string>;
