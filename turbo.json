@@ -7,20 +7,30 @@
     "tags": {
       "production": {
         "dependencies": {
-          "deny": ["arena"]
+          "deny": [
+            "arena"
+          ]
         }
       },
       "internal": {
         "dependencies": {
-          "deny": ["arena"]
+          "deny": [
+            "arena"
+          ]
         }
       },
       "cellix": {
         "dependencies": {
-          "deny": ["arena", "production"]
+          "deny": [
+            "arena",
+            "production"
+          ]
         },
         "dependents": {
-          "deny": ["arena", "production"]
+          "deny": [
+            "arena",
+            "production"
+          ]
         }
       }
     }
@@ -35,30 +45,65 @@
     "tsconfig.ide.json",
     "vitest.config.ts"
   ],
-  "globalEnv": ["CI", "NODE_ENV"],
+  "globalEnv": [
+    "CI",
+    "NODE_ENV"
+  ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
-      "outputs": ["dist/**", "deploy/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": [
+        "dist/**",
+        "deploy/**"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"],
-      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "package.json"
+      ],
       "outputs": []
     },
     "lint": {
-      "inputs": ["$TURBO_DEFAULT$", "package.json", "biome.json"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "package.json",
+        "biome.json"
+      ],
       "outputs": []
     },
     "test": {
-      "dependsOn": ["^typecheck"],
-      "inputs": ["$TURBO_DEFAULT$", "**/*.test.ts", "vitest.config.ts", "package.json"],
-      "outputs": ["coverage/**"]
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "**/*.test.ts",
+        "vitest.config.ts",
+        "package.json"
+      ],
+      "outputs": []
     },
     "architecture": {
-      "dependsOn": ["^typecheck"],
-      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "package.json"],
+      "dependsOn": [
+        "^typecheck"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "package.json"
+      ],
       "outputs": []
     },
     "dev": {
@@ -66,7 +111,11 @@
       "persistent": true
     },
     "//#test:tools": {
-      "inputs": ["tools/**/*.ts", "vitest.config.ts", "tsconfig.tools-relaxed.json"],
+      "inputs": [
+        "tools/**/*.ts",
+        "vitest.config.ts",
+        "tsconfig.tools-relaxed.json"
+      ],
       "outputs": []
     }
   }
