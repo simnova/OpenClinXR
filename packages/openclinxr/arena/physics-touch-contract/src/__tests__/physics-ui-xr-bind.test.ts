@@ -103,51 +103,50 @@ describe("physics-bone-transforms artifact", () => {
 // 2. Capture mode detection logic
 // ---------------------------------------------------------------------------
 
+/** Mirrors UI-XR capture-mode gate; string params avoid TS2367 on literal ≠ checks. */
+function isPhysicsClinicalTouchCapture(mode: string, cmp: string): boolean {
+  return (
+    (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
+    (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient")
+  );
+}
+
 describe("isPhysicsClinicalTouchCapture logic", () => {
   it("detects physics-clinical-touch capture mode", () => {
     // Simulate URL: ?capture=physics-clinical-touch&humanoidSourceComparator=ed_anny_real_garment_patient
-    const mode = "physics-clinical-touch";
-    const cmp = "ed_anny_real_garment_patient";
-    const isActive =
-      (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
-      (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient");
-    expect(isActive).toBe(true);
+    expect(
+      isPhysicsClinicalTouchCapture(
+        "physics-clinical-touch",
+        "ed_anny_real_garment_patient",
+      ),
+    ).toBe(true);
   });
 
   it("detects physics-touch capture mode", () => {
-    const mode = "physics-touch";
-    const cmp = "ed_anny_real_garment_patient";
-    const isActive =
-      (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
-      (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient");
-    expect(isActive).toBe(true);
+    expect(
+      isPhysicsClinicalTouchCapture("physics-touch", "ed_anny_real_garment_patient"),
+    ).toBe(true);
   });
 
   it("rejects non-physics capture modes", () => {
-    const mode = "garment-sleeve";
-    const cmp = "ed_anny_real_garment_patient";
-    const isActive =
-      (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
-      (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient");
-    expect(isActive).toBe(false);
+    expect(
+      isPhysicsClinicalTouchCapture("garment-sleeve", "ed_anny_real_garment_patient"),
+    ).toBe(false);
   });
 
   it("rejects non-real-garment comparators", () => {
-    const mode = "physics-clinical-touch";
-    const cmp = "peds_anny_school_age_mpfb2_eye_patient";
-    const isActive =
-      (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
-      (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient");
-    expect(isActive).toBe(false);
+    expect(
+      isPhysicsClinicalTouchCapture(
+        "physics-clinical-touch",
+        "peds_anny_school_age_mpfb2_eye_patient",
+      ),
+    ).toBe(false);
   });
 
   it("accepts peds_anny_real_garment_patient comparator", () => {
-    const mode = "physics-touch";
-    const cmp = "peds_anny_real_garment_patient";
-    const isActive =
-      (mode.includes("physics-clinical-touch") || mode.includes("physics-touch")) &&
-      (cmp === "ed_anny_real_garment_patient" || cmp === "peds_anny_real_garment_patient");
-    expect(isActive).toBe(true);
+    expect(
+      isPhysicsClinicalTouchCapture("physics-touch", "peds_anny_real_garment_patient"),
+    ).toBe(true);
   });
 });
 

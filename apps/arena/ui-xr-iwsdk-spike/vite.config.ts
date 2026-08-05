@@ -88,10 +88,10 @@ export function createOpenClinXrIwsdkSpikePlugins() {
 
 export default defineConfig({
   plugins: createOpenClinXrIwsdkSpikePlugins(),
-  // Explicit HTTP for Quest adb reverse. Plugin `https: false` opts out of IWSDK
-  // self-signed cert generation; Vite server.https false wins if plugin re-enables.
+  // HTTP for Quest adb reverse. Vite 8 `server.https` is HttpsServerOptions only
+  // (boolean false removed); omit `https` → plain HTTP. IWSDK plugin still has
+  // `https: false` above to opt out of self-signed cert generation.
   server: {
-    https: false,
     host: "127.0.0.1",
     // package.json dev:portless uses --strictPort=false + PORT:-0 for parallel worktrees;
     // CLI flag wins when set. Config default stays non-strict so portless is collision-safe.

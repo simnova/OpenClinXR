@@ -24,7 +24,11 @@
  * residual motion is physically small (< 2 mm) with real Rapier WASM.
  */
 
-import { initRapier, isRapierInitialized } from "../adapters/rapier-real.js";
+import {
+  initRapier,
+  isRapierInitialized,
+  type RapierModule,
+} from "../adapters/rapier-real.js";
 import { buildPalpationInputLog, DEFAULT_PALPATION_SITES } from "../scenarios/palpation.js";
 import { FIXED_DT } from "../fixed-step.js";
 
@@ -141,7 +145,9 @@ export async function runMeasuredMetrics(
     throw new Error("Rapier WASM not initialized — real engine required (AD-1)");
   }
 
-  const RAPIER = await import("@dimforge/rapier3d-compat");
+  // Rapier 0.19 NodeNext: full API is on the default export only.
+  const mod = await import("@dimforge/rapier3d-compat");
+  const RAPIER: RapierModule = mod.default;
 
   // 2. Build physics world once (shared for all scenarios)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -357,7 +363,7 @@ export async function runMeasuredMetrics(
  * moderate clinical-tissue-like stiffness and damping.
  */
 function measurePoseReturnError(
-  RAPIER: typeof import("@dimforge/rapier3d-compat"),
+  RAPIER: RapierModule,
   _seed: number,
 ): number {
   // Zero-gravity world for clean return measurement
@@ -437,7 +443,7 @@ function measurePoseReturnError(
  * @returns max residual displacement in mm during the settle phase.
  */
 function measureContactStability(
-  RAPIER: typeof import("@dimforge/rapier3d-compat"),
+  RAPIER: RapierModule,
   seed: number,
 ): number {
   const gravity = { x: 0.0, y: 0.0, z: 0.0 }; // zero-g: isolate residual from static sag

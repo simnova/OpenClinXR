@@ -15,7 +15,12 @@
  *     --bones spine,chest,upper_arm.L,upper_arm.R,clavicle.L,clavicle.R
  */
 
-import { initRapier as initRapierModule, isRapierInitialized as rapierReady, getRapierModule } from "../adapters/rapier-real.js";
+import {
+  initRapier as initRapierModule,
+  isRapierInitialized as rapierReady,
+  getRapierModule,
+  type RapierModule,
+} from "../adapters/rapier-real.js";
 import { buildPalpationInputLog, DEFAULT_PALPATION_SITES } from "../scenarios/palpation.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -110,7 +115,7 @@ async function main(): Promise<void> {
 
 function runPalpationSimulation(
   args: CliArgs,
-  RAPIER: typeof import("@dimforge/rapier3d-compat"),
+  RAPIER: RapierModule,
 ): BoneTransformFrame[] {
 
   const gravity = { x: 0.0, y: -9.81, z: 0.0 };
@@ -308,10 +313,18 @@ function parseArgs(): CliArgs {
 
   for (let i = 0; i < raw.length; i++) {
     const arg = raw[i]!;
-    if (arg === "--output" || arg === "-o") args.output = raw[++i];
-    else if (arg === "--scenario") args.scenario = raw[++i];
-    else if (arg === "--engine-id") args.engineId = raw[++i];
-    else if (arg === "--seed") args.seed = Number(raw[++i]) || 42;
+    // exactOptionalPropertyTypes: only assign when the next token is present
+    // (optional props accept omit | string, not explicit undefined).
+    if (arg === "--output" || arg === "-o") {
+      const next = raw[++i];
+      if (next !== undefined) args.output = next;
+    } else if (arg === "--scenario") {
+      const next = raw[++i];
+      if (next !== undefined) args.scenario = next;
+    } else if (arg === "--engine-id") {
+      const next = raw[++i];
+      if (next !== undefined) args.engineId = next;
+    } else if (arg === "--seed") args.seed = Number(raw[++i]) || 42;
     else if (arg === "--bones") args.bones = (raw[++i] ?? "").split(",").map((b) => b.trim()).filter(Boolean);
     else if (arg === "--help") {
       console.log(`Usage: generate-physics-bone-transforms.ts [options]

@@ -26,6 +26,7 @@
  *      new handles replace old ones.
  */
 
+import type RapierDefault from "@dimforge/rapier3d-compat";
 import type { PhysicsConfigV1 } from "../factory/physics-config-v1.js";
 import type {
   DeterminismScope,
@@ -37,7 +38,13 @@ import type { PhysicsAdapter, PhysicsStateSnapshot } from "./stub.js";
 // ---------------------------------------------------------------------------
 // Dynamic import — caller must await init() before construction
 // ---------------------------------------------------------------------------
-type RapierModule = typeof import("@dimforge/rapier3d-compat");
+/**
+ * Rapier 0.19 under NodeNext only surfaces World / RigidBodyDesc / init / etc.
+ * on the **default** export. `export * from "./exports"` in rapier.d.ts does not
+ * re-export named members under NodeNext (./exports is types-only), so
+ * `typeof import("@dimforge/rapier3d-compat")` is an empty module shape.
+ */
+export type RapierModule = typeof RapierDefault;
 type RapierWorld = InstanceType<RapierModule["World"]>;
 type RapierRigidBody = InstanceType<RapierModule["RigidBody"]>;
 
@@ -51,8 +58,9 @@ let RAPIER: RapierModule | null = null;
 export async function initRapier(): Promise<void> {
   if (RAPIER) return;
   const mod = await import("@dimforge/rapier3d-compat");
-  await mod.init();
-  RAPIER = mod;
+  const rapier = mod.default;
+  await rapier.init();
+  RAPIER = rapier;
 }
 
 /**
@@ -281,7 +289,7 @@ export class RapierRealAdapter implements PhysicsAdapter {
     let abdomen: RapierRigidBody | null = null;
     let table: RapierRigidBody | null = null;
 
-    this._world.forEachRigidBody((body) => {
+    this._world.forEachRigidBody((body: RapierRigidBody) => {
       const pos = body.translation();
       if (body.isKinematic() && !hand) {
         hand = body;
