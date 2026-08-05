@@ -171,9 +171,12 @@ describe("PipelineAdminApp", () => {
 
   it("renders per-row Preview and Promote actions", async () => {
     renderAdmin();
-    await screen.findByText("Pipeline Administration & Model Vetting");
-    expect((await screen.findAllByRole("button", { name: "Promote" })).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: "Preview" }).length).toBeGreaterThan(0);
+    // Await the real index→ready state transition (fetch setIndex), not a wall-clock
+    // getByRole name-walk. Role queries on a full antd Table tree are CPU-heavy and
+    // flake under full-gate contention (~3.5s alone; fails ~1/3 under turbo load).
+    await screen.findByTestId("pipeline-admin-ready");
+    expect(screen.getAllByTestId("candidate-promote").length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId("candidate-preview").length).toBeGreaterThan(0);
   });
 
   it("Regenerate index posts /__regenerate-index and reloads table", async () => {

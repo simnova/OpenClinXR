@@ -291,8 +291,22 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
         key: "actions",
         render: (_v, record) => (
           <Space>
-            <Button size="small" onClick={() => setPreviewCandidate(record)}>Preview</Button>
-            <Button size="small" type="primary" ghost onClick={() => setPromoteCandidate(record)}>Promote</Button>
+            <Button
+              size="small"
+              onClick={() => setPreviewCandidate(record)}
+              data-testid="candidate-preview"
+            >
+              Preview
+            </Button>
+            <Button
+              size="small"
+              type="primary"
+              ghost
+              onClick={() => setPromoteCandidate(record)}
+              data-testid="candidate-promote"
+            >
+              Promote
+            </Button>
           </Space>
         ),
       },
@@ -302,19 +316,25 @@ export function PipelineAdminApp(props: { indexOverrideUrl?: string | null }): R
 
   if (loadError) {
     return (
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: 24 }} data-testid="pipeline-admin-error">
         <Alert type="error" showIcon title="Unable to load candidate index" description={loadError} />
       </div>
     );
   }
   if (!index) {
-    return <Spin style={{ display: "block", margin: "80px auto" }} size="large" />;
+    return (
+      <Spin
+        data-testid="pipeline-admin-loading"
+        style={{ display: "block", margin: "80px auto" }}
+        size="large"
+      />
+    );
   }
 
   const scored = index.scoredCandidateCount;
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+    <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }} data-testid="pipeline-admin-ready">
       <Space orientation="vertical" size="large" style={{ width: "100%" }}>
         <div>
           <Text type="secondary">Capability Arena</Text>
