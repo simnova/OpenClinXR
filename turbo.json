@@ -67,7 +67,7 @@
     },
     "typecheck": {
       "dependsOn": [
-        "^typecheck"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -86,7 +86,7 @@
     },
     "test": {
       "dependsOn": [
-        "^typecheck"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",

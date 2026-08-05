@@ -7,7 +7,7 @@
     "agent-methodology": 70,
     "current-reference": 205,
     "archive-candidate": 16,
-    "evidence": 35,
+    "evidence": 36,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
@@ -2848,6 +2848,13 @@
       "agentInstructionWeight": "low",
       "action": "summarize-before-use",
       "rationale": "Substantive historical design or milestone synthesis; use as background, not active instruction."
+    },
+    {
+      "path": "docs/openclinxr/reviews/2026-08-05-cellix-typescript-pnpm-second-opinion.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "docs/openclinxr/sample-case-bank-v1.md",
