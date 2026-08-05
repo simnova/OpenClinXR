@@ -58,7 +58,6 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 785, reason: "capture pipeline — split capture/report" },
   "packages/openclinxr/arena/model-vetting/src/index.ts": { maxLines: 772, reason: "model-vetting barrel — split by concern" },
   "packages/openclinxr/voice-gateway/src/index.ts": { maxLines: 742, reason: "voice-gateway barrel — split adapter/gateway" },
-  "packages/openclinxr/exam-assembly/src/index.ts": { maxLines: 715, reason: "exam-assembly barrel — split assembly steps" },
   "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
   "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 679, reason: "large authoring panel — extract form sections" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
