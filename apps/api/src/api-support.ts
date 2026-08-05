@@ -4,6 +4,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { type RealtimeVoiceProtocolLaneId } from "@openclinxr/voice-gateway";
 import type { ApiMaterializationInputReviewDecision, ApiMaterializationInputReviewDecisionRecord, ApiRuntimeRealismEvidenceInputReviewDecision, ApiRuntimeRealismEvidenceInputReviewDecisionRecord, ApiRuntimeVisualEvidenceAttachment, ApiRuntimeVisualEvidenceAttachmentRecord, ApiRuntimeRealismEvidenceAttachmentSummary, ApiRuntimeVisualEvidenceAttachmentActionPacket } from "./api-types.js";
 import path from "node:path";
+import { matchOpenClinXrRestRoute } from "@openclinxr/rest";
+import { openClinXrSpanNames, telemetryRouteAttributes } from "@openclinxr/telemetry";
 
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
@@ -521,3 +523,31 @@ export const EMPTY_RUN_COUNTERS: TelemetryRunCounters = {
   encountersCompleted: 0,
   encountersFailed: 0,
 };
+
+export async function recordApiRouteSpan(
+  telemetry: TelemetryRecorder,
+  input: {
+    method: string;
+    url: string;
+    statusCode: number;
+    durationMs: number;
+    errorType?: string;
+  },
+): Promise<void> {
+  const routeMatch = matchOpenClinXrRestRoute(input.method, new URL(input.url).pathname);
+  const span: TelemetrySpanRecord = {
+    name: openClinXrSpanNames.apiRoute,
+    attributes: telemetryRouteAttributes({
+      routeId: routeMatch?.route.id ?? "unmatched",
+      ...(routeMatch ? {
+        routeSurface: routeMatch.route.surface,
+        stationRunScoped: routeMatch.route.stationRunScoped,
+      } : {}),
+    }),
+    durationMs: input.durationMs,
+    statusCode: input.statusCode,
+    ...(input.errorType ? { errorType: input.errorType } : {}),
+  };
+
+  await Promise.resolve(telemetry.recordSpan(span)).catch(() => undefined);
+}

@@ -191,7 +191,8 @@ import {
   telemetrySnapshotFromRecorder,
   asRealTelemetryRecorder,
 } from "./api-support.js";
-import { createApiAppContext } from "./api-app-context.js";
+import { type ApiAppContext } from "./api-app-context.js";
+import { ApiApplication, type ApiApp } from "./api-application.js";
 import { registerReviewRoutes } from "./routes/review-routes.js";
 import { registerEncounterSessionRoutes } from "./routes/encounter-session-routes.js";
 import { registerCapabilityJobRoutes } from "./routes/capability-job-routes.js";
@@ -209,10 +210,29 @@ const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
 /** Narrow optional counter/snapshot surface without coupling callers to concrete recorder type. */
 
 
-export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono<{ Variables: ApiAppVariables }> {
-  const app = new Hono<{ Variables: ApiAppVariables }>();
-  const ctx = createApiAppContext(runtime, persistence, options);
+/**
+ * Compose the API app.
+ *
+ * Thin composition root: phases are sequenced by {@link ApiApplication}, feature logic lives in
+ * the per-domain route modules. Adding a domain = one line in {@link registerAllRoutes}.
+ */
+export function createApiApp(
+  runtime: ScenarioRuntime = createDefaultScenarioRuntime(),
+  persistence: ApiPersistenceSink = {},
+  options: ApiAppOptions = {},
+): ApiApp {
+  return ApiApplication.create()
+    .withContext(runtime, persistence, options)
+    .withCoreMiddleware()
+    .withRoutes(registerAllRoutes)
+    .build();
+}
+
+/** Route registration surface — one line per domain (routes still inline here are mid-migration). */
+function registerAllRoutes(app: ApiApp, ctx: ApiAppContext): void {
   const {
+    runtime,
+    persistence,
     telemetry,
     assetGenerationFacade,
     realtimeVoiceGatewayPosture,
@@ -227,58 +247,6 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   } = ctx;
   const { allowDevDefaultIdentity, secret: authSecret, defaultIdentity } = ctx.auth;
 
-  app.use("*", async (context, next) => {
-    context.header("access-control-allow-origin", "*");
-    context.header("access-control-allow-methods", "GET,POST,OPTIONS");
-    context.header("access-control-allow-headers", "content-type, authorization");
-    if (context.req.method === "OPTIONS") {
-      return context.body(null, 204);
-    }
-    return next();
-  });
-
-  app.use("*", async (context, next) => {
-    if (context.req.method === "OPTIONS") {
-      return next();
-    }
-
-    const bearer = parseBearerAuthorization(context.req.header("authorization"));
-    if (bearer) {
-      const verified = verifyAuthToken({ token: bearer, secret: authSecret });
-      if (!verified.ok) {
-        return context.json({ error: "unauthorized", reason: verified.error }, 401);
-      }
-      context.set("identity", verified.identity);
-      return next();
-    }
-
-    if (!allowDevDefaultIdentity) {
-      return context.json({ error: "unauthorized", reason: "missing_token" }, 401);
-    }
-
-    context.set("identity", defaultIdentity);
-    return next();
-  });
-
-  app.use("*", async (context, next) => {
-    const started = performance.now();
-    let errorType: string | undefined;
-
-    try {
-      await next();
-    } catch (error) {
-      errorType = error instanceof Error ? error.name : "unknown";
-      throw error;
-    } finally {
-      await recordApiRouteSpan(telemetry, {
-        method: context.req.method,
-        url: context.req.url,
-        statusCode: context.res.status,
-        durationMs: Number((performance.now() - started).toFixed(2)),
-        ...(errorType ? { errorType } : {}),
-      });
-    }
-  });
 
   registerPlatformRoutes(app, ctx);
 
@@ -906,7 +874,6 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   registerCapabilityJobRoutes(app, ctx);
   registerEncounterSessionRoutes(app, ctx);
   registerReviewRoutes(app, ctx);
-  return app;
 }
 
 
@@ -1161,33 +1128,6 @@ function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminG
 }
 
 
-async function recordApiRouteSpan(
-  telemetry: TelemetryRecorder,
-  input: {
-    method: string;
-    url: string;
-    statusCode: number;
-    durationMs: number;
-    errorType?: string;
-  },
-): Promise<void> {
-  const routeMatch = matchOpenClinXrRestRoute(input.method, new URL(input.url).pathname);
-  const span: TelemetrySpanRecord = {
-    name: openClinXrSpanNames.apiRoute,
-    attributes: telemetryRouteAttributes({
-      routeId: routeMatch?.route.id ?? "unmatched",
-      ...(routeMatch ? {
-        routeSurface: routeMatch.route.surface,
-        stationRunScoped: routeMatch.route.stationRunScoped,
-      } : {}),
-    }),
-    durationMs: input.durationMs,
-    statusCode: input.statusCode,
-    ...(input.errorType ? { errorType: input.errorType } : {}),
-  };
-
-  await Promise.resolve(telemetry.recordSpan(span)).catch(() => undefined);
-}
 
 async function recordGraphqlOperationSpan(
   telemetry: TelemetryRecorder,

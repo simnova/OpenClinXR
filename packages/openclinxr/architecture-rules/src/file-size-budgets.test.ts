@@ -41,7 +41,7 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-xr/src/main.ts": { maxLines: 10255, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD)" },
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3743, reason: "XR runtime-state god-file — split by state slice" },
   "apps/api/src/api-route-support.ts": { maxLines: 699, reason: "shared route-level helpers extracted from app.ts during the composition-root migration — split by domain alongside the remaining route modules" },
-  "apps/api/src/app.ts": { maxLines: 1389, reason: "API composition root mid-migration to fluent DI: types/helpers + 6 of 9 route domains extracted; remaining inline = runtime-evidence, admin-graphql, scenario/scene-gen. Then ApiApplication builder + compose.ts" },
+  "apps/api/src/app.ts": { maxLines: 1329, reason: "API composition root: ApiApplication fluent builder + registerAllRoutes surface; 6 of 9 route domains extracted. Remaining inline: runtime-evidence, admin-graphql, scenario/scene-gen" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },
