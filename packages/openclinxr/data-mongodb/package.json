@@ -4,13 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root . --exclude '**/*.integration.test.ts' --passWithNoTests",
-    "test:integration": "vitest run --root . integration.test"
+    "test:integration": "vitest run --root . integration.test",
+    "build": "tsgo --build"
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
@@ -31,5 +35,8 @@
     "mongodbMemoryServer": {
       "version": "7.0.24"
     }
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
