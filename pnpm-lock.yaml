@@ -471,6 +471,19 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/cellix/trace-ledger:
+    dependencies:
+      '@cellix/provider-contracts':
+        specifier: workspace:*
+        version: link:../provider-contracts
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/openclinxr/agent-loop:
     devDependencies:
       typescript:
@@ -805,6 +818,9 @@ importers:
 
   packages/openclinxr/scenario-runtime:
     dependencies:
+      '@cellix/trace-ledger':
+        specifier: workspace:*
+        version: link:../../cellix/trace-ledger
       '@openclinxr/asset-registry':
         specifier: workspace:*
         version: link:../asset-registry
@@ -829,9 +845,6 @@ importers:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
-      '@openclinxr/trace-ledger':
-        specifier: workspace:*
-        version: link:../trace-ledger
       '@openclinxr/voice-gateway':
         specifier: workspace:*
         version: link:../voice-gateway
@@ -913,22 +926,6 @@ importers:
       tsx:
         specifier: 4.21.0
         version: 4.21.0
-    devDependencies:
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.5
-        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
-
-  packages/openclinxr/trace-ledger:
-    dependencies:
-      '@cellix/provider-contracts':
-        specifier: workspace:*
-        version: link:../../cellix/provider-contracts
-      '@openclinxr/shared-schemas':
-        specifier: workspace:*
-        version: link:../shared-schemas
     devDependencies:
       typescript:
         specifier: 6.0.3

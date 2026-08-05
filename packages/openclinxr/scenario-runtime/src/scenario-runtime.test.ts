@@ -9,7 +9,7 @@ import {
   type ModelProviderAdapter,
 } from "@openclinxr/model-gateway";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
-import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
+import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
 import type { CaseEmotionPolicy as EngineCaseEmotionPolicy, EmotionEventKind } from "@openclinxr/conversation-policy";

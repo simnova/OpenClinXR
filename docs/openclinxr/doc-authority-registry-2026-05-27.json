@@ -5,7 +5,7 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 63,
-    "current-reference": 203,
+    "current-reference": 204,
     "archive-candidate": 16,
     "evidence": 34,
     "protected-policy": 10,
@@ -2977,6 +2977,13 @@
     },
     {
       "path": "packages/cellix/provider-contracts/CHANGELOG.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "packages/cellix/trace-ledger/CHANGELOG.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",

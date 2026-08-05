@@ -13,7 +13,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 63
 - archive-candidate: 16
-- current-reference: 203
+- current-reference: 204
 - decision-record: 22
 - evidence: 34
 - historical-synthesis: 56
@@ -225,6 +225,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `packages/cellix/config-typescript/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/cellix/config-vitest/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/cellix/provider-contracts/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `packages/cellix/trace-ledger/CHANGELOG.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `packages/openclinxr/arena/model-vetting/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.

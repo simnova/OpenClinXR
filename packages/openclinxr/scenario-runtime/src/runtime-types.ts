@@ -20,7 +20,7 @@ import type {
   RouteActorInteractionInput,
 } from "@openclinxr/session-state";
 import type { InteractionEmotion, ProviderHealth, ReviewPacket, Scenario, TraceEvent } from "@openclinxr/shared-schemas";
-import type { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
+import type { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import type { AudioEvent, VoiceGateway } from "@openclinxr/voice-gateway";
 
 /**

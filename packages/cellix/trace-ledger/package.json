@@ -1,6 +1,6 @@
 {
-  "name": "@openclinxr/trace-ledger",
-  "version": "0.1.0",
+  "name": "@cellix/trace-ledger",
+  "version": "1.0.0-openclinxr.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -12,7 +12,6 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@openclinxr/shared-schemas": "workspace:*",
     "@cellix/provider-contracts": "workspace:*"
   },
   "devDependencies": {

@@ -36,7 +36,7 @@ import {
   routeActorInteraction,
 } from "@openclinxr/session-state";
 import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
-import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
+import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import {
   type AudioEvent,
   collectVoiceStream,

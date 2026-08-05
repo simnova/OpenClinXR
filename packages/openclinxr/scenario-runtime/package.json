@@ -20,7 +20,7 @@
     "@openclinxr/scenario-fixtures": "workspace:*",
     "@openclinxr/session-state": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
-    "@openclinxr/trace-ledger": "workspace:*",
+    "@cellix/trace-ledger": "workspace:*",
     "@openclinxr/voice-gateway": "workspace:*"
   },
   "devDependencies": {
