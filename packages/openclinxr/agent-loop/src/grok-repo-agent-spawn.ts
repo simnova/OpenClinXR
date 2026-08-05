@@ -127,6 +127,26 @@ export const WORKER_TONE_DIRECTIVE =
   '≤100 words; no recap, no soft menus, no essay. End exactly "Recommended next: <slice> (Q#)". ' +
   'Escalate with a line starting "UNABLE:" when below capability.';
 
+/**
+ * Output-budget guard, baked into every worker prompt.
+ *
+ * Measured 2026-08-05: 4 of 9 headless dispatches did not finish; 3 were KILLED with no final
+ * output, including a small mechanical task — so task size alone is not protection. Grok's own
+ * introspection named OUTPUT OVERFLOW as a likely cause, and this repo already ships quiet
+ * `:agent` turbo variants (`--ui=stream --output-logs=errors-only`) that workers were not using:
+ * a fully-cached run drops from ~200 lines of replayed logs to ~2.
+ *
+ * Suggestive, not proven (the 3 dispatches after adopting these rules all completed; n=1 on the
+ * mitigation). Cheap enough to always apply. Full write-up: agentic-eval
+ * `docs/findings/delegation-reliability.md`.
+ */
+export const WORKER_OUTPUT_BUDGET_DIRECTIVE =
+  "OUTPUT BUDGET (obey — workers get killed by output overflow): use the quiet turbo variants " +
+  "`pnpm packages:test:agent` / `packages:typecheck:agent` / `packages:lint:agent` (or add " +
+  "`--ui=stream --output-logs=errors-only`); never run bare `turbo run` across all packages. " +
+  "Single-package `pnpm --filter <pkg> test` is fine. NEVER grep a common identifier repo-wide — " +
+  "scope every grep to a directory and pipe through `| head -20`.";
+
 /** Per-job temp root convention — avoids parallel Blender/skin races on fixed /tmp names. */
 export const OPENCLINXR_JOB_TMP_CONVENTION = {
   envVar: "OPENCLINXR_JOB_TMP",
@@ -322,6 +342,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     : "";
   return [
     WORKER_TONE_DIRECTIVE,
+    WORKER_OUTPUT_BUDGET_DIRECTIVE,
     `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr. OpenClaw file-backed (not external runtime).`,
     "Rehydrate: pathScope (below) + charter Persona + memory tight limit + PROJECT_STATUS snapshot header only if needed. Do NOT load full AGENTS.md/LEX unless UNABLE.",
     `Read ${input.roleDir}/charter.md (## Persona) + ${input.roleDir}/memory.md (tight).`,
