@@ -28,3 +28,4 @@ A trial can inform production only when:
 2. Focused evidence exists in docs or package tests.
 3. Production code consumes a stable adapter/package, not arena internals.
 4. Architecture rules are updated to encode the allowed boundary.
+| 0032 | Source-first packages vs TypeScript project references | Accepted (status quo affirmed) |

@@ -588,12 +588,16 @@ export function runEnvDoctor(repoRoot: string, flags: { strictWarn?: boolean } =
     });
   }
 
-  // LSP config (Grok + agent navigation)
+  // LSP config (Grok + agent navigation).
+  // Grok single-routes by extension: typescript owns .ts/.tsx; knip LS must NOT share
+  // those maps (use CLI knip). Required bins: typescript + pyright only.
   const lspConfigPath = path.join(repoRoot, ".grok", "lsp.json");
-  const lspBins = {
+  const requiredLspBins = {
     typescript: path.join(repoRoot, "node_modules", ".bin", "typescript-language-server"),
-    knip: path.join(repoRoot, "node_modules", ".bin", "knip-language-server"),
     pyright: path.join(repoRoot, "node_modules", ".bin", "pyright-langserver"),
+  };
+  const optionalLspBins = {
+    knip: path.join(repoRoot, "node_modules", ".bin", "knip-language-server"),
   };
   if (!existsSync(lspConfigPath)) {
     checks.push({
@@ -625,8 +629,45 @@ export function runEnvDoctor(repoRoot: string, flags: { strictWarn?: boolean } =
         fix: a === b ? undefined : "copy .grok/lsp.json to .lsp.json (keep identical)",
       });
     }
+    try {
+      const lspCfg = JSON.parse(readFileSync(lspConfigPath, "utf8")) as Record<
+        string,
+        { extensionToLanguage?: Record<string, string> }
+      >;
+      const tsExts = new Set(Object.keys(lspCfg.typescript?.extensionToLanguage ?? {}));
+      const knipExts = Object.keys(lspCfg.knip?.extensionToLanguage ?? {});
+      const overlap = knipExts.filter((e) => tsExts.has(e));
+      if (lspCfg.knip && overlap.length > 0) {
+        checks.push({
+          id: "lsp.knip_extension_collision",
+          category: "lsp",
+          severity: "fail",
+          title: "knip LS shares extensions with typescript",
+          detail: `overlap: ${overlap.join(", ")} — agent hover/def will -32601`,
+          fix: "remove knip from .grok/lsp.json (use pnpm knip CLI); keep typescript sole owner of .ts",
+        });
+      } else if (lspCfg.knip) {
+        checks.push({
+          id: "lsp.knip_extension_collision",
+          category: "lsp",
+          severity: "ok",
+          title: "knip LS present without typescript extension overlap",
+          detail: "configured",
+        });
+      } else {
+        checks.push({
+          id: "lsp.knip_not_in_config",
+          category: "lsp",
+          severity: "ok",
+          title: "knip not in Grok lsp.json (use CLI)",
+          detail: "correct for single-route agent lsp tool",
+        });
+      }
+    } catch {
+      /* JSON already checked by check-lsp-config */
+    }
   }
-  for (const [name, binPath] of Object.entries(lspBins)) {
+  for (const [name, binPath] of Object.entries(requiredLspBins)) {
     if (existsSync(binPath)) {
       checks.push({
         id: `lsp.bin.${name}`,
@@ -642,13 +683,25 @@ export function runEnvDoctor(repoRoot: string, flags: { strictWarn?: boolean } =
         severity: "fail",
         title: `${name} language server missing`,
         detail: binPath,
-        fix: "pnpm install (typescript-language-server, @knip/language-server, pyright)",
+        fix: "pnpm install (typescript-language-server, pyright)",
       });
     }
   }
+  for (const [name, binPath] of Object.entries(optionalLspBins)) {
+    checks.push({
+      id: `lsp.bin.${name}`,
+      category: "lsp",
+      severity: existsSync(binPath) ? "ok" : "info",
+      title: existsSync(binPath)
+        ? `${name} language server bin (optional; CLI preferred for Grok)`
+        : `${name} language server optional (not installed)`,
+      detail: binPath,
+      fix: existsSync(binPath) ? undefined : "optional: pnpm add -D @knip/language-server",
+    });
+  }
   // structural script when present
   const lspCheckScript = path.join(repoRoot, "tooling", "scripts", "check-lsp-config.mjs");
-  if (existsSync(lspCheckScript) && existsSync(lspBins.typescript)) {
+  if (existsSync(lspCheckScript) && existsSync(requiredLspBins.typescript)) {
     const lspCheck = run(process.execPath, [lspCheckScript], { cwd: repoRoot });
     checks.push({
       id: "lsp.check_script",

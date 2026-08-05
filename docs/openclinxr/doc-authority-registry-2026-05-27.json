@@ -11,7 +11,7 @@
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 56,
-    "decision-record": 22
+    "decision-record": 23
   },
   "entries": [
     {
@@ -2466,6 +2466,13 @@
     },
     {
       "path": "docs/madr/0031-physics-baked-vs-live-consumer-split.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0032-source-first-packages-vs-project-references.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
