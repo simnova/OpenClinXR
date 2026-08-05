@@ -150,7 +150,9 @@ describe("exam assembly", () => {
     const readiness = evaluateBlueprintScenarioReadiness(blueprint, scenarioBank);
     expect(readiness.canAssembleReadyForm).toBe(false);
     expect(readiness.activationEligibleScenarioIds).toEqual(["ed_chest_pain_priority_v1"]);
-    expect(readiness.blockedScenarioIds).toHaveLength(11);
+    // Readiness is evaluated over the CANDIDATE POOL (the whole bank), not the assembled form, so
+    // this is bank-derived: every bank scenario except the single activation-eligible one is blocked.
+    expect(readiness.blockedScenarioIds).toHaveLength(scenarioBank.length - 1);
     expect(readiness.blockedScenarioIds).toContainEqual({ scenarioId: "ward_delirium_med_rec_v1", reason: "not_approved" });
   });
 

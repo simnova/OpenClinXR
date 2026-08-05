@@ -3378,7 +3378,7 @@ describe("OpenClinXR API shell", () => {
           reviewerId: "admin_seed_reviewer",
             queue: {
               blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
-              totalStationTimeSeconds: 21840,
+              totalStationTimeSeconds: 18720,
               breakCheckpoints: [
                 { afterStationOrder: 3, atSecond: 4680 },
                 { afterStationOrder: 6, atSecond: 9360 },
@@ -3386,7 +3386,7 @@ describe("OpenClinXR API shell", () => {
               ],
               summary: {
                 activationReady: 1,
-                draftBlocked: 13,
+                draftBlocked: 11,
             },
           },
         },
@@ -3443,7 +3443,7 @@ describe("OpenClinXR API shell", () => {
             snapshotId: "queue_snapshot_graphql_001",
             reviewerId: "admin_seed_reviewer",
             queue: {
-              totalStationTimeSeconds: 21840,
+              totalStationTimeSeconds: 18720,
               breakCheckpoints: [
                 { afterStationOrder: 3, atSecond: 4680 },
                 { afterStationOrder: 6, atSecond: 9360 },
@@ -3546,26 +3546,10 @@ describe("OpenClinXR API shell", () => {
                     note: { durationSeconds: 600 },
                   },
                 },
-                {
-                  stationOrder: 13,
-                  timing: {
-                    doorway: { durationSeconds: 60 },
-                    encounter: { durationSeconds: 900 },
-                    note: { durationSeconds: 600 },
-                  },
-                },
-                {
-                  stationOrder: 14,
-                  timing: {
-                    doorway: { durationSeconds: 60 },
-                    encounter: { durationSeconds: 900 },
-                    note: { durationSeconds: 600 },
-                  },
-                },
               ],
               summary: {
                 activationReady: 1,
-                draftBlocked: 13,
+                draftBlocked: 11,
               },
             },
           },
@@ -4249,7 +4233,7 @@ describe("OpenClinXR API shell", () => {
     ]);
   });
 
-  it("serves the 14-station seed blueprint with governance readiness blockers", async () => {
+  it("serves the 12-station seed blueprint with governance readiness blockers", async () => {
     const app = createApiApp();
     const blueprintResponse = await app.request("/exam-blueprints/step2cs-seed");
     const blueprint = await json(blueprintResponse) as {
@@ -4259,8 +4243,9 @@ describe("OpenClinXR API shell", () => {
     };
 
     expect(blueprintResponse.status).toBe(200);
-    expect(blueprint.stationSlots).toHaveLength(14);
-    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+    // The FORM is an assembled 12-station selection from the bank (bank size may grow).
+    expect(blueprint.stationSlots).toHaveLength(12);
+    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect(blueprint.timing).toEqual({ doorwaySeconds: 60, encounterSeconds: 900, noteSeconds: 600, breakAfterStationOrders: [3, 6, 9] });
     expect(blueprint.requiredTraceTags).toEqual(expect.arrayContaining(["ecg_request", "teach_back", "stroke_team_activation", "interpreter_use"]));
 
@@ -4285,14 +4270,14 @@ describe("OpenClinXR API shell", () => {
     };
 
     expect(timingResponse.status).toBe(200);
-    expect(timingPlan.stationWindows).toHaveLength(14);
+    expect(timingPlan.stationWindows).toHaveLength(12);
     expect(timingPlan.stationWindows[0]).toMatchObject({ stationOrder: 1, note: { endsAtSecond: 1560 } });
     expect(timingPlan.breakCheckpoints).toEqual([
       { afterStationOrder: 3, atSecond: 4680 },
       { afterStationOrder: 6, atSecond: 9360 },
       { afterStationOrder: 9, atSecond: 14040 },
     ]);
-    expect(timingPlan.totalStationTimeSeconds).toBe(21840);
+    expect(timingPlan.totalStationTimeSeconds).toBe(18720);
 
     const queueResponse = await app.request("/exam-blueprints/step2cs-seed/station-run-queue");
     const queue = await json(queueResponse) as {
@@ -4303,8 +4288,8 @@ describe("OpenClinXR API shell", () => {
 
     expect(queueResponse.status).toBe(200);
     expect(queue.canStartLearnerExam).toBe(false);
-    expect(queue.stationQueue).toHaveLength(14);
-    expect(queue.summary).toEqual({ activationReady: 1, draftBlocked: 13, governanceBlocked: 0, missingScenario: 0 });
+    expect(queue.stationQueue).toHaveLength(12);
+    expect(queue.summary).toEqual({ activationReady: 1, draftBlocked: 11, governanceBlocked: 0, missingScenario: 0 });
     expect(queue.stationQueue[0]).toMatchObject({ stationOrder: 1, scenarioId: "ed_chest_pain_priority_v1", status: "activation_ready", blockers: [] });
     expect(queue.stationQueue[8]).toMatchObject({ stationOrder: 9, scenarioId: "clinic_abdominal_pain_interpreter_v1", status: "draft_blocked", blockers: ["scenario_not_approved"] });
   });
@@ -4383,7 +4368,7 @@ describe("OpenClinXR API shell", () => {
       reviewerId: "psychometrician_001",
       queue: {
         canStartLearnerExam: false,
-        summary: { activationReady: 1, draftBlocked: 13 },
+        summary: { activationReady: 1, draftBlocked: 11 },
         stationQueue: expect.arrayContaining([
           expect.objectContaining({ stationOrder: 9, scenarioId: "clinic_abdominal_pain_interpreter_v1", status: "draft_blocked" }),
         ]),

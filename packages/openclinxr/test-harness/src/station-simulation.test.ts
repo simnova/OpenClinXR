@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runEdChestPainSimulation } from "./index.js";
+import { scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 
 describe("ED chest pain deterministic simulation", () => {
   it("runs from fixture to review packet without cloud services", async () => {
@@ -49,13 +50,17 @@ describe("ED chest pain deterministic simulation", () => {
         blockers: ["local_voice_runtime_not_configured"],
       },
     ]);
+    const expectedScenarioCount = scenarioDialogueSeedBank.length;
+    const expectedSeedCount = scenarioDialogueSeedBank.reduce((total, entry) => total + entry.seeds.length, 0);
     expect(result.dialogueSeedReplay).toEqual({
       routeId: "actor-dialogue-offline-v1",
       providerId: "mock-model",
-      scenarioCount: 12,
-      seedCount: 48,
-      guardrailProbeCount: 12,
-      blockedGuardrailCount: 12,
+      // Bank-derived: replay covers the WHOLE seed bank, so authoring new scenarios must not
+      // break this — one guardrail probe per scenario, all of which must be blocked.
+      scenarioCount: expectedScenarioCount,
+      seedCount: expectedSeedCount,
+      guardrailProbeCount: expectedScenarioCount,
+      blockedGuardrailCount: expectedScenarioCount,
       hiddenFactLeakCount: 0,
       traceTagMismatchCount: 0,
       passed: true,

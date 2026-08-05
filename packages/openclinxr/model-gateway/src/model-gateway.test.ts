@@ -180,7 +180,9 @@ describe("model gateway", () => {
       }
     }
 
-    expect(replayedSeedCount).toBe(48);
+    // Bank-derived: the whole seed bank must replay, so this stays correct as scenarios are authored.
+    const expectedSeedCount = scenarioDialogueSeedBank.reduce((total, entry) => total + entry.seeds.length, 0);
+    expect(replayedSeedCount).toBe(expectedSeedCount);
   });
 
   it("builds safe provider prompt context from actor communication profiles without hidden facts", () => {

@@ -33,6 +33,7 @@ import type {
   ExamAssemblyPersistenceSink,
   CreateExamStationRunQueueSnapshotInput,
 } from "./types.js";
+import { selectExamStationScenarios, STEP2CS_STATION_COUNT } from "./station-selection.js";
 
 const step2CsStyleTiming: ExamBlueprintTiming = {
   doorwaySeconds: 60,
@@ -60,8 +61,18 @@ export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
   };
 }
 
-export function createStep2CsStyleSeedBlueprint(scenarios: readonly Scenario[] = scenarioBank): ExamBlueprint {
-  const stationSlots = scenarios.map((scenario, index): ExamStationSlot => ({
+/**
+ * Assemble the Step 2 CS-style seed form from the case bank.
+ *
+ * The bank is a library; the form is a SELECTION from it (see `selectExamStationScenarios`), so
+ * authoring new scenarios grows the bank without silently changing the form's station count.
+ */
+export function createStep2CsStyleSeedBlueprint(
+  scenarios: readonly Scenario[] = scenarioBank,
+  options: { stationCount?: number } = {},
+): ExamBlueprint {
+  const selected = selectExamStationScenarios(scenarios, options.stationCount ?? STEP2CS_STATION_COUNT);
+  const stationSlots = selected.map((scenario, index): ExamStationSlot => ({
     slotId: `station_${String(index + 1).padStart(3, "0")}_${scenario.scenarioId}`,
     order: index + 1,
     label: scenario.title,
@@ -74,8 +85,8 @@ export function createStep2CsStyleSeedBlueprint(scenarios: readonly Scenario[] =
     title: "OpenClinXR Step 2 CS-Style 12-Station Seed Form",
     stationSlots,
     timing: { ...step2CsStyleTiming },
-    requiredTraceTags: uniqueInOrder(scenarios.flatMap((scenario) => scenario.requiredTraceTags)),
-    requiredSafetyCriticalTraceTags: uniqueInOrder(scenarios.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags)),
+    requiredTraceTags: uniqueInOrder(selected.flatMap((scenario) => scenario.requiredTraceTags)),
+    requiredSafetyCriticalTraceTags: uniqueInOrder(selected.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags)),
   };
 }
 
