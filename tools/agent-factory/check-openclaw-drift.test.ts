@@ -4,6 +4,7 @@ import { buildOpenClawDriftReport, type OpenClawDriftInput } from "./check-openc
 function alignedInput(overrides: Partial<OpenClawDriftInput> = {}): OpenClawDriftInput {
   const markdownFiles = [
     "AGENTS.md",
+    "PROJECT_STATUS.md",
     "PROJECT_COORDINATION_INDEX.md",
     "AUTONOMOUS_WORK_PLAN.md",
     "docs/openclinxr/worker-backlog-and-validation-matrix.md",
@@ -13,7 +14,8 @@ function alignedInput(overrides: Partial<OpenClawDriftInput> = {}): OpenClawDrif
   const generatedArtifactFiles = ["docs/openclinxr/generated-artifact-registry-2026-05-27.json"];
   return {
     files: {
-      "AGENTS.md": "openclaw-runbook-2026-05-27.md\nopenclaw-tool-adapters-2026-05-27.md\ndocs:drift-check\nRequired Per-Slice Record",
+      "AGENTS.md": "GUARD_BLUEPRINT.md\nPROJECT_STATUS.md\nopenclaw-runbook-2026-05-27.md\nopenclaw-tool-adapters-2026-05-27.md\ndocs:drift-check\nRequired Per-Slice Record",
+      "PROJECT_STATUS.md": "openclaw-runbook-2026-05-27.md\nopenclaw-tool-adapters-2026-05-27.md\ndocs:drift-check\nRequired Per-Slice Record",
       "PROJECT_COORDINATION_INDEX.md": "openclaw-runbook-2026-05-27.md\nopenclaw-tool-adapters-2026-05-27.md\ndocs:drift-check\nRequired Per-Slice Record",
       "AUTONOMOUS_WORK_PLAN.md": "openclaw-runbook-2026-05-27.md\ndocs:drift-check",
       "docs/openclinxr/worker-backlog-and-validation-matrix.md": "openclaw-runbook-2026-05-27.md\ndocs:drift-check",
