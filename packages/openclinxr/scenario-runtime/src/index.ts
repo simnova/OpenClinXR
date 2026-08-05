@@ -42,7 +42,7 @@ import {
   recordClinicalAction as recordSessionClinicalAction,
   routeActorInteraction,
 } from "@openclinxr/session-state";
-import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent, validateCaseEmotionPolicy, validateProviderHealth } from "@openclinxr/shared-schemas";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import {
   type AudioEvent,
@@ -1058,20 +1058,15 @@ export function createScenarioRuntimeWithPersistenceHooks(
 /**
  * Resolve the CaseEmotionPolicy for a scenario.
  *
- * Checks for an optional emotionPolicy field on the scenario at runtime
- * (not yet in the shared-schemas type — opt-in future field).
+ * Reads the typed optional `emotionPolicy` field from the Scenario
+ * (validated via ajv-compiled `validateCaseEmotionPolicy`).
  * Falls back to DEFAULT_EMOTION_POLICY (anxious-parent mirror).
  */
 function resolveCaseEmotionPolicy(scenario: Scenario): CaseEmotionPolicy {
-  const s = scenario as Record<string, unknown>;
-  const raw = s["emotionPolicy"];
-  if (raw != null && typeof raw === "object") {
-    const p = raw as Record<string, unknown>;
-    if (
-      typeof p["baseline"] === "string" &&
-      Array.isArray(p["transitions"])
-    ) {
-      return raw as CaseEmotionPolicy;
+  if (scenario.emotionPolicy != null) {
+    const result = validateCaseEmotionPolicy(scenario.emotionPolicy);
+    if (result.ok) {
+      return scenario.emotionPolicy;
     }
   }
   return DEFAULT_EMOTION_POLICY;

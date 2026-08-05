@@ -22,7 +22,7 @@ import {
   type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "./index.js";
-import type { ReviewPacket } from "@openclinxr/shared-schemas";
+import type { CaseEmotionPolicy, ReviewPacket, Scenario } from "@openclinxr/shared-schemas";
 
 describe("scenario runtime", () => {
   it("starts an ED station with provider and asset readiness visible", async () => {
@@ -1131,6 +1131,56 @@ describe("scenario runtime", () => {
     });
   });
 
+  // ── Authoring loop: an authored ScenarioSchema.emotionPolicy drives runtime affect (Q1) ──
+
+  it("authored scenario.emotionPolicy drives baseline + transitions (not the default)", async () => {
+    // Authored policy is DISTINCT from DEFAULT_EMOTION_POLICY (baseline "anxious"):
+    // this case starts NEUTRAL and escalates on dismissiveness via an authored rule.
+    const authoredPolicy: CaseEmotionPolicy = {
+      baseline: "neutral",
+      upperBound: "anxious",
+      lowerBound: "reassured",
+      transitions: [
+        { from: "neutral", triggeredBy: "learner_dismissive", to: "concerned" },
+        { from: "concerned", triggeredBy: "learner_empathetic", to: "reassured" },
+      ],
+    };
+    const authoredScenario: Scenario = { ...edChestPainScenario, emotionPolicy: authoredPolicy };
+    const runtime = createRuntimeWithScenario(authoredScenario);
+    const session = await runtime.startSession({ learnerId: "learner_authored_001", consentAccepted: true });
+
+    // Baseline came from the AUTHORED policy ("neutral"), NOT the default ("anxious").
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("neutral");
+
+    // Dismissive turn follows the AUTHORED rule neutral → concerned (default has no such rule).
+    const t = runtime.applyEmotionEvent(session.stationRunId, "patient_robert_hayes_v1", "learner_dismissive" as EmotionEventKind, { atSecond: 30, turnIndex: 1 });
+    expect(t.changed).toBe(true);
+    expect(t.from).toBe("neutral");
+    expect(t.to).toBe("concerned");
+
+    const emotionTraces = runtime.traceEvents(session.stationRunId).filter((e) => e.eventType === "emotion_transition");
+    expect(emotionTraces).toHaveLength(1);
+    expect(emotionTraces[0]).toMatchObject({
+      eventType: "emotion_transition",
+      actorId: "patient_robert_hayes_v1",
+      source: "emotion-engine",
+      payload: { from: "neutral", to: "concerned", trigger: "learner_dismissive", turnIndex: 1 },
+    });
+  });
+
+  it("an INVALID authored emotionPolicy is rejected by the ajv gate and falls back to the default", async () => {
+    // Bad `baseline` ("furious" is not an InteractionEmotion) — must not reach the engine.
+    const invalidScenario = {
+      ...edChestPainScenario,
+      emotionPolicy: { baseline: "furious", upperBound: "anxious", lowerBound: "reassured", transitions: [] },
+    } as unknown as Scenario;
+    const runtime = createRuntimeWithScenario(invalidScenario);
+    const session = await runtime.startSession({ learnerId: "learner_authored_002", consentAccepted: true });
+
+    // resolveCaseEmotionPolicy rejected the invalid policy → default baseline "anxious".
+    expect(runtime.getActorEmotion(session.stationRunId, "patient_robert_hayes_v1")).toBe("anxious");
+  });
+
   it("different actors maintain independent emotion state", async () => {
     const runtime = createDefaultScenarioRuntime();
     const session = await runtime.startSession({ learnerId: "learner_emo_008", consentAccepted: true });
@@ -1285,6 +1335,27 @@ class ContradictoryReadyModelProviderAdapter implements ModelProviderAdapter {
   async generateActorResponse(): Promise<ActorResponseResult> {
     throw new Error("Contradictory provider should not be selected");
   }
+}
+
+function createRuntimeWithScenario(scenario: Scenario): ScenarioRuntime {
+  const assetRegistry = new InMemoryAssetRegistry();
+  for (const manifest of createEdChestPainPlaceholderManifests()) {
+    assetRegistry.upsert(manifest);
+  }
+
+  return new ScenarioRuntime({
+    scenario,
+    ledger: new InMemoryTraceLedger(),
+    assetRegistry,
+    modelGateway: createDefaultModelGateway({
+      routeId: "actor-dialogue-offline-v1",
+      adapters: [new MockModelProviderAdapter()],
+    }),
+    voiceGateway: createDefaultVoiceGateway({
+      routeId: "voice-offline-v1",
+      adapters: [new MockVoiceProviderAdapter()],
+    }),
+  });
 }
 
 function createRuntimeWithModelProvider(provider: ModelProviderAdapter): ScenarioRuntime {
