@@ -11,7 +11,12 @@ import {
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@cellix/trace-ledger";
-import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
+import {
+  createDefaultVoiceGateway,
+  LocalVoiceProviderAdapter,
+  MockVoiceProviderAdapter,
+  type VoiceProviderAdapter,
+} from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
 import type { CaseEmotionPolicy as EngineCaseEmotionPolicy, EmotionEventKind } from "@openclinxr/conversation-policy";
 import {
@@ -41,6 +46,12 @@ describe("scenario runtime", () => {
       voice: { providerId: "mock-voice", status: "ready" },
       localModel: { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
       localVoice: { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
+      adapters: [
+        { providerId: "mock-model", status: "ready" },
+        { providerId: "local-model", status: "not_configured", blockers: ["local_model_runtime_not_configured"] },
+        { providerId: "mock-voice", status: "ready" },
+        { providerId: "local-voice", status: "not_configured", blockers: ["local_voice_runtime_not_configured"] },
+      ],
     });
     expect(runtime.assetReadiness()).toMatchObject({
       scenarioId: edChestPainScenario.scenarioId,
@@ -1500,15 +1511,25 @@ describe("provider adapter selection is a composition-root decision", () => {
     }
   }
 
+  /** Custom-only voice adapter for deployments that omit mock/local voice. */
+  class StubInjectedVoiceAdapter implements VoiceProviderAdapter {
+    readonly id = "injected-voice";
+    readonly capabilities: VoiceProviderAdapter["capabilities"] = ["synthesis", "transcription"];
+    async health() {
+      return { providerId: this.id, status: "ready" as const };
+    }
+    async *synthesize(): AsyncIterable<never> {
+      throw new Error("not exercised by this test");
+    }
+    async *transcribe(): AsyncIterable<never> {
+      throw new Error("not exercised by this test");
+    }
+  }
+
   it("lets the composing process supply the gateway, so a real provider can be added", async () => {
     // Without this seam a real provider cannot be introduced without editing
     // default-runtime-factory.ts — the ports exist but nothing can reach them. Adapter selection is
     // a composition-root decision, not a library default.
-    //
-    // Note the realistic shape: the injected gateway RETAINS mock/local. providerHealth() requires
-    // the four standard ids (scenario-runtime.ts:503-506), so a gateway carrying only a custom
-    // adapter throws "Missing provider health for mock-model". That coupling is tracked separately;
-    // it does not block adding a provider, which is the point of this seam.
     const injected = createDefaultModelGateway({
       routeId: "injected-route-v1",
       adapters: [
@@ -1532,11 +1553,45 @@ describe("provider adapter selection is a composition-root decision", () => {
     expect(healthCalls).toBe(1);
     expect((await injected.health()).map((entry) => entry.providerId)).toContain("injected-provider");
     expect(health.model).toEqual({ providerId: "mock-model", status: "ready" });
+    expect(health.adapters.map((entry) => entry.providerId)).toContain("injected-provider");
+  });
+
+  it("reports health for a custom-only adapter set without requiring mock or local", async () => {
+    // A deployment that supplies only a real provider must not throw Missing provider health
+    // for mock-model — the snapshot describes what is actually wired.
+    const modelGateway = createDefaultModelGateway({
+      routeId: "custom-only-model-v1",
+      adapters: [new StubInjectedModelAdapter()],
+    });
+    const voiceGateway = createDefaultVoiceGateway({
+      routeId: "custom-only-voice-v1",
+      adapters: [new StubInjectedVoiceAdapter()],
+    });
+
+    const runtime = createDefaultScenarioRuntime({ modelGateway, voiceGateway });
+    const health = await runtime.providerHealth();
+
+    expect(health).toEqual({
+      adapters: [
+        { providerId: "injected-provider", status: "ready" },
+        { providerId: "injected-voice", status: "ready" },
+      ],
+    });
+    expect(health.model).toBeUndefined();
+    expect(health.voice).toBeUndefined();
+    expect(health.localModel).toBeUndefined();
+    expect(health.localVoice).toBeUndefined();
   });
 
   it("still falls back to the offline default when no gateway is supplied", async () => {
     const runtime = createDefaultScenarioRuntime();
     const health = await runtime.providerHealth();
     expect(health.model).toEqual({ providerId: "mock-model", status: "ready" });
+    expect(health.adapters).toEqual(
+      expect.arrayContaining([
+        { providerId: "mock-model", status: "ready" },
+        { providerId: "mock-voice", status: "ready" },
+      ]),
+    );
   });
 });

@@ -3,6 +3,7 @@ import { type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-
 import type { VoiceRequestPolicy } from "@openclinxr/voice-gateway";
 import type {
   DurableStorePersistenceHooks,
+  ProviderHealthSnapshot,
   RouteRuntimeActorInteractionInput,
   RouteRuntimeActorInteractionResult,
   ScenarioRuntimeDurableStore,
@@ -13,6 +14,14 @@ import type {
  * request policies, provider-health validation, routed-interaction trace payloads, and
  * durable-store forwarding. Pure — no runtime state.
  */
+
+/** Historical convenience-key → adapter id mapping kept for UI/API consumers. */
+const LEGACY_PROVIDER_KEYS = {
+  model: "mock-model",
+  voice: "mock-voice",
+  localModel: "local-model",
+  localVoice: "local-voice",
+} as const;
 
 export function settleDurableStoreCall(result: void | Promise<void> | undefined): void {
   if (result != null && typeof (result as Promise<void>).then === "function") {
@@ -46,11 +55,52 @@ export function requireProviderHealth(health: ProviderHealth[], providerId: stri
   if (!provider) {
     throw new Error(`Missing provider health for ${providerId}`);
   }
+  return requireValidProviderHealth(provider);
+}
+
+/** Validate a single health entry; throw with provider id context on failure. */
+export function requireValidProviderHealth(provider: ProviderHealth): ProviderHealth {
   const validation = validateProviderHealth(provider);
   if (!validation.ok) {
-    throw new Error(`Invalid provider health for ${providerId}: ${validation.errors.join("; ")}`);
+    throw new Error(`Invalid provider health for ${provider.providerId}: ${validation.errors.join("; ")}`);
   }
   return provider;
+}
+
+/**
+ * Build a snapshot that describes the adapters actually wired on the gateways.
+ * Legacy four keys are filled only when those adapter ids are present; `adapters`
+ * always lists every validated entry (model gateway first, then voice).
+ */
+export function buildProviderHealthSnapshot(
+  modelHealth: ProviderHealth[],
+  voiceHealth: ProviderHealth[],
+): ProviderHealthSnapshot {
+  const modelAdapters = modelHealth.map((entry) => requireValidProviderHealth(entry));
+  const voiceAdapters = voiceHealth.map((entry) => requireValidProviderHealth(entry));
+  const adapters = [...modelAdapters, ...voiceAdapters];
+
+  const snapshot: ProviderHealthSnapshot = { adapters };
+
+  const model = modelAdapters.find((entry) => entry.providerId === LEGACY_PROVIDER_KEYS.model);
+  const voice = voiceAdapters.find((entry) => entry.providerId === LEGACY_PROVIDER_KEYS.voice);
+  const localModel = modelAdapters.find((entry) => entry.providerId === LEGACY_PROVIDER_KEYS.localModel);
+  const localVoice = voiceAdapters.find((entry) => entry.providerId === LEGACY_PROVIDER_KEYS.localVoice);
+
+  if (model) {
+    snapshot.model = model;
+  }
+  if (voice) {
+    snapshot.voice = voice;
+  }
+  if (localModel) {
+    snapshot.localModel = localModel;
+  }
+  if (localVoice) {
+    snapshot.localVoice = localVoice;
+  }
+
+  return snapshot;
 }
 
 export function actorInteractionRoutePayload(

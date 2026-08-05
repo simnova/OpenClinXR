@@ -1,5 +1,4 @@
 import { buildFacultyReviewPath, type FacultyReviewPath } from "@openclinxr/review-workflow";
-import type { ProviderHealth } from "@openclinxr/shared-schemas";
 import { openClinXrSpanNames, telemetryRouteAttributes } from "@openclinxr/telemetry";
 import { type AdversarialProbeReport, buildAdversarialProbeReport } from "./adversarial-report.js";
 import type { SimulationResult } from "./station-simulation.js";
@@ -27,12 +26,7 @@ export type MockBenchmarkReport = {
   };
   adversarialReport: AdversarialProbeReport;
   dialogueSeedReplay: SimulationResult["dialogueSeedReplay"];
-  providerHealth: {
-    model: ProviderHealth;
-    voice: ProviderHealth;
-    localModel: ProviderHealth;
-    localVoice: ProviderHealth;
-  };
+  providerHealth: SimulationResult["providerHealth"];
   optionalRuntimeSkips: SimulationResult["optionalRuntimeSkips"];
 };
 
@@ -64,7 +58,11 @@ export function buildMockBenchmarkReport(result: SimulationResult, elapsedMs: nu
       spanNames: openClinXrSpanNames,
       benchmarkAttributes: telemetryRouteAttributes({
         scenarioId: "ed_chest_pain_priority_v1",
-        providerId: result.providerHealth.model.providerId,
+        // Prefer the historical mock-model convenience key; fall back to first wired adapter.
+        providerId:
+          result.providerHealth.model?.providerId
+          ?? result.providerHealth.adapters[0]?.providerId
+          ?? "unwired",
         routeId: "actor-dialogue-offline-v1",
         routeSurface: "xr-runtime",
         stationRunScoped: true,
