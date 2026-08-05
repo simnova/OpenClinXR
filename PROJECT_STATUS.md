@@ -113,25 +113,20 @@ Evidence: scenario-runtime tsgo exit 0 + 36 tests; downstream @openclinxr/api ts
 
 Known pre-existing (NOT caused by this slice; surfaced by the finish worker): `@openclinxr/test-harness` `station-simulation.test.ts` fails on a scenario-COUNT drift (expects `scenarioCount: 12`, fixtures now yield 14). The split touches zero fixtures. Recommend a small fixture-count truing slice (owner: scenario-fixtures).
 
-God-file paydown PROGRESS (Atlantis package/role decomposition; queue = GitHub issue #11):
-DONE (8 production package barrels/god-files split; public APIs preserved; tests + downstream + arch-rules green; 585ea21..ae59309):
-- ✅ scenario-runtime/index.ts 1162 → 50 barrel + class(806 residual) + 4 modules
-- ✅ data-mongodb/repositories.ts 1062 → 8 per-domain modules ≤277
-- ✅ scenario-fixtures/scenario-bank.ts 2690 → 920 residual + 11 per-scenario files + builders
-- ✅ session-state/index.ts 1606 → barrel + types/core/messaging + internal(732 residual)
-- ✅ agent-loop/index.ts 1306 → types/roster/plan/model-recommendation/internal + barrel (ALL <500)
-- ✅ exam-assembly/index.ts 715 → types/assembly/exam-run (ALL <500)
-- ✅ capability-gateway/index.ts 928 → types/routing-matrix/facade-and-readiness/internal (ALL <500)
-- ✅ voice-gateway/index.ts 742 → types/gateway/adapters (ALL <500)
+God-file paydown PROGRESS (Atlantis package/role decomposition; queue + role ownership = GitHub issue #11):
+FREEZE LIST: 51,183 -> 41,469 frozen lines (~9,700 lines of god-file mass moved into under-budget modules). 14 files split, 585ea21..0c39798, every public API preserved, package tests + downstream tsgo + arch-rules green on each.
 
-CARVE TECHNIQUE (proven, reusable): mjs script extracts type block → internal helpers → concern modules → barrel; over-import all type/helper names (unused harmless); tsgo-iterate; relocate a helper to break cycles; repoint coupled workspace-architecture.test.ts rules that readFileSync a moved provenance string. Do carves MYSELF (grok workers killed 3/5 on big-file carves — see memory).
+FULLY CLEARED the freeze (now all-modules-under-budget): agent-loop(1306), exam-assembly(715), capability-gateway/index(928), voice-gateway(742), multi-actor-state-spike(929), session-state(1606, incl. internal residual), shared-schemas/schemas(594), data-mongodb/repositories(1062), ui-admin/api-client(1876 -> 586 impl under budget).
+REDUCED to smaller residuals: scenario-runtime/index(1162->50 barrel; class 806 residual), scenario-bank(2690->107; maturity 822 residual), model-vetting(772->16 barrel; logic 534 residual), ui-admin api-client-types(1410 residual).
 
-REMAINING — two buckets:
-- CLEANLY CARVABLE (top types block, then functions) — mostly done; low-value leftovers are arena spikes (multi-actor-state-spike 929, model-vetting 771 — interleaved exported/internal in fn region).
-- INTERLEAVED / hard (types+data+logic mixed, cross-referencing helpers → need careful manual carve, NOT quick script): asset-registry/runtime-bundles.ts (1638), asset-generation-jobs.ts (2107), asset-registry/index.ts (2887), role-harness-policy.ts (950), schemas.ts (594).
-- APP-SURFACE (React/route wiring): apps/api/app.ts (3282), api-bootstrap.ts (908), ui-admin/api-client.ts (1876), App.tsx (1631), panels.
-- THE MONSTER: apps/ui-xr/main.ts (10255) + runtime-state.ts (3743) — xr role, focused subsystem carve.
-- RESIDUALS (from splits above, still >500): scenario-runtime.ts class(806), session-state internal(732), scenario-bank maturity(920).
+CARVE TECHNIQUE (proven x14, see memory for full gotchas): mjs script slices by line-range from `git show HEAD:<file>`; emit types.ts + internal.ts (exportify helpers) + concern modules + thin barrel; OVER-IMPORT all type/helper names; tsgo-iterate; relocate a helper to break cycles; repoint coupled workspace-architecture.test.ts rules that readFileSync a moved provenance string (hit 3x: data-mongodb, session-state websocket, ui-admin api-client allowlist). Pre-commit runs arch-rules but NOT package tests — run those + downstream tsgo yourself.
+
+REMAINING (categorized):
+- INTERLEAVED (exported/internal alternate, cross-referencing helpers — need careful per-symbol manual carve, NOT range-carve): asset-registry/runtime-bundles(1638), capability-gateway/asset-generation-jobs(2107), asset-registry/index(2887), agent-loop/role-harness-policy(950), grok-tier-routing(607), slice-team(594), grok-repo-agent-spawn(551).
+- APP SURFACE (route/React wiring): apps/api/app.ts(3282), api-bootstrap(908), ui-admin/App.tsx(1631) + panels(682,679).
+- THE MONSTER (xr role, focused subsystem carve): apps/ui-xr/main.ts(10255), runtime-state.ts(3743), arena ui-xr-iwsdk-spike/main(1456), iwsdk-spike(2398).
+- RESIDUALS: scenario-runtime class(806), scenario-bank-maturity(822), api-client-types(1410), model-vetting/logic(534), candidate-capture(785), pipeline-candidate(581), measure(561), jolt(502).
+
 PRE-EXISTING (not paydown): scenarioBank 12→14 drift fails exam-assembly.test x3 + test-harness — needs domain decision (issue #11).
 
 ### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
