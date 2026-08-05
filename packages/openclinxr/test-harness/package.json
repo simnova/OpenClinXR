@@ -17,7 +17,8 @@
     "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",
     "bench:mock": "tsx src/bench-mock.ts",
-    "build": "tsgo --build"
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@openclinxr/model-gateway": "workspace:*",

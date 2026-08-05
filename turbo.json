@@ -62,7 +62,8 @@
       ],
       "outputs": [
         "dist/**",
-        "deploy/**"
+        "deploy/**",
+        "*.tsbuildinfo"
       ]
     },
     "typecheck": {

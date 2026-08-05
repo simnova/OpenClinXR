@@ -7,7 +7,7 @@
     "agent-methodology": 70,
     "current-reference": 205,
     "archive-candidate": 11,
-    "evidence": 37,
+    "evidence": 38,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
@@ -2564,6 +2564,13 @@
     },
     {
       "path": "docs/openclinxr/quest3-usb-webxr-smoke-checklist.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/reviews/2026-08-05-cellix-second-pass-composition-and-emit.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

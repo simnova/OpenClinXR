@@ -14,7 +14,8 @@
     "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root . --exclude '**/*.integration.test.ts' --passWithNoTests",
     "test:integration": "vitest run --root . integration.test",
-    "build": "tsgo --build"
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",

@@ -29,7 +29,8 @@
     "lint": "biome check --no-errors-on-unmatched .",
     "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
     "test": "vitest run --root .",
-    "build": "tsgo --build"
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@openclinxr/scenario-fixtures": "workspace:*",
