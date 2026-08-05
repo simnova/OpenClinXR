@@ -1,3 +1,5 @@
+import { type RealTelemetryRecorder, type TelemetryRecorder, type TelemetryRunCounters, type TelemetrySnapshot, type TelemetrySpanRecord, summarizeTelemetrySpans } from "@openclinxr/telemetry";
+import type { RealtimeVoiceGatewayPostureInput } from "@openclinxr/voice-gateway";
 import { existsSync, readFileSync } from "node:fs";
 import { type RealtimeVoiceProtocolLaneId } from "@openclinxr/voice-gateway";
 import type { ApiMaterializationInputReviewDecision, ApiMaterializationInputReviewDecisionRecord, ApiRuntimeRealismEvidenceInputReviewDecision, ApiRuntimeRealismEvidenceInputReviewDecisionRecord, ApiRuntimeVisualEvidenceAttachment, ApiRuntimeVisualEvidenceAttachmentRecord, ApiRuntimeRealismEvidenceAttachmentSummary, ApiRuntimeVisualEvidenceAttachmentActionPacket } from "./api-types.js";
@@ -473,3 +475,49 @@ export const realtimeVoiceProtocolPreference: RealtimeVoiceProtocolLaneId[] = [
 export function parseStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 }
+
+export function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
+  return {
+    bunAvailable: false,
+    pythonBackendWebSocketUrlConfigured: false,
+    pythonBackendDependenciesInstalled: false,
+    pythonInferenceRuntimeInstalled: false,
+  };
+}
+
+export function telemetrySnapshotFromRecorder(telemetry: TelemetryRecorder): TelemetrySnapshot {
+  const real = asRealTelemetryRecorder(telemetry);
+  if (real) {
+    return real.snapshot();
+  }
+  const withSpans = telemetry as TelemetryRecorder & { spans?: () => TelemetrySpanRecord[] };
+  const spans = typeof withSpans.spans === "function" ? withSpans.spans() : [];
+  return {
+    spans,
+    spanSummary: summarizeTelemetrySpans(spans),
+    runCounters: { ...EMPTY_RUN_COUNTERS },
+    exportedAt: new Date().toISOString(),
+  };
+}
+
+export function asRealTelemetryRecorder(telemetry: TelemetryRecorder): RealTelemetryRecorder | undefined {
+  const candidate = telemetry as Partial<RealTelemetryRecorder>;
+  if (
+    typeof candidate.incrementRun === "function"
+    && typeof candidate.incrementEncounter === "function"
+    && typeof candidate.snapshot === "function"
+    && typeof candidate.counters === "function"
+  ) {
+    return telemetry as RealTelemetryRecorder;
+  }
+  return undefined;
+}
+
+export const EMPTY_RUN_COUNTERS: TelemetryRunCounters = {
+  runsStarted: 0,
+  runsCompleted: 0,
+  runsFailed: 0,
+  encountersStarted: 0,
+  encountersCompleted: 0,
+  encountersFailed: 0,
+};

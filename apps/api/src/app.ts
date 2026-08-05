@@ -187,80 +187,41 @@ import {
   buildRuntimeVisualEvidenceAttachmentActionPacket,
   realtimeVoiceProtocolPreference,
   parseStringArray,
+  createDefaultRealtimeVoiceGatewayPostureInput,
+  telemetrySnapshotFromRecorder,
+  asRealTelemetryRecorder,
 } from "./api-support.js";
+import { createApiAppContext } from "./api-app-context.js";
+import { registerPlatformRoutes } from "./routes/platform-routes.js";
 
 const FACULTY_ONLY_GRAPHQL_OPERATIONS = new Set([
   "SaveFacultyScoreDraft",
   "SubmitScenarioReview",
 ]);
 
-const EMPTY_RUN_COUNTERS: TelemetryRunCounters = {
-  runsStarted: 0,
-  runsCompleted: 0,
-  runsFailed: 0,
-  encountersStarted: 0,
-  encountersCompleted: 0,
-  encountersFailed: 0,
-};
 
 /** Narrow optional counter/snapshot surface without coupling callers to concrete recorder type. */
-function asRealTelemetryRecorder(telemetry: TelemetryRecorder): RealTelemetryRecorder | undefined {
-  const candidate = telemetry as Partial<RealTelemetryRecorder>;
-  if (
-    typeof candidate.incrementRun === "function"
-    && typeof candidate.incrementEncounter === "function"
-    && typeof candidate.snapshot === "function"
-    && typeof candidate.counters === "function"
-  ) {
-    return telemetry as RealTelemetryRecorder;
-  }
-  return undefined;
-}
 
-function telemetrySnapshotFromRecorder(telemetry: TelemetryRecorder): TelemetrySnapshot {
-  const real = asRealTelemetryRecorder(telemetry);
-  if (real) {
-    return real.snapshot();
-  }
-  const withSpans = telemetry as TelemetryRecorder & { spans?: () => TelemetrySpanRecord[] };
-  const spans = typeof withSpans.spans === "function" ? withSpans.spans() : [];
-  return {
-    spans,
-    spanSummary: summarizeTelemetrySpans(spans),
-    runCounters: { ...EMPTY_RUN_COUNTERS },
-    exportedAt: new Date().toISOString(),
-  };
-}
 
 export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono<{ Variables: ApiAppVariables }> {
   const app = new Hono<{ Variables: ApiAppVariables }>();
-  const telemetry = options.telemetry ?? createTelemetryRecorder();
-  const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
-  const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
-  const apiProtocolPosture = options.apiProtocolPosture ?? createOpenClinXrApiProtocolPosture();
-  const allowDevDefaultIdentity = options.auth?.allowDevDefaultIdentity !== false;
-  const authSecret = options.auth?.secret ?? DEFAULT_DEV_AUTH_SECRET;
-  const defaultIdentity = options.auth?.defaultIdentity ?? DEFAULT_DEV_AUTH_IDENTITY;
-  /** stationRunId → owner learnerId (attached at session-create). */
-  const sessionOwners = new Map<string, string>();
-  const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
-  const sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[] = [];
-  const runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[] = [];
-  const runtimeVisualEvidenceAttachments: ApiRuntimeVisualEvidenceAttachment[] = [];
+  const ctx = createApiAppContext(runtime, persistence, options);
+  const {
+    telemetry,
+    assetGenerationFacade,
+    realtimeVoiceGatewayPosture,
+    apiProtocolPosture,
+    sessionOwners,
+    adminScenarioOverrides,
+    sceneGenerationRequests,
+    runtimeRealismEvidenceInputReviewDecisions,
+    runtimeVisualEvidenceAttachments,
+    latestMaterializationInputReviewDecisionRecordForScenario,
+    latestMaterializationInputReviewDecisionRecordForPacket,
+  } = ctx;
+  const { allowDevDefaultIdentity, secret: authSecret, defaultIdentity } = ctx.auth;
   let runtimeRealismEvidenceInputReviewDecisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined;
   let runtimeVisualEvidenceAttachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined;
-  const latestMaterializationInputReviewDecisionRecordForScenario = (
-    scenarioId: string,
-  ): ApiMaterializationInputReviewDecisionRecord | undefined =>
-    sceneGenerationRequests.find((candidate) =>
-      candidate.scenarioId === scenarioId && candidate.materializationInputReviewDecisionRecord
-    )?.materializationInputReviewDecisionRecord;
-  const latestMaterializationInputReviewDecisionRecordForPacket = (
-    packet: unknown,
-  ): ApiMaterializationInputReviewDecisionRecord | undefined => {
-    if (!isRecord(packet) || typeof packet['selectedScenarioId'] !== "string") return undefined;
-    return latestMaterializationInputReviewDecisionRecordForScenario(packet['selectedScenarioId']);
-  };
 
   app.use("*", async (context, next) => {
     context.header("access-control-allow-origin", "*");
@@ -315,32 +276,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.get(routeById("health").path, async (context) =>
-    context.json({
-      ok: true,
-      service: "openclinxr-api",
-      providerHealth: await runtime.providerHealth(),
-    }),
-  );
-
-  /** Read-only local metrics snapshot. Does not mutate counters or span buffer. */
-  app.get(routeById("telemetry-metrics").path, (context) =>
-    context.json(telemetrySnapshotFromRecorder(telemetry)),
-  );
-
-  app.get(routeById("providers-health").path, async (context) => context.json(await runtime.providerHealth()));
-
-  app.get(routeById("runtime-protocols").path, (context) => context.json(apiProtocolPosture));
-
-  app.get(routeById("runtime-provider-readiness").path, (context) => {
-    const matrix = buildOpenClinXrCapabilityRoutingMatrix();
-    const profiles: RuntimeProfile[] = ["local-development", "local-production", "production"];
-    return context.json({
-      source: "capability-routing-matrix",
-      claimBoundary: "deterministic_replay_ready_is_not_live_provider_readiness",
-      surfaces: profiles.map((profile) => evaluateRuntimeProviderReadinessSurface(matrix, profile)),
-    });
-  });
+  registerPlatformRoutes(app, ctx);
 
   app.get(routeById("scenario-bank-dynamic-encounter-factory-planning").path, (context) =>
     context.json({
@@ -1478,14 +1414,6 @@ function coerceRubricScores(value: Record<string, unknown>): Record<string, numb
   return scores;
 }
 
-function createDefaultRealtimeVoiceGatewayPostureInput(): RealtimeVoiceGatewayPostureInput {
-  return {
-    bunAvailable: false,
-    pythonBackendWebSocketUrlConfigured: false,
-    pythonBackendDependenciesInstalled: false,
-    pythonInferenceRuntimeInstalled: false,
-  };
-}
 
 function createAdminGraphqlRoot(
   runtime: ScenarioRuntime,
