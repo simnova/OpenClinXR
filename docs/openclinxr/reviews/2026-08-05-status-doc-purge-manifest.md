@@ -192,14 +192,32 @@ Legend: **MIGRATED #n** = open item captured on GitHub then file removed · **RE
 | Area | Judgment |
 |------|----------|
 | `docs/_archive/**` process shell (README, wiki, manifests) | **KEPT** — earns keep as freeze catalog + archivist entry; bodies largely purged. |
-| Cold status **bodies** | **REMOVED** — git history is the archive; dual-store stubs were pure rot. |
-| JSON `ARCHIVE-MANIFEST.json` | **KEPT** (not MD) — path catalogs for recovery; not rewritten (TS tests/fixtures). |
+| Cold status **bodies** | **Mostly REMOVED** — git history is the archive; coordination ledgers + `07-final-synthesis` **restored** (see post-purge restores). |
+| JSON `ARCHIVE-MANIFEST.json` | **KEPT** — path catalogs with `bodyStatus` after index-truth pass. |
 
 ---
 
 ## Operator notes
 
-1. HOT operational work continues on GitHub issues/board (`gh`); do not resurrect `AUTONOMOUS_WORK_PLAN.md` / `PROJECT_COORDINATION_INDEX.md`.
+1. HOT operational work continues on GitHub issues/board (`gh`). Root `AUTONOMOUS_WORK_PLAN.md` / `PROJECT_COORDINATION_INDEX.md` exist again as **archived audit stubs** only (see post-purge restores) — do not expand them into living status surfaces.
 2. Turbo remote cache: enable via restored guide when worktrees thrash local `.turbo/cache`.
 3. Strictness paydown: track in #28 (alongside #18/#19/#21 for project references / emit).
 4. If alignment ever drops the hard dependency on `docs/_archive/iterations/0009/07-final-synthesis.md`, that body can be purged too (git history).
+
+---
+
+## Post-purge restores (must keep resolving)
+
+After the purge, some paths were **deliberately restored** because alignment, MADRs, or tooling still resolve them. Indexes and manifests were updated 2026-08-05 to record disk truth (`bodyStatus` on `ARCHIVE-MANIFEST.json`).
+
+| Path | Role |
+|------|------|
+| `AUTONOMOUS_WORK_PLAN.md` | Root archived stub (not living status) |
+| `PROJECT_COORDINATION_INDEX.md` | Root archived stub (not living status) |
+| `docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md` | Cold warehouse body |
+| `docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md` | Cold warehouse body |
+| `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` | Cited by MADR 0029 |
+| `docs/_archive/iterations/0009/07-final-synthesis.md` | Alignment + durable lesson |
+| `docs/openclinxr/turbo-remote-cache-setup.md` | Living setup guide |
+
+Do **not** re-remove these without updating every pointer in the same change.

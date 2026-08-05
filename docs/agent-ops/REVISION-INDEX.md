@@ -41,12 +41,14 @@ JSON `ARCHIVE-MANIFEST.json` files under `docs/_archive/**` remain as **catalog 
 
 ## Freeze set → successor (cruft-audit-2026-08-02)
 
-| Source (removed; git history) | Successor |
-|-------------------------------|-----------|
-| `AUTONOMOUS_WORK_PLAN.md` | `PROJECT_STATUS.md` |
-| `PROJECT_COORDINATION_INDEX.md` | `PROJECT_STATUS.md` |
-| `docs/openclinxr/*` archive-candidates (except turbo restored) | TOOLING / asset-generation-pipeline / registry / madr / AGENTS / #28 |
-| `iterations/iteration-0009/*.md` hot stubs | `docs/agent-factory/operating-loop.md` + cold `07-final-synthesis.md` |
+| Source | Presence (truth) | Successor |
+|--------|------------------|-----------|
+| `AUTONOMOUS_WORK_PLAN.md` | **RESTORED** root stub + cold body `docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md` (must keep resolving; not living status) | `PROJECT_STATUS.md` + GitHub board |
+| `PROJECT_COORDINATION_INDEX.md` | **RESTORED** root stub + cold body `docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md` (must keep resolving; not living status) | `PROJECT_STATUS.md` + GitHub board |
+| `docs/openclinxr/*` archive-candidates (warehouse bodies purged 2026-08-05; git history) | cold warehouse MD bodies absent; living exceptions below | TOOLING / asset-generation-pipeline / registry / madr / AGENTS / #28 |
+| `docs/openclinxr/turbo-remote-cache-setup.md` | **RESTORED** living guide (must keep resolving) | living path (also cited from TOOLING) |
+| `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` | **RESTORED** (MADR 0029 cites; must keep resolving) | MADR trail + realbind briefs |
+| `iterations/iteration-0009/*.md` hot stubs | hot tree empty; cold `docs/_archive/iterations/0009/07-final-synthesis.md` **KEPT** (alignment) | `docs/agent-factory/operating-loop.md` |
 
 ## Wiki layout
 

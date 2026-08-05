@@ -64,4 +64,5 @@ Do not redefine path globs in this charter — point only.
 
 - `docs/agent-ops/PATH-SCOPE.md` §Wave C
 - `docs/agent-ops/COMPOSITION-ROOTS.md`
-- `docs/agent-ops/2026-08-02-context-opt-wave-c.md`
+- `docs/agent-ops/WORKTREE-PROMOTE.md`
+- Dated revision `docs/agent-ops/2026-08-02-context-opt-wave-c.md` was **removed 2026-08-05** (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`)

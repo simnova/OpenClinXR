@@ -11,7 +11,10 @@
       "warehouse": "docs/_archive/openclinxr/2026-06/anny-character-asset-pipeline-implementation-2026-06-03.md",
       "successor": "docs/openclinxr/asset-generation-pipeline.md",
       "reason": "authority archive-candidate; living pipeline doc supersedes",
-      "topic": "openclinxr-product-docs"
+      "topic": "openclinxr-product-docs",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/openclinxr/dependency-hygiene-and-e18e-policy.md",
@@ -19,7 +22,10 @@
       "warehouse": "docs/_archive/openclinxr/2026-06/dependency-hygiene-and-e18e-policy.md",
       "successor": "docs/TOOLING.md",
       "reason": "authority archive-candidate; tooling SSOT supersedes",
-      "topic": "openclinxr-product-docs"
+      "topic": "openclinxr-product-docs",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/openclinxr/dependency-hygiene-and-e18e-policy.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/openclinxr/generated-output-storage-policy-2026-06-06.md",
@@ -27,7 +33,10 @@
       "warehouse": "docs/_archive/openclinxr/2026-06/generated-output-storage-policy-2026-06-06.md",
       "successor": "docs/openclinxr/generated-artifact-registry-2026-05-27.md",
       "reason": "authority archive-candidate; registry is living catalog",
-      "topic": "openclinxr-product-docs"
+      "topic": "openclinxr-product-docs",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/openclinxr/generated-output-storage-policy-2026-06-06.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/openclinxr/turbo-remote-cache-setup.md",
@@ -35,7 +44,17 @@
       "warehouse": "docs/_archive/openclinxr/2026-06/turbo-remote-cache-setup.md",
       "successor": "docs/TOOLING.md",
       "reason": "authority archive-candidate; optional turbo setup note",
-      "topic": "openclinxr-product-docs"
+      "topic": "openclinxr-product-docs",
+      "bodyStatus": "living-restored",
+      "livingPath": "docs/openclinxr/turbo-remote-cache-setup.md",
+      "warehouseBodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/openclinxr/turbo-remote-cache-setup.md",
+      "sourceStubStatus": "present",
+      "note": "living guide restored at source path after over-deletion; warehouse cold body still purged"
     }
-  ]
+  ],
+  "statusDocPurge": {
+    "date": "2026-08-05",
+    "note": "warehouse path is historical catalog; bodyStatus tells whether the MD body is on disk. Recover purged text via git history."
+  }
 }

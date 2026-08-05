@@ -41,37 +41,37 @@
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — context-opt-grok45-v2
-- Summary: BOD continue optimization (Grok 4.5 team): slice-team/team-spawn must bake PATH SCOPE + constrain role paths to writeRoots + expose isolation top-level on team-spawn JSON; parent still passes isolation=worktree to harness. SSOT: PATH-SCOPE.md §context-opt-grok45-v2 + docs/agent-ops/2026-08-02-context-opt-grok45-v2.md.
+- Summary: BOD continue optimization (Grok 4.5 team): slice-team/team-spawn must bake PATH SCOPE + constrain role paths to writeRoots + expose isolation top-level on team-spawn JSON; parent still passes isolation=worktree to harness. SSOT: PATH-SCOPE.md §context-opt-grok45-v2. Dated revision `docs/agent-ops/2026-08-02-context-opt-grok45-v2.md` removed 2026-08-05 (git history).
 - Confidence: 0.9
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — context-opt-charter-agentsmd-v3
-- Summary: Dual-stack path-scope discipline: OpenClaw charters must **point** at PATH-SCOPE.md + `role-harness-policy.ts` pathScope and must **not** re-list writeRoots/forbidden globs (second SSOT drifts → SoD false confidence). Grok specialists use **`agents_md: false`**; main **orchestrator keeps `agents_md: true`** so full AGENTS/LEX forest view stays CEO-only. Spawn prompts stay slim (Persona + PATH SCOPE block + charter/memory pointers) — no full AGENTS.md or LEX_AGENTIC paste by default. Generator still hardcodes `agents_md: true` until implementer flips specialists + harness sync. SSOT: PATH-SCOPE.md §context-opt-charter-agentsmd-v3 + docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md. Score dual-stack path pointer, agents_md policy, and slim spawn rehydrate on next roster review.
+- Summary: Dual-stack path-scope discipline: OpenClaw charters must **point** at PATH-SCOPE.md + `role-harness-policy.ts` pathScope and must **not** re-list writeRoots/forbidden globs (second SSOT drifts → SoD false confidence). Grok specialists use **`agents_md: false`**; main **orchestrator keeps `agents_md: true`** so full AGENTS/LEX forest view stays CEO-only. Spawn prompts stay slim (Persona + PATH SCOPE block + charter/memory pointers) — no full AGENTS.md or LEX_AGENTIC paste by default. Generator still hardcodes `agents_md: true` until implementer flips specialists + harness sync. SSOT: PATH-SCOPE.md §context-opt-charter-agentsmd-v3. Dated revision `docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md` removed 2026-08-05 (git history). Score dual-stack path pointer, agents_md policy, and slim spawn rehydrate on next roster review.
 - Confidence: 0.9
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — context-opt-wave-a-enforce
-- Summary: BOD APPROVED Wave A: PATH-SCOPE **Enforcement matrix** classifies soft (prompt bake, preferredCli, CEO write-root discipline, isolation spawn-spec rec) vs hard (`touched[]` + sole-author audits in verifySliceBrief, agents_md generator, team-spawn CLI isolation assert). Parent MUST forward isolation=worktree from team-spawn JSON to spawn_subagent — never strip. SSOT: PATH-SCOPE.md §Enforcement matrix + docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md.
+- Summary: BOD APPROVED Wave A: PATH-SCOPE **Enforcement matrix** classifies soft (prompt bake, preferredCli, CEO write-root discipline, isolation spawn-spec rec) vs hard (`touched[]` + sole-author audits in verifySliceBrief, agents_md generator, team-spawn CLI isolation assert). Parent MUST forward isolation=worktree from team-spawn JSON to spawn_subagent — never strip. SSOT: PATH-SCOPE.md §Enforcement matrix. Dated revision `docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md` removed 2026-08-05 (git history).
 - Confidence: 0.9
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — context-opt-wave-b-tools
-- Summary: BOD APPROVED Wave B tool-surface hygiene. Soft vs hard for tools: preferredCli soft-only; CLI-first vs disabled MCP soft/roster; image_gen/image_edit/video **disallowed for non-visual roles** (orchestrator already hard; generator optional residual for specialists); visual/evidence roles may use image tools for mission-fit evidence. **B3 KEEP** CEO write+shell tools with write-roots discipline (OCX hygiene carve-out) — **not** ATL pure no-shell CEO strip. Do not strip orchestrator write/shell as a context opt. Score roster dim **tool surface matches mission**. SSOT: PATH-SCOPE.md §Wave B + docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md.
+- Summary: BOD APPROVED Wave B tool-surface hygiene. Soft vs hard for tools: preferredCli soft-only; CLI-first vs disabled MCP soft/roster; image_gen/image_edit/video **disallowed for non-visual roles** (orchestrator already hard; generator optional residual for specialists); visual/evidence roles may use image tools for mission-fit evidence. **B3 KEEP** CEO write+shell tools with write-roots discipline (OCX hygiene carve-out) — **not** ATL pure no-shell CEO strip. Do not strip orchestrator write/shell as a context opt. Score roster dim **tool surface matches mission**. SSOT: PATH-SCOPE.md §Wave B. Dated revision `docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md` removed 2026-08-05 (git history).
 - Confidence: 0.9
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — context-opt-wave-c
-- Summary: BOD APPROVED Wave C **both strands** despite thrash NO_GO (scoped override, not full ATL FE/BE RIF). **C-arch closed:** dual-stack `architect` staffed (roster **15**); COMPOSITION-ROOTS sole-author architect (H1–H5 hard law); `assertDeliveryRoleMapped` rejects bare GP. **C-worktree closed:** `pnpm openclaw:worktree:{list,status,promote}` + WORKTREE-PROMOTE.md. VERDICT **ROSTER_HEALTHY**. SSOT: PATH-SCOPE.md §Wave C + COMPOSITION-ROOTS.md + 2026-08-02-context-opt-wave-c.md. Score dims: architect staffed, composition hard law, delivery role-mapped, worktree promote loop.
+- Summary: BOD APPROVED Wave C **both strands** despite thrash NO_GO (scoped override, not full ATL FE/BE RIF). **C-arch closed:** dual-stack `architect` staffed (roster **15**); COMPOSITION-ROOTS sole-author architect (H1–H5 hard law); `assertDeliveryRoleMapped` rejects bare GP. **C-worktree closed:** `pnpm openclaw:worktree:{list,status,promote}` + WORKTREE-PROMOTE.md. VERDICT **ROSTER_HEALTHY**. SSOT: PATH-SCOPE.md §Wave C + COMPOSITION-ROOTS.md + WORKTREE-PROMOTE.md. Dated revision `docs/agent-ops/2026-08-02-context-opt-wave-c.md` removed 2026-08-05 (git history). Score dims: architect staffed, composition hard law, delivery role-mapped, worktree promote loop.
 - Confidence: 0.95
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution
 
 ## Lesson 2026-08-02 — docs-warehouse-v1
-- Summary: BOD APPROVED Option 1 docs warehouse (ODS/hot vs cold). Process SSOT `docs/agent-ops/DOC-WAREHOUSE.md` + warm `REVISION-INDEX.md`; freeze CLI `pnpm docs:archive`; cold `docs/_archive/**` **out of normal rehydrate**. Dual-stack **`archivist`** staffed (roster target **16**): read-only retrieve cold history; never rewrite hot law; never product IC. Living agent-ops basenames never freeze — only dated revision records. Authority: living agent-ops → current-reference; dated + warehouse → historical-synthesis. Score dims: archivist staffed, warehouse rehydrate exclusion, hot SSOT stays hot. SSOT: PATH-SCOPE §docs-warehouse-v1 + 2026-08-02-docs-warehouse-v1.md.
+- Summary: BOD APPROVED Option 1 docs warehouse (ODS/hot vs cold). Process SSOT `docs/agent-ops/DOC-WAREHOUSE.md` + warm `REVISION-INDEX.md`; freeze CLI `pnpm docs:archive`; cold `docs/_archive/**` **out of normal rehydrate**. Dual-stack **`archivist`** staffed (roster target **16**): read-only retrieve cold history; never rewrite hot law; never product IC. Living agent-ops basenames never freeze — only dated revision records. Authority: living agent-ops → current-reference; dated + warehouse → historical-synthesis. Score dims: archivist staffed, warehouse rehydrate exclusion, hot SSOT stays hot. SSOT: PATH-SCOPE §docs-warehouse-v1 + DOC-WAREHOUSE.md + REVISION-INDEX.md. Dated revision `docs/agent-ops/2026-08-02-docs-warehouse-v1.md` removed 2026-08-05 (git history).
 - Confidence: 0.95
 - Recorded by: hrbp direct write 2026-08-02
 - Policy tier: standard_execution

@@ -18,18 +18,18 @@ docs/_archive/
   wiki/
     index.md                ← topic map
     topics/*.md             ← multi-file topic pages (successors + git recovery)
-  agent-ops/<YYYY-MM>/      ← ARCHIVE-MANIFEST.json (+ future freezes)
-  coordination/<YYYY-MM>/
-  openclinxr/<YYYY-MM>/
+  agent-ops/<YYYY-MM>/      ← ARCHIVE-MANIFEST.json only (MD bodies purged 2026-08-05)
+  coordination/<YYYY-MM>/   ← RESTORED cold ledger bodies + manifest
+  openclinxr/<YYYY-MM>/     ← manifests only (MD bodies purged)
   iterations/<id>/          ← retained: 0009/07-final-synthesis.md
 ```
 
-## Topics (post 2026-08-05 purge)
+## Topics (post 2026-08-05 purge + restores)
 
 - [Agent-factory iterations](./wiki/topics/agent-factory-iterations.md) — 07-final-synthesis retained; other bodies in git history
 - [Agent-ops dated revision records](./wiki/topics/agent-ops-revisions.md) — bodies purged; successors living
-- [Historical coordination ledgers](./wiki/topics/coordination-ledgers.md) — bodies purged; use PROJECT_STATUS + GitHub board
-- [OpenClinXR product/process docs (cold)](./wiki/topics/openclinxr-product-docs.md) — turbo guide restored; strictness → #28
+- [Historical coordination ledgers](./wiki/topics/coordination-ledgers.md) — root stubs + cold bodies **restored** (audit only); HOT → PROJECT_STATUS + GitHub board
+- [OpenClinXR product/process docs (cold)](./wiki/topics/openclinxr-product-docs.md) — turbo + arena-physics restored living; strictness → #28
 
 ## Rules
 
@@ -37,4 +37,4 @@ docs/_archive/
 2. HOT status belongs on the **GitHub board**; durable cold records stay in `PROJECT_STATUS.md` snapshot / Strategy — not long-lived status MDs.
 3. Prefer `pnpm docs:archive -- plan|freeze --set cruft|agent-ops|all` over ad-hoc moves when freezing **new** dated revisions.
 4. Binary/runtime evidence under `.openclinxr/` is gitignored local cache — not this warehouse.
-5. Purged bodies: recover with `git log --all --full-history -- <path>`.
+5. Purged bodies: recover with `git log --all --full-history -- <path>`. Manifests use `bodyStatus` (`present` | `purged-2026-08-05` | `living-restored`) so the catalog does not imply on-disk bodies.

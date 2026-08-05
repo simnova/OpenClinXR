@@ -10,77 +10,114 @@
       "basename": "2026-08-02-ceo-bod-voice-revision.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-ceo-bod-voice-revision.md",
       "successor": "docs/agent-ops/CEO-VOICE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-ceo-bod-voice-revision.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md",
       "basename": "2026-08-02-context-opt-charter-agentsmd-v3.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-charter-agentsmd-v3.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-grok45-v2.md",
       "basename": "2026-08-02-context-opt-grok45-v2.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-grok45-v2.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-grok45-v2.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-higher-v1.md",
       "basename": "2026-08-02-context-opt-higher-v1.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-higher-v1.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-higher-v1.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-thrash-evidence.md",
       "basename": "2026-08-02-context-opt-thrash-evidence.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-thrash-evidence.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-thrash-evidence.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md",
       "basename": "2026-08-02-context-opt-wave-a-enforce.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-a-enforce.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md",
       "basename": "2026-08-02-context-opt-wave-b-tools.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-b-tools.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-context-opt-wave-c.md",
       "basename": "2026-08-02-context-opt-wave-c.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-context-opt-wave-c.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md (+ COMPOSITION-ROOTS.md / WORKTREE-PROMOTE.md)",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-context-opt-wave-c.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-docs-warehouse-v1.md",
       "basename": "2026-08-02-docs-warehouse-v1.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md",
       "successor": "docs/agent-ops/DOC-WAREHOUSE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-docs-warehouse-v1.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-path-scope-policy-v1.md",
       "basename": "2026-08-02-path-scope-policy-v1.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-path-scope-policy-v1.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-path-scope-policy-v1.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "docs/agent-ops/2026-08-02-roster-review.md",
       "basename": "2026-08-02-roster-review.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-roster-review.md",
       "successor": "docs/agent-ops/REVIEW-CADENCE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-roster-review.md",
+      "sourceStubStatus": "absent"
     }
-  ]
+  ],
+  "statusDocPurge": {
+    "date": "2026-08-05",
+    "note": "warehouse path is historical catalog; bodyStatus tells whether the MD body is on disk. Recover purged text via git history."
+  }
 }

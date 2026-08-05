@@ -66,9 +66,9 @@ Protected + living agent-ops SSOT (non-dated):
 | `docs/_archive/wiki/index.md` | Topic map (multi-file index) |
 | `docs/_archive/wiki/topics/*.md` | Topic pages (post-purge: successors + git recovery notes) |
 | `docs/_archive/agent-ops/<YYYY-MM>/` | Batch manifests (+ optional future freeze bodies) |
-| `docs/_archive/coordination/<YYYY-MM>/` | Batch manifests (ledger bodies purged 2026-08-05) |
-| `docs/_archive/openclinxr/<YYYY-MM>/` | Batch manifests (candidate bodies purged 2026-08-05) |
-| `docs/_archive/iterations/<id>/` | Retained: `0009/07-final-synthesis.md` only (alignment + durable lesson) |
+| `docs/_archive/coordination/<YYYY-MM>/` | Batch manifests + **restored** ledger bodies (`AUTONOMOUS_WORK_PLAN.md`, `PROJECT_COORDINATION_INDEX.md`) — audit only, not living status |
+| `docs/_archive/openclinxr/<YYYY-MM>/` | Batch manifests only (candidate MD bodies purged 2026-08-05; git history) |
+| `docs/_archive/iterations/<id>/` | Retained: `0009/07-final-synthesis.md` only (alignment + durable lesson); other iteration bodies purged |
 | `.openclinxr/slice-archive/**` | Checkpoint JSONL cold store (local; often gitignored parent) |
 
 **Status-doc purge 2026-08-05:** pure historical status bodies and hot stubs were **removed** (git preserves them). Living how-tos restored where still relevant (`turbo-remote-cache-setup.md`). Open actionable gaps migrated to GitHub (e.g. #28). Audit: `docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md`. Prefer **GitHub board for HOT status** and **git history for cold status** over long-lived status Markdown.
@@ -122,13 +122,13 @@ pnpm openclaw:checkpoint:archive -- --keep 14
 
 Successors (examples):
 
-| Dated / cold record | Successor SSOT |
-|---------------------|----------------|
-| `2026-08-02-path-scope-policy-v1.md` | `docs/agent-ops/PATH-SCOPE.md` |
-| `2026-08-02-context-opt-*.md` | `PATH-SCOPE.md` (+ `COMPOSITION-ROOTS.md` / `WORKTREE-PROMOTE.md` when wave-c/worktree) |
-| `2026-08-02-ceo-bod-voice-revision.md` | `docs/agent-ops/CEO-VOICE.md` |
-| `AUTONOMOUS_WORK_PLAN.md` / `PROJECT_COORDINATION_INDEX.md` | `PROJECT_STATUS.md` |
-| `iterations/iteration-0009/*` | `docs/agent-factory/operating-loop.md` |
+| Dated / cold record | Presence | Successor SSOT |
+|---------------------|----------|----------------|
+| `2026-08-02-path-scope-policy-v1.md` (+ context-opt waves) | bodies removed 2026-08-05; git history + ARCHIVE-MANIFEST catalog | `docs/agent-ops/PATH-SCOPE.md` |
+| `2026-08-02-context-opt-wave-c.md` | removed 2026-08-05; git history | `PATH-SCOPE.md` + `COMPOSITION-ROOTS.md` + `WORKTREE-PROMOTE.md` |
+| `2026-08-02-ceo-bod-voice-revision.md` | removed 2026-08-05; git history | `docs/agent-ops/CEO-VOICE.md` |
+| `AUTONOMOUS_WORK_PLAN.md` / `PROJECT_COORDINATION_INDEX.md` | **RESTORED** root stubs + cold warehouse bodies (audit only) | `PROJECT_STATUS.md` + GitHub board |
+| `iterations/iteration-0009/*` | hot empty; cold `07-final-synthesis.md` kept | `docs/agent-factory/operating-loop.md` |
 
 ## Manifest schema
 
@@ -141,19 +141,25 @@ Each freeze batch writes `docs/_archive/agent-ops/<YYYY-MM>/ARCHIVE-MANIFEST.jso
   "archivedAt": "2026-08-02T00:00:00.000Z",
   "warehouseDir": "docs/_archive/agent-ops/2026-08",
   "dryRun": false,
+  "statusDocPurge": {
+    "date": "2026-08-05",
+    "note": "warehouse path is historical catalog; bodyStatus tells whether the MD body is on disk"
+  },
   "files": [
     {
       "source": "docs/agent-ops/2026-08-02-path-scope-policy-v1.md",
       "basename": "2026-08-02-path-scope-policy-v1.md",
       "warehouse": "docs/_archive/agent-ops/2026-08/2026-08-02-path-scope-policy-v1.md",
       "successor": "docs/agent-ops/PATH-SCOPE.md",
-      "reason": "dated revision freeze; living SSOT supersedes"
+      "reason": "dated revision freeze; living SSOT supersedes",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- docs/agent-ops/2026-08-02-path-scope-policy-v1.md"
     }
   ]
 }
 ```
 
-Stubs left at `source` are 5–10 lines: archived status, warehouse path, successor SSOT, batch id, pointers to this doc + `REVISION-INDEX.md`. Prefer `git mv` into warehouse when git is available.
+After freeze, `source` may be a short stub (archived status, warehouse path, successor SSOT, batch id). **Status-doc purge 2026-08-05** removed many warehouse MD bodies and hot stubs; manifests keep the path catalog with `bodyStatus` (`present` | `purged-2026-08-05` | `living-restored`). Prefer `git mv` into warehouse when freezing **new** dated revisions.
 
 ## Authority classification (machine)
 

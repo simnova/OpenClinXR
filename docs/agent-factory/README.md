@@ -19,7 +19,7 @@ The factory is for planning and design maturity. It must not generate OpenClinXR
 
 During autonomous code work, use the Agent Factory as focus memory (via `agents/**/charter.md`, `agents/**/memory.md`, `.agent-factory/memory-index.json`), not as a reason to restart broad planning.
 
-Per current AGENTS.md and state files (`PROJECT_STATUS.md`, `worker-backlog-and-validation-matrix.md`; legacy names `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` are historical only — purged 2026-08-05, git history retains text):
+Per current AGENTS.md and state files (`PROJECT_STATUS.md`, `worker-backlog-and-validation-matrix.md`; legacy names `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` are **archived audit stubs** at repo root + cold copies under `docs/_archive/coordination/2026-08/` — not living status; successor is `PROJECT_STATUS.md` + GitHub board):
 
 - Primary daily driver for product advancement: OpenClaw-style continuous small deterministic slices; HOT operational cards on the GitHub board; cold durable records in `PROJECT_STATUS.md` snapshot + worker-backlog; lease for unattended; `pnpm docs:drift-check` + `agent:alignment` guards.
 - Full iteration loop (this factory's 00-brief through 08-memory-update-log, or `pnpm agent:loop`): use only for plateau recovery, major planning, broad drift review, or leadership synthesis. Do not run for routine implementation.
@@ -39,6 +39,10 @@ After any coordination or agentic doc edits, always run `pnpm agent:alignment &&
 
 The full loop below is for plateau recovery, major planning, broad drift review, or leadership synthesis (per AGENTS.md "Full iteration loop ... only for ..."). For routine product slices, use OpenClaw continuous slices with snapshots in state files for rehydration, per-slice records, lease, etc.
 
+**Iteration tree note (2026-08-05):** the live `iterations/` tree is empty except `iterations/README.md` (pointer to cold retain + living process). Do **not** recreate hot stubs under `iterations/iteration-0009/`. When a full factory loop is required, create a **new** `iterations/iteration-XXXX/` directory. The only retained historical body is [`docs/_archive/iterations/0009/07-final-synthesis.md`](../_archive/iterations/0009/07-final-synthesis.md) (alignment + durable lesson). Other iteration-0009 artifacts exist only in git history (see `docs/_archive/iterations/0009/ARCHIVE-MANIFEST.json`).
+
+Artifact **names** below are the process contract for a new iteration (not live paths today):
+
 1. Create an iteration brief in `iterations/iteration-XXXX/00-brief.md`.
 2. Retrieve relevant memory from `agents/**/index.json` and `.agent-factory/memory-index.json`.
 3. Produce `01-core-plan.md`.
@@ -50,7 +54,7 @@ The full loop below is for plateau recovery, major planning, broad drift review,
 9. Produce `07-final-synthesis.md`.
 10. Record memory changes in `08-memory-update-log.md`.
 
-For daily driver, see OpenClaw runbook + AGENTS hyper practices + current snapshots in PROJECT/AUTONOMOUS/worker-backlog.
+For daily driver, see OpenClaw runbook + AGENTS hyper practices + current snapshots in `PROJECT_STATUS.md` + worker-backlog.
 
 ## Key Commands
 
@@ -61,10 +65,12 @@ pnpm agent:index
 pnpm agent:evidence
 pnpm agent:risks
 pnpm agent:maturity
-pnpm agent:score -- iterations/iteration-0009
-pnpm agent:leadership -- iterations/iteration-0009
+pnpm agent:score -- docs/_archive/iterations/0009
+pnpm agent:leadership -- docs/_archive/iterations/0009
 pnpm agent:verify
 ```
+
+(When running a **new** full loop, pass the new `iterations/iteration-XXXX` path instead of the cold 0009 archive.)
 
 `pnpm agent:evidence` prints open evidence debt and writes `.agent-factory/evidence-debt-report.json` so future iterations can compare open debt by iteration and owner.
 `pnpm agent:risks` prints open critical risks and writes `.agent-factory/risk-report.json` with open-risk rollups by severity, iteration, and owner.

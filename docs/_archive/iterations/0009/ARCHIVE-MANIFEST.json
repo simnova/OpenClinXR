@@ -11,7 +11,10 @@
       "warehouse": "docs/_archive/iterations/0009/00-brief.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/00-brief.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/01-core-plan.md",
@@ -19,7 +22,10 @@
       "warehouse": "docs/_archive/iterations/0009/01-core-plan.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/01-core-plan.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/03-adversarial-counterplan.md",
@@ -27,7 +33,10 @@
       "warehouse": "docs/_archive/iterations/0009/03-adversarial-counterplan.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/03-adversarial-counterplan.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/05-core-revision.md",
@@ -35,7 +44,10 @@
       "warehouse": "docs/_archive/iterations/0009/05-core-revision.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/05-core-revision.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/06-leadership-review.md",
@@ -43,7 +55,10 @@
       "warehouse": "docs/_archive/iterations/0009/06-leadership-review.md",
       "successor": "docs/agent-factory/leadership-gates.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/06-leadership-review.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/07-final-synthesis.md",
@@ -51,7 +66,10 @@
       "warehouse": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "present",
+      "sourceStubStatus": "absent",
+      "note": "alignment-required cold retain; do not purge"
     },
     {
       "source": "iterations/iteration-0009/08-memory-update-log.md",
@@ -59,7 +77,10 @@
       "warehouse": "docs/_archive/iterations/0009/08-memory-update-log.md",
       "successor": "docs/agent-factory/operating-loop.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/08-memory-update-log.md",
+      "sourceStubStatus": "absent"
     },
     {
       "source": "iterations/iteration-0009/leadership-packet.md",
@@ -67,7 +88,14 @@
       "warehouse": "docs/_archive/iterations/0009/leadership-packet.md",
       "successor": "docs/agent-factory/leadership-gates.md",
       "reason": "completed agent-factory iteration; cold historical synthesis",
-      "topic": "agent-factory-iterations"
+      "topic": "agent-factory-iterations",
+      "bodyStatus": "purged-2026-08-05",
+      "recoverVia": "git log --all --full-history -- iterations/iteration-0009/leadership-packet.md",
+      "sourceStubStatus": "absent"
     }
-  ]
+  ],
+  "statusDocPurge": {
+    "date": "2026-08-05",
+    "note": "warehouse path is historical catalog; bodyStatus tells whether the MD body is on disk. Recover purged text via git history."
+  }
 }

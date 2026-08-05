@@ -121,7 +121,7 @@ Exported as `auditHandoffsPathScope` from both `slice-team.ts` and `index.ts`.
 ## context-opt-grok45-v2 (slice-team / team-spawn bake)
 
 **Slice:** `context-opt-grok45-v2` · **Track:** optimization only (not product authoring) · **BOD:** continue optimization with Grok 4.5 team  
-**Revision record:** `docs/agent-ops/2026-08-02-context-opt-grok45-v2.md`
+**Revision record:** removed 2026-08-05 (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`). Living SSOT = this section.
 
 Closes the gap between **spawn-spec** path-scope/isolation (already IN FORCE via `grok-repo-agent-spawn.ts`) and the **OpenClaw slice-team** path (`pnpm openclaw:team-spawn` → `buildTeamSpawnReport` / `buildSliceTeamSpawnPrompt` / `slice-team-cli`).
 
@@ -147,7 +147,7 @@ Without team-spawn bake, only `spawn-spec` single-role prompts carried PATH SCOP
 ## context-opt-charter-agentsmd-v3 (dual-stack pointer + agents_md slim)
 
 **Slice:** `context-opt-charter-agentsmd-v3` · **Track:** optimization only (not product authoring)  
-**Revision record:** `docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md`
+**Revision record:** removed 2026-08-05 (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`). Living SSOT = this section.
 
 Closes dual-stack drift: OpenClaw charters were free to re-list path globs (stale vs `role-harness-policy.ts`), and Grok-native generators forced `agents_md: true` on every specialist — injecting full repo `AGENTS.md` into child sessions and defeating LOW_TOKEN spawn discipline.
 
@@ -195,7 +195,7 @@ Closes dual-stack drift: OpenClaw charters were free to re-list path globs (stal
 ## Enforcement matrix (Wave A)
 
 **Slice:** `context-opt-wave-a-enforce` · **Track:** optimization only · **BOD:** APPROVED Wave A 2026-08-02  
-**Revision record:** `docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md`
+**Revision record:** removed 2026-08-05 (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`). Living SSOT = this section.
 
 Single view of **soft** (prompt / discipline / recommendation) vs **hard** (machine fail / generator invariant) path-scope controls. Soft does not fail verify; hard fails verify or blocks generation.
 
@@ -239,7 +239,8 @@ Codified: `agents/rules/orchestrator-only-main.md`, `.grok/agents/orchestrator.m
 ## Wave B tool-surface hygiene
 
 **Slice:** `context-opt-wave-b-tools` · **Track:** optimization only · **BOD:** APPROVED Wave B 2026-08-02  
-**Revision record:** `docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md`  
+**Revision record:** removed 2026-08-05 (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`). Living SSOT = this section.  
+
 **B3 decision (authoritative):** **KEEP CEO write/shell tools** with **CEO write-roots discipline** (OpenClinXR hygiene carve-out). Not an ATL-style pure no-shell / tool-strip CEO.
 
 Wave B governs **which tools each role may use** (Grok frontmatter `tools` / `disallowedTools`, preferred CLI, image surface) without changing path writeRoots. Soft guidance + roster scoring first; hard only where generator/frontmatter can already encode it.
@@ -424,7 +425,8 @@ BOD approved **scoped** Wave C despite thrash NO_GO — not full ATL FE/BE RIF o
 ## Wave C (architect composition + worktree promote)
 
 **Slice:** `context-opt-wave-c` · **Track:** optimization only · **BOD:** APPROVED both strands 2026-08-02  
-**Revision record:** `docs/agent-ops/2026-08-02-context-opt-wave-c.md`  
+**Revision record:** removed 2026-08-05 (git history; catalog `docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json`). Living SSOT = this section + `COMPOSITION-ROOTS.md` + `WORKTREE-PROMOTE.md`.  
+
 **Strands:** **C-arch** · **C-worktree**
 
 Wave C closes two residuals left after A+B: (1) composition doctrine was soft-only and delivery still drifted toward unmapped `general-purpose`; (2) worktree isolation ends at spawn — **promote/merge/cleanup** was manual.

@@ -11,7 +11,9 @@
       "warehouse": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "successor": "PROJECT_STATUS.md",
       "reason": "historical audit ledger; not canonical state",
-      "topic": "coordination-ledgers"
+      "topic": "coordination-ledgers",
+      "bodyStatus": "present",
+      "sourceStubStatus": "present"
     },
     {
       "source": "PROJECT_COORDINATION_INDEX.md",
@@ -19,7 +21,13 @@
       "warehouse": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "successor": "PROJECT_STATUS.md",
       "reason": "historical audit ledger; not canonical state",
-      "topic": "coordination-ledgers"
+      "topic": "coordination-ledgers",
+      "bodyStatus": "present",
+      "sourceStubStatus": "present"
     }
-  ]
+  ],
+  "statusDocPurge": {
+    "date": "2026-08-05",
+    "note": "warehouse path is historical catalog; bodyStatus tells whether the MD body is on disk. Recover purged text via git history."
+  }
 }
