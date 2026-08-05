@@ -40,7 +40,7 @@ const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
 const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-xr/src/main.ts": { maxLines: 10255, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD)" },
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3743, reason: "XR runtime-state god-file — split by state slice" },
-  "apps/api/src/app.ts": { maxLines: 3282, reason: "API composition god-file — split into per-route modules registered by the app root" },
+  "apps/api/src/app.ts": { maxLines: 2476, reason: "API composition root mid-migration to fluent DI: types->api-types.ts, helpers->api-support.ts done; NEXT carve 57 inline routes into per-domain createXRoutes(ctx) modules, then introduce ApiApplication builder + compose.ts (Atlantis composition-root pattern)" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },
