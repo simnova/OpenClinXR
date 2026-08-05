@@ -8,6 +8,9 @@ import {
   latestSessionFor,
   readSessions,
   recordSession,
+  resolveWorkerWorktree,
+  WORKTREE_ROOT,
+  buildWorktreeIsolationDenies,
 } from "./dispatch-worker.js";
 
 describe("dispatch-worker argv", () => {
@@ -68,5 +71,33 @@ describe("session ledger", () => {
     recordSession(root, { sessionId: "019f-later", model: "m", at: "2026-08-05T03:00:00Z" });
 
     expect(readSessions(root).map((entry) => entry.sessionId)).toEqual(["019f-good", "019f-later"]);
+  });
+});
+
+describe("worktree binding — the concurrent-writer unlock", () => {
+  const MAIN = "/repo/main";
+
+  it("denies writes to the MAIN checkout, which is what lets N writers run at once", () => {
+    // PROVEN by control/treatment: without these a worker given --cwd elsewhere still wrote an
+    // absolute path under main; with them it reported "denied by a permission policy".
+    expect(buildWorktreeIsolationDenies(MAIN)).toEqual([
+      "Write(/repo/main/**)",
+      "Edit(/repo/main/**)",
+    ]);
+  });
+
+  it("refuses a worktree INSIDE main, because the deny would block the worker's own edits", () => {
+    expect(() => resolveWorkerWorktree(MAIN, `${MAIN}/.claude/worktrees/x`, "x")).toThrow(
+      /INSIDE the main checkout/,
+    );
+  });
+
+  it("accepts a worktree outside main", () => {
+    expect(resolveWorkerWorktree(MAIN, "/elsewhere/wt-a", "a")).toBe("/elsewhere/wt-a");
+  });
+
+  it("keeps worktrees outside the main tree by default", () => {
+    expect(WORKTREE_ROOT.startsWith(MAIN)).toBe(false);
+    expect(WORKTREE_ROOT).toContain("worktrees");
   });
 });

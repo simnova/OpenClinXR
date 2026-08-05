@@ -10,7 +10,7 @@
  * Each rule is annotated with the incident that produced it.
  */
 
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
@@ -54,6 +54,17 @@ type DispatchOptions = {
    */
   cwd?: string;
   streaming?: boolean;
+  /**
+   * Bind this worker to its own git worktree, so N writers can run concurrently.
+   *
+   * Pass an absolute worktree path, or `true` to have one created under WORKTREE_ROOT.
+   * When set, dispatch adds a path-scoped DENY on the main checkout — see
+   * {@link buildWorktreeIsolationDenies}. The worktree MUST live outside the main tree or the
+   * deny would block the worker's own files.
+   */
+  worktree?: string | true;
+  /** Branch for an auto-created worktree. Defaults to a name derived from the slice. */
+  branch?: string;
 };
 
 export type DispatchLedgerEntry = {
@@ -64,6 +75,8 @@ export type DispatchLedgerEntry = {
   turns?: number;
   stopReason?: string;
   resumedFrom?: string;
+  /** Set when the worker was bound to its own worktree (concurrent-writer safe). */
+  worktree?: string;
   at: string;
 };
 
@@ -75,6 +88,25 @@ export type DispatchLedgerEntry = {
  *
  * Correct order is always: `-p "<prompt>"` FIRST, then every other flag.
  */
+/** Worktrees live OUTSIDE the main checkout so the main-tree deny cannot block them. */
+export const WORKTREE_ROOT = join(homedir(), ".grok", "worktrees", "src-openclinxr");
+
+/**
+ * The hard write boundary.
+ *
+ * PROVEN 2026-08-05 with a control/treatment pair: a worker given `--cwd <elsewhere>` and asked to
+ * write an ABSOLUTE path under main created the file (control). The same prompt with these denies
+ * produced "The write was denied by a permission policy" and no file (treatment).
+ *
+ * This is why isolation is enforced here rather than by prompt wording or a post-run dirty check:
+ * a prompt directive is advisory, and a dirty check is detection AFTER the damage — with two
+ * concurrent writers you cannot even attribute which file came from which worker. `--cwd` is not a
+ * boundary either; it only sets the starting directory.
+ */
+export function buildWorktreeIsolationDenies(mainRoot: string): string[] {
+  return [`Write(${mainRoot}/**)`, `Edit(${mainRoot}/**)`];
+}
+
 export function buildArgv(options: DispatchOptions): string[] {
   const argv = ["-p", options.prompt];
   if (options.resume) argv.push("--resume", options.resume);
@@ -86,6 +118,50 @@ export function buildArgv(options: DispatchOptions): string[] {
   argv.push("--max-turns", String(options.maxTurns ?? DEFAULT_MAX_TURNS));
   if (options.cwd) argv.push("--cwd", options.cwd);
   return argv;
+}
+
+/**
+ * Resolve (creating if needed) the worktree this worker is bound to.
+ *
+ * Returns the worktree path, which becomes both the worker's cwd and the repo root named in its
+ * prompt. Never returns a path inside `mainRoot`.
+ */
+export function resolveWorkerWorktree(
+  mainRoot: string,
+  worktree: string | true,
+  name: string,
+  branch?: string,
+): string {
+  if (typeof worktree === "string") {
+    if (worktree.startsWith(`${mainRoot}/`)) {
+      throw new Error(
+        `Worktree ${worktree} is INSIDE the main checkout. The isolation deny covers ${mainRoot}/** `
+        + `and would block the worker's own edits. Place worktrees outside main (see WORKTREE_ROOT).`,
+      );
+    }
+    return worktree;
+  }
+  const target = join(WORKTREE_ROOT, name);
+  if (!existsSync(target)) {
+    mkdirSync(WORKTREE_ROOT, { recursive: true });
+    execFileSync("git", ["worktree", "add", "-b", branch ?? `wt/${name}`, target], {
+      cwd: mainRoot,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  }
+  return target;
+}
+
+/** Files the main checkout gained during a dispatch — belt-and-braces behind the deny. */
+export function mainTreeDirtyPaths(mainRoot: string): string[] {
+  try {
+    return execFileSync("git", ["status", "--porcelain"], { cwd: mainRoot, encoding: "utf8" })
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => line.slice(3));
+  } catch {
+    return [];
+  }
 }
 
 export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {
@@ -159,13 +235,36 @@ function parseResult(raw: string): { sessionId?: string; turns?: number; stopRea
 
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
-  const argv = buildArgv(options);
+
+  // Worktree binding: resolve the tree, point the worker at it, and install the HARD deny on main.
+  // Done here rather than left to callers so no dispatch path can forget the boundary.
+  let effective = options;
+  let worktreePath: string | undefined;
+  if (options.worktree) {
+    worktreePath = resolveWorkerWorktree(
+      repoRoot,
+      options.worktree,
+      options.slice ?? options.role ?? "worker",
+      options.branch,
+    );
+    effective = {
+      ...options,
+      cwd: worktreePath,
+      // The worker must never see the main path as its repo root — every absolute path it copies
+      // out of a prompt, AGENTS.md, or role memory would otherwise point at main.
+      prompt: options.prompt.split(repoRoot).join(worktreePath),
+    };
+  }
+
+  const argv = buildArgv(effective);
+  if (worktreePath) argv.push(...buildWorktreeIsolationDenies(repoRoot).flatMap((rule) => ["--deny", rule]));
   const binary = join(homedir(), ".grok/bin/grok");
+  const mainDirtyBefore = worktreePath ? new Set(mainTreeDirtyPaths(repoRoot)) : undefined;
 
   const chunks: string[] = [];
   const stderr: string[] = [];
   const child = spawn(binary, argv, {
-    cwd: options.cwd ?? repoRoot,
+    cwd: effective.cwd ?? repoRoot,
     env: { ...process.env, ...REQUIRED_ENV },
   });
   child.stdout.on("data", (data: Buffer) => chunks.push(data.toString()));
@@ -184,6 +283,19 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     );
   }
 
+  if (mainDirtyBefore) {
+    // The deny should have made this impossible. If it fires, the boundary leaked and the run is
+    // NOT trustworthy — fail loudly rather than let a "successful" worker quietly dirty main.
+    const leaked = mainTreeDirtyPaths(repoRoot).filter((file) => !mainDirtyBefore.has(file));
+    if (leaked.length > 0) {
+      throw new Error(
+        `Worktree-bound worker leaked writes into the MAIN checkout despite the path deny: `
+        + `${leaked.slice(0, 10).join(", ")}. Treat this dispatch as failed and investigate the `
+        + `isolation boundary before running concurrent writers again.`,
+      );
+    }
+  }
+
   const entry: DispatchLedgerEntry = {
     sessionId: parsed.sessionId,
     ...(options.slice ? { slice: options.slice } : {}),
@@ -192,6 +304,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
     ...(options.resume ? { resumedFrom: options.resume } : {}),
+    ...(worktreePath ? { worktree: worktreePath } : {}),
     at: new Date().toISOString(),
   };
   recordSession(repoRoot, entry);
