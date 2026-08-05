@@ -1274,7 +1274,7 @@ describe("workspace architecture rules", () => {
   });
 
   it("keeps session-state WebSocket message contracts design-only", () => {
-    const source = readFileSync(join(workspaceRoot, "packages/openclinxr/session-state/src/index.ts"), "utf8");
+    const source = readFileSync(join(workspaceRoot, "packages/openclinxr/session-state/src/session-messaging.ts"), "utf8");
     const docs = readFileSync(join(workspaceRoot, "docs/openclinxr/session-state-websocket-message-design.md"), "utf8");
     const runtimeSignalPattern = /new WebSocket|Bun\.serve|server\.upgrade|from ["']ws["']|from ["']hono|from ["']redis|from ["']redka|from ["']colyseus|from ["']@colyseus\/schema|from ["']bitecs/;
 
