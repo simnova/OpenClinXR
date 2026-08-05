@@ -5,21 +5,23 @@ import {
   AssetManifestSchema,
   CaseEmotionPolicySchema,
   CommunicationProfileSchema,
-  DynamicEncounterFactoryPlanningProjectionSchema,
-  DynamicEncounterFactoryProjectionArtifactSchema,
   EnvironmentManifestSchema,
   ExamBlueprintSchema,
+  ScenarioSchema,
+} from "./schemas.js";
+import {
+  DynamicEncounterFactoryPlanningProjectionSchema,
+  DynamicEncounterFactoryProjectionArtifactSchema,
   ModelProviderAuditSchema,
   PatientNoteSchema,
   ProviderAuditRecordSchema,
   ProviderHealthSchema,
   ReviewPacketSchema,
-  ScenarioSchema,
   SharedAssetLibraryReuseSchema,
   StationRunSchema,
   TraceEventSchema,
   VoiceProviderAuditSchema,
-} from "./schemas.js";
+} from "./runtime-schemas.js";
 
 export type ValidationResult = { ok: true } | { ok: false; errors: string[] };
 

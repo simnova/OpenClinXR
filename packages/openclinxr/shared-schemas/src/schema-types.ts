@@ -1,0 +1,84 @@
+import { type Static, Type } from "@sinclair/typebox";
+import {
+  ReviewGateStateSchema,
+  ScenarioStatusSchema,
+  ActorRoleSchema,
+  CommunicationProfileSchema,
+  ComplianceRegionSchema,
+  InteractionEmotionSchema,
+  EmotionEventKindSchema,
+  EmotionTransitionRuleSchema,
+  CaseEmotionPolicySchema,
+  TouchResponseSchema,
+  BodyMechanicsSchema,
+  ActorCardSchema,
+  EventScheduleEntrySchema,
+  ExamBlueprintTimingSchema,
+  ExamStationSlotSchema,
+  ExamBlueprintSchema,
+  ReviewRubricItemSchema,
+  ScoreUseLabelSchema,
+  ValidationStageSchema,
+  HiddenFactPolicySchema,
+  ScenarioGovernanceSchema,
+  EnvironmentSchema,
+  AssetKindSchema,
+  AssetNeedSchema,
+  EnvironmentManifestSchema,
+  AssetManifestSchema,
+  ScenarioSchema,
+} from "./schemas.js";
+import {
+  SharedAssetLibraryRefsSchema,
+  SharedAssetLibraryLruCacheSchema,
+  SharedAssetLibraryReuseSchema,
+  DynamicEncounterFactoryScenarioSchema,
+  DynamicEncounterFactoryPlanningProjectionSchema,
+  DynamicEncounterFactoryProjectionArtifactSchema,
+  TraceEventSchema,
+  PatientNoteSchema,
+  StationPhaseSchema,
+  StationRunSchema,
+  FacultyScoreDraftSchema,
+  ReviewTimelineEntrySchema,
+  ReviewTraceQualitySchema,
+  ReviewPacketSchema,
+  ProviderHealthSchema,
+  ProviderAuditRecordSchema,
+  ModelProviderAuditSchema,
+  VoiceProviderAuditSchema,
+} from "./runtime-schemas.js";
+
+export type ActorCard = Static<typeof ActorCardSchema>;
+export type CommunicationProfile = Static<typeof CommunicationProfileSchema>;
+export type ComplianceRegion = Static<typeof ComplianceRegionSchema>;
+export type InteractionEmotion = Static<typeof InteractionEmotionSchema>;
+export type EmotionEventKind = Static<typeof EmotionEventKindSchema>;
+export type EmotionTransitionRule = Static<typeof EmotionTransitionRuleSchema>;
+export type CaseEmotionPolicy = Static<typeof CaseEmotionPolicySchema>;
+export type TouchResponse = Static<typeof TouchResponseSchema>;
+export type BodyMechanics = Static<typeof BodyMechanicsSchema>;
+export type ExamBlueprintTiming = Static<typeof ExamBlueprintTimingSchema>;
+export type ExamStationSlot = Static<typeof ExamStationSlotSchema>;
+export type ExamBlueprint = Static<typeof ExamBlueprintSchema>;
+export type ScenarioGovernance = Static<typeof ScenarioGovernanceSchema>;
+export type AssetKind = Static<typeof AssetKindSchema>;
+export type EnvironmentManifest = Static<typeof EnvironmentManifestSchema>;
+export type AssetManifest = Static<typeof AssetManifestSchema>;
+export type Scenario = Static<typeof ScenarioSchema>;
+export type SharedAssetLibraryRefs = Static<typeof SharedAssetLibraryRefsSchema>;
+export type SharedAssetLibraryLruCache = Static<typeof SharedAssetLibraryLruCacheSchema>;
+export type SharedAssetLibraryReuse = Static<typeof SharedAssetLibraryReuseSchema>;
+export type DynamicEncounterFactoryScenario = Static<typeof DynamicEncounterFactoryScenarioSchema>;
+export type DynamicEncounterFactoryPlanningProjection = Static<typeof DynamicEncounterFactoryPlanningProjectionSchema>;
+export type DynamicEncounterFactoryProjectionArtifact = Static<typeof DynamicEncounterFactoryProjectionArtifactSchema>;
+export type TraceEvent = Static<typeof TraceEventSchema>;
+export type PatientNote = Static<typeof PatientNoteSchema>;
+export type StationPhase = Static<typeof StationPhaseSchema>;
+export type StationRun = Static<typeof StationRunSchema>;
+export type ReviewPacket = Static<typeof ReviewPacketSchema>;
+export type ProviderHealth = Static<typeof ProviderHealthSchema>;
+export type ProviderAuditRecord = Static<typeof ProviderAuditRecordSchema>;
+export type ModelProviderAudit = Static<typeof ModelProviderAuditSchema>;
+export type VoiceProviderAudit = Static<typeof VoiceProviderAuditSchema>;
+

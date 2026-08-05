@@ -58,7 +58,6 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 679, reason: "large authoring panel — extract form sections" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/agent-loop/src/slice-team.ts": { maxLines: 594, reason: "slice-team orchestration — split by step" },
-  "packages/openclinxr/shared-schemas/src/schemas.ts": { maxLines: 594, reason: "schema barrel — split by domain area" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
   "packages/openclinxr/arena/physics-touch-contract/src/metrics/measure.ts": { maxLines: 561, reason: "metrics — split by metric" },
   "packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts": { maxLines: 551, reason: "spawn prompt builder — split prompt/flags" },
