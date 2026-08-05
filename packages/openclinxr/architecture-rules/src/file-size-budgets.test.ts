@@ -54,7 +54,7 @@ const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
   "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 950, reason: "policy tables — split data from logic" },
   "apps/api/src/api-bootstrap.ts": { maxLines: 908, reason: "bootstrap wiring — split by subsystem registration" },
   "apps/arena/model-vetting-studio/src/candidate-capture.ts": { maxLines: 785, reason: "capture pipeline — split capture/report" },
-  "packages/openclinxr/arena/model-vetting/src/index.ts": { maxLines: 772, reason: "model-vetting barrel — split by concern" },
+  "packages/openclinxr/arena/model-vetting/src/logic.ts": { maxLines: 534, reason: "residual: model-vetting report build + validators (interleaved exported/internal) — split validators next; types extracted" },
   "apps/ui-admin/src/RuntimeSelectionReviewPacketPanel.tsx": { maxLines: 682, reason: "large panel — extract sub-sections/containers" },
   "apps/ui-admin/src/CaseAuthoringWorkbench.tsx": { maxLines: 679, reason: "large authoring panel — extract form sections" },
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
