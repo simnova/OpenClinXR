@@ -61,7 +61,6 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/agent-loop/src/grok-tier-routing.ts": { maxLines: 607, reason: "tier routing — split table/logic" },
   "packages/openclinxr/agent-loop/src/slice-team.ts": { maxLines: 594, reason: "slice-team orchestration — split by step" },
   "packages/openclinxr/arena/model-vetting/src/pipeline-candidate.ts": { maxLines: 581, reason: "pipeline — split stages" },
-  "packages/openclinxr/arena/physics-touch-contract/src/metrics/measure.ts": { maxLines: 561, reason: "metrics — split by metric" },
   "packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts": { maxLines: 543, reason: "spawn prompt builder — split prompt/flags" },
   "packages/openclinxr/arena/physics-touch-contract/src/adapters/jolt.ts": { maxLines: 502, reason: "adapter — near budget; trim on next touch" },
 };
