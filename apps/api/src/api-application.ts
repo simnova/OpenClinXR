@@ -7,47 +7,106 @@ import type { ApiAppOptions, ApiAppVariables, ApiPersistenceSink } from "./api-t
 export type ApiApp = Hono<{ Variables: ApiAppVariables }>;
 
 /**
- * Ordered composition phases. The chain is order-sensitive: middleware must be registered
- * before routes (CORS/auth/telemetry wrap every handler), and the context must exist before
- * either. Calling out of order throws rather than silently producing a mis-wired app.
+ * Lifecycle contract for anything the app owns that must be started and stopped
+ * (connections, pollers, sidecars). Kept to two methods deliberately — no base class,
+ * no decorators. Adapted from cellixjs `@cellix/api-services-spec` `ServiceBase`.
+ *
+ * Configuration should be validated inside `startUp()` rather than a constructor, so a
+ * misconfiguration surfaces during the start phase with the service name attached instead
+ * of as an opaque import-time crash.
  */
-type Phase = "new" | "context" | "middleware" | "routes" | "built";
+export type ApiLifecycleService = {
+  readonly name: string;
+  startUp(): Promise<void>;
+  shutDown(): Promise<void>;
+};
+
+/**
+ * Composition phases, expressed as segregated interfaces so that ORDER IS A COMPILE ERROR:
+ * each phase returns only the interface exposing the legal next call. Adapted from cellixjs
+ * `cellix.ts` (Cellix implements five stage interfaces over one class).
+ *
+ * Ordering is a correctness property here, not bookkeeping — middleware must wrap every route,
+ * so routes registered before middleware would be unauthenticated and un-instrumented.
+ */
+export interface ApiContextStage {
+  /** Phase 1 — resolve options into the typed context (deps + shared in-memory state). */
+  withContext(
+    runtime?: ScenarioRuntime,
+    persistence?: ApiPersistenceSink,
+    options?: ApiAppOptions,
+  ): ApiMiddlewareStage;
+}
+
+export interface ApiMiddlewareStage {
+  /** Phase 2 — CORS, auth identity, telemetry spans. Must precede routes. */
+  withCoreMiddleware(): ApiRoutesStage;
+}
+
+export interface ApiRoutesStage {
+  /**
+   * Phase 3 — register per-domain route modules. Registration happens inside the callback so
+   * the mutating surface is unreachable from the chain itself (cellixjs scoped-callback pattern).
+   */
+  withRoutes(register: (app: ApiApp, ctx: ApiAppContext) => void): ApiBuildStage;
+  /** Optional — services started/stopped with the app. */
+  withLifecycleServices(...services: readonly ApiLifecycleService[]): ApiRoutesStage;
+}
+
+export interface ApiBuildStage {
+  build(): ComposedApiApp;
+}
+
+/**
+ * Terminal, read-only composition result: no registration methods exist on this type, so
+ * post-build code physically cannot re-register (cellixjs `StartedApplication`).
+ */
+export type ComposedApiApp = {
+  readonly app: ApiApp;
+  readonly context: ApiAppContext;
+  /** Start owned services. Safe to call once; awaits each service in registration order. */
+  start(): Promise<void>;
+  /**
+   * Stop owned services in REVERSE registration order, settling all of them so one failure
+   * cannot hide the rest. Idempotent. (Improves on cellixjs, which uses unordered `Promise.all`
+   * with no idempotency guard — and on atlantis-cameras-v2, which has no shutdown at all.)
+   */
+  stop(): Promise<void>;
+};
 
 /**
  * Fluent API application builder — the composition root for apps/api.
  *
- * Feature logic lives in packages and in the per-domain `registerXRoutes(app, ctx)` modules;
- * this class only sequences the phases and holds nothing domain-specific. Adding a route domain
- * is a one-line registration inside the `withRoutes` callback (see `createApiApp`), which keeps
- * the composition root thin as the API grows.
+ * The chain stays SYNCHRONOUS; all async work is deferred to `start()` on the built result, so
+ * no `await` is needed mid-chain and route binding never blocks on I/O (cellixjs's key decision).
  *
- * Adapted from atlantis-cameras-v2 `apps/api/src/icd-api-application.ts`. Like that builder,
- * ordering is enforced at runtime via `assertPhase` (not a type-state pattern), which keeps the
- * chain ergonomic while still failing loudly on misuse.
+ * Feature logic lives in packages and in the per-domain `registerXRoutes(app, ctx)` modules; this
+ * class sequences phases and holds nothing domain-specific.
  */
-export class ApiApplication {
-  private phase: Phase = "new";
+export class ApiApplication implements ApiContextStage, ApiMiddlewareStage, ApiRoutesStage, ApiBuildStage {
+  private phase: "new" | "context" | "middleware" | "routes" | "built" = "new";
   private app: ApiApp | undefined;
   private ctx: ApiAppContext | undefined;
+  private readonly services: ApiLifecycleService[] = [];
 
   private constructor() {}
 
-  static create(): ApiApplication {
+  static create(): ApiContextStage {
     return new ApiApplication();
   }
 
-  private assertPhase(expected: Phase, method: string): void {
+  /** Defence in depth for JS callers / package boundaries; TS callers are already type-gated. */
+  private assertPhase(expected: ApiApplication["phase"], method: string): void {
     if (this.phase !== expected) {
       throw new Error(`ApiApplication.${method}: expected phase '${expected}', was '${this.phase}'`);
     }
   }
 
-  /** Phase 1 — resolve options into the typed context (deps + shared in-memory state). */
   withContext(
     runtime?: ScenarioRuntime,
     persistence: ApiPersistenceSink = {},
     options: ApiAppOptions = {},
-  ): this {
+  ): ApiMiddlewareStage {
     this.assertPhase("new", "withContext");
     this.app = new Hono<{ Variables: ApiAppVariables }>();
     this.ctx = runtime
@@ -57,33 +116,66 @@ export class ApiApplication {
     return this;
   }
 
-  /** Phase 2 — CORS, auth identity, telemetry spans. Must precede routes. */
-  withCoreMiddleware(): this {
+  withCoreMiddleware(): ApiRoutesStage {
     this.assertPhase("context", "withCoreMiddleware");
     registerCoreMiddleware(this.requireApp("withCoreMiddleware"), this.requireCtx("withCoreMiddleware"));
     this.phase = "middleware";
     return this;
   }
 
-  /** Phase 3 — register per-domain route modules. */
-  withRoutes(register: (app: ApiApp, ctx: ApiAppContext) => void): this {
+  withLifecycleServices(...services: readonly ApiLifecycleService[]): ApiRoutesStage {
+    this.services.push(...services);
+    return this;
+  }
+
+  withRoutes(register: (app: ApiApp, ctx: ApiAppContext) => void): ApiBuildStage {
     this.assertPhase("middleware", "withRoutes");
     register(this.requireApp("withRoutes"), this.requireCtx("withRoutes"));
     this.phase = "routes";
     return this;
   }
 
-  /** Terminal phase — hand back the composed Hono app. */
-  build(): ApiApp {
+  build(): ComposedApiApp {
     this.assertPhase("routes", "build");
     const app = this.requireApp("build");
+    const context = this.requireCtx("build");
+    const services = [...this.services];
     this.phase = "built";
-    return app;
-  }
 
-  /** Escape hatch for callers that need the context (tests, host wiring). */
-  context(): ApiAppContext {
-    return this.requireCtx("context");
+    let started: ApiLifecycleService[] = [];
+    let stopping = false;
+
+    return {
+      app,
+      context,
+      async start(): Promise<void> {
+        started = [];
+        for (const service of services) {
+          try {
+            await service.startUp();
+            started.push(service);
+          } catch (error) {
+            // Compensate: stop whatever already started so a partial boot cannot leak resources.
+            for (const openService of [...started].reverse()) {
+              await openService.shutDown().catch(() => undefined);
+            }
+            started = [];
+            throw new Error(`ApiApplication.start: service '${service.name}' failed to start`, { cause: error });
+          }
+        }
+      },
+      async stop(): Promise<void> {
+        if (stopping) return;
+        stopping = true;
+        const results = await Promise.allSettled([...started].reverse().map((service) => service.shutDown()));
+        started = [];
+        stopping = false;
+        const failures = results.flatMap((result) => (result.status === "rejected" ? [result.reason] : []));
+        if (failures.length > 0) {
+          throw new AggregateError(failures, "ApiApplication.stop: one or more services failed to shut down");
+        }
+      },
+    };
   }
 
   private requireApp(method: string): ApiApp {

@@ -224,7 +224,7 @@ export function createApiApp(
     .withContext(runtime, persistence, options)
     .withCoreMiddleware()
     .withRoutes(registerAllRoutes)
-    .build();
+    .build().app;
 }
 
 /** Route registration surface — one line per domain (routes still inline here are mid-migration). */
