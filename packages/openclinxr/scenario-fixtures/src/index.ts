@@ -13,3 +13,4 @@ export * from "./oncology-bad-news.js";
 export * from "./postop-fever.js";
 export * from "./primary-care-dyslipidemia.js";
 export * from "./scenario-bank.js";
+export * from "./scenario-bank-maturity.js";

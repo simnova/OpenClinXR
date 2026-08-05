@@ -892,7 +892,8 @@ describe("workspace architecture rules", () => {
     const forbiddenImports = /@openclinxr\/(?:model-gateway|voice-gateway|capability-gateway|scenario-runtime|trace-ledger|data-|data-sources-)/;
     const violations = filesWithContentMatching("apps", forbiddenImports)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
-      .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
+      // api-client.ts + its extracted DTO module api-client-types.ts are the app-local client.
+      .filter((filePath) => !/\/api-client(?:-types)?(?:\.test)?\.ts$/.test(filePath));
 
     expect(violations).toEqual([]);
   });
@@ -940,7 +941,8 @@ describe("workspace architecture rules", () => {
   it("keeps UI REST route catalog usage behind app-local API clients", () => {
     const violations = filesWithContentMatching("apps", /@openclinxr\/rest/)
       .filter((filePath) => /^apps\/ui-[^/]+\/src\//.test(filePath))
-      .filter((filePath) => !/\/api-client(?:\.test)?\.ts$/.test(filePath));
+      // api-client.ts + its extracted DTO module api-client-types.ts are the app-local client.
+      .filter((filePath) => !/\/api-client(?:-types)?(?:\.test)?\.ts$/.test(filePath));
 
     expect(violations).toEqual([]);
   });
