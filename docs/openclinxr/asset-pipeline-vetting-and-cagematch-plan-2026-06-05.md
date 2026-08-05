@@ -26,7 +26,7 @@ Verified GitHub surface: `simnova/OpenClinXR` is accessible and `simnova` projec
 | Need | Canonical location | GitHub mirror posture |
 | --- | --- | --- |
 | Architecture, gates, promotion policy | This document plus MADRs and `agents/rules/**` | Link from tracking epic |
-| Active continuation state | `AUTONOMOUS_WORK_PLAN.md`, `PROJECT_COORDINATION_INDEX.md`, worker matrix | Mirror as project item status |
+| Active continuation state | `PROJECT_STATUS.md`, worker matrix, GitHub board | Mirror as project item status |
 | Per-candidate evidence | `docs/openclinxr/model-vetting-report-<actor>-<date>.json` plus screenshots/video paths | Link from issue checklist |
 | Runnable isolated harness | Future `apps/arena/model-vetting-studio` | Issue milestone and reviewer checklist |
 | Package-level scoring/schema | Future `packages/openclinxr/arena/model-vetting` | Issue milestone and test checklist |

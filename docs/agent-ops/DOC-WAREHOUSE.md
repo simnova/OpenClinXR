@@ -64,13 +64,14 @@ Protected + living agent-ops SSOT (non-dated):
 |------|------|
 | `docs/_archive/README.md` | **Wiki home** — archivist entry only |
 | `docs/_archive/wiki/index.md` | Topic map (multi-file index) |
-| `docs/_archive/wiki/topics/*.md` | Topic pages linking stubs → bodies → successors |
-| `docs/_archive/agent-ops/<YYYY-MM>/` | Dated agent-ops revision bodies + manifest |
-| `docs/_archive/coordination/<YYYY-MM>/` | Root historical ledgers |
-| `docs/_archive/openclinxr/<YYYY-MM>/` | Product/process archive-candidates |
-| `docs/_archive/iterations/<id>/` | Completed agent-factory iterations |
+| `docs/_archive/wiki/topics/*.md` | Topic pages (post-purge: successors + git recovery notes) |
+| `docs/_archive/agent-ops/<YYYY-MM>/` | Batch manifests (+ optional future freeze bodies) |
+| `docs/_archive/coordination/<YYYY-MM>/` | Batch manifests (ledger bodies purged 2026-08-05) |
+| `docs/_archive/openclinxr/<YYYY-MM>/` | Batch manifests (candidate bodies purged 2026-08-05) |
+| `docs/_archive/iterations/<id>/` | Retained: `0009/07-final-synthesis.md` only (alignment + durable lesson) |
 | `.openclinxr/slice-archive/**` | Checkpoint JSONL cold store (local; often gitignored parent) |
-| Dated/hot stubs at original paths | Pointers only — not law |
+
+**Status-doc purge 2026-08-05:** pure historical status bodies and hot stubs were **removed** (git preserves them). Living how-tos restored where still relevant (`turbo-remote-cache-setup.md`). Open actionable gaps migrated to GitHub (e.g. #28). Audit: `docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md`. Prefer **GitHub board for HOT status** and **git history for cold status** over long-lived status Markdown.
 
 **Wiki model:** cold storage is multi-file + index (not a single dump). Prefer topic pages over flat month-only browsing. Rebuild: `pnpm docs:archive -- wiki`.
 
@@ -89,8 +90,8 @@ If a living SSOT is superseded, **edit the living file** and freeze the **dated 
 
 1. Session / compaction rehydrate = **Hot + warm index only** (AGENTS BLUF, PROJECT_STATUS header ~60–80 lines, worker-backlog snapshot, living agent-ops SSOT as needed).
 2. **`docs/_archive/**` is out of normal rehydrate** — never open unless the task is explicitly **archivist**, historical audit, or successor-pointer verification.
-3. Dated stubs under `docs/agent-ops/YYYY-MM-DD-*.md` are pointers only — follow **Successor SSOT**, do not treat stub body as law.
-4. Cold content is **historical-synthesis** in the doc authority registry (`pnpm docs:authority`).
+3. Prefer living successors in this file / REVISION-INDEX over any dated path name (hot stubs were purged 2026-08-05).
+4. Cold content is **historical-synthesis** in the doc authority registry (`pnpm docs:authority`) when present; otherwise recover via git.
 5. **Archivist** role (`agents/coordinator/archivist/`): read-only retrieval from warehouse + catalogs; **never** rewrites hot SSOT / living agent-ops law.
 
 ## Freeze process
@@ -173,4 +174,4 @@ Stubs left at `source` are 5–10 lines: archived status, warehouse path, succes
 - `agents/coordinator/archivist/` — dual-stack cold retrieval role
 - `pnpm openclaw:checkpoint:archive` — PROJECT_STATUS cold tail
 - `docs/openclinxr/doc-authority-registry-2026-05-27.md` — generated authority
-- `docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md` — frozen slice revision record (stub at hot path)
+- `docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md` — status-doc purge audit (HOT → board; cold → git)

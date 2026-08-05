@@ -24,9 +24,9 @@ Governance for the **agent roster** (not product XR runtime). Owner role: **`hrb
 | `RACI.md` | RACI across agent types |
 | `CAPABILITY-EVOLUTION.md` | Agent → hrbp → human for tool/model/MCP constraints |
 | `capability-requests/` | Request queue |
-| `YYYY-MM-DD-roster-review.md` | Dated HRBP reviews |
+| `YYYY-MM-DD-roster-review.md` | Dated HRBP reviews (freeze via `pnpm docs:archive`; do not leave rotting hot stubs) |
 | `YYYY-MM-DD-ceo-bod-voice-revision.md` | Voice revision records (CEO → BOD communication upgrades) |
-| `2026-08-02-path-scope-policy-v1.md` … `2026-08-02-context-opt-wave-c.md`, `2026-08-02-docs-warehouse-v1.md` | Revision records (policy decisions → implementation); **dated bodies freeze to cold warehouse** after `pnpm docs:archive` — stubs remain hot-path pointers |
+| `REVISION-INDEX.md` + `docs/_archive/**` | Frozen batch catalogs; pure status bodies purged 2026-08-05 (git history) — see purge manifest |
 
 ### Temporal hygiene (PMO) + cold retrieval (archivist)
 

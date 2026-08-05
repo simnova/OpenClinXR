@@ -19,17 +19,17 @@ The factory is for planning and design maturity. It must not generate OpenClinXR
 
 During autonomous code work, use the Agent Factory as focus memory (via `agents/**/charter.md`, `agents/**/memory.md`, `.agent-factory/memory-index.json`), not as a reason to restart broad planning.
 
-Per current AGENTS.md and state files (PROJECT_COORDINATION_INDEX.md, AUTONOMOUS_WORK_PLAN.md, worker-backlog-and-validation-matrix.md):
+Per current AGENTS.md and state files (`PROJECT_STATUS.md`, `worker-backlog-and-validation-matrix.md`; legacy names `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` are historical only — purged 2026-08-05, git history retains text):
 
-- Primary daily driver for product advancement: OpenClaw-style continuous small deterministic slices using per-slice records in the canonical state md files, lease for unattended, `pnpm docs:drift-check` + `agent:alignment` guards.
+- Primary daily driver for product advancement: OpenClaw-style continuous small deterministic slices; HOT operational cards on the GitHub board; cold durable records in `PROJECT_STATUS.md` snapshot + worker-backlog; lease for unattended; `pnpm docs:drift-check` + `agent:alignment` guards.
 - Full iteration loop (this factory's 00-brief through 08-memory-update-log, or `pnpm agent:loop`): use only for plateau recovery, major planning, broad drift review, or leadership synthesis. Do not run for routine implementation.
-- Rehydration for any session/compact/heartbeat: read only the "Current State Snapshot" blocks (first ~60-80 lines) in the 3 state files + AGENTS top. Use `tail | grep` or `grep` tool for history. Use `read_file` with offset+limit on long files.
-- Hyper token-efficient & long-run practices (see AGENTS.md): focused cmds/tests (`-t "name"`), `pnpm openclaw:lease` before edits, snapshots + Efficiency Quick Refs, scheduler/monitor for persistent heartbeats, no chat summaries (status only in canonical files).
+- Rehydration for any session/compact/heartbeat: read only the "Current State Snapshot" blocks (first ~60-80 lines) of `PROJECT_STATUS.md` + worker-backlog + AGENTS top. Use `tail | grep` or `grep` tool for history. Use `read_file` with offset+limit on long files.
+- Hyper token-efficient & long-run practices (see AGENTS.md): focused cmds/tests (`-t "name"`), `pnpm openclaw:lease` before edits, snapshots, scheduler/monitor for persistent heartbeats, no chat summaries (status only in canonical files / board).
 - Consult agent roles when: task selection scattered, repeated evidence toil, need critique, unclear ownership. Map to repo roles. Coordinator/orchestration first.
 
-`PROJECT_COORDINATION_INDEX.md` is the short coordinator-facing control index (with active queue and Efficiency Quick Ref) that decides slices and when to consult factory memory.
+`PROJECT_STATUS.md` is the canonical coordinator-facing control surface that decides slices and when to consult factory memory. (`PROJECT_COORDINATION_INDEX.md` is a historical name only.)
 
-Do not run full factory loop just to continue routine implementation. Pick product-shaping worker slice from `AUTONOMOUS_WORK_PLAN.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (current: UI-XR runtime evidence consumer + materialization continuation for peds factory).
+Do not run full factory loop just to continue routine implementation. Pick product-shaping worker slice from `PROJECT_STATUS.md` Next dequeue / GitHub board and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
 
 Evidence, scorecards, maturity reports, and .agent-factory/ are steering signals. They are not a substitute for advancing the blueprint-to-runtime factory, conversation tooling, reusable assets, review/persistence/replay, or focused verification of touched behavior.
 

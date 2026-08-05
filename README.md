@@ -145,12 +145,11 @@ Encounter flows are meant to be **blueprint-driven** through the factory, not ha
 | [docs/openclinxr/](docs/openclinxr/) | Product docs and evidence |
 | [docs/madr/README.md](docs/madr/README.md) | Architecture decision records / arena-to-decision map |
 
-**Not live SSOT** (archive stubs only — do not treat as policy):
+**Not live SSOT** (historical names only — recover from git history if needed; do not recreate as living ledgers):
 
-- `AUTONOMOUS_WORK_PLAN.md` → archived; successor is `PROJECT_STATUS.md`
-- `PROJECT_COORDINATION_INDEX.md` → archived; successor is `PROJECT_STATUS.md`
+- `AUTONOMOUS_WORK_PLAN.md` / `PROJECT_COORDINATION_INDEX.md` → purged 2026-08-05; successor is `PROJECT_STATUS.md`
 
-Warehouse index: [docs/agent-ops/DOC-WAREHOUSE.md](docs/agent-ops/DOC-WAREHOUSE.md).
+Warehouse process: [docs/agent-ops/DOC-WAREHOUSE.md](docs/agent-ops/DOC-WAREHOUSE.md). Status purge audit: [docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md](docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md).
 
 ---
 

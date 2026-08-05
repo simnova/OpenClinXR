@@ -12,11 +12,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 70
-- archive-candidate: 16
+- archive-candidate: 8
 - current-reference: 205
 - decision-record: 25
-- evidence: 36
-- historical-synthesis: 56
+- evidence: 37
+- historical-synthesis: 9
 - protected-policy: 10
 
 ## Highest-Value Current Navigation
@@ -244,15 +244,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/dependency-hygiene-and-e18e-policy.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/generated-output-storage-policy-2026-06-06.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/gltf-transform-replacement-decision-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `docs/openclinxr/typescript-strictness-gap-matrix-2026-05-27.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/anny/BVH-RETARGET-GUIDE-2026-08-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

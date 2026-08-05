@@ -6,7 +6,7 @@
 
 **Promotion status:** `runtimePromotionAllowed = false` (see `src/promotion-gates.ts`). MADR 0030 PROVEN local dual evidence only — not automatically promoted to production XR. All clinical/scoring/Quest/production gates remain **false**.
 
-**Spec:** [arena-physics-clinical-touch-cagematch-2026-08-01](../../../../docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md).
+**Spec / successor epic:** [MADR 0029](../../../../docs/madr/0029-arena-physics-clinical-touch-determinism.md) (closed v1 contract) · [realbind brief](../../../../docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md) (active). Residual v1 ledger purged 2026-08-05 (git history).
 
 **Production relationship:** arena-only. Do not import from production `apps/ui-xr` or non-arena packages. All gates remain false. Not clinical, scoring, exam-equivalence, Quest readiness, or learner-readiness evidence. Baked JSON transforms are the opt-in production consumer path (offline, no live WASM engine in prod apps).
 

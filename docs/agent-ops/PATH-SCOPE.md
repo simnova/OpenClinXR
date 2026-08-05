@@ -340,14 +340,14 @@ Severity: **critical** (SoD clash — two roles share writeRoot silently; **char
 ## docs-warehouse-v1 (ODS vs cold archive + archivist)
 
 **Slice:** `docs-warehouse-v1` · **Track:** optimization only · **BOD:** APPROVED Option 1 2026-08-02  
-**Process SSOT:** `docs/agent-ops/DOC-WAREHOUSE.md` · **Warm index:** `docs/agent-ops/REVISION-INDEX.md` · **Revision record (cold):** `docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md` (stub at `docs/agent-ops/2026-08-02-docs-warehouse-v1.md`)
+**Process SSOT:** `docs/agent-ops/DOC-WAREHOUSE.md` · **Warm index:** `docs/agent-ops/REVISION-INDEX.md` · **Purge audit:** `docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md` (dated revision **bodies** purged 2026-08-05; recover via git)
 
-Context optimization reduced spawn bloat; **doc surface bloat** remains (dated revision peers next to living law). Warehouse splits **hot (ODS)** living SSOT from **cold** frozen history under `docs/_archive/**`.
+Context optimization reduced spawn bloat; **doc surface bloat** remains if dated status peers living law. Warehouse splits **hot (ODS)** living SSOT from **cold** freeze catalogs under `docs/_archive/**` (prefer GitHub for HOT status; git history for pure historical status).
 
 | Contract | What | Status |
 |---|---|---|
 | **Hot living SSOT** | Non-dated agent-ops law (`PATH-SCOPE`, `CEO-VOICE`, `COMPOSITION-ROOTS`, `DOC-WAREHOUSE`, …) + protected 6 + TOOLING — **never archive** | **IN FORCE** (process) |
-| **Cold warehouse** | `docs/_archive/**` + `.openclinxr/slice-archive/**`; freeze via `pnpm docs:archive` leaves stubs at old paths | **IN FORCE** — first batch `context-opt-2026-08-02` frozen |
+| **Cold warehouse** | `docs/_archive/**` + `.openclinxr/slice-archive/**`; freeze via `pnpm docs:archive`; pure status bodies may be purged after freeze (git history) | **IN FORCE** — batches frozen; bodies purged 2026-08-05 |
 | **Rehydrate exclusion** | **`docs/_archive/**` is out of normal rehydrate** — agents must not open warehouse on session start / compaction | **IN FORCE** (process; see DOC-WAREHOUSE) |
 | **`archivist` role** | Dual-stack read-only (explore / `fast_bounded`): retrieve cold history + manifests; map successors; **never rewrite hot law**; **never product IC** | **IN FORCE** — roster **16** (charter + policy pathScope + `.grok/agents/archivist.md`) |
 | **Authority classes** | Living agent-ops → `current-reference`; dated revisions + `docs/_archive/**` → `historical-synthesis` | Implementer `docs:authority` |
@@ -367,7 +367,7 @@ Machine roots in `role-harness-policy.ts` (`getRolePathScope("archivist")`) — 
 
 1. Rehydrate hot/warm only — do not bulk-read `docs/_archive/**`.
 2. Historical dig → spawn **`archivist`**, not product roles / silent full-stack.
-3. After freeze: living basenames still hot; dated bodies cold; stubs + REVISION-INDEX + manifest consistent.
+3. After freeze: living basenames still hot; REVISION-INDEX + manifest consistent; do not leave rotting hot stubs when successors exist.
 4. Roster scores: **archivist staffed**, warehouse rehydrate exclusion, no dual SSOT of archived bodies as law.
 5. New dated agent-ops revision records may stay hot briefly, then freeze on next warehouse pass.
 
@@ -383,16 +383,11 @@ Machine roots in `role-harness-policy.ts` (`getRolePathScope("archivist")`) — 
 - `tools/openclinxr/openclaw/slice-team-cli.ts` — `pnpm openclaw:team-spawn` enrichment (isolation top-level, spawnSubagentCall)
 - `tools/agent-factory/generate-harness-agents.ts` — `grokNativeAgentMarkdown` generator (`agents_md` per v3)
 - `packages/openclinxr/agent-loop/src/grok-repo-agent-spawn.ts` — `buildRepoAgentSpawnPrompt` + spawn-spec isolation + slim rehydrate
-- `docs/agent-ops/2026-08-02-context-opt-grok45-v2.md` — v2 revision record
-- `docs/agent-ops/2026-08-02-context-opt-charter-agentsmd-v3.md` — v3 revision record
-- `docs/agent-ops/2026-08-02-context-opt-wave-a-enforce.md` — Wave A enforcement matrix revision record
-- `docs/agent-ops/2026-08-02-context-opt-wave-b-tools.md` — Wave B tool-surface hygiene + B3 KEEP CEO tools revision record
-- `docs/agent-ops/2026-08-02-context-opt-wave-c.md` — Wave C C-arch + C-worktree revision record
-- `docs/_archive/agent-ops/2026-08/2026-08-02-docs-warehouse-v1.md` — docs warehouse Option 1 revision record (cold; stub at agent-ops dated path)
+- Living successors for frozen context-opt waves: this file (`PATH-SCOPE.md`), `COMPOSITION-ROOTS.md`, `WORKTREE-PROMOTE.md`, `CEO-VOICE.md`, `DOC-WAREHOUSE.md`
 - `docs/agent-ops/WORKTREE-PROMOTE.md` — Wave C-worktree promote parent flow + CLI
 - `tools/openclinxr/openclaw/worktree-promote.ts` — `pnpm openclaw:worktree:{list,status,promote}`
-- `docs/agent-ops/2026-08-02-context-opt-thrash-evidence.md` — thrash measurement (NO_GO alone; BOD override for scoped C)
 - `docs/agent-ops/RACI.md` — role-to-area mapping (cross-check with pathScope)
+- `docs/agent-ops/REVISION-INDEX.md` — frozen batch catalog (recover purged bodies via git)
 - ATL source: `atlantis-cameras-v2` path-scope policy (historical reference)
 
 

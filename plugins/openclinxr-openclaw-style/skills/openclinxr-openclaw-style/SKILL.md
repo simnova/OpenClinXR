@@ -10,7 +10,7 @@ This skill packages the repo-native OpenClaw-style / OpenClaw-inspired workflow 
 ## Start
 
 1. Read `AGENTS.md`.
-2. Read the snapshot heads of `PROJECT_COORDINATION_INDEX.md`, `AUTONOMOUS_WORK_PLAN.md`, and `docs/openclinxr/worker-backlog-and-validation-matrix.md`.
+2. Read the snapshot heads of `PROJECT_STATUS.md` and `docs/openclinxr/worker-backlog-and-validation-matrix.md` (legacy `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` ledgers were purged 2026-08-05).
 3. Use `pnpm openclaw:run-next` to select a real approved slice when continuation is needed.
 4. Acquire a lease before edits with `pnpm openclaw:lease -- acquire --owner <owner> --slice "<slice>" --ttl-minutes 60`.
 5. Use Codex custom agents from `.codex/agents/*.toml` only when explicitly asked for subagents/delegation or when the repo instructions require role consultation.

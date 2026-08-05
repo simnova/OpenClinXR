@@ -1,14 +1,11 @@
-# Historical coordination ledgers
+# Topic: coordination ledgers
 
-> Cold warehouse topic page. **Not living law.** Open only via archivist / historical task.
-> Home: [docs/_archive/README.md](../README.md) · Topic map: [index.md](../index.md)
+**Batch:** `cruft-audit-2026-08-02` (frozen) · **Bodies purged:** 2026-08-05 status-doc purge  
+**Recover text:** `git log --all --full-history -- AUTONOMOUS_WORK_PLAN.md PROJECT_COORDINATION_INDEX.md`
 
-| Source (stub) | Warehouse body | Successor | Batch |
-|---------------|----------------|-----------|-------|
-| `AUTONOMOUS_WORK_PLAN.md` | [`AUTONOMOUS_WORK_PLAN.md`](../../coordination/2026-08/AUTONOMOUS_WORK_PLAN.md) | `PROJECT_STATUS.md` | `cruft-audit-2026-08-02` |
-| `PROJECT_COORDINATION_INDEX.md` | [`PROJECT_COORDINATION_INDEX.md`](../../coordination/2026-08/PROJECT_COORDINATION_INDEX.md) | `PROJECT_STATUS.md` | `cruft-audit-2026-08-02` |
+| Former path | Successor SSOT |
+|-------------|----------------|
+| `AUTONOMOUS_WORK_PLAN.md` | `PROJECT_STATUS.md` + GitHub board (HOT) |
+| `PROJECT_COORDINATION_INDEX.md` | `PROJECT_STATUS.md` + GitHub board (HOT) |
 
-## Reasons
-
-- **AUTONOMOUS_WORK_PLAN.md:** historical audit ledger; not canonical state
-- **PROJECT_COORDINATION_INDEX.md:** historical audit ledger; not canonical state
+Do not recreate these files as living status surfaces. See purge audit: `docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md`.

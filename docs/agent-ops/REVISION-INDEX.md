@@ -5,17 +5,28 @@
 
 Short index of **frozen** batches. Living SSOT stays under `docs/agent-ops/*.md` (non-dated) and other hot paths. **`docs/_archive/**` is out of normal rehydrate** — open only via archivist or explicit historical task.
 
+## Status-doc purge (2026-08-05)
+
+Hot-path archive **stubs** and most cold warehouse **bodies** that were pure historical status were **removed** (git history retains full text). See:
+
+- Audit: [`docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md`](../openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md)
+- Migrated open item: [issue #28](https://github.com/simnova/OpenClinXR/issues/28) (deferred TypeScript strictness)
+- Restored living guide: [`docs/openclinxr/turbo-remote-cache-setup.md`](../openclinxr/turbo-remote-cache-setup.md)
+- **Alignment-required cold retain:** [`docs/_archive/iterations/0009/07-final-synthesis.md`](../_archive/iterations/0009/07-final-synthesis.md)
+
+JSON `ARCHIVE-MANIFEST.json` files under `docs/_archive/**` remain as **catalog of purged paths** (bodies deleted; recover via `git log -- <path>`).
+
 ## Batches
 
 | Batch id | Status | Warehouse areas | Manifest(s) | Wiki topics |
 |----------|--------|-----------------|-------------|-------------|
-| `context-opt-2026-08-02` | **FROZEN** 2026-08-02 | [`agent-ops/2026-08/`](../_archive/agent-ops/2026-08/) | [manifest](../_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json) | [agent-ops-revisions](../_archive/wiki/topics/agent-ops-revisions.md) |
-| `cruft-audit-2026-08-02` | **FROZEN** 2026-08-02 | coordination · openclinxr · iterations | per-area `ARCHIVE-MANIFEST.json` | [coordination-ledgers](../_archive/wiki/topics/coordination-ledgers.md) · [openclinxr-product-docs](../_archive/wiki/topics/openclinxr-product-docs.md) · [agent-factory-iterations](../_archive/wiki/topics/agent-factory-iterations.md) |
+| `context-opt-2026-08-02` | **FROZEN** 2026-08-02 · **bodies purged** 2026-08-05 | [`agent-ops/2026-08/`](../_archive/agent-ops/2026-08/) (manifest only) | [manifest](../_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json) | [agent-ops-revisions](../_archive/wiki/topics/agent-ops-revisions.md) |
+| `cruft-audit-2026-08-02` | **FROZEN** 2026-08-02 · **bodies purged** 2026-08-05 | coordination · openclinxr · iterations (07 retained) | per-area `ARCHIVE-MANIFEST.json` | [coordination-ledgers](../_archive/wiki/topics/coordination-ledgers.md) · [openclinxr-product-docs](../_archive/wiki/topics/openclinxr-product-docs.md) · [agent-factory-iterations](../_archive/wiki/topics/agent-factory-iterations.md) |
 
 ## Freeze set → successor (context-opt-2026-08-02)
 
-| Dated record (stub remains in hot tree) | Successor living SSOT |
-|-----------------------------------------|------------------------|
+| Dated record (removed; git history) | Successor living SSOT |
+|-------------------------------------|------------------------|
 | `2026-08-02-path-scope-policy-v1.md` | `PATH-SCOPE.md` |
 | `2026-08-02-context-opt-higher-v1.md` | `PATH-SCOPE.md` |
 | `2026-08-02-context-opt-grok45-v2.md` | `PATH-SCOPE.md` |
@@ -30,12 +41,12 @@ Short index of **frozen** batches. Living SSOT stays under `docs/agent-ops/*.md`
 
 ## Freeze set → successor (cruft-audit-2026-08-02)
 
-| Source (stub) | Warehouse area | Successor |
-|---------------|----------------|-----------|
-| `AUTONOMOUS_WORK_PLAN.md` | coordination/2026-08 | `PROJECT_STATUS.md` |
-| `PROJECT_COORDINATION_INDEX.md` | coordination/2026-08 | `PROJECT_STATUS.md` |
-| `docs/openclinxr/*` archive-candidates | openclinxr/2026-05 · 2026-06 | TOOLING / asset-generation-pipeline / registry / madr / AGENTS |
-| `iterations/iteration-0009/*.md` | iterations/0009 | `docs/agent-factory/operating-loop.md` |
+| Source (removed; git history) | Successor |
+|-------------------------------|-----------|
+| `AUTONOMOUS_WORK_PLAN.md` | `PROJECT_STATUS.md` |
+| `PROJECT_COORDINATION_INDEX.md` | `PROJECT_STATUS.md` |
+| `docs/openclinxr/*` archive-candidates (except turbo restored) | TOOLING / asset-generation-pipeline / registry / madr / AGENTS / #28 |
+| `iterations/iteration-0009/*.md` hot stubs | `docs/agent-factory/operating-loop.md` + cold `07-final-synthesis.md` |
 
 ## Wiki layout
 
@@ -44,17 +55,17 @@ docs/_archive/
   README.md
   wiki/index.md
   wiki/topics/*.md
-  agent-ops/<YYYY-MM>/
+  agent-ops/<YYYY-MM>/   # manifests; MD bodies purged 2026-08-05
   coordination/<YYYY-MM>/
   openclinxr/<YYYY-MM>/
-  iterations/<id>/
+  iterations/<id>/       # 07-final-synthesis retained
 ```
 
 ## Commands
 
 ```bash
 pnpm docs:archive -- plan --set cruft|agent-ops|all
-pnpm docs:archive -- freeze --set cruft --batch cruft-audit-2026-08-02
+pnpm docs:archive -- freeze --set cruft --batch <batch-id>
 pnpm docs:archive -- wiki
 pnpm docs:archive -- status
 pnpm docs:authority
@@ -65,7 +76,7 @@ pnpm docs:authority
 | Bucket | Why deferred |
 |--------|----------------|
 | `.openclinxr/asset-production`, `tool-runtimes`, `evidence` (~2G) | Gitignored local cache; generated-artifact policy — not MD warehouse |
-| Closed `.openclinxr/slices/*` (28 trees) | Small JSON handoffs; optional future slice-archive pack |
+| Closed `.openclinxr/slices/*` | Small JSON handoffs; optional future slice-archive pack |
 | Live skills under `plugins/**` | Never-archive path (still referenced) |
 | Protected `docs/openclinxr/*` (blueprint, runbook, registries) | Hot / protected-policy |
 | Large dated evidence JSON under `docs/openclinxr/*2026-05-28*` | Evidence class; phase-2 candidate after registry reclass |

@@ -1,6 +1,6 @@
 # OpenClinXR Code Implementation Plan (Historical Context)
 
-**Note (2026-06, post new-owner efficiency + reorg):** Superseded by current snapshots in PROJECT_COORDINATION_INDEX.md / AUTONOMOUS_WORK_PLAN.md / worker-backlog-and-validation-matrix.md (UI-XR runtime evidence consumer + materialization for peds_asthma_parent_anxiety_v1, OpenClaw daily driver, M1 Max 64GB, gates false). See AGENTS.md + factory/ generators for active blueprint-to-runtime slices. This file retained as current-ref per doc-authority-registry for historical reference only; do not treat as active marching orders. Trimmed for relevance.
+**Note (2026-06, post new-owner efficiency + reorg; purge note 2026-08-05):** Superseded by current snapshots in `PROJECT_STATUS.md` / worker-backlog-and-validation-matrix.md (legacy `PROJECT_COORDINATION_INDEX.md` / `AUTONOMOUS_WORK_PLAN.md` purged). See AGENTS.md + factory/ generators for active blueprint-to-runtime slices. This file retained as current-ref per doc-authority-registry for historical reference only; do not treat as active marching orders. Trimmed for relevance.
 
 Date: 2026-05-03 (original)
 Status: Historical draft (early exhaustive planning)

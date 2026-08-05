@@ -8,6 +8,7 @@
 | Living warehouse process | [`docs/agent-ops/DOC-WAREHOUSE.md`](../agent-ops/DOC-WAREHOUSE.md) |
 | Warm revision index | [`docs/agent-ops/REVISION-INDEX.md`](../agent-ops/REVISION-INDEX.md) |
 | Cadence (when to freeze) | [`docs/agent-ops/DOC-HYGIENE-CADENCE.md`](../agent-ops/DOC-HYGIENE-CADENCE.md) |
+| Status-doc purge audit | [`docs/openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md`](../openclinxr/reviews/2026-08-05-status-doc-purge-manifest.md) |
 
 ## Structure (wiki-capable)
 
@@ -16,23 +17,24 @@ docs/_archive/
   README.md                 ← you are here
   wiki/
     index.md                ← topic map
-    topics/*.md             ← multi-file topic pages
-  agent-ops/<YYYY-MM>/      ← bodies + ARCHIVE-MANIFEST.json
+    topics/*.md             ← multi-file topic pages (successors + git recovery)
+  agent-ops/<YYYY-MM>/      ← ARCHIVE-MANIFEST.json (+ future freezes)
   coordination/<YYYY-MM>/
   openclinxr/<YYYY-MM>/
-  iterations/<id>/
+  iterations/<id>/          ← retained: 0009/07-final-synthesis.md
 ```
 
-## Topics
+## Topics (post 2026-08-05 purge)
 
-- [Agent-factory iterations](./wiki/topics/agent-factory-iterations.md) (8 files)
-- [Agent-ops dated revision records](./wiki/topics/agent-ops-revisions.md) (11 files)
-- [Historical coordination ledgers](./wiki/topics/coordination-ledgers.md) (2 files)
-- [OpenClinXR product/process docs (cold)](./wiki/topics/openclinxr-product-docs.md) (7 files)
+- [Agent-factory iterations](./wiki/topics/agent-factory-iterations.md) — 07-final-synthesis retained; other bodies in git history
+- [Agent-ops dated revision records](./wiki/topics/agent-ops-revisions.md) — bodies purged; successors living
+- [Historical coordination ledgers](./wiki/topics/coordination-ledgers.md) — bodies purged; use PROJECT_STATUS + GitHub board
+- [OpenClinXR product/process docs (cold)](./wiki/topics/openclinxr-product-docs.md) — turbo guide restored; strictness → #28
 
 ## Rules
 
 1. Cold content is **historical-synthesis** — never marching orders.
-2. Stubs at original paths point here + successor living SSOT.
-3. Prefer `pnpm docs:archive -- plan|freeze --set cruft|agent-ops|all` over ad-hoc moves.
+2. HOT status belongs on the **GitHub board**; durable cold records stay in `PROJECT_STATUS.md` snapshot / Strategy — not long-lived status MDs.
+3. Prefer `pnpm docs:archive -- plan|freeze --set cruft|agent-ops|all` over ad-hoc moves when freezing **new** dated revisions.
 4. Binary/runtime evidence under `.openclinxr/` is gitignored local cache — not this warehouse.
+5. Purged bodies: recover with `git log --all --full-history -- <path>`.

@@ -5,7 +5,7 @@
 **Epic id:** `arena-physics-clinical-touch-realbind-v1` (`.openclinxr/epics/ACTIVE`)  
 **Status:** **ACTIVE** — BOD 2026-08-02 incorporated Desktop draft `Xxxyyy-arena.md.md` into autonomous queue (`PROJECT_STATUS.md` + worker-backlog + epic brief).  
 **Authority:** subordinate marching order under `AGENTS.md` > `PROJECT_STATUS.md` > worker-backlog. Not one of the 6 protected files.  
-**Succeeds:** `arena-physics-clinical-touch-v1` (closed) and residual ledger `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md`.  
+**Succeeds:** `arena-physics-clinical-touch-v1` (closed). Residual v1 ledger `arena-physics-clinical-touch-cagematch-2026-08-01.md` was purged 2026-08-05 (git history); deferred items are the D1–D5 table in this brief.  
 **Governing prior decision:** MADR 0029 (arena-only, non-promoted). This epic is the **explicit promotion-path work** MADR 0029 named as a prerequisite for any UI-XR consumption.  
 **Gate posture:** all provider/runtime/learner/Quest/production/clinical/scoring gates remain `false` until a **successor MADR** flips a named gate. This epic does not itself promote to production; it produces the dual evidence that lets a human flip one gate.
 
