@@ -72,6 +72,7 @@
     "typecheck:relaxed": "tsgo --noEmit -p tsconfig.tools-relaxed.json",
     "typecheck:guardrails": "tsx tools/agent-factory/check-typescript-guardrails.ts",
     "test": "pnpm //#test:tools && pnpm packages:test",
+    "gen": "pnpm --filter @openclinxr/graphql generate",
     "//#test:tools": "vitest run tools/**/*.test.ts",
     "test:tools": "pnpm //#test:tools",
     "security:audit": "pnpm audit --audit-level=high",

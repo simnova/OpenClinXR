@@ -52,7 +52,8 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "//#gen"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -79,7 +80,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "package.json",
-        "biome.json"
+        "$TURBO_ROOT$/biome.json"
       ],
       "outputs": []
     },
@@ -117,6 +118,27 @@
         "tsconfig.tools-relaxed.json"
       ],
       "outputs": []
+    },
+    "//#gen": {
+      "description": "Runs @openclinxr/graphql generate (static SDL artifacts + graphql-codegen resolvers/client)",
+      "cache": true,
+      "inputs": [
+        "packages/openclinxr/graphql/codegen.ts",
+        "packages/openclinxr/graphql/package.json",
+        "packages/openclinxr/graphql/scripts/**",
+        "packages/openclinxr/graphql/src/**/*.graphql",
+        "packages/openclinxr/graphql/src/**/*.ts",
+        "!packages/openclinxr/graphql/src/generated/**",
+        "!**/*.generated.ts",
+        "!packages/openclinxr/graphql/src/**/*.test.ts"
+      ],
+      "outputs": [
+        "packages/openclinxr/graphql/src/generated/**"
+      ]
     }
+  },
+  "futureFlags": {
+    "affectedUsingTaskInputs": true,
+    "watchUsingTaskInputs": true
   }
 }
