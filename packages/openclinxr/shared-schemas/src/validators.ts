@@ -3,6 +3,7 @@ import * as ajvFormatsModule from "ajv-formats";
 import {
   ActorCardSchema,
   AssetManifestSchema,
+  CaseEmotionPolicySchema,
   CommunicationProfileSchema,
   DynamicEncounterFactoryPlanningProjectionSchema,
   DynamicEncounterFactoryProjectionArtifactSchema,
@@ -45,6 +46,7 @@ const voiceProviderAuditValidator = ajv.compile(VoiceProviderAuditSchema);
 const sharedAssetLibraryReuseValidator = ajv.compile(SharedAssetLibraryReuseSchema);
 const dynamicEncounterFactoryPlanningProjectionValidator = ajv.compile(DynamicEncounterFactoryPlanningProjectionSchema);
 const dynamicEncounterFactoryProjectionArtifactValidator = ajv.compile(DynamicEncounterFactoryProjectionArtifactSchema);
+const caseEmotionPolicyValidator = ajv.compile(CaseEmotionPolicySchema);
 
 function toResult(valid: boolean, errors: ErrorObject[] | null | undefined): ValidationResult {
   if (valid) {
@@ -463,4 +465,8 @@ export function validateModelProviderAudit(value: unknown): ValidationResult {
 export function validateVoiceProviderAudit(value: unknown): ValidationResult {
   const structural = validateWith(voiceProviderAuditValidator, value);
   return structural.ok ? validateProviderAuditRecord(value) : structural;
+}
+
+export function validateCaseEmotionPolicy(value: unknown): ValidationResult {
+  return validateWith(caseEmotionPolicyValidator, value);
 }

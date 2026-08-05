@@ -80,6 +80,29 @@ export const InteractionEmotionSchema = Type.Union([
   Type.Literal("neutral"),
 ]);
 
+export const EmotionEventKindSchema = Type.Union([
+  Type.Literal("learner_empathetic"),
+  Type.Literal("learner_dismissive"),
+  Type.Literal("learner_interruption"),
+  Type.Literal("actor_silence_timeout"),
+  Type.Literal("learner_acknowledgement"),
+  Type.Literal("learner_clinical_question"),
+  Type.Literal("learner_personal_question"),
+]);
+
+export const EmotionTransitionRuleSchema = Type.Object({
+  from: InteractionEmotionSchema,
+  triggeredBy: EmotionEventKindSchema,
+  to: InteractionEmotionSchema,
+});
+
+export const CaseEmotionPolicySchema = Type.Object({
+  baseline: InteractionEmotionSchema,
+  upperBound: InteractionEmotionSchema,
+  lowerBound: InteractionEmotionSchema,
+  transitions: Type.Array(EmotionTransitionRuleSchema),
+});
+
 /**
  * Case-driven examinee-touch response for one body region. When the examinee
  * touches `region`, the runtime plays `responseClip`, transitions emotion via
@@ -309,6 +332,7 @@ export const ScenarioSchema = Type.Object({
   environment: Type.Optional(EnvironmentSchema),
   equipment: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
   assetNeeds: Type.Optional(Type.Array(AssetNeedSchema)),
+  emotionPolicy: Type.Optional(CaseEmotionPolicySchema),
 });
 
 export const SharedAssetLibraryRefsSchema = Type.Object({
@@ -539,6 +563,9 @@ export type ActorCard = Static<typeof ActorCardSchema>;
 export type CommunicationProfile = Static<typeof CommunicationProfileSchema>;
 export type ComplianceRegion = Static<typeof ComplianceRegionSchema>;
 export type InteractionEmotion = Static<typeof InteractionEmotionSchema>;
+export type EmotionEventKind = Static<typeof EmotionEventKindSchema>;
+export type EmotionTransitionRule = Static<typeof EmotionTransitionRuleSchema>;
+export type CaseEmotionPolicy = Static<typeof CaseEmotionPolicySchema>;
 export type TouchResponse = Static<typeof TouchResponseSchema>;
 export type BodyMechanics = Static<typeof BodyMechanicsSchema>;
 export type ExamBlueprintTiming = Static<typeof ExamBlueprintTimingSchema>;

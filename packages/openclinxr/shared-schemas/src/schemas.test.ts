@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   validateActorCard,
   validateAssetManifest,
+  validateCaseEmotionPolicy,
   validateCommunicationProfile,
   validateDynamicEncounterFactoryPlanningProjection,
   validateDynamicEncounterFactoryProjectionArtifact,
@@ -1143,5 +1144,124 @@ describe("OpenClinXR shared schemas", () => {
     expect(validateModelProviderAudit({ ...audit, providerId: "mock-model" }).ok).toBe(true);
     expect(validateVoiceProviderAudit(audit).ok).toBe(true);
     expect(validateVoiceProviderAudit({ ...audit, providerId: "" }).ok).toBe(false);
+  });
+
+  it("accepts a valid CaseEmotionPolicy", () => {
+    expect(
+      validateCaseEmotionPolicy({
+        baseline: "neutral",
+        upperBound: "pain",
+        lowerBound: "reassured",
+        transitions: [
+          { from: "neutral", triggeredBy: "learner_dismissive", to: "anxious" },
+          { from: "anxious", triggeredBy: "learner_empathetic", to: "concerned" },
+        ],
+      }).ok,
+    ).toBe(true);
+  });
+
+  it("rejects a CaseEmotionPolicy with an invalid from emotion", () => {
+    expect(
+      validateCaseEmotionPolicy({
+        baseline: "neutral",
+        upperBound: "pain",
+        lowerBound: "reassured",
+        transitions: [
+          { from: "furious", triggeredBy: "learner_dismissive", to: "anxious" },
+        ],
+      }).ok,
+    ).toBe(false);
+  });
+
+  it("rejects a CaseEmotionPolicy with an invalid triggeredBy event kind", () => {
+    expect(
+      validateCaseEmotionPolicy({
+        baseline: "neutral",
+        upperBound: "pain",
+        lowerBound: "reassured",
+        transitions: [
+          { from: "neutral", triggeredBy: "learner_yelling", to: "anxious" },
+        ],
+      }).ok,
+    ).toBe(false);
+  });
+
+  it("accepts a ScenarioSchema with a valid emotionPolicy", () => {
+    expect(
+      validateScenario({
+        scenarioId: "ed_chest_pain_priority_v1",
+        version: 1,
+        title: "ED Chest Pain With Nurse Interruption",
+        status: "approved",
+        review: {
+          clinical: "approved",
+          psychometric: "approved",
+          legal: "approved",
+          simulationQa: "approved",
+        },
+        clinicalObjectives: ["Recognize possible ACS", "Escalate care"],
+        actors: [{ actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes" }],
+        requiredTraceTags: ["ecg_request"],
+        eventSchedule: [{ eventId: "nurse_vitals_change", atSecond: 420, actorId: "nurse_maria_alvarez_v1", tag: "vitals_review" }],
+        reviewRubric: [{ rubricId: "urgent_recognition", label: "Urgent recognition", requiredTraceTags: ["ecg_request"] }],
+        governance: {
+          scoreUseLabel: "formative_local_only",
+          syntheticCaseDisclosure: "Synthetic training case for local formative review only.",
+          validationStage: "stage_1_expert_reviewed",
+          validationLimitations: ["No outcomes validity evidence yet."],
+          requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+          sourceIds: ["src-step2cs-public-archive"],
+          safetyCriticalTraceTags: ["ecg_request"],
+          hiddenFactPolicy: {
+            learnerView: "redact_hidden_facts",
+            disclosureRequiresTrigger: true,
+          },
+        },
+        emotionPolicy: {
+          baseline: "neutral",
+          upperBound: "pain",
+          lowerBound: "reassured",
+          transitions: [
+            { from: "neutral", triggeredBy: "learner_dismissive", to: "anxious" },
+            { from: "anxious", triggeredBy: "learner_empathetic", to: "concerned" },
+          ],
+        },
+      }).ok,
+    ).toBe(true);
+  });
+
+  it("accepts a ScenarioSchema without emotionPolicy (optional field)", () => {
+    expect(
+      validateScenario({
+        scenarioId: "ed_chest_pain_no_emotion_v1",
+        version: 1,
+        title: "ED Chest Pain Without Emotion Policy",
+        status: "approved",
+        review: {
+          clinical: "approved",
+          psychometric: "approved",
+          legal: "approved",
+          simulationQa: "approved",
+        },
+        clinicalObjectives: ["Recognize possible ACS"],
+        actors: [{ actorId: "patient_robert_hayes_v1", role: "patient", displayName: "Robert Hayes" }],
+        requiredTraceTags: ["ecg_request"],
+        eventSchedule: [],
+        reviewRubric: [],
+        governance: {
+          scoreUseLabel: "formative_local_only",
+          syntheticCaseDisclosure: "Synthetic training case for local formative review only.",
+          validationStage: "stage_1_expert_reviewed",
+          validationLimitations: ["No outcomes validity evidence yet."],
+          requiredReviewerRoles: ["clinician", "psychometrician", "legal", "simulation_qa"],
+          sourceIds: ["src-step2cs-public-archive"],
+          safetyCriticalTraceTags: ["ecg_request"],
+          hiddenFactPolicy: {
+            learnerView: "redact_hidden_facts",
+            disclosureRequiresTrigger: true,
+          },
+        },
+      }).ok,
+    ).toBe(true);
   });
 });
