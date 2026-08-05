@@ -15,10 +15,6 @@
     "./documents": {
       "types": "./dist/documents.d.ts",
       "default": "./dist/documents.js"
-    },
-    "./resolvers": {
-      "types": "./dist/generated/resolvers.generated.d.ts",
-      "default": "./dist/generated/resolvers.generated.js"
     }
   },
   "scripts": {
