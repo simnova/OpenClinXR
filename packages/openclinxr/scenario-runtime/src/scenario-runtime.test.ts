@@ -12,7 +12,7 @@ import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@openclinxr/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
-import type { EmotionEventKind } from "@openclinxr/conversation-policy";
+import type { CaseEmotionPolicy as EngineCaseEmotionPolicy, EmotionEventKind } from "@openclinxr/conversation-policy";
 import {
   createDefaultScenarioRuntime,
   createDurableStoreFromPersistenceHooks,
@@ -1166,6 +1166,23 @@ describe("scenario runtime", () => {
       source: "emotion-engine",
       payload: { from: "neutral", to: "concerned", trigger: "learner_dismissive", turnIndex: 1 },
     });
+  });
+
+  it("authored (shared-schemas) CaseEmotionPolicy stays assignable to the engine type (no drift)", () => {
+    // Compile-time contract guarding the exact assignment the resolver depends on:
+    // resolveCaseEmotionPolicy returns `scenario.emotionPolicy` (shared-schemas type) as the
+    // engine's CaseEmotionPolicy (conversation-policy type). If a field is renamed or an
+    // emotion/event enum drifts between the two packages, this stops COMPILING. (Only this
+    // direction matters — the engine type's `transitions` is readonly, a benign variance.)
+    const authored: CaseEmotionPolicy = {
+      baseline: "neutral",
+      upperBound: "anxious",
+      lowerBound: "reassured",
+      transitions: [{ from: "neutral", triggeredBy: "learner_dismissive", to: "concerned" }],
+    };
+    const asEngine: EngineCaseEmotionPolicy = authored; // shared → engine (the resolver's path)
+    expect(asEngine.baseline).toBe("neutral");
+    expect(asEngine.transitions).toHaveLength(1);
   });
 
   it("an INVALID authored emotionPolicy is rejected by the ajv gate and falls back to the default", async () => {
