@@ -1,0 +1,4 @@
+{
+	"overallStatus": "fail",
+	"failedChecks": ["evidence_refs_exist"]
+}

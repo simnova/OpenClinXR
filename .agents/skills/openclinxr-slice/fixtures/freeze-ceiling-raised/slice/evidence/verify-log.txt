@@ -1,0 +1,3 @@
+pnpm --filter @fixture/demo-pkg test
+ ✓ src/index.test.ts (1)
+ Tests  1 passed (1)

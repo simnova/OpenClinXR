@@ -345,7 +345,11 @@
     "evidence:physics-touch:portless": "node tools/openclinxr/evidence/physics-touch-capture.mjs",
     "agent:harness:manifest": "tsx tools/agent-factory/generate-harness-manifest.ts",
     "agent:harness:boundaries": "tsx tools/agent-factory/validate-harness-boundaries.ts",
-    "test:integration": "pnpm --filter @openclinxr/data-mongodb test:integration"
+    "test:integration": "pnpm --filter @openclinxr/data-mongodb test:integration",
+    "skill:slice:check": "node --experimental-strip-types .agents/skills/openclinxr-slice/evaluator/check-slice.ts",
+    "test:skill:slice": "pnpm run test:skill:slice:unit && pnpm run test:skill:slice:integration",
+    "test:skill:slice:unit": "vitest run --config .agents/skills/openclinxr-slice/evaluator/vitest.config.ts --reporter verbose",
+    "test:skill:slice:integration": "node .agents/skills/openclinxr-slice/evaluator/run-integration.js"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

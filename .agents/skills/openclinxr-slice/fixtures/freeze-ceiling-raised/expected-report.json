@@ -1,0 +1,4 @@
+{
+	"overallStatus": "fail",
+	"failedChecks": ["no_guardrail_weakening"]
+}

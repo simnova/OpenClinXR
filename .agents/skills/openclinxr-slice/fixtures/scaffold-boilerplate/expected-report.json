@@ -1,0 +1,8 @@
+{
+	"overallStatus": "fail",
+	"failedChecks": [
+		"required_slice_sections",
+		"evidence_refs_exist",
+		"touched_packages_tested"
+	]
+}
