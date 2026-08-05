@@ -22,10 +22,10 @@
     "@openclinxr/scenario-runtime": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
     "@openclinxr/telemetry": "workspace:*",
-    "tsx": "4.21.0"
+    "tsx": "catalog:"
   },
   "devDependencies": {
-    "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

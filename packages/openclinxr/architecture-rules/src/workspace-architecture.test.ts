@@ -1212,7 +1212,7 @@ describe("workspace architecture rules", () => {
 
     expect(manifest.dependencies).toMatchObject({
       "@openclinxr/session-state": "workspace:*",
-      mongodb: "7.2.0",
+      mongodb: expect.stringMatching(/^(?:7\.2\.0|catalog:)$/),
     });
     expect(manifest.devDependencies).toMatchObject({
       "@cellix/server-mongodb-memory-mock": "workspace:*",
@@ -1223,7 +1223,7 @@ describe("workspace architecture rules", () => {
       readFileSync(join(workspaceRoot, "packages/cellix/server-mongodb-memory-mock/package.json"), "utf8"),
     ) as { dependencies?: Record<string, string> };
     expect(memoryMockManifest.dependencies).toMatchObject({
-      "mongodb-memory-server": "11.1.0",
+      "mongodb-memory-server": expect.stringMatching(/^(?:11\.1\.0|catalog:)$/),
     });
     expect(recordsSource).toContain("conversation_turns_and_emotional_state_timeline_only");
     expect(recordsSource).toContain("clinicalActionsIncluded: false");
@@ -1310,8 +1310,8 @@ describe("workspace architecture rules", () => {
     });
     expect(manifest.devDependencies).toMatchObject({
       "@openclinxr/scenario-fixtures": "workspace:*",
-      typescript: "6.0.3",
-      vitest: "4.1.5",
+      typescript: expect.stringMatching(/^(?:6\.0\.3|catalog:)$/),
+      vitest: expect.stringMatching(/^(?:4\.1\.5|catalog:)$/),
     });
     expect(sourceViolations).toEqual([]);
   });
@@ -1450,20 +1450,22 @@ describe("workspace architecture rules", () => {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
+    const catalogVersion = (dep: string, fallback: string) =>
+      expect.stringMatching(new RegExp(`^(?:${fallback.replace(/\./g, "\\.")}|catalog:)$`));
     expect(manifest.dependencies).toMatchObject({
       "@iwsdk/core": "0.5.1",
       "@iwsdk/xr-input": "0.5.1",
-      "three": "0.184.0",
+      "three": catalogVersion("three", "0.184.0"),
     });
     expect(manifest.devDependencies).toMatchObject({
       "@iwsdk/vite-plugin-dev": "0.5.1",
       "@iwsdk/vite-plugin-uikitml": "0.4.2",
-      "@types/three": "0.184.0",
-      "typescript": "6.0.3",
+      "@types/three": catalogVersion("@types/three", "0.184.0"),
+      "typescript": catalogVersion("typescript", "6.0.3"),
       "vite": manifest.devDependencies?.["vite"] ?? "8.0.16",
-      "vitest": "4.1.5",
+      "vitest": catalogVersion("vitest", "4.1.5"),
     });
-    expect(manifest.devDependencies?.["vite"]).toMatch(/^8\./);
+    expect(manifest.devDependencies?.["vite"]).toMatch(/^(?:8\.|catalog:)/);
     expect(manifest.dependencies?.["@iwsdk/vite-plugin-dev"]).toBeUndefined();
     // IWSDK 0.5.x vite-plugin-dev pulls scene-composition; allow direct pin for resolver stability.
     expect(Object.keys({ ...manifest.dependencies, ...manifest.devDependencies }).filter((dependency) =>

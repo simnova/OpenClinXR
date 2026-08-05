@@ -16,8 +16,8 @@
     "@openclinxr/capability-gateway": "workspace:*"
   },
   "devDependencies": {
-    "mongodb-memory-server": "11.1.0",
-    "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "mongodb-memory-server": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

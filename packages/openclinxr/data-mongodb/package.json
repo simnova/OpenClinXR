@@ -18,14 +18,14 @@
     "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/session-state": "workspace:*",
     "@openclinxr/shared-schemas": "workspace:*",
-    "mongodb": "7.2.0"
+    "mongodb": "catalog:"
   },
   "devDependencies": {
     "@cellix/server-mongodb-memory-mock": "workspace:*",
     "@openclinxr/api": "workspace:*",
     "@openclinxr/graphql": "workspace:*",
-    "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "config": {
     "mongodbMemoryServer": {

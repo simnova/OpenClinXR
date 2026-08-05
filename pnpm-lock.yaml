@@ -4,6 +4,33 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@sinclair/typebox':
+      specifier: 0.34.49
+      version: 0.34.49
+    '@types/three':
+      specifier: 0.184.0
+      version: 0.184.0
+    ajv:
+      specifier: 8.20.0
+      version: 8.20.0
+    mongodb:
+      specifier: 7.2.0
+      version: 7.2.0
+    mongodb-memory-server:
+      specifier: 11.1.0
+      version: 11.1.0
+    tsx:
+      specifier: 4.21.0
+      version: 4.21.0
+    typescript:
+      specifier: 6.0.3
+      version: 6.0.3
+    vitest:
+      specifier: 4.1.5
+      version: 4.1.5
+
 overrides:
   brace-expansion: 5.0.9
   minimatch@9>brace-expansion: 2.1.4
@@ -63,7 +90,7 @@ importers:
         specifier: 7.0.0-dev.20260503.1
         version: 7.0.0-dev.20260503.1
       ajv:
-        specifier: 8.20.0
+        specifier: 'catalog:'
         version: 8.20.0
       draco3d:
         specifier: 1.5.7
@@ -93,19 +120,19 @@ importers:
         specifier: ^0.2.16
         version: 0.2.16
       tsx:
-        specifier: 4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
       turbo:
         specifier: 2.9.14
         version: 2.9.14
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       typescript-language-server:
         specifier: ^5.3.0
         version: 5.3.0
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/api:
@@ -153,7 +180,7 @@ importers:
         specifier: 4.12.33
         version: 4.12.33
       tsx:
-        specifier: 4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
     devDependencies:
       '@openclinxr/config-rolldown':
@@ -169,10 +196,10 @@ importers:
         specifier: 0.21.10
         version: 0.21.10(@typescript/native-preview@7.0.0-dev.20260503.1)(oxc-resolver@11.24.2)(publint@0.3.18)(typescript@6.0.3)
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/arena/api-python-backend: {}
@@ -193,10 +220,10 @@ importers:
         specifier: 8.18.1
         version: 8.18.1
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/arena/model-vetting-studio:
@@ -233,7 +260,7 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
       '@types/three':
-        specifier: 0.184.0
+        specifier: 'catalog:'
         version: 0.184.0
       '@vitejs/plugin-react':
         specifier: 6.0.1
@@ -242,13 +269,13 @@ importers:
         specifier: 29.1.1
         version: 29.1.1
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/arena/physics-clinical-touch:
@@ -261,13 +288,13 @@ importers:
         version: link:../../../packages/openclinxr/arena/physics-touch-contract
     devDependencies:
       tsx:
-        specifier: ^4.19.0
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/arena/ui-xr-iwsdk-spike:
@@ -304,19 +331,19 @@ importers:
         specifier: 0.1.12
         version: 0.1.12(three@0.184.0)
       '@types/three':
-        specifier: 0.184.0
+        specifier: 'catalog:'
         version: 0.184.0
       three-viewport-gizmo:
         specifier: 2.2.0
         version: 2.2.0(three@0.184.0)
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/ui-admin:
@@ -395,13 +422,13 @@ importers:
         specifier: 29.1.1
         version: 29.1.1
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   apps/ui-xr:
@@ -423,16 +450,16 @@ importers:
         version: 0.184.0
     devDependencies:
       '@types/three':
-        specifier: 0.184.0
+        specifier: 'catalog:'
         version: 0.184.0
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: 8.0.16
         version: 8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0)
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/cellix/config-typescript: {}
@@ -446,45 +473,45 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(vitest@4.1.5)
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/cellix/provider-contracts:
     dependencies:
       '@sinclair/typebox':
-        specifier: 0.34.49
+        specifier: 'catalog:'
         version: 0.34.49
       ajv:
-        specifier: 8.20.0
+        specifier: 'catalog:'
         version: 8.20.0
       ajv-formats:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/cellix/server-mongodb-memory-mock:
     dependencies:
       mongodb:
-        specifier: 7.2.0
+        specifier: 'catalog:'
         version: 7.2.0
       mongodb-memory-server:
-        specifier: 11.1.0
+        specifier: 'catalog:'
         version: 11.1.0(supports-color@7.2.0)
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/cellix/trace-ledger:
@@ -494,19 +521,19 @@ importers:
         version: link:../provider-contracts
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/agent-loop:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/architecture-rules:
@@ -522,28 +549,28 @@ importers:
         version: 2.3.0
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/arena/iwsdk-spike:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/arena/model-vetting:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/arena/multi-actor-state-spike:
@@ -556,10 +583,10 @@ importers:
         version: link:../../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/arena/physics-touch-contract:
@@ -569,10 +596,10 @@ importers:
         version: 0.19.3
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/asset-registry:
@@ -585,19 +612,19 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/auth:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/capability-gateway:
@@ -613,10 +640,10 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/config-rolldown:
@@ -625,10 +652,10 @@ importers:
         specifier: 1.0.0-rc.18
         version: 1.0.0-rc.18
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/conversation-policy:
@@ -641,10 +668,10 @@ importers:
         specifier: workspace:*
         version: link:../scenario-fixtures
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/data-mongodb:
@@ -665,7 +692,7 @@ importers:
         specifier: workspace:*
         version: link:../shared-schemas
       mongodb:
-        specifier: 7.2.0
+        specifier: 'catalog:'
         version: 7.2.0
     devDependencies:
       '@cellix/server-mongodb-memory-mock':
@@ -678,10 +705,10 @@ importers:
         specifier: workspace:*
         version: link:../graphql
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/data-sources-mongoose-models:
@@ -694,13 +721,13 @@ importers:
         version: 9.6.1
     devDependencies:
       mongodb-memory-server:
-        specifier: 11.1.0
+        specifier: 'catalog:'
         version: 11.1.0(supports-color@7.2.0)
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/domain:
@@ -710,10 +737,10 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/exam-assembly:
@@ -726,10 +753,10 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/graphql:
@@ -754,13 +781,13 @@ importers:
         specifier: 6.0.0
         version: 6.0.0(graphql@16.12.0)
       tsx:
-        specifier: 4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/model-gateway:
@@ -776,28 +803,28 @@ importers:
         specifier: workspace:*
         version: link:../scenario-fixtures
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/physics-touch-artifacts:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/rest:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/review-workflow:
@@ -813,10 +840,10 @@ importers:
         specifier: workspace:*
         version: link:../scenario-fixtures
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/scenario-fixtures:
@@ -826,10 +853,10 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/scenario-runtime:
@@ -866,10 +893,10 @@ importers:
         version: link:../voice-gateway
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/session-state:
@@ -882,10 +909,10 @@ importers:
         specifier: workspace:*
         version: link:../scenario-fixtures
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/shared-schemas:
@@ -894,29 +921,29 @@ importers:
         specifier: workspace:*
         version: link:../../cellix/provider-contracts
       '@sinclair/typebox':
-        specifier: 0.34.49
+        specifier: 'catalog:'
         version: 0.34.49
       ajv:
-        specifier: 8.20.0
+        specifier: 'catalog:'
         version: 8.20.0
       ajv-formats:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/telemetry:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/test-harness:
@@ -940,14 +967,14 @@ importers:
         specifier: workspace:*
         version: link:../telemetry
       tsx:
-        specifier: 4.21.0
+        specifier: 'catalog:'
         version: 4.21.0
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/ui-route-admin:
@@ -957,28 +984,28 @@ importers:
         version: link:../ui-route-shared
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/ui-route-shared:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/ui-shared:
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
   packages/openclinxr/voice-gateway:
@@ -991,10 +1018,10 @@ importers:
         version: link:../shared-schemas
     devDependencies:
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       vitest:
-        specifier: 4.1.5
+        specifier: 'catalog:'
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
 packages:
@@ -4357,9 +4384,6 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
-  es-module-lexer@2.1.0:
-    resolution: {integrity: sha512-n27zTYMjYu1aj4MjCWzSP7G9r75utsaoc8m61weK+W8JMBGGQybd43GstCXZ3WNmSFtGT9wi59qQTW6mhTR5LQ==}
-
   es-module-lexer@2.3.1:
     resolution: {integrity: sha512-shc1dbU90Yl/xq1QrC7QRtfcwURZuVRfPhZbDoldJ1cn1gzDvBaBWlv0eFolj5+0znnPJz5TXLxsN77X/12KTA==}
 
@@ -4467,9 +4491,6 @@ packages:
   fetch-blob@3.2.0:
     resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
     engines: {node: ^12.20 || >= 14.13}
-
-  fflate@0.8.2:
-    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
   fflate@0.8.3:
     resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
@@ -7169,7 +7190,7 @@ snapshots:
       ktx-parse: 1.1.0
       lerc: 2.0.0
       mersenne-twister: 1.1.0
-      meshoptimizer: 1.1.1
+      meshoptimizer: 1.0.1
       pako: 2.1.0
       protobufjs: 8.4.1
       rbush: 4.0.1
@@ -9252,7 +9273,7 @@ snapshots:
       '@tweenjs/tween.js': 23.1.3
       '@types/stats.js': 0.17.4
       '@types/webxr': 0.5.24
-      fflate: 0.8.2
+      fflate: 0.8.3
       meshoptimizer: 1.1.1
 
   '@types/tmp@0.2.6': {}
@@ -9987,8 +10008,6 @@ snapshots:
 
   es-errors@1.3.0: {}
 
-  es-module-lexer@2.1.0: {}
-
   es-module-lexer@2.3.1: {}
 
   es-object-atoms@1.1.1:
@@ -10120,8 +10139,6 @@ snapshots:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.3.3
-
-  fflate@0.8.2: {}
 
   fflate@0.8.3: {}
 
@@ -11992,7 +12009,7 @@ snapshots:
       '@vitest/snapshot': 4.1.5
       '@vitest/spy': 4.1.5
       '@vitest/utils': 4.1.5
-      es-module-lexer: 2.1.0
+      es-module-lexer: 2.3.1
       expect-type: 1.3.0
       magic-string: 0.30.21
       obug: 2.1.1

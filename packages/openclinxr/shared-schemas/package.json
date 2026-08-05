@@ -12,13 +12,13 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@sinclair/typebox": "0.34.49",
-    "ajv": "8.20.0",
+    "@sinclair/typebox": "catalog:",
+    "ajv": "catalog:",
     "ajv-formats": "3.0.1",
     "@cellix/provider-contracts": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

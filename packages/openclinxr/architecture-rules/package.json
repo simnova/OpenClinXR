@@ -15,7 +15,7 @@
     "archunit": "2.3.0"
   },
   "devDependencies": {
-    "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
