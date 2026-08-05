@@ -450,7 +450,8 @@ async function iterationGrokInspect(): Promise<Record<string, unknown>> {
 async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
   const configPath = path.join(repoRoot, ".grok", "config.toml");
   const config = await readFileAsync(configPath, "utf8");
-  const rulePath = path.join(repoRoot, "agents", "rules", "grok-tier-routing.md");
+  // Canonical modular name is TIER_GROK.md (legacy grok-tier-routing.md retired).
+  const rulePath = path.join(repoRoot, "agents", "rules", "TIER_GROK.md");
   const rule = await readFileAsync(rulePath, "utf8");
   const pkg = JSON.parse(await readFileAsync(path.join(repoRoot, "package.json"), "utf8")) as {
     scripts?: Record<string, string>;
@@ -474,13 +475,13 @@ async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
     throw new Error(`Grok tier config invalid: ${configCheck.errors.join("; ")}`);
   }
   if (!rule.includes("Do not use Cursor `Task` for tier 0–2")) {
-    throw new Error("grok-tier-routing.md missing Cursor Task guard");
+    throw new Error("TIER_GROK.md missing Cursor Task guard");
   }
   if (!rule.includes("pnpm grok:tier:slice-start")) {
-    throw new Error("grok-tier-routing.md missing per-slice token introspection flow");
+    throw new Error("TIER_GROK.md missing per-slice token introspection flow");
   }
   if (!rule.includes("pnpm grok:agent:spawn-spec")) {
-    throw new Error("grok-tier-routing.md missing repo agent spawn flow");
+    throw new Error("TIER_GROK.md missing repo agent spawn flow");
   }
   const agentScripts = ["grok:agent:list", "grok:agent:spawn-spec", "grok:agent:validate", "grok:agent:consult"];
   for (const script of agentScripts) {
@@ -540,7 +541,11 @@ async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
     throw new Error(`Repo agent spawn registry not aligned: ${agentRegistry.checks.filter((c) => !c.passed).map((c) => c.checkId).join(", ")}`);
   }
   const chiefPointer = await readFileAsync(path.join(repoRoot, ".grok", "agents", "chief-coordinator.md"), "utf8");
-  if (!chiefPointer.includes("Grok spawn spec")) {
+  // Native .grok agents use frontmatter + spawn=… (legacy "Grok spawn spec" prose retired).
+  if (
+    !chiefPointer.includes("Grok spawn spec") &&
+    !(chiefPointer.includes("spawn=") && chiefPointer.includes("name: chief-coordinator"))
+  ) {
     throw new Error("Run pnpm agent:harness:sync to embed Grok spawn specs in .grok/agents pointers");
   }
   const tokenFixture = buildGrokSliceTokenIntrospectionReport({
@@ -582,12 +587,17 @@ async function iterationGrokTierRouting(): Promise<Record<string, unknown>> {
 
 async function iterationOrchestrationWorkflow(): Promise<Record<string, unknown>> {
   const consult = await readFileAsync(path.join(repoRoot, "agents", "rules", "agent-consult.md"), "utf8");
-  const subagent = await readFileAsync(path.join(repoRoot, "agents", "rules", "subagent-protocol.md"), "utf8");
+  // Canonical modular name is PROTO_SUBAGENT.md (legacy subagent-protocol.md retired).
+  const subagent = await readFileAsync(path.join(repoRoot, "agents", "rules", "PROTO_SUBAGENT.md"), "utf8");
   if (!consult.includes("Grok Composer entrypoint")) {
     throw new Error("agent-consult.md missing Grok Composer entrypoint");
   }
-  if (!subagent.includes("coordinator/orchestration first")) {
-    throw new Error("subagent-protocol.md missing coordinator-first rule");
+  if (
+    !subagent.includes("coordinator/orchestration first") &&
+    !subagent.includes("orchestration coordinator (chief-coordinator role) first") &&
+    !subagent.includes("coordinator-first")
+  ) {
+    throw new Error("PROTO_SUBAGENT.md missing coordinator-first rule");
   }
   const scoutRoles = ["chief-coordinator", "openclaw-drift-police", "implementation-plan-gap-attacker"];
   const scoutModels = scoutRoles.map((roleId) => ({

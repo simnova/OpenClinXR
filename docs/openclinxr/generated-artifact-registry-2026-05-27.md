@@ -10,10 +10,10 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 ## Counts
 
-- ignore-local-cache: 2057
+- ignore-local-cache: 2112
 - keep-compatibility-input: 24
 - keep-current: 95
-- keep-evidence: 111
+- keep-evidence: 113
 - keep-template: 6
 
 ## Cleanup Actions
@@ -96,6 +96,14 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.bundle.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny-school-age/2026-06-07-unpause-real-garment/peds_patient_child.provenance.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/ed_chest_pain_patient_adult_bod_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/ed_chest_pain_patient_adult_bod.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_anxious_parent_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_anxious_parent.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_nurse_kevin_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_nurse_kevin.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_patient_child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/garment-mesh-2026-08-03-fullpoly/peds_patient_child.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child_stripped.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_default_topology_clean_retained/peds_patient_child.anny_manifest.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -161,30 +169,61 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_anxious_parent.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/peds-parent-nurse-sleeve-fit-2026-08-02/peds_nurse_kevin.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_final_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_final.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter2_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter2.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_iter3.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult_winner.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/adult.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_final_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_final.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter2_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter2.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_iter3.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child_winner.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/child.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_final_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_final.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter2_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter2.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_iter3.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse_winner.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/nurse.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_final_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_final.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter2_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter2.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_iter3.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent_winner.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/parent.glb` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/adult_final.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/adult_iter1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/adult_iter1b.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/adult_iter2.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/child_final.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/child_iter1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/child_iter1b.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/child_iter2.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/child_iter3.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/nurse_final.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/nurse_iter1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/nurse_iter2.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/nurse_iter3.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/parent_final.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/parent_iter1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/parent_iter1b.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/parent_iter2.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/scores/parent_iter3.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/asset-production/anny/photoreal-skin-rung-2026-08-03/winning_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/_params_regen.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_mpfb2_eye_rig_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/asset-production/anny/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod_rigging_report.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -917,6 +956,14 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/mblab-run.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-03T05-50-47-875Z/mblab-walk.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-15-20-710Z/cmu-walk.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-15-20-710Z/inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-15-20-710Z/mblab-run.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-15-20-710Z/mblab-walk.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-19-27-317Z/cmu-walk.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-19-27-317Z/inspection.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-19-27-317Z/mblab-run.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-19-27-317Z/mblab-walk.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/2026-06-07-ed-seed-new-v1/ed-chest-pain-humanoid-front_2026-06-07.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/2026-06-07-garment-expand-v1/garment-apply-role-expand-front_2026-06-07.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/cagematch/anny-comfy-masked-skin-captures/2026-06-07-comfy-face-inpaint-v6/peds_patient_child_comfy_masked_face_front_2026-06-07.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1227,6 +1274,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-37-35-225Z/chest-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T17-39-50-750Z/chest-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-15-56-419Z/rlq-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-48-57-540Z/abdomen_luq-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-48-57-540Z/abdomen_rlq-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/evidence/clinical-touch-smoke/2026-08-03T22-48-57-540Z/chest_R-guard-wince.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/complete-authoring-admin-ui-complete-v1/2026-06-07/complete-authoring-admin-ui-complete-evidence.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/complete-authoring-admin-ui-complete-v1/2026-06-07/complete-authoring-admin-ui-complete-seed.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/complete-authoring-admin-ui-v1/2026-06-07/complete-authoring-admin-ui-evidence.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -1695,6 +1745,11 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `.openclinxr/evidence/ui-xr-peds-adaptive-dialogue/2026-06-08-peds-anny-real-garment-sleeve-deform-v1/peds_real_garment_body_motion_deform_ignored_breathing_2026-06-08-peds-patient-child-real-garment-v1.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/evidence/ui-xr-peds-school-age-mouth-gaze/2026-06-07-school-aged-patient-mpfb2-eye-v1/peds_school_age_mpfb2_eye_mouth_gaze_pose_2026-06-07-school-aged-patient-mpfb2-eye-v1.png` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/autonomous-operator-mandate.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/board-agent-phase-guard-hook-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/board-case-authored-emotion-policy-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/board-conversation-emotion-engine-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/board-pnpm-catalog-dep-policy-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
+- `.openclinxr/openclaw/board-tsconfig-conventions-arch-rule-v1.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-eye-rig.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-gaze-probe.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
 - `.openclinxr/openclaw/github-commit-payload-mpfb2-runtime-import.json` - ignore-local-cache; ignore; Local runtime/cache artifact; should not be committed or used as durable evidence.
@@ -2233,7 +2288,9 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `docs/openclinxr/anny-skin-track-a-mit-pbr-model-vetting-report-peds-asthma-parent-anxiety-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/api-bun-websocket-runtime-smoke-2026-06-06.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/bvh-retarget-lab-smoke-2026-08-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/bvh-retarget-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
+- `docs/openclinxr/bvh-retarget-smoke-2026-08-05.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/clinical-touch-smoke-2026-08-03.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/doc-authority-registry-2026-05-27.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/encounter-asset-generation-queue-peds-asthma-parent-anxiety-2026-05-28.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "openclinxr.bvh-retarget-lab-smoke.v1",
+  "generatedAt": "2026-08-05T18:19:46.614Z",
+  "claimScope": "animation_retarget_validation_not_clinical_validity",
+  "providerBoundary": {
+    "localOnly": true,
+    "externalNetworkUsed": true,
+    "paidApiUsed": false
+  },
+  "thresholds": {
+    "maxExplodeRatio": 3,
+    "minMotionRangeM": 0.02
+  },
+  "evidenceDir": ".openclinxr/evidence/bvh-retarget-lab-smoke/2026-08-05T18-19-27-317Z",
+  "clips": [
+    {
+      "clip": "mblab-walk",
+      "glb": "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.cmu-bvh-full.glb",
+      "anim": "walking",
+      "evidence": {
+        "ready": true,
+        "samples": 12,
+        "restMaxDimM": 1.78,
+        "animMaxDimM": 1.7546,
+        "explodeRatio": 0.986,
+        "motionRangeM": 0.3589,
+        "animating": true,
+        "jointCount": 169,
+        "skinnedMeshCount": 1,
+        "fingerBoneCount": 32,
+        "fingerSpreadM": 1.2449,
+        "backPitchMaxDeg": 10.2,
+        "pageErrors": []
+      },
+      "pageErrors": [],
+      "blockers": []
+    },
+    {
+      "clip": "mblab-run",
+      "glb": "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.cmu-bvh-full.glb",
+      "anim": "running",
+      "evidence": {
+        "ready": true,
+        "samples": 12,
+        "restMaxDimM": 1.78,
+        "animMaxDimM": 1.7227,
+        "explodeRatio": 0.968,
+        "motionRangeM": 0.2139,
+        "animating": true,
+        "jointCount": 169,
+        "skinnedMeshCount": 1,
+        "fingerBoneCount": 32,
+        "fingerSpreadM": 1.1458,
+        "backPitchMaxDeg": 12.44,
+        "pageErrors": []
+      },
+      "pageErrors": [],
+      "blockers": []
+    },
+    {
+      "clip": "cmu-walk",
+      "glb": "/cagematch/seated-adult-bod-preview-2026-08-02/ed_chest_pain_patient_adult_bod.cmu-diag.glb",
+      "anim": "07_01",
+      "evidence": {
+        "ready": true,
+        "samples": 12,
+        "restMaxDimM": 1.78,
+        "animMaxDimM": 1.7875,
+        "explodeRatio": 1.004,
+        "motionRangeM": 0.3516,
+        "animating": true,
+        "jointCount": 169,
+        "skinnedMeshCount": 1,
+        "fingerBoneCount": 32,
+        "fingerSpreadM": 0.5179,
+        "backPitchMaxDeg": 11.26,
+        "pageErrors": []
+      },
+      "pageErrors": [],
+      "blockers": []
+    }
+  ],
+  "verdict": {
+    "passed": true,
+    "blockers": []
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "production_asset_readiness",
+    "quest_readiness"
+  ]
+}

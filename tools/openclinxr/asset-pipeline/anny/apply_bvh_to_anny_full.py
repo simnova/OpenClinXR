@@ -143,14 +143,9 @@ MAP_BANDAI: Dict[str, str] = {
     "RightShoulder": "clavicle.R",
 }
 
-# Optional rest-local bones (only when flags disable drive).
-# Feet are driven from BVH by default again (plantigrade skip was too aggressive).
-DEFAULT_SKIP_DRIVE: frozenset = frozenset(
-    {
-        "wrist.L",
-        "wrist.R",
-    }
-)
+# Bones that stay rest-local unless an explicit drive flag opts them in.
+# Wrists are NOT listed here — --drive-hands defaults ON (hand fans with forearm).
+DEFAULT_SKIP_DRIVE: frozenset = frozenset()
 
 
 # --- Diagnostics / fail-loud self-check thresholds (see BVH-RETARGET-HANDOFF) ---
@@ -643,10 +638,11 @@ def align_bvh_limb_frame_to_anny(
     thigh/calf mean bone-Y so parent-local deltas land on the right hinge plane.
     """
     name_to_bvh = {a: b for a, b in pairs}
+    # Legs only — mixing upperarms into the mean skews the object rotation and
+    # raises arms on CMU after a ~90° leg-frame correction (reported residual).
     limb_pairs = [
         ("upperleg01.L", "upperleg01.R"),
         ("lowerleg01.L", "lowerleg01.R"),
-        ("upperarm01.L", "upperarm01.R"),
     ]
     a_vecs: List[Vector] = []
     b_vecs: List[Vector] = []
