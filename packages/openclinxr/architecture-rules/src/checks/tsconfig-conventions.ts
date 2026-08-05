@@ -36,11 +36,6 @@ export const TSCONFIG_EXEMPTIONS: Record<
     reason:
       "vitest.config.ts lives at package root outside src/; rootDir '.' is correct for mixed-root includes",
   },
-  "packages/openclinxr/graphql/tsconfig.json": {
-    rules: ["rootDir"],
-    reason:
-      "codegen.ts + scripts/*.ts live outside src/; rootDir '.' is correct",
-  },
   "apps/arena/physics-clinical-touch/tsconfig.json": {
     rules: ["rootDir"],
     reason:

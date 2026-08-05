@@ -4,10 +4,22 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./documents": "./src/documents.ts",
-    "./resolvers": "./src/generated/resolvers.generated.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./documents": {
+      "types": "./dist/documents.d.ts",
+      "default": "./dist/documents.js"
+    },
+    "./resolvers": {
+      "types": "./dist/generated/resolvers.generated.d.ts",
+      "default": "./dist/generated/resolvers.generated.js"
+    }
   },
   "scripts": {
     "codegen": "graphql-codegen --config codegen.ts",
@@ -15,8 +27,10 @@
     "generate": "tsx scripts/generate-static-artifacts.ts && pnpm run codegen",
     "generate:check": "tsx scripts/generate-static-artifacts.ts --check && pnpm run codegen:check",
     "lint": "biome check --no-errors-on-unmatched .",
-    "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "pnpm run generate:check && vitest run --root ."
+    "typecheck": "tsgo --noEmit -p tsconfig.vitest.json",
+    "test": "pnpm run generate:check && vitest run --root .",
+    "build": "tsgo --build",
+    "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
     "@graphql-typed-document-node/core": "3.2.0",
@@ -30,5 +44,8 @@
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
