@@ -206,6 +206,8 @@ export type ScenarioRuntimeOptions = {
 };
 
 export type CreateDefaultScenarioRuntimeOptions = {
+  /** Override the default ED chest pain scenario. When set, asset manifests are built for this scenario. */
+  scenario?: Scenario;
   durableStore?: ScenarioRuntimeDurableStore;
   conversationPolicy?: ConversationPolicy;
 };

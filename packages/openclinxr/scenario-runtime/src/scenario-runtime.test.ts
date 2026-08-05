@@ -9,6 +9,7 @@ import {
   type ModelProviderAdapter,
 } from "@openclinxr/model-gateway";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import { createDefaultVoiceGateway, LocalVoiceProviderAdapter, MockVoiceProviderAdapter } from "@openclinxr/voice-gateway";
 import { describe, expect, it } from "vitest";
@@ -18,7 +19,9 @@ import {
   createDurableStoreFromPersistenceHooks,
   createScenarioRuntimeWithPersistenceHooks,
   ScenarioRuntime,
+  resolveScenarioById,
   type DurableStorePersistenceHooks,
+  type ScenarioCatalogPort,
   type ScenarioRuntimeActorTurn,
   type ScenarioRuntimeDurableStore,
 } from "./index.js";
@@ -1220,6 +1223,61 @@ describe("scenario runtime", () => {
       (e) => e.eventType === "emotion_transition" && e.actorId === "nurse_maria_alvarez_v1",
     );
     expect(nurseTraces).toHaveLength(0);
+  });
+});
+
+describe("scenario catalog", () => {
+  it("resolveScenarioById returns a fixture scenario", async () => {
+    const entry = await resolveScenarioById("peds_asthma_parent_anxiety_v1");
+    expect(entry).toBeDefined();
+    expect(entry!.scenario.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(entry!.catalogSource).toBe("fixture");
+  });
+
+  it("resolveScenarioById returns undefined for unknown scenario", async () => {
+    const entry = await resolveScenarioById("nonexistent_scenario_id");
+    expect(entry).toBeUndefined();
+  });
+
+  it("resolveScenarioById prefers authored over fixture", async () => {
+    const authored = {
+      ...edChestPainScenario,
+      scenarioId: "peds_asthma_parent_anxiety_v1",
+      title: "Authored Override",
+    };
+    const port: ScenarioCatalogPort = {
+      getAuthoredScenario: (scenarioId) => {
+        if (scenarioId === "peds_asthma_parent_anxiety_v1") return authored;
+        return undefined;
+      },
+    };
+    const entry = await resolveScenarioById("peds_asthma_parent_anxiety_v1", port);
+    expect(entry).toBeDefined();
+    expect(entry!.catalogSource).toBe("authored");
+    expect(entry!.scenario.title).toBe("Authored Override");
+  });
+
+  it("resolveScenarioById falls back to fixture when authored port returns undefined", async () => {
+    const port: ScenarioCatalogPort = {
+      getAuthoredScenario: () => undefined,
+    };
+    const entry = await resolveScenarioById("peds_asthma_parent_anxiety_v1", port);
+    expect(entry).toBeDefined();
+    expect(entry!.catalogSource).toBe("fixture");
+  });
+});
+
+describe("non-ED scenario runtime", () => {
+  it("createDefaultScenarioRuntime with pediatric asthma scenario starts a session for that scenario", async () => {
+    const runtime = createDefaultScenarioRuntime({ scenario: pediatricAsthmaScenario });
+    const session = await runtime.startSession({ learnerId: "learner_001", consentAccepted: true });
+
+    expect(session.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(session.phase).toBe("doorway");
+    expect(runtime.traceEvents(session.stationRunId).map((t) => t.eventType)).toEqual([
+      "station.started",
+      "consent.accepted",
+    ]);
   });
 });
 

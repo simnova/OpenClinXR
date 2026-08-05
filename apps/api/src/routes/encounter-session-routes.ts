@@ -1,17 +1,40 @@
 import type { Hono } from "hono";
 import { resolveSessionLearnerId } from "@openclinxr/auth";
 import { routeById } from "@openclinxr/rest";
+import {
+  createDefaultScenarioRuntime,
+  type ScenarioCatalogPort,
+  type ScenarioRuntime,
+  resolveScenarioById,
+} from "@openclinxr/scenario-runtime";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";
 import { parseActorInteractionSource, persistTraceSnapshot, sessionErrorResponse } from "../api-route-support.js";
 import { asRealTelemetryRecorder, parseStringArray } from "../api-support.js";
+import { createScenarioRuntimeDurableStoreFromApiPersistence } from "../runtime-durable-store.js";
+
+/**
+ * Resolve the ScenarioRuntime for a given stationRunId.
+ * Checks per-session runtimes first (for sessions started with a specific scenarioId),
+ * then falls back to the default singleton for back-compat.
+ */
+function resolveSessionRuntime(
+  ctx: ApiAppContext,
+  stationRunId: string,
+): ScenarioRuntime {
+  return ctx.perSessionRuntime.get(stationRunId) ?? ctx.runtime;
+}
 
 /** EncounterSession domain routes (composition-root migration). */
 export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
   const { runtime, persistence, telemetry, sessionOwners } = ctx;
 
   app.post(routeById("start-session").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { learnerId?: string; consentAccepted?: boolean };
+    const body = (await context.req.json().catch(() => ({}))) as {
+      learnerId?: string;
+      consentAccepted?: boolean;
+      scenarioId?: string;
+    };
     if (body.consentAccepted !== true) {
       asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
       return context.json({ error: "consent_required" }, 400);
@@ -22,12 +45,33 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
       asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
       return context.json({ error: "learner_id_required" }, 400);
     }
+
+    // Resolve per-session runtime when scenarioId is provided.
+    let sessionRuntime: ScenarioRuntime = runtime;
+    if (body.scenarioId) {
+      const port: ScenarioCatalogPort = {};
+      if (persistence.getAuthoredScenario) {
+        port.getAuthoredScenario = persistence.getAuthoredScenario.bind(persistence);
+      }
+      const entry = await resolveScenarioById(body.scenarioId, port);
+      if (!entry) {
+        return context.json({ error: "scenario_not_found", scenarioId: body.scenarioId }, 404);
+      }
+      sessionRuntime = createDefaultScenarioRuntime({
+        scenario: entry.scenario,
+        durableStore: createScenarioRuntimeDurableStoreFromApiPersistence(persistence),
+      });
+    }
+
     try {
-      const run = await runtime.startSession({ learnerId, consentAccepted: true });
+      const run = await sessionRuntime.startSession({ learnerId, consentAccepted: true });
       sessionOwners.set(run.stationRunId, learnerId);
-      await persistTraceSnapshot(runtime, persistence, run.stationRunId);
+      if (sessionRuntime !== runtime) {
+        ctx.perSessionRuntime.set(run.stationRunId, sessionRuntime);
+      }
+      await persistTraceSnapshot(sessionRuntime, persistence, run.stationRunId);
       asRealTelemetryRecorder(telemetry)?.incrementRun("started");
-      return context.json(run, 201);
+      return context.json({ ...run, scenarioId: run.scenarioId }, 201);
     } catch (error) {
       asRealTelemetryRecorder(telemetry)?.incrementRun("failed");
       throw error;
@@ -37,10 +81,11 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
   app.post(routeById("start-encounter").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const summary = runtime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      const summary = sessionRuntime.startEncounter(stationRunId, { atSecond: body.atSecond ?? 60 });
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       asRealTelemetryRecorder(telemetry)?.incrementEncounter("started");
       return context.json(summary);
     } catch (error) {
@@ -57,15 +102,16 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
       tag?: string;
       actorId?: string;
     };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const event = runtime.appendLearnerEvent(stationRunId, {
+      const event = sessionRuntime.appendLearnerEvent(stationRunId, {
         eventType: body.eventType ?? "learner.action",
         atSecond: body.atSecond ?? 0,
         ...(body.tag ? { tag: body.tag } : {}),
         ...(body.actorId ? { actorId: body.actorId } : {}),
       });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json(event, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -81,16 +127,17 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
       actionType?: unknown;
       label?: unknown;
     };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const event = runtime.recordClinicalAction(stationRunId, {
+      const event = sessionRuntime.recordClinicalAction(stationRunId, {
         atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
         actorId: typeof body.actorId === "string" ? body.actorId : "",
         traceTag: typeof body.traceTag === "string" ? body.traceTag : "clinical_action",
         actionType: body.actionType === "finding_observed" ? "finding_observed" : "order_requested",
         label: typeof body.label === "string" ? body.label : "Clinical action",
       });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json(event, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -106,15 +153,16 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
       source?: unknown;
     };
     const source = parseActorInteractionSource(body.source);
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const result = runtime.routeActorInteractionTurn(stationRunId, {
+      const result = sessionRuntime.routeActorInteractionTurn(stationRunId, {
         learnerUtterance: typeof body.learnerUtterance === "string" ? body.learnerUtterance : "",
         atSecond: typeof body.atSecond === "number" ? body.atSecond : 0,
         traceContextTags: parseStringArray(body.traceContextTags),
         ...(source ? { source } : {}),
       });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json({
         routedActorId: result.routedActorId,
         routingReason: result.routingReason,
@@ -140,22 +188,23 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
     const traceContextTags = parseStringArray(body.traceContextTags);
     const actorId = typeof body.actorId === "string" ? body.actorId.trim() : "";
     const source = parseActorInteractionSource(body.source);
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
       const result = actorId.length > 0
-        ? await runtime.generateActorResponse(stationRunId, {
+        ? await sessionRuntime.generateActorResponse(stationRunId, {
             actorId,
             learnerUtterance,
             atSecond,
             traceContextTags,
           })
-        : await runtime.generateRoutedActorResponse(stationRunId, {
+        : await sessionRuntime.generateRoutedActorResponse(stationRunId, {
             learnerUtterance,
             atSecond,
             traceContextTags,
             ...(source ? { source } : {}),
           });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json(result, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -170,15 +219,16 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
       text?: string;
       atSecond?: number;
     };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const result = await runtime.synthesizeActorSpeech(stationRunId, {
+      const result = await sessionRuntime.synthesizeActorSpeech(stationRunId, {
         actorId: body.actorId ?? "",
         voiceId: body.voiceId ?? "",
         text: body.text ?? "",
         atSecond: body.atSecond ?? 0,
       });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json(result, 201);
     } catch (error) {
       return sessionErrorResponse(context, error);
@@ -188,13 +238,14 @@ export function registerEncounterSessionRoutes(app: Hono<{ Variables: ApiAppVari
   app.post(routeById("submit-note").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
     const body = (await context.req.json().catch(() => ({}))) as { atSecond?: number; text?: string };
+    const sessionRuntime = resolveSessionRuntime(ctx, stationRunId);
 
     try {
-      const result = runtime.submitNote(stationRunId, {
+      const result = sessionRuntime.submitNote(stationRunId, {
         atSecond: body.atSecond ?? 1260,
         text: body.text ?? "",
       });
-      await persistTraceSnapshot(runtime, persistence, stationRunId);
+      await persistTraceSnapshot(sessionRuntime, persistence, stationRunId);
       return context.json(result);
     } catch (error) {
       return sessionErrorResponse(context, error);

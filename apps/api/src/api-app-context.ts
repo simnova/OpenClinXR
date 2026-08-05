@@ -43,6 +43,8 @@ export type ApiAppContext = {
   };
   /** stationRunId → owner learnerId (attached at session-create). */
   readonly sessionOwners: Map<string, string>;
+  /** stationRunId → ScenarioRuntime for sessions started with a non-default scenarioId. */
+  readonly perSessionRuntime: Map<string, ScenarioRuntime>;
   readonly adminScenarioOverrides: Map<string, AdminGraphqlScenario>;
   readonly sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[];
   readonly runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[];
@@ -96,6 +98,7 @@ export function createApiAppContext(
       defaultIdentity: options.auth?.defaultIdentity ?? DEFAULT_DEV_AUTH_IDENTITY,
     },
     sessionOwners: new Map<string, string>(),
+    perSessionRuntime: new Map<string, ScenarioRuntime>(),
     adminScenarioOverrides: new Map<string, AdminGraphqlScenario>(),
     sceneGenerationRequests,
     runtimeRealismEvidenceInputReviewDecisions: [],

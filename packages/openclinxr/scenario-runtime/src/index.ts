@@ -20,8 +20,14 @@ export { createDurableStoreFromPersistenceHooks } from "./provider-support.js";
 export {
   createDefaultScenarioRuntime,
   createScenarioRuntimeWithPersistenceHooks,
-  ScenarioRuntime,
-} from "./scenario-runtime.js";
+} from "./default-runtime-factory.js";
+export {
+  type ScenarioCatalogEntry,
+  type ScenarioCatalogPort,
+  type ScenarioCatalogSource,
+  resolveScenarioById,
+} from "./scenario-catalog.js";
+export { ScenarioRuntime } from "./scenario-runtime.js";
 export type {
   CreateDefaultScenarioRuntimeOptions,
   DurableStorePersistenceHooks,

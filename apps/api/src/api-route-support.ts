@@ -100,6 +100,7 @@ import {
 import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 import { attachMaterializationAttachmentPlanSummary, attachMaterializationEvidenceAttachmentSummary, attachMaterializationInputManifestSummary, attachMaterializationInputReviewDecisionRecord, attachPedsHumanoidMaterializationHandoff, attachRuntimeEvidenceCaptureScaffold, attachRuntimeRealismEvidenceInputDraft, attachRuntimeRealismEvidenceInputReviewDecisionRecord, attachRuntimeVisualEvidenceAttachmentActionPacket, attachRuntimeVisualEvidenceAttachmentRecord, attachRuntimeVisualEvidenceAttachmentSummary, buildMaterializationInputReviewActionPacket, buildMaterializationInputReviewDecisionRecord, buildRuntimeRealismEvidenceAttachmentSummary, buildRuntimeRealismEvidenceInputReviewDecisionRecord, buildRuntimeVisualEvidenceAttachmentActionPacket, buildRuntimeVisualEvidenceAttachmentRecord, isRecord, parseStringArray, readMaterializationAttachmentPlanSummaryForScenario, readMaterializationEvidenceAttachmentSummaryForScenario, readMaterializationInputManifestSummaryForScenario, readRepoGeneratedJsonIfExists, readRuntimeEvidenceCaptureScaffoldForScenario, realtimeVoiceProtocolPreference } from "./api-support.js";
+import { listAdminGraphqlScenarios, toAdminGraphqlScenario } from "./admin-scenario-listing.js";
 
 import type {
   RuntimeTraceEvents,
@@ -1001,22 +1002,8 @@ export function isReviewerEvidence(value: unknown): value is ReviewerEvidence {
     && typeof value["reviewedAt"] === "string";
 }
 
-export async function listAdminGraphqlScenarios(
-  persistence: ApiPersistenceSink,
-  scenarioOverrides: Map<string, AdminGraphqlScenario>,
-): Promise<AdminGraphqlScenario[]> {
-  const reviewDecisions = await listScenarioReviewDecisionRecords(persistence);
-
-  return scenarioBank.map((scenario) => {
-    const scenarioKey = scenarioVersionKey(scenario.scenarioId, scenario.version);
-    const baseScenario = scenarioOverrides.get(scenarioKey) ?? toAdminGraphqlScenario(scenario);
-
-    return reviewDecisions
-      .filter((decision) => decision.scenarioId === baseScenario.scenarioId && decision.version === baseScenario.version)
-      .sort(compareScenarioReviewDecisions)
-      .reduce(applyScenarioReviewDecision, baseScenario);
-  });
-}
+// Re-export for external consumers that still import from api-route-support.
+export { listAdminGraphqlScenarios, toAdminGraphqlScenario };
 
 export async function listScenarioReviewDecisionRecords(
   persistence: ApiPersistenceSink,
@@ -1092,32 +1079,4 @@ export function scenarioStatusForReview(review: AdminGraphqlScenario["review"]):
     return AdminGraphqlScenarioStatus.Draft;
   }
   return AdminGraphqlScenarioStatus.ReadyForReview;
-}
-
-export function toAdminGraphqlScenario(scenario: (typeof scenarioBank)[number]): AdminGraphqlScenario {
-  return {
-    scenarioId: scenario.scenarioId,
-    version: scenario.version,
-    title: scenario.title,
-    status: toAdminGraphqlScenarioStatus(scenario.status),
-    clinicalObjectives: scenario.clinicalObjectives,
-    actors: scenario.actors.map(({ hiddenFacts: _hiddenFacts, ...actor }) => actor),
-    requiredTraceTags: scenario.requiredTraceTags,
-    review: { ...scenario.review },
-    governance: scenario.governance,
-    equipment: [...(scenario.equipment ?? [])],
-    assetNeeds: [...(scenario.assetNeeds ?? [])],
-    ...(scenario.environment === undefined ? {} : { environment: scenario.environment }),
-  };
-}
-
-export function toAdminGraphqlScenarioStatus(status: (typeof scenarioBank)[number]["status"]): AdminGraphqlScenario["status"] {
-  switch (status) {
-    case "approved":
-      return AdminGraphqlScenarioStatus.Approved;
-    case "retired":
-      return AdminGraphqlScenarioStatus.Archived;
-    case "draft":
-      return AdminGraphqlScenarioStatus.Draft;
-  }
 }

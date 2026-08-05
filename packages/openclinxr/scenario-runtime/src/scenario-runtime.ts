@@ -1,4 +1,4 @@
-import { createScenarioPlaceholderManifests, InMemoryAssetRegistry, type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
+import { type ScenarioAssetReadiness } from "@openclinxr/asset-registry";
 import {
   type ActorTurnInProgress,
   type ArbitrateTurnTakingInput,
@@ -16,9 +16,6 @@ import {
 import { createStationRun, type StationRun, transitionStation } from "@openclinxr/domain";
 import {
   type ActorResponseResult,
-  createDefaultModelGateway,
-  LocalModelProviderAdapter,
-  MockModelProviderAdapter,
   type ModelGateway,
 } from "@openclinxr/model-gateway";
 import {
@@ -26,7 +23,6 @@ import {
   evaluateScenarioPublicationReadiness,
   type ScenarioPublicationReadiness,
 } from "@openclinxr/review-workflow";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import {
   type ActorModelContext,
   buildActorModelContext,
@@ -36,20 +32,15 @@ import {
   routeActorInteraction,
 } from "@openclinxr/session-state";
 import { type InteractionEmotion, type ProviderHealth, type ReviewPacket, type Scenario, type TraceEvent } from "@openclinxr/shared-schemas";
-import { InMemoryTraceLedger } from "@cellix/trace-ledger";
 import {
   type AudioEvent,
   collectVoiceStream,
-  createDefaultVoiceGateway,
-  LocalVoiceProviderAdapter,
-  MockVoiceProviderAdapter,
   type VoiceGateway,
 } from "@openclinxr/voice-gateway";
 import { resolveCaseEmotionPolicy } from "./emotion-policy.js";
 import {
   actorInteractionRoutePayload,
   actorResponsePolicy,
-  createDurableStoreFromPersistenceHooks,
   modelActorResponseRequestId,
   requireProviderHealth,
   settleDurableStoreCall,
@@ -58,8 +49,6 @@ import {
 } from "./provider-support.js";
 import { durableEventRef, traceEvent, type TraceEventInput, withDurableEventRef } from "./trace.js";
 import type {
-  CreateDefaultScenarioRuntimeOptions,
-  DurableStorePersistenceHooks,
   GenerateActorResponseFromContextInput,
   GenerateActorResponseInput,
   GenerateActorResponseResult,
@@ -764,42 +753,5 @@ export class ScenarioRuntime {
   }
 }
 
-/** Attach rejection guard for fire-and-forget durable hooks from sync APIs. */
-
-export function createDefaultScenarioRuntime(
-  options?: CreateDefaultScenarioRuntimeOptions,
-): ScenarioRuntime {
-  const assetRegistry = new InMemoryAssetRegistry();
-  for (const manifest of createScenarioPlaceholderManifests(edChestPainScenario)) {
-    assetRegistry.upsert(manifest);
-  }
-
-  return new ScenarioRuntime({
-    scenario: edChestPainScenario,
-    ledger: new InMemoryTraceLedger(),
-    assetRegistry,
-    modelGateway: createDefaultModelGateway({
-      routeId: "actor-dialogue-offline-v1",
-      adapters: [new MockModelProviderAdapter(), new LocalModelProviderAdapter({ providerId: "local-model" })],
-    }),
-    voiceGateway: createDefaultVoiceGateway({
-      routeId: "voice-offline-v1",
-      adapters: [new MockVoiceProviderAdapter(), new LocalVoiceProviderAdapter({ providerId: "local-voice" })],
-    }),
-    conversationPolicy: options?.conversationPolicy ?? createDefaultConversationPolicy(),
-    ...(options?.durableStore ? { durableStore: options.durableStore } : {}),
-  });
-}
-
-/**
- * Convenience: createDefaultScenarioRuntime with ApiPersistenceSink-shaped hooks
- * forwarded via createDurableStoreFromPersistenceHooks.
- * apps/api bootstrap residual is a one-liner over this (or createDefaultScenarioRuntime + hooks).
- */
-export function createScenarioRuntimeWithPersistenceHooks(
-  hooks: DurableStorePersistenceHooks,
-): ScenarioRuntime {
-  return createDefaultScenarioRuntime({
-    durableStore: createDurableStoreFromPersistenceHooks(hooks),
-  });
-}
+// Factory functions extracted to default-runtime-factory.ts to keep class file under freeze.
+export { createDefaultScenarioRuntime, createScenarioRuntimeWithPersistenceHooks } from "./default-runtime-factory.js";

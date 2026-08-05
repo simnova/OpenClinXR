@@ -5114,6 +5114,163 @@ describe("authored scenario persistence routes", () => {
   });
 });
 
+describe("admin scenario listing includes authored scenarios", () => {
+  function createAuthoredScenarioMemorySink(): ApiPersistenceSink {
+    const authoredScenarios = new Map<string, Scenario>();
+    return {
+      saveAuthoredScenario: (scenario) => {
+        authoredScenarios.set(`${scenario.scenarioId}::${scenario.version}`, scenario);
+      },
+      listAuthoredScenarios: () =>
+        Array.from(authoredScenarios.values()).sort(
+          (a, b) => a.scenarioId.localeCompare(b.scenarioId) || a.version - b.version,
+        ),
+      getAuthoredScenario: (scenarioId) => {
+        const matches = Array.from(authoredScenarios.values())
+          .filter((scenario) => scenario.scenarioId === scenarioId)
+          .sort((a, b) => b.version - a.version);
+        return matches[0];
+      },
+    };
+  }
+
+  const authoredScenario: Scenario = {
+    ...edChestPainScenario,
+    scenarioId: "authored_admin_case_v1",
+    version: 1,
+    title: "Authored Admin Case",
+  };
+
+  it("admin graphql scenarios list includes authored entries with catalog_source marker", async () => {
+    const persistence = createAuthoredScenarioMemorySink();
+    await persistence.saveAuthoredScenario!(authoredScenario);
+    const app = createApiApp(undefined, persistence);
+
+    // Use the admin graphql to list all scenarios.
+    const response = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: `{ scenarios { scenarioId title governance { sourceIds } } }`,
+      }),
+    });
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      data?: { scenarios?: Array<{ scenarioId: string; title: string; governance: { sourceIds: string[] } }> };
+    };
+    const scenarios = body.data?.scenarios ?? [];
+    expect(scenarios.length).toBeGreaterThan(1);
+
+    // Authored entry is present.
+    const authored = scenarios.find((s) => s.scenarioId === "authored_admin_case_v1");
+    expect(authored).toBeDefined();
+    expect(authored!.title).toBe("Authored Admin Case");
+    expect(authored!.governance.sourceIds).toContain("catalog_source:authored");
+
+    // A fixture entry has the fixture marker.
+    const edFixture = scenarios.find((s) => s.scenarioId === "ed_chest_pain_priority_v1");
+    expect(edFixture).toBeDefined();
+    expect(edFixture!.governance.sourceIds).toContain("catalog_source:fixture");
+  });
+});
+
+describe("start-session with scenarioId", () => {
+  function createAuthoredScenarioMemorySink(): ApiPersistenceSink {
+    const authoredScenarios = new Map<string, Scenario>();
+    return {
+      saveAuthoredScenario: (scenario) => {
+        authoredScenarios.set(`${scenario.scenarioId}::${scenario.version}`, scenario);
+      },
+      listAuthoredScenarios: () =>
+        Array.from(authoredScenarios.values()).sort(
+          (a, b) => a.scenarioId.localeCompare(b.scenarioId) || a.version - b.version,
+        ),
+      getAuthoredScenario: (scenarioId) => {
+        const matches = Array.from(authoredScenarios.values())
+          .filter((scenario) => scenario.scenarioId === scenarioId)
+          .sort((a, b) => b.version - a.version);
+        return matches[0];
+      },
+    };
+  }
+
+  it("starts a session with a non-ED fixture scenario by scenarioId", async () => {
+    const app = createApiApp();
+    const response = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerId: "learner_peds_001",
+        consentAccepted: true,
+        scenarioId: "peds_asthma_parent_anxiety_v1",
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { stationRunId: string; scenarioId: string; phase: string };
+    expect(body.scenarioId).toBe("peds_asthma_parent_anxiety_v1");
+    expect(body.phase).toBe("doorway");
+  });
+
+  it("starts a session with an authored scenario by scenarioId after save", async () => {
+    const persistence = createAuthoredScenarioMemorySink();
+    const authored: Scenario = {
+      ...edChestPainScenario,
+      scenarioId: "authored_session_case_v1",
+      version: 1,
+      title: "Authored Session Case",
+    };
+    await persistence.saveAuthoredScenario!(authored);
+
+    const app = createApiApp(undefined, persistence);
+    const response = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerId: "learner_authored_001",
+        consentAccepted: true,
+        scenarioId: "authored_session_case_v1",
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { stationRunId: string; scenarioId: string; phase: string };
+    expect(body.scenarioId).toBe("authored_session_case_v1");
+  });
+
+  it("returns 404 for unknown scenarioId", async () => {
+    const app = createApiApp();
+    const response = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerId: "learner_unknown",
+        consentAccepted: true,
+        scenarioId: "nonexistent_scenario",
+      }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "scenario_not_found", scenarioId: "nonexistent_scenario" });
+  });
+
+  it("omitting scenarioId keeps backward-compatible default (ED chest pain)", async () => {
+    const app = createApiApp();
+    const response = await app.request("/sessions", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        learnerId: "learner_default",
+        consentAccepted: true,
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as { scenarioId: string };
+    expect(body.scenarioId).toBe("ed_chest_pain_priority_v1");
+  });
+});
+
 function reviewer(reviewerRole: string, reviewerId: string) {
   return {
     reviewerRole,
