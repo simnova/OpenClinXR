@@ -40,3 +40,26 @@ export const WORKER_OUTPUT_BUDGET_DIRECTIVE =
   "`--ui=stream --output-logs=errors-only`); never run bare `turbo run` across all packages. " +
   "Single-package `pnpm --filter <pkg> test` is fine. NEVER grep a common identifier repo-wide — " +
   "scope every grep to a directory and pipe through `| head -20`.";
+
+/**
+ * Shared-tree safety.
+ *
+ * NOT auto-baked into the spawn prompt: that prompt is already at its 4500-char budget (enforced by
+ * a test), and adding this pushed multiple roles over. Rather than shave it to meaninglessness or
+ * raise the budget, it is exported for ORCHESTRATOR-WRITTEN dispatch prompts, which have room.
+ * Reconsider auto-baking if prompt space is reclaimed — there is existing overlap between the
+ * preferredCli guidance and WORKER_OUTPUT_BUDGET_DIRECTIVE that could be merged.
+ *
+ * Measured 2026-08-05: `--cwd <worktree>` does NOT isolate file edits — a worker given a worktree
+ * path wrote into the MAIN checkout. So workers share one tree with the orchestrator and possibly
+ * each other. Three concrete incidents drove each rule below:
+ *  - `git add <package-dir>` swept 24 build artifacts into a commit (gitignore had fixed-depth globs).
+ *  - `git stash` during a verification cycle appears to have swallowed another agent's untracked
+ *    file, which then had to be reconstructed.
+ *  - 19 abandoned worktrees accumulated across sessions (~22 GB) because nothing cleaned them up.
+ *
+ * Full write-up: agentic-eval `docs/findings/delegation-reliability.md`.
+ */
+export const WORKER_SHARED_TREE_DIRECTIVE =
+  "SHARED TREE: --cwd does NOT isolate you — you edit the MAIN checkout beside other agents. Stage " +
+  "explicit paths only (never a dir or -A: that committed 24 dist files). Never git stash.";

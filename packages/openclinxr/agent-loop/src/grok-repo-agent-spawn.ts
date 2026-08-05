@@ -21,7 +21,7 @@ import {
   buildParentSpawnChecklist,
   type ParentSpawnChecklist,
 } from "./spawn-isolation.js";
-import { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
+import { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_SHARED_TREE_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
 
 export type GrokRepoAgentSpawnSurface = "grok_native_spawn_subagent" | "composer_main_thread";
 
@@ -75,7 +75,7 @@ export type GrokRepoAgentSpawnRegistryReport = {
   agents: GrokRepoAgentSpawnSpec[];
 };
 
-export { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
+export { WORKER_OUTPUT_BUDGET_DIRECTIVE, WORKER_SHARED_TREE_DIRECTIVE, WORKER_TONE_DIRECTIVE } from "./worker-directives.js";
 
 export const GROK_REPO_AGENT_SPAWN_SAFEGUARDS = [
   "Spawn only repo-defined roles from agents/** with charter.md + memory.md + index.json.",
