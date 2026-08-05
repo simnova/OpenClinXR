@@ -12,11 +12,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 70
-- archive-candidate: 8
+- archive-candidate: 11
 - current-reference: 205
 - decision-record: 25
 - evidence: 37
-- historical-synthesis: 9
+- historical-synthesis: 11
 - protected-policy: 10
 
 ## Highest-Value Current Navigation
@@ -244,6 +244,9 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

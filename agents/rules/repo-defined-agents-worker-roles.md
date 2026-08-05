@@ -20,7 +20,7 @@ Minimum repo-native agent context for realignment:
 - `docs/agent-factory/operating-loop.md`
 - `docs/agent-factory/model-assignment-policy.md`
 - `docs/agent-factory/rubric.md`
-- Latest `iterations/iteration-*/07-final-synthesis.md`
+- Latest iteration synthesis: `docs/_archive/iterations/0009/07-final-synthesis.md` (the live `iterations/` tree was retired 2026-08-05; the synthesis is retained in the docs warehouse because this rule depends on it)
 - Relevant `agents/**/charter.md` and `agents/**/memory.md` for the active worker slice.
 
 Agent usage should serve the original team-of-agents request. The default mental model is:

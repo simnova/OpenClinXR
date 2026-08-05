@@ -6,11 +6,11 @@
   "counts": {
     "agent-methodology": 70,
     "current-reference": 205,
-    "archive-candidate": 8,
+    "archive-candidate": 11,
     "evidence": 37,
     "protected-policy": 10,
     "agent-memory": 34,
-    "historical-synthesis": 9,
+    "historical-synthesis": 11,
     "decision-record": 25
   },
   "entries": [
@@ -1275,6 +1275,20 @@
       "rationale": "Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it."
     },
     {
+      "path": "AUTONOMOUS_WORK_PLAN.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "PROJECT_COORDINATION_INDEX.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
       "path": "PROJECT_STATUS.md",
       "authority": "protected-policy",
       "agentInstructionWeight": "highest",
@@ -1821,6 +1835,20 @@
       "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
+      "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
+      "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
+      "authority": "historical-synthesis",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
+    },
+    {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
@@ -2281,6 +2309,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Current product reference, subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md",
