@@ -12,7 +12,8 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@openclinxr/shared-schemas": "workspace:*"
+    "@openclinxr/shared-schemas": "workspace:*",
+    "@cellix/provider-contracts": "workspace:*"
   },
   "devDependencies": {
     "typescript": "6.0.3",

@@ -1,4 +1,4 @@
-import { type TraceEvent, validateTraceEvent } from "@openclinxr/shared-schemas";
+import { type TraceEvent, validateTraceEvent } from "@cellix/provider-contracts";
 
 export class InMemoryTraceLedger {
   private readonly eventsByRun = new Map<string, TraceEvent[]>();

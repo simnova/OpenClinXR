@@ -1,4 +1,4 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 import type {
   VoiceCapability,
   RealtimeVoiceProtocolLaneId,

@@ -1,3 +1,18 @@
+import {
+  ModelProviderAuditSchema,
+  ProviderAuditRecordSchema,
+  ProviderHealthSchema,
+  TraceEventSchema,
+  VoiceProviderAuditSchema,
+} from "@cellix/provider-contracts";
+/** Generic provider/trace contracts now live in the cellix seedwork tier; re-exported for back-compat. */
+export {
+  ModelProviderAuditSchema,
+  ProviderAuditRecordSchema,
+  ProviderHealthSchema,
+  TraceEventSchema,
+  VoiceProviderAuditSchema,
+} from "@cellix/provider-contracts";
 import { type Static, Type } from "@sinclair/typebox";
 import {
   ReviewGateStateSchema,
@@ -140,17 +155,6 @@ export const DynamicEncounterFactoryProjectionArtifactSchema = Type.Object({
   scenarioBankSlice: Type.Array(ScenarioSchema),
 });
 
-export const TraceEventSchema = Type.Object({
-  stationRunId: Type.String({ minLength: 1 }),
-  sequence: Type.Integer({ minimum: 0 }),
-  eventType: Type.String({ minLength: 1 }),
-  occurredAt: Type.String({ format: "date-time" }),
-  atSecond: Type.Integer({ minimum: 0 }),
-  source: Type.String({ minLength: 1 }),
-  actorId: Type.Optional(Type.String({ minLength: 1 })),
-  tag: Type.Optional(Type.String({ minLength: 1 })),
-  payload: Type.Record(Type.String(), Type.Unknown()),
-});
 
 export const PatientNoteSchema = Type.Object({
   stationRunId: Type.String({ minLength: 1 }),
@@ -217,39 +221,6 @@ export const ReviewPacketSchema = Type.Object({
   facultyScoreDraft: FacultyScoreDraftSchema,
 });
 
-export const ProviderHealthSchema = Type.Object({
-  providerId: Type.String({ minLength: 1 }),
-  status: Type.Union([
-    Type.Literal("ready"),
-    Type.Literal("not_configured"),
-    Type.Literal("blocked"),
-  ]),
-  blockers: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
-  evidence: Type.Optional(Type.Object({
-    evidenceId: Type.String({ minLength: 1 }),
-    sourceFile: Type.String({ minLength: 1 }),
-    generatedAt: Type.String({ format: "date-time" }),
-    summary: Type.Record(Type.String({ minLength: 1 }), Type.Unknown()),
-  })),
-});
 
-export const ProviderAuditRecordSchema = Type.Object({
-  requestId: Type.String({ minLength: 1 }),
-  providerId: Type.String({ minLength: 1 }),
-  modelId: Type.String({ minLength: 1 }),
-  modelVersion: Type.String({ minLength: 1 }),
-  modelRuntimeName: Type.String({ minLength: 1 }),
-  requestPolicyId: Type.String({ minLength: 1 }),
-  safetyPolicyVersion: Type.String({ minLength: 1 }),
-  latencyMs: Type.Number({ minimum: 0 }),
-  costEstimateUsd: Type.Number({ minimum: 0 }),
-  safetyStatus: Type.Union([
-    Type.Literal("not_exercised"),
-    Type.Literal("pass"),
-    Type.Literal("blocked"),
-  ]),
-});
 
-export const ModelProviderAuditSchema = ProviderAuditRecordSchema;
-export const VoiceProviderAuditSchema = ProviderAuditRecordSchema;
 

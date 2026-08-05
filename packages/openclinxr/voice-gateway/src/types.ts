@@ -1,4 +1,4 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 
 export type VoiceCapability = "transcription" | "synthesis" | "viseme_cues" | "emotional_prosody" | "lip_sync_timing";
 

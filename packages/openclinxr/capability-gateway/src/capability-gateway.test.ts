@@ -1,4 +1,4 @@
-import type { ProviderHealth } from "@openclinxr/shared-schemas";
+import type { ProviderHealth } from "@cellix/provider-contracts";
 import { describe, expect, it } from "vitest";
 import {
   buildOpenClinXrCapabilityRoutingMatrix,

@@ -1,4 +1,4 @@
-import { type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 
 export type RuntimeProfile = "local-development" | "local-production" | "production";
 export type RuntimeProviderProfileKind = "deterministic-replay" | RuntimeProfile;

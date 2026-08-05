@@ -1,6 +1,6 @@
 {
-  "name": "@openclinxr/model-gateway",
-  "version": "0.1.0",
+  "name": "@cellix/provider-contracts",
+  "version": "1.0.0-openclinxr.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -12,12 +12,12 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
-    "@openclinxr/shared-schemas": "workspace:*",
-    "@cellix/provider-contracts": "workspace:*"
+    "@sinclair/typebox": "0.34.49",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
   },
   "devDependencies": {
     "typescript": "6.0.3",
-    "vitest": "4.1.5",
-    "@openclinxr/scenario-fixtures": "workspace:*"
+    "vitest": "4.1.5"
   }
 }

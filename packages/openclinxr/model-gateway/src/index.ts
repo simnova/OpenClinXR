@@ -1,4 +1,4 @@
-import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@openclinxr/shared-schemas";
+import { type ProviderAuditRecord, type ProviderHealth, validateProviderHealth } from "@cellix/provider-contracts";
 
 export type ModelCapability = "actor_response" | "scenario_draft" | "scenario_review";
 
