@@ -9,7 +9,7 @@ token_efficiency: high
 q_gates: [Q1, Q4, Q5]
 visibility: both
 strategic_group: orchestration-factory-v1
-last_measured: 2026-06-07
+last_measured: 2026-08-05
 parseable_sections: 4
 ---
 
@@ -23,19 +23,36 @@ parseable_sections: 4
 
 **Stable emphasis**: Sizable collaborative vertical slices; visibility/noticeability mandate; Q1/Q4/Q5; anti-toil; conversation tooling first-class; cheap-first tiering + self-escalation.
 
-**Next priority**: Epic **`arena-physics-clinical-touch-realbind-v1`** (ACTIVE). Dequeue `PROJECT_STATUS.md` **Next dequeue** = `arena-physics-realbind-r2-factory-physics-config` (Q1). R1 real Rapier WASM closed. Spec: `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. Continuity: `pnpm openclaw:epic -- plan` → lease → team-spawn → verify → advance → apply-header.
+**Next priority**: see the GitHub board (open issues, newest first). As of 2026-08-05 the highest-value open slice is **#25 scenario → runtime handoff** — the runtime can only run one hardcoded scenario, so 12 of 13 authored scenarios never execute and the existing exam-assembly logic has nothing to hand off to. Epic `arena-physics-clinical-touch-realbind-v1` is CLOSED (R1–R6 shipped 2026-08-02; R7 headset deferred by design per OD-4).
 
 **Recent summary**: Garment + Q4 durableStore/admin emission batch closed. Arena physics v1 closed (MADR 0029, candidates). BOD 2026-08-02 pivoted queue to realbind successor (real WASM + factory + UI-XR bind).
 
 ## Ownership Matrix
 
-| Worker | Area | Next slice | Template | Role lead |
-|--------|------|------------|----------|-----------|
-| arena | Physics realbind epic | `arena-physics-realbind-r2-factory-physics-config` → R3..R7 | epic ACTIVE | asset-pipeline / factory + xr-systems-architect + skeptic + drift-police |
-| 9/11 | UI-XR evidence | R3 bind (after R1/R2) | — | xr-systems-architect |
-| 10/11 | Asset factory | **parked** (no garment thrash) | real-garment-v1 | asset-pipeline-lead |
-| 7/8/9 | Admin review/replay | **parked** (batch closed) | admin-packet-replay | implementation-planning-lead |
-| 0 | Harness/autonomy | epic continuity + thrash 90m | — | chief-coordinator |
+**Ownership, dequeue order, and per-slice status are HOT state and live on the GitHub board**
+(`simnova/OpenClinXR` issues + OpenClinXR-Planning project), not in this table.
+
+This is not a formatting preference. A shared markdown table is the one artifact N concurrent
+worktree agents cannot all update — every agent writes the same lines and they collide. GitHub
+issues are concurrency-safe because each agent writes its OWN card. See
+`agents/rules/EXEC_REHYDRATE.md` § State discipline (HOT → GitHub, COLD → files).
+
+The previous table proved the point by rotting: on 2026-08-05 it was 59 days stale, 3 of its 5
+rows were factually wrong, both "parked" workers had in fact been the most active areas in the
+repo, and ~38% of shipped commits had no row at all. Root cause: `pnpm openclaw:post-slice`
+writes to `PROJECT_STATUS.md` and never to this file, so the table had no update path. Recorded
+in issue #27.
+
+**Stable role map** (COLD — who leads which functional area; not a queue):
+
+| Functional area | Role lead |
+|---|---|
+| WebXR asset & scene factory | asset-pipeline-lead |
+| Exam running / UI-XR runtime + evidence | xr-systems-architect |
+| Encounter authoring / admin / review | implementation-planning-lead |
+| Model Vetting tester app | asset-pipeline-lead + productivity-skeptic |
+| Harness / autonomy / orchestration | chief-coordinator |
+| Adversarial review | openclaw-drift-police, productivity-skeptic, implementation-plan-gap-attacker |
 
 Required per-slice record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice.
 
