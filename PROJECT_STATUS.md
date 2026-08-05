@@ -113,7 +113,11 @@ Evidence: scenario-runtime tsgo exit 0 + 36 tests; downstream @openclinxr/api ts
 
 Known pre-existing (NOT caused by this slice; surfaced by the finish worker): `@openclinxr/test-harness` `station-simulation.test.ts` fails on a scenario-COUNT drift (expects `scenarioCount: 12`, fixtures now yield 14). The split touches zero fixtures. Recommend a small fixture-count truing slice (owner: scenario-fixtures).
 
-Next queued slice: continue god-file paydown — `data-mongodb/src/repositories.ts` (1063 → one-repository-per-file) OR decompose the `ScenarioRuntime` class itself (806 → <500 by extracting method groups). Bigger structural piece (tier split: arch/feature/verification packages + one-way dependency arrow) deferred until a couple more splits prove the pattern.
+God-file paydown PROGRESS (ongoing — "keep clamping down"):
+- ✅ `scenario-runtime/src/index.ts` 1162 → 50 barrel + class(806) + 4 modules (585ea21).
+- ✅ `data-mongodb/src/repositories.ts` 1062 → 8 per-domain modules ≤277 (22eb74d; coupled workspace-architecture rules followed the moved provenance strings).
+- ✅ `scenario-fixtures/src/scenario-bank.ts` 2690 → 920 + 11 per-scenario files + builders (a2ea1d3; residual = maturity analytics).
+Remaining big offenders (freeze list): apps/ui-xr/main.ts (10255), runtime-state.ts (3743), apps/api/app.ts (3282), asset-registry/index.ts (2887), arena/iwsdk-spike (2398), capability-gateway/asset-generation-jobs.ts (2107), ui-admin/api-client.ts (1876), asset-registry/runtime-bundles.ts (1638), ui-admin/App.tsx (1631), session-state/index.ts (1606), agent-loop/index.ts (1306) + follow-ons (scenario-runtime class 806, scenario-bank maturity 920). DELEGATION VERDICT: do carves MYSELF (grok workers killed 3/5 on big-file carves — see memory); freeze-file serialization forces one committed split at a time. Next: session-state/index.ts (1606).
 
 ### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
 
