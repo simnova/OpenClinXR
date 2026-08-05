@@ -113,11 +113,26 @@ Evidence: scenario-runtime tsgo exit 0 + 36 tests; downstream @openclinxr/api ts
 
 Known pre-existing (NOT caused by this slice; surfaced by the finish worker): `@openclinxr/test-harness` `station-simulation.test.ts` fails on a scenario-COUNT drift (expects `scenarioCount: 12`, fixtures now yield 14). The split touches zero fixtures. Recommend a small fixture-count truing slice (owner: scenario-fixtures).
 
-God-file paydown PROGRESS (ongoing — "keep clamping down"):
-- ✅ `scenario-runtime/src/index.ts` 1162 → 50 barrel + class(806) + 4 modules (585ea21).
-- ✅ `data-mongodb/src/repositories.ts` 1062 → 8 per-domain modules ≤277 (22eb74d; coupled workspace-architecture rules followed the moved provenance strings).
-- ✅ `scenario-fixtures/src/scenario-bank.ts` 2690 → 920 + 11 per-scenario files + builders (a2ea1d3; residual = maturity analytics).
-Remaining big offenders (freeze list): apps/ui-xr/main.ts (10255), runtime-state.ts (3743), apps/api/app.ts (3282), asset-registry/index.ts (2887), arena/iwsdk-spike (2398), capability-gateway/asset-generation-jobs.ts (2107), ui-admin/api-client.ts (1876), asset-registry/runtime-bundles.ts (1638), ui-admin/App.tsx (1631), session-state/index.ts (1606), agent-loop/index.ts (1306) + follow-ons (scenario-runtime class 806, scenario-bank maturity 920). DELEGATION VERDICT: do carves MYSELF (grok workers killed 3/5 on big-file carves — see memory); freeze-file serialization forces one committed split at a time. Next: session-state/index.ts (1606).
+God-file paydown PROGRESS (Atlantis package/role decomposition; queue = GitHub issue #11):
+DONE (8 production package barrels/god-files split; public APIs preserved; tests + downstream + arch-rules green; 585ea21..ae59309):
+- ✅ scenario-runtime/index.ts 1162 → 50 barrel + class(806 residual) + 4 modules
+- ✅ data-mongodb/repositories.ts 1062 → 8 per-domain modules ≤277
+- ✅ scenario-fixtures/scenario-bank.ts 2690 → 920 residual + 11 per-scenario files + builders
+- ✅ session-state/index.ts 1606 → barrel + types/core/messaging + internal(732 residual)
+- ✅ agent-loop/index.ts 1306 → types/roster/plan/model-recommendation/internal + barrel (ALL <500)
+- ✅ exam-assembly/index.ts 715 → types/assembly/exam-run (ALL <500)
+- ✅ capability-gateway/index.ts 928 → types/routing-matrix/facade-and-readiness/internal (ALL <500)
+- ✅ voice-gateway/index.ts 742 → types/gateway/adapters (ALL <500)
+
+CARVE TECHNIQUE (proven, reusable): mjs script extracts type block → internal helpers → concern modules → barrel; over-import all type/helper names (unused harmless); tsgo-iterate; relocate a helper to break cycles; repoint coupled workspace-architecture.test.ts rules that readFileSync a moved provenance string. Do carves MYSELF (grok workers killed 3/5 on big-file carves — see memory).
+
+REMAINING — two buckets:
+- CLEANLY CARVABLE (top types block, then functions) — mostly done; low-value leftovers are arena spikes (multi-actor-state-spike 929, model-vetting 771 — interleaved exported/internal in fn region).
+- INTERLEAVED / hard (types+data+logic mixed, cross-referencing helpers → need careful manual carve, NOT quick script): asset-registry/runtime-bundles.ts (1638), asset-generation-jobs.ts (2107), asset-registry/index.ts (2887), role-harness-policy.ts (950), schemas.ts (594).
+- APP-SURFACE (React/route wiring): apps/api/app.ts (3282), api-bootstrap.ts (908), ui-admin/api-client.ts (1876), App.tsx (1631), panels.
+- THE MONSTER: apps/ui-xr/main.ts (10255) + runtime-state.ts (3743) — xr role, focused subsystem carve.
+- RESIDUALS (from splits above, still >500): scenario-runtime.ts class(806), session-state internal(732), scenario-bank maturity(920).
+PRE-EXISTING (not paydown): scenarioBank 12→14 drift fails exam-assembly.test x3 + test-harness — needs domain decision (issue #11).
 
 ### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
 
