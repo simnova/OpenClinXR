@@ -1,0 +1,22 @@
+{
+  "name": "@cellix/server-mongodb-memory-mock",
+  "version": "1.0.0-openclinxr.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome check --no-errors-on-unmatched .",
+    "typecheck": "tsgo --noEmit -p tsconfig.json",
+    "test": "vitest run --root ."
+  },
+  "dependencies": {
+    "mongodb": "7.2.0",
+    "mongodb-memory-server": "11.1.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
+  }
+}

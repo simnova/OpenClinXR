@@ -1157,7 +1157,8 @@ describe("workspace architecture rules", () => {
           specifier: "mongodb-memory-server",
         },
         {
-          filePath: "packages/openclinxr/data-mongodb/src/mongo-memory-context.ts",
+          // The harness now lives in the seedwork tier; its allowlisted location must NOT be flagged.
+          filePath: "packages/cellix/server-mongodb-memory-mock/src/index.ts",
           specifier: "mongodb-memory-server",
         },
       ],
@@ -1214,6 +1215,14 @@ describe("workspace architecture rules", () => {
       mongodb: "7.2.0",
     });
     expect(manifest.devDependencies).toMatchObject({
+      "@cellix/server-mongodb-memory-mock": "workspace:*",
+    });
+    // The exact mongodb-memory-server pin moved with the harness into the seedwork tier; keep
+    // asserting it there so the version cannot drift now that no product package declares it.
+    const memoryMockManifest = JSON.parse(
+      readFileSync(join(workspaceRoot, "packages/cellix/server-mongodb-memory-mock/package.json"), "utf8"),
+    ) as { dependencies?: Record<string, string> };
+    expect(memoryMockManifest.dependencies).toMatchObject({
       "mongodb-memory-server": "11.1.0",
     });
     expect(recordsSource).toContain("conversation_turns_and_emotional_state_timeline_only");
@@ -1724,13 +1733,16 @@ function findMongoMemoryServerBoundaryViolations(input: MongoMemoryServerBoundar
   return [
     ...input.manifestDependencies
       .filter(({ dependency }) => dependency === "mongodb-memory-server")
-      .filter(({ manifestPath, field }) =>
-        field !== "devDependencies"
-        || ![
-          "packages/openclinxr/data-mongodb/package.json",
-          "packages/openclinxr/data-sources-mongoose-models/package.json",
-        ].includes(manifestPath)
-      )
+      .filter(({ manifestPath, field }) => {
+        if (manifestPath === "packages/cellix/server-mongodb-memory-mock/package.json") {
+          return field !== "dependencies";
+        }
+        return field !== "devDependencies"
+          || ![
+            "packages/openclinxr/data-mongodb/package.json",
+            "packages/openclinxr/data-sources-mongoose-models/package.json",
+          ].includes(manifestPath);
+      })
       .map(({ manifestPath, field, dependency }) => `manifest:${manifestPath}:${field}.${dependency}`),
     ...input.sourceReferences
       .filter(({ specifier }) => specifier === "mongodb-memory-server" || specifier.startsWith("mongodb-memory-server/"))
@@ -1741,8 +1753,9 @@ function findMongoMemoryServerBoundaryViolations(input: MongoMemoryServerBoundar
 
 function isAllowedMongoMemoryServerSource(filePath: string): boolean {
   return [
-    /^packages\/openclinxr\/data-mongodb\/src\/(?:.*\.test\.ts|mongo-memory-context\.ts)$/,
+    /^packages\/openclinxr\/data-mongodb\/src\/.*\.test\.ts$/,
     /^packages\/openclinxr\/data-sources-mongoose-models\/src\/(?:.*\.test\.ts|mongoose-memory-context\.ts)$/,
+    /^packages\/cellix\/server-mongodb-memory-mock\/src\/index\.ts$/,
   ].some((pattern) => pattern.test(filePath));
 }
 

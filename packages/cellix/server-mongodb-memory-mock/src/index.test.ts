@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mongoMemoryServerTestOptions } from "./mongo-memory-context.js";
+import { mongoMemoryServerTestOptions } from "./index.js";
 
 describe("MongoDB memory test context", () => {
   it("keeps MongoDB startup tolerant under parallel package test load", () => {

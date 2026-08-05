@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
 
 /**
  * Boot module lives in tools/ (composition root). Load via absolute file URL so:
@@ -58,8 +58,8 @@ describe("API Mongo boot cross-restart persistence", () => {
   beforeAll(async () => {
     context = await createMongoMemoryTestContext();
     uri = context.server.getUri();
-    // MUST match mongo-memory-context.ts: client.db("openclinxr_test")
-    dbName = "openclinxr_test";
+    // MUST match the default databaseName parameter in @cellix/server-mongodb-memory-mock
+    dbName = "test_db";
     const bootModule = await loadBootModule();
     bootApiPersistence = bootModule.bootApiPersistence;
     createBootedOpenClinXrApiStartup = bootModule.createBootedOpenClinXrApiStartup;

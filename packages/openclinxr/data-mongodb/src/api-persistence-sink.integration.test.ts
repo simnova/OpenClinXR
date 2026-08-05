@@ -4,7 +4,7 @@ import type { AsyncDurableMultiActorSessionStore } from "@openclinxr/session-sta
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createEdChestPainLocalLearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import { createMongoApiPersistenceSink } from "./index.js";
-import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
 
 async function json(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;

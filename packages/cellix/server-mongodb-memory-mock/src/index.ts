@@ -17,11 +17,11 @@ export type MongoMemoryTestContext = {
   close(): Promise<void>;
 };
 
-export async function createMongoMemoryTestContext(): Promise<MongoMemoryTestContext> {
+export async function createMongoMemoryTestContext(databaseName = "test_db"): Promise<MongoMemoryTestContext> {
   const server = await MongoMemoryServer.create(mongoMemoryServerTestOptions);
   const client = new MongoClient(server.getUri());
   await client.connect();
-  const db = client.db("openclinxr_test");
+  const db = client.db(databaseName);
 
   return {
     server,

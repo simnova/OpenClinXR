@@ -471,6 +471,22 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
 
+  packages/cellix/server-mongodb-memory-mock:
+    dependencies:
+      mongodb:
+        specifier: 7.2.0
+        version: 7.2.0
+      mongodb-memory-server:
+        specifier: 11.1.0
+        version: 11.1.0(supports-color@7.2.0)
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
   packages/cellix/trace-ledger:
     dependencies:
       '@cellix/provider-contracts':
@@ -652,15 +668,15 @@ importers:
         specifier: 7.2.0
         version: 7.2.0
     devDependencies:
+      '@cellix/server-mongodb-memory-mock':
+        specifier: workspace:*
+        version: link:../../cellix/server-mongodb-memory-mock
       '@openclinxr/api':
         specifier: workspace:*
         version: link:../../../apps/api
       '@openclinxr/graphql':
         specifier: workspace:*
         version: link:../graphql
-      mongodb-memory-server:
-        specifier: 11.1.0
-        version: 11.1.0(supports-color@7.2.0)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -10872,7 +10888,7 @@ snapshots:
       https-proxy-agent: 7.0.6(supports-color@7.2.0)
       mongodb: 7.2.0
       new-find-package-json: 2.0.0(supports-color@7.2.0)
-      semver: 7.7.4
+      semver: 7.8.5
       tar-stream: 3.2.0
       tslib: 2.8.1
       yauzl: 3.3.0

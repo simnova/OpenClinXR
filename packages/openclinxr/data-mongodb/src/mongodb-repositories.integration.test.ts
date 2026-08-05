@@ -33,7 +33,7 @@ import {
   type ScenarioReviewDecisionRecord,
   saveLearnerRuntimeAssetBundleFromGeneratedReport,
 } from "./index.js";
-import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "./mongo-memory-context.js";
+import { createMongoMemoryTestContext, type MongoMemoryTestContext } from "@cellix/server-mongodb-memory-mock";
 
 const scenario: Scenario = {
   scenarioId: "ed_chest_pain_priority_v1",
