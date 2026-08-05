@@ -27,6 +27,16 @@ export {
   type TurnTakingDecision,
   type TurnTakingReason,
 } from "./types.js";
+export {
+  resolveEmotionTransition,
+  EmotionEngine,
+  type CaseEmotionPolicy,
+  type EmotionEvent,
+  type EmotionEventKind,
+  type EmotionTransition,
+  type EmotionTransitionInput,
+  type EmotionTransitionRule,
+} from "./emotion-engine.js";
 
 import {
   arbitrateTurnTaking,
@@ -38,6 +48,11 @@ import {
   initialHistoryTakingCoverageState,
   updateHistoryTakingCoverage,
 } from "./history-coverage.js";
+import {
+  resolveEmotionTransition,
+  type EmotionTransition,
+  type EmotionTransitionInput,
+} from "./emotion-engine.js";
 import type {
   ActorTurnInProgress,
   BargeInResolution,
@@ -69,6 +84,7 @@ export type ConversationPolicy = {
     input: HistoryTakingCoverageUpdateInput,
     spec?: HistoryTakingCoverageSpec,
   ): HistoryTakingCoverageUpdateResult;
+  resolveEmotionTransition(input: EmotionTransitionInput): EmotionTransition;
 };
 
 export function createDefaultConversationPolicy(): ConversationPolicy {
@@ -78,5 +94,6 @@ export function createDefaultConversationPolicy(): ConversationPolicy {
     buildHistoryTakingCoverageSpec,
     initialHistoryTakingCoverageState,
     updateHistoryTakingCoverage,
+    resolveEmotionTransition,
   };
 }
