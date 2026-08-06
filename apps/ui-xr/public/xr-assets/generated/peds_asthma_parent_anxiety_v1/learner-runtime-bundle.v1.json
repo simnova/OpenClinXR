@@ -1,23 +1,28 @@
 {
-  "bundleId": "peds_asthma_parent_anxiety_v1:learner-runtime-bundle:v1",
-  "stationId": "pediatric_urgent_care_station_v1",
+  "bundleId": "local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+  "stationId": "peds_asthma_parent_anxiety_station_v1",
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "assetStoreKind": "azurite_blob",
   "environment": {
-    "assetId": "pediatric_urgent_care_bay_environment",
-    "version": "v1",
+    "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.environment.generated-glb",
+    "version": "environment-2026-05-26",
     "kind": "environment_model",
-    "displayName": "Pediatric Urgent Care Bay",
-    "scenarioAssetId": "pediatric_urgent_care_bay_environment",
+    "displayName": "peds asthma parent anxiety environment",
+    "scenarioAssetId": "peds_asthma_parent_anxiety_v1:environment",
     "blob": {
       "storeKind": "azurite_blob",
       "containerName": "openclinxr-assets",
-      "blobName": "pediatric_urgent_care_bay_environment.glb",
-      "url": "http://127.0.0.1/pediatric_urgent_care_bay_environment.glb"
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
     },
     "reviewStatus": "approved_for_local_runtime",
     "provenanceRefs": [
-      "fixture"
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+      ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
     ],
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -32,20 +37,25 @@
       "embodiment": "humanoid",
       "role": "patient",
       "model": {
-        "assetId": "patient_maya_johnson_character",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-26",
         "kind": "humanoid_model",
-        "displayName": "Maya Johnson",
+        "displayName": "patient maya johnson",
         "scenarioAssetId": "patient_maya_johnson_character",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "patient.glb",
-          "url": "http://127.0.0.1/patient.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -54,7 +64,138 @@
           "scoring_validity"
         ]
       },
-      "animationClips": [],
+      "animationClips": [
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.idle_listen.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "patient maya johnson idle listen",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:idle_listen",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/idle_listen.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/idle_listen.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.speak_emphasis.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "patient maya johnson speak emphasis",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:speak_emphasis",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/speak_emphasis.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/speak_emphasis.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.concern_reaction.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "patient maya johnson concern reaction",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:concern_reaction",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/concern_reaction.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/concern_reaction.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.gaze_shift.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "patient maya johnson gaze shift",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:gaze_shift",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/gaze_shift.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/gaze_shift.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      ],
+      "phonemeMap": {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phoneme-map",
+        "version": "generated-runtime-2026-05-23",
+        "kind": "phoneme_map",
+        "displayName": "patient maya johnson phoneme viseme map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:phoneme-map",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/phoneme-map.v1.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/phoneme-map.v1.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
       "gazeProfile": {
         "defaultTarget": "learner_camera",
         "supportsActorTargets": true
@@ -65,20 +206,25 @@
       "embodiment": "humanoid",
       "role": "family",
       "model": {
-        "assetId": "parent_tara_johnson_character",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-26",
         "kind": "humanoid_model",
-        "displayName": "Tara Johnson",
+        "displayName": "parent tara johnson",
         "scenarioAssetId": "parent_tara_johnson_character",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "spouse.glb",
-          "url": "http://127.0.0.1/spouse.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -87,7 +233,138 @@
           "scoring_validity"
         ]
       },
-      "animationClips": [],
+      "animationClips": [
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.idle_listen.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "parent tara johnson idle listen",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:idle_listen",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/idle_listen.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/idle_listen.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.speak_emphasis.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "parent tara johnson speak emphasis",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:speak_emphasis",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/speak_emphasis.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/speak_emphasis.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.concern_reaction.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "parent tara johnson concern reaction",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:concern_reaction",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/concern_reaction.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/concern_reaction.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.gaze_shift.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "parent tara johnson gaze shift",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:gaze_shift",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/gaze_shift.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/gaze_shift.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      ],
+      "phonemeMap": {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.phoneme-map",
+        "version": "generated-runtime-2026-05-23",
+        "kind": "phoneme_map",
+        "displayName": "parent tara johnson phoneme viseme map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:phoneme-map",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/phoneme-map.v1.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/phoneme-map.v1.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
       "gazeProfile": {
         "defaultTarget": "learner_camera",
         "supportsActorTargets": true
@@ -98,20 +375,25 @@
       "embodiment": "humanoid",
       "role": "nurse",
       "model": {
-        "assetId": "nurse_kevin_lee_character",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-26",
         "kind": "humanoid_model",
-        "displayName": "Kevin Lee",
+        "displayName": "nurse kevin lee",
         "scenarioAssetId": "nurse_kevin_lee_character",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "nurse.glb",
-          "url": "http://127.0.0.1/nurse.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -120,7 +402,138 @@
           "scoring_validity"
         ]
       },
-      "animationClips": [],
+      "animationClips": [
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.idle_listen.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "nurse kevin lee idle listen",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:idle_listen",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/idle_listen.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/idle_listen.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.speak_emphasis.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "nurse kevin lee speak emphasis",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:speak_emphasis",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/speak_emphasis.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/speak_emphasis.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.concern_reaction.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "nurse kevin lee concern reaction",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:concern_reaction",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/concern_reaction.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/concern_reaction.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        },
+        {
+          "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.gaze_shift.animation-clip",
+          "version": "generated-runtime-2026-05-23",
+          "kind": "animation_clip",
+          "displayName": "nurse kevin lee gaze shift",
+          "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:gaze_shift",
+          "blob": {
+            "storeKind": "azurite_blob",
+            "containerName": "openclinxr-assets",
+            "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/gaze_shift.glb",
+            "contentType": "model/gltf-binary",
+            "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/gaze_shift.glb"
+          },
+          "reviewStatus": "approved_for_local_runtime",
+          "provenanceRefs": [
+            "openclinxr-generated-human-rigging-artifacts",
+            "openclinxr-procedural-animation-placeholder-contract",
+            "requires-retargeted-clip-materialization-before-production-readiness"
+          ],
+          "notEvidenceFor": [
+            "production_asset_readiness",
+            "quest_readiness",
+            "clinical_validity",
+            "scoring_validity"
+          ]
+        }
+      ],
+      "phonemeMap": {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.phoneme-map",
+        "version": "generated-runtime-2026-05-23",
+        "kind": "phoneme_map",
+        "displayName": "nurse kevin lee phoneme viseme map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:phoneme-map",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/phoneme-map.v1.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/phoneme-map.v1.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
       "gazeProfile": {
         "defaultTarget": "learner_camera",
         "supportsActorTargets": true
@@ -131,20 +544,25 @@
     {
       "equipmentId": "pulse_oximeter_equipment",
       "model": {
-        "assetId": "pulse_oximeter_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "pulse oximeter equipment",
-        "scenarioAssetId": "pulse_oximeter_equipment",
+        "displayName": "pulse oximeter",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "pulse_oximeter_equipment.glb",
-          "url": "http://127.0.0.1/pulse_oximeter_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -157,20 +575,25 @@
     {
       "equipmentId": "nebulizer_mask_equipment",
       "model": {
-        "assetId": "nebulizer_mask_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "nebulizer mask equipment",
-        "scenarioAssetId": "nebulizer_mask_equipment",
+        "displayName": "nebulizer mask",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "nebulizer_mask_equipment.glb",
-          "url": "http://127.0.0.1/nebulizer_mask_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -183,20 +606,25 @@
     {
       "equipmentId": "oxygen_wall_port_equipment",
       "model": {
-        "assetId": "oxygen_wall_port_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "oxygen wall port equipment",
-        "scenarioAssetId": "oxygen_wall_port_equipment",
+        "displayName": "oxygen wall port",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "oxygen_wall_port_equipment.glb",
-          "url": "http://127.0.0.1/oxygen_wall_port_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -209,20 +637,25 @@
     {
       "equipmentId": "pediatric_stretcher_equipment",
       "model": {
-        "assetId": "pediatric_stretcher_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "pediatric stretcher equipment",
-        "scenarioAssetId": "pediatric_stretcher_equipment",
+        "displayName": "pediatric stretcher",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "pediatric_stretcher_equipment.glb",
-          "url": "http://127.0.0.1/pediatric_stretcher_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -235,20 +668,25 @@
     {
       "equipmentId": "parent_chair_equipment",
       "model": {
-        "assetId": "parent_chair_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "parent chair equipment",
-        "scenarioAssetId": "parent_chair_equipment",
+        "displayName": "parent chair",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_chair_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "parent_chair_equipment.glb",
-          "url": "http://127.0.0.1/parent_chair_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -261,20 +699,25 @@
     {
       "equipmentId": "inhaler_spacer_equipment",
       "model": {
-        "assetId": "inhaler_spacer_equipment",
-        "version": "v1",
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb",
+        "version": "medical-equipment-2026-05-26",
         "kind": "equipment_model",
-        "displayName": "inhaler spacer equipment",
-        "scenarioAssetId": "inhaler_spacer_equipment",
+        "displayName": "inhaler spacer",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
-          "blobName": "inhaler_spacer_equipment.glb",
-          "url": "http://127.0.0.1/inhaler_spacer_equipment.glb"
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         },
         "reviewStatus": "approved_for_local_runtime",
         "provenanceRefs": [
-          "fixture"
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
         ],
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -288,262 +731,577 @@
   "uiSurfaces": [],
   "sceneManifest": {
     "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
-    "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:pediatric_urgent_care_station_v1",
+    "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:peds_asthma_parent_anxiety_station_v1",
     "source": "generated_scene_pipeline",
     "scenarioId": "peds_asthma_parent_anxiety_v1",
-    "stationId": "pediatric_urgent_care_station_v1",
+    "stationId": "peds_asthma_parent_anxiety_station_v1",
     "stationContext": {
       "title": "Pediatric Asthma",
-      "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
-      "chiefConcern": "Wheezing and increased work of breathing",
+      "subtitle": "Child-sized urgent-care bay with pulse oximeter, nebulizer setup, parent chair, and pediatric distraction items.",
+      "chiefConcern": "Assess pediatric respiratory distress",
       "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
-      "interruption": "Parent interrupts if breathing distress is not acknowledged",
-      "stageAriaLabel": "Pediatric urgent-care station scene",
-      "canvasAriaLabel": "3D pediatric urgent-care bay preview",
-      "initialDialogueText": "Maya Johnson: It is hard to breathe."
+      "interruption": "Nurse Kevin Lee cue at 300s: oxygen request",
+      "stageAriaLabel": "Pediatric Urgent Care Bay station scene",
+      "canvasAriaLabel": "3D Pediatric Urgent Care Bay preview",
+      "initialDialogueText": "Maya Johnson: short sentences, scared, audible wheeze"
     },
-    "roomProps": [
-      {
-        "propId": "monitor",
-        "label": "Monitor",
-        "semanticRole": "objective_cue",
-        "evidenceCue": "Vitals monitor anchors the ED chest pain assessment.",
-        "colorHex": "#111827",
-        "accentColorHex": "#f59e0b",
-        "position": {
-          "x": 1,
-          "y": 1,
-          "z": 1
-        },
-        "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
-        },
-        "affordanceCueIds": [
-          "vitals_monitor"
-        ],
-        "interactionTags": [
-          "monitor"
-        ],
-        "generatedBy": "scene_manifest"
-      }
-    ],
     "dialogueTurns": [
       {
         "traceTag": "work_of_breathing_assessment",
         "actorId": "patient_maya_johnson_v1",
-        "text": "Maya Johnson: It is hard to breathe and my chest feels tight.",
+        "text": "Maya Johnson: Maya is using short sentences, wheezing audibly, and needs her breathing effort named before more questions. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
         "gazeTargetKind": "learner_camera",
         "gazeTargetActorId": null,
         "affectTimeline": {
-          "emotion": "anxious",
-          "intensity": 0.78,
+          "emotion": "pain",
+          "intensity": 0.82,
           "onsetMs": 120,
           "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "patient_maya_johnson_v1",
+            "role": "patient",
+            "baselineMood": [
+              "frightened",
+              "breathless",
+              "seeking reassurance"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       },
       {
         "traceTag": "inhaler_history",
-        "actorId": "parent_tara_johnson_v1",
-        "text": "Tara Johnson: Her rescue inhaler ran out yesterday.",
+        "actorId": "patient_maya_johnson_v1",
+        "text": "Maya Johnson: The key inhaler history is that rescue inhaler ran out yesterday. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
         "gazeTargetKind": "learner_camera",
         "gazeTargetActorId": null,
         "affectTimeline": {
-          "emotion": "anxious",
-          "intensity": 0.7,
+          "emotion": "pain",
+          "intensity": 0.82,
           "onsetMs": 120,
           "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "patient_maya_johnson_v1",
+            "role": "patient",
+            "baselineMood": [
+              "frightened",
+              "breathless",
+              "seeking reassurance"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       },
       {
         "traceTag": "trigger_history",
-        "actorId": "parent_tara_johnson_v1",
-        "text": "Tara Johnson: We visited family with cats before this got worse.",
+        "actorId": "patient_maya_johnson_v1",
+        "text": "Maya Johnson: The likely trigger is that symptoms worsened after visiting a relative with cats. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
         "gazeTargetKind": "learner_camera",
         "gazeTargetActorId": null,
         "affectTimeline": {
-          "emotion": "concerned",
-          "intensity": 0.64,
+          "emotion": "pain",
+          "intensity": 0.82,
           "onsetMs": 120,
-          "transitionMs": 950,
+          "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "patient_maya_johnson_v1",
+            "role": "patient",
+            "baselineMood": [
+              "frightened",
+              "breathless",
+              "seeking reassurance"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       },
       {
         "traceTag": "oxygen_request",
         "actorId": "nurse_kevin_lee_v1",
-        "text": "Kevin Lee: Oxygen is started and her saturation is being watched closely.",
-        "gazeTargetKind": "learner_camera",
-        "gazeTargetActorId": null,
-        "affectTimeline": {
-          "emotion": "concerned",
-          "intensity": 0.56,
-          "onsetMs": 120,
-          "transitionMs": 950,
-          "decayMs": 900,
-          "evidenceCueIds": [
-            "emotion_aligned_expression_transition_cue",
-            "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
-          ],
-          "notEvidenceFor": [
-            "clinical_validity",
-            "scoring_validity",
-            "production_asset_readiness"
-          ]
-        }
-      },
-      {
-        "traceTag": "bronchodilator_plan",
-        "actorId": "nurse_kevin_lee_v1",
-        "text": "Kevin Lee: Nebulized bronchodilator treatment is ready.",
-        "gazeTargetKind": "learner_camera",
-        "gazeTargetActorId": null,
-        "affectTimeline": {
-          "emotion": "reassured",
-          "intensity": 0.36,
-          "onsetMs": 120,
-          "transitionMs": 950,
-          "decayMs": 900,
-          "evidenceCueIds": [
-            "emotion_aligned_expression_transition_cue",
-            "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
-          ],
-          "notEvidenceFor": [
-            "clinical_validity",
-            "scoring_validity",
-            "production_asset_readiness"
-          ]
-        }
-      },
-      {
-        "traceTag": "urgent_escalation",
-        "actorId": "nurse_kevin_lee_v1",
-        "text": "Kevin Lee: I will call for urgent pediatric support if her work of breathing worsens.",
-        "gazeTargetKind": "learner_camera",
-        "gazeTargetActorId": null,
-        "affectTimeline": {
-          "emotion": "concerned",
-          "intensity": 0.6,
-          "onsetMs": 120,
-          "transitionMs": 950,
-          "decayMs": 900,
-          "evidenceCueIds": [
-            "emotion_aligned_expression_transition_cue",
-            "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
-          ],
-          "notEvidenceFor": [
-            "clinical_validity",
-            "scoring_validity",
-            "production_asset_readiness"
-          ]
-        }
-      },
-      {
-        "traceTag": "parent_communication",
-        "actorId": "parent_tara_johnson_v1",
-        "text": "Tara Johnson: Please tell me exactly what I can do to help her.",
-        "gazeTargetKind": "learner_camera",
-        "gazeTargetActorId": null,
+        "text": "Nurse Kevin Lee: Oxygen saturation is 91% on room air, so a clear oxygen request and reassessment plan should happen now. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "nurse_kevin_lee_v1",
         "affectTimeline": {
           "emotion": "anxious",
-          "intensity": 0.66,
+          "intensity": 0.68,
           "onsetMs": 120,
           "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "nurse_kevin_lee_v1",
+            "role": "nurse",
+            "baselineMood": [
+              "focused",
+              "concerned",
+              "ready to act"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
+        }
+      },
+      {
+        "traceTag": "bronchodilator_plan",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "Nurse Kevin Lee: A nebulizer or bronchodilator plan should be stated clearly and checked back with the child and parent. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "nurse_kevin_lee_v1",
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.68,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "nurse_kevin_lee_v1",
+            "role": "nurse",
+            "baselineMood": [
+              "focused",
+              "concerned",
+              "ready to act"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
+        }
+      },
+      {
+        "traceTag": "urgent_escalation",
+        "actorId": "nurse_kevin_lee_v1",
+        "text": "Nurse Kevin Lee: If breathing effort or saturation worsens, the team needs an urgent escalation plan rather than reassurance alone. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "nurse_kevin_lee_v1",
+        "affectTimeline": {
+          "emotion": "anxious",
+          "intensity": 0.68,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "nurse_kevin_lee_v1",
+            "role": "nurse",
+            "baselineMood": [
+              "focused",
+              "concerned",
+              "ready to act"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
+        }
+      },
+      {
+        "traceTag": "parent_communication",
+        "actorId": "parent_tara_johnson_v1",
+        "text": "Tara Johnson: Tara can help once the plan is explained plainly: child_distress_validated, oxygen_plan_explained, parent_role_clarified. I am anxious; this response comes from the guardian communication requirement in the scenario definition.",
+        "gazeTargetKind": "actor",
+        "gazeTargetActorId": "parent_tara_johnson_v1",
+        "affectTimeline": {
+          "emotion": "pain",
+          "intensity": 0.82,
+          "onsetMs": 120,
+          "transitionMs": 650,
+          "decayMs": 900,
+          "evidenceCueIds": [
+            "emotion_aligned_expression_transition_cue",
+            "visible_runtime_eyebrow_jaw_cheek_cue",
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
+          ],
+          "notEvidenceFor": [
+            "clinical_validity",
+            "scoring_validity",
+            "production_asset_readiness"
+          ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "parent_tara_johnson_v1",
+            "role": "family",
+            "baselineMood": [
+              "anxious",
+              "protective",
+              "frustrated"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       },
       {
         "traceTag": "empathy_statement",
         "actorId": "patient_maya_johnson_v1",
-        "text": "Maya Johnson: I feel a little better when you explain it slowly.",
+        "text": "Maya Johnson: Maya and Tara need a calm acknowledgement that fast breathing is scary before the next clinical step. I am frightened; this response comes from the guardian communication requirement in the scenario definition.",
         "gazeTargetKind": "learner_camera",
         "gazeTargetActorId": null,
         "affectTimeline": {
-          "emotion": "reassured",
-          "intensity": 0.32,
+          "emotion": "pain",
+          "intensity": 0.82,
           "onsetMs": 120,
-          "transitionMs": 950,
+          "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "patient_maya_johnson_v1",
+            "role": "patient",
+            "baselineMood": [
+              "frightened",
+              "breathless",
+              "seeking reassurance"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       },
       {
         "traceTag": "patient_note_submitted",
         "actorId": "nurse_kevin_lee_v1",
-        "text": "System: Pediatric asthma note saved for faculty review.",
+        "text": "Nurse Kevin Lee: Patient note saved for faculty review with pediatric respiratory assessment, treatment response, and family communication documented. I am focused; this response comes from the patient note requirement in the scenario definition.",
         "gazeTargetKind": "learner_camera",
         "gazeTargetActorId": null,
         "affectTimeline": {
-          "emotion": "neutral",
-          "intensity": 0.2,
+          "emotion": "anxious",
+          "intensity": 0.68,
           "onsetMs": 120,
-          "transitionMs": 950,
+          "transitionMs": 650,
           "decayMs": 900,
           "evidenceCueIds": [
             "emotion_aligned_expression_transition_cue",
             "visible_runtime_eyebrow_jaw_cheek_cue",
-            "dialogue_viseme_and_gaze_mapping"
+            "dialogue_viseme_and_gaze_mapping",
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection"
           ],
           "notEvidenceFor": [
             "clinical_validity",
             "scoring_validity",
             "production_asset_readiness"
           ]
+        },
+        "caseDefinitionRuntimeSignals": {
+          "source": "scenario_definition_and_dialogue_seed_bank",
+          "expressionRequired": true,
+          "gazeRequired": true,
+          "lipSyncRequired": true,
+          "actorRuntimeRealismRequirement": {
+            "actorId": "nurse_kevin_lee_v1",
+            "role": "nurse",
+            "baselineMood": [
+              "focused",
+              "concerned",
+              "ready to act"
+            ],
+            "locomotionRequired": true,
+            "expressionRequired": true,
+            "gazeRequired": true,
+            "lipSyncRequired": true,
+            "interactionRequired": true,
+            "requiredCueIds": [
+              "case_definition_driven_expression_selection",
+              "dialogue_viseme_and_gaze_mapping",
+              "actor_target_gaze_from_trace_intent",
+              "scenario_actor_interaction_affordance",
+              "scenario_timeline_locomotion_or_posture_change"
+            ]
+          },
+          "requiredSignalIds": [
+            "scenario_actor_baseline_mood_emotion_mapping",
+            "case_definition_driven_expression_selection",
+            "dialogue_viseme_and_gaze_mapping",
+            "actor_target_gaze_from_trace_intent",
+            "scenario_actor_interaction_affordance",
+            "scenario_timeline_locomotion_or_posture_change"
+          ],
+          "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
         }
       }
     ],
@@ -551,278 +1309,823 @@
       "patient_maya_johnson_v1": {
         "slotKind": "primary_patient",
         "position": {
-          "x": -0.12,
-          "y": 0.9,
-          "z": -1.05
+          "x": -0.72,
+          "y": 1.06,
+          "z": -0.12
         },
         "scale": {
-          "x": 0.82,
-          "y": 0.82,
-          "z": 0.82
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
         },
-        "verticalOffsetMeters": -0.72,
+        "verticalOffsetMeters": -0.98,
         "labelPrefix": "Patient"
-      },
-      "parent_tara_johnson_v1": {
-        "slotKind": "family_or_observer",
-        "position": {
-          "x": -1.35,
-          "y": 0.95,
-          "z": -0.62
-        },
-        "scale": {
-          "x": 0.96,
-          "y": 0.96,
-          "z": 0.96
-        },
-        "verticalOffsetMeters": -0.92,
-        "labelPrefix": "Parent"
       },
       "nurse_kevin_lee_v1": {
         "slotKind": "clinical_team",
         "position": {
-          "x": 1.25,
+          "x": 1.45,
           "y": 0.95,
-          "z": -0.72
+          "z": 0.55
         },
         "scale": {
-          "x": 0.98,
-          "y": 0.98,
-          "z": 0.98
+          "x": 1,
+          "y": 1,
+          "z": 1
         },
-        "verticalOffsetMeters": -0.94,
-        "labelPrefix": "Nurse"
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Team"
+      },
+      "parent_tara_johnson_v1": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": -2,
+          "y": 0.95,
+          "z": 0.7
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Family"
       }
     },
     "equipmentPlacements": {
       "pulse_oximeter_equipment": {
         "position": {
-          "x": 0.55,
-          "y": 0.7,
-          "z": -0.88
+          "x": 1.6,
+          "y": 0,
+          "z": 0.28
         },
-        "label": "Pulse oximeter",
+        "label": "Pulse Oximeter",
         "interactionCueIds": [
-          "selectable_equipment_reference",
-          "clinical_workflow_cue"
+          "pulse_oximeter_equipment:selectable_equipment_reference",
+          "pulse_oximeter_equipment:clinical_workflow_cue"
         ]
       },
       "nebulizer_mask_equipment": {
         "position": {
-          "x": 0.2,
-          "y": 0.82,
-          "z": -0.7
+          "x": 0.95,
+          "y": 0,
+          "z": 0.98
         },
-        "label": "Nebulizer mask",
+        "label": "Nebulizer Mask",
         "interactionCueIds": [
-          "selectable_equipment_reference",
-          "clinical_workflow_cue"
+          "nebulizer_mask_equipment:selectable_equipment_reference",
+          "nebulizer_mask_equipment:clinical_workflow_cue"
         ]
       },
       "oxygen_wall_port_equipment": {
         "position": {
-          "x": 1.55,
-          "y": 1.2,
-          "z": -1.36
+          "x": 1.75,
+          "y": 1.18,
+          "z": -1.12
         },
-        "label": "Oxygen wall port",
+        "label": "Oxygen Wall Port",
         "interactionCueIds": [
-          "selectable_equipment_reference",
-          "clinical_workflow_cue"
+          "oxygen_wall_port_equipment:selectable_equipment_reference",
+          "oxygen_wall_port_equipment:clinical_workflow_cue"
         ]
       },
       "pediatric_stretcher_equipment": {
         "position": {
-          "x": -0.15,
+          "x": -0.1,
           "y": 0,
-          "z": -0.98
+          "z": -0.95
         },
-        "label": "Pediatric stretcher",
+        "label": "Pediatric Stretcher",
         "interactionCueIds": [
-          "selectable_equipment_reference"
+          "pediatric_stretcher_equipment:selectable_equipment_reference",
+          "pediatric_stretcher_equipment:clinical_workflow_cue"
         ]
       },
       "parent_chair_equipment": {
         "position": {
-          "x": -1.62,
+          "x": -1.75,
           "y": 0,
-          "z": -0.45
+          "z": 0.52
         },
-        "label": "Parent chair",
+        "label": "Parent Chair",
         "interactionCueIds": [
-          "selectable_equipment_reference"
+          "parent_chair_equipment:selectable_equipment_reference",
+          "parent_chair_equipment:clinical_workflow_cue"
         ]
       },
       "inhaler_spacer_equipment": {
         "position": {
-          "x": 0.68,
-          "y": 0.74,
-          "z": -0.54
+          "x": 0.58,
+          "y": 0.72,
+          "z": -0.55
         },
-        "label": "Inhaler spacer",
+        "label": "Inhaler Spacer",
         "interactionCueIds": [
-          "selectable_equipment_reference",
-          "clinical_workflow_cue"
+          "inhaler_spacer_equipment:selectable_equipment_reference",
+          "inhaler_spacer_equipment:clinical_workflow_cue"
         ]
       }
     },
+    "roomProps": [
+      {
+        "propId": "pediatric-nebulizer-station",
+        "label": "Nebulizer station",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "nebulizer_workflow_context",
+        "colorHex": "#dbeafe",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.4,
+          "y": 0.85,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "pediatric-nebulizer-station:scenario_context",
+          "nebulizer_workflow_context"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "peds_asthma_parent_anxiety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "parent-coaching-chair",
+        "label": "Parent coaching chair",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "parent_anxiety_support_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.8,
+          "y": 0.45,
+          "z": 0.85
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "parent-coaching-chair:communication_cue",
+          "parent_anxiety_support_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "peds_asthma_parent_anxiety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "pediatric-pulse-ox-monitor",
+        "label": "Pulse ox monitor",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "oxygenation_reassessment_cue",
+        "colorHex": "#ecfeff",
+        "accentColorHex": "#0891b2",
+        "position": {
+          "x": 1.55,
+          "y": 1.35,
+          "z": 0.2
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "pediatric-pulse-ox-monitor:objective_cue",
+          "oxygenation_reassessment_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "peds_asthma_parent_anxiety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "child-calm-breathing-card",
+        "label": "Breathing coaching card",
+        "semanticRole": "review_cue",
+        "evidenceCue": "breathing_coaching_review_cue",
+        "colorHex": "#dcfce7",
+        "accentColorHex": "#16a34a",
+        "position": {
+          "x": -0.6,
+          "y": 0.9,
+          "z": -0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "child-calm-breathing-card:review_cue",
+          "breathing_coaching_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "peds_asthma_parent_anxiety_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ],
-    "caseDefinedHumanoidRuntimeHandoff": [
-      {
-        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
-        "actorRole": "patient",
-        "humanoidVariantProfile": {
-          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
-          "clothingLayer": "patient_gown",
-          "hairFaceRequired": true,
-          "faceEyeLipRigRequired": true,
-          "idlePoseRequired": true,
-          "locomotionRequired": true
-        },
-        "workOrderIds": [
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:patient:role-specific-humanoid",
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:patient:role-animation"
-        ],
-        "locomotionRequired": true,
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "interactiveRequired": true,
-        "requiredSignalIds": [
-          "animated_humanoid_runtime_playback",
-          "emotion_aligned_expression_transition_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "dialogue_eye_micro_saccade_blink_cue",
-          "generated_eyelid_blink_control_cue",
-          "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/patient"
-        ],
-        "blockers": [
-          "runtime_realism_evidence_not_attached_to_encounter_bundle",
-          "visual_qa_evidence_not_attached_to_encounter_bundle"
-        ],
-        "notEvidenceFor": [
-          "generated_humanoid_asset_readiness",
-          "animation_quality",
-          "quest_readiness",
-          "runtime_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      },
-      {
-        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
-        "actorRole": "family",
-        "humanoidVariantProfile": {
-          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
-          "clothingLayer": "civilian_family",
-          "hairFaceRequired": true,
-          "faceEyeLipRigRequired": true,
-          "idlePoseRequired": true,
-          "locomotionRequired": true
-        },
-        "workOrderIds": [
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:family:role-specific-humanoid",
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:family:role-animation"
-        ],
-        "locomotionRequired": true,
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "interactiveRequired": true,
-        "requiredSignalIds": [
-          "animated_humanoid_runtime_playback",
-          "emotion_aligned_expression_transition_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "dialogue_eye_micro_saccade_blink_cue",
-          "generated_eyelid_blink_control_cue",
-          "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/family"
-        ],
-        "blockers": [
-          "runtime_realism_evidence_not_attached_to_encounter_bundle",
-          "visual_qa_evidence_not_attached_to_encounter_bundle"
-        ],
-        "notEvidenceFor": [
-          "generated_humanoid_asset_readiness",
-          "animation_quality",
-          "quest_readiness",
-          "runtime_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      },
-      {
-        "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
-        "actorRole": "nurse",
-        "humanoidVariantProfile": {
-          "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
-          "clothingLayer": "clinical_scrubs",
-          "hairFaceRequired": true,
-          "faceEyeLipRigRequired": true,
-          "idlePoseRequired": true,
-          "locomotionRequired": true
-        },
-        "workOrderIds": [
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:nurse:role-specific-humanoid",
-          "encounter_assets_peds_asthma_parent_anxiety_executable_v1:nurse:role-animation"
-        ],
-        "locomotionRequired": true,
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "interactiveRequired": true,
-        "requiredSignalIds": [
-          "animated_humanoid_runtime_playback",
-          "emotion_aligned_expression_transition_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "dialogue_eye_micro_saccade_blink_cue",
-          "generated_eyelid_blink_control_cue",
-          "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/nurse"
-        ],
-        "blockers": [
-          "runtime_realism_evidence_not_attached_to_encounter_bundle",
-          "visual_qa_evidence_not_attached_to_encounter_bundle"
-        ],
-        "notEvidenceFor": [
-          "generated_humanoid_asset_readiness",
-          "animation_quality",
-          "quest_readiness",
-          "runtime_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      }
     ]
   },
-  "generatedAt": "2026-05-23T12:00:00.000Z",
+  "evidenceGateRefs": [],
+  "generatedAt": "2026-05-28T04:32:15.912Z",
   "expiresAt": null,
   "frozenForEncounter": true,
-  "evidenceGateRefs": [],
   "assemblyAuditMetadata": {
     "schemaVersion": "openclinxr.runtime-bundle-assembly-audit.v1",
     "claimBoundary": "asset_reference_audit_metadata_not_materialized_assets",
     "sourceDefinitionRefs": [
-      "test_fixture:encounter-publication-payloads"
+      "scenario_definition:peds_asthma_parent_anxiety_v1",
+      "station_definition:peds_asthma_parent_anxiety_station_v1",
+      "runtime_scene_manifest:scene_manifest:peds_asthma_parent_anxiety_v1:peds_asthma_parent_anxiety_station_v1"
     ],
-    "workOrderRefs": [],
-    "factoryRequestRefs": [],
-    "generatedAssetRefs": [],
-    "humanoidMetadataRefs": [],
+    "workOrderRefs": [
+      "scene_generation_work_order:peds_asthma_parent_anxiety_v1",
+      "runtime_bundle_binding:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets"
+    ],
+    "factoryRequestRefs": [
+      "runtime_bundle:local_exam_run:peds_asthma_parent_anxiety_encounter_v1:generated-runtime-assets",
+      "asset_store:azurite_blob"
+    ],
+    "generatedAssetRefs": [
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.environment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:environment",
+        "kind": "environment_model",
+        "version": "environment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+          "contentHash": "bytes:65012"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-layout.json",
+          ".openclinxr/asset-production/ed-chest-pain/environment/equipment-placement-manifest.json",
+          ".openclinxr/asset-production/ed-chest-pain/environment/quest-environment-budget.json",
+          ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb",
+        "scenarioAssetId": "patient_maya_johnson_character",
+        "kind": "humanoid_model",
+        "version": "generated-human-rigging-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb",
+        "scenarioAssetId": "parent_tara_johnson_character",
+        "kind": "humanoid_model",
+        "version": "generated-human-rigging-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+        "scenarioAssetId": "nurse_kevin_lee_character",
+        "kind": "humanoid_model",
+        "version": "generated-human-rigging-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:5594308:declared:5594308"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.idle_listen.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:idle_listen",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/idle_listen.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.speak_emphasis.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:speak_emphasis",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/speak_emphasis.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.concern_reaction.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:concern_reaction",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/concern_reaction.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.gaze_shift.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:gaze_shift",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/animations/gaze_shift.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.idle_listen.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:idle_listen",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/idle_listen.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.speak_emphasis.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:speak_emphasis",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/speak_emphasis.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.concern_reaction.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:concern_reaction",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/concern_reaction.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.gaze_shift.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:gaze_shift",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/animations/gaze_shift.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.idle_listen.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:idle_listen",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/idle_listen.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.speak_emphasis.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:speak_emphasis",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/speak_emphasis.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.concern_reaction.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:concern_reaction",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/concern_reaction.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.gaze_shift.animation-clip",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:gaze_shift",
+        "kind": "animation_clip",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/animations/gaze_shift.glb"
+        },
+        "provenanceRefs": [
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phoneme-map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:phoneme-map",
+        "kind": "phoneme_map",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/patient_maya_johnson_v1/phoneme-map.v1.json"
+        },
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.phoneme-map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:phoneme-map",
+        "kind": "phoneme_map",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/parent_tara_johnson_v1/phoneme-map.v1.json"
+        },
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.phoneme-map",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:phoneme-map",
+        "kind": "phoneme_map",
+        "version": "generated-runtime-2026-05-23",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_asthma_parent_anxiety_v1/actors/nurse_kevin_lee_v1/phoneme-map.v1.json"
+        },
+        "provenanceRefs": [
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pulse_oximeter_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:pulse_oximeter_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.nebulizer_mask_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:nebulizer_mask_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.oxygen_wall_port_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:oxygen_wall_port_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.pediatric_stretcher_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:pediatric_stretcher_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_chair_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:parent_chair_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb",
+          "contentHash": "bytes:22988"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ecg-cart-12-lead.glb"
+        ]
+      },
+      {
+        "assetId": "openclinxr.peds_asthma_parent_anxiety_v1.inhaler_spacer_equipment.generated-glb",
+        "scenarioAssetId": "peds_asthma_parent_anxiety_v1:inhaler_spacer_equipment",
+        "kind": "equipment_model",
+        "version": "medical-equipment-2026-05-26",
+        "reviewStatus": "approved_for_local_runtime",
+        "blobRef": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb",
+          "contentHash": "bytes:15664"
+        },
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/equipment-provenance.json",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/ed-chest-pain-equipment-realism-manifest.json",
+          "shared-asset-library-lookup://medical_equipment_glb__scenario__ed_chest_pain_station_v1__clinical_zone_layout__recognizable_ed_props__functional_placement__scale_validation__cable_tube_logic",
+          ".openclinxr/asset-production/ed-chest-pain/medical-equipment/iv-pole-with-pump.glb"
+        ]
+      }
+    ],
+    "humanoidMetadataRefs": [
+      {
+        "actorId": "patient_maya_johnson_v1",
+        "actorRole": "patient",
+        "embodiment": "humanoid",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.generated-humanoid-glb",
+        "animationClipAssetIds": [
+          "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.idle_listen.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.speak_emphasis.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.concern_reaction.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.gaze_shift.animation-clip"
+        ],
+        "phonemeMapAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.patient_maya_johnson_v1.phoneme-map",
+        "metadataRefIds": [
+          "patient_maya_johnson_character",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report",
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness",
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "claimScope": "metadata_only_not_visual_quality_evidence"
+      },
+      {
+        "actorId": "parent_tara_johnson_v1",
+        "actorRole": "family",
+        "embodiment": "humanoid",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.generated-humanoid-glb",
+        "animationClipAssetIds": [
+          "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.idle_listen.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.speak_emphasis.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.concern_reaction.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.gaze_shift.animation-clip"
+        ],
+        "phonemeMapAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.parent_tara_johnson_v1.phoneme-map",
+        "metadataRefIds": [
+          "parent_tara_johnson_character",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report",
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness",
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "claimScope": "metadata_only_not_visual_quality_evidence"
+      },
+      {
+        "actorId": "nurse_kevin_lee_v1",
+        "actorRole": "nurse",
+        "embodiment": "humanoid",
+        "modelAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.generated-humanoid-glb",
+        "animationClipAssetIds": [
+          "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.idle_listen.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.speak_emphasis.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.concern_reaction.animation-clip",
+          "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.gaze_shift.animation-clip"
+        ],
+        "phonemeMapAssetId": "openclinxr.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.phoneme-map",
+        "metadataRefIds": [
+          "nurse_kevin_lee_character",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_morph_target_viseme_contract",
+          "generated_human_rigging_report",
+          "openclinxr-generated-human-rigging-artifacts",
+          "openclinxr-procedural-animation-placeholder-contract",
+          "requires-retargeted-clip-materialization-before-production-readiness",
+          "openclinxr-deterministic-phoneme-viseme-runtime-map",
+          "rhubarb-lip-sync-compatible-mouth-cue-contract",
+          "requires-offline-audio-aligned-viseme-generation-before-production-readiness"
+        ],
+        "requiredSignalIds": [
+          "animated_humanoid_runtime_playback",
+          "authored_clinical_idle_pose_runtime_cue",
+          "visible_mouth_eye_expression_cues",
+          "dialogue_viseme_and_gaze_mapping",
+          "dialogue_eye_micro_saccade_blink_cue",
+          "generated_eyelid_blink_control_cue",
+          "emotion_aligned_expression_transition_cue"
+        ],
+        "claimScope": "metadata_only_not_visual_quality_evidence"
+      }
+    ],
     "remediationPlanRefs": [],
     "evidenceGateIds": [],
     "fallbackPosture": {
-      "usesLocalFixtureFallbackAssets": true,
-      "fallbackAssetIds": [
-        "patient",
-        "nurse",
-        "spouse",
-        "ecg"
-      ],
+      "usesLocalFixtureFallbackAssets": false,
+      "fallbackAssetIds": [],
       "learnerUseBlockedUntilEvidenceGatesAttach": true
     },
     "notEvidenceFor": [
@@ -839,91 +2142,6 @@
     "scoring_validity"
   ],
   "identityScope": "learner_runtime_opaque_bundle",
-  "pedsHumanoidMaterializationHandoff": {
-    "schemaVersion": "openclinxr.peds-humanoid-materialization-handoff.v1",
-    "source": "worker_role_specific_humanoid_glb_materialization_metadata",
-    "scenarioId": "peds_asthma_parent_anxiety_v1",
-    "targetKind": "role_specific_humanoid_glb",
-    "generatedAssetsMaterialized": true,
-    "localCandidateAssetsSelected": true,
-    "reviewPacketPath": "docs/openclinxr/peds-humanoid-materialization-handoff-2026-06-04.json",
-    "assets": [
-      {
-        "actorRole": "patient",
-        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
-        "runtimeAssetPath": "/generated-humanoids/peds_patient_child.glb",
-        "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
-        "generatorMode": "anny_compatible_stub_plus_blender_procedural",
-        "sourceKind": "case_driven_generated_humanoid_candidate",
-        "realAnnyWeightsUsed": false,
-        "textureMode": "procedural_fallback",
-        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-        "realismGrade": "B",
-        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-        "notEvidenceFor": [
-          "real_anny_model_output",
-          "b_plus_visual_realism_gate",
-          "provider_runtime_readiness",
-          "production_asset_readiness",
-          "quest_readiness",
-          "learner_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      },
-      {
-        "actorRole": "anxious_parent",
-        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
-        "runtimeAssetPath": "/generated-humanoids/peds_anxious_parent.glb",
-        "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
-        "generatorMode": "anny_compatible_stub_plus_blender_procedural",
-        "sourceKind": "case_driven_generated_humanoid_candidate",
-        "realAnnyWeightsUsed": false,
-        "textureMode": "procedural_fallback",
-        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-        "realismGrade": "B",
-        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-        "notEvidenceFor": [
-          "real_anny_model_output",
-          "b_plus_visual_realism_gate",
-          "provider_runtime_readiness",
-          "production_asset_readiness",
-          "quest_readiness",
-          "learner_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      },
-      {
-        "actorRole": "nurse",
-        "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
-        "runtimeAssetPath": "/generated-humanoids/peds_nurse_kevin.glb",
-        "provenanceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
-        "generatorMode": "anny_compatible_stub_plus_blender_procedural",
-        "sourceKind": "case_driven_generated_humanoid_candidate",
-        "realAnnyWeightsUsed": false,
-        "textureMode": "procedural_fallback",
-        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-        "realismGrade": "B",
-        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-        "notEvidenceFor": [
-          "real_anny_model_output",
-          "b_plus_visual_realism_gate",
-          "provider_runtime_readiness",
-          "production_asset_readiness",
-          "quest_readiness",
-          "learner_readiness",
-          "clinical_validity",
-          "scoring_validity"
-        ]
-      }
-    ],
-    "productionReadinessClaimed": false,
-    "questReadinessClaimed": false,
-    "clinicalValidityClaimed": false,
-    "scoringValidityClaimed": false,
-    "claimBoundary": "local_generated_humanoid_candidate_metadata_not_runtime_or_production_readiness"
-  },
   "actorEquipmentMaterializationGate": {
     "schemaVersion": "openclinxr.actor-equipment-materialization-gate.v1",
     "claimBoundary": "materialization_contract_metadata_only_not_runtime_readiness",
@@ -931,43 +2149,48 @@
     "runtimeSelectionBlockedUntilEvidenceAttached": true,
     "actorGate": {
       "actorSpecificVariantKeysRequired": true,
-      "sharedNeutralMeshReuseDetected": false,
+      "sharedNeutralMeshReuseDetected": true,
       "actorVariantCount": 3,
       "actorRoles": [
         "patient",
-        "nurse",
-        "family"
+        "family",
+        "nurse"
       ],
       "materializationBlockers": [
         "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness"
       ],
       "caveats": [
-        "Shared neutral humanoid reuse is fixture scaffolding until actor-specific variants attach."
+        "Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches."
       ],
-      "recommendedNextAction": "materialize_actor_specific_humanoid_variants_before_runtime_readiness_claim"
+      "recommendedNextAction": "materialize actor-specific Anny humanoid GLBs before treating visual role distinction as asset-level progress"
     },
     "equipmentGate": {
       "equipmentSpecificVariantKeysRequired": true,
       "genericEquipmentReuseDetected": true,
-      "equipmentVariantCount": 1,
+      "equipmentVariantCount": 6,
       "equipmentIds": [
-        "ecg_cart_equipment"
+        "pulse_oximeter_equipment",
+        "nebulizer_mask_equipment",
+        "oxygen_wall_port_equipment",
+        "pediatric_stretcher_equipment",
+        "parent_chair_equipment",
+        "inhaler_spacer_equipment"
       ],
       "materializationBlockers": [
         "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
       ],
       "caveats": [
-        "Generic equipment reuse is fixture scaffolding until equipment-specific scale and affordance evidence attaches."
+        "Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."
       ],
-      "recommendedNextAction": "materialize_equipment_specific_variants_before_runtime_readiness_claim"
+      "recommendedNextAction": "materialize equipment-specific generated GLBs or prefabs before treating pediatric equipment as Quest, clinical, scoring, or production-ready"
     },
     "combinedBlockers": [
       "shared_neutral_humanoid_reuse_blocks_actor_specific_asset_readiness",
       "generic_equipment_reuse_blocks_equipment_specific_asset_readiness"
     ],
     "combinedCaveats": [
-      "Shared neutral humanoid reuse is fixture scaffolding until actor-specific variants attach.",
-      "Generic equipment reuse is fixture scaffolding until equipment-specific scale and affordance evidence attaches."
+      "Shared neutral humanoid reuse is local runtime scaffolding only until actor-specific Anny mesh, rig, hair/face, clothing, and animation evidence attaches.",
+      "Generic equipment reuse is local runtime scaffolding only until equipment-specific mesh/prefab, scale, placement, affordance, and scenario variant evidence attaches."
     ],
     "notEvidenceFor": [
       "runtime_readiness",

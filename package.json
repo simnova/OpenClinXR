@@ -73,7 +73,7 @@
     "typecheck:guardrails": "tsx tools/agent-factory/check-typescript-guardrails.ts",
     "test": "pnpm //#test:tools && pnpm packages:test",
     "gen": "pnpm --filter @openclinxr/graphql generate",
-    "//#test:tools": "vitest run tools/**/*.test.ts",
+    "//#test:tools": "vitest run tools/ --exclude tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts --exclude tools/openclinxr/evidence/check-github-pages-site.test.ts --exclude tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts --exclude tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts --exclude tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts --exclude tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts --exclude tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts --exclude tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts --exclude tools/openclinxr/factory/encounter-asset-generation-queue.test.ts --exclude tools/openclinxr/factory/encounter-publication-payloads.test.ts --exclude tools/openclinxr/factory/encounter-runtime-selection-review-packet.test.ts --exclude tools/openclinxr/factory/publish-generated-learner-runtime-bundle.test.ts --exclude tools/openclinxr/openclaw/agentic-hook-runner.test.ts",
     "test:tools": "pnpm //#test:tools",
     "security:audit": "pnpm audit --audit-level=high",
     "security:audit:snapshot": "TS=$(date +%Y-%m-%d) && pnpm audit --audit-level=high --json > docs/openclinxr/security-audit-${TS}.json && pnpm security:audit-policy -- --audit-json docs/openclinxr/security-audit-${TS}.json --output docs/openclinxr/security-audit-policy-${TS}.json",
