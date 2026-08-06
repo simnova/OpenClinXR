@@ -39,6 +39,14 @@ export type Scorecard = {
   durabilityRate: number;
   medianTurns: number | undefined;
   byModel: Record<string, { dispatched: number; landed: number }>;
+  /**
+   * Ratchet debt on main: frozen file-size ceilings and unresolved Markdown references.
+   *
+   * Land rate rewards volume, and revert rate is near-free to keep at zero by simply never
+   * reverting — leaving the rot on main. Debt is the counterweight: it rises when work is merged
+   * that degrades the codebase, whatever the worker or the gate reported.
+   */
+  debt: { brokenReferenceCeilings: number; sizeFreezeEntries: number };
   notes: string[];
 };
 
@@ -66,6 +74,11 @@ function revertedSubjects(repoRoot: string): string[] {
   return gitLines(repoRoot, ["log", "--format=%s", "-n", "500"]).filter((s) => s.startsWith("Revert "));
 }
 
+/** Probe slices measure the substrate, not the backlog; they are excluded from land rate. */
+export function isProbeSlice(slice: string): boolean {
+  return /^(ceil|proof|probe)-/.test(slice);
+}
+
 function median(values: number[]): number | undefined {
   if (values.length === 0) return undefined;
   const sorted = [...values].sort((a, b) => a - b);
@@ -78,8 +91,13 @@ export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[
   // Including them produced a 6% land rate that measured the LEDGER's history, not the loop's
   // performance — precisely the kind of number a self-scoring loop would then optimise.
   const all = (sessions ?? readSessions(repoRoot)).filter((entry) => entry.slice);
-  const entries = all.filter((entry) => entry.worktree !== undefined);
-  const skipped = all.length - entries.length;
+  const worktreeBound = all.filter((entry) => entry.worktree !== undefined);
+  // Infrastructure probes (isolation proofs, ceiling sweeps) never produce a merge, by design.
+  // Counting them as "did not land" made the live figure read 4/14 = 29% when the real answer for
+  // work that COULD land was 4/6. A metric that punishes measurement discourages measuring.
+  const entries = worktreeBound.filter((entry) => !isProbeSlice(entry.slice ?? ""));
+  const probes = worktreeBound.length - entries.length;
+  const skipped = all.length - worktreeBound.length;
   const landed = landedSlices(repoRoot);
   const reverts = revertedSubjects(repoRoot);
 
@@ -106,6 +124,12 @@ export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[
   const landedCount = outcomes.filter((o) => o.landed).length;
   const revertedCount = outcomes.filter((o) => o.revertedLater).length;
   const notes: string[] = [];
+  if (probes > 0) {
+    notes.push(
+      `${probes} infrastructure probe(s) excluded — they never merge by design, so counting them as `
+      + `"did not land" punishes measuring the substrate.`,
+    );
+  }
   if (skipped > 0) {
     notes.push(
       `${skipped} pre-worktree dispatch(es) excluded — they had no branch, so landing is not `
@@ -123,6 +147,7 @@ export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[
   );
 
   return {
+    debt: readDebt(repoRoot),
     totalDispatched: outcomes.length,
     landed: landedCount,
     reverted: revertedCount,
@@ -134,6 +159,36 @@ export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[
   };
 }
 
+/** Count current ratchet debt by parsing the freeze maps — no build step required. */
+export function readDebt(repoRoot: string): Scorecard["debt"] {
+  const sum = (relative: string, pattern: RegExp): number => {
+    try {
+      const text = execFileSync("cat", [`${repoRoot}/${relative}`], { encoding: "utf8" });
+      let total = 0;
+      let match = pattern.exec(text);
+      while (match !== null) {
+        total += Number(match[1] ?? 0);
+        match = pattern.exec(text);
+      }
+      return total;
+    } catch {
+      return 0;
+    }
+  };
+  return {
+    brokenReferenceCeilings: sum(
+      "packages/openclinxr/architecture-rules/src/checks/markdown-references.ts",
+      /^\s*"[^"]+":\s*(\d+),/gm,
+    ),
+    // SIZE_FREEZE entries are `{ maxLines: N, reason }`, not bare numbers — a naive
+    // `"path": N` regex silently returned 0, which would have read as "no size debt".
+    sizeFreezeEntries: sum(
+      "packages/openclinxr/architecture-rules/src/checks/file-size-budgets.ts",
+      /maxLines:\s*(\d+)/gm,
+    ),
+  };
+}
+
 export function formatScorecard(card: Scorecard): string {
   const pct = (n: number) => `${Math.round(n * 100)}%`;
   const lines = [
@@ -142,6 +197,7 @@ export function formatScorecard(card: Scorecard): string {
     `  landed         ${card.landed}  (${pct(card.landRate)})`,
     `  reverted       ${card.reverted}  (durability ${pct(card.durabilityRate)})`,
     `  median turns   ${card.medianTurns ?? "n/a"}`,
+    `  ratchet debt   refs=${card.debt.brokenReferenceCeilings}  size=${card.debt.sizeFreezeEntries}  (must not rise)`,
     "  by model:",
     ...Object.entries(card.byModel).map(
       ([model, b]) => `    ${model}: ${b.landed}/${b.dispatched} landed`,
