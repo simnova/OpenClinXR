@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { readSessions } from "./dispatch-worker.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type MergeKillReport } from "./merge-kill.js";
@@ -84,8 +85,52 @@ export function contractForSlice(repoRoot: string, slice: string): IntegrateInpu
   const entry = readSessions(repoRoot).filter((session) => session.slice === slice).at(-1) as
     | { proofsOk?: boolean; proofs?: { rule: string; passed: boolean; detail: string }[] }
     | undefined;
-  if (entry?.proofsOk === undefined) return null;
-  return { proofsOk: entry.proofsOk, proofs: entry.proofs ?? [] };
+  if (entry?.proofsOk !== undefined) {
+    return { proofsOk: entry.proofsOk, proofs: entry.proofs ?? [] };
+  }
+  return mergeVerifyContractForSlice(repoRoot, slice);
+}
+
+/**
+ * Fall back to the merge-time re-verification report.
+ *
+ * `contract-verify-cli.ts` re-runs the tree proofs against the candidate tree and writes
+ * `contract-verify-<slice>-merge.json` — and NOTHING READ IT. Tenth instance of the same class,
+ * found when a dispatch aborted before writing its ledger entry: the worker's proofs all passed on
+ * independent re-run, the merge report said so, and integrate refused because it only ever looked at
+ * the ledger.
+ *
+ * This STRENGTHENS the gate rather than relaxing it. The ledger entry is the dispatcher's own record
+ * of a worker it supervised; this report is proofs re-executed against the tree about to land, which
+ * is the better evidence of the two. A missing or failed report still refuses, and a report whose
+ * `proofsOk` is false is passed through as false — never coerced.
+ */
+function mergeVerifyContractForSlice(repoRoot: string, slice: string): IntegrateInput["contract"] {
+  const path = resolveSharedCoordinationPath(
+    `.openclinxr/openclaw/contract-verify-${slice}-merge.json`,
+    repoRoot,
+  );
+  if (!existsSync(path)) return null;
+  try {
+    const report = JSON.parse(readFileSync(path, "utf8")) as {
+      sliceId?: string;
+      proofsOk?: boolean;
+      checks?: { rule: string; passed: boolean; detail?: string }[];
+    };
+    // A report for a different slice is not evidence about this one.
+    if (report.sliceId !== undefined && report.sliceId !== slice) return null;
+    if (report.proofsOk === undefined) return null;
+    return {
+      proofsOk: report.proofsOk,
+      proofs: (report.checks ?? []).map((check) => ({
+        rule: check.rule,
+        passed: check.passed,
+        detail: check.detail ?? "",
+      })),
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function integrate(input: IntegrateInput): IntegrateResult {
