@@ -53,3 +53,56 @@ describe("declared orchestration obligations stay wired", () => {
     }
   });
 });
+
+describe("invocation is a CALL, not a mention (#37)", () => {
+  /**
+   * #36's checker could not fail. Probe: remove the `runMergeKill(...)` call from integrate.ts,
+   * leave the import line — 0 violations. `symbolAppears` word-matched the whole file, so the
+   * import at line 7 satisfied an obligation the call at line 93 was supposed to.
+   *
+   * The fault was the contract, not the worker: it required "passes when wired" and "registry stays
+   * small", never "fails when unwired". A rule that cannot fail is worthless, which is the thing I
+   * had insisted on all day for everyone else's work.
+   *
+   * Peer review then killed my repair too. Stripping `^\s*import` lines leaves multi-line import
+   * bodies, re-exports, comments and string literals all counting as wired — and breaks the other
+   * direction for aliased imports. Its calibration: the cheap-string prior was correct against
+   * scanning 233 exports and wrong here, where the unit is ~4 curated symbols across few callers.
+   *
+   * These take an INJECTED registry so the flagging path is provable without breaking the repo —
+   * the live-tree test can only ever assert the passing direction.
+   */
+  const fixture = (source: string) => [{
+    id: "probe", symbol: "runMergeKill", fromModule: "m.ts", requiredCallers: ["caller.ts"],
+    sources: { "caller.ts": source },
+  }];
+
+  it.fails("flags a caller that only IMPORTS the symbol and never calls it", async () => {
+    const { unwiredObligationsIn } = await load();
+    expect(unwiredObligationsIn(fixture(`import { runMergeKill } from "./m.js";\nexport const x = 1;`)))
+      .toHaveLength(1);
+  });
+
+  it.fails("flags a MULTI-LINE import where the symbol sits on its own line", async () => {
+    const { unwiredObligationsIn } = await load();
+    expect(unwiredObligationsIn(fixture(`import {\n  runMergeKill,\n} from "./m.js";\nexport const x = 1;`)))
+      .toHaveLength(1);
+  });
+
+  it.fails("flags a bare RE-EXPORT, which forwards the symbol without invoking it", async () => {
+    const { unwiredObligationsIn } = await load();
+    expect(unwiredObligationsIn(fixture(`export { runMergeKill } from "./m.js";`))).toHaveLength(1);
+  });
+
+  it.fails("flags a mention in a COMMENT or string literal", async () => {
+    const { unwiredObligationsIn } = await load();
+    expect(unwiredObligationsIn(fixture(`// we should call runMergeKill here\nconst s = "runMergeKill";`)))
+      .toHaveLength(1);
+  });
+
+  it.fails("passes when the symbol is actually CALLED", async () => {
+    const { unwiredObligationsIn } = await load();
+    expect(unwiredObligationsIn(fixture(`import { runMergeKill } from "./m.js";\nconst r = runMergeKill({});`)))
+      .toEqual([]);
+  });
+});
