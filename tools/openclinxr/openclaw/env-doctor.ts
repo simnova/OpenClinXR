@@ -16,6 +16,9 @@
  *   mise run doctor
  */
 import { spawnSync } from "node:child_process";
+
+/** Ceiling for a single toolchain probe. Exceeding it is reported, never waited on. */
+const PROBE_TIMEOUT_MS = 10_000;
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,11 +118,20 @@ function run(
     cwd: opts?.cwd,
     env: opts?.env ?? process.env,
     shell: false,
+    // BOUNDED on purpose. Unbounded probes made this suite fail under full-gate CPU contention:
+    // alone it took ~5s and passed, under load a probe exceeded vitest's default timeout and took
+    // the whole file down. A diagnostic tool whose probe cannot answer in time should REPORT that,
+    // not hang its caller — and raising the test timeout would hide contention-sensitivity rather
+    // than remove it (the lesson from the model-vetting flake).
+    timeout: PROBE_TIMEOUT_MS,
   });
+  const timedOut = r.error !== undefined && (r.error as NodeJS.ErrnoException).code === "ETIMEDOUT";
   return {
     ok: r.status === 0,
     stdout: (r.stdout ?? "").trim(),
-    stderr: (r.stderr ?? "").trim(),
+    stderr: timedOut
+      ? `probe exceeded ${PROBE_TIMEOUT_MS}ms and was stopped — result unknown, not failed`
+      : (r.stderr ?? "").trim(),
     status: r.status,
   };
 }
