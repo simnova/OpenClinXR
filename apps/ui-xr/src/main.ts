@@ -58,6 +58,7 @@ import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
+import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
@@ -8291,9 +8292,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
         slot.root.rotation.y = gaze * 0.7;
       }
       const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
-      if (viseme !== null) {
-        applyGeneratedDriveViseme(slot.root, viseme);
-      }
+      if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme); // #63 named viseme_*
     }
     slot.root.position.y = slot.baseY + breathing * 0.018;
     slot.root.position.x = emotionalSway + dialogueWeightShift;
@@ -8491,15 +8490,6 @@ function generatedDriveScalar(value: GeneratedRuntimeDrive[keyof GeneratedRuntim
     return 0.25;
   }
   return null;
-}
-
-function applyGeneratedDriveViseme(root: Group, weight: number): void {
-  root.traverse((object) => {
-    if (!(object instanceof Mesh) || !object.morphTargetInfluences || object.morphTargetInfluences.length === 0) {
-      return;
-    }
-    object.morphTargetInfluences[0] = Math.min(0.95, Math.max(0, weight));
-  });
 }
 
 function pediatricAsthmaActingOverlayForSlot(
@@ -9180,13 +9170,16 @@ function applyHumanoidMorphTargetCue(
       applied++;
     }
   });
+  // #63 vertical: phonemes → driveVisemeTimeline → applyVisemeWeights (named viseme_*, not index 0)
+  const named = applyNamedSpeechVisemes(slot, performance.now());
+  if (named.activeTargetName) applied += 1;
   slot.root.userData.openClinXrMorphTargetRuntimeCue = {
-    currentViseme: viseme,
+    currentViseme: named.activeTargetName ?? viseme,
     mouthOpenness: Number(openness.toFixed(3)),
     expressionWeights: roundHumanoidExpressionWeights(expressionWeights),
     appliedTargetCount: applied,
-    targetNames: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension"],
-    cueIds: ["dialogue_viseme_and_gaze_mapping", "visible_runtime_mouth_shape_cue", "emotion_aligned_expression_transition_cue"],
+    targetNames: ["openclinxr_mouth_open", "openclinxr_brow_concern", "openclinxr_cheek_tension", ...(named.activeTargetName ? [named.activeTargetName] : [])],
+    cueIds: ["dialogue_viseme_and_gaze_mapping", "visible_runtime_mouth_shape_cue", "emotion_aligned_expression_transition_cue", "named_viseme_morph_drive"],
     notEvidenceFor: "production phoneme timing, validated facial animation, or clinical affect scoring",
   };
 }
