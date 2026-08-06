@@ -358,6 +358,60 @@ has six-plus callers. The brief named that, and the fix landed in the helper wit
 the plain and coloured shapes — the right place — rather than as a local workaround that would have
 left the same bug waiting for the next capture script.
 
+## 6h. A brief with no slot for out-of-scope wrongness gets silence
+
+Asked directly whether it had noticed that the actors in its own captures were embedded in the floor,
+the #69 worker was unambiguous:
+
+> "Noticed. Treated as out of scope. Stayed silent. Brief subject was 'are these different rooms',
+> not actor placement. That is **brief-driven filtering**, not failure to see. Without a slot for
+> 'out-of-scope wrongness I still saw', workers will optimise the grade and eat the rest.
+> Silence is not agreement that the scene is fine — it was compliance with the stated subject."
+
+That is correct behaviour against the brief I wrote, and the cost was real: the defect surfaced hours
+later because it happened to catch my eye in an image I opened for a different reason. A worker had
+already seen it and had no place to put it.
+
+**Rule:** every brief whose output includes something visual asks for two lines in the report — the
+in-scope verdict, and **any out-of-scope wrongness the worker saw and is not fixing**. Naming it
+explicitly as not-their-problem is what makes it safe to report; without that, mentioning it reads
+like scope creep or like criticising the work they were told to do.
+
+This generalises past visuals. A tightly-scoped brief buys focus by narrowing what counts, and
+everything outside the frame becomes invisible to the report even when it was visible to the worker.
+The slot costs one line and recovers observations that are otherwise thrown away.
+
+## 6i. One green does not make a capture reproducible — re-run it in the hostile environment
+
+#69's capture worked for the worker at 16:13 and failed for me at 16:20 in the same worktree. The
+cause was ANSI in Vite's ready line under `FORCE_COLOR`, and the worker's own read of why its first
+run passed is the useful part:
+
+> "I did not force `FORCE_COLOR=1` on that run... if colour was off or only partially applied, the
+> naive matcher can pass **by luck**. My 'it ran' was real product evidence once, and lucky CI
+> evidence for the helper."
+
+**Rule, now standing brief text for any slice whose `done_when` includes a live capture command:**
+after the first successful run, re-run it **twice more with `FORCE_COLOR=1`** (or whatever the
+hostile environment flag is for the tool in question), and require both to regenerate the artifacts.
+One green under ambient harness conditions is not reproducible; it is one sample.
+
+The worker picked this as its own highest-value brief change, over the more obvious one, on the
+grounds that it would have caught the bug in the first session and removed the need for a resume.
+
+## 6j. Refinement to "withhold the story": unranked candidates are free, a preferred one is not
+
+§6g says hand over the failure rather than a hypothesis. The #69 worker sharpened it, and the
+distinction is worth keeping:
+
+> "Naming your candidates as a flat checklist would have helped slightly; **ranking** them would have
+> hurt. 'Check ANSI vs Vite 8 format vs httpReadyProbe vs spawn — I have not distinguished' is free
+> coverage. 'LIKELY ANSI' or 'LIKELY probe' would have pulled a turn of story-fitting."
+
+So: list what you have not ruled out, unordered, and say plainly that you have not distinguished
+between them. Do not say which one you believe. The cost is not in mentioning a possibility — it is
+in supplying a rank the worker then has to disprove.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
