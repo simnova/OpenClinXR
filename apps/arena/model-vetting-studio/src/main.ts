@@ -88,11 +88,14 @@ if (cagematchReportsIndex) {
         }
         if (captureCandidateId && isCandidateCaptureView(captureView)) {
           const captureDialogueText = params.get("captureDialogueText");
+          const capturePassParam = params.get("capturePass");
+          const capturePass = capturePassParam === "structure" ? "structure" as const : "lit" as const;
           return renderCandidateCapture({
             mount: app,
             evidence,
             candidateId: captureCandidateId,
             view: captureView,
+            capturePass,
             ...(captureDialogueText ? { dialogueText: captureDialogueText } : {}),
           }).then((captureEvidence) => {
             window.__openClinXrModelVettingCandidateCaptureEvidence = captureEvidence;

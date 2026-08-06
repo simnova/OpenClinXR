@@ -20,6 +20,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
+  MeshNormalMaterial,
   Object3D,
   PerspectiveCamera,
   Quaternion,
@@ -32,10 +33,31 @@ import {
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { ModelVettingStudioEvidence } from "./studio-state.js";
+import { glbUrlForPath } from "./glb-url-for-path.js";
+import {
+  cameraPosition,
+  computeBaseMeshBounds,
+  frameCameraForBounds,
+  roundMeters,
+} from "./candidate-capture-geometry.js";
+import {
+  isCandidateCaptureView,
+  isFixedCameraView,
+  isTemporalCaptureView,
+  type CandidateCaptureView,
+  type FixedCameraView,
+  type TemporalCaptureView,
+} from "./candidate-capture-views.js";
 
-export type FixedCameraView = "front" | "side" | "three_quarter";
-export type TemporalCaptureView = "turntable" | "viseme_timeline" | "emotion_transition" | "body_motion_probe";
-export type CandidateCaptureView = FixedCameraView | TemporalCaptureView;
+export { glbUrlForPath } from "./glb-url-for-path.js";
+export {
+  isCandidateCaptureView,
+  isFixedCameraView,
+  isTemporalCaptureView,
+  type CandidateCaptureView,
+  type FixedCameraView,
+  type TemporalCaptureView,
+} from "./candidate-capture-views.js";
 
 export type ModelVettingCandidateCaptureEvidence = {
   source: "window.__openClinXrModelVettingCandidateCaptureEvidence";
@@ -89,13 +111,25 @@ export type ModelVettingCandidateCaptureEvidence = {
     height: number;
     depth: number;
   };
+  /**
+   * Pre-normalize scene-graph mesh AABB from three.js (world-space POSITION after
+   * matrixWorld bake, before the display scale-to-2.2m). Independent of NodeIO
+   * probe geometry; used by glb-grade self-check (#59).
+   */
+  sourceMeshAabbMeters: {
+    height: number;
+    horizontalExtent: number;
+    width: number;
+    depth: number;
+  };
+  capturePass: "lit" | "structure";
   captureClaim:
     | "isolated_model_fixed_camera_screenshot_only"
     | "isolated_model_turntable_video_only"
     | "isolated_model_viseme_timeline_video_only"
     | "isolated_model_emotion_transition_video_only"
     | "isolated_model_body_motion_probe_video_only";
-  materialEvidenceMode: "source_candidate_materials" | "neutral_inspection_material";
+  materialEvidenceMode: "source_candidate_materials" | "neutral_inspection_material" | "structure_normal_wireframe";
   deterministicTemporalCue: {
     enabled: boolean;
     cue: TemporalCaptureView | null;
@@ -166,9 +200,12 @@ export async function renderCandidateCapture(input: {
   candidateId: string;
   view: CandidateCaptureView;
   dialogueText?: string;
+  /** lit = source materials; structure = normal+wireframe so shredded interior is visible (#59). */
+  capturePass?: "lit" | "structure";
 }): Promise<ModelVettingCandidateCaptureEvidence> {
   const candidate = input.evidence.candidates.find((item) => item.candidateId === input.candidateId);
   if (!candidate) throw new Error(`Unknown candidateId ${input.candidateId}`);
+  const capturePass = input.capturePass === "structure" ? "structure" : "lit";
   const stage = document.createElement("section");
   stage.className = "candidate-capture-stage";
   stage.setAttribute("aria-label", `${candidate.actorDisplayRole} ${input.view} capture`);
@@ -176,7 +213,7 @@ export async function renderCandidateCapture(input: {
   canvas.id = "model-vetting-candidate-capture-canvas";
   const badge = document.createElement("div");
   badge.className = "candidate-capture-badge";
-  badge.textContent = `${candidate.actorDisplayRole} · ${input.view.replaceAll("_", " ")} · isolated model capture`;
+  badge.textContent = `${candidate.actorDisplayRole} · ${input.view.replaceAll("_", " ")} · ${capturePass} · isolated model capture`;
   stage.append(canvas, badge);
   input.mount.replaceChildren(stage);
 
@@ -195,8 +232,10 @@ export async function renderCandidateCapture(input: {
   const fillLight = new DirectionalLight("#b6d8ca", 1.2);
   fillLight.position.set(-4, 3, -2);
   scene.add(fillLight);
-  const grid = new GridHelper(4, 16, "#80c7ad", "#31483f");
-  scene.add(grid);
+  if (capturePass === "lit") {
+    const grid = new GridHelper(4, 16, "#80c7ad", "#31483f");
+    scene.add(grid);
+  }
 
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
@@ -207,8 +246,11 @@ export async function renderCandidateCapture(input: {
   let meshCount = 0;
   let skinnedMeshCount = 0;
   const inspectionMaterial = new MeshBasicMaterial({ color: "#cde7dc" });
+  // Structure pass: normal+wireframe makes shredded interior / collapsed volume visible,
+  // not just silhouette (meshAabb.heightExceedsHorizontal cannot see that).
+  const structureMaterial = new MeshNormalMaterial({ wireframe: true, flatShading: true });
   const emotionTransitionCapture = input.view === "emotion_transition";
-  const useSourceMaterials = true;
+  const useSourceMaterials = capturePass === "lit";
   const visemeTimelineCapture = input.view === "viseme_timeline";
   const visemeTimeline = visemeTimelineCapture
     ? buildVisemeTimelineFromDialogue(input.dialogueText ?? PEDS_ASTHMA_PATIENT_VISeme_DIALOGUE_UTTERANCE)
@@ -239,7 +281,12 @@ export async function renderCandidateCapture(input: {
         skinnedMeshCount += 1;
         skinnedMeshes.push(object as SkinnedMesh);
       }
-      const mesh = new Mesh(object.geometry, useSourceMaterials ? object.material : inspectionMaterial);
+      const material = capturePass === "structure"
+        ? structureMaterial
+        : useSourceMaterials
+          ? object.material
+          : inspectionMaterial;
+      const mesh = new Mesh(object.geometry, material);
       mesh.name = `${object.name || "mesh"}_inspection_clone`;
       mesh.frustumCulled = false;
       mesh.applyMatrix4(object.matrixWorld);
@@ -250,6 +297,13 @@ export async function renderCandidateCapture(input: {
   captureModel.updateMatrixWorld(true);
   const initialBounds = computeBaseMeshBounds(captureModel);
   const initialSize = initialBounds.getSize(new Vector3());
+  // Pre-normalize AABB — the metric self-check compares to NodeIO probe (#59).
+  const sourceMeshAabbMeters = {
+    height: roundMeters(initialSize.y),
+    horizontalExtent: roundMeters(Math.max(initialSize.x, initialSize.z)),
+    width: roundMeters(initialSize.x),
+    depth: roundMeters(initialSize.z),
+  };
   const targetHeightMeters = 2.2;
   const baseScale = targetHeightMeters / Math.max(initialSize.y, 0.001);
   captureModel.scale.setScalar(baseScale);
@@ -375,8 +429,14 @@ export async function renderCandidateCapture(input: {
       height: roundMeters(size.y),
       depth: roundMeters(size.z),
     },
+    sourceMeshAabbMeters,
+    capturePass,
     captureClaim: captureClaimForView(input.view),
-    materialEvidenceMode: useSourceMaterials ? "source_candidate_materials" : "neutral_inspection_material",
+    materialEvidenceMode: capturePass === "structure"
+      ? "structure_normal_wireframe"
+      : useSourceMaterials
+        ? "source_candidate_materials"
+        : "neutral_inspection_material",
     deterministicTemporalCue: {
       enabled: isTemporalCaptureView(input.view),
       cue: isTemporalCaptureView(input.view) ? input.view : null,
@@ -698,81 +758,6 @@ export function selectBodyMotionProbeClipName(animationNames: string[]): string 
   return animationNames.find((name) => /mpfb_body_motion_probe|role_patient_asthma_breathing_effort|role_parent_anxious_fidget_guard|role_nurse_clinical_check_reassure/u.test(name))
     ?? animationNames.find((name) => /posture|standing|clinical|conversation|idle/u.test(name))
     ?? null;
-}
-
-function roundMeters(value: number): number {
-  return Math.round(value * 1000) / 1000;
-}
-
-function computeBaseMeshBounds(model: Object3D): Box3 {
-  const bounds = new Box3();
-  const point = new Vector3();
-  model.traverse((object) => {
-    if (!(object instanceof Mesh)) return;
-    const position = object.geometry.getAttribute("position");
-    if (!position) return;
-    for (let index = 0; index < position.count; index += 1) {
-      point.fromBufferAttribute(position, index).applyMatrix4(object.matrixWorld);
-      bounds.expandByPoint(point);
-    }
-  });
-  return bounds;
-}
-
-export function isFixedCameraView(value: string | null): value is FixedCameraView {
-  return value === "front" || value === "side" || value === "three_quarter";
-}
-
-export function isCandidateCaptureView(value: string | null): value is CandidateCaptureView {
-  return isFixedCameraView(value) || isTemporalCaptureView(value);
-}
-
-export function isTemporalCaptureView(value: string | null): value is TemporalCaptureView {
-  return value === "turntable" || value === "viseme_timeline" || value === "emotion_transition" || value === "body_motion_probe";
-}
-
-function cameraPosition(view: CandidateCaptureView): Vector3 {
-  if (view === "side") return new Vector3(4.8, 1.35, 0);
-  if (view === "three_quarter") return new Vector3(3.6, 1.35, 3.6);
-  return new Vector3(0, 1.35, 4.8);
-}
-
-function frameCameraForBounds(camera: PerspectiveCamera, bounds: Box3, view: CandidateCaptureView): void {
-  const center = bounds.getCenter(new Vector3());
-  const size = bounds.getSize(new Vector3());
-  const radius = Math.max(size.x, size.y, size.z, 0.5);
-  const distance = radius * 2.35;
-  const eyeHeight = Math.max(size.y * 0.12, 0.25);
-  if (view === "side") camera.position.set(center.x + distance, center.y + eyeHeight, center.z);
-  else if (view === "three_quarter") camera.position.set(center.x + distance * 0.72, center.y + eyeHeight, center.z + distance * 0.72);
-  else camera.position.set(center.x, center.y + eyeHeight, center.z + distance);
-  camera.lookAt(center.x, center.y + size.y * 0.08, center.z);
-}
-
-export function glbUrlForPath(sourceGlbPath: string): string {
-  const publicPathMarker = "apps/arena/model-vetting-studio/public/";
-  if (sourceGlbPath.includes(publicPathMarker)) {
-    return `/${sourceGlbPath.slice(sourceGlbPath.indexOf(publicPathMarker) + publicPathMarker.length)}`;
-  }
-  if (sourceGlbPath.startsWith("/cagematch/")) {
-    return sourceGlbPath;
-  }
-  if (sourceGlbPath.endsWith("peds_anxious_parent.glb")) {
-    return new URL("../../../ui-xr/public/generated-humanoids/peds_anxious_parent.glb", import.meta.url).href;
-  }
-  if (sourceGlbPath.endsWith("peds_nurse_kevin.glb")) {
-    return new URL("../../../ui-xr/public/generated-humanoids/peds_nurse_kevin.glb", import.meta.url).href;
-  }
-  if (sourceGlbPath.includes("peds_asthma_parent_anxiety_v1_garment_hint_v1") || sourceGlbPath.includes("garment_hint_peds_tshirt")) {
-    return new URL("../../../../.openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1_garment_hint_v1/peds_patient_child.glb", import.meta.url).href;
-  }
-  // Generated pipeline candidates (Pipeline Admin surface): resolve any
-  // asset-production GLB via the repo root. Present when the pipeline has run
-  // against .openclinxr in this checkout; falls back to a 404 otherwise.
-  if (sourceGlbPath.startsWith(".openclinxr/asset-production/")) {
-    return new URL(`../../../../${sourceGlbPath}`, import.meta.url).href;
-  }
-  return new URL("../../../ui-xr/public/generated-humanoids/peds_patient_child.glb", import.meta.url).href;
 }
 
 function captureClaimForView(view: CandidateCaptureView): ModelVettingCandidateCaptureEvidence["captureClaim"] {

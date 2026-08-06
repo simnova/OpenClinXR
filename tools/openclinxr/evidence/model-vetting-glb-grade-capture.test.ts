@@ -45,6 +45,18 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: the instrument. It asserts nothing about whether any asset looks right — that verdict is
  * read off the pixels by a human or a model, and is recorded on #59 rather than encoded here.
+ *
+ * ## FIXED (#59)
+ *
+ * - `planGlbGradeCapture` builds a plan from a path alone (no ModelVettingReport). Turntable gains
+ *   `--glb` which synthesises an ephemeral report; full grade CLI also covers lit+structure+self-check.
+ * - `evaluateGeometrySelfCheck` default relative tolerance 0.15 refuses the historical 1.25 vs 2.0
+ *   (~60%) and 1.25 vs 1.5 (20%); agrees on 1.25 vs 1.248. Probe = NodeIO; in-page = three.js
+ *   sourceMeshAabbMeters (pre-normalize). Refuse writes no images.
+ * - `passesDiffer` requires lit vs structure pixel inequality (structure = MeshNormalMaterial wireframe).
+ * - Coverage: `pnpm asset:model-vetting:glb-grade -- --all-shipped-humanoids` + validate gallery.json.
+ *
+ * Measured numbers above are immutable diagnosis — not rewritten.
  */
 
 const load = async () =>
@@ -70,7 +82,7 @@ const UNREPORTED_GLB =
   "apps/ui-xr/public/cagematch/anny-garment-hint-v1/current/peds_patient_child_garment_hint_v1.glb";
 
 describe("a GLB on disk can be rendered and the render can be trusted (#59)", () => {
-  it.fails("renders a GLB given only its path, with no hand-authored source report", async () => {
+  it("renders a GLB given only its path, with no hand-authored source report", async () => {
     const mod = await load();
     const plan = mod["planGlbGradeCapture"] as PlanFn | undefined;
     expect(plan).toBeTypeOf("function");
@@ -83,7 +95,7 @@ describe("a GLB on disk can be rendered and the render can be trusted (#59)", ()
     expect(result.views).toEqual(["front", "three_quarter"]);
   });
 
-  it.fails("refuses and writes no image when in-page geometry disagrees with the NodeIO probe", async () => {
+  it("refuses and writes no image when in-page geometry disagrees with the NodeIO probe", async () => {
     const mod = await load();
     const check = mod["evaluateGeometrySelfCheck"] as SelfCheck | undefined;
     expect(check).toBeTypeOf("function");
@@ -114,7 +126,7 @@ describe("a GLB on disk can be rendered and the render can be trusted (#59)", ()
     expect(defaulted.writeImages).toBe(false);
   });
 
-  it.fails("a lit pass and a structure pass of the same view are not the same pixels", async () => {
+  it("a lit pass and a structure pass of the same view are not the same pixels", async () => {
     const mod = await load();
     const differ = mod["passesDiffer"] as PassesDiffer | undefined;
     expect(differ).toBeTypeOf("function");
