@@ -352,7 +352,8 @@
     "test:skill:slice:integration": "node .agents/skills/openclinxr-slice/evaluator/run-integration.js",
     "openclaw:scorecard": "tsx tools/openclinxr/openclaw/delegation-scorecard.ts",
     "openclaw:contract:verify": "tsx tools/openclinxr/openclaw/contract-verify-cli.ts",
-    "openclaw:diff-class": "tsx tools/openclinxr/openclaw/diff-class-policy.ts"
+    "openclaw:diff-class": "tsx tools/openclinxr/openclaw/diff-class-policy.ts",
+    "openclaw:merge-kill": "tsx tools/openclinxr/openclaw/merge-kill.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
