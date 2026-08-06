@@ -3,7 +3,9 @@
  * Replaces triple-MD per-subagent updates with parallel role-bound execution.
  */
 
-import { existsSync, statSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -17,6 +19,7 @@ import {
   buildParentSpawnChecklist,
   type ParentSpawnChecklist,
 } from "./spawn-isolation.js";
+import { evaluateDoneWhenRule } from "./done-when-rules.js";
 
 export const SLICE_BRIEF_SCHEMA = "openclinxr.slice-brief.v1" as const;
 export const TEAM_TEMPLATE_SCHEMA = "openclinxr.slice-team-template.v1" as const;
@@ -292,146 +295,6 @@ export function buildSliceTeamSpawnPrompt(input: {
   return lines.join("\n");
 }
 
-function globMatch(pattern: string, candidate: string): boolean {
-  const normalizedPattern = pattern.replaceAll("\\", "/");
-  const normalizedCandidate = candidate.replaceAll("\\", "/");
-  if (!normalizedPattern.includes("*")) {
-    return normalizedCandidate === normalizedPattern || normalizedCandidate.endsWith(`/${normalizedPattern}`);
-  }
-  const regex = new RegExp(
-    `^${normalizedPattern
-      .split("*")
-      .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-      .join(".*")}$`,
-  );
-  return regex.test(normalizedCandidate);
-}
-
-async function walkFiles(dir: string): Promise<string[]> {
-  const results: string[] = [];
-  if (!existsSync(dir)) return results;
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...(await walkFiles(full)));
-    } else if (entry.isFile()) {
-      results.push(full);
-    }
-  }
-  return results;
-}
-
-async function resolveExistsTargets(repoRoot: string, target: string): Promise<string[]> {
-  const absolute = path.isAbsolute(target) ? target : path.join(repoRoot, target);
-  if (!target.includes("*")) {
-    return existsSync(absolute) ? [absolute] : [];
-  }
-  const normalizedTarget = target.replaceAll("\\", "/");
-  const wildcardIndex = normalizedTarget.split("/").findIndex((segment) => segment.includes("*"));
-  if (wildcardIndex < 0) {
-    return [];
-  }
-  const searchRoot = path.join(
-    repoRoot,
-    ...normalizedTarget.split("/").slice(0, wildcardIndex),
-  );
-  const pattern = normalizedTarget.split("/").slice(wildcardIndex).join("/");
-  const files = await walkFiles(searchRoot);
-  return files.filter((file) => {
-    const rel = path.relative(searchRoot, file).replaceAll("\\", "/");
-    return globMatch(pattern, rel);
-  });
-}
-
-export async function evaluateDoneWhenRule(
-  repoRoot: string,
-  rule: string,
-  sliceId: string,
-  handoffs: Record<string, SliceHandoff | null>,
-): Promise<DoneWhenCheck> {
-  if (rule.startsWith("exists:")) {
-    const target = rule.slice("exists:".length).trim();
-    const matches = await resolveExistsTargets(repoRoot, target);
-    return {
-      rule,
-      passed: matches.length > 0,
-      detail: matches.length > 0 ? `found ${matches.join(", ")}` : `missing ${target}`,
-    };
-  }
-
-  if (rule.startsWith("min-bytes:")) {
-    const [, target, minBytesRaw] = rule.split(":");
-    if (!target || !minBytesRaw) {
-      return { rule, passed: false, detail: "invalid min-bytes rule" };
-    }
-    const minBytes = Number(minBytesRaw);
-    const matches = await resolveExistsTargets(repoRoot, target);
-    if (matches.length === 0) {
-      return { rule, passed: false, detail: `missing ${target}` };
-    }
-    const sizeInfos: Array<{ rel: string; size: number }> = matches.map((m) => ({
-      rel: path.relative(repoRoot, m).replaceAll("\\", "/"),
-      size: statSync(m).size,
-    }));
-    const allSufficient = sizeInfos.every((info) => info.size >= minBytes);
-    const detail = sizeInfos.map((info) => `${info.rel} size=${info.size}`).join("; ") + ` min=${minBytes}`;
-    return {
-      rule,
-      passed: allSufficient,
-      detail,
-    };
-  }
-
-  if (rule.startsWith("handoff:")) {
-    const parts = rule.slice("handoff:".length).split(":");
-    const roleId = parts[0]?.trim();
-    const expectedStatus = (parts[1]?.trim() ?? "done") as HandoffStatus;
-    if (!roleId) {
-      return { rule, passed: false, detail: "missing role id" };
-    }
-    const handoff = handoffs[roleId];
-    if (!handoff) {
-      return { rule, passed: false, detail: `no handoff for ${roleId}` };
-    }
-    const passed = handoff.status === expectedStatus;
-    return {
-      rule,
-      passed,
-      detail: `${roleId} status=${handoff.status} expected=${expectedStatus}`,
-    };
-  }
-
-  if (rule.startsWith("skeptic:")) {
-    const expected = rule.slice("skeptic:".length).trim() as SkepticVerdict;
-    const handoff = handoffs["productivity-skeptic"];
-    const verdict = handoff?.skeptic_verdict ?? "pending";
-    return {
-      rule,
-      passed: verdict === expected,
-      detail: `skeptic_verdict=${verdict} expected=${expected}`,
-    };
-  }
-
-  if (rule === "handoffs:all-done") {
-    const pending = Object.entries(handoffs).filter(([, h]) => h?.status !== "done");
-    return {
-      rule,
-      passed: pending.length === 0 && Object.keys(handoffs).length > 0,
-      detail:
-        pending.length === 0
-          ? `all ${Object.keys(handoffs).length} handoffs done`
-          : `pending: ${pending.map(([role]) => role).join(", ")}`,
-    };
-  }
-
-  return {
-    rule,
-    passed: false,
-    detail: `unsupported rule (slice ${sliceId})`,
-  };
-}
-
 /** Strip :line suffix from touched paths (e.g. "src/file.ts:42" → "src/file.ts") for glob matching. */
 function stripTouchedLineSuffix(touchedPath: string): string {
   return touchedPath.replace(/:(\d+)$/, "");
@@ -592,3 +455,7 @@ export function formatTeamSpawnBrief(report: TeamSpawnReport): string {
   ];
   return lines.join(" | ");
 }
+
+// Rule evaluation lives in its own module (size ratchet: split, do not raise). Re-exported so
+// existing importers of slice-team.js keep working.
+export { evaluateDoneWhenRule } from "./done-when-rules.js";

@@ -1,7 +1,10 @@
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  evaluateDoneWhenRule,
   auditHandoffsPathScope,
   auditHandoffsSoleAuthorLocks,
   buildSliceTeamSpawnPrompt,
@@ -453,5 +456,60 @@ describe("slice-team", () => {
       expect(failing.length).toBeGreaterThan(0);
       expect(report.ok).toBe(false);
     });
+  });
+});
+describe("done_when run: and changed: — the proofs a green gate cannot give you", () => {
+  it("run: passes when the command exits zero", async () => {
+    const check = await evaluateDoneWhenRule(process.cwd(), "run:true", "slice-x", {});
+    expect(check.passed).toBe(true);
+  });
+
+  it("run: FAILS closed when the command exits non-zero", async () => {
+    // This is the case that was missing: a worker claimed a concurrency proof it never produced.
+    // Its report and a green gate both said success; only executing the check catches it.
+    const check = await evaluateDoneWhenRule(process.cwd(), "run:false", "slice-x", {});
+    expect(check.passed).toBe(false);
+    expect(check.detail).toMatch(/failed/);
+  });
+
+  it("run: FAILS closed on an unrunnable command rather than passing it over", async () => {
+    const check = await evaluateDoneWhenRule(process.cwd(), "run:definitely-not-a-command-xyz", "slice-x", {});
+    expect(check.passed).toBe(false);
+  });
+
+  it("run: rejects an empty command instead of treating it as satisfied", async () => {
+    const check = await evaluateDoneWhenRule(process.cwd(), "run:", "slice-x", {});
+    expect(check.passed).toBe(false);
+    expect(check.detail).toMatch(/invalid/);
+  });
+
+  it("changed: fails for a file that exists but was NOT produced by this slice", async () => {
+    // `exists:` passes here, which is exactly the hole — a worker satisfies it by doing nothing.
+    const sliceId = `slice-changed-${process.pid}`;
+    const dir = path.join(process.cwd(), ".openclinxr", "slices", sliceId);
+    mkdirSync(dir, { recursive: true });
+    const target = "package.json";
+    const hash = createHash("sha256").update(readFileSync(path.join(process.cwd(), target))).digest("hex");
+    writeFileSync(path.join(dir, "baseline-hashes.json"), JSON.stringify({ [target]: hash }));
+    try {
+      const check = await evaluateDoneWhenRule(process.cwd(), `changed:${target}`, sliceId, {});
+      expect(check.passed).toBe(false);
+      expect(check.detail).toMatch(/unchanged since slice baseline/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("changed: passes when content differs from the recorded baseline", async () => {
+    const sliceId = `slice-changed2-${process.pid}`;
+    const dir = path.join(process.cwd(), ".openclinxr", "slices", sliceId);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, "baseline-hashes.json"), JSON.stringify({ "package.json": "stale-hash" }));
+    try {
+      const check = await evaluateDoneWhenRule(process.cwd(), "changed:package.json", sliceId, {});
+      expect(check.passed).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
