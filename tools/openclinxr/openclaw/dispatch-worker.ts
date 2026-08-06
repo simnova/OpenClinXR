@@ -8,6 +8,12 @@
  * dispatch path means they hold whether or not anyone remembers them.
  *
  * Each rule is annotated with the incident that produced it.
+ *
+ * BYPASS CHOKEPOINT: shell-tool attempts to run raw `grok -p` / `--single` are refused by
+ * `dispatch-chokepoint.ts` (PreToolUse). This module uses `spawn(binary, argv)` so it never
+ * hits that matcher. Orchestrator isolation probes that must run with path denies OFF use the
+ * named escape OPENCLINXR_RAW_GROK_SANCTIONED + OPENCLINXR_RAW_GROK_REASON (logged). The
+ * chokepoint is a string matcher over shell command text — not an OS sandbox; see that file.
  */
 
 import { execFileSync, spawn } from "node:child_process";

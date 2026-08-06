@@ -159,3 +159,99 @@ export function checkNoDuplicateLspExtensionClaims(): string[] {
       + `dead-code) via their CLI instead.`,
     );
 }
+
+/**
+ * DECISION (2026-08-05 dispatch-chokepoint): raw headless `grok -p` must not be a silent
+ * convention — a PreToolUse shell matcher refuses it unless a named logged escape is set.
+ *
+ * WHY: layers 3–6 of merge-safety hang off `dispatch()`; a raw spawn skips contract, baseline,
+ * proofs, and loop-pause. Prose in rules lost to a delegate optimising for finishing.
+ *
+ * HONEST CLAIM locked here: the mechanism is a **string matcher** over shell-tool command text
+ * (not an OS sandbox). Architecture only asserts the machinery files remain present and wired —
+ * capability residual is documented in tools/openclinxr/openclaw/dispatch-chokepoint.ts.
+ */
+export function checkDispatchChokepointWired(): string[] {
+  const violations: string[] = [];
+  const hookPath = join(workspaceRoot, ".grok/hooks/dispatch-chokepoint.json");
+  const srcPath = join(workspaceRoot, "tools/openclinxr/openclaw/dispatch-chokepoint.ts");
+  const testPath = join(workspaceRoot, "tools/openclinxr/openclaw/dispatch-chokepoint.test.ts");
+  const dispatchPath = join(workspaceRoot, "tools/openclinxr/openclaw/dispatch-worker.ts");
+
+  if (!existsSync(hookPath)) {
+    violations.push(
+      `.grok/hooks/dispatch-chokepoint.json missing. `
+      + `WHY: without the PreToolUse hook, raw \`grok -p\` is only a prose convention again.`,
+    );
+  } else {
+    try {
+      const hook = JSON.parse(readFileSync(hookPath, "utf8")) as {
+        hooks?: { PreToolUse?: Array<{ matcher?: string; hooks?: Array<{ command?: string }> }> };
+      };
+      const groups = hook.hooks?.PreToolUse ?? [];
+      const matcherOk = groups.some((g) => /Bash|run_terminal_command/.test(g.matcher ?? ""));
+      const commandOk = groups.some((g) =>
+        (g.hooks ?? []).some((h) => (h.command ?? "").includes("dispatch-chokepoint")),
+      );
+      if (!matcherOk) {
+        violations.push(
+          `.grok/hooks/dispatch-chokepoint.json: PreToolUse matcher must cover Bash|run_terminal_command `
+          + `(shell is how delegates spawn raw grok).`,
+        );
+      }
+      if (!commandOk) {
+        violations.push(
+          `.grok/hooks/dispatch-chokepoint.json: hook command must invoke dispatch-chokepoint.ts.`,
+        );
+      }
+    } catch {
+      violations.push(`.grok/hooks/dispatch-chokepoint.json: unparseable JSON.`);
+    }
+  }
+
+  if (!existsSync(srcPath)) {
+    violations.push(
+      `tools/openclinxr/openclaw/dispatch-chokepoint.ts missing. `
+      + `WHY: the refuse/allow evaluator + named escape live here.`,
+    );
+  } else {
+    const src = readFileSync(srcPath, "utf8");
+    for (const needle of [
+      "OPENCLINXR_RAW_GROK_SANCTIONED",
+      "OPENCLINXR_RAW_GROK_REASON",
+      "evaluateRawGrokShellCommand",
+      "string matcher",
+    ] as const) {
+      if (!src.includes(needle)) {
+        violations.push(
+          `tools/openclinxr/openclaw/dispatch-chokepoint.ts: missing required surface "${needle}". `
+          + `WHY: sanction name, reason, evaluator, and honest "string matcher" claim must stay visible.`,
+        );
+      }
+    }
+  }
+
+  if (!existsSync(testPath)) {
+    violations.push(
+      `tools/openclinxr/openclaw/dispatch-chokepoint.test.ts missing. `
+      + `WHY: control/treatment (deny without sanction / allow with sanction) must stay machine-checked.`,
+    );
+  }
+
+  if (!existsSync(dispatchPath)) {
+    violations.push(
+      `tools/openclinxr/openclaw/dispatch-worker.ts missing. `
+      + `WHY: the chokepoint only makes sense if dispatch() remains the supported spawn path.`,
+    );
+  } else {
+    const dispatchSrc = readFileSync(dispatchPath, "utf8");
+    if (!dispatchSrc.includes("export async function dispatch")) {
+      violations.push(
+        `tools/openclinxr/openclaw/dispatch-worker.ts: must export async function dispatch `
+        + `(the one supported headless worker entry).`,
+      );
+    }
+  }
+
+  return violations;
+}
