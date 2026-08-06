@@ -456,21 +456,53 @@ export function attributeIsolationLeak(input: {
 }
 
 /**
+ * Injected command runner for {@link prepareWorktreeForWorker}.
+ *
+ * Contracts assert the build was *executed* (not that files appeared): a file-presence check
+ * alone can be satisfied by `mkdir dist && touch index.js` without compiling anything.
+ */
+export type PrepareWorktreeCommandRunner = (command: string, args: readonly string[]) => void;
+
+/**
+ * Stable readiness marker for "workspace packages are built" (MADR 0033 build-emitting packages).
+ * Listing every package's dist goes stale as the set changes; shared-schemas is a core leaf that
+ * many resolve-entry failures named in the #54 experiment.
+ */
+export const WORKSPACE_DIST_MARKER = "packages/openclinxr/shared-schemas/dist/index.js";
+
+/**
  * Prepare a freshly created (or bare) worktree so the worker can run brief verify without
- * discovering a missing node_modules mid-session.
+ * discovering a missing node_modules mid-session — and without failing to resolve workspace
+ * package entry points because `dist/` was never built.
  *
  * INCIDENT (#47): 3/3 retro'd workers burned opening turns on absent node_modules; #37 got a
  * cache-green `pnpm architecture` on a tree that could not build — which reads as a pass.
  *
- * Mechanism: `pnpm install --prefer-offline --frozen-lockfile` into the worktree. The content-
- * addressable store is shared across worktrees so this is mostly linking, not re-download.
- * Whole-tree node_modules symlink from main is REJECTED: pnpm workspace:* links resolve relative
- * to the real node_modules path and would bind the worker to main's packages, not its own tree.
+ * INCIDENT (#54): `pnpm install` alone is not enough. Workspace packages are build-emitting
+ * (MADR 0033); their `exports` point at gitignored `dist/`. A bare worktree + install failed
+ * 17 test files on "Failed to resolve entry for package @openclinxr/shared-schemas" (and peers);
+ * `pnpm packages:build` then took the same tree to 138/0. Early-return on the vitest binary
+ * alone left install-only trees "ready" forever — adding a build step without changing that
+ * check would leave the bug fully reachable on exactly the trees that need it.
  *
- * No-ops (returns method:"existing") when a usable node_modules marker is already present.
+ * Mechanism:
+ * 1. `pnpm install --prefer-offline --frozen-lockfile` when vitest is missing.
+ * 2. `pnpm packages:build` when the workspace dist marker is missing (always after a fresh
+ *    install; also when vitest exists but dist does not).
+ * Content-addressable store + shared `TURBO_CACHE_DIR` make this mostly linking/restore.
+ *
+ * Rejected: copy/symlink dist from main (stale SHA / isolation theater); build only
+ * brief-touched packages (transitive resolve failures).
+ *
+ * No HEAD stamp to skip rebuild: optional; skip until cold-cache cost is measured.
+ *
+ * No-ops (returns method:"existing") only when BOTH vitest and workspace dist are present.
  */
-export function prepareWorktreeForWorker(worktreePath: string): {
-  method: "existing" | "install";
+export function prepareWorktreeForWorker(
+  worktreePath: string,
+  options?: { run?: PrepareWorktreeCommandRunner },
+): {
+  method: "existing" | "install" | "build";
   nodeModulesPath: string;
 } {
   if (!existsSync(worktreePath)) {
@@ -480,21 +512,52 @@ export function prepareWorktreeForWorker(worktreePath: string): {
   // vitest is a root devDependency every brief verify path needs; its presence is a better
   // readiness signal than "directory exists" (half-deleted trees still have the folder).
   const readinessMarker = join(nodeModulesPath, ".bin", "vitest");
-  if (existsSync(readinessMarker)) {
+  const distMarker = join(worktreePath, WORKSPACE_DIST_MARKER);
+
+  const run: PrepareWorktreeCommandRunner =
+    options?.run
+    ?? ((command, args) => {
+      execFileSync(command, [...args], {
+        cwd: worktreePath,
+        stdio: ["ignore", "pipe", "pipe"],
+        env: process.env,
+      });
+    });
+
+  // #54: ready only when install AND workspace package dist are present. Vitest alone is not enough.
+  if (existsSync(readinessMarker) && existsSync(distMarker)) {
     return { method: "existing", nodeModulesPath };
   }
-  execFileSync("pnpm", ["install", "--prefer-offline", "--frozen-lockfile"], {
-    cwd: worktreePath,
-    stdio: ["ignore", "pipe", "pipe"],
-    env: process.env,
-  });
+
+  let method: "install" | "build" = "build";
+
   if (!existsSync(readinessMarker)) {
+    run("pnpm", ["install", "--prefer-offline", "--frozen-lockfile"]);
+    if (!existsSync(readinessMarker)) {
+      throw new Error(
+        `prepareWorktreeForWorker: pnpm install finished but ${readinessMarker} is missing. `
+        + `Refusing to hand a non-buildable worktree to a worker (cache-green-then-force-red class, #37).`,
+      );
+    }
+    method = "install";
+  }
+
+  if (!existsSync(distMarker)) {
+    // Script name includes "build" so injected-run contracts can assert execution without
+    // trusting file presence alone.
+    run("pnpm", ["packages:build"]);
+    if (method !== "install") method = "build";
+  }
+
+  if (!existsSync(distMarker)) {
     throw new Error(
-      `prepareWorktreeForWorker: pnpm install finished but ${readinessMarker} is missing. `
-      + `Refusing to hand a non-buildable worktree to a worker (cache-green-then-force-red class, #37).`,
+      `prepareWorktreeForWorker: packages build finished but workspace dist is still missing `
+      + `(expected ${distMarker}). Refusing to hand over a worktree that cannot resolve workspace `
+      + `package entry points (#54).`,
     );
   }
-  return { method: "install", nodeModulesPath };
+
+  return { method, nodeModulesPath };
 }
 
 export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {

@@ -464,30 +464,52 @@ describe("a prepared worktree can actually build (#54)", () => {
     return root;
   }
 
-  it.fails("builds workspace packages, not only installing them", async () => {
+  /** Materialise the workspace dist marker so the post-prep refuse gate can distinguish success. */
+  function materialiseDistMarker(root: string): void {
+    const dist = join(root, "packages/openclinxr/shared-schemas/dist");
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(dist, "index.js"), "export {};\n");
+  }
+
+  it("builds workspace packages, not only installing them", async () => {
     const mod = await load();
     const prepare = mod["prepareWorktreeForWorker"] as Prepare;
     const commands: string[] = [];
-    prepare(worktreeFixture(false), { run: (command, args) => { commands.push(`${command} ${args.join(" ")}`); } });
+    const root = worktreeFixture(false);
+    prepare(root, {
+      run: (command, args) => {
+        commands.push(`${command} ${args.join(" ")}`);
+        // Simulate a successful packages:build (execution is what we assert; refuse gate needs the marker).
+        if (args.some((a) => /build/.test(a))) materialiseDistMarker(root);
+        if (command === "pnpm" && args[0] === "install") {
+          mkdirSync(join(root, "node_modules", ".bin"), { recursive: true });
+          writeFileSync(join(root, "node_modules", ".bin", "vitest"), "#!/bin/sh\n");
+        }
+      },
+    });
     // Asserting EXECUTION, not artifacts: a test that checks for dist/ can be satisfied by touch.
     expect(commands.some((c) => /build/.test(c))).toBe(true);
   });
 
-  it.fails("rebuilds when the vitest marker exists but workspace dist does not", async () => {
+  it("rebuilds when the vitest marker exists but workspace dist does not", async () => {
     // The latent hole: an install-only tree keeps its vitest binary and would report "existing"
     // forever, so the build step would never run on exactly the trees that need it.
     const mod = await load();
     const prepare = mod["prepareWorktreeForWorker"] as Prepare;
     const commands: string[] = [];
-    const result = prepare(worktreeFixture(true), {
-      run: (command, args) => { commands.push(`${command} ${args.join(" ")}`); },
+    const root = worktreeFixture(true);
+    const result = prepare(root, {
+      run: (command, args) => {
+        commands.push(`${command} ${args.join(" ")}`);
+        if (args.some((a) => /build/.test(a))) materialiseDistMarker(root);
+      },
     });
     expect(result.method).not.toBe("existing");
     expect(commands.some((c) => /build/.test(c))).toBe(true);
   });
 
-  it.fails("refuses to hand over a worktree whose workspace dist is still missing after preparation", async () => {
-    // Fixture HAS the vitest binary, so today this early-returns "existing" and throws nothing.
+  it("refuses to hand over a worktree whose workspace dist is still missing after preparation", async () => {
+    // Fixture HAS the vitest binary, so the old code early-returned "existing" and threw nothing.
     // Without that setup the function throws for a DIFFERENT reason (missing vitest), which would
     // make this contract pass while proving nothing about dist — a false green wearing the right name.
     const mod = await load();
