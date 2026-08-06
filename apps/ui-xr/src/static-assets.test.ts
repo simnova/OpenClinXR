@@ -1015,10 +1015,13 @@ describe("static browser assets", () => {
     const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("isSelectedScenarioRuntimeBundleMismatch");
-    expect(mainSource).toContain("selectedScenarioId() !== encounterRuntimeAssetBundle.scenarioId");
+    // #72: mismatch is reported via describeRuntimeBundleScenarioMatch (not a silent !==).
+    expect(mainSource).toContain("describeRuntimeBundleScenarioMatch");
+    expect(mainSource).toContain("__openClinXrRuntimeBundleScenarioMatch");
     expect(mainSource).toContain("selected_scenario_specific_3d_pending_ed_fallback_hidden_to_prevent_false_realism_evidence");
     expect(mainSource).toContain("runtimeBundleMatchesSelectedScenario");
     expect(mainSource).toContain("mismatchedRuntimeBundleFallbackReason");
+    expect(mainSource).toContain("resolveEffectiveVerticalOffsetMeters");
     expect(mainSource).toContain("learner_runtime_asset_bundle_static_generated_scenario_mismatch_suppressed");
     expect(mainSource).toContain("api learner runtime asset bundle scenario mismatch");
     expect(mainSource).toContain("Scenario-specific 3D bundle is not loaded yet.");

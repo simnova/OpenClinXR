@@ -60,6 +60,26 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: geometry of composition. Says nothing about whether the scene looks right — that verdict is
  * read off the re-captured images and recorded on #72.
+ *
+ * ## FIXED (#72)
+ *
+ * LIVE MEASUREMENT (scene-overview, portless ui-xr, 2026-08-06):
+ *
+ * | scenario   | selected matches bundle? | slotLocalY | humanoidLocalY | lowestSkinnedMeshWorldY |
+ * |------------|--------------------------|------------|----------------|-------------------------|
+ * | ED chest   | yes (static gen bundle)  | 0 (frame)  | ~+0.02         | ~-0.005 (on floor)      |
+ * | telehealth | yes (static gen bundle)  | 0 (frame)  | ~-0.96         | ~-0.87 (BURIED)         |
+ *
+ * Bundle mismatch was NOT the sinking cause — telehealth loads its own bundle
+ * (`local_exam_run:telehealth_diabetes_health_literacy_encounter_v1:…`). That bundle has no
+ * `actorPlacements`, so main.ts falls back to ED-era `verticalOffsetMeters≈-0.95` designed for
+ * slot y≈1.0. `applyCleanEncounterVisualReviewActorFraming` then rewrites slot y→0 while keeping
+ * the offset, so feet-near-origin GLBs land ~0.85–0.97 m under the floor plane.
+ *
+ * Fix: `resolveEffectiveVerticalOffsetMeters` drops large negative offsets when the slot is already
+ * floor-standing (|y|<0.2). Framing extracted to `encounter-actor-framing.ts`. Composition assess +
+ * `describeRuntimeBundleScenarioMatch` (wired onto window + fallback reasons) so mismatch is reported.
+ * Posture: standing check only; seated/supine skipped — no speculative posture system.
  */
 
 const load = async () => import("./actor-floor-composition.js") as Promise<Record<string, unknown>>;
@@ -81,7 +101,7 @@ type DescribeMatch = (input: {
 }) => { matches: boolean; reason?: string };
 
 describe("actors stand on the floor of the room they are in (#72)", () => {
-  it.fails("a standing actor's lowest mesh vertex sits within tolerance of the station floor top", async () => {
+  it("a standing actor's lowest mesh vertex sits within tolerance of the station floor top", async () => {
     const mod = await load();
     const assess = mod["assessActorFloorComposition"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
@@ -98,7 +118,7 @@ describe("actors stand on the floor of the room they are in (#72)", () => {
     expect(onTheFloor.violations).toEqual([]);
   });
 
-  it.fails("the composition check fails when an actor is pushed half a metre off the floor", async () => {
+  it("the composition check fails when an actor is pushed half a metre off the floor", async () => {
     // Kills a stub that echoes back whatever it was handed. Both directions, because a figure buried
     // to the hips and one hovering in the air are the same defect with opposite signs — and the
     // buried case is the one actually observed.
@@ -120,7 +140,7 @@ describe("actors stand on the floor of the room they are in (#72)", () => {
     expect(floating.ok).toBe(false);
   });
 
-  it.fails("a scenario whose runtime bundle does not match it is reported rather than silently composed", async () => {
+  it("a scenario whose runtime bundle does not match it is reported rather than silently composed", async () => {
     // A different defect from the two above, and it survives whatever the sinking turns out to be:
     // `encounterRuntimeAssetBundle` is the ED chest-pain bundle unconditionally (main.ts:571), so a
     // telehealth encounter can be assembled from an ED roster. That is #57's silence one layer down.
