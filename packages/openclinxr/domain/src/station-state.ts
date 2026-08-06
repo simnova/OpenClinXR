@@ -21,7 +21,28 @@ export type TaggedTrace = {
   atSecond: number;
 };
 
-export function createStationRun(scenarioId: string, learnerId: string): StationRun {
+/**
+ * Options a scenario may set on its station run.
+ *
+ * MADR 0035: `doorway` defaults to true so every existing scenario is unchanged, but a scenario can
+ * now opt out. The doorway was a card taped to a door in a corridor; encoding it as a mandatory
+ * phase turns corridor logistics into product grammar and pulls every case toward a 2004 test
+ * centre. Briefing is real and worth keeping as a composable channel — a compulsory clocked gate
+ * before every encounter is not.
+ *
+ * Optional rather than removed, deliberately: 34 files reference `doorway` today. This slice only
+ * stops it being compulsory, so it is reversible; removal can follow once nothing depends on it.
+ */
+export type StationRunOptions = {
+  /** Set false to begin directly in `encounter`. Defaults to true. */
+  doorway?: boolean;
+};
+
+export function createStationRun(
+  scenarioId: string,
+  learnerId: string,
+  options: StationRunOptions = {},
+): StationRun {
   if (scenarioId.trim().length === 0) {
     throw new Error("scenarioId is required");
   }
@@ -33,7 +54,7 @@ export function createStationRun(scenarioId: string, learnerId: string): Station
     stationRunId: `run_${scenarioId}_${learnerId}`,
     scenarioId,
     learnerId,
-    phase: "doorway",
+    phase: options.doorway === false ? "encounter" : "doorway",
     startedAtSecond: 0,
   };
 }

@@ -83,3 +83,26 @@ describe("station state domain", () => {
     ]);
   });
 });
+
+describe("a station may start without a doorway (MADR 0035)", () => {
+  // The doorway was a card taped to a door in a corridor. Encoding it as a mandatory phase makes
+  // corridor logistics into product grammar, and pulls every scenario toward a 2004 test centre.
+  // Briefing is real; a mandatory clocked gate before every encounter is not.
+  //
+  // Optional, not removed: 34 files reference `doorway` today. Removal follows once nothing depends
+  // on it — this slice only stops it being compulsory.
+  it("starts in encounter when the scenario opts out of a doorway", () => {
+    const run = createStationRun("scenario_x", "learner_1", { doorway: false });
+    expect(run.phase).toBe("encounter");
+  });
+
+  it("still starts at the doorway by default, so existing scenarios are unchanged", () => {
+    const run = createStationRun("scenario_x", "learner_1");
+    expect(run.phase).toBe("doorway");
+  });
+
+  it("accepts START_ENCOUNTER only from doorway, and rejects it when already in encounter", () => {
+    const run = createStationRun("scenario_x", "learner_1", { doorway: false });
+    expect(() => transitionStation(run, { type: "START_ENCOUNTER", atSecond: 0 })).toThrow(/encounter/);
+  });
+});
