@@ -326,6 +326,38 @@ Its own proposed fix is the right mechanism and is now standing brief text:
 That turns "did you move the goalposts?" from a question about someone's account of themselves into a
 diff. Applies to any gate with a tunable number in it, not just this one.
 
+## 6g. A failing gate is a resume, not a rollback — and hand over the failure, not a story
+
+#69 came back with one proof failing on the orchestrator's re-run while the worker's own artifacts
+existed and were good. The temptation is to read that as the worker having got lucky. It was the
+opposite: the harness sets `FORCE_COLOR`, Vite 8 paints its ready line as
+`\x1b[1mLocal\x1b[22m:\x1b[32m   http://…`, and a `Local:\s+https?://` matcher returns null. The
+server started in 125 ms and the helper waited three minutes for a line that was already there.
+
+**The tail in the error message looked perfect**, because a terminal renders the escapes as colour.
+That is the trap: the failure output displayed exactly the string the matcher claimed was missing.
+
+Two things this settles:
+
+**A gate that fails on re-run is a resume, not a verdict on the worker.** I handed back the failure —
+the command, the error, the tail, and the observation that the Local line was present — plus an
+explicit "THE CAUSE IS NOT KNOWN TO ME BEYOND THAT OUTPUT". The worker found ANSI in under an hour
+and fixed it in the shared helper rather than working around it in its own script. Per the size
+experiment's own criteria, an environment blocker means criterion 3 fails and the rung does not roll
+back.
+
+**Withholding the story is what made it fast.** I had three candidate causes in mind and named none
+of them; I listed what I had NOT determined instead. It went straight to the matcher. The one
+hypothesis I did offer — that this same timeout explained an earlier slice producing a schematic —
+it refused, correctly: *"A timeout throws; it does not write a floor-plan PNG."* Of the four
+hypotheses available, the only one I voiced was the wrong one, which is the argument for the rule
+rather than against it.
+
+**When a shared helper is the suspect, say so and say what else it touches.** `spawnPortlessDevServer`
+has six-plus callers. The brief named that, and the fix landed in the helper with unit tests for both
+the plain and coloured shapes — the right place — rather than as a local workaround that would have
+left the same bug waiting for the next capture script.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
