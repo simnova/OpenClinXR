@@ -94,6 +94,29 @@ still useful because it pointed at something worth measuring.
 Two agents that fail the same way do not check each other; they agree. The peer round earns its place
 by being *cheap to falsify*, not by being right.
 
+### One closed, one opened — sourced from discovery, never invented
+
+Close an item, open one drawn from what that work actually revealed. Otherwise the queue drains and
+the loop goes quiet with plenty left to do — every slice in this project has surfaced real follow-on
+work, and it was captured by hand or lost.
+
+Legitimate sources, in order of preference:
+
+1. **The slice's own NOT TESTED line** — the residual you deliberately did not cover. This is why
+   proofs are required to end with one.
+2. **Something the peer round flagged** as real but out of scope for that slice.
+3. **A mechanism that landed with nothing calling it.** Ask "what calls this?" — if the answer is
+   "nothing yet", that is a genuine item. This class has recurred four times.
+4. **A gate that fired and exposed a CLASS** of problem rather than a single instance.
+
+**Do not manufacture an item to keep the count up.** If the work genuinely revealed nothing, say so
+on the closed issue and let the queue get shorter. An honest empty queue is a signal worth having;
+makework is the anti-toil failure this repo already has rules against, and a loop that invents work
+to look busy is worse than one that stops.
+
+The new item enters **un-operationalized** — no `done_when`. It earns its rules in a later cycle,
+through the peer round, once someone has decided what would prove it done.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
