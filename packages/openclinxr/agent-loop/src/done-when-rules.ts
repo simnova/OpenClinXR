@@ -290,6 +290,28 @@ function loadBaseline(
  * @param options.baselineDir - Trusted dir for baseline-hashes.json. When omitted, falls back
  *   to `<treeRoot>/.openclinxr/slices/<sliceId>` (legacy hand-run behaviour).
  */
+
+/**
+ * The rule vocabulary this module implements — the SINGLE source of truth.
+ *
+ * Exported because callers validate proofs before dispatch. A second hand-maintained copy drifted
+ * within minutes of being written: it listed six prefixes and omitted `handoffs:all-done`, which is
+ * matched EXACTLY rather than by prefix, so a legitimate proof was rejected. Anything that needs to
+ * know which rules exist imports this; nobody re-lists it.
+ */
+export const DONE_WHEN_RULE_VOCABULARY = {
+  prefixes: ["exists:", "min-bytes:", "run:", "changed:", "handoff:", "skeptic:"],
+  exact: ["handoffs:all-done"],
+} as const;
+
+/** True when `rule` is something evaluateDoneWhenRule will actually evaluate. */
+export function isKnownDoneWhenRule(rule: string): boolean {
+  return (
+    DONE_WHEN_RULE_VOCABULARY.exact.some((exact) => rule === exact) ||
+    DONE_WHEN_RULE_VOCABULARY.prefixes.some((prefix) => rule.startsWith(prefix))
+  );
+}
+
 export async function evaluateDoneWhenRule(
   treeRoot: string,
   rule: string,

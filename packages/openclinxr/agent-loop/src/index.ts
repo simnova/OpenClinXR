@@ -77,6 +77,8 @@ export {
   sliceHandoffPath,
   sliceRootDir,
   verifySliceBrief,
+  DONE_WHEN_RULE_VOCABULARY,
+  isKnownDoneWhenRule,
 } from "./slice-team.js";
 export type {
   SliceBrief,

@@ -275,3 +275,28 @@ describe("proof-shape validation — every failure is a missing test", () => {
     ).not.toThrow();
   });
 });
+
+describe("proof vocabulary must not drift from the evaluator (refactor guard)", () => {
+  // REFACTOR step of red-green-refactor. The GREEN implementation hardcoded a prefix list in this
+  // file while the real vocabulary lives in done-when-rules.ts. Duplicated knowledge drifts, and it
+  // already had: `handoffs:all-done` is a valid rule matched EXACTLY, not by prefix, so the
+  // validator rejected a legitimate proof. Skipping refactor is how a green bar hides a new bug.
+  it("accepts handoffs:all-done, which is matched exactly rather than by prefix", () => {
+    expect(() => assertProofShape(["handoffs:all-done"])).not.toThrow();
+  });
+
+  it("accepts every rule kind the evaluator actually implements", () => {
+    const implemented = [
+      "exists:dist/x.js",
+      "min-bytes:a.png:100",
+      "run:pnpm architecture",
+      "changed:docs/x.md",
+      "handoff:asset-pipeline-lead:done",
+      "skeptic:visible",
+      "handoffs:all-done",
+    ];
+    for (const rule of implemented) {
+      expect(() => assertProofShape([rule]), `evaluator implements ${rule}`).not.toThrow();
+    }
+  });
+});

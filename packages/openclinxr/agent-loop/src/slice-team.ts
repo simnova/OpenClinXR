@@ -458,4 +458,4 @@ export function formatTeamSpawnBrief(report: TeamSpawnReport): string {
 
 // Rule evaluation lives in its own module (size ratchet: split, do not raise). Re-exported so
 // existing importers of slice-team.js keep working.
-export { evaluateDoneWhenRule } from "./done-when-rules.js";
+export { DONE_WHEN_RULE_VOCABULARY, evaluateDoneWhenRule, isKnownDoneWhenRule } from "./done-when-rules.js";
