@@ -61,7 +61,7 @@ function meshLike(): MorphTarget {
 }
 
 describe("viseme weights are applied by name, not by index (#62)", () => {
-  it.fails("writes each weight to the index its name maps to", async () => {
+  it("writes each weight to the index its name maps to", async () => {
     const mod = await load();
     const apply = mod["applyVisemeWeights"] as Apply | undefined;
     expect(apply).toBeTypeOf("function");
@@ -73,7 +73,7 @@ describe("viseme weights are applied by name, not by index (#62)", () => {
     expect(target.morphTargetInfluences[4]).toBeCloseTo(0.4);
   });
 
-  it.fails("leaves index 0 untouched when it is not the named target", async () => {
+  it("leaves index 0 untouched when it is not the named target", async () => {
     // This is the one that kills main.ts:8496 — it writes influences[0] unconditionally, so every
     // phoneme lands on whatever sits at index 0 regardless of which viseme was requested.
     const mod = await load();
