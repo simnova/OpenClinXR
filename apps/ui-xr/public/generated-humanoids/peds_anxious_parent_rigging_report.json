@@ -377,10 +377,203 @@
       "clinical_validity",
       "scoring_validity"
     ],
+    "realGarmentLayers": [
+      {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
+        "meshName": "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
+        "layerIndex": 0,
+        "layerToken": "casual_top",
+        "layerKind": "closed_casual",
+        "faceCount": 420,
+        "vertexCount": 528,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_casual_top_closed",
+        "sleeveLenFactor": 0.55,
+        "sleeveAlongArmM": 0.1719,
+        "sleeveRows": 9,
+        "sleeveCols": 12,
+        "sleeveR0M": 0.0575,
+        "sleeveRFactor": 0.28,
+        "torsoRBaseM": 0.2053,
+        "meanRadiusM": 0.1288,
+        "radiusStackScale": 0.93,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "topologyClass": "closed_casual_top_under_layer",
+        "hasAnteriorOpening": false,
+        "anteriorOpeningRadians": 0.0,
+        "torsoWrapClosed": true,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "hasFabricThicknessSolidify": true,
+        "hasLightSubsurf": true,
+        "hasGentleDisplacementFolds": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.319746,
+            0.72643,
+            0.040441
+          ],
+          "max": [
+            0.319746,
+            1.3606,
+            0.318104
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.319746,
+            -0.318104,
+            0.72643
+          ],
+          "max": [
+            0.319746,
+            -0.040441,
+            1.3606
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.66
+        ],
+        "garmentLayers": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "declaredUpperLayerTokens": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "role": "parent",
+        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity",
+          "believable_clinical_costume"
+        ],
+        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      },
+      {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
+        "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+        "layerIndex": 1,
+        "layerToken": "open_cardigan",
+        "layerKind": "open_front",
+        "faceCount": 488,
+        "vertexCount": 606,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
+        "sleeveLenFactor": 0.92,
+        "sleeveAlongArmM": 0.2876,
+        "sleeveRows": 11,
+        "sleeveCols": 12,
+        "sleeveR0M": 0.0574,
+        "sleeveRFactor": 0.232,
+        "torsoRBaseM": 0.2477,
+        "meanRadiusM": 0.1612,
+        "radiusStackScale": 1.02,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "topologyClass": "open_front_c_shell_anterior_gap",
+        "hasAnteriorOpening": true,
+        "anteriorOpeningRadians": 0.95,
+        "torsoWrapClosed": false,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "hasFabricThicknessSolidify": true,
+        "hasLightSubsurf": true,
+        "hasGentleDisplacementFolds": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.380668,
+            0.510608,
+            0.014382
+          ],
+          "max": [
+            0.380668,
+            1.3606,
+            0.329342
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.380668,
+            -0.329342,
+            0.510608
+          ],
+          "max": [
+            0.380668,
+            -0.014382,
+            1.3606
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.66
+        ],
+        "garmentLayers": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "declaredUpperLayerTokens": [
+          "casual_top",
+          "open_cardigan"
+        ],
+        "role": "parent",
+        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity",
+          "believable_clinical_costume"
+        ],
+        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      }
+    ],
+    "declaredUpperGarmentLayers": [
+      "casual_top",
+      "open_cardigan"
+    ],
+    "declaredUpperGarmentLayerCount": 2,
     "realGarmentRegion": {
       "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_role_topology_v1_open_front_vs_closed_scrub",
-      "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
+      "revision": "embed_real_garment_multi_layer_v1_issue_75",
+      "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
+      "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+      "layerIndex": 1,
+      "layerToken": "open_cardigan",
+      "layerKind": "open_front",
       "faceCount": 488,
       "vertexCount": 606,
       "hasSleeveGeometry": true,
@@ -390,8 +583,10 @@
       "sleeveRows": 11,
       "sleeveCols": 12,
       "sleeveR0M": 0.0574,
-      "sleeveRFactor": 0.236,
-      "torsoRBaseM": 0.2428,
+      "sleeveRFactor": 0.232,
+      "torsoRBaseM": 0.2477,
+      "meanRadiusM": 0.1612,
+      "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
       "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
@@ -417,25 +612,25 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.401757,
+          -0.380668,
           0.510608,
-          0.017307
+          0.014382
         ],
         "max": [
-          0.401757,
+          0.380668,
           1.3606,
-          0.326698
+          0.329342
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.401757,
-          -0.326698,
+          -0.380668,
+          -0.329342,
           0.510608
         ],
         "max": [
-          0.401757,
-          -0.017307,
+          0.380668,
+          -0.014382,
           1.3606
         ]
       },
@@ -447,8 +642,12 @@
         "casual_top",
         "open_cardigan"
       ],
+      "declaredUpperLayerTokens": [
+        "casual_top",
+        "open_cardigan"
+      ],
       "role": "parent",
-      "claimScope": "case_phenotype_garment_layers_role_topology_geometry_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+      "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
@@ -456,14 +655,18 @@
         "scoring_validity",
         "believable_clinical_costume"
       ],
-      "evidenceForThisSlice": "garment-role-distinguish-v1-issue-46"
+      "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
     "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_role_topology_v1_open_front_vs_closed_scrub",
-    "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
+    "revision": "embed_real_garment_multi_layer_v1_issue_75",
+    "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
+    "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+    "layerIndex": 1,
+    "layerToken": "open_cardigan",
+    "layerKind": "open_front",
     "faceCount": 488,
     "vertexCount": 606,
     "hasSleeveGeometry": true,
@@ -473,8 +676,10 @@
     "sleeveRows": 11,
     "sleeveCols": 12,
     "sleeveR0M": 0.0574,
-    "sleeveRFactor": 0.236,
-    "torsoRBaseM": 0.2428,
+    "sleeveRFactor": 0.232,
+    "torsoRBaseM": 0.2477,
+    "meanRadiusM": 0.1612,
+    "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
     "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
@@ -500,25 +705,25 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.401757,
+        -0.380668,
         0.510608,
-        0.017307
+        0.014382
       ],
       "max": [
-        0.401757,
+        0.380668,
         1.3606,
-        0.326698
+        0.329342
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.401757,
-        -0.326698,
+        -0.380668,
+        -0.329342,
         0.510608
       ],
       "max": [
-        0.401757,
-        -0.017307,
+        0.380668,
+        -0.014382,
         1.3606
       ]
     },
@@ -530,8 +735,12 @@
       "casual_top",
       "open_cardigan"
     ],
+    "declaredUpperLayerTokens": [
+      "casual_top",
+      "open_cardigan"
+    ],
     "role": "parent",
-    "claimScope": "case_phenotype_garment_layers_role_topology_geometry_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+    "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
@@ -539,7 +748,7 @@
       "scoring_validity",
       "believable_clinical_costume"
     ],
-    "evidenceForThisSlice": "garment-role-distinguish-v1-issue-46"
+    "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -625,7 +834,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-06T21:50:40.170380Z",
+    "generatedAt": "2026-08-06T22:22:19.615808Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

@@ -54,6 +54,16 @@ import { describe, expect, it } from "vitest";
  * SCOPE: upper-body layer construction and coverage. Says nothing about drape, fabric, lower-body
  * garments, or whether the clothing is clinically appropriate — that last needs a clinician and is
  * not claimed.
+ *
+ * ## FIXED (#75)
+ * - `apply_role_clothing_material_regions` now loops every upper `garmentLayers` token and emits
+ *   one shell per token (inner smaller radius, outer larger). Under-layer for open outers is closed.
+ * - Declaration mesh `openclinxr_declared_upper_layers__…` encodes blueprint count for inspect.
+ * - Coverage inspect samples BODY upper_chest / deltoid_L/R and checks nearest garment distance
+ *   against a body-height-derived tolerance (not generator top_y / r_base constants).
+ * - Regenerated `peds_anxious_parent.glb` (casual_top closed under + open_cardigan) and
+ *   `peds_nurse_kevin.glb` (scrub_top + scrub_pocket closed stack). Torso paint still skipped (#73);
+ *   lower paint retained. All three contracts flipped.
  */
 
 const load = async () =>
@@ -72,7 +82,7 @@ const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 
 describe("every declared garment layer is built and the body is covered (#75)", () => {
-  it.fails("a role declaring two upper garment layers gets two garment meshes", async () => {
+  it("a role declaring two upper garment layers gets two garment meshes", async () => {
     const mod = await load();
     const inspect = mod["inspectGarmentLayerCoverage"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -89,7 +99,7 @@ describe("every declared garment layer is built and the body is covered (#75)", 
     }
   }, 180_000);
 
-  it.fails("the layer under an open outer garment is closed at the front", async () => {
+  it("the layer under an open outer garment is closed at the front", async () => {
     // Kills two open-front shells over a bare chest, and kills one mesh duplicated and scaled: the
     // inner must differ from the outer in the one way that matters for coverage.
     const mod = await load();
@@ -105,7 +115,7 @@ describe("every declared garment layer is built and the body is covered (#75)", 
     expect(Math.min(...closed.map((s) => s.meanRadius))).toBeLessThan(Math.max(...open.map((s) => s.meanRadius)));
   }, 180_000);
 
-  it.fails("upper chest and deltoid body samples are covered by a garment shell", async () => {
+  it("upper chest and deltoid body samples are covered by a garment shell", async () => {
     // Replaces #73's neckline gate, which measured the MAXIMUM garment Y and passed on bare
     // shoulders. This measures the BODY: sample points on it and ask whether garment is near them.
     const mod = await load();
