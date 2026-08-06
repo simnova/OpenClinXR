@@ -154,7 +154,7 @@
   },
   "bodyRigDiagnostics": {
     "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
-    "coordinateBasis": "blender_mesh_local_y_height_armature_plus90x_exported_y_up_glb",
+    "coordinateBasis": "blender_mesh_local_y_height_identity_object_export_yup_false_self_standing_glb",
     "armatureName": "openclinxr_canonical_humanoid_armature",
     "boneNames": [
       "pelvis",
@@ -303,10 +303,11 @@
     ],
     "exportBindPoseAlign": {
       "applied": true,
-      "method": "armature_object_plus_90x_for_export_yup",
+      "method": "identity_object_export_yup_false_y_height_self_standing",
+      "exportYup": false,
       "ySpan": 1.5576,
       "zSpan": 0.017748,
-      "claimScope": "export_bind_pose_joint_world_y_height_not_production_rig_quality",
+      "claimScope": "export_bind_pose_identity_root_upright_mesh_and_joints_not_production_rig_quality",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
@@ -610,7 +611,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-06T16:08:39.961869Z",
+    "generatedAt": "2026-08-06T19:28:42.196709Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

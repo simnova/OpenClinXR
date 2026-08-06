@@ -156,7 +156,7 @@
   },
   "bodyRigDiagnostics": {
     "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
-    "coordinateBasis": "blender_mesh_local_y_height_armature_plus90x_exported_y_up_glb",
+    "coordinateBasis": "blender_mesh_local_y_height_identity_object_export_yup_false_self_standing_glb",
     "armatureName": "openclinxr_canonical_humanoid_armature",
     "boneNames": [
       "pelvis",
@@ -305,10 +305,11 @@
     ],
     "exportBindPoseAlign": {
       "applied": true,
-      "method": "armature_object_plus_90x_for_export_yup",
+      "method": "identity_object_export_yup_false_y_height_self_standing",
+      "exportYup": false,
       "ySpan": 1.4691,
       "zSpan": 0.016982,
-      "claimScope": "export_bind_pose_joint_world_y_height_not_production_rig_quality",
+      "claimScope": "export_bind_pose_identity_root_upright_mesh_and_joints_not_production_rig_quality",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
@@ -609,7 +610,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-06T16:07:56.934940Z",
+    "generatedAt": "2026-08-06T19:26:40.010396Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

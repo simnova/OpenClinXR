@@ -54,6 +54,10 @@ def main() -> None:
 
     output_path = Path(args.output_glb)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    # #67: automate_blender writes Y-height self-standing glTF (export_yup=False).
+    # Blender's glTF importer converts that Y-up file into Blender Z-up on load.
+    # Re-export must use export_yup=True so the conversion maps back to glTF +Y
+    # with an identity armature root. export_yup=False here left joints/mesh on Z.
     bpy.ops.export_scene.gltf(
         filepath=str(output_path),
         export_format="GLB",

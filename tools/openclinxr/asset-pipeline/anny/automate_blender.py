@@ -2530,48 +2530,80 @@ def finalize_body_mesh_shading_and_density(mesh_obj: bpy.types.Object) -> Dict[s
 
 def align_y_height_bind_for_gltf_yup_export(arm_obj: "bpy.types.Object") -> Dict[str, Any]:
     """
-    #58 durable export fix: Anny mesh + create_canonical_armature author height on local Y.
-    Blender glTF export_yup assumes a Z-up scene and maps world +Z → glTF +Y. Without a root
-    correction, joint nodes land along −Z at near-constant Y while the skinned mesh can still
-    look upright via inverse bind matrices (measured on parent/nurse after 81f235e; child control
-    still used an older 17-bone export that happened to stand).
+    #67 durable export fix (supersedes #58 object-level +90° X).
 
-    Control/treatment (2026-08-06): armature.rotation_euler += (+90°, 0, 0) before export_yup
-    yields standing glTF joints (handY > footY). Mesh parented to the armature follows. Local
-    Y-height skinning / morph / garment code is intentionally unchanged.
+    Anny mesh + create_canonical_armature author height on local Y. Blender glTF
+    export_yup=True assumes a Z-up scene and maps world +Z → glTF +Y. Without
+    correction, joint nodes land along −Z while the skinned mesh can still look
+    upright via inverse bind matrices.
+
+    #58 applied `arm_obj.rotation_euler.x += 90°` and left that rotation on the
+    armature object. The exporter baked it into the glTF armature root as
+    (0.707, 0, 0, 0.707). Mesh children parented with identity parent-inverse
+    inherit it, so the rendered figure hangs head-down while joint world-Y still
+    passes hand>foot. That inverted WHICH of mesh vs joints was wrong.
+
+    Control/treatment (#67): baking +90 into rest DATA still left mesh POSITION
+    on Z after export_yup (joints on Y, mesh on Z — IBM/node split). The working
+    path matches apply_bvh_to_anny_full and the upright peds_patient_child control:
+    keep Y-height rest on the object as identity, and export with export_yup=False
+    so Blender's local Y numbers become glTF Y without a root quaternion. Mesh
+    POSITION, joints, and root then all agree.
     """
-    import math
-
     bones = list(arm_obj.data.bones)
     if not bones:
-        return {"applied": False, "reason": "no_bones"}
+        return {"applied": False, "reason": "no_bones", "exportYup": True}
 
     ys = [float(b.head_local.y) for b in bones]
     zs = [float(b.head_local.z) for b in bones]
     y_span = max(ys) - min(ys)
     z_span = max(zs) - min(zs)
-    # Already Z-primary rest → leave alone (re-export of a Z-up authored rig).
+    # Already Z-primary rest → leave export_yup=True (Z-up authored rig).
     if y_span <= z_span * 1.1:
         return {
             "applied": False,
             "reason": "bones_not_y_height",
             "ySpan": round(y_span, 6),
             "zSpan": round(z_span, 6),
+            "exportYup": True,
         }
 
-    rx, ry, rz = arm_obj.rotation_euler
-    arm_obj.rotation_euler = (float(rx) + math.radians(90.0), float(ry), float(rz))
+    # Ensure armature object is identity — never leave a leftover root quaternion.
+    arm_obj.rotation_mode = "XYZ"
+    arm_obj.rotation_euler = (0.0, 0.0, 0.0)
+    try:
+        arm_obj.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)
+    except Exception:
+        pass
+
+    # Mesh children: identity local under armature (matches skinning setup).
+    for obj in list(bpy.data.objects):
+        if obj.type != "MESH":
+            continue
+        skinned = any(
+            getattr(m, "type", None) == "ARMATURE" and getattr(m, "object", None) == arm_obj
+            for m in obj.modifiers
+        )
+        if obj.parent == arm_obj or skinned:
+            obj.parent = arm_obj
+            obj.matrix_parent_inverse = Matrix.Identity(4)
+            obj.location = (0.0, 0.0, 0.0)
+            obj.rotation_euler = (0.0, 0.0, 0.0)
+
     bpy.context.view_layer.update()
+
     print(
-        f"[blender] #58 export bind align: armature +90° X for export_yup "
-        f"(ySpan={y_span:.4f} zSpan={z_span:.4f}) so joint nodes stand on glTF +Y"
+        f"[blender] #67 export bind align: identity object + export_yup=False "
+        f"(ySpan={y_span:.4f} zSpan={z_span:.4f}) — Y-height self-standing glTF, "
+        f"no armature root quaternion"
     )
     return {
         "applied": True,
-        "method": "armature_object_plus_90x_for_export_yup",
+        "method": "identity_object_export_yup_false_y_height_self_standing",
+        "exportYup": False,
         "ySpan": round(y_span, 6),
         "zSpan": round(z_span, 6),
-        "claimScope": "export_bind_pose_joint_world_y_height_not_production_rig_quality",
+        "claimScope": "export_bind_pose_identity_root_upright_mesh_and_joints_not_production_rig_quality",
         "notEvidenceFor": [
             "production_asset_readiness",
             "b_plus_visual_realism_gate",
@@ -2581,7 +2613,7 @@ def align_y_height_bind_for_gltf_yup_export(arm_obj: "bpy.types.Object") -> Dict
     }
 
 
-def export_final_glb(output_path: str) -> None:
+def export_final_glb(output_path: str, export_yup: bool = True) -> None:
     # #60: strip Blender default scratch meshes (Icosphere bone-shape helper, leftover
     # Cube/Plane, etc.) immediately before export so regeneration cannot re-ship them.
     # Geometry must be removed, not renamed. Safe: refuse if parented / skinned / weighted.
@@ -2590,14 +2622,14 @@ def export_final_glb(output_path: str) -> None:
     bpy.ops.export_scene.gltf(
         filepath=output_path,
         export_format="GLB",
-        export_yup=True,
+        export_yup=export_yup,
         export_animations=True,
         export_nla_strips=True,
         export_materials="EXPORT",
         export_image_format="AUTO",
         export_texture_dir="",
     )
-    print(f"[blender] exported final GLB: {output_path}")
+    print(f"[blender] exported final GLB: {output_path} (export_yup={export_yup})")
 
 
 def main() -> None:
@@ -2677,15 +2709,20 @@ def main() -> None:
         #   - re-bake to UVs
         # Then the export below would contain the high-quality generated textures.
 
-    # #58: correct Y-height bind → standing glTF joints under export_yup (must run after all
-    # local-Y authoring: skin, morph, garment, animations).
+    # #67: identity armature + export_yup=False for Y-height Anny content (must run after
+    # all local-Y authoring: skin, morph, garment, animations). Never leave object +90 X.
     export_bind_pose_align = align_y_height_bind_for_gltf_yup_export(arm_obj)
+    export_yup = bool(export_bind_pose_align.get("exportYup", True))
     if export_bind_pose_align.get("applied"):
-        body_diagnostics["coordinateBasis"] = "blender_mesh_local_y_height_armature_plus90x_exported_y_up_glb"
+        body_diagnostics["coordinateBasis"] = (
+            "blender_mesh_local_y_height_identity_object_export_yup_false_self_standing_glb"
+            if not export_yup
+            else "blender_mesh_local_y_height_exported_y_up_glb"
+        )
         body_diagnostics["exportBindPoseAlign"] = export_bind_pose_align
 
-    print("[blender] exporting...")
-    export_final_glb(args.output_glb)
+    print(f"[blender] exporting (export_yup={export_yup})...")
+    export_final_glb(args.output_glb, export_yup=export_yup)
 
     print("[blender] done. The resulting GLB should satisfy the canonical skeleton/morph/anchor contract for the OpenClinXR runtime and review packets.")
 
