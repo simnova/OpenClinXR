@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ApiApplication, type ApiLifecycleService } from "./api-application.js";
+import { createDefaultScenarioRuntime } from "@openclinxr/scenario-runtime";
+import { shutdownApiApp } from "./api-application.js";
 
 /**
  * The composition chain is order-sensitive: middleware must wrap every route, so routes
@@ -114,5 +116,59 @@ describe("ApiApplication fluent phases", () => {
     await expect(composed.stop()).rejects.toThrow(/failed to shut down/);
     // 'a' still stopped despite the earlier (reverse-order) failure.
     expect(log).toContain("stop:a");
+  });
+});
+
+describe("process shutdown actually runs the lifecycle (issue #29)", () => {
+  /**
+   * ApiApplication already implements the good algorithm — ordered start, compensating reverse
+   * rollback on partial failure, idempotent reverse stop. Nothing calls it: `withLifecycleServices`
+   * and `ComposedApiApp.start/stop` have zero callers outside this file.
+   *
+   * The tempting cleanup is to delete it, since the startup builder is the real process root. Peer
+   * review refused that: the builder is not a better lifecycle owner, it is NOT A LIFECYCLE OWNER
+   * AT ALL — it composes synchronously and never runs service start/stop. Deleting would abandon the
+   * better shutdown rather than consolidate ownership.
+   *
+   * And there is a real leak to hang it on. `api-mongo-boot.ts` opens a MongoClient and exposes
+   * `close()`, while `apps/api/src` contains no SIGTERM or SIGINT handler at all — so the connection
+   * is never closed when the process stops. That makes wiring it the honest option rather than a
+   * hypothetical one.
+   */
+  it("closes registered services in reverse registration order on shutdown", async () => {
+    const closed: string[] = [];
+    const service = (name: string) => ({
+      name,
+      start: async () => {},
+      stop: async () => { closed.push(name); },
+    });
+
+    const app = ApiApplication.create()
+      .withContext(createDefaultScenarioRuntime(), {}, {})
+      .withCoreMiddleware()
+      .withLifecycleServices(service("mongo"), service("telemetry"))
+      .withRoutes(() => {})
+      .build();
+
+    await app.start();
+    await shutdownApiApp(app);
+
+    expect(closed).toEqual(["telemetry", "mongo"]);
+  });
+
+  it("is idempotent — a second shutdown does not re-close services", async () => {
+    let closes = 0;
+    const app = ApiApplication.create()
+      .withContext(createDefaultScenarioRuntime(), {}, {})
+      .withCoreMiddleware()
+      .withLifecycleServices({ name: "s", start: async () => {}, stop: async () => { closes += 1; } })
+      .withRoutes(() => {})
+      .build();
+
+    await app.start();
+    await shutdownApiApp(app);
+    await shutdownApiApp(app);
+
+    expect(closes).toBe(1);
   });
 });
