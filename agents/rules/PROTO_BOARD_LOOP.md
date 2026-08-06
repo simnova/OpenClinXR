@@ -117,6 +117,16 @@ to look busy is worse than one that stops.
 The new item enters **un-operationalized** — no `done_when`. It earns its rules in a later cycle,
 through the peer round, once someone has decided what would prove it done.
 
+**Verify the discovery against the tree before filing it.** This is the one arrow in the loop with no
+built-in check: operationalize has the peer round, dispatch has proofs, replenish had nothing. The
+item opened after #25 first claimed two symbols had no callers; both were wired, and the grep behind
+the claim had walked a single directory rather than the tree. Scope discovery greps to `apps packages
+tools`, and confirm a "nothing calls this" claim by finding the callers rather than by failing to.
+
+An unverified item is worse than no item: it is dispatchable-looking, so a later cycle may spend a
+worker on a premise nobody checked. The finding survived the correction here and came back sharper —
+which is the usual outcome, and not a reason to skip the step.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
