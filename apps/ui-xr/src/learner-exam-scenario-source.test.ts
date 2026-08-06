@@ -129,7 +129,7 @@ describe("learner exam scenario source (#43)", () => {
  * empty list.
  */
 describe("a configured runtime does not silently serve fixtures (#53)", () => {
-  it.fails("fails instead of falling back when a configured api returns an unparseable queue", async () => {
+  it("fails instead of falling back when a configured api returns an unparseable queue", async () => {
     const mod = await import("./learner-exam-scenario-source.js") as Record<string, unknown>;
     const resolve = mod["resolveLearnerExamScenarios"] as undefined | ((input: {
       baseUrl?: string | undefined;

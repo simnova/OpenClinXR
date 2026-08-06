@@ -200,6 +200,36 @@ export function createExamStationRunQueue(blueprint: ExamBlueprint, scenarios: r
   };
 }
 
+/**
+ * Parse scenario ids from a station-run-queue body (this package's producer return value
+ * or the API JSON that wraps it). Lives beside `createExamStationRunQueue` so producer and
+ * learner consumer share one runtime contract — a type alone does not fail when a route
+ * stops emitting `stationQueue` (#53).
+ *
+ * Throws on unparseable shape (fail closed). Null `scenarioId` entries (missing_scenario)
+ * are skipped; an empty but well-formed `stationQueue` yields `[]` without throwing.
+ */
+export function parseExamStationRunQueueScenarioIds(body: unknown): string[] {
+  if (!isPlainRecord(body) || !Array.isArray(body["stationQueue"])) {
+    throw new Error(
+      "OpenClinXR exam station run queue: expected body.stationQueue array (producer/consumer contract)",
+    );
+  }
+  const ids: string[] = [];
+  for (const entry of body["stationQueue"] as unknown[]) {
+    if (!isPlainRecord(entry)) continue;
+    const scenarioId = entry["scenarioId"];
+    if (typeof scenarioId === "string" && scenarioId.length > 0) {
+      ids.push(scenarioId);
+    }
+  }
+  return ids;
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function assembleExamForm(input: AssembleExamFormInput): ExamForm {
   for (const scenario of input.scenarios) {
     if (scenario.status !== "approved") {
