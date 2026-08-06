@@ -1,576 +1,261 @@
 {
   "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
-  "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:peds_asthma_parent_anxiety_station_v1",
+  "manifestId": "scene_manifest:peds_asthma_parent_anxiety_v1:pediatric_urgent_care_station_v1",
   "source": "generated_scene_pipeline",
   "scenarioId": "peds_asthma_parent_anxiety_v1",
-  "stationId": "peds_asthma_parent_anxiety_station_v1",
+  "stationId": "pediatric_urgent_care_station_v1",
   "stationContext": {
     "title": "Pediatric Asthma",
-    "subtitle": "Child-sized urgent-care bay with pulse oximeter, nebulizer setup, parent chair, and pediatric distraction items.",
-    "chiefConcern": "Assess pediatric respiratory distress",
+    "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
+    "chiefConcern": "Wheezing and increased work of breathing",
     "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
-    "interruption": "Nurse Kevin Lee cue at 300s: oxygen request",
-    "stageAriaLabel": "Pediatric Urgent Care Bay station scene",
-    "canvasAriaLabel": "3D Pediatric Urgent Care Bay preview",
-    "initialDialogueText": "Maya Johnson: short sentences, scared, audible wheeze"
+    "interruption": "Parent interrupts if breathing distress is not acknowledged",
+    "stageAriaLabel": "Pediatric urgent-care station scene",
+    "canvasAriaLabel": "3D pediatric urgent-care bay preview",
+    "initialDialogueText": "Maya Johnson: It is hard to breathe."
   },
+  "roomProps": [
+    {
+      "propId": "monitor",
+      "label": "Monitor",
+      "semanticRole": "objective_cue",
+      "evidenceCue": "Vitals monitor anchors the ED chest pain assessment.",
+      "colorHex": "#111827",
+      "accentColorHex": "#f59e0b",
+      "position": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "affordanceCueIds": [
+        "vitals_monitor"
+      ],
+      "interactionTags": [
+        "monitor"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
   "dialogueTurns": [
     {
       "traceTag": "work_of_breathing_assessment",
       "actorId": "patient_maya_johnson_v1",
-      "text": "Maya Johnson: Maya is using short sentences, wheezing audibly, and needs her breathing effort named before more questions. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
+      "text": "Maya Johnson: It is hard to breathe and my chest feels tight.",
       "gazeTargetKind": "learner_camera",
       "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "pain",
-        "intensity": 0.82,
+        "emotion": "anxious",
+        "intensity": 0.78,
         "onsetMs": 120,
         "transitionMs": 650,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "patient_maya_johnson_v1",
-          "role": "patient",
-          "baselineMood": [
-            "frightened",
-            "breathless",
-            "seeking reassurance"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "inhaler_history",
-      "actorId": "patient_maya_johnson_v1",
-      "text": "Maya Johnson: The key inhaler history is that rescue inhaler ran out yesterday. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
+      "actorId": "parent_tara_johnson_v1",
+      "text": "Tara Johnson: Her rescue inhaler ran out yesterday.",
       "gazeTargetKind": "learner_camera",
       "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "pain",
-        "intensity": 0.82,
+        "emotion": "anxious",
+        "intensity": 0.7,
         "onsetMs": 120,
         "transitionMs": 650,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "patient_maya_johnson_v1",
-          "role": "patient",
-          "baselineMood": [
-            "frightened",
-            "breathless",
-            "seeking reassurance"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "trigger_history",
-      "actorId": "patient_maya_johnson_v1",
-      "text": "Maya Johnson: The likely trigger is that symptoms worsened after visiting a relative with cats. I am frightened; this response comes from the respiratory assessment requirement in the scenario definition.",
+      "actorId": "parent_tara_johnson_v1",
+      "text": "Tara Johnson: We visited family with cats before this got worse.",
       "gazeTargetKind": "learner_camera",
       "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "pain",
-        "intensity": 0.82,
+        "emotion": "concerned",
+        "intensity": 0.64,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "patient_maya_johnson_v1",
-          "role": "patient",
-          "baselineMood": [
-            "frightened",
-            "breathless",
-            "seeking reassurance"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "oxygen_request",
       "actorId": "nurse_kevin_lee_v1",
-      "text": "Nurse Kevin Lee: Oxygen saturation is 91% on room air, so a clear oxygen request and reassessment plan should happen now. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
-      "gazeTargetKind": "actor",
-      "gazeTargetActorId": "nurse_kevin_lee_v1",
+      "text": "Kevin Lee: Oxygen is started and her saturation is being watched closely.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "anxious",
-        "intensity": 0.68,
+        "emotion": "concerned",
+        "intensity": 0.56,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "nurse_kevin_lee_v1",
-          "role": "nurse",
-          "baselineMood": [
-            "focused",
-            "concerned",
-            "ready to act"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "bronchodilator_plan",
       "actorId": "nurse_kevin_lee_v1",
-      "text": "Nurse Kevin Lee: A nebulizer or bronchodilator plan should be stated clearly and checked back with the child and parent. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
-      "gazeTargetKind": "actor",
-      "gazeTargetActorId": "nurse_kevin_lee_v1",
+      "text": "Kevin Lee: Nebulized bronchodilator treatment is ready.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "anxious",
-        "intensity": 0.68,
+        "emotion": "reassured",
+        "intensity": 0.36,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "nurse_kevin_lee_v1",
-          "role": "nurse",
-          "baselineMood": [
-            "focused",
-            "concerned",
-            "ready to act"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "urgent_escalation",
       "actorId": "nurse_kevin_lee_v1",
-      "text": "Nurse Kevin Lee: If breathing effort or saturation worsens, the team needs an urgent escalation plan rather than reassurance alone. I am focused; this response comes from the pediatric escalation requirement in the scenario definition.",
-      "gazeTargetKind": "actor",
-      "gazeTargetActorId": "nurse_kevin_lee_v1",
+      "text": "Kevin Lee: I will call for urgent pediatric support if her work of breathing worsens.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "anxious",
-        "intensity": 0.68,
+        "emotion": "concerned",
+        "intensity": 0.6,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "nurse_kevin_lee_v1",
-          "role": "nurse",
-          "baselineMood": [
-            "focused",
-            "concerned",
-            "ready to act"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "parent_communication",
       "actorId": "parent_tara_johnson_v1",
-      "text": "Tara Johnson: Tara can help once the plan is explained plainly: child_distress_validated, oxygen_plan_explained, parent_role_clarified. I am anxious; this response comes from the guardian communication requirement in the scenario definition.",
-      "gazeTargetKind": "actor",
-      "gazeTargetActorId": "parent_tara_johnson_v1",
+      "text": "Tara Johnson: Please tell me exactly what I can do to help her.",
+      "gazeTargetKind": "learner_camera",
+      "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "pain",
-        "intensity": 0.82,
+        "emotion": "anxious",
+        "intensity": 0.66,
         "onsetMs": 120,
         "transitionMs": 650,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "parent_tara_johnson_v1",
-          "role": "family",
-          "baselineMood": [
-            "anxious",
-            "protective",
-            "frustrated"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "empathy_statement",
       "actorId": "patient_maya_johnson_v1",
-      "text": "Maya Johnson: Maya and Tara need a calm acknowledgement that fast breathing is scary before the next clinical step. I am frightened; this response comes from the guardian communication requirement in the scenario definition.",
+      "text": "Maya Johnson: I feel a little better when you explain it slowly.",
       "gazeTargetKind": "learner_camera",
       "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "pain",
-        "intensity": 0.82,
+        "emotion": "reassured",
+        "intensity": 0.32,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "patient_maya_johnson_v1",
-          "role": "patient",
-          "baselineMood": [
-            "frightened",
-            "breathless",
-            "seeking reassurance"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     },
     {
       "traceTag": "patient_note_submitted",
       "actorId": "nurse_kevin_lee_v1",
-      "text": "Nurse Kevin Lee: Patient note saved for faculty review with pediatric respiratory assessment, treatment response, and family communication documented. I am focused; this response comes from the patient note requirement in the scenario definition.",
+      "text": "System: Pediatric asthma note saved for faculty review.",
       "gazeTargetKind": "learner_camera",
       "gazeTargetActorId": null,
       "affectTimeline": {
-        "emotion": "anxious",
-        "intensity": 0.68,
+        "emotion": "neutral",
+        "intensity": 0.2,
         "onsetMs": 120,
-        "transitionMs": 650,
+        "transitionMs": 950,
         "decayMs": 900,
         "evidenceCueIds": [
           "emotion_aligned_expression_transition_cue",
           "visible_runtime_eyebrow_jaw_cheek_cue",
-          "dialogue_viseme_and_gaze_mapping",
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection"
+          "dialogue_viseme_and_gaze_mapping"
         ],
         "notEvidenceFor": [
           "clinical_validity",
           "scoring_validity",
           "production_asset_readiness"
         ]
-      },
-      "caseDefinitionRuntimeSignals": {
-        "source": "scenario_definition_and_dialogue_seed_bank",
-        "expressionRequired": true,
-        "gazeRequired": true,
-        "lipSyncRequired": true,
-        "actorRuntimeRealismRequirement": {
-          "actorId": "nurse_kevin_lee_v1",
-          "role": "nurse",
-          "baselineMood": [
-            "focused",
-            "concerned",
-            "ready to act"
-          ],
-          "locomotionRequired": true,
-          "expressionRequired": true,
-          "gazeRequired": true,
-          "lipSyncRequired": true,
-          "interactionRequired": true,
-          "requiredCueIds": [
-            "case_definition_driven_expression_selection",
-            "dialogue_viseme_and_gaze_mapping",
-            "actor_target_gaze_from_trace_intent",
-            "scenario_actor_interaction_affordance",
-            "scenario_timeline_locomotion_or_posture_change"
-          ]
-        },
-        "requiredSignalIds": [
-          "scenario_actor_baseline_mood_emotion_mapping",
-          "case_definition_driven_expression_selection",
-          "dialogue_viseme_and_gaze_mapping",
-          "actor_target_gaze_from_trace_intent",
-          "scenario_actor_interaction_affordance",
-          "scenario_timeline_locomotion_or_posture_change"
-        ],
-        "claimBoundary": "case_definition_humanoid_runtime_metadata_only"
       }
     }
   ],
@@ -578,238 +263,251 @@
     "patient_maya_johnson_v1": {
       "slotKind": "primary_patient",
       "position": {
-        "x": -0.72,
-        "y": 1.06,
-        "z": -0.12
+        "x": -0.12,
+        "y": 0.9,
+        "z": -1.05
       },
       "scale": {
-        "x": 1.1,
-        "y": 1.1,
-        "z": 1.1
+        "x": 0.82,
+        "y": 0.82,
+        "z": 0.82
       },
-      "verticalOffsetMeters": -0.98,
+      "verticalOffsetMeters": -0.72,
       "labelPrefix": "Patient"
-    },
-    "nurse_kevin_lee_v1": {
-      "slotKind": "clinical_team",
-      "position": {
-        "x": 1.45,
-        "y": 0.95,
-        "z": 0.55
-      },
-      "scale": {
-        "x": 1,
-        "y": 1,
-        "z": 1
-      },
-      "verticalOffsetMeters": -0.95,
-      "labelPrefix": "Team"
     },
     "parent_tara_johnson_v1": {
       "slotKind": "family_or_observer",
       "position": {
-        "x": -2,
+        "x": -1.35,
         "y": 0.95,
-        "z": 0.7
+        "z": -0.62
       },
       "scale": {
-        "x": 1,
-        "y": 1,
-        "z": 1
+        "x": 0.96,
+        "y": 0.96,
+        "z": 0.96
       },
-      "verticalOffsetMeters": -0.95,
-      "labelPrefix": "Family"
+      "verticalOffsetMeters": -0.92,
+      "labelPrefix": "Parent"
+    },
+    "nurse_kevin_lee_v1": {
+      "slotKind": "clinical_team",
+      "position": {
+        "x": 1.25,
+        "y": 0.95,
+        "z": -0.72
+      },
+      "scale": {
+        "x": 0.98,
+        "y": 0.98,
+        "z": 0.98
+      },
+      "verticalOffsetMeters": -0.94,
+      "labelPrefix": "Nurse"
     }
   },
   "equipmentPlacements": {
     "pulse_oximeter_equipment": {
       "position": {
-        "x": 1.6,
-        "y": 0,
-        "z": 0.28
+        "x": 0.55,
+        "y": 0.7,
+        "z": -0.88
       },
-      "label": "Pulse Oximeter",
+      "label": "Pulse oximeter",
       "interactionCueIds": [
-        "pulse_oximeter_equipment:selectable_equipment_reference",
-        "pulse_oximeter_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
       ]
     },
     "nebulizer_mask_equipment": {
       "position": {
-        "x": 0.95,
-        "y": 0,
-        "z": 0.98
+        "x": 0.2,
+        "y": 0.82,
+        "z": -0.7
       },
-      "label": "Nebulizer Mask",
+      "label": "Nebulizer mask",
       "interactionCueIds": [
-        "nebulizer_mask_equipment:selectable_equipment_reference",
-        "nebulizer_mask_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
       ]
     },
     "oxygen_wall_port_equipment": {
       "position": {
-        "x": 1.75,
-        "y": 1.18,
-        "z": -1.12
+        "x": 1.55,
+        "y": 1.2,
+        "z": -1.36
       },
-      "label": "Oxygen Wall Port",
+      "label": "Oxygen wall port",
       "interactionCueIds": [
-        "oxygen_wall_port_equipment:selectable_equipment_reference",
-        "oxygen_wall_port_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
       ]
     },
     "pediatric_stretcher_equipment": {
       "position": {
-        "x": -0.1,
+        "x": -0.15,
         "y": 0,
-        "z": -0.95
+        "z": -0.98
       },
-      "label": "Pediatric Stretcher",
+      "label": "Pediatric stretcher",
       "interactionCueIds": [
-        "pediatric_stretcher_equipment:selectable_equipment_reference",
-        "pediatric_stretcher_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference"
       ]
     },
     "parent_chair_equipment": {
       "position": {
-        "x": -1.75,
+        "x": -1.62,
         "y": 0,
-        "z": 0.52
+        "z": -0.45
       },
-      "label": "Parent Chair",
+      "label": "Parent chair",
       "interactionCueIds": [
-        "parent_chair_equipment:selectable_equipment_reference",
-        "parent_chair_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference"
       ]
     },
     "inhaler_spacer_equipment": {
       "position": {
-        "x": 0.58,
-        "y": 0.72,
-        "z": -0.55
+        "x": 0.68,
+        "y": 0.74,
+        "z": -0.54
       },
-      "label": "Inhaler Spacer",
+      "label": "Inhaler spacer",
       "interactionCueIds": [
-        "inhaler_spacer_equipment:selectable_equipment_reference",
-        "inhaler_spacer_equipment:clinical_workflow_cue"
+        "selectable_equipment_reference",
+        "clinical_workflow_cue"
       ]
     }
   },
-  "roomProps": [
-    {
-      "propId": "pediatric-nebulizer-station",
-      "label": "Nebulizer station",
-      "semanticRole": "scenario_context",
-      "evidenceCue": "nebulizer_workflow_context",
-      "colorHex": "#dbeafe",
-      "accentColorHex": "#2563eb",
-      "position": {
-        "x": 1.4,
-        "y": 0.85,
-        "z": -0.4
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "pediatric-nebulizer-station:scenario_context",
-        "nebulizer_workflow_context"
-      ],
-      "interactionTags": [
-        "scenario_context",
-        "peds_asthma_parent_anxiety_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "parent-coaching-chair",
-      "label": "Parent coaching chair",
-      "semanticRole": "communication_cue",
-      "evidenceCue": "parent_anxiety_support_cue",
-      "colorHex": "#fef3c7",
-      "accentColorHex": "#d97706",
-      "position": {
-        "x": -1.8,
-        "y": 0.45,
-        "z": 0.85
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "parent-coaching-chair:communication_cue",
-        "parent_anxiety_support_cue"
-      ],
-      "interactionTags": [
-        "communication_cue",
-        "peds_asthma_parent_anxiety_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "pediatric-pulse-ox-monitor",
-      "label": "Pulse ox monitor",
-      "semanticRole": "objective_cue",
-      "evidenceCue": "oxygenation_reassessment_cue",
-      "colorHex": "#ecfeff",
-      "accentColorHex": "#0891b2",
-      "position": {
-        "x": 1.55,
-        "y": 1.35,
-        "z": 0.2
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "pediatric-pulse-ox-monitor:objective_cue",
-        "oxygenation_reassessment_cue"
-      ],
-      "interactionTags": [
-        "objective_cue",
-        "peds_asthma_parent_anxiety_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "child-calm-breathing-card",
-      "label": "Breathing coaching card",
-      "semanticRole": "review_cue",
-      "evidenceCue": "breathing_coaching_review_cue",
-      "colorHex": "#dcfce7",
-      "accentColorHex": "#16a34a",
-      "position": {
-        "x": -0.6,
-        "y": 0.9,
-        "z": -0.75
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "child-calm-breathing-card:review_cue",
-        "breathing_coaching_review_cue"
-      ],
-      "interactionTags": [
-        "review_cue",
-        "peds_asthma_parent_anxiety_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    }
-  ],
   "productionReadinessClaimed": false,
   "notEvidenceFor": [
     "production_asset_readiness",
     "quest_readiness",
     "clinical_validity",
     "scoring_validity"
+  ],
+  "caseDefinedHumanoidRuntimeHandoff": [
+    {
+      "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+      "actorRole": "patient",
+      "humanoidVariantProfile": {
+        "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+        "clothingLayer": "patient_gown",
+        "hairFaceRequired": true,
+        "faceEyeLipRigRequired": true,
+        "idlePoseRequired": true,
+        "locomotionRequired": true
+      },
+      "workOrderIds": [
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:patient:role-specific-humanoid",
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:patient:role-animation"
+      ],
+      "locomotionRequired": true,
+      "expressionRequired": true,
+      "gazeRequired": true,
+      "lipSyncRequired": true,
+      "interactiveRequired": true,
+      "requiredSignalIds": [
+        "animated_humanoid_runtime_playback",
+        "emotion_aligned_expression_transition_cue",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/patient"
+      ],
+      "blockers": [
+        "runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "visual_qa_evidence_not_attached_to_encounter_bundle"
+      ],
+      "notEvidenceFor": [
+        "generated_humanoid_asset_readiness",
+        "animation_quality",
+        "quest_readiness",
+        "runtime_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    {
+      "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+      "actorRole": "family",
+      "humanoidVariantProfile": {
+        "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+        "clothingLayer": "civilian_family",
+        "hairFaceRequired": true,
+        "faceEyeLipRigRequired": true,
+        "idlePoseRequired": true,
+        "locomotionRequired": true
+      },
+      "workOrderIds": [
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:family:role-specific-humanoid",
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:family:role-animation"
+      ],
+      "locomotionRequired": true,
+      "expressionRequired": true,
+      "gazeRequired": true,
+      "lipSyncRequired": true,
+      "interactiveRequired": true,
+      "requiredSignalIds": [
+        "animated_humanoid_runtime_playback",
+        "emotion_aligned_expression_transition_cue",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/family"
+      ],
+      "blockers": [
+        "runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "visual_qa_evidence_not_attached_to_encounter_bundle"
+      ],
+      "notEvidenceFor": [
+        "generated_humanoid_asset_readiness",
+        "animation_quality",
+        "quest_readiness",
+        "runtime_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    },
+    {
+      "claimBoundary": "case_definition_humanoid_runtime_handoff_metadata_only",
+      "actorRole": "nurse",
+      "humanoidVariantProfile": {
+        "bodyScaleSource": "scenario_actor_role_and_factory_work_order",
+        "clothingLayer": "clinical_scrubs",
+        "hairFaceRequired": true,
+        "faceEyeLipRigRequired": true,
+        "idlePoseRequired": true,
+        "locomotionRequired": true
+      },
+      "workOrderIds": [
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:nurse:role-specific-humanoid",
+        "encounter_assets_peds_asthma_parent_anxiety_executable_v1:nurse:role-animation"
+      ],
+      "locomotionRequired": true,
+      "expressionRequired": true,
+      "gazeRequired": true,
+      "lipSyncRequired": true,
+      "interactiveRequired": true,
+      "requiredSignalIds": [
+        "animated_humanoid_runtime_playback",
+        "emotion_aligned_expression_transition_cue",
+        "dialogue_viseme_and_gaze_mapping",
+        "dialogue_eye_micro_saccade_blink_cue",
+        "generated_eyelid_blink_control_cue",
+        "humanoid-realism-signals://peds_asthma_parent_anxiety_v1/nurse"
+      ],
+      "blockers": [
+        "runtime_realism_evidence_not_attached_to_encounter_bundle",
+        "visual_qa_evidence_not_attached_to_encounter_bundle"
+      ],
+      "notEvidenceFor": [
+        "generated_humanoid_asset_readiness",
+        "animation_quality",
+        "quest_readiness",
+        "runtime_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    }
   ]
 }
