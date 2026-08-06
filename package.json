@@ -349,7 +349,8 @@
     "skill:slice:check": "node --experimental-strip-types .agents/skills/openclinxr-slice/evaluator/check-slice.ts",
     "test:skill:slice": "pnpm run test:skill:slice:unit && pnpm run test:skill:slice:integration",
     "test:skill:slice:unit": "vitest run --config .agents/skills/openclinxr-slice/evaluator/vitest.config.ts --reporter verbose",
-    "test:skill:slice:integration": "node .agents/skills/openclinxr-slice/evaluator/run-integration.js"
+    "test:skill:slice:integration": "node .agents/skills/openclinxr-slice/evaluator/run-integration.js",
+    "openclaw:scorecard": "tsx tools/openclinxr/openclaw/delegation-scorecard.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
