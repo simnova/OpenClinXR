@@ -1,9 +1,10 @@
 /**
- * Learner exam scenario resolution (#43) — ids in, validated scenario records out.
+ * Learner exam scenario resolution (#43 / #53 / #57) — ids in, validated scenario records out.
  *
- * - configured api base url → GET station-run-queue, then get-authored-scenario for ids
- *   absent from the fixture bank; every HTTP body passes validateScenario before trust
- * - no base url → fixture bank only (offline dev + Quest boot never acquire a network dep)
+ * - no baseUrl → fixture_offline (deliberate mode, not a fallback), zero fetches
+ * - baseUrl + reachable queue → api_queue, fallbackActive false
+ * - baseUrl + transport failure → fixture_fallback, fallbackActive true + reason (degrade with label)
+ * - baseUrl + malformed 200 body → throw (#53 fail-closed; never a labelled fallback)
  *
  * Resolution only — createMultiStationExamRuntime / assembleExamForm stay in the app shell.
  */
@@ -21,6 +22,21 @@ export type ResolveLearnerExamScenariosInput = {
   fetch?: typeof fetch;
 };
 
+/**
+ * How scenarios were acquired for learner form assembly.
+ * Mirrors asset-path vocabulary (fallbackActive / local_fixture_fallback | api_bundle).
+ * Offline is NOT a fallback — it is the supported zero-network mode.
+ */
+export type LearnerExamScenarioSource = "fixture_offline" | "fixture_fallback" | "api_queue";
+
+export type ResolveLearnerExamScenariosResult = {
+  scenarios: LearnerExamScenarioRecord[];
+  scenarioSource: LearnerExamScenarioSource;
+  fallbackActive: boolean;
+  /** Present when fallbackActive; human/tool-readable reason (not stuffed into other fields). */
+  fallbackReason?: string;
+};
+
 /** Sync fixture-bank resolution for offline / module-scope boot (no network). */
 export function scenariosFromFixtureSequence(sequence: readonly string[]): Scenario[] {
   return sequence
@@ -34,30 +50,44 @@ export function scenariosFromFixtureSequence(sequence: readonly string[]): Scena
 
 /**
  * Resolve the scenarios that feed learner multi-station form assembly.
- * Offline (no baseUrl): fixture bank, zero fetches.
- * Online: station-run-queue sequence + authored fetch for bank misses; refuse invalid HTTP bodies.
+ * Returns a labelled result object (never a bare array) so callers cannot ignore source/fallback.
  */
 export async function resolveLearnerExamScenarios(
   input: ResolveLearnerExamScenariosInput,
-): Promise<LearnerExamScenarioRecord[]> {
+): Promise<ResolveLearnerExamScenariosResult> {
   if (!input.baseUrl) {
-    return [...scenarioBank];
+    return {
+      scenarios: [...scenarioBank],
+      scenarioSource: "fixture_offline",
+      fallbackActive: false,
+    };
   }
 
   const baseUrl = input.baseUrl.replace(/\/$/, "");
   const fetcher = input.fetch ?? globalThis.fetch;
-  // Network failure: fall back to the bank so a configured-but-unreachable API does not brick
-  // Quest/dev boot. Shape drift on a successful response must NOT fall through here — parse
-  // throws, and that rejection surfaces to the caller (#53 fail-closed).
+
+  // Transport failure only: degrade with label. Shape drift on a successful response must NOT
+  // fall through here — parse throws outside this catch (#53 fail-closed, #57 does not relabel).
   let queueBody: unknown;
   try {
     queueBody = await getJson(
       fetcher,
       `${baseUrl}/exam-blueprints/${encodeURIComponent(input.blueprintId)}/station-run-queue`,
     );
-  } catch {
-    return [...scenarioBank];
+  } catch (error) {
+    const reason =
+      error instanceof Error && error.message.length > 0
+        ? error.message
+        : "station_run_queue_unreachable";
+    return {
+      scenarios: [...scenarioBank],
+      scenarioSource: "fixture_fallback",
+      fallbackActive: true,
+      fallbackReason: reason,
+    };
   }
+
+  // Throws on unparseable shape — never converted into fixture_fallback.
   const queueIds = parseExamStationRunQueueScenarioIds(queueBody);
 
   const resolved: LearnerExamScenarioRecord[] = [];
@@ -77,10 +107,15 @@ export async function resolveLearnerExamScenarios(
         resolved.push(accepted);
       }
     } catch {
-      // Missing or failed authored hop — skip; do not invent a station.
+      // Missing or failed authored hop — skip; do not invent a station. (Partial-queue residual out of #57.)
     }
   }
-  return resolved;
+
+  return {
+    scenarios: resolved,
+    scenarioSource: "api_queue",
+    fallbackActive: false,
+  };
 }
 
 /**

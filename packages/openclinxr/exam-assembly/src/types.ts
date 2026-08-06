@@ -188,11 +188,24 @@ export type AdvanceExamFormRunStationInput = {
   recordedAtIso?: string;
 };
 
+/**
+ * How the learner run acquired its station scenarios (#57).
+ * offline = deliberate zero-network mode (not a fallback).
+ * fixture_fallback = transport failure while baseUrl was configured.
+ * api_queue = healthy station-run-queue resolution.
+ */
+export type ExamStationRunQueueScenarioSource = "fixture_offline" | "fixture_fallback" | "api_queue";
+
 export type ExamStationRunQueueSnapshot = {
   snapshotId: string;
   createdAt: string;
   reviewerId?: string;
   queue: ExamStationRunQueue;
+  /** Present when the learner recorded how scenarios were acquired (#57). Not stuffed into reviewerId. */
+  scenarioSource?: ExamStationRunQueueScenarioSource;
+  /** True only for transport-failure degrade; false for offline and healthy api_queue. */
+  fallbackActive?: boolean;
+  fallbackReason?: string;
 };
 
 /**
@@ -208,6 +221,9 @@ export type CreateExamStationRunQueueSnapshotInput = {
   queue: ExamStationRunQueue;
   createdAt?: string;
   reviewerId?: string;
+  scenarioSource?: ExamStationRunQueueScenarioSource;
+  fallbackActive?: boolean;
+  fallbackReason?: string;
 };
 
 /**

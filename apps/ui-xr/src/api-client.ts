@@ -66,6 +66,10 @@ export type StationRunQueueSnapshotRequest = {
   snapshotId?: string;
   createdAt?: string;
   reviewerId?: string;
+  /** #57 acquisition markers (API may ignore until control-plane extended). */
+  scenarioSource?: "fixture_offline" | "fixture_fallback" | "api_queue";
+  fallbackActive?: boolean;
+  fallbackReason?: string;
 };
 
 export type StationRunQueueSnapshotResponse = {
@@ -73,6 +77,9 @@ export type StationRunQueueSnapshotResponse = {
   createdAt: string;
   reviewerId?: string;
   queue: unknown;
+  scenarioSource?: "fixture_offline" | "fixture_fallback" | "api_queue";
+  fallbackActive?: boolean;
+  fallbackReason?: string;
 };
 
 /** Minimal ApiPersistenceSink-compatible surface for station-run-queue snapshots (no mongo rewire). */
@@ -170,6 +177,17 @@ export function createStationApiPersistenceSink(client: Pick<StationApiClient, "
       };
       if (snapshot.reviewerId !== undefined) {
         request.reviewerId = snapshot.reviewerId;
+      }
+      // #57 — forward acquisition markers so review history can show fixture fallback.
+      // API may still ignore unknown fields until the control-plane route is extended (residual).
+      if (snapshot.scenarioSource !== undefined) {
+        request.scenarioSource = snapshot.scenarioSource;
+      }
+      if (snapshot.fallbackActive !== undefined) {
+        request.fallbackActive = snapshot.fallbackActive;
+      }
+      if (snapshot.fallbackReason !== undefined) {
+        request.fallbackReason = snapshot.fallbackReason;
       }
       await client.createStationRunQueueSnapshot(request);
     },

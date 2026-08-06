@@ -19,7 +19,11 @@ import {
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
-import { resolveLearnerExamScenarios, scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
+import {
+  bootLearnerExamFormFromApi,
+  createLearnerExamFormRunState,
+} from "./learner-exam-form-boot.js";
+import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import {
   AnimationClip,
   AnimationMixer,
@@ -81,7 +85,6 @@ import {
   type CaseDefinedHumanoidRuntimeHandoffEvidence,
   completeTraceAction,
   createInitialRuntimeState,
-  createMultiStationExamRuntime,
   createRuntimeStateFromBundle,
   currentExamFormRunStation,
   type ExamFormRunState,
@@ -1808,10 +1811,13 @@ let examLastAdvanceReason: string | null = null;
 const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
 const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
-let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(examRunId, scenariosFromFixtureSequence(examNormalizedSequence));
+let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(
+  examRunId,
+  scenariosFromFixtureSequence(examNormalizedSequence),
+  examScenarioId,
+);
 const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
 updateExamFormRunEvidence();
-void bootLearnerExamFormFromApi();
 
 app.innerHTML = `
   <main class="station-shell${isSceneOnlyVisualReviewCaptureMode() ? " scene-only-visual-review" : ""}">
@@ -1857,6 +1863,7 @@ app.innerHTML = `
         <h2>Encounter Flow</h2>
         <dl class="evidence-grid">
           <div><dt>Station</dt><dd id="exam-flow-station">pending</dd></div>
+          <div><dt>Case source</dt><dd id="exam-flow-case-source"></dd></div>
           <div><dt>Phase timer</dt><dd id="exam-flow-timer">pending</dd></div>
           <div><dt>Advance</dt><dd id="exam-flow-advance">pending</dd></div>
         </dl>
@@ -1934,8 +1941,23 @@ const clock = requireElement<HTMLElement>("#station-clock");
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
+const examFlowCaseSource = requireElement<HTMLElement>("#exam-flow-case-source");
 const examFlowTimer = requireElement<HTMLElement>("#exam-flow-timer");
 const examFlowAdvance = requireElement<HTMLElement>("#exam-flow-advance");
+void bootLearnerExamFormFromApi({
+  baseUrl: configuredApiBaseUrl,
+  examRunId,
+  examScenarioId,
+  getState: () => examFormRunState,
+  setState: (next) => {
+    examFormRunState = next;
+  },
+  persistenceSink: examFormRunPersistenceSink,
+  updateEvidence: () => {
+    updateExamFormRunEvidence();
+  },
+  presentationSink: examFlowCaseSource,
+});
 const patientNoteText = requireElement<HTMLTextAreaElement>("#patient-note-text");
 const endEncounterButton = requireElement<HTMLButtonElement>("#end-encounter-button");
 const submitNoteButton = requireElement<HTMLButtonElement>("#submit-note-button");
@@ -2062,30 +2084,6 @@ function navigateToExamScenario(nextScenarioId: string): void {
   nextUrl.searchParams.set("examNoteSeconds", String(examNoteDurationSeconds));
   nextUrl.searchParams.set("examAutoAdvanceOnNoteTimeout", examAutoAdvanceOnNoteTimeout ? "1" : "0");
   window.location.assign(nextUrl.toString());
-}
-
-async function bootLearnerExamFormFromApi(): Promise<void> {
-  if (configuredApiBaseUrl) {
-    try {
-      const scenarios = await resolveLearnerExamScenarios({ baseUrl: configuredApiBaseUrl, blueprintId: "step2cs-seed" });
-      examFormRunState = createLearnerExamFormRunState(examRunId, scenarios) ?? examFormRunState;
-      updateExamFormRunEvidence();
-    } catch { /* keep fixture form — network must not brick Quest/offline boot */ }
-  }
-  if (examFormRunState && examFormRunPersistenceSink) {
-    void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, { snapshotId: `queue_snapshot_${examRunId}_boot`, reviewerId: "ui_xr_learner_runtime" }).catch(() => {});
-  }
-}
-
-function createLearnerExamFormRunState(runId: string, scenarios: ReadonlyArray<{ scenarioId: string; status?: string }>): ExamFormRunState | null {
-  if (scenarios.length === 0) return null;
-  const approved = scenarios.filter((s) => s.status === "approved");
-  const scenariosForForm = (approved.length > 0 ? approved : [edChestPainScenario]) as Parameters<typeof createMultiStationExamRuntime>[0]["scenarios"];
-  try {
-    const run = createMultiStationExamRuntime({ examRunId: runId, examFormId: `form_${runId}`, scenarios: scenariosForForm, start: true });
-    const index = run.queue.stationQueue.findIndex((station) => station.scenarioId === examScenarioId);
-    return index >= 0 ? { ...run, currentStationIndex: index, examEquivalenceGate: false } : run;
-  } catch { return null; }
 }
 
 function formElapsedSecondForCurrentStation(): number {
