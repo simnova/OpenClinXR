@@ -24,6 +24,7 @@ import {
   createLearnerExamFormRunState,
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
+import { buildStationEnvironment } from "./station-environment.js";
 import {
   AnimationClip,
   AnimationMixer,
@@ -3305,13 +3306,17 @@ function createStationScene(): StationSceneRuntime {
 
   addReusableExteriorPreEncounterRoom(scene, doorwayTheme);
 
-  const floor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial({ color: doorwayTheme.floorColor, roughness: 0.8 }));
+  // #44: station shell from shared environmentId descriptor (not scenarioId doorway tint alone).
+  const activeEnvironmentId = resolveActiveEnvironmentId();
+  const stationEnvironment = buildStationEnvironment({ environmentId: activeEnvironmentId });
+  const floor = (stationEnvironment.userData.floorMesh as Mesh | undefined)
+    ?? new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial({ color: doorwayTheme.floorColor, roughness: 0.8 }));
   floor.name = iwsdkStationSceneObjects.floor;
-  floor.position.set(0, -0.04, -0.78);
-  floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_anchor_beyond_reusable_portal_threshold";
-  floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_selected_encounter_runtime_bundle";
+  floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_from_environment_descriptor";
+  floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_environmentId_descriptor";
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
   if (cleanHumanoidSourceComparatorCapture) {
+    stationEnvironment.visible = false;
     floor.visible = false;
     floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
@@ -3332,7 +3337,13 @@ function createStationScene(): StationSceneRuntime {
       return p ? null : null;
     })(),
   };
-  scene.add(floor);
+  scene.add(stationEnvironment);
+  scene.userData.openClinXrStationEnvironment = {
+    environmentId: activeEnvironmentId,
+    floorColor: stationEnvironment.userData.floorColor,
+    roomDepthMeters: stationEnvironment.userData.roomDepthMeters,
+    environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
+  };
   // Env glTF container for factory-produced world assets.
   const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;
@@ -3386,7 +3397,7 @@ function createStationScene(): StationSceneRuntime {
     }
   }
   if (!cleanHumanoidSourceComparatorCapture) {
-    addDynamicEncounterRoomShell(scene, doorwayTheme);
+    // Room walls/floor come from buildStationEnvironment (environmentId descriptor).
     addScenarioSpecificClinicalSetDressing(scene, doorwayTheme);
   }
 
@@ -4235,44 +4246,13 @@ function applyCleanEncounterVisualReviewActorFraming(actor: Group, actorId: stri
     'deterministic_clean_encounter_review_framing_keeps_case_defined_actors_visible_without_cropping';
 }
 
-function addDynamicEncounterRoomShell(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  if (shouldUseCleanHumanoidSourceComparatorCapture()) {
-    return;
-  }
-  const wallMaterial = new MeshStandardMaterial({
-    color: new Color(doorwayTheme.panelBackground),
-    roughness: 0.88,
-    metalness: 0,
-  });
-  const trimMaterial = new MeshStandardMaterial({
-    color: new Color(doorwayTheme.panelAccent).lerp(new Color(0xffffff), 0.55),
-    roughness: 0.8,
-    metalness: 0,
-  });
-  const backWall = new Mesh(new BoxGeometry(7, 2.65, 0.08), wallMaterial.clone());
-  backWall.name = `${runtimeSceneObjectPrefix()}.dynamic-encounter-back-wall`;
-  backWall.position.set(0, 1.28, -1.68);
-  backWall.userData.openClinXrDynamicScenePolicy =
-    "case_theme_room_shell_generated_for_encounter_side_visual_review_not_reusable_exterior_room";
-  scene.add(backWall);
-  const leftWall = new Mesh(new BoxGeometry(0.08, 2.65, 3.1), wallMaterial.clone());
-  leftWall.name = `${runtimeSceneObjectPrefix()}.dynamic-encounter-left-wall`;
-  leftWall.position.set(-3.45, 1.28, -0.08);
-  leftWall.userData.openClinXrDynamicScenePolicy =
-    "case_theme_room_shell_generated_for_encounter_side_visual_review_not_reusable_exterior_room";
-  scene.add(leftWall);
-  const rightWall = new Mesh(new BoxGeometry(0.08, 2.65, 3.1), wallMaterial.clone());
-  rightWall.name = `${runtimeSceneObjectPrefix()}.dynamic-encounter-right-wall`;
-  rightWall.position.set(3.45, 1.28, -0.08);
-  rightWall.userData.openClinXrDynamicScenePolicy =
-    "case_theme_room_shell_generated_for_encounter_side_visual_review_not_reusable_exterior_room";
-  scene.add(rightWall);
-  const wallTrim = new Mesh(new BoxGeometry(6.7, 0.06, 0.035), trimMaterial);
-  wallTrim.name = `${runtimeSceneObjectPrefix()}.dynamic-encounter-wall-protection-rail`;
-  wallTrim.position.set(0, 1.02, -1.62);
-  wallTrim.userData.openClinXrDynamicScenePolicy =
-    "encounter_specific_clinical_wall_trim_generated_from_runtime_theme";
-  scene.add(wallTrim);
+function resolveActiveEnvironmentId(): string {
+  const scenarioId = selectedScenarioId();
+  const scenario =
+    scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)
+    ?? scenarioBank.find((candidate) => candidate.scenarioId === encounterRuntimeAssetBundle.scenarioId)
+    ?? edChestPainScenario;
+  return scenario.environment?.environmentId ?? "ed_exam_bay_v1";
 }
 
 function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
