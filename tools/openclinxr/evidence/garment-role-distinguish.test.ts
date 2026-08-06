@@ -48,6 +48,18 @@ import { describe, expect, it } from "vitest";
  * SCOPE: that the declared garment changes the geometry. Says NOTHING about whether any of it looks
  * like real clothing — "distinct class of clothing" is gradeable from a render and is recorded on
  * #46; "believable clinical costume" needs a clinician and is explicitly not claimed.
+ *
+ * ## FIXED (#46)
+ *
+ * Role topology switch in `apply_role_clothing_material_regions` (automate_blender.py):
+ * - `open_cardigan` / open-front layers → C-shell torso with anterior gap (~0.95 rad around +Z),
+ *   placket edge rows, long sleeve (0.92 arm-len), lower hem (~0.31 body height).
+ * - `scrub_top` → closed ring, short sleeve (0.42 arm-len), higher hem (~0.48 body height).
+ * - Different topology paths → different vertex counts; colour alone is not the distinguisher.
+ * - `garment-role-distinguish.ts`: NodeIO describe + differ refuses meshName/scale-only deltas.
+ * - Ring/tube CAN express an open front when faces do not wrap across the anterior sector
+ *   (C-shell, not a thickness/colour constant). is_gown remains a separate closed/drape branch;
+ *   open-front hangs on garmentLayers keywords, not only is_gown.
  */
 
 const load = async () =>
@@ -67,7 +79,7 @@ const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 
 describe("the declared garment changes the geometry (#46)", () => {
-  it.fails("the parent and nurse garments differ on at least two geometric features, not only colour", async () => {
+  it("the parent and nurse garments differ on at least two geometric features, not only colour", async () => {
     const mod = await load();
     const describeGarment = mod["describeGarmentGeometry"] as Describe | undefined;
     const differ = mod["garmentsDistinguishable"] as Differ | undefined;
@@ -84,7 +96,7 @@ describe("the declared garment changes the geometry (#46)", () => {
     expect(verdict.features.length, `differed only on: ${verdict.features.join(", ")}`).toBeGreaterThanOrEqual(2);
   }, 180_000);
 
-  it.fails("an open-front garment is not the same topology as a closed one", async () => {
+  it("an open-front garment is not the same topology as a closed one", async () => {
     // open_cardigan is in the parent's garmentLayers; scrub_top is in the nurse's. A generator that
     // tunes thickness and sleeve length cannot produce an opening, so this is the contract that
     // forces a real construction difference rather than a constant change.
@@ -99,7 +111,7 @@ describe("the declared garment changes the geometry (#46)", () => {
     expect(parent!.vertexCount).not.toBe(nurse!.vertexCount);
   }, 180_000);
 
-  it.fails("a garment scaled or recoloured from another role is refused as a distinguishing difference", async () => {
+  it("a garment scaled or recoloured from another role is refused as a distinguishing difference", async () => {
     // The anti-cheat. Scale one shell by 1.1, tint it, rename the mesh — every count changes and
     // nothing about the garment does. This must NOT read as distinguishable.
     const mod = await load();

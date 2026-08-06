@@ -1744,10 +1744,18 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     garment_layers = phenotype.get("garmentLayers", []) or [phenotype.get("clothing_style", "")]
     real_garment = None
     garment_layers_lower = [str(g).lower() for g in garment_layers]
-    is_gown = any(k in " ".join(garment_layers_lower) for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
+    garment_layers_joined = " ".join(garment_layers_lower)
+    is_gown = any(k in garment_layers_joined for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
+    # #46 role→garment topology: open-front layers need a real anterior gap (not colour/sleeve fraction).
+    # open_cardigan / cardigan / open_front → C-shell or two-panel construction; scrub stays closed ring.
+    is_open_front = any(
+        k in garment_layers_joined
+        for k in ("open_cardigan", "open_front", "cardigan", "open_jacket", "lab_coat_open")
+    ) and not is_gown
+    is_scrub = any(k in garment_layers_joined for k in ("scrub_top", "scrub_pocket", "scrub")) and not is_open_front
     # re-orchestrated for peds-parent-nurse: trigger real sleeved garment for parent (casual_top, open_cardigan) + nurse (scrub_top) garmentLayers too; generalized from patient-only tshirt
     # ed-gown-geo-reorchestrate: explicit is_gown branch for actual hospital_gown topology (looser/longer sleeves, denser folds, gown drape vs short tshirt); phenotype.garmentLayers drives; Q1 case->gown geo + Q5 cagematch/UI-XR visible; per skeptic handoff + MANDATE (expand geo/contrast for dual visible 3D deforming gown volume)
-    if any(k in " ".join(garment_layers_lower) for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve", "casual_top", "open_cardigan", "scrub_top", "scrub_pocket", "scrub")) or any(r in role for r in ("patient", "parent", "nurse", "guardian")) or is_gown:
+    if any(k in garment_layers_joined for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve", "casual_top", "open_cardigan", "scrub_top", "scrub_pocket", "scrub")) or any(r in role for r in ("patient", "parent", "nurse", "guardian")) or is_gown:
         import math
         # BIND-POSE FIX (garment-bind-pose-fix residual): Anny body + canonical armature use
         # local-Y as height (see create_canonical_armature / generate_mesh Y-up rewrite). Prior
@@ -1805,12 +1813,38 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         arm_len = math.sqrt(arm_dir_L[0] ** 2 + arm_dir_L[1] ** 2 + arm_dir_L[2] ** 2) or 0.25
         arm_dir_Ln = (arm_dir_L[0] / arm_len, arm_dir_L[1] / arm_len, arm_dir_L[2] / arm_len)
         arm_dir_Rn = (-arm_dir_Ln[0], arm_dir_Ln[1], arm_dir_Ln[2])
+        # Role topology classes (#46): gown / open-front cardigan / closed scrub-or-tshirt.
+        # Front of body is +Z (nose_tip attachment); ang = atan2(z,x) so front ≈ +π/2.
+        front_opening_rad = 0.0
+        torso_wrap = True  # closed ring by default
         if is_gown:
             sleeve_rows, sleeve_cols = 10, 14
             sleeve_along = arm_len * 0.72  # gown sleeve covers more of upper arm
             sleeve_r0 = max(body_depth * 0.22, r_base * 0.42)  # looser gown sleeve
             bot_y = body_min_y + body_height * 0.32
             r_base = torso_half_w * 1.14
+            torso_rows, torso_cols = 11, 16
+        elif is_open_front:
+            # Open cardigan: longer drape, longer sleeves, anterior gap (C-shell, not closed ring).
+            # Measured finding: a closed from_pydata ring cannot express an opening — leave a
+            # frontal sector with NO faces wrapping across the sternum.
+            sleeve_rows, sleeve_cols = 11, 12
+            sleeve_along = arm_len * 0.92  # long sleeve class
+            sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.042)
+            bot_y = body_min_y + body_height * 0.31  # lower hem vs scrub hip-length
+            r_base = torso_half_w * 1.10
+            torso_rows, torso_cols = 11, 16
+            front_opening_rad = 0.95  # ~54° anterior gap around +Z
+            torso_wrap = False
+        elif is_scrub:
+            # Scrub top: closed front, short sleeve, hem above hip.
+            sleeve_rows, sleeve_cols = 7, 10
+            sleeve_along = arm_len * 0.42  # short sleeve class
+            sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.040)
+            bot_y = body_min_y + body_height * 0.48
+            r_base = torso_half_w * 1.04
+            torso_rows, torso_cols = 8, 12
+            torso_wrap = True
         else:
             sleeve_rows, sleeve_cols = 9, 12
             sleeve_along = arm_len * 0.58  # short sleeve: shoulder → mid/upper forearm side of elbow
@@ -1819,6 +1853,17 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         verts = []
         faces = []
         # torso shell in local-Y height — elliptical chest fit (narrower sides, depth front/back)
+        # Closed ring: j wraps 0..cols-1 full 2π. Open front: span (π/2+gap/2) → (π/2+2π−gap/2)
+        # so the missing sector sits on the anterior midline (+Z / +π/2).
+        if torso_wrap:
+            torso_ang_start = 0.0
+            torso_ang_span = 2.0 * math.pi
+            torso_col_count = torso_cols
+        else:
+            half_gap = front_opening_rad * 0.5
+            torso_ang_start = (math.pi * 0.5) + half_gap  # leave gap around front
+            torso_ang_span = (2.0 * math.pi) - front_opening_rad
+            torso_col_count = torso_cols  # denser along remaining arc → different vert count
         for i in range(torso_rows):
             t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
             y = bot_y + t * (top_y - bot_y)
@@ -1835,23 +1880,52 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             if i == torso_rows - 1:
                 rx0 *= 0.96  # keep shoulder width for sleeve join
                 rz0 *= 0.88
-            for j in range(torso_cols):
-                ang = (j / torso_cols) * 2.0 * math.pi
+            for j in range(torso_col_count):
+                if torso_wrap:
+                    ang = (j / torso_col_count) * 2.0 * math.pi
+                else:
+                    # inclusive ends at both front edges (two free edges = opening)
+                    ang = torso_ang_start + (j / float(max(torso_col_count - 1, 1))) * torso_ang_span
                 # circumferential folds + slight hem droop so cloth is not a rigid cylinder
                 fold = 0.0055 * math.sin(ang * 3.0 + t * 4.2) + 0.0035 * math.sin(ang * 5.0 - t * 2.5)
                 hem_droop = 0.004 * (1.0 - t) * (0.5 + 0.5 * math.sin(ang * 2.0))
                 rx = rx0 + fold
                 rz = rz0 + fold * 0.7
                 x = cx + rx * math.cos(ang)
-                z = cz - 0.004 + rz * math.sin(ang) * 0.85  # slight forward bias
+                z = cz - 0.004 + rz * math.sin(ang) * 0.85  # slight forward bias; +Z ≈ anterior
                 verts.append((x, y - hem_droop, z))
         for i in range(torso_rows - 1):
-            for j in range(torso_cols):
-                a = i * torso_cols + j
-                b = i * torso_cols + ((j + 1) % torso_cols)
-                c = (i + 1) * torso_cols + ((j + 1) % torso_cols)
-                d = (i + 1) * torso_cols + j
+            j_limit = torso_col_count if torso_wrap else (torso_col_count - 1)
+            for j in range(j_limit):
+                a = i * torso_col_count + j
+                if torso_wrap:
+                    b = i * torso_col_count + ((j + 1) % torso_col_count)
+                    c = (i + 1) * torso_col_count + ((j + 1) % torso_col_count)
+                else:
+                    b = i * torso_col_count + (j + 1)
+                    c = (i + 1) * torso_col_count + (j + 1)
+                d = (i + 1) * torso_col_count + j
                 faces.append((a, b, c, d))
+        # Open-front: reinforce free edges with a double-row placket so the gap is a clear
+        # geometric feature (two vertical seams) rather than a single-edge hole that solidify
+        # might partially fill. Adds verts → distinct topology vs closed scrub ring.
+        if is_open_front and not torso_wrap:
+            for edge_j in (0, torso_col_count - 1):
+                e0 = len(verts)
+                for i in range(torso_rows):
+                    base = verts[i * torso_col_count + edge_j]
+                    # inward toward sternum midline along −radial (toward torso center)
+                    dx = base[0] - cx
+                    dz = base[2] - cz
+                    rl = math.sqrt(dx * dx + dz * dz) or 1.0
+                    inward = 0.018
+                    verts.append((base[0] - dx / rl * inward, base[1], base[2] - dz / rl * inward))
+                for i in range(torso_rows - 1):
+                    a = i * torso_col_count + edge_j
+                    b = e0 + i
+                    c = e0 + i + 1
+                    d = (i + 1) * torso_col_count + edge_j
+                    faces.append((a, b, c, d))
 
         def _add_sleeve_tube(
             shoulder: tuple,
@@ -1913,20 +1987,29 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         sL = _add_sleeve_tube(shoulder_L, arm_dir_Ln, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
         sR = _add_sleeve_tube(shoulder_R, arm_dir_Rn, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
 
-        # collar seam band at top of torso shell
+        # collar seam band at top of torso shell (open-front keeps the same anterior gap)
         col0 = len(verts)
+        collar_cols = torso_col_count
         for ci in range(3):
             yc = top_y + 0.004 + ci * 0.006
             rc = r_base * 0.42
-            for j in range(torso_cols):
-                ang = (j / torso_cols) * 2.0 * math.pi
+            for j in range(collar_cols):
+                if torso_wrap:
+                    ang = (j / collar_cols) * 2.0 * math.pi
+                else:
+                    ang = torso_ang_start + (j / float(max(collar_cols - 1, 1))) * torso_ang_span
                 verts.append((cx + rc * math.cos(ang), yc, cz - 0.002 + rc * 0.55 * math.sin(ang) * 0.5))
         for ci in range(2):
-            for j in range(torso_cols):
-                a = col0 + ci * torso_cols + j
-                b = col0 + ci * torso_cols + ((j + 1) % torso_cols)
-                c = col0 + (ci + 1) * torso_cols + ((j + 1) % torso_cols)
-                d = col0 + (ci + 1) * torso_cols + j
+            j_limit = collar_cols if torso_wrap else (collar_cols - 1)
+            for j in range(j_limit):
+                a = col0 + ci * collar_cols + j
+                if torso_wrap:
+                    b = col0 + ci * collar_cols + ((j + 1) % collar_cols)
+                    c = col0 + (ci + 1) * collar_cols + ((j + 1) % collar_cols)
+                else:
+                    b = col0 + ci * collar_cols + (j + 1)
+                    c = col0 + (ci + 1) * collar_cols + (j + 1)
+                d = col0 + (ci + 1) * collar_cols + j
                 faces.append((a, b, c, d))
 
         # sleeve cuff + mid-fold rings along each arm tube (at st fractions)
@@ -1991,7 +2074,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         gname = f"openclinxr_real_garment_from_phenotype_{gkey}"
         garment = bpy.data.objects.new(gname, gmesh)
         bpy.context.collection.objects.link(garment)
-        gown_color = (0.15, 0.55, 0.82, 1.0) if is_gown else (0.08, 0.52, 0.95, 1.0)
+        # Colour still role-tinted for evidence contrast, but topology (not colour) is the #46 distinguisher.
+        if is_gown:
+            gown_color = (0.15, 0.55, 0.82, 1.0)
+        elif is_open_front:
+            gown_color = (0.62, 0.28, 0.38, 1.0)  # muted rose cardigan cue (not the claim)
+        elif is_scrub:
+            gown_color = (0.05, 0.48, 0.52, 1.0)  # teal scrub cue
+        else:
+            gown_color = (0.08, 0.52, 0.95, 1.0)
         gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype", gown_color)  # vivid separate for evidence (gown variant slightly diff blue); per MANDATE_VISIBILITY + ed-gown-geo-reorchestrate for skeptic-visible 3D deforming gown volume in cagematch/UI-XR
         garment.data.materials.append(gmat)
         # Fabric thickness + light density + weighted normals so cloth reads less boxy/hard-band.
@@ -2109,20 +2200,31 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             f"(body local-Y height [{body_min_y:.3f},{body_max_y:.3f}]; sleeves along upper_arm not mid-body box)"
         )
         face_count = len(faces)
-        sleeve_cov = (
-            "torso+shoulder+upper_arm_along_bone_hospital_gown_sleeve"
-            if is_gown
-            else "torso+shoulder+upper_arm_along_bone_short_sleeve"
-        )
-        slf = 0.72 if is_gown else 0.58  # fraction of upper_arm bone length
+        if is_gown:
+            sleeve_cov = "torso+shoulder+upper_arm_along_bone_hospital_gown_sleeve"
+            slf = 0.72
+            topology_class = "closed_gown_drape"
+        elif is_open_front:
+            sleeve_cov = "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve"
+            slf = 0.92
+            topology_class = "open_front_c_shell_anterior_gap"
+        elif is_scrub:
+            sleeve_cov = "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve"
+            slf = 0.42
+            topology_class = "closed_scrub_ring"
+        else:
+            sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
+            slf = 0.58
+            topology_class = "closed_tshirt_ring"
         srows = sleeve_rows
         scols = sleeve_cols
         srf = round(sleeve_r0 / max(r_base, 0.001), 3)
         real_garment = {
             "mode": "phenotype_embedded_real_garment_region_v1",
-            "revision": "embed_real_garment_sleeve_fit_along_arms_v1",
+            "revision": "embed_real_garment_role_topology_v1_open_front_vs_closed_scrub",
             "objectName": garment.name,
             "faceCount": face_count,
+            "vertexCount": len(verts),
             "hasSleeveGeometry": True,
             "sleeveCoverage": sleeve_cov,
             "sleeveLenFactor": slf,
@@ -2135,6 +2237,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             "hasProminentSleeves": True,
             "hasExpandedVolumeDetail": True,
             "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+            "topologyClass": topology_class,
+            "hasAnteriorOpening": bool(is_open_front),
+            "anteriorOpeningRadians": round(front_opening_rad, 4) if is_open_front else 0.0,
+            "torsoWrapClosed": bool(torso_wrap),
             "weightedBones": weighted_bones,
             "deformsWithBreathing": True,
             "hasVisibleVolume": True,
@@ -2148,9 +2254,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             "bodyLocalHeightRange": [round(body_min_y, 6), round(body_max_y, 6)],
             "garmentLayers": [str(g) for g in garment_layers if g],
             "role": role,
-            "claimScope": "case_phenotype_garment_layers_real_skinned_geometry_q1_factory_not_hint_cylinder_not_production",
-            "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
-            "evidenceForThisSlice": "garment-sleeve-fit-parent-nurse-v1",
+            "claimScope": "case_phenotype_garment_layers_role_topology_geometry_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+            "notEvidenceFor": [
+                "production_asset_readiness",
+                "b_plus_visual_realism_gate",
+                "clinical_validity",
+                "scoring_validity",
+                "believable_clinical_costume",
+            ],
+            "evidenceForThisSlice": "garment-role-distinguish-v1-issue-46",
         }
     if real_garment:
         ret["realGarmentRegion"] = real_garment
