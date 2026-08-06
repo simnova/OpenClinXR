@@ -276,7 +276,12 @@ describe("proof-shape validation — every failure is a missing test", () => {
   });
 });
 
-describe("proof vocabulary must not drift from the evaluator (refactor guard)", () => {
+// NOTE: this block does NOT prove correspondence with the evaluator — it asserts that
+// assertProofShape accepts rule strings typed here by hand. The real A-to-B binding lives in
+// agent-loop's slice-team.test.ts, which drives evaluateDoneWhenRule from the vocabulary constant.
+// The original name ("must not drift from the evaluator") claimed the stronger property and was
+// exactly the overclaim pattern this session kept producing: one green check, a confident name.
+describe("regression: rule kinds assertProofShape must accept", () => {
   // REFACTOR step of red-green-refactor. The GREEN implementation hardcoded a prefix list in this
   // file while the real vocabulary lives in done-when-rules.ts. Duplicated knowledge drifts, and it
   // already had: `handoffs:all-done` is a valid rule matched EXACTLY, not by prefix, so the

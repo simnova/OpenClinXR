@@ -4,7 +4,9 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  DONE_WHEN_RULE_VOCABULARY,
   evaluateDoneWhenRule,
+  isKnownDoneWhenRule,
   auditHandoffsPathScope,
   auditHandoffsSoleAuthorLocks,
   buildSliceTeamSpawnPrompt,
@@ -545,5 +547,37 @@ describe("done_when run: and changed: — the proofs a green gate cannot give yo
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("rule vocabulary binds to the evaluator (A ↔ B)", () => {
+  // The vocabulary constant is only a source of truth if the EVALUATOR agrees with it. Nothing
+  // structurally forces that: evaluateDoneWhenRule dispatches on its own if/startsWith chain, so a
+  // seventh rule kind added there would leave the constant — and every consumer validating against
+  // it — silently stale. That is the same drift that made assertProofShape reject a valid rule.
+  const sample: Record<string, string> = {
+    "exists:": "exists:package.json",
+    "min-bytes:": "min-bytes:package.json:1",
+    "run:": "run:true",
+    "changed:": "changed:package.json",
+    "handoff:": "handoff:some-role:done",
+    "skeptic:": "skeptic:visible",
+    "handoffs:all-done": "handoffs:all-done",
+  };
+
+  it("evaluates every rule kind the vocabulary advertises", async () => {
+    for (const kind of [...DONE_WHEN_RULE_VOCABULARY.prefixes, ...DONE_WHEN_RULE_VOCABULARY.exact]) {
+      const rule = sample[kind];
+      expect(rule, `no sample rule for advertised kind "${kind}" — add one`).toBeDefined();
+      const check = await evaluateDoneWhenRule(process.cwd(), rule!, "vocab-slice", {});
+      expect(check.detail, `vocabulary advertises "${kind}" but the evaluator does not handle it`)
+        .not.toMatch(/unsupported rule/);
+    }
+  });
+
+  it("reports a rule OUTSIDE the vocabulary as unsupported", async () => {
+    const check = await evaluateDoneWhenRule(process.cwd(), "invented:nonsense", "vocab-slice", {});
+    expect(check.detail).toMatch(/unsupported rule/);
+    expect(isKnownDoneWhenRule("invented:nonsense")).toBe(false);
   });
 });

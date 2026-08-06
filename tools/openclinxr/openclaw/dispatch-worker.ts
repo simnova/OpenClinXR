@@ -21,7 +21,9 @@ import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } fr
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
 import {
+  DONE_WHEN_RULE_VOCABULARY,
   evaluateDoneWhenRule,
+  isKnownDoneWhenRule,
   partitionDoneWhen,
   writeBaselineHashes,
   type DoneWhenEvalOptions,
@@ -314,26 +316,6 @@ export function buildWorktreeIsolationDenies(mainRoot: string): string[] {
 
 
 /**
- * The `done_when` vocabulary, mirrored from `@openclinxr/agent-loop`'s `done-when-rules.ts`.
- *
- * DUPLICATED ON PURPOSE. `tools/` does not depend on the agent-loop package and should not start:
- * the dispatcher must run without building a workspace package. The obvious refactor — import the
- * constant — fights that boundary, so the correspondence is held by the test below instead of by
- * the module graph.
- *
- * The copy already drifted once within minutes of being written: it listed prefixes only and
- * omitted `handoffs:all-done`, which the evaluator matches EXACTLY, so a legitimate proof was
- * rejected. If you add a rule kind to done-when-rules.ts, add it here too.
- */
-const DONE_WHEN_PREFIXES = ["exists:", "min-bytes:", "run:", "changed:", "handoff:", "skeptic:"] as const;
-const DONE_WHEN_EXACT = ["handoffs:all-done"] as const;
-
-function isKnownDoneWhenRule(rule: string): boolean {
-  return DONE_WHEN_EXACT.some((exact) => rule === exact)
-    || DONE_WHEN_PREFIXES.some((prefix) => rule.startsWith(prefix));
-}
-
-/**
  * Validate `proofs` before they reach rule evaluation.
  *
  * INCIDENT 2026-08-05: passing the shape from an earlier design —
@@ -349,13 +331,13 @@ export function assertProofShape(proofs: readonly string[]): void {
       throw new Error(
         `Proof must be a done_when string, got ${typeof proof}: ${JSON.stringify(proof)}. `
         + `Use e.g. "run:pnpm architecture" or "changed:path/to/evidence.md" — not an object. `
-        + `Recognised prefixes: ${[...DONE_WHEN_PREFIXES, ...DONE_WHEN_EXACT].join(", ")}`,
+        + `Recognised prefixes: ${[...DONE_WHEN_RULE_VOCABULARY.prefixes, ...DONE_WHEN_RULE_VOCABULARY.exact].join(", ")}`,
       );
     }
     if (!isKnownDoneWhenRule(proof)) {
       throw new Error(
         `Proof "${proof}" has no recognised rule prefix, so nothing would evaluate it and the `
-        + `contract would pass vacuously. Expected one of: ${[...DONE_WHEN_PREFIXES, ...DONE_WHEN_EXACT].join(", ")}`,
+        + `contract would pass vacuously. Expected one of: ${[...DONE_WHEN_RULE_VOCABULARY.prefixes, ...DONE_WHEN_RULE_VOCABULARY.exact].join(", ")}`,
       );
     }
   }
