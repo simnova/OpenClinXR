@@ -5483,7 +5483,7 @@ describe("a scenario becomes exam-eligible only by passing review, never by asse
    * built by the same replay path (`:133-140`); neutralising gate maps globally unapproves the
    * whole bank. Any neutralisation belongs to the authored branch only.
    */
-  it.fails("POST client-asserted review gates plus one real decision does not enter exam assembly pool", async () => {
+  it("POST client-asserted review gates plus one real decision does not enter exam assembly pool", async () => {
     const sink = memorySink();
     const app = createApiApp(undefined, sink);
     await app.request("/scenarios", {
