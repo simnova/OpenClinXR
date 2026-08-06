@@ -1,10 +1,11 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium } from "playwright";
 import type { ModelVettingReport } from "../../../packages/openclinxr/arena/model-vetting/src/index.js";
 import type { ModelVettingCaptureArtifactMap } from "./model-vetting-capture-manifest.js";
+import { synthesizeEphemeralReportForGlb } from "./model-vetting-glb-grade-capture.js";
 
 type CliOptions = {
   sourceReportPath: string;
@@ -15,6 +16,13 @@ type CliOptions = {
   port: number;
   durationMs: number;
   reportUrl?: string;
+  /**
+   * GLB-first entry (#59): when set, synthesises an ephemeral ModelVettingReport so a path
+   * alone is enough — no hand-authored source report required. Prefer the full grade CLI
+   * (`asset:model-vetting:glb-grade`) when self-check + structure pass are needed.
+   */
+  glbPath?: string;
+  capturePass?: "lit" | "structure";
 };
 
 const defaultDate = new Date().toISOString().slice(0, 10);
@@ -25,7 +33,17 @@ type CandidateCaptureView = FixedCameraView | TemporalCaptureView | BodyRigTempo
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const report = JSON.parse(await readFile(options.sourceReportPath, "utf8")) as ModelVettingReport;
+  // GLB-first (#59): synthesise ephemeral report so arbitrary path needs no hand-authored report.
+  let report: ModelVettingReport;
+  let reportUrl = options.reportUrl;
+  if (options.glbPath) {
+    const staged = await stageGlbAndReport(options.glbPath);
+    report = staged.report;
+    reportUrl = staged.reportUrl;
+    options.sourceReportPath = staged.reportPath;
+  } else {
+    report = JSON.parse(await readFile(options.sourceReportPath, "utf8")) as ModelVettingReport;
+  }
   const artifactMap = await readArtifactMap(options.existingArtifactMapPath);
   await mkdir(options.outputDir, { recursive: true });
 
@@ -46,7 +64,8 @@ async function main(): Promise<void> {
             viewport: { width: 1280, height: 1280 },
           });
           const page = await context.newPage();
-          const url = `http://127.0.0.1:${options.port}/?captureCandidateId=${encodeURIComponent(candidate.candidateId)}&captureView=${captureView}${options.reportUrl ? `&reportUrl=${encodeURIComponent(options.reportUrl)}` : ""}`;
+          const passQs = options.capturePass ? `&capturePass=${encodeURIComponent(options.capturePass)}` : "";
+          const url = `http://127.0.0.1:${options.port}/?captureCandidateId=${encodeURIComponent(candidate.candidateId)}&captureView=${captureView}${reportUrl ? `&reportUrl=${encodeURIComponent(reportUrl)}` : ""}${passQs}`;
           await page.goto(url, { waitUntil: "networkidle" });
           try {
             await page.waitForFunction((expectedView) => {
@@ -111,8 +130,43 @@ function parseArgs(args: string[]): CliOptions {
     else if (arg === "--port") options.port = Number(requireNext(args, ++index, arg));
     else if (arg === "--duration-ms") options.durationMs = Number(requireNext(args, ++index, arg));
     else if (arg === "--report-url") options.reportUrl = requireNext(args, ++index, arg);
+    else if (arg === "--glb") options.glbPath = requireNext(args, ++index, arg);
+    else if (arg === "--capture-pass") {
+      const pass = requireNext(args, ++index, arg);
+      if (pass !== "lit" && pass !== "structure") throw new Error("--capture-pass must be lit|structure");
+      options.capturePass = pass;
+    }
   }
   return options;
+}
+
+/**
+ * Stage an arbitrary GLB under model-vetting public + write an ephemeral report.
+ * Removes the hand-authored source-report ceremony for single-GLB capture (#59).
+ */
+async function stageGlbAndReport(glbPath: string): Promise<{
+  report: ModelVettingReport;
+  reportPath: string;
+  reportUrl: string;
+}> {
+  const stem = path.basename(glbPath, ".glb").replaceAll(/[^a-zA-Z0-9_-]/gu, "_");
+  const stagingDir = path.join(
+    "apps/arena/model-vetting-studio/public/glb-grade-staging",
+    `turntable-${stem}`,
+  );
+  await mkdir(stagingDir, { recursive: true });
+  const publicGlb = path.join(stagingDir, `${stem}.glb`);
+  await copyFile(glbPath, publicGlb);
+  const report = await synthesizeEphemeralReportForGlb({
+    glbPath,
+    publicGlbPath: publicGlb.replaceAll("\\", "/"),
+    candidateId: `turntable_glb_${stem}`,
+  });
+  const reportPath = path.join(stagingDir, `${stem}.model-vetting-report.json`);
+  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  const marker = "apps/arena/model-vetting-studio/public/";
+  const reportUrl = `/${reportPath.replaceAll("\\", "/").slice(reportPath.replaceAll("\\", "/").indexOf(marker) + marker.length)}`;
+  return { report, reportPath, reportUrl };
 }
 
 async function readArtifactMap(filePath: string): Promise<ModelVettingCaptureArtifactMap> {

@@ -359,7 +359,9 @@
     "openclaw:loop": "tsx tools/openclinxr/openclaw/loop-pause.ts",
     "openclaw:dispatch-chokepoint:probe": "tsx tools/openclinxr/openclaw/dispatch-chokepoint.ts --probe",
     "openclaw:integrate": "tsx tools/openclinxr/openclaw/integrate.ts",
-    "openclaw:integrate-gate": "tsx tools/openclinxr/openclaw/integrate-gate-cli.ts"
+    "openclaw:integrate-gate": "tsx tools/openclinxr/openclaw/integrate-gate-cli.ts",
+    "asset:model-vetting:glb-grade": "tsx tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts",
+    "asset:model-vetting:glb-grade:validate": "tsx tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts --validate-latest"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
