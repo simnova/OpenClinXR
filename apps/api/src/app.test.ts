@@ -5351,3 +5351,117 @@ describe("exam assembly draws from authored scenarios, not just the fixture bank
     expect(consulted).toBeGreaterThan(0);
   });
 });
+
+describe("a scenario becomes exam-eligible only by passing review, never by asserting a field (#39)", () => {
+  /**
+   * #25 made `status === "approved"` decide which authored scenarios become exam stations. Nothing
+   * produces that status on the persisted document, so the only path to it runs through the client.
+   *
+   * validateScenario is not asleep — it refuses `status: "approved"` unless every review gate also
+   * reads approved (validators.ts:150-155) and governance is past stage_0 (:157-162). What it checks
+   * is the INTERNAL CONSISTENCY of the claim, never its AUTHENTICITY: no reviewer identity, no
+   * persisted review decision, and no evidence ref is required. A client that fills in all four gate
+   * fields and bumps validationStage reaches exam-eligible having had nobody review anything.
+   * Measured on main before these tests were written: POST → 201, readiness → considered: true.
+   *
+   * The promotion LOGIC is not missing: applyScenarioReviewDecision already derives
+   * `status: scenarioStatusForReview(nextReview)` (admin-scenario-listing.ts:103), approved once
+   * every gate approves. It writes that to the in-memory `scenarioOverrides` map
+   * (api-route-support.ts:834) and never through saveAuthoredScenario, so the pool — which reads
+   * listAuthoredScenarios — never sees it. Correct decision, discarded.
+   *
+   * These two run in TENSION deliberately. Admitting everything passes the second and fails the
+   * first; admitting nothing passes the first and fails the second. Neither can be satisfied by
+   * loosening the filter in one direction, which is what makes them worth committing.
+   *
+   * Both drive REAL persistence and REAL HTTP rather than stubbing listAuthoredScenarios the way
+   * the #25 tests above do. A stub would let both pass while the write path and the review path
+   * stayed exactly as broken — the peer round caught that hole in the first draft of these rules.
+   */
+  function memorySink(): ApiPersistenceSink {
+    const store = new Map<string, Scenario>();
+    return {
+      saveAuthoredScenario: (scenario) => { store.set(`${scenario.scenarioId}::${scenario.version}`, scenario); },
+      listAuthoredScenarios: () => Array.from(store.values()),
+      getAuthoredScenario: (scenarioId) =>
+        Array.from(store.values()).filter((s) => s.scenarioId === scenarioId).sort((a, b) => b.version - a.version)[0],
+    };
+  }
+
+  const candidate = (status: "approved" | "draft") => ({
+    ...pediatricAsthmaScenario,
+    scenarioId: "review_gated_case_v1",
+    title: "authored review_gated_case_v1",
+    status,
+    // Consistent enough to clear validateScenario, which is exactly the point: a self-approval that
+    // satisfies every structural rule while no reviewer has acted.
+    ...(status === "approved"
+      ? {
+        review: { clinical: "approved", psychometric: "approved", legal: "approved", simulationQa: "approved" },
+        governance: { ...pediatricAsthmaScenario.governance, validationStage: "stage_1_expert_reviewed" },
+      }
+      : {}),
+  });
+
+  const consideredIds = async (app: ReturnType<typeof createApiApp>): Promise<string[]> => {
+    const res = await app.request("/exam-blueprints/step2cs-seed/readiness");
+    const body = (await res.json()) as { consideredScenarioIds?: string[] };
+    return body.consideredScenarioIds ?? [];
+  };
+
+  // PLANTED CONTRACT. `it.fails` keeps main green while the assertion is still false, so later
+  // autonomous cycles are not blocked by a red health gate. When the behaviour is fixed the
+  // assertion starts passing and vitest fails the suite ("Expect test to fail") — that is the
+  // signal to flip this to plain `it`. assert-contract-live.ts enforces the flip mechanically.
+  it.fails("a self-asserted approval with no recorded reviewer decision does not enter exam assembly pool", async () => {
+    const app = createApiApp(undefined, memorySink());
+    const saved = await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: candidate("approved") }),
+    });
+    // Saving the document is fine — drafts and imports are legitimate. Becoming an exam station
+    // is not, and that is the line this asserts. A 400 would also satisfy it; either is a design
+    // the implementer may choose.
+    expect([201, 400]).toContain(saved.status);
+
+    expect(await consideredIds(app)).not.toContain("review_gated_case_v1");
+  });
+
+  // PLANTED CONTRACT — see the note on the test above.
+  it.fails("after all review gates approve via submit path, authored scenario is persisted approved and enters exam assembly pool", async () => {
+    const app = createApiApp(undefined, memorySink());
+    await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: candidate("draft") }),
+    });
+
+    const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    for (const reviewerRole of ["clinical", "psychometric", "legal", "simulationQa"]) {
+      const res = await app.request("/admin/graphql", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          query: submit.source,
+          operationName: "SubmitScenarioReview",
+          variables: {
+            input: {
+              scenarioId: "review_gated_case_v1",
+              version: candidate("draft").version,
+              reviewerRole,
+              reviewerId: `reviewer_${reviewerRole}`,
+              decision: "APPROVED",
+              comments: `${reviewerRole} gate approved for local formative review.`,
+              evidenceRefs: [`evidence:review_gated_case_v1:${reviewerRole}`],
+            },
+          },
+        }),
+      });
+      expect(res.status).toBe(200);
+    }
+
+    // The decision is already derived correctly; it has to reach the store the pool reads.
+    expect(await consideredIds(app)).toContain("review_gated_case_v1");
+  });
+});
