@@ -112,42 +112,89 @@ async function samplePatientVisemes(page: Page): Promise<SceneSample> {
 
 async function reframeCameraOnPatientFace(page: Page): Promise<string> {
   return page.evaluate(() => {
+    /** Minimal three.js-like shapes read from the live scene graph (browser context is untyped). */
+    type Vec3Like = {
+      x: number;
+      y: number;
+      z: number;
+      set: (x: number, y: number, z: number) => Vec3Like;
+      copy: (v: Vec3Like) => Vec3Like;
+      clone: () => Vec3Like;
+    };
+    type Object3DLike = {
+      isPerspectiveCamera?: boolean;
+      type?: string;
+      name?: string;
+      morphTargetDictionary?: Record<string, number>;
+      morphTargetInfluences?: number[];
+      matrixWorld?: { elements?: ArrayLike<number> };
+      updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+      parent?: {
+        updateWorldMatrix?: (updateParents: boolean, updateChildren: boolean) => void;
+        worldToLocal?: (v: Vec3Like) => Vec3Like;
+      };
+      position: Vec3Like;
+      lookAt: (x: number, y: number, z: number) => void;
+      fov: number;
+      updateProjectionMatrix?: () => void;
+    };
+
+    const isRecord = (value: unknown): value is Record<string, unknown> =>
+      typeof value === "object" && value !== null;
+
+    const hasPositionApi = (value: unknown): value is Object3DLike => {
+      if (!isRecord(value)) return false;
+      const position = value["position"];
+      if (!isRecord(position)) return false;
+      return typeof position["set"] === "function" && typeof value["lookAt"] === "function";
+    };
+
     const scene = (window as unknown as {
       __openClinXrDebugScene?: {
-        traverse: (cb: (o: Record<string, unknown>) => void) => void;
+        traverse: (cb: (o: unknown) => void) => void;
       };
     }).__openClinXrDebugScene;
     if (!scene?.traverse) return "no-scene";
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let camera: any = null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let patientMesh: any = null;
-    scene.traverse((object) => {
-      const o = object as {
-        isPerspectiveCamera?: boolean;
-        type?: string;
-        name?: string;
-        morphTargetDictionary?: Record<string, number>;
-        matrixWorld?: { elements?: ArrayLike<number> };
-        updateWorldMatrix?: (u: boolean, d: boolean) => void;
-      };
-      if (o.isPerspectiveCamera || o.type === "PerspectiveCamera") camera = o;
-      const name = o.name ?? "";
+    // Collector avoids let-null + closure assignment narrowing to never under some TS checkers.
+    const found: { camera: unknown; patientMesh: unknown } = {
+      camera: null,
+      patientMesh: null,
+    };
+    scene.traverse((object: unknown) => {
+      if (!isRecord(object)) return;
+      if (object["isPerspectiveCamera"] === true || object["type"] === "PerspectiveCamera") {
+        found.camera = object;
+      }
+      const name = typeof object["name"] === "string" ? object["name"] : "";
+      const dict = object["morphTargetDictionary"];
       if (
-        o.morphTargetDictionary &&
-        ("viseme_L" in o.morphTargetDictionary || "viseme_AA" in o.morphTargetDictionary) &&
+        isRecord(dict) &&
+        ("viseme_L" in dict || "viseme_AA" in dict) &&
         /peds_patient|patient_child/i.test(name)
       ) {
-        patientMesh = o;
+        found.patientMesh = object;
       }
     });
-    if (!camera?.position?.set) return "no-camera";
-    if (!patientMesh) return "no-patient-mesh";
 
-    patientMesh.updateWorldMatrix?.(true, false);
-    camera.parent?.updateWorldMatrix?.(true, false);
-    const e = patientMesh.matrixWorld?.elements;
+    if (!hasPositionApi(found.camera)) return "no-camera";
+    if (!isRecord(found.patientMesh)) return "no-patient-mesh";
+    const camera = found.camera;
+    const patientMesh = found.patientMesh;
+
+    const updateMeshWorld = patientMesh["updateWorldMatrix"];
+    if (typeof updateMeshWorld === "function") {
+      updateMeshWorld.call(patientMesh, true, false);
+    }
+    const parent = isRecord(camera.parent) ? camera.parent : undefined;
+    const updateParentWorld = parent?.["updateWorldMatrix"];
+    if (typeof updateParentWorld === "function") {
+      updateParentWorld.call(parent, true, false);
+    }
+
+    const matrixWorld = isRecord(patientMesh["matrixWorld"]) ? patientMesh["matrixWorld"] : undefined;
+    const elements = matrixWorld?.["elements"];
+    const e = elements && typeof elements === "object" ? (elements as ArrayLike<number>) : undefined;
     // matrixWorld translation = elements[12,13,14]
     const px = e ? Number(e[12]) : 0;
     const py = e ? Number(e[13]) : 1.0;
@@ -160,10 +207,13 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
       y: headY + 0.04,
       z: pz + 0.72,
     };
-    if (camera.parent?.worldToLocal && camera.position?.clone) {
+    const worldToLocal = parent && typeof parent["worldToLocal"] === "function"
+      ? (parent["worldToLocal"] as (v: Vec3Like) => Vec3Like)
+      : undefined;
+    if (worldToLocal) {
       const local = camera.position.clone();
       local.set(worldCam.x, worldCam.y, worldCam.z);
-      camera.parent.worldToLocal(local);
+      worldToLocal.call(parent, local);
       camera.position.copy(local);
     } else {
       camera.position.set(worldCam.x, worldCam.y, worldCam.z);
@@ -172,7 +222,10 @@ async function reframeCameraOnPatientFace(page: Page): Promise<string> {
     camera.lookAt(px, headY - 0.04, pz);
     camera.fov = 28;
     camera.updateProjectionMatrix?.();
-    return `patient@${px.toFixed(2)},${py.toFixed(2)},${pz.toFixed(2)} headY=${headY.toFixed(2)} camLocal=${camera.position.x?.toFixed?.(2)},${camera.position.y?.toFixed?.(2)},${camera.position.z?.toFixed?.(2)}`;
+    const camX = Number(camera.position.x).toFixed(2);
+    const camY = Number(camera.position.y).toFixed(2);
+    const camZ = Number(camera.position.z).toFixed(2);
+    return `patient@${px.toFixed(2)},${py.toFixed(2)},${pz.toFixed(2)} headY=${headY.toFixed(2)} camLocal=${camX},${camY},${camZ}`;
   });
 }
 
