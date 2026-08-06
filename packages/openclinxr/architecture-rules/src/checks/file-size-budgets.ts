@@ -40,8 +40,8 @@ export const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
  * LOWERED. Do not add new entries to widen the gate; split the file instead.
  */
 export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
-  "apps/ui-xr/src/main.ts": { maxLines: 10240, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD)" },
-  "apps/ui-xr/src/runtime-state.ts": { maxLines: 3743, reason: "XR runtime-state god-file — split by state slice" },
+  "apps/ui-xr/src/main.ts": { maxLines: 10231, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD); #57 exam-form boot extract" },
+  "apps/ui-xr/src/runtime-state.ts": { maxLines: 3741, reason: "XR runtime-state god-file — split by state slice; #57 compact snapshot options" },
   "apps/api/src/api-route-support.ts": { maxLines: 1124, reason: "shared route-level helpers extracted from app.ts during the composition-root migration — split by domain alongside the remaining route modules" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
@@ -49,7 +49,7 @@ export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> =
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },
   "apps/ui-admin/src/api-client-types.ts": { maxLines: 1410, reason: "residual: admin DTO type surface (generated-adjacent) — split by domain area next; fetch client extracted to api-client.ts (586, under budget)" },
   "packages/openclinxr/asset-registry/src/runtime-bundles.ts": { maxLines: 1638, reason: "bundle builder — split builder/validate/shape" },
-  "apps/ui-admin/src/App.tsx": { maxLines: 1631, reason: "admin shell — extract panels/containers" },
+  "apps/ui-admin/src/App.tsx": { maxLines: 1604, reason: "admin shell — extract panels/containers; #57 QueueReviewSnapshotHistory extract" },
   "apps/arena/ui-xr-iwsdk-spike/src/main.ts": { maxLines: 1456, reason: "arena spike entry — split by subsystem" },
   "packages/openclinxr/scenario-runtime/src/scenario-runtime.ts": { maxLines: 806, reason: "ScenarioRuntime orchestration class — extracted from the former 1162-line index.ts; decompose the class methods next" },
   "packages/openclinxr/agent-loop/src/role-harness-policy.ts": { maxLines: 950, reason: "policy tables — split data from logic" },

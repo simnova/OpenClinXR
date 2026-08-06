@@ -161,6 +161,9 @@ export function createExamStationRunQueueSnapshot(
     createdAt: input.createdAt ?? new Date().toISOString(),
     ...(input.reviewerId !== undefined ? { reviewerId: input.reviewerId } : {}),
     queue: input.queue,
+    ...(input.scenarioSource !== undefined ? { scenarioSource: input.scenarioSource } : {}),
+    ...(input.fallbackActive !== undefined ? { fallbackActive: input.fallbackActive } : {}),
+    ...(input.fallbackReason !== undefined ? { fallbackReason: input.fallbackReason } : {}),
   };
 }
 

@@ -187,10 +187,15 @@ describe("static browser assets", () => {
     expect(mainSource).toContain(`Note: \${examFlowEvidence.noteTextLength} chars`);
     expect(mainSource).toContain("lastObservedLocomotionSummary");
     expect(mainSource).toContain("formatRuntimeLocomotionLine");
-    expect(mainSource).toContain("createMultiStationExamRuntime");
+    // Exam form assembly lives in learner-exam-form-boot (#57 extract); main wires the boot call.
+    expect(mainSource).toContain("bootLearnerExamFormFromApi");
+    expect(mainSource).toContain("createLearnerExamFormRunState");
     expect(mainSource).toContain("__openClinXrExamFormRunEvidence");
     expect(mainSource).toContain("persistExamFormRunQueueSnapshot");
     expect(mainSource).toContain("createStationApiPersistenceSink");
+    const bootSource = readFileSync(new URL("./learner-exam-form-boot.ts", import.meta.url), "utf8");
+    expect(bootSource).toContain("createMultiStationExamRuntime");
+    expect(bootSource).toContain("applyExamFormBootPresentation");
     expect(mainSource).toContain("examEquivalenceGate");
     expect(styles).toContain(".exam-flow-panel");
     expect(styles).toContain(".patient-note-text");

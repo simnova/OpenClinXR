@@ -53,7 +53,7 @@ type Sink = { textContent: string | null };
 type Apply = (input: { result: unknown; sink: Sink }) => void;
 
 describe("the learner can see that an exam is running on fixtures (#57)", () => {
-  it.fails("boot surfaces the fallback to the on-page exam UI, not only to the evidence global", async () => {
+  it("boot surfaces the fallback to the on-page exam UI, not only to the evidence global", async () => {
     const mod = await load();
     const apply = mod["applyExamFormBootPresentation"] as Apply | undefined;
     expect(apply).toBeTypeOf("function");
@@ -88,3 +88,12 @@ describe("the learner can see that an exam is running on fixtures (#57)", () => 
     expect(String(healthySink.textContent ?? "")).toHaveLength(0);
   });
 });
+
+/*
+ * ## FIXED (#57)
+ *
+ * applyExamFormBootPresentation writes prose into a textContent sink on fixture_fallback only.
+ * main.ts wires #exam-flow-case-source (Case source row) as the real sink; healthy path leaves it blank.
+ * Boot path extracted to learner-exam-form-boot.ts so main.ts stays under the shrink-only budget.
+ * Shape-drift catch no longer swallows: applyExamFormBootRefusePresentation + clear form state.
+ */

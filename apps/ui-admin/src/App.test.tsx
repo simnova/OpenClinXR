@@ -606,7 +606,7 @@ describe("AdminApp", () => {
    * SCOPE: that the reviewer can SEE it. It asserts nothing about the API route that stores it — the
    * snapshot field, its persistence and its client type are the implementer's to choose.
    */
-  it.fails("queue snapshot history shows which runs fell back to fixtures", async () => {
+  it("queue snapshot history shows which runs fell back to fixtures", async () => {
     const client = fakeControlPlaneClient();
     client.listStep2CsSeedStationRunQueueSnapshots = async () => [
       {
@@ -643,6 +643,15 @@ describe("AdminApp", () => {
     expect(marks.length, "marking every snapshot tells a reviewer nothing").toBe(1);
   });
 });
+
+/*
+ * ## FIXED (#57)
+ *
+ * Queue review snapshot history renders an orange "fixture fallback" Tag when
+ * fallbackActive or scenarioSource === "fixture_fallback". Healthy snapshots stay unmarked.
+ * Snapshot field lives on ExamStationRunQueueSnapshot (exam-assembly), not reviewerId.
+ * GraphQL schema/codegen + API createSeedStationRunQueueSnapshot still residual for full round-trip.
+ */
 
 function fakeCommunicationProfile(style: string = "rationalizer") {
   return {

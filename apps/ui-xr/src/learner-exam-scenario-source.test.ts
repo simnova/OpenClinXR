@@ -43,11 +43,18 @@ function recordingFetch(requests: RecordedRequest[], responder: (url: string) =>
 
 const load = async () => import("./learner-exam-scenario-source.js") as Promise<Record<string, unknown>>;
 
+/** #43 contracts read scenarios from the labelled result (#57 return shape). */
 type Resolver = (input: {
   baseUrl?: string | undefined;
   blueprintId: string;
   fetch?: typeof fetch;
-}) => Promise<Array<{ scenarioId: string }>>;
+}) => Promise<{ scenarios: Array<{ scenarioId: string }> } | Array<{ scenarioId: string }>>;
+
+function scenarioList(
+  result: { scenarios: Array<{ scenarioId: string }> } | Array<{ scenarioId: string }>,
+): Array<{ scenarioId: string }> {
+  return Array.isArray(result) ? result : result.scenarios;
+}
 
 describe("learner exam scenario source (#43)", () => {
   it("resolves an authored approved scenario absent from the fixture bank when an api base url is configured", async () => {
@@ -57,14 +64,14 @@ describe("learner exam scenario source (#43)", () => {
 
     const requests: RecordedRequest[] = [];
     // An id that exists in no fixture — the only way it can appear is over HTTP.
-    const scenarios = await resolve!({
+    const scenarios = scenarioList(await resolve!({
       baseUrl: "http://localhost:8787",
       blueprintId: "step2cs-seed",
       fetch: recordingFetch(requests, (url) =>
         url.includes("/station-run-queue")
           ? { stationQueue: [{ scenarioId: "authored_only_case_v1" }] }
           : { scenarioId: "authored_only_case_v1", status: "approved" }),
-    });
+    }));
 
     expect(scenarios.map((s) => s.scenarioId)).toContain("authored_only_case_v1");
     // Kills the laziest dual pass — `if (baseUrl) return [...bank, fake]` with no HTTP at all.
@@ -77,11 +84,11 @@ describe("learner exam scenario source (#43)", () => {
     expect(resolve).toBeTypeOf("function");
 
     const requests: RecordedRequest[] = [];
-    const scenarios = await resolve!({
+    const scenarios = scenarioList(await resolve!({
       baseUrl: undefined,
       blueprintId: "step2cs-seed",
       fetch: recordingFetch(requests, () => ({})),
-    });
+    }));
 
     // Offline is the dev-portless and headset-boot path; it must not acquire a network dependency.
     expect(requests).toEqual([]);
@@ -95,14 +102,14 @@ describe("learner exam scenario source (#43)", () => {
 
     const requests: RecordedRequest[] = [];
     // The client must not trust raw JSON: an exam station is built from whatever this returns.
-    const scenarios = await resolve!({
+    const scenarios = scenarioList(await resolve!({
       baseUrl: "http://localhost:8787",
       blueprintId: "step2cs-seed",
       fetch: recordingFetch(requests, (url) =>
         url.includes("/station-run-queue")
           ? { stationQueue: [{ scenarioId: "malformed_case_v1" }] }
           : { scenarioId: "malformed_case_v1", status: "approved", actors: "not-an-array" }),
-    });
+    }));
 
     expect(scenarios.map((s) => s.scenarioId)).not.toContain("malformed_case_v1");
   });
@@ -212,7 +219,7 @@ type DegradedResolver = (input: {
 }) => Promise<unknown>;
 
 describe("a configured runtime says when it fell back to fixtures (#57)", () => {
-  it.fails("configured baseUrl with a failing queue fetch reports fixture_fallback rather than a bare bank", async () => {
+  it("configured baseUrl with a failing queue fetch reports fixture_fallback rather than a bare bank", async () => {
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
     expect(resolve).toBeTypeOf("function");
@@ -235,7 +242,7 @@ describe("a configured runtime says when it fell back to fixtures (#57)", () => 
     expect((result["scenarios"] as unknown[]).length).toBeGreaterThan(0);
   });
 
-  it.fails("no baseUrl reports fixture_offline and makes zero fetches", async () => {
+  it("no baseUrl reports fixture_offline and makes zero fetches", async () => {
     // Kills "mark anything that lands on fixtures": offline is a deliberate mode, not a degradation.
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
@@ -252,17 +259,22 @@ describe("a configured runtime says when it fell back to fixtures (#57)", () => 
     expect(result["fallbackActive"]).toBe(false);
   });
 
-  it.fails("a reachable queue reports api_queue and does not mark a fallback", async () => {
+  it("a reachable queue reports api_queue and does not mark a fallback", async () => {
     // Kills "always mark a fallback": the healthy path must say so positively, not by omission.
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
     expect(resolve).toBeTypeOf("function");
 
     const requests: RecordedRequest[] = [];
+    // Plant fixture used `{ queue: [...] }` (the #53 fail shape). Correct producer body is
+    // `stationQueue` — keep the plant's intent (reachable healthy path) without reintroducing
+    // silent shape drift.
     const result = (await resolve!({
       baseUrl: "http://localhost:8787",
       blueprintId: "step2cs-seed",
-      fetch: recordingFetch(requests, () => ({ queue: [{ scenarioId: "ed_chest_pain_priority_v1" }] })),
+      fetch: recordingFetch(requests, () => ({
+        stationQueue: [{ scenarioId: "ed_chest_pain_priority_v1" }],
+      })),
     })) as unknown as Record<string, unknown>;
 
     expect(requests.length).toBeGreaterThan(0);
@@ -293,3 +305,15 @@ describe("a configured runtime says when it fell back to fixtures (#57)", () => 
     })).rejects.toThrow();
   });
 });
+
+/*
+ * ## FIXED (#57)
+ *
+ * Result shape: ResolveLearnerExamScenariosResult
+ *   { scenarios, scenarioSource, fallbackActive, fallbackReason? }
+ *   — not a bare array; offline is fixture_offline (fallbackActive false); transport fail is
+ *   fixture_fallback (fallbackActive true + reason); healthy is api_queue; shape drift still throws.
+ *
+ * Reachable-queue plant fixture corrected from `queue` → `stationQueue` (producer contract from #53);
+ * leaving `queue` would throw and collapse the healthy path into the malformed-body case.
+ */

@@ -3723,20 +3723,18 @@ export function formatExamFormRunClock(run: ExamFormRunState): {
 /**
  * Persist current station-run-queue snapshot via injected sink (ApiPersistenceSink-compatible).
  * Does not open mongo — caller supplies sink (e.g. createStationApiPersistenceSink).
+ * options may include #57 acquisition markers (scenarioSource / fallbackActive / fallbackReason).
  */
 export async function persistExamFormRunQueueSnapshot(
   run: ExamFormRunState,
   sink: ExamAssemblyPersistenceSink,
-  options?: { snapshotId?: string; reviewerId?: string; createdAt?: string },
+  options?: Omit<Parameters<typeof createExamStationRunQueueSnapshot>[0], "queue">,
 ): Promise<ExamStationRunQueueSnapshot> {
-  const snapshotInput: Parameters<typeof createExamStationRunQueueSnapshot>[0] = {
+  const snapshot = createExamStationRunQueueSnapshot({
+    ...options,
     snapshotId: options?.snapshotId ?? `queue_snapshot_${run.examRunId}`,
-    queue: run.queue,
     reviewerId: options?.reviewerId ?? "ui_xr_learner_runtime",
-  };
-  if (options?.createdAt !== undefined) {
-    snapshotInput.createdAt = options.createdAt;
-  }
-  const snapshot = createExamStationRunQueueSnapshot(snapshotInput);
+    queue: run.queue,
+  });
   return persistExamStationRunQueueSnapshot(sink, snapshot);
 }

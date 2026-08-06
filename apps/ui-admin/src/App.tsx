@@ -38,6 +38,7 @@ import {
 } from "./api-client.js";
 import { CaseAuthoringWorkbench } from "./CaseAuthoringWorkbench.js";
 import { EmissionReplayBindPanel } from "./EmissionReplayBindPanel.js";
+import { QueueReviewSnapshotHistory } from "./QueueReviewSnapshotHistory.js";
 import { EnvironmentGenerationQueuePanel } from "./EnvironmentGenerationQueuePanel.js";
 import { FacultyReviewDecisionPanel } from "./FacultyReviewDecisionPanel.js";
 import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummaryPanel.js";
@@ -1444,28 +1445,7 @@ function SeedBlueprintWorkbench({ controlPlaneClient }: { controlPlaneClient: Ad
           </ol>
         </section>
 
-        <section className="workbench-panel" aria-label="Queue review snapshot history">
-          <Typography.Title level={4}>Review Snapshots</Typography.Title>
-          <Typography.Text>{`${state.queueSnapshots.length} saved reviewer snapshot${state.queueSnapshots.length === 1 ? "" : "s"}`}</Typography.Text>
-          {state.queueSnapshots.length === 0 ? (
-            <Typography.Paragraph className="empty-panel-note">No review snapshots yet.</Typography.Paragraph>
-          ) : (
-            <ol className="queue-snapshot-list">
-              {state.queueSnapshots.map((snapshot) => (
-                <li key={snapshot.snapshotId}>
-                  <div className="station-queue-row">
-                    <Typography.Text strong>{snapshot.snapshotId}</Typography.Text>
-                    <Tag color={snapshot.queue.canStartLearnerExam ? "green" : "gold"}>
-                      {snapshot.queue.canStartLearnerExam ? "launch ready" : "blocked"}
-                    </Tag>
-                  </div>
-                  <Typography.Text>{snapshot.reviewerId ?? "unassigned reviewer"}</Typography.Text>
-                  <Typography.Text type="secondary">{formatSnapshotQueueSummary(snapshot)}</Typography.Text>
-                </li>
-              ))}
-            </ol>
-          )}
-        </section>
+        <QueueReviewSnapshotHistory snapshots={state.queueSnapshots} />
 
         <section className="workbench-panel" aria-labelledby="timing-title">
           <Typography.Title id="timing-title" level={4}>
@@ -1555,13 +1535,6 @@ function formatStationQueueBlocker(blocker: string): string {
 
 function formatMinutes(seconds: number): string {
   return `${Math.round(seconds / 60)}m`;
-}
-
-function formatSnapshotQueueSummary(snapshot: AdminStationRunQueueSnapshot): string {
-  const blocked =
-    snapshot.queue.summary.draftBlocked + snapshot.queue.summary.governanceBlocked + snapshot.queue.summary.missingScenario;
-
-  return `${snapshot.queue.summary.activationReady} activation-ready / ${blocked} blocked`;
 }
 
 function scenarioStatusColor(status: AdminScenario["status"]): string {
