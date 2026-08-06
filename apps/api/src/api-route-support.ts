@@ -101,6 +101,7 @@ import { Hono } from "hono";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 import { attachMaterializationAttachmentPlanSummary, attachMaterializationEvidenceAttachmentSummary, attachMaterializationInputManifestSummary, attachMaterializationInputReviewDecisionRecord, attachPedsHumanoidMaterializationHandoff, attachRuntimeEvidenceCaptureScaffold, attachRuntimeRealismEvidenceInputDraft, attachRuntimeRealismEvidenceInputReviewDecisionRecord, attachRuntimeVisualEvidenceAttachmentActionPacket, attachRuntimeVisualEvidenceAttachmentRecord, attachRuntimeVisualEvidenceAttachmentSummary, buildMaterializationInputReviewActionPacket, buildMaterializationInputReviewDecisionRecord, buildRuntimeRealismEvidenceAttachmentSummary, buildRuntimeRealismEvidenceInputReviewDecisionRecord, buildRuntimeVisualEvidenceAttachmentActionPacket, buildRuntimeVisualEvidenceAttachmentRecord, isRecord, parseStringArray, readMaterializationAttachmentPlanSummaryForScenario, readMaterializationEvidenceAttachmentSummaryForScenario, readMaterializationInputManifestSummaryForScenario, readRepoGeneratedJsonIfExists, readRuntimeEvidenceCaptureScaffoldForScenario, realtimeVoiceProtocolPreference } from "./api-support.js";
 import { listAdminGraphqlScenarios, toAdminGraphqlScenario } from "./admin-scenario-listing.js";
+import { persistAuthoredScenarioReviewPromotion } from "./scenario-review-promotion.js";
 
 import type {
   RuntimeTraceEvents,
@@ -832,6 +833,8 @@ export function createAdminGraphqlRoot(
       const nextScenario = applyScenarioReviewDecision(scenario, reviewDecision);
       await persistence.saveScenarioReviewDecision?.(reviewDecision);
       scenarioOverrides.set(scenarioVersionKey(nextScenario.scenarioId, nextScenario.version), nextScenario);
+      // #39: promotion must reach listAuthoredScenarios (exam assembly), not only overrides.
+      await persistAuthoredScenarioReviewPromotion(persistence, nextScenario);
 
       return nextScenario;
     },

@@ -5409,11 +5409,8 @@ describe("a scenario becomes exam-eligible only by passing review, never by asse
     return body.consideredScenarioIds ?? [];
   };
 
-  // PLANTED CONTRACT. `it.fails` keeps main green while the assertion is still false, so later
-  // autonomous cycles are not blocked by a red health gate. When the behaviour is fixed the
-  // assertion starts passing and vitest fails the suite ("Expect test to fail") — that is the
-  // signal to flip this to plain `it`. assert-contract-live.ts enforces the flip mechanically.
-  it.fails("a self-asserted approval with no recorded reviewer decision does not enter exam assembly pool", async () => {
+  // Live contract (#39): client self-asserted approval must not enter the exam assembly pool.
+  it("a self-asserted approval with no recorded reviewer decision does not enter exam assembly pool", async () => {
     const app = createApiApp(undefined, memorySink());
     const saved = await app.request("/scenarios", {
       method: "POST",
@@ -5428,8 +5425,8 @@ describe("a scenario becomes exam-eligible only by passing review, never by asse
     expect(await consideredIds(app)).not.toContain("review_gated_case_v1");
   });
 
-  // PLANTED CONTRACT — see the note on the test above.
-  it.fails("after all review gates approve via submit path, authored scenario is persisted approved and enters exam assembly pool", async () => {
+  // Live contract (#39): submitScenarioReview must persist approval into listAuthoredScenarios.
+  it("after all review gates approve via submit path, authored scenario is persisted approved and enters exam assembly pool", async () => {
     const app = createApiApp(undefined, memorySink());
     await app.request("/scenarios", {
       method: "POST",
