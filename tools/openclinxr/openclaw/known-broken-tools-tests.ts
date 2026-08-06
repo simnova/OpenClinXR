@@ -2,9 +2,14 @@
 /**
  * Known-broken tools tests — a SHRINK-ONLY exclude list.
  *
- * WHY THIS EXISTS: `//#test:tools` was `vitest run tools/**/*.test.ts` UNQUOTED, so the SHELL
- * expanded the glob. Without globstar `**` behaves as `*`, resolving to `tools/*/*.test.ts` — 14 of
- * the 148 test files under tools/. The health gate ran 9% of its tests and printed green.
+ * WHY THIS EXISTS: `//#test:tools` ran vitest over a doubled-star glob under tools/ UNQUOTED, so
+ * the SHELL expanded it. Without globstar the doubled star behaves as a single one, resolving to
+ * one directory level — 14 of the 148 test files under tools/. The health gate ran 9% of its tests
+ * and printed green.
+ *
+ * The glob is spelled out in prose rather than written literally on purpose: a star followed by a
+ * slash inside a block comment CLOSES THE COMMENT. Writing it literally here is what made this file
+ * fail to parse and put `pnpm typecheck` red on main for two cycles (fixed 2026-08-06).
  *
  * Everything in the loop machinery was in the invisible 134: dispatch-worker, integrate,
  * integrate-gate, board-brief, loop-pause, delegation-scorecard. They passed only because they were

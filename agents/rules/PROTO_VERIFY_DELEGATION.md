@@ -122,6 +122,26 @@ retro once work lands:
 Ask what it was thinking, not just what it did — with the outcome known, that is a better question
 than any you could ask mid-flight. For Claude sub-instances, `SendMessage` to the agent id.
 
+### 6b-bis. One slice can log MORE THAN ONE session, and the reported turn count is the last one
+
+On #64 the ledger held two entries for the same slice — `019fd82d` with **47 turns**, which did the
+work, and `019fd839` with **9 turns**, which started with HEAD already at the finished commit and
+only re-verified. `DISPATCH_RESULT` reported **9**, and that is the number that reached the close
+comment, the escalation record, and the retro.
+
+The retro resumed the 9-turn session, which correctly said *"I did not do this work"* — and then
+answered every question from commit evidence, which reads exactly like a first-hand account unless
+you check. The size experiment was being calibrated on 9 turns for a slice that cost 47.
+
+**Rule:** before retrospecting, `grep '"slice":"<id>"'` the ledger and take the session with the
+MOST turns, not the one the dispatcher returned. If two sessions exist, note both — the second is
+usually a verification leg and its turn count is not the slice's cost. When a resumed worker says it
+did not do the work, believe it and go find the one that did.
+
+**Rule:** a turn count sourced from `DISPATCH_RESULT` is provisional. Anything that treats turns as a
+measurement — an escalation ladder, a cost model, a "is the worker near its ceiling" judgement —
+reads the ledger, not the return value.
+
 ## 6c. Multi-tier retrospective — workers, then peer, then codify
 
 Section 6 says to retro after landing. This is the shape that scales past one worker, added

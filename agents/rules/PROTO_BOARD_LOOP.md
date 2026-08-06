@@ -239,6 +239,36 @@ is a signal to go read the code for that lane, not evidence that the lane is don
 surfaced #43 in one pass: `apps/ui-xr` imports `scenarioBank` at build time and never calls the API,
 so three landed API slices reach no learner.
 
+## A deliverable under a gitignored path has no land path unless the contract asks for one
+
+#64 regenerated four humanoid GLBs and fixed a real bind-pose defect. The commit carried a `.py` and
+a test — **and none of the assets**, because `.gitignore:24` covers `apps/ui-xr/public/cagematch/`.
+Every contract proof passed, because proofs run against files on disk in the worker's own tree, and
+that tree had them. The orchestrator merged a branch that did not contain the fix and hand-copied
+23 MB out of the worktree afterwards.
+
+The worker knew — its commit message says "(gitignored mirrors)". It did not raise it, and it was
+right not to: nothing in `done_when` asked for an integrable deliverable, so nothing was unmet. This
+is a contract hole, not a worker error.
+
+**Rule:** when a slice's product bytes land under a gitignored path, `done_when` must name either a
+tracked promote target or an explicit handoff location, plus one line saying how main receives them.
+Otherwise the proofs certify a tree nobody will ever have again.
+
+**The second-order bite:** a guard that inspects gitignored assets cannot fail on a clean clone. The
+#64 contract skips any asset that does not exist, so on a fresh checkout it passes having inspected
+nothing. Green, and about nothing — the #55 class wearing different clothes.
+
+## Planted headers read as disposable unless the brief says otherwise
+
+The #64 worker replaced the planted test's header — deleting the recorded diagnosis and the peer
+round's finding, rewriting it as a description of the fix. Asked, it said it read the header as the
+orchestrator's scratch notes, to be replaced once the work was green. That is a reasonable reading of
+an unlabelled comment, so the brief has to carry the label. The worker proposed the convention and it
+is the right one: **the diagnosis paragraph is immutable — flip `it.fails`, append a `## FIXED (#N)`
+block below it, and never delete the measured tables.** Where the header captures a peer round, it is
+frequently the only place that reasoning exists at all.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
