@@ -21,6 +21,9 @@ apps/*/dist/
 apps/arena/model-vetting-studio/dist/
 apps/*/*/dist/cagematch/
 apps/arena/model-vetting-studio/public/cagematch/
+# #59 grade capture stages a copy of each GLB under public/ so the studio can fetch it by URL;
+# transient per-run scratch, not a deliverable.
+apps/arena/model-vetting-studio/public/glb-grade-staging/
 apps/ui-xr/public/cagematch/
 benchmarks/glb-optimization/input/
 benchmarks/glb-optimization/output/

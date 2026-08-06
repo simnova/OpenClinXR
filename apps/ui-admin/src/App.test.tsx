@@ -578,6 +578,70 @@ describe("AdminApp", () => {
     expect(await within(screen.getByLabelText("Queue review snapshot history")).findByText("queue_snapshot_test_001")).toBeInTheDocument();
     expect(listSnapshots).toHaveBeenCalledTimes(2);
   });
+
+  /**
+   * PLANTED CONTRACT (#57) — a reviewer cannot tell which runs assembled from fixtures.
+   *
+   * THE SINGLE `it.fails` BELOW FLIPS. Every other test in this file is LIVE and must keep passing.
+   * This comment is THE RECORD, not scratch — flip it and append a `## FIXED (#57)` note; do not
+   * delete the measurement.
+   *
+   * MEASURED: `ExamStationRunQueueSnapshot` (`packages/openclinxr/exam-assembly/src/types.ts:191-196`)
+   * carries `snapshotId`, `createdAt`, optional `reviewerId` and `queue` — and nothing about how the
+   * run acquired its scenarios. The ui-xr side persists a boot snapshot at `main.ts:2075-2076`, so
+   * the record exists; it just cannot say that the exam ran on fixtures because the API was down.
+   *
+   * WHY THIS IS THE ADJACENT CONSUMER, and what makes the slice L5 rather than one vertical: the
+   * ui-xr work alone puts a label in front of the learner at the moment it happens. It disappears the
+   * instant the headset comes off. A reviewer opening "Queue review snapshot history" days later
+   * still sees twelve identical-looking runs. The marker has to survive into review or it only ever
+   * warned the one person who could already tell something was odd.
+   *
+   * DO NOT STUFF IT INTO `reviewerId`. That field is a person; overloading it to carry a system
+   * condition would be a hack that reads fine in a test and lies in a review.
+   *
+   * THE CONTRACT PULLS BOTH WAYS: a fallback snapshot must be marked in the history AND a normal one
+   * must not be, so rendering the marker unconditionally fails as surely as never rendering it.
+   *
+   * SCOPE: that the reviewer can SEE it. It asserts nothing about the API route that stores it — the
+   * snapshot field, its persistence and its client type are the implementer's to choose.
+   */
+  it.fails("queue snapshot history shows which runs fell back to fixtures", async () => {
+    const client = fakeControlPlaneClient();
+    client.listStep2CsSeedStationRunQueueSnapshots = async () => [
+      {
+        ...(await client.createStep2CsSeedStationRunQueueSnapshot({
+          snapshotId: "queue_snapshot_fallback_001",
+          createdAt: "2026-08-06T17:00:00.000Z",
+          reviewerId: "psychometrician_001",
+        })),
+        scenarioSource: "fixture_fallback",
+        fallbackActive: true,
+        fallbackReason: "station_run_queue_unreachable",
+      },
+      {
+        ...(await client.createStep2CsSeedStationRunQueueSnapshot({
+          snapshotId: "queue_snapshot_authored_002",
+          createdAt: "2026-08-06T18:00:00.000Z",
+          reviewerId: "psychometrician_001",
+        })),
+        scenarioSource: "api_queue",
+        fallbackActive: false,
+      },
+    ] as unknown as Awaited<ReturnType<typeof client.listStep2CsSeedStationRunQueueSnapshots>>;
+
+    render(<AdminApp initialPath="/exam-forms" controlPlaneClient={client} />);
+
+    const snapshotHistory = await screen.findByLabelText("Queue review snapshot history");
+    expect(within(snapshotHistory).getByText("queue_snapshot_fallback_001")).toBeInTheDocument();
+
+    // The degraded run is marked...
+    const marks = within(snapshotHistory).getAllByText(/fixture/i);
+    expect(marks.length, "a reviewer must be able to see which run fell back").toBeGreaterThan(0);
+
+    // ...and exactly one run is, so an unconditional badge does not satisfy this.
+    expect(marks.length, "marking every snapshot tells a reviewer nothing").toBe(1);
+  });
 });
 
 function fakeCommunicationProfile(style: string = "rationalizer") {

@@ -152,3 +152,144 @@ describe("a configured runtime does not silently serve fixtures (#53)", () => {
     })).rejects.toThrow();
   });
 });
+
+/**
+ * PLANTED CONTRACTS (#57) — a configured runtime serves fixtures silently when its API is down.
+ *
+ * THREE OF THE FOUR CONTRACTS BELOW ARE PLANTED AND FLIP. The fourth — the malformed-body one —
+ * is LIVE ALREADY (#53 made it fail closed) and must keep passing; it is marked in place. The #43
+ * contracts above are also live; do not edit them. This header is THE RECORD, not scratch — flip the `it.fails`, append a
+ * `## FIXED (#57)` block below, and leave the measured table intact.
+ *
+ * MEASURED, six silent paths, not the one the issue originally described:
+ *
+ *   learner-exam-scenario-source.ts:63-71   queue fetch fails -> `return [...scenarioBank]`, no marker
+ *   main.ts:2066-2072                       outer catch swallows EVERYTHING from resolve, including
+ *                                           #53's deliberate shape-drift throw
+ *   main.ts:1810                            form built from fixtures BEFORE api boot
+ *   main.ts:2070                            `?? examFormRunState` keeps fixtures on empty/unassemblable
+ *   main.ts:2083-2087                       assembly's own `catch { return null }`
+ *   main.ts:2075-2076                       snapshot persist `.catch(() => {})`
+ *
+ * The first two are INDEPENDENT. Fixing either alone leaves the other, which is why #53's guarantee
+ * does not currently reach the running app.
+ *
+ * THE DECISION, made rather than deferred: transport failure DEGRADES WITH A LABEL, shape drift
+ * STILL REFUSES. A headset mid-session must not hard-fail on a server blip — so the exam continues
+ * on fixtures, and stops pretending they are authored.
+ *
+ * MATCH THE EXISTING VOCABULARY, do not invent a third. The asset path already solved this:
+ * `fallbackActive` / `fallbackReason` / `activeBundleSource: "local_fixture_fallback" | "api_bundle"`
+ * (main.ts:657-665, runtime-state.ts:838-841) and `retrievalMode` (api-client.ts:110).
+ *
+ * THE FOUR CONTRACTS PULL APART IN PAIRS, and no cheap implementation satisfies all four.
+ *
+ * Marking every fixture result as a fallback fails the offline contract — no baseUrl is a deliberate
+ * mode, not a degradation. Never marking one fails the transport contract. Marking on any exception
+ * fails the shape-drift contract, because a malformed body on a 200 must still throw rather than
+ * become a tidy labelled fallback. And returning a bare array with a property bolted on fails the
+ * reachable-queue contract, which requires the healthy path to say so positively.
+ *
+ * OFFLINE IS NOT A FALLBACK. That distinction is the one most likely to be collapsed by an
+ * implementation that treats "did we end up on fixtures?" as the question. The question is "did we
+ * end up on fixtures because something failed?".
+ *
+ * SIGNATURE IS THE IMPLEMENTER'S CHOICE. These read a discriminated result from
+ * `resolveLearnerExamScenarios` carrying `scenarioSource` and, when degraded, `fallbackActive` and a
+ * reason. A different shape is fine if the reason is recorded at the call site. What must not
+ * change: offline is not a fallback, transport failure is labelled, shape drift still throws, and
+ * the bare-array return is gone so callers cannot ignore it.
+ *
+ * SCOPE: resolution only. Whether a human can SEE the label is `learner-exam-form-boot.test.ts`, and
+ * whether a reviewer can see it later is the ui-admin contract. All three are required by the issue;
+ * this file alone does not close it.
+ */
+/** The result shape this slice introduces; the live #43/#53 `Resolver` above stays as it is. */
+type DegradedResolver = (input: {
+  baseUrl?: string | undefined;
+  blueprintId: string;
+  fetch?: typeof fetch;
+}) => Promise<unknown>;
+
+describe("a configured runtime says when it fell back to fixtures (#57)", () => {
+  it.fails("configured baseUrl with a failing queue fetch reports fixture_fallback rather than a bare bank", async () => {
+    const mod = await load();
+    const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
+    expect(resolve).toBeTypeOf("function");
+
+    const downstream = (async () => {
+      throw new Error("ECONNREFUSED");
+    }) as unknown as typeof fetch;
+
+    const result = (await resolve!({
+      baseUrl: "http://localhost:8787",
+      blueprintId: "step2cs-seed",
+      fetch: downstream,
+    })) as unknown as Record<string, unknown>;
+
+    expect(Array.isArray(result), "a bare array cannot carry the reason it is a bank").toBe(false);
+    expect(result["scenarioSource"]).toBe("fixture_fallback");
+    expect(result["fallbackActive"]).toBe(true);
+    expect(String(result["fallbackReason"] ?? ""), "a reason nobody can read is not a reason").not.toHaveLength(0);
+    // The learner still gets an exam — this is degrade-with-label, not refuse.
+    expect((result["scenarios"] as unknown[]).length).toBeGreaterThan(0);
+  });
+
+  it.fails("no baseUrl reports fixture_offline and makes zero fetches", async () => {
+    // Kills "mark anything that lands on fixtures": offline is a deliberate mode, not a degradation.
+    const mod = await load();
+    const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
+    expect(resolve).toBeTypeOf("function");
+
+    const requests: RecordedRequest[] = [];
+    const result = (await resolve!({
+      blueprintId: "step2cs-seed",
+      fetch: recordingFetch(requests, () => ({ queue: [] })),
+    })) as unknown as Record<string, unknown>;
+
+    expect(requests).toEqual([]);
+    expect(result["scenarioSource"]).toBe("fixture_offline");
+    expect(result["fallbackActive"]).toBe(false);
+  });
+
+  it.fails("a reachable queue reports api_queue and does not mark a fallback", async () => {
+    // Kills "always mark a fallback": the healthy path must say so positively, not by omission.
+    const mod = await load();
+    const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
+    expect(resolve).toBeTypeOf("function");
+
+    const requests: RecordedRequest[] = [];
+    const result = (await resolve!({
+      baseUrl: "http://localhost:8787",
+      blueprintId: "step2cs-seed",
+      fetch: recordingFetch(requests, () => ({ queue: [{ scenarioId: "ed_chest_pain_priority_v1" }] })),
+    })) as unknown as Record<string, unknown>;
+
+    expect(requests.length).toBeGreaterThan(0);
+    expect(result["scenarioSource"]).toBe("api_queue");
+    expect(result["fallbackActive"]).toBe(false);
+  });
+
+  it("a malformed queue body still throws and is never converted into a labelled fallback", async () => {
+    // LIVE, NOT PLANTED — this already passes today because #53 made shape drift fail closed, and it
+    // must KEEP passing. I planted it as `it.fails` by mistake and the first run caught it: three
+    // contracts flip, this one does not. Kills "mark on any exception". #53 made shape drift fail closed on purpose: a malformed body on
+    // a 200 is a contract defect, and turning it into a tidy fixture_fallback would relabel a bug as
+    // a network condition and lose it.
+    const mod = await load();
+    const resolve = mod["resolveLearnerExamScenarios"] as DegradedResolver | undefined;
+    expect(resolve).toBeTypeOf("function");
+
+    const movedShape = (async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ stations: [{ id: "not_the_agreed_shape" }] }),
+    })) as unknown as typeof fetch;
+
+    await expect(resolve!({
+      baseUrl: "http://localhost:8787",
+      blueprintId: "step2cs-seed",
+      fetch: movedShape,
+    })).rejects.toThrow();
+  });
+});
