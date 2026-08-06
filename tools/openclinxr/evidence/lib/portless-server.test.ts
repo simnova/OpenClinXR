@@ -1,10 +1,42 @@
 /**
  * Scaling proof for dynamic port allocation (non-browser, deterministic).
  * Concurrent findFreePort must not return colliding ports while listeners are held.
+ *
+ * Also guards Vite Local: line parsing under FORCE_COLOR / ANSI (the #69 re-run
+ * failure: Vite printed the Local line in 125ms and the helper still waited 180s).
  */
 import { createServer, type AddressInfo } from "node:net";
 import { describe, expect, it } from "vitest";
-import { findFreePort } from "./portless-server.js";
+import { findFreePort, parseViteLocalPort, stripAnsi } from "./portless-server.js";
+
+describe("parseViteLocalPort (ANSI-safe Local: line)", () => {
+  it("parses a plain Vite Local line", () => {
+    const out = "VITE v8.0.16  ready in 125 ms\n  ➜  Local:   http://127.0.0.1:49877/\n";
+    expect(parseViteLocalPort(out)).toBe(49877);
+  });
+
+  it("parses Vite 8 FORCE_COLOR output where Local and URL are SGR-wrapped", () => {
+    // Measured shape: bold Local, green arrow, cyan URL — Local:\\s+http never matches raw.
+    const colored =
+      "\u001b[32m➜\u001b[39m  \u001b[1mLocal\u001b[22m:\u001b[32m   http://127.0.0.1:49877/\u001b[39m";
+    expect(colored.match(/Local:\s+https?:\/\//)).toBeNull();
+    expect(parseViteLocalPort(colored)).toBe(49877);
+  });
+
+  it("parses when only the URL is colourised after Local:", () => {
+    const colored = "  ➜  Local:   \u001b[36mhttp://127.0.0.1:5174/\u001b[39m";
+    expect(parseViteLocalPort(colored)).toBe(5174);
+  });
+
+  it("returns null when no Local line is present", () => {
+    expect(parseViteLocalPort("VITE v8.0.16  ready in 125 ms\n")).toBeNull();
+  });
+
+  it("stripAnsi removes CSI so the human-readable tail matches the match input", () => {
+    const colored = "\u001b[1mLocal\u001b[22m:   http://127.0.0.1:9/";
+    expect(stripAnsi(colored)).toBe("Local:   http://127.0.0.1:9/");
+  });
+});
 
 describe("findFreePort (collision-safe for parallel worktrees)", () => {
   it("returns a positive ephemeral port", async () => {

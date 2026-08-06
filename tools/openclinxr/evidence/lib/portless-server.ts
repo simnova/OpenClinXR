@@ -40,9 +40,36 @@ export type PortlessDevServer = {
   proc: ChildProcessWithoutNullStreams;
 };
 
-/** Vite prints either "Local:   http://127.0.0.1:5173/" or localhost. */
+/**
+ * Vite prints either "Local:   http://127.0.0.1:5173/" or localhost.
+ *
+ * With FORCE_COLOR / a TTY, Vite 5–8 wraps tokens in SGR escapes, e.g.
+ *   `\x1b[1mLocal\x1b[22m:\x1b[32m   http://127.0.0.1:49877/\x1b[39m`
+ * so a naïve `Local:\s+http` matcher never fires even though the human-readable
+ * tail of the same buffer looks correct. Strip CSI sequences before matching.
+ */
 const LOCAL_URL_RE =
   /Local:\s+https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\]):(\d+)\/?/i;
+
+/** CSI / OSC color and style sequences Vite (and picocolors) inject into logs. */
+const ANSI_ESCAPE_RE = /\u001b\[[0-9;?]*[ -/]*[@-~]|\u001b\][^\u0007]*(?:\u0007|\u001b\\)/g;
+
+/** Exported for unit tests — pure, no I/O. */
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI_ESCAPE_RE, "");
+}
+
+/**
+ * Parse the bound port from a Vite (or pnpm-wrapped Vite) stdout/stderr buffer.
+ * Returns null when no Local: URL line is present after ANSI strip.
+ */
+export function parseViteLocalPort(combinedOutput: string): number | null {
+  const m = stripAnsi(combinedOutput).match(LOCAL_URL_RE);
+  if (!m) return null;
+  const port = Number(m[1]);
+  if (!Number.isFinite(port) || port <= 0) return null;
+  return port;
+}
 
 /**
  * Ask the OS for an ephemeral free TCP port on 127.0.0.1.
@@ -109,15 +136,23 @@ export async function spawnPortlessDevServer(
       ? String(requested)
       : String(await findFreePort());
 
+  // Drop FORCE_COLOR so Vite does not paint the Local: line when the harness injects it.
+  // parseViteLocalPort still strips CSI if colour leaks through (e.g. opts.env re-enables it).
+  const childEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    ...opts.env,
+    PORT: portEnv,
+    NO_COLOR: opts.env?.NO_COLOR ?? process.env.NO_COLOR ?? "1",
+    // Never flood evidence runs with rustc/cargo noise from transitive tools.
+    RUST_LOG: opts.env?.RUST_LOG ?? process.env.RUST_LOG ?? "error",
+  };
+  if (opts.env?.FORCE_COLOR === undefined) {
+    delete childEnv.FORCE_COLOR;
+  }
+
   const proc = spawn("pnpm", ["--filter", opts.filter, "dev:portless"], {
     cwd,
-    env: {
-      ...process.env,
-      ...opts.env,
-      PORT: portEnv,
-      // Never flood evidence runs with rustc/cargo noise from transitive tools.
-      RUST_LOG: opts.env?.RUST_LOG ?? process.env.RUST_LOG ?? "error",
-    },
+    env: childEnv,
     stdio: ["ignore", "pipe", "pipe"],
   }) as ChildProcessWithoutNullStreams;
 
@@ -126,7 +161,7 @@ export async function spawnPortlessDevServer(
   let settled = false;
 
   const failTail = () =>
-    `stdout tail: ${stdoutBuf.slice(-600)} | stderr tail: ${stderrBuf.slice(-600)}`;
+    `stdout tail: ${stripAnsi(stdoutBuf).slice(-600)} | stderr tail: ${stripAnsi(stderrBuf).slice(-600)}`;
 
   try {
     const bound = await new Promise<PortlessDevServer>((resolve, reject) => {
@@ -134,9 +169,16 @@ export async function spawnPortlessDevServer(
         if (settled) return;
         settled = true;
         killProc(proc);
+        // If the tail contains a Local: line after strip, the matcher was broken (ANSI);
+        // surface that so the next failure is not misread as "server never started".
+        const latePort = parseViteLocalPort(`${stdoutBuf}\n${stderrBuf}`);
+        const lateHint =
+          latePort !== null
+            ? ` (Local: line WAS present for port ${latePort} after ANSI strip — matcher/regression bug, not a dead server)`
+            : "";
         reject(
           new Error(
-            `spawnPortlessDevServer: timeout after ${readyTimeoutMs}ms waiting for Vite Local: line (filter=${opts.filter}). ${failTail()}`,
+            `spawnPortlessDevServer: timeout after ${readyTimeoutMs}ms waiting for Vite Local: line (filter=${opts.filter}).${lateHint} ${failTail()}`,
           ),
         );
       }, readyTimeoutMs);
@@ -145,16 +187,10 @@ export async function spawnPortlessDevServer(
         if (stream === "out") stdoutBuf += chunk;
         else stderrBuf += chunk;
         if (settled) return;
-        const m = (stdoutBuf + "\n" + stderrBuf).match(LOCAL_URL_RE);
-        if (!m) return;
+        const port = parseViteLocalPort(`${stdoutBuf}\n${stderrBuf}`);
+        if (port === null) return;
         settled = true;
         clearTimeout(timer);
-        const port = Number(m[1]);
-        if (!Number.isFinite(port) || port <= 0) {
-          killProc(proc);
-          reject(new Error(`spawnPortlessDevServer: bad port from Local: line (${m[1]})`));
-          return;
-        }
         resolve({
           port,
           url: `http://127.0.0.1:${port}/`,
