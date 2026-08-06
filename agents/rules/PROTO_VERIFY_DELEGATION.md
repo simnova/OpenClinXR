@@ -202,6 +202,25 @@ My error, not the worker's — a brief that describes an API that does not exist
 
 ## 6d. Two brief-quality failures the #43 retro named
 
+**If the value only exists when connected, the contract must require the connection.** Three
+consecutive slices landed correct and inert — a viseme driver nothing could apply (#45), an applier
+nothing called (#62), a fail-closed throw the caller swallowed (#53). In every case the brief said
+"wiring is optional / not required by the contract", and in every case the worker correctly did the
+contracted work and stopped. The workers were right; the briefs were wrong.
+
+The cause is a habit that looks like discipline: **optimizing for the smallest provable unit.** A
+contract is easiest to write around one pure function, so that is what kept getting scoped, until the
+pieces were individually verifiable and collectively useless. #62 took its worker **10 turns**. There
+was capacity for the entire vertical several times over.
+
+**Rule:** scope the slice to the smallest unit that CHANGES BEHAVIOUR SOMEONE COULD OBSERVE, not the
+smallest unit that can be tested. If a module cannot be reached from the running app when the slice
+ends, the slice is not done — and "optional wiring" in a brief means it will not happen. Say
+"required", and put the observable change in the `done_when`.
+
+This is also under-use of a capable delegate. Ten-turn slices on a model that can carry a whole
+vertical is a briefing failure, not a safety property.
+
 **A confident wrong diagnosis costs more than no diagnosis.** Resuming a worker after a failed proof,
 I wrote "LIKELY CAUSE: the async change removed a synchronously-populated evidence surface" with a
 plausible mechanism. It was wrong — a clobbered artifact was the cause — and the worker spent a turn
