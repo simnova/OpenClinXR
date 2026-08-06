@@ -363,7 +363,7 @@ describe("narrative rules cannot stand in for tree proofs", () => {
 describe("dispatch path does not tax or destroy the work it supervises (#47, #48)", () => {
   const load = async () => import("./dispatch-worker.js") as Promise<Record<string, unknown>>;
 
-  it.fails("main dirty path created only by orchestrator during dispatch is not reported as worker leak", async () => {
+  it("main dirty path created only by orchestrator during dispatch is not reported as worker leak", async () => {
     const mod = await load();
     const attribute = mod["attributeIsolationLeak"] as undefined | ((input: {
       before: readonly string[];
@@ -380,7 +380,7 @@ describe("dispatch path does not tax or destroy the work it supervises (#47, #48
     expect(leaked).toEqual([]);
   });
 
-  it.fails("main dirty path not attributable to orchestrator is still reported as isolation leak", async () => {
+  it("main dirty path not attributable to orchestrator is still reported as isolation leak", async () => {
     const mod = await load();
     const attribute = mod["attributeIsolationLeak"] as undefined | ((input: {
       before: readonly string[];
@@ -397,7 +397,7 @@ describe("dispatch path does not tax or destroy the work it supervises (#47, #48
     expect(leaked).toEqual(["apps/api/src/secretly-written-by-worker.ts"]);
   });
 
-  it.fails("isolation leak failure still records sessionId in worker-sessions ledger", async () => {
+  it("isolation leak failure still records sessionId in worker-sessions ledger", async () => {
     // #41 finished correct work, failed on a false leak, and left no session id — so the one
     // dispatch most worth a retrospective is the one that cannot have it.
     const source = await import("node:fs").then((fs) =>
@@ -410,7 +410,7 @@ describe("dispatch path does not tax or destroy the work it supervises (#47, #48
     expect(recordAt).toBeLessThan(throwAt);
   });
 
-  it.fails("a freshly created worktree is prepared so a worker can run the brief's verify without installing first", async () => {
+  it("a freshly created worktree is prepared so a worker can run the brief's verify without installing first", async () => {
     const mod = await load();
     const prepare = mod["prepareWorktreeForWorker"] as undefined | ((path: string) => unknown);
     // 3/3 retro'd workers burned opening turns discovering node_modules was absent.

@@ -94,6 +94,13 @@ type DispatchOptions = {
   contract?: "none";
   /** Required when contract is "none". Recorded on the ledger entry. */
   contractReason?: string;
+  /**
+   * INCIDENT (#48 / #41): paths the ORCHESTRATOR will dirty in main while this worker runs.
+   * Concurrent-lane rules require orchestrator writes during the dispatch window; those must not
+   * be reported as worker isolation leaks. Attribution is by declared set, not by presence —
+   * undeclared main dirt still fails the leak detector (the --deny is only a literal-path matcher).
+   */
+  orchestratorPaths?: readonly string[];
 };
 
 export type DispatchLedgerEntry = {
@@ -392,6 +399,9 @@ export function resolveWorkerWorktree(
         + `and would block the worker's own edits. Place worktrees outside main (see WORKTREE_ROOT).`,
       );
     }
+    // Pre-existing worktree path: prepare only when it is already on disk (unit tests pass
+    // synthetic absolute paths that are not real checkouts).
+    if (existsSync(worktree)) prepareWorktreeForWorker(worktree);
     return worktree;
   }
   const target = join(WORKTREE_ROOT, name);
@@ -402,6 +412,9 @@ export function resolveWorkerWorktree(
       stdio: ["ignore", "pipe", "pipe"],
     });
   }
+  // #47: git worktree add checks out tracked files only — node_modules is never present until
+  // we prepare. Do this before any worker spawn so brief verify cannot cache-green a dead tree.
+  prepareWorktreeForWorker(target);
   return target;
 }
 
@@ -415,6 +428,73 @@ export function mainTreeDirtyPaths(mainRoot: string): string[] {
   } catch {
     return [];
   }
+}
+
+/**
+ * Attribute main-tree dirt to worker leak vs orchestrator concurrent work.
+ *
+ * INCIDENT (#48 / #41): snapshotted main dirty set at dispatch start, then treated ANY new dirt
+ * as a worker leak. The orchestrator had created board-session-map.ts in main while the worker
+ * ran (required by "dispatch both lanes BEFORE verifying either"). Correct worker work was
+ * aborted; session never landed on the ledger.
+ *
+ * Mechanism (chosen deliberately): caller-declared `orchestratorPaths`. A worktree-bound worker's
+ * legitimate writes land in its worktree; main dirt is either (a) orchestrator concurrent work —
+ * declared here — or (b) a real deny escape. Trusting ALL main dirt would silence the detector;
+ * the detector is the only watcher for computed-path escapes past the literal `--deny` matcher.
+ *
+ * Returns paths in `after` that are newly dirty relative to `before` AND not in orchestratorPaths.
+ */
+export function attributeIsolationLeak(input: {
+  before: readonly string[];
+  after: readonly string[];
+  orchestratorPaths?: readonly string[];
+}): string[] {
+  const beforeSet = new Set(input.before);
+  const orchestratorSet = new Set(input.orchestratorPaths ?? []);
+  return input.after.filter((path) => !beforeSet.has(path) && !orchestratorSet.has(path));
+}
+
+/**
+ * Prepare a freshly created (or bare) worktree so the worker can run brief verify without
+ * discovering a missing node_modules mid-session.
+ *
+ * INCIDENT (#47): 3/3 retro'd workers burned opening turns on absent node_modules; #37 got a
+ * cache-green `pnpm architecture` on a tree that could not build — which reads as a pass.
+ *
+ * Mechanism: `pnpm install --prefer-offline --frozen-lockfile` into the worktree. The content-
+ * addressable store is shared across worktrees so this is mostly linking, not re-download.
+ * Whole-tree node_modules symlink from main is REJECTED: pnpm workspace:* links resolve relative
+ * to the real node_modules path and would bind the worker to main's packages, not its own tree.
+ *
+ * No-ops (returns method:"existing") when a usable node_modules marker is already present.
+ */
+export function prepareWorktreeForWorker(worktreePath: string): {
+  method: "existing" | "install";
+  nodeModulesPath: string;
+} {
+  if (!existsSync(worktreePath)) {
+    throw new Error(`prepareWorktreeForWorker: path does not exist: ${worktreePath}`);
+  }
+  const nodeModulesPath = join(worktreePath, "node_modules");
+  // vitest is a root devDependency every brief verify path needs; its presence is a better
+  // readiness signal than "directory exists" (half-deleted trees still have the folder).
+  const readinessMarker = join(nodeModulesPath, ".bin", "vitest");
+  if (existsSync(readinessMarker)) {
+    return { method: "existing", nodeModulesPath };
+  }
+  execFileSync("pnpm", ["install", "--prefer-offline", "--frozen-lockfile"], {
+    cwd: worktreePath,
+    stdio: ["ignore", "pipe", "pipe"],
+    env: process.env,
+  });
+  if (!existsSync(readinessMarker)) {
+    throw new Error(
+      `prepareWorktreeForWorker: pnpm install finished but ${readinessMarker} is missing. `
+      + `Refusing to hand a non-buildable worktree to a worker (cache-green-then-force-red class, #37).`,
+    );
+  }
+  return { method: "install", nodeModulesPath };
 }
 
 export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {
@@ -606,10 +686,34 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     );
   }
 
+  // INCIDENT (#48 / #41): recordSession MUST precede the isolation-leak throw. A false-positive
+  // leak abort discarded a correct worker and left NO sessionId — so the one dispatch most worth
+  // a retrospective could never be resumed. Partial entry (sessionId present, proofs absent) is
+  // worth more than a complete entry that never gets written. Proofs re-append below when present.
+  const entry: DispatchLedgerEntry = {
+    sessionId: parsed.sessionId,
+    ...(options.slice ? { slice: options.slice } : {}),
+    ...(options.role ? { role: options.role } : {}),
+    model: options.model ?? "deepseek-v4-pro",
+    ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
+    ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
+    ...(options.resume ? { resumedFrom: options.resume } : {}),
+    ...(worktreePath ? { worktree: worktreePath } : {}),
+    at: new Date().toISOString(),
+    contractSource: assembled.contractSource,
+    ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
+  };
+  recordSession(repoRoot, entry);
+  writeFileSync(join(repoRoot, ".openclinxr/openclaw/worker-last-result.json"), output);
+
   if (mainDirtyBefore) {
-    // The deny should have made this impossible. If it fires, the boundary leaked and the run is
-    // NOT trustworthy — fail loudly rather than let a "successful" worker quietly dirty main.
-    const leaked = mainTreeDirtyPaths(repoRoot).filter((file) => !mainDirtyBefore.has(file));
+    // The deny should have made undeclared main writes impossible. Attribute orchestrator
+    // concurrent work out of the leak set first (#48) — then fail loudly on residual dirt.
+    const leaked = attributeIsolationLeak({
+      before: [...mainDirtyBefore],
+      after: mainTreeDirtyPaths(repoRoot),
+      orchestratorPaths: options.orchestratorPaths,
+    });
     if (leaked.length > 0) {
       throw new Error(
         `Worktree-bound worker leaked writes into the MAIN checkout despite the path deny: `
@@ -631,29 +735,11 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       treeProofs: assembled.treeProofs,
     });
     proofsOk = proofs.every((c) => c.passed);
+    entry.proofs = proofs;
+    entry.proofsOk = proofsOk;
   } else if (assembled.contractSource === "none") {
     proofsOk = undefined;
   }
-
-  const entry: DispatchLedgerEntry = {
-    sessionId: parsed.sessionId,
-    ...(options.slice ? { slice: options.slice } : {}),
-    ...(options.role ? { role: options.role } : {}),
-    model: options.model ?? "deepseek-v4-pro",
-    ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
-    ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
-    ...(options.resume ? { resumedFrom: options.resume } : {}),
-    ...(worktreePath ? { worktree: worktreePath } : {}),
-    at: new Date().toISOString(),
-    contractSource: assembled.contractSource,
-    ...(proofs !== undefined ? { proofs } : {}),
-    ...(proofsOk !== undefined ? { proofsOk } : {}),
-    ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
-  };
-
-  // INCIDENT (layer-3): write ledger FIRST — durability of sessionId beats loudness.
-  recordSession(repoRoot, entry);
-  writeFileSync(join(repoRoot, ".openclinxr/openclaw/worker-last-result.json"), output);
 
   if (proofs) {
     const reportDir = resolveSharedCoordinationPath(".openclinxr/openclaw", repoRoot);
@@ -678,7 +764,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       )}\n`,
     );
     entry.contractReportPath = contractReportPath;
-    // Re-append with report path so the latest ledger line is complete.
+    // Re-append with proofs + report path so the latest ledger line is complete.
     recordSession(repoRoot, entry);
   }
 
