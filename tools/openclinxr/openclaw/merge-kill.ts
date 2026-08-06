@@ -26,6 +26,7 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { classifyDiff } from "./diff-class-policy.js";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -809,6 +810,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       base: args.base,
       head: args.head,
       contract,
+      /**
+       * Compose layer 4 into layer 5. The port exists so the two layers could be built
+       * concurrently, but leaving it unwired would keep `forbidden-class` permanently SKIPPED —
+       * an unwired check is the same decoration problem the tripwire was built to end. The
+       * classifier stays injected rather than imported at module scope so the kill logic remains
+       * unit-testable without the policy table.
+       */
+      classifyForbidden: (paths) => classifyDiff(paths).forbidden,
     });
     const formatted = formatMergeKillReport(report);
     if (args.json) {
