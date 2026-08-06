@@ -225,6 +225,20 @@ and proofs as done_when / contract-live titles, not prose."* If a constraint mat
 down, it matters enough to be a named test in the contract — otherwise it reads as background noise
 alongside the constraints that ARE enforced.
 
+**Correct a premise where it is stated, do not append to it.** When investigation shows an issue's
+description was wrong, editing the BOTTOM of the body and leaving the wrong text at the top means the
+worker reads the wrong version first. #54's retro, on wasted turns: *"Re-checking PROVENANCE /
+`.openclinxr` paths the issue already corrected."* I had proven the real root cause and appended it,
+leaving a symptom description — sourced from an earlier worker's imprecise recollection — as the
+opening paragraph. Rewrite the premise; keep the correction visible as a note, not as the fix.
+
+**When planted contracts share a fixture, say what distinguishes them.** #54's three contracts used
+one worktree fixture and pulled in opposite directions: two assert a build runs, the third asserts a
+refusal when the build produces nothing. Nothing in the brief said the success cases must simulate
+side effects while the refusal case must not. The worker guessed correctly — *"I guessed 'update call
+sites to simulate side effects' rather than weaken the refuse gate"* — but it was a guess, and the
+alternative guess weakens a gate. This is the same class as the entry below.
+
 **Ambiguous planted contracts force undocumented policy.** My three #43 REDs required a thin mock
 body (`{scenarioId, status}`) to be accepted while `{actors: "not-an-array"}` was refused — and both
 fail full schema validation. Nothing in the brief said how to split them, so the worker invented a
