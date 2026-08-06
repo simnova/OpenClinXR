@@ -14,6 +14,13 @@ import { execFileSync, spawn } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
+import {
+  evaluateDoneWhenRule,
+  partitionDoneWhen,
+  writeBaselineHashes,
+  type DoneWhenEvalOptions,
+} from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
+import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 
 /**
@@ -65,6 +72,19 @@ type DispatchOptions = {
   worktree?: string | true;
   /** Branch for an auto-created worktree. Defaults to a name derived from the slice. */
   branch?: string;
+  /**
+   * INCIDENT (layer-3): a worktree-bound dispatch with no machine-checkable tree proofs is an
+   * uncheckable contract — the worker's report is not evidence. Extra proofs layered on top of
+   * (or instead of, when synthesizing) the trusted brief's done_when tree proofs.
+   */
+  proofs?: string[];
+  /**
+   * INCIDENT (layer-3): the ONLY way past an empty tree-proof set on a worktree-bound dispatch.
+   * Must be paired with a non-empty contractReason so unproofed dispatches are visible, not silent.
+   */
+  contract?: "none";
+  /** Required when contract is "none". Recorded on the ledger entry. */
+  contractReason?: string;
 };
 
 export type DispatchLedgerEntry = {
@@ -78,7 +98,184 @@ export type DispatchLedgerEntry = {
   /** Set when the worker was bound to its own worktree (concurrent-writer safe). */
   worktree?: string;
   at: string;
+  /**
+   * INCIDENT (layer-3): after exit, orchestrator re-ran tree proofs against the worktree.
+   * Absent means this entry predates contract wiring or contract was explicitly "none".
+   */
+  proofsOk?: boolean;
+  proofs?: DoneWhenCheck[];
+  contractSource?: "brief" | "brief+dispatch" | "synthesized" | "none";
+  contractReportPath?: string;
+  /** Present when an unproofed dispatch was explicitly opted out of the tier gate. */
+  contractReason?: string;
 };
+
+/**
+ * INCIDENT (layer-3): a worker that skips a required proof must FAIL MECHANICALLY. Throwing after
+ * the ledger write means durability of sessionId wins over loudness — a lost sessionId is
+ * unresumable; a failed proof is still visible on the ledger + contract-verify JSON.
+ */
+export class ContractProofsFailedError extends Error {
+  readonly name = "ContractProofsFailedError";
+  readonly checks: DoneWhenCheck[];
+
+  constructor(sliceId: string, checks: DoneWhenCheck[]) {
+    const failed = checks.filter((c) => !c.passed);
+    const lines = failed.map((c) => `  - ${c.rule}: ${c.detail}`).join("\n");
+    super(
+      `Contract proofs failed for slice '${sliceId}' (${failed.length}/${checks.length} failed):\n${lines}`,
+    );
+    this.checks = checks;
+  }
+}
+
+type TrustedBrief = {
+  id?: string;
+  done_when?: string[];
+  synthesized?: boolean;
+  [key: string]: unknown;
+};
+
+export type AssembledContract = {
+  treeProofs: string[];
+  contractSource: "brief" | "brief+dispatch" | "synthesized" | "none";
+  trustedSliceDir: string;
+  brief: TrustedBrief | null;
+  contractReason?: string;
+};
+
+/**
+ * INCIDENT (layer-3 / H2): brief + baseline live in the SHARED coordination root (main checkout
+ * .openclinxr). Worktree-bound workers are denied Write/Edit on main, so they cannot forge the
+ * contract. NEVER load brief/baseline from the worktree's own .openclinxr.
+ */
+export function trustedSliceDir(repoRoot: string, sliceId: string): string {
+  return resolveSharedCoordinationPath(join(".openclinxr", "slices", sliceId), repoRoot);
+}
+
+export function loadTrustedBrief(trustedDir: string): TrustedBrief | null {
+  const briefPath = join(trustedDir, "brief.json");
+  if (!existsSync(briefPath)) return null;
+  try {
+    return JSON.parse(readFileSync(briefPath, "utf8")) as TrustedBrief;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Assemble tree proofs from the trusted brief and optional dispatch-time proofs.
+ * Synthesizes a minimal trusted brief when only dispatch proofs exist (no ceremony required).
+ */
+export function assembleDispatchContract(input: {
+  repoRoot: string;
+  sliceId: string;
+  dispatchProofs?: string[];
+  contract?: "none";
+  contractReason?: string;
+}): AssembledContract {
+  const trustedDir = trustedSliceDir(input.repoRoot, input.sliceId);
+  mkdirSync(trustedDir, { recursive: true });
+
+  if (input.contract === "none") {
+    return {
+      treeProofs: [],
+      contractSource: "none",
+      trustedSliceDir: trustedDir,
+      brief: loadTrustedBrief(trustedDir),
+      ...(input.contractReason ? { contractReason: input.contractReason } : {}),
+    };
+  }
+
+  let brief = loadTrustedBrief(trustedDir);
+  const briefRules = Array.isArray(brief?.done_when) ? brief!.done_when! : [];
+  const briefTree = partitionDoneWhen(briefRules).treeProofs;
+  const dispatchTree = partitionDoneWhen(input.dispatchProofs ?? []).treeProofs;
+
+  if (!brief && dispatchTree.length > 0) {
+    // INCIDENT (layer-3): no brief but proofs were supplied at dispatch — synthesize a minimal
+    // trusted brief so the trusted plane stays authoritative without ceremony.
+    brief = {
+      schemaVersion: "openclinxr.slice-brief.v1",
+      id: input.sliceId,
+      goal: `synthesized contract for dispatch of ${input.sliceId}`,
+      q_gate: "Q5",
+      autonomy: "worker",
+      roles: {},
+      done_when: dispatchTree,
+      synthesized: true,
+    };
+    writeFileSync(join(trustedDir, "brief.json"), `${JSON.stringify(brief, null, 2)}\n`);
+    return {
+      treeProofs: dispatchTree,
+      contractSource: "synthesized",
+      trustedSliceDir: trustedDir,
+      brief,
+    };
+  }
+
+  const treeProofs = [...briefTree, ...dispatchTree.filter((r) => !briefTree.includes(r))];
+  let contractSource: AssembledContract["contractSource"];
+  if (briefTree.length > 0 && dispatchTree.length > 0) contractSource = "brief+dispatch";
+  else if (briefTree.length > 0) contractSource = "brief";
+  else if (dispatchTree.length > 0) contractSource = "synthesized";
+  else contractSource = "none";
+
+  return {
+    treeProofs,
+    contractSource,
+    trustedSliceDir: trustedDir,
+    brief,
+  };
+}
+
+/**
+ * INCIDENT (layer-3): worktree-bound dispatch with EMPTY tree proofs is uncheckable. The worker
+ * can claim anything; nothing mechanical re-runs. The only escape is contract:"none" WITH a
+ * non-empty reason recorded on the ledger so silence is impossible.
+ */
+export function assertWorktreeContractGate(input: {
+  worktreeBound: boolean;
+  treeProofs: string[];
+  sliceId: string;
+  contract?: "none";
+  contractReason?: string;
+}): void {
+  if (!input.worktreeBound) return;
+
+  if (input.contract === "none") {
+    if (!input.contractReason || input.contractReason.trim().length === 0) {
+      throw new Error(
+        `Worktree-bound dispatch for slice '${input.sliceId}' set contract:"none" but contractReason is empty. `
+        + `An unproofed dispatch must record WHY so it is visible on the ledger, not silent.`,
+      );
+    }
+    return;
+  }
+
+  if (input.treeProofs.length === 0) {
+    throw new Error(
+      `Worktree-bound dispatch for slice '${input.sliceId}' has no machine-checkable tree proofs `
+      + `(exists:|min-bytes:|run:|changed:). The contract is uncheckable — worker report is not evidence. `
+      + `Add done_when tree proofs to the trusted brief, pass options.proofs, or set contract:"none" `
+      + `with a non-empty contractReason.`,
+    );
+  }
+}
+
+/** Prompt block stating plainly: orchestrator re-runs these; your report is not evidence. */
+export function buildContractPromptAppendix(treeProofs: string[]): string {
+  if (treeProofs.length === 0) return "";
+  return [
+    "",
+    "=== CONTRACT PROOFS (orchestrator-enforced) ===",
+    "After you exit, the orchestrator re-runs these tree proofs against YOUR worktree.",
+    "Your report text is NOT evidence. Skipping a proof fails the dispatch mechanically.",
+    "Rules:",
+    ...treeProofs.map((r) => `  - ${r}`),
+    "=== END CONTRACT PROOFS ===",
+  ].join("\n");
+}
 
 /**
  * INCIDENT (2026-08-05): dispatched as `grok -p --resume <id> "<prompt>"`. `-p` is short for
@@ -233,6 +430,21 @@ function parseResult(raw: string): { sessionId?: string; turns?: number; stopRea
   }
 }
 
+/** Re-evaluate tree proofs against the worktree using the trusted baselineDir. */
+export async function evaluateDispatchTreeProofs(input: {
+  treeRoot: string;
+  baselineDir: string;
+  sliceId: string;
+  treeProofs: string[];
+}): Promise<DoneWhenCheck[]> {
+  const options: DoneWhenEvalOptions = { baselineDir: input.baselineDir };
+  const checks: DoneWhenCheck[] = [];
+  for (const rule of input.treeProofs) {
+    checks.push(await evaluateDoneWhenRule(input.treeRoot, rule, input.sliceId, {}, options));
+  }
+  return checks;
+}
+
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
 
@@ -253,6 +465,43 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       // The worker must never see the main path as its repo root — every absolute path it copies
       // out of a prompt, AGENTS.md, or role memory would otherwise point at main.
       prompt: options.prompt.split(repoRoot).join(worktreePath),
+    };
+  }
+
+  // --- Layer-3 contract assembly (trusted plane) ---
+  const sliceId = options.slice ?? "unscoped";
+  const assembled = assembleDispatchContract({
+    repoRoot,
+    sliceId,
+    dispatchProofs: options.proofs,
+    contract: options.contract,
+    contractReason: options.contractReason,
+  });
+  assertWorktreeContractGate({
+    worktreeBound: Boolean(worktreePath),
+    treeProofs: assembled.treeProofs,
+    sliceId,
+    contract: options.contract,
+    contractReason: options.contractReason,
+  });
+
+  const treeRootForProofs = worktreePath ?? effective.cwd ?? repoRoot;
+
+  // INCIDENT (layer-3 / H1): write baseline BEFORE the worker runs, hashing the worktree pre-work
+  // state into the TRUSTED dir the worker cannot write.
+  if (assembled.treeProofs.some((r) => r.startsWith("changed:"))) {
+    await writeBaselineHashes({
+      treeRoot: treeRootForProofs,
+      baselineDir: assembled.trustedSliceDir,
+      sliceId,
+      rules: assembled.treeProofs,
+    });
+  }
+
+  if (assembled.treeProofs.length > 0) {
+    effective = {
+      ...effective,
+      prompt: `${effective.prompt}${buildContractPromptAppendix(assembled.treeProofs)}`,
     };
   }
 
@@ -296,6 +545,22 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     }
   }
 
+  // INCIDENT (layer-3): evaluate tree proofs AFTER exit. Skip narrative entirely.
+  let proofs: DoneWhenCheck[] | undefined;
+  let proofsOk: boolean | undefined;
+  let contractReportPath: string | undefined;
+  if (assembled.treeProofs.length > 0) {
+    proofs = await evaluateDispatchTreeProofs({
+      treeRoot: treeRootForProofs,
+      baselineDir: assembled.trustedSliceDir,
+      sliceId,
+      treeProofs: assembled.treeProofs,
+    });
+    proofsOk = proofs.every((c) => c.passed);
+  } else if (assembled.contractSource === "none") {
+    proofsOk = undefined;
+  }
+
   const entry: DispatchLedgerEntry = {
     sessionId: parsed.sessionId,
     ...(options.slice ? { slice: options.slice } : {}),
@@ -306,8 +571,46 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     ...(options.resume ? { resumedFrom: options.resume } : {}),
     ...(worktreePath ? { worktree: worktreePath } : {}),
     at: new Date().toISOString(),
+    contractSource: assembled.contractSource,
+    ...(proofs !== undefined ? { proofs } : {}),
+    ...(proofsOk !== undefined ? { proofsOk } : {}),
+    ...(assembled.contractReason ? { contractReason: assembled.contractReason } : {}),
   };
+
+  // INCIDENT (layer-3): write ledger FIRST — durability of sessionId beats loudness.
   recordSession(repoRoot, entry);
   writeFileSync(join(repoRoot, ".openclinxr/openclaw/worker-last-result.json"), output);
+
+  if (proofs) {
+    const reportDir = resolveSharedCoordinationPath(".openclinxr/openclaw", repoRoot);
+    mkdirSync(reportDir, { recursive: true });
+    contractReportPath = join(reportDir, `contract-verify-${parsed.sessionId}.json`);
+    writeFileSync(
+      contractReportPath,
+      `${JSON.stringify(
+        {
+          schemaVersion: "openclinxr.contract-verify.v1",
+          sliceId,
+          sessionId: parsed.sessionId,
+          treeRoot: treeRootForProofs,
+          baselineDir: assembled.trustedSliceDir,
+          contractSource: assembled.contractSource,
+          proofsOk,
+          checks: proofs,
+          at: entry.at,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    entry.contractReportPath = contractReportPath;
+    // Re-append with report path so the latest ledger line is complete.
+    recordSession(repoRoot, entry);
+  }
+
+  if (proofs && proofsOk === false) {
+    throw new ContractProofsFailedError(sliceId, proofs);
+  }
+
   return entry;
 }

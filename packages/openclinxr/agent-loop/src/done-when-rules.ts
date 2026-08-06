@@ -1,6 +1,6 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import type { DoneWhenCheck, HandoffStatus, SkepticVerdict, SliceHandoff } from "./slice-team.js";
@@ -12,7 +12,38 @@ import type { DoneWhenCheck, HandoffStatus, SkepticVerdict, SliceHandoff } from 
  * size ceiling. The ratchet's instruction is split, never raise, and this is the natural seam:
  * globMatch / walkFiles / resolveExistsTargets are used ONLY by the rule evaluator, and rule kinds
  * are the surface most likely to keep growing as new proof types are needed.
+ *
+ * Layer-3 merge-safety: tree proofs (`exists:`, `min-bytes:`, `run:`, `changed:`) re-check the
+ * WORKTREE; baseline hashes live in a TRUSTED baselineDir the worker cannot write. Narrative
+ * rules (`handoff:`, `skeptic:`, `handoffs:all-done`) are self-reports — never a merge gate.
  */
+
+export const SLICE_BASELINE_SCHEMA = "openclinxr.slice-baseline.v1" as const;
+
+/** Allowlisted binaries for `run:` — argv only, no shell. */
+export const RUN_ALLOWED_BINARIES = ["pnpm", "node", "tsx", "git"] as const;
+
+export type SliceBaselineHashes = {
+  schemaVersion: typeof SLICE_BASELINE_SCHEMA;
+  sliceId: string;
+  recordedAt: string;
+  treeRoot: string;
+  /** The `changed:` rules this snapshot covers. A rule not listed cannot pass against this file. */
+  targets: string[];
+  /**
+   * rel-path → sha256. EMPTY is legal: it means "nothing matched yet when the snapshot was taken".
+   * A file ABSENT from this map (while the baseline record exists) is evidence the worker created it.
+   */
+  files: Record<string, string>;
+};
+
+/**
+ * Trusted directory holding baseline-hashes.json. Worker-unwritable. When omitted, falls back
+ * to `<treeRoot>/.openclinxr/slices/<sliceId>` — the legacy hand-run behaviour.
+ */
+export type DoneWhenEvalOptions = {
+  baselineDir?: string;
+};
 
 function globMatch(pattern: string, candidate: string): boolean {
   const normalizedPattern = pattern.replaceAll("\\", "/");
@@ -44,8 +75,8 @@ async function walkFiles(dir: string): Promise<string[]> {
   return results;
 }
 
-async function resolveExistsTargets(repoRoot: string, target: string): Promise<string[]> {
-  const absolute = path.isAbsolute(target) ? target : path.join(repoRoot, target);
+async function resolveExistsTargets(treeRoot: string, target: string): Promise<string[]> {
+  const absolute = path.isAbsolute(target) ? target : path.join(treeRoot, target);
   if (!target.includes("*")) {
     return existsSync(absolute) ? [absolute] : [];
   }
@@ -54,10 +85,7 @@ async function resolveExistsTargets(repoRoot: string, target: string): Promise<s
   if (wildcardIndex < 0) {
     return [];
   }
-  const searchRoot = path.join(
-    repoRoot,
-    ...normalizedTarget.split("/").slice(0, wildcardIndex),
-  );
+  const searchRoot = path.join(treeRoot, ...normalizedTarget.split("/").slice(0, wildcardIndex));
   const pattern = normalizedTarget.split("/").slice(wildcardIndex).join("/");
   const files = await walkFiles(searchRoot);
   return files.filter((file) => {
@@ -66,15 +94,212 @@ async function resolveExistsTargets(repoRoot: string, target: string): Promise<s
   });
 }
 
+function sha256File(absPath: string): string {
+  return createHash("sha256").update(readFileSync(absPath)).digest("hex");
+}
+
+/**
+ * Parse a `run:` command into argv. NO SHELL.
+ *
+ * Forbidding shell metacharacters means any proof that needs a pipe has to become a SCRIPT
+ * COMMITTED TO GIT (reviewed code) instead of living in gitignored agent-authored JSON. That is
+ * the real reason — more than the RCE surface — so an unattended loop cannot invent shell.
+ */
+export function parseRunArgv(command: string): { argv: string[] } | { error: string } {
+  const forbidden: Array<{ char: string; label: string }> = [
+    { char: ";", label: ";" },
+    { char: "|", label: "|" },
+    { char: "&", label: "&" },
+    { char: "$", label: "$" },
+    { char: "`", label: "backtick" },
+    { char: ">", label: ">" },
+    { char: "<", label: "<" },
+    { char: "\n", label: "newline" },
+    { char: "\r", label: "carriage return" },
+  ];
+  for (const { char, label } of forbidden) {
+    if (command.includes(char)) {
+      return { error: `run: forbids shell metacharacter '${label}' in command` };
+    }
+  }
+
+  const argv: string[] = [];
+  let i = 0;
+  while (i < command.length) {
+    while (i < command.length && /\s/.test(command[i]!)) i += 1;
+    if (i >= command.length) break;
+    const quote = command[i];
+    if (quote === '"' || quote === "'") {
+      i += 1;
+      let value = "";
+      while (i < command.length && command[i] !== quote) {
+        value += command[i];
+        i += 1;
+      }
+      if (i >= command.length) {
+        return { error: `run: unclosed ${quote === '"' ? "double" : "single"} quote` };
+      }
+      i += 1; // closing quote
+      argv.push(value);
+      continue;
+    }
+    let value = "";
+    while (i < command.length && !/\s/.test(command[i]!)) {
+      value += command[i];
+      i += 1;
+    }
+    argv.push(value);
+  }
+
+  if (argv.length === 0) {
+    return { error: "run: empty command after parse" };
+  }
+  const binary = argv[0]!;
+  if (!(RUN_ALLOWED_BINARIES as readonly string[]).includes(binary)) {
+    return {
+      error: `run: binary '${binary}' is not allowlisted (allowed: ${RUN_ALLOWED_BINARIES.join(", ")})`,
+    };
+  }
+  return { argv };
+}
+
+/**
+ * Which rules can be checked against a TREE vs which are self-reported coordination signals.
+ *
+ * `narrative` rules are self-reports written by the worker about itself. They are for team
+ * sequencing ONLY and must never gate a merge — copying a self-assessment across a trust
+ * boundary does not turn it into evidence.
+ */
+export function partitionDoneWhen(rules: string[]): {
+  treeProofs: string[];
+  narrative: string[];
+  unknown: string[];
+} {
+  const treeProofs: string[] = [];
+  const narrative: string[] = [];
+  const unknown: string[] = [];
+  for (const rule of rules) {
+    if (
+      rule.startsWith("exists:") ||
+      rule.startsWith("min-bytes:") ||
+      rule.startsWith("run:") ||
+      rule.startsWith("changed:")
+    ) {
+      treeProofs.push(rule);
+    } else if (rule.startsWith("handoff:") || rule.startsWith("skeptic:") || rule === "handoffs:all-done") {
+      narrative.push(rule);
+    } else {
+      unknown.push(rule);
+    }
+  }
+  return { treeProofs, narrative, unknown };
+}
+
+/**
+ * Snapshot every `changed:` target BEFORE the worker runs. Orchestrator-only.
+ * Writes into baselineDir (trusted / worker-unwritable plane).
+ */
+export async function writeBaselineHashes(input: {
+  treeRoot: string;
+  baselineDir: string;
+  sliceId: string;
+  rules: string[];
+}): Promise<{ path: string; targets: string[]; fileCount: number }> {
+  const changedRules = input.rules.filter((r) => r.startsWith("changed:"));
+  const files: Record<string, string> = {};
+  for (const rule of changedRules) {
+    const target = rule.slice("changed:".length).trim();
+    if (!target) continue;
+    const matches = await resolveExistsTargets(input.treeRoot, target);
+    for (const match of matches) {
+      const rel = path.relative(input.treeRoot, match).replaceAll("\\", "/");
+      files[rel] = sha256File(match);
+    }
+  }
+  const record: SliceBaselineHashes = {
+    schemaVersion: SLICE_BASELINE_SCHEMA,
+    sliceId: input.sliceId,
+    recordedAt: new Date().toISOString(),
+    treeRoot: path.resolve(input.treeRoot),
+    targets: changedRules,
+    files,
+  };
+  mkdirSync(input.baselineDir, { recursive: true });
+  const outPath = path.join(input.baselineDir, "baseline-hashes.json");
+  writeFileSync(outPath, `${JSON.stringify(record, null, 2)}\n`);
+  return { path: outPath, targets: changedRules, fileCount: Object.keys(files).length };
+}
+
+function loadBaseline(
+  baselinePath: string,
+  rule: string,
+): { ok: true; baseline: SliceBaselineHashes } | { ok: false; detail: string } {
+  if (!existsSync(baselinePath)) {
+    return {
+      ok: false,
+      detail: "no baseline recorded for this slice; a change cannot be proven",
+    };
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(baselinePath, "utf8"));
+  } catch {
+    return { ok: false, detail: "baseline-hashes.json is unparseable JSON" };
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return { ok: false, detail: "baseline-hashes.json is not an object" };
+  }
+  const baseline = parsed as Partial<SliceBaselineHashes>;
+  if (baseline.schemaVersion !== SLICE_BASELINE_SCHEMA) {
+    return {
+      ok: false,
+      detail: `baseline schemaVersion must be ${SLICE_BASELINE_SCHEMA} (got ${String(baseline.schemaVersion)})`,
+    };
+  }
+  if (!Array.isArray(baseline.targets)) {
+    return { ok: false, detail: "baseline missing targets[]" };
+  }
+  if (!baseline.targets.includes(rule)) {
+    return {
+      ok: false,
+      detail: `baseline.targets does not include this rule (stale baseline from a different rule set)`,
+    };
+  }
+  if (!baseline.files || typeof baseline.files !== "object" || Array.isArray(baseline.files)) {
+    return { ok: false, detail: "baseline missing files map" };
+  }
+  return {
+    ok: true,
+    baseline: {
+      schemaVersion: SLICE_BASELINE_SCHEMA,
+      sliceId: String(baseline.sliceId ?? ""),
+      recordedAt: String(baseline.recordedAt ?? ""),
+      treeRoot: String(baseline.treeRoot ?? ""),
+      targets: baseline.targets as string[],
+      files: baseline.files as Record<string, string>,
+    },
+  };
+}
+
+/**
+ * Evaluate one `done_when` rule.
+ *
+ * @param treeRoot - Tree under test: targets resolve here, `run:` executes here. Renamed from
+ *   `repoRoot` because verification against a worktree is intentional; the trusted baseline
+ *   lives separately via `options.baselineDir` so a worker cannot forge hashes in its own tree.
+ * @param options.baselineDir - Trusted dir for baseline-hashes.json. When omitted, falls back
+ *   to `<treeRoot>/.openclinxr/slices/<sliceId>` (legacy hand-run behaviour).
+ */
 export async function evaluateDoneWhenRule(
-  repoRoot: string,
+  treeRoot: string,
   rule: string,
   sliceId: string,
   handoffs: Record<string, SliceHandoff | null>,
+  options?: DoneWhenEvalOptions,
 ): Promise<DoneWhenCheck> {
   if (rule.startsWith("exists:")) {
     const target = rule.slice("exists:".length).trim();
-    const matches = await resolveExistsTargets(repoRoot, target);
+    const matches = await resolveExistsTargets(treeRoot, target);
     return {
       rule,
       passed: matches.length > 0,
@@ -88,12 +313,12 @@ export async function evaluateDoneWhenRule(
       return { rule, passed: false, detail: "invalid min-bytes rule" };
     }
     const minBytes = Number(minBytesRaw);
-    const matches = await resolveExistsTargets(repoRoot, target);
+    const matches = await resolveExistsTargets(treeRoot, target);
     if (matches.length === 0) {
       return { rule, passed: false, detail: `missing ${target}` };
     }
     const sizeInfos: Array<{ rel: string; size: number }> = matches.map((m) => ({
-      rel: path.relative(repoRoot, m).replaceAll("\\", "/"),
+      rel: path.relative(treeRoot, m).replaceAll("\\", "/"),
       size: statSync(m).size,
     }));
     const allSufficient = sizeInfos.every((info) => info.size >= minBytes);
@@ -113,15 +338,23 @@ export async function evaluateDoneWhenRule(
     // express "re-run the experiment"; only executing a command can. The ORCHESTRATOR runs it, so
     // the worker's narrative is not evidence.
     //
-    // Deliberately NOT included as a sibling kind: matching a pattern in the diff. A worker can
-    // satisfy that without doing the work (a test named correctly that asserts nothing), and
-    // shipping a gameable check teaches the loop to game rather than to prove.
+    // Layer-3: argv-only allowlisted binary via execFileSync — NOT execSync, NOT shell:true.
+    // Agent-authored gitignored JSON must not become a shell RCE in the trusted plane.
     const command = rule.slice("run:".length).trim();
     if (!command) {
       return { rule, passed: false, detail: "invalid run rule (empty command)" };
     }
+    const parsed = parseRunArgv(command);
+    if ("error" in parsed) {
+      return { rule, passed: false, detail: parsed.error };
+    }
     try {
-      execSync(command, { cwd: repoRoot, stdio: ["ignore", "pipe", "pipe"], encoding: "utf8", timeout: 900_000 });
+      execFileSync(parsed.argv[0]!, parsed.argv.slice(1), {
+        cwd: treeRoot,
+        stdio: ["ignore", "pipe", "pipe"],
+        encoding: "utf8",
+        timeout: 900_000,
+      });
       return { rule, passed: true, detail: `exited zero: ${command}` };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -138,31 +371,36 @@ export async function evaluateDoneWhenRule(
     // Hashing rather than mtime is deliberate: we learned from turbo that mtime is not a change
     // signal (`touch` never invalidated its cache), and an mtime check here would be satisfied by
     // opening a file and saving it unchanged.
+    //
+    // Layer-3 FAIL-CLOSED: absent/corrupt/stale baseline fails. baselineDir is the trusted plane
+    // (H2: never read baseline from the worktree under test when the orchestrator split the roots).
     const target = rule.slice("changed:".length).trim();
-    const baselinePath = path.join(repoRoot, ".openclinxr", "slices", sliceId, "baseline-hashes.json");
-    const matches = await resolveExistsTargets(repoRoot, target);
+    const baselineDir =
+      options?.baselineDir ?? path.join(treeRoot, ".openclinxr", "slices", sliceId);
+    const baselinePath = path.join(baselineDir, "baseline-hashes.json");
+    const loaded = loadBaseline(baselinePath, rule);
+    if (!loaded.ok) {
+      return { rule, passed: false, detail: loaded.detail };
+    }
+    const matches = await resolveExistsTargets(treeRoot, target);
     if (matches.length === 0) {
       return { rule, passed: false, detail: `missing ${target}` };
-    }
-    let baseline: Record<string, string> = {};
-    if (existsSync(baselinePath)) {
-      try {
-        baseline = JSON.parse(readFileSync(baselinePath, "utf8")) as Record<string, string>;
-      } catch {
-        baseline = {};
-      }
     }
     const changed: string[] = [];
     const unchanged: string[] = [];
     for (const match of matches) {
-      const rel = path.relative(repoRoot, match).replaceAll("\\", "/");
-      const hash = createHash("sha256").update(readFileSync(match)).digest("hex");
-      if (baseline[rel] !== undefined && baseline[rel] === hash) unchanged.push(rel);
+      const rel = path.relative(treeRoot, match).replaceAll("\\", "/");
+      const hash = sha256File(match);
+      const prior = loaded.baseline.files[rel];
+      // ABSENT from baseline.files (while the record exists) means the file did not exist when the
+      // snapshot was taken — unambiguous evidence the worker created it. Do NOT treat absence as
+      // "unchanged"; that would ban creating new files and make the rule worthless for greenfield.
+      if (prior !== undefined && prior === hash) unchanged.push(rel);
       else changed.push(rel);
     }
     return {
       rule,
-      passed: unchanged.length === 0,
+      passed: unchanged.length === 0 && changed.length > 0,
       detail:
         unchanged.length === 0
           ? `changed during this slice: ${changed.join(", ")}`

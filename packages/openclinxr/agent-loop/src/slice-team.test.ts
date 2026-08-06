@@ -459,15 +459,26 @@ describe("slice-team", () => {
   });
 });
 describe("done_when run: and changed: — the proofs a green gate cannot give you", () => {
+  // Layer-3: run: is argv-only allowlisted (pnpm|node|tsx|git) — shell builtins true/false no longer execute.
   it("run: passes when the command exits zero", async () => {
-    const check = await evaluateDoneWhenRule(process.cwd(), "run:true", "slice-x", {});
+    const check = await evaluateDoneWhenRule(
+      process.cwd(),
+      'run:node -e "process.exit(0)"',
+      "slice-x",
+      {},
+    );
     expect(check.passed).toBe(true);
   });
 
   it("run: FAILS closed when the command exits non-zero", async () => {
     // This is the case that was missing: a worker claimed a concurrency proof it never produced.
     // Its report and a green gate both said success; only executing the check catches it.
-    const check = await evaluateDoneWhenRule(process.cwd(), "run:false", "slice-x", {});
+    const check = await evaluateDoneWhenRule(
+      process.cwd(),
+      'run:node -e "process.exit(1)"',
+      "slice-x",
+      {},
+    );
     expect(check.passed).toBe(false);
     expect(check.detail).toMatch(/failed/);
   });
@@ -485,14 +496,26 @@ describe("done_when run: and changed: — the proofs a green gate cannot give yo
 
   it("changed: fails for a file that exists but was NOT produced by this slice", async () => {
     // `exists:` passes here, which is exactly the hole — a worker satisfies it by doing nothing.
+    // Layer-3 baseline schema is openclinxr.slice-baseline.v1 (flat hash maps no longer accepted).
     const sliceId = `slice-changed-${process.pid}`;
     const dir = path.join(process.cwd(), ".openclinxr", "slices", sliceId);
     mkdirSync(dir, { recursive: true });
     const target = "package.json";
+    const rule = `changed:${target}`;
     const hash = createHash("sha256").update(readFileSync(path.join(process.cwd(), target))).digest("hex");
-    writeFileSync(path.join(dir, "baseline-hashes.json"), JSON.stringify({ [target]: hash }));
+    writeFileSync(
+      path.join(dir, "baseline-hashes.json"),
+      JSON.stringify({
+        schemaVersion: "openclinxr.slice-baseline.v1",
+        sliceId,
+        recordedAt: new Date().toISOString(),
+        treeRoot: process.cwd(),
+        targets: [rule],
+        files: { [target]: hash },
+      }),
+    );
     try {
-      const check = await evaluateDoneWhenRule(process.cwd(), `changed:${target}`, sliceId, {});
+      const check = await evaluateDoneWhenRule(process.cwd(), rule, sliceId, {});
       expect(check.passed).toBe(false);
       expect(check.detail).toMatch(/unchanged since slice baseline/);
     } finally {
@@ -504,9 +527,20 @@ describe("done_when run: and changed: — the proofs a green gate cannot give yo
     const sliceId = `slice-changed2-${process.pid}`;
     const dir = path.join(process.cwd(), ".openclinxr", "slices", sliceId);
     mkdirSync(dir, { recursive: true });
-    writeFileSync(path.join(dir, "baseline-hashes.json"), JSON.stringify({ "package.json": "stale-hash" }));
+    const rule = "changed:package.json";
+    writeFileSync(
+      path.join(dir, "baseline-hashes.json"),
+      JSON.stringify({
+        schemaVersion: "openclinxr.slice-baseline.v1",
+        sliceId,
+        recordedAt: new Date().toISOString(),
+        treeRoot: process.cwd(),
+        targets: [rule],
+        files: { "package.json": "stale-hash" },
+      }),
+    );
     try {
-      const check = await evaluateDoneWhenRule(process.cwd(), "changed:package.json", sliceId, {});
+      const check = await evaluateDoneWhenRule(process.cwd(), rule, sliceId, {});
       expect(check.passed).toBe(true);
     } finally {
       rmSync(dir, { recursive: true, force: true });

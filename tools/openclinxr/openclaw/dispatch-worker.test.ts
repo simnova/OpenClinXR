@@ -1,10 +1,14 @@
-import { appendFileSync, mkdtempSync } from "node:fs";
+import { appendFileSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { resetCoordinationRootCache } from "./coordination-root.js";
 import {
+  assembleDispatchContract,
   assertSafeEnvironment,
+  assertWorktreeContractGate,
   buildArgv,
+  buildContractPromptAppendix,
   latestSessionFor,
   readSessions,
   recordSession,
@@ -12,6 +16,11 @@ import {
   WORKTREE_ROOT,
   buildWorktreeIsolationDenies,
 } from "./dispatch-worker.js";
+
+afterEach(() => {
+  resetCoordinationRootCache();
+  delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+});
 
 describe("dispatch-worker argv", () => {
   it("puts the prompt immediately after -p, because -p CONSUMES the next token", () => {
@@ -99,5 +108,141 @@ describe("worktree binding — the concurrent-writer unlock", () => {
   it("keeps worktrees outside the main tree by default", () => {
     expect(WORKTREE_ROOT.startsWith(MAIN)).toBe(false);
     expect(WORKTREE_ROOT).toContain("worktrees");
+  });
+});
+
+describe("layer-3 contract tier gate — unproofed worktree dispatch must not be silent", () => {
+  it("throws when worktree-bound with no tree proofs and no contract:none", () => {
+    // INCIDENT: a worktree-bound worker with empty done_when is uncheckable — its report is not
+    // evidence and nothing mechanical re-runs. Fail before spawn.
+    expect(() =>
+      assertWorktreeContractGate({
+        worktreeBound: true,
+        treeProofs: [],
+        sliceId: "layer3-contract-wiring",
+      }),
+    ).toThrow(/uncheckable|no machine-checkable tree proofs/);
+  });
+
+  it("throws contract:none without a reason", () => {
+    expect(() =>
+      assertWorktreeContractGate({
+        worktreeBound: true,
+        treeProofs: [],
+        sliceId: "layer3-contract-wiring",
+        contract: "none",
+      }),
+    ).toThrow(/contractReason/);
+  });
+
+  it("allows contract:none WITH a reason (recorded by caller on the ledger)", () => {
+    expect(() =>
+      assertWorktreeContractGate({
+        worktreeBound: true,
+        treeProofs: [],
+        sliceId: "layer3-contract-wiring",
+        contract: "none",
+        contractReason: "read-only scout; no tree mutations expected",
+      }),
+    ).not.toThrow();
+  });
+
+  it("allows worktree-bound dispatch when tree proofs are present", () => {
+    expect(() =>
+      assertWorktreeContractGate({
+        worktreeBound: true,
+        treeProofs: ["exists:packages/openclinxr/agent-loop/src/done-when-rules.ts"],
+        sliceId: "layer3-contract-wiring",
+      }),
+    ).not.toThrow();
+  });
+
+  it("does not tier-gate non-worktree dispatches (legacy main-tree path)", () => {
+    expect(() =>
+      assertWorktreeContractGate({
+        worktreeBound: false,
+        treeProofs: [],
+        sliceId: "local",
+      }),
+    ).not.toThrow();
+  });
+});
+
+describe("layer-3 assembleDispatchContract — trusted brief plane", () => {
+  it("loads tree proofs from the TRUSTED coordination root, never a worktree-local brief", () => {
+    // INCIDENT (H2 family): worker can write <worktree>/.openclinxr/... freely. Contract data
+    // must come from the shared root (OPENCLINXR_COORDINATION_ROOT in tests).
+    const trusted = mkdtempSync(join(tmpdir(), "dispatch-trusted-"));
+    const worktree = mkdtempSync(join(tmpdir(), "dispatch-wt-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = trusted;
+    resetCoordinationRootCache();
+
+    const slice = "slice-contract-a";
+    const trustedSlice = join(trusted, ".openclinxr", "slices", slice);
+    mkdirSync(trustedSlice, { recursive: true });
+    writeFileSync(
+      join(trustedSlice, "brief.json"),
+      JSON.stringify({
+        schemaVersion: "openclinxr.slice-brief.v1",
+        id: slice,
+        goal: "test",
+        q_gate: "Q5",
+        autonomy: "worker",
+        roles: {},
+        done_when: ["exists:src/real.ts", "handoff:x:done"],
+      }),
+    );
+    // Forged brief in the worktree — must be ignored.
+    mkdirSync(join(worktree, ".openclinxr", "slices", slice), { recursive: true });
+    writeFileSync(
+      join(worktree, ".openclinxr", "slices", slice, "brief.json"),
+      JSON.stringify({ done_when: ["exists:forged.ts"] }),
+    );
+
+    const assembled = assembleDispatchContract({ repoRoot: worktree, sliceId: slice });
+    expect(assembled.treeProofs).toEqual(["exists:src/real.ts"]);
+    expect(assembled.contractSource).toBe("brief");
+    expect(assembled.trustedSliceDir).toBe(trustedSlice);
+  });
+
+  it("synthesizes a trusted brief when only dispatch proofs are supplied", () => {
+    const trusted = mkdtempSync(join(tmpdir(), "dispatch-synth-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = trusted;
+    resetCoordinationRootCache();
+
+    const assembled = assembleDispatchContract({
+      repoRoot: trusted,
+      sliceId: "synth-slice",
+      dispatchProofs: ["changed:packages/foo/**", "handoff:r:done"],
+    });
+    expect(assembled.contractSource).toBe("synthesized");
+    expect(assembled.treeProofs).toEqual(["changed:packages/foo/**"]);
+    expect(assembled.brief?.synthesized).toBe(true);
+  });
+
+  it("records contractReason on assemble when contract is none", () => {
+    const trusted = mkdtempSync(join(tmpdir(), "dispatch-none-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = trusted;
+    resetCoordinationRootCache();
+
+    const assembled = assembleDispatchContract({
+      repoRoot: trusted,
+      sliceId: "none-slice",
+      contract: "none",
+      contractReason: "exploratory no-op",
+    });
+    expect(assembled.contractSource).toBe("none");
+    expect(assembled.contractReason).toBe("exploratory no-op");
+    expect(assembled.treeProofs).toEqual([]);
+  });
+});
+
+describe("layer-3 contract prompt appendix", () => {
+  it("states that the orchestrator re-runs proofs and the report is not evidence", () => {
+    const block = buildContractPromptAppendix(["exists:a.ts", "run:pnpm test"]);
+    expect(block).toMatch(/orchestrator re-runs/i);
+    expect(block).toMatch(/NOT evidence/i);
+    expect(block).toContain("exists:a.ts");
+    expect(block).toContain("run:pnpm test");
   });
 });
