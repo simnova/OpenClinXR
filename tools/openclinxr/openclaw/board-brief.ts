@@ -19,14 +19,26 @@ export type BriefResult =
   | { dispatchable: false; reason: string }
   | { dispatchable: true; slice: string; proofs: string[]; prompt: string };
 
-/** Pull `done_when` bullets verbatim. Paraphrasing a proof means nobody agreed to it. */
+/**
+ * Pull `done_when` BULLETS verbatim. Paraphrasing a proof means nobody agreed to it.
+ *
+ * Collect bullet lines only, and stop at the first non-bullet, non-blank line. An earlier version
+ * ran to the next `##` heading and swallowed a trailing prose paragraph that began with bold text —
+ * refusing the first real issue written for this pipeline, whose done_when block was fine. A parser
+ * that rejects correct input teaches people to write for the parser rather than for the reader.
+ */
 function extractDoneWhen(body: string): string[] {
-  const section = /##\s*done_when\s*\n([\s\S]*?)(?:\n##|\s*$)/i.exec(body);
-  if (!section?.[1]) return [];
-  return section[1]
-    .split("\n")
-    .map((line) => line.replace(/^\s*[-*]\s*/, "").trim())
-    .filter(Boolean);
+  const start = /##\s*done_when\s*\n/i.exec(body);
+  if (!start) return [];
+  const rules: string[] = [];
+  for (const line of body.slice(start.index + start[0].length).split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed === "") continue;
+    const bullet = /^[-*]\s+(.*)$/.exec(trimmed);
+    if (!bullet?.[1]) break; // prose or a new heading ends the list
+    rules.push(bullet[1].trim());
+  }
+  return rules;
 }
 
 export function briefFromIssue(issue: BoardIssue): BriefResult {

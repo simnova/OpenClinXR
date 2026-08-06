@@ -58,3 +58,30 @@ describe("briefFromIssue", () => {
     expect(result.prompt).toContain("Fix the deferred strictness deltas.");
   });
 });
+
+describe("done_when extraction stops at the bullet list", () => {
+  // INCIDENT: the first real issue written for this pipeline was REFUSED by it. The done_when block
+  // was well-formed; the extractor ran to the next `##` heading and swallowed a trailing prose
+  // paragraph that began with bold text, then reported that prose as an unrunnable rule. A parser
+  // that rejects correct input teaches people to write for the parser instead of for the reader.
+  it("ignores prose that follows the bullets without a new heading", () => {
+    const body = [
+      "## done_when",
+      "",
+      "- run:pnpm architecture",
+      "- changed:src/a.ts",
+      "",
+      "**Notes for whoever takes this.** Do not weaken the test to fit an easier implementation.",
+    ].join("\n");
+    const result = briefFromIssue({ number: 1, title: "x", body });
+    expect(result.dispatchable).toBe(true);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:pnpm architecture", "changed:src/a.ts"]);
+  });
+
+  it("still stops at a following heading", () => {
+    const body = "## done_when\n- run:true\n\n## notes\n- not a proof\n";
+    const result = briefFromIssue({ number: 1, title: "x", body });
+    expect(result.dispatchable).toBe(true);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+  });
+});
