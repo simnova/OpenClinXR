@@ -8,6 +8,7 @@
  * Resolution only — createMultiStationExamRuntime / assembleExamForm stay in the app shell.
  */
 
+import { parseExamStationRunQueueScenarioIds } from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 import { validateScenario, type Scenario } from "@openclinxr/shared-schemas";
@@ -45,17 +46,19 @@ export async function resolveLearnerExamScenarios(
 
   const baseUrl = input.baseUrl.replace(/\/$/, "");
   const fetcher = input.fetch ?? globalThis.fetch;
-  let queueIds: string[];
+  // Network failure: fall back to the bank so a configured-but-unreachable API does not brick
+  // Quest/dev boot. Shape drift on a successful response must NOT fall through here — parse
+  // throws, and that rejection surfaces to the caller (#53 fail-closed).
+  let queueBody: unknown;
   try {
-    const queueBody = await getJson(
+    queueBody = await getJson(
       fetcher,
       `${baseUrl}/exam-blueprints/${encodeURIComponent(input.blueprintId)}/station-run-queue`,
     );
-    queueIds = extractStationQueueScenarioIds(queueBody);
   } catch {
-    // Network failure must not brick offline-capable boot — fall back to the bank.
     return [...scenarioBank];
   }
+  const queueIds = parseExamStationRunQueueScenarioIds(queueBody);
 
   const resolved: LearnerExamScenarioRecord[] = [];
   for (const scenarioId of queueIds) {
@@ -78,20 +81,6 @@ export async function resolveLearnerExamScenarios(
     }
   }
   return resolved;
-}
-
-function extractStationQueueScenarioIds(body: unknown): string[] {
-  if (!isRecord(body) || !Array.isArray(body.stationQueue)) {
-    return [];
-  }
-  const ids: string[] = [];
-  for (const entry of body.stationQueue) {
-    if (!isRecord(entry)) continue;
-    if (typeof entry.scenarioId === "string" && entry.scenarioId.length > 0) {
-      ids.push(entry.scenarioId);
-    }
-  }
-  return ids;
 }
 
 /**

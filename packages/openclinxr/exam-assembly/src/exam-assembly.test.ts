@@ -435,7 +435,7 @@ describe("exam assembly", () => {
  * never a hand-built object shaped like today's contract.
  */
 describe("the station queue parser is bound to the producer (#53)", () => {
-  it.fails("parses createExamStationRunQueue output back to the scenario ids it was built from", async () => {
+  it("parses createExamStationRunQueue output back to the scenario ids it was built from", async () => {
     const mod = await import("./index.js") as Record<string, unknown>;
     const parse = mod["parseExamStationRunQueueScenarioIds"] as undefined | ((body: unknown) => string[]);
     expect(parse).toBeTypeOf("function");
