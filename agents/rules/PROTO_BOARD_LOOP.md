@@ -136,10 +136,37 @@ substrate ones. Run two lanes with DISJOINT write scopes so both workers dispatc
 |---|---|
 | **A — learner-facing / XR** | `apps/ui-xr`, conversation tooling, asset pipeline, scene + actor runtime |
 | **B — product API / admin** | `apps/api`, `apps/ui-admin`, `packages/openclinxr` domain / review / scenario |
+| **C — cagematch** | unproven tech, bake-off first: voice, lip-sync, garments, environment generation |
+
+### Lane C has a different contract, and forcing it into lane A/B's shape breaks it
+
+A cagematch asks a question nobody knows the answer to. Its deliverable is a DECISION WITH EVIDENCE,
+not working code, so `done_when` must prove **the bake-off ran and was recorded** — never that a
+candidate won. Existing machinery, use it rather than inventing more: probe scripts ship with a
+`--validate-latest` companion (`package.json:131-135`), which makes the artifact machine-checkable,
+plus a MADR carrying the Decision.
+
+**A negative result closes the item.** "None of these clear the Quest budget, here is the measured
+reason" is a successful cagematch — same rule as "a clean revert with a precise diagnosis is a
+success." A lane C item that can only close by adopting something will produce an adoption whether
+or not one is warranted.
+
+**The failure mode lane C must not repeat.** Garment work burned four rounds and produced a
+fabricated `score.json` (#17). The shape: artifacts pass every mechanical check while being invisible
+to a human eye, and an agent grading its own output scored work it had not done. Where a cagematch's
+verdict rests on how something LOOKS, a `done_when` made of passing scripts is exactly what the
+failed rounds satisfied. Either a human looks, or the grader is not the producer. If neither is
+available, the item stays un-operationalized and says so — see #46, which is blocked on its evidence
+mechanism rather than on any technical question.
 
 **Substrate is overhead, not a lane.** `tools/openclinxr/openclaw`, harness, gates: at most ONE lane
-slot in a cycle, never both. After a stretch with more substrate artifacts than product landings, the
-next cycle is product in both lanes.
+slot in a cycle, never all of them. After a stretch with more substrate artifacts than product
+landings, the next cycle is product across the board.
+
+Two lanes per cycle is the working default, not three — a cagematch is the most expensive kind of
+slice and the least likely to land code. Run lane C when a lane A or B item is blocked on an answer
+only a bake-off can give, or when a stretch has produced no new proven capability. Otherwise it
+waits; unproven tech does not become urgent by sitting.
 
 If a lane has nothing dispatchable, operationalize FOR THAT LANE rather than doubling up on the
 other. Replenishment stays in-lane too — otherwise the queue drifts back toward whichever lane is
