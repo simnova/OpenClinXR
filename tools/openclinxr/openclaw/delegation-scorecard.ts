@@ -17,7 +17,17 @@
  */
 
 import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
+import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { readSessions, type DispatchLedgerEntry } from "./dispatch-worker.js";
+import type { TripwireSignal } from "./loop-pause.js";
+
+/**
+ * Last accepted scorecard debt snapshot — shared coordination root so every worktree
+ * compares against the same baseline (cwd-local snapshots would each start at rose:false).
+ */
+export const SCORECARD_SNAPSHOT = ".openclinxr/openclaw/scorecard-snapshot.json";
 
 export type SliceOutcome = {
   slice: string;
@@ -189,7 +199,118 @@ export function readDebt(repoRoot: string): Scorecard["debt"] {
   };
 }
 
-export function formatScorecard(card: Scorecard): string {
+export type ScorecardSnapshot = {
+  debt: Scorecard["debt"];
+  at: string;
+  headSha: string;
+};
+
+export type DebtDelta = {
+  brokenReferenceCeilings: number;
+  sizeFreezeEntries: number;
+  rose: boolean;
+};
+
+function headSha(repoRoot: string): string {
+  try {
+    return execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return "unknown";
+  }
+}
+
+function snapshotPath(repoRoot: string): string {
+  return resolveSharedCoordinationPath(SCORECARD_SNAPSHOT, repoRoot);
+}
+
+export function readScorecardSnapshot(repoRoot: string): ScorecardSnapshot | null {
+  const path = snapshotPath(repoRoot);
+  if (!existsSync(path)) return null;
+  try {
+    const raw = JSON.parse(readFileSync(path, "utf8")) as ScorecardSnapshot;
+    if (
+      typeof raw?.debt?.brokenReferenceCeilings !== "number"
+      || typeof raw?.debt?.sizeFreezeEntries !== "number"
+    ) {
+      return null;
+    }
+    return raw;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist the current card's debt as the accepted baseline (shared coordination root). */
+export function writeScorecardSnapshot(repoRoot: string, card: Scorecard): void {
+  const path = snapshotPath(repoRoot);
+  mkdirSync(dirname(path), { recursive: true });
+  const snapshot: ScorecardSnapshot = {
+    debt: { ...card.debt },
+    at: new Date().toISOString(),
+    headSha: headSha(repoRoot),
+  };
+  writeFileSync(path, `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+}
+
+/**
+ * Compare current card debt to the last snapshot.
+ * First run (no snapshot): rose=false and writes the baseline so the next run has a floor.
+ * Does not overwrite the snapshot when debt changes — the orchestrator (or a deliberate
+ * writeScorecardSnapshot after a justified accept) moves the baseline; otherwise rose stays
+ * sticky until debt falls back under the last accepted floor.
+ */
+export function debtDelta(repoRoot: string, card: Scorecard): DebtDelta {
+  const prev = readScorecardSnapshot(repoRoot);
+  if (!prev) {
+    writeScorecardSnapshot(repoRoot, card);
+    return {
+      brokenReferenceCeilings: 0,
+      sizeFreezeEntries: 0,
+      rose: false,
+    };
+  }
+  const brokenReferenceCeilings =
+    card.debt.brokenReferenceCeilings - prev.debt.brokenReferenceCeilings;
+  const sizeFreezeEntries = card.debt.sizeFreezeEntries - prev.debt.sizeFreezeEntries;
+  return {
+    brokenReferenceCeilings,
+    sizeFreezeEntries,
+    rose: brokenReferenceCeilings > 0 || sizeFreezeEntries > 0,
+  };
+}
+
+/**
+ * Tripwire evaluation from scorecard debt only.
+ * Other signal ids (merge-without-proofs, isolation-leak, fixup-storm) are produced by later
+ * layers the orchestrator wires — do not fabricate detectors that never fire and look like coverage.
+ */
+export function evaluateTripwire(repoRoot: string, card: Scorecard): TripwireSignal[] {
+  const delta = debtDelta(repoRoot, card);
+  if (!delta.rose) return [];
+  return [
+    {
+      id: "debt-rose",
+      detail:
+        `Ratchet debt rose vs last snapshot: refsΔ=${delta.brokenReferenceCeilings} `
+        + `sizeΔ=${delta.sizeFreezeEntries}`,
+      observed: {
+        brokenReferenceCeilings: card.debt.brokenReferenceCeilings,
+        sizeFreezeEntries: card.debt.sizeFreezeEntries,
+        brokenReferenceCeilingsDelta: delta.brokenReferenceCeilings,
+        sizeFreezeEntriesDelta: delta.sizeFreezeEntries,
+      },
+    },
+  ];
+}
+
+export function formatScorecard(
+  card: Scorecard,
+  opts?: { debtDelta?: DebtDelta },
+): string {
   const pct = (n: number) => `${Math.round(n * 100)}%`;
   const lines = [
     "Delegation scorecard",
@@ -198,16 +319,27 @@ export function formatScorecard(card: Scorecard): string {
     `  reverted       ${card.reverted}  (durability ${pct(card.durabilityRate)})`,
     `  median turns   ${card.medianTurns ?? "n/a"}`,
     `  ratchet debt   refs=${card.debt.brokenReferenceCeilings}  size=${card.debt.sizeFreezeEntries}  (must not rise)`,
+  ];
+  if (opts?.debtDelta) {
+    const d = opts.debtDelta;
+    lines.push(
+      `  debt delta     refsΔ=${d.brokenReferenceCeilings}  sizeΔ=${d.sizeFreezeEntries}  rose=${d.rose}`,
+    );
+  }
+  lines.push(
     "  by model:",
     ...Object.entries(card.byModel).map(
       ([model, b]) => `    ${model}: ${b.landed}/${b.dispatched} landed`,
     ),
     "  notes:",
     ...card.notes.map((note) => `    - ${note}`),
-  ];
+  );
   return lines.join("\n");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log(formatScorecard(buildScorecard(process.cwd())));
+  const root = process.cwd();
+  const card = buildScorecard(root);
+  const delta = debtDelta(root, card);
+  console.log(formatScorecard(card, { debtDelta: delta }));
 }

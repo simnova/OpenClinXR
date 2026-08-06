@@ -11,7 +11,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 70
+- agent-methodology: 71
 - archive-candidate: 11
 - current-reference: 205
 - decision-record: 25
