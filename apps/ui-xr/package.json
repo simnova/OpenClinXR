@@ -16,6 +16,7 @@
     "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
+    "@openclinxr/shared-schemas": "workspace:*",
     "three": "catalog:"
   },
   "devDependencies": {

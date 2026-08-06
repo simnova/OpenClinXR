@@ -19,6 +19,7 @@ import {
 } from "@openclinxr/conversation-policy";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { resolveLearnerExamScenarios, scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import {
   AnimationClip,
   AnimationMixer,
@@ -1806,18 +1807,9 @@ let examLastAdvanceReason: string | null = null;
 const examNoteStorageKey = `openclinxr.patientNote.${examRunId}.${examScenarioId}`;
 const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
-/** Multi-station form run: blueprint → assembleExamForm → createExamStationRunQueue (exam-assembly). */
-let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(examRunId, examNormalizedSequence);
+let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(examRunId, scenariosFromFixtureSequence(examNormalizedSequence));
 const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
-if (examFormRunState && examFormRunPersistenceSink) {
-  void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
-    snapshotId: `queue_snapshot_${examRunId}_boot`,
-    reviewerId: "ui_xr_learner_runtime",
-  }).catch(() => {
-    // Best-effort control-plane snapshot; local form-run evidence still advances offline.
-  });
-}
-updateExamFormRunEvidence();
+void bootLearnerExamFormRun();
 
 app.innerHTML = `
   <main class="station-shell${isSceneOnlyVisualReviewCaptureMode() ? " scene-only-visual-review" : ""}">
@@ -2070,36 +2062,30 @@ function navigateToExamScenario(nextScenarioId: string): void {
   window.location.assign(nextUrl.toString());
 }
 
-function createLearnerExamFormRunState(runId: string, sequence: readonly string[]): ExamFormRunState | null {
-  const resolved = sequence
-    .map((scenarioId) => scenarioBank.find((scenario) => scenario.scenarioId === scenarioId)
-      ?? (scenarioId === edChestPainScenario.scenarioId ? edChestPainScenario : null))
-    .filter((scenario): scenario is NonNullable<typeof scenario> => scenario !== null);
-
-  if (resolved.length === 0) {
-    return null;
+async function bootLearnerExamFormRun(): Promise<void> {
+  if (configuredApiBaseUrl) {
+    try {
+      const scenarios = await resolveLearnerExamScenarios({ baseUrl: configuredApiBaseUrl, blueprintId: "step2cs-seed" });
+      examFormRunState = createLearnerExamFormRunState(examRunId, scenarios) ?? examFormRunState;
+    } catch { /* keep fixture form — network must not brick Quest/offline boot */ }
   }
+  if (examFormRunState && examFormRunPersistenceSink) {
+    void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
+      snapshotId: `queue_snapshot_${examRunId}_boot`, reviewerId: "ui_xr_learner_runtime",
+    }).catch(() => {});
+  }
+  updateExamFormRunEvidence();
+}
 
-  // assembleExamForm requires approved scenarios; prefer activation-ready subset, else single ED pilot.
-  const approved = resolved.filter((scenario) => scenario.status === "approved");
-  const scenariosForForm = approved.length > 0 ? approved : [edChestPainScenario];
-
+function createLearnerExamFormRunState(runId: string, scenarios: ReadonlyArray<{ scenarioId: string; status?: string }>): ExamFormRunState | null {
+  if (scenarios.length === 0) return null;
+  const approved = scenarios.filter((s) => s.status === "approved");
+  const scenariosForForm = (approved.length > 0 ? approved : [edChestPainScenario]) as Parameters<typeof createMultiStationExamRuntime>[0]["scenarios"];
   try {
-    const run = createMultiStationExamRuntime({
-      examRunId: runId,
-      examFormId: `form_${runId}`,
-      scenarios: scenariosForForm,
-      start: true,
-    });
-    // Align current station index to the loaded scenario when possible.
+    const run = createMultiStationExamRuntime({ examRunId: runId, examFormId: `form_${runId}`, scenarios: scenariosForForm, start: true });
     const index = run.queue.stationQueue.findIndex((station) => station.scenarioId === examScenarioId);
-    if (index >= 0) {
-      return { ...run, currentStationIndex: index, examEquivalenceGate: false };
-    }
-    return run;
-  } catch {
-    return null;
-  }
+    return index >= 0 ? { ...run, currentStationIndex: index, examEquivalenceGate: false } : run;
+  } catch { return null; }
 }
 
 function formElapsedSecondForCurrentStation(): number {

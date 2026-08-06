@@ -50,7 +50,7 @@ type Resolver = (input: {
 }) => Promise<Array<{ scenarioId: string }>>;
 
 describe("learner exam scenario source (#43)", () => {
-  it.fails("resolves an authored approved scenario absent from the fixture bank when an api base url is configured", async () => {
+  it("resolves an authored approved scenario absent from the fixture bank when an api base url is configured", async () => {
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as Resolver | undefined;
     expect(resolve).toBeTypeOf("function");
@@ -71,7 +71,7 @@ describe("learner exam scenario source (#43)", () => {
     expect(requests.some((r) => r.url.includes("/station-run-queue"))).toBe(true);
   });
 
-  it.fails("falls back to the fixture bank with no api base url, so offline and Quest boot are unaffected", async () => {
+  it("falls back to the fixture bank with no api base url, so offline and Quest boot are unaffected", async () => {
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as Resolver | undefined;
     expect(resolve).toBeTypeOf("function");
@@ -88,7 +88,7 @@ describe("learner exam scenario source (#43)", () => {
     expect(scenarios.length).toBeGreaterThan(0);
   });
 
-  it.fails("refuses a scenario body that fails validateScenario rather than assembling it", async () => {
+  it("refuses a scenario body that fails validateScenario rather than assembling it", async () => {
     const mod = await load();
     const resolve = mod["resolveLearnerExamScenarios"] as Resolver | undefined;
     expect(resolve).toBeTypeOf("function");
