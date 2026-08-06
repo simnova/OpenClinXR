@@ -127,6 +127,31 @@ An unverified item is worse than no item: it is dispatchable-looking, so a later
 worker on a premise nobody checked. The finding survived the correction here and came back sharper —
 which is the usual outcome, and not a reason to skip the step.
 
+## Two lanes per cycle, and substrate is not a lane
+
+Operator direction, 2026-08-06, after a stretch that landed five product slices and roughly six
+substrate ones. Run two lanes with DISJOINT write scopes so both workers dispatch concurrently:
+
+| Lane | Scope |
+|---|---|
+| **A — learner-facing / XR** | `apps/ui-xr`, conversation tooling, asset pipeline, scene + actor runtime |
+| **B — product API / admin** | `apps/api`, `apps/ui-admin`, `packages/openclinxr` domain / review / scenario |
+
+**Substrate is overhead, not a lane.** `tools/openclinxr/openclaw`, harness, gates: at most ONE lane
+slot in a cycle, never both. After a stretch with more substrate artifacts than product landings, the
+next cycle is product in both lanes.
+
+If a lane has nothing dispatchable, operationalize FOR THAT LANE rather than doubling up on the
+other. Replenishment stays in-lane too — otherwise the queue drifts back toward whichever lane is
+easiest to find work in, which is how the imbalance happened.
+
+**The imbalance hides inside a healthy-looking board.** When this rule was written the board had 19
+open items and not one dispatchable XR item — the XR entries were all hardware-gated evidence. The
+loop had been selecting correctly from what existed; what existed was lopsided. A lane with no items
+is a signal to go read the code for that lane, not evidence that the lane is done. Doing exactly that
+surfaced #43 in one pass: `apps/ui-xr` imports `scenarioBank` at build time and never calls the API,
+so three landed API slices reach no learner.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
