@@ -67,6 +67,8 @@ export type BlueprintScenarioReadiness = {
     candidate: number;
     activationEligible: number;
   };
+  /** Full candidate pool considered for assembly (fixtures ∪ approved authored), not only selected stations. */
+  consideredScenarioIds: string[];
   activationEligibleScenarioIds: string[];
   blockedScenarioIds: Array<{ scenarioId: string; reason: "not_approved" | "governance_not_ready" | "dialogue_seed_not_ready" }>;
   missingScenarioSlotIds: string[];

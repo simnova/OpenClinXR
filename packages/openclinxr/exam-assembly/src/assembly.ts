@@ -118,6 +118,7 @@ export function evaluateBlueprintScenarioReadiness(blueprint: ExamBlueprint, sce
       candidate: scenarios.length,
       activationEligible: activationEligibleScenarioIds.length,
     },
+    consideredScenarioIds: scenarios.map((scenario) => scenario.scenarioId),
     activationEligibleScenarioIds,
     blockedScenarioIds,
     missingScenarioSlotIds: blueprint.stationSlots.slice(scenarios.length).map((slot) => slot.slotId),
