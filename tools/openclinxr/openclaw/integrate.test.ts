@@ -41,10 +41,14 @@ function repoWithCeilingRaise(): { root: string; base: string; head: string } {
   git(root, ["commit", "-q", "-m", "base"]);
   const base = git(root, ["rev-parse", "HEAD"]).trim();
 
+  // head must live on its OWN branch: a worker lands from wt/*, and merging a SHA that is already
+  // an ancestor of main is a no-op with nothing to commit.
+  git(root, ["checkout", "-q", "-b", "wt/ceiling"]);
   writeFileSync(freeze, `export const SIZE_FREEZE = {\n  "a/b.ts": { maxLines: 999, reason: "x" },\n};\n`);
   git(root, ["add", "-A"]);
   git(root, ["commit", "-q", "-m", "raise ceiling"]);
   const head = git(root, ["rev-parse", "HEAD"]).trim();
+  git(root, ["checkout", "-q", "main"]);
   return { root, base, head };
 }
 
@@ -58,10 +62,12 @@ function repoWithBenignChange(): { root: string; base: string; head: string } {
   git(root, ["add", "-A"]);
   git(root, ["commit", "-q", "-m", "base"]);
   const base = git(root, ["rev-parse", "HEAD"]).trim();
+  git(root, ["checkout", "-q", "-b", "wt/benign"]);
   writeFileSync(join(root, "readme.md"), "hello\nworld\n");
   git(root, ["add", "-A"]);
   git(root, ["commit", "-q", "-m", "benign"]);
   const head = git(root, ["rev-parse", "HEAD"]).trim();
+  git(root, ["checkout", "-q", "main"]);
   return { root, base, head };
 }
 

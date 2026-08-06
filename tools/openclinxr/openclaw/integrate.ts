@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type MergeKillReport } from "./merge-kill.js";
 
 /**
@@ -86,10 +87,34 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     return { killReport, landed: false, exitCode: 0 };
   }
 
-  execFileSync("git", ["merge", "--no-edit", input.head], {
+  // Land in two steps so the gate report can be keyed to the tree ACTUALLY being committed.
+  // `--no-commit` leaves the index staged; `git write-tree` then hashes it. That hash is knowable
+  // before any commit object exists, which is what lets the pre-commit hook compare like for like
+  // and covers file-copy landings identically to merges.
+    // --no-ff as well as --no-commit: a fast-forward would move the ref with nothing left to commit,
+  // so there would be no commit for the pre-commit gate to inspect and no consistent tree to key the
+  // report to. Forcing a merge commit gives one shape for both.
+  execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
     cwd: input.repoRoot,
     stdio: ["ignore", "pipe", "pipe"],
   });
+  writeGateReport(input.repoRoot, {
+    killed: false,
+    treeHash: stagedTreeHash(input.repoRoot),
+    base: input.base,
+    head: input.head,
+    mode: "merge",
+  });
+  try {
+    execFileSync("git", ["commit", "--no-edit"], {
+      cwd: input.repoRoot,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env, OPENCLINXR_INTEGRATING: "1" },
+    });
+  } catch (error) {
+    const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
+    throw new Error(`integrate: merge commit failed — ${detail.slice(0, 300)}`);
+  }
 
   const event: IntegrationEvent = {
     slice: input.slice,
