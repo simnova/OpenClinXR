@@ -19,6 +19,7 @@
  * paths, and signal-clear proof) or clearing becomes a two-second habit that guts the control.
  */
 
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   appendFileSync,
@@ -31,6 +32,7 @@ import {
 import { dirname } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { buildScorecard, debtDelta } from "./delegation-scorecard.js";
+import { integrationEvents } from "./integrate.js";
 
 
 export const LOOP_PAUSE_FILE = ".openclinxr/openclaw/LOOP-PAUSED.json";
@@ -276,11 +278,73 @@ export function resumeLoop(
   return { ok: true };
 }
 
+// ── merge-without-proofs detector ────────────────────────────────────────────
+
+/**
+ * A land on main is "integrate-shaped" when it has a second parent (merge commit). Single-parent
+ * commits are ordinary human work and are NOT unproven lands — treating them as lands pins the
+ * signal true forever and trains use of --ack-unchecked-signals.
+ *
+ * Coverage is per-land, keyed on the SECOND PARENT: event.head is the branch tip that was merged
+ * (C^2), never the merge commit C itself and never base (which is often the literal string "HEAD").
+ * A land C is covered iff some event E satisfies E.head === C^2.
+ */
+export type MergeLand = {
+  sha: string;
+  /** Second parent of a merge commit; undefined for ordinary single-parent commits. */
+  secondParent: string | undefined;
+};
+
+export type MergeProofEvent = {
+  slice: string;
+  head: string;
+};
+
+/**
+ * Pure: still-true when ANY integrate-shaped land since the pause lacks a covering event.
+ * Injected inputs keep this unit-testable without git.
+ */
+export function mergeWithoutProofsStillTrue(input: {
+  landsSincePause: MergeLand[];
+  events: MergeProofEvent[];
+}): boolean {
+  const coveredSecondParents = new Set(input.events.map((e) => e.head));
+  for (const land of input.landsSincePause) {
+    if (land.secondParent === undefined) continue;
+    if (!coveredSecondParents.has(land.secondParent)) return true;
+  }
+  return false;
+}
+
+/**
+ * Commits on HEAD since the pause timestamp. Second parent from `%P` (space-separated parents);
+ * only the second entry is a land tip. Fail-closed callers treat git errors as still-true.
+ */
+export function landsSincePause(repoRoot: string, sinceIso: string): MergeLand[] {
+  const raw = execFileSync(
+    "git",
+    ["log", `--since=${sinceIso}`, "--format=%H %P", "HEAD"],
+    { cwd: repoRoot, encoding: "utf8" },
+  );
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(/\s+/);
+      const sha = parts[0] ?? "";
+      // %P: first parent is main-side; second parent is the merged branch tip (event.head).
+      const secondParent = parts.length >= 3 ? parts[2] : undefined;
+      return { sha, secondParent };
+    })
+    .filter((land) => land.sha.length > 0);
+}
+
 // ── CLI ──────────────────────────────────────────────────────────────────────
 
 /**
- * CLI-only signal re-check. debt-rose uses the scorecard snapshot (lazy require so unit
- * tests of this module never load git/scorecard). Other signal ids have no detectors here —
+ * CLI-only signal re-check. debt-rose uses the scorecard; merge-without-proofs uses integration
+ * events + merge parents on HEAD since the pause. Other signal ids still have no detectors —
  * returning them as still-true refuses resume unless the operator uses --ack-unchecked-signals.
  */
 export function cliSignalsStillTrue(repoRoot: string, record: LoopPauseRecord): TripwireSignal[] {
@@ -300,8 +364,8 @@ export function cliSignalsStillTrue(repoRoot: string, record: LoopPauseRecord): 
          * a no-op by habit. A control that can only be satisfied by bypassing it is not a control.
          *
          * The unit tests missed it because they inject `signalsStillTrue`, so nothing ever
-         * exercised the CLI's real detector. A dynamic import is resolved by the same loader that
-         * loaded this module, so it cannot fail the way the require did. The reverse edge
+         * exercised the CLI's real detector. Static ESM imports resolve at load time (same as
+         * this module), so they cannot fail the way the require did. The reverse edge
          * (scorecard -> loop-pause) is `import type` only, so there is no runtime cycle.
          */
         const card = buildScorecard(repoRoot);
@@ -311,6 +375,20 @@ export function cliSignalsStillTrue(repoRoot: string, record: LoopPauseRecord): 
         }
       } catch {
         // Scorecard genuinely unavailable → cannot prove clear → hold the signal.
+        still.push(sig);
+      }
+    } else if (sig.id === "merge-without-proofs") {
+      try {
+        const lands = landsSincePause(repoRoot, record.setAt);
+        const events = integrationEvents(repoRoot).map((e) => ({
+          slice: e.slice,
+          head: e.head,
+        }));
+        if (mergeWithoutProofsStillTrue({ landsSincePause: lands, events })) {
+          still.push(sig);
+        }
+      } catch {
+        // Git or events unavailable → cannot prove every land is covered → hold.
         still.push(sig);
       }
     } else {
