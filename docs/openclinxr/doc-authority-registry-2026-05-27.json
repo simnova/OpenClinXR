@@ -6,12 +6,12 @@
   "counts": {
     "agent-methodology": 72,
     "current-reference": 210,
-    "archive-candidate": 12,
+    "archive-candidate": 13,
     "evidence": 39,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 25
+    "decision-record": 26
   },
   "entries": [
     {
@@ -2346,6 +2346,13 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/madr/0035-digital-native-station-primitives.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/madr/README.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
@@ -2624,6 +2631,13 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
       "path": "docs/openclinxr/reviews/2026-08-05-cellix-second-pass-composition-and-emit.md",

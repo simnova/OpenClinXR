@@ -31,3 +31,4 @@ A trial can inform production only when:
 | 0032 | Source-first packages vs TypeScript project references | Accepted (status quo affirmed) |
 | 0033 | Adopt build-emitting packages (cellix model) | Accepted — supersedes 0032 |
 | 0034 | `@openclinxr/graphql` is build-emitting (last holdout; keep `./resolvers`) | Accepted — implements 0033 for graphql |
+- [0035 — Digital-native station primitives (doorway as cargo-cult)](0035-digital-native-station-primitives.md)

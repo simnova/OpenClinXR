@@ -12,9 +12,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 72
-- archive-candidate: 12
+- archive-candidate: 13
 - current-reference: 210
-- decision-record: 25
+- decision-record: 26
 - evidence: 39
 - historical-synthesis: 11
 - protected-policy: 10
@@ -253,6 +253,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `docs/openclinxr/research/2026-08-06-step2cs-and-digital-native-primitives.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/turbo-remote-cache-setup.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `plugins/openclinxr-openclaw-style/skills/openclinxr-openclaw-style/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
