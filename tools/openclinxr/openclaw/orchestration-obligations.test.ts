@@ -22,6 +22,15 @@ import { describe, expect, it } from "vitest";
 const load = async () => (await import("./orchestration-obligations.js")) as {
   ORCHESTRATION_OBLIGATIONS: readonly { id: string; symbol: string; requiredCallers: readonly string[] }[];
   unwiredObligations: (repoRoot: string) => string[];
+  unwiredObligationsIn: (
+    obligations: readonly {
+      id: string;
+      symbol: string;
+      fromModule: string;
+      requiredCallers: readonly string[];
+      sources: Readonly<Record<string, string>>;
+    }[],
+  ) => string[];
 };
 
 describe("declared orchestration obligations stay wired", () => {
@@ -77,30 +86,30 @@ describe("invocation is a CALL, not a mention (#37)", () => {
     sources: { "caller.ts": source },
   }];
 
-  it.fails("flags a caller that only IMPORTS the symbol and never calls it", async () => {
+  it("flags a caller that only IMPORTS the symbol and never calls it", async () => {
     const { unwiredObligationsIn } = await load();
     expect(unwiredObligationsIn(fixture(`import { runMergeKill } from "./m.js";\nexport const x = 1;`)))
       .toHaveLength(1);
   });
 
-  it.fails("flags a MULTI-LINE import where the symbol sits on its own line", async () => {
+  it("flags a MULTI-LINE import where the symbol sits on its own line", async () => {
     const { unwiredObligationsIn } = await load();
     expect(unwiredObligationsIn(fixture(`import {\n  runMergeKill,\n} from "./m.js";\nexport const x = 1;`)))
       .toHaveLength(1);
   });
 
-  it.fails("flags a bare RE-EXPORT, which forwards the symbol without invoking it", async () => {
+  it("flags a bare RE-EXPORT, which forwards the symbol without invoking it", async () => {
     const { unwiredObligationsIn } = await load();
     expect(unwiredObligationsIn(fixture(`export { runMergeKill } from "./m.js";`))).toHaveLength(1);
   });
 
-  it.fails("flags a mention in a COMMENT or string literal", async () => {
+  it("flags a mention in a COMMENT or string literal", async () => {
     const { unwiredObligationsIn } = await load();
     expect(unwiredObligationsIn(fixture(`// we should call runMergeKill here\nconst s = "runMergeKill";`)))
       .toHaveLength(1);
   });
 
-  it.fails("passes when the symbol is actually CALLED", async () => {
+  it("passes when the symbol is actually CALLED", async () => {
     const { unwiredObligationsIn } = await load();
     expect(unwiredObligationsIn(fixture(`import { runMergeKill } from "./m.js";\nconst r = runMergeKill({});`)))
       .toEqual([]);
