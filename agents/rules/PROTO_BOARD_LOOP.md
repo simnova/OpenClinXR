@@ -44,6 +44,32 @@ title makes the contract layer decorative: a worker judged against criteria nobo
 worse than no contract because it looks like one. Deciding what would prove an item done is the
 orchestrator's judgment and cannot be delegated to the pipeline.
 
+## Every iteration must either land work or make work landable
+
+A loop that only consumes ready work stalls the moment the ready queue empties. The first
+autonomous schedule written for this pipeline had exactly that shape: dispatch anything with a
+`## done_when`, otherwise fall back to a hardcoded two-item list. With 17 board items and none
+dispatchable, it would have drained its static list and then gone quiet forever, while the board
+stayed exactly as un-runnable as it started.
+
+**Each cycle does one of:**
+
+| | When | What |
+|---|---|---|
+| **A. Dispatch** | something is dispatchable | run it through the loop and land it |
+| **B. Operationalize** | nothing is dispatchable | convert ONE item: read the code, commit a RED, write its `done_when` |
+| **C. Stop** | board empty and green | say so in one line; do not invent work |
+
+B is what keeps the loop alive, and it is the step that carries the judgment: deciding what would
+prove an item done. Two rules on it, both learned the expensive way:
+
+- **Read the current code, not the issue text.** An item picked for being "small and clearly
+  provable" turned out to be clearly provable because it had already shipped. If an item is already
+  done, closing it with evidence still counts as the cycle's work.
+- **Never invent proofs to make an item dispatchable.** If you cannot state what would prove it, say
+  so on the issue and pick another. A worker judged against criteria nobody chose is worse than an
+  un-dispatchable issue, because it looks like a contract.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
