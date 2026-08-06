@@ -48,7 +48,7 @@ const SHIPPED = [
 ];
 
 describe("shipped humanoids carry no scratch geometry (#60)", () => {
-  it.fails("no shipped humanoid contains a mesh named after a Blender default primitive", async () => {
+  it("no shipped humanoid contains a mesh named after a Blender default primitive", async () => {
     const mod = await load();
     const inspect = mod["inspectHumanoidMeshHygiene"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -60,7 +60,7 @@ describe("shipped humanoids carry no scratch geometry (#60)", () => {
     }
   }, 120_000);
 
-  it.fails("no shipped humanoid contains a mesh far larger than its body, whatever it is called", async () => {
+  it("no shipped humanoid contains a mesh far larger than its body, whatever it is called", async () => {
     // Kills the rename: `Icosphere` -> `bounds_helper` keeps the same 2m sphere and would pass the
     // check above. The body is the largest LEGITIMATE mesh, so nothing should dwarf it.
     const mod = await load();

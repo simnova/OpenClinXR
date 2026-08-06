@@ -43,6 +43,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional
 
@@ -108,8 +109,75 @@ def clear_scene() -> None:
     bpy.ops.object.delete(use_global=False)
     # Remove default collections etc. for clean export
     for coll in list(bpy.data.collections):
-        if coll.name.startswith("Collection"):
+        if coll.name.startswith("Collection") or coll.name == "glTF_not_exported":
             bpy.data.collections.remove(coll)
+    # Orphan mesh datablocks (e.g. bone-shape Icosphere after object delete)
+    for me in list(bpy.data.meshes):
+        if me.users == 0:
+            bpy.data.meshes.remove(me)
+
+
+# Blender default primitive names (optional numeric suffix). Used to catch scratch
+# geometry that would otherwise ship silently (#60). Project meshes are always
+# renamed (anny_base, openclinxr_*, etc.) so this denylist never hits legitimate work.
+_BLENDER_DEFAULT_MESH_NAME = re.compile(
+    r"^(Icosphere|Sphere|Cube|Plane|Cylinder|Cone|Torus|Circle)(\.\d+)?$"
+)
+
+
+def purge_blender_default_scratch_meshes(*, reason: str) -> List[str]:
+    """
+    Remove mesh objects whose names are still Blender's default primitive names.
+
+    #60 TRACE: Loading a shipped humanoid GLB in Blender shows a 42-vert Icosphere
+    (h≈2m) enveloping the figure. That object is NOT in the GLB binary — Blender's
+    glTF importer creates it as a bone display shape in collection `glTF_not_exported`
+    (io_scene_gltf2 armature_display → primitive_ico_sphere_add radius=1). It is
+    unused for skinning/bake/bounds: no parents, no vertex groups, no armature, empty
+    materials. Export normally skips that collection, but if the object is ever
+    linked into Scene Collection (or left from an incomplete clear), it ships and
+    confounds every whole-file geometric measurement while staying invisible to
+    face-count / file-size gates (42 verts).
+
+    Defense in depth: purge after glTF import and again immediately before export.
+    Never rename — geometry must go (name denylist alone is gameable).
+    """
+    removed: List[str] = []
+    for obj in list(bpy.data.objects):
+        if obj.type != "MESH":
+            continue
+        name = obj.name or ""
+        if not _BLENDER_DEFAULT_MESH_NAME.match(name):
+            continue
+        # Refuse to delete if anything parents to it (load-bearing check).
+        children = [c.name for c in bpy.data.objects if c.parent == obj]
+        if children:
+            print(
+                f"[blender] #60 refuse purge of {name!r} ({reason}): has children {children}"
+            )
+            continue
+        if obj.vertex_groups and len(obj.vertex_groups) > 0:
+            print(
+                f"[blender] #60 refuse purge of {name!r} ({reason}): has vertex groups"
+            )
+            continue
+        if obj.find_armature() is not None:
+            print(
+                f"[blender] #60 refuse purge of {name!r} ({reason}): bound to armature"
+            )
+            continue
+        me = obj.data
+        bpy.data.objects.remove(obj, do_unlink=True)
+        if me is not None and me.users == 0:
+            bpy.data.meshes.remove(me)
+        removed.append(name)
+    # Drop empty special collection left by the glTF importer.
+    coll = bpy.data.collections.get("glTF_not_exported")
+    if coll is not None and len(coll.objects) == 0 and len(coll.children) == 0:
+        bpy.data.collections.remove(coll)
+    if removed:
+        print(f"[blender] #60 purged scratch default meshes ({reason}): {removed}")
+    return removed
 
 
 def import_mesh(input_path: str) -> bpy.types.Object:
@@ -117,13 +185,24 @@ def import_mesh(input_path: str) -> bpy.types.Object:
     if ext in (".obj", ".OBJ"):
         bpy.ops.wm.obj_import(filepath=input_path)
     elif ext in (".glb", ".gltf"):
-        bpy.ops.import_scene.gltf(filepath=input_path)
+        # disable_bone_shape: Blender's importer otherwise creates a radius-1
+        # Icosphere bone display helper (#60). Still purge as belt-and-suspenders
+        # for older Blender builds that lack the flag.
+        try:
+            bpy.ops.import_scene.gltf(filepath=input_path, disable_bone_shape=True)
+        except TypeError:
+            bpy.ops.import_scene.gltf(filepath=input_path)
+        purge_blender_default_scratch_meshes(reason="after_gltf_import")
     else:
         raise ValueError(f"Unsupported mesh format for import: {ext}")
 
-    # Return the first mesh object
+    # Return the first mesh object that is not a purged default leftover.
     for obj in bpy.context.selected_objects:
-        if obj.type == "MESH":
+        if obj.type == "MESH" and not _BLENDER_DEFAULT_MESH_NAME.match(obj.name or ""):
+            bpy.context.view_layer.objects.active = obj
+            return obj
+    for obj in bpy.data.objects:
+        if obj.type == "MESH" and not _BLENDER_DEFAULT_MESH_NAME.match(obj.name or ""):
             bpy.context.view_layer.objects.active = obj
             return obj
     raise RuntimeError("No mesh object found after import")
@@ -2490,6 +2569,10 @@ def align_y_height_bind_for_gltf_yup_export(arm_obj: "bpy.types.Object") -> Dict
 
 
 def export_final_glb(output_path: str) -> None:
+    # #60: strip Blender default scratch meshes (Icosphere bone-shape helper, leftover
+    # Cube/Plane, etc.) immediately before export so regeneration cannot re-ship them.
+    # Geometry must be removed, not renamed. Safe: refuse if parented / skinned / weighted.
+    purge_blender_default_scratch_meshes(reason="pre_export")
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=output_path,
