@@ -1970,11 +1970,24 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             _add_sleeve_ring(sh, ad, 0.95, 0.92)  # cuff at sleeve end
             _add_sleeve_ring(sh, ad, 0.48, 1.02)  # mid-sleeve fold
 
-        gmesh = bpy.data.meshes.new("openclinxr_real_garment_peds_upper_v1_mesh")
+        # Mesh datablock names are pinned by cagematch identity contracts (#64):
+        # - peds real_garment current/ keeps openclinxr_real_garment_peds_tshirt_v1_mesh
+        # - ED adult real_garment keeps openclinxr_real_garment_peds_upper_v1_mesh
+        # Parent/nurse (non-tshirt layers) keep the upper name as after #58 re-bake.
+        body_key = (mesh_obj.name or "").lower()
+        gkey = (garment_layers[0] if garment_layers else role).replace(" ", "_").lower()[:32]
+        is_adult_or_ed = ("ed_" in body_key) or ("adult" in body_key)
+        is_tshirt_layer = any("tshirt" in str(g).lower() for g in garment_layers)
+        if is_adult_or_ed:
+            gmesh_name = "openclinxr_real_garment_peds_upper_v1_mesh"
+        elif is_tshirt_layer:
+            gmesh_name = "openclinxr_real_garment_peds_tshirt_v1_mesh"
+        else:
+            gmesh_name = "openclinxr_real_garment_peds_upper_v1_mesh"
+        gmesh = bpy.data.meshes.new(gmesh_name)
         gmesh.from_pydata(verts, [], faces)
         gmesh.update()
         # dynamic per phenotype garmentLayers for parent/nurse re-orchestrate (Q1 slice); keeps vivid contrast for skeptic-visible volume in cagematch + UI-XR regardless of role color
-        gkey = (garment_layers[0] if garment_layers else role).replace(" ", "_").lower()[:32]
         gname = f"openclinxr_real_garment_from_phenotype_{gkey}"
         garment = bpy.data.objects.new(gname, gmesh)
         bpy.context.collection.objects.link(garment)
