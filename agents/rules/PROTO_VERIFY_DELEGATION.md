@@ -200,6 +200,30 @@ path fail closed. The tension requirement is load-bearing, not decoration.
 invented URLs (`/api/exam/...`) and field names, so the worker spent turns discovering the real ones.
 My error, not the worker's — a brief that describes an API that does not exist is a weak brief.
 
+## 6d. Two brief-quality failures the #43 retro named
+
+**A confident wrong diagnosis costs more than no diagnosis.** Resuming a worker after a failed proof,
+I wrote "LIKELY CAUSE: the async change removed a synchronously-populated evidence surface" with a
+plausible mechanism. It was wrong — a clobbered artifact was the cause — and the worker spent a turn
+re-wiring boot evidence to match my story before tracing the actual call stack. The hedge ("verify,
+do not assume I am right") is what stopped it being worse, and it should be mandatory: give the
+worker the FAILURE (test name, error, stack, and what you verified on main), then say explicitly that
+the cause is unknown. Diagnosis is the worker's job; it has the tree and you have a hypothesis.
+
+**A prose warning is not a proof, and it is not actionable.** The brief said "must not disturb the
+comparator/evidence surfaces that the visibility mandate depends on." True, unactionable, and duly
+disturbed. The retro's fix, verbatim: *"Make the warning machine-checkable: name the exact surfaces
+and proofs as done_when / contract-live titles, not prose."* If a constraint matters enough to write
+down, it matters enough to be a named test in the contract — otherwise it reads as background noise
+alongside the constraints that ARE enforced.
+
+**Ambiguous planted contracts force undocumented policy.** My three #43 REDs required a thin mock
+body (`{scenarioId, status}`) to be accepted while `{actors: "not-an-array"}` was refused — and both
+fail full schema validation. Nothing in the brief said how to split them, so the worker invented a
+rule ("accept identity-only keys after a failed validate") and shipped it. That is a real product
+policy decided by an ambiguity in my test fixtures. When two contracts pull in opposite directions,
+check that a coherent rule separates them, and if one exists, name it.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
