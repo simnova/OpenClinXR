@@ -74,4 +74,73 @@ describe("CaseAuthoringWorkbench", () => {
     const tagRegion = screen.getByLabelText("Touch response trace tags");
     expect(within(tagRegion).getByText("clinical_touch_guard_rlq")).toBeInTheDocument();
   });
+
+  /**
+   * PLANTED CONTRACT (#69) — a case author picks a room and is never shown one.
+   *
+   * THE SINGLE `it.fails` BELOW FLIPS. Every other test in this file is LIVE and must keep passing.
+   * This comment is THE RECORD, not scratch — flip it, append a `## FIXED (#69)` note, and leave the
+   * measurement intact.
+   *
+   * MEASURED: `grep -n "environment" apps/ui-admin/src/CaseAuthoringWorkbench.tsx` returns NOTHING.
+   * The workbench edits a scenario whose `environment.environmentId` is a required schema field
+   * (`shared-schemas/src/schemas.ts:218`) and never surfaces it, so an author choosing
+   * `behavioral_health_private_room_v1` over `oncology_consult_room_v1` is choosing between two
+   * strings.
+   *
+   * #44 made that field real: it now resolves to a shell descriptor
+   * (`asset-registry/src/environment-descriptors.ts`) that drives both the runtime room and the
+   * factory's spatial-zone plan. Fourteen shipped environments have their own dimensions and floor
+   * colour. None of that reaches the person authoring the case.
+   *
+   * WHAT THIS IS NOT: a 3D preview. Rendering the room in the admin app is a much larger slice and is
+   * NOT what this contract asks for. Shell FACTS — which room, how big, what it looks like in
+   * summary — are enough for an author to tell two settings apart, and they are what the descriptor
+   * already carries.
+   *
+   * THE CONTRACT PULLS BOTH WAYS. It requires the ED bay's real dimensions to appear for the ED
+   * scenario, so a hardcoded panel fails; and it requires them to CHANGE when the environment does,
+   * so a static "Environment: <id>" label fails too. Together they require the descriptor to be read.
+   *
+   * SIGNATURE IS THE IMPLEMENTER'S CHOICE — where the panel lives, what it is labelled, and whether
+   * it reads the descriptor directly or through a helper. What must not change: the author sees
+   * facts about the room, and the facts follow the environment.
+   *
+   * SCOPE: the authoring surface. The runtime capture half of #69 is contracted separately in
+   * `tools/openclinxr/evidence/ui-xr-environment-room-capture.test.ts`; both are required and neither
+   * closes the issue alone.
+   */
+  it.fails("the authoring workbench shows which room the selected environment is", async () => {
+    const { ENVIRONMENT_SHELL_DESCRIPTORS } = await import("@openclinxr/asset-registry");
+    const descriptors = ENVIRONMENT_SHELL_DESCRIPTORS as Record<string, { roomDepthMeters: number; roomWidthMeters: number }>;
+
+    const edEnvironmentId = edChestPainScenario.environment.environmentId;
+    const edShell = descriptors[edEnvironmentId];
+    expect(edShell, `no descriptor for ${edEnvironmentId} — fixture drifted`).toBeDefined();
+
+    render(<CaseAuthoringWorkbench initialScenario={edChestPainScenario} />);
+
+    const panel = await screen.findByLabelText("Encounter environment");
+    // The id alone is not "showing which room it is" — the author must see something about the space.
+    expect(within(panel).getByText(new RegExp(edEnvironmentId, "i"))).toBeInTheDocument();
+    expect(
+      within(panel).getByText(new RegExp(String(edShell!.roomWidthMeters))),
+      "the author must see the room's real dimensions, not a hardcoded blurb",
+    ).toBeInTheDocument();
+
+    // And it must follow the environment, or a static panel about the ED bay passes the above.
+    cleanup();
+    const homeVisit = {
+      ...edChestPainScenario,
+      environment: { ...edChestPainScenario.environment, environmentId: "telehealth_home_visit_v1" },
+    };
+    const homeShell = descriptors["telehealth_home_visit_v1"];
+    expect(homeShell).toBeDefined();
+
+    render(<CaseAuthoringWorkbench initialScenario={homeVisit as typeof edChestPainScenario} />);
+    const homePanel = await screen.findByLabelText("Encounter environment");
+    expect(within(homePanel).getByText(/telehealth_home_visit_v1/i)).toBeInTheDocument();
+    expect(within(homePanel).getByText(new RegExp(String(homeShell!.roomWidthMeters)))).toBeInTheDocument();
+  });
+
 });
