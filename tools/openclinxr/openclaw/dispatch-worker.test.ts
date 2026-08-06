@@ -417,3 +417,81 @@ describe("dispatch path does not tax or destroy the work it supervises (#47, #48
     expect(prepare).toBeTypeOf("function");
   });
 });
+
+/**
+ * PLANTED CONTRACTS (#54) — a prepared worktree still cannot build.
+ *
+ * PROVEN, not inferred. A bare worktree at HEAD given exactly the preparation dispatch performs
+ * (`pnpm install --prefer-offline --frozen-lockfile`) fails `pnpm test` with 17 test files failing
+ * on "Failed to resolve entry for package @openclinxr/shared-schemas / @cellix/provider-contracts /
+ * @openclinxr/exam-assembly". Running `pnpm packages:build` in that same worktree takes it to
+ * 138 passed, 0 failed.
+ *
+ * Cause: workspace packages are build-emitting (MADR 0033), their `exports` point at `dist/`,
+ * `dist/` is gitignored, so `git worktree add` never brings it and `pnpm install` never creates it.
+ * `prepareWorktreeForWorker` installs and stops.
+ *
+ * This CORRECTS the issue as filed. The #42 worker reported "ui-xr dist PROVENANCE and
+ * .openclinxr/*"; `PROVENANCE.md` is tracked and arrives fine, and the evidence tests hardcoding
+ * `.openclinxr/...` were not the failure. A worker's account of itself is still a claim.
+ *
+ * The peer round rejected every cheaper option with a reason: copying `dist/` from main ships wrong
+ * artifacts when the worktree SHA differs, symlinking makes a worker's edits hit main's dist, and
+ * building only brief-touched packages fails on transitive imports — which is why four unrelated
+ * packages failed together above.
+ *
+ * It also caught a hole I would have shipped: the early return on the vitest marker alone
+ * (`prepareWorktreeForWorker`) means an install-only tree stays "ready" forever, so adding a build
+ * step without touching that check leaves the bug reachable.
+ *
+ * SIGNATURE IS THE IMPLEMENTER'S CHOICE. These tests inject a command runner so they assert the
+ * build was EXECUTED rather than that files appeared — `mkdir dist && touch index.js` satisfies a
+ * file-presence assertion and builds nothing. If a different seam is better, change the call sites
+ * here and say why in the commit.
+ */
+describe("a prepared worktree can actually build (#54)", () => {
+  const load = async () => import("./dispatch-worker.js") as Promise<Record<string, unknown>>;
+
+  type Run = (command: string, args: readonly string[]) => void;
+  type Prepare = (path: string, options?: { run?: Run }) => { method: string };
+
+  function worktreeFixture(withVitest: boolean): string {
+    const root = mkdtempSync(join(tmpdir(), "openclinxr-wt54-"));
+    if (withVitest) {
+      mkdirSync(join(root, "node_modules", ".bin"), { recursive: true });
+      writeFileSync(join(root, "node_modules", ".bin", "vitest"), "#!/bin/sh\n");
+    }
+    return root;
+  }
+
+  it.fails("builds workspace packages, not only installing them", async () => {
+    const mod = await load();
+    const prepare = mod["prepareWorktreeForWorker"] as Prepare;
+    const commands: string[] = [];
+    prepare(worktreeFixture(false), { run: (command, args) => { commands.push(`${command} ${args.join(" ")}`); } });
+    // Asserting EXECUTION, not artifacts: a test that checks for dist/ can be satisfied by touch.
+    expect(commands.some((c) => /build/.test(c))).toBe(true);
+  });
+
+  it.fails("rebuilds when the vitest marker exists but workspace dist does not", async () => {
+    // The latent hole: an install-only tree keeps its vitest binary and would report "existing"
+    // forever, so the build step would never run on exactly the trees that need it.
+    const mod = await load();
+    const prepare = mod["prepareWorktreeForWorker"] as Prepare;
+    const commands: string[] = [];
+    const result = prepare(worktreeFixture(true), {
+      run: (command, args) => { commands.push(`${command} ${args.join(" ")}`); },
+    });
+    expect(result.method).not.toBe("existing");
+    expect(commands.some((c) => /build/.test(c))).toBe(true);
+  });
+
+  it.fails("refuses to hand over a worktree whose workspace dist is still missing after preparation", async () => {
+    // Fixture HAS the vitest binary, so today this early-returns "existing" and throws nothing.
+    // Without that setup the function throws for a DIFFERENT reason (missing vitest), which would
+    // make this contract pass while proving nothing about dist — a false green wearing the right name.
+    const mod = await load();
+    const prepare = mod["prepareWorktreeForWorker"] as Prepare;
+    expect(() => prepare(worktreeFixture(true), { run: () => { /* a build that produces nothing */ } })).toThrow(/dist|build/i);
+  });
+});
