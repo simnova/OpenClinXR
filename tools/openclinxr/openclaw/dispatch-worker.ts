@@ -22,6 +22,7 @@ import {
 } from "../../../packages/openclinxr/agent-loop/src/done-when-rules.js";
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { assertLoopNotPaused } from "./loop-pause.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -447,6 +448,18 @@ export async function evaluateDispatchTreeProofs(input: {
 
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
+
+  /**
+   * INCIDENT (layer-6): the delegation scorecard measured land rate, durability and ratchet debt
+   * for weeks while being wired to NOTHING. A metric that cannot halt the machine it measures is
+   * decoration — it reports the loop degrading and the loop keeps going.
+   *
+   * This is the halt. It is FIRST, before the worktree is created and before any spawn, so a
+   * tripped loop costs zero worker tokens. The pause bit lives in the shared coordination root
+   * precisely because the main-tree write-deny puts it out of a worktree-bound worker's reach:
+   * the thing being halted cannot clear its own halt.
+   */
+  assertLoopNotPaused(repoRoot);
 
   // Worktree binding: resolve the tree, point the worker at it, and install the HARD deny on main.
   // Done here rather than left to callers so no dispatch path can forget the boundary.

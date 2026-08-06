@@ -12,12 +12,14 @@ import {
 } from "./delegation-scorecard.js";
 import {
   assertLoopNotPaused,
+  cliSignalsStillTrue,
   LOOP_PAUSE_HISTORY,
   LoopPausedError,
   MIN_ROOT_CAUSE_LENGTH,
   pauseLoop,
   readLoopPause,
   resumeLoop,
+  type LoopPauseRecord,
   type TripwireSignal,
 } from "./loop-pause.js";
 
@@ -371,5 +373,67 @@ describe("debtDelta and evaluateTripwire", () => {
     });
     expect(withDelta).toMatch(/debt delta/);
     expect(withDelta).toMatch(/rose=true/);
+  });
+});
+
+/**
+ * REGRESSION (2026-08-06). The CLI's real signal detector was never exercised: every other test
+ * INJECTS `signalsStillTrue`, so a broken detector could not fail a single assertion. It was
+ * broken — a lazy require blew up inside the module, the catch held the signal, and the loop
+ * could not be resumed even with debt back at baseline. Fail-closed, but a deadlock whose only
+ * escape was `--ack-unchecked-signals`: the flag that skips the check. A control satisfiable only
+ * by bypassing it decays into a no-op by habit.
+ *
+ * These tests call the detector the CLI actually uses, so that class of breakage fails here first.
+ */
+describe("cliSignalsStillTrue — the detector the CLI really calls", () => {
+  const record = (signals: TripwireSignal[]): LoopPauseRecord => ({
+    schemaVersion: "openclinxr.loop-pause.v1",
+    paused: true,
+    incidentId: "lp-test",
+    reason: "test",
+    signals,
+    setAt: new Date().toISOString(),
+    setBy: "tripwire",
+  });
+
+  const debtSignal: TripwireSignal = {
+    id: "debt-rose",
+    detail: "debt rose",
+    observed: { sizeFreezeEntries: 1 },
+  };
+
+  it("clears debt-rose when the scorecard says debt did NOT rise", () => {
+    // The deadlock case: this returned [sig] forever, so resume was impossible after a real fix.
+    const root = mkdtempSync(join(tmpdir(), "loop-pause-cli-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = root;
+    resetCoordinationRootCache();
+    try {
+      // No freeze maps in a temp root -> debt reads as 0, and the first debtDelta writes the
+      // baseline, so nothing has risen.
+      expect(cliSignalsStillTrue(root, record([debtSignal]))).toEqual([]);
+    } finally {
+      delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+      resetCoordinationRootCache();
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("holds a signal id it has no detector for, rather than assuming it is clear", () => {
+    const root = mkdtempSync(join(tmpdir(), "loop-pause-cli2-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = root;
+    resetCoordinationRootCache();
+    try {
+      const still = cliSignalsStillTrue(
+        root,
+        record([{ id: "isolation-leak", detail: "leak", observed: {} }]),
+      );
+      expect(still).toHaveLength(1);
+      expect(still[0]?.detail).toMatch(/no CLI detector/);
+    } finally {
+      delete process.env["OPENCLINXR_COORDINATION_ROOT"];
+      resetCoordinationRootCache();
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

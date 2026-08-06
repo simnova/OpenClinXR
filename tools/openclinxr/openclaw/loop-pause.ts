@@ -28,11 +28,10 @@ import {
   unlinkSync,
   writeFileSync,
 } from "node:fs";
-import { createRequire } from "node:module";
 import { dirname } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
+import { buildScorecard, debtDelta } from "./delegation-scorecard.js";
 
-const require = createRequire(import.meta.url);
 
 export const LOOP_PAUSE_FILE = ".openclinxr/openclaw/LOOP-PAUSED.json";
 export const LOOP_PAUSE_HISTORY = ".openclinxr/openclaw/loop-pause-history.jsonl";
@@ -284,28 +283,34 @@ export function resumeLoop(
  * tests of this module never load git/scorecard). Other signal ids have no detectors here —
  * returning them as still-true refuses resume unless the operator uses --ack-unchecked-signals.
  */
-function cliSignalsStillTrue(repoRoot: string, record: LoopPauseRecord): TripwireSignal[] {
+export function cliSignalsStillTrue(repoRoot: string, record: LoopPauseRecord): TripwireSignal[] {
   const still: TripwireSignal[] = [];
   for (const sig of record.signals) {
     if (sig.id === "debt-rose") {
       try {
-        // .ts path works under tsx; compiled consumers resolve .js equivalently via createRequire.
-        const { debtDelta, buildScorecard } = require("./delegation-scorecard.ts") as {
-          debtDelta: (
-            root: string,
-            card: { debt: { brokenReferenceCeilings: number; sizeFreezeEntries: number } },
-          ) => { rose: boolean };
-          buildScorecard: (root: string) => {
-            debt: { brokenReferenceCeilings: number; sizeFreezeEntries: number };
-          };
-        };
+        /**
+         * DEFECT FOUND BY PROBING (2026-08-06), not by the tests: this was a lazy
+         * `require("./delegation-scorecard.ts")` via createRequire. Measured end to end, the
+         * scorecard reported `rose: false` with debt back at baseline while the CLI kept refusing
+         * to resume — the require failed inside this module and the catch held the signal forever.
+         *
+         * Fail-closed was the right direction, but the effect was a DEADLOCK: the only way out was
+         * `--ack-unchecked-signals`, i.e. the flag that skips this very check. An operator hitting
+         * that twice learns to always pass it, and the strongest control in this layer decays into
+         * a no-op by habit. A control that can only be satisfied by bypassing it is not a control.
+         *
+         * The unit tests missed it because they inject `signalsStillTrue`, so nothing ever
+         * exercised the CLI's real detector. A dynamic import is resolved by the same loader that
+         * loaded this module, so it cannot fail the way the require did. The reverse edge
+         * (scorecard -> loop-pause) is `import type` only, so there is no runtime cycle.
+         */
         const card = buildScorecard(repoRoot);
         const delta = debtDelta(repoRoot, card);
         if (delta.rose) {
           still.push(sig);
         }
       } catch {
-        // Scorecard unavailable → cannot prove clear → hold the signal.
+        // Scorecard genuinely unavailable → cannot prove clear → hold the signal.
         still.push(sig);
       }
     } else {
