@@ -143,6 +143,30 @@ The peer can drive tier 1 itself — verified, both resumes exited 0 in under 25
 `OPENCLINXR_RAW_GROK_SANCTIONED=1` with a reason, because the dispatch chokepoint denies bare
 `grok -p`; that denial is correct and should not be relaxed for convenience.
 
+**`--resume` really does reach the original agent** — control/treatment, 2026-08-06, identical
+question with `Bash` and `Read` denied so only memory could answer it:
+
+| | Answer |
+|---|---|
+| with `--resume 019fd637…` (the #37 worker) | "Issue **#37**… empty worktree, no `node_modules`… `orchestration-obligations.ts`" |
+| same question, no `--resume` | "Issue **#21**… `physics-touch-artifacts/src/types.ts`" |
+
+`7a0cc42` touched `orchestration-obligations.ts` (200 lines). The resumed session also repeated the
+`node_modules` blocker it had given in a separate retro. Genuine transcript recall, not repo reading.
+
+**A WRONG SESSION ID DOES NOT FAIL — IT CONFABULATES.** That is the load-bearing half. The control
+did not error and did not say "no recall"; it produced a confident, coherent answer about a real
+issue and a real file that were *someone else's work entirely*, because a fresh session loads project
+memory and fills the gap. A stale or mistyped id therefore yields fiction indistinguishable from a
+good retro — and these answers feed rule changes, so the path from a typo to a fabricated finding in
+a protocol file is short.
+
+Mitigations, all cheap: take the id from the ledger programmatically, never by hand; confirm the
+`Session <id> found locally` line appears on stdout before trusting the body; and check the answer
+names the slice you asked about. A retro whose reply does not match the slice is discarded, not
+interpreted. This is the same fabrication fingerprint as §1b — confident detail on premises nobody
+confirmed.
+
 **Cadence, against the anti-toil rule.** One retro attached to a slice that just landed is ~20s and
 rides on work already done. A standalone retro sweep across 31 sessions is evidence work, and this
 project's rule is that evidence work must not displace product work. So: retro the worker after each
