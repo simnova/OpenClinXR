@@ -3,9 +3,9 @@
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "parent_tara_johnson_v1",
   "actorRole": "parent",
-  "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.glb",
-  "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent_rigging_report.json",
-  "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_anxious_parent.anny_manifest.json",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent_rigging_report.json",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_manifest.json",
   "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
@@ -17,9 +17,9 @@
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
   "sourceOriginChain": {
     "sourceRecordPath": "sources/anny-github-2026.json",
-    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/subagent-019fc360-685e-7d30-9058-1202f9a0c947/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
-    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/subagent-019fc360-685e-7d30-9058-1202f9a0c947/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/subagent-019fc360-685e-7d30-9058-1202f9a0c947/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
     "optimizationStage": null,
     "sourceManifestKind": "real_anny_candidate_unverified",
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
@@ -34,10 +34,10 @@
     "caseId": "peds_asthma_parent_anxiety_v1",
     "actorId": "parent_tara_johnson_v1",
     "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:parent:anny_candidate",
-    "sourceParametersHash": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c"
+    "sourceParametersHash": "6520fff36558de785c94628c76569e24ad5c491574275d7d58cbd2c96ba52598"
   },
   "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
-  "promptOrCaseParameterHash": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c",
+  "promptOrCaseParameterHash": "6520fff36558de785c94628c76569e24ad5c491574275d7d58cbd2c96ba52598",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "quest_readiness",

@@ -375,25 +375,220 @@
       "clinical_validity",
       "scoring_validity"
     ],
+    "realGarmentLayers": [
+      {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
+        "meshName": "openclinxr_real_garment_peds_upper_v1_mesh__under_scrub_top",
+        "layerIndex": 0,
+        "layerToken": "scrub_top",
+        "layerKind": "scrub",
+        "faceCount": 268,
+        "vertexCount": 352,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve",
+        "sleeveLenFactor": 0.42,
+        "sleeveAlongArmM": 0.1387,
+        "sleeveRows": 7,
+        "sleeveCols": 10,
+        "sleeveR0M": 0.0576,
+        "sleeveRFactor": 0.258,
+        "torsoRBaseM": 0.2232,
+        "meanRadiusM": 0.1243,
+        "radiusStackScale": 0.93,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "topologyClass": "closed_scrub_ring",
+        "hasAnteriorOpening": false,
+        "anteriorOpeningRadians": 0.0,
+        "torsoWrapClosed": true,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "hasFabricThicknessSolidify": true,
+        "hasLightSubsurf": true,
+        "hasGentleDisplacementFolds": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.307717,
+            0.841068,
+            0.037507
+          ],
+          "max": [
+            0.307717,
+            1.4416,
+            0.340474
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.307717,
+            -0.340474,
+            0.841068
+          ],
+          "max": [
+            0.307717,
+            -0.037507,
+            1.4416
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.76
+        ],
+        "garmentLayers": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "declaredUpperLayerTokens": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "role": "nurse",
+        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity",
+          "believable_clinical_costume"
+        ],
+        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      },
+      {
+        "mode": "phenotype_embedded_real_garment_region_v1",
+        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "objectName": "openclinxr_real_garment_from_phenotype_scrub_pocket",
+        "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+        "layerIndex": 1,
+        "layerToken": "scrub_pocket",
+        "layerKind": "scrub_pocket",
+        "faceCount": 252,
+        "vertexCount": 340,
+        "hasSleeveGeometry": true,
+        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
+        "sleeveLenFactor": 0.38,
+        "sleeveAlongArmM": 0.1255,
+        "sleeveRows": 6,
+        "sleeveCols": 10,
+        "sleeveR0M": 0.0565,
+        "sleeveRFactor": 0.222,
+        "torsoRBaseM": 0.2542,
+        "meanRadiusM": 0.1374,
+        "radiusStackScale": 1.02,
+        "hasProminentSleeves": true,
+        "hasExpandedVolumeDetail": true,
+        "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
+        "topologyClass": "closed_scrub_pocket_shell",
+        "hasAnteriorOpening": false,
+        "anteriorOpeningRadians": 0.0,
+        "torsoWrapClosed": true,
+        "weightedBones": [
+          "clavicle.L",
+          "clavicle.R",
+          "upper_arm.L",
+          "upper_arm.R",
+          "chest",
+          "spine",
+          "neck"
+        ],
+        "deformsWithBreathing": true,
+        "hasVisibleVolume": true,
+        "hasSeamFoldHints": true,
+        "hasFabricThicknessSolidify": true,
+        "hasLightSubsurf": true,
+        "hasGentleDisplacementFolds": true,
+        "coordinateBasis": "body_local_y_height_bind_pose_v1",
+        "bindPoseLocalBBox": {
+          "min": [
+            -0.329477,
+            0.87605,
+            0.020146
+          ],
+          "max": [
+            0.315701,
+            1.4416,
+            0.356445
+          ]
+        },
+        "bindPoseWorldBBox": {
+          "min": [
+            -0.329477,
+            -0.356445,
+            0.87605
+          ],
+          "max": [
+            0.315701,
+            -0.020146,
+            1.4416
+          ]
+        },
+        "bodyLocalHeightRange": [
+          0.0,
+          1.76
+        ],
+        "garmentLayers": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "declaredUpperLayerTokens": [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        "role": "nurse",
+        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "b_plus_visual_realism_gate",
+          "clinical_validity",
+          "scoring_validity",
+          "believable_clinical_costume"
+        ],
+        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      }
+    ],
+    "declaredUpperGarmentLayers": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
+    "declaredUpperGarmentLayerCount": 2,
     "realGarmentRegion": {
       "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_role_topology_v1_open_front_vs_closed_scrub",
-      "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
-      "faceCount": 268,
-      "vertexCount": 352,
+      "revision": "embed_real_garment_multi_layer_v1_issue_75",
+      "objectName": "openclinxr_real_garment_from_phenotype_scrub_pocket",
+      "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+      "layerIndex": 1,
+      "layerToken": "scrub_pocket",
+      "layerKind": "scrub_pocket",
+      "faceCount": 252,
+      "vertexCount": 340,
       "hasSleeveGeometry": true,
-      "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve",
-      "sleeveLenFactor": 0.42,
-      "sleeveAlongArmM": 0.1387,
-      "sleeveRows": 7,
+      "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
+      "sleeveLenFactor": 0.38,
+      "sleeveAlongArmM": 0.1255,
+      "sleeveRows": 6,
       "sleeveCols": 10,
-      "sleeveR0M": 0.06,
-      "sleeveRFactor": 0.25,
-      "torsoRBaseM": 0.2399,
+      "sleeveR0M": 0.0565,
+      "sleeveRFactor": 0.222,
+      "torsoRBaseM": 0.2542,
+      "meanRadiusM": 0.1374,
+      "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
       "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-      "topologyClass": "closed_scrub_ring",
+      "topologyClass": "closed_scrub_pocket_shell",
       "hasAnteriorOpening": false,
       "anteriorOpeningRadians": 0.0,
       "torsoWrapClosed": true,
@@ -415,25 +610,25 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.330007,
-          0.841068,
-          0.027228
+          -0.329477,
+          0.87605,
+          0.020146
         ],
         "max": [
-          0.330007,
+          0.315701,
           1.4416,
-          0.350753
+          0.356445
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.330007,
-          -0.350753,
-          0.841068
+          -0.329477,
+          -0.356445,
+          0.87605
         ],
         "max": [
-          0.330007,
-          -0.027228,
+          0.315701,
+          -0.020146,
           1.4416
         ]
       },
@@ -445,8 +640,12 @@
         "scrub_top",
         "scrub_pocket"
       ],
+      "declaredUpperLayerTokens": [
+        "scrub_top",
+        "scrub_pocket"
+      ],
       "role": "nurse",
-      "claimScope": "case_phenotype_garment_layers_role_topology_geometry_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+      "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
@@ -454,29 +653,35 @@
         "scoring_validity",
         "believable_clinical_costume"
       ],
-      "evidenceForThisSlice": "garment-role-distinguish-v1-issue-46"
+      "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
     "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_role_topology_v1_open_front_vs_closed_scrub",
-    "objectName": "openclinxr_real_garment_from_phenotype_scrub_top",
-    "faceCount": 268,
-    "vertexCount": 352,
+    "revision": "embed_real_garment_multi_layer_v1_issue_75",
+    "objectName": "openclinxr_real_garment_from_phenotype_scrub_pocket",
+    "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
+    "layerIndex": 1,
+    "layerToken": "scrub_pocket",
+    "layerKind": "scrub_pocket",
+    "faceCount": 252,
+    "vertexCount": 340,
     "hasSleeveGeometry": true,
-    "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve",
-    "sleeveLenFactor": 0.42,
-    "sleeveAlongArmM": 0.1387,
-    "sleeveRows": 7,
+    "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
+    "sleeveLenFactor": 0.38,
+    "sleeveAlongArmM": 0.1255,
+    "sleeveRows": 6,
     "sleeveCols": 10,
-    "sleeveR0M": 0.06,
-    "sleeveRFactor": 0.25,
-    "torsoRBaseM": 0.2399,
+    "sleeveR0M": 0.0565,
+    "sleeveRFactor": 0.222,
+    "torsoRBaseM": 0.2542,
+    "meanRadiusM": 0.1374,
+    "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
     "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-    "topologyClass": "closed_scrub_ring",
+    "topologyClass": "closed_scrub_pocket_shell",
     "hasAnteriorOpening": false,
     "anteriorOpeningRadians": 0.0,
     "torsoWrapClosed": true,
@@ -498,25 +703,25 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.330007,
-        0.841068,
-        0.027228
+        -0.329477,
+        0.87605,
+        0.020146
       ],
       "max": [
-        0.330007,
+        0.315701,
         1.4416,
-        0.350753
+        0.356445
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.330007,
-        -0.350753,
-        0.841068
+        -0.329477,
+        -0.356445,
+        0.87605
       ],
       "max": [
-        0.330007,
-        -0.027228,
+        0.315701,
+        -0.020146,
         1.4416
       ]
     },
@@ -528,8 +733,12 @@
       "scrub_top",
       "scrub_pocket"
     ],
+    "declaredUpperLayerTokens": [
+      "scrub_top",
+      "scrub_pocket"
+    ],
     "role": "nurse",
-    "claimScope": "case_phenotype_garment_layers_role_topology_geometry_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+    "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
@@ -537,7 +746,7 @@
       "scoring_validity",
       "believable_clinical_costume"
     ],
-    "evidenceForThisSlice": "garment-role-distinguish-v1-issue-46"
+    "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -626,7 +835,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-06T21:51:12.189849Z",
+    "generatedAt": "2026-08-06T22:20:56.400060Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,
