@@ -351,12 +351,15 @@ export function isExamForm(value: unknown): value is ExamForm {
     && value["stationRefs"].every(isStationRef);
 }
 
-export function createSeedStationRunQueueSnapshot(input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown }): ApiStationRunQueueSnapshot {
+export function createSeedStationRunQueueSnapshot(
+  input: { snapshotId?: unknown; createdAt?: unknown; reviewerId?: unknown },
+  scenarios: readonly Scenario[] = scenarioBank,
+): ApiStationRunQueueSnapshot {
   return {
     snapshotId: typeof input.snapshotId === "string" && input.snapshotId.length > 0 ? input.snapshotId : `queue_snapshot_${Date.now()}`,
     createdAt: typeof input.createdAt === "string" && input.createdAt.length > 0 ? input.createdAt : new Date().toISOString(),
     ...(typeof input.reviewerId === "string" && input.reviewerId.length > 0 ? { reviewerId: input.reviewerId } : {}),
-    queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank),
+    queue: createExamStationRunQueue(createStep2CsStyleSeedBlueprint(scenarios), scenarios),
   };
 }
 

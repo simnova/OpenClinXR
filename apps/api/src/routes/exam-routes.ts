@@ -1,10 +1,11 @@
 import type { Hono } from "hono";
 import { assembleExamForm, createDefaultClinicalSkillsBlueprint, createExamStationRunQueue, createExamTimingPlan, createStep2CsStyleSeedBlueprint, evaluateBlueprintScenarioReadiness, evaluateScenarioVersionDrift } from "@openclinxr/exam-assembly";
 import { routeById } from "@openclinxr/rest";
-import { edChestPainScenario, scenarioBank } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";
 import { createSeedStationRunQueueSnapshot, isExamForm } from "../api-route-support.js";
+import { buildExamAssemblyScenarioPool } from "../exam-assembly-pool.js";
 
 /** Exam domain routes (composition-root migration). */
 export function registerExamRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
@@ -12,22 +13,29 @@ export function registerExamRoutes(app: Hono<{ Variables: ApiAppVariables }>, ct
 
   app.get(routeById("default-exam-blueprint").path, (context) => context.json(createDefaultClinicalSkillsBlueprint()));
 
-  app.get(routeById("step2cs-seed-exam-blueprint").path, (context) => context.json(createStep2CsStyleSeedBlueprint()));
+  app.get(routeById("step2cs-seed-exam-blueprint").path, async (context) => {
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    return context.json(createStep2CsStyleSeedBlueprint(pool));
+  });
 
-  app.get(routeById("step2cs-seed-exam-blueprint-readiness").path, (context) =>
-    context.json(evaluateBlueprintScenarioReadiness(createStep2CsStyleSeedBlueprint(), scenarioBank)),
-  );
+  app.get(routeById("step2cs-seed-exam-blueprint-readiness").path, async (context) => {
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    return context.json(evaluateBlueprintScenarioReadiness(createStep2CsStyleSeedBlueprint(pool), pool));
+  });
 
-  app.get(routeById("step2cs-seed-exam-timing-plan").path, (context) =>
-    context.json(createExamTimingPlan(createStep2CsStyleSeedBlueprint())),
-  );
+  app.get(routeById("step2cs-seed-exam-timing-plan").path, async (context) => {
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    return context.json(createExamTimingPlan(createStep2CsStyleSeedBlueprint(pool)));
+  });
 
-  app.get(routeById("step2cs-seed-station-run-queue").path, (context) =>
-    context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(), scenarioBank)),
-  );
+  app.get(routeById("step2cs-seed-station-run-queue").path, async (context) => {
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    return context.json(createExamStationRunQueue(createStep2CsStyleSeedBlueprint(pool), pool));
+  });
 
   app.get(routeById("list-step2cs-seed-station-run-queue-snapshots").path, async (context) => {
-    const blueprintId = createStep2CsStyleSeedBlueprint().blueprintId;
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    const blueprintId = createStep2CsStyleSeedBlueprint(pool).blueprintId;
     return context.json(await Promise.resolve(persistence.listStationRunQueueSnapshots?.(blueprintId) ?? []));
   });
 
@@ -37,7 +45,8 @@ export function registerExamRoutes(app: Hono<{ Variables: ApiAppVariables }>, ct
       createdAt?: unknown;
       reviewerId?: unknown;
     };
-    const snapshot = createSeedStationRunQueueSnapshot(body);
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    const snapshot = createSeedStationRunQueueSnapshot(body, pool);
 
     await persistence.saveStationRunQueueSnapshot?.(snapshot);
     return context.json(snapshot, 201);

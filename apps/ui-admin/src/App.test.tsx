@@ -789,6 +789,11 @@ function fakeControlPlaneClient(): AdminControlPlaneClient {
       blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
       canAssembleReadyForm: false,
       stationCount: { required: 12, candidate: 12, activationEligible: 1 },
+      consideredScenarioIds: [
+        "ed_chest_pain_priority_v1",
+        "clinic_abdominal_pain_interpreter_v1",
+        ...Array.from({ length: 10 }, (_, index) => `draft_scenario_${index + 1}`),
+      ],
       activationEligibleScenarioIds: ["ed_chest_pain_priority_v1"],
       blockedScenarioIds: [
         { scenarioId: "clinic_abdominal_pain_interpreter_v1", reason: "not_approved" },

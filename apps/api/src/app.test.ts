@@ -5311,43 +5311,43 @@ describe("exam assembly draws from authored scenarios, not just the fixture bank
     status,
   });
 
-  it.fails("builds the assembly pool as fixtures UNION persisted authored scenarios", async () => {
-    const app = createApiApp(createDefaultScenarioRuntime(), {
+  it("builds the assembly pool as fixtures UNION persisted authored scenarios", async () => {
+    const app = createApiApp(undefined, {
       listAuthoredScenarios: () => [authored("authored_case_v1", "approved")],
     });
-    const res = await app.request("/api/exam/step2cs-seed/station-run-queue");
-    const body = (await res.json()) as { stations?: { scenarioId: string }[] };
-    const ids = (body.stations ?? []).map((s) => s.scenarioId);
+    const res = await app.request("/exam-blueprints/step2cs-seed/station-run-queue");
+    const body = (await res.json()) as { stationQueue?: { scenarioId: string | null }[] };
+    const ids = (body.stationQueue ?? []).map((s) => s.scenarioId).filter((id): id is string => id != null);
     // Fixtures must survive: replacing the bank breaks the seed blueprint.
     expect(ids.some((id) => id.startsWith("ed_chest_pain"))).toBe(true);
   });
 
-  it.fails("lets an APPROVED authored scenario appear as a station when it adds coverage", async () => {
-    const app = createApiApp(createDefaultScenarioRuntime(), {
+  it("lets an APPROVED authored scenario appear as a station when it adds coverage", async () => {
+    const app = createApiApp(undefined, {
       listAuthoredScenarios: () => [authored("authored_case_v1", "approved")],
     });
-    const res = await app.request("/api/exam/step2cs-seed/readiness");
+    const res = await app.request("/exam-blueprints/step2cs-seed/readiness");
     const body = (await res.json()) as { consideredScenarioIds?: string[] };
     expect(body.consideredScenarioIds ?? []).toContain("authored_case_v1");
   });
 
-  it.fails("does NOT select an unapproved authored scenario into a station", async () => {
+  it("does NOT select an unapproved authored scenario into a station", async () => {
     // The cheat this blocks: satisfy "authored appears" by admitting everything regardless of status.
-    const app = createApiApp(createDefaultScenarioRuntime(), {
+    const app = createApiApp(undefined, {
       listAuthoredScenarios: () => [authored("draft_case_v1", "draft")],
     });
-    const res = await app.request("/api/exam/step2cs-seed/station-run-queue");
-    const body = (await res.json()) as { stations?: { scenarioId: string }[] };
-    expect((body.stations ?? []).map((s) => s.scenarioId)).not.toContain("draft_case_v1");
+    const res = await app.request("/exam-blueprints/step2cs-seed/station-run-queue");
+    const body = (await res.json()) as { stationQueue?: { scenarioId: string | null }[] };
+    expect((body.stationQueue ?? []).map((s) => s.scenarioId)).not.toContain("draft_case_v1");
   });
 
-  it.fails("actually consults persistence rather than hardcoding a scenario", async () => {
+  it("actually consults persistence rather than hardcoding a scenario", async () => {
     // The other cheat: pass the first two tests without ever calling listAuthoredScenarios.
     let consulted = 0;
-    const app = createApiApp(createDefaultScenarioRuntime(), {
+    const app = createApiApp(undefined, {
       listAuthoredScenarios: () => { consulted += 1; return []; },
     });
-    await app.request("/api/exam/step2cs-seed/station-run-queue");
+    await app.request("/exam-blueprints/step2cs-seed/station-run-queue");
     expect(consulted).toBeGreaterThan(0);
   });
 });
