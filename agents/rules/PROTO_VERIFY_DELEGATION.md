@@ -122,6 +122,60 @@ retro once work lands:
 Ask what it was thinking, not just what it did — with the outcome known, that is a better question
 than any you could ask mid-flight. For Claude sub-instances, `SendMessage` to the agent id.
 
+## 6c. Multi-tier retrospective — workers, then peer, then codify
+
+Section 6 says to retro after landing. This is the shape that scales past one worker, added
+2026-08-06 at operator request and proven the same day.
+
+**Tier 1 — the workers.** Session ids are in `.openclinxr/openclaw/worker-sessions.jsonl` (82
+sessions, 31 with a worktree). Resume each and ask five questions: what in the brief helped; what
+wasted turns; **where they had to GUESS because the brief was silent — name the guess**; was the
+planted-`it.fails` convention clear; one concrete change to how the task was specified.
+
+**Tier 2 — the peer.** Hand it the corpus, not one transcript. Its job is the question a single
+worker cannot answer: *what recurs?* One worker complaining is noise; three is infrastructure. Ask it
+explicitly to say "no pattern yet" when that is the honest read.
+
+**Tier 3 — codify.** Every finding lands in ONE of: `dispatch()` (infrastructure), the brief
+template (specification), or a rules file (doctrine). A finding that goes nowhere was a conversation.
+
+The peer can drive tier 1 itself — verified, both resumes exited 0 in under 25s. It needs
+`OPENCLINXR_RAW_GROK_SANCTIONED=1` with a reason, because the dispatch chokepoint denies bare
+`grok -p`; that denial is correct and should not be relaxed for convenience.
+
+**Cadence, against the anti-toil rule.** One retro attached to a slice that just landed is ~20s and
+rides on work already done. A standalone retro sweep across 31 sessions is evidence work, and this
+project's rule is that evidence work must not displace product work. So: retro the worker after each
+landing, synthesise across workers only when several have accumulated. Never let the retro become the
+cycle.
+
+**How this loop produces confident, useless output** — the failure to watch for:
+- Leading questions. "Was the brief clear?" gets agreement; "name the specific guess you made" gets
+  data. Ask for the artifact, not the sentiment.
+- Codifying a single voice. A worker's account of itself is exactly what the contract layer exists
+  not to trust — a claim about the tree still gets checked against the tree.
+- Rule accretion. Findings that become prose in a file nobody greps are worse than nothing: they read
+  as covered. If it cannot go in `dispatch()` or a template, ask whether it is real.
+
+### First run, 2026-08-06 — what it found
+
+**3/3 workers hit an unprepared worktree** (missing `node_modules`; #39's vanished mid-session).
+Infrastructure, not prose — belongs in `dispatch()`. Filed as its own item.
+
+**2/3 silently made product decisions the brief left open.** #39 chose coerce-over-400, invented the
+`validationStage` stage_0→stage_1 bump (which is #42, filed before this retro — so the retro
+independently found an issue already open on other evidence), and mapped `changes_requested`→
+`rejected`. #25 guessed which surface shape to honour. Fix: briefs name every unlocked decision, or
+say "implementer chooses and records it in the commit message."
+
+**2/2 found the planted-`it.fails` convention clear**, and #39 reports it considered editing the
+tests only as "what a cheat looks like" — the two contracts pulling opposite ways is what made that
+path fail closed. The tension requirement is load-bearing, not decoration.
+
+**#25: plant REDs against live `routeById` paths and real response keys.** Its planted contract used
+invented URLs (`/api/exam/...`) and field names, so the worker spent turns discovering the real ones.
+My error, not the worker's — a brief that describes an API that does not exist is a weak brief.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
