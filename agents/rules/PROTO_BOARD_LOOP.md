@@ -151,6 +151,14 @@ reason" is a successful cagematch — same rule as "a clean revert with a precis
 success." A lane C item that can only close by adopting something will produce an adoption whether
 or not one is warranted.
 
+**`--validate-latest` is necessary and NOT sufficient.** Measured: it validates the probe report's
+SHAPE (`anny-skin-cagematch-probe.ts:159-170` → `validateAnnySkinCagematchProbeReport`). A bake-off
+nobody really ran produces a schema-valid report and passes. That is the fabricated-`score.json`
+class exactly: mechanically green, substantively empty. A lane C `done_when` therefore also needs
+artifacts with CONTENT — `min-bytes:` on the rendered png/webm, not merely `exists:` — and a
+`claimScope` / `notEvidenceFor` that forbids a readiness claim without naming the evidence files it
+rests on.
+
 **The failure mode lane C must not repeat.** Garment work burned four rounds and produced a
 fabricated `score.json` (#17). The shape: artifacts pass every mechanical check while being invisible
 to a human eye, and an agent grading its own output scored work it had not done. Where a cagematch's
@@ -159,9 +167,30 @@ failed rounds satisfied. Either a human looks, or the grader is not the producer
 available, the item stays un-operationalized and says so — see #46, which is blocked on its evidence
 mechanism rather than on any technical question.
 
-**Substrate is overhead, not a lane.** `tools/openclinxr/openclaw`, harness, gates: at most ONE lane
-slot in a cycle, never all of them. After a stretch with more substrate artifacts than product
-landings, the next cycle is product across the board.
+**Blocked on LOOKS is not blocked on everything.** #46 freezes visual garment claims; it must not
+freeze garment MECHANICS — weights, deform evidence fields, traverse tags, motion probes — which are
+ordinary lane A engineering with non-visual REDs. Two symmetric errors to avoid: relabelling
+engineering as a cagematch to dodge the visual bar, and using the fabrication history as grounds to
+do no garment work at all. There is no trustworthy fully-autonomous grader for "does this look
+right"; that is a standing cost, and it means a human review slot has to be scheduled rather than
+wished for.
+
+**Substrate is overhead, not a lane — but it is a PRIORITY OVERRIDE, not a hard cap.** Default: at
+most ONE lane slot, and after a stretch where substrate artifacts outnumber product landings (count
+them; without a number the rule is mood) the next cycle is product across the board.
+
+The override: **when land-path integrity is broken, substrate takes a slot immediately**, mid-product
+stretch or not. Known members of that class — the land path not running its own tests (#40), a gate
+wired to nothing, a test glob silently running 14 of 148 files. Rate-limiting "sharpen the saw
+forever" is the point of this rule; rate-limiting "fix the saw while it is broken" would re-earn
+every unconnected piece this loop has already paid for. The peer round that produced this paragraph
+put it plainly: what breaks first under a hard ban is unguarded delegation on push.
+
+**Integration is SERIAL even when lanes are parallel.** Workers are isolated by worktree; `integrate`
+is not — it runs `git merge --no-ff --no-commit` then `git commit` directly on main with no lease
+(`integrate.ts:114-126`). Two integrates at once contend on the index. Dispatch concurrently, verify
+concurrently, land ONE AT A TIME. The second land recomputes its own kill report against the main the
+first one produced, which is what the gate's tree-hash freshness check exists to force.
 
 Two lanes per cycle is the working default, not three — a cagematch is the most expensive kind of
 slice and the least likely to land code. Run lane C when a lane A or B item is blocked on an answer
@@ -171,6 +200,17 @@ waits; unproven tech does not become urgent by sitting.
 If a lane has nothing dispatchable, operationalize FOR THAT LANE rather than doubling up on the
 other. Replenishment stays in-lane too — otherwise the queue drifts back toward whichever lane is
 easiest to find work in, which is how the imbalance happened.
+
+**Seams belong to neither lane, so name them explicitly.** The most valuable work in this codebase is
+repeatedly the cut BETWEEN lanes — B assembles and approves an exam, A loads it for a learner, and
+"the runtime never calls the API" (#43) is nobody's ticket under strict in-lane ownership. Disjoint
+worktrees do not imply disjoint product ownership of a seam. Mark such an item `integration: A↔B`
+with both write roots stated, and either give it one worker holding both or a pair sharing one brief.
+A seam left unowned is how three landed API slices reached no learner.
+
+Shared packages (`packages/openclinxr/scenario-runtime`, conversation policy) are libraries BOTH
+lanes call, not the property of whichever lane touched them last. Contract changes there need the
+consuming lane represented.
 
 **The imbalance hides inside a healthy-looking board.** When this rule was written the board had 19
 open items and not one dispatchable XR item — the XR entries were all hardware-gated evidence. The
