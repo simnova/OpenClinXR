@@ -57,7 +57,7 @@ const PHONEMES = [
 ];
 
 describe("a phoneme timeline actually moves the mouth (#45)", () => {
-  it.fails("produces viseme weights that change over the timeline", async () => {
+  it("produces viseme weights that change over the timeline", async () => {
     const mod = await load();
     const drive = mod["driveVisemeTimeline"] as Drive | undefined;
     expect(drive).toBeTypeOf("function");
@@ -73,7 +73,7 @@ describe("a phoneme timeline actually moves the mouth (#45)", () => {
     expect(frames.some((f) => Object.values(f.weights).some((w) => w > 0.1))).toBe(true);
   });
 
-  it.fails("drives only viseme targets the mesh really has", async () => {
+  it("drives only viseme targets the mesh really has", async () => {
     // Kills the other cheat: animating an invented or unrelated morph would satisfy the test above.
     const mod = await load();
     const drive = mod["driveVisemeTimeline"] as Drive | undefined;

@@ -1,27 +1,111 @@
 /**
- * PLACEHOLDER for #45. Deliberately implements nothing.
+ * Phoneme timeline → viseme morph weights (#45).
  *
- * Exists so the planted contracts in `viseme-timeline-drive.test.ts` can reference this module
- * without breaking `typecheck` — a dynamic `import()` is still resolved at compile time, so an
- * absent module is a hard error rather than a runtime one.
+ * Standalone driver — not wired into `main.ts` in this slice. The contract only requires
+ * that a phoneme timeline produces changing weights on real mesh viseme targets. Wiring into
+ * the existing `visemeSequence` / morph-target playback path is a follow-on.
  *
- * WHAT GOES HERE (#45): drive the viseme morph targets the humanoids already carry, from a phoneme
- * timeline, and prove the mouth actually changes shape.
- *
- * WHAT IS ALREADY TRUE, so this is smaller than the issue originally implied:
- *   - the GLBs carry the shapes. `peds_patient_child.glb` has 26 shape keys including
- *     `viseme_silence, viseme_AA, viseme_E, viseme_IH, viseme_OH, viseme_OU, viseme_FV, viseme_L`.
- *   - the registry declares the mapping: `asset-registry/src/index.ts:618` → `lipSync: ["viseme_phoneme_map"]`
- *   - `main.ts` already models a timeline: `visemeSequence` (:1528), `morphTargetAppliedTargetCount`
- *     (:1571), `morphTargetPlaybackMode` (:1572), `visemeTimelineComparatorEvidencePresent` (:1574)
- *
- * WHAT IS MISSING is evidence that any of it moves a face. `voice-gateway` has only Mock and Local
- * adapters, so no real speech has ever driven these shapes — but NO TTS IS NEEDED to prove the rig
- * works. A hardcoded phoneme timeline is sufficient, and the peer round was explicit that a
- * source-selection bake-off is only required once production lip-sync QUALITY is being claimed.
- *
- * SCOPE: prove the mouth changes shape over a timeline. NOT: which phoneme source to adopt, audio
- * sync accuracy, or anything a clinician would need to judge as realistic.
+ * Decisions recorded here:
+ * - Interpolation: **step** — one frame per phoneme cue; active viseme at 1.0, others 0.
+ *   Contract only requires change, not smoothness.
+ * - Phoneme → viseme: exact `viseme_${PHONEME}` when present; `sil`/`silence` → `viseme_silence`;
+ *   case-insensitive match against `availableTargets`; unmapped phonemes yield zero weights
+ *   (no invented target names).
  */
 
-export const VISEME_TIMELINE_DRIVE_PLACEHOLDER = true;
+export type PhonemeCue = {
+  phoneme: string;
+  atSecond: number;
+};
+
+export type VisemeFrame = {
+  atSecond: number;
+  weights: Record<string, number>;
+};
+
+export type DriveVisemeTimelineInput = {
+  phonemes: ReadonlyArray<PhonemeCue>;
+  availableTargets: readonly string[];
+};
+
+export type DriveVisemeTimelineResult = {
+  frames: VisemeFrame[];
+};
+
+/** Alias phonemes that do not match `viseme_${token}` by construction. */
+const PHONEME_ALIASES: Readonly<Record<string, string>> = {
+  sil: "silence",
+  silence: "silence",
+  rest: "silence",
+};
+
+/**
+ * Resolve a phoneme token to a morph target name that exists on the mesh, or null.
+ * Never invents target names outside `availableTargets`.
+ */
+export function resolveVisemeTarget(
+  phoneme: string,
+  availableTargets: readonly string[],
+): string | null {
+  const available = new Set(availableTargets);
+  const raw = phoneme.trim();
+  if (!raw) return null;
+
+  const lower = raw.toLowerCase();
+  const alias = PHONEME_ALIASES[lower] ?? lower;
+
+  // Prefer ARKit-style names used on shipped GLBs (viseme_AA, viseme_silence, …).
+  const candidates = [
+    `viseme_${alias}`,
+    `viseme_${alias.toUpperCase()}`,
+    `viseme_${raw}`,
+    `viseme_${raw.toUpperCase()}`,
+    alias,
+    raw,
+  ];
+
+  for (const candidate of candidates) {
+    if (available.has(candidate)) return candidate;
+  }
+
+  // Case-insensitive fallback against the real mesh list only.
+  for (const target of availableTargets) {
+    if (target.toLowerCase() === `viseme_${alias}`.toLowerCase()) return target;
+    if (target.toLowerCase() === alias.toLowerCase()) return target;
+  }
+
+  return null;
+}
+
+/**
+ * Drive viseme morph weights from a timed phoneme sequence.
+ *
+ * Step interpolation: at each phoneme cue, the resolved viseme is 1.0 and every other
+ * available viseme target is 0. Frames always key only names from `availableTargets`.
+ */
+export function driveVisemeTimeline(
+  input: DriveVisemeTimelineInput,
+): DriveVisemeTimelineResult {
+  const { phonemes, availableTargets } = input;
+  const visemeTargets = availableTargets.filter((name) =>
+    name.toLowerCase().startsWith("viseme_"),
+  );
+  // If the mesh exposes non-prefixed names only, still drive whatever was measured.
+  const driveTargets = visemeTargets.length > 0 ? visemeTargets : [...availableTargets];
+
+  const frames: VisemeFrame[] = phonemes.map((cue) => {
+    const active = resolveVisemeTarget(cue.phoneme, availableTargets);
+    const weights: Record<string, number> = {};
+    for (const target of driveTargets) {
+      weights[target] = active !== null && target === active ? 1 : 0;
+    }
+    // If the active target is in availableTargets but not in driveTargets (edge case),
+    // still set it so the frame is non-empty and names only real targets.
+    if (active !== null && !(active in weights) && availableTargets.includes(active)) {
+      weights[active] = 1;
+    }
+    return { atSecond: cue.atSecond, weights };
+  });
+
+  return { frames };
+}
