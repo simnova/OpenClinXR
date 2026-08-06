@@ -40,7 +40,7 @@ export const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
  * LOWERED. Do not add new entries to widen the gate; split the file instead.
  */
 export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
-  "apps/ui-xr/src/main.ts": { maxLines: 10255, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD)" },
+  "apps/ui-xr/src/main.ts": { maxLines: 10240, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD)" },
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3743, reason: "XR runtime-state god-file — split by state slice" },
   "apps/api/src/api-route-support.ts": { maxLines: 1124, reason: "shared route-level helpers extracted from app.ts during the composition-root migration — split by domain alongside the remaining route modules" },
   "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
