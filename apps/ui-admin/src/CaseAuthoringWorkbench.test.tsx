@@ -109,12 +109,20 @@ describe("CaseAuthoringWorkbench", () => {
    * SCOPE: the authoring surface. The runtime capture half of #69 is contracted separately in
    * `tools/openclinxr/evidence/ui-xr-environment-room-capture.test.ts`; both are required and neither
    * closes the issue alone.
+   *
+   * ## FIXED (#69)
+   * - `CaseAuthoringWorkbench` renders an "Encounter environment" panel (aria-label) driven by
+   *   `baseDraft.environment.environmentId` + `ENVIRONMENT_SHELL_DESCRIPTORS` (displayName, width,
+   *   depth, height, floor colour). Facts change when the loaded case's environmentId changes.
+   * - Not a 3D preview. Measured absence (`grep environment` was empty) is the pre-fix record above.
    */
-  it.fails("the authoring workbench shows which room the selected environment is", async () => {
+  it("the authoring workbench shows which room the selected environment is", async () => {
     const { ENVIRONMENT_SHELL_DESCRIPTORS } = await import("@openclinxr/asset-registry");
     const descriptors = ENVIRONMENT_SHELL_DESCRIPTORS as Record<string, { roomDepthMeters: number; roomWidthMeters: number }>;
 
-    const edEnvironmentId = edChestPainScenario.environment.environmentId;
+    expect(edChestPainScenario.environment, "ED fixture must carry environment").toBeDefined();
+    const edEnvironment = edChestPainScenario.environment!;
+    const edEnvironmentId = edEnvironment.environmentId;
     const edShell = descriptors[edEnvironmentId];
     expect(edShell, `no descriptor for ${edEnvironmentId} — fixture drifted`).toBeDefined();
 
@@ -132,7 +140,7 @@ describe("CaseAuthoringWorkbench", () => {
     cleanup();
     const homeVisit = {
       ...edChestPainScenario,
-      environment: { ...edChestPainScenario.environment, environmentId: "telehealth_home_visit_v1" },
+      environment: { ...edEnvironment, environmentId: "telehealth_home_visit_v1" },
     };
     const homeShell = descriptors["telehealth_home_visit_v1"];
     expect(homeShell).toBeDefined();

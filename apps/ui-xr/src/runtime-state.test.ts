@@ -274,6 +274,23 @@ describe("XR runtime state", () => {
     });
   });
 
+  it("falls back to ED requiredTraceTags when sceneManifest.dialogueTurns is absent (#69 telehealth shell boot)", () => {
+    const base = createEdChestPainLocalLearnerRuntimeAssetBundle();
+    // Real static telehealth bundle omits dialogueTurns; cast through unknown to mirror that shape.
+    const bundle = {
+      ...base,
+      scenarioId: "telehealth_diabetes_health_literacy_v1",
+      sceneManifest: {
+        ...base.sceneManifest,
+        dialogueTurns: undefined,
+      },
+    } as unknown as LearnerRuntimeAssetBundle;
+
+    const tags = deriveRuntimeTraceActionTags(bundle);
+    expect(tags.length).toBeGreaterThan(0);
+    expect(createRuntimeStateFromBundle(bundle).scenarioId).toBe("telehealth_diabetes_health_literacy_v1");
+  });
+
   it("preserves actor/equipment materialization blockers from generated learner runtime bundles", () => {
     const bundle: LearnerRuntimeAssetBundle = {
       ...createEdChestPainLocalLearnerRuntimeAssetBundle({

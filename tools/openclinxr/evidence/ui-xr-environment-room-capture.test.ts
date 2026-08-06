@@ -52,6 +52,18 @@ import { describe, expect, it } from "vitest";
  * SCOPE: that a room was rendered and the image belongs to the environment it claims. Whether the
  * rooms LOOK like different places is read off the pixels and recorded on #69 — and "indistinguishable"
  * is a successful outcome that closes the item, not a failure of this slice.
+ *
+ * ## FIXED (#69)
+ * - `ui-xr-environment-room-capture.ts` exports `buildRoomCaptureManifest` (page readings only;
+ *   `source: "live_scene"`; never reconciles against `environment-descriptors.ts`).
+ * - `refusesHiddenEnvironmentCapture` refuses `clean-humanoid-source-comparator` / `source-clean`
+ *   and allows `scene-overview` (the mode that keeps the shell visible).
+ * - CLI `pnpm asset:ui-xr:environment-room-capture` Playwright-captures ED + telehealth via
+ *   `spawnPortlessDevServer` + `?scenarioId=` + `openclinxrPortalStart=encounter` + `scene-overview`,
+ *   reads shell facts from `window.__openClinXrDebugScene` (station shell userData + floor theme),
+ *   writes `.openclinxr/evidence/ui-xr-environment-room/latest/capture-manifest.json`.
+ * Measurements in the planted header (empty-stage trap, face framing trap, schematic grading gap)
+ * remain the record — not deleted.
  */
 
 const load = async () =>
@@ -68,7 +80,7 @@ type BuildManifest = (input: {
 type RefusesHidden = (input: { captureMode: string }) => boolean;
 
 describe("the station environment is rendered and the image belongs to it (#69)", () => {
-  it.fails("the capture manifest records shell facts read back from the live scene, not from the descriptor module", async () => {
+  it("the capture manifest records shell facts read back from the live scene, not from the descriptor module", async () => {
     const mod = await load();
     const build = mod["buildRoomCaptureManifest"] as BuildManifest | undefined;
     expect(build).toBeTypeOf("function");
@@ -90,7 +102,7 @@ describe("the station environment is rendered and the image belongs to it (#69)"
     expect(entry.source).toBe("live_scene");
   });
 
-  it.fails("an ED bay and a telehealth home visit report different live floor colour and room depth", async () => {
+  it("an ED bay and a telehealth home visit report different live floor colour and room depth", async () => {
     const mod = await load();
     const build = mod["buildRoomCaptureManifest"] as BuildManifest | undefined;
     expect(build).toBeTypeOf("function");
@@ -118,7 +130,7 @@ describe("the station environment is rendered and the image belongs to it (#69)"
     expect(ed.imagePath).not.toBe(home.imagePath);
   });
 
-  it.fails("a capture mode that hides the station environment is refused rather than photographed", async () => {
+  it("a capture mode that hides the station environment is refused rather than photographed", async () => {
     // main.ts:3318-3320 hides stationEnvironment and floor in the clean humanoid comparator mode.
     // Photographing that produces a well-formed image of an empty stage — the most likely way to
     // file convincing evidence of nothing.
