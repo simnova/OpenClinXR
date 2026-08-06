@@ -51,3 +51,27 @@ describe("delegation scorecard", () => {
     expect(() => formatScorecard(buildScorecard(process.cwd(), []))).not.toThrow();
   });
 });
+
+describe("landing is read from integration events, not from commit subjects", () => {
+  // I built integrationEvents() specifically to replace regexing `Merge branch 'wt/…'`, then left
+  // the scorecard reading subjects — shipping another instance of the "pieces built, left
+  // unconnected" class within an hour of documenting it as recurring.
+  //
+  // Subjects are folklore: a slice integrated by copying intended files leaves no such subject, and
+  // any commit can be titled to look like one. An event is a fact recorded by the gate that landed it.
+  it("counts a slice as landed when an integration event exists, with no matching subject", () => {
+    const card = buildScorecard(process.cwd(), [entry("evented-slice")], {
+      events: [{ slice: "evented-slice", base: "a", head: "b", at: "2026-08-06T00:00:00Z" }],
+      mergeSubjects: [],
+    });
+    expect(card.landed).toBe(1);
+  });
+
+  it("does NOT count a slice landed on subject evidence alone", () => {
+    const card = buildScorecard(process.cwd(), [entry("subject-only")], {
+      events: [],
+      mergeSubjects: ["Merge branch 'wt/subject-only'"],
+    });
+    expect(card.landed).toBe(0);
+  });
+});

@@ -21,6 +21,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { readSessions, type DispatchLedgerEntry } from "./dispatch-worker.js";
+import { integrationEvents } from "./integrate.js";
 import type { TripwireSignal } from "./loop-pause.js";
 
 /**
@@ -68,15 +69,17 @@ function gitLines(repoRoot: string, args: string[]): string[] {
   }
 }
 
-/** A slice landed if a commit or merge in history mentions its branch or slice id. */
-function landedSlices(repoRoot: string): Set<string> {
-  const subjects = gitLines(repoRoot, ["log", "--format=%s", "-n", "500"]);
-  const landed = new Set<string>();
-  for (const subject of subjects) {
-    const merge = /Merge branch '(?:wt\/)?([^']+)'/.exec(subject);
-    if (merge?.[1]) landed.add(merge[1]);
-  }
-  return landed;
+/**
+ * A slice landed when the integrate gate RECORDED it landing.
+ *
+ * This previously regexed `Merge branch 'wt/…'` out of commit subjects. Subjects are folklore: a
+ * slice integrated by copying intended files leaves no such subject (that under-reported land rate
+ * as 33% when the truth was 100%), and any commit can be titled to look like one. An integration
+ * event is a fact written by the gate that performed the land.
+ */
+function landedSlices(repoRoot: string, injected?: { events?: IntegrationEventLike[] }): Set<string> {
+  const events = injected?.events ?? integrationEvents(repoRoot);
+  return new Set(events.map((event) => event.slice));
 }
 
 /** Reverts are the honest signal that "landed" was premature. */
@@ -95,7 +98,13 @@ function median(values: number[]): number | undefined {
   return sorted[Math.floor(sorted.length / 2)];
 }
 
-export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[]): Scorecard {
+type IntegrationEventLike = { slice: string; base: string; head: string; at: string };
+
+export function buildScorecard(
+  repoRoot: string,
+  sessions?: DispatchLedgerEntry[],
+  injected?: { events?: IntegrationEventLike[]; mergeSubjects?: string[] },
+): Scorecard {
   // Only worktree-bound dispatches are scoreable: landing is detected from the merge of the
   // worker's branch, and pre-worktree dispatches wrote straight into main with no branch to find.
   // Including them produced a 6% land rate that measured the LEDGER's history, not the loop's
@@ -108,7 +117,7 @@ export function buildScorecard(repoRoot: string, sessions?: DispatchLedgerEntry[
   const entries = worktreeBound.filter((entry) => !isProbeSlice(entry.slice ?? ""));
   const probes = worktreeBound.length - entries.length;
   const skipped = all.length - worktreeBound.length;
-  const landed = landedSlices(repoRoot);
+  const landed = landedSlices(repoRoot, injected);
   const reverts = revertedSubjects(repoRoot);
 
   const outcomes: SliceOutcome[] = entries.map((entry) => {

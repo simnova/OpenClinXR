@@ -356,7 +356,8 @@
     "openclaw:merge-kill": "tsx tools/openclinxr/openclaw/merge-kill.ts",
     "openclaw:loop": "tsx tools/openclinxr/openclaw/loop-pause.ts",
     "openclaw:dispatch-chokepoint:probe": "tsx tools/openclinxr/openclaw/dispatch-chokepoint.ts --probe",
-    "openclaw:integrate": "tsx tools/openclinxr/openclaw/integrate.ts"
+    "openclaw:integrate": "tsx tools/openclinxr/openclaw/integrate.ts",
+    "openclaw:integrate-gate": "tsx tools/openclinxr/openclaw/integrate-gate-cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",

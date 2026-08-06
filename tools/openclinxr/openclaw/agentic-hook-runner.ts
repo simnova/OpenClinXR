@@ -208,6 +208,18 @@ function pnpm(script: string): string[] {
 
 function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): HookStep[] {
   const steps: HookStep[] = [
+    // FIRST, and only fires for integrate lands (the wrapper's env marker or a wt/* merge parent),
+    // so ordinary commits on main are untouched. Keying on "product paths staged" would demand a
+    // report for every commit, which is how a gate gets disabled.
+    //
+    // Installed because the designed-but-uninstalled version was worth nothing: friction that is
+    // never wired is ZERO friction, and calling it "high friction, not a boundary" was an honest
+    // label used as grounds to defer installing it.
+    {
+      label: "Integrate gate (land path only)",
+      command: pnpm("openclaw:integrate-gate"),
+      reason: "a land must present a clean merge-kill report for the exact tree being committed",
+    },
     {
       label: "OpenClaw drift check",
       command: pnpm("docs:drift-check"),
