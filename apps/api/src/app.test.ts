@@ -5525,3 +5525,115 @@ describe("a scenario becomes exam-eligible only by passing review, never by asse
     expect(stored?.review.simulationQa).not.toBe("approved");
   });
 });
+
+describe("promotion does not advance a governance claim without recording its basis (#42)", () => {
+  /**
+   * PLANTED CONTRACTS (#42). `validationStage` is CLAIM-BEARING: `claim-language.ts:68`
+   * renders `stage_1_expert_reviewed` to a learner-visible "Expert reviewed for prototype use."
+   *
+   * `persistAuthoredScenarioReviewPromotion` advances stage_0 → stage_1 as a side effect of a status
+   * transition (`scenario-review-promotion.ts:75-78`). It is there for a real reason: `validators.ts`
+   * :157-161 refuses an approved scenario still at stage_0, so without the bump a legitimately
+   * reviewed case cannot be persisted approved at all.
+   *
+   * The objection is NOT that the value is wrong. Four named reviewers approving four gates is a
+   * defensible basis for that copy, and since #41 the gates cannot be client-asserted, so an advance
+   * is always backed by four persisted decisions. The objection is that the advance is UNATTRIBUTED:
+   * nothing records which decisions justified the claim, so it reads later as a fact the system
+   * asserted rather than one it derived.
+   *
+   * The peer round rejected the two bigger options. Requiring a separate governance decision is
+   * ceremony without a governance surface to supply it, and decoupling exam-eligibility from the
+   * stage would weaken a deliberate "approved is not still a synthetic draft" rule. Scope here is
+   * stage_0 → stage_1 ONLY — never stage_2, stage_3, or anything touching `validated_summative`.
+   *
+   * SHAPE IS THE IMPLEMENTER'S CHOICE. These tests read `governance.validationStageBasis`; if a
+   * different field or an external audit record is better, change the accessor below and say why in
+   * the commit. What must not change: an advance carries a retrievable basis, and no advance happens
+   * without one.
+   */
+  function memorySink(): ApiPersistenceSink {
+    const store = new Map<string, Scenario>();
+    const decisions: unknown[] = [];
+    return {
+      saveAuthoredScenario: (scenario) => { store.set(`${scenario.scenarioId}::${scenario.version}`, scenario); },
+      listAuthoredScenarios: () => Array.from(store.values()),
+      getAuthoredScenario: (scenarioId) =>
+        Array.from(store.values()).filter((s) => s.scenarioId === scenarioId).sort((a, b) => b.version - a.version)[0],
+      saveScenarioReviewDecision: (record) => { decisions.push(record); },
+      listScenarioReviewDecisions: () => decisions as never,
+    };
+  }
+
+  const draft = () => ({
+    ...pediatricAsthmaScenario,
+    scenarioId: "governance_basis_case_v1",
+    title: "authored governance_basis_case_v1",
+    status: "draft" as const,
+    governance: { ...pediatricAsthmaScenario.governance, validationStage: "stage_0_synthetic_draft" as const },
+  });
+
+  const approveGates = async (app: ReturnType<typeof createApiApp>, roles: readonly string[]) => {
+    const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    for (const reviewerRole of roles) {
+      await app.request("/admin/graphql", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          query: submit.source,
+          operationName: "SubmitScenarioReview",
+          variables: {
+            input: {
+              scenarioId: "governance_basis_case_v1",
+              version: draft().version,
+              reviewerRole,
+              reviewerId: `reviewer_${reviewerRole}`,
+              decision: "APPROVED",
+              comments: `${reviewerRole} gate reviewed.`,
+              evidenceRefs: [`evidence:governance_basis_case_v1:${reviewerRole}`],
+            },
+          },
+        }),
+      });
+    }
+  };
+
+  const storedScenario = async (sink: ApiPersistenceSink) =>
+    (await Promise.resolve(sink.listAuthoredScenarios?.() ?? []))
+      .find((s) => s.scenarioId === "governance_basis_case_v1") as (Scenario & {
+        governance: { validationStage: string; validationStageBasis?: unknown };
+      }) | undefined;
+
+  it.fails("advancing validationStage on promotion records the review decisions that justify the claim", async () => {
+    const sink = memorySink();
+    const app = createApiApp(undefined, sink);
+    await app.request("/scenarios", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: draft() }),
+    });
+    await approveGates(app, ["clinical", "psychometric", "legal", "simulationQa"]);
+
+    const stored = await storedScenario(sink);
+    // The advance itself is legitimate — four reviewers approved four gates.
+    expect(stored?.governance.validationStage).toBe("stage_1_expert_reviewed");
+    // What is missing today: any record of WHY the claim was made.
+    expect(stored?.governance.validationStageBasis).toBeDefined();
+    expect(JSON.stringify(stored?.governance.validationStageBasis ?? "")).toContain("reviewer_clinical");
+  });
+
+  // Already true today — kept as a regression guard, since the lazy fix for the RED above
+  // (stamp stage_1 with an empty basis) would leave this passing while the claim stays unattributed.
+  it("does not advance validationStage when the gates were not all reviewed", async () => {
+    // Kills the lazy pass — stamping stage_1 with an empty basis would satisfy the first test alone.
+    const sink = memorySink();
+    const app = createApiApp(undefined, sink);
+    await app.request("/scenarios", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: draft() }),
+    });
+    await approveGates(app, ["clinical"]);
+
+    const stored = await storedScenario(sink);
+    expect(stored?.governance.validationStage).toBe("stage_0_synthetic_draft");
+  });
+});
