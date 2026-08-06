@@ -36,7 +36,7 @@ import {
   touchResponseKindOptions,
   validateScenarioDraft,
 } from "./case-authoring-model.js";
-
+import { EncounterEnvironmentPanel } from "./EncounterEnvironmentPanel.js";
 const { TextArea } = Input;
 
 /** Minimal server client surface for authored-scenario persistence (via app-local api-client only). */
@@ -49,7 +49,6 @@ export type CaseAuthoringApiClient = {
 function toOptions(values: readonly string[]): { label: string; value: string }[] {
   return values.map((value) => ({ label: value, value }));
 }
-
 const roleSelectOptions = toOptions(actorRoleOptions);
 const statusSelectOptions = toOptions(scenarioStatusOptions);
 const regionSelectOptions = toOptions(complianceRegionOptions);
@@ -367,7 +366,7 @@ export function CaseAuthoringWorkbench({ initialScenario, apiClient }: CaseAutho
             itemLabel="Trace tag"
           />
         </Card>
-
+        <EncounterEnvironmentPanel environmentId={baseDraft.environment?.environmentId} />
         <Card title="Actors & interactions" size="small" style={{ marginBottom: 16 }}>
           <Form.List name="actors">
             {(fields, { add, remove }) => (

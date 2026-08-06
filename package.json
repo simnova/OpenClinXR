@@ -143,6 +143,7 @@
     "asset:ui-xr:viseme-drive-capture": "tsx tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
     "asset:ui-xr:peds-adaptive-dialogue-capture": "tsx tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts",
     "asset:ui-xr:parent-nurse-sleeve-deform-capture": "tsx tools/openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-capture.ts",
+    "asset:ui-xr:environment-room-capture": "tsx tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
     "asset:humanoid-source:decide": "tsx tools/openclinxr/factory/humanoid-source-decision-tree-cli.ts",
     "asset:mpfb:pediatric-patient-cagematch": "tsx tools/openclinxr/evidence/mpfb-pediatric-patient-cagematch.ts",
     "asset:humanoid-source:side-by-side-cagematch": "tsx tools/openclinxr/evidence/humanoid-source-side-by-side-cagematch.ts",

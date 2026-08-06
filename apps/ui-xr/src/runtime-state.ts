@@ -1390,7 +1390,7 @@ export function createInitialRuntimeState(): XrRuntimeState {
 }
 
 export function deriveRuntimeTraceActionTags(bundle: LearnerRuntimeAssetBundle): string[] {
-  const runtimeTraceTags = bundle.sceneManifest.dialogueTurns
+  const runtimeTraceTags = (bundle.sceneManifest.dialogueTurns ?? [])
     .map((turn) => turn.traceTag)
     .filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
   const uniqueRuntimeTraceTags = [...new Set(runtimeTraceTags)];
