@@ -332,3 +332,88 @@ describe("narrative rules cannot stand in for tree proofs", () => {
     expect(() => assertProofShape(["changed:docs/x.md"])).not.toThrow();
   });
 });
+
+/**
+ * PLANTED CONTRACTS (#47 + #48) — the dispatch path taxes or destroys the work it supervises.
+ *
+ * #48: `mainDirtyBefore` is snapshotted at :585 and diffed at :612, so ANY path that becomes dirty
+ * in main during the window reads as a worker leak. The orchestrator writing to main during a
+ * dispatch is not an accident — the loop mandates it ("dispatch both lanes' workers BEFORE verifying
+ * either"). It aborted a successful #41 dispatch by flagging files the orchestrator had just created.
+ *
+ * The two attribution contracts pull against each other on purpose. Suppressing the false positive
+ * by trusting all main-tree dirt would satisfy the first and fail the second; deleting the detector
+ * fails both. It must stay: the `--deny` is a literal-path matcher, not an FS sandbox, so a computed
+ * path escapes it and this check is the only watcher.
+ *
+ * #48 also destroys evidence. The leak throw at :615 precedes `recordSession` at :655, so an
+ * isolation failure writes NO ledger entry — which is why #41 has no session id and can never be
+ * retrospected. A dispatch that fails is exactly the one worth asking about afterwards.
+ *
+ * #47: `git worktree add` checks out tracked files only. 3/3 retro'd workers reported no
+ * `node_modules`; #37 got a cache-green architecture result on a tree that could not build, which is
+ * worse than a clean failure because it reads as a passing gate.
+ *
+ * DESIGN LEFT OPEN — implementer chooses and records it in the commit message: how a main-tree change
+ * is attributed to the orchestrator rather than the worker. Candidates include an explicit declared
+ * path set on DispatchOptions, comparing against the worker's own worktree diff, or narrowing to the
+ * worker's declared write roots. The tests below constrain the BEHAVIOUR, not the mechanism, so the
+ * attribution input may be shaped however the implementation needs.
+ */
+describe("dispatch path does not tax or destroy the work it supervises (#47, #48)", () => {
+  const load = async () => import("./dispatch-worker.js") as Promise<Record<string, unknown>>;
+
+  it.fails("main dirty path created only by orchestrator during dispatch is not reported as worker leak", async () => {
+    const mod = await load();
+    const attribute = mod["attributeIsolationLeak"] as undefined | ((input: {
+      before: readonly string[];
+      after: readonly string[];
+      orchestratorPaths?: readonly string[];
+    }) => string[]);
+    expect(attribute).toBeTypeOf("function");
+    // Exactly the #41 case: a file the orchestrator created in main while the worker ran.
+    const leaked = attribute!({
+      before: [],
+      after: ["tools/openclinxr/openclaw/board-session-map.ts"],
+      orchestratorPaths: ["tools/openclinxr/openclaw/board-session-map.ts"],
+    });
+    expect(leaked).toEqual([]);
+  });
+
+  it.fails("main dirty path not attributable to orchestrator is still reported as isolation leak", async () => {
+    const mod = await load();
+    const attribute = mod["attributeIsolationLeak"] as undefined | ((input: {
+      before: readonly string[];
+      after: readonly string[];
+      orchestratorPaths?: readonly string[];
+    }) => string[]);
+    expect(attribute).toBeTypeOf("function");
+    // The detector must survive its own bug fix — this is the leak it exists to catch.
+    const leaked = attribute!({
+      before: [],
+      after: ["apps/api/src/secretly-written-by-worker.ts"],
+      orchestratorPaths: ["tools/openclinxr/openclaw/board-session-map.ts"],
+    });
+    expect(leaked).toEqual(["apps/api/src/secretly-written-by-worker.ts"]);
+  });
+
+  it.fails("isolation leak failure still records sessionId in worker-sessions ledger", async () => {
+    // #41 finished correct work, failed on a false leak, and left no session id — so the one
+    // dispatch most worth a retrospective is the one that cannot have it.
+    const source = await import("node:fs").then((fs) =>
+      fs.readFileSync(new URL("./dispatch-worker.ts", import.meta.url), "utf8"));
+    const throwAt = source.indexOf("leaked writes into the MAIN checkout");
+    const recordAt = source.indexOf("recordSession(repoRoot, entry)");
+    expect(throwAt).toBeGreaterThan(-1);
+    expect(recordAt).toBeGreaterThan(-1);
+    // The ledger write must not sit downstream of the throw that skips it.
+    expect(recordAt).toBeLessThan(throwAt);
+  });
+
+  it.fails("a freshly created worktree is prepared so a worker can run the brief's verify without installing first", async () => {
+    const mod = await load();
+    const prepare = mod["prepareWorktreeForWorker"] as undefined | ((path: string) => unknown);
+    // 3/3 retro'd workers burned opening turns discovering node_modules was absent.
+    expect(prepare).toBeTypeOf("function");
+  });
+});
