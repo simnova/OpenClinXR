@@ -139,7 +139,7 @@ Autonomy: fully unattended = a persistent **local** Claude loop (asset stages ne
 
 - `.openclinxr/delegation/delegation-ledger.jsonl` — every dispatch: `{ts, taskId, class, model, provider, inTok, outTok, usd, gate:{name,pass}, judgeScores:[per-provider], quality, value, verdict, escalatedFrom?, diffHash, ledgerId}`.
 - `.openclinxr/delegation/router.json` — per-class ranked models w/ quality, $/task, value, n, confidence, current pick, lastProbe.
-- `.openclinxr/delegation/scorecard.md` + a studio panel — the living proof: "class X → model Y wins at quality 0.86, $0.04/task, n=12, since <date>."
+- `docs/agent-ops/delegation-scorecard.md` (+ optional local `.openclinxr/delegation/` probe cache) + a studio panel — the living proof: "class X → model Y wins at quality 0.86, $0.04/task, n=12, since <date>."
 - Weekly `probe-report-<date>.json` — P1–P5 re-run deltas (catches "grok-4.5 got cheaper", "deepseek regressed").
 
 Every `PROJECT_STATUS` slice checkpoint gains a `Delegation:` line citing the ledgerId + chosen model + value — the audit trail that replaces belief with evidence.

@@ -3,7 +3,7 @@
 **Owner:** pmo (cadence / catalog) · **Harness implementers:** openclaw-drift-police / IPL  
 **Primary signal:** Grok native subagent child sessions  
 **CLI:** `pnpm openclaw:slice-token:finish` (alias `pnpm grok:tier:post-slice`)  
-**Artifacts:** `.openclinxr/openclaw/task-cost-latest.json` + `task-cost-latest.md`  
+**Artifacts:** local gitignored `.openclinxr/openclaw/` rollups (`task-cost-latest.json` + markdown companion)  
 **Rates:** `packages/openclinxr/agent-loop/src/model-pricing.ts`
 
 ## Goal
@@ -33,9 +33,9 @@ pnpm openclaw:slice-token:finish
 
 | Path | Content |
 |------|---------|
-| `.openclinxr/openclaw/task-cost-latest.json` | Machine rollup (`openclinxr.task-cost-rollup.v1`) |
-| `.openclinxr/openclaw/task-cost-latest.md` | Markdown tables for humans |
-| `.openclinxr/openclaw/grok-subagent-tokens-latest.json` | Raw subagent token probes |
+| local `.openclinxr/openclaw/task-cost-latest.json` (gitignored) | Machine rollup (`openclinxr.task-cost-rollup.v1`) |
+| local task-cost markdown companion (gitignored) | Markdown tables for humans |
+| local grok-subagent-tokens-latest.json (gitignored) | Raw subagent token probes |
 | `.openclinxr/openclaw/grok-tier-slice-token-latest.json` | Token thrash/posture report |
 | Ledger lines | `Token introspection: …` **and** `Task cost: $X est; subagents=…; models=…` |
 

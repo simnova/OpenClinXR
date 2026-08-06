@@ -66,4 +66,4 @@ Required per-slice record fields: Product path advanced, Blueprint/factory tie, 
 
 ## Per-Slice Checkpoints
 
-(Historical worker-backlog checkpoints archived to `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md`. New checkpoints go to `PROJECT_STATUS.md`. Archive via `pnpm openclaw:checkpoint:archive`.)
+(Historical worker-backlog checkpoints were archived under the local gitignored `.openclinxr/slice-archive/` tree (pre-optimization snapshot, 2026-06-07). New checkpoints go to `PROJECT_STATUS.md`. Archive via `pnpm openclaw:checkpoint:archive`.)

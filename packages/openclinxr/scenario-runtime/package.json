@@ -20,6 +20,7 @@
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/conversation-policy": "workspace:*",
     "@openclinxr/domain": "workspace:*",
+    "@openclinxr/exam-assembly": "workspace:*",
     "@openclinxr/model-gateway": "workspace:*",
     "@openclinxr/review-workflow": "workspace:*",
     "@openclinxr/scenario-fixtures": "workspace:*",
