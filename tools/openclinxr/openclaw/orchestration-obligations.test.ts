@@ -25,6 +25,11 @@ const load = async () => (await import("./orchestration-obligations.js")) as {
 };
 
 describe("declared orchestration obligations stay wired", () => {
+  // Still planted: on a clean tree this assertion fails (no violations to flag). it.fails keeps the
+  // suite green while encoding the negative case. If a required caller drops its invocation, this
+  // assertion starts passing and vitest fails the suite ("Expect test to fail") — same signal as
+  // the positive test below going red. Flip to plain `it` only if the negative is re-expressed with
+  // an injected broken obligation rather than the live tree.
   it.fails("flags an obligation whose required caller never invokes the symbol", async () => {
     const { unwiredObligations } = await load();
     // The historical case: runMergeKill existed, exited 2 correctly, and integrate never called it.
@@ -32,13 +37,13 @@ describe("declared orchestration obligations stay wired", () => {
     expect(violations.join(" ")).toMatch(/never invokes|not called|unwired/i);
   });
 
-  it.fails("passes when every declared obligation is actually invoked", async () => {
+  it("passes when every declared obligation is actually invoked", async () => {
     const { unwiredObligations } = await load();
-    // All six historical obligations are wired on main today, so the live registry must be clean.
+    // Seeded obligations are wired on the live land path; the registry must stay clean.
     expect(unwiredObligations(process.cwd())).toEqual([]);
   });
 
-  it.fails("registry stays small and curated rather than scanning every export", async () => {
+  it("registry stays small and curated rather than scanning every export", async () => {
     const { ORCHESTRATION_OBLIGATIONS } = await load();
     // A scan-shaped registry would reintroduce the 79% failure. Obligations are declared per layer.
     expect(ORCHESTRATION_OBLIGATIONS.length).toBeGreaterThan(0);
