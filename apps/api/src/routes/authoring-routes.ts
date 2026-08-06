@@ -3,6 +3,7 @@ import { routeById } from "@openclinxr/rest";
 import { type Scenario, validateScenario } from "@openclinxr/shared-schemas";
 import type { ApiAppContext } from "../api-app-context.js";
 import type { ApiAppVariables } from "../api-types.js";
+import { coerceAuthoredScenarioWrite } from "../scenario-review-promotion.js";
 
 /** Authoring domain routes (composition-root migration). */
 export function registerAuthoringRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
@@ -14,7 +15,8 @@ export function registerAuthoringRoutes(app: Hono<{ Variables: ApiAppVariables }
     if (!validation.ok) {
       return context.json({ error: "invalid_scenario", details: validation.errors }, 400);
     }
-    const scenario = body.scenario as Scenario;
+    // #39: client cannot self-assert exam-pool approval; review submit path alone promotes.
+    const scenario = coerceAuthoredScenarioWrite(body.scenario as Scenario);
     if (!persistence.saveAuthoredScenario) {
       return context.json({ error: "authored_scenario_persistence_unavailable" }, 503);
     }
