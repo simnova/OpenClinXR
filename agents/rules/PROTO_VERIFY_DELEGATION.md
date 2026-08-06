@@ -465,6 +465,73 @@ specificity of the out-of-scope line is the bug."*
 like** — "torn jagged fragments where the garment meets the neck and deltoid, plus floating shards
 near the chest", not "deformation". A category word costs the reader the whole trip.
 
+## 6n. Numbers in a planted fixture become the specification
+
+#46's anti-cheat contract carried an illustrative "genuine difference" example so the test could show
+what distinguishable looks like:
+
+```ts
+const cardigan: GarmentFeatures = { vertexCount: 704, hasAnteriorOpening: true,
+                                    sleeveLengthClass: "long", hemHeightRatio: 0.31 };
+```
+
+I invented `0.31`. It was a plausible-looking ratio in a fixture whose only job was to be different
+from the other fixture. The worker set the cardigan's hem to `body_height * 0.31`, and said so
+plainly when asked where it had guessed:
+
+> "Cardigan `bot_y` = `body_height * 0.31` — **guess, steered by the planted anti-cheat fixture's
+> `hemHeightRatio: 0.31`** — not measured from clothing... **The planted table's 0.31 / long /
+> opening example was a stronger magnet than real garments.**"
+
+The contract never asked for that number. It was scenery, and it became the product's dimensions.
+
+**Rule:** any number in a planted fixture is read as a target. Either use values that are obviously
+not specifications (`999`, `0.5`, round numbers no one would ship), or state in the header that the
+fixture's values are illustrative and the real ones must come from the domain. The second is better
+when the fixture has to look realistic to be a good test — but it has to be said, because silence
+reads as endorsement.
+
+This generalises past dimensions to any constant a fixture happens to contain: thresholds, counts,
+tolerances, ids. A planted test is the most closely read document in a slice.
+
+## 6o. "Do not re-report X" suppresses everything NEAR X
+
+§6h added a slot for out-of-scope observations, and §6m required them to name the region. #46's brief
+had both, plus one more line: *"Already known and filed as #73 — do not re-report that one."*
+
+The worker saw the off-the-shoulder necklines and reported them as "off-shoulder barrel / armpit
+gap". It did not report the pale patch on the faces at all. Asked why:
+
+> "Brief said report out-of-scope wrongness *and* 'do not re-report #73'. I treated shoulder-area
+> defects as adjacent to #73 and compressed them... That is my under-specification, not your read
+> error — you did not miss a full dual-asset collarbone report because I never wrote one."
+
+The exclusion did not just remove #73 from the report. It cast a shadow over everything in the same
+neighbourhood — the shoulders, and then the face, both of which the worker had seen.
+
+**Rule:** scope an exclusion to the exact artifact, not to a region: *"the neck/deltoid tearing is
+filed as #73 — report anything else you see, including on the same body part, and do not compress it
+because it seems related."* Better still, drop the exclusion. A duplicate observation costs one line;
+a suppressed one cost this project a full cycle, because the neckline defect had a named constant
+sitting in the code the whole time and nobody wrote it down until the retro.
+
+## 6p. A contract that removes something must say what replaces it
+
+#73 required "no painted clothing on a torso that wears a real garment". It passed — 3728 and 3636
+painted triangles went to zero, and the runtime had already refused those slots as unusable. It was
+architecturally right and the renders got worse: the parent came out topless under an open cardigan,
+the nurse with bare thighs where painted trousers had been.
+
+The paint was covering something. The contract said remove it and never said the replacement had to
+cover the same area. A closed garment happens to; an open one cannot, by construction.
+
+**Rule:** when a contract deletes a mechanism, it states what takes over its job and asserts the job
+is still done. "No X where Y exists" needs a companion: "and Y covers what X covered." The deletion
+half is easy to write and easy to verify, which is exactly why it lands alone.
+
+The tell in advance: if you can describe the thing being removed as *"a bad implementation of a real
+requirement"*, the requirement outlives the implementation and the contract needs a second clause.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
