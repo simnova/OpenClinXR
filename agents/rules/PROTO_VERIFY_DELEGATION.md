@@ -412,6 +412,59 @@ So: list what you have not ruled out, unordered, and say plainly that you have n
 between them. Do not say which one you believe. The cost is not in mentioning a possibility — it is
 in supplying a rank the worker then has to disprove.
 
+## 6k. When a slice needs a live measurement, name the probe that already works
+
+#72's worker spent roughly a third of its session building a measurement harness before it made a
+single product edit: `playwright` would not resolve from `/tmp`; a TS-transformed `page.evaluate`
+died on `__name is not defined`; a string arrow returned `undefined` because it was an expression
+rather than an invocation; a string IIFE finally produced numbers. After that the diagnosis, the fix,
+the flips and three captures were "a straight line".
+
+There was already a proven `page.evaluate` in the room-capture script it could have extended.
+
+**Rule:** when a brief asks for a live measurement, point at the existing probe and require the dump
+to land as a durable artifact — a JSON path under `.openclinxr/evidence/…` with fixed field names —
+**before any product edit**. Three things follow: the worker extends something that works instead of
+inventing a fourth script, the FIXED header is copy-paste from the artifact rather than reconstructed
+from memory, and the orchestrator can re-run the same probe without trusting the narrative.
+
+The measurement instruction itself was worth keeping. Asked whether it would have found the cause
+anyway, the worker was clear: *"Without the measure instruction I would likely have re-read constants
+or chased mismatch longer. The instruction's value is: world numbers that disagree with the tables
+name which axis is lying."*
+
+## 6l. Unranked candidates, continued — keep them SHORT, and say they may all be wrong
+
+Second reading of the §6j rule, from the worker that benefited from it. Verdict: **keep it, do not
+soften** — it stopped the slice from opening with an attempt to prove the candidate that had the most
+words, and refuting one was explicitly allowed rather than a failure.
+
+Two corrections, both from what actually happened:
+
+**The answer was not on the list.** The cause was a framing pass rewriting slot Y after placement had
+been resolved, while a legacy offset still applied — an interaction between two systems, not any of
+the four single-cause candidates offered. The list worked as an **anti-favourite-bias tool**, not as a
+shortlist containing the answer. Briefs must say so: *candidates may all be wrong; measure the running
+scene; name the interaction you actually find even if it was not listed.*
+
+**Length is a rank.** The worker's own words: *"Bundle-mismatch was longer than the actual cause. Even
+unranked, length still pulled attention until the measure killed it."* A candidate that needs more
+explaining gets more words and therefore reads as more considered. Keep every candidate to one line;
+if one genuinely needs a paragraph, that paragraph belongs somewhere other than the candidate list.
+
+## 6m. "Deformed" is not an observation — name the region and what it looks like
+
+The out-of-scope slot from §6h worked on its first outing: the #72 worker saw the torn shoulders and
+mentioned them. It reported *"anatomical deformation"*, which is why I had to find the specifics
+myself by opening the image anyway.
+
+Its own read: *"The brief's slot worked as permission; I still under-used it. The rule is fine; the
+specificity of the out-of-scope line is the bug."*
+
+**Rule:** an out-of-scope visual observation names **the body part or object, and what it looks
+like** — "torn jagged fragments where the garment meets the neck and deltoid, plus floating shards
+near the chest", not "deformation". A category word costs the reader the whole trip.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
