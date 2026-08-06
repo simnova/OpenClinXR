@@ -5604,7 +5604,7 @@ describe("promotion does not advance a governance claim without recording its ba
         governance: { validationStage: string; validationStageBasis?: unknown };
       }) | undefined;
 
-  it.fails("advancing validationStage on promotion records the review decisions that justify the claim", async () => {
+  it("advancing validationStage on promotion records the review decisions that justify the claim", async () => {
     const sink = memorySink();
     const app = createApiApp(undefined, sink);
     await app.request("/scenarios", {

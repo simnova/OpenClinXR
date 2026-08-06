@@ -3,7 +3,7 @@ import {
   AdminGraphqlScenarioStatus,
 } from "@openclinxr/graphql";
 import type { Scenario } from "@openclinxr/shared-schemas";
-import type { ApiPersistenceSink } from "./api-types.js";
+import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
 
 /**
  * #39 — review promotion must reach the store exam assembly reads.
@@ -14,10 +14,50 @@ import type { ApiPersistenceSink } from "./api-types.js";
  *
  * Promote on review gates only (not publication readiness — that gates on status already
  * approved and would never fire). Client POST cannot self-approve (see authoring-routes).
+ *
+ * #42 — stage_0 → stage_1 is a claim-bearing advance (claim-language "Expert reviewed for
+ * prototype use."). It remains derived from four gate approvals, but must carry a retrievable
+ * basis naming the decisions. Never auto-advance stage_2 / stage_3 / validated_summative.
  */
 
 type DomainScenarioStatus = Scenario["status"];
 type DomainReviewGate = Scenario["review"]["clinical"];
+
+/**
+ * Retrievable basis for a derived stage_0 → stage_1 claim.
+ * Stored on governance (not a separate audit store) so a later reader of the scenario document
+ * can see which approved gate decisions justified the stage without reconstructing history.
+ * Shape choice recorded in commit: decision set by reviewerRole + reviewerId + reviewedAt
+ * (records have no stable id). validateScenario does not yet require this when it sees stage_1
+ * (out of scope — historical fixtures would fail).
+ */
+export type ValidationStageBasis = {
+  kind: "derived_from_review_gate_approvals";
+  fromStage: "stage_0_synthetic_draft";
+  toStage: "stage_1_expert_reviewed";
+  derivedAt: string;
+  claimScope: "stage_1_expert_reviewed_from_four_gate_approvals";
+  notEvidenceFor: readonly [
+    "stage_2_pilot_ready",
+    "stage_3_validated",
+    "validated_summative",
+    "clinical_validity",
+    "exam_equivalence",
+  ];
+  justifyingDecisions: ReadonlyArray<{
+    reviewerRole: ApiScenarioReviewDecisionRecord["reviewerRole"];
+    reviewerId: string;
+    decision: "approved";
+    reviewedAt: string;
+    evidenceRefs: readonly string[];
+  }>;
+};
+
+type ScenarioGovernanceWithBasis = Scenario["governance"] & {
+  validationStageBasis?: ValidationStageBasis;
+};
+
+const STAGE1_GATE_ROLES = ["clinical", "psychometric", "legal", "simulationQa"] as const;
 
 function toDomainScenarioStatus(status: AdminGraphqlScenario["status"]): DomainScenarioStatus {
   switch (status) {
@@ -54,6 +94,91 @@ async function findAuthoredScenarioDocument(
 }
 
 /**
+ * Build stage_1 basis from persisted approved gate decisions for this scenario version.
+ * Returns undefined when any of the four gates lacks an approved decision — never stamp
+ * stage_1 with an empty or partial basis.
+ */
+async function buildStage1ValidationStageBasis(
+  persistence: Pick<ApiPersistenceSink, "listScenarioReviewDecisions">,
+  scenarioId: string,
+  version: number,
+): Promise<ValidationStageBasis | undefined> {
+  const records = (await Promise.resolve(persistence.listScenarioReviewDecisions?.() ?? []))
+    .filter(
+      (record) =>
+        record.scenarioId === scenarioId
+        && record.version === version
+        && record.decision === "approved",
+    )
+    .slice()
+    .sort((left, right) => Date.parse(left.reviewedAt) - Date.parse(right.reviewedAt));
+
+  // Latest approved decision per gate role (re-review after changes_requested is allowed).
+  const latestByRole = new Map<ApiScenarioReviewDecisionRecord["reviewerRole"], ApiScenarioReviewDecisionRecord>();
+  for (const record of records) {
+    latestByRole.set(record.reviewerRole, record);
+  }
+
+  const justifyingDecisions = STAGE1_GATE_ROLES.map((role) => latestByRole.get(role)).filter(
+    (record): record is ApiScenarioReviewDecisionRecord => record !== undefined,
+  );
+  if (justifyingDecisions.length !== STAGE1_GATE_ROLES.length) {
+    return undefined;
+  }
+
+  return {
+    kind: "derived_from_review_gate_approvals",
+    fromStage: "stage_0_synthetic_draft",
+    toStage: "stage_1_expert_reviewed",
+    derivedAt: new Date().toISOString(),
+    claimScope: "stage_1_expert_reviewed_from_four_gate_approvals",
+    notEvidenceFor: [
+      "stage_2_pilot_ready",
+      "stage_3_validated",
+      "validated_summative",
+      "clinical_validity",
+      "exam_equivalence",
+    ],
+    justifyingDecisions: justifyingDecisions.map((record) => ({
+      reviewerRole: record.reviewerRole,
+      reviewerId: record.reviewerId,
+      decision: "approved" as const,
+      reviewedAt: record.reviewedAt,
+      evidenceRefs: [...record.evidenceRefs],
+    })),
+  };
+}
+
+/**
+ * stage_0 → stage_1 only, and only with a non-empty basis from four approved gate decisions.
+ * No basis ⇒ no advance (do not invent attribution).
+ */
+async function nextGovernanceForPromotion(
+  persistence: ApiPersistenceSink,
+  base: Scenario,
+  domainStatus: DomainScenarioStatus,
+): Promise<ScenarioGovernanceWithBasis> {
+  if (domainStatus !== "approved" || base.governance.validationStage !== "stage_0_synthetic_draft") {
+    return base.governance;
+  }
+
+  const validationStageBasis = await buildStage1ValidationStageBasis(
+    persistence,
+    base.scenarioId,
+    base.version,
+  );
+  if (!validationStageBasis) {
+    return base.governance;
+  }
+
+  return {
+    ...base.governance,
+    validationStage: "stage_1_expert_reviewed",
+    validationStageBasis,
+  };
+}
+
+/**
  * Persist review-derived status/gates onto the authored scenario document so
  * `buildExamAssemblyScenarioPool` (listAuthoredScenarios + status === approved) sees promotion.
  * No-op when the scenario is fixture-only (not in authored store) or save is unavailable.
@@ -72,10 +197,7 @@ export async function persistAuthoredScenarioReviewPromotion(
   if (!base) return;
 
   const domainStatus = toDomainScenarioStatus(nextScenario.status);
-  const nextGovernance =
-    domainStatus === "approved" && base.governance.validationStage === "stage_0_synthetic_draft"
-      ? { ...base.governance, validationStage: "stage_1_expert_reviewed" as const }
-      : base.governance;
+  const nextGovernance = await nextGovernanceForPromotion(persistence, base, domainStatus);
 
   const promoted: Scenario = {
     ...base,
@@ -86,7 +208,9 @@ export async function persistAuthoredScenarioReviewPromotion(
       legal: toDomainReviewGate(nextScenario.review.legal),
       simulationQa: toDomainReviewGate(nextScenario.review.simulationQa),
     },
-    governance: nextGovernance,
+    // Basis is additive claim metadata; Scenario static type does not yet model it (schema optional
+    // field deferred — historical stage_1 fixtures have no basis; validateScenario unchanged).
+    governance: nextGovernance as Scenario["governance"],
   };
 
   await persistence.saveAuthoredScenario(promoted);
