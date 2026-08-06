@@ -13,6 +13,16 @@ Feature throughput is roughly `N_safe_writers × work_rate`. `N` was pinned at *
 because `--cwd` is a starting directory, not a boundary: a worker handed a worktree path still
 wrote into the main checkout.
 
+> **CORRECTION (same day, after further probing).** This section called the deny a "hard control".
+> It is not a boundary — it is a string matcher over LITERAL paths. A computed path
+> (`["","Volumes",...].join("/")` inside `node -e`) writes into main under this exact deny;
+> reproduced in thirty seconds. The control/treatment below is still valid for what it tested:
+> literal Write/Edit paths. It does NOT establish that a worker cannot affect main. Detection
+> (`mainTreeDirtyPaths`, and a `git write-tree` diff) is therefore load-bearing rather than
+> belt-and-braces — and detection a cleanup can evade is not a boundary either. Treat N-concurrent-
+> writer safety as unproven for adversarial workers, and adequate for cooperative ones.
+
+
 Two mechanisms were proposed and **rejected**:
 
 - *Rewrite absolute paths in the worker's prompt.* Advisory only. A worker also reads `AGENTS.md`,

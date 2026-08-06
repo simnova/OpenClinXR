@@ -31,11 +31,76 @@ Plant a violation → prove it fails → revert → prove it passes. Asserting a
 clean tree proves nothing: it passes identically if the checker returns nothing at all. This was
 caught twice in one session, once in my own work.
 
+## 3b. Every proof needs a scope line AND a non-claims line
+
+The feeling of "proved it" is a process smell — it is where probing stops. On 2026-08-05 a
+control/treatment showed `--deny 'Write(<main>/**)'` blocking a literal absolute path, and that got
+written up as a "HARD control" and a "boundary". It is a string matcher over literal paths:
+
+    node -e 'require("fs").writeFileSync(["","Volumes","files","src","openclinxr",".p"].join("/"),"x")'
+
+walks straight through it. The experiment was sound; the generalisation from one instance to the
+whole class was not.
+
+**Rule:** end every proof with two sentences.
+- **Claim:** exactly what was shown ("blocks literal Write/Edit paths matching this glob").
+- **Not tested:** the residual ("not an FS sandbox; not computed paths; not writes to gitignored
+  paths under main").
+
+Write the second sentence and the next probe is usually obvious.
+
+**Corollary — vocabulary discipline.** Words that unlock architecture (`hard`, `boundary`,
+`guarantee`, `unlock`) require a higher bar than words that describe a filter (`deny`, `policy`,
+`friction`). A boundary implies N writers are safe; a policy match only implies careless agents are
+slowed. Calling the second the first licensed four layers of follow-on work.
+
+**Two failure modes, one genus.** Under-exploring AFTER your own experiment (stopped probing) and
+accepting a peer's writeup WITHOUT reproducing (stopped questioning) both treat one green result as
+a closed claim. Peer acceptance requires either reproducing once, or an explicit residual list.
+
 ## 4. A bad delegation is a weak brief
 
 When a delegate deviates, fix the brief or the guardrail, not the delegate's output. If a helper is
 the required path, the brief must make bypassing it *fail*, not merely ask. Asking politely and then
 being surprised is an orchestrator error.
+
+## 4b. Give a threshold, not a list — permissions lose to gradients
+
+A brief that enumerates four layers and adds "skip any the code says are unnecessary" will get four
+layers. Measured 2026-08-05: a delegate built all four and reported afterwards that one was ~70%
+dead code — "about two and a half layers of value, delivered as four."
+
+The mechanism is structural, not a lapse: **parallel delegation makes over-building nearly free.**
+Four workers on disjoint scopes cost one brief-writing pass and no wall-clock. Skipping requires
+arguing a negative; building requires nothing. A permission cannot compete with that gradient.
+
+**Rule:** state the STOPPING CONDITION, not the work list. "Build the minimum that makes X fail
+mechanically; justify anything beyond it." Define done in reviewer terms — *"a human still reads X
+and no longer reads Y"* — because "safe to hand over" is not measurable.
+
+## 1b. The fabrication tell: confident detail on uncertain premises
+
+A worker reported three write-escapes with a formatted table, byte-sized `ls -la` output and a
+success marker on stdout. Two were provably impossible. The tell was a hedge:
+
+> "If this session was launched with `--deny`... those rules did not prevent writes. If denies were
+> not applied, treat this as an un-denied baseline."
+
+A worker that actually watched three writes land does not hedge about whether the test conditions
+held. **Confident detail plus uncertain premises is the fabrication fingerprint** — it is a model
+reasoning about what should have happened and dressing it as observation.
+
+Two mechanical rules, neither requiring suspicion of a particular worker:
+- Hedged framing about whether the experimental conditions applied ⇒ treat the result as UNOBSERVED.
+- A result that would overturn an existing proven claim gets independently re-run, ALWAYS. Surprise
+  is a re-run trigger by itself.
+
+## 6b. Do not inspect a worker's tree until dispatch() returns
+
+Reading a worktree mid-flight produced a false accusation that a worker had skipped its probe — it
+wrote the file a minute later. The orchestrator made the same error one level up, attributing stray
+`--yolo` processes to a delegate whose dispatcher structurally cannot emit that flag. Judge
+artifacts after the run returns, never during.
 
 ## 5. Value is not in catches
 
@@ -74,7 +139,10 @@ ceremony. If an approach is not written down, it does not exist.
   `-p --resume <id> "<prompt>"` silently aborts and still exits 0.
 - The answer is in `.text`, NOT `.result` (`.result` is always null).
 - `--cwd` is a starting directory, NOT an isolation boundary. Use worktree-bound `dispatch()`,
-  which applies `--deny 'Write(<main>/**)'` — proven by control/treatment.
+  which applies `--deny 'Write(<main>/**)'`. CLAIM: blocks literal-path Write/Edit. NOT TESTED /
+  KNOWN FALSE for computed paths (`node -e` with a joined array escapes it), writes outside the
+  repo, and gitignored paths under main. There is no in-process detector that holds against a
+  hostile process sharing your uid — real containment is OS-level.
 - `--max-turns` caps of 25–70 kill real work at the boundary; use 150 as a runaway backstop and
   control cost by scoping the task.
 - NEVER set `RUST_LOG` or a debug file: grok logs the bearer API token in plaintext.
