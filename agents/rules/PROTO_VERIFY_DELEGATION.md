@@ -532,6 +532,57 @@ half is easy to write and easy to verify, which is exactly why it lands alone.
 The tell in advance: if you can describe the thing being removed as *"a bad implementation of a real
 requirement"*, the requirement outlives the implementation and the contract needs a second clause.
 
+## 6q. An unambiguous contract beats "this will make the product worse" — so ask for the warning
+
+The most useful answer any retro has produced, to a question asked directly. #73's contract required
+"no painted clothing on a torso wearing a real garment". It passed, and left the parent topless under
+an open cardigan. Asked whether it had seen that coming:
+
+> "I **did** notice, and treated it as intentional... I framed it as 'open front is the #46
+> distinguisher', not as 'product got worse'. I did not put in the report a clear line like *this
+> contract will make the figures look less dressed*. I shipped because done_when demanded it, the
+> brief said stop painting where geometry owns the silhouette, and removing torso paint when a
+> garment exists was the happy path of the plant.
+>
+> **Contract won by default over 'looks worse'.**"
+
+That is correct behaviour. A worker that second-guesses an unambiguous contract is a worker that
+cannot be relied on to satisfy one, and the whole pipeline rests on contracts being binding. The
+defect is that nothing in the brief invited the observation, so it stayed in the worker's head.
+
+**Rule, now standing brief text:**
+
+> If satisfying a contract in this brief will make the product visibly worse than before, say so in
+> your report — and then satisfy it anyway. Naming it is not disobedience and will not be read as
+> refusing the work.
+
+Both halves matter. Without "satisfy it anyway" the instruction competes with the contract and makes
+the contract soft. Without "will not be read as refusing" it reads as an invitation to argue, which
+workers correctly decline.
+
+The tell that you need this line: the contract is a DELETION, or a constraint whose satisfaction is
+achievable by removing something. See §6p — those are the same class from the other side.
+
+## 6r. Name the regeneration path, or a worker will find the one that produces stubs
+
+#73's largest turn sink was not the product edit. Its own account:
+
+> "**Regenerate path thrash** — full `orchestrate_character` without `anny` → stub GLBs (~0.8 MB) →
+> restore real Anny bases from git → re-run Blender-only twice... That loop cost more than the
+> product edits."
+
+The pipeline has two regeneration entry points. One re-bakes from existing real base meshes; the
+other runs the full character orchestration, which silently falls back to ~0.8 MB stub geometry when
+the `anny` package is absent — and it is absent in a worktree. Nothing stops a worker taking the
+wrong one, and the wrong one looks like it worked.
+
+**Rule:** an asset brief names the regeneration command it expects and says what the other one does.
+"Blender-only re-bake on the existing bases under `generated-humanoids/`; do NOT run full
+orchestrate — without the `anny` package it silently produces ~0.8 MB stubs that pass file checks."
+
+This is the same shape as §6k (name the probe that already works). When a repo has two ways to do
+something and one of them fails quietly, the brief picks.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
