@@ -94,10 +94,42 @@ export async function persistAuthoredScenarioReviewPromotion(
 
 /**
  * Authoring POST must not admit client-asserted approval into the exam pool.
- * Saves remain legitimate for drafts/imports; only status is demoted. Promotion is exclusive
- * to the submitScenarioReview path (persistAuthoredScenarioReviewPromotion).
+ *
+ * #39 demoted `status: "approved"`. #41 also strips client-asserted `review` gates that read
+ * `approved`: `scenarioStatusForReview` promotes when all four gates are approved, so a client
+ * that POSTs four pre-approved gates needs only one genuine submit to enter the pool. Gate
+ * approvals are server-owned and written only by the submit path (plus listing seed neutralize
+ * for documents already stored with asserted gates).
+ *
+ * Promotion is exclusive to submitScenarioReview → persistAuthoredScenarioReviewPromotion.
+ * Does not touch governance.validationStage (tracked separately).
  */
 export function coerceAuthoredScenarioWrite(scenario: Scenario): Scenario {
-  if (scenario.status !== "approved") return scenario;
-  return { ...scenario, status: "draft" };
+  const status = scenario.status === "approved" ? "draft" : scenario.status;
+  const review = neutralizeClientAssertedApprovedGates(scenario.review);
+  if (status === scenario.status && review === scenario.review) return scenario;
+  return { ...scenario, status, review };
+}
+
+/** Demote only the dangerous claim (`approved`); leave draft/in_review/rejected intact. */
+export function neutralizeClientAssertedApprovedGates(
+  review: Scenario["review"],
+): Scenario["review"] {
+  const demote = (gate: Scenario["review"]["clinical"]): Scenario["review"]["clinical"] =>
+    gate === "approved" ? "draft" : gate;
+  const next = {
+    clinical: demote(review.clinical),
+    psychometric: demote(review.psychometric),
+    legal: demote(review.legal),
+    simulationQa: demote(review.simulationQa),
+  };
+  if (
+    next.clinical === review.clinical
+    && next.psychometric === review.psychometric
+    && next.legal === review.legal
+    && next.simulationQa === review.simulationQa
+  ) {
+    return review;
+  }
+  return next;
 }

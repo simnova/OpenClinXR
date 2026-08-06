@@ -60,6 +60,39 @@ function scenarioStatusForReview(review: AdminGraphqlScenario["review"]): AdminG
   return AdminGraphqlScenarioStatus.ReadyForReview;
 }
 
+/**
+ * #41 — authored document gates are not authoritative for `approved`.
+ *
+ * Clients (and stale pre-#41 docs) can store all four gates as approved. Listing used to seed
+ * from the document then overlay decisions, so one real decision on any gate completed 4/4 and
+ * promoted. Fixtures legitimately ship approved without decision records — do not call this on
+ * the fixture branch. In-memory overrides already carry decision-applied state; leave them alone.
+ */
+function withoutClientAssertedAuthoredApprovals(
+  scenario: AdminGraphqlScenario,
+): AdminGraphqlScenario {
+  const demote = (state: string): string => (state === "approved" ? "draft" : state);
+  const review = {
+    clinical: demote(scenario.review.clinical),
+    psychometric: demote(scenario.review.psychometric),
+    legal: demote(scenario.review.legal),
+    simulationQa: demote(scenario.review.simulationQa),
+  };
+  if (
+    review.clinical === scenario.review.clinical
+    && review.psychometric === scenario.review.psychometric
+    && review.legal === scenario.review.legal
+    && review.simulationQa === scenario.review.simulationQa
+  ) {
+    return scenario;
+  }
+  return {
+    ...scenario,
+    review,
+    status: scenarioStatusForReview(review),
+  };
+}
+
 function toAdminGraphqlScenarioStatus(status: (typeof scenarioBank)[number]["status"]): AdminGraphqlScenario["status"] {
   switch (status) {
     case "approved":
@@ -154,7 +187,10 @@ export async function listAdminGraphqlScenarios(
       );
       if (idx !== -1) fixtureEntries.splice(idx, 1);
     }
-    const baseScenario = scenarioOverrides.get(key) ?? toAdminGraphqlScenario(scenario);
+    // Overrides already reflect applied decisions; document seed must not trust client-asserted approvals.
+    const fromOverride = scenarioOverrides.get(key);
+    const baseScenario = fromOverride
+      ?? withoutClientAssertedAuthoredApprovals(toAdminGraphqlScenario(scenario));
     const withReviews = reviewDecisions
       .filter((d) => d.scenarioId === baseScenario.scenarioId && d.version === baseScenario.version)
       .sort(compareScenarioReviewDecisions)
