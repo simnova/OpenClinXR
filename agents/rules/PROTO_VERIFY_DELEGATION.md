@@ -210,6 +210,14 @@ do not assume I am right") is what stopped it being worse, and it should be mand
 worker the FAILURE (test name, error, stack, and what you verified on main), then say explicitly that
 the cause is unknown. Diagnosis is the worker's job; it has the tree and you have a hypothesis.
 
+**Say the cause is unknown, and say it explicitly.** The counterpart to the rule above: after the
+#43 wrong-diagnosis tax, the #42 brief carried the line *"THE CAUSE IS NOT KNOWN TO ME BEYOND THE
+TEST FAILURE — trace it yourself; do not take a hypothesis of mine as fact."* Asked directly whether
+that helped, hurt, or made no difference, the worker was blunt: *"Helped… no wrong rabbit hole. Keep
+that line — it costs nothing when the test is the truth and prevents replaying the #43
+wrong-diagnosis tax."* It is now standing brief text. Give the failure and what you verified; withhold
+the story.
+
 **A prose warning is not a proof, and it is not actionable.** The brief said "must not disturb the
 comparator/evidence surfaces that the visibility mandate depends on." True, unactionable, and duly
 disturbed. The retro's fix, verbatim: *"Make the warning machine-checkable: name the exact surfaces
