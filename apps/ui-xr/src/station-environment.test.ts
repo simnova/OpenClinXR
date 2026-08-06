@@ -57,6 +57,15 @@ import { describe, expect, it } from "vitest";
  * SCOPE: the shell — dimensions, floor, walls, lighting. Not per-fixture equipment placement, not
  * asset acquisition, not generative 3D. And nothing here asserts either room LOOKS right; that is
  * read off two captures by a human or a model and recorded on #44.
+ *
+ * ## FIXED (#44)
+ * - `apps/ui-xr/src/station-environment.ts` exports `buildStationEnvironment({ environmentId })`.
+ * - Shell dimensions + floor colour come from the shared descriptor in
+ *   `@openclinxr/asset-registry` (`environment-descriptors.ts`), not hardcoded BoxGeometry in main.
+ * - `main.ts` calls the builder and stamps scene.userData.openClinXrStationEnvironment.
+ * - Unknown ids set `environmentFallbackActive` + reason; known ED bay does not.
+ * - Measured pair: ed_exam_bay_v1 floor 0x59636b depth 3.45 vs telehealth_home_visit_v1 floor
+ *   0x8b6914 depth 2.55 — both axes differ by construction.
  */
 
 const load = async () => import("./station-environment.js") as Promise<Record<string, unknown>>;
@@ -78,7 +87,7 @@ function shellFacts(shell: BuiltShell): { floorColor: unknown; depth: unknown } 
 }
 
 describe("the declared environment drives the station shell (#44)", () => {
-  it.fails("two environmentIds build shells that differ in floor colour and room depth", async () => {
+  it("two environmentIds build shells that differ in floor colour and room depth", async () => {
     const mod = await load();
     const build = mod["buildStationEnvironment"] as Build | undefined;
     expect(build).toBeTypeOf("function");
@@ -96,7 +105,7 @@ describe("the declared environment drives the station shell (#44)", () => {
     expect(home.depth).not.toEqual(ed.depth);
   });
 
-  it.fails("the built shell carries the environmentId it was asked for", async () => {
+  it("the built shell carries the environmentId it was asked for", async () => {
     // Kills a builder that varies something by chance while still constructing one fixed room: the
     // object has to know which environment it is.
     const mod = await load();
@@ -107,7 +116,7 @@ describe("the declared environment drives the station shell (#44)", () => {
     expect(build!({ environmentId: ED_BAY }).userData?.["environmentId"]).toBe(ED_BAY);
   });
 
-  it.fails("an unknown environmentId is marked as a fallback rather than silently rendering the ED bay", async () => {
+  it("an unknown environmentId is marked as a fallback rather than silently rendering the ED bay", async () => {
     // This project has shipped a silent default twice under other names. An unrecognised room must
     // say so — and a recognised one must NOT be flagged, or "always fallback" passes.
     const mod = await load();

@@ -11,6 +11,21 @@ export type {
 } from "./object-store.js";
 export * from "./runtime-asset-review.js";
 export * from "./runtime-bundles.js";
+export {
+  ENVIRONMENT_SHELL_DESCRIPTORS,
+  FALLBACK_ENVIRONMENT_SHELL,
+  resolveEnvironmentShellDescriptor,
+  type EnvironmentFixtureSlot,
+  type EnvironmentShellDescriptor,
+  type EnvironmentSpatialZoneId,
+  type EnvironmentZoneTemplate,
+  type ResolvedEnvironmentShell,
+} from "./environment-descriptors.js";
+import {
+  buildSpatialZonesForEnvironment,
+  type EnvironmentSpatialZone,
+} from "./environment-spatial-zones.js";
+export { buildSpatialZonesForEnvironment, type EnvironmentSpatialZone };
 
 export type AssetKind = "character" | "environment" | "equipment" | "prop" | "texture" | "audio";
 
@@ -245,15 +260,6 @@ export type EnvironmentGenerationReviewGate = {
   evidenceRefs: string[];
   blockers: string[];
   recommendedAction: string;
-};
-
-export type EnvironmentSpatialZone = {
-  zoneId: "learner_entry" | "patient_bedside" | "nurse_workflow" | "family_interrupt" | "diagnostic_equipment";
-  label: string;
-  purpose: string;
-  assetIds: string[];
-  spatialAnchors: string[];
-  clinicalFidelityNotes: string[];
 };
 
 export type EnvironmentGenerationPacket = {
@@ -1199,7 +1205,12 @@ export function buildEnvironmentGenerationPacket(
     claimBoundary: "environment_generation_plan_not_generated_asset",
     requiredAssetIds,
     optionalContextAssetIds,
-    spatialZones: buildEdBaySpatialZones(environmentManifest.assetId, requiredAssetIds, optionalContextAssetIds),
+    spatialZones: buildSpatialZonesForEnvironment(
+      scenario.environment?.environmentId ?? environmentManifest.assetId,
+      environmentManifest.assetId,
+      requiredAssetIds,
+      optionalContextAssetIds,
+    ),
     questBudget: evaluateScenarioAssetBudget(requiredManifests),
     authoringToolIds,
     sidecarToolIds: toolMatrix.sidecarCandidateToolIds,
@@ -2210,61 +2221,6 @@ function environmentReviewGate(
     blockers,
     recommendedAction,
   };
-}
-
-function buildEdBaySpatialZones(
-  environmentAssetId: string,
-  requiredAssetIds: readonly string[],
-  optionalContextAssetIds: readonly string[],
-): EnvironmentSpatialZone[] {
-  const hasRequired = (assetId: string) => requiredAssetIds.includes(assetId);
-  const hasOptional = (assetId: string) => optionalContextAssetIds.includes(assetId);
-  const includeExisting = (assetIds: readonly string[]) => assetIds.filter((assetId) => (
-    assetId === environmentAssetId || hasRequired(assetId) || hasOptional(assetId)
-  ));
-
-  return [
-    {
-      zoneId: "learner_entry",
-      label: "Learner entry and orientation",
-      purpose: "Give the examinee a clear start position, doorway sightline, and safe movement envelope before the encounter timer starts.",
-      assetIds: includeExisting([environmentAssetId]),
-      spatialAnchors: ["doorway_panel", "hand_hygiene_marker", "exam_timer_sightline"],
-      clinicalFidelityNotes: ["Doorway framing should support first-impression scan and interruption timing without cluttering controller movement."],
-    },
-    {
-      zoneId: "patient_bedside",
-      label: "Patient bedside interaction",
-      purpose: "Anchor history-taking, pain-response observation, focused exam prompts, and patient gaze/gesture alignment.",
-      assetIds: includeExisting([environmentAssetId, "patient_robert_hayes_character", "ed_stretcher_bed_equipment"]),
-      spatialAnchors: ["patient_head_position", "left_bed_rail", "examiner_standing_zone"],
-      clinicalFidelityNotes: ["Bed height, patient posture, and reach distance should remain readable in Quest/WebXR without requiring unsafe leaning."],
-    },
-    {
-      zoneId: "nurse_workflow",
-      label: "Nurse workflow and escalation",
-      purpose: "Support nurse handoff, medication/order clarification, vital-sign changes, and team-communication pressure.",
-      assetIds: includeExisting([environmentAssetId, "nurse_maria_alvarez_character", "bedside_monitor_equipment"]),
-      spatialAnchors: ["nurse_standing_zone", "monitor_glance_target", "handoff_tablet_marker"],
-      clinicalFidelityNotes: ["Nurse position should be visible from bedside while preserving conversational turn-taking and de-escalation cues."],
-    },
-    {
-      zoneId: "family_interrupt",
-      label: "Family interruption lane",
-      purpose: "Provide a believable doorway/side-chair location for family concern, emotional pressure, and consent-boundary beats.",
-      assetIds: includeExisting([environmentAssetId, "spouse_anna_hayes_character"]),
-      spatialAnchors: ["doorway_interrupt_position", "family_waiting_spot", "privacy_boundary_marker"],
-      clinicalFidelityNotes: ["Family placement should increase pressure without blocking learner access to the patient or nurse."],
-    },
-    {
-      zoneId: "diagnostic_equipment",
-      label: "Diagnostic equipment cluster",
-      purpose: "Place ECG cart, IV stand, and monitor affordances where diagnostic-order and interpretation trace events can be observed.",
-      assetIds: includeExisting([environmentAssetId, "bedside_monitor_equipment", "ecg_cart_equipment", "iv_stand_equipment"]),
-      spatialAnchors: ["ecg_cart_parking_spot", "iv_stand_side_position", "vital_sign_display_plane"],
-      clinicalFidelityNotes: ["Equipment should be recognizable but low-poly, with readable silhouettes and no production-readiness claim until review gates clear."],
-    },
-  ];
 }
 
 function buildEnvironmentGenerationWorkOrderTasks(packet: EnvironmentGenerationPacket): EnvironmentGenerationWorkOrderTask[] {

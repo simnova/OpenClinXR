@@ -741,7 +741,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("hidden_in_generated_encounter_scene_unless_fallback_debug_capture");
     expect(mainSource).toContain("hidden_in_generated_encounter_scene_unless_panel_evidence_capture");
     expect(mainSource).toContain("hidden_in_generated_encounter_scene_unless_identity_debug_capture");
-    expect(mainSource).toContain("dynamic_encounter_world_floor_anchor_beyond_reusable_portal_threshold");
+    expect(mainSource).toContain("dynamic_encounter_world_floor_from_environment_descriptor");
+    expect(mainSource).toContain("buildStationEnvironment");
+    expect(mainSource).toContain("resolveActiveEnvironmentId");
     expect(mainSource).toContain("isHumanoidFaceDetailCaptureMode");
     expect(mainSource).toContain("humanoid_face_lip_eye_detail_capture");
     expect(mainSource).toContain("humanoidDialogueDurationMs");
@@ -1090,7 +1092,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("depthWrite: false");
     expect(mainSource).toContain("crossing_threshold_enters_dynamic_encounter_world");
     expect(mainSource).toContain("note_capture_affordance_reused_outside_dynamic_clinical_world");
-    expect(mainSource).toContain("dynamic_encounter_world_floor_anchor_beyond_reusable_portal_threshold");
+    expect(mainSource).toContain("dynamic_encounter_world_floor_from_environment_descriptor");
     expect(mainSource).toContain("belongs_to_dynamic_world_on_encounter_side_of_doorway");
     expect(mainSource).toContain("__openClinXrPortalTransitionEvidence");
     expect(mainSource).toContain("formatPortalTransitionEvidence");
@@ -1109,7 +1111,8 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("portal_crossing_started_or_resumed_encounter");
     expect(mainSource).toContain('noteCaptureLocation: "reusable_exterior_anteroom"');
     expect(mainSource).toContain("encounter_specific_theme_applied_to_reused_runtime_assets_no_hardcoded_scene_identity");
-    expect(mainSource).toContain("floor_color_derived_from_selected_encounter_runtime_bundle");
+    expect(mainSource).toContain("floor_color_derived_from_environmentId_descriptor");
+    expect(mainSource).toContain("buildStationEnvironment");
     expect(mainSource).toContain("actor_identity_cues_derive_from_encounter_runtime_theme_when_assets_are_reused");
     expect(mainSource).toContain("room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world");
     expect(mainSource).toContain("case_definition_driven_patient_pose_not_chest_pain_default");

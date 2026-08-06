@@ -40,10 +40,10 @@ export const ZONE_BUDGETS: readonly { prefix: string; maxLines: number }[] = [
  * LOWERED. Do not add new entries to widen the gate; split the file instead.
  */
 export const SIZE_FREEZE: Record<string, { maxLines: number; reason: string }> = {
-  "apps/ui-xr/src/main.ts": { maxLines: 10231, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD); #57 exam-form boot extract" },
+  "apps/ui-xr/src/main.ts": { maxLines: 10211, reason: "XR runtime god-file — #1 paydown; split by subsystem (scene, input, locomotion, capture, HUD); #57 exam-form boot extract; #44 station-environment extract" },
   "apps/ui-xr/src/runtime-state.ts": { maxLines: 3741, reason: "XR runtime-state god-file — split by state slice; #57 compact snapshot options" },
   "apps/api/src/api-route-support.ts": { maxLines: 1124, reason: "shared route-level helpers extracted from app.ts during the composition-root migration — split by domain alongside the remaining route modules" },
-  "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2887, reason: "barrel god-file — split registry/query/store concerns" },
+  "packages/openclinxr/asset-registry/src/index.ts": { maxLines: 2843, reason: "barrel god-file — split registry/query/store concerns; #44 spatial zones extract" },
   "packages/openclinxr/scenario-fixtures/src/scenario-bank-maturity.ts": { maxLines: 822, reason: "residual: maturity/exam-sequence/factory-planning analytics — split report builders by projection next (bank arrays + 11 scenarios + builders already extracted)" },
   "packages/openclinxr/arena/iwsdk-spike/src/index.ts": { maxLines: 2398, reason: "arena spike barrel — split by concern" },
   "packages/openclinxr/capability-gateway/src/asset-generation-jobs.ts": { maxLines: 2107, reason: "job orchestration — split by job kind" },

@@ -51,6 +51,14 @@ import { buildEnvironmentGenerationPacket, createScenarioPlaceholderManifests } 
  * SCOPE: what the factory PLANS. Says nothing about what any room looks like — no asset is generated
  * by this path at all, which its own `claimBoundary` states
  * (`environment_generation_plan_not_generated_asset`, `:264`).
+ *
+ * ## FIXED (#44)
+ * - `buildEdBaySpatialZones` removed; `buildSpatialZonesForEnvironment(environmentId, …)` materialises
+ *   zones from `environment-descriptors.ts` (same table the ui-xr shell builder reads).
+ * - telehealth_home_visit_v1 zone anchors: video_call_frame, patient_chair_position, medication_bottle_shelf
+ *   — no left_bed_rail / ecg_cart_parking_spot / iv_stand_side_position / nurse_standing_zone.
+ * - ed_exam_bay_v1 still plans patient_bedside with left_bed_rail (live neighbour below stays green).
+ * - The telehealth ED-furniture anchor list above remains the evidence for why this issue existed.
  */
 
 const ED_FURNITURE = ["left_bed_rail", "ecg_cart_parking_spot", "iv_stand_side_position", "nurse_standing_zone"];
@@ -62,7 +70,7 @@ function packetFor(scenarioId: string) {
 }
 
 describe("the environment plan describes the encounter's own setting (#44)", () => {
-  it.fails("a telehealth environment does not plan an ED stretcher bedside zone", () => {
+  it("a telehealth environment does not plan an ED stretcher bedside zone", () => {
     const packet = packetFor("telehealth_diabetes_health_literacy_v1");
     const anchors = packet.spatialZones.flatMap((zone) => zone.spatialAnchors);
     const hospitalFurniture = anchors.filter((anchor) => ED_FURNITURE.includes(anchor));
