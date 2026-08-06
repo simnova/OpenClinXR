@@ -1655,6 +1655,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine, neck)
     + ARMATURE modifier so sleeves deform (deformsWithBreathing=true). Keeps body mesh-native material regions.
     SOLIDIFY + weighted normals for volume. SLEEVE-FIT (garment-sleeve-fit-parent-nurse-v1): torso r_base from shoulder-band/depth (not arm-span AABB); sleeves as tubes along upper_arm bone (clavicle→elbow), not vertical -Y mid-body boxes; tighter sleeve_r0 + thinner SOLIDIFY; denser 9x12+; vivid (0.08,0.52,0.95); faceCount~300+; bind pose remains body-local Y height.
+
+    #73 material-region hygiene: when a real garment mesh will own the silhouette, do NOT paint
+    torso top/soft_trim materials onto the body (double clothing → jagged paint seams + runtime
+    refuses those slots). Lower/pants paint may still apply. Not a "smooth all boundaries" pass.
     """
     role = actor_role.lower()
     base_color = role_marker_color(phenotype, role)
@@ -1668,32 +1672,86 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         top_color = (0.05, 0.34, 0.88, 1.0)
         lower_color = (0.06, 0.12, 0.28, 1.0)
 
-    top_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_top", top_color)
+    # Detect real-garment embed early (#73): geometry owns upper silhouette → skip torso paint.
+    garment_layers = phenotype.get("garmentLayers", []) or [phenotype.get("clothing_style", "")]
+    garment_layers_lower = [str(g).lower() for g in garment_layers]
+    garment_layers_joined = " ".join(garment_layers_lower)
+    is_gown = any(k in garment_layers_joined for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
+    is_open_front = any(
+        k in garment_layers_joined
+        for k in ("open_cardigan", "open_front", "cardigan", "open_jacket", "lab_coat_open")
+    ) and not is_gown
+    is_scrub = any(k in garment_layers_joined for k in ("scrub_top", "scrub_pocket", "scrub")) and not is_open_front
+    will_embed_real_garment = (
+        any(
+            k in garment_layers_joined
+            for k in (
+                "short_sleeve_exam_tshirt",
+                "tshirt",
+                "exam_tshirt",
+                "short_sleeve",
+                "casual_top",
+                "open_cardigan",
+                "scrub_top",
+                "scrub_pocket",
+                "scrub",
+            )
+        )
+        or any(r in role for r in ("patient", "parent", "nurse", "guardian"))
+        or is_gown
+    )
+    # #73: skip body-mesh top/trim paint when real garment mesh will cover the torso.
+    # Keep lower/pants fill (no pants shell). Conditioned so roles without a garment still paint.
+    skip_torso_paint = bool(will_embed_real_garment)
+
     lower_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_lower", lower_color)
-    trim_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_soft_trim", (0.47, 0.68, 0.96, 1.0))
-    top_index = len(mesh_obj.data.materials)
-    mesh_obj.data.materials.append(top_mat)
     lower_index = len(mesh_obj.data.materials)
     mesh_obj.data.materials.append(lower_mat)
-    trim_index = len(mesh_obj.data.materials)
-    mesh_obj.data.materials.append(trim_mat)
+    top_mat = None
+    trim_mat = None
+    top_index = -1
+    trim_index = -1
+    if not skip_torso_paint:
+        top_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_top", top_color)
+        trim_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_soft_trim", (0.47, 0.68, 0.96, 1.0))
+        top_index = len(mesh_obj.data.materials)
+        mesh_obj.data.materials.append(top_mat)
+        trim_index = len(mesh_obj.data.materials)
+        mesh_obj.data.materials.append(trim_mat)
 
-    bounds = mesh_world_bounds(mesh_obj)
-    min_z = bounds["min_z"]
-    height_z = max(bounds["height_z"], 0.001)
-    center_x = bounds["center_x"]
+    # #73: paint in LOCAL mesh space. Blender's OBJ importer can leave a world
+    # rotation that swaps Y/Z in world bounds while local data stays Y-height
+    # (Anny rewrite). Local coords match the garment authoring basis + glTF export.
+    body_vs = list(mesh_obj.data.vertices)
+    bxs = [v.co.x for v in body_vs]
+    bys = [v.co.y for v in body_vs]
+    bzs = [v.co.z for v in body_vs]
+    min_x_l, max_x_l = min(bxs), max(bxs)
+    min_y_l, max_y_l = min(bys), max(bys)
+    min_z_l, max_z_l = min(bzs), max(bzs)
+    # Prefer local Y as height when it dominates (Anny); else local Z.
+    if (max_y_l - min_y_l) >= (max_z_l - min_z_l) * 0.9:
+        height_axis = "y"
+        min_h = min_y_l
+        height_h = max(max_y_l - min_y_l, 0.001)
+    else:
+        height_axis = "z"
+        min_h = min_z_l
+        height_h = max(max_z_l - min_z_l, 0.001)
+    center_x = (min_x_l + max_x_l) * 0.5
+    body_width_l = max(max_x_l - min_x_l, 0.001)
     # Wider bands make the generated actor read as clothed in isolated browser
     # evidence, while still avoiding detached cube/card markers.
     # garment source-quality v1 (2026-06-07 autonomy kickoff): widened collar/waist trim
     # + adjusted factors for better visual clothing "intent" and reduced abrupt jagged seam
     # read on low-poly pediatric school-age topology (still fully mesh-native bounds-based,
     # no detached geometry, no regression to live skinning/garment-trim prior work).
-    top_min_z = min_z + height_z * 0.42
-    top_max_z = min_z + height_z * 0.74
-    lower_min_z = min_z + height_z * 0.08
-    lower_max_z = min_z + height_z * 0.46
-    max_torso_half_width = max(bounds["width"] * 0.50, 0.12)
-    shoulder_half_width = max(bounds["width"] * 0.36, 0.09)
+    top_min_h = min_h + height_h * 0.42
+    top_max_h = min_h + height_h * 0.74
+    lower_min_h = min_h + height_h * 0.08
+    lower_max_h = min_h + height_h * 0.46
+    max_torso_half_width = max(body_width_l * 0.50, 0.12)
+    shoulder_half_width = max(body_width_l * 0.36, 0.09)
 
     mesh_obj.update_from_editmode()
     mesh_obj.update_tag()
@@ -1701,37 +1759,60 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     lower_faces = 0
     trim_faces = 0
     skipped_back_faces = 0
+    skipped_torso_paint_faces = 0
     for polygon in mesh_obj.data.polygons:
-        center = mesh_obj.matrix_world @ polygon.center
-        rel_z = (center.z - min_z) / height_z
+        # Local face center (not world) — stable under OBJ import rotation.
+        center = polygon.center
+        ch = center.y if height_axis == "y" else center.z
+        rel_h = (ch - min_h) / height_h
         rel_x = abs(center.x - center_x)
-        waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_z - 0.52) / 0.28)
+        waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_h - 0.52) / 0.28)
         effective_half_width = max_torso_half_width * waist_factor
-        is_collar_trim = (top_max_z - height_z * 0.024) <= center.z <= top_max_z and rel_x <= shoulder_half_width * 0.80
-        is_waist_trim = (top_min_z - height_z * 0.019) <= center.z <= (top_min_z + height_z * 0.019) and rel_x <= effective_half_width * 0.98
-        if is_collar_trim or is_waist_trim:
+        is_collar_trim = (top_max_h - height_h * 0.024) <= ch <= top_max_h and rel_x <= shoulder_half_width * 0.80
+        is_waist_trim = (top_min_h - height_h * 0.019) <= ch <= (top_min_h + height_h * 0.019) and rel_x <= effective_half_width * 0.98
+        is_top = top_min_h <= ch <= top_max_h and rel_x <= effective_half_width
+        is_lower = lower_min_h <= ch <= lower_max_h and rel_x <= effective_half_width * 0.95
+        if skip_torso_paint and (is_collar_trim or is_waist_trim or is_top):
+            # Leave skin material — real garment mesh owns this silhouette (#73).
+            skipped_torso_paint_faces += 1
+            continue
+        if not skip_torso_paint and (is_collar_trim or is_waist_trim):
             polygon.material_index = trim_index
             trim_faces += 1
-        elif top_min_z <= center.z <= top_max_z and rel_x <= effective_half_width:
+        elif not skip_torso_paint and is_top:
             polygon.material_index = top_index
             top_faces += 1
-        elif lower_min_z <= center.z <= lower_max_z and rel_x <= effective_half_width * 0.95:
+        elif is_lower:
             polygon.material_index = lower_index
             lower_faces += 1
 
-    if top_faces == 0 or lower_faces == 0 or trim_faces == 0:
-        raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}, trim_faces={trim_faces}")
+    if lower_faces == 0:
+        raise RuntimeError(
+            f"role clothing material assignment failed: top_faces={top_faces}, "
+            f"lower_faces={lower_faces}, trim_faces={trim_faces}, skip_torso_paint={skip_torso_paint}"
+        )
+    if not skip_torso_paint and (top_faces == 0 or trim_faces == 0):
+        raise RuntimeError(
+            f"role clothing material assignment failed: top_faces={top_faces}, "
+            f"lower_faces={lower_faces}, trim_faces={trim_faces}"
+        )
 
     ret = {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-        "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
-        "topMaterialName": top_mat.name,
+        "clothingRegionRevision": (
+            "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73"
+            if skip_torso_paint
+            else "v6_garment_source_quality_wider_native_trim_pediatric_school_age"
+        ),
+        "topMaterialName": top_mat.name if top_mat is not None else None,
         "lowerMaterialName": lower_mat.name,
-        "trimMaterialName": trim_mat.name,
+        "trimMaterialName": trim_mat.name if trim_mat is not None else None,
         "topFaceCount": top_faces,
         "lowerFaceCount": lower_faces,
         "trimFaceCount": trim_faces,
         "skippedBackFaceCount": skipped_back_faces,
+        "skippedTorsoPaintFaceCount": skipped_torso_paint_faces,
+        "skippedTorsoPaintBecauseRealGarment": skip_torso_paint,
         "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
         "notEvidenceFor": ["production_asset_readiness", "b_plus_visual_realism_gate", "clinical_validity", "scoring_validity"],
     }
@@ -1741,21 +1822,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # Produce real (non-hint) sleeve-bearing geometry skinned for deformation. Expanded sleeve scope
     # per asset-pipeline-lead: len>=0.25, r/rows/cols up, +bulge/ripple/folds, vivid contrast color,
     # prominent separate mesh deforming on breathing. Q1 peds blueprint drives visible 3D garment.
-    garment_layers = phenotype.get("garmentLayers", []) or [phenotype.get("clothing_style", "")]
     real_garment = None
-    garment_layers_lower = [str(g).lower() for g in garment_layers]
-    garment_layers_joined = " ".join(garment_layers_lower)
-    is_gown = any(k in garment_layers_joined for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
-    # #46 role→garment topology: open-front layers need a real anterior gap (not colour/sleeve fraction).
-    # open_cardigan / cardigan / open_front → C-shell or two-panel construction; scrub stays closed ring.
-    is_open_front = any(
-        k in garment_layers_joined
-        for k in ("open_cardigan", "open_front", "cardigan", "open_jacket", "lab_coat_open")
-    ) and not is_gown
-    is_scrub = any(k in garment_layers_joined for k in ("scrub_top", "scrub_pocket", "scrub")) and not is_open_front
     # re-orchestrated for peds-parent-nurse: trigger real sleeved garment for parent (casual_top, open_cardigan) + nurse (scrub_top) garmentLayers too; generalized from patient-only tshirt
     # ed-gown-geo-reorchestrate: explicit is_gown branch for actual hospital_gown topology (looser/longer sleeves, denser folds, gown drape vs short tshirt); phenotype.garmentLayers drives; Q1 case->gown geo + Q5 cagematch/UI-XR visible; per skeptic handoff + MANDATE (expand geo/contrast for dual visible 3D deforming gown volume)
-    if any(k in garment_layers_joined for k in ("short_sleeve_exam_tshirt", "tshirt", "exam_tshirt", "short_sleeve", "casual_top", "open_cardigan", "scrub_top", "scrub_pocket", "scrub")) or any(r in role for r in ("patient", "parent", "nurse", "guardian")) or is_gown:
+    if will_embed_real_garment:
         import math
         # BIND-POSE FIX (garment-bind-pose-fix residual): Anny body + canonical armature use
         # local-Y as height (see create_canonical_armature / generate_mesh Y-up rewrite). Prior
@@ -1791,7 +1861,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         # torso radius: depth-driven chest + shoulder half; never arm-span half
         torso_half_w = max(body_depth * 0.52, shoulder_half * 0.55, body_width * 0.14)
         r_base = torso_half_w * 1.06  # slight clothing offset over skin
-        top_y = body_min_y + body_height * 0.76  # clavicle / shoulder girdle
+        # #73 neckline: was 0.76 ("clavicle") but sat under the collarbone / off-shoulder on
+        # every role. Raise to base-of-neck / above clavicle joint (~0.81). Must stay below
+        # chin (clavicleY + 0.12) — a scarf is not a fix. Open-front angular gap unchanged.
+        top_y = body_min_y + body_height * 0.81  # above clavicle / base of neck
         bot_y = body_min_y + body_height * 0.46  # hem mid-torso (not waist-to-knee box)
         torso_rows, torso_cols = 9, 14
         # Arm bone endpoints match create_canonical_armature p() factors (local Y height)
@@ -2386,6 +2459,10 @@ def apply_mesh_native_scalp_hair_material_region(mesh_obj: bpy.types.Object, phe
     source topology intact and only assigns a material to scalp-like polygons so
     isolated review can evaluate whether removing the bald mannequin read is
     useful before a real groom/hair-card source stage exists.
+
+    #73: Anny is local-Y height / +Z anterior. Prior pass treated Z as height and Y as
+    depth, so the face-front exclusion did not protect the nose/mouth band. Use the
+    dominant height axis and exclude the front mid-face (nose/mouth) band entirely.
     """
     hair_color = str(phenotype.get("hair_color", "brown")).lower()
     if "black" in hair_color:
@@ -2401,31 +2478,79 @@ def apply_mesh_native_scalp_hair_material_region(mesh_obj: bpy.types.Object, phe
     hair_index = len(mesh_obj.data.materials)
     mesh_obj.data.materials.append(hair_mat)
 
-    bounds = mesh_world_bounds(mesh_obj)
-    min_z = bounds["min_z"]
-    height_z = max(bounds["height_z"], 0.001)
-    center_x = bounds["center_x"]
-    center_y = bounds["center_y"]
-    depth_y = max(bounds["depth_y"], 0.001)
-    width = max(bounds["width"], 0.001)
+    # #73: LOCAL mesh space only. OBJ import can rotate the object so world Z is
+    # height while local stays Y-height; world-space face exclusion then paints the face.
+    body_vs = list(mesh_obj.data.vertices)
+    bxs = [v.co.x for v in body_vs]
+    bys = [v.co.y for v in body_vs]
+    bzs = [v.co.z for v in body_vs]
+    min_x_l, max_x_l = min(bxs), max(bxs)
+    min_y_l, max_y_l = min(bys), max(bys)
+    min_z_l, max_z_l = min(bzs), max(bzs)
+    if (max_y_l - min_y_l) >= (max_z_l - min_z_l) * 0.9:
+        height_axis = "y"
+        depth_axis = "z"
+        min_h = min_y_l
+        height_h = max(max_y_l - min_y_l, 0.001)
+        center_d = (min_z_l + max_z_l) * 0.5
+        depth_d = max(max_z_l - min_z_l, 0.001)
+    else:
+        height_axis = "z"
+        depth_axis = "y"
+        min_h = min_z_l
+        height_h = max(max_z_l - min_z_l, 0.001)
+        center_d = (min_y_l + max_y_l) * 0.5
+        depth_d = max(max_y_l - min_y_l, 0.001)
+    center_x = (min_x_l + max_x_l) * 0.5
+    width = max(max_x_l - min_x_l, 0.001)
     hair_density = max(0.0, min(1.0, float(phenotype.get("hair_density", 0.55))))
-    scalp_min_z = min_z + height_z * (0.875 - hair_density * 0.010)
-    crown_min_z = min_z + height_z * 0.925
-    max_scalp_half_width = width * (0.18 + hair_density * 0.020)
-    back_start_y = center_y - depth_y * 0.02
-    face_front_exclusion_y = center_y - depth_y * 0.18
+    # Tighter scalp: start higher so hairline sits on the crown, not the face.
+    scalp_min_h = min_h + height_h * (0.905 - hair_density * 0.008)
+    crown_min_h = min_h + height_h * 0.935
+    max_scalp_half_width = width * (0.16 + hair_density * 0.018)
+    # Anny local: +Z anterior (nose). Back = lower Z. Face front = high Z.
+    if depth_axis == "z":
+        back_start_d = center_d - depth_d * 0.02
+        face_front_d = center_d  # mid-depth and forward
+        def is_back(cd: float) -> bool:
+            return cd <= back_start_d
+        def is_face_front(cd: float) -> bool:
+            return cd >= face_front_d
+    else:
+        back_start_d = center_d - depth_d * 0.02
+        face_front_d = center_d - depth_d * 0.18
+        def is_back(cd: float) -> bool:
+            return cd >= back_start_d
+        def is_face_front(cd: float) -> bool:
+            return cd < face_front_d
+
+    # Nose/mouth (+ lower forehead) band — never hair on the front of the head here.
+    face_band_lo = min_h + height_h * 0.82
+    face_band_hi = min_h + height_h * 0.93
 
     scalp_faces = 0
     crown_faces = 0
     skipped_face_front_faces = 0
     for polygon in mesh_obj.data.polygons:
-        center = mesh_obj.matrix_world @ polygon.center
+        center = polygon.center  # local
+        ch = center.y if height_axis == "y" else center.z
+        cd = center.z if depth_axis == "z" else center.y
         rel_x = abs(center.x - center_x)
-        on_crown = center.z >= crown_min_z and rel_x <= max_scalp_half_width * 1.05
-        on_back_scalp = center.z >= scalp_min_z and center.y >= back_start_y and rel_x <= max_scalp_half_width
-        on_side_scalp = center.z >= (scalp_min_z + height_z * 0.030) and center.y >= back_start_y and rel_x >= max_scalp_half_width * 0.64 and rel_x <= max_scalp_half_width * 1.03
+        on_crown = ch >= crown_min_h and rel_x <= max_scalp_half_width * 1.05
+        on_back_scalp = ch >= scalp_min_h and is_back(cd) and rel_x <= max_scalp_half_width
+        on_side_scalp = (
+            ch >= (scalp_min_h + height_h * 0.015)
+            and rel_x >= max_scalp_half_width * 0.55
+            and rel_x <= max_scalp_half_width * 1.05
+            and not is_face_front(cd)  # sides/back only — never pure face front
+        )
         if on_crown or on_back_scalp or on_side_scalp:
-            if center.z < crown_min_z and center.y < face_front_exclusion_y:
+            # Hard exclude: any front-of-head face in the nose/mouth/forehead band.
+            if is_face_front(cd) and ch < crown_min_h and ch <= face_band_hi and ch >= face_band_lo:
+                skipped_face_front_faces += 1
+                continue
+            # Also exclude front faces below scalp_min entirely (face, not hair).
+            if is_face_front(cd) and ch < scalp_min_h:
                 skipped_face_front_faces += 1
                 continue
             polygon.material_index = hair_index
@@ -2438,12 +2563,13 @@ def apply_mesh_native_scalp_hair_material_region(mesh_obj: bpy.types.Object, phe
 
     return {
         "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
-        "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+        "hairRegionRevision": "v3_local_y_up_no_face_band_hair_issue_73",
         "hairMaterialName": hair_mat.name,
         "hairColor": hair_color,
         "scalpFaceCount": scalp_faces,
         "crownFaceCount": crown_faces,
         "skippedFaceFrontFaceCount": skipped_face_front_faces,
+        "heightAxis": height_axis,
         "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
         "notEvidenceFor": ["b_plus_visual_realism_gate", "production_asset_readiness", "clinical_validity", "scoring_validity"],
     }

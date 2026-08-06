@@ -360,14 +360,16 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
-    "topMaterialName": "openclinxr_role_mesh_clothing_parent_top",
+    "clothingRegionRevision": "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73",
+    "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_parent_lower",
-    "trimMaterialName": "openclinxr_role_mesh_clothing_parent_soft_trim",
-    "topFaceCount": 1530,
+    "trimMaterialName": null,
+    "topFaceCount": 0,
     "lowerFaceCount": 684,
-    "trimFaceCount": 334,
+    "trimFaceCount": 0,
     "skippedBackFaceCount": 0,
+    "skippedTorsoPaintFaceCount": 1864,
+    "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -421,7 +423,7 @@
         ],
         "max": [
           0.401757,
-          1.2776,
+          1.3606,
           0.326698
         ]
       },
@@ -434,7 +436,7 @@
         "max": [
           0.401757,
           -0.017307,
-          1.2776
+          1.3606
         ]
       },
       "bodyLocalHeightRange": [
@@ -504,7 +506,7 @@
       ],
       "max": [
         0.401757,
-        1.2776,
+        1.3606,
         0.326698
       ]
     },
@@ -517,7 +519,7 @@
       "max": [
         0.401757,
         -0.017307,
-        1.2776
+        1.3606
       ]
     },
     "bodyLocalHeightRange": [
@@ -541,12 +543,13 @@
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
-    "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+    "hairRegionRevision": "v3_local_y_up_no_face_band_hair_issue_73",
     "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
     "hairColor": "dark_brown",
-    "scalpFaceCount": 3002,
-    "crownFaceCount": 1764,
+    "scalpFaceCount": 1714,
+    "crownFaceCount": 634,
     "skippedFaceFrontFaceCount": 0,
+    "heightAxis": "y",
     "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
     "notEvidenceFor": [
       "b_plus_visual_realism_gate",
@@ -622,7 +625,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-06T21:22:05.582804Z",
+    "generatedAt": "2026-08-06T21:50:40.170380Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

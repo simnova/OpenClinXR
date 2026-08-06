@@ -358,14 +358,16 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
-    "topMaterialName": "openclinxr_role_mesh_clothing_nurse_top",
+    "clothingRegionRevision": "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73",
+    "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
-    "trimMaterialName": "openclinxr_role_mesh_clothing_nurse_soft_trim",
-    "topFaceCount": 1530,
+    "trimMaterialName": null,
+    "topFaceCount": 0,
     "lowerFaceCount": 684,
-    "trimFaceCount": 288,
+    "trimFaceCount": 0,
     "skippedBackFaceCount": 0,
+    "skippedTorsoPaintFaceCount": 1818,
+    "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -419,7 +421,7 @@
         ],
         "max": [
           0.330007,
-          1.3536,
+          1.4416,
           0.350753
         ]
       },
@@ -432,7 +434,7 @@
         "max": [
           0.330007,
           -0.027228,
-          1.3536
+          1.4416
         ]
       },
       "bodyLocalHeightRange": [
@@ -502,7 +504,7 @@
       ],
       "max": [
         0.330007,
-        1.3536,
+        1.4416,
         0.350753
       ]
     },
@@ -515,7 +517,7 @@
       "max": [
         0.330007,
         -0.027228,
-        1.3536
+        1.4416
       ]
     },
     "bodyLocalHeightRange": [
@@ -539,12 +541,13 @@
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
-    "hairRegionRevision": "v1_mesh_native_scalp_material_no_detached_hair_markers",
+    "hairRegionRevision": "v3_local_y_up_no_face_band_hair_issue_73",
     "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
     "hairColor": "black",
-    "scalpFaceCount": 3022,
-    "crownFaceCount": 1680,
+    "scalpFaceCount": 1740,
+    "crownFaceCount": 596,
     "skippedFaceFrontFaceCount": 0,
+    "heightAxis": "y",
     "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
     "notEvidenceFor": [
       "b_plus_visual_realism_gate",
@@ -623,7 +626,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-06T21:22:47.351140Z",
+    "generatedAt": "2026-08-06T21:51:12.189849Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

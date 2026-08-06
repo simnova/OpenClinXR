@@ -58,6 +58,22 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: material regions and garment coverage. Says nothing about drape, fold quality or whether any
  * of it looks like real clothing — that verdict is read off the renders and recorded on #73.
+ *
+ * ## FIXED (#73)
+ *
+ * Three subsystems moved together in `automate_blender.py`:
+ * 1. **Torso paint skip when real garment owns silhouette** — `will_embed_real_garment` detected
+ *    before paint; top/soft_trim materials are not created or assigned (lower/pants fill kept).
+ *    Measured parent/nurse: paintedTorsoClothingTriangles 3728/3636 → 0; body prims 5 → 3.
+ * 2. **Hair face band** — scalp paint uses LOCAL mesh Y-height / +Z anterior (not world bounds
+ *    under OBJ import rotation). Nose/mouth band (y 0.82–0.93 × height, front half) never gets
+ *    hair. Measured hairInFaceBand 134/186 → 0; hair tris ~6004 → ~3480 (face strip removed).
+ * 3. **Neckline** — `top_y` raised 0.76 → 0.81 body height (above clavicle joint, below chin).
+ *    Parent neckline 1.345 ≥ clavicle 1.278; nurse 1.426 ≥ 1.355; both < clavicle+0.12.
+ * Inspector: `inspectMaterialRegionHygiene` in humanoid-material-region-hygiene.ts.
+ * #46 role topology (open cardigan vs closed scrub) and #67 identity upright root preserved.
+ * Re-bake on restored real Anny bases (13348 verts); stub fallback when `anny` package missing
+ * is not the land path.
  */
 
 const load = async () =>
@@ -76,7 +92,7 @@ const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 
 describe("material regions do not fight the garment or the face (#73)", () => {
-  it.fails("a body wearing a real garment mesh carries no painted clothing regions on the torso", async () => {
+  it("a body wearing a real garment mesh carries no painted clothing regions on the torso", async () => {
     const mod = await load();
     const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -90,7 +106,7 @@ describe("material regions do not fight the garment or the face (#73)", () => {
     }
   }, 180_000);
 
-  it.fails("no scalp-hair face is assigned in the nose and mouth band", async () => {
+  it("no scalp-hair face is assigned in the nose and mouth band", async () => {
     // The head, not the torso. Nothing done to the garment can satisfy this one.
     const mod = await load();
     const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
@@ -102,10 +118,10 @@ describe("material regions do not fight the garment or the face (#73)", () => {
     }
   }, 180_000);
 
-  it.fails("the garment neckline reaches the clavicle rather than sitting below it", async () => {
-    // top_y = body_min_y + body_height * 0.76 (automate_blender.py:1794) for every role, which is why
-    // both landed garments are off-the-shoulder. A neckline AT or ABOVE the clavicle is the ask; a
-    // garment that swallows the neck would be its own defect, so the upper bound matters too.
+  it("the garment neckline reaches the clavicle rather than sitting below it", async () => {
+    // top_y was body_min_y + body_height * 0.76 for every role (under collarbone). Raised to 0.81.
+    // A neckline AT or ABOVE the clavicle is the ask; a garment that swallows the neck would be
+    // its own defect, so the upper bound matters too.
     const mod = await load();
     const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
