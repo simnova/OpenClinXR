@@ -1809,7 +1809,8 @@ const examRunSummaryStorageKey = `openclinxr.examRunSummary.${examRunId}`;
 
 let examFormRunState: ExamFormRunState | null = createLearnerExamFormRunState(examRunId, scenariosFromFixtureSequence(examNormalizedSequence));
 const examFormRunPersistenceSink = stationApi ? createStationApiPersistenceSink(stationApi) : undefined;
-void bootLearnerExamFormRun();
+updateExamFormRunEvidence();
+void bootLearnerExamFormFromApi();
 
 app.innerHTML = `
   <main class="station-shell${isSceneOnlyVisualReviewCaptureMode() ? " scene-only-visual-review" : ""}">
@@ -2062,19 +2063,17 @@ function navigateToExamScenario(nextScenarioId: string): void {
   window.location.assign(nextUrl.toString());
 }
 
-async function bootLearnerExamFormRun(): Promise<void> {
+async function bootLearnerExamFormFromApi(): Promise<void> {
   if (configuredApiBaseUrl) {
     try {
       const scenarios = await resolveLearnerExamScenarios({ baseUrl: configuredApiBaseUrl, blueprintId: "step2cs-seed" });
       examFormRunState = createLearnerExamFormRunState(examRunId, scenarios) ?? examFormRunState;
+      updateExamFormRunEvidence();
     } catch { /* keep fixture form — network must not brick Quest/offline boot */ }
   }
   if (examFormRunState && examFormRunPersistenceSink) {
-    void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, {
-      snapshotId: `queue_snapshot_${examRunId}_boot`, reviewerId: "ui_xr_learner_runtime",
-    }).catch(() => {});
+    void persistExamFormRunQueueSnapshot(examFormRunState, examFormRunPersistenceSink, { snapshotId: `queue_snapshot_${examRunId}_boot`, reviewerId: "ui_xr_learner_runtime" }).catch(() => {});
   }
-  updateExamFormRunEvidence();
 }
 
 function createLearnerExamFormRunState(runId: string, scenarios: ReadonlyArray<{ scenarioId: string; status?: string }>): ExamFormRunState | null {
