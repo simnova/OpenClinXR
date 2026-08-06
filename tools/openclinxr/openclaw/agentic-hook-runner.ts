@@ -2,9 +2,9 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 
-type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
+export type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
 
-type HookStep = {
+export type HookStep = {
   label: string;
   command: string[];
   reason: string;
@@ -18,12 +18,67 @@ type HookRunResult = {
 
 const hookProfiles = new Set<HookProfile>(["pre-commit", "pre-push", "strict", "local-exam"]);
 
+/**
+ * Architecture suites that must always run full-repo when architecture is in the hook.
+ * These rules are inherently global: freeze-list honesty, workspace-wide scanners, and
+ * cross-package import / dependency boundaries cannot be limited to staged paths without
+ * missing violations that only appear in the full graph.
+ */
+export const ARCHITECTURE_GLOBAL_SUITE_FILES = [
+  "src/file-size-budgets.test.ts",
+  "src/workspace-architecture.test.ts",
+  "src/decision-invariants.test.ts",
+  "src/tsconfig-conventions.test.ts",
+] as const;
+
+/**
+ * Staged paths that can introduce architecture-rule violations.
+ * Commits whose staged set is disjoint from these roots skip the architecture step
+ * (path-scoped omit) — e.g. pure PROJECT_STATUS / operator-* coordination commits.
+ */
+export const ARCHITECTURE_RELEVANT_PATH_PATTERNS: RegExp[] = [
+  /^apps\//u,
+  /^packages\//u,
+  /^tools\//u,
+  /^schemas\//u,
+  /^sources\//u,
+  /^package\.json$/u,
+  /^pnpm-lock\.yaml$/u,
+  /^pnpm-workspace\.yaml$/u,
+  /^turbo\.json$/u,
+  /^tsconfig[^/]*\.json$/u,
+  /^\.githooks\//u,
+  /^\.agents\//u,
+  /^\.codex\//u,
+  /^\.grok\//u,
+  /^plugins\//u,
+  /^docs\/(?:openclinxr|madr)\//u,
+  /^README\.md$/u,
+  /^biome\.json$/u,
+  /^vitest\.config\.ts$/u,
+];
+
+/**
+ * Staged paths that force the full turbo `pnpm architecture` path (with ^typecheck).
+ * Editing the rules package or monorepo topology is not safe to short-circuit.
+ */
+export const ARCHITECTURE_FORCE_FULL_PATH_PATTERNS: RegExp[] = [
+  /^packages\/openclinxr\/architecture-rules\//u,
+  /^package\.json$/u,
+  /^pnpm-lock\.yaml$/u,
+  /^pnpm-workspace\.yaml$/u,
+  /^turbo\.json$/u,
+  /^tsconfig[^/]*\.json$/u,
+];
+
+export type ArchitectureInvocationMode = "omit" | "path-scoped-global" | "full-turbo";
+
 function cliOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(name);
   return index === -1 ? undefined : args[index + 1];
 }
 
-function normalizeProfile(args: string[]): HookProfile {
+export function normalizeProfile(args: string[]): HookProfile {
   const rawProfile = cliOption(args, "--profile") ?? args[0] ?? "pre-commit";
   if (!hookProfiles.has(rawProfile as HookProfile)) {
     throw new Error(`Unknown OpenClaw hook profile '${rawProfile}'. Expected one of: ${[...hookProfiles].join(", ")}.`);
@@ -42,7 +97,7 @@ function runGit(args: string[]): string[] {
   }
 }
 
-function changedFilesForProfile(profile: HookProfile): string[] {
+export function changedFilesForProfile(profile: HookProfile): string[] {
   if (profile === "pre-commit") {
     const staged = runGit(["diff", "--cached", "--name-only", "--diff-filter=ACMRTUXB"]);
     return staged.length > 0 ? staged : runGit(["diff", "--name-only", "--diff-filter=ACMRTUXB"]);
@@ -59,16 +114,100 @@ function changedFilesForProfile(profile: HookProfile): string[] {
   return [];
 }
 
-function matchesAnyPath(files: string[], patterns: RegExp[]): boolean {
+export function matchesAnyPath(files: string[], patterns: RegExp[]): boolean {
   return files.some((file) => patterns.some((pattern) => pattern.test(file)));
+}
+
+/**
+ * Classify how pre-commit should invoke architecture for a staged file set.
+ *
+ * - omit: staged paths cannot introduce architecture violations (coordination-only, etc.)
+ * - path-scoped-global: staged paths are product/tooling-relevant; run all global suites
+ *   via direct package vitest (full-repo scanners still run — they are inherently global)
+ * - full-turbo: staged paths touch architecture-rules or monorepo topology; use turbo
+ *   `pnpm architecture` with the normal ^typecheck graph
+ */
+export function classifyArchitectureInvocation(
+  profile: HookProfile,
+  changedFiles: string[],
+): ArchitectureInvocationMode {
+  if (profile === "strict" || profile === "pre-push") {
+    return "full-turbo";
+  }
+  if (profile === "local-exam") {
+    return "omit";
+  }
+
+  // pre-commit
+  if (changedFiles.length === 0) {
+    // Unknown/empty change set: stay conservative.
+    return "full-turbo";
+  }
+  if (!matchesAnyPath(changedFiles, ARCHITECTURE_RELEVANT_PATH_PATTERNS)) {
+    return "omit";
+  }
+  if (matchesAnyPath(changedFiles, ARCHITECTURE_FORCE_FULL_PATH_PATTERNS)) {
+    return "full-turbo";
+  }
+  return "path-scoped-global";
+}
+
+/**
+ * Build the architecture fitness step (or null when path-scoped omit is safe).
+ *
+ * Path-scoped pre-commit still executes the full global suites (file-size freeze,
+ * workspace-wide scanners, cross-package imports) — those cannot be limited to staged
+ * paths without missing violations. The scope win is:
+ * 1) omit architecture entirely when staged files cannot hit the rules, and
+ * 2) invoke the suites directly (no turbo ^typecheck cascade) for ordinary product commits.
+ */
+export function buildArchitectureStep(profile: HookProfile, changedFiles: string[]): HookStep | null {
+  if (profile === "local-exam") {
+    return null;
+  }
+
+  const mode = classifyArchitectureInvocation(profile, changedFiles);
+
+  if (mode === "omit") {
+    return null;
+  }
+
+  if (mode === "full-turbo") {
+    return {
+      label: "Architecture fitness rules",
+      command: pnpm("architecture"),
+      reason:
+        profile === "pre-commit"
+          ? "staged paths touch architecture-rules or monorepo topology — full turbo architecture (global suites + ^typecheck)"
+          : "production app, factory, asset commons, and capability arena boundaries stay enforced",
+    };
+  }
+
+  // path-scoped-global: direct vitest of all inherently-global suites
+  return {
+    label: "Architecture fitness rules (path-scoped pre-commit)",
+    command: [
+      "pnpm",
+      "--filter",
+      "@openclinxr/architecture-rules",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      ".",
+      ...ARCHITECTURE_GLOBAL_SUITE_FILES,
+    ],
+    reason:
+      "staged paths are architecture-relevant; full-repo global suites (file-size freeze, workspace scanners, cross-package imports) via direct vitest (no turbo ^typecheck cascade)",
+  };
 }
 
 function pnpm(script: string): string[] {
   return ["pnpm", script];
 }
 
-function buildBaseOpenClawSteps(): HookStep[] {
-  return [
+function buildBaseOpenClawSteps(profile: HookProfile, changedFiles: string[]): HookStep[] {
+  const steps: HookStep[] = [
     {
       label: "OpenClaw drift check",
       command: pnpm("docs:drift-check"),
@@ -79,17 +218,20 @@ function buildBaseOpenClawSteps(): HookStep[] {
       command: pnpm("agent:alignment"),
       reason: "canonical state files remain coherent for repo-native agents",
     },
-    {
-      label: "Architecture fitness rules",
-      command: pnpm("architecture"),
-      reason: "production app, factory, asset commons, and capability arena boundaries stay enforced",
-    },
-    {
-      label: "OpenClaw post-slice record check",
-      command: pnpm("openclaw:post-slice"),
-      reason: "required per-slice markers remain discoverable for agentic continuation",
-    },
   ];
+
+  const architectureStep = buildArchitectureStep(profile, changedFiles);
+  if (architectureStep) {
+    steps.push(architectureStep);
+  }
+
+  steps.push({
+    label: "OpenClaw post-slice record check",
+    command: pnpm("openclaw:post-slice"),
+    reason: "required per-slice markers remain discoverable for agentic continuation",
+  });
+
+  return steps;
 }
 
 function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): HookStep[] {
@@ -143,7 +285,7 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[]): Hook
   return steps;
 }
 
-function stepsForProfile(profile: HookProfile): HookStep[] {
+export function stepsForProfile(profile: HookProfile, changedFiles?: string[]): HookStep[] {
   if (profile === "local-exam") {
     return [
       {
@@ -156,7 +298,7 @@ function stepsForProfile(profile: HookProfile): HookStep[] {
 
   if (profile === "strict") {
     return [
-      ...buildBaseOpenClawSteps(),
+      ...buildBaseOpenClawSteps(profile, changedFiles ?? []),
       {
         label: "Full typecheck",
         command: pnpm("typecheck"),
@@ -175,8 +317,8 @@ function stepsForProfile(profile: HookProfile): HookStep[] {
     ];
   }
 
-  const changedFiles = changedFilesForProfile(profile);
-  return [...buildBaseOpenClawSteps(), ...buildPathAwareSteps(profile, changedFiles)];
+  const files = changedFiles ?? changedFilesForProfile(profile);
+  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files)];
 }
 
 function formatCommand(command: string[]): string {
@@ -194,7 +336,16 @@ function runStep(step: HookStep, index: number, total: number): HookRunResult {
     throw new Error(`Hook step '${step.label}' has no command.`);
   }
 
-  const result = spawnSync(command, args, { stdio: "inherit" });
+  // Propagate staged-file list for future architecture-rules path filters and diagnostics.
+  const env = { ...process.env };
+  if (step.label.startsWith("Architecture fitness rules")) {
+    const staged = changedFilesForProfile("pre-commit");
+    if (staged.length > 0) {
+      env.OPENCLINXR_HOOK_STAGED_FILES = staged.join("\n");
+    }
+  }
+
+  const result = spawnSync(command, args, { stdio: "inherit", env });
   const elapsedMs = performance.now() - startedAt;
   return { step, status: result.status, elapsedMs };
 }
@@ -217,11 +368,16 @@ function printSummary(profile: HookProfile, results: HookRunResult[]): void {
 }
 
 export async function runAgenticHookProfile(profile: HookProfile): Promise<number> {
-  const steps = stepsForProfile(profile);
+  const changedFiles = changedFilesForProfile(profile);
+  const steps = stepsForProfile(profile, changedFiles);
   const results: HookRunResult[] = [];
 
   console.log(`OpenClaw agentic hook runner: ${profile}`);
   console.log("Use OPENCLAW_SKIP_HOOKS=1 only for intentional emergency bypasses.");
+  if (profile === "pre-commit") {
+    const mode = classifyArchitectureInvocation(profile, changedFiles);
+    console.log(`Architecture invocation: ${mode} (staged files: ${changedFiles.length})`);
+  }
   if (profile !== "strict") {
     console.log("Use OPENCLINXR_HOOK_TYPECHECK_AFFECTED=1 for affected typecheck while the full baseline is being repaired.");
   }
@@ -245,5 +401,5 @@ async function main(): Promise<void> {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await main();
+  void main();
 }
