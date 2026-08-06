@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"${OPENCLINXR_PHASE_GUARD:-0}\" != \"1\" ]; then exit 0; fi; if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; npx tsx ../../tools/openclinxr/openclaw/agent-phase-guard.ts",
+            "command": "if [ \"${OPENCLINXR_PHASE_GUARD:-0}\" != \"1\" ]; then exit 0; fi; if [ \"${OPENCLINXR_WORKER:-0}\" = \"1\" ] || [ \"${OPENCLINXR_WORKER:-}\" = \"true\" ] || [ -n \"${GROK_SUBAGENT:-}\" ]; then exit 0; fi; pnpm exec tsx tools/openclinxr/openclaw/agent-phase-guard.ts",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx tsx ../../tools/openclinxr/openclaw/dispatch-chokepoint.ts",
+            "command": "pnpm exec tsx tools/openclinxr/openclaw/dispatch-chokepoint.ts",
             "timeout": 10
           }
         ]
