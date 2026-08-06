@@ -1,12 +1,19 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { DEFAULT_DEV_ADMIN_IDENTITY } from "@openclinxr/auth";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import type { ExamForm } from "@openclinxr/exam-assembly";
 import { createDefaultScenarioRuntime, type ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import { createNoopTelemetryRecorder, type TelemetryRecorder } from "@openclinxr/telemetry";
 import { type RealtimeVoiceGatewayPostureInput, realtimeVoiceProtocol } from "@openclinxr/voice-gateway";
-import { type ApiPersistenceSink, type ApiScenarioReviewDecisionRecord, type ApiStationRunQueueSnapshot, createApiApp } from "./app.js";
+import {
+  type ApiAuthConfig,
+  type ApiPersistenceSink,
+  type ApiScenarioReviewDecisionRecord,
+  type ApiStationRunQueueSnapshot,
+  createApiApp,
+} from "./app.js";
 import {
   createOpenClinXrApiProtocolPosture,
   type OpenClinXrApiProtocolPosture,
@@ -771,12 +778,25 @@ function defaultContextFactory(
   };
 }
 
+/** Build local-only auth config from env. Default: disabled (dev admin identity). */
+export function createDefaultAuthConfigFromEnv(
+  env: NodeJS.ProcessEnv = process.env,
+): ApiAuthConfig {
+  const enabledFlag = env["OPENCLINXR_AUTH_ENABLED"];
+  return {
+    enabled: enabledFlag === "1" || enabledFlag === "true",
+    secret: env["OPENCLINXR_AUTH_SECRET"] ?? "dev-insecure-secret-change-me",
+    devDefaultIdentity: DEFAULT_DEV_ADMIN_IDENTITY,
+  };
+}
+
 function defaultApplicationServicesFactory(context: ApiStartupContext): ApiApplicationServices {
   const app = createApiApp(context.runtime, context.persistence, {
     telemetry: context.telemetry,
     assetGenerationFacade: context.assetGenerationFacade,
     realtimeVoiceGatewayPosture: context.realtimeVoiceGatewayPosture,
     apiProtocolPosture: context.apiProtocolPosture,
+    auth: createDefaultAuthConfigFromEnv(),
   });
   return {
     fetch: (request) => app.fetch(request),

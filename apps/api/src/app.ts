@@ -44,6 +44,13 @@ import {
   executeAdminGraphql,
   openClinXrAdminSchemaSdl,
 } from "@openclinxr/graphql";
+import {
+  type AuthIdentity,
+  type AuthRole,
+  authenticateAuthorizationHeader,
+  DEFAULT_DEV_ADMIN_IDENTITY,
+  hasRole,
+} from "@openclinxr/auth";
 import { matchOpenClinXrRestRoute, routeById } from "@openclinxr/rest";
 import {
   buildDynamicEncounterFactoryPlanningProjection,
@@ -75,7 +82,7 @@ import {
   type RealtimeVoiceProtocolLaneId,
   selectRealtimeVoiceProtocol,
 } from "@openclinxr/voice-gateway";
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { createOpenClinXrApiProtocolPosture, type OpenClinXrApiProtocolPosture } from "./protocol-support.js";
 
 type RuntimeTraceEvents = ReturnType<ScenarioRuntime["traceEvents"]>;
@@ -580,6 +587,9 @@ export type ApiPersistenceSink = {
   saveAuthoredScenario?: (scenario: Scenario) => Promise<void> | void;
   listAuthoredScenarios?: () => Promise<Scenario[]> | Scenario[];
   getAuthoredScenario?: (scenarioId: string) => Promise<Scenario | undefined> | Scenario | undefined;
+  /** Optional durable run-ownership registry (stationRunId → owner userId). */
+  saveRunOwner?: (stationRunId: string, ownerUserId: string) => Promise<void> | void;
+  getRunOwner?: (stationRunId: string) => Promise<string | undefined> | string | undefined;
 };
 
 export type ApiScenarioSceneGenerationRequestRecord = {
@@ -904,25 +914,72 @@ export type ApiHumanReviewActionSummary = {
   claimBoundary: "human_review_action_not_automated_approval";
 };
 
+/** Local-only AuthN/AuthZ config (no cloud/paid deps). Default: disabled (dev admin identity). */
+export type ApiAuthConfig = {
+  enabled: boolean;
+  secret: string;
+  devDefaultIdentity?: AuthIdentity | null;
+};
+
 export type ApiAppOptions = {
   telemetry?: TelemetryRecorder;
   assetGenerationFacade?: AssetGenerationCapabilityFacade;
   realtimeVoiceGatewayPosture?: RealtimeVoiceGatewayPostureInput;
   apiProtocolPosture?: OpenClinXrApiProtocolPosture;
+  auth?: ApiAuthConfig;
 };
 
-export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono {
-  const app = new Hono();
+type ApiAppVariables = {
+  identity: AuthIdentity;
+};
+
+export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRuntime(), persistence: ApiPersistenceSink = {}, options: ApiAppOptions = {}): Hono<{ Variables: ApiAppVariables }> {
+  const app = new Hono<{ Variables: ApiAppVariables }>();
   const telemetry = options.telemetry ?? createNoopTelemetryRecorder();
   const assetGenerationFacade = options.assetGenerationFacade ?? new AssetGenerationCapabilityFacade();
   const realtimeVoiceGatewayPosture = options.realtimeVoiceGatewayPosture ?? createDefaultRealtimeVoiceGatewayPostureInput();
   const apiProtocolPosture = options.apiProtocolPosture ?? createOpenClinXrApiProtocolPosture();
+  const authConfig: ApiAuthConfig = options.auth ?? {
+    enabled: false,
+    secret: "dev-secret",
+    devDefaultIdentity: DEFAULT_DEV_ADMIN_IDENTITY,
+  };
+  /** In-app fallback ownership registry when persistence does not implement run ownership. */
+  const runOwnerByStationRunId = new Map<string, string>();
   const adminScenarioOverrides = new Map<string, AdminGraphqlScenario>();
   const sceneGenerationRequests: ApiScenarioSceneGenerationRequestRecord[] = [];
   const runtimeRealismEvidenceInputReviewDecisions: ApiRuntimeRealismEvidenceInputReviewDecision[] = [];
   const runtimeVisualEvidenceAttachments: ApiRuntimeVisualEvidenceAttachment[] = [];
   let runtimeRealismEvidenceInputReviewDecisionRecord: ApiRuntimeRealismEvidenceInputReviewDecisionRecord | undefined;
   let runtimeVisualEvidenceAttachmentRecord: ApiRuntimeVisualEvidenceAttachmentRecord | undefined;
+
+  const getIdentity = (context: Context<{ Variables: ApiAppVariables }>): AuthIdentity => {
+    const identity = context.get("identity");
+    return identity ?? DEFAULT_DEV_ADMIN_IDENTITY;
+  };
+
+  const requireFaculty = (context: Context<{ Variables: ApiAppVariables }>): Response | null => {
+    if (!hasRole(getIdentity(context), ["faculty", "admin"] as AuthRole[])) {
+      return context.json({ error: "forbidden_requires_faculty" }, 403);
+    }
+    return null;
+  };
+
+  const assertRunReadAllowed = async (
+    context: Context<{ Variables: ApiAppVariables }>,
+    stationRunId: string,
+  ): Promise<Response | null> => {
+    const identity = getIdentity(context);
+    if (hasRole(identity, ["faculty", "admin"] as AuthRole[])) {
+      return null;
+    }
+    const owner = runOwnerByStationRunId.get(stationRunId)
+      ?? await Promise.resolve(persistence.getRunOwner?.(stationRunId));
+    if (owner !== undefined && owner !== identity.userId) {
+      return context.json({ error: "forbidden_not_run_owner" }, 403);
+    }
+    return null;
+  };
   const latestMaterializationInputReviewDecisionRecordForScenario = (
     scenarioId: string,
   ): ApiMaterializationInputReviewDecisionRecord | undefined =>
@@ -939,7 +996,7 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.use("*", async (context, next) => {
     context.header("access-control-allow-origin", "*");
     context.header("access-control-allow-methods", "GET,POST,OPTIONS");
-    context.header("access-control-allow-headers", "content-type");
+    context.header("access-control-allow-headers", "content-type,authorization");
     if (context.req.method === "OPTIONS") {
       return context.body(null, 204);
     }
@@ -964,6 +1021,25 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
         ...(errorType ? { errorType } : {}),
       });
     }
+  });
+
+  const healthPath = routeById("health").path;
+  const providersHealthPath = routeById("providers-health").path;
+
+  app.use("*", async (context, next) => {
+    if (context.req.method === "OPTIONS") {
+      return next();
+    }
+    const path = context.req.path;
+    if (path === healthPath || path === providersHealthPath) {
+      return next();
+    }
+    const result = authenticateAuthorizationHeader(context.req.header("authorization"), authConfig);
+    if (result.status === 401) {
+      return context.json({ error: "unauthenticated" }, 401);
+    }
+    context.set("identity", result.identity ?? DEFAULT_DEV_ADMIN_IDENTITY);
+    await next();
   });
 
   app.get(routeById("health").path, async (context) =>
@@ -1145,6 +1221,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("submit-runtime-realism-evidence-input-review").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; decisions?: unknown };
     const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : "peds_asthma_parent_anxiety_v1";
     const decisions = Array.isArray(body.decisions) ? body.decisions.filter(isRuntimeRealismEvidenceInputReviewDecision) : [];
@@ -1157,6 +1235,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("submit-runtime-visual-evidence-attachment").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as { scenarioId?: unknown; attachments?: unknown };
     const scenarioId = typeof body.scenarioId === "string" ? body.scenarioId : runtimeRealismEvidenceInputReviewDecisionRecord?.scenarioId ?? "peds_asthma_parent_anxiety_v1";
     if (isRecord(body) && isRawUiXrManualPerformancePayload(body)) {
@@ -1273,6 +1353,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   app.get(routeById("admin-graphql-documents").path, (context) => context.json(adminGraphqlDocuments));
 
   app.post(routeById("admin-graphql-execute").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as {
       query?: unknown;
       variables?: unknown;
@@ -1376,6 +1458,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("submit-scenario-scene-generation-request-review").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const requestId = context.req.param("requestId");
     const body = (await context.req.json().catch(() => ({}))) as { decisions?: unknown };
     const record = sceneGenerationRequests.find((candidate) => candidate.requestId === requestId);
@@ -1401,6 +1485,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("submit-scenario-scene-generation-materialization-input-review").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const requestId = context.req.param("requestId");
     const body = (await context.req.json().catch(() => ({}))) as { decisions?: unknown };
     const record = sceneGenerationRequests.find((candidate) => candidate.requestId === requestId);
@@ -1619,6 +1705,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("create-step2cs-seed-station-run-queue-snapshot").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as {
       snapshotId?: unknown;
       createdAt?: unknown;
@@ -1631,6 +1719,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   });
 
   app.post(routeById("create-exam-form").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
     const form = assembleExamForm({
       examFormId: body.examFormId ?? "form_openclinxr_pilot_001",
@@ -1653,6 +1743,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
   // Authored scenario persistence (control-plane). Registered after literal
   // /scenarios/ed-chest-pain* handlers so Hono prefers static learner routes.
   app.post(routeById("save-authored-scenario").path, async (context) => {
+    const gate = requireFaculty(context);
+    if (gate) return gate;
     const body = (await context.req.json().catch(() => ({}))) as { scenario?: unknown };
     const validation = validateScenario(body.scenario);
     if (!validation.ok) {
@@ -1721,11 +1813,19 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     if (body.consentAccepted !== true) {
       return context.json({ error: "consent_required" }, 400);
     }
-    const learnerId = body.learnerId ?? "learner_001";
+    const identity = getIdentity(context);
+    let learnerId = body.learnerId ?? "learner_001";
+    // When auth is enabled, learners always start runs as themselves.
+    if (authConfig.enabled && identity.role === "learner") {
+      learnerId = identity.userId;
+    }
     if (learnerId.trim().length === 0) {
       return context.json({ error: "learner_id_required" }, 400);
     }
     const run = await runtime.startSession({ learnerId, consentAccepted: true });
+    const ownerUserId = identity.userId;
+    runOwnerByStationRunId.set(run.stationRunId, ownerUserId);
+    await Promise.resolve(persistence.saveRunOwner?.(run.stationRunId, ownerUserId));
     await persistTraceSnapshot(runtime, persistence, run.stationRunId);
 
     return context.json(run, 201);
@@ -1898,6 +1998,8 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
 
   app.get(routeById("review-packet").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
+    const denied = await assertRunReadAllowed(context, stationRunId);
+    if (denied) return denied;
 
     try {
       const packet = runtime.reviewPacket(stationRunId);
@@ -1908,8 +2010,10 @@ export function createApiApp(runtime: ScenarioRuntime = createDefaultScenarioRun
     }
   });
 
-  app.get(routeById("trace-events").path, (context) => {
+  app.get(routeById("trace-events").path, async (context) => {
     const stationRunId = context.req.param("stationRunId");
+    const denied = await assertRunReadAllowed(context, stationRunId);
+    if (denied) return denied;
 
     try {
       return context.json(runtime.traceEvents(stationRunId));

@@ -116,6 +116,9 @@ importers:
       '@openclinxr/asset-registry':
         specifier: workspace:*
         version: link:../../packages/openclinxr/asset-registry
+      '@openclinxr/auth':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/auth
       '@openclinxr/capability-gateway':
         specifier: workspace:*
         version: link:../../packages/openclinxr/capability-gateway
@@ -523,6 +526,15 @@ importers:
       '@openclinxr/shared-schemas':
         specifier: workspace:*
         version: link:../shared-schemas
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.5
+        version: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@25.6.0)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.16(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.9.0))
+
+  packages/openclinxr/auth:
     devDependencies:
       typescript:
         specifier: 6.0.3

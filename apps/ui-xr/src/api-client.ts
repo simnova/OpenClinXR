@@ -56,6 +56,8 @@ export type TraceEventSummary = {
 export type StationApiClientOptions = {
   baseUrl: string;
   fetch?: typeof fetch;
+  /** Optional bearer token for API AuthN (local JWT). */
+  authToken?: string;
 };
 
 export type StationApiClient = {
@@ -91,32 +93,50 @@ export type LearnerRuntimeAssetBundleListResponse = {
 export function createStationApiClient(options: StationApiClientOptions): StationApiClient {
   const baseUrl = options.baseUrl.replace(/\/$/, "");
   const fetcher = options.fetch ?? fetch;
+  const authToken = options.authToken;
 
   return {
-    listLearnerRuntimeAssetBundles: () => get(fetcher, baseUrl, "/runtime/asset-bundles"),
+    listLearnerRuntimeAssetBundles: () => get(fetcher, baseUrl, "/runtime/asset-bundles", authToken),
     findLearnerRuntimeAssetBundleByScenarioStation: async (input) => {
-      const response = await get<LearnerRuntimeAssetBundleListResponse>(fetcher, baseUrl, "/runtime/asset-bundles");
+      const response = await get<LearnerRuntimeAssetBundleListResponse>(fetcher, baseUrl, "/runtime/asset-bundles", authToken);
       return response.bundles.find((bundle) =>
         bundle.scenarioId === input.scenarioId
           && (input.stationId === undefined || input.stationId === null || bundle.stationId === input.stationId),
       ) ?? null;
     },
-    getLearnerRuntimeAssetBundle: (bundleId) => get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`),
-    startSession: (input) => request(fetcher, baseUrl, "/sessions", input),
-    startEncounter: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input),
-    recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input),
-    requestActorResponse: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input),
-    synthesizeActorSpeech: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input),
-    submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input),
-    listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`),
+    getLearnerRuntimeAssetBundle: (bundleId) => get(fetcher, baseUrl, `/runtime/asset-bundles/${encodeURIComponent(bundleId)}`, authToken),
+    startSession: (input) => request(fetcher, baseUrl, "/sessions", input, authToken),
+    startEncounter: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/start-encounter`, input, authToken),
+    recordTraceAction: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/events`, input, authToken),
+    requestActorResponse: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/actor-response`, input, authToken),
+    synthesizeActorSpeech: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/voice-synthesis`, input, authToken),
+    submitNote: (stationRunId, input) => request(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/note`, input, authToken),
+    listTraceEvents: (stationRunId) => get(fetcher, baseUrl, `/sessions/${encodeURIComponent(stationRunId)}/trace-events`, authToken),
   };
 }
 
-async function request<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string, body: unknown): Promise<TResponse> {
+function buildHeaders(authToken: string | undefined, contentType?: string): Record<string, string> {
+  const headers: Record<string, string> = {};
+  if (contentType) {
+    headers["content-type"] = contentType;
+  }
+  if (authToken) {
+    headers["authorization"] = `Bearer ${authToken}`;
+  }
+  return headers;
+}
+
+async function request<TResponse>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  body: unknown,
+  authToken?: string,
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
   const response = await fetcher(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: buildHeaders(authToken, "application/json"),
     body: JSON.stringify(body),
   });
 
@@ -129,10 +149,16 @@ async function request<TResponse>(fetcher: typeof fetch, baseUrl: string, path: 
   return response.json() as Promise<TResponse>;
 }
 
-async function get<TResponse>(fetcher: typeof fetch, baseUrl: string, path: string): Promise<TResponse> {
+async function get<TResponse>(
+  fetcher: typeof fetch,
+  baseUrl: string,
+  path: string,
+  authToken?: string,
+): Promise<TResponse> {
   const url = `${baseUrl}${path}`;
   const response = await fetcher(url, {
     method: "GET",
+    headers: buildHeaders(authToken),
   });
 
   if (!response.ok) {
