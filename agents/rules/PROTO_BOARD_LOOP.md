@@ -269,6 +269,66 @@ is the right one: **the diagnosis paragraph is immutable — flip `it.fails`, ap
 block below it, and never delete the measured tables.** Where the header captures a peer round, it is
 frequently the only place that reasoning exists at all.
 
+## Control/treatment needs a TABLE of criteria, not a hypothesis to try first
+
+#67 fixed a 90° armature rotation that had six of seven shipped humanoids rendering head-down. The
+brief carried a hypothesis from a peer round — apply the rotation to rest DATA, clear the object
+rotation — and said explicitly that the mechanism was unknown and inverse bind matrices were the
+risk. The worker tried it first, and it **failed**:
+
+| treatment | root | joints | mesh POSITION |
+|---|---|---|---|
+| object +90° left on the node (#58, shipped) | non-identity | stand on Y | height on Y |
+| rest-data bake + `export_yup=True` (my hypothesis) | identity | stand on Y | **height on Z** |
+| identity object + `export_yup=False` (what worked) | identity | stand on Y | height on Y |
+
+Row two is the trap: identity root, joints standing, proportions probe green — and the mesh lying
+down. Had the worker regenerated all six on it, the result would have looked like a probe win and
+been the third consecutive slice to ship a broken figure. It did not, because the brief required
+control/treatment on ONE asset with a pixel read before multi-regen. **That instruction survived
+contact and is the reason this did not repeat.**
+
+What the brief got wrong was framing a candidate as the intended fix. The worker's own correction:
+
+> "Do not put 'apply +90 to rest DATA and clear object rotation' in the next brief as the default.
+> Put: Y-height content + identity armature object + do not double with `export_yup=True`; rest-data
+> bake is a **failed treatment** for this exporter, not the fix."
+
+**Rule:** for any asset-pipeline slice, the brief gives a control/treatment TABLE, not an ordered
+guess:
+
+- **The success criterion is every column at once** — root identity AND joint ordering AND mesh
+  POSITION height exceeding horizontal AND the pixels read upright. Any single column green is how
+  #58, #64 and treatment-two all looked like wins.
+- **Name the known FAILED treatments** with what each produced, so they are recognised rather than
+  rediscovered.
+- **Name the known WORKING pattern already in the tree** if one exists — here `apply_bvh_to_anny_full`
+  had used `export_yup=False` all along, and it was rediscovered after a full Blender bake instead
+  of read first.
+- **A peer's preferred approach is a candidate, not a sequence.** First green is the first that
+  passes the whole table.
+
+The generalisation beyond assets: when a brief carries a hypothesis about a mechanism nobody has
+verified, say which column it is expected to move and what would falsify it. A hypothesis stated as
+a direction gets tried first and costs a full cycle when wrong; stated as a row in a table, it costs
+one measurement.
+
+## "Capture" does not mean "render" unless the brief says so
+
+#44 wired `environmentId` into the runtime and I asked for "a front capture of each and I will grade
+them". What came back was a top-down SCHEMATIC — a floor plan with labelled fixture squares and a
+header of dimensions. Honestly labelled, genuinely showing two different plans, and not a picture of
+a room. I graded a diagram.
+
+The worker did nothing wrong: a diagram is a capture, and the descriptor is what the slice changed.
+The brief is what failed to distinguish a rendering of the RUNNING SCENE from a drawing of the DATA
+that feeds it.
+
+**Rule:** when the verdict rests on appearance, name the renderer and the subject — "a three.js
+render of the ui-xr scene with scenario X loaded", not "a capture". The whole point of the pixels
+rule is to see what a learner sees, and a schematic of the inputs is exactly the kind of artifact
+that passes a `min-bytes:` floor and an eyeball at a glance while proving something else entirely.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
