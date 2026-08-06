@@ -287,7 +287,9 @@ describe("regression: rule kinds assertProofShape must accept", () => {
   // already had: `handoffs:all-done` is a valid rule matched EXACTLY, not by prefix, so the
   // validator rejected a legitimate proof. Skipping refactor is how a green bar hides a new bug.
   it("accepts handoffs:all-done, which is matched exactly rather than by prefix", () => {
-    expect(() => assertProofShape(["handoffs:all-done"])).not.toThrow();
+    // Paired with a tree proof: this asserts the rule is RECOGNISED, not that narrative alone
+    // suffices — a separate rule below rejects narrative-only sets.
+    expect(() => assertProofShape(["handoffs:all-done", "run:true"])).not.toThrow();
   });
 
   it("accepts every rule kind the evaluator actually implements", () => {
@@ -301,7 +303,32 @@ describe("regression: rule kinds assertProofShape must accept", () => {
       "handoffs:all-done",
     ];
     for (const rule of implemented) {
-      expect(() => assertProofShape([rule]), `evaluator implements ${rule}`).not.toThrow();
+      // Each paired with a tree proof so this tests RECOGNITION only; the narrative-only policy is
+      // asserted separately.
+      expect(() => assertProofShape([rule, "run:true"]), `evaluator implements ${rule}`).not.toThrow();
     }
+  });
+});
+
+describe("narrative rules cannot stand in for tree proofs", () => {
+  // `handoff:` / `skeptic:` / `handoffs:all-done` read a worker's own handoff JSON — they are the
+  // worker's account of itself, which is precisely what the contract exists NOT to trust. Only
+  // exists:/min-bytes:/run:/changed: inspect the tree.
+  //
+  // assertProofShape blessed narrative-only proofs, and the tier gate then rejected the dispatch
+  // with "no machine-checkable tree proofs" — telling a caller who DID pass proofs that they passed
+  // none. Confusing error for a plausible mistake: a missing test, not user error.
+  it("rejects a narrative-only proof set, naming why it cannot be trusted", () => {
+    expect(() => assertProofShape(["skeptic:visible"])).toThrow(/tree/i);
+    expect(() => assertProofShape(["handoff:asset-pipeline-lead:done"])).toThrow(/tree/i);
+    expect(() => assertProofShape(["handoffs:all-done"])).toThrow(/tree/i);
+  });
+
+  it("accepts narrative rules ALONGSIDE at least one tree proof", () => {
+    expect(() => assertProofShape(["skeptic:visible", "run:pnpm architecture"])).not.toThrow();
+  });
+
+  it("still accepts tree proofs on their own", () => {
+    expect(() => assertProofShape(["changed:docs/x.md"])).not.toThrow();
   });
 });

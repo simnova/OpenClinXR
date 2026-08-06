@@ -341,6 +341,23 @@ export function assertProofShape(proofs: readonly string[]): void {
       );
     }
   }
+
+  // Narrative rules (handoff:/skeptic:/handoffs:all-done) read the worker's OWN handoff JSON —
+  // its account of itself, which is exactly what the contract exists not to trust. Only
+  // exists:/min-bytes:/run:/changed: inspect the tree. Reuse the evaluator's partition rather than
+  // re-deriving the split here; re-deriving a rule list is what drifted earlier today.
+  if (proofs.length > 0) {
+    const { treeProofs, narrative } = partitionDoneWhen([...proofs]);
+    if (treeProofs.length === 0) {
+      throw new Error(
+        `All ${narrative.length} supplied proof(s) are NARRATIVE (${narrative.join(", ")}), which read `
+        + `the worker's own handoff JSON rather than the tree — the worker's account of itself is not `
+        + `evidence. A worktree-bound dispatch needs at least one TREE proof `
+        + `(${DONE_WHEN_RULE_VOCABULARY.prefixes.filter((p) => p !== "handoff:" && p !== "skeptic:").join(", ")}). `
+        + `Narrative rules are fine alongside one.`,
+      );
+    }
+  }
 }
 
 export function buildArgv(options: DispatchOptions): string[] {
