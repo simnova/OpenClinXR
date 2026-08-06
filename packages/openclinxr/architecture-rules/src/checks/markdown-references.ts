@@ -74,7 +74,6 @@ export const BROKEN_REFERENCE_FREEZE: Record<string, number> = {
   ".cursor/rules/source-of-truth.md": 1,
   ".grok/rules/GUARD_DRIFT.md": 3,
   ".grok/rules/LEX_AGENTIC.md": 5,
-  ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md": 1,
   "PROJECT_STATUS.md": 1,
   "agents/coordinator/hrbp/memory.md": 6,
   "agents/core/architect/charter.md": 1,

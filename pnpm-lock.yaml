@@ -873,6 +873,9 @@ importers:
       '@openclinxr/domain':
         specifier: workspace:*
         version: link:../domain
+      '@openclinxr/exam-assembly':
+        specifier: workspace:*
+        version: link:../exam-assembly
       '@openclinxr/model-gateway':
         specifier: workspace:*
         version: link:../model-gateway

@@ -148,11 +148,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -241,9 +236,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- local gitignored `.openclinxr/` runtime map README - archive-candidate; Unclassified Markdown; review before using as instruction.
+- local gitignored openclaw task-cost markdown companion (under `.openclinxr/openclaw/`) - archive-candidate; generated cost snapshot, not instruction.
+- local gitignored worker-backlog pre-optimization slice-archive snapshot (under `.openclinxr/slice-archive/`) - archive-candidate; historical only.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

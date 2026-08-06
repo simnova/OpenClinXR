@@ -22,6 +22,12 @@ export {
   createScenarioRuntimeWithPersistenceHooks,
 } from "./default-runtime-factory.js";
 export {
+  type AssembledExamRunResult,
+  type AssembledExamStationResult,
+  type RunAssembledExamInput,
+  runAssembledExam,
+} from "./exam-run-bridge.js";
+export {
   type ScenarioCatalogEntry,
   type ScenarioCatalogPort,
   type ScenarioCatalogSource,
