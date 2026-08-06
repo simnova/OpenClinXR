@@ -40,7 +40,7 @@ const load = async () => (await import("./planted-contract.js")) as {
  * is a plain `it` with those same assertions passing.
  */
 describe("planted contracts stay honest", () => {
-  it.fails("rejects a planted test whose assertions are vacuous", async () => {
+  it("rejects a planted test whose assertions are vacuous", async () => {
     // The failure this cannot prevent by construction: `expect(true).toBe(false)` keeps main green
     // forever and encodes nothing about the product. Same junk-RED risk as any test.
     const { plantedContractsAreHonest } = await load();
@@ -51,7 +51,7 @@ describe("planted contracts stay honest", () => {
     expect(violations[0]).toMatch(/vacuous|no product/i);
   });
 
-  it.fails("accepts a planted test that asserts something about the code under test", async () => {
+  it("accepts a planted test that asserts something about the code under test", async () => {
     const { plantedContractsAreHonest } = await load();
     expect(
       plantedContractsAreHonest([
@@ -60,9 +60,8 @@ describe("planted contracts stay honest", () => {
     ).toEqual([]);
   });
 
-  it.fails("flags a test still marked planted after its feature landed", async () => {
-    // it.fails inverts, so vitest already catches this — but the diagnostic should name the file
-    // rather than leaving "Expect test to fail" as the only signal.
+  it("flags a test still marked planted after its feature landed", async () => {
+    // Diagnostic should name the stale contract rather than leaving "Expect test to fail" alone.
     const { plantedContractsAreHonest } = await load();
     const violations = plantedContractsAreHonest([
       { name: "stale", planted: true, assertions: ["expect(x).toBe(1)"], currentlyPasses: true },
