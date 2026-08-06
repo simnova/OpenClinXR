@@ -81,14 +81,44 @@ function recordEvent(repoRoot: string, event: IntegrationEvent): void {
  * PASSED was refused — the report existed and nothing read it. Same shape as every other gap today:
  * the pieces were built and left unconnected.
  */
-export function contractForSlice(repoRoot: string, slice: string): IntegrateInput["contract"] {
+export function contractForSlice(
+  repoRoot: string,
+  slice: string,
+  /** The branch or sha about to land. Enables the fresher merge report to win over a stale ledger. */
+  head?: string,
+): IntegrateInput["contract"] {
+  /**
+   * A merge report that verified THE EXACT COMMIT being landed outranks the dispatch ledger.
+   *
+   * INCIDENT: #43's worker failed one proof, was resumed, fixed it, and committed. The ledger still
+   * held `proofsOk: false` from the first attempt, so integrate refused a slice whose every proof
+   * passed on independent re-run. The ledger records what a dispatch OBSERVED at the time; the merge
+   * report records proofs RE-EXECUTED against the candidate tree. When the latter is anchored to the
+   * head being landed it is strictly better evidence, and stale-beats-fresh is the wrong precedence.
+   *
+   * Anchoring is what keeps this a strengthening. Without a sha match a report could bless a
+   * different commit — the exact failure `integrate-gate` avoids by keying on the staged tree hash
+   * rather than on a file existing.
+   */
+  const merge = mergeVerifyContractForSlice(repoRoot, slice, head);
+  if (merge !== null) return merge;
+
   const entry = readSessions(repoRoot).filter((session) => session.slice === slice).at(-1) as
     | { proofsOk?: boolean; proofs?: { rule: string; passed: boolean; detail: string }[] }
     | undefined;
   if (entry?.proofsOk !== undefined) {
     return { proofsOk: entry.proofsOk, proofs: entry.proofs ?? [] };
   }
-  return mergeVerifyContractForSlice(repoRoot, slice);
+  return null;
+}
+
+/** Resolve a branch/sha to a commit, or undefined when it cannot be resolved. */
+function resolveSha(repoRoot: string, rev: string): string | undefined {
+  try {
+    return execFileSync("git", ["rev-parse", rev], { cwd: repoRoot, encoding: "utf8" }).trim();
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -105,7 +135,11 @@ export function contractForSlice(repoRoot: string, slice: string): IntegrateInpu
  * is the better evidence of the two. A missing or failed report still refuses, and a report whose
  * `proofsOk` is false is passed through as false — never coerced.
  */
-function mergeVerifyContractForSlice(repoRoot: string, slice: string): IntegrateInput["contract"] {
+function mergeVerifyContractForSlice(
+  repoRoot: string,
+  slice: string,
+  head?: string,
+): IntegrateInput["contract"] {
   const path = resolveSharedCoordinationPath(
     `.openclinxr/openclaw/contract-verify-${slice}-merge.json`,
     repoRoot,
@@ -114,12 +148,23 @@ function mergeVerifyContractForSlice(repoRoot: string, slice: string): Integrate
   try {
     const report = JSON.parse(readFileSync(path, "utf8")) as {
       sliceId?: string;
+      headSha?: string;
       proofsOk?: boolean;
       checks?: { rule: string; passed: boolean; detail?: string }[];
     };
     // A report for a different slice is not evidence about this one.
     if (report.sliceId !== undefined && report.sliceId !== slice) return null;
     if (report.proofsOk === undefined) return null;
+
+    // Anchored freshness: usable only when it verified the very commit about to land. An unanchored
+    // report (no headSha, or a head that will not resolve) is not refused outright — it simply
+    // cannot outrank the ledger, so control falls through to the dispatch record.
+    if (head !== undefined) {
+      const headSha = resolveSha(repoRoot, head);
+      if (!report.headSha || !headSha || report.headSha !== headSha) return null;
+    } else if (!report.headSha) {
+      return null;
+    }
     return {
       proofsOk: report.proofsOk,
       proofs: (report.checks ?? []).map((check) => ({
@@ -200,7 +245,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     base: flag("base") ?? "HEAD",
     head: flag("head") ?? "",
     slice,
-    contract: contractForSlice(process.cwd(), slice),
+    contract: contractForSlice(process.cwd(), slice, flag("head") ?? ""),
     dryRun: args.includes("--dry-run"),
   });
   console.log(

@@ -139,3 +139,65 @@ describe("integrate — merge-kill enforced at the land boundary", () => {
     expect(result.killReport.killed).toBe(true);
   });
 });
+
+/**
+ * Contract precedence: an anchored merge re-verify outranks a stale dispatch ledger.
+ *
+ * INCIDENT (#43): the worker failed one proof, was resumed, fixed it and committed. The ledger still
+ * held `proofsOk: false` from the first attempt, so integrate refused a slice whose every proof
+ * passed on independent re-run against the exact commit being landed. The ledger records what a
+ * dispatch OBSERVED once; the merge report records proofs RE-EXECUTED against the candidate tree.
+ * Stale-beats-fresh was the wrong precedence.
+ *
+ * The anchor is what keeps this a strengthening rather than a loosening: a report may only outrank
+ * the ledger when its `headSha` IS the commit about to land. Everything else falls through — which
+ * is why these cases assert refusal rather than merely asserting the happy path.
+ */
+describe("merge-report precedence is anchored to the landing commit", () => {
+  const report = (over: Record<string, unknown> = {}) => ({
+    sliceId: "slice-x",
+    headSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    proofsOk: true,
+    checks: [{ rule: "run:true", passed: true, detail: "ok" }],
+    ...over,
+  });
+
+  /** Mirrors the guard in mergeVerifyContractForSlice without touching the filesystem. */
+  const usable = (r: ReturnType<typeof report>, landingSha: string | undefined, slice = "slice-x") => {
+    if (r.sliceId !== undefined && r.sliceId !== slice) return false;
+    if (r.proofsOk === undefined) return false;
+    if (!r.headSha || !landingSha || r.headSha !== landingSha) return false;
+    return true;
+  };
+
+  const LANDING = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+  it("uses a report that verified the exact commit being landed", () => {
+    expect(usable(report(), LANDING)).toBe(true);
+  });
+
+  it("REFUSES a report anchored to a different commit", () => {
+    // Otherwise a stale pass could bless work it never saw.
+    expect(usable(report({ headSha: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }), LANDING)).toBe(false);
+  });
+
+  it("REFUSES an unanchored report, even when its proofs passed", () => {
+    // "Some tree at this path passed once" is not a claim about this commit.
+    expect(usable(report({ headSha: undefined }), LANDING)).toBe(false);
+  });
+
+  it("REFUSES when the landing commit cannot be resolved", () => {
+    expect(usable(report(), undefined)).toBe(false);
+  });
+
+  it("REFUSES a report for a different slice", () => {
+    expect(usable(report({ sliceId: "slice-y" }), LANDING)).toBe(false);
+  });
+
+  it("does not coerce a failing report into a pass", () => {
+    // Precedence changes WHICH record is authoritative, never what it says.
+    const failing = report({ proofsOk: false });
+    expect(usable(failing, LANDING)).toBe(true);
+    expect(failing.proofsOk).toBe(false);
+  });
+});

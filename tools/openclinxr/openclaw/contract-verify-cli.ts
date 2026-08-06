@@ -9,6 +9,7 @@
  * Usage: tsx contract-verify-cli.ts --slice <id> [--tree <path>] [--json]
  */
 
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -80,11 +81,28 @@ async function main(): Promise<void> {
   }
   const proofsOk = checks.every((c) => c.passed);
 
+  /**
+   * The commit these proofs were actually executed against.
+   *
+   * Without it the report says only "some tree at this path passed once". `integrate` needs to know
+   * whether it passed THE COMMIT ABOUT TO LAND — a re-verify after a fix must not be usable to bless
+   * an older or newer head. Same reasoning as `integrate-gate`, which keys freshness on the staged
+   * tree hash precisely because an mtime or existence check would pass on a stale artifact.
+   */
+  let headSha: string | undefined;
+  try {
+    headSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: tree, encoding: "utf8" }).trim();
+  } catch {
+    // A tree with no resolvable HEAD produces a report that cannot claim freshness, which is the
+    // correct outcome: integrate falls back to the ledger rather than trusting an unanchored pass.
+  }
+
   const report = {
     schemaVersion: "openclinxr.contract-verify.v1" as const,
     phase: "merge",
     sliceId: slice,
     treeRoot: tree,
+    ...(headSha ? { headSha } : {}),
     baselineDir: trustedDir,
     proofsOk,
     checks,
