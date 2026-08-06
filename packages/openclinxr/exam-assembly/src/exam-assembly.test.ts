@@ -406,3 +406,45 @@ describe("exam assembly", () => {
     expect(saved[0]?.queue.canStartLearnerExam).toBe(true);
   });
 });
+
+/**
+ * PLANTED CONTRACT (#53) — producer and consumer are only coincidentally aligned.
+ *
+ * `createExamStationRunQueue` returns `{ stationQueue, … }` (`assembly.ts:196`). The learner runtime
+ * parses `body.stationQueue` in `apps/ui-xr/src/learner-exam-scenario-source.ts:84`. They match
+ * today and NOTHING binds them, because #43's tests drive the resolver with a hand-written mock —
+ * so the contract under test is that mock, not this producer.
+ *
+ * The failure mode is what makes this worth a contract rather than a comment. If the shape drifts,
+ * `extractStationQueueScenarioIds` returns `[]`, the resolver yields nothing, and the runtime falls
+ * back to the fixture bank with no exception, no failing test and no log — silently restoring
+ * exactly the state #43 existed to end, and indistinguishable from correct offline behaviour.
+ *
+ * The peer round killed the option I preferred. A shared TYPE looks free — `ExamStationRunQueueItem`
+ * already exists — but a type does not fail when a route stops emitting the field at runtime, which
+ * is the actual failure. It also rejected an app↔app test dependency (a new coupling class for one
+ * test) and a third fixture file (a third thing that can drift).
+ *
+ * What it proposed instead, and what this contract assumes: the PARSER moves here, beside the
+ * producer, and both apps import it from a package they already depend on
+ * (`apps/ui-xr/package.json:17`, `apps/api/package.json:29`).
+ *
+ * NAME AND SIGNATURE ARE THE IMPLEMENTER'S CHOICE. This reads a `parseExamStationRunQueueScenarioIds`
+ * export; if a different name or shape is better, change the call site here and say why in the
+ * commit. What must not change: the parser is exercised against this producer's REAL return value,
+ * never a hand-built object shaped like today's contract.
+ */
+describe("the station queue parser is bound to the producer (#53)", () => {
+  it.fails("parses createExamStationRunQueue output back to the scenario ids it was built from", async () => {
+    const mod = await import("./index.js") as Record<string, unknown>;
+    const parse = mod["parseExamStationRunQueueScenarioIds"] as undefined | ((body: unknown) => string[]);
+    expect(parse).toBeTypeOf("function");
+
+    const scenarios = [edChestPainScenario];
+    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(), scenarios);
+
+    // The producer's own return value — not a literal shaped like today's response.
+    const parsed = parse!(queue);
+    expect(parsed).toContain(edChestPainScenario.scenarioId);
+  });
+});

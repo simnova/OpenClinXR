@@ -107,3 +107,48 @@ describe("learner exam scenario source (#43)", () => {
     expect(scenarios.map((s) => s.scenarioId)).not.toContain("malformed_case_v1");
   });
 });
+
+/**
+ * PLANTED CONTRACT (#53, second half) — the silence, not just the mock gap.
+ *
+ * With a base url configured, a queue that parses to zero ids on an HTTP 200 currently falls back to
+ * the fixture bank without a word. That IS the defect; the unbound mock (see the exam-assembly
+ * contract) is only why it stays invisible in tests. Fixing the binding and leaving this in place
+ * would close the test gap and ship the production behaviour unchanged.
+ *
+ * The peer round raised this and it was not in my original framing of the issue.
+ *
+ * SCOPE, and it matters: fail-closed applies ONLY when a base url is configured. The contract above
+ * this one — "falls back to the fixture bank with no api base url, so offline and Quest boot are
+ * unaffected" — must keep passing untouched. Offline is not a degraded state; it is the supported
+ * one. What must never happen again is a CONFIGURED runtime quietly serving fixtures because a
+ * response shape moved.
+ *
+ * HOW it surfaces is the implementer's choice — throw, a rejected promise, or a recorded runtime
+ * error the caller must handle. Record the choice in the commit. What must not happen is a silent
+ * empty list.
+ */
+describe("a configured runtime does not silently serve fixtures (#53)", () => {
+  it.fails("fails instead of falling back when a configured api returns an unparseable queue", async () => {
+    const mod = await import("./learner-exam-scenario-source.js") as Record<string, unknown>;
+    const resolve = mod["resolveLearnerExamScenarios"] as undefined | ((input: {
+      baseUrl?: string | undefined;
+      blueprintId: string;
+      fetch?: typeof fetch;
+    }) => Promise<Array<{ scenarioId: string }>>);
+    expect(resolve).toBeTypeOf("function");
+
+    // HTTP 200, but the queue shape has moved — exactly what a producer rename looks like.
+    const movedShape = (async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ queue: [{ scenarioId: "authored_only_case_v1" }] }),
+    })) as unknown as typeof fetch;
+
+    await expect(resolve!({
+      baseUrl: "http://localhost:8787",
+      blueprintId: "step2cs-seed",
+      fetch: movedShape,
+    })).rejects.toThrow();
+  });
+});
