@@ -64,6 +64,26 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: the figure stands up. Says nothing about face quality, garment realism or skin — those are
  * judgeable only once this is true, and are not claimed here.
+ *
+ * ## FIXED (#67)
+ *
+ * Mechanism (traced, control/treatment on peds_anxious_parent before regenerating six):
+ * - #58 left `arm_obj.rotation_euler.x += 90°` on the armature object; exporter baked
+ *   root R=(0.707,0,0,0.707); mesh parented with identity MPI inherited it → head-down.
+ * - Baking +90 into rest DATA still left mesh POSITION on Z after export_yup (joints on Y).
+ * - Working path: keep Y-height rest, identity object rotation, `export_yup=False`
+ *   (`method: identity_object_export_yup_false_y_height_self_standing`) — same self-standing
+ *   convention as `apply_bvh_to_anny_full`. Mesh POSITION, joints, and root then all agree.
+ * - mpfb2 lane: Blender re-import converts Y-up→Z-up; re-export must use export_yup=True
+ *   so the conversion maps back (export_yup=False on that path re-broke joints onto Z).
+ *
+ * Regenerated: peds_anxious_parent, peds_nurse_kevin (tracked generated-humanoids/) + four
+ * cagematch current/ mirrors (gitignored). peds_patient_child control left as identity upright.
+ * Stack: identity root + upright ordering + proportions/bind-pose suites + ui-xr load refuse.
+ *
+ * Pixel verdict (orchestrator/worker): post-fix front_lit.png of peds_anxious_parent stands
+ * upright on the ground plane beside peds_patient_child — anatomically plausible standing
+ * human (not a clinical-realism claim).
  */
 
 const loadProbe = async () =>
@@ -86,7 +106,7 @@ const SHIPPED = [
 ];
 
 describe("shipped humanoids stand up (#67)", () => {
-  it.fails("every shipped humanoid has an identity armature root rotation", async () => {
+  it("every shipped humanoid has an identity armature root rotation", async () => {
     const mod = await loadProbe();
     const rootRotation = mod["armatureRootRotation"] as RootRotation | undefined;
     expect(rootRotation).toBeTypeOf("function");
@@ -110,7 +130,7 @@ describe("shipped humanoids stand up (#67)", () => {
     expect(offenders).toEqual([]);
   }, 180_000);
 
-  it.fails("head sits above hips above feet along the model's own up axis, whatever the root transform", async () => {
+  it("head sits above hips above feet along the model's own up axis, whatever the root transform", async () => {
     const mod = await loadProbe();
     const ordering = mod["assessUprightOrdering"] as Ordering | undefined;
     expect(ordering).toBeTypeOf("function");
@@ -145,7 +165,7 @@ describe("shipped humanoids stand up (#67)", () => {
     expect(failures).toEqual([]);
   }, 300_000);
 
-  it.fails("the ui-xr humanoid load path refuses a humanoid whose root rotation is not identity", async () => {
+  it("the ui-xr humanoid load path refuses a humanoid whose root rotation is not identity", async () => {
     // Kills the generator-fix-with-no-consumer shape. A bad bake must not be able to reach a learner
     // just because someone re-ran the pipeline without looking.
     const mod = (await import("../../../apps/ui-xr/src/humanoid-load-guard.js")) as Record<string, unknown>;

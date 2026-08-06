@@ -58,6 +58,7 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
+import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -1083,8 +1084,7 @@ function isHumanoidMouthGazePoseReviewCaptureMode(): boolean {
 function isRealGarmentSleeveDeformCapture(): boolean {
   const cmp = selectedHumanoidSourceComparator();
   const mode = selectedCaptureMode();
-  // ed-gown-geo-reorchestrate (Q1+Q5 + visibility mandate): support ED real garment patient (ed_anny_real_garment_patient) from phenotype.garmentLayers=['hospital_gown']; drives visible 3D deforming gown sleeves (separate skinned geo, deformsWithBreathing), garmentGeometry/sleeveDeform, no-frustum-cull, cyan emissive, userData.openClinXrSleeveDeformEvidence, promotion in runtime evidence (Q1 case/phenotype->UI-XR; Q5 sample verifier in ed bay)
-  // ui-xr-parent-nurse-runtime-comparator-v1: parent (cardigan/casual_top) + nurse (scrub) real-garment cast members for dual-role sleeveDeform evidence
+  // ED/parent/nurse real-garment comparators (phenotype.garmentLayers → sleeveDeform evidence).
   const isRealGarmentCmp =
     cmp === "peds_anny_real_garment_patient"
     || cmp === "ed_anny_real_garment_patient"
@@ -3315,19 +3315,17 @@ function createStationScene(): StationSceneRuntime {
     floor.visible = false;
     floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
-  // gltf handoff hook for case env (small piece from tech vet + factory caseDerivedVirtualEnvironment + gltfAssetUrlForEnv in scaffold; player loads full virtual env (room/props + emotion/loco/gaze cues from gen timeline) via three GLTFLoader (imported) or GLTFLoader in main; authoring vet/blender/gltf-pipeline in factory produces real gltf from case spec. Enables deeper pipeline + 2nd scen. Evident in player when asset present.
+  // Case-env glTF handoff (factory caseDerivedVirtualEnvironment → player load).
   floor.userData.caseDerivedVirtualEnvGltfHandoff = {
     gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
     policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case); real asset stand-in so success onLoad executes in launched experience",
     source: "factory case spec derivation + tech vet",
     producedManifestPath: (() => {
-      // Wire produced asset file (written by consumer from case envGltfManifest during preflight/launch validation) into the player handoff data for the launched experience. If the json exists (from factory materialization), the path is available for review/attach or future actual gltf load from produced.
       const sid = encounterRuntimeAssetBundle.scenarioId;
       const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
       return room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
     })(),
     producedGltfUrl: (() => {
-      // Wire produced url (from consumer envWorldAsset.producedGltfUrl or computed) into handoff for gltf load/attach in launched player (full factory produced from case for cue world).
       const sid = encounterRuntimeAssetBundle.scenarioId;
       const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
       const p = room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
@@ -3335,7 +3333,7 @@ function createStationScene(): StationSceneRuntime {
     })(),
   };
   scene.add(floor);
-  // Actual gltf load container in launched player world (builds the virtual env "world" for encounter; container in scene for peds/ed; when real gltf from factory (authoring vet + case env + timeline cues) present, load with GLTFLoader and add (morphs/extras for gen drive). "Test out the world launching the application" / "build the world": build + dev launches player with this env world container + props + data hook (experienced via build success + launch desc).
+  // Env glTF container for factory-produced world assets.
   const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;
   gltfEnvContainer.userData.openClinXrGltfEnvHandoff = floor.userData.caseDerivedVirtualEnvGltfHandoff;
@@ -3347,9 +3345,8 @@ function createStationScene(): StationSceneRuntime {
     gltfEnvContainer.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   scene.add(gltfEnvContainer);
-  // Actual gltf asset load in the launched player (wired for the factory-produced gltf from case env + authoringVet pipeline/cues in packet envGltfManifest + envGltfManifest in scaffold; uses GLTFLoader already in scope; loads into gltfEnvContainer for full cue-driven world (props + gltf with morphs/extras for emotion/loco/gaze from gen drive); onError keeps the world (props + container) so the launched experience always succeeds and is usable; when real gltf asset is produced by factory materialization and available (via url or consumer attach), it loads the full visual env world into the running player. This is the "actual gltf asset load in launched player gltfEnvContainer (produce real from factory + load for full visual world)" per queue. Validated by re-launching the app (turborepo) after edit.
+  // Load produced/stub env glTF into the container when available.
   const gltfUrlForActualLoad = floor.userData.caseDerivedVirtualEnvGltfHandoff?.producedGltfUrl || floor.userData.caseDerivedVirtualEnvGltfHandoff?.gltfAssetUrl;
-  // producedGltfUrl wired from consumer (file:// /tmp ... or manifest) for full factory produced gltf from case env + authoringVet; falls back to stub if not real asset yet. Makes produced url consumable in launched player gltf load for cue-driven world.
   if (gltfUrlForActualLoad && !cleanHumanoidSourceComparatorCapture) {
     try {
       const loader = new GLTFLoader();
@@ -4283,7 +4280,7 @@ function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: Scen
     return;
   }
   const sid = encounterRuntimeAssetBundle.scenarioId;
-  // Support peds/ed (caseDerivedVirtualEnvironment from factory) + ob (existing). Blueprint drives: case spec -> factory caseDerivedVirtualEnvironment (roomType/props list vetted for three runtime) -> visual props rendered in three player scene (makes virtual encounter pipeline + exam experience evident + usable when running ui-xr desktop player for the scenario). See packet.ts:314 derive and runtime-state.ts:2262 scaffold for the source lists (duplicated here for main player render loop; anti-one-off via case spec). Tech: pure three (Box/Cylinder/Mesh already in main) per vetted open-source MIT + M1 fit + no overclaim.
+  // caseDerivedVirtualEnvironment props (peds/ed/ob) from factory; pure three primitives.
   if (sid !== "ob_headache_preeclampsia_triage_v1" && sid !== "peds_asthma_parent_anxiety_v1" && sid !== "ed_chest_pain_priority_v1") {
     return;
   }
@@ -4345,7 +4342,7 @@ function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: Scen
     scene.add(escalationFolder);
     return;
   }
-  // peds_asthma_parent_anxiety_v1 and ed_chest_pain_priority_v1: render caseDerivedVirtualEnvironment small piece (from factory vet of three + case spec room/props) as basic visual room props in the three clinical encounter scene. Makes entire system evolution evident when running the app: case authoring (spec with env cues) -> virtual encounter pipeline (factory identify/vet + caseDerivedVirtualEnvironment) -> exam encounter experience (player three scene shows peds clinic exam_table/oxygen/parent_chair vs ed gurney/monitor/crash_cart; desktop fallback usable). Positions in dynamic clinical room (beyond anteroom portal, using floor at z~-0.78 area). No new deps (pure three primitives); gates false; no overclaim.
+  // Render caseDerivedVirtualEnvironment room props for peds/ed (desktop-usable).
   if (sid === "peds_asthma_parent_anxiety_v1") {
     // props from case: exam_table, oxygen_delivery_system, peak_flow_meter, parent_chair, wall_chart (matches packet.ts caseDerivedVirtualEnvironment + runtime-state scaffold)
     const tableMat = new MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
@@ -7135,13 +7132,19 @@ function loadGeneratedHumanoidIntoActorSlot(
     actorSpecificAssetPath,
     (gltf) => {
       const humanoid = gltf.scene;
+      try { assertHumanoidRootUpright(humanoid); } catch (guardError) {
+        // #67: refuse #58-class non-identity armature root before the figure is shown.
+        console.error("[ui-xr] humanoid load refused by upright guard", actorSpecificAssetPath, guardError);
+        recordSceneAssetStatus({ assetId: options.assetId, assetPath: actorSpecificAssetPath, sceneObjectName: options.objectName, status: "failed", fallbackActive: true, ...(humanoidSourceProvenance ? { humanoidSourceProvenance } : {}) });
+        for (const child of primitiveFallbackChildren) child.visible = true;
+        return;
+      }
       humanoid.name = options.objectName;
       humanoid.position.set(0, options.verticalOffsetMeters, 0);
       humanoid.rotation.y = 0;
       humanoid.scale.set(1, 1, 1);
       neutralizeGeneratedHumanoidMorphTargets(humanoid);
       const humanoidSourceComparator = selectedHumanoidSourceComparator();
-      // parent/nurse real-garment: load role GLB on patient primary (camera-centered) + role slot; treat patient as primary for cyan/frustum/userData
       const isRealGarmentPrimaryActor =
         ((humanoidSourceComparator === "peds_anny_real_garment_patient" || humanoidSourceComparator === "ed_anny_real_garment_patient") && options.actorId === runtimePatientActorId())
         || (humanoidSourceComparator === "peds_anny_real_garment_parent" && (options.actorId === runtimePatientActorId() || options.actorId === runtimeFamilyActorId()))
@@ -7187,17 +7190,16 @@ function loadGeneratedHumanoidIntoActorSlot(
       ) {
         const taggedGarment = applyRealGarmentEvidenceSurfaces(humanoid, humanoidSourceComparator);
         humanoid.userData.openClinXrRealGarmentTopology = "embedded_from_phenotype_garmentLayers";
-        if (humanoidSourceComparator === "peds_anny_real_garment_patient") {
-          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_real_garment";
-        } else if (humanoidSourceComparator === "peds_anny_real_garment_parent") {
-          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_parent_real_garment";
-        } else if (humanoidSourceComparator === "peds_anny_real_garment_nurse") {
-          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_nurse_real_garment";
-        } else {
-          humanoid.userData.openClinXrPromotionFlow = "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate";
-        }
-        // Seed MouthGaze garmentGeometry on primary load for sleeve-deform capture so inspection is
-        // not gated on patient-speech timing (recordMouthGaze only fires when speech.actorId === patient).
+        const promotionByComparator: Record<string, string> = {
+          peds_anny_real_garment_patient: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_real_garment",
+          peds_anny_real_garment_parent: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_parent_real_garment",
+          peds_anny_real_garment_nurse: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_peds_nurse_real_garment",
+          ed_anny_real_garment_patient: "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate",
+        };
+        humanoid.userData.openClinXrPromotionFlow =
+          promotionByComparator[humanoidSourceComparator]
+          ?? "promotionStatus_realismGrade_realGarmentRegionFromPhenotype_notEvidenceFor_in_runtime_evidence_for_ed_gown_geo_reorchestrate";
+        // Seed MouthGaze garmentGeometry on primary load (not gated on patient-speech timing).
         if (
           taggedGarment
           && isRealGarmentSleeveDeformCapture()
@@ -8692,10 +8694,8 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
     applyHumanoidMorphTargetCue(slot, 0, "rest", updateHumanoidEmotionExpression(slot, nowMs).weights);
     return;
   }
-  // Live bind (Q1 blueprint-to-runtime lipsync + Q5): active dialogue turn from bundle.sceneManifest.dialogueTurns + peds adaptive policy + affectTimeline (onset/transition/decayMs + intensity)
-  // for peds_asthma_parent_anxiety_v1 during actor-player/trace/sequence playback. Compute timed emotion ramp + full viseme/emotion weights drive (beyond fixed bias)
-  // into effWeights passed to morph/rig controls. Prefer explicit timeline data from turn if present; keep pre-bake fallback. Reuses local fns + expressionWeightsForEmotion.
-  // Surfaces enhanced activeDialogueTurnRef (with full affectTimeline + liveRamp) + "live_blueprint_dialogue_emotion_source" in evidence + comparator.
+  // Live bind: dialogueTurns + adaptive policy + affectTimeline → lipsync/emotion.
+  // Peds adaptive: timed emotion ramp + viseme/emotion weights into effWeights (timeline or pre-bake).
   let viseme = "rest";
   let openness = 0.35;
   let activeDialogueTurnRef: any = undefined;
@@ -8757,7 +8757,7 @@ function updateHumanoidSpeechCue(slot: GeneratedHumanoidAnimationSlot, nowMs: nu
   slot.mouthCue.visible = true;
   slot.mouthCue.scale.set(1 + openness * 1.4, 1 + openness * 3.6, 1);
   const expressionState = updateHumanoidEmotionExpression(slot, nowMs);
-  // Full timeline-driven (beyond fixed bias): use stored _liveAffectRamp (from explicit onset/transition/decayMs + intensity on bundle turn)
+  // Timeline-driven affect ramp from bundle turn onset/transition/decayMs.
   // to drive scaled peak weights via expressionWeightsForEmotion + light blend with transitioned state into effWeights for rig/morph.
   const ramp = (slot as any)._liveAffectRamp;
   let effWeights = expressionState.weights;
@@ -8927,7 +8927,7 @@ function recordMouthGazePoseComparatorEvidence(
       "learner_readiness",
     ],
   };
-  // traverse ensures extra real-garment meshes (phenotype.garmentLayers) + body + frustum off + cyan + sleeveDeform userData; body-motion for ed_anny/peds real garment in UI-XR (Q1); supports gown variants + promotion surfaces for ed-real-garment-phenotype-expansion (Q1+Q5 per visibility mandate)
+  // Real-garment traverse: garmentLayers meshes, frustum off, cyan, sleeveDeform userData.
 }
 
 function applyHumanoidFaceRigControls(
