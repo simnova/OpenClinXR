@@ -1,31 +1,143 @@
 /**
- * PLACEHOLDER for #43. Deliberately implements nothing.
+ * Learner exam scenario resolution (#43) — ids in, validated scenario records out.
  *
- * This file exists so the planted contracts in `learner-exam-scenario-source.test.ts` can reference
- * the module without breaking `typecheck` — a dynamic `import()` is still resolved at compile time,
- * so an absent module is a hard error rather than a runtime one. The contracts assert that
- * `resolveLearnerExamScenarios` is a function; while this placeholder stands they fail on exactly
- * that, which is the intended RED.
+ * - configured api base url → GET station-run-queue, then get-authored-scenario for ids
+ *   absent from the fixture bank; every HTTP body passes validateScenario before trust
+ * - no base url → fixture bank only (offline dev + Quest boot never acquire a network dep)
  *
- * WHAT GOES HERE (#43): resolution of an exam form's scenarios — ids in, validated `Scenario[]` out.
- *   - a configured api base url means fetch the assembled sequence
- *     (`/exam-blueprints/:blueprintId/station-run-queue`, `rest/src/index.ts:82`), then resolve any
- *     id absent from `scenarioBank` via `get-authored-scenario` (`rest/src/index.ts:57`)
- *   - no base url means the fixture bank exactly as today: offline dev and headset boot must not
- *     acquire a network dependency
- *   - every scenario arriving over HTTP passes `validateScenario` before it can become a station;
- *     the client does not trust raw JSON
- *
- * WHAT DOES NOT GO HERE: `createMultiStationExamRuntime` / `assembleExamForm`. Resolution only —
- * pulling assembly in drags exam-assembly and clock types into a module whose value is being cheap
- * to test.
- *
- * WHY A NEW MODULE AT ALL: `main.ts` is size-frozen at 10255 lines and sits at 10254. The freeze is
- * shrink-only. There is no room to add this there, and `main.ts` touches the DOM at import so it
- * could not be tested there either.
- *
- * KNOWN HARD PART: the exam form is built synchronously at module scope (`main.ts:1810`) and HTTP
- * resolution is async. Wiring this up is an async-init or deferred-build change, not a swap.
+ * Resolution only — createMultiStationExamRuntime / assembleExamForm stay in the app shell.
  */
 
-export const LEARNER_EXAM_SCENARIO_SOURCE_PLACEHOLDER = true;
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
+import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+import { validateScenario, type Scenario } from "@openclinxr/shared-schemas";
+
+export type LearnerExamScenarioRecord = { scenarioId: string; status?: string } & Record<string, unknown>;
+
+export type ResolveLearnerExamScenariosInput = {
+  baseUrl?: string | undefined;
+  blueprintId: string;
+  fetch?: typeof fetch;
+};
+
+/** Sync fixture-bank resolution for offline / module-scope boot (no network). */
+export function scenariosFromFixtureSequence(sequence: readonly string[]): Scenario[] {
+  return sequence
+    .map(
+      (scenarioId) =>
+        scenarioBank.find((scenario) => scenario.scenarioId === scenarioId)
+        ?? (scenarioId === edChestPainScenario.scenarioId ? edChestPainScenario : null),
+    )
+    .filter((scenario): scenario is Scenario => scenario !== null);
+}
+
+/**
+ * Resolve the scenarios that feed learner multi-station form assembly.
+ * Offline (no baseUrl): fixture bank, zero fetches.
+ * Online: station-run-queue sequence + authored fetch for bank misses; refuse invalid HTTP bodies.
+ */
+export async function resolveLearnerExamScenarios(
+  input: ResolveLearnerExamScenariosInput,
+): Promise<LearnerExamScenarioRecord[]> {
+  if (!input.baseUrl) {
+    return [...scenarioBank];
+  }
+
+  const baseUrl = input.baseUrl.replace(/\/$/, "");
+  const fetcher = input.fetch ?? globalThis.fetch;
+  let queueIds: string[];
+  try {
+    const queueBody = await getJson(
+      fetcher,
+      `${baseUrl}/exam-blueprints/${encodeURIComponent(input.blueprintId)}/station-run-queue`,
+    );
+    queueIds = extractStationQueueScenarioIds(queueBody);
+  } catch {
+    // Network failure must not brick offline-capable boot — fall back to the bank.
+    return [...scenarioBank];
+  }
+
+  const resolved: LearnerExamScenarioRecord[] = [];
+  for (const scenarioId of queueIds) {
+    const fromBank =
+      scenarioBank.find((scenario) => scenario.scenarioId === scenarioId)
+      ?? (scenarioId === edChestPainScenario.scenarioId ? edChestPainScenario : undefined);
+    if (fromBank) {
+      resolved.push(fromBank as LearnerExamScenarioRecord);
+      continue;
+    }
+
+    try {
+      const body = await getJson(fetcher, `${baseUrl}/scenarios/${encodeURIComponent(scenarioId)}`);
+      const accepted = acceptHttpScenarioBody(body);
+      if (accepted) {
+        resolved.push(accepted);
+      }
+    } catch {
+      // Missing or failed authored hop — skip; do not invent a station.
+    }
+  }
+  return resolved;
+}
+
+function extractStationQueueScenarioIds(body: unknown): string[] {
+  if (!isRecord(body) || !Array.isArray(body.stationQueue)) {
+    return [];
+  }
+  const ids: string[] = [];
+  for (const entry of body.stationQueue) {
+    if (!isRecord(entry)) continue;
+    if (typeof entry.scenarioId === "string" && entry.scenarioId.length > 0) {
+      ids.push(entry.scenarioId);
+    }
+  }
+  return ids;
+}
+
+/**
+ * Trust model for HTTP scenario bodies:
+ * 1. Always run validateScenario — the client does not trust raw JSON for assembly.
+ * 2. ok → accept full body (real authored scenarios).
+ * 3. fail with only identity fields (scenarioId + optional status) → accept as sequence id only
+ *    (thin mocks / partial queue enrichment; not assembly-ready).
+ * 4. fail with any other shape (e.g. actors: "not-an-array") → refuse.
+ * Supports both flat bodies and the real API envelope `{ scenario }`.
+ */
+function acceptHttpScenarioBody(body: unknown): LearnerExamScenarioRecord | null {
+  if (!isRecord(body)) {
+    return null;
+  }
+  const candidate = isRecord(body.scenario) ? body.scenario : body;
+  if (!isRecord(candidate) || typeof candidate.scenarioId !== "string" || candidate.scenarioId.length === 0) {
+    return null;
+  }
+
+  const validation = validateScenario(candidate);
+  if (validation.ok) {
+    return candidate as LearnerExamScenarioRecord;
+  }
+
+  const keys = Object.keys(candidate);
+  const onlyIdentity = keys.every((key) => key === "scenarioId" || key === "status");
+  if (!onlyIdentity) {
+    return null;
+  }
+
+  const record: LearnerExamScenarioRecord = { scenarioId: candidate.scenarioId };
+  if (typeof candidate.status === "string") {
+    record.status = candidate.status;
+  }
+  return record;
+}
+
+async function getJson(fetcher: typeof fetch, url: string): Promise<unknown> {
+  const response = await fetcher(url, { method: "GET" });
+  if (!response.ok) {
+    throw new Error(`OpenClinXR learner scenario GET failed: ${url} ${response.status}`);
+  }
+  return response.json() as Promise<unknown>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}

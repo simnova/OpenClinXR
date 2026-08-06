@@ -445,6 +445,9 @@ importers:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../packages/openclinxr/scenario-fixtures
+      '@openclinxr/shared-schemas':
+        specifier: workspace:*
+        version: link:../../packages/openclinxr/shared-schemas
       three:
         specifier: 0.184.0
         version: 0.184.0
