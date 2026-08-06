@@ -70,6 +70,30 @@ prove an item done. Two rules on it, both learned the expensive way:
   so on the issue and pick another. A worker judged against criteria nobody chose is worse than an
   un-dispatchable issue, because it looks like a contract.
 
+### The operationalize step requires a peer round
+
+Do not write a `done_when` solo. Every task-definition error in the session that produced this file
+was caught by the peer, not by the author:
+
+| Error | Caught by |
+|---|---|
+| Picked an item for being "small and clearly provable" — it was already shipped, so a green would have been by construction | peer read main rather than the issue text |
+| Chose a refactor target because 840 lines exceeded a 500 budget — `tools/` is outside the ratchet, so the budget did not apply | peer checked which roots the scan walks |
+| Ranked installing a gate last because it was "high friction, not a boundary" | peer: friction that is never installed is zero friction |
+
+Note what these have in common: none is a coding error. They are errors about WHICH WORK TO DO and
+WHAT WOULD COUNT AS DONE — the judgment the pipeline cannot check, because no artifact exists yet to
+check against.
+
+The shape that works: bring a **concrete proposal to attack**, not an open question. Ask specifically
+whether the item is already done, whether it is the right item, and whether the rules are vacuous —
+would a trivial pass satisfy them? Then **verify the peer's claims against the tree**: in one session
+it was right about structure and wrong about mechanism three separate times, and each wrong claim was
+still useful because it pointed at something worth measuring.
+
+Two agents that fail the same way do not check each other; they agree. The peer round earns its place
+by being *cheap to falsify*, not by being right.
+
 ## Commit the RED before the issue exists
 
 Otherwise a green result cannot be distinguished from green-by-construction.
