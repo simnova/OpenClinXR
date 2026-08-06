@@ -461,6 +461,28 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
    */
   assertLoopNotPaused(repoRoot);
 
+  // --- Layer-3 contract assembly (trusted plane) ---
+  //
+  // Ordered BEFORE worktree creation deliberately. When the gate first shipped it ran after, and a
+  // refused dispatch still left an orphan worktree and branch behind — measured: `demo-no-proofs`
+  // existed on disk despite never spawning a worker. A refusal must cost nothing, or the cleanup
+  // burden quietly argues for loosening the gate.
+  const sliceId = options.slice ?? "unscoped";
+  const assembled = assembleDispatchContract({
+    repoRoot,
+    sliceId,
+    dispatchProofs: options.proofs,
+    contract: options.contract,
+    contractReason: options.contractReason,
+  });
+  assertWorktreeContractGate({
+    worktreeBound: Boolean(options.worktree),
+    treeProofs: assembled.treeProofs,
+    sliceId,
+    contract: options.contract,
+    contractReason: options.contractReason,
+  });
+
   // Worktree binding: resolve the tree, point the worker at it, and install the HARD deny on main.
   // Done here rather than left to callers so no dispatch path can forget the boundary.
   let effective = options;
@@ -480,23 +502,6 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       prompt: options.prompt.split(repoRoot).join(worktreePath),
     };
   }
-
-  // --- Layer-3 contract assembly (trusted plane) ---
-  const sliceId = options.slice ?? "unscoped";
-  const assembled = assembleDispatchContract({
-    repoRoot,
-    sliceId,
-    dispatchProofs: options.proofs,
-    contract: options.contract,
-    contractReason: options.contractReason,
-  });
-  assertWorktreeContractGate({
-    worktreeBound: Boolean(worktreePath),
-    treeProofs: assembled.treeProofs,
-    sliceId,
-    contract: options.contract,
-    contractReason: options.contractReason,
-  });
 
   const treeRootForProofs = worktreePath ?? effective.cwd ?? repoRoot;
 
