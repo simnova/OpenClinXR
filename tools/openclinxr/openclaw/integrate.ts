@@ -2,6 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { readSessions } from "./dispatch-worker.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type MergeKillReport } from "./merge-kill.js";
 
@@ -71,6 +72,22 @@ function recordEvent(repoRoot: string, event: IntegrationEvent): void {
   appendFileSync(path, `${JSON.stringify(event)}\n`);
 }
 
+/**
+ * Find the contract this slice's worker actually produced.
+ *
+ * The dispatch ledger records `contractReportPath` per session. Without this lookup the CLI passed
+ * `contract: null`, merge-kill fired `contract-not-verified`, and a slice whose proofs had ALL
+ * PASSED was refused — the report existed and nothing read it. Same shape as every other gap today:
+ * the pieces were built and left unconnected.
+ */
+export function contractForSlice(repoRoot: string, slice: string): IntegrateInput["contract"] {
+  const entry = readSessions(repoRoot).filter((session) => session.slice === slice).at(-1) as
+    | { proofsOk?: boolean; proofs?: { rule: string; passed: boolean; detail: string }[] }
+    | undefined;
+  if (entry?.proofsOk === undefined) return null;
+  return { proofsOk: entry.proofsOk, proofs: entry.proofs ?? [] };
+}
+
 export function integrate(input: IntegrateInput): IntegrateResult {
   // Kill FIRST. Nothing below this line may run if it fires.
   const killReport = runMergeKill({
@@ -132,11 +149,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const index = args.indexOf(`--${name}`);
     return index >= 0 ? args[index + 1] : undefined;
   };
+  const slice = flag("slice") ?? "unscoped";
   const result = integrate({
     repoRoot: process.cwd(),
     base: flag("base") ?? "HEAD",
     head: flag("head") ?? "",
-    slice: flag("slice") ?? "unscoped",
+    slice,
+    contract: contractForSlice(process.cwd(), slice),
     dryRun: args.includes("--dry-run"),
   });
   console.log(

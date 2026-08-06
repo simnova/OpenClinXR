@@ -36,7 +36,20 @@ const MARKDOWN_LINK = /\[[^\]]*\]\(([^)\s#]+\.md)[^)]*\)/g;
 /** Backticked path — requires a slash, so bare filenames in prose are not treated as links. */
 const BACKTICKED_PATH = /`([^`\s]*\/[^`\s]*\.md)`/g;
 
-const SKIPPED_DIRECTORIES = new Set(["node_modules", ".git", "dist", "coverage"]);
+/**
+ * Also skip GITIGNORED local state. `.openclinxr/` holds slice archives, ledgers and reports that
+ * exist on one machine and not another, so scanning them makes this gate depend on local state: it
+ * fired for a contributor who happened to have an archived snapshot on disk, and could not fire for
+ * anyone else. A rule whose result varies by machine is not a rule.
+ */
+const SKIPPED_DIRECTORIES = new Set([
+  "node_modules",
+  ".git",
+  "dist",
+  "coverage",
+  ".openclinxr",
+  ".openclinxr-local",
+]);
 
 /**
  * Files whose JOB is to name documents that no longer exist: removal ledgers and archive manifests.
