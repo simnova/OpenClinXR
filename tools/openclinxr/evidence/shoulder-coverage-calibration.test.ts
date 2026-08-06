@@ -65,6 +65,30 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether cloth is above the shoulder. Says nothing about drape, fit or whether the clothing
  * is clinically appropriate — that last needs a clinician and is not claimed.
+ *
+ * ## FIXED (#76)
+ *
+ * Instrument: `tools/openclinxr/evidence/shoulder-coverage.ts`
+ * - `shoulderCoverageVerdict({ shoulderTopY, garmentMaxYOverShoulder })` —
+ *   covered iff garmentMaxYOverShoulder >= shoulderTopY. **No tolerance.**
+ * - `assessShoulderCoverage({ glbPath })` reads mesh POSITION from body vs
+ *   `openclinxr_real_garment*` shells. Shoulder region = body verts in the
+ *   upper half of the body AABB with |x-cx| >= 0.32 * half-width (lateral
+ *   cut from AABB, not a post-hoc Y band). Garment max is taken over the
+ *   same lateral footprint so mid-X collar cannot lie for bare deltoids.
+ * - No bones (would share `_arm_p` fractions with the generator).
+ *
+ * Product: `automate_blender.py` adds a shoulder **yoke** (faces from torso
+ * rim → over acromion → sleeve root) with peak at measured body shoulder top
+ * + cloth/subsurf lift. Removed `shoulder_flare` at the old :2077–2078 — it
+ * only widened the shell so #75 body samples fell under cloth; garmentMaxY
+ * was identical (1.361) before/after and shoulders stayed bare.
+ * A higher neckline alone is still insufficient (no surface over the deltoid).
+ *
+ * Measured on regenerated parent/nurse (instrument, post-subsurf):
+ *   parent: shoulderTopY 1.3663, garmentMaxYOverShoulder 1.3858, covered
+ *   nurse:  shoulderTopY 1.4456, garmentMaxYOverShoulder 1.4541, covered
+ * Graded bare blobs (56b6998 + pre-fix HEAD) still refuse.
  */
 
 import { execFileSync } from "node:child_process";
@@ -98,14 +122,29 @@ function gradedBareBlob(): string {
 }
 
 describe("the shoulder check refuses what a human graded as bare (#76)", () => {
-  it.fails("the shoulder check refuses both assets previously graded as bare-shouldered", async () => {
+  it("the shoulder check refuses both assets previously graded as bare-shouldered", async () => {
     // Calibration against a RECORDED VERDICT rather than against today's asset. These two blobs are
     // fixed and external; a check tuned until the current asset passes cannot also pass this.
+    // Graded bare = 56b6998 blob + HEAD-at-plant parent (git show of pre-fix tree via 8ff963f).
     const mod = await load();
     const assess = mod["assessShoulderCoverage"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
 
-    for (const glbPath of [gradedBareBlob(), PARENT]) {
+    // PARENT path is the live file (now fixed). Use the fixed graded blob + the pre-#76
+    // commit blob so regeneration cannot greenwash this instrument contract.
+    const preFixParent = (() => {
+      const dir = mkdtempSync(join(tmpdir(), "openclinxr-76-pre-"));
+      const out = join(dir, "parent-8ff963f.glb");
+      const buf = execFileSync(
+        "git",
+        ["show", "8ff963f:apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb"],
+        { maxBuffer: 64 * 1024 * 1024, encoding: "buffer" },
+      );
+      writeFileSync(out, buf);
+      return out;
+    })();
+
+    for (const glbPath of [gradedBareBlob(), preFixParent]) {
       const facts = await assess!({ glbPath });
       expect(facts.shoulderTopY, `${glbPath} reported no shoulder surface`).toBeGreaterThan(0);
       expect(
@@ -115,7 +154,7 @@ describe("the shoulder check refuses what a human graded as bare (#76)", () => {
     }
   }, 300_000);
 
-  it.fails("widening a garment without raising it does not count as covering the shoulder", async () => {
+  it("widening a garment without raising it does not count as covering the shoulder", async () => {
     // Kills the exact move #75 made: shoulder_flare widened the shell laterally, garmentMaxY did not
     // change, and the previous gate went green. A verdict driven by width rather than height fails.
     const mod = await load();
@@ -133,7 +172,7 @@ describe("the shoulder check refuses what a human graded as bare (#76)", () => {
     expect(verdict!({ shoulderTopY: 1.396, garmentMaxYOverShoulder: 1.402 })).toBe(true);
   });
 
-  it.fails("the regenerated parent and nurse pass the shoulder check", async () => {
+  it("the regenerated parent and nurse pass the shoulder check", async () => {
     // The product half. Needs a yoke — faces connecting the torso rim to the sleeve root over the
     // acromion — not a higher neckline, which has already been tried twice.
     const mod = await load();
