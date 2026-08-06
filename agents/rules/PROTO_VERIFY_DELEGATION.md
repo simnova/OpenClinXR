@@ -285,6 +285,47 @@ rule ("accept identity-only keys after a failed validate") and shipped it. That 
 policy decided by an ambiguity in my test fixtures. When two contracts pull in opposite directions,
 check that a coherent rule separates them, and if one exists, name it.
 
+## 6e. Two instruments agreeing is not correctness
+
+#59 built a fail-closed geometry self-check: a NodeIO scene-graph AABB on one side, a three.js
+scene-graph AABB on the other, refuse to write images when they disagree past a relative tolerance.
+It works, it is genuinely independent (different parser, different process, no shared helper), and it
+agreed on all seven shipped humanoids at ~1e-4 relative error.
+
+Six of those seven were rendering head-down.
+
+Both sides measure a world mesh AABB, and an inverted figure is exactly as tall as an upright one. The
+check answers "is the renderer drawing the file?", which is the question it was built for, and it
+answers it correctly. It cannot answer "is the file right", and nothing in its output said so.
+
+**Rule:** when a check compares two measurements, state what the SHARED METRIC cannot see, next to
+the check. Independence of implementation does not buy independence of blindness — two correct
+instruments measuring the same quantity fail together, silently, and their agreement reads as
+confirmation. The worker named this residual unprompted when asked ("both deliberately measure world
+mesh AABB — if that metric is blind, both stay green together"); that sentence belongs in the module,
+not only in a retro.
+
+Corollary for the orchestrator: a green self-check is not a reason to skip looking. In this case the
+pixels were the only instrument that could see it, for the second time (#56 was the first).
+
+## 6f. Snapshot the calibration BEFORE you tune the threshold
+
+The #59 worker changed the probe-side measurement mid-slice, after it refused an asset the slice
+needed to render. Asked directly whether that was a real fix or moving the goalposts, it answered
+honestly and precisely: *"I changed it because it was refusing assets I needed to render, then
+verified the comparison was the wrong one for that claim."* The change was right — raw untransformed
+vertices versus world-matrix bounds is a false-positive class, not a renderer defect — but the only
+way to know that was to ask, and the answer could as easily have gone the other way.
+
+Its own proposed fix is the right mechanism and is now standing brief text:
+
+> Before changing a probe or a tolerance, write the FIRST full pass to a calibration artifact —
+> per-subject measurement from both sides, the relative error, and the pass/refuse decision. Any
+> later change to the metric or the threshold must cite which rows flipped and why.
+
+That turns "did you move the goalposts?" from a question about someone's account of themselves into a
+diff. Applies to any gate with a tunable number in it, not just this one.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
