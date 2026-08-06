@@ -18,6 +18,7 @@ import {
   MIN_ROOT_CAUSE_LENGTH,
   pauseLoop,
   readLoopPause,
+  mergeWithoutProofsStillTrue,
   resumeLoop,
   type LoopPauseRecord,
   type TripwireSignal,
@@ -435,5 +436,77 @@ describe("cliSignalsStillTrue — the detector the CLI really calls", () => {
       resetCoordinationRootCache();
       rmSync(root, { recursive: true, force: true });
     }
+  });
+});
+
+describe("merge-without-proofs detector — coverage is per-land, not per-existence", () => {
+  /**
+   * The signal exists but has no detector: every id except debt-rose falls through to
+   * "no CLI detector", is forced still-true, and can only be cleared with the flag that skips
+   * checking. Its inputs exist now — integration events and contract reports — so it is buildable.
+   *
+   * The obvious detector is vacuous. Peer review named four ways to fake it, all of which would
+   * pass a naive test: clear whenever ANY event exists; let one old event clear a new unproven
+   * land; treat every product commit as unproven forever; or match `event.head` against main's
+   * HEAD — which is the WRONG OBJECT.
+   *
+   * Verified on the real land: integrate produces `--no-ff` merge 9bd9934 with parents
+   * `145a6e7 d20f8ae`, and the recorded event.head is d20f8ae — the SECOND PARENT, never the merge
+   * commit itself. A HEAD-equality check would never clear. `base` is the literal string "HEAD",
+   * so anything keying on it is meaningless.
+   *
+   * Coverage therefore means: a merge commit C on main is covered iff some event E satisfies
+   * E.head === C^2. Single-parent commits are ordinary human work and are NOT unproven lands —
+   * same discriminator the integrate gate uses.
+   */
+  it("stays true for an integrate-shaped land whose second parent has no event", () => {
+    expect(
+      mergeWithoutProofsStillTrue({
+        landsSincePause: [{ sha: "cafe1", secondParent: "beef1" }],
+        events: [],
+      }),
+    ).toBe(true);
+  });
+
+  it("clears when an event covers that land's SECOND PARENT", () => {
+    expect(
+      mergeWithoutProofsStillTrue({
+        landsSincePause: [{ sha: "cafe1", secondParent: "beef1" }],
+        events: [{ slice: "s", head: "beef1" }],
+      }),
+    ).toBe(false);
+  });
+
+  it("is NOT cleared by an unrelated event — one old land does not vouch for a new one", () => {
+    // The single most likely vacuous implementation: "an event exists, therefore proven".
+    expect(
+      mergeWithoutProofsStillTrue({
+        landsSincePause: [{ sha: "cafe2", secondParent: "beef2" }],
+        events: [{ slice: "older", head: "beef1" }],
+      }),
+    ).toBe(true);
+  });
+
+  it("ignores single-parent commits — ordinary work on main is not an unproven land", () => {
+    // Otherwise every human commit pins the signal true forever and the pause becomes permanent,
+    // which trains use of --ack-unchecked-signals, the flag that skips checking.
+    expect(
+      mergeWithoutProofsStillTrue({
+        landsSincePause: [{ sha: "cafe3", secondParent: undefined }],
+        events: [],
+      }),
+    ).toBe(false);
+  });
+
+  it("requires EVERY land since the pause to be covered, not merely the newest", () => {
+    expect(
+      mergeWithoutProofsStillTrue({
+        landsSincePause: [
+          { sha: "cafe1", secondParent: "beef1" },
+          { sha: "cafe2", secondParent: "beef2" },
+        ],
+        events: [{ slice: "s", head: "beef2" }],
+      }),
+    ).toBe(true);
   });
 });
