@@ -4,12 +4,12 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 58,
-    "current-reference": 199,
-    "archive-candidate": 19,
-    "evidence": 35,
+    "agent-methodology": 62,
+    "current-reference": 194,
+    "archive-candidate": 14,
     "protected-policy": 10,
     "agent-memory": 34,
+    "evidence": 18,
     "historical-synthesis": 56,
     "decision-record": 22
   },
@@ -29,6 +29,13 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/large-task-orchestration/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/openclinxr-openclaw/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
@@ -36,7 +43,21 @@
       "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
     },
     {
+      "path": ".agents/skills/per-job-temp/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
       "path": ".agents/skills/provider-boundary/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/regen-score-report/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -219,6 +240,13 @@
     },
     {
       "path": ".agents/skills/turborepo/references/watch/RULE.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Repo-local skill used by Codex/Grok-compatible harnesses for specialized OpenClinXR workflows; subordinate to AGENTS.md, protected guardrails, and active state files."
+    },
+    {
+      "path": ".agents/skills/worker-scoped-session/SKILL.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
@@ -1051,165 +1079,11 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".grok/skills/large-task-orchestration/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".grok/skills/per-job-temp/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".grok/skills/regen-score-report/SKILL.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".grok/skills/worker-scoped-session/SKILL.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/README.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/delegation/scorecard.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/quest-rerun.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-skip/quest-rerun.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
       "path": ".openclinxr/openclaw/task-cost-latest.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/anny/data/mpfb2/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/torchgen/packaged/autograd/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "AGENTS.md",
@@ -1672,41 +1546,6 @@
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
       "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
-    },
-    {
-      "path": "apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/environment/PROVENANCE.md",

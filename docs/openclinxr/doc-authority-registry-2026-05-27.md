@@ -11,11 +11,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 58
-- archive-candidate: 19
-- current-reference: 199
+- agent-methodology: 62
+- archive-candidate: 14
+- current-reference: 194
 - decision-record: 22
-- evidence: 35
+- evidence: 18
 - historical-synthesis: 56
 - protected-policy: 10
 
@@ -148,11 +148,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -235,12 +230,7 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- `.grok/skills/large-task-orchestration/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/skills/per-job-temp/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.grok/skills/worker-scoped-session/SKILL.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/anny-character-asset-pipeline-implementation-2026-06-03.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

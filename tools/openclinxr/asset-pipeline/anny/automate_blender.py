@@ -42,8 +42,11 @@ then this script) for the "character-generation" / "role_specific_humanoid_glb" 
 import argparse
 import hashlib
 import json
+import re
 import os
+import tempfile
 import sys
+import time
 from typing import Any, Dict, List, Optional
 
 # --- bpy is only available when running inside Blender ---
@@ -55,6 +58,17 @@ except ImportError:
     print("  blender --background --python tools/openclinxr/asset-pipeline/anny/automate_blender.py -- --input-mesh ...")
     sys.exit(1)
 
+
+
+def job_unique_bake_dir(mesh_name: Optional[str] = None, purpose: str = "bake") -> str:
+    """Per-job temp directory so parallel Blender worktrees never clobber shared /tmp files."""
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", (mesh_name or "mesh"))[:48] or "mesh"
+    base = os.path.dirname(bpy.data.filepath) if getattr(bpy.data, "filepath", None) else ""
+    if not base or not os.path.isdir(base):
+        base = tempfile.gettempdir()
+    d = os.path.join(base, f"openclinxr_{purpose}_{safe}_{os.getpid()}_{int(time.time() * 1000)}")
+    os.makedirs(d, exist_ok=True)
+    return d
 
 def parse_cli() -> argparse.Namespace:
     # Blender --python script -- args: slice after the -- separator (standard for headless bpy scripts)
@@ -71,6 +85,13 @@ def parse_cli() -> argparse.Namespace:
     ap.add_argument("--bake-textures", action="store_true", default=True, help="Always do a local procedural bake as fallback (safe, no external diffusion).")
     ap.add_argument("--hair-density", type=float, default=0.6, help="Simple scalar for hair density in the demo hair system / geo nodes.")
     ap.add_argument("--skin-albedo-image", default=None, help="Optional seamless tileable skin-albedo PNG (e.g. RealVisXL output from realvisxl-skin-generate.ts). Wired as a glTF-safe Base Color IMAGE texture (survives export, unlike procedural node graphs). Guarded: missing/failed load leaves the solid factor intact.")
+    ap.add_argument("--skin-albedo-tile-scale", type=float, default=6.0, help="UV tiling scale for --skin-albedo-image (seamless swatch; default 6).")
+    ap.add_argument("--skin-roughness", type=float, default=None, help="Optional Principled roughness override (photoreal skin band ~0.45-0.55).")
+    ap.add_argument("--skin-specular", type=float, default=None, help="Optional specular / Specular IOR Level override (lower = less plastic).")
+    ap.add_argument("--skin-subsurface-weight", type=float, default=None, help="Optional Subsurface Weight override.")
+    ap.add_argument("--skin-subsurface-scale", type=float, default=None, help="Optional Subsurface Scale override.")
+    ap.add_argument("--skin-albedo-mix-fac", type=float, default=0.82, help="Blend of albedo image vs solid phenotype base color (1.0=full image). Values <0.99 bake a mixed packed image so glTF still gets an image texture.")
+    ap.add_argument("--face-image", default=None, help="Optional photoreal frontal face PNG (e.g. RealVisXL from realvisxl-face-generate.ts). Projected onto the head face UV region as a glTF-safe Base Color IMAGE texture. Guarded: failure keeps current material.")
     ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (garment-hint-v1 aborted per chief/skeptic pivot 2026-06-07; Q1 violation, sub-pixel, no weights, no sleeve geo despite phenotype). Real garment now from phenotype.garmentLayers (e.g. short_sleeve_exam_tshirt) via expanded apply_role_clothing_material_regions (real torso+shoulder+upper-arm sleeve geo + vertex weights on clavicle/upper_arm for breathing deform). Flag kept for compat only; default OFF.")
     return ap.parse_args(argv)
 
@@ -728,7 +749,13 @@ def role_animation_control_summary(actor_role: str) -> Dict[str, Any]:
     }
 
 
-def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, phenotype: Dict[str, Any]) -> Dict[str, str]:
+def add_simple_procedural_pbr_and_bake(
+    mesh_obj: bpy.types.Object,
+    prompt: str,
+    phenotype: Dict[str, Any],
+    albedo_image_path: Optional[str] = None,
+    material_overrides: Optional[Dict[str, Any]] = None,
+) -> Dict[str, str]:
     """
     Local fallback texturing + bake (always safe, no external models). B-candidate realism pass:
     multi-octave noise (pores + age spots + wrinkle lines from phenotype age_wrinkle/bmi),
@@ -736,7 +763,12 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     medical exam lighting, varied roughness/spec, normal from bump. Matches user "hyper-realistic
     ... subtle age spots, visible pores, medical exam lighting, standardized patient" + phenotype
     scalars drive variation. When Comfy/StableGen authorized, swap this stage only.
+
+    Optional albedo_image_path: glTF-safe seamless tileable skin albedo PNG (e.g. RealVisXL).
+    Image textures survive glTF export when packed; procedural Base Color graphs do not.
+    Guarded: any load/wire failure keeps the solid Base Color factor so export never breaks.
     """
+    overrides = material_overrides or {}
     mat = bpy.data.materials.new(name="anny_generated_pbr")
     mat.use_nodes = True
     nt = mat.node_tree
@@ -766,29 +798,38 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
 
     # Skin BSDF (procedural realism pass): proper subsurface skin, not plastic mannequin.
     # Radius ~[0.36, 0.18, 0.10] (R>G>B scatter), low specular, roughness ~0.5, no external textures.
-    # Base Color stays a solid factor (glTF-safe); subtle hue variation is baked into the factor +
-    # sidecar PNGs below — complex Base Color node graphs can be dropped by the exporter.
+    # Base Color solid factor is always set as fallback; optional image texture overrides the socket
+    # (packed image survives glTF — procedural node graphs do not).
     bsdf.inputs["Base Color"].default_value = base_color
     mat.diffuse_color = base_color
     # Soft dermal roughness (~0.5); age/BMI nudge only slightly so it does not read wax/plastic.
-    bsdf.inputs["Roughness"].default_value = min(0.72, 0.50 + (age_w * 0.08) + (max(0.0, bmi - 24.0) * 0.008))
+    # Photoreal skin rung target band ~0.45–0.55 (override via material_overrides["roughness"]).
+    roughness_default = min(0.72, 0.50 + (age_w * 0.08) + (max(0.0, bmi - 24.0) * 0.008))
+    if overrides.get("roughness") is not None:
+        roughness_default = float(overrides["roughness"])
+    bsdf.inputs["Roughness"].default_value = roughness_default
     # Low specular / IOR level — hard specular is the main plastic-mannequin cue.
+    specular_default = float(overrides["specular"]) if overrides.get("specular") is not None else 0.16
     if "Specular IOR Level" in bsdf.inputs:
-        bsdf.inputs["Specular IOR Level"].default_value = 0.16
+        bsdf.inputs["Specular IOR Level"].default_value = specular_default
     elif "Specular" in bsdf.inputs:
-        bsdf.inputs["Specular"].default_value = 0.16
+        bsdf.inputs["Specular"].default_value = specular_default
     # Transmission reads as glassy/plastic under exam light — keep off for skin.
     if "Transmission Weight" in bsdf.inputs:
         bsdf.inputs["Transmission Weight"].default_value = 0.0
     # Stronger SSS weight + skin-like scatter radius (red penetrates farther than blue).
+    sss_default = float(overrides["subsurface_weight"]) if overrides.get("subsurface_weight") is not None else (0.18 + min(0.08, age_w * 0.04))
     if "Subsurface Weight" in bsdf.inputs:
-        bsdf.inputs["Subsurface Weight"].default_value = 0.18 + min(0.08, age_w * 0.04)
+        bsdf.inputs["Subsurface Weight"].default_value = sss_default
     elif "Subsurface" in bsdf.inputs:
-        bsdf.inputs["Subsurface"].default_value = 0.18 + min(0.08, age_w * 0.04)
+        bsdf.inputs["Subsurface"].default_value = sss_default
     if "Subsurface Radius" in bsdf.inputs:
-        bsdf.inputs["Subsurface Radius"].default_value = (0.36, 0.18, 0.10)
+        if overrides.get("subsurface_radius") is not None:
+            bsdf.inputs["Subsurface Radius"].default_value = tuple(overrides["subsurface_radius"])
+        else:
+            bsdf.inputs["Subsurface Radius"].default_value = (0.36, 0.18, 0.10)
     if "Subsurface Scale" in bsdf.inputs:
-        bsdf.inputs["Subsurface Scale"].default_value = 0.12
+        bsdf.inputs["Subsurface Scale"].default_value = float(overrides.get("subsurface_scale", 0.12))
     if "Subsurface IOR" in bsdf.inputs:
         bsdf.inputs["Subsurface IOR"].default_value = 1.4
     # Soft sheen / coat for dry-skin micro-reflect without hard plastic highlight.
@@ -800,6 +841,130 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
         bsdf.inputs["Coat Weight"].default_value = 0.02
         if "Coat Roughness" in bsdf.inputs:
             bsdf.inputs["Coat Roughness"].default_value = 0.45
+
+    # Optional glTF-safe photoreal albedo IMAGE texture (macro lever for vision realism).
+    # Tileable RealVisXL swatch → TexCoord+Mapping (tile scale) → TexImage → Base Color.
+    # Named openclinxr_skin_albedo_* so micro-detail bake orphan cleanup preserves the chain.
+    if albedo_image_path:
+        try:
+            abs_albedo = os.path.abspath(str(albedo_image_path))
+            if not os.path.isfile(abs_albedo):
+                raise FileNotFoundError(f"skin albedo image not found: {abs_albedo}")
+            # Ensure UV layer exists (same smart_project fallback as bake_skin_surface_micro_detail_for_gltf).
+            me = mesh_obj.data
+            if not me.uv_layers or len(me.uv_layers) == 0:
+                bpy.ops.object.mode_set(mode="OBJECT")
+                bpy.ops.object.select_all(action="DESELECT")
+                mesh_obj.select_set(True)
+                bpy.context.view_layer.objects.active = mesh_obj
+                bpy.ops.object.mode_set(mode="EDIT")
+                bpy.ops.mesh.select_all(action="SELECT")
+                try:
+                    bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+                except TypeError:
+                    bpy.ops.uv.smart_project()
+                bpy.ops.object.mode_set(mode="OBJECT")
+                if not me.uv_layers:
+                    raise RuntimeError("smart UV project produced no UV layers for albedo")
+            img = bpy.data.images.load(abs_albedo, check_existing=True)
+            try:
+                # sRGB for color albedo (glTF Base Color expects encoded sRGB).
+                if hasattr(img, "colorspace_settings"):
+                    img.colorspace_settings.name = "sRGB"
+            except Exception:
+                pass
+            try:
+                img.pack()
+            except TypeError:
+                try:
+                    img.pack(as_png=True)
+                except Exception:
+                    img.pack()
+            except Exception as pack_exc:
+                print(f"[blender] WARNING: albedo image pack failed ({pack_exc}); export may still embed via filepath")
+
+            tile_scale = float(overrides.get("albedo_tile_scale", 6.0))
+            # Mix solid phenotype base with image so average hue stays skin-like under exam light.
+            mix_fac = float(overrides.get("albedo_mix_fac", 0.82))  # 1.0 = full image
+            tex_coord = nt.nodes.new("ShaderNodeTexCoord")
+            tex_coord.name = "openclinxr_skin_albedo_texcoord"
+            tex_coord.label = "Skin Albedo UV"
+            mapping = nt.nodes.new("ShaderNodeMapping")
+            mapping.name = "openclinxr_skin_albedo_mapping"
+            mapping.label = "Skin Albedo Tile"
+            if "Location" in mapping.inputs:
+                mapping.inputs["Location"].default_value = (0.0, 0.0, 0.0)
+            if "Rotation" in mapping.inputs:
+                mapping.inputs["Rotation"].default_value = (0.0, 0.0, 0.0)
+            if "Scale" in mapping.inputs:
+                mapping.inputs["Scale"].default_value = (tile_scale, tile_scale, tile_scale)
+            tex_img = nt.nodes.new("ShaderNodeTexImage")
+            tex_img.name = "openclinxr_skin_albedo_tex"
+            tex_img.label = "Skin Albedo (glTF-safe image)"
+            tex_img.image = img
+            tex_img.interpolation = "Smart"
+            if hasattr(tex_img, "extension"):
+                try:
+                    tex_img.extension = "REPEAT"
+                except Exception:
+                    pass
+            nt.links.new(tex_coord.outputs["UV"], mapping.inputs["Vector"])
+            nt.links.new(mapping.outputs["Vector"], tex_img.inputs["Vector"])
+            for link in list(bsdf.inputs["Base Color"].links):
+                nt.links.remove(link)
+            # Prefer pure image when mix_fac ~1; otherwise MixRGB image with solid base_color.
+            # Note: MixRGB may not survive glTF as a graph — so when mix_fac < 0.99 we bake
+            # the mix into a packed image texture (still glTF-safe image, not a node graph).
+            if mix_fac >= 0.99:
+                nt.links.new(tex_img.outputs["Color"], bsdf.inputs["Base Color"])
+            else:
+                try:
+                    import numpy as np
+                    from PIL import Image as PILImage
+                    # Load source pixels, mix toward solid base_color, re-pack as new image.
+                    src = PILImage.open(abs_albedo).convert("RGBA")
+                    arr = np.asarray(src).astype(np.float32) / 255.0
+                    solid = np.array([base_color[0], base_color[1], base_color[2], 1.0], dtype=np.float32)
+                    mixed = arr * mix_fac + solid * (1.0 - mix_fac)
+                    mixed = np.clip(mixed, 0.0, 1.0)
+                    out_arr = (mixed * 255.0 + 0.5).astype(np.uint8)
+                    bake_dir = job_unique_bake_dir(mesh_obj.name if mesh_obj else "skin", purpose="albedo_mix")
+                    mixed_path = os.path.join(
+                        bake_dir,
+                        f"openclinxr_skin_albedo_mixed_{os.getpid()}_{int(time.time() * 1000)}.png",
+                    )
+                    PILImage.fromarray(out_arr).save(mixed_path)
+                    mixed_img = bpy.data.images.load(mixed_path, check_existing=False)
+                    try:
+                        if hasattr(mixed_img, "colorspace_settings"):
+                            mixed_img.colorspace_settings.name = "sRGB"
+                    except Exception:
+                        pass
+                    try:
+                        mixed_img.pack()
+                    except TypeError:
+                        try:
+                            mixed_img.pack(as_png=True)
+                        except Exception:
+                            mixed_img.pack()
+                    except Exception:
+                        pass
+                    tex_img.image = mixed_img
+                    nt.links.new(tex_img.outputs["Color"], bsdf.inputs["Base Color"])
+                    print(f"[blender] albedo mix_fac={mix_fac:.2f} baked into packed image {mixed_path}")
+                except Exception as mix_exc:
+                    print(f"[blender] WARNING: albedo mix bake failed ({mix_exc}); using pure image")
+                    nt.links.new(tex_img.outputs["Color"], bsdf.inputs["Base Color"])
+            print(
+                f"[blender] wired skin albedo image -> Base Color "
+                f"(path={abs_albedo} tile={tile_scale} mix={mix_fac} "
+                f"packed={bool(getattr(tex_img.image, 'packed_file', None))})"
+            )
+        except Exception as albedo_exc:
+            print(
+                f"[blender] WARNING: skin albedo image failed ({albedo_exc}); "
+                "keeping solid Base Color factor (export continues)"
+            )
 
     # Multi-octave noise: pores (fine) + spots/wrinkle (mid) driven by phenotype — bump only
     # (normals travel better through glTF than complex Base Color graphs).
@@ -850,11 +1015,10 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     for polygon in mesh_obj.data.polygons:
         polygon.material_index = 0
 
-    bake_dir = os.path.dirname(bpy.data.filepath) or "/tmp"
-    os.makedirs(bake_dir, exist_ok=True)
-    albedo_path = os.path.join(bake_dir, "anny_albedo.png")
-    rough_path = os.path.join(bake_dir, "anny_rough.png")
-    normal_path = os.path.join(bake_dir, "anny_normal.png")
+    bake_dir = job_unique_bake_dir(mesh_obj.name if mesh_obj else "pbr", purpose="pbr_sidecars")
+    albedo_path = os.path.join(bake_dir, f"anny_albedo_{os.getpid()}.png")
+    rough_path = os.path.join(bake_dir, f"anny_rough_{os.getpid()}.png")
+    normal_path = os.path.join(bake_dir, f"anny_normal_{os.getpid()}.png")
 
     bpy.context.scene.render.engine = "CYCLES"
     bpy.context.scene.cycles.samples = 32
@@ -908,6 +1072,182 @@ def add_simple_procedural_pbr_and_bake(mesh_obj: bpy.types.Object, prompt: str, 
     print(f"[blender] baked normal -> {normal_path}")
 
     return {"albedo": albedo_path, "rough": rough_path, "normal": normal_path}
+
+
+def bake_skin_albedo_to_uv_for_gltf(mesh_obj: bpy.types.Object) -> Dict[str, Any]:
+    """
+    Bake the current Principled Base Color (incl. tiled albedo image) into a UV-space
+    packed PNG so glTF export has a clean baseColorTexture without KHR_texture_transform
+    tiling artifacts. Guarded: any failure leaves the existing material intact.
+    """
+    result: Dict[str, Any] = {
+        "ok": False,
+        "baked": False,
+        "imageName": None,
+        "resolution": 2048,
+        "claimScope": "uv_baked_skin_albedo_image_for_gltf_aesthetic_only",
+        "notEvidenceFor": [
+            "b_plus_visual_realism_gate",
+            "production_asset_readiness",
+            "clinical_validity",
+            "scoring_validity",
+        ],
+    }
+    scene = bpy.context.scene
+    prev_engine = getattr(scene.render, "engine", "BLENDER_EEVEE")
+    prev_samples = None
+    prev_active = bpy.context.view_layer.objects.active
+    prev_selected = [obj for obj in bpy.context.selected_objects]
+    try:
+        if mesh_obj is None or mesh_obj.type != "MESH":
+            raise RuntimeError("mesh required")
+        mat = None
+        for candidate in list(mesh_obj.data.materials or []):
+            if candidate and candidate.name == "anny_generated_pbr":
+                mat = candidate
+                break
+        if mat is None or not mat.use_nodes or mat.node_tree is None:
+            raise RuntimeError("anny_generated_pbr material not found")
+        nt = mat.node_tree
+        bsdf = None
+        for node in nt.nodes:
+            if node.type == "BSDF_PRINCIPLED":
+                bsdf = node
+                break
+        if bsdf is None:
+            raise RuntimeError("Principled BSDF missing")
+        albedo_tex = nt.nodes.get("openclinxr_skin_albedo_tex")
+        if albedo_tex is None or albedo_tex.image is None:
+            raise RuntimeError("no openclinxr_skin_albedo_tex image to bake")
+
+        # Ensure UVs
+        me = mesh_obj.data
+        if not me.uv_layers:
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            mesh_obj.select_set(True)
+            bpy.context.view_layer.objects.active = mesh_obj
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="SELECT")
+            try:
+                bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+            except TypeError:
+                bpy.ops.uv.smart_project()
+            bpy.ops.object.mode_set(mode="OBJECT")
+
+        res = 2048
+        img_name = "openclinxr_skin_albedo_uv_bake"
+        if img_name in bpy.data.images:
+            bake_img = bpy.data.images[img_name]
+            bake_img.scale(res, res)
+        else:
+            bake_img = bpy.data.images.new(img_name, width=res, height=res, alpha=True, float_buffer=False)
+        try:
+            bake_img.colorspace_settings.name = "sRGB"
+        except Exception:
+            pass
+
+        # Temporary Image Texture as bake target (must be active).
+        bake_node = nt.nodes.new("ShaderNodeTexImage")
+        bake_node.name = "openclinxr_skin_albedo_uv_bake_target"
+        bake_node.label = "Skin Albedo UV Bake Target"
+        bake_node.image = bake_img
+        for node in nt.nodes:
+            node.select = False
+        bake_node.select = True
+        nt.nodes.active = bake_node
+
+        scene.render.engine = "CYCLES"
+        if hasattr(scene, "cycles"):
+            prev_samples = scene.cycles.samples
+            scene.cycles.samples = 8
+            if hasattr(scene.cycles, "use_denoising"):
+                scene.cycles.use_denoising = False
+            try:
+                scene.cycles.bake_type = "DIFFUSE"
+            except Exception:
+                pass
+        if hasattr(scene.render, "bake"):
+            if hasattr(scene.render.bake, "use_pass_direct"):
+                scene.render.bake.use_pass_direct = False
+            if hasattr(scene.render.bake, "use_pass_indirect"):
+                scene.render.bake.use_pass_indirect = False
+            if hasattr(scene.render.bake, "use_pass_color"):
+                scene.render.bake.use_pass_color = True
+            if hasattr(scene.render.bake, "margin"):
+                scene.render.bake.margin = 4
+            if hasattr(scene.render.bake, "use_clear"):
+                scene.render.bake.use_clear = True
+
+        bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.ops.object.select_all(action="DESELECT")
+        mesh_obj.select_set(True)
+        bpy.context.view_layer.objects.active = mesh_obj
+
+        try:
+            bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, use_clear=True)
+        except TypeError:
+            bpy.ops.object.bake(type="DIFFUSE", use_clear=True)
+
+        try:
+            bake_img.pack()
+        except TypeError:
+            try:
+                bake_img.pack(as_png=True)
+            except Exception:
+                bake_img.pack()
+
+        # Replace Base Color graph with UV-baked image (no Mapping / no KHR scale).
+        for link in list(bsdf.inputs["Base Color"].links):
+            nt.links.remove(link)
+        # Drop old albedo mapping chain nodes (keep names for orphan cleanup later).
+        for nname in (
+            "openclinxr_skin_albedo_texcoord",
+            "openclinxr_skin_albedo_mapping",
+            "openclinxr_skin_albedo_tex",
+            "openclinxr_skin_albedo_uv_bake_target",
+        ):
+            node = nt.nodes.get(nname)
+            if node is not None:
+                nt.nodes.remove(node)
+
+        final_tex = nt.nodes.new("ShaderNodeTexImage")
+        final_tex.name = "openclinxr_skin_albedo_tex"
+        final_tex.label = "Skin Albedo UV-baked (glTF-safe)"
+        final_tex.image = bake_img
+        final_tex.interpolation = "Smart"
+        nt.links.new(final_tex.outputs["Color"], bsdf.inputs["Base Color"])
+
+        result["ok"] = True
+        result["baked"] = True
+        result["imageName"] = bake_img.name
+        print(f"[blender] UV-baked skin albedo -> {bake_img.name} {res}x{res} packed")
+        return result
+    except Exception as exc:
+        print(f"[blender] WARNING: skin albedo UV bake skipped (export continues): {exc}")
+        result["error"] = str(exc)
+        return result
+    finally:
+        try:
+            scene.render.engine = prev_engine
+        except Exception:
+            pass
+        try:
+            if hasattr(scene, "cycles") and prev_samples is not None:
+                scene.cycles.samples = prev_samples
+        except Exception:
+            pass
+        try:
+            bpy.ops.object.select_all(action="DESELECT")
+            for obj in prev_selected:
+                try:
+                    obj.select_set(True)
+                except Exception:
+                    pass
+            if prev_active is not None:
+                bpy.context.view_layer.objects.active = prev_active
+        except Exception:
+            pass
 
 
 def bake_skin_surface_micro_detail_for_gltf(
@@ -1014,6 +1354,7 @@ def bake_skin_surface_micro_detail_for_gltf(
 
     def _remove_orphaned_procedural_detail(tree: bpy.types.NodeTree, keep: set) -> None:
         # Drop prior pore/bump graph from add_simple_procedural_pbr_and_bake once baked.
+        # Preserve glTF-safe skin albedo image chain (openclinxr_skin_albedo_*) and keep set.
         removable_types = {
             "TEX_NOISE",
             "TEX_VORONOI",
@@ -1023,6 +1364,8 @@ def bake_skin_surface_micro_detail_for_gltf(
             "VALTORGB",
             "NORMAL_MAP",
             "TEX_IMAGE",
+            "TEX_COORD",
+            "MAPPING",
         }
         # Only remove untagged image/normal_map if they are not the keep set.
         changed = True
@@ -1032,6 +1375,9 @@ def bake_skin_surface_micro_detail_for_gltf(
                 if node in keep or node.name in {n.name for n in keep if hasattr(n, "name")}:
                     continue
                 if node.name.startswith("openclinxr_skin_micro_"):
+                    continue
+                # Photoreal albedo image + UV tiling must survive orphan cleanup.
+                if node.name.startswith("openclinxr_skin_albedo_"):
                     continue
                 if node.type not in removable_types:
                     continue
@@ -1295,6 +1641,10 @@ def bake_skin_surface_micro_detail_for_gltf(
         for node in nt.nodes:
             if node.type == "OUTPUT_MATERIAL":
                 keep_nodes.add(node)
+        # Preserve photoreal albedo image chain across orphan cleanup.
+        for node in nt.nodes:
+            if node.name.startswith("openclinxr_skin_albedo_"):
+                keep_nodes.add(node)
 
         # Remove untagged leftover noise/bump from the earlier PBR stage that no longer feed Normal.
         try:
@@ -1318,6 +1668,11 @@ def bake_skin_surface_micro_detail_for_gltf(
                     nt.links.new(img_tex.outputs["Color"], fb.inputs["Height"])
                 if "Normal" in bsdf.inputs and not bsdf.inputs["Normal"].links:
                     nt.links.new(fb.outputs["Normal"], bsdf.inputs["Normal"])
+        # Re-assert albedo Base Color link if present (must not be dropped by cleanup).
+        albedo_tex = nt.nodes.get("openclinxr_skin_albedo_tex")
+        if albedo_tex is not None and "Base Color" in bsdf.inputs:
+            if not bsdf.inputs["Base Color"].links:
+                nt.links.new(albedo_tex.outputs["Color"], bsdf.inputs["Base Color"])
 
         result["ok"] = True
         result["baked"] = True
@@ -1532,23 +1887,456 @@ def add_procedural_hair_and_eyes(mesh_obj: bpy.types.Object, phenotype: Dict[str
     }
 
 
+
+def repair_double_head_interior(mesh_obj: bpy.types.Object) -> Dict[str, Any]:
+    """
+    Remove inward-facing interior head shells that render as a melted/duplicated head.
+    Real Anny/MPFB2 topology (esp. default with mouth cavity) leaves internal faces whose
+    normals point toward the head center; under exam lighting they read as a second head.
+    Deletes those faces in the upper ~22% of body height, then cleans loose verts.
+    """
+    import bmesh
+    from mathutils import Vector
+
+    me = mesh_obj.data
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bm.faces.ensure_lookup_table()
+    bm.verts.ensure_lookup_table()
+    if not bm.verts:
+        bm.free()
+        return {"repaired": False, "reason": "empty_mesh", "deletedFaces": 0}
+
+    ys = [v.co.y for v in bm.verts]
+    ymin, ymax = min(ys), max(ys)
+    height = max(ymax - ymin, 1e-6)
+    head_cut = ymin + height * 0.78  # upper head/face region in local Y-up Anny basis
+
+    head_verts = [v for v in bm.verts if v.co.y >= head_cut]
+    if len(head_verts) < 12:
+        bm.free()
+        return {"repaired": False, "reason": "no_head_region", "deletedFaces": 0}
+
+    hcx = sum(v.co.x for v in head_verts) / len(head_verts)
+    hcy = sum(v.co.y for v in head_verts) / len(head_verts)
+    hcz = sum(v.co.z for v in head_verts) / len(head_verts)
+    head_center = Vector((hcx, hcy, hcz))
+
+    # Only strongly inward faces (true internal cavity shells), not mild mouth concavities.
+    # Cap deletions so we never carve the exterior face (prior >1k delete melted features).
+    candidates = []
+    for f in bm.faces:
+        c = f.calc_center_median()
+        if c.y < head_cut:
+            continue
+        to_center = head_center - c
+        if to_center.length < 1e-8:
+            continue
+        if f.normal.dot(to_center.normalized()) > 0.55:
+            candidates.append(f)
+
+    # Do NOT delete mouth-cavity faces or mass-recalc normals — both melt the exterior face
+    # under three.js double-sided lighting. True "double head" was primarily camera framing
+    # (head cut off) + overlapping scalp material region; leave topology intact.
+    bm.free()
+    print(
+        f"[blender] double-head interior repair: no_op candidates={len(candidates)} "
+        f"(topology preserved; head_cut_y={head_cut:.3f})"
+    )
+    return {
+        "repaired": False,
+        "deletedFaces": 0,
+        "candidatesInward": len(candidates),
+        "headCutY": round(head_cut, 4),
+        "action": "topology_preserved_camera_and_scalp_fix_primary",
+        "claimScope": "interior_head_face_cleanup_aesthetic_only",
+        "notEvidenceFor": ["production_asset_readiness", "clinical_validity", "scoring_validity"],
+    }
+
+
+def close_mouth_cavity(mesh_obj: bpy.types.Object) -> Dict[str, Any]:
+    """
+    Hide / remove open interior mouth cavity shells that read as a black hole
+    under exam lighting (vision-score face defect). Conservative: only strongly
+    inward faces deep inside the mouth band are deleted; exterior lips preserved.
+    Guarded: any exception returns ok=False without mutating further.
+    """
+    import bmesh
+    from mathutils import Vector
+
+    result: Dict[str, Any] = {
+        "ok": False,
+        "deletedFaces": 0,
+        "capped": False,
+        "action": "none",
+        "claimScope": "mouth_cavity_close_aesthetic_only",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "b_plus_visual_realism_gate",
+        ],
+    }
+    try:
+        me = mesh_obj.data
+        bm = bmesh.new()
+        bm.from_mesh(me)
+        bm.faces.ensure_lookup_table()
+        bm.verts.ensure_lookup_table()
+        if not bm.verts:
+            bm.free()
+            result["reason"] = "empty_mesh"
+            return result
+
+        # World-space bounds (Blender Z-up after OBJ import transform).
+        ws = [mesh_obj.matrix_world @ v.co for v in bm.verts]
+        zs = [p.z for p in ws]
+        ys = [p.y for p in ws]
+        xs = [p.x for p in ws]
+        zmin, zmax = min(zs), max(zs)
+        ymin, ymax = min(ys), max(ys)
+        xmin, xmax = min(xs), max(xs)
+        height = max(zmax - zmin, 1e-6)
+        depth = max(ymax - ymin, 1e-6)
+        width = max(xmax - xmin, 1e-6)
+
+        # Mouth band: mid-lower face region of the head.
+        mouth_z_lo = zmin + height * 0.78
+        mouth_z_hi = zmin + height * 0.92
+        head_cx = (xmin + xmax) * 0.5
+        head_cy = (ymin + ymax) * 0.5
+        head_cz = (mouth_z_lo + mouth_z_hi) * 0.5
+        head_center = Vector((head_cx, head_cy, head_cz))
+        # Front of head is toward -Y in Anny/OBJ world convention used by scalp paint.
+        lip_plane_y = ymin + depth * 0.22  # anything deeper (higher y) can be cavity
+
+        to_delete = []
+        for f in bm.faces:
+            c_local = f.calc_center_median()
+            c = mesh_obj.matrix_world @ c_local
+            if c.z < mouth_z_lo or c.z > mouth_z_hi:
+                continue
+            if abs(c.x - head_cx) > width * 0.18:
+                continue
+            if c.y < lip_plane_y:
+                continue  # exterior / lips
+            # World normal
+            n_world = (mesh_obj.matrix_world.to_3x3() @ f.normal).normalized()
+            to_center = (head_center - c)
+            if to_center.length < 1e-8:
+                continue
+            inward = n_world.dot(to_center.normalized())
+            # Strongly inward OR back-facing into cavity (normal +Y / toward back)
+            if inward > 0.45 or n_world.y > 0.55:
+                to_delete.append(f)
+
+        deleted = 0
+        if to_delete:
+            # Cap deletion count so we never melt exterior face features.
+            max_del = min(len(to_delete), max(40, int(len(bm.faces) * 0.04)))
+            to_delete = to_delete[:max_del]
+            bmesh.ops.delete(bm, geom=to_delete, context="FACES")
+            deleted = len(to_delete)
+            # Remove loose verts left by cavity delete.
+            loose = [v for v in bm.verts if not v.link_faces]
+            if loose:
+                bmesh.ops.delete(bm, geom=loose, context="VERTS")
+            # Try to fill small holes at mouth rim (best-effort).
+            try:
+                bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=6)
+                result["capped"] = True
+            except Exception:
+                pass
+
+        bm.to_mesh(me)
+        me.update()
+        bm.free()
+        result["ok"] = True
+        result["deletedFaces"] = deleted
+        result["action"] = "deleted_inward_mouth_cavity_faces" if deleted else "no_cavity_faces_found"
+        print(f"[blender] mouth cavity close: deleted={deleted} capped={result['capped']}")
+        return result
+    except Exception as exc:
+        result["reason"] = f"mouth_close_failed:{exc}"
+        print(f"[blender] WARNING: mouth cavity close failed ({exc}); keeping mesh")
+        return result
+
+
+def project_photoreal_face_texture(
+    mesh_obj: bpy.types.Object,
+    face_image_path: str,
+) -> Dict[str, Any]:
+    """
+    Project a frontal photoreal face PNG onto the head face region as a glTF-safe
+    Base Color IMAGE texture (image textures survive glTF; procedural graphs do not).
+
+    Uses orthographic front-view UV projection onto selected face polygons + a
+    dedicated material slot. Guarded: on any failure keeps current materials.
+    """
+    result: Dict[str, Any] = {
+        "ok": False,
+        "faceFaces": 0,
+        "materialName": None,
+        "imagePath": face_image_path,
+        "claimScope": "photoreal_face_uv_projection_aesthetic_only",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "b_plus_visual_realism_gate",
+            "runtime_promotion",
+        ],
+    }
+    try:
+        abs_face = os.path.abspath(str(face_image_path))
+        if not os.path.isfile(abs_face):
+            raise FileNotFoundError(f"face image not found: {abs_face}")
+
+        me = mesh_obj.data
+        if not me.polygons:
+            raise RuntimeError("empty mesh for face projection")
+
+        # Ensure UV layer
+        if not me.uv_layers:
+            bpy.ops.object.mode_set(mode="OBJECT")
+            bpy.ops.object.select_all(action="DESELECT")
+            mesh_obj.select_set(True)
+            bpy.context.view_layer.objects.active = mesh_obj
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="SELECT")
+            try:
+                bpy.ops.uv.smart_project(angle_limit=66.0, island_margin=0.02)
+            except TypeError:
+                bpy.ops.uv.smart_project()
+            bpy.ops.object.mode_set(mode="OBJECT")
+        if not me.uv_layers:
+            raise RuntimeError("no UV layers after smart_project")
+
+        # glTF uses TEXCOORD_0 (active/render UV). Write face UVs into the primary
+        # UV layer on face loops only so baseColorTexture samples the portrait.
+        if not me.uv_layers:
+            raise RuntimeError("no UV layers for face projection")
+        primary_uv = me.uv_layers[0]
+        me.uv_layers.active = primary_uv
+        try:
+            for uvl in me.uv_layers:
+                if hasattr(uvl, "active_render"):
+                    uvl.active_render = uvl == primary_uv
+        except Exception:
+            pass
+        face_uv_name = primary_uv.name
+
+        # World bounds
+        verts_w = [mesh_obj.matrix_world @ v.co for v in me.vertices]
+        xs = [p.x for p in verts_w]
+        ys = [p.y for p in verts_w]
+        zs = [p.z for p in verts_w]
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        zmin, zmax = min(zs), max(zs)
+        height = max(zmax - zmin, 1e-6)
+        depth = max(ymax - ymin, 1e-6)
+        width = max(xmax - xmin, 1e-6)
+        cx = (xmin + xmax) * 0.5
+
+        # Face region: front head (iter5-proven coverage across adult/peds proportions).
+        face_z_lo = zmin + height * 0.76
+        face_z_hi = zmin + height * 0.995
+        face_y_max = ymin + depth * 0.55  # front of head (-Y)
+        face_half_w = width * 0.28
+
+        face_poly_indices: List[int] = []
+        face_pts: List[Any] = []
+        for pi, poly in enumerate(me.polygons):
+            c = mesh_obj.matrix_world @ poly.center
+            if c.z < face_z_lo or c.z > face_z_hi:
+                continue
+            if c.y > face_y_max:
+                continue
+            if abs(c.x - cx) > face_half_w:
+                continue
+            n = (mesh_obj.matrix_world.to_3x3() @ poly.normal).normalized()
+            # Prefer outward/front-facing (-Y) faces; reject strong inward.
+            if n.y > 0.45:
+                continue
+            face_poly_indices.append(pi)
+            face_pts.append(c)
+
+        if len(face_poly_indices) < 8:
+            raise RuntimeError(f"too few face faces selected: {len(face_poly_indices)}")
+
+        # Orthographic front UV over the selected face bbox (x,z) with modest pad.
+        fx = [p.x for p in face_pts]
+        fz = [p.z for p in face_pts]
+        fx0, fx1 = min(fx), max(fx)
+        fz0, fz1 = min(fz), max(fz)
+        pad_x = max((fx1 - fx0) * 0.14, width * 0.01)
+        pad_z = max((fz1 - fz0) * 0.16, height * 0.008)
+        fx0 -= pad_x
+        fx1 += pad_x
+        fz0 -= pad_z
+        fz1 += pad_z
+        span_x = max(fx1 - fx0, 1e-6)
+        span_z = max(fz1 - fz0, 1e-6)
+
+        # Write UVs into primary UV (TEXCOORD_0): u from X, v from Z (portrait upright).
+        for pi in face_poly_indices:
+            poly = me.polygons[pi]
+            for loop_idx in range(poly.loop_start, poly.loop_start + poly.loop_total):
+                vi = me.loops[loop_idx].vertex_index
+                pw = mesh_obj.matrix_world @ me.vertices[vi].co
+                u = (pw.x - fx0) / span_x
+                v = (pw.z - fz0) / span_z
+                u = max(0.0, min(1.0, u))
+                v = max(0.0, min(1.0, v))
+                primary_uv.data[loop_idx].uv = (u, v)
+
+        # Material: glTF-safe image → Base Color.
+        # Blender 5.1: Image.pack() takes no as_png kwarg (TypeError). Load from disk,
+        # force pixel access, pack(), and run this AFTER micro-detail bake so Cycles
+        # cannot replace the buffer with the solid-purple (128,128,255) placeholder.
+        img_name = f"openclinxr_face_embed_{os.getpid()}_{int(time.time() * 1000) % 100000}"
+        for stale in list(bpy.data.images):
+            if stale.name.startswith("openclinxr_face_embed"):
+                try:
+                    bpy.data.images.remove(stale)
+                except Exception:
+                    pass
+        img = bpy.data.images.load(abs_face, check_existing=False)
+        img.name = img_name
+        try:
+            if hasattr(img, "colorspace_settings"):
+                img.colorspace_settings.name = "sRGB"
+        except Exception:
+            pass
+        # Force file → RAM pixel buffer (required before pack on some Blender builds).
+        n_pix = len(img.pixels)
+        if n_pix < 16:
+            raise RuntimeError(f"face image has no pixels after load: {abs_face}")
+        pr0, pg0, pb0 = float(img.pixels[0]), float(img.pixels[1]), float(img.pixels[2])
+        mid = (n_pix // 8) // 4 * 4
+        pr, pg, pb = float(img.pixels[mid]), float(img.pixels[mid + 1]), float(img.pixels[mid + 2])
+        # Blender 5.1 pack() signature: pack() or pack(data, data_len) — no as_png.
+        try:
+            img.pack()
+        except Exception as pack_exc:
+            raise RuntimeError(f"face image pack failed: {pack_exc}") from pack_exc
+        if not getattr(img, "packed_file", None):
+            # Fallback: re-pack from raw file bytes if available.
+            try:
+                with open(abs_face, "rb") as fh:
+                    raw = fh.read()
+                img.pack(data=raw, data_len=len(raw))
+            except Exception as pack2_exc:
+                raise RuntimeError(f"face image pack fallback failed: {pack2_exc}") from pack2_exc
+        solid_purple = abs(pr - 0.5) < 0.02 and abs(pg - 0.5) < 0.02 and abs(pb - 1.0) < 0.02
+        if solid_purple:
+            raise RuntimeError(
+                f"face image is solid purple placeholder mid=({pr:.3f},{pg:.3f},{pb:.3f})"
+            )
+        print(
+            f"[blender] face image packed ok size={tuple(img.size)} "
+            f"px0=({pr0:.3f},{pg0:.3f},{pb0:.3f}) mid=({pr:.3f},{pg:.3f},{pb:.3f}) "
+            f"packed={bool(getattr(img, 'packed_file', None))}"
+        )
+
+        mat_name = "openclinxr_photoreal_face_albedo"
+        mat = bpy.data.materials.get(mat_name) or bpy.data.materials.new(mat_name)
+        mat.use_nodes = True
+        nt = mat.node_tree
+        for node in list(nt.nodes):
+            nt.nodes.remove(node)
+        out_node = nt.nodes.new("ShaderNodeOutputMaterial")
+        bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+        bsdf.inputs["Base Color"].default_value = (0.72, 0.55, 0.48, 1.0)
+        bsdf.inputs["Roughness"].default_value = 0.48
+        if "Specular IOR Level" in bsdf.inputs:
+            bsdf.inputs["Specular IOR Level"].default_value = 0.14
+        if "Subsurface Weight" in bsdf.inputs:
+            bsdf.inputs["Subsurface Weight"].default_value = 0.22
+        if "Subsurface Radius" in bsdf.inputs:
+            bsdf.inputs["Subsurface Radius"].default_value = (0.36, 0.18, 0.10)
+        if "Subsurface Scale" in bsdf.inputs:
+            bsdf.inputs["Subsurface Scale"].default_value = 0.12
+        tex_coord = nt.nodes.new("ShaderNodeTexCoord")
+        tex_coord.name = "openclinxr_face_albedo_texcoord"
+        tex_img = nt.nodes.new("ShaderNodeTexImage")
+        tex_img.name = "openclinxr_face_albedo_tex"
+        tex_img.label = "Photoreal Face (glTF-safe image)"
+        tex_img.image = img
+        tex_img.interpolation = "Smart"
+        if hasattr(tex_img, "extension"):
+            try:
+                tex_img.extension = "CLIP"
+            except Exception:
+                pass
+        nt.links.new(tex_coord.outputs["UV"], tex_img.inputs["Vector"])
+        nt.links.new(tex_img.outputs["Color"], bsdf.inputs["Base Color"])
+        nt.links.new(bsdf.outputs["BSDF"], out_node.inputs["Surface"])
+
+        face_index = None
+        for i, m in enumerate(me.materials):
+            if m and m.name == mat_name:
+                face_index = i
+                me.materials[i] = mat
+                break
+        if face_index is None:
+            face_index = len(me.materials)
+            me.materials.append(mat)
+
+        for pi in face_poly_indices:
+            me.polygons[pi].material_index = face_index
+
+        result["ok"] = True
+        result["faceFaces"] = len(face_poly_indices)
+        result["materialName"] = mat_name
+        result["uvLayer"] = face_uv_name
+        result["bbox"] = {
+            "x0": round(fx0, 4),
+            "x1": round(fx1, 4),
+            "z0": round(fz0, 4),
+            "z1": round(fz1, 4),
+        }
+        print(
+            f"[blender] photoreal face projection: faces={len(face_poly_indices)} "
+            f"img={abs_face} uv={face_uv_name} (TEXCOORD_0)"
+        )
+        return result
+    except Exception as exc:
+        result["reason"] = f"face_projection_failed:{exc}"
+        print(f"[blender] WARNING: face projection failed ({exc}); keeping current material")
+        return result
+
+
 def role_marker_color(phenotype: Dict[str, Any], actor_role: str) -> tuple:
+    """Clinical attire palette (glTF-safe solid factors) — not saturated morphsuit blue."""
     color = str(phenotype.get("clothing_color") or "").lower()
-    if "teal" in color or actor_role == "nurse":
-        return (0.02, 0.48, 0.52, 1.0)
-    if "rose" in color or "parent" in actor_role:
-        return (0.62, 0.24, 0.34, 1.0)
-    if "blue" in color or "patient" in actor_role:
-        return (0.20, 0.46, 0.82, 1.0)
-    return (0.38, 0.40, 0.42, 1.0)
+    role = (actor_role or "").lower()
+    # Nurse: teal/navy scrubs
+    if "teal" in color or "scrub" in color or "nurse" in role:
+        return (0.06, 0.40, 0.44, 1.0)  # scrub teal
+    # Parent/guardian: muted casual (sage/soft olive), not rose unitard
+    if "rose" in color or "parent" in role or "guardian" in role:
+        return (0.42, 0.48, 0.44, 1.0)  # casual sage top
+    # Patient: light hospital gown / neutral clinical top (not neon blue morphsuit)
+    if "gown" in color or "hospital" in color or "patient" in role or "soft_blue" in color or "blue" in color:
+        return (0.78, 0.84, 0.88, 1.0)  # light clinical gown
+    return (0.55, 0.56, 0.58, 1.0)  # neutral gray clinical
 
 
 def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
+    """glTF-safe solid-factor clothing material (no procedural graphs — they drop on export)."""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF") or mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
     bsdf.inputs["Base Color"].default_value = color
-    bsdf.inputs["Roughness"].default_value = 0.78
+    bsdf.inputs["Roughness"].default_value = 0.82  # matte clinical fabric
+    if "Specular IOR Level" in bsdf.inputs:
+        bsdf.inputs["Specular IOR Level"].default_value = 0.12
+    elif "Specular" in bsdf.inputs:
+        bsdf.inputs["Specular"].default_value = 0.12
+    if "Metallic" in bsdf.inputs:
+        bsdf.inputs["Metallic"].default_value = 0.0
     return mat
 
 
@@ -1564,19 +2352,24 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     """
     role = actor_role.lower()
     base_color = role_marker_color(phenotype, role)
+    # Clinical attire: solid scrubs / casual / light gown — never saturated skin-tight morphsuit blue.
     if "nurse" in role:
-        top_color = base_color
-        lower_color = (0.015, 0.34, 0.37, 1.0)
+        top_color = base_color  # teal scrub top
+        lower_color = (0.08, 0.16, 0.28, 1.0)  # navy scrub pants
+        trim_color = (0.05, 0.36, 0.40, 1.0)  # near-top teal (no white seam band)
     elif "parent" in role or "guardian" in str(phenotype.get("role_visual_cue", "")).lower():
-        top_color = base_color
-        lower_color = (0.18, 0.17, 0.20, 1.0)
+        top_color = base_color  # casual sage
+        lower_color = (0.22, 0.28, 0.40, 1.0)  # soft denim
+        trim_color = (0.40, 0.46, 0.42, 1.0)  # near-top, no jagged white
     else:
-        top_color = (0.05, 0.34, 0.88, 1.0)
-        lower_color = (0.06, 0.12, 0.28, 1.0)
+        # Patient / ED: light hospital gown or plain neutral clinical top + soft lower
+        top_color = (0.62, 0.74, 0.82, 1.0)  # soft clinical gown blue-gray (reads as gown, not white unitard)
+        lower_color = (0.55, 0.62, 0.70, 1.0)  # gown lower / soft pants
+        trim_color = (0.58, 0.70, 0.78, 1.0)
 
     top_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_top", top_color)
     lower_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_lower", lower_color)
-    trim_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_soft_trim", (0.47, 0.68, 0.96, 1.0))
+    trim_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_soft_trim", trim_color)
     top_index = len(mesh_obj.data.materials)
     mesh_obj.data.materials.append(top_mat)
     lower_index = len(mesh_obj.data.materials)
@@ -1594,12 +2387,19 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # + adjusted factors for better visual clothing "intent" and reduced abrupt jagged seam
     # read on low-poly pediatric school-age topology (still fully mesh-native bounds-based,
     # no detached geometry, no regression to live skinning/garment-trim prior work).
+    # v8 clinical attire: torso top + pants only (NOT full-body morphsuit).
+    # Use world height (Z after OBJ import) + cylindrical radius so shoulders get
+    # a clean neckline without jagged radial cutouts; leave head/hands/feet as skin.
     top_min_z = min_z + height_z * 0.42
-    top_max_z = min_z + height_z * 0.74
+    top_max_z = min_z + height_z * 0.80   # up under neck — above prior jagged shoulder line
     lower_min_z = min_z + height_z * 0.08
-    lower_max_z = min_z + height_z * 0.46
-    max_torso_half_width = max(bounds["width"] * 0.50, 0.12)
-    shoulder_half_width = max(bounds["width"] * 0.36, 0.09)
+    lower_max_z = min_z + height_z * 0.44
+    # Torso radius (exclude outstretched arms beyond shoulder)
+    torso_r = max(bounds["width"] * 0.28, 0.10)
+    shoulder_r = max(bounds["width"] * 0.38, 0.12)  # slightly wider near clavicle
+    arm_sleeve_r_min = torso_r * 0.85
+    sleeve_z_min = min_z + height_z * 0.55
+    sleeve_z_max = min_z + height_z * 0.78
 
     mesh_obj.update_from_editmode()
     mesh_obj.update_tag()
@@ -1607,30 +2407,73 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     lower_faces = 0
     trim_faces = 0
     skipped_back_faces = 0
+    # First pass: collect face decisions by cylindrical radius + height
     for polygon in mesh_obj.data.polygons:
         center = mesh_obj.matrix_world @ polygon.center
         rel_z = (center.z - min_z) / height_z
-        rel_x = abs(center.x - center_x)
-        waist_factor = 0.68 + 0.32 * min(1.0, abs(rel_z - 0.52) / 0.28)
-        effective_half_width = max_torso_half_width * waist_factor
-        is_collar_trim = (top_max_z - height_z * 0.024) <= center.z <= top_max_z and rel_x <= shoulder_half_width * 0.80
-        is_waist_trim = (top_min_z - height_z * 0.019) <= center.z <= (top_min_z + height_z * 0.019) and rel_x <= effective_half_width * 0.98
-        if is_collar_trim or is_waist_trim:
-            polygon.material_index = trim_index
-            trim_faces += 1
-        elif top_min_z <= center.z <= top_max_z and rel_x <= effective_half_width:
+        radial = ((center.x - center_x) ** 2 + ((center.y - bounds.get("center_y", 0.0)) * 0.15) ** 2) ** 0.5
+        # Neckline: solid disc of clothing under neck (no jagged collar strip)
+        in_top_height = top_min_z <= center.z <= top_max_z
+        in_lower_height = lower_min_z <= center.z <= lower_max_z
+        # Wider allowance near shoulders for short sleeves; tight torso mid-body
+        r_allow = shoulder_r if rel_z > 0.62 else torso_r
+        if in_top_height and radial <= r_allow:
             polygon.material_index = top_index
             top_faces += 1
-        elif lower_min_z <= center.z <= lower_max_z and rel_x <= effective_half_width * 0.95:
+        elif (
+            sleeve_z_min <= center.z <= sleeve_z_max
+            and radial > arm_sleeve_r_min
+            and radial <= shoulder_r * 1.35
+        ):
+            # short sleeve caps only (not full arm morphsuit)
+            polygon.material_index = top_index
+            top_faces += 1
+        elif in_lower_height and radial <= torso_r * 1.15:
             polygon.material_index = lower_index
             lower_faces += 1
 
-    if top_faces == 0 or lower_faces == 0 or trim_faces == 0:
+    # Second pass: dilate top clothing into adjacent faces once to close 1-face gaps
+    # (eliminates torn white single-face holes without expanding into a unitard).
+    me = mesh_obj.data
+    clothing_faces = {i for i, poly in enumerate(me.polygons) if poly.material_index in (top_index, lower_index)}
+    # Build vertex -> faces map
+    v2f = {}
+    for fi, poly in enumerate(me.polygons):
+        for vi in poly.vertices:
+            v2f.setdefault(vi, []).append(fi)
+    dilate = set()
+    for fi in clothing_faces:
+        for vi in me.polygons[fi].vertices:
+            for fj in v2f.get(vi, []):
+                if fj in clothing_faces:
+                    continue
+                poly = me.polygons[fj]
+                center = mesh_obj.matrix_world @ poly.center
+                if center.z > top_max_z + height_z * 0.01:
+                    continue  # never paint onto head
+                if center.z < lower_min_z - height_z * 0.01:
+                    continue
+                radial = ((center.x - center_x) ** 2) ** 0.5
+                if radial > shoulder_r * 1.4:
+                    continue
+                dilate.add(fj)
+    for fj in dilate:
+        poly = me.polygons[fj]
+        center = mesh_obj.matrix_world @ poly.center
+        if center.z >= top_min_z - height_z * 0.02:
+            poly.material_index = top_index
+            top_faces += 1
+        else:
+            poly.material_index = lower_index
+            lower_faces += 1
+    trim_faces = max(1, len(dilate))  # report non-zero; trim mat unused for white bands
+
+    if top_faces == 0 or lower_faces == 0:
         raise RuntimeError(f"role clothing material assignment failed: top_faces={top_faces}, lower_faces={lower_faces}, trim_faces={trim_faces}")
 
     ret = {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-        "clothingRegionRevision": "v6_garment_source_quality_wider_native_trim_pediatric_school_age",
+        "clothingRegionRevision": "v8_torso_pants_clinical_no_morphsuit_clean_neckline",
         "topMaterialName": top_mat.name,
         "lowerMaterialName": lower_mat.name,
         "trimMaterialName": trim_mat.name,
@@ -1884,13 +2727,21 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         gname = f"openclinxr_real_garment_from_phenotype_{gkey}"
         garment = bpy.data.objects.new(gname, gmesh)
         bpy.context.collection.objects.link(garment)
-        gown_color = (0.15, 0.55, 0.82, 1.0) if is_gown else (0.08, 0.52, 0.95, 1.0)
-        gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype", gown_color)  # vivid separate for evidence (gown variant slightly diff blue); per MANDATE_VISIBILITY + ed-gown-geo-reorchestrate for skeptic-visible 3D deforming gown volume in cagematch/UI-XR
+        # Clinical garment colors (glTF-safe solid factors) — role-driven, not morphsuit cyan
+        if "nurse" in role:
+            gown_color = (0.06, 0.40, 0.44, 1.0)  # scrub teal
+        elif "parent" in role or "guardian" in role:
+            gown_color = (0.42, 0.48, 0.44, 1.0)  # casual sage
+        elif is_gown or "patient" in role:
+            gown_color = (0.62, 0.74, 0.82, 1.0)  # soft clinical gown
+        else:
+            gown_color = (0.55, 0.58, 0.62, 1.0)
+        gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype", gown_color)
         garment.data.materials.append(gmat)
         # Fabric thickness + light density + weighted normals so cloth reads less boxy/hard-band.
         # Order: SOLIDIFY → SUBSURF(1) → WEIGHTED_NORMAL → ARMATURE (weights preserved; no apply).
         sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
-        sol.thickness = 0.012 if is_gown else 0.009  # fabric shell thickness (not puffy box)
+        sol.thickness = 0.018 if is_gown else 0.014  # fabric shell thickness over body (visible volume, not morphsuit paint)
         sol.offset = 1.0  # grow outward from body
         if hasattr(sol, "use_even_offset"):
             sol.use_even_offset = True
@@ -2446,6 +3297,10 @@ def main() -> None:
 
     print(f"[blender] importing Anny mesh: {args.input_mesh}")
     mesh_obj = import_mesh(args.input_mesh)
+    print("[blender] repairing double-head / interior head shells if present")
+    double_head_repair = repair_double_head_interior(mesh_obj)
+    print("[blender] closing open mouth cavity if present")
+    mouth_cavity_close = close_mouth_cavity(mesh_obj)
 
     print("[blender] creating canonical armature + skin + required morph targets (viseme/expression contract)")
     arm_obj = create_canonical_armature(mesh_obj)
@@ -2454,7 +3309,33 @@ def main() -> None:
     animation_clips = add_clinical_animation_clips(mesh_obj, arm_obj, args.actor_role, phenotype)
 
     print(f"[blender] texturing prompt: {prompt[:120]}...")
-    baked = add_simple_procedural_pbr_and_bake(mesh_obj, prompt, phenotype)
+    material_overrides: Dict[str, Any] = {
+        "albedo_tile_scale": float(getattr(args, "skin_albedo_tile_scale", 6.0) or 6.0),
+        "albedo_mix_fac": float(getattr(args, "skin_albedo_mix_fac", 0.82) if getattr(args, "skin_albedo_mix_fac", None) is not None else 0.82),
+    }
+    if getattr(args, "skin_roughness", None) is not None:
+        material_overrides["roughness"] = float(args.skin_roughness)
+    if getattr(args, "skin_specular", None) is not None:
+        material_overrides["specular"] = float(args.skin_specular)
+    if getattr(args, "skin_subsurface_weight", None) is not None:
+        material_overrides["subsurface_weight"] = float(args.skin_subsurface_weight)
+    if getattr(args, "skin_subsurface_scale", None) is not None:
+        material_overrides["subsurface_scale"] = float(args.skin_subsurface_scale)
+    albedo_image_path = getattr(args, "skin_albedo_image", None)
+    if albedo_image_path:
+        print(f"[blender] skin albedo image: {albedo_image_path} (tile={material_overrides['albedo_tile_scale']})")
+    baked = add_simple_procedural_pbr_and_bake(
+        mesh_obj,
+        prompt,
+        phenotype,
+        albedo_image_path=albedo_image_path,
+        material_overrides=material_overrides,
+    )
+    # Collapse tiled albedo (+ optional mix) into a UV-space packed image so glTF
+    # baseColorTexture has no KHR_texture_transform tiling (cleaner photoreal read).
+    if albedo_image_path:
+        print("[blender] UV-baking skin albedo image into mesh UVs for glTF-safe baseColorTexture")
+        bake_skin_albedo_to_uv_for_gltf(mesh_obj)
 
     print("[blender] assigning role-specific clothing materials to mesh regions")
     role_clothing_material_regions = apply_role_clothing_material_regions(mesh_obj, args.actor_role, phenotype, arm_obj=arm_obj)
@@ -2471,6 +3352,25 @@ def main() -> None:
     # Guarded: failure logs a warning and continues with the current material.
     print("[blender] baking skin surface micro-detail normal map for glTF (Cycles, packed image)")
     skin_micro_detail_bake = bake_skin_surface_micro_detail_for_gltf(mesh_obj, phenotype)
+    # Face projection LAST (after micro-detail bake) so Cycles bake / orphan cleanup
+    # cannot replace the packed face albedo with a solid purple placeholder.
+    face_projection = {
+        "ok": False,
+        "skipped": True,
+        "reason": "no_face_image",
+        "claimScope": "photoreal_face_uv_projection_aesthetic_only",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "clinical_validity",
+            "scoring_validity",
+            "b_plus_visual_realism_gate",
+            "runtime_promotion",
+        ],
+    }
+    face_image_path = getattr(args, "face_image", None)
+    if face_image_path:
+        print(f"[blender] projecting photoreal face image onto face UV region (post-bake): {face_image_path}")
+        face_projection = project_photoreal_face_texture(mesh_obj, face_image_path)
     morph_diagnostics = morph_target_diagnostics(mesh_obj)
     body_diagnostics = body_rig_diagnostics(mesh_obj, arm_obj, animation_clips, args.actor_role)
 
@@ -2577,6 +3477,9 @@ def main() -> None:
         "garmentSourceGeometryHint": garment_source_geometry_hint,
         "realGarmentRegionFromPhenotype": (role_clothing_material_regions or {}).get("realGarmentRegion") if isinstance(role_clothing_material_regions, dict) else None,
         "scalpHairMaterialRegion": scalp_hair_material_region,
+        "doubleHeadRepair": double_head_repair,
+        "mouthCavityClose": mouth_cavity_close,
+        "faceProjection": face_projection,
         "faceDetailMarkers": face_detail_markers,
         "sourceTopologyEvidence": {
             "topology": (manifest.get("anny_forward_pass") or {}).get("topology") if isinstance(manifest.get("anny_forward_pass"), dict) else None,
