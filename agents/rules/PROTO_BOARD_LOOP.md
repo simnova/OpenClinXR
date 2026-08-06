@@ -15,13 +15,25 @@ issue (with ## done_when)
   → integration event           .openclinxr/openclaw/integration-events.jsonl
 ```
 
-Each arrow fails closed. A worker's report is never an input.
+Each arrow fails closed. A worker's report is never an input. Verified, per arrow:
+
+| Arrow | Fails closed because | Evidence |
+|---|---|---|
+| issue → brief | no `## done_when`, prose rules, or narrative-only rules are refused | 17/17 live board refused |
+| brief → dispatch | a worktree-bound dispatch with no machine-checkable tree proof is refused before a worktree is created | refused its own author mid-session |
+| dispatch → contract | proofs are re-run by the ORCHESTRATOR after the worker exits; an unsatisfied proof throws `ContractProofsFailedError` | probed with a proof the worker could not satisfy |
+| contract → integrate | `merge-kill` runs first; a kill, a failing contract, or a `null` contract refuses with no tree change | refused a real slice whose contract was not loaded |
 
 ## An issue is not dispatchable until someone decides what would prove it done
 
-Board → brief is mostly about REFUSING. Run against the live board on 2026-08-05: **15 of 15 open
-issues refused**, all for "no `## done_when`". The wiring took twenty minutes; the board was the
-blocker. Issues hold work written for a human reader.
+Board → brief is mostly about REFUSING. Run against the live board: **17 of 17 open issues refused**,
+all for "no `## done_when`". The wiring took twenty minutes; the board was the blocker. Issues hold
+work written for a human reader.
+
+> This figure was first written as "15 of 15" — a count taken from output piped through `tail -15`,
+> so only fifteen lines were ever visible. The ratio was right and the number was wrong, by exactly
+> the mechanism this file warns about at the end: asserting from partial evidence without checking.
+> Corrected after re-running the scan without truncation.
 
 `## done_when` must contain machine-checkable rules (`run:`, `changed:`, `exists:`, `min-bytes:`) and
 at least one must inspect the TREE. Narrative rules (`handoff:`, `skeptic:`) read the worker's own
