@@ -12,6 +12,8 @@ Canonical source: `agents/rules/`. Grok loads **core tier only** via `.grok/rule
 - `GUARD_DRIFT.md` — anti-toil + model-work guard
 - `MANDATE_VISIBILITY.md` — sizable collaborative vertical slices + noticeability
 - `PROTO_SUBAGENT.md` — coordinator-first delegation
+- `PROTO_VERIFY_DELEGATION.md` — trusting what a delegate returns; probes, claims, retros
+- `PROTO_BOARD_LOOP.md` — board → brief → dispatch → contract → integrate gate
 - `EXEC_AUTONOMY.md` — platform override, stop conditions, post-slice loop
 - `orchestrator-only-main.md` — **main session = CEO / orchestrator only** (symlink in `.grok/rules/`)
 

@@ -2,7 +2,8 @@
 
 Assume amnesia. Everything below was learned by losing work on 2026-08-05 and would otherwise have
 to be relearned the same way. `PROTO_SUBAGENT.md` covers *who* to spawn; this covers *how to trust
-what comes back*, and how the loop learns.
+what comes back*, and how the loop learns. `PROTO_BOARD_LOOP.md` covers the board-driven
+pipeline those workers run inside.
 
 ## 1. Never trust the report — verify against the tree
 

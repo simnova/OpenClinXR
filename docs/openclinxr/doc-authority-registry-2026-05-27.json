@@ -4,9 +4,9 @@
   "protectedRule": "Protected-policy files are off-limits to routine agents: do not delete, weaken, bypass, rename, or reinterpret them during autonomous work.",
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
-    "agent-methodology": 71,
-    "current-reference": 205,
-    "archive-candidate": 11,
+    "agent-methodology": 72,
+    "current-reference": 210,
+    "archive-candidate": 12,
     "evidence": 39,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -477,7 +477,21 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".claude/rules/PROTO_BOARD_LOOP.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".claude/rules/PROTO_SUBAGENT.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/PROTO_VERIFY_DELEGATION.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -520,6 +534,13 @@
     },
     {
       "path": ".claude/rules/long-running-autonomy.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".claude/rules/orchestrator-only-main.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -855,7 +876,21 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
+      "path": ".cursor/rules/PROTO_BOARD_LOOP.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
       "path": ".cursor/rules/PROTO_SUBAGENT.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/PROTO_VERIFY_DELEGATION.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -898,6 +933,13 @@
     },
     {
       "path": ".cursor/rules/long-running-autonomy.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
+    },
+    {
+      "path": ".cursor/rules/orchestrator-only-main.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
       "action": "use-as-current",
@@ -1128,13 +1170,6 @@
       "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
     },
     {
-      "path": ".grok/rules/orchestrator-only-main.md",
-      "authority": "current-reference",
-      "agentInstructionWeight": "low",
-      "action": "use-as-current",
-      "rationale": "Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml."
-    },
-    {
       "path": ".openclinxr/README.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
@@ -1178,6 +1213,13 @@
     },
     {
       "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": ".openclinxr/slices/dispatch-chokepoint/EVIDENCE.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
@@ -1577,6 +1619,13 @@
     },
     {
       "path": "agents/rules/MANDATE_VISIBILITY.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "agents/rules/PROTO_BOARD_LOOP.md",
       "authority": "agent-methodology",
       "agentInstructionWeight": "medium",
       "action": "use-as-current",

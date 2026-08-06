@@ -11,9 +11,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 ## Counts
 
 - agent-memory: 34
-- agent-methodology: 71
-- archive-candidate: 11
-- current-reference: 205
+- agent-methodology: 72
+- archive-candidate: 12
+- current-reference: 210
 - decision-record: 25
 - evidence: 39
 - historical-synthesis: 11
@@ -45,13 +45,16 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.claude/rules/GUARD_DRIFT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/PROTO_VERIFY_DELEGATION.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/TIER_GROK.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/grok-harness-usage.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.claude/rules/orchestrator-only-main.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/platform-autonomy-override.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.claude/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -99,13 +102,16 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.cursor/rules/GUARD_DRIFT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/PROTO_BOARD_LOOP.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/PROTO_VERIFY_DELEGATION.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/README.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/TIER_GROK.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/agent-consult.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/grok-harness-usage.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/hyper-token-efficient-long-run-practices.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/long-running-autonomy.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
+- `.cursor/rules/orchestrator-only-main.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/persistent-memory-scoring.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/platform-autonomy-override.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.cursor/rules/rehydration-low-token.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
@@ -138,7 +144,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `.grok/rules/LEX_AGENTIC.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/MANDATE_VISIBILITY.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `.grok/rules/PROTO_SUBAGENT.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
-- `.grok/rules/orchestrator-only-main.md` - current-reference; Harness-specific mirror (symlink) of agents/rules/ canonical; supports .grok / .claude / .cursor discovery without duplication. Edit the agents/rules/ version. See sync-harness-agent-files.sh and .grok/config.toml.
 - `AGENTS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `PROJECT_STATUS.md` - protected-policy; Canonical OpenClaw/blueprint-factory control surface; agents must not weaken or bypass it.
 - `README.md` - current-reference; Current product reference, subordinate to protected guardrails and active queue.
@@ -148,6 +153,11 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/ui-xr/dist/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/ui-xr/dist/xr-hands/generic-hand/LICENSE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/ui-xr/dist/xr-hands/generic-hand/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/public/xr-assets/medical-equipment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -236,9 +246,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
-- local gitignored `.openclinxr/` runtime map README - archive-candidate; Unclassified Markdown; review before using as instruction.
-- local gitignored openclaw task-cost markdown companion (under `.openclinxr/openclaw/`) - archive-candidate; generated cost snapshot, not instruction.
-- local gitignored worker-backlog pre-optimization slice-archive snapshot (under `.openclinxr/slice-archive/`) - archive-candidate; historical only.
+- `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `docs/openclinxr/arena-physics-clinical-touch-cagematch-2026-08-01.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
