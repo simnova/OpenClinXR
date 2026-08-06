@@ -91,7 +91,23 @@
     ],
     "baked": true,
     "resolution": 1024,
-    "packedInGlb": true
+    "packedInGlb": true,
+    "skinMicroDetail": {
+      "ok": true,
+      "baked": true,
+      "bakeType": "NORMAL",
+      "imageName": "openclinxr_skin_micro_normal",
+      "resolution": 1024,
+      "packed": true,
+      "uvSource": "existing",
+      "claimScope": "procedural_skin_micro_detail_baked_normal_for_gltf_not_production_skin_scan",
+      "notEvidenceFor": [
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    }
   },
   "animationClips": {
     "count": 5,
@@ -140,7 +156,7 @@
   },
   "bodyRigDiagnostics": {
     "schemaVersion": "openclinxr.body-rig-diagnostics.v1",
-    "coordinateBasis": "blender_mesh_local_y_height_exported_y_up_glb",
+    "coordinateBasis": "blender_mesh_local_y_height_armature_plus90x_exported_y_up_glb",
     "armatureName": "openclinxr_canonical_humanoid_armature",
     "boneNames": [
       "pelvis",
@@ -286,6 +302,42 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
+    ],
+    "exportBindPoseAlign": {
+      "applied": true,
+      "method": "armature_object_plus_90x_for_export_yup",
+      "ySpan": 1.4691,
+      "zSpan": 0.016982,
+      "claimScope": "export_bind_pose_joint_world_y_height_not_production_rig_quality",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity"
+      ]
+    }
+  },
+  "bodyShadingDensity": {
+    "shadeSmooth": true,
+    "subsurfLevels": 1,
+    "subsurfApplied": false,
+    "weightedNormal": true,
+    "baseVertexCount": 13348,
+    "baseFaceCount": 13346,
+    "modifierOrder": [
+      "openclinxr_body_density_subsurf_v1",
+      "openclinxr_body_weighted_normal_v1",
+      "openclinxr_canonical_humanoid_armature"
+    ],
+    "restoredArmatures": [
+      "openclinxr_canonical_humanoid_armature"
+    ],
+    "claimScope": "procedural_body_shade_smooth_light_subsurf_weighted_normal_not_production_sculpt",
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "b_plus_visual_realism_gate",
+      "clinical_validity",
+      "scoring_validity"
     ]
   },
   "roleVisualMarkers": {
@@ -351,28 +403,31 @@
       "deformsWithBreathing": true,
       "hasVisibleVolume": true,
       "hasSeamFoldHints": true,
+      "hasFabricThicknessSolidify": true,
+      "hasLightSubsurf": true,
+      "hasGentleDisplacementFolds": true,
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.343258,
-          0.7636,
-          0.031857
+          -0.348427,
+          0.75965,
+          0.024268
         ],
         "max": [
-          0.343258,
+          0.348427,
           1.2776,
-          0.329009
+          0.334048
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.343258,
-          -0.329009,
-          0.7636
+          -0.348427,
+          -0.334048,
+          0.75965
         ],
         "max": [
-          0.343258,
-          -0.031857,
+          0.348427,
+          -0.024268,
           1.2776
         ]
       },
@@ -425,28 +480,31 @@
     "deformsWithBreathing": true,
     "hasVisibleVolume": true,
     "hasSeamFoldHints": true,
+    "hasFabricThicknessSolidify": true,
+    "hasLightSubsurf": true,
+    "hasGentleDisplacementFolds": true,
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.343258,
-        0.7636,
-        0.031857
+        -0.348427,
+        0.75965,
+        0.024268
       ],
       "max": [
-        0.343258,
+        0.348427,
         1.2776,
-        0.329009
+        0.334048
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.343258,
-        -0.329009,
-        0.7636
+        -0.348427,
+        -0.334048,
+        0.75965
       ],
       "max": [
-        0.343258,
-        -0.031857,
+        0.348427,
+        -0.024268,
         1.2776
       ]
     },
@@ -551,7 +609,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-02T17:40:49.693866Z",
+    "generatedAt": "2026-08-06T16:07:56.934940Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

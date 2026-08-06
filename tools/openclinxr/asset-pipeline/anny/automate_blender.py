@@ -247,8 +247,23 @@ def create_canonical_armature(mesh_obj: bpy.types.Object) -> bpy.types.Object:
         idx_base.parent = hand
         bones[f"index_finger_base.{side}"] = idx_base
 
-    make_limb("L", p(0.18, 0.74), p(0.34, 0.58), p(0.44, 0.42))
-    make_limb("R", p(-0.18, 0.74), p(-0.34, 0.58), p(-0.44, 0.42))
+    # Bbox-only x-factors under-span tall/narrow Anny meshes (arms hang near the torso AABB).
+    # After #58 export_yup standing joints, armSpan/stature must clear the proportions probe
+    # band (≥0.55). Floor half-span at 0.32×height so full span/stature ≈ 0.64+.
+    half_span = max(width * 0.44, height * 0.32)
+    shoulder_off = max(width * 0.18, half_span * 0.40)
+    elbow_off = max(width * 0.34, half_span * 0.75)
+    hand_off = half_span
+
+    def limb_at(x_off: float, y_factor: float, z_factor: float = 0.0) -> tuple:
+        return (
+            center_x + x_off,
+            min_y + height * y_factor,
+            center_z + depth * z_factor,
+        )
+
+    make_limb("L", limb_at(shoulder_off, 0.74), limb_at(elbow_off, 0.58), limb_at(hand_off, 0.42))
+    make_limb("R", limb_at(-shoulder_off, 0.74), limb_at(-elbow_off, 0.58), limb_at(-hand_off, 0.42))
 
     # Legs
     def make_leg(side: str, hip: tuple, knee: tuple, foot: tuple):
@@ -2421,6 +2436,59 @@ def finalize_body_mesh_shading_and_density(mesh_obj: bpy.types.Object) -> Dict[s
     }
 
 
+def align_y_height_bind_for_gltf_yup_export(arm_obj: "bpy.types.Object") -> Dict[str, Any]:
+    """
+    #58 durable export fix: Anny mesh + create_canonical_armature author height on local Y.
+    Blender glTF export_yup assumes a Z-up scene and maps world +Z → glTF +Y. Without a root
+    correction, joint nodes land along −Z at near-constant Y while the skinned mesh can still
+    look upright via inverse bind matrices (measured on parent/nurse after 81f235e; child control
+    still used an older 17-bone export that happened to stand).
+
+    Control/treatment (2026-08-06): armature.rotation_euler += (+90°, 0, 0) before export_yup
+    yields standing glTF joints (handY > footY). Mesh parented to the armature follows. Local
+    Y-height skinning / morph / garment code is intentionally unchanged.
+    """
+    import math
+
+    bones = list(arm_obj.data.bones)
+    if not bones:
+        return {"applied": False, "reason": "no_bones"}
+
+    ys = [float(b.head_local.y) for b in bones]
+    zs = [float(b.head_local.z) for b in bones]
+    y_span = max(ys) - min(ys)
+    z_span = max(zs) - min(zs)
+    # Already Z-primary rest → leave alone (re-export of a Z-up authored rig).
+    if y_span <= z_span * 1.1:
+        return {
+            "applied": False,
+            "reason": "bones_not_y_height",
+            "ySpan": round(y_span, 6),
+            "zSpan": round(z_span, 6),
+        }
+
+    rx, ry, rz = arm_obj.rotation_euler
+    arm_obj.rotation_euler = (float(rx) + math.radians(90.0), float(ry), float(rz))
+    bpy.context.view_layer.update()
+    print(
+        f"[blender] #58 export bind align: armature +90° X for export_yup "
+        f"(ySpan={y_span:.4f} zSpan={z_span:.4f}) so joint nodes stand on glTF +Y"
+    )
+    return {
+        "applied": True,
+        "method": "armature_object_plus_90x_for_export_yup",
+        "ySpan": round(y_span, 6),
+        "zSpan": round(z_span, 6),
+        "claimScope": "export_bind_pose_joint_world_y_height_not_production_rig_quality",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity",
+        ],
+    }
+
+
 def export_final_glb(output_path: str) -> None:
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
     bpy.ops.export_scene.gltf(
@@ -2512,6 +2580,13 @@ def main() -> None:
         #   - apply the downloaded albedo/rough/normal/spec etc. to the mesh
         #   - re-bake to UVs
         # Then the export below would contain the high-quality generated textures.
+
+    # #58: correct Y-height bind → standing glTF joints under export_yup (must run after all
+    # local-Y authoring: skin, morph, garment, animations).
+    export_bind_pose_align = align_y_height_bind_for_gltf_yup_export(arm_obj)
+    if export_bind_pose_align.get("applied"):
+        body_diagnostics["coordinateBasis"] = "blender_mesh_local_y_height_armature_plus90x_exported_y_up_glb"
+        body_diagnostics["exportBindPoseAlign"] = export_bind_pose_align
 
     print("[blender] exporting...")
     export_final_glb(args.output_glb)

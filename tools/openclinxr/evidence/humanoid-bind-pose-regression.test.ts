@@ -11,7 +11,8 @@ import { assessHumanoidProportions, extractJointsFromGlb } from "./humanoid-prop
  *   81f235e    BROKEN  handY=0.1844 footY=0.2014   21,532,396 bytes
  *   89dc231    BROKEN  handY=0.1844 footY=0.2014   ("fix parent/nurse real garment bind pose")
  *   414ac3e    BROKEN  handY=0.1844 footY=0.2014   ("sleeve fit along upper arms")
- *   HEAD       BROKEN  handY=0.1844 footY=0.2014
+ *   HEAD(pre-#58) BROKEN  handY=0.1844 footY=0.2014
+ *   #58 fix       SOUND   export bind: armature +90° X before export_yup + arm-span floor
  *
  * `81f235e` is "re-orchestrate parent/nurse real-garment GLBs". Neither later fix moved the numbers
  * by a digit — two slices of work against a defect nothing was measuring.
@@ -51,12 +52,12 @@ function garmentRegion(reportPath: string): unknown {
 }
 
 describe("shipped humanoids are human-shaped and still clothed (#58)", () => {
-  it.fails("parent and nurse pass bind-pose proportions in the assets ui-xr actually loads", async () => {
+  it("parent and nurse pass bind-pose proportions in the assets ui-xr actually loads", async () => {
     for (const actor of ACTORS) {
       if (!existsSync(actor.glb)) continue;
       const { joints } = await extractJointsFromGlb(actor.glb);
       const result = assessHumanoidProportions({ joints });
-      // Measured today: handY 0.1844 vs footY 0.2014 — hands hang below the feet.
+      // #58 fix: armature +90° X before export_yup stands joints (was handY 0.1844 < footY 0.2014).
       expect(result.sound, `${actor.glb}: ${result.violations.join("; ")}`).toBe(true);
     }
   }, 60_000);
