@@ -5,7 +5,7 @@ import {
 } from "@openclinxr/asset-registry";
 import { AssetGenerationCapabilityFacade } from "@openclinxr/capability-gateway";
 import { adminGraphqlDocumentByOperationName } from "@openclinxr/graphql";
-import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { edChestPainScenario, pediatricAsthmaScenario } from "@openclinxr/scenario-fixtures";
 import type { ScenarioRuntime } from "@openclinxr/scenario-runtime";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import {
@@ -5287,3 +5287,67 @@ function reviewer(reviewerRole: string, reviewerId: string) {
     reviewedAt: "2026-05-03T17:00:00.000Z",
   };
 }
+
+describe("exam assembly draws from authored scenarios, not just the fixture bank (#25)", () => {
+  /**
+   * The last break in author → assemble → run. #32 fixed RUN (exam-run-bridge sequences stations
+   * through the runtime). ASSEMBLE is still fixture-only: exam-routes builds both the readiness
+   * report and the station-run queue from `scenarioBank`, so a scenario authored through the admin
+   * surface can be persisted, listed and started individually — but can never appear in an exam.
+   *
+   * Merge rather than replace, and that is settled in-tree rather than an open product call:
+   * station-selection.ts says "the case bank is a LIBRARY that should grow freely as scenarios are
+   * authored. An exam form is an ASSEMBLED SELECTION from it." Replacing the bank when any authored
+   * scenario exists would break the seed blueprint and pilot demos.
+   *
+   * Four properties, because the obvious two are gameable — a worker can satisfy "includes an
+   * authored scenario" with a hardcoded fixture that never touches persistence, or by shoving every
+   * authored document into the queue regardless of validity.
+   */
+  const authored = (scenarioId: string, status: "approved" | "draft") => ({
+    ...pediatricAsthmaScenario,
+    scenarioId,
+    title: `authored ${scenarioId}`,
+    status,
+  });
+
+  it.fails("builds the assembly pool as fixtures UNION persisted authored scenarios", async () => {
+    const app = createApiApp(createDefaultScenarioRuntime(), {
+      listAuthoredScenarios: () => [authored("authored_case_v1", "approved")],
+    });
+    const res = await app.request("/api/exam/step2cs-seed/station-run-queue");
+    const body = (await res.json()) as { stations?: { scenarioId: string }[] };
+    const ids = (body.stations ?? []).map((s) => s.scenarioId);
+    // Fixtures must survive: replacing the bank breaks the seed blueprint.
+    expect(ids.some((id) => id.startsWith("ed_chest_pain"))).toBe(true);
+  });
+
+  it.fails("lets an APPROVED authored scenario appear as a station when it adds coverage", async () => {
+    const app = createApiApp(createDefaultScenarioRuntime(), {
+      listAuthoredScenarios: () => [authored("authored_case_v1", "approved")],
+    });
+    const res = await app.request("/api/exam/step2cs-seed/readiness");
+    const body = (await res.json()) as { consideredScenarioIds?: string[] };
+    expect(body.consideredScenarioIds ?? []).toContain("authored_case_v1");
+  });
+
+  it.fails("does NOT select an unapproved authored scenario into a station", async () => {
+    // The cheat this blocks: satisfy "authored appears" by admitting everything regardless of status.
+    const app = createApiApp(createDefaultScenarioRuntime(), {
+      listAuthoredScenarios: () => [authored("draft_case_v1", "draft")],
+    });
+    const res = await app.request("/api/exam/step2cs-seed/station-run-queue");
+    const body = (await res.json()) as { stations?: { scenarioId: string }[] };
+    expect((body.stations ?? []).map((s) => s.scenarioId)).not.toContain("draft_case_v1");
+  });
+
+  it.fails("actually consults persistence rather than hardcoding a scenario", async () => {
+    // The other cheat: pass the first two tests without ever calling listAuthoredScenarios.
+    let consulted = 0;
+    const app = createApiApp(createDefaultScenarioRuntime(), {
+      listAuthoredScenarios: () => { consulted += 1; return []; },
+    });
+    await app.request("/api/exam/step2cs-seed/station-run-queue");
+    expect(consulted).toBeGreaterThan(0);
+  });
+});
