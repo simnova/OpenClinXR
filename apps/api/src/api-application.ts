@@ -14,12 +14,45 @@ export type ApiApp = Hono<{ Variables: ApiAppVariables }>;
  * Configuration should be validated inside `startUp()` rather than a constructor, so a
  * misconfiguration surfaces during the start phase with the service name attached instead
  * of as an opaque import-time crash.
+ *
+ * Process-facing adapters may use the shorter `start`/`stop` names (see {@link normalizeLifecycleService});
+ * both shapes are accepted at registration so callers do not need an adapter wrapper.
  */
 export type ApiLifecycleService = {
   readonly name: string;
   startUp(): Promise<void>;
   shutDown(): Promise<void>;
 };
+
+/** Registration-time input: cellix-style `startUp`/`shutDown` or process-style `start`/`stop`. */
+export type ApiLifecycleServiceInput =
+  | ApiLifecycleService
+  | {
+      readonly name: string;
+      start(): Promise<void>;
+      stop(): Promise<void>;
+    };
+
+function normalizeLifecycleService(service: ApiLifecycleServiceInput): ApiLifecycleService {
+  if ("startUp" in service && typeof service.startUp === "function") {
+    return service;
+  }
+  const processStyle = service as { readonly name: string; start(): Promise<void>; stop(): Promise<void> };
+  return {
+    name: processStyle.name,
+    startUp: () => processStyle.start(),
+    shutDown: () => processStyle.stop(),
+  };
+}
+
+/**
+ * Process-facing entry for ordered reverse shutdown. Prefer this over calling `stop()` so
+ * process hosts (and future SIGTERM handlers) share one call site. Idempotent via
+ * {@link ComposedApiApp.stop}.
+ */
+export async function shutdownApiApp(app: ComposedApiApp): Promise<void> {
+  await app.stop();
+}
 
 /**
  * Composition phases, expressed as segregated interfaces so that ORDER IS A COMPILE ERROR:
@@ -49,8 +82,8 @@ export interface ApiRoutesStage {
    * the mutating surface is unreachable from the chain itself (cellixjs scoped-callback pattern).
    */
   withRoutes(register: (app: ApiApp, ctx: ApiAppContext) => void): ApiBuildStage;
-  /** Optional — services started/stopped with the app. */
-  withLifecycleServices(...services: readonly ApiLifecycleService[]): ApiRoutesStage;
+  /** Optional — services started/stopped with the app. Accepts startUp/shutDown or start/stop. */
+  withLifecycleServices(...services: readonly ApiLifecycleServiceInput[]): ApiRoutesStage;
 }
 
 export interface ApiBuildStage {
@@ -123,8 +156,9 @@ export class ApiApplication implements ApiContextStage, ApiMiddlewareStage, ApiR
     return this;
   }
 
-  withLifecycleServices(...services: readonly ApiLifecycleService[]): ApiRoutesStage {
-    this.services.push(...services);
+  withLifecycleServices(...services: readonly ApiLifecycleServiceInput[]): ApiRoutesStage {
+    this.assertPhase("middleware", "withLifecycleServices");
+    this.services.push(...services.map(normalizeLifecycleService));
     return this;
   }
 
