@@ -60,7 +60,7 @@ const ARMS_BELOW_FEET: Joint[] = SOUND_SKELETON.map((joint) =>
 );
 
 describe("humanoid proportion probe (#56)", () => {
-  it.fails("accepts a plainly human skeleton", async () => {
+  it("accepts a plainly human skeleton", async () => {
     const mod = await load();
     const assess = mod["assessHumanoidProportions"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
@@ -68,7 +68,7 @@ describe("humanoid proportion probe (#56)", () => {
     expect(assess!({ joints: SOUND_SKELETON }).sound).toBe(true);
   });
 
-  it.fails("rejects a skeleton whose hands hang below its feet", async () => {
+  it("rejects a skeleton whose hands hang below its feet", async () => {
     const mod = await load();
     const assess = mod["assessHumanoidProportions"] as Assess | undefined;
     expect(assess).toBeTypeOf("function");
