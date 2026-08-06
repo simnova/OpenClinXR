@@ -149,5 +149,14 @@ ceremony. If an approach is not written down, it does not exist.
 - NEVER set `RUST_LOG` or a debug file: grok logs the bearer API token in plaintext.
 - `timeout` does not exist on macOS.
 - A shell wrapper's exit code is not the worker's. Wait on the actual output artifact.
+- Do NOT add `nohup … &` inside a harness background call. The harness already keeps a backgrounded
+  command alive across turns; adding a second layer detaches the worker from the thing tracking it,
+  and it dies. Observed: wrapper exits 0, log is 0 bytes, worktree sits clean at main's HEAD, no
+  ledger entry. Background the dispatch directly, with no `&`.
+- A `pgrep -f <pattern>` run from inside a monitor MATCHES THE MONITOR'S OWN COMMAND LINE, because
+  the pattern appears in it. That reported a finished worker as still running for a full cycle.
+  Grep a durable artifact (the session ledger, the contract report) instead of process liveness.
+- Both of the above are the same error as the ones above them: a status signal that was built rather
+  than observed. Prefer the artifact the work itself writes over any proxy for "is it alive".
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.

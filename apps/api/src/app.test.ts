@@ -5461,4 +5461,67 @@ describe("a scenario becomes exam-eligible only by passing review, never by asse
     // The decision is already derived correctly; it has to reach the store the pool reads.
     expect(await consideredIds(app)).toContain("review_gated_case_v1");
   });
+
+  /**
+   * PLANTED CONTRACT (#41) — the residual #39 left behind.
+   *
+   * #39 stopped the client asserting `status`, and left the client's `review` gate map written
+   * verbatim. `scenarioStatusForReview` (admin-scenario-listing.ts:53-61) promotes when all four
+   * gates read approved and does not care which of them a reviewer actually set, while the listing
+   * seeds the gate map from the DOCUMENT (`:156`) before replaying decision records on top. So a
+   * client that submits four pre-approved gates needs exactly one genuine decision to be promoted.
+   *
+   * The invariant: a gate reads approved only if a persisted review DECISION RECORD says so.
+   * `listScenarioReviewDecisions` (api-types.ts:108) already carries reviewerRole and reviewerId,
+   * so the evidence to derive gates honestly exists — it is simply not consulted as the source.
+   *
+   * Asserting on decision records rather than merely "not all gates approved" matters: an
+   * implementation of "at least one decision exists ⇒ approved" would satisfy the weaker phrasing.
+   * The peer round caught that hole.
+   *
+   * Fixtures must stay document-seeded. scenarioBank entries legitimately ship approved and are
+   * built by the same replay path (`:133-140`); neutralising gate maps globally unapproves the
+   * whole bank. Any neutralisation belongs to the authored branch only.
+   */
+  it.fails("POST client-asserted review gates plus one real decision does not enter exam assembly pool", async () => {
+    const sink = memorySink();
+    const app = createApiApp(undefined, sink);
+    await app.request("/scenarios", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ scenario: candidate("approved") }),
+    });
+
+    // Exactly one gate is genuinely reviewed. The other three carry no decision record at all.
+    const submit = adminGraphqlDocumentByOperationName("SubmitScenarioReview");
+    const res = await app.request("/admin/graphql", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: submit.source,
+        operationName: "SubmitScenarioReview",
+        variables: {
+          input: {
+            scenarioId: "review_gated_case_v1",
+            version: candidate("draft").version,
+            reviewerRole: "clinical",
+            reviewerId: "reviewer_clinical",
+            decision: "APPROVED",
+            comments: "Only the clinical gate was actually reviewed.",
+            evidenceRefs: ["evidence:review_gated_case_v1:clinical"],
+          },
+        },
+      }),
+    });
+    expect(res.status).toBe(200);
+
+    expect(await consideredIds(app)).not.toContain("review_gated_case_v1");
+
+    // Pin the reason: gates without a decision record must not read approved on the stored document.
+    const stored = (await Promise.resolve(sink.listAuthoredScenarios?.() ?? []))
+      .find((scenario) => scenario.scenarioId === "review_gated_case_v1");
+    expect(stored?.review.psychometric).not.toBe("approved");
+    expect(stored?.review.legal).not.toBe("approved");
+    expect(stored?.review.simulationQa).not.toBe("approved");
+  });
 });
