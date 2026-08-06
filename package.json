@@ -351,7 +351,8 @@
     "test:skill:slice:unit": "vitest run --config .agents/skills/openclinxr-slice/evaluator/vitest.config.ts --reporter verbose",
     "test:skill:slice:integration": "node .agents/skills/openclinxr-slice/evaluator/run-integration.js",
     "openclaw:scorecard": "tsx tools/openclinxr/openclaw/delegation-scorecard.ts",
-    "openclaw:contract:verify": "tsx tools/openclinxr/openclaw/contract-verify-cli.ts"
+    "openclaw:contract:verify": "tsx tools/openclinxr/openclaw/contract-verify-cli.ts",
+    "openclaw:diff-class": "tsx tools/openclinxr/openclaw/diff-class-policy.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
