@@ -151,6 +151,26 @@ reason" is a successful cagematch — same rule as "a clean revert with a precis
 success." A lane C item that can only close by adopting something will produce an adoption whether
 or not one is warranted.
 
+**THE ORCHESTRATOR LOOKS AT THE PIXELS.** Operator direction, 2026-08-06, replacing the
+human-in-the-loop requirement below. Vision is available: `Read` renders a PNG and the orchestrator
+can judge it. That makes the producer/grader split real without a human — the WORKER produces the
+artifact, the ORCHESTRATOR grades it, and the grader is not the producer.
+
+This is not optional polish. On the first use, it found that the humanoid pipeline had been rendering
+grossly deformed figures — collapsed torsos, arms elongated below the feet — across at least four
+capture slices, while `inspection.json` beside those images asserted `hasVisibleVolume: true`,
+`hasSeamFoldHints: true` and `deform_with_body`. Every mechanical gate was green. See #56.
+
+**Scope the visual verdict honestly.** "This is not an anatomically plausible human" is a judgment to
+make and act on. "This is clinically realistic" is not — that still needs a clinician. State which
+one a capture is being graded against.
+
+**`min-bytes:` DOES NOT PROVE AN IMAGE IS RIGHT.** The rule below asks for artifacts with content
+rather than mere existence, and it is defeated by exactly the artifacts that motivated it: the broken
+renders in #56 are 113 KB each. A byte floor proves a renderer ran, nothing more. Any lane C contract
+whose verdict rests on appearance must end with the orchestrator reading the image and recording what
+it saw — not a size assertion.
+
 **`--validate-latest` is necessary and NOT sufficient.** Measured: it validates the probe report's
 SHAPE (`anny-skin-cagematch-probe.ts:159-170` → `validateAnnySkinCagematchProbeReport`). A bake-off
 nobody really ran produces a schema-valid report and passes. That is the fabricated-`score.json`
