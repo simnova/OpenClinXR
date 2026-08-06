@@ -380,14 +380,17 @@
     "realGarmentLayers": [
       {
         "mode": "phenotype_embedded_real_garment_region_v1",
-        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
         "objectName": "openclinxr_real_garment_from_phenotype_casual_top",
         "meshName": "openclinxr_real_garment_peds_upper_v1_mesh__under_casual_top",
         "layerIndex": 0,
         "layerToken": "casual_top",
         "layerKind": "closed_casual",
-        "faceCount": 420,
-        "vertexCount": 528,
+        "faceCount": 574,
+        "vertexCount": 720,
+        "hasShoulderYoke": true,
+        "yokePeakY": 1.3853,
+        "bodyShoulderTopY": 1.3403,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_casual_top_closed",
         "sleeveLenFactor": 0.55,
@@ -397,7 +400,7 @@
         "sleeveR0M": 0.0575,
         "sleeveRFactor": 0.28,
         "torsoRBaseM": 0.2053,
-        "meanRadiusM": 0.1288,
+        "meanRadiusM": 0.1299,
         "radiusStackScale": 0.93,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -430,7 +433,7 @@
           ],
           "max": [
             0.319746,
-            1.3606,
+            1.385766,
             0.318104
           ]
         },
@@ -443,7 +446,7 @@
           "max": [
             0.319746,
             -0.040441,
-            1.3606
+            1.385766
           ]
         },
         "bodyLocalHeightRange": [
@@ -471,14 +474,17 @@
       },
       {
         "mode": "phenotype_embedded_real_garment_region_v1",
-        "revision": "embed_real_garment_multi_layer_v1_issue_75",
+        "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
         "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
         "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
         "layerIndex": 1,
         "layerToken": "open_cardigan",
         "layerKind": "open_front",
-        "faceCount": 488,
-        "vertexCount": 606,
+        "faceCount": 642,
+        "vertexCount": 798,
+        "hasShoulderYoke": true,
+        "yokePeakY": 1.3853,
+        "bodyShoulderTopY": 1.3403,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
         "sleeveLenFactor": 0.92,
@@ -488,7 +494,7 @@
         "sleeveR0M": 0.0574,
         "sleeveRFactor": 0.232,
         "torsoRBaseM": 0.2477,
-        "meanRadiusM": 0.1612,
+        "meanRadiusM": 0.1623,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -521,7 +527,7 @@
           ],
           "max": [
             0.380668,
-            1.3606,
+            1.385766,
             0.329342
           ]
         },
@@ -534,7 +540,7 @@
           "max": [
             0.380668,
             -0.014382,
-            1.3606
+            1.385766
           ]
         },
         "bodyLocalHeightRange": [
@@ -568,14 +574,17 @@
     "declaredUpperGarmentLayerCount": 2,
     "realGarmentRegion": {
       "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_multi_layer_v1_issue_75",
+      "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
       "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
       "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
       "layerIndex": 1,
       "layerToken": "open_cardigan",
       "layerKind": "open_front",
-      "faceCount": 488,
-      "vertexCount": 606,
+      "faceCount": 642,
+      "vertexCount": 798,
+      "hasShoulderYoke": true,
+      "yokePeakY": 1.3853,
+      "bodyShoulderTopY": 1.3403,
       "hasSleeveGeometry": true,
       "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
       "sleeveLenFactor": 0.92,
@@ -585,7 +594,7 @@
       "sleeveR0M": 0.0574,
       "sleeveRFactor": 0.232,
       "torsoRBaseM": 0.2477,
-      "meanRadiusM": 0.1612,
+      "meanRadiusM": 0.1623,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -618,7 +627,7 @@
         ],
         "max": [
           0.380668,
-          1.3606,
+          1.385766,
           0.329342
         ]
       },
@@ -631,7 +640,7 @@
         "max": [
           0.380668,
           -0.014382,
-          1.3606
+          1.385766
         ]
       },
       "bodyLocalHeightRange": [
@@ -661,14 +670,17 @@
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
     "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_multi_layer_v1_issue_75",
+    "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
     "objectName": "openclinxr_real_garment_from_phenotype_open_cardigan",
     "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
     "layerIndex": 1,
     "layerToken": "open_cardigan",
     "layerKind": "open_front",
-    "faceCount": 488,
-    "vertexCount": 606,
+    "faceCount": 642,
+    "vertexCount": 798,
+    "hasShoulderYoke": true,
+    "yokePeakY": 1.3853,
+    "bodyShoulderTopY": 1.3403,
     "hasSleeveGeometry": true,
     "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
     "sleeveLenFactor": 0.92,
@@ -678,7 +690,7 @@
     "sleeveR0M": 0.0574,
     "sleeveRFactor": 0.232,
     "torsoRBaseM": 0.2477,
-    "meanRadiusM": 0.1612,
+    "meanRadiusM": 0.1623,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -711,7 +723,7 @@
       ],
       "max": [
         0.380668,
-        1.3606,
+        1.385766,
         0.329342
       ]
     },
@@ -724,7 +736,7 @@
       "max": [
         0.380668,
         -0.014382,
-        1.3606
+        1.385766
       ]
     },
     "bodyLocalHeightRange": [
@@ -834,7 +846,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-06T22:22:19.615808Z",
+    "generatedAt": "2026-08-06T23:43:35.493404Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,

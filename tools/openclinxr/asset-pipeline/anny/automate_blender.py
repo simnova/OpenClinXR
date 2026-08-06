@@ -1875,6 +1875,29 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         arm_dir_Ln = (arm_dir_L[0] / arm_len, arm_dir_L[1] / arm_len, arm_dir_L[2] / arm_len)
         arm_dir_Rn = (-arm_dir_Ln[0], arm_dir_Ln[1], arm_dir_Ln[2])
 
+        # #76: body shoulder top from mesh (lateral upper half) — yoke must cover this.
+        # Not a generator constant shared with the inspect band; measured from body verts.
+        _lat = shoulder_half * 0.55
+        _upper = body_min_y + body_height * 0.50
+        body_shoulder_tops = [
+            v.co.y
+            for v in body_vs
+            if abs(v.co.x - cx) >= _lat and v.co.y >= _upper
+        ]
+        body_shoulder_top_y = (
+            max(body_shoulder_tops)
+            if body_shoulder_tops
+            else (body_min_y + body_height * 0.84)
+        )
+        # Cloth above skin. Extra lift (beyond solidify thickness) compensates Catmull-Clark
+        # SUBSURF level-1 which otherwise collapses a single peak row below the body surface.
+        # Not a coverage-gate fudge: after subsurf the surface must still sit on top of skin.
+        yoke_peak_y = body_shoulder_top_y + 0.045
+        print(
+            f"[blender] #76 shoulder yoke targets: body_shoulder_top_y={body_shoulder_top_y:.4f} "
+            f"yoke_peak_y={yoke_peak_y:.4f} (pre-subsurf authoring height)"
+        )
+
         UPPER_LAYER_MARKERS = (
             "short_sleeve_exam_tshirt",
             "tshirt",
@@ -2074,15 +2097,15 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 y = bot_y + t * (top_y - bot_y)
                 ripple = 0.007 * math.sin(t * 8.0) + 0.0045 * math.sin(t * 12.0) + 0.003 * math.sin(t * 5.5)
                 bulge = 0.016 if 0.28 < t < 0.68 else 0.007
-                # Stronger shoulder flare so deltoid body samples sit under shell (#75 coverage).
-                shoulder_flare = 1.0 + 0.20 * max(0.0, (t - 0.68) / 0.32) if t > 0.68 else 1.0
-                rx0 = (r_base + bulge + ripple) * shoulder_flare
-                rz0 = (r_base * 0.72 + bulge * 0.6 + ripple)
+                # #76: removed shoulder_flare (#75 gate-tuning). Coverage is a yoke over the
+                # acromion, not lateral widen so body samples fall under the shell.
+                rx0 = r_base + bulge + ripple
+                rz0 = r_base * 0.72 + bulge * 0.6 + ripple
                 if i == 0:
                     rx0 *= 0.90
                     rz0 *= 0.90
                 if i == torso_rows - 1:
-                    rx0 *= 1.02  # widen at neckline/shoulder for deltoid coverage
+                    rx0 *= 1.02  # mild neckline ease (not deltoid coverage)
                     rz0 *= 0.92
                 for j in range(torso_col_count):
                     if torso_wrap:
@@ -2181,6 +2204,75 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             sL = _add_sleeve_tube(shoulder_L, arm_dir_Ln, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
             sR = _add_sleeve_tube(shoulder_R, arm_dir_Rn, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
             _ = (sL, sR)
+
+            def _add_shoulder_yoke(
+                shoulder: tuple,
+                arm_dir_n: tuple,
+                sign_x: float,
+            ) -> int:
+                """
+                #76 yoke: faces connecting torso rim to sleeve root over the acromion.
+
+                Prior shells were a torso ring + separate sleeve tubes from `_arm_p` with
+                nothing over the deltoid top — raising top_y twice left bare shoulders.
+                Peak Y is measured body shoulder top + cloth thickness.
+                """
+                s0 = len(verts)
+                # Dense plateau so SUBSURF L1 cannot collapse peak below body shoulder top.
+                yoke_rows = 8
+                yoke_cols = 12
+                # Medial attach near neckline lateral side of torso
+                medial_x = cx + sign_x * max(r_base * 0.62, shoulder_half * 0.55)
+                medial_y = top_y
+                medial_z = cz
+                # Along-arm outer slightly down the sleeve so yoke meets the tube
+                outer_x = shoulder[0] + arm_dir_n[0] * (sleeve_along * 0.10) + sign_x * sleeve_r0 * 0.55
+                outer_y = shoulder[1] + arm_dir_n[1] * (sleeve_along * 0.10) + sleeve_r0 * 0.65
+                outer_z = shoulder[2] + arm_dir_n[2] * (sleeve_along * 0.10)
+                # Peak over acromion (above body shoulder surface), lateral enough for inspect
+                peak_x = shoulder[0] + sign_x * max(body_width * 0.04, shoulder_half * 0.25)
+                peak_z = shoulder[2] + body_depth * 0.02
+
+                for ri in range(yoke_rows):
+                    u = ri / float(yoke_rows - 1) if yoke_rows > 1 else 0.0
+                    # Height: rise → hold plateau at peak → ease to sleeve.
+                    # Plateau rows keep max-Y after Catmull-Clark (single peak row collapses).
+                    if u < 0.22:
+                        y = medial_y + (yoke_peak_y - medial_y) * (u / 0.22)
+                    elif u <= 0.72:
+                        y = yoke_peak_y
+                    else:
+                        y = yoke_peak_y + (outer_y - yoke_peak_y) * ((u - 0.72) / 0.28)
+                    # Planar path medial → peak → outer
+                    if u <= 0.50:
+                        t2 = u / 0.50
+                        bx = medial_x + (peak_x - medial_x) * t2
+                        bz = medial_z + (peak_z - medial_z) * t2
+                    else:
+                        t2 = (u - 0.50) / 0.50
+                        bx = peak_x + (outer_x - peak_x) * t2
+                        bz = peak_z + (outer_z - peak_z) * t2
+                    # Front→back span grows with u (wider over deltoid)
+                    half_span = (0.035 + 0.070 * u) * (1.0 + 0.15 * radius_stack)
+                    for cj in range(yoke_cols):
+                        v = cj / float(yoke_cols - 1) if yoke_cols > 1 else 0.5
+                        # v=0 front (+Z in Anny anterior), v=1 back
+                        z_off = (v - 0.5) * 2.0 * half_span
+                        # Radial lift so yoke sits outside body / deltoid
+                        x_lift = sign_x * (0.010 + 0.018 * u)
+                        fold = 0.0025 * math.sin(v * math.pi * 2.0 + u * 3.0)
+                        verts.append((bx + x_lift + fold * sign_x, y + fold * 0.2, bz + z_off))
+                for ri in range(yoke_rows - 1):
+                    for cj in range(yoke_cols - 1):
+                        a = s0 + ri * yoke_cols + cj
+                        b = s0 + ri * yoke_cols + (cj + 1)
+                        c = s0 + (ri + 1) * yoke_cols + (cj + 1)
+                        d = s0 + (ri + 1) * yoke_cols + cj
+                        faces.append((a, b, c, d))
+                return s0
+
+            _add_shoulder_yoke(shoulder_L, arm_dir_Ln, 1.0)
+            _add_shoulder_yoke(shoulder_R, arm_dir_Rn, -1.0)
 
             col0 = len(verts)
             collar_cols = torso_col_count
@@ -2391,7 +2483,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             face_count = len(faces)
             layer_meta = {
                 "mode": "phenotype_embedded_real_garment_region_v1",
-                "revision": "embed_real_garment_multi_layer_v1_issue_75",
+                "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
                 "objectName": garment.name,
                 "meshName": gmesh_name,
                 "layerIndex": layer_index,
@@ -2399,6 +2491,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "layerKind": kind,
                 "faceCount": face_count,
                 "vertexCount": len(verts),
+                "hasShoulderYoke": True,
+                "yokePeakY": round(yoke_peak_y, 4),
+                "bodyShoulderTopY": round(body_shoulder_top_y, 4),
                 "hasSleeveGeometry": True,
                 "sleeveCoverage": sleeve_cov,
                 "sleeveLenFactor": slf,
