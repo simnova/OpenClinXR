@@ -11,6 +11,7 @@ import {
   buildContractPromptAppendix,
   latestSessionFor,
   readSessions,
+  assertProofShape,
   recordSession,
   resolveWorkerWorktree,
   WORKTREE_ROOT,
@@ -244,5 +245,33 @@ describe("layer-3 contract prompt appendix", () => {
     expect(block).toMatch(/NOT evidence/i);
     expect(block).toContain("exists:a.ts");
     expect(block).toContain("run:pnpm test");
+  });
+});
+
+describe("proof-shape validation — every failure is a missing test", () => {
+  // INCIDENT 2026-08-05: dispatching with the ORIGINAL design's object shape
+  //   proofs: [{ id, description, kind: "command", run }]
+  // produced `TypeError: rule.startsWith is not a function` from deep inside rule evaluation.
+  // `proofs` are done_when STRINGS ("run:…", "changed:…"). The raw TypeError names neither the
+  // offending value nor the expected format, and cost four dispatch attempts to diagnose.
+  // A confusing error for a plausible mistake is a missing test, not user error.
+  it("rejects a non-string proof with a message naming the expected format", () => {
+    expect(() =>
+      assertProofShape([{ id: "x", kind: "command", run: "pnpm test" } as unknown as string]),
+    ).toThrow(/done_when string/i);
+  });
+
+  it("names the offending value so the caller can see what it passed", () => {
+    expect(() => assertProofShape([{ id: "concurrency" } as unknown as string])).toThrow(/concurrency/);
+  });
+
+  it("rejects a string with no recognised rule prefix", () => {
+    expect(() => assertProofShape(["prove the concurrency is safe"])).toThrow(/exists:|run:|changed:/);
+  });
+
+  it("accepts the real done_when rule kinds", () => {
+    expect(() =>
+      assertProofShape(["run:pnpm architecture", "changed:docs/x.md", "exists:dist/index.js", "min-bytes:a.png:100"]),
+    ).not.toThrow();
   });
 });

@@ -305,6 +305,38 @@ export function buildWorktreeIsolationDenies(mainRoot: string): string[] {
   return [`Write(${mainRoot}/**)`, `Edit(${mainRoot}/**)`];
 }
 
+
+/** Rule prefixes `done_when` actually understands (see done-when-rules.ts). */
+const DONE_WHEN_PREFIXES = ["exists:", "min-bytes:", "run:", "changed:", "handoff:", "skeptic:"] as const;
+
+/**
+ * Validate `proofs` before they reach rule evaluation.
+ *
+ * INCIDENT 2026-08-05: passing the shape from an earlier design —
+ * `[{ id, description, kind: "command", run }]` — surfaced as
+ * `TypeError: rule.startsWith is not a function` from deep inside the evaluator. The error named
+ * neither the bad value nor the expected format, and cost four dispatch attempts to diagnose.
+ * Proofs are done_when STRINGS. A confusing error for a plausible mistake is a missing test, not
+ * user error — so this fails early and says exactly what was passed and what was wanted.
+ */
+export function assertProofShape(proofs: readonly string[]): void {
+  for (const proof of proofs) {
+    if (typeof proof !== "string") {
+      throw new Error(
+        `Proof must be a done_when string, got ${typeof proof}: ${JSON.stringify(proof)}. `
+        + `Use e.g. "run:pnpm architecture" or "changed:path/to/evidence.md" — not an object. `
+        + `Recognised prefixes: ${DONE_WHEN_PREFIXES.join(", ")}`,
+      );
+    }
+    if (!DONE_WHEN_PREFIXES.some((prefix) => proof.startsWith(prefix))) {
+      throw new Error(
+        `Proof "${proof}" has no recognised rule prefix, so nothing would evaluate it and the `
+        + `contract would pass vacuously. Expected one of: ${DONE_WHEN_PREFIXES.join(", ")}`,
+      );
+    }
+  }
+}
+
 export function buildArgv(options: DispatchOptions): string[] {
   const argv = ["-p", options.prompt];
   if (options.resume) argv.push("--resume", options.resume);
@@ -448,6 +480,7 @@ export async function evaluateDispatchTreeProofs(input: {
 
 export async function dispatch(repoRoot: string, options: DispatchOptions): Promise<DispatchLedgerEntry> {
   assertSafeEnvironment(process.env);
+  if (options.proofs) assertProofShape(options.proofs);
 
   /**
    * INCIDENT (layer-6): the delegation scorecard measured land rate, durability and ratchet debt
