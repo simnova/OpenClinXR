@@ -1,0 +1,93 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  ARCHITECTURE_GLOBAL_SUITE_FILES,
+  buildArchitectureStep,
+  classifyArchitectureInvocation,
+  matchesAnyPath,
+  stepsForProfile,
+} from "./agentic-hook-runner.js";
+
+describe("agentic-hook-runner path-scoped architecture", () => {
+  it("omits architecture when staged files cannot introduce architecture violations", () => {
+    const staged = ["PROJECT_STATUS.md", "operator-open-questions.md"];
+    expect(classifyArchitectureInvocation("pre-commit", staged)).toBe("omit");
+    expect(buildArchitectureStep("pre-commit", staged)).toBeNull();
+
+    const steps = stepsForProfile("pre-commit", staged);
+    expect(steps.some((step) => step.label.toLowerCase().includes("architecture"))).toBe(false);
+    expect(steps.map((step) => step.label)).toEqual([
+      "OpenClaw drift check",
+      "Agent coordination alignment",
+      "OpenClaw post-slice record check",
+    ]);
+  });
+
+  it("uses path-scoped-global (direct vitest of full global suites) for single-package product commits", () => {
+    const staged = ["packages/openclinxr/domain/src/claim-language.ts"];
+    expect(classifyArchitectureInvocation("pre-commit", staged)).toBe("path-scoped-global");
+
+    const step = buildArchitectureStep("pre-commit", staged);
+    expect(step).not.toBeNull();
+    expect(step?.label).toContain("path-scoped");
+    expect(step?.command).toEqual([
+      "pnpm",
+      "--filter",
+      "@openclinxr/architecture-rules",
+      "exec",
+      "vitest",
+      "run",
+      "--root",
+      ".",
+      ...ARCHITECTURE_GLOBAL_SUITE_FILES,
+    ]);
+    // Global suites must still be present — never a weaker subset that drops freeze/workspace scanners.
+    expect(step?.command).toContain("src/file-size-budgets.test.ts");
+    expect(step?.command).toContain("src/workspace-architecture.test.ts");
+    expect(step?.command).toContain("src/decision-invariants.test.ts");
+    expect(step?.command).toContain("src/tsconfig-conventions.test.ts");
+    // Must NOT use turbo pnpm architecture (avoids ^typecheck cascade on ordinary product commits).
+    expect(step?.command).not.toEqual(["pnpm", "architecture"]);
+  });
+
+  it("forces full turbo architecture when architecture-rules or monorepo topology is staged", () => {
+    expect(
+      classifyArchitectureInvocation("pre-commit", ["packages/openclinxr/architecture-rules/src/workspace-architecture.test.ts"]),
+    ).toBe("full-turbo");
+    expect(classifyArchitectureInvocation("pre-commit", ["package.json"])).toBe("full-turbo");
+    expect(classifyArchitectureInvocation("pre-commit", ["turbo.json"])).toBe("full-turbo");
+
+    const step = buildArchitectureStep("pre-commit", ["package.json"]);
+    expect(step?.command).toEqual(["pnpm", "architecture"]);
+  });
+
+  it("keeps pre-push and strict on full turbo architecture", () => {
+    const product = ["packages/openclinxr/domain/src/claim-language.ts"];
+    expect(classifyArchitectureInvocation("pre-push", product)).toBe("full-turbo");
+    expect(classifyArchitectureInvocation("strict", product)).toBe("full-turbo");
+    expect(buildArchitectureStep("pre-push", product)?.command).toEqual(["pnpm", "architecture"]);
+    expect(buildArchitectureStep("strict", product)?.command).toEqual(["pnpm", "architecture"]);
+  });
+
+  it("treats empty staged set conservatively as full-turbo on pre-commit", () => {
+    expect(classifyArchitectureInvocation("pre-commit", [])).toBe("full-turbo");
+    expect(buildArchitectureStep("pre-commit", [])?.command).toEqual(["pnpm", "architecture"]);
+  });
+
+  it("matches architecture-relevant path patterns for tools and docs that scanners cover", () => {
+    expect(matchesAnyPath(["tools/openclinxr/openclaw/agentic-hook-runner.ts"], [/^tools\//u])).toBe(true);
+    expect(
+      classifyArchitectureInvocation("pre-commit", ["tools/openclinxr/openclaw/agentic-hook-runner.ts"]),
+    ).toBe("path-scoped-global");
+    expect(classifyArchitectureInvocation("pre-commit", ["docs/openclinxr/code-implementation-plan.md"])).toBe(
+      "path-scoped-global",
+    );
+  });
+
+  it("includes path-scoped architecture in pre-commit steps for product packages", () => {
+    const steps = stepsForProfile("pre-commit", ["apps/api/src/server.ts"]);
+    const architecture = steps.find((step) => step.label.includes("Architecture"));
+    expect(architecture?.label).toBe("Architecture fitness rules (path-scoped pre-commit)");
+    expect(architecture?.command.join(" ")).toContain("vitest run --root .");
+  });
+});
