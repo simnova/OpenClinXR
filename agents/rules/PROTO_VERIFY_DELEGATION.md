@@ -867,6 +867,64 @@ approval counterweight.
 as the anti-gaming mechanism. The counterweight is the mechanism. If a contract has a number and no
 counterweight, the number is the whole specification and it will be met exactly.
 
+## 7o. Admitting your own measurement error in the brief changes the worker's METHOD
+
+#107's header said, in as many words, that my first measurement had been wrong and why: I had
+reported four stations with foreign cast ids, and three were noise from a regex that read only the
+object-form `actorId:` declarations and missed the `actor("id", …)` builder form. The brief then
+required enumeration from the typed `scenario.actors` field.
+
+Asked whether that changed anything, the worker was specific:
+
+> "Without the 'regex noise' warning I would likely have grepped `actorId:` strings and re-litigated
+> stroke/interpreter as foreign. With it, measurement used the typed actors field."
+
+This is a different mechanism from §6d's "cause unknown", which governs what a worker BELIEVES.
+Naming the specific way a measurement failed changes the INSTRUMENT the worker reaches for. A generic
+"verify my numbers" would not have done it; "my regex missed the builder form, use the typed field"
+did.
+
+And it paid immediately: the typed enumeration found a SECOND offender I had explicitly claimed did
+not exist — `ward_delirium_med_rec_v1` shipped three actors against four in the bank, because a
+`slice(0,3)` dropped the senior resident. My header said psych was the only genuine case.
+
+**Rule:** when you have made a measurement error on the way to writing a brief, put the error in the
+brief with its mechanism and the correct instrument. It costs two sentences, it is the opposite of
+embarrassing — it is the highest-yield thing in the header — and a worker cannot avoid a failure mode
+it has not been told the shape of.
+
+## 7p. Three workers converged on the same fix: gate the pre-fix measurement as a proof
+
+#106, #108 and #107 each nominated the SAME single change when asked for one, independently, in
+three separate retros:
+
+> #106: "Require a measure artifact path and a 'no product edit until artifact exists' check…
+> **Prose 'measure first' did not bind; a gate would have.**"
+>
+> #108: measure-first "bound as 'no product edit until measured'. Did **not** bind as first action…
+> What forced measure-before-edit was the explicit 'BEFORE changing anything' + my own sequencing —
+> **not a gate**."
+>
+> #107: "**Gate the pre-fix measure as an `exists:` proof** on a fixed path… before product edits are
+> allowed — prose 'measure first' was followed because of history, **not because the contract could
+> refuse a green without it**."
+
+Three independent samples, same diagnosis, same remedy. That is no longer a suggestion.
+
+**Standing practice:** any brief whose contract enumerates a population adds a `done_when` line of the
+form
+
+    - exists:.openclinxr/evidence/<slice>/pre-fix.json
+
+and the header requires that artifact to carry the offender list produced by calling the CURRENT APIs,
+before any product edit. The artifact is required anyway for the calibration record (§6f); making it a
+proof costs nothing and converts an instruction the contract cannot enforce into one it can.
+
+Note what this does NOT fix: a worker can write the artifact after exploring but before editing, which
+is what #107 and #108 both did and is fine. The failure it prevents is the #106 shape — the artifact
+arriving after the resolver already embodied the fix, so it proves the fix rather than observing the
+defect.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
