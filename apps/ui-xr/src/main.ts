@@ -3374,7 +3374,8 @@ function createStationScene(): StationSceneRuntime {
   }
   // Case-env glTF handoff (factory caseDerivedVirtualEnvironment → player load).
   floor.userData.caseDerivedVirtualEnvGltfHandoff = {
-    gltfAssetUrl: /* from runtime scaffold caseDerived or bundle */ (encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" || encounterRuntimeAssetBundle.scenarioId === "ed_chest_pain_priority_v1") ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
+    // #85: never load a humanoid garment GLB as "environment" for ED — it spawned a 4th bare figure.
+    gltfAssetUrl: encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
     policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case); real asset stand-in so success onLoad executes in launched experience",
     source: "factory case spec derivation + tech vet",
     producedManifestPath: (() => {

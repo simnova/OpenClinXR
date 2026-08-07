@@ -6,7 +6,7 @@
   "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
   "riggingReportPath": null,
   "sourceManifestPath": null,
-  "generatorMode": "promoted_local_ed_adult_anny_candidate_cast_v1",
+  "generatorMode": "upright_adult_stature_cast_from_anny_candidate_v2",
   "sourceKind": "ed_chest_pain_adult_cast_promoted_from_local_candidate",
   "usesRealAnnyForwardPass": true,
   "realAnnyWeightsUsed": false,
@@ -23,8 +23,8 @@
     "optimizationStage": null,
     "sourceManifestKind": "promoted_ed_adult_cast_candidate",
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
-    "promotedFrom": "apps/ui-xr/public/_garment_cand/j1/ed_chest_pain_patient_adult_bod.glb",
-    "promotionNote": "Issue #85 casting: promote existing adult ED Anny candidate (measured stature ~1.79 m) so adult ED roles no longer resolve to pediatric assets. Not a new Anny orchestrate (avoids stub fallback without anny package)."
+    "promotedFrom": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+    "promotionNote": "#85 follow-up: replace bind-broken adult_bod with upright adult-stature candidate (nurse topology) so ED bay no longer shows diagonal float."
   },
   "optimizationHandoff": null,
   "licenseChain": {
@@ -38,7 +38,7 @@
     "reuseKey": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:adult_cast_promoted",
     "sourceParametersHash": "ed_chest_pain_adult_cast_promoted_v1"
   },
-  "toolVersion": "openclinxr-ed-adult-cast-promote-v1-issue-85",
+  "toolVersion": "openclinxr-ed-adult-cast-upright-v2-issue-85",
   "promptOrCaseParameterHash": "ed_chest_pain_adult_cast_promoted_v1",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
@@ -50,9 +50,9 @@
     "scoring_validity"
   ],
   "sourceNotes": [
-    "Promoted for #85 scenario-actor casting: adult emergency-department roles must not resolve to pediatric GLBs.",
-    "Geometry is the local ED adult Anny candidate (height_cm 178 phenotype / measured mesh stature ~1.79 m).",
-    "Shared cast mesh is used for patient, nurse, and spouse until role-distinct adult ED assets exist — age-appropriate and same-scenario provenance only, not role likeness.",
-    "This is casting evidence only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
+    "Issue #85 casting: adult ED roles must not resolve to pediatric-stature or wrong-scenario assets.",
+    "Bind-repair follow-up: the promoted ed_chest_pain_patient_adult_bod candidate had pelvis rest ~-90\u00b0 X with joint worlds along -Z while mesh AABB was Y-up (IBM identity at bind). Runtime clinical-idle bone writes then produced diagonal float.",
+    "Cast mesh is the measured-upright adult-stature Anny candidate previously shipped as peds_nurse_kevin.glb (1.76 m mesh height, identity pelvis). Provenance scenarioId remains ed_chest_pain_priority_v1 for casting contracts.",
+    "Not a geometry scale to clear 1.5 m. Not B+ realism / production / clinical readiness."
   ]
 }

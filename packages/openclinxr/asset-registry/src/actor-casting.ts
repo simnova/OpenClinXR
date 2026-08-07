@@ -38,7 +38,12 @@ export const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const RUNTIME_GENERATED = "/generated-humanoids";
 
-/** Promoted adult ED cast (from local ED adult Anny candidate @ ~1.79 m). Shared mesh, role-distinct provenance actorId in sidecar. */
+/**
+ * Adult ED cast GLB (shared by patient/nurse/spouse until role-distinct adults exist).
+ * Must be upright adult-stature Anny candidate (identity pelvis). The first promote
+ * (adult_bod @ 1.79 m) had pelvis −90° X / joints on −Z and rendered diagonal — replaced
+ * with upright 1.76 m topology; provenance.scenarioId stays ed_chest_pain_priority_v1.
+ */
 const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
 const ED_ADULT_CAST_PROV = "ed_chest_pain_adult_cast.provenance.json";
 

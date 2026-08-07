@@ -107,6 +107,14 @@ import { describe, expect, it } from "vitest";
  * Wiring: `packages/openclinxr/asset-registry/src/actor-casting.ts` SSOT + ED bundle model paths +
  * UI-XR `resolveHumanoidVariantOrCastPath` / generated-humanoids URL resolution.
  * Inspector: `inspectScenarioCasting` measures stature from GLB positions and reads provenance JSON.
+ *
+ * ## FIXED follow-up (capture grade)
+ *
+ * First cast mesh (adult_bod promote) measured pelvis rest ~-90° X with joint worlds along −Z while
+ * mesh AABB stayed Y-up (IBM identity at bind). Runtime clinical-idle bone writes → diagonal float.
+ * Replaced cast mesh with upright adult-stature Anny candidate (nurse topology, 1.76 m, identity
+ * pelvis) without scaling. Also stopped ED from loading reom garment GLB as "environment" (4th
+ * bare figure) and waited for humanoid asset evidence before room capture screenshot.
  */
 
 const load = async () =>
