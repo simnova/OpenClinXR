@@ -963,7 +963,16 @@ describe("static browser assets", () => {
 
     for (const provenance of [parentProvenance, childProvenance, nurseProvenance]) {
       expect(provenance.schemaVersion).toBe("openclinxr.generated-humanoid-provenance.v1");
-      expect(provenance.generatorMode).toBe("real_anny_local_forward_pass_plus_blender_procedural");
+      // #96 re-baked the child from its tracked base OBJ without the anny package (not importable
+      // here), which honestly records a MORE conservative mode. Both values are non-overclaiming and
+      // this guard exists to stop overclaiming — so it accepts either, and every other assertion
+      // below (realAnnyWeightsUsed false, the notEvidenceFor disclaimers, the sourceTopologyMode
+      // chain) is unchanged. The re-bake DROPPED sourceOriginChain.sourceTopologyMode and this test
+      // caught it; that field was restored rather than the assertion relaxed.
+      expect([
+        "real_anny_local_forward_pass_plus_blender_procedural",
+        "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+      ]).toContain(provenance.generatorMode);
       expect(provenance.usesRealAnnyForwardPass).toBe(true);
       expect(provenance.realAnnyWeightsUsed).toBe(false);
       expect(provenance.textureMode).toBe("procedural_fallback");
