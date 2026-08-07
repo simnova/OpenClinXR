@@ -2460,7 +2460,7 @@ larger than the claim.
 that renders a subject through its own code path grades something the learner never sees. Minimum
 necessary, not minimum possible.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9g. Disclose your own FAILED instrument, not just the failure
 
@@ -2530,5 +2530,56 @@ was already assembled), and the labelling meant no wrong-rabbit-hole tax was pai
 
 **So the fence is the valuable half, not the hypothesis.** "My last three guesses here were withdrawn"
 is worth more than the guess it accompanies. Write the fence even when you have no candidate at all.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9j. When you name a seam, say whether it is the ONLY one you found
+
+#159's brief named one seam with confidence: `supine-pose.ts:238` plants against a flat scalar, so
+hinging the mattress without changing it would pass every single-column check while rendering worse
+than flat. That was correct and load-bearing. It was also **incomplete**, and the worker paid for the
+gap:
+
+> "It was real and load-bearing… **Harder:** after the on-back basis, euler `rotation.z +=` does
+> **not** raise the head (local roll). Body 'followed' the wrong axis until world-Z premultiply.
+> Pre-fix gap measure on bone centers also lied (~0.19 m float). **The plant seam would have made a
+> half-fix; the tip/measure class almost shipped a green with a still-flat torso.**"
+
+Its discovery bucket was 10–12 turns of a 40–50 turn slice, and its nominated fix is one sentence:
+*"after the on-back basis, incline must be world-space about the hip axis; do not add euler Z."*
+
+The failure is not that I missed a seam — I could not have known that one. It is that I presented the
+seam I **had** found as though it were **the** seam, and a confident singular framing tells a worker
+the hard part is already located.
+
+**Rule:** a named seam carries a cardinality statement. *"This is one seam I found; I have not
+enumerated the compose path and there may be others"* costs a clause and keeps the worker looking.
+The same fence as §9i, applied to mechanism rather than cause: **the confidence you express about
+completeness is itself a claim, and it is usually the one you have not checked.**
+
+The tell: you traced one hop carefully and stopped, because it explained the symptom. Explaining the
+symptom is not the same as being the only thing wrong.
+
+## 9k. "The threshold is not yours to pick — produce a sweep" is now proven, not just reasoned
+
+§7a established that a numeric threshold in a contract becomes a design target for the thing being
+measured. #159 tested the remedy: the contract named **no** target incline and required a 0/15/30/45°
+contact sheet for the orchestrator to grade. Asked whether that helped or was an annoying extra step:
+
+> "**Helped.** No threshold-chasing, no inventing 30 vs 45, contact sheet is the right handoff. Not
+> annoying — **it killed a whole decision thrash class.**"
+
+And it worked at the other end too: I chose 30° from four rendered variants in one look, against a
+clinical consult whose own confidence between 30 and 45 was only *medium*. Neither of us had to
+defend a number in the abstract.
+
+**Rule:** where a parameter is genuinely uncertain, the contract asserts the *mechanism* and the sweep
+supplies the *value*. The worker builds the thing that can take any value in the range; the
+orchestrator picks from evidence. That is both faster and the correct division of labour — and it is
+now measured rather than argued.
+
+**Caveat from the same retro:** the worker still took `N = 15°` for the torso-tracking band straight
+from the contract without calibrating it first (§9h — it had no known-good column). Removing one
+threshold does not remove the others.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
