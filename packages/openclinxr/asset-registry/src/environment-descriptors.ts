@@ -59,164 +59,16 @@ export type ResolvedEnvironmentShell = {
   environmentFallbackReason: string | null;
 };
 
-const ED_BAY_ZONES: readonly EnvironmentZoneTemplate[] = [
-  {
-    zoneId: "learner_entry",
-    label: "Learner entry and orientation",
-    purpose:
-      "Give the examinee a clear start position, doorway sightline, and safe movement envelope before the encounter timer starts.",
-    preferredAssetIds: [],
-    spatialAnchors: ["doorway_panel", "hand_hygiene_marker", "exam_timer_sightline"],
-    clinicalFidelityNotes: [
-      "Doorway framing should support first-impression scan and interruption timing without cluttering controller movement.",
-    ],
-  },
-  {
-    zoneId: "patient_bedside",
-    label: "Patient bedside interaction",
-    purpose:
-      "Anchor history-taking, pain-response observation, focused exam prompts, and patient gaze/gesture alignment.",
-    preferredAssetIds: ["patient_robert_hayes_character", "ed_stretcher_bed_equipment"],
-    spatialAnchors: ["patient_head_position", "left_bed_rail", "examiner_standing_zone"],
-    clinicalFidelityNotes: [
-      "Bed height, patient posture, and reach distance should remain readable in Quest/WebXR without requiring unsafe leaning.",
-    ],
-  },
-  {
-    zoneId: "nurse_workflow",
-    label: "Nurse workflow and escalation",
-    purpose:
-      "Support nurse handoff, medication/order clarification, vital-sign changes, and team-communication pressure.",
-    preferredAssetIds: ["nurse_maria_alvarez_character", "bedside_monitor_equipment"],
-    spatialAnchors: ["nurse_standing_zone", "monitor_glance_target", "handoff_tablet_marker"],
-    clinicalFidelityNotes: [
-      "Nurse position should be visible from bedside while preserving conversational turn-taking and de-escalation cues.",
-    ],
-  },
-  {
-    zoneId: "family_interrupt",
-    label: "Family interruption lane",
-    purpose:
-      "Provide a believable doorway/side-chair location for family concern, emotional pressure, and consent-boundary beats.",
-    preferredAssetIds: ["spouse_anna_hayes_character"],
-    spatialAnchors: ["doorway_interrupt_position", "family_waiting_spot", "privacy_boundary_marker"],
-    clinicalFidelityNotes: [
-      "Family placement should increase pressure without blocking learner access to the patient or nurse.",
-    ],
-  },
-  {
-    zoneId: "diagnostic_equipment",
-    label: "Diagnostic equipment cluster",
-    purpose:
-      "Place ECG cart, IV stand, and monitor affordances where diagnostic-order and interpretation trace events can be observed.",
-    preferredAssetIds: ["bedside_monitor_equipment", "ecg_cart_equipment", "iv_stand_equipment"],
-    spatialAnchors: ["ecg_cart_parking_spot", "iv_stand_side_position", "vital_sign_display_plane"],
-    clinicalFidelityNotes: [
-      "Equipment should be recognizable but low-poly, with readable silhouettes and no production-readiness claim until review gates clear.",
-    ],
-  },
-];
 
-const TELEHEALTH_HOME_ZONES: readonly EnvironmentZoneTemplate[] = [
-  {
-    zoneId: "learner_entry",
-    label: "Video-visit start frame",
-    purpose:
-      "Orient the learner to the telehealth session chrome: call frame, captions, and connection state before history-taking begins.",
-    preferredAssetIds: [],
-    spatialAnchors: ["video_call_frame", "caption_panel_plane", "connection_status_marker"],
-    clinicalFidelityNotes: [
-      "Home video frame should read as a remote visit, not a curtained ED bay.",
-    ],
-  },
-  {
-    zoneId: "patient_bedside",
-    label: "Patient seating and teach-back zone",
-    purpose:
-      "Anchor seated history-taking, medication teach-back, and camera-facing gestures in a home living space.",
-    preferredAssetIds: ["patient_luis_martinez_character"],
-    spatialAnchors: ["patient_chair_position", "home_camera_frame", "examiner_screen_plane"],
-    clinicalFidelityNotes: [
-      "No stretcher rails or bedside monitors — this is a living-room chair facing a laptop or tablet.",
-    ],
-  },
-  {
-    zoneId: "nurse_workflow",
-    label: "Caregiver / off-screen support",
-    purpose:
-      "Allow an optional caregiver presence or off-screen interruption without hospital staffing cues.",
-    preferredAssetIds: [],
-    spatialAnchors: ["caregiver_seat_marker", "offscreen_audio_cue", "home_doorway_background"],
-    clinicalFidelityNotes: [
-      "Caregiver placement is optional home context, not a nurse standing zone with a handoff tablet.",
-    ],
-  },
-  {
-    zoneId: "family_interrupt",
-    label: "Household interruption lane",
-    purpose:
-      "Model doorbell, child, or bandwidth interruptions that break telehealth turn-taking.",
-    preferredAssetIds: [],
-    spatialAnchors: ["household_interrupt_position", "bandwidth_drop_marker", "privacy_boundary_marker"],
-    clinicalFidelityNotes: [
-      "Interruptions should feel domestic (noise, connection drop), not ED hallway pressure.",
-    ],
-  },
-  {
-    zoneId: "diagnostic_equipment",
-    label: "Home medication and self-monitoring props",
-    purpose:
-      "Place medication bottles, glucose log, and caption/EHR panels for literacy and reconciliation beats.",
-    preferredAssetIds: [],
-    spatialAnchors: ["medication_bottle_shelf", "glucose_log_marker", "home_ehr_panel_plane"],
-    clinicalFidelityNotes: [
-      "Home self-monitoring props only — no ECG cart parking or IV stand positions.",
-    ],
-  },
-];
-
-const GENERIC_CLINIC_ZONES: readonly EnvironmentZoneTemplate[] = [
-  {
-    zoneId: "learner_entry",
-    label: "Learner entry and orientation",
-    purpose: "Doorway and exam-timer orientation for a generic clinical room.",
-    preferredAssetIds: [],
-    spatialAnchors: ["doorway_panel", "exam_timer_sightline", "hand_hygiene_marker"],
-    clinicalFidelityNotes: ["Keep movement envelope clear of furniture clutter."],
-  },
-  {
-    zoneId: "patient_bedside",
-    label: "Patient interaction zone",
-    purpose: "Seated or exam-table patient interaction without ED stretcher assumptions.",
-    preferredAssetIds: [],
-    spatialAnchors: ["patient_seat_position", "examiner_standing_zone", "chart_table_marker"],
-    clinicalFidelityNotes: ["Avoid ED rail and cart anchors unless the environment profile is ed_bay."],
-  },
-  {
-    zoneId: "nurse_workflow",
-    label: "Clinical support zone",
-    purpose: "Optional clinical support standing zone for multi-actor encounters.",
-    preferredAssetIds: [],
-    spatialAnchors: ["support_standing_zone", "chart_glance_target", "door_sightline"],
-    clinicalFidelityNotes: ["Support placement must not block learner-patient sightline."],
-  },
-  {
-    zoneId: "family_interrupt",
-    label: "Family or interpreter lane",
-    purpose: "Side-chair or doorway placement for family/interpreter pressure.",
-    preferredAssetIds: [],
-    spatialAnchors: ["side_chair_position", "doorway_interrupt_position", "privacy_boundary_marker"],
-    clinicalFidelityNotes: ["Keep interpreter/family visible without crowding the exam table."],
-  },
-  {
-    zoneId: "diagnostic_equipment",
-    label: "Room equipment cluster",
-    purpose: "Low-poly room equipment appropriate to a clinic or ward shell.",
-    preferredAssetIds: [],
-    spatialAnchors: ["wall_vitals_display", "supply_cart_parking", "waste_bin_marker"],
-    clinicalFidelityNotes: ["No ED-only ECG cart or IV stand anchors for generic clinic rooms."],
-  },
-];
+import {
+  ED_BAY_ZONES,
+  TELEHEALTH_HOME_ZONES,
+  GENERIC_CLINIC_ZONES,
+  LEARNER_START,
+  ED_STRETCHER,
+  OFFSET_STRETCHER,
+  OFFSET_CHAIR,
+} from "./environment-zone-templates.js";
 
 function shell(
   partial: Omit<EnvironmentShellDescriptor, "zoneTemplates" | "fixtureSlots"> & {
@@ -226,10 +78,11 @@ function shell(
 ): EnvironmentShellDescriptor {
   return {
     ...partial,
-    fixtureSlots: partial.fixtureSlots ?? [
-      { slotId: "primary_patient", purpose: "Primary patient placement", position: { x: -0.9, y: 0, z: 0.08 } },
-      { slotId: "learner_start", purpose: "Learner entry standing position", position: { x: 0, y: 0, z: 1.4 } },
-    ],
+    // Default: closed room with no patient support fixture — environments that need
+    // a surface declare stretcher/patient_chair explicitly. Equipment-mounted beds
+    // (postop, peds stretcher, exam table) intentionally use learner_start only so
+    // the fixture path cannot double-bed those stations (#143 counterweight).
+    fixtureSlots: partial.fixtureSlots ?? [LEARNER_START],
   };
 }
 
@@ -272,6 +125,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.55,
     zoneTemplates: ED_BAY_ZONES,
+    // Stroke bank patient is standing — offset stretcher so they are not planted through the deck.
+    // (ed_exam_bay keeps ED_STRETCHER for the supine chest-pain plant via #150.)
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   adult_ed_abdominal_bay_v1: shell({
     environmentId: "adult_ed_abdominal_bay_v1",
@@ -286,6 +142,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.45,
     zoneTemplates: ED_BAY_ZONES,
+    // Standing bank cast — offset bed, not under-foot ED plant.
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   telehealth_home_visit_v1: shell({
     environmentId: "telehealth_home_visit_v1",
@@ -322,6 +180,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a3040,
     keyLightIntensity: 1.95,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // Consult-style psych room → chair, not stretcher.
+    fixtureSlots: [OFFSET_CHAIR, LEARNER_START],
   }),
   oncology_consult_room_v1: shell({
     environmentId: "oncology_consult_room_v1",
@@ -336,6 +196,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2438,
     keyLightIntensity: 2.0,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // chairs_equipment already mounts seating — no fixture chair (anti double-bed).
+    fixtureSlots: [LEARNER_START],
   }),
   urgent_care_clinic_room_v1: shell({
     environmentId: "urgent_care_clinic_room_v1",
@@ -350,6 +212,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2e28,
     keyLightIntensity: 2.1,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // exam_table_equipment is the support surface — fixture path stays empty of beds.
+    fixtureSlots: [LEARNER_START],
   }),
   surgical_ward_room_v1: shell({
     environmentId: "surgical_ward_room_v1",
@@ -364,6 +228,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2218,
     keyLightIntensity: 2.15,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // post_op_bed_equipment owns the bed — do not fixture-double it.
+    fixtureSlots: [LEARNER_START],
   }),
   stepdown_room_v1: shell({
     environmentId: "stepdown_room_v1",
@@ -378,6 +244,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2834,
     keyLightIntensity: 2.2,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // Acute stepdown: bed present; monitors are equipment-only.
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   ob_triage_room_v1: shell({
     environmentId: "ob_triage_room_v1",
@@ -392,6 +260,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2228,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // OB triage bed (stretcher proxy — no dedicated ward-bed builder this slice).
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   inpatient_ward_room_v1: shell({
     environmentId: "inpatient_ward_room_v1",
@@ -406,6 +276,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2830,
     keyLightIntensity: 2.1,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // Ward bed via stretcher proxy (third "ward bed" builder deferred).
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   primary_care_clinic_room_v1: shell({
     environmentId: "primary_care_clinic_room_v1",
@@ -420,6 +292,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e293b,
     keyLightIntensity: 1.9,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    fixtureSlots: [OFFSET_CHAIR, LEARNER_START],
   }),
   pediatric_fever_urgent_care_bay_v1: shell({
     environmentId: "pediatric_fever_urgent_care_bay_v1",
@@ -434,6 +307,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1a2a32,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
   }),
   pediatric_urgent_care_bay_v1: shell({
     environmentId: "pediatric_urgent_care_bay_v1",
@@ -448,6 +322,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1a2a32,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
+    // pediatric_stretcher_equipment owns the bed — fixture path does not add another.
+    fixtureSlots: [LEARNER_START],
   }),
 };
 

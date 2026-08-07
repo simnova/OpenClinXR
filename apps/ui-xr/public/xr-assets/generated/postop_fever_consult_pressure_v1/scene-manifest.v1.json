@@ -8,8 +8,8 @@
     "title": "Postop Fever Consult Pressure",
     "subtitle": "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
     "chiefConcern": "My belly hurts more today, and I have chills.",
-    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-    "interruption": "Not charted \u2014 observe interruptions during the encounter",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
+    "interruption": "Not charted — observe interruptions during the encounter",
     "stageAriaLabel": "Postoperative fever consult-pressure station scene",
     "canvasAriaLabel": "3D postoperative fever room preview",
     "initialDialogueText": "Priya Shah: My belly hurts more today, and I have chills.",
@@ -139,9 +139,9 @@
   "equipmentPlacements": {
     "post_op_bed_equipment": {
       "position": {
-        "x": 1.6,
+        "x": -2.05,
         "y": 0,
-        "z": 0.28
+        "z": -0.75
       },
       "label": "Post Op Bed",
       "interactionCueIds": [
