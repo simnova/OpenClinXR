@@ -1632,6 +1632,16 @@ recovery into the loop rather than treating each one as a surprise, and never le
 escalation record as evidence about the delegate — criterion 3 covers it, and rolling back rung size
 on an infrastructure reap would conclude the delegate is weaker than it is.
 
+**Measured cost of a resume, 2026-08-07.** #123 was killed with eight files changed and nothing
+committed. Asked afterwards what the recovery cost, its worker was specific: *"~5–10 turns (status +
+re-run proofs + commit); **not a re-implement**... Did not re-derive placement logic, anchors, or
+inspect module."* It also confirmed the resume prompt was the right shape — "finish it, do not start
+over, do not re-plan" plus the enumerated remaining steps.
+
+So the resume is cheap and the re-dispatch is not: the alternative would have discarded a near-complete
+slice. That asymmetry is the whole argument for checking the worktree before reaching for a fresh
+dispatch.
+
 ## 7j. A fix on a shared path generalises; a fix on one station's data does not
 
 Five instances in one session, and the split is clean:
