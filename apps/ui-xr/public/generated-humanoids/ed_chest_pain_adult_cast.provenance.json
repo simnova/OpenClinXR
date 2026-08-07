@@ -15,9 +15,9 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "45a79c924009f511c8ab55d679b5ca43ea8acb4d390dff18383c56f85af56f74",
-  "outputBytes": 6910636,
-  "generatedAt": "2026-08-07T14:47:24.356758+00:00",
+  "outputSha256": "eeec6f41d7e4f61cd63e7628c9242705e2a17b06d0bff801dd9d5936eacf52a8",
+  "outputBytes": 6920952,
+  "generatedAt": "2026-08-07T16:43:31.670787+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
   "garmentLayers": [

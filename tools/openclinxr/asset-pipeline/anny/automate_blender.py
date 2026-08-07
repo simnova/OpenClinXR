@@ -2379,6 +2379,11 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # #73: skip body-mesh top/trim paint when real garment mesh will cover the torso.
     # Keep lower/pants fill (no pants shell). Conditioned so roles without a garment still paint.
     skip_torso_paint = bool(will_embed_real_garment)
+    # #103: open cardigan needs a closed under-layer (mesh) — do NOT restore full torso paint
+    # under closed kinds (that re-creates #73 double clothing). Arm below a short cuff is a
+    # different region: garment mesh ends; paint the limb so the sleeve does not end at bare arm.
+    # Decision: paint forearm/upper-arm clothing (not sleeve lengthening) — preserves short-sleeve
+    # clinical silhouette on scrubs/tshirts; lengthening would change a clinician-visible class.
 
     lower_mat = create_role_marker_material(f"openclinxr_role_mesh_clothing_{role}_lower", lower_color)
     lower_index = len(mesh_obj.data.materials)
@@ -2394,6 +2399,16 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         mesh_obj.data.materials.append(top_mat)
         trim_index = len(mesh_obj.data.materials)
         mesh_obj.data.materials.append(trim_mat)
+    # Arm clothing material always available when a real garment owns the torso (#103 sleeve-end).
+    arm_mat = None
+    arm_index = -1
+    if will_embed_real_garment:
+        arm_mat = create_role_marker_material(
+            f"openclinxr_role_mesh_clothing_{role}_arm",
+            top_color if top_color else (0.08, 0.42, 0.55, 1.0),
+        )
+        arm_index = len(mesh_obj.data.materials)
+        mesh_obj.data.materials.append(arm_mat)
 
     # #73: paint in LOCAL mesh space. Blender's OBJ importer can leave a world
     # rotation that swaps Y/Z in world bounds while local data stays Y-height
@@ -2441,9 +2456,16 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     top_faces = 0
     lower_faces = 0
     trim_faces = 0
+    arm_faces = 0
     skipped_back_faces = 0
     skipped_torso_paint_faces = 0
     lower_paint_max_ch = -1e9
+    # #103 short-sleeve end: procedural sleeves stop near the elbow (~0.55–0.65 body height).
+    # Paint clothing on the limb from wrist up through the cuff band so the sleeve does not
+    # end at bare arm. Hands below wrist stay skin. Lateral half-width only (not torso).
+    arm_wrist_h = min_h + height_h * 0.12
+    arm_cuff_h = min_h + height_h * 0.66
+    arm_lat_min = body_width_l * 0.20
     for polygon in mesh_obj.data.polygons:
         # Local face center (not world) — stable under OBJ import rotation.
         center = polygon.center
@@ -2477,6 +2499,12 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             )
             and rel_x <= lower_half
         )
+        # #103 arm clothing (short sleeve end) — lateral limb only, wrist→cuff.
+        is_arm_clothing = (
+            arm_index >= 0
+            and arm_wrist_h <= ch <= arm_cuff_h
+            and rel_x >= arm_lat_min
+        )
         # #124: paint lower FIRST so the shared waist band is claimed even when
         # skip_torso_paint would have continued past is_top faces (top_min=0.42*h
         # overlaps lower_max=0.50*h — that overlap is exactly the midriff gap).
@@ -2485,6 +2513,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             lower_faces += 1
             if ch > lower_paint_max_ch:
                 lower_paint_max_ch = ch
+            continue
+        if is_arm_clothing:
+            polygon.material_index = arm_index
+            arm_faces += 1
             continue
         if skip_torso_paint and (is_collar_trim or is_waist_trim or is_top):
             # Leave skin material — real garment mesh owns this silhouette (#73).
@@ -2502,7 +2534,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         f"height_h={height_h:.4f} lower_max_h={lower_max_h:.4f} "
         f"SHARED_WAIST_FRACTION={SHARED_WAIST_FRACTION} lower_faces={lower_faces} "
         f"lower_paint_max_ch={lower_paint_max_ch:.4f} "
-        f"top_faces={top_faces} skip_torso={skip_torso_paint}"
+        f"top_faces={top_faces} arm_faces={arm_faces} skip_torso={skip_torso_paint}"
     )
     if lower_faces == 0:
         raise RuntimeError(
@@ -2518,16 +2550,18 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     ret = {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
         "clothingRegionRevision": (
-            "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73"
+            "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment"
             if skip_torso_paint
             else "v6_garment_source_quality_wider_native_trim_pediatric_school_age"
         ),
         "topMaterialName": top_mat.name if top_mat is not None else None,
         "lowerMaterialName": lower_mat.name,
         "trimMaterialName": trim_mat.name if trim_mat is not None else None,
+        "armMaterialName": arm_mat.name if arm_mat is not None else None,
         "topFaceCount": top_faces,
         "lowerFaceCount": lower_faces,
         "trimFaceCount": trim_faces,
+        "armFaceCount": arm_faces,
         "skippedBackFaceCount": skipped_back_faces,
         "skippedTorsoPaintFaceCount": skipped_torso_paint_faces,
         "skippedTorsoPaintBecauseRealGarment": skip_torso_paint,
@@ -2673,11 +2707,24 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             if is_gown:
                 upper_layer_tokens = ["hospital_gown"]
             elif is_open_front:
-                upper_layer_tokens = ["open_cardigan"]
+                # #103: open outer alone leaves bare torso — closed under first.
+                upper_layer_tokens = ["casual_top", "open_cardigan"]
             elif is_scrub:
                 upper_layer_tokens = ["scrub_top"]
             else:
                 upper_layer_tokens = [str(garment_layers[0]) if garment_layers else "upper_default"]
+
+        # #103 §6p: open-front outer must have a closed under-layer (base + open outer).
+        # Inject casual_top when every declared upper layer is open — do not close the front.
+        _kinds_now = [_layer_kind(t) for t in upper_layer_tokens]
+        if any(k == "open_front" for k in _kinds_now) and not any(
+            k != "open_front" for k in _kinds_now
+        ):
+            upper_layer_tokens = ["casual_top"] + list(upper_layer_tokens)
+            print(
+                f"[blender] #103 injected closed under-layer casual_top before open outer: "
+                f"{upper_layer_tokens}"
+            )
 
         # Blueprint declaration as a tiny exported mesh (empties may be stripped by glTF).
         # Mesh name is SSOT for declaredUpperLayerCount in garment-layer-coverage inspect.

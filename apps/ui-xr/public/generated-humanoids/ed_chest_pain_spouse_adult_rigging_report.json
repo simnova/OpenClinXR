@@ -360,15 +360,17 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73",
+    "clothingRegionRevision": "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment",
     "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_family_lower",
     "trimMaterialName": null,
+    "armMaterialName": "openclinxr_role_mesh_clothing_family_arm",
     "topFaceCount": 0,
     "lowerFaceCount": 1096,
     "trimFaceCount": 0,
+    "armFaceCount": 3520,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 1452,
+    "skippedTorsoPaintFaceCount": 1316,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -858,7 +860,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v1, actor=family)",
-    "generatedAt": "2026-08-07T14:48:42.920133Z",
+    "generatedAt": "2026-08-07T16:44:36.373211Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.2, \"anxious\": 0.75, \"bmi\": 24.0, \"brow_tension\": 0.4, \"build\": \"average_adult\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_street_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.22, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_spouse\", \"skin_tone\": \"warm_light\", \"sleeveGeometryExpansion\": \"v2_street_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"ed_spouse_casual\"}"
   },
   "licenseExceptionRequired": false,
