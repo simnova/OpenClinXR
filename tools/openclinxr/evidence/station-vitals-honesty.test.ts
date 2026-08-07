@@ -114,7 +114,13 @@ type Inspect = () => Promise<{ stations: StationVitals[] }>;
 const LEGACY_NUMERIC = ["ed_chest_pain_priority_v1", "peds_asthma_parent_anxiety_v1"];
 
 describe("the vitals field is honest about what it contains (#115)", () => {
-  it.fails("no station shows environment prose or a placeholder as vitals", async () => {
+  it("no station shows environment prose or a placeholder as vitals", async () => {
+    // ## FIXED (#115)
+    // Factory + shipped bundles no longer put environment-cue prose or placeholders in
+    // initialVitals. Unauthored stations emit "Not charted — obtain vitals during the
+    // encounter" with authorshipStatus unauthored. Legacy numeric stations keep their
+    // historical strings marked legacy_hardcoded_unreviewed (not authored_reviewed).
+    // Runtime SSOT: apps/ui-xr/src/station-vitals.ts + station-context.ts.
     // Eleven of fourteen do today. The assertion is on the CLASS, not on a vitals-looking pattern —
     // a pattern check would go green on invented numbers, which is the outcome this slice exists to
     // prevent.
@@ -137,7 +143,10 @@ describe("the vitals field is honest about what it contains (#115)", () => {
     expect(dishonest, `stations misrepresenting their vitals field:\n${dishonest.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("unauthored stations are not presented as charted vitals", async () => {
+  it("unauthored stations are not presented as charted vitals", async () => {
+    // ## FIXED (#115)
+    // presentedAsChartedVitals is true only for authored_numeric + non-unauthored
+    // authorship. Unauthored rows use ehr label "Vitals status" and data-ehr-vitals-charted=false.
     // Kills the cheap satisfaction of the first contract: reclassifying the strings while the runtime
     // still renders them in a row headed "Initial vitals" leaves the learner in the same place.
     const mod = await load();
@@ -151,7 +160,10 @@ describe("the vitals field is honest about what it contains (#115)", () => {
     expect(mispresented, `unauthored content shown as chart data:\n${mispresented.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("the two stations with real vitals keep them (COUNTERWEIGHT)", async () => {
+  it("the two stations with real vitals keep them (COUNTERWEIGHT)", async () => {
+    // ## FIXED (#115)
+    // ed_chest_pain_priority_v1 and peds_asthma_parent_anxiety_v1 retain numeric strings
+    // as legacy_hardcoded_unreviewed — not deleted to "make everything unauthored".
     // The cheapest way to make everything honest is to mark every station unauthored and delete the
     // numbers. That would remove the only genuine clinical content in the field.
     const mod = await load();

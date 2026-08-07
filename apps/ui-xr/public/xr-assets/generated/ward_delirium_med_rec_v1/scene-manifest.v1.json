@@ -113,10 +113,11 @@
     "title": "Ward Delirium Med Rec",
     "subtitle": "Medical ward room with bed rails, medication cart, IV pump, whiteboard, call bell, fall-risk sign, and EHR laptop.",
     "chiefConcern": "Distinguish delirium from baseline cognitive impairment",
-    "initialVitals": "Generated environment evidence pending headset validation",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
     "interruption": "cue at 240s: fall risk action",
     "stageAriaLabel": "Inpatient Medical Ward Room station scene",
     "canvasAriaLabel": "3D Inpatient Medical Ward Room preview",
-    "initialDialogueText": "Margaret Ellis: I need to go home. Where is my daughter? I cannot hear you well."
+    "initialDialogueText": "Margaret Ellis: I need to go home. Where is my daughter? I cannot hear you well.",
+    "initialVitalsAuthorship": "unauthored"
   }
 }

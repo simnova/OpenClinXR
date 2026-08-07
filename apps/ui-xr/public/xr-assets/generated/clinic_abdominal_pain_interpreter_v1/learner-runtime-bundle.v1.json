@@ -215,11 +215,12 @@
       "title": "Clinic Abdominal Pain Interpreter",
       "subtitle": "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
       "chiefConcern": "Right-lower-quadrant abdominal pain with interpreter-mediated history",
-      "initialVitals": "Exam table and abdominal exam zone cues anchor the focused assessment",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
       "interruption": "Family member answers out of turn unless the learner uses interpreter best practices",
       "stageAriaLabel": "Clinic abdominal pain interpreter station scene",
       "canvasAriaLabel": "3D clinic interpreter room preview",
-      "initialDialogueText": "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter."
+      "initialDialogueText": "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter.",
+      "initialVitalsAuthorship": "unauthored"
     },
     "dialogueTurns": [
       {

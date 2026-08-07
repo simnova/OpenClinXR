@@ -212,11 +212,12 @@
       "title": "ED Stroke Alert Handoff",
       "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
       "chiefConcern": "Acute speech difficulty and right-sided weakness",
-      "initialVitals": "Bedside monitor and last-known-well clock drive urgency",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
       "interruption": "Family member adds timeline details while stroke nurse presses for handoff clarity",
       "stageAriaLabel": "ED stroke alert handoff station scene",
       "canvasAriaLabel": "3D stroke alert room preview",
-      "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly."
+      "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
+      "initialVitalsAuthorship": "unauthored"
     },
     "dialogueTurns": [
       {
