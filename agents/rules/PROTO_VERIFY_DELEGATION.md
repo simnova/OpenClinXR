@@ -943,3 +943,56 @@ Its three wasted guesses are all range-intuition failures, not logic failures:
 good and a known bad, and say what each measure is NOT (here: "Δh is silhouette height, not root Y").
 A threshold says where the line is; a range table says which direction to push and which knobs are
 inert. Thresholds alone buy exploratory thrash at the worker's expense.
+
+## 7e. When a worker says "they all share the same X", find out WHAT they share
+
+#85's worker disclosed its own limitation honestly in the out-of-scope slot §6h created:
+
+> "all three share the same cast mesh (no role-distinct adults yet)"
+
+I recorded that verbatim on the close, graded the render — *"an upright adult in teal scrubs, which is
+what the casting contract was trying to produce"* — and moved on. Both statements were true.
+
+The shared mesh was `peds_nurse_kevin.glb`, byte for byte:
+
+    shasum -a 256  ed_chest_pain_adult_cast.glb  ==  peds_nurse_kevin.glb   (5,999,280 B)
+
+So the emergency department was rendering three identical nurses, one of whom was the cardiac patient
+a learner is there to examine and one of whom was his wife. It surfaced two days later, from a peer
+round attacking an unrelated contract, which noticed a proposed counterweight would be *vacuous*
+because the cast inherits the nurse's garments by construction.
+
+**The disclosure was not the failure. The follow-up question was.** "They share an asset" and "the
+patient is dressed as staff" are the same fact at two levels of detail, and only the second one is
+actionable. A worker reporting a limitation has told you where to look; it has not told you what is
+there.
+
+**Rule:** when a report says several things are the same, identical, shared, or reused, compare them
+YOURSELF at the byte or content level, and then ask what that identity means for the product. One
+`shasum` would have caught this on the day. The cheap check is available precisely because the worker
+was honest enough to point at it.
+
+**Corollary for asset work specifically:** identity by `assetId` string is not identity. This defect
+had three distinct ids — `..._glb`, `..._nurse_glb`, `..._spouse_glb` — resolving to one file. Any
+contract asserting that actors differ must compare resolved CONTENT, not the labels pointing at it.
+
+## 7f. A guard that prescribes a command owns what that command does
+
+#90's worker regenerated a PROTECTED registry and silently pruned 17 entries. Asked why, it was
+precise:
+
+> "pre-commit failed with *'Markdown file is not registered in the doc authority registry; run
+> `pnpm docs:authority`'*. That was a **guard**, not habit or brief text."
+
+It followed the instruction it was given. `pnpm docs:authority` regenerates by scanning the tree, and
+a worktree has no gitignored `.openclinxr/` evidence, so those entries vanished — 421 → 404, with
+every downstream check still green because a smaller registry is still a well-formed one.
+
+**Rule:** when a guard's failure message names a remediation command, that command must be safe in
+every environment the guard fires in — including a worktree with an incomplete checkout. If it is
+not, the guard is handing workers a loaded tool and the resulting damage is the guard's, not theirs.
+Audit remediation commands the same way you audit the check itself.
+
+The general shape, third instance in this repo: **a gate that verifies well-formedness cannot see
+incompleteness.** `docs:drift-check` asks "is registered Markdown present and classified?" and never
+"is anything missing?" — the same blind spot that produced `markdown-references.ts`.
