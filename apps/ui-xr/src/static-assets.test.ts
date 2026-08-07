@@ -609,7 +609,17 @@ describe("static browser assets", () => {
   });
 
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // Reads main.ts TOGETHER WITH the runtime-asset-url module rather than main.ts alone. #85 split
+    // `resolveLocalHumanoidRuntimeAssetFileName` and its URL construction into
+    // humanoid-runtime-asset-url.ts, and this assertion went red on a refactor that improved the
+    // tree — the same failure the physics-touch fence hit after #83's split. main.ts is under a
+    // shrink-only ratchet and will keep being split, so the check follows the CODE.
+    //
+    // Strength is unchanged: every string below must still appear verbatim in shipped runtime source.
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
+    ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
