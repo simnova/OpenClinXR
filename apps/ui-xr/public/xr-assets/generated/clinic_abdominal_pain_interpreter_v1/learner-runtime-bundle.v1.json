@@ -215,8 +215,8 @@
       "title": "Clinic Abdominal Pain Interpreter",
       "subtitle": "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
       "chiefConcern": "The pain is mostly on the lower right side, and I need the interpreter.",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Not charted — observe interruptions during the encounter",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Clinic abdominal pain interpreter station scene",
       "canvasAriaLabel": "3D clinic interpreter room preview",
       "initialDialogueText": "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter.",
@@ -369,7 +369,116 @@
         ]
       }
     },
-    "roomProps": [],
+    "roomProps": [
+      {
+        "propId": "clinic-abdominal-pain-interpreter-primary-context",
+        "label": "Abdominal Pain With Parent Interpreter Issue",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-primary-context:scenario_context",
+          "clinic_abdominal_pain_interpreter:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-objective-cue",
+        "label": "Elicit migratory abdominal pain and associated symptoms",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-objective-cue:objective_cue",
+          "clinic_abdominal_pain_interpreter:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-communication-cue",
+        "label": "pain_migration_question",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-communication-cue:communication_cue",
+          "clinic_abdominal_pain_interpreter:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "clinic-abdominal-pain-interpreter-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "clinic_abdominal_pain_interpreter:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "clinic-abdominal-pain-interpreter-review-cue:review_cue",
+          "clinic_abdominal_pain_interpreter:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "clinic_abdominal_pain_interpreter_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",

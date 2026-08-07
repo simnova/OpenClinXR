@@ -8,8 +8,8 @@
     "title": "OB Headache Preeclampsia Triage",
     "subtitle": "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
     "chiefConcern": "My headache is getting worse, and the lights are bothering my eyes.",
-    "initialVitals": "Not charted — obtain vitals during the encounter",
-    "interruption": "Not charted — observe interruptions during the encounter",
+    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+    "interruption": "Not charted \u2014 observe interruptions during the encounter",
     "stageAriaLabel": "OB preeclampsia triage station scene",
     "canvasAriaLabel": "3D OB triage room preview",
     "initialDialogueText": "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes.",
@@ -162,7 +162,116 @@
       ]
     }
   },
-  "roomProps": [],
+  "roomProps": [
+    {
+      "propId": "ob-headache-preeclampsia-triage-primary-context",
+      "label": "OB Triage Headache In Pregnancy",
+      "semanticRole": "scenario_context",
+      "evidenceCue": "ob_headache_preeclampsia_triage:primary_context_cue",
+      "colorHex": "#f8fafc",
+      "accentColorHex": "#0f766e",
+      "position": {
+        "x": -0.6,
+        "y": 0.85,
+        "z": -0.7
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ob-headache-preeclampsia-triage-primary-context:scenario_context",
+        "ob_headache_preeclampsia_triage:primary_context_cue"
+      ],
+      "interactionTags": [
+        "scenario_context",
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ob-headache-preeclampsia-triage-objective-cue",
+      "label": "Elicit pregnancy-specific red flags for severe headache",
+      "semanticRole": "objective_cue",
+      "evidenceCue": "ob_headache_preeclampsia_triage:objective_cue",
+      "colorHex": "#eff6ff",
+      "accentColorHex": "#2563eb",
+      "position": {
+        "x": 1.25,
+        "y": 0.95,
+        "z": -0.4
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ob-headache-preeclampsia-triage-objective-cue:objective_cue",
+        "ob_headache_preeclampsia_triage:objective_cue"
+      ],
+      "interactionTags": [
+        "objective_cue",
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ob-headache-preeclampsia-triage-communication-cue",
+      "label": "pregnancy_red_flag_question",
+      "semanticRole": "communication_cue",
+      "evidenceCue": "ob_headache_preeclampsia_triage:communication_cue",
+      "colorHex": "#fef3c7",
+      "accentColorHex": "#d97706",
+      "position": {
+        "x": -1.45,
+        "y": 0.65,
+        "z": 0.75
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ob-headache-preeclampsia-triage-communication-cue:communication_cue",
+        "ob_headache_preeclampsia_triage:communication_cue"
+      ],
+      "interactionTags": [
+        "communication_cue",
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    },
+    {
+      "propId": "ob-headache-preeclampsia-triage-review-cue",
+      "label": "Faculty review evidence cue",
+      "semanticRole": "review_cue",
+      "evidenceCue": "ob_headache_preeclampsia_triage:faculty_review_cue",
+      "colorHex": "#f3e8ff",
+      "accentColorHex": "#7c3aed",
+      "position": {
+        "x": 1.5,
+        "y": 0.7,
+        "z": 0.65
+      },
+      "scale": {
+        "x": 0.7,
+        "y": 0.18,
+        "z": 0.42
+      },
+      "affordanceCueIds": [
+        "ob-headache-preeclampsia-triage-review-cue:review_cue",
+        "ob_headache_preeclampsia_triage:faculty_review_cue"
+      ],
+      "interactionTags": [
+        "review_cue",
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "generatedBy": "scene_manifest"
+    }
+  ],
   "productionReadinessClaimed": false,
   "notEvidenceFor": [
     "production_asset_readiness",

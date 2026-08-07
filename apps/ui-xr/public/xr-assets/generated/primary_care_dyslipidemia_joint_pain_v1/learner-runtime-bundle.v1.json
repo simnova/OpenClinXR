@@ -173,8 +173,8 @@
       "title": "Dyslipidemia And Joint Pain Primary Care Visit",
       "subtitle": "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
       "chiefConcern": "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Not charted — observe interruptions during the encounter",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Primary Care Clinic Room station scene",
       "canvasAriaLabel": "3D Primary Care Clinic Room preview",
       "initialDialogueText": "Mario Guzman: My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
@@ -182,7 +182,116 @@
       "chiefConcernAuthorship": "authored_patient_voice",
       "interruptionAuthorship": "unauthored"
     },
-    "roomProps": [],
+    "roomProps": [
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-primary-context",
+        "label": "Dyslipidemia And Joint Pain Primary Care Visit",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-primary-context:scenario_context",
+          "primary_care_dyslipidemia_joint_pain:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-objective-cue",
+        "label": "Characterize chronic joint pain and screen inflammatory red flags",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-objective-cue:objective_cue",
+          "primary_care_dyslipidemia_joint_pain:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-communication-cue",
+        "label": "joint_pain_characterization",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-communication-cue:communication_cue",
+          "primary_care_dyslipidemia_joint_pain:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-review-cue:review_cue",
+          "primary_care_dyslipidemia_joint_pain:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",

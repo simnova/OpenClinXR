@@ -165,9 +165,9 @@
     "stationContext": {
       "title": "ED Chest Pain",
       "subtitle": "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
-      "chiefConcern": "Not charted — obtain chief concern during the encounter",
+      "chiefConcern": "Not charted \u2014 obtain chief concern during the encounter",
       "initialVitals": "BP 152/92, HR 104, RR 20, SpO2 96%",
-      "interruption": "Not charted — observe interruptions during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Emergency department station scene",
       "canvasAriaLabel": "3D emergency department bay preview",
       "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
@@ -198,84 +198,6 @@
         ],
         "interactionTags": [
           "monitor"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "monitor-waveform-card",
-        "label": "Sinus",
-        "semanticRole": "environmental_detail",
-        "evidenceCue": "monitor-waveform-card:environmental_detail_cue",
-        "colorHex": "07121c",
-        "accentColorHex": "55f0a6",
-        "position": {
-          "x": -0.92,
-          "y": 1.34,
-          "z": -0.82
-        },
-        "scale": {
-          "x": 0.34,
-          "y": 0.18,
-          "z": 0.035
-        },
-        "interactionTags": [
-          "vitals_review"
-        ],
-        "affordanceCueIds": [
-          "monitor-waveform-card:visual_context",
-          "monitor-waveform-card:runtime_scene_manifest_prop"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "monitor-vitals-badge",
-        "label": "HR",
-        "semanticRole": "environmental_detail",
-        "evidenceCue": "monitor-vitals-badge:environmental_detail_cue",
-        "colorHex": "ffd166",
-        "accentColorHex": "b05d16",
-        "position": {
-          "x": -0.5,
-          "y": 1.36,
-          "z": -0.82
-        },
-        "scale": {
-          "x": 0.12,
-          "y": 0.07,
-          "z": 0.025
-        },
-        "interactionTags": [
-          "vitals_review"
-        ],
-        "affordanceCueIds": [
-          "monitor-vitals-badge:visual_context",
-          "monitor-vitals-badge:runtime_scene_manifest_prop"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "ekg-leads-on-bed",
-        "label": "Leads",
-        "semanticRole": "environmental_detail",
-        "evidenceCue": "ekg-leads-on-bed:environmental_detail_cue",
-        "colorHex": "f6f1e6",
-        "accentColorHex": "4f5a60",
-        "position": {
-          "x": -0.18,
-          "y": 0.62,
-          "z": -0.12
-        },
-        "scale": {
-          "x": 0.34,
-          "y": 0.025,
-          "z": 0.2
-        },
-        "interactionTags": [
-          "ecg_request"
-        ],
-        "affordanceCueIds": [
-          "ekg-leads-on-bed:visual_context",
-          "ekg-leads-on-bed:runtime_scene_manifest_prop"
         ],
         "generatedBy": "scene_manifest"
       }

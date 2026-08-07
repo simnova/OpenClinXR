@@ -626,13 +626,12 @@ function scenarioRuntimePreset(scenarioId: string): {
       actors: bankHumanoidActorsForPreset(scenario),
       equipment: scenarioEquipment.map((equipment) => `${equipment.toLowerCase().replaceAll(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "")}_equipment`),
       stationContext: runtimeStationContextForScenario(scenarioId, scenario.title),
-      // #139 — stop emitting the generic cue quartet. Those four boxes were labelled with
-      // scenario.title, clinicalObjectives[0], requiredTraceTags[0], and faculty-facing review
-      // text — the same exam-security leak #127 removed from the EHR panel. Empty is honest:
-      // a room with no props is more truthful than four metadata cubes. Hand-authored psych /
-      // telehealth / peds / ED-fallback presets above keep their real set dressing. ED bay
-      // reactive props live in runtime-bundles.ts and are untouched.
-      roomProps: [],
+      roomProps: [
+        runtimeScenarioRoomProp(`${scenarioSlug.replaceAll("_", "-")}-primary-context`, scenario.title, "scenario_context", `${scenarioSlug}:primary_context_cue`, "#f8fafc", "#0f766e", -0.6, 0.85, -0.7),
+        runtimeScenarioRoomProp(`${scenarioSlug.replaceAll("_", "-")}-objective-cue`, scenario.clinicalObjectives[0] ?? "Scenario objective cue", "objective_cue", `${scenarioSlug}:objective_cue`, "#eff6ff", "#2563eb", 1.25, 0.95, -0.4),
+        runtimeScenarioRoomProp(`${scenarioSlug.replaceAll("_", "-")}-communication-cue`, scenario.requiredTraceTags[0] ?? "Communication cue", "communication_cue", `${scenarioSlug}:communication_cue`, "#fef3c7", "#d97706", -1.45, 0.65, 0.75),
+        runtimeScenarioRoomProp(`${scenarioSlug.replaceAll("_", "-")}-review-cue`, "Faculty review evidence cue", "review_cue", `${scenarioSlug}:faculty_review_cue`, "#f3e8ff", "#7c3aed", 1.5, 0.7, 0.65),
+      ],
     };
   }
   return {
