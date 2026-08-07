@@ -1,12 +1,22 @@
 /**
- * #73 material-region hygiene — body is clothed twice; hairline cuts the face; neckline low.
+ * #73 / #137 material-region hygiene — body is clothed twice; hairline cuts the face;
+ * neckline metric must measure the neck *opening*, not the shoulder yoke.
  *
- * Reads shipped GLBs via glTF-Transform NodeIO.
+ * Reads shipped GLBs via glTF-Transform NodeIO (§6v — loader the runtime path uses).
  * claimScope: material region + garment coverage geometry only.
  * notEvidenceFor: clinical costume realism, drape quality, production readiness.
+ *
+ * ## FIXED (#137)
+ * Pre-#121 ring-and-tube authoring made torsoShellMaxY ≈ neckline (ring top).
+ * Post-#121 body-surface shells carry a deliberate shoulder yoke (automate_blender
+ * yoke_peak_y = body_shoulder_top_y + 0.045). torsoShellMaxY therefore read the
+ * yoke peak (~1.416 parent, ~1.507 nurse) and failed the anti-scarf ceiling
+ * (clavicle + 0.12) while the true centerline neck opening sat inside the band.
+ * garmentNecklineY now measures mid-X centerline min(frontMax, backMax); yoke
+ * coverage is a separate field pair measured from the exported glTF.
  */
 
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { NodeIO, type Document, type Node as GltfNode } from "@gltf-transform/core";
 
@@ -16,8 +26,21 @@ export type RegionFacts = {
   paintedTorsoClothingTriangles: number;
   /** Scalp-hair material tris whose centroid sits in the nose/mouth front band. */
   hairTrianglesInFaceBand: number;
-  /** Max Y of the real garment torso shell (collar/torso, not sleeve tips). */
+  /**
+   * True neck *opening* Y: min over garment meshes of min(front, back) max-Y
+   * in a narrow mid-X centerline band. Not the shoulder yoke peak.
+   */
   garmentNecklineY: number;
+  /**
+   * Max Y of garment verts in lateral shoulder bands (exported glTF).
+   * Deliberate yoke coverage surface; distinct from garmentNecklineY.
+   */
+  yokePeakY: number;
+  /**
+   * Max Y of body mesh verts in lateral upper bands (exported glTF).
+   * Pair with yokePeakY for shoulder-coverage assertions.
+   */
+  bodyShoulderTopY: number;
   /** World Y of the clavicle joint (mean L/R), or body-height fallback. */
   clavicleY: number;
 };
@@ -29,6 +52,26 @@ const HAIR_MAT_RE = /openclinxr_mesh_native_scalp_hair/i;
 /** Nose/mouth height band as fractions of body height (eyes ~0.90, mouth ~0.85). */
 const FACE_BAND_Y0 = 0.84;
 const FACE_BAND_Y1 = 0.92;
+
+/** Default shipped humanoid GLB directory (ui-xr public). */
+export const SHIPPED_HUMANOID_GLB_DIR = "apps/ui-xr/public/generated-humanoids";
+
+/**
+ * Enumerate shipped humanoid GLBs from the tree (not a hardcoded pair).
+ * #137: subject set must track what ships (#102 / §7j).
+ */
+export function listShippedHumanoidGlbs(
+  dir: string = SHIPPED_HUMANOID_GLB_DIR,
+): string[] {
+  const abs = path.isAbsolute(dir) ? dir : path.resolve(process.cwd(), dir);
+  if (!existsSync(abs)) {
+    throw new Error(`listShippedHumanoidGlbs: directory not found: ${abs}`);
+  }
+  return readdirSync(abs)
+    .filter((f) => f.endsWith(".glb"))
+    .sort()
+    .map((f) => path.join(dir, f).replace(/\\/g, "/"));
+}
 
 export async function inspectMaterialRegionHygiene(input: {
   glbPath: string;
@@ -50,7 +93,8 @@ export async function inspectMaterialRegionHygiene(input: {
   let hasRealGarmentMesh = false;
   let paintedTorsoClothingTriangles = 0;
   let hairTrianglesInFaceBand = 0;
-  let garmentNecklineY = 0;
+  const neckOpeningCandidates: number[] = [];
+  let yokePeakY = 0;
 
   for (const mesh of root.listMeshes()) {
     const meshName = mesh.getName() || "";
@@ -59,8 +103,9 @@ export async function inspectMaterialRegionHygiene(input: {
       for (const prim of mesh.listPrimitives()) {
         const pos = prim.getAttribute("POSITION")?.getArray();
         if (!pos || pos.length < 9) continue;
-        const neckline = torsoShellMaxY(pos);
-        garmentNecklineY = Math.max(garmentNecklineY, neckline);
+        const opening = centerlineNeckOpeningY(pos);
+        if (opening > 0) neckOpeningCandidates.push(opening);
+        yokePeakY = Math.max(yokePeakY, lateralYokePeakY(pos));
       }
       continue;
     }
@@ -109,12 +154,20 @@ export async function inspectMaterialRegionHygiene(input: {
   }
 
   const clavicleY = readClavicleY(document, body.minY, bodyH);
+  const bodyShoulderTopY = lateralBodyShoulderTopY(document);
+
+  // Multi-layer garments: lowest centerline opening still must clear the clavicle
+  // and stay under the anti-scarf ceiling. Max would re-select under-layer yoke.
+  const garmentNecklineY =
+    neckOpeningCandidates.length > 0 ? Math.min(...neckOpeningCandidates) : 0;
 
   return {
     hasRealGarmentMesh,
     paintedTorsoClothingTriangles,
     hairTrianglesInFaceBand,
     garmentNecklineY,
+    yokePeakY,
+    bodyShoulderTopY,
     clavicleY,
   };
 }
@@ -125,10 +178,18 @@ function countTriangles(pos: ArrayLike<number>, idx: ArrayLike<number> | null | 
 }
 
 /**
- * Max Y of the torso shell: verts near the body center X (exclude wide sleeve tips)
- * with radial xz extent of the main shell (exclude tiny collar ring if present).
+ * True neck opening Y on one garment prim.
+ *
+ * In a narrow mid-X band, take max Y on the front half and max Y on the back half;
+ * the neck opening height is the lower of those two (front crew dips below the back
+ * collar; lateral yoke peaks are outside the band entirely).
+ *
+ * Rejected alternatives (see issue-137 calibration):
+ * - torsoShellMaxY / main-shell max Y — reads deliberate yoke peak post-#121
+ * - boundary-loop mean Y — highest-scoring loop still rode the yoke rim
+ * - small-radius "neckish" boundary filter — unstable across closed vs open fronts
  */
-function torsoShellMaxY(pos: ArrayLike<number>): number {
+function centerlineNeckOpeningY(pos: ArrayLike<number>): number {
   const xs: number[] = [];
   const ys: number[] = [];
   const zs: number[] = [];
@@ -138,6 +199,7 @@ function torsoShellMaxY(pos: ArrayLike<number>): number {
     zs.push(Number(pos[i + 2]));
   }
   if (ys.length === 0) return 0;
+
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
   const cx = (minX + maxX) * 0.5;
@@ -145,30 +207,92 @@ function torsoShellMaxY(pos: ArrayLike<number>): number {
   const minZ = Math.min(...zs);
   const maxZ = Math.max(...zs);
   const cz = (minZ + maxZ) * 0.5;
+  // ~6 cm absolute, or 18% of half-width — stays on the sternum line, off the deltoid.
+  const band = Math.min(0.06, halfW * 0.18);
 
-  // Radial distances for torso-core verts only.
-  const rads: number[] = [];
+  let frontMax = -Infinity;
+  let backMax = -Infinity;
+  let frontN = 0;
+  let backN = 0;
   for (let i = 0; i < xs.length; i++) {
-    if (Math.abs(xs[i]! - cx) > halfW * 0.55) continue; // sleeve-ish
-    const r = Math.hypot(xs[i]! - cx, zs[i]! - cz);
-    rads.push(r);
+    if (Math.abs(xs[i]! - cx) > band) continue;
+    if (zs[i]! >= cz) {
+      frontMax = Math.max(frontMax, ys[i]!);
+      frontN += 1;
+    } else {
+      backMax = Math.max(backMax, ys[i]!);
+      backN += 1;
+    }
   }
-  if (rads.length === 0) return Math.max(...ys);
-  rads.sort((a, b) => a - b);
-  const medianR = rads[Math.floor(rads.length * 0.5)]!;
-  // Collar ring uses ~0.42 * r_base; keep verts near main shell radius.
-  const rMin = medianR * 0.7;
+  if (frontN === 0 && backN === 0) return 0;
+  if (frontN === 0) return backMax;
+  if (backN === 0) return frontMax;
+  return Math.min(frontMax, backMax);
+}
 
+/**
+ * Shoulder yoke peak from exported garment mesh: max Y in lateral upper bands.
+ * Distinct from the neck opening; used for shoulder-coverage assertions.
+ */
+function lateralYokePeakY(pos: ArrayLike<number>): number {
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (let i = 0; i + 2 < pos.length; i += 3) {
+    xs.push(Number(pos[i]));
+    ys.push(Number(pos[i + 1]));
+  }
+  if (ys.length === 0) return 0;
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const cx = (minX + maxX) * 0.5;
+  const halfW = Math.max((maxX - minX) * 0.5, 0.001);
+  const midY = (Math.min(...ys) + Math.max(...ys)) * 0.5;
   let maxY = -Infinity;
   let any = false;
   for (let i = 0; i < xs.length; i++) {
-    if (Math.abs(xs[i]! - cx) > halfW * 0.55) continue;
-    const r = Math.hypot(xs[i]! - cx, zs[i]! - cz);
-    if (r < rMin) continue;
+    const ax = Math.abs(xs[i]! - cx);
+    if (ax < halfW * 0.35 || ax > halfW * 0.9) continue;
+    if (ys[i]! < midY) continue;
     maxY = Math.max(maxY, ys[i]!);
     any = true;
   }
   return any ? maxY : Math.max(...ys);
+}
+
+/**
+ * Body shoulder top from exported body mesh (lateral upper half).
+ * Measured through NodeIO on the shipped GLB — not the authoring-time rigging report.
+ */
+function lateralBodyShoulderTopY(document: Document): number {
+  const xs: number[] = [];
+  const ys: number[] = [];
+  for (const mesh of document.getRoot().listMeshes()) {
+    if (GARMENT_MESH_RE.test(mesh.getName() || "")) continue;
+    for (const prim of mesh.listPrimitives()) {
+      const pos = prim.getAttribute("POSITION")?.getArray();
+      if (!pos) continue;
+      for (let i = 0; i + 2 < pos.length; i += 3) {
+        xs.push(Number(pos[i]));
+        ys.push(Number(pos[i + 1]));
+      }
+    }
+  }
+  if (ys.length === 0) return 0;
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const cx = (minX + maxX) * 0.5;
+  const halfW = Math.max((maxX - minX) * 0.5, 0.001);
+  const midY = (Math.min(...ys) + Math.max(...ys)) * 0.5;
+  let maxY = -Infinity;
+  let any = false;
+  for (let i = 0; i < xs.length; i++) {
+    const ax = Math.abs(xs[i]! - cx);
+    if (ax < halfW * 0.45 || ax > halfW * 0.95) continue;
+    if (ys[i]! < midY) continue;
+    maxY = Math.max(maxY, ys[i]!);
+    any = true;
+  }
+  return any ? maxY : 0;
 }
 
 function bodyAabb(document: Document): {
