@@ -990,6 +990,34 @@ either the full resolver or its inner cast helper, and which one you pick change
 proves. The worker chose the inner helper so unrelated hardcodes could not poison path identity, and
 suggested the brief should have named it. Both are the same rule.
 
+## 7s. A measure-once-to-disk contract is green about nothing on every later run
+
+#105's brief told the worker to "MEASURE ONCE into an artifact, then assert against it", because a
+previous slice had paid three cold Vite boots by measuring inside each test case. The worker did
+exactly that, and the module caches to disk and returns the cached file when it exists
+(`actor-floor-contact-all-stations.ts:70-77`).
+
+Two cycles later I re-ran that contract twice to check whether landed work had regressed the
+guarantee, and reported both times that it held. It passed in **336 ms**. The real measurement takes
+**29 seconds** — it boots Vite and walks fourteen stations. What I had actually verified was that a
+JSON file written at 06:33, before either landing, still said what it said at 06:33.
+
+Deleting the artifact and re-running gave the honest answer — 42 actors, max float 0.122 m, max sink
+−0.006 m, genuinely within band. The guarantee did hold. **That is luck, not method.** I asserted it
+before I knew it.
+
+**Rule:** any contract whose measurement is cached to disk must record the tree state it measured —
+a commit sha, or the hashes of the inputs — and refuse the cache when that has moved. Until then,
+treat a suspiciously fast pass as a failed run: compare the duration against the honest cost of the
+measurement, and delete the artifact before trusting a re-run.
+
+This is the same family as #55 (a cached gate hiding a red main) and #89 (an evidence directory with
+no commit stamp), arriving through a contract I wrote myself to avoid a different waste. Optimising
+away three Vite boots created a permanent stale-evidence path, and nothing in the contract said so.
+
+**The tell:** the brief contains the words "measure once" and the report type has no field naming
+what was measured against.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
