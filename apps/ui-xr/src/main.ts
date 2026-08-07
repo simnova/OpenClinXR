@@ -38,7 +38,7 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
-import { applyPosturePose, plantSeatedFeetNearFloor } from "./seated-pose.js";
+import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import {
@@ -7671,12 +7671,13 @@ function registerGeneratedHumanoidAnimation(input: {
     }
   }
   // Seated: procedural sit is authoritative; re-apply once after any fixed-pose sample so legs stay folded.
-  // Then plant feet near the floor (bind thigh is ~−π — fold alone leaves residual float).
+  // #87: plant pelvis onto the chair seat (height from descent, not from hip fold past 95°).
   if (isSeated) {
     applyPosturePose(input.humanoid, "seated");
-    const plant = plantSeatedFeetNearFloor(input.humanoid, 0.04);
+    // Aim flush with seat top; post-loop scale breathing opens gap slightly (still < 0.12).
+    const plant = plantSeatedPelvisOnSeat(input.humanoid, PATIENT_CHAIR_SEAT_HEIGHT_METERS, 0.0);
     input.humanoid.userData.openClinXrSeatedPlantDeltaY = plant.deltaY;
-    input.humanoid.userData.openClinXrSeatedPlantLowestBefore = plant.lowestBefore;
+    input.humanoid.userData.openClinXrSeatedPlantPelvisBefore = plant.pelvisBefore;
     input.humanoid.updateMatrixWorld(true);
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;

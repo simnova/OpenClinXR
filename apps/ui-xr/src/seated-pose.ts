@@ -34,13 +34,21 @@ const d2r = (deg: number) => (deg * Math.PI) / 180;
  *   hip flex ≈ +90° on thigh (toward −π/2), knee flex ≈ +95° on shin, feet keep rest pose.
  */
 const THIGH_REST_X = -Math.PI;
-/** Deeper sit so mesh height clears the 0.25 m standing-vs-seated contract margin. */
-const HIP_FLEX = d2r(105);
-const KNEE_FLEX = d2r(115);
+/**
+ * #87: ordinary seated hip flexion (ceiling 95°). #83 deepened this to 105° + trunk stack
+ * to clear a mesh-height threshold; that put the chin on the chest. Height shortening vs
+ * standing comes from leg fold within the ceiling + pelvis on the seat (not chin-to-chest).
+ * Hip flexion is measured as thigh→shin vs world-down. Pelvis absolute tilt adds into that
+ * world angle, so keep pelvis near rest and author hip under 95° of true world fold.
+ * #83's pelvis18/spine12/chest4 stack is forbidden — it cleared height by chin-on-chest.
+ */
+const HIP_FLEX = d2r(93);
+const KNEE_FLEX = d2r(95);
 const SEATED_BONE_EULERS = new Map<string, { x?: number; y?: number; z?: number; absolute?: boolean }>([
-  ["pelvis", { x: d2r(18), absolute: true }],
-  ["spine", { x: d2r(12), absolute: true }],
-  ["chest", { x: d2r(4), absolute: true }],
+  // Near-rest trunk so the head stays upright; height comes from leg fold + seat plant.
+  ["pelvis", { x: d2r(0), absolute: true }],
+  ["spine", { x: d2r(0), absolute: true }],
+  ["chest", { x: d2r(0), absolute: true }],
   // REST thigh x≈-π; +hip flex → thighs more horizontal, knees forward.
   ["thighL", { x: THIGH_REST_X + HIP_FLEX, y: 0.053, z: -0.053, absolute: true }],
   ["thighR", { x: THIGH_REST_X + HIP_FLEX, y: -0.053, z: 0.053, absolute: true }],
@@ -70,10 +78,61 @@ export type ApplySeatedPoseResult = {
 };
 
 /**
- * After a seated pose is applied, shift the humanoid root so the lowest support bone
- * sits near the floor (contract: seated lowestVertexY in [-0.05, 0.2]).
- * Seated height ownership remains verticalOffset + chair; this only corrects residual
- * float after procedural leg fold on armatures whose bind thigh is ~−π.
+ * After a seated pose is applied, shift the humanoid root so the pelvis rests on the
+ * chair seat (not hovering, not buried). #87: mesh height vs standing must come from
+ * this descent onto the seat — not from deepening hip/knee beyond ordinary sit range.
+ *
+ * seatWorldY is the seat TOP surface in world space (procedural chair: 0.45 m).
+ * targetPelvisAboveSeat is a small sit-into-cushion clearance (positive = pelvis above seat).
+ */
+export function plantSeatedPelvisOnSeat(
+  humanoidRoot: Object3D,
+  seatWorldY: number,
+  /**
+   * Target pelvis world-Y minus seat top. Positive = slightly above seat.
+   * Default 0.02 (sit-on-cushion). Per-frame root scale breathing can open the gap
+   * by ~0.05–0.08 m after plant; callers may aim near 0 for a stable post-loop gap.
+   */
+  targetPelvisAboveSeat = 0.02,
+): { deltaY: number; pelvisBefore: number | null } {
+  const readPelvisWorldY = (): number | null => {
+    humanoidRoot.updateMatrixWorld?.(true);
+    let pelvisY: number | null = null;
+    humanoidRoot.traverse((object) => {
+      if (pelvisY !== null) return;
+      const name = (object.name ?? "").toLowerCase();
+      if (name !== "pelvis" && name !== "hips") return;
+      const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
+        || (object as Object3D & { type?: string }).type === "Bone";
+      if (!isBone) return;
+      object.updateWorldMatrix?.(true, false);
+      pelvisY = object.matrixWorld.elements[13] ?? 0;
+    });
+    return pelvisY;
+  };
+
+  const pelvisBefore = readPelvisWorldY();
+  if (pelvisBefore === null) return { deltaY: 0, pelvisBefore: null };
+
+  const targetY = seatWorldY + targetPelvisAboveSeat;
+  // Two passes: first moves root; second corrects residual after matrix rebuild
+  // (parent scales / bind hierarchy mean one local += worldDelta is not always exact).
+  let totalDelta = 0;
+  for (let pass = 0; pass < 2; pass += 1) {
+    const current = readPelvisWorldY();
+    if (current === null) break;
+    const deltaY = targetY - current;
+    if (Math.abs(deltaY) < 1e-4) break;
+    humanoidRoot.position.y += deltaY;
+    totalDelta += deltaY;
+    humanoidRoot.updateMatrixWorld?.(true);
+  }
+  return { deltaY: totalDelta, pelvisBefore };
+}
+
+/**
+ * Legacy foot plant kept for any caller that still needs lowest-support floor contact.
+ * Prefer plantSeatedPelvisOnSeat for seated figures (#87).
  */
 export function plantSeatedFeetNearFloor(
   humanoidRoot: Object3D,
