@@ -7,10 +7,10 @@
   "real_anny_weights_used": false,
   "fallback_active": false,
   "input_params": {
-    "age": 29,
+    "age": 34,
     "body_profile": "adult_clinical_team",
     "pose": "standing_clinical_ready",
-    "seed": 1003,
+    "seed": 1103,
     "phenotype": {
       "skin_tone": "medium_warm",
       "hair_color": "black",
@@ -27,7 +27,7 @@
       "clothing_style": "teal_clinical_scrubs_with_name_badge",
       "clothing_color": "teal_scrubs",
       "role_visual_cue": "clinical_nurse",
-      "wardrobeRole": "pediatric_nurse_scrubs",
+      "wardrobeRole": "peds_nurse_scrubs",
       "garmentLayers": [
         "scrub_top",
         "scrub_pocket"
@@ -38,7 +38,9 @@
         "name_badge",
         "scrub_pocket"
       ],
-      "fitProfile": "adult_clinical_team_fit"
+      "fitProfile": "adult_clinical_team_fit",
+      "anny_topology": "default",
+      "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune"
     },
     "actor_id": "nurse_kevin_lee_v1"
   },
@@ -127,5 +129,6 @@
     "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
     "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
     "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
-  ]
+  ],
+  "reuse_note": "blender_only_rebake_on_tracked_anny_base_obj_issue_96_94_no_anny_forward_pass"
 }

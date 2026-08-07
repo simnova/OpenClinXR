@@ -7,27 +7,27 @@
   "real_anny_weights_used": false,
   "fallback_active": false,
   "input_params": {
-    "age": 34,
-    "body_profile": "adult_standard_parent",
+    "age": 38,
+    "body_profile": "adult_standard",
     "pose": "standing_anxious_guardian",
-    "seed": 1002,
+    "seed": 1102,
     "phenotype": {
       "skin_tone": "warm_light",
       "hair_color": "dark_brown",
       "eye_color": "brown",
-      "gender_presentation": "adult_female_parent",
+      "gender_presentation": "adult_female",
       "height_cm": 166,
-      "build": "average_parent",
+      "build": "average_adult",
       "hair_density": 0.72,
-      "brow_tension": 0.36,
-      "anxious": 0.82,
-      "flush": 0.28,
-      "age_wrinkle": 0.22,
+      "brow_tension": 0.4,
+      "anxious": 0.75,
+      "flush": 0.22,
+      "age_wrinkle": 0.2,
       "bmi": 24.0,
-      "clothing_style": "muted_rose_guardian_cardigan",
+      "clothing_style": "muted_rose_street_cardigan",
       "clothing_color": "muted_rose",
-      "role_visual_cue": "anxious_parent_guardian",
-      "wardrobeRole": "anxious_parent_casual",
+      "role_visual_cue": "anxious_parent",
+      "wardrobeRole": "parent_casual",
       "garmentLayers": [
         "casual_top",
         "open_cardigan"
@@ -35,7 +35,8 @@
       "fabricPalette": "muted_rose_and_neutral",
       "materialFinish": "cotton_knit_matte",
       "accessoryMarkers": [],
-      "fitProfile": "adult_parent_average_fit"
+      "fitProfile": "adult_parent_average_fit",
+      "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune"
     },
     "actor_id": "parent_tara_johnson_v1"
   },
@@ -118,5 +119,6 @@
     "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
     "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
     "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
-  ]
+  ],
+  "reuse_note": "blender_only_rebake_on_tracked_anny_base_obj_issue_96_94_no_anny_forward_pass"
 }

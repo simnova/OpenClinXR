@@ -157,6 +157,12 @@ def write_provenance(
         ],
         "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
         "promotionGates": False,
+        # Restored after #96 re-bake drop; static-assets.test asserts sourceTopologyMode.
+        "sourceOriginChain": {
+            "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+            "rebakedFrom": f"{Path(base_obj).name} (tracked, unchanged by this re-bake)",
+            "garmentAuthoringClass": "body_surface_normal_offset_issue_121",
+        },
     }
     write_json(output_glb.with_suffix(".provenance.json"), prov)
 
@@ -416,8 +422,136 @@ def rebake_peds_child() -> None:
     print("[rebake] peds child done", out_glb, out_glb.stat().st_size, "bytes")
 
 
+def rebake_peds_parent() -> None:
+    """Adult female base + casual_top/open_cardigan → peds_anxious_parent.glb."""
+    base_obj = GEN / "peds_anxious_parent.anny_base.obj"
+    base_man = GEN / "peds_anxious_parent.anny_manifest.json"
+    out_glb = GEN / "peds_anxious_parent.glb"
+    phenotype = {
+        "skin_tone": "warm_light",
+        "hair_color": "dark_brown",
+        "eye_color": "brown",
+        "gender_presentation": "adult_female",
+        "height_cm": 166,
+        "build": "average_adult",
+        "hair_density": 0.72,
+        "brow_tension": 0.40,
+        "anxious": 0.75,
+        "flush": 0.22,
+        "age_wrinkle": 0.20,
+        "bmi": 24.0,
+        "clothing_style": "muted_rose_street_cardigan",
+        "clothing_color": "muted_rose",
+        "role_visual_cue": "anxious_parent",
+        "wardrobeRole": "parent_casual",
+        "garmentLayers": ["casual_top", "open_cardigan"],
+        "fabricPalette": "muted_rose_and_neutral",
+        "materialFinish": "cotton_knit_matte",
+        "accessoryMarkers": [],
+        "fitProfile": "adult_parent_average_fit",
+        "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune",
+    }
+    man = overlay_manifest(
+        base_man,
+        actor_id="parent_tara_johnson_v1",
+        phenotype_overlay=phenotype,
+        extra_params={
+            "age": 38,
+            "body_profile": "adult_standard",
+            "pose": "standing_anxious_guardian",
+            "seed": 1102,
+        },
+    )
+    write_json(base_man, man)
+    report = run_blender(
+        input_mesh=base_obj,
+        input_manifest=base_man,
+        output_glb=out_glb,
+        case_id="peds_asthma_parent_anxiety_v1",
+        actor_role="parent",
+    )
+    write_provenance(
+        output_glb=out_glb,
+        case_id="peds_asthma_parent_anxiety_v1",
+        actor_id="parent_tara_johnson_v1",
+        actor_role="parent",
+        base_obj=str(base_obj.relative_to(ROOT)),
+        garment_layers=["casual_top", "open_cardigan"],
+        report_path=report,
+    )
+    print("[rebake] peds parent done", out_glb, out_glb.stat().st_size, "bytes")
+
+
+def rebake_peds_nurse() -> None:
+    """Adult male base + scrubs → peds_nurse_kevin.glb."""
+    base_obj = GEN / "peds_nurse_kevin.anny_base.obj"
+    base_man = GEN / "peds_nurse_kevin.anny_manifest.json"
+    out_glb = GEN / "peds_nurse_kevin.glb"
+    phenotype = {
+        "skin_tone": "medium_warm",
+        "hair_color": "black",
+        "eye_color": "brown",
+        "anny_topology": "default",
+        "gender_presentation": "adult_male_nurse",
+        "height_cm": 176,
+        "build": "average_clinical_team",
+        "hair_density": 0.58,
+        "brow_tension": 0.12,
+        "anxious": 0.18,
+        "flush": 0.02,
+        "age_wrinkle": 0.10,
+        "bmi": 23.0,
+        "clothing_style": "teal_clinical_scrubs_with_name_badge",
+        "clothing_color": "teal_scrubs",
+        "role_visual_cue": "clinical_nurse",
+        "wardrobeRole": "peds_nurse_scrubs",
+        "garmentLayers": ["scrub_top", "scrub_pocket"],
+        "fabricPalette": "teal_scrubs_and_white_badge",
+        "materialFinish": "poly_cotton_slight_sheen",
+        "accessoryMarkers": ["name_badge", "scrub_pocket"],
+        "fitProfile": "adult_clinical_team_fit",
+        "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune",
+    }
+    man = overlay_manifest(
+        base_man,
+        actor_id="nurse_kevin_lee_v1",
+        phenotype_overlay=phenotype,
+        extra_params={
+            "age": 34,
+            "body_profile": "adult_clinical_team",
+            "pose": "standing_clinical_ready",
+            "seed": 1103,
+        },
+    )
+    write_json(base_man, man)
+    report = run_blender(
+        input_mesh=base_obj,
+        input_manifest=base_man,
+        output_glb=out_glb,
+        case_id="peds_asthma_parent_anxiety_v1",
+        actor_role="nurse",
+    )
+    write_provenance(
+        output_glb=out_glb,
+        case_id="peds_asthma_parent_anxiety_v1",
+        actor_id="nurse_kevin_lee_v1",
+        actor_role="nurse",
+        base_obj=str(base_obj.relative_to(ROOT)),
+        garment_layers=["scrub_top", "scrub_pocket"],
+        report_path=report,
+    )
+    print("[rebake] peds nurse done", out_glb, out_glb.stat().st_size, "bytes")
+
+
 def main() -> None:
-    targets = sys.argv[1:] or ["ed_patient", "ed_nurse", "ed_spouse", "peds_child"]
+    targets = sys.argv[1:] or [
+        "ed_patient",
+        "ed_nurse",
+        "ed_spouse",
+        "peds_child",
+        "peds_parent",
+        "peds_nurse",
+    ]
     if "ed_patient" in targets:
         rebake_ed_patient()
     if "ed_nurse" in targets:
@@ -426,6 +560,10 @@ def main() -> None:
         rebake_ed_spouse()
     if "peds_child" in targets:
         rebake_peds_child()
+    if "peds_parent" in targets:
+        rebake_peds_parent()
+    if "peds_nurse" in targets:
+        rebake_peds_nurse()
     print("REBAKE_ROLE_WARDROBE_SUCCESS", targets)
 
 
