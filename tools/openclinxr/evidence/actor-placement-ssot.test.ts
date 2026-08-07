@@ -115,7 +115,7 @@ const COINCIDENT_XZ_EPSILON_METERS = 0.15;
 const FIRST_THREE = ["primary_patient", "clinical_team", "family"];
 
 describe("every rendered person has a declared position (#123)", () => {
-  it.fails("every staged humanoid has a placement record", async () => {
+  it("every staged humanoid has a placement record", async () => {
     // main.ts:3807 places the fourth slot with a bare position.set and no actorPlacements key, because
     // the factory only ever authored three.
     const mod = await load();
@@ -131,7 +131,7 @@ describe("every rendered person has a declared position (#123)", () => {
     expect(orphans, `staged actors with no declared placement:\n${orphans.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("no two staged humanoids stand in the same spot", async () => {
+  it("no two staged humanoids stand in the same spot", async () => {
     // Kills the cheap satisfaction of the first contract: giving every actor the SAME placement record
     // satisfies (1) and puts two bodies in one place. Epsilon is tight on purpose — a nurse at a
     // bedside is legitimately close to the patient, and a separation floor would break that.
@@ -157,7 +157,7 @@ describe("every rendered person has a declared position (#123)", () => {
     expect(collisions, `people standing in the same spot:\n${collisions.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the first three slots keep their positions (COUNTERWEIGHT — green today)", async () => {
+  it("the first three slots keep their positions (COUNTERWEIGHT — green today)", async () => {
     // The patient, clinical team and family slots are placed through the SSOT already. Adding a fourth
     // must not become an excuse to re-lay-out the three that work.
     const mod = await load();
