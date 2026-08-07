@@ -11,6 +11,10 @@ import {
   resolveRuntimeAssetUrl,
 } from "@openclinxr/asset-registry/runtime-bundles";
 import {
+  resolveHumanoidVariantOrCastPath,
+  resolveLocalHumanoidRuntimeAssetUrl,
+} from "./humanoid-runtime-asset-url.js";
+import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
   initialHistoryTakingCoverageState,
@@ -6499,21 +6503,18 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
     ],
   };
   if (assetPath === "/generated-humanoids/peds_patient_child.glb") {
-    return {
-      ...realAnnyCandidate,
-      provenanceManifestPath: "/generated-humanoids/peds_patient_child.provenance.json",
-    };
+    return { ...realAnnyCandidate, provenanceManifestPath: "/generated-humanoids/peds_patient_child.provenance.json" };
   }
   if (assetPath === "/generated-humanoids/peds_anxious_parent.glb") {
-    return {
-      ...realAnnyCandidate,
-      provenanceManifestPath: "/generated-humanoids/peds_anxious_parent.provenance.json",
-    };
+    return { ...realAnnyCandidate, provenanceManifestPath: "/generated-humanoids/peds_anxious_parent.provenance.json" };
   }
   if (assetPath === "/generated-humanoids/peds_nurse_kevin.glb") {
+    return { ...realAnnyCandidate, provenanceManifestPath: "/generated-humanoids/peds_nurse_kevin.provenance.json" };
+  }
+  if (assetPath === "/generated-humanoids/ed_chest_pain_adult_cast.glb") {
     return {
       ...realAnnyCandidate,
-      provenanceManifestPath: "/generated-humanoids/peds_nurse_kevin.provenance.json",
+      provenanceManifestPath: "/generated-humanoids/ed_chest_pain_adult_cast.provenance.json",
     };
   }
   if (assetPath.includes("/cagematch/anny-mpfb2-eye-rig/")) {
@@ -7552,17 +7553,19 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
 
   if (scenarioId === 'ed_chest_pain_priority_v1' || scenarioId === 'ed_chest_pain_priority_v2') {
     const humanoidSourceComparator = selectedHumanoidSourceComparator();
-    if (humanoidSourceComparator === "ed_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")) {
-      // ED real garment from phenotype.garmentLayers (ed-gown-geo-reorchestrate Q1): resolves dedicated /current/ed_chest_pain_patient_real_garment.glb (adult/ed gown/hospital_gown variant produced by asset pipeline from case ed_chest_pain_priority_v2 + preset garmentLayers); enables visible 3D deforming sleeves in ed bay UI-XR sample + promotion flow. No peds proxy.
-      return "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb";
-    }
+    const comparatorOverride =
+      humanoidSourceComparator === "ed_anny_real_garment_patient" && (actorId === runtimePatientActorId() || role === "patient")
+        ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
+        : null;
+    // #85: age-band casting SSOT — adult ED roles resolve to adult cast, never peds_patient_child.
+    return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath, comparatorOverridePath: comparatorOverride });
   }
 
   if (/older|elder|geriatric|delirium/u.test(`${scenarioId} ${actorId} ${role}`)) {
     return '/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb';
   }
 
-  return fallbackPath;
+  return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath });
 }
 
 function selectedHumanoidSourceComparator(): "mpfb_ob_patient" | "charmorph_antonia_patient" | "charmorph_reom_patient" | "reom_local_fitted_garment_patient" | "reom_local_authored_curved_garment_patient" | "reom_shirts01_cc0_patient" | "reom_toigo_basic_tucked_tshirt_patient" | "reom_namuhekam_polo_patient" | "peds_anny_mpfb2_eye_rig_patient" | "peds_anny_school_age_mpfb2_eye_patient" | "peds_anny_comfy_masked_skin" | "peds_anny_real_garment_patient" | "peds_anny_real_garment_parent" | "peds_anny_real_garment_nurse" | "ed_anny_real_garment_patient" | null {
@@ -9516,13 +9519,13 @@ function recordPediatricRespiratoryEquipmentCue(equipmentId: string, cueId: stri
 }
 
 function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
+  if (asset.kind === "humanoid_model") {
+    return resolveLocalHumanoidRuntimeAssetUrl(asset, (a) => resolveRuntimeAssetUrl(a as EncounterRuntimeAsset));
+  }
   const blobName = asset.blob.blobName.replace(/^\/+/u, "");
   const fileName = blobName.split("/").at(-1);
   if (!fileName) {
     return resolveRuntimeAssetUrl(asset);
-  }
-  if (asset.kind === "humanoid_model") {
-    return `/xr-assets/humanoids/${resolveLocalHumanoidRuntimeAssetFileName(fileName)}`;
   }
   if (asset.kind === "environment_model") {
     return `/xr-assets/environment/${resolveLocalEnvironmentRuntimeAssetFileName(fileName)}`;
@@ -9531,13 +9534,6 @@ function resolveEmulatorRuntimeAssetUrl(asset: EncounterRuntimeAsset): string {
     return `/xr-assets/medical-equipment/${resolveLocalEquipmentRuntimeAssetFileName(fileName)}`;
   }
   return resolveRuntimeAssetUrl(asset);
-}
-
-function resolveLocalHumanoidRuntimeAssetFileName(fileName: string): string {
-  if (fileName === "patient.glb" || fileName === "nurse.glb" || fileName === "spouse.glb") {
-    return "neutral-generated-human.glb";
-  }
-  return fileName;
 }
 
 function resolveLocalEnvironmentRuntimeAssetFileName(fileName: string): string {

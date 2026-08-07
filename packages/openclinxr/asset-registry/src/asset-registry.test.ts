@@ -427,7 +427,7 @@ describe("asset registry", () => {
     });
     expect(resolveRuntimeAssetUrl(bundle.environment)).toBe("/xr-assets/environment/ed-exam-bay-shell.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model ?? bundle.environment))
-      .toBe("/xr-assets/humanoids/neutral-generated-human.glb");
+      .toBe("/generated-humanoids/ed_chest_pain_adult_cast.glb");
     expect(resolveRuntimeAssetUrl(findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model ?? bundle.environment))
       .toBe("/xr-assets/medical-equipment/ecg-cart-12-lead.glb");
     expect(bundle.actors.every((actor) => actor.gazeProfile.supportsActorTargets)).toBe(true);
@@ -618,11 +618,11 @@ describe("asset registry", () => {
         ]),
         generatedAssetRefs: expect.arrayContaining([
           expect.objectContaining({
-            assetId: "neutral_generated_humanoid_model_glb",
+            assetId: "ed_chest_pain_adult_cast_spouse_glb",
             scenarioAssetId: "spouse_anna_hayes_character",
             blobRef: expect.objectContaining({
               storeKind: "app_public_fixture",
-              blobName: "xr-assets/humanoids/neutral-generated-human.glb",
+              blobName: "generated-humanoids/ed_chest_pain_adult_cast.glb",
             }),
           }),
         ]),
@@ -630,7 +630,7 @@ describe("asset registry", () => {
           expect.objectContaining({
             actorId: "patient_robert_hayes_v1",
             actorRole: "patient",
-            modelAssetId: "neutral_generated_humanoid_model_glb",
+            modelAssetId: "ed_chest_pain_adult_cast_glb",
             requiredSignalIds: expect.arrayContaining(["dialogue_viseme_and_gaze_mapping"]),
             claimScope: "metadata_only_not_visual_quality_evidence",
           }),
@@ -638,7 +638,7 @@ describe("asset registry", () => {
         fallbackPosture: {
           usesLocalFixtureFallbackAssets: true,
           fallbackAssetIds: expect.arrayContaining([
-            "neutral_generated_humanoid_model_glb",
+            "ed_chest_pain_adult_cast_glb",
             "ed_exam_bay_environment_shell_glb",
             "ecg_cart_12_lead_glb",
           ]),
@@ -909,7 +909,7 @@ describe("asset registry", () => {
       assetStore: azureStore,
     });
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(azureBundle, "nurse_maria_alvarez_v1")?.model ?? azureBundle.environment))
-      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/xr-assets/humanoids/neutral-generated-human.glb");
+      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/generated-humanoids/ed_chest_pain_adult_cast.glb");
     expect(azureBundle.assetStoreKind).toBe("azure_blob");
   });
 

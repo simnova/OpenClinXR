@@ -88,6 +88,25 @@ import { describe, expect, it } from "vitest";
  * SCOPE: whether a scenario's declared roles resolve to age-appropriate assets. Says NOTHING about
  * clothing, drape, facial likeness, or whether any figure is clinically plausible — the last needs a
  * clinician and is not claimed. The undressed patient remains a real defect and is NOT fixed here.
+ *
+ * ## FIXED (#85)
+ *
+ * DECISION (named in commit): generate/promote adult assets for adult ED roles (route A), with
+ * age-band refuse so a pediatric patient GLB cannot silently cast an adult slot.
+ *
+ *   - Picked route A: promoted existing local ED adult Anny candidate
+ *     (`ed_chest_pain_patient_adult_bod` → `generated-humanoids/ed_chest_pain_adult_cast.glb`,
+ *     measured stature 1.791 m) with provenance.scenarioId = ed_chest_pain_priority_v1.
+ *   - Rejected route B alone: age-band resolution without an adult asset still has nowhere honest
+ *     to point (would need placeholders or generation anyway).
+ *   - Rejected route C (labelled placeholder): adult geometry already existed in-tree; a labelled
+ *     stick figure would make the ED bay look worse than necessary for the same contract pass.
+ *   - Did NOT scale geometry to clear 1.5 m — the floor sits in open space between measured child
+ *     (1.25 m) and shorter adult (1.66 m); stature comes from the promoted asset as-authored.
+ *
+ * Wiring: `packages/openclinxr/asset-registry/src/actor-casting.ts` SSOT + ED bundle model paths +
+ * UI-XR `resolveHumanoidVariantOrCastPath` / generated-humanoids URL resolution.
+ * Inspector: `inspectScenarioCasting` measures stature from GLB positions and reads provenance JSON.
  */
 
 const load = async () =>
@@ -111,7 +130,7 @@ const PEDS = "peds_asthma_parent_anxiety_v1";
 const ADULT_FLOOR_METERS = 1.5;
 
 describe("a scenario's declared roles resolve to age-appropriate assets (#85)", () => {
-  it.fails("no adult role in the ED encounter resolves to a sub-1.5m asset", async () => {
+  it("no adult role in the ED encounter resolves to a sub-1.5m asset", async () => {
     // The product assertion. 1.5 m sits in open space between the child (1.25) and the shorter
     // adult (1.66) — not a tuned threshold, and nothing in the tree is near it.
     const mod = await load();
@@ -130,7 +149,7 @@ describe("a scenario's declared roles resolve to age-appropriate assets (#85)", 
     }
   }, 300_000);
 
-  it.fails("no actor is played by an asset generated for a different scenario", async () => {
+  it("no actor is played by an asset generated for a different scenario", async () => {
     // Kills the cheap satisfaction of the first contract — scaling the child asset up to 1.7m would
     // pass on stature while Maya Johnson is still playing Robert Hayes. Provenance is recorded at
     // generation time and a runtime transform cannot touch it.

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "actorId": "patient_robert_hayes_v1",
+  "actorRole": "patient",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+  "riggingReportPath": null,
+  "sourceManifestPath": null,
+  "generatorMode": "promoted_local_ed_adult_anny_candidate_cast_v1",
+  "sourceKind": "ed_chest_pain_adult_cast_promoted_from_local_candidate",
+  "usesRealAnnyForwardPass": true,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "B",
+  "promotionStatus": "runtime_candidate_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "meshStage": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "optimizationStage": null,
+    "sourceManifestKind": "promoted_ed_adult_cast_candidate",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "promotedFrom": "apps/ui-xr/public/_garment_cand/j1/ed_chest_pain_patient_adult_bod.glb",
+    "promotionNote": "Issue #85 casting: promote existing adult ED Anny candidate (measured stature ~1.79 m) so adult ED roles no longer resolve to pediatric assets. Not a new Anny orchestrate (avoids stub fallback without anny package)."
+  },
+  "optimizationHandoff": null,
+  "licenseChain": {
+    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
+  },
+  "derivativeLineage": {
+    "caseId": "ed_chest_pain_priority_v1",
+    "actorId": "patient_robert_hayes_v1",
+    "reuseKey": "ed_chest_pain_priority_v1:patient_robert_hayes_v1:patient:adult_cast_promoted",
+    "sourceParametersHash": "ed_chest_pain_adult_cast_promoted_v1"
+  },
+  "toolVersion": "openclinxr-ed-adult-cast-promote-v1-issue-85",
+  "promptOrCaseParameterHash": "ed_chest_pain_adult_cast_promoted_v1",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "provider_runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ],
+  "sourceNotes": [
+    "Promoted for #85 scenario-actor casting: adult emergency-department roles must not resolve to pediatric GLBs.",
+    "Geometry is the local ED adult Anny candidate (height_cm 178 phenotype / measured mesh stature ~1.79 m).",
+    "Shared cast mesh is used for patient, nurse, and spouse until role-distinct adult ED assets exist — age-appropriate and same-scenario provenance only, not role likeness.",
+    "This is casting evidence only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
+  ]
+}
