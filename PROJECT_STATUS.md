@@ -367,6 +367,44 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
 
+### 2026-08-07 chart-honesty-and-garment-hem-dual-land (Q1+Q5)
+
+Product path advanced: two product slices landed. **#115** (`f00fd1c`, 39 files, L5 / 36 turns) — the
+vitals field is honest about what it contains: 3 stations keep numeric vitals marked
+`legacy_hardcoded_unreviewed`, 12 now read "Not charted — obtain vitals during the encounter" under a
+`Vitals status` label instead of environment prose or placeholders. It generalised to the in-scene
+wall placard because it landed at the shared producer. **#124** (`6bdd5d5`, 21 files, L5 / 92 turns)
+— garment hems are regular (perimeter ratio ≤1.01, max turn ≤46° against a 1.35/100° ceiling) and
+every mesh hem overlaps the painted lower region on all six shipped humanoids. The ward figure that
+was bare from ribs to mid-thigh is now in continuous scrubs.
+
+Blueprint/factory tie: Q1 blueprint-to-runtime (bank/bundle → learner-visible chart, phenotype →
+garment geometry); Q5 verification via orchestrator pixel grade on four stations.
+
+Touched files: `generated-ed-station-runtime-bundle.ts`, `apps/ui-xr/src/station-vitals.ts` +
+`station-context.ts` (new, extracted from `main.ts` — ceiling ratcheted 10121→9980),
+`automate_blender.py` (+471), `tools/openclinxr/evidence/{station-vitals-honesty,garment-hem-boundary}.ts`,
+six regenerated tracked humanoid GLBs.
+
+Evidence: `.openclinxr/evidence/ui-xr-environment-room/latest/` — oncology, ward, psych, ED captures
+graded by the orchestrator. #85 closed as already-done with its three casting contracts green.
+
+Risk remaining: open-front garments expose the torso by construction (#103, premise rewritten);
+short sleeves end at unpainted arm mesh; `merge-kill` raised-ceiling false-kills a branch cut before a
+shrink (#128, fails closed).
+
+Guard finding: #124 was refused once for `raised-ceiling` — a stale-base artifact, not a worker
+action. Cleared by rebasing onto main and re-verifying the contract. No override, no weakening.
+
+Rules: `PROTO_VERIFY_DELEGATION.md` §8b–8e added from the two retros (cap the trap CLASS not the
+instance; discovery is a third turn bucket; learner-facing copy is not an implementer decision; the
+out-of-scope slot does not transfer the grading duty).
+
+Token introspection: n/a (dispatched workers; per-slice ledger in `.openclinxr/openclaw/worker-sessions.jsonl`).
+
+Next: #127 in flight (chart rows print the scoring goal); #103 needs a measurement pass before it is
+dispatchable.
+
 ### 2026-08-02 peds-parent-nurse-garment-dual-capture-v1 (Q1+Q5)
 
 Product path advanced: Dual Model Vetting turntable capture for parent + nurse (existing GLBs, **no** Blender re-orchestrate). Evidence dir `.openclinxr/evidence/peds-parent-nurse-dual-capture-2026-08-02/` with 4 PNGs (~139–147kB) + artifact-map + inventory; MV report under `cagematch-reports/peds-parent-nurse-dual-2026-08-02/`.
