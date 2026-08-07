@@ -739,3 +739,50 @@ ceremony. If an approach is not written down, it does not exist.
   than observed. Prefer the artifact the work itself writes over any proxy for "is it alive".
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 6v. Measure with the instrument the RUNTIME uses, not the one that reads the file
+
+#83 was filed with a confident, measured, wrong headline. `gltf-transform` reports the shipped
+humanoid's 23 joints as `thigh.L`, `upper_arm.L`, `foot.L` — dotted. The pose map keyed undotted
+names, so I concluded the rotations could never bind and wrote that up with the joint list as
+evidence. The worker's retro pushed back: it had checked BOTH sides and keyed the runtime's.
+
+    thigh.L              -> thighL
+    upper_arm.L          -> upper_armL
+    index_finger_base.R  -> index_finger_baseR
+
+`three.js` strips dots on load (`PropertyBinding.sanitizeNodeName` — `.` is a path separator in
+animation binding). The file says one thing, the running scene graph says another, and **both
+readings are correct for their own layer.** A gate built on the file layer will disagree with a
+runtime built on the scene-graph layer, silently and forever, because neither is wrong.
+
+**Rule:** when the question is "does the running code find this", read it through the loader the
+running code uses. Reading the asset is answering a different question. This generalises past
+names — indices, units, axis conventions and node hierarchy are all transformed on import.
+
+**Corollary, and the reason this is in the delegation file rather than an asset doc:** the retro
+overturned the orchestrator's measurement, and that is the retro working. Verify the correction
+(one command here), then REWRITE THE PREMISE where it is stated — do not append. A wrong headline
+left at the top of an issue is what the next worker reads first.
+
+## 6w. Thrash is environment cost, and it does not mean the slice was too big
+
+#81 ran **95 turns**, the largest slice this pipeline has run. Its own breakdown:
+
+| | turns |
+|---|---|
+| product (contracts, posture SSOT, chair, clip binding, placement bugs) | ~45 |
+| **thrash** (freeze ceilings, missing cagematch/physics copies in the worktree, re-capturing the room after every placement fix) | ~40 |
+| verify / commit | ~10 |
+
+> "Not 1.5× of a clean 60-turn slice — maybe ~40–50 of product work, ~30–40 thrash."
+
+The naive read is that L5 exceeded the worker's reach. It did not: **it exceeded the worktree's
+preparation.** Nearly every thrash item is an orchestrator-side fixable — a worktree missing files
+the slice needs, a ratchet whose ceiling was not extended for work that legitimately grows a file,
+a capture loop re-run because nothing told the worker which changes require a re-capture.
+
+**Rule:** before attributing a long slice to size, get the breakdown. Roll back the rung only when
+the PRODUCT half saturates. Rolling back on thrash punishes the delegate for the environment, and
+this project's escalation experiment has already established that failing on prep is the
+orchestrator's failure. Attack the thrash; hold the rung.
