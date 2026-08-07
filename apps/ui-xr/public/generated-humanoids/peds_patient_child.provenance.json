@@ -3,10 +3,10 @@
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "patient_maya_johnson_v1",
   "actorRole": "patient",
-  "assetPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.glb",
-  "riggingReportPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child_rigging_report.json",
-  "sourceManifestPath": ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1/peds_patient_child.anny_manifest.json",
-  "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child_rigging_report.json",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_manifest.json",
+  "generatorMode": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
   "realAnnyWeightsUsed": false,
@@ -15,40 +15,29 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "sourceOriginChain": {
-    "sourceRecordPath": "sources/anny-github-2026.json",
-    "meshStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
-    "blenderStage": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "orchestrator": "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
-    "optimizationStage": null,
-    "sourceManifestKind": "real_anny_candidate_unverified",
-    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
-  },
-  "optimizationHandoff": null,
-  "licenseChain": {
-    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
-    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
-    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
-  },
-  "derivativeLineage": {
-    "caseId": "peds_asthma_parent_anxiety_v1",
-    "actorId": "patient_maya_johnson_v1",
-    "reuseKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_candidate",
-    "sourceParametersHash": "359b65b3a166d3c4b0039e27ae4fba8e41408d16231a02a1fd5181972eaa535e"
-  },
-  "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
-  "promptOrCaseParameterHash": "359b65b3a166d3c4b0039e27ae4fba8e41408d16231a02a1fd5181972eaa535e",
+  "outputSha256": "9ec0cc3aaa468a0780070043d61c3192273f57eff8d4e288b9332aefaa9fa22b",
+  "outputBytes": 5612828,
+  "generatedAt": "2026-08-07T05:53:05.060839+00:00",
+  "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
+  "baseObj": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_base.obj",
+  "garmentLayers": [
+    "short_sleeve_exam_tshirt"
+  ],
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
-    "provider_runtime_readiness",
-    "production_asset_readiness",
     "quest_readiness",
+    "production_asset_readiness",
     "learner_readiness",
     "clinical_validity",
-    "scoring_validity"
+    "scoring_validity",
+    "scene_placement_readiness"
   ],
   "sourceNotes": [
-    "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
-    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
-  ]
+    "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
+    "Base apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_base.obj; garmentLayers=['short_sleeve_exam_tshirt'].",
+    "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
+    "Not B+ realism / production / clinical readiness."
+  ],
+  "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
+  "promotionGates": false
 }
