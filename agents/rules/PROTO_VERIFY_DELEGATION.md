@@ -2310,7 +2310,7 @@ nothing has to be specified in advance.
 **The trap to avoid:** a harness that renders the subject through its own code path grades something
 the learner never sees, which is worse than no harness. It must drive the product's renderer.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9b. A port answering is not proof it is answering from your build
 
@@ -2341,5 +2341,47 @@ then found `mpmath` missing and reached for `mpmath`. That is the §6s violation
 the same predicate is the signal to stop patching. The correct fix was one command,
 `pip install -r requirements.txt`, restoring the whole set my own installs had disturbed. Symptom-fixing
 in a dependency graph is guessing with extra steps.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9c. The calibration artifact carries the MECHANISM, not only the counts
+
+§7p established the gated pre-fix artifact after three workers independently asked for it; §8o
+sharpened it to per-subject rows. #165's worker adds the missing half, and it is one line:
+
+> Require the pre-fix artifact to include a one-line **ambient failure class**:
+> `api_authored=0 because GET /scenarios/:id is authored-store-only (404 → bank_residual)`
+> — not only the counts. **Counts alone do not name the mechanism; I still had to rediscover that
+> hop.**
+
+That is exact. A calibration table says *what* is wrong; it does not say *why*, so the worker
+re-derives the why on its own turns even though the orchestrator often already knows it. Writing one
+sentence per measured failure — the observed value, and the mechanism that produces it — converts a
+number into a starting point.
+
+**Rule:** every pre-fix row that records a failing value also records the mechanism in one line, or
+says explicitly that the mechanism is unknown (§6d — which is itself useful, because it tells the
+worker the diagnosis is genuinely theirs).
+
+## 9d. Ask the worker to measure the thing you are NOT contracting on
+
+#165's contract needed one seeded `api_authored` hop. I also asked it to verify an unverified peer
+claim about a thin activation pool, which no contract asserted. Asked whether that was a distraction:
+
+> "**Most valuable thing in the slice, and not a distraction.** The pre-fix number (1/14 eligible,
+> `canStartLearnerExam: false`, 12× bank_residual) is the real Lane B finding: **transport can be
+> green and a learner still cannot start a multi-station exam.** That outlives the seam proof."
+
+The contracted work was correct and narrow. The uncontracted measurement reframed a whole lane — and
+it cost almost nothing, because the worker was already booting the API to satisfy the contract.
+
+**Rule:** when a slice stands up expensive machinery — a live API, a booted scene, a loaded asset —
+name one or two adjacent quantities to record while it is standing. Not assertions, just readings.
+§8l found the same thing from the other side (a contract's field list is a diagnostic instrument);
+this is the version where the reading is not even in the report type.
+
+**The discipline that keeps it honest:** the extra measurement must be a READING, never a second
+contract. A worker asked to *assert* on something adjacent will optimise for it; a worker asked to
+*record* it just records it.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
