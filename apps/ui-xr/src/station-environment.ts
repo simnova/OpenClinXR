@@ -6,7 +6,9 @@
  * later kit-bash / generative bake-off — not the destination art style.
  *
  * #81: patient_chair fixture builds real chair geometry with seatHeightMeters
- * (see station-chair.ts); other slots remain layout markers.
+ * (see station-chair.ts).
+ * #97: stretcher fixture builds real horizontal bed geometry with deckTopYMeters
+ * (see station-stretcher.ts); other slots remain layout markers.
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
@@ -18,6 +20,7 @@ import {
   type Object3D,
 } from "three";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
+import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js";
 
 export type BuildStationEnvironmentInput = {
   environmentId: string;
@@ -105,7 +108,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   wallTrim.userData.openClinXrDynamicScenePolicy = "environmentId_driven_wall_trim";
   shell.add(wallTrim);
 
-  // Fixture slots: patient_chair is real geometry (#81); others stay tiny layout markers.
+  // Fixture slots: patient_chair (#81) + stretcher (#97) are real geometry; others stay markers.
   for (const slot of d.fixtureSlots) {
     if (isPatientChairSlotId(slot.slotId)) {
       const chair = buildPatientChair({
@@ -115,6 +118,16 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         trimColor: d.wallTrimColor,
       });
       shell.add(chair);
+      continue;
+    }
+    if (isStretcherSlotId(slot.slotId)) {
+      const stretcher = buildPatientStretcher({
+        slotId: slot.slotId,
+        purpose: slot.purpose,
+        position: slot.position,
+        trimColor: d.wallTrimColor,
+      });
+      shell.add(stretcher);
       continue;
     }
     const marker = new Mesh(

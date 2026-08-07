@@ -88,6 +88,31 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether the ED bay renders one bed-shaped stretcher. Says NOTHING about clinical accuracy of
  * a stretcher — that needs a clinician — nor about the other 37 fixtures.
+ *
+ * ## FIXED (#97)
+ * DECISION: procedural stretcher on existing `slotId: "stretcher"` following #81 buildPatientChair
+ * (`station-stretcher.ts` + `station-environment.ts`). Shell GLB fully hidden at load
+ * (`prepareLoadedEnvironmentShell` → root.visible=false + stretcher node suppress). main.ts bed
+ * stays hidden in dynamic mode. Removed dual case-derived ed-gurney. Fixed generated scene-manifest
+ * unit-cube `monitor` prop (1×1×1 at y=1 — the white slab that survived shell suppress).
+ *
+ * REJECTED:
+ * - Correct shell axis alone: entire 41-node shell is Z-up-export scrambled; machine contracts
+ *   read fixture slots not the GLB; dual walls with parametric shell.
+ * - Unhide main.ts:3502 bed: outside fixture-slot system; leaves marker cube; dual risk.
+ *
+ * FINDINGS beyond header:
+ * - Other 37 shell nodes ARE equally axis-broken (gltf-transform dump).
+ * - Shell source exists: environment-artifacts.ts createEnvironmentBlenderScript.
+ * - Node names only used as scene labels + this suppress; no gameplay consumers.
+ * - Pixel-dominating white cube was NOT the shell mattress — it was generated
+ *   `roomProps[monitor]` scale 1,1,1 colorHex "#111827" (parseInt fails on `#` → 0xd9dde3).
+ *
+ * Machine: length>height, deckTopY∈[0.4,0.95), exactly one visible stretcher|bed, chair counterweight.
+ * IN-SCOPE VISUAL: stretcher looks like a low horizontal procedural bed (grey mattress, red rails,
+ * legs). Nurse is fully visible from doorway once the unit-cube monitor + shell slab are gone.
+ * OUT-OF-SCOPE: patient still standing (supine out of scope); garment neck/shoulder tears on
+ * teal gown and pink cardigan; three cast figures share similar adult body meshes.
  */
 
 const load = async () =>
@@ -111,7 +136,7 @@ const ED = "ed_exam_bay_v1";
 const stretchers = (f: FixtureGeometry[]) => f.filter((x) => /stretcher|bed/i.test(x.fixtureId) && x.visible);
 
 describe("the ED bay renders one bed-shaped stretcher (#97)", () => {
-  it.fails("the visible stretcher is longer than it is tall and its deck sits at bed height", async () => {
+  it("the visible stretcher is longer than it is tall and its deck sits at bed height", async () => {
     // The shell's mattress is 0.72 wide x 0.95 TALL x 0.12 deep — a slab on edge. A stretcher is
     // longer than tall, with a deck a body could lie on. Deliberately loose: this is a floor, not a
     // description of a stretcher.
@@ -134,7 +159,7 @@ describe("the ED bay renders one bed-shaped stretcher (#97)", () => {
     }
   }, 600_000);
 
-  it.fails("exactly one stretcher is visible", async () => {
+  it("exactly one stretcher is visible", async () => {
     // Kills the most likely failure: adding a good stretcher while the broken slab stays in frame.
     // Dual geometry doubles the occlusion that already hides the nurse from the doorway camera.
     const mod = await load();
@@ -149,7 +174,7 @@ describe("the ED bay renders one bed-shaped stretcher (#97)", () => {
     ).toHaveLength(1);
   }, 600_000);
 
-  it.fails("the patient chair still builds real geometry (COUNTERWEIGHT — already true since #81)", async () => {
+  it("the patient chair still builds real geometry (COUNTERWEIGHT — already true since #81)", async () => {
     // The chair and the stretcher share a fixture builder. A change that gives the stretcher shape
     // must not cost the chair its own — #81 built it and #87 seated a patient on it.
     const mod = await load();

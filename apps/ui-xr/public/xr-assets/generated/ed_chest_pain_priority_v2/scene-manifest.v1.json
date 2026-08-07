@@ -17,20 +17,20 @@
   "roomProps": [
     {
       "propId": "monitor",
-      "label": "Monitor",
+      "label": "Bedside monitor",
       "semanticRole": "objective_cue",
       "evidenceCue": "Vitals monitor anchors the ED chest pain assessment.",
-      "colorHex": "#111827",
+      "colorHex": "111827",
       "accentColorHex": "#f59e0b",
       "position": {
-        "x": 1,
-        "y": 1,
-        "z": 1
+        "x": -1.55,
+        "y": 1.42,
+        "z": -1.15
       },
       "scale": {
-        "x": 1,
-        "y": 1,
-        "z": 1
+        "x": 0.55,
+        "y": 0.32,
+        "z": 0.04
       },
       "affordanceCueIds": [
         "vitals_monitor"
