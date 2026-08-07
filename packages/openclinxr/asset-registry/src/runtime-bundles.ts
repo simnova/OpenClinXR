@@ -158,7 +158,8 @@ export type EncounterRuntimeDialogueTurn = {
 };
 
 export type EncounterRuntimeActorPlacement = {
-  slotKind: "primary_patient" | "clinical_team" | "family_or_observer";
+  /** #123: additional_cast is the fourth staged humanoid (team-adjacent secondary). */
+  slotKind: "primary_patient" | "clinical_team" | "family_or_observer" | "additional_cast";
   position: { x: number; y: number; z: number };
   scale: { x: number; y: number; z: number };
   verticalOffsetMeters: number;

@@ -6,10 +6,13 @@
  * so legacy mid-height offsets do not bury feet-near-origin humanoids.
  *
  * #81: telehealth primary patient parks at patient_chair (not floor-standing mid-bay).
+ * #123: prefer openClinXrSlotKind so additional_cast / second clinical do not collapse
+ * onto the single clinical_team framing point (coincident nurse+RT / nurse+consultant).
  */
 
 import type { Group } from "three";
 import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry";
+import { ADDITIONAL_CAST_FRAMING_XZ } from "./runtime-actor-placements.js";
 
 export type EncounterActorFramingInput = {
   actor: Group;
@@ -85,7 +88,23 @@ export function applyCleanEncounterVisualReviewActorFraming(
     return;
   }
 
-  if (role.includes("patient")) {
+  // Slot-kind first (#123): second clinical in additional_cast must not share clinical_team XZ.
+  const slotKind =
+    typeof actor.userData.openClinXrSlotKind === "string"
+      ? actor.userData.openClinXrSlotKind
+      : "";
+
+  if (slotKind === "additional_cast") {
+    actor.position.set(ADDITIONAL_CAST_FRAMING_XZ.x, 0, ADDITIONAL_CAST_FRAMING_XZ.z);
+    actor.rotation.y = -0.12;
+    actor.scale.setScalar(0.86);
+    actor.userData.openClinXrEncounterStaging =
+      "additional_cast_team_adjacent_secondary_not_doorway";
+  } else if (slotKind === "family_or_observer" || role.includes("family") || role.includes("parent") || role.includes("spouse")) {
+    actor.position.set(1.42, 0, 0.04);
+    actor.rotation.y = -0.34;
+    actor.scale.setScalar(0.82);
+  } else if (role.includes("patient") || slotKind === "primary_patient") {
     actor.position.set(-0.9, 0, 0.08);
     actor.rotation.y = 0.16;
     actor.scale.setScalar(0.88);
@@ -94,14 +113,12 @@ export function applyCleanEncounterVisualReviewActorFraming(
     || role.includes("clinical")
     || role.includes("consultant")
     || role.includes("therapist")
+    || role.includes("physician")
+    || slotKind === "clinical_team"
   ) {
     actor.position.set(0.64, 0, 0.3);
     actor.rotation.y = -0.18;
     actor.scale.setScalar(0.86);
-  } else if (role.includes("family") || role.includes("parent") || role.includes("spouse")) {
-    actor.position.set(1.42, 0, 0.04);
-    actor.rotation.y = -0.34;
-    actor.scale.setScalar(0.82);
   }
 
   actor.userData.openClinXrEncounterStaging ??=

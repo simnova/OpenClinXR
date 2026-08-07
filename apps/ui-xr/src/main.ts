@@ -19,6 +19,10 @@ import {
   type RuntimeSlotAssignment,
 } from "./runtime-actor-slots.js";
 import {
+  additionalCastPlacementFallback,
+  ensureAndPublishActorPlacementSsot,
+} from "./runtime-actor-placements.js";
+import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
   initialHistoryTakingCoverageState,
@@ -644,6 +648,7 @@ function useEncounterRuntimeAssetBundle(
   window.__openClinXrRuntimeSceneManifestEvidence = buildRuntimeSceneManifestEvidence(bundle);
   recordLearnerRuntimeUseGateEvidence(bundle, options.source, options.fallbackReason ?? null);
   const slots = resolveRuntimeSlotAssignment(bundle);
+  ensureAndPublishActorPlacementSsot(bundle, slots);
   const modelFor = (actorId: string) =>
     (actorId ? findRuntimeActorAsset(bundle, actorId)?.model : undefined)
     ?? bundle.actors.find((a) => a.embodiment !== "virtual_device" && a.embodiment !== "voice_only")?.model
@@ -3801,10 +3806,14 @@ function createStationScene(): StationSceneRuntime {
     spouse.userData.openClinXrSlotUnfilledReason = "no_unique_family_humanoid_for_station";
   }
 
-  // #122 fourth slot — budget permits four (~112k tris); stages remaining cast (e.g. ward physician).
+  // #122/#123 fourth slot — placement SSOT (team-adjacent secondary), not doorway hardcode.
+  const additionalPlacement = runtimeActorPlacement(
+    runtimeAdditionalActorId() || "unfilled_additional_cast",
+    additionalCastPlacementFallback() as Parameters<typeof runtimeActorPlacement>[1],
+  );
   const additional = actorMesh(0x7c6bb5);
   additional.name = "runtime_additional_cast_slot";
-  additional.position.set(0.35, 0.95, 1.15);
+  additional.position.set(additionalPlacement.position.x, additionalPlacement.position.y, additionalPlacement.position.z);
   additional.visible = Boolean(runtimeAdditionalActorId()) && !selectedScenarioRuntimeMismatch;
   if (cleanHumanoidSourceComparatorCapture || !runtimeAdditionalActorId()) {
     additional.visible = false;
@@ -3812,15 +3821,15 @@ function createStationScene(): StationSceneRuntime {
       additional.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
     }
   }
-  additional.scale.set(1, 1, 1);
+  additional.scale.set(additionalPlacement.scale.x, additionalPlacement.scale.y, additionalPlacement.scale.z);
+  additional.userData.openClinXrSlotKind = additionalPlacement.slotKind ?? "additional_cast";
+  additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
+  additional.userData.openClinXrActorId = runtimeAdditionalActorId();
   if (runtimeAdditionalActorId()) applyCleanEncounterVisualReviewActorFraming(additional, runtimeAdditionalActorId());
   if (runtimeAdditionalActorId()) {
-    additional.add(createActorNameplate(actorNameplateLabel("Cast", runtimeAdditionalActorId()), 0x5b4a9a));
+    additional.add(createActorNameplate(actorNameplateLabel(additionalPlacement.labelPrefix, runtimeAdditionalActorId()), 0x5b4a9a));
   }
   scene.add(additional);
-  additional.userData.openClinXrSlotKind = "additional_cast";
-  additional.userData.openClinXrActorPosture = "standing";
-  additional.userData.openClinXrActorId = runtimeAdditionalActorId();
   if (runtimeAdditionalActorId()) {
     loadGeneratedHumanoidIntoActorSlot(additional, {
       assetPath: resolveEmulatorRuntimeAssetUrl(additionalRuntimeHumanoidAsset),
@@ -3828,8 +3837,8 @@ function createStationScene(): StationSceneRuntime {
       objectName: runtimeGeneratedSceneObjectName(additionalRuntimeHumanoidAsset),
       actorId: runtimeAdditionalActorId(),
       roleTintColor: 0x7c6bb5,
-      verticalOffsetMeters: -0.95,
-      posture: "standing",
+      verticalOffsetMeters: additionalPlacement.verticalOffsetMeters,
+      posture: additionalPlacement.posture ?? "standing",
     });
   } else {
     additional.userData.openClinXrSlotUnfilledReason = "no_remaining_unique_humanoid_for_additional_slot";

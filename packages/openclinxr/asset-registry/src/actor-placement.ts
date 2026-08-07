@@ -26,20 +26,32 @@ export function generatedActorPlacement(
   index: number,
   options: { scenarioId?: string | undefined } = {},
 ): EncounterRuntimeActorPlacement {
-  const slotKind: EncounterRuntimeActorPlacement["slotKind"] = actor.role === "patient"
-    ? "primary_patient"
-    : ["nurse", "consultant", "respiratory_therapist", "nurse_observer"].includes(actor.role)
-      ? "clinical_team"
-      : "family_or_observer";
+  // #123: physician is clinical team class (not family fallback). Index 3+ uses
+  // team-adjacent additional_cast anchor rather than doorway-forward spacing.
+  const clinicalRoles = ["nurse", "consultant", "respiratory_therapist", "nurse_observer", "physician", "medical_assistant"];
+  let slotKind: EncounterRuntimeActorPlacement["slotKind"];
+  if (actor.role === "patient") {
+    slotKind = "primary_patient";
+  } else if (clinicalRoles.includes(actor.role) && index <= 1) {
+    slotKind = "clinical_team";
+  } else if (index >= 3) {
+    slotKind = "additional_cast";
+  } else {
+    slotKind = clinicalRoles.includes(actor.role) ? "clinical_team" : "family_or_observer";
+  }
 
   const posture = resolveActorPosture({
     scenarioId: options.scenarioId,
     slotKind,
   });
 
+  const position = slotKind === "additional_cast"
+    ? { x: 1.95, y: 0.95, z: 0.15 }
+    : { x: -0.8 + (index * 0.8), y: 0.95, z: 0.3 + (index % 2) * 0.45 };
+
   return {
     slotKind,
-    position: { x: -0.8 + (index * 0.8), y: 0.95, z: 0.3 + (index % 2) * 0.45 },
+    position,
     scale: { x: 1, y: 1, z: 1 },
     verticalOffsetMeters: -0.95,
     labelPrefix: generatedActorLabel(actor),

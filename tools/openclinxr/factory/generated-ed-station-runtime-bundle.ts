@@ -1113,10 +1113,12 @@ function runtimeActorPlacementsForScenario(
   preset: ReturnType<typeof scenarioRuntimePreset>,
 ): EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] {
   const patient = actorByRole(preset, "patient") ?? preset.actors[0];
+  // #123: physician in team allow-list (same gap #122 fixed one layer down).
   const team = actorByRole(preset, "nurse")
     ?? actorByRole(preset, "respiratory_therapist")
     ?? actorByRole(preset, "nurse_observer")
     ?? actorByRole(preset, "consultant")
+    ?? actorByRole(preset, "physician")
     ?? actorByRole(preset, "interpreter")
     ?? preset.actors[1]
     ?? patient;
@@ -1127,11 +1129,24 @@ function runtimeActorPlacementsForScenario(
     ?? preset.actors.find((actor) => actor.actorId !== patient.actorId && actor.actorId !== team.actorId)
     ?? preset.actors[2]
     ?? team;
-  return {
+  const used = new Set([patient.actorId, team.actorId, family.actorId]);
+  // Team-adjacent clinical secondary — not doorway (x:0.35 z:1.15). See #123.
+  const additional = preset.actors.find((actor) => !used.has(actor.actorId));
+  const placements: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] = {
     [patient.actorId]: { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" },
     [team.actorId]: { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" },
     [family.actorId]: { slotKind: "family_or_observer", position: { x: -2.0, y: 0.95, z: 0.7 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: family.role === "consultant" ? "Consultant" : "Family" },
   };
+  if (additional && additional.actorId !== patient.actorId) {
+    placements[additional.actorId] = {
+      slotKind: "additional_cast",
+      position: { x: 1.95, y: 0.95, z: 0.15 },
+      scale: { x: 1, y: 1, z: 1 },
+      verticalOffsetMeters: -0.95,
+      labelPrefix: additional.role === "physician" ? "Physician" : "Cast",
+    };
+  }
+  return placements;
 }
 
 function runtimeEquipmentPlacementsForScenario(
