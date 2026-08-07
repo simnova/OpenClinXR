@@ -188,7 +188,7 @@ describe("a scenario's declared roles resolve to age-appropriate assets (#85)", 
     }
   }, 300_000);
 
-  it.fails("the pediatric scenario still casts pediatric actors (COUNTERWEIGHT — flip to it( like the others; it asserts what is ALREADY true)", async () => {
+  it("the pediatric scenario still casts pediatric actors (COUNTERWEIGHT — asserts what was ALREADY true; must stay green)", async () => {
     // The counterweight. Both contracts above are satisfiable by making every asset adult, which
     // would break the peds encounter — the one place a 1.25 m patient is correct.
     const mod = await load();
