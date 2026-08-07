@@ -156,6 +156,11 @@ const PARAMETRIC_KINDS = new Set([
   "abdominal_dressing_equipment",
 ]);
 
+/** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */
+export function parametricEquipmentKindCount(): number {
+  return PARAMETRIC_KINDS.size;
+}
+
 export function isEdChestPainBayScenario(scenarioId: string): boolean {
   return scenarioId === "ed_chest_pain_priority_v1" || scenarioId === "ed_chest_pain_priority_v2";
 }

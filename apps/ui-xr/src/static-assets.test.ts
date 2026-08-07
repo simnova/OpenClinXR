@@ -17,14 +17,10 @@ const generatedSceneAssetHashes = {
   "humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb": "0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d",
   "humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb": "9bdb335c7e06b96ac4e0f64d59a36857e8a7449a6cc779e2c0f382ad83392b31",
   "humanoids/candidates/charmorph-reom-ob-patient-candidate.glb": "47640a2d45a9b5c0b3c5a93885c59870ca19bcb52eeb881017668166c612428b",
-  "medical-equipment/ecg-cart-12-lead.glb": "c3b6f1934eb232a3c32b7d6afd830d09b0632b29bf83d3e5d776746b3cafb378",
+  // #168: ECG cart regenerated as an assembled object; only GLBs that exist on disk are hashed.
+  // Six previously listed medical-equipment hashes certified absent files and were removed with PROVENANCE.md.
+  "medical-equipment/ecg-cart-12-lead.glb": "5ffc60fe8238a4e1acfaed01f519e17d0861f5cc6ecdb5e138c30899eb20e8b6",
   "medical-equipment/iv-pole-with-pump.glb": "1a9a57932e2e0b8bd86c927527e8ea4fcb19fd3e74bf9ba33ec4490234ccfb04",
-  "medical-equipment/inhaler_spacer_equipment.glb": "16f593508e3b4aac78efd3ab8ccb19fc28da471c0c5c281c416dc56ff5197e29",
-  "medical-equipment/nebulizer_mask_equipment.glb": "91a485a9f3ec27bb75d4e5295ba1ba62a16302f63af0b0d3190ea624ccc28c3d",
-  "medical-equipment/oxygen_wall_port_equipment.glb": "d543ad97f96c95858209d267a8d1fa438a75e234d46be8ec8d860f347fd7e041",
-  "medical-equipment/parent_chair_equipment.glb": "68adbb73d39f75bfc128e317c9bddb9265a5206dd8a8a9a7c79f0e65dd36db9d",
-  "medical-equipment/pediatric_stretcher_equipment.glb": "010f3a7533d403c80e6d13d54018144d94f19d1816dd887fc1bea8b2a9ffdc23",
-  "medical-equipment/pulse_oximeter_equipment.glb": "0ddc1fa03f397d001bdf350a8e8c5ef4224274cba876c4a8879d3d56f8672c83",
   "environment/ed-exam-bay-shell.glb": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
 } as const;
@@ -954,8 +950,15 @@ describe("static browser assets", () => {
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/ecg-cart-12-lead.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/iv-pole-with-pump.glb", import.meta.url))).toBe(true);
     expect(existsSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url))).toBe(true);
-    expect(readFileSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url), "utf8")).toContain("inhaler_spacer_equipment.glb");
-    expect(readFileSync(new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url), "utf8")).toContain("pediatric_stretcher_equipment.glb");
+    // #168: PROVENANCE lists only the two real GLBs (plus an explicit "not present" section).
+    // Old assertion required false hashes / commission names for six absent files.
+    const equipmentProvenance = readFileSync(
+      new URL("../public/xr-assets/medical-equipment/PROVENANCE.md", import.meta.url),
+      "utf8",
+    );
+    expect(equipmentProvenance).toContain("ecg-cart-12-lead.glb");
+    expect(equipmentProvenance).toContain("iv-pole-with-pump.glb");
+    expect(equipmentProvenance).toContain("Not present (and not commissioned)");
   });
 
   it("keeps generated peds humanoid provenance truthful after local real Anny source generation", () => {
