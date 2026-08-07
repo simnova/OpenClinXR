@@ -172,13 +172,15 @@
     "stationContext": {
       "title": "Dyslipidemia And Joint Pain Primary Care Visit",
       "subtitle": "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
-      "chiefConcern": "Characterize chronic joint pain and screen inflammatory red flags",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Scenario event cue pending review",
+      "chiefConcern": "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Primary Care Clinic Room station scene",
       "canvasAriaLabel": "3D Primary Care Clinic Room preview",
       "initialDialogueText": "Mario Guzman: My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "roomProps": [
       {

@@ -211,13 +211,15 @@
     "stationContext": {
       "title": "ED Stroke Alert Handoff",
       "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
-      "chiefConcern": "Acute speech difficulty and right-sided weakness",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Family member adds timeline details while stroke nurse presses for handoff clarity",
+      "chiefConcern": "My right arm feels weak, and I cannot get the words out clearly.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "ED stroke alert handoff station scene",
       "canvasAriaLabel": "3D stroke alert room preview",
       "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "dialogueTurns": [
       {

@@ -1,10 +1,16 @@
 /**
- * Station EHR / doorway context for the selected scenario (#115 vitals honesty).
+ * Station EHR / doorway context for the selected scenario
+ * (#115 vitals honesty + #127 chart-row honesty).
  *
- * Non-vitals fields prefer an aligned runtime bundle. Vitals always go through
- * resolveInitialVitalsForScenario — never environment prose or placeholders.
+ * Title/subtitle/aria prefer an aligned runtime bundle. Vitals always go through
+ * resolveInitialVitalsForScenario. Chief concern + interruption always go through
+ * resolveChartFieldsForScenario — never scoring objectives or event-schedule tags.
  */
 
+import {
+  resolveChartFieldsForScenario,
+  type ChartFieldAuthorshipStatus,
+} from "./station-chart.js";
 import {
   resolveInitialVitalsForScenario,
   type InitialVitalsAuthorshipStatus,
@@ -14,11 +20,15 @@ export type StationContextView = {
   title: string;
   subtitle: string;
   chiefConcern: string;
+  chiefConcernAuthorship: ChartFieldAuthorshipStatus;
+  chiefConcernEhrRowLabel: string;
   initialVitals: string;
   initialVitalsAuthorship: InitialVitalsAuthorshipStatus;
   presentedAsChartedVitals: boolean;
   vitalsEhrRowLabel: string;
   interruption: string;
+  interruptionAuthorship: ChartFieldAuthorshipStatus;
+  interruptionEhrRowLabel: string;
   stageAriaLabel: string;
   canvasAriaLabel: string;
 };
@@ -43,8 +53,9 @@ function titleFromScenarioId(scenarioId: string): string {
 }
 
 /**
- * Build the learner-facing station context. Vitals are SSOT from resolveInitialVitalsForScenario
- * even when the shipped bundle still carries stale prose/placeholders.
+ * Build the learner-facing station context.
+ * Vitals + chart rows are SSOT from resolve helpers even when the shipped bundle
+ * still carries stale objectives / schedule tags / prose.
  */
 export function stationContextForScenario(input: {
   scenarioId: string;
@@ -52,17 +63,23 @@ export function stationContextForScenario(input: {
   bundleMismatch?: boolean | undefined;
 }): StationContextView {
   const vitals = resolveInitialVitalsForScenario(input.scenarioId);
+  const chart = resolveChartFieldsForScenario(input.scenarioId);
   const runtime = input.runtimeContext;
   if (!input.bundleMismatch && runtime) {
     return {
       title: runtime.title,
       subtitle: runtime.subtitle,
-      chiefConcern: runtime.chiefConcern,
+      // #127: never pass through shipped chiefConcern / interruption — they may print the test.
+      chiefConcern: chart.chiefConcern,
+      chiefConcernAuthorship: chart.chiefConcernAuthorship,
+      chiefConcernEhrRowLabel: chart.chiefConcernEhrRowLabel,
       initialVitals: vitals.rawValue,
       initialVitalsAuthorship: vitals.authorshipStatus,
       presentedAsChartedVitals: vitals.presentedAsChartedVitals,
       vitalsEhrRowLabel: vitals.ehrRowLabel,
-      interruption: runtime.interruption,
+      interruption: chart.interruption,
+      interruptionAuthorship: chart.interruptionAuthorship,
+      interruptionEhrRowLabel: chart.interruptionEhrRowLabel,
       stageAriaLabel: runtime.stageAriaLabel,
       canvasAriaLabel: runtime.canvasAriaLabel,
     };
@@ -72,12 +89,16 @@ export function stationContextForScenario(input: {
     title,
     subtitle:
       "Scenario-bank generated encounter with actor, room prop, equipment, and dialogue evidence selected by runtime bundle.",
-    chiefConcern: "Generated scenario objective pending review",
+    chiefConcern: chart.chiefConcern,
+    chiefConcernAuthorship: chart.chiefConcernAuthorship,
+    chiefConcernEhrRowLabel: chart.chiefConcernEhrRowLabel,
     initialVitals: vitals.rawValue,
     initialVitalsAuthorship: vitals.authorshipStatus,
     presentedAsChartedVitals: vitals.presentedAsChartedVitals,
     vitalsEhrRowLabel: vitals.ehrRowLabel,
-    interruption: "Trace event cue pending review",
+    interruption: chart.interruption,
+    interruptionAuthorship: chart.interruptionAuthorship,
+    interruptionEhrRowLabel: chart.interruptionEhrRowLabel,
     stageAriaLabel: `${title} station scene`,
     canvasAriaLabel: `3D ${title} preview`,
   };

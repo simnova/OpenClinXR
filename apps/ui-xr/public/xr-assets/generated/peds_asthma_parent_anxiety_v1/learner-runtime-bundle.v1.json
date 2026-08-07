@@ -295,13 +295,15 @@
     "stationContext": {
       "title": "Pediatric Asthma",
       "subtitle": "Child, parent, and nurse in a pediatric urgent-care respiratory distress encounter.",
-      "chiefConcern": "Wheezing and increased work of breathing",
+      "chiefConcern": "My chest feels tight and it is hard to breathe.",
       "initialVitals": "HR 128, RR 32, SpO2 91% on room air",
-      "interruption": "Parent interrupts if breathing distress is not acknowledged",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Pediatric urgent-care station scene",
       "canvasAriaLabel": "3D pediatric urgent-care bay preview",
       "initialDialogueText": "Maya Johnson: My chest feels tight and it is hard to breathe.",
-      "initialVitalsAuthorship": "legacy_hardcoded_unreviewed"
+      "initialVitalsAuthorship": "legacy_hardcoded_unreviewed",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "roomProps": [
       {

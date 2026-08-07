@@ -7,13 +7,15 @@
   "stationContext": {
     "title": "Oncology Bad News Family",
     "subtitle": "Patient and sister in a quiet oncology consultation focused on serious-news communication.",
-    "chiefConcern": "Reviewing difficult scan results with family present",
-    "initialVitals": "Not charted — obtain vitals during the encounter",
-    "interruption": "Family emotion escalates and requires empathy before further explanation",
+    "chiefConcern": "I want my sister here before we talk about the scan results.",
+    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+    "interruption": "Not charted \u2014 observe interruptions during the encounter",
     "stageAriaLabel": "Oncology serious-news family station scene",
     "canvasAriaLabel": "3D oncology consultation room preview",
     "initialDialogueText": "David Miller: I want my sister here before we talk about the scan results.",
-    "initialVitalsAuthorship": "unauthored"
+    "initialVitalsAuthorship": "unauthored",
+    "chiefConcernAuthorship": "authored_patient_voice",
+    "interruptionAuthorship": "unauthored"
   },
   "dialogueTurns": [
     {
