@@ -365,7 +365,7 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment",
+    "clothingRegionRevision": "v9_arm_colour_tracks_outermost_garment_exact_match_issue_146",
     "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
     "trimMaterialName": null,
@@ -485,6 +485,13 @@
       "hospital_gown"
     ],
     "declaredUpperGarmentLayerCount": 1,
+    "armClothingColourSource": "outermost_real_garment_mesh_exact_match",
+    "armClothingColour": [
+      0.15,
+      0.55,
+      0.82,
+      1.0
+    ],
     "realGarmentRegion": {
       "mode": "phenotype_embedded_body_surface_derived_garment_v1",
       "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
@@ -760,7 +767,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v1, actor=patient)",
-    "generatedAt": "2026-08-07T16:43:31.564597Z",
+    "generatedAt": "2026-08-07T17:39:41.298906Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.18, \"anny_topology\": \"default\", \"anxious\": 0.65, \"bmi\": 26.0, \"brow_tension\": 0.55, \"build\": \"average_adult\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"clinical_exam_hospital_gown_chest_pain\", \"eye_color\": \"brown\", \"fabricPalette\": \"hospital_gown_blue_pattern\", \"fitProfile\": \"adult_standard_fit\", \"flush\": 0.15, \"garmentLayers\": [\"hospital_gown\"], \"gender_presentation\": \"adult_male\", \"hair_color\": \"brown\", \"hair_density\": 0.65, \"height_cm\": 176, \"materialFinish\": \"cotton_slight_sheen\", \"role_visual_cue\": \"ed_chest_pain_patient\", \"skin_tone\": \"warm_medium\", \"sleeveGeometryExpansion\": \"v2_gown_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"ed_patient_exam\"}"
   },
   "licenseExceptionRequired": false,

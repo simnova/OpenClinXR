@@ -125,7 +125,7 @@ const MAX_ARM_TO_GARMENT_DISTANCE = 0.35;
 const MIN_ARM_TO_SKIN_DISTANCE = 0.15;
 
 describe("a sleeve-end arm belongs to its garment (#146)", () => {
-  it.fails("the arm clothing colour tracks the garment", async () => {
+  it("the arm clothing colour tracks the garment", async () => {
     // automate_blender.py:2405-2408 falls back to a hardcoded (0.08, 0.42, 0.55) when top_color is
     // falsy, which is why it matches the teal nurse by coincidence and clashes everywhere else.
     const mod = await load();
@@ -148,7 +148,7 @@ describe("a sleeve-end arm belongs to its garment (#146)", () => {
     expect(mismatched, `arms that do not belong to their garment:\n${mismatched.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the arm is still clothing and not skin", async () => {
+  it("the arm is still clothing and not skin", async () => {
     // Kills the cheap satisfaction of the first contract: painting the arm the body's colour makes
     // the distance-to-garment check irrelevant by un-clothing the arm, which is #103 undone.
     const mod = await load();
@@ -166,7 +166,7 @@ describe("a sleeve-end arm belongs to its garment (#146)", () => {
     expect(skinny, `arms repainted as skin:\n${skinny.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("#103's coverage survives (COUNTERWEIGHT)", async () => {
+  it("#103's coverage survives (COUNTERWEIGHT)", async () => {
     // The cheapest way to make a colour check pass is to stop painting the arm at all. #103 measured
     // 0.007-0.53 before and >=0.91 after; that must not regress.
     const mod = await load();

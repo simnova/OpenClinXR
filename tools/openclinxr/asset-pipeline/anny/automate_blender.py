@@ -2400,12 +2400,18 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         trim_index = len(mesh_obj.data.materials)
         mesh_obj.data.materials.append(trim_mat)
     # Arm clothing material always available when a real garment owns the torso (#103 sleeve-end).
+    # #146: do NOT use a silent hardcoded teal-blue fallback. top_color is always set for paint
+    # roles, but when the torso is a real garment MESH the visible colour lives on gown_color —
+    # arm_mat is provisional here and recolored from the outermost real garment shell after
+    # embed (exact match → reads as continuous sleeve of that garment; see armClothingColour*).
     arm_mat = None
     arm_index = -1
     if will_embed_real_garment:
+        # Provisional = role top_color (always assigned above). Never the dead (0.08,0.42,0.55)
+        # constant that mismatched pink/light garments (#146 residual of #103).
         arm_mat = create_role_marker_material(
             f"openclinxr_role_mesh_clothing_{role}_arm",
-            top_color if top_color else (0.08, 0.42, 0.55, 1.0),
+            top_color,
         )
         arm_index = len(mesh_obj.data.materials)
         mesh_obj.data.materials.append(arm_mat)
@@ -2754,6 +2760,8 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         layer_metas: List[Dict[str, Any]] = []
         body_key = (mesh_obj.name or "").lower()
         is_adult_or_ed = ("ed_" in body_key) or ("adult" in body_key)
+        # #146: outermost shell colour drives sleeve-end arm paint (exact match).
+        outermost_gown_color: Optional[tuple] = None
 
         for layer_index, layer_token in enumerate(upper_layer_tokens):
             kind = _layer_kind(layer_token)
@@ -2922,6 +2930,8 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
 
             gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype_L{layer_index}", gown_color)
             garment.data.materials.append(gmat)
+            # Track outermost (last) layer colour for #146 arm clothing match.
+            outermost_gown_color = gown_color
             # Thickness already applied in _build_body_surface_derived_garment (bmesh solidify).
             # No SUBSURF / WEIGHTED_NORMAL: both force custom split normals on glTF export and
             # re-split shared vertex indices (the §6t continuity trap).
@@ -3084,6 +3094,33 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             ret["realGarmentLayers"] = layer_metas
             ret["declaredUpperGarmentLayers"] = list(upper_layer_tokens)
             ret["declaredUpperGarmentLayerCount"] = len(upper_layer_tokens)
+
+        # #146: recolor sleeve-end arm clothing from the outermost real garment mesh colour.
+        # Decision: EXACT match (reads as continuous sleeve of that garment), not under-layer
+        # related tone (undershirt). Rejected: keep role top_color paint palette (family role
+        # fell into patient blue; mismatch ~0.76 vs pink). Rejected: silent teal fallback.
+        if arm_mat is not None and outermost_gown_color is not None:
+            bsdf = arm_mat.node_tree.nodes.get("Principled BSDF")
+            if bsdf is not None:
+                bsdf.inputs["Base Color"].default_value = outermost_gown_color
+            ret["armClothingColourSource"] = "outermost_real_garment_mesh_exact_match"
+            ret["armClothingColour"] = [float(c) for c in outermost_gown_color]
+            ret["clothingRegionRevision"] = (
+                "v9_arm_colour_tracks_outermost_garment_exact_match_issue_146"
+            )
+            print(
+                f"[blender] #146 arm clothing colour <- outermost garment "
+                f"{[round(float(c), 3) for c in outermost_gown_color]} "
+                f"(was role top_color paint palette)"
+            )
+        elif arm_mat is not None:
+            # No shell colour produced — keep provisional top_color; do not invent teal.
+            ret["armClothingColourSource"] = "role_top_color_provisional_no_garment_shell"
+            ret["armClothingColour"] = [float(c) for c in top_color]
+            print(
+                "[blender] #146 WARN: arm clothing kept provisional top_color "
+                "(no outermost gown_color from real garment shells)"
+            )
 
     if real_garment:
         ret["realGarmentRegion"] = real_garment
