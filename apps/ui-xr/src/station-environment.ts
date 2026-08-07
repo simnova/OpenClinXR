@@ -1,5 +1,5 @@
 /**
- * Parametric station shell builder driven by scenario environmentId (#44).
+ * Parametric station shell builder driven by scenario environmentId (#44, #133).
  *
  * Reads the shared environment descriptor from @openclinxr/asset-registry so the
  * runtime and factory plan the same room. Boxes are the extension point for a
@@ -8,7 +8,13 @@
  * #81: patient_chair fixture builds real chair geometry with seatHeightMeters
  * (see station-chair.ts).
  * #97: stretcher fixture builds real horizontal bed geometry with deckTopYMeters
- * (see station-stretcher.ts); other slots remain layout markers.
+ * (see station-stretcher.ts).
+ * #133: ceiling closes the open-top void; non-support slots get layout props (not
+ * 0.18³ markers). learner_start stays a spawn-anchor marker. Patient support is
+ * declared per environment (stretcher / patient_chair / none) — never primary_patient.
+ *
+ * claimScope: closed parametric shell + fixture-driven patient support geometry.
+ * notEvidenceFor: Quest viability, trim/detail kit, clinical furniture realism.
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
@@ -17,6 +23,7 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
+  type ColorRepresentation,
   type Object3D,
 } from "three";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
@@ -26,8 +33,74 @@ export type BuildStationEnvironmentInput = {
   environmentId: string;
 };
 
+/** Spawn anchor — never furniture (#133). */
+export function isLearnerStartSlotId(slotId: string): boolean {
+  return slotId.toLowerCase() === "learner_start";
+}
+
 /**
- * Build a three.js Group for the encounter-side station shell (floor + walls + trim).
+ * Cheap multi-mesh layout prop for non-support fixture slots (monitor, desk, cart).
+ * Not a marker cube: isMarkerCube=false, larger than 0.18³, multi-part silhouette.
+ */
+export function buildFixtureLayoutProp(input: {
+  slotId: string;
+  purpose?: string;
+  position: { x: number; y: number; z: number };
+  trimColor: ColorRepresentation;
+}): Group {
+  const root = new Group();
+  root.name = `openclinxr.station-environment.fixture-slot.${input.slotId}`;
+  root.position.set(input.position.x, 0, input.position.z);
+
+  const frame = new MeshStandardMaterial({
+    color: 0x8b939c,
+    roughness: 0.62,
+    metalness: 0.18,
+  });
+  const accent = new MeshStandardMaterial({
+    color: input.trimColor,
+    roughness: 0.55,
+    metalness: 0.08,
+  });
+
+  const id = input.slotId.toLowerCase();
+  if (id.includes("monitor") || id.includes("shelf")) {
+    const stand = new Mesh(new BoxGeometry(0.08, 1.1, 0.08), frame);
+    stand.position.set(0, 0.55, 0);
+    stand.name = `${root.name}.stand`;
+    const panel = new Mesh(new BoxGeometry(0.42, 0.32, 0.05), accent);
+    panel.position.set(0, 1.2, 0);
+    panel.name = `${root.name}.panel`;
+    root.add(stand, panel);
+  } else if (id.includes("desk") || id.includes("laptop")) {
+    const legs = new Mesh(new BoxGeometry(0.7, 0.72, 0.4), frame);
+    legs.position.set(0, 0.36, 0);
+    legs.name = `${root.name}.legs`;
+    const top = new Mesh(new BoxGeometry(0.78, 0.04, 0.48), accent);
+    top.position.set(0, 0.74, 0);
+    top.name = `${root.name}.top`;
+    root.add(legs, top);
+  } else {
+    // Generic cart / layout block
+    const body = new Mesh(new BoxGeometry(0.45, 0.55, 0.35), frame);
+    body.position.set(0, 0.35, 0);
+    body.name = `${root.name}.body`;
+    const top = new Mesh(new BoxGeometry(0.5, 0.05, 0.4), accent);
+    top.position.set(0, 0.65, 0);
+    top.name = `${root.name}.top`;
+    root.add(body, top);
+  }
+
+  root.userData.fixtureSlotId = input.slotId;
+  root.userData.fixtureSlotPurpose = input.purpose ?? "layout prop";
+  root.userData.isMarkerCube = false;
+  root.userData.openClinXrFixtureKind = "procedural_layout_prop";
+  root.userData.openClinXrDynamicScenePolicy = "non_support_fixture_slot_builds_layout_prop_not_marker";
+  return root;
+}
+
+/**
+ * Build a three.js Group for the encounter-side station shell (floor + walls + ceiling + fixtures).
  * userData records the requested environmentId, floor colour, room depth, and whether
  * an unknown id fell back to the generic shell.
  */
@@ -50,6 +123,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   shell.userData.environmentFallbackReason = resolved.environmentFallbackReason ?? "";
   shell.userData.openClinXrEnvironmentPolicy =
     "parametric_shell_from_shared_environment_descriptor_kitbash_slot";
+  shell.userData.hasCeiling = true;
 
   const width = d.roomWidthMeters;
   const depth = d.roomDepthMeters;
@@ -102,13 +176,31 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   rightWall.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_shell";
   shell.add(rightWall);
 
+  // #133 — ceiling closes the open top (capture camera at y=2.05 inside a ~2.65 m room).
+  // No fourth/front wall: doorway framing for room captures stays open.
+  const ceilingMat = new MeshStandardMaterial({
+    color: d.wallColor,
+    roughness: 0.92,
+    metalness: 0,
+    // Slight lift so closed rooms do not go fully black under hemisphere light alone.
+    emissive: d.wallColor,
+    emissiveIntensity: 0.06,
+  });
+  const ceiling = new Mesh(new BoxGeometry(width, 0.06, depth), ceilingMat);
+  ceiling.name = "openclinxr.station-environment.ceiling";
+  ceiling.position.set(0, height - 0.03, floorZ);
+  ceiling.userData.openClinXrDynamicScenePolicy = "environmentId_driven_room_ceiling_closes_open_top";
+  ceiling.userData.isCeiling = true;
+  shell.add(ceiling);
+  shell.userData.ceilingMesh = ceiling;
+
   const wallTrim = new Mesh(new BoxGeometry(width - 0.3, 0.06, 0.035), trimMaterial);
   wallTrim.name = "openclinxr.station-environment.wall-trim";
   wallTrim.position.set(0, 1.02, backZ + 0.06);
   wallTrim.userData.openClinXrDynamicScenePolicy = "environmentId_driven_wall_trim";
   shell.add(wallTrim);
 
-  // Fixture slots: patient_chair (#81) + stretcher (#97) are real geometry; others stay markers.
+  // Fixtures: stretcher / chair / layout prop; learner_start stays a marker cube.
   for (const slot of d.fixtureSlots) {
     if (isPatientChairSlotId(slot.slotId)) {
       const chair = buildPatientChair({
@@ -130,21 +222,33 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       shell.add(stretcher);
       continue;
     }
-    const marker = new Mesh(
-      new BoxGeometry(0.18, 0.06, 0.18),
-      new MeshStandardMaterial({
-        color: d.wallTrimColor,
-        roughness: 0.55,
-        emissive: d.wallTrimColor,
-        emissiveIntensity: 0.08,
+    if (isLearnerStartSlotId(slot.slotId)) {
+      const marker = new Mesh(
+        new BoxGeometry(0.18, 0.06, 0.18),
+        new MeshStandardMaterial({
+          color: d.wallTrimColor,
+          roughness: 0.55,
+          emissive: d.wallTrimColor,
+          emissiveIntensity: 0.08,
+        }),
+      );
+      marker.name = `openclinxr.station-environment.fixture-slot.${slot.slotId}`;
+      marker.position.set(slot.position.x, Math.max(0.03, slot.position.y), slot.position.z);
+      marker.userData.fixtureSlotId = slot.slotId;
+      marker.userData.fixtureSlotPurpose = slot.purpose;
+      marker.userData.isMarkerCube = true;
+      shell.add(marker);
+      continue;
+    }
+    // Other declared slots (monitor, desk, cart): real layout props, not marker cubes.
+    shell.add(
+      buildFixtureLayoutProp({
+        slotId: slot.slotId,
+        purpose: slot.purpose,
+        position: slot.position,
+        trimColor: d.wallTrimColor,
       }),
     );
-    marker.name = `openclinxr.station-environment.fixture-slot.${slot.slotId}`;
-    marker.position.set(slot.position.x, Math.max(0.03, slot.position.y), slot.position.z);
-    marker.userData.fixtureSlotId = slot.slotId;
-    marker.userData.fixtureSlotPurpose = slot.purpose;
-    marker.userData.isMarkerCube = true;
-    shell.add(marker);
   }
 
   return shell;

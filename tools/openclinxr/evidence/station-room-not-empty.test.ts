@@ -189,7 +189,15 @@ const LEGITIMATE_MARKERS = ["learner_start"];
 const MAX_SHELL_TRIANGLES = 5_000;
 
 describe("a station room is closed and its patient position is furniture (#133/#143)", () => {
-  it.fails("no station renders its patient position as a marker cube", async () => {
+  /**
+   * ## FIXED (#133/#143)
+   * - Ceiling mesh on every parametric shell (`station-environment.ts`); no fourth wall.
+   * - Descriptors declare stretcher / patient_chair / none — never primary_patient as furniture.
+   * - Equipment-owned beds (postop, peds stretcher, exam table, oncology chairs) omit fixture support.
+   * - Non-support slots build layout props; learner_start stays a marker.
+   * - Live inspect reads ceiling + fixtures + equipment + actor-vs-furniture after frames advance.
+   */
+  it("no station renders its patient position as a marker cube", async () => {
     // shell() defaults twelve environments to [primary_patient, learner_start], and
     // station-environment.ts:111 records that only stretcher and patient_chair build real geometry.
     const mod = await load();
@@ -210,7 +218,7 @@ describe("a station room is closed and its patient position is furniture (#133/#
       .toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the room is closed and the shell stays cheap", async () => {
+  it("the room is closed and the shell stays cheap", async () => {
     // Kills the cheap satisfaction of the first contract: building geometry for every slot id,
     // including learner_start, while the room is still an open-topped box. The black band across
     // every capture is the missing ceiling, verified against a camera at y=2.05 in a 2.65m room.
@@ -234,7 +242,7 @@ describe("a station room is closed and its patient position is furniture (#133/#
     expect(lostAnchor, `spawn anchors turned into furniture:\n${lostAnchor.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("no station double-beds and no actor stands inside furniture (COUNTERWEIGHT)", async () => {
+  it("no station double-beds and no actor stands inside furniture (COUNTERWEIGHT)", async () => {
     // Two failure modes this slice can introduce, both verified as real risks before dispatch:
     // postop already mounts post_op_bed_equipment and peds asthma mounts pediatric_stretcher, so a
     // fixture bed there would be the second one; and runtime-actor-placements.ts:29-34 is a hardcoded
