@@ -8,8 +8,8 @@
     "title": "Oncology Bad News Family",
     "subtitle": "Patient and sister in a quiet oncology consultation focused on serious-news communication.",
     "chiefConcern": "I want my sister here before we talk about the scan results.",
-    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-    "interruption": "Not charted \u2014 observe interruptions during the encounter",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
+    "interruption": "Not charted — observe interruptions during the encounter",
     "stageAriaLabel": "Oncology serious-news family station scene",
     "canvasAriaLabel": "3D oncology consultation room preview",
     "initialDialogueText": "David Miller: I want my sister here before we talk about the scan results.",
@@ -124,9 +124,9 @@
   "equipmentPlacements": {
     "chairs_equipment": {
       "position": {
-        "x": 1.6,
+        "x": -1.55,
         "y": 0,
-        "z": 0.28
+        "z": -0.85
       },
       "label": "Chairs",
       "interactionCueIds": [

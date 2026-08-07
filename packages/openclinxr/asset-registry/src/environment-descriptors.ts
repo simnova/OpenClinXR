@@ -260,8 +260,17 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2228,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // OB triage bed (stretcher proxy — no dedicated ward-bed builder this slice).
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    // #169: OB patient is framed at (-1.34, -0.3) on the set-dressing recliner.
+    // Shared OFFSET_STRETCHER (-2.05, -0.75) contained that plant (standing through deck).
+    // Park the support on the opposite side — still one support surface, no plant-through.
+    fixtureSlots: [
+      {
+        slotId: "stretcher",
+        purpose: "OB triage bed (away from framed patient plant)",
+        position: { x: 1.85, y: 0, z: -0.9 },
+      },
+      LEARNER_START,
+    ],
   }),
   inpatient_ward_room_v1: shell({
     environmentId: "inpatient_ward_room_v1",
