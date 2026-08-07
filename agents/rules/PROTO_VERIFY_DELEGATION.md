@@ -2155,7 +2155,7 @@ It does not unblock claims about clinical correctness of content a learner is as
 consulted answer and a pixel grade disagree, that disagreement is the thing to escalate, not to
 average.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 8v. The control/treatment table is the single highest-value brief element measured so far
 
@@ -2215,5 +2215,56 @@ the one that flatters.** `glb-grade-capture` writes both for exactly this reason
 **Rule:** an appearance verdict on a mesh reads the lit pass AND the structure pass, and says which
 finding came from which. Where they disagree — "looks clothed" versus "two surfaces" — the structure
 pass wins on anything structural.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 8y. Clinical staging is not an implementer decision either — and §8u means you can now supply it
+
+§8d established that learner-facing COPY is not an implementer decision, because a worker writing
+clinical text mid-slice is how invented clinical language arrives by the back door. #133 shows the
+same is true of clinical STAGING, and its worker asked for the fix directly:
+
+> **Ship a per-environment staging table in the brief** — `environmentId → support:
+> stretcher|chair|none|equipment:<id>` plus plant XYZ and "standing vs on-support" — **so clinical
+> staging is filled, not guessed mid-slice.**
+
+It named its own guesses without being pushed, and they are real product decisions:
+
+- ward / OB / stepdown / peds fever → **stretcher as a proxy** because no ward-bed builder exists
+- psych / primary care → chair
+- plant offsets `(-2.05, -0.75)` and `(-1.55, -0.85)` — *"geometry, not measured clinical layout"*
+- **`chairs_equipment` counted as the PATIENT's support surface for oncology — "could be family
+  seating"**
+
+That last one is the sharp instance. A family-seating asset silently became the patient's chair
+because the contract counted support surfaces and nothing said whose.
+
+**What changed since §8d, and it is why this rule is now affordable:** the operator's §8u direction
+means a clinical-staging table can be produced by consult before dispatch instead of deferred to an
+unavailable reviewer. The consult that ran the same day returned a minimum-object trio per room type
+in one pass. There is no longer an excuse for shipping the decision into the brief's silence.
+
+**Rule:** any slice that places clinical furniture, equipment, or actors carries a filled
+per-environment staging table, produced before dispatch. Where a row is genuinely undecided, mark it
+as an unlocked decision **by name** (§6c) rather than leaving the whole table implicit — the worker
+will fill silence with a defensible guess and you will not know which rows were guessed.
+
+## 8z. Ask for the magnitude, not the fact — my grade and the worker's disagreed on degree
+
+I graded #133's ward capture as "visibly darker" and filed a replenishment item on it. The worker,
+asked whether closing the ceiling darkened the rooms:
+
+> "**Mildly** — rooms less 'open to void,' still readable; **mild ceiling emissive helped**. Not a
+> black cave."
+
+Both readings are honest and they differ in degree, which matters: "visibly darker" argues for a
+lighting slice, "mildly, and I added an emissive" argues for a smaller one. I also did not know an
+emissive had been added, so I was grading a mitigation I could not see and attributing the residual
+entirely to the missing bounce.
+
+**Rule:** when a brief predicts a side effect and asks the worker to report it, ask for the
+MAGNITUDE and what they did about it, not just whether it happened — "did X get worse: none / mild /
+significant, and what did you do to offset it". A yes/no invites a yes, and the mitigation stays
+invisible to the person writing the follow-up item.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
