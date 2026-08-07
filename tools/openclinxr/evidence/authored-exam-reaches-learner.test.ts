@@ -156,8 +156,16 @@ type SeamRun = {
 
 type Inspect = () => Promise<SeamRun>;
 
-describe("an authored exam reaches the learner resolver from a real API (#164)", () => {
-  it.fails("a seeded authored body arrives with bodySource api_authored", async () => {
+describe("an authored exam reaches the learner resolver from a real API (#165)", () => {
+  /**
+   * ## FIXED (#165)
+   * Module `authored-exam-reaches-learner.ts` seeds via real POST /scenarios + four
+   * SubmitScenarioReview gates, then calls real resolveLearnerExamScenarios against
+   * createApiApp() via an in-process app.request fetch adapter. Distinguishing field:
+   * title carrying ISSUE165_AUTHORED_SEAM_MARKER (fixture bank cannot produce).
+   * Ambient pre-fix: activationEligible=1, canStartLearnerExam=false, 12× bank_residual.
+   */
+  it("a seeded authored body arrives with bodySource api_authored", async () => {
     // learner-exam-scenario-source.ts:137-140 returns scenarioSource "api_queue" unconditionally,
     // including when every station fell through the GET-miss path at :126-133 and became a bank
     // residual. So bodySource is the assertion that carries weight, not scenarioSource.
@@ -182,7 +190,7 @@ describe("an authored exam reaches the learner resolver from a real API (#164)",
     }
   }, 900_000);
 
-  it.fails("it crossed a real route, with no dev server and no browser", async () => {
+  it("it crossed a real route, with no dev server and no browser", async () => {
     // Kills two cheap satisfactions at once. First: seeding a scenario whose id is already in the
     // fixture bank, so a bank residual looks identical to an authored body. Second: proving the seam
     // by booting Vite and a browser, which is the 542-second suite shape (§7b) and the opposite of
@@ -205,7 +213,7 @@ describe("an authored exam reaches the learner resolver from a real API (#164)",
     expect(run.browserLaunches, "this is an isolated seam proof — no browser").toBe(0);
   }, 900_000);
 
-  it.fails("offline boot is untouched (COUNTERWEIGHT)", async () => {
+  it("offline boot is untouched (COUNTERWEIGHT)", async () => {
     // The whole point of the fixture fallback is that a Quest with no network still boots an exam.
     // Anything that makes the API mandatory breaks the only path that has ever run on hardware.
     const mod = await load();
