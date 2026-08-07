@@ -78,6 +78,15 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether authored prop colours reach the renderer. Says NOTHING about whether the palette is
  * well chosen or clinically appropriate, nor about fixture geometry (#97's residual).
+ *
+ * ## FIXED (#100)
+ *
+ * Consumer-first: `parseRuntimeRoomPropColorHex` (packages/openclinxr/asset-registry/src/runtime-room-prop-color.ts)
+ * strips optional leading `#` and pins the CSS-hex convention next to `EncounterRuntimeRoomProp`
+ * (`colorHex` / `accentColorHex` JSDoc in runtime-bundles.ts). `main.ts` createDetailedEdRoomProps
+ * uses `roomPropColourNumbers` from extracted `apps/ui-xr/src/room-prop-materials.ts` (no ceiling raise).
+ * Evidence asserts `material.color.getHex()` via `buildRoomPropMaterialColours`, not the helper alone.
+ * Malformed input still falls back to 0xd9dde3 / 0x2563eb. Not a role-keyed palette.
  */
 
 const load = async () =>
@@ -98,7 +107,7 @@ const ODD_FIXTURE: PropInput[] = [
 ];
 
 describe("authored room-prop colours reach the renderer (#100)", () => {
-  it.fails("both channels match the authored value, with or without a leading hash", async () => {
+  it("both channels match the authored value, with or without a leading hash", async () => {
     // The whole defect. `#`-prefixed values currently become 0xd9dde3 / 0x2563eb regardless of what
     // was authored. Bare values already work and must continue to.
     const mod = await load();
@@ -117,7 +126,7 @@ describe("authored room-prop colours reach the renderer (#100)", () => {
     expect(byId.get("probe_bare")?.accentColor).toBe(0x1f6f4a);
   }, 300_000);
 
-  it.fails("a real shipped manifest's colours survive to materials", async () => {
+  it("a real shipped manifest's colours survive to materials", async () => {
     // The fixture above proves the parse. This proves the wiring: real authored data, read back off
     // built materials. A fix that only handles synthetic input is not a fix.
     const mod = await load();
@@ -144,7 +153,7 @@ describe("authored room-prop colours reach the renderer (#100)", () => {
     }
   }, 300_000);
 
-  it.fails("a genuinely malformed colour still falls back rather than throwing (COUNTERWEIGHT)", async () => {
+  it("a genuinely malformed colour still falls back rather than throwing (COUNTERWEIGHT)", async () => {
     // The fallback exists for a reason. A fix that makes bad input throw would break scene loading
     // for one typo, which is worse than a grey prop.
     const mod = await load();

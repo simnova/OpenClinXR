@@ -99,7 +99,9 @@ export type EncounterRuntimeRoomProp = {
   label: string;
   semanticRole: "scenario_context" | "objective_cue" | "communication_cue" | "review_cue" | "environmental_detail";
   evidenceCue: string;
+  /** CSS hex `#rrggbb` or bare `rrggbb` — parse via parseRuntimeRoomPropColorHex. */
   colorHex: string;
+  /** CSS hex `#rrggbb` or bare `rrggbb` — parse via parseRuntimeRoomPropColorHex. */
   accentColorHex: string;
   position: { x: number; y: number; z: number };
   scale: { x: number; y: number; z: number };

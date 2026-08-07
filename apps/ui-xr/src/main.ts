@@ -29,6 +29,7 @@ import {
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
+import { roomPropColourNumbers } from "./room-prop-materials.js";
 import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
 import {
   describeRuntimeBundleScenarioMatch,
@@ -6214,17 +6215,20 @@ function createDetailedEdRoomProps(manifestProps: readonly EncounterRuntimeRoomP
     { x: -1.55, y: 0.58, z: 0.96 },
     { x: 1.52, y: 0.58, z: 0.92 },
   ];
-  return manifestProps.filter((prop) => shouldRenderRoomPropInVisualReview(prop)).map((prop, propIndex) => roomProp(
-    prop.propId,
-    Number.isFinite(Number.parseInt(prop.colorHex, 16)) ? Number.parseInt(prop.colorHex, 16) : 0xd9dde3,
-    Number.isFinite(Number.parseInt(prop.accentColorHex, 16)) ? Number.parseInt(prop.accentColorHex, 16) : 0x2563eb,
-    hasVector3(prop.position)
-      ? prop.position
-      : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
-    hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
-    prop.label ?? prop.propId.replaceAll("-", " "),
-    Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
-  ));
+  return manifestProps.filter((prop) => shouldRenderRoomPropInVisualReview(prop)).map((prop, propIndex) => {
+    const { color, accentColor } = roomPropColourNumbers(prop);
+    return roomProp(
+      prop.propId,
+      color,
+      accentColor,
+      hasVector3(prop.position)
+        ? prop.position
+        : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
+      hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
+      prop.label ?? prop.propId.replaceAll("-", " "),
+      Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
+    );
+  });
 }
 
 function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number): void {

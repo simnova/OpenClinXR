@@ -2,15 +2,12 @@ import { type Scenario, type ValidationResult, validateAssetManifest as validate
 
 export * from "./asset-writer.js";
 export type {
-  AssetObjectStore,
-  AssetObjectStoreGetInput,
-  AssetObjectStoreGetResult,
-  AssetObjectStorePutInput,
-  AssetObjectStorePutResult,
-  AzuriteAssetObjectStoreOptions,
+  AssetObjectStore, AssetObjectStoreGetInput, AssetObjectStoreGetResult,
+  AssetObjectStorePutInput, AssetObjectStorePutResult, AzuriteAssetObjectStoreOptions,
 } from "./object-store.js";
 export * from "./runtime-asset-review.js";
 export * from "./runtime-bundles.js";
+export * from "./runtime-room-prop-color.js";
 export * from "./actor-posture.js";
 export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
