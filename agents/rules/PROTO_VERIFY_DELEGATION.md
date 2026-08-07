@@ -2384,7 +2384,7 @@ this is the version where the reading is not even in the report type.
 contract. A worker asked to *assert* on something adjacent will optimise for it; a worker asked to
 *record* it just records it.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9e. Name the forbidden shortcuts anyway — they are a cheap fence, not the working defence
 
@@ -2411,5 +2411,53 @@ caught by the counterweight contract, not by the prose.
 the shortcut a competent implementer would actually take. They are usually different, and only the
 second is enforced. If you find yourself with a long list of bans and no counterweight, you have
 written a warning label instead of a gate (§6d — a prose warning is not a proof).
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9f. Shrink what is under test to the minimum that proves the claim — standing direction
+
+Operator, 2026-08-07, extending §9a: *"Keep looking for opportunities to shrink what is under test to
+minimum necessary to prove something out."*
+
+Not a one-off instruction — a lens to apply to every contract. The question at planting time is now
+**"what is the smallest thing that could carry this claim?"**, and the honest answer is usually
+smaller than the thing already standing.
+
+**The measurable version in this repo:** 31 evidence modules call `spawnPortlessDevServer`, each
+booting the full encounter. Audited against what they assert:
+
+| module | asserts on | needs a full encounter? |
+|---|---|---|
+| `idle-arm-hang` (#91) | one figure's arm hang | **no** — one humanoid, one pose |
+| `arm-abduction-ceiling` (#117) | one figure's wrist vs its own shoulder span | **no** |
+| `humanoid-vision-score` | one candidate asset per shot | **no** |
+| `humanoid-source-side-by-side-cagematch` | two assets compared | **no** — this is a contact sheet |
+| `anny-school-age-mpfb2-eye-cagematch` | one asset | **no** |
+| `actor-floor-contact-all-stations` | actors placed across stations | **yes** — composition |
+| `declared-equipment-mounted` | equipment mounted into rooms | **yes** — composition |
+| `generic-cue-prop-removal` | what a scene renders | **yes** — composition |
+
+`idle-arm-hang`'s own header records why: *"Does NOT invent a fourth `page.evaluate` harness."* That
+was correct when written and #163 has since built the harness it was avoiding. **A comment explaining
+why something is bigger than it needs to be is a shrink opportunity with a date on it.**
+
+**The rule, in three questions, at planting time:**
+
+1. **Is the claim about a THING or a COMPOSITION?** A thing → isolate it. A composition → the
+   integrated path, and only then. Actor-versus-furniture is a composition; an arm hang is not.
+2. **What is the cheapest instrument that can see the defect?** File-level (glTF via NodeIO) beats
+   in-process (a booted API, `createApiApp` + `app.request`) beats isolated render beats full scene.
+   Go down that ladder until the instrument goes blind, then stop one rung above.
+3. **What is already standing that I could measure while I am here?** (§9d) — shrinking the subject
+   and widening the readings are complementary, not opposed.
+
+**The failure this prevents** is the one this file already documents from the other side: §7b (three
+cold boots, 542 s, a red main), §7s (a cache added to dodge boot cost, which then went stale), §6i
+(one green under ambient conditions is not reproducible). Every one is a symptom of testing something
+larger than the claim.
+
+**And the failure it must NOT cause:** shrinking past the defect. §9a's warning stands — a harness
+that renders a subject through its own code path grades something the learner never sees. Minimum
+necessary, not minimum possible.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
