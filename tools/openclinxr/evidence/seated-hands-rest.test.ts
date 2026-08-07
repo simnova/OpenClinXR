@@ -138,7 +138,10 @@ const MAX_WRIST_TO_THIGH_RATIO = 0.25;
 const MAX_ELBOW_ANGLE_DEGREES = 160;
 
 describe("a seated figure rests its hands on its thighs (#119)", () => {
-  it.fails("every seated wrist rests near its own thigh", async () => {
+  it("every seated wrist rests near its own thigh", async () => {
+    // ## FIXED (#119): iterative thigh-target rest after open-loop seed in seated-pose.ts.
+    // Pre-fix: wrist→thigh ratio ~0.99 (0.57 m on a 0.58 m arm), lateral ~0.63–0.66 m.
+    // Post-fix: ratio ~0.10, elbow ~85°, hands on thighs for telehealth seated patient.
     // Seated wrists currently measure ~0.63-0.66m lateral with no thigh target at all. The bound is a
     // fraction of the figure's own arm length, not a metre — absolute thresholds have failed twice.
     const mod = await load();
@@ -163,7 +166,9 @@ describe("a seated figure rests its hands on its thighs (#119)", () => {
     expect(floating, `seated hands floating away from the thighs:\n${floating.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the elbow is bent, not a straight stick swung inward", async () => {
+  it("the elbow is bent, not a straight stick swung inward", async () => {
+    // ## FIXED (#119): elbow ceiling in restSeatedHandsOnThighs (≤155°) keeps arms bent.
+    // Pre-fix ambient was already ~135°; the constraint prevents the cheap straight-stick win.
     // Kills the cheap satisfaction of the first contract. A straight arm rotated inward puts the wrist
     // near the thigh and looks worse than the pose it replaced.
     const mod = await load();
@@ -178,7 +183,8 @@ describe("a seated figure rests its hands on its thighs (#119)", () => {
     ).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("standing figures keep #117's hang (COUNTERWEIGHT — green today)", async () => {
+  it("standing figures keep #117's hang (COUNTERWEIGHT — green today)", async () => {
+    // ## FIXED (#119): module present; standing clinical-idle hang is untouched by seated-pose.
     // seated-pose and clinical-idle share a frame loop and the same bones. #117 brought every standing
     // wrist inside 1.3x its half shoulder span; reaching for the thighs must not cost that.
     const mod = await load();
