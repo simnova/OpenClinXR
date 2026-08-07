@@ -432,17 +432,26 @@ def export(path):
 config = load_config()
 
 clear_scene()
+# ECG cart — Blender Z-up authoring. Positions are chosen so parts CONTACT after glTF
+# Y-up export (body sits on casters; screen/shelf/leads touch the cabinet). Pre-#168
+# numbers left ~0.25–0.66 m of air between casters and body (placement bug, not axis
+# conversion — IV pole uses the same export path and was already assembled).
 metal = material("clinical_equipment_matte_metal", (0.55, 0.58, 0.60, 1.0))
 plastic = material("clinical_equipment_white_plastic", (0.88, 0.90, 0.88, 1.0))
 screen = material("ecg_screen_dark_glass", (0.02, 0.08, 0.10, 1.0))
 cable = material("ecg_lead_bundle_black", (0.01, 0.01, 0.012, 1.0))
-cube("ecg_cart_12_lead", (0, 0, 0.65), (0.42, 0.30, 0.45), plastic)
-cube("ecg_monitor_screen", (0, -0.315, 1.12), (0.32, 0.035, 0.18), screen)
-cube("ecg_keyboard_shelf", (0, -0.34, 0.86), (0.36, 0.055, 0.05), metal)
-cube("ecg_lead_bundle", (0.38, -0.34, 0.82), (0.035, 0.035, 0.20), cable)
-for index, x in enumerate([-0.28, 0.28]):
-    for y in [-0.18, 0.18]:
-        cylinder(f"ecg_cart_wheel_{index}_{y}", (x, y, 0.15), 0.055, 0.045, cable)
+# Casters: vertical cylinders, bottom at z≈0, top at z≈0.11 (inside body footprint).
+for index, x in enumerate([-0.18, 0.18]):
+    for y in [-0.12, 0.12]:
+        cylinder(f"ecg_cart_wheel_{index}_{y}", (x, y, 0.055), 0.055, 0.11, cable)
+# Cabinet: half-height 0.25 → bottom at wheel top (0.11), center z=0.36, top z=0.61.
+cube("ecg_cart_12_lead", (0, 0, 0.36), (0.42, 0.30, 0.50), plastic)
+# Monitor screen sits on cabinet top, slightly forward but XZ-overlapping the body.
+cube("ecg_monitor_screen", (0, -0.10, 0.70), (0.32, 0.06, 0.18), screen)
+# Keyboard shelf projects from the front face (back of shelf touches body front y=-0.15).
+cube("ecg_keyboard_shelf", (0, -0.19, 0.58), (0.36, 0.08, 0.04), metal)
+# Lead bundle on the right face (touches body x=+0.21).
+cube("ecg_lead_bundle", (0.235, -0.10, 0.50), (0.05, 0.04, 0.20), cable)
 export(config["ecgCartGlbPath"])
 
 clear_scene()

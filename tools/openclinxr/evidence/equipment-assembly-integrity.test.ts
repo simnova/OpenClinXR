@@ -5,7 +5,17 @@ import { describe, expect, it } from "vitest";
  * pixels in the isolated harness (#163) on assets nobody had ever looked at.
  *
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — the IV pole and the sixteen parametric equipment
- * kinds must be unaffected. It is `it.fails` only because the module is absent.
+ * kinds must be unaffected.
+ *
+ * ## FIXED (#168)
+ * - Generator placement in `medical-equipment-artifacts.ts` reassembled the ECG cart so casters,
+ *   cabinet, screen, shelf, and lead bundle share world-matrix contact after glTF export.
+ * - Cause was **placement numbers**, not Blender Z-up / glTF Y-up confusion (IV pole uses the same
+ *   export path and was already assembled). Rejected: parametric rewrite of the cart; commissioning
+ *   the six absent PROVENANCE GLBs.
+ * - `equipment-assembly-integrity.ts` measures every `REAL_EQUIPMENT_GLTF_BY_ID` entry with baked
+ *   world matrices; ground plane = asset lowest part; tolerance 0.08 m; contact/adjacency only.
+ * - PROVENANCE.md corrected to the two present GLBs (false hashes for six never-shipped files removed).
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * WHAT THE RENDER SHOWS — this is the primary evidence and it is unambiguous
@@ -163,7 +173,7 @@ type Inspect = () => Promise<{
 const MAX_VERTICAL_GAP_METERS = 0.08;
 
 describe("real equipment GLBs are assembled objects (#168)", () => {
-  it.fails("every real equipment GLB is an assembled object", async () => {
+  it("every real equipment GLB is an assembled object", async () => {
     // The render shows the ECG cart's body a metre above its own grounded casters. The GLB loads,
     // has geometry, and glb-grade-capture's whole-document AABB self-check said agrees: true.
     const mod = await load();
@@ -185,7 +195,7 @@ describe("real equipment GLBs are assembled objects (#168)", () => {
     expect(broken, `equipment that is not one object:\n${broken.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ECG cart's parts share a ground plane and footprint", async () => {
+  it("the ECG cart's parts share a ground plane and footprint", async () => {
     // Kills the cheap satisfaction of the first contract: dropping the cart from
     // REAL_EQUIPMENT_GLTF_BY_ID so nothing is checked. The cart is named here specifically.
     const mod = await load();
@@ -208,7 +218,7 @@ describe("real equipment GLBs are assembled objects (#168)", () => {
     ).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the IV pole and the parametric mounts are unaffected (COUNTERWEIGHT)", async () => {
+  it("the IV pole and the parametric mounts are unaffected (COUNTERWEIGHT)", async () => {
     // The IV pole renders correctly today and must keep doing so; the sixteen parametric kinds are
     // the fallback that six PROVENANCE-declared-but-absent assets already rely on.
     const mod = await load();
@@ -222,7 +232,7 @@ describe("real equipment GLBs are assembled objects (#168)", () => {
 
     expect(report.parametricKindCount, "the parametric equipment fallback shrank").toBeGreaterThan(10);
 
-    // PROVENANCE.md must describe what exists. Today it declares 8 and 2 are present.
+    // PROVENANCE.md must describe what exists (two real GLBs only after #168 ledger fix).
     expect(
       report.provenanceDeclaredCount,
       `PROVENANCE.md declares ${report.provenanceDeclaredCount} GLBs but ${report.provenancePresentCount} exist`,
