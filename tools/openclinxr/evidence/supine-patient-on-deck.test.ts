@@ -169,7 +169,7 @@ const MAX_SUPINE_HEIGHT_TO_LENGTH = 0.6;
 const MAX_PENETRATION_METERS = 0.02;
 
 describe("the ED patient lies on the stretcher instead of standing through it (#150)", () => {
-  it.fails("the ED primary patient is supine and clear of the deck", async () => {
+  it("the ED primary patient is supine and clear of the deck", async () => {
     // actor-posture.ts:51-64 returns "standing" for everything but telehealth, so the chest-pain
     // patient stands in front of a built stretcher with his shin inside the deck.
     const mod = await load();
@@ -192,7 +192,7 @@ describe("the ED patient lies on the stretcher instead of standing through it (#
     expect(wrong, `the ED patient is not resting on the stretcher:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the supine body reads as recumbent, not as a standing figure tipped over", async () => {
+  it("the supine body reads as recumbent, not as a standing figure tipped over", async () => {
     // Kills the cheap satisfaction of the first contract: root.rotation.x = 90 clears the posture
     // string and the penetration check while rendering a rigid plank. A lying body's AABB is longer
     // horizontally than it is tall, and its lowest point sits at the deck, not below it.
@@ -231,7 +231,7 @@ describe("the ED patient lies on the stretcher instead of standing through it (#
     expect(wrong, `the supine pose does not read as a lying body:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("standing and seated actors elsewhere are untouched (COUNTERWEIGHT)", async () => {
+  it("standing and seated actors elsewhere are untouched (COUNTERWEIGHT)", async () => {
     // The cheapest satisfaction is resolving supine broadly, which lies down the nurse standing at
     // the bedside and every ambulatory patient in the bank. #81's seated telehealth patient is the
     // other thing a posture change can quietly break.

@@ -30,6 +30,7 @@ export const STANDING_CLIP_NAME = "openclinxr_posture_shift_standing";
 export const SHIPPED_CLIP_SOURCES: readonly string[] = [
   "openclinxr/procedural:openclinxr_seated_sit_idle",
   "openclinxr/procedural:openclinxr_posture_shift_standing",
+  "openclinxr/procedural:openclinxr_supine_recumbent_idle",
   "mesh2motion-app/static/animations/human-base-animations.glb#Sitting_Idle",
   "mesh2motion-app/static/animations/human-base-animations.glb#Sitting_Talking",
 ] as const;
@@ -45,8 +46,11 @@ export function isActorPosture(value: unknown): value is ActorPosture {
 }
 
 /**
- * Default posture from environment + slot. Telehealth home visit patient is seated
- * (patient_chair fixture); everyone else stands until a case declares otherwise.
+ * Default posture from environment + slot.
+ * - Telehealth primary_patient → seated (patient_chair fixture) (#81)
+ * - ED chest-pain primary_patient → supine on shell stretcher fixture (#150)
+ * - Everyone else stands. Do NOT auto-supine every station with furniture —
+ *   ambulatory patients and stations without a bed stay standing.
  */
 export function defaultPostureForEnvironmentSlot(input: {
   environmentId?: string | null | undefined;
@@ -61,6 +65,12 @@ export function defaultPostureForEnvironmentSlot(input: {
   if (telehealth && input.slotKind === "primary_patient") {
     return "seated";
   }
+  // #150: ED chest-pain bay only. Stretcher is a shell fixture; stepdown has no bed.
+  // Scenario-id gate — not "any ed_* env" (stroke/abdominal bays keep standing patients).
+  const edChestPain = scenario.includes("ed_chest_pain");
+  if (edChestPain && input.slotKind === "primary_patient") {
+    return "supine";
+  }
   return "standing";
 }
 
@@ -70,17 +80,24 @@ export function resolveActorPosture(input: {
   scenarioId?: string | null | undefined;
   slotKind: string;
 }): ActorPosture {
-  // Environment/scenario seating wins over a mismatched ED fixture that declares standing
-  // (default local bundle is ED while telehealth scenario is selected — #72/#81 seam).
+  // Environment/scenario seating/supine wins over a mismatched fixture that declares standing
+  // (default local bundle is ED while telehealth scenario is selected — #72/#81 seam;
+  // ED chest-pain bundle historically declared standing while #150 needs supine).
   const fromEnv = defaultPostureForEnvironmentSlot(input);
   if (fromEnv === "seated") {
     return "seated";
+  }
+  if (fromEnv === "supine") {
+    return "supine";
   }
   if (isActorPosture(input.declared)) {
     return input.declared;
   }
   return fromEnv;
 }
+
+/** Procedural recumbent clip name (rotation-only; plant owns world height). */
+export const SUPINE_CLIP_NAME = "openclinxr_supine_recumbent_idle";
 
 export function clipBindingForPosture(posture: ActorPosture): PostureClipBinding {
   if (posture === "seated") {
@@ -93,8 +110,9 @@ export function clipBindingForPosture(posture: ActorPosture): PostureClipBinding
   if (posture === "supine") {
     return {
       posture: "supine",
-      clipName: STANDING_CLIP_NAME,
-      source: "openclinxr/procedural:openclinxr_posture_shift_standing",
+      // Honest: procedural recumbent, not the standing clip (#150).
+      clipName: SUPINE_CLIP_NAME,
+      source: "openclinxr/procedural:openclinxr_supine_recumbent_idle",
     };
   }
   return {
@@ -136,3 +154,44 @@ export function seatedActorWorldPosition(input: {
   const chair = input.chairPosition ?? DEFAULT_PATIENT_CHAIR_POSITION;
   return { x: chair.x, y: 0, z: chair.z };
 }
+
+/**
+ * Default ED stretcher fixture slot from ed_exam_bay_v1 (environment-descriptors).
+ * Live pre-fix (#150): position (−0.9, 0, −0.1), length along X, head end = negative X (pillow).
+ */
+export const DEFAULT_STRETCHER_POSITION = { x: -0.9, y: 0, z: -0.1 } as const;
+
+/** Deck top of the procedural stretcher (station-stretcher STRETCHER_DECK_TOP_METERS). */
+export const DEFAULT_STRETCHER_DECK_TOP_METERS = 0.55;
+
+/**
+ * World XZ plant for a supine actor on the stretcher deck.
+ * Y is owned by plantSupineBodyOnDeck (body thickness vs deck top) — NOT by
+ * seatedVerticalOffsetForSeatHeight (hip-on-chair math; #150 peer trap).
+ */
+export function supineActorWorldPosition(input?: {
+  stretcherPosition?: { x: number; y: number; z: number } | null | undefined;
+}): { x: number; y: number; z: number } {
+  const stretcher = input?.stretcherPosition ?? DEFAULT_STRETCHER_POSITION;
+  return { x: stretcher.x, y: 0, z: stretcher.z };
+}
+
+/**
+ * Initial vertical offset seed before live plant. Supine owns world height via
+ * plantSupineBodyOnDeck; do NOT call seatedVerticalOffsetForSeatHeight here.
+ * Seed 0 so the plant measures body thickness against deck top cleanly.
+ */
+export function supineVerticalOffsetSeed(): number {
+  return 0;
+}
+
+/**
+ * Supine height ownership (#150): plant owns Y from deck top + body thickness.
+ * Clip root translation is stripped (same as seated).
+ */
+export const SUPINE_HEIGHT_OWNERSHIP = {
+  owner: "plantSupineBodyOnDeck_and_deckTopYMeters" as const,
+  clipRootTranslation: "stripped_not_applied" as const,
+  rationale:
+    "Torso-on-deck is not hip-on-chair. seatedVerticalOffsetForSeatHeight (seat−0.03) floats/sinks a recumbent figure. Plant measures live mesh minY vs deck top.",
+} as const;
