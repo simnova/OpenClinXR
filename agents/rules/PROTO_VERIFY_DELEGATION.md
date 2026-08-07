@@ -1164,6 +1164,38 @@ Corollary for the orchestrator: I graded the same capture and saw the hunch, so 
 widen. Where a fix changes posture, the verdict slot asks about posture — not about the joint that
 moved.
 
+## 7z. Authorising a new rendered entity without requiring its PLACEMENT licenses a clip
+
+#122's brief said the budget permits a fourth humanoid slot and left the decision to the worker. It
+took the fourth slot — correctly — and had to invent somewhere to put it:
+
+> "I hardcoded `additional.position.set(0.35, 0.95, 1.15)` with **no** `sceneManifest.actorPlacements`
+> entry and no copy of nurse/family offsets... z=1.15 is farther forward than nurse z=0.55 / family
+> z=0.7, so the fourth stands nearer the doorway camera and clips."
+
+My pixel grade caught it — the fourth ward figure is cut off at the frame edge — and the worker
+confirmed on review that it is a consequence of the change, not pre-existing. There was no fourth
+actor before, so there was no fourth placement.
+
+The brief authorised a new thing to exist in the scene and said nothing about where it goes. Its own
+nominated fix:
+
+> Require a placement row for any new slot kind — name the world position (or reuse the
+> `clinical_team` offset), and put it in `done_when` via a live bounds check that the new mesh's AABB
+> is inside the room frustum and not within N metres of the camera.
+
+**Rule:** when a slice may add a rendered entity, the brief names where it goes or requires the worker
+to derive it from an existing placement, AND carries a bounds proof. "Stage the physician" silently
+licenses "stage the physician anywhere."
+
+This is the §6z incomplete-loop shape in a new costume: a field with no writer becomes an entity with
+no position. The question to ask of any additive slice is not "what reads this" but "what places it".
+
+**Confirmed in the same retro, worth keeping:** naming the cheap fixes to forbid is load-bearing, not
+decorative. Asked whether the banned "hide the duplicate root" was tempting: *"more tempting as a
+one-line visible=false... Without the ban I might have tried hide-first for contract (1), then
+discovered residual need later — the ban saved a wrong-first green on (1) alone."*
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
