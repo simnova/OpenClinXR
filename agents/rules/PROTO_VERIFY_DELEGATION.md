@@ -2119,7 +2119,7 @@ Any code that assembles a rotation matrix from hand-chosen axis vectors should a
 is one line, it is exact, and the failure it catches is otherwise diagnosed only by noticing that a
 figure's left and right are swapped.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 8u. Clinical plausibility: consult grok for "close enough", and keep saying which verdict is whose
 
@@ -2154,5 +2154,66 @@ It does not unblock claims about clinical correctness of content a learner is as
 **And it does not retire the human slot**; it lowers how often that slot is the critical path. When a
 consulted answer and a pixel grade disagree, that disagreement is the thing to escalate, not to
 average.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 8v. The control/treatment table is the single highest-value brief element measured so far
+
+#156's worker was asked directly whether the #67 table earned its place or whether it would have found
+the fix anyway. The answer is the clearest evidence any retro has produced for a brief element:
+
+> "**Helped.** Without 'every column,' I would have shipped **`export_yup=True` alone** after the first
+> measure (mesh H=1.695, longest Y) and called it done. That row is exactly the trap: mesh upright,
+> **joints still X, jointSpanY≈0.07**. The table forced the joint column and the full four-row record.
+> I would **not** have reliably landed force_z + export_yup + Z armature from the flag slogan alone."
+
+The measured treatments bear it out — the obvious single fix produces an upright MESH over a skeleton
+still lying on its side, which passes every single-column check and cannot be posed:
+
+| treatment | mesh H | longest axis | minY | verdict |
+|---|---:|---|---:|---|
+| baseline | 0.436 | Z | −0.326 | FAIL |
+| `export_yup=True` alone | 1.695 | Y | **−0.845** | **FAIL — the trap** |
+| `force_z_up` alone | 0.436 | Z | −0.326 | FAIL |
+| both | 1.695 | Y | 0.000 | PASS |
+
+**Rule:** wherever a defect has more than one plausible single-knob fix, the brief carries a table with
+one column per property that must hold simultaneously, plus the known FAILED treatments and what each
+produced. Not an ordered guess (§7h) — a table. It costs a paragraph and it has now prevented the same
+class of half-right fix twice (#67, #156).
+
+## 8w. When a slice sits adjacent to an unspecified sub-decision, name the KNOWN-GOOD mode
+
+Same retro. `hm08_rig_carry_stage.py` binds weights, the brief said nothing about weighting, and heat
+weighting failed. The worker had to decide alone whether envelope weights were in scope or a
+regression the counterweight should refuse, and whether to retry heat after fixing the armature.
+
+Its proposed brief line, adopted:
+
+> "#134 bind path: auto heat fails; **envelope is the known-good weight mode**; use it unless you prove
+> heat on the fixed armature." Plus: don't treat a heat failure as a treatment red.
+
+This is §7v's direction rule generalised. A brief that names a knob should name the direction; a brief
+whose slice will *touch* an adjacent mechanism should name that mechanism's known-good setting, or say
+explicitly that it is an unlocked decision. Silence gets a guess, and the guess here silently changed
+what "hm08 carries the rig" means — from heat-weighted to envelope-weighted, which is a materially
+weaker claim that only surfaced because the retro asked.
+
+**The tell:** you can name a step the slice must perform that your contract does not assert on.
+
+## 8x. Grade the STRUCTURE pass, not only the lit pass
+
+I graded #156's candidate `proportions: plausible, surface: continuous` from `front_lit.png` and
+recorded it as a recognisable clothed human. Its worker, reading the structure pass, reported a **nude
+basemesh with a separate skirt-like shell over it** and anatomical topology the lit pass hides — plus
+mitten-block hands where I had written "separated fingers".
+
+Lit renders resolve silhouette and shading. Structure passes (MeshNormalMaterial + wireframe) resolve
+topology, surface count, and interior geometry. **They answer different questions and I graded from
+the one that flatters.** `glb-grade-capture` writes both for exactly this reason (#59) and I opened one.
+
+**Rule:** an appearance verdict on a mesh reads the lit pass AND the structure pass, and says which
+finding came from which. Where they disagree — "looks clothed" versus "two surfaces" — the structure
+pass wins on anything structural.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
