@@ -128,7 +128,8 @@ const PSYCH = "psych_suicidal_ideation_safety_v1";
 const sorted = (v: readonly string[]) => [...new Set(v)].sort();
 
 describe("the people in the room are the people in the clinical content (#107)", () => {
-  it.fails("every station's shipped cast is its bank cast", async () => {
+  // ## FIXED (#107) — factory psych branch + shipped bundles + dialogue converge on bank cast.
+  it("every station's shipped cast is its bank cast", async () => {
     // Set equality, not subset — a subset is satisfiable by deleting the partner from the bundle,
     // and psych's authored content gives Sam Reed a speaking role.
     const mod = await load();
@@ -154,7 +155,8 @@ describe("the people in the room are the people in the clinical content (#107)",
     expect(offenders, `stations rendering a cast that is not their own:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("the dialogue line names someone who is actually in the station", async () => {
+  // ## FIXED (#107) — Mock Dialogue uses bank patient displayName (Morgan/Jordan Williams drift closed).
+  it("the dialogue line names someone who is actually in the station", async () => {
     // Kills the cheap satisfaction of the first contract: converging the ids while the panel still
     // reads "Morgan Lee". Also catches the peds "Jordan Williams" / Maya Johnson drift.
     const mod = await load();
@@ -172,7 +174,8 @@ describe("the people in the room are the people in the clinical content (#107)",
     expect(wrong, `dialogue lines naming someone not in the station:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("psych's authored clinical content is untouched (COUNTERWEIGHT)", async () => {
+  // ## FIXED (#107) — module present; bank psych cast unchanged (Jordan/Sam/Owens).
+  it("psych's authored clinical content is untouched (COUNTERWEIGHT)", async () => {
     // The cheapest way to make (1) pass is to rewrite the bank to say Morgan Lee. That would throw
     // away every authored Satir profile, escalation trigger, dialogue seed and rubric — all written
     // for Jordan Reed and Sam Reed — to preserve a stale factory literal.

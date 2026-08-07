@@ -139,6 +139,42 @@
         "defaultTarget": "learner_camera",
         "supportsActorTargets": true
       }
+    },
+    {
+      "actorId": "senior_resident_ward_v1",
+      "role": "physician",
+      "model": {
+        "assetId": "openclinxr.ward_delirium_med_rec_v1.senior_resident_ward_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "senior resident ward",
+        "scenarioAssetId": "senior_resident_ward_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
     }
   ],
   "equipment": [
@@ -312,7 +348,17 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "stationContext": {
+      "title": "Ward Delirium Med Rec",
+      "subtitle": "Medical ward room with bed rails, medication cart, IV pump, whiteboard, call bell, fall-risk sign, and EHR laptop.",
+      "chiefConcern": "Distinguish delirium from baseline cognitive impairment",
+      "initialVitals": "Generated environment evidence pending headset validation",
+      "interruption": "cue at 240s: fall risk action",
+      "stageAriaLabel": "Inpatient Medical Ward Room station scene",
+      "canvasAriaLabel": "3D Inpatient Medical Ward Room preview",
+      "initialDialogueText": "Margaret Ellis: fluctuating confusion, hard of hearing, frail, trying to leave bed"
+    }
   },
   "generatedAt": "2026-05-23T15:55:55.595Z",
   "expiresAt": null,

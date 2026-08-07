@@ -43,6 +43,7 @@ import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
+import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import {
   resolveActorPosture,
   seatedActorWorldPosition,
@@ -1339,37 +1340,13 @@ function configuredExamRunId(): string {
 }
 
 function initialDialogueTextForSelectedScenario(): string {
-  const runtimeInitialDialogueText = encounterRuntimeAssetBundle.sceneManifest.stationContext?.initialDialogueText;
-  if (!isSelectedScenarioRuntimeBundleMismatch() && runtimeInitialDialogueText) return runtimeInitialDialogueText;
-  if (selectedScenarioId() === "peds_asthma_parent_anxiety_v1") {
-    return "Jordan Williams: My chest feels tight and it is hard to breathe.";
-  }
-  if (selectedScenarioId() === "psych_suicidal_ideation_safety_v1") {
-    return "Morgan Lee: I do not feel safe being alone right now.";
-  }
-  if (selectedScenarioId() === "telehealth_diabetes_health_literacy_v1") {
-    return "Luis Martinez: I want to follow the plan, but the instructions are hard to understand.";
-  }
-  if (selectedScenarioId() === "ob_headache_preeclampsia_triage_v1") {
-    return "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes.";
-  }
-  if (selectedScenarioId() === "ed_stroke_alert_handoff_v1") {
-    return "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.";
-  }
-  if (selectedScenarioId() === "stepdown_sepsis_nurse_escalation_v1") {
-    return "Helen Carter: I feel worse than this morning, and I am shaking again.";
-  }
-  if (selectedScenarioId() === "clinic_abdominal_pain_interpreter_v1") {
-    return "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter.";
-  }
-  if (selectedScenarioId() === "oncology_bad_news_family_v1") {
-    return "David Miller: I want my sister here before we talk about the scan results.";
-  }
-  if (selectedScenarioId() === "postop_fever_consult_pressure_v1") {
-    return "Priya Shah: My belly hurts more today, and I have chills.";
-  }
-  if (selectedScenarioId() !== "ed_chest_pain_priority_v1") return "Patient: I am ready to begin this encounter.";
-  return "Robert Hayes: It feels heavy, like someone is sitting on my chest.";
+  // Bank is SSOT for who is named (#107). Table extracted so main.ts stays shrink-only.
+  return initialDialogueTextForScenario({
+    scenarioId: selectedScenarioId(),
+    runtimeInitialDialogueText:
+      encounterRuntimeAssetBundle.sceneManifest.stationContext?.initialDialogueText,
+    bundleMismatch: isSelectedScenarioRuntimeBundleMismatch(),
+  });
 }
 
 function stationContextForSelectedScenario(): {

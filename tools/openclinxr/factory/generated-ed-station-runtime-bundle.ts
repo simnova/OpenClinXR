@@ -573,14 +573,14 @@ function scenarioRuntimePreset(scenarioId: string): {
     };
   }
   if (scenarioId === "psych_suicidal_ideation_safety_v1") {
+    // Bank is SSOT for cast (#107): Jordan Reed / Sam Reed / Nurse Owens — not the stale Morgan/Jamie pair.
+    // Keep psych-specific room props; actors come from the typed bank list (humanoid roles only).
+    const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
     return {
       scenarioId,
       encounterId: "psych_suicidal_ideation_safety_encounter_v1",
       stationId: "psych_suicidal_ideation_safety_station_v1",
-      actors: [
-        { actorId: "patient_morgan_lee_v1", role: "patient", scenarioAssetId: "patient_morgan_lee_character" },
-        { actorId: "nurse_observer_jamie_v1", role: "nurse_observer", scenarioAssetId: "nurse_observer_jamie_character" },
-      ],
+      actors: bankHumanoidActorsForPreset(scenario),
       equipment: ["safe_room_chair_equipment", "observation_station_equipment"],
       stationContext: runtimeStationContextForScenario(scenarioId, "Psych Safety Assessment"),
       roomProps: [
@@ -622,11 +622,8 @@ function scenarioRuntimePreset(scenarioId: string): {
       scenarioId,
       encounterId: `${scenarioSlug}_encounter_v1`,
       stationId: `${scenarioSlug}_station_v1`,
-      actors: scenario.actors.slice(0, 3).map((actor) => ({
-        actorId: actor.actorId,
-        role: normalizeRuntimeActorRole(actor.role),
-        scenarioAssetId: `${actor.actorId.replace(/_v\d+$/u, "")}_character`,
-      })),
+      // Full bank humanoid cast (#107) — do not truncate; ward has 4 roles and Sam/partner must ship for psych.
+      actors: bankHumanoidActorsForPreset(scenario),
       equipment: scenarioEquipment.map((equipment) => `${equipment.toLowerCase().replaceAll(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "")}_equipment`),
       stationContext: runtimeStationContextForScenario(scenarioId, scenario.title),
       roomProps: [
@@ -689,7 +686,8 @@ function runtimeStationContextForScenario(
         : "Scenario event cue pending review",
       stageAriaLabel: `${scenario.environment?.name ?? fallbackTitle} station scene`,
       canvasAriaLabel: `3D ${scenario.environment?.name ?? fallbackTitle} preview`,
-      initialDialogueText: `${actorDisplayName(patient?.actorId ?? "patient_v1", patient?.role)}: ${patient?.demeanor ?? "I am ready to begin this encounter."}`,
+      // Prefer bank displayName (#107) so dialogue cannot name a stale cast id.
+      initialDialogueText: `${patient?.displayName ?? actorDisplayName(patient?.actorId ?? "patient_v1", patient?.role)}: ${patient?.demeanor ?? "I am ready to begin this encounter."}`,
     };
   }
   const contexts: Record<string, EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"]> = {
@@ -711,17 +709,17 @@ function runtimeStationContextForScenario(
       interruption: "Parent anxiety escalates while respiratory status is reassessed",
       stageAriaLabel: "Pediatric asthma station scene",
       canvasAriaLabel: "3D pediatric respiratory room preview",
-      initialDialogueText: "Jordan Williams: My chest feels tight and it is hard to breathe.",
+      initialDialogueText: "Maya Johnson: My chest feels tight and it is hard to breathe.",
     },
     psych_suicidal_ideation_safety_v1: {
       title: "Psych Safety Assessment",
-      subtitle: "Patient and observer in a time-boxed suicide-risk and safety-planning encounter.",
+      subtitle: "Patient, partner, and behavioral-health nurse in a time-boxed suicide-risk and safety-planning encounter.",
       chiefConcern: "Suicidal ideation and inability to commit to being alone safely",
       initialVitals: "Calm but withdrawn; no acute medical instability documented",
-      interruption: "Observer requests explicit safety plan and escalation threshold",
+      interruption: "Partner presses confidentiality limits while nurse is ready for observation",
       stageAriaLabel: "Psychiatric safety assessment station scene",
       canvasAriaLabel: "3D psychiatric safety assessment room preview",
-      initialDialogueText: "Morgan Lee: I do not feel safe being alone right now.",
+      initialDialogueText: "Jordan Reed: I do not feel safe being alone right now.",
     },
     telehealth_diabetes_health_literacy_v1: {
       title: "Telehealth Diabetes Plan",
@@ -1153,6 +1151,24 @@ function normalizeRuntimeActorRole(role: string): EncounterRuntimeAssetBundle["a
     return role;
   }
   return "other";
+}
+
+/** Non-mesh / tablet actors are not humanoid cast members (mirrors asset-registry casting). */
+function isHumanoidBankActor(actor: { actorId: string; role: string }): boolean {
+  const role = actor.role.toLowerCase();
+  if (role === "system") return false;
+  if (/_phone_|_tablet_|telehealth_system/iu.test(actor.actorId)) return false;
+  return true;
+}
+
+function bankHumanoidActorsForPreset(
+  scenario: { actors: Array<{ actorId: string; role: string }> } | undefined,
+): Array<{ actorId: string; role: EncounterRuntimeAssetBundle["actors"][number]["role"]; scenarioAssetId: string }> {
+  return (scenario?.actors ?? []).filter(isHumanoidBankActor).map((actor) => ({
+    actorId: actor.actorId,
+    role: normalizeRuntimeActorRole(actor.role),
+    scenarioAssetId: `${actor.actorId.replace(/_v\d+$/u, "")}_character`,
+  }));
 }
 
 function actorDisplayName(actorId: string, role?: string): string {
