@@ -4,16 +4,36 @@
  * Keeps apps/ui-xr/src/main.ts under SIZE_FREEZE while teaching the loader about
  * generated-humanoids cast paths (adult ED cast must not fall through to neutral
  * or pediatric assets).
+ *
+ * IMPORTANT (#85 regression): do NOT import NEW named exports from
+ * `@openclinxr/asset-registry/runtime-bundles` here. That package's dist/ is
+ * gitignored; after a merge that only updates src/, a stale dist lacks the new
+ * re-exports and Vite fails the whole main.ts graph — so waitForStationShell
+ * times out for EVERY scenario (including telehealth). Cast *contract* SSOT
+ * stays in packages/.../actor-casting.ts (inspectScenarioCasting). This module
+ * only needs public URL paths for the loader.
  */
-
-import {
-  ED_ADULT_CAST_RUNTIME_PATH,
-  resolveRuntimeCastAssetPath,
-} from "@openclinxr/asset-registry/runtime-bundles";
 
 export type HumanoidRuntimeAssetLike = {
   kind: string;
   blob: { blobName: string; url?: string };
+};
+
+/** Mirrors actor-casting ED_ADULT_CAST_RUNTIME_PATH — keep in sync when renaming the GLB. */
+export const ED_ADULT_CAST_RUNTIME_PATH = "/generated-humanoids/ed_chest_pain_adult_cast.glb";
+
+const ED_SCENARIO_IDS = new Set([
+  "ed_chest_pain_priority_v1",
+  "ed_chest_pain_priority_v2",
+]);
+
+const PEDS_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+
+/** Runtime public paths for peds cast (mirrors actor-casting table). */
+const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
+  patient_maya_johnson_v1: "/generated-humanoids/peds_patient_child.glb",
+  parent_tara_johnson_v1: "/generated-humanoids/peds_anxious_parent.glb",
+  nurse_kevin_lee_v1: "/generated-humanoids/peds_nurse_kevin.glb",
 };
 
 /**
@@ -33,7 +53,11 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
   if (blobName.includes("generated-humanoids/") || fileName.startsWith("ed_chest_pain_adult_cast")) {
     return `/generated-humanoids/${fileName}`;
   }
-  if (fileName === "peds_patient_child.glb" || fileName === "peds_anxious_parent.glb" || fileName === "peds_nurse_kevin.glb") {
+  if (
+    fileName === "peds_patient_child.glb"
+    || fileName === "peds_anxious_parent.glb"
+    || fileName === "peds_nurse_kevin.glb"
+  ) {
     return `/generated-humanoids/${fileName}`;
   }
 
@@ -50,6 +74,7 @@ export function resolveLocalHumanoidRuntimeAssetFileName(fileName: string): stri
 /**
  * Variant/cast override after the bundle path is known.
  * Prefer scenario casting table (age-band + scenario provenance) over silent fallbacks.
+ * Does not import package dist — see file header (#85 regression).
  */
 export function resolveHumanoidVariantOrCastPath(input: {
   scenarioId: string;
@@ -60,15 +85,26 @@ export function resolveHumanoidVariantOrCastPath(input: {
   comparatorOverridePath?: string | null;
 }): string {
   if (input.comparatorOverridePath) return input.comparatorOverridePath;
-  const cast = resolveRuntimeCastAssetPath({
-    scenarioId: input.scenarioId,
-    actorId: input.actorId,
-    role: input.role,
-  });
-  if (cast) return cast;
-  // Defense: never leave an ED adult on the pediatric patient GLB.
+
+  if (ED_SCENARIO_IDS.has(input.scenarioId)) {
+    // All adult ED roles → adult cast (never peds_patient_child).
+    return ED_ADULT_CAST_RUNTIME_PATH;
+  }
+
+  if (input.scenarioId === PEDS_SCENARIO_ID) {
+    const byActor = PEDS_RUNTIME_CAST_BY_ACTOR[input.actorId];
+    if (byActor) return byActor;
+    const role = input.role.toLowerCase();
+    if (role === "patient") return PEDS_RUNTIME_CAST_BY_ACTOR.patient_maya_johnson_v1!;
+    if (role === "nurse") return PEDS_RUNTIME_CAST_BY_ACTOR.nurse_kevin_lee_v1!;
+    if (role === "family" || role === "family_member" || role === "parent") {
+      return PEDS_RUNTIME_CAST_BY_ACTOR.parent_tara_johnson_v1!;
+    }
+  }
+
+  // Defense: never leave an ED adult on the pediatric patient GLB (stale fallback paths).
   if (
-    (input.scenarioId === "ed_chest_pain_priority_v1" || input.scenarioId === "ed_chest_pain_priority_v2")
+    ED_SCENARIO_IDS.has(input.scenarioId)
     && input.fallbackPath.includes("peds_patient_child")
   ) {
     return ED_ADULT_CAST_RUNTIME_PATH;
