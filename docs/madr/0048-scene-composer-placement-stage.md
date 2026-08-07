@@ -111,3 +111,77 @@ definition and a known-good control before it becomes a constraint, or it will b
   coordinates. The proposal's example uses names, which is the better shape and is not yet built
 - how this interacts with the fourteen shipped environment descriptors, which already carry
   `fixtureSlots` that are a partial, unversioned form of the same idea
+
+## Analysis, 2026-08-07 — adversarial review of the proposal
+
+Reviewed against the tree. Verdict: **direction sound; the full stage as specified is oversized and
+will drift unless it OWNS the existing placement surfaces rather than paralleling them.** Both
+corrections above were confirmed correct.
+
+### The runtime already IS the composer
+
+`station-environment.ts`, the #140 equipment mount and `runtime-actor-placements.ts` together already
+resolve and instantiate a scene. The proposal reads as though placement is unbuilt; it is built and
+**uncoupled**. So the work is **add resolve + validate to what exists**, not introduce a second scene
+graph. That is the single most important framing correction.
+
+### Sequencing is three steps, not two
+
+The record above inverted the proposal's first two actions (gate before schema). That is right for
+this defect and **incomplete**:
+
+| # | step | why |
+|---|---|---|
+| 1 | a gate that fails **today** | without it, `no_collision: true` is another green lie (#133) |
+| 2 | **bind the patient to a support anchor** | the smallest procedural fix; a gate alone "only measures pain forever" |
+| 3 | formalise the schema that **describes that binding** | the schema documents a working mechanism instead of asserting one |
+
+### `fixtureSlots` — superset, not replacement, and not a parallel system
+
+This was the open question in NOT DETERMINED and it now has an answer:
+
+| model | verdict |
+|---|---|
+| PlacementBlueprint **replaces** `fixtureSlots` | bad — slots already drive the chair and stretcher builders |
+| PlacementBlueprint as a **second system** | **high drift risk** — the tree would then hold four layout sources |
+| PlacementBlueprint as a **superset / evolution** | **correct** — the blueprint resolves actors and equipment *relative to* named anchors, and those anchors ARE the existing `slotId`s plus equipment ids |
+
+v1 shape: `primary_patient` placement becomes `anchor: patient_chair | stretcher` plus an offset —
+**not a parallel global XYZ table**.
+
+### `must_be_reachable` — cut from v1
+
+No navmesh, no hand IK, no Quest locomotion evidence exists. §6t of
+`agents/rules/PROTO_VERIFY_DELEGATION.md` records five geometric gates that passed on figures a human
+graded wrong; reachability would be the sixth. Keep `no_collision` (AABB overlap plus vertical
+pierce), `facing` (yaw) and `height_offset` (seat/deck plant). If the field is retained at all it
+carries `notEvidenceFor: reachability`.
+
+### THREE placement sources today — measured, and it corrects this record
+
+The review flagged bundle overrides as a third source. Verified:
+
+| source | count |
+|---|---|
+| `runtime-actor-placements.ts` hardcoded `slotKind` table | 10 entries |
+| `environment-descriptors.ts` `fixtureSlots` | 11 slots |
+| shipped bundle `sceneManifest.actorPlacements` | **9 of 14 scenarios** |
+
+And the sharp part: **the bundle placements carry the same coordinates as the hardcoded fallback.**
+`oncology_bad_news_family_v1` and `postop_fever_consult_pressure_v1` both record
+`{x: -0.72, y: 1.06, z: -0.12}` — byte-identical to `runtime-actor-placements.ts:29-34`. The factory
+generated them by copying the fallback.
+
+**Consequence:** changing the hardcoded table alone fixes 5 of 14 stations and leaves 9 unchanged,
+because their bundles override with the same value. Any fix must address all three sources or
+collapse them. #169's contract enumerates every station, so a partial fix fails by construction.
+
+### What else the proposal misses in this codebase
+
+| miss | why it bites |
+|---|---|
+| **posture** | seated / supine / standing change what a *valid* collision is — #133's check skips seated and supine outright |
+| **two support paths** | fixtures versus #140 equipment; a fixture-only gate reports zero on oncology |
+| **global anchors as SSOT** | the fix is not only to report collisions but to stop absolute patient XYZ being the source of truth |
+| **AI proposer priority** | second, not core — procedural binding first |
+| **review-packet ceremony** | provenance yes; do not block the learner path on full packet emission |
