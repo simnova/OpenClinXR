@@ -102,6 +102,57 @@ import { describe, expect, it } from "vitest";
  *
  * IN-SCOPE VERDICT required in your report: one line per candidate, "X produced ___". Separately
  * name any out-of-scope wrongness you saw and are not fixing — the object and what it looks like.
+ *
+ * ## FIXED (#78)
+ *
+ * Measured on this machine (2026-08-07), worktree issue-78. DECISION WITH EVIDENCE — no adoption.
+ *
+ * makeclothes (GARMENT GEOMETRY — the only candidate that can make a garment)
+ *   - Tool: MPFB MakeClothes ClothesService.fit_clothes_to_human (bl_ext.user_default.mpfb)
+ *   - Anny (peds_nurse_kevin.glb anny_base): BLOCKED — exact error:
+ *       ValueError: The provided object is not a basemesh
+ *     Anny body 13686 verts; MH basemesh 19158 verts; delta -5472; object_is_basemesh=false
+ *   - MH topology CONTROL: RAN — synthetic sphere fitted on MH base.obj marked Basemesh
+ *       clothes_verts=482, clothes_tris=960, glb_bytes=24668, fit_wall_clock_s≈0.038
+ *       artifact: makeclothes-mh-probe-clothes.glb (outputClass=separate_garment_mesh)
+ *   - Decision: works only on MakeHuman basemesh topology. Not an Anny factory path without a
+ *     full basemesh swap. NOT adopted.
+ *
+ * imagine_smplitex (BODY TEXTURE on SMPL UV — plus TEXT→image half)
+ *   - image_gen REACHABLE from worktree-bound dispatch: YES. Produced teal V-neck scrub top
+ *       1024×1024 JPEG, 245941 bytes → imagine-scrub-top.jpg (outputClass=image_only)
+ *   - SMPL/SMPLitex loader against Anny: BLOCKED — exact error:
+ *       ValueError: SMPL/SMPLitex loader requires SMPL topology with exactly 6890 vertices
+ *       and the SMPL UV atlas; loaded mesh 'peds_nurse_kevin.anny_base…' has 13686 vertices
+ *       (delta 6796), joint_name_intersection=3/24, uv_loops=80076. Anny joints (thigh.L…) ≠
+ *       SMPL (left_hip…). No vertex/UV correspondence — cannot bind SMPLitex texture.
+ *   - IMAGE→3D FOSS/cloud attempts on that garment image:
+ *       local Hunyuan3D v2: blocked — no hunyuan_3d_v2.1.safetensors under ComfyUI/models
+ *         (checkpoints: RealVisXL_V5.0_fp16.safetensors only)
+ *       TripoImageToModelNode: blocked — Exception: Unauthorized: Please login first to use this node.
+ *       MeshyImageToModelNode: blocked — HTTP 400 Bad Request
+ *   - Decision: TEXT→image is free; IMAGE→fitted 3D garment on Anny topology is not available
+ *     without SMPL retarget/proxy (a project, not this slice) or paid/logged-in cloud 3D APIs
+ *     that still do not bind to Anny. NOT adopted.
+ *
+ * stablegen (BODY/SCENE TEXTURE — COUNTERWEIGHT)
+ *   - NOT installed, NOT run. GPL-3.0 licensePolicy=blocked_without_exception
+ *     (packages/openclinxr/asset-registry/src/index.ts stablegen entry).
+ *   - Would give: body/scene PBR texture (skin_texture lane), not separate garment geometry.
+ *   - License decision remains Patrick's.
+ *
+ * IN-SCOPE VERDICT
+ *   - makeclothes produced separate_garment_mesh on MH basemesh control; refused Anny with
+ *     ValueError 'not a basemesh'.
+ *   - imagine_smplitex produced image_only (scrub top photo); SMPLitex/SMPL loader and local
+ *     image→3D did not produce a fitted Anny garment.
+ *   - stablegen produced nothing (licence-blocked; would be body_texture class if ever allowed).
+ *
+ * OUT-OF-SCOPE WRONGNESS SEEN AND NOT FIXED
+ *   - peds_nurse_kevin.glb: openclinxr_declared_upper_layers__scrub_top+scrub_pocket_mesh is a
+ *     3-vertex / 1-triangle stub triangle floating with the garment stack (fixture residue).
+ *   - Procedural real_garment meshes on the nurse still show strap-like shoulder caps / armpit
+ *     gaps relative to the torso (known garment geometry debt; not re-tuned here).
  */
 
 const load = async () =>
@@ -127,7 +178,7 @@ type Run = () => Promise<{ candidates: CandidateResult[] }>;
 const NAMED = ["makeclothes", "imagine_smplitex", "stablegen"];
 
 describe("the clothing candidates were actually run (#78)", () => {
-  it.fails("every named candidate is accounted for as ran-with-measurements or blocked-with-a-reason", async () => {
+  it("every named candidate is accounted for as ran-with-measurements or blocked-with-a-reason", async () => {
     // The anti-fabrication contract. A candidate that is simply missing from the report is how a
     // bake-off that never happened gets filed as one.
     const mod = await load();
@@ -148,7 +199,7 @@ describe("the clothing candidates were actually run (#78)", () => {
     }
   }, 3_600_000);
 
-  it.fails("a candidate that ran records what class of output it produced and a real measurement", async () => {
+  it("a candidate that ran records what class of output it produced and a real measurement", async () => {
     // outputClass is the actual finding of this cagematch: only one of the three makes a garment,
     // the other two paint the body, and the clinical constraint turns on exactly that distinction.
     const mod = await load();
@@ -171,7 +222,7 @@ describe("the clothing candidates were actually run (#78)", () => {
     }
   }, 3_600_000);
 
-  it.fails("StableGen is recorded as blocked and was not installed (COUNTERWEIGHT — asserts what is ALREADY true)", async () => {
+  it("StableGen is recorded as blocked and was not installed (COUNTERWEIGHT — asserts what is ALREADY true)", async () => {
     // Guards a licence decision that belongs to Patrick, not to an agent. GPL-3.0
     // blocked_without_exception. A cagematch that "just tried it to see" would violate the boundary
     // this repo is run under, and passing contracts (1) and (2) must not require it.
