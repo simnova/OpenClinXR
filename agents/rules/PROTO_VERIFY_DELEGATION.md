@@ -2120,3 +2120,39 @@ is one line, it is exact, and the failure it catches is otherwise diagnosed only
 figure's left and right are swapped.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 8u. Clinical plausibility: consult grok for "close enough", and keep saying which verdict is whose
+
+Standing operator direction, 2026-08-07, answering a direct ask about a clinician review slot:
+
+> "Use grok's opinion to aid you in getting 'close enough'"
+
+Three slices had by then deferred a clinical-appearance verdict — #46 froze garment claims, #153
+shipped a supine pose asserted as *staging only*, #156 declined to say whether a patient in a long
+dress is appropriate. The deferral was correct and it was also becoming a permanent stall.
+
+**The rule now:** where a verdict needs clinical judgement the orchestrator does not have, run a
+research consult (§6s's `/deep-research`, or a plain `grok -p` round when an answer is needed inside
+the turn) and treat the result as a **"close enough" working answer**, recorded as such.
+
+**What does NOT change — and this is the load-bearing half:**
+
+- **Say which verdict is whose.** "Upright, limbs present, proportions plausible, surface continuous"
+  is the orchestrator's own pixel grade. "A patient in this station would ordinarily be gowned rather
+  than in street clothes" is a consulted opinion. They go in different sentences with different
+  attribution, every time.
+- **A consulted opinion is not a clinician sign-off** and must never be written as one. `claimScope` /
+  `notEvidenceFor` still exclude clinical validity, licensure, and exam equivalence. Nothing here
+  licenses a readiness claim.
+- **Ask for sources and stated failure modes** (§6s). The value over a plain guess is the residual
+  list, not the confidence.
+
+The distinction that makes this safe: it unblocks *staging* decisions — what a room contains, how a
+figure is posed, what a role wears — which were previously stalling behind an unavailable reviewer.
+It does not unblock claims about clinical correctness of content a learner is assessed on.
+
+**And it does not retire the human slot**; it lowers how often that slot is the critical path. When a
+consulted answer and a pixel grade disagree, that disagreement is the thing to escalate, not to
+average.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
