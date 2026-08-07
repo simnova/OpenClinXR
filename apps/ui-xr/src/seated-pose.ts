@@ -58,10 +58,13 @@ const SEATED_BONE_EULERS = new Map<string, { x?: number; y?: number; z?: number;
   // Keep standing foot rest so ankles are not re-authored into a twist.
   ["footL", { x: 0.557, y: 0.93, z: -1.478, absolute: true }],
   ["footR", { x: 0.557, y: -0.93, z: 1.478, absolute: true }],
-  ["upper_armL", { x: d2r(-30), z: d2r(12), absolute: true }],
-  ["upper_armR", { x: d2r(-30), z: d2r(-12), absolute: true }],
-  ["forearmL", { x: d2r(35), absolute: true }],
-  ["forearmR", { x: d2r(35), absolute: true }],
+  // #91: prior ±30°/±12° upper + 35° forearm was the map's own T-pose splay default
+  // (peer-flagged on #87; confirmed in #87 retro). Stronger hang so wrists drop below
+  // shoulders while hands stay clear of the mid-line — not a threshold-chase on bone X.
+  ["upper_armL", { x: d2r(-55), z: d2r(10), absolute: true }],
+  ["upper_armR", { x: d2r(-55), z: d2r(-10), absolute: true }],
+  ["forearmL", { x: d2r(45), absolute: true }],
+  ["forearmR", { x: d2r(45), absolute: true }],
   ["thigh.L", { x: THIGH_REST_X + HIP_FLEX, y: 0.053, z: -0.053, absolute: true }],
   ["thigh.R", { x: THIGH_REST_X + HIP_FLEX, y: -0.053, z: 0.053, absolute: true }],
   ["shin.L", { x: -KNEE_FLEX, y: -0.023, z: 0.023, absolute: true }],

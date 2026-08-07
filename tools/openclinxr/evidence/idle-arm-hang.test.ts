@@ -127,7 +127,15 @@ const MIN_SHOULDER_TO_WRIST_DROP_METERS = 0.25;
 const MIN_WRIST_LATERAL_CLEARANCE_METERS = 0.05;
 
 describe("a standing figure's arms hang (#91)", () => {
-  it.fails("every standing actor's wrist sits below its shoulder", async () => {
+  /**
+   * ## FIXED (#91)
+   * Pre-fix live dump: runtime bones undotted (`upper_armL`); Euler survived mixer;
+   * role-specific maps overwrote clinical idle hang (family drop ~0.23 m < 0.25 m;
+   * patient z=±0.74 plank abduction). Fix: extract clinical-idle-posture.ts as SSOT for
+   * arm hang (quaternion write + alias), strip arm overwrites from default role maps
+   * (peds asthma hands-near-chest kept), strengthen seated arm eulers past T-pose splay defaults.
+   */
+  it("every standing actor's wrist sits below its shoulder", async () => {
     // World-space, deliberately: a bone-rotation assertion goes green while the arms stay horizontal
     // if the names do not match, the axis is wrong, or the mixer discards the write.
     const mod = await load();
@@ -139,6 +147,7 @@ describe("a standing figure's arms hang (#91)", () => {
 
     const planks: string[] = [];
     for (const a of report.arms) {
+      if (a.posture !== "standing") continue;
       expect(a.framesAdvanced, `${a.scenarioId}/${a.actorId} measured before the render loop advanced`).toBeGreaterThan(0);
       const drop = a.shoulderWorldY - a.wristWorldY;
       if (drop < MIN_SHOULDER_TO_WRIST_DROP_METERS) {
@@ -148,7 +157,7 @@ describe("a standing figure's arms hang (#91)", () => {
     expect(planks, `arms held out rather than hanging:\n${planks.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("arms hang beside the body, not folded through it", async () => {
+  it("arms hang beside the body, not folded through it", async () => {
     // Kills the cheap satisfaction of the first contract: rotating the arms inward drops the wrists
     // below the shoulders and puts the hands inside the torso.
     const mod = await load();
@@ -156,14 +165,16 @@ describe("a standing figure's arms hang (#91)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    const folded = report.arms.filter((a) => a.wristLateralOffsetMeters < MIN_WRIST_LATERAL_CLEARANCE_METERS);
+    const folded = report.arms
+      .filter((a) => a.posture === "standing")
+      .filter((a) => a.wristLateralOffsetMeters < MIN_WRIST_LATERAL_CLEARANCE_METERS);
     expect(
       folded.map((a) => `${a.scenarioId}/${a.actorId} wrist ${a.wristLateralOffsetMeters.toFixed(3)}m from the mid-line`),
       "arms folded into the torso",
     ).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the seated figure keeps its seated posture (COUNTERWEIGHT — true since #87)", async () => {
+  it("the seated figure keeps its seated posture (COUNTERWEIGHT — true since #87)", async () => {
     // Clinical idle and the seated map share bones and a frame loop. #87 and #83 put a pelvis on a
     // seat with a 0.002 m gap and feet planted; changing the shared path must not cost that.
     const mod = await load();
