@@ -1211,8 +1211,11 @@ function isPhysicsClinicalTouchCapture(): boolean {
 }
 
 function isDynamicGeneratedEncounterSceneMode(): boolean {
-  return encounterRuntimeAssetBundle.sceneManifest.roomProps.length > 0
-    && encounterRuntimeAssetBundle.environment.reviewStatus !== "blocked";
+  // #139: "generated learner station" is NOT roomProps.length. Empty scenery is still a
+  // generated station; prop-count flipped emptied manifests into debug chrome (reverted 5430b3a).
+  // Keep blocked-environment gate. Capture-mode escape hatches still surface markers/panels.
+  // Rejected: props|equipment|actors density, dummy prop, three-flag split (peer: overbuild).
+  return encounterRuntimeAssetBundle.environment.reviewStatus !== "blocked";
 }
 
 function isGeneratedPlaceholderSourceForDifferentScenario(source: string): boolean {

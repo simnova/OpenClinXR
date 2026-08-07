@@ -6,7 +6,12 @@ import { describe, expect, it } from "vitest";
  * renders evidence panels, affordance markers and primitive fallbacks over the room.
  *
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — a station that still has props must stay dynamic, and
- * debug capture modes must keep working. It is `it.fails` only because the module is absent.
+ * debug capture modes must keep working.
+ *
+ * ## FIXED (#139)
+ * Predicate is `environment.reviewStatus !== "blocked"` only — not roomProps.length.
+ * Emptied-props route-intercept measure: isDynamic=true, panels=0, bed/monitor=0.
+ * Debug capture mode still surfaces affordance + fallback chrome via captureMode escape hatches.
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * THE DEFECT, TRACED — verified against the tree, do not re-derive
@@ -127,7 +132,7 @@ type Inspect = () => Promise<{ scenes: SceneModeFacts[] }>;
 const NORMAL = "";
 
 describe("a station with no room props is still a generated scene (#139)", () => {
-  it.fails("an emptied-props station stays in generated scene mode", async () => {
+  it("an emptied-props station stays in generated scene mode", async () => {
     // main.ts:1213 defines the mode by roomProps.length > 0, so emptying a station's props drops it
     // into debug/placeholder mode. #139 did exactly that on ten stations and I reverted it.
     const mod = await load();
@@ -154,7 +159,7 @@ describe("a station with no room props is still a generated scene (#139)", () =>
     expect(wrong, `zero-prop stations falling into debug mode:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("debug capture modes still surface their chrome", async () => {
+  it("debug capture modes still surface their chrome", async () => {
     // Kills the cheap satisfaction of the first contract: making the predicate unconditionally true
     // silences the markers and panels that fixture and capture modes exist to show.
     const mod = await load();
@@ -171,7 +176,7 @@ describe("a station with no room props is still a generated scene (#139)", () =>
     expect(silenced, `capture modes that lost their chrome:\n${silenced.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("stations that ship props are unaffected (COUNTERWEIGHT)", async () => {
+  it("stations that ship props are unaffected (COUNTERWEIGHT)", async () => {
     // The other cheap satisfaction is giving every station dummy props back, which re-blocks the
     // cue-prop removal this unblocks and preserves the lie that props define "generated".
     const mod = await load();
