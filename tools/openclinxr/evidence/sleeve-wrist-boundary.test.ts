@@ -138,7 +138,7 @@ const MIN_FOREARM_CLOTHED_FRACTION = 0.85;
 const MAX_ARM_TO_GARMENT_DISTANCE = 0.35;
 
 describe("the sleeve ends at the wrist, not the fingertips (#147)", () => {
-  it.fails("hands render as skin", async () => {
+  it("hands render as skin", async () => {
     // automate_blender.py:2471 defines the wrist as 0.12 * body height — near the ankle. With arms
     // at the sides, hand faces fall inside the band and are lateral, so they get painted.
     const mod = await load();
@@ -161,7 +161,7 @@ describe("the sleeve ends at the wrist, not the fingertips (#147)", () => {
     expect(gloved, `figures wearing gloves:\n${gloved.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the forearm between cuff and wrist stays clothed", async () => {
+  it("the forearm between cuff and wrist stays clothed", async () => {
     // Kills the cheap satisfaction of the first contract: shrinking the band until the hand clears
     // takes the forearm with it and re-opens the bare-skin band #103 existed to close. §6p.
     const mod = await load();
@@ -182,7 +182,7 @@ describe("the sleeve ends at the wrist, not the fingertips (#147)", () => {
     expect(bare, `forearms that went bare:\n${bare.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("#146's colour match survives (COUNTERWEIGHT)", async () => {
+  it("#146's colour match survives (COUNTERWEIGHT)", async () => {
     // The third way to make a boundary check pass is to stop painting the arm at all, or to repaint
     // it something that no longer tracks the garment. #146 landed that an hour before this slice.
     const mod = await load();
