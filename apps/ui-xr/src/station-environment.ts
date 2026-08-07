@@ -4,6 +4,9 @@
  * Reads the shared environment descriptor from @openclinxr/asset-registry so the
  * runtime and factory plan the same room. Boxes are the extension point for a
  * later kit-bash / generative bake-off — not the destination art style.
+ *
+ * #81: patient_chair fixture builds real chair geometry with seatHeightMeters
+ * (see station-chair.ts); other slots remain layout markers.
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
@@ -14,6 +17,7 @@ import {
   MeshStandardMaterial,
   type Object3D,
 } from "three";
+import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
 
 export type BuildStationEnvironmentInput = {
   environmentId: string;
@@ -101,8 +105,18 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   wallTrim.userData.openClinXrDynamicScenePolicy = "environmentId_driven_wall_trim";
   shell.add(wallTrim);
 
-  // Marker meshes for fixture slots — tiny visible cubes so captures differ by layout, not only colour.
+  // Fixture slots: patient_chair is real geometry (#81); others stay tiny layout markers.
   for (const slot of d.fixtureSlots) {
+    if (isPatientChairSlotId(slot.slotId)) {
+      const chair = buildPatientChair({
+        slotId: slot.slotId,
+        purpose: slot.purpose,
+        position: slot.position,
+        trimColor: d.wallTrimColor,
+      });
+      shell.add(chair);
+      continue;
+    }
     const marker = new Mesh(
       new BoxGeometry(0.18, 0.06, 0.18),
       new MeshStandardMaterial({
@@ -116,6 +130,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
     marker.position.set(slot.position.x, Math.max(0.03, slot.position.y), slot.position.z);
     marker.userData.fixtureSlotId = slot.slotId;
     marker.userData.fixtureSlotPurpose = slot.purpose;
+    marker.userData.isMarkerCube = true;
     shell.add(marker);
   }
 

@@ -4,9 +4,12 @@
  * Rewrites slot positions for visual review. When it places actors on the floor
  * (y=0), load-time vertical offsets must use resolveEffectiveVerticalOffsetMeters
  * so legacy mid-height offsets do not bury feet-near-origin humanoids.
+ *
+ * #81: telehealth primary patient parks at patient_chair (not floor-standing mid-bay).
  */
 
 import type { Group } from "three";
+import { DEFAULT_PATIENT_CHAIR_POSITION } from "@openclinxr/asset-registry";
 
 export type EncounterActorFramingInput = {
   actor: Group;
@@ -64,6 +67,22 @@ export function applyCleanEncounterVisualReviewActorFraming(
       onWardrobeCue?.(actor, "family");
       return;
     }
+  }
+
+  // Telehealth home visit: patient sits on the procedural patient_chair (#81).
+  if (scenarioId.includes("telehealth") && role.includes("patient")) {
+    actor.position.set(
+      DEFAULT_PATIENT_CHAIR_POSITION.x,
+      0,
+      DEFAULT_PATIENT_CHAIR_POSITION.z,
+    );
+    actor.rotation.y = 0.12;
+    actor.scale.setScalar(0.88);
+    actor.userData.openClinXrEncounterStaging = "telehealth_patient_seated_on_patient_chair";
+    actor.userData.openClinXrFloorStandingFrame = false;
+    actor.userData.openClinXrActorPosture = "seated";
+    onWardrobeCue?.(actor, "patient");
+    return;
   }
 
   if (role.includes("patient")) {

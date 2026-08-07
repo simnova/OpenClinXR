@@ -1,3 +1,10 @@
+import {
+  generatedActorLabel,
+  generatedActorPlacement,
+  generatedEquipmentPlacement,
+  safeRuntimeManifestKey,
+} from "./actor-placement.js";
+
 export type RuntimeAssetKind = "humanoid_model" | "environment_model" | "equipment_model" | "animation_clip" | "audio_clip" | "texture" | "ui_schema" | "phoneme_map";
 
 export type RuntimeAssetStoreKind = "app_public_fixture" | "azurite_blob" | "azure_blob";
@@ -141,6 +148,8 @@ export type EncounterRuntimeActorPlacement = {
   scale: { x: number; y: number; z: number };
   verticalOffsetMeters: number;
   labelPrefix: string;
+  /** Standing default; telehealth primary_patient is seated (#81). */
+  posture?: "standing" | "seated" | "supine";
 };
 
 export type EncounterRuntimeEquipmentPlacement = {
@@ -1373,7 +1382,10 @@ function createGeneratedRuntimeSceneManifest(input: {
     actorPlacements: Object.fromEntries(
       input.actors
         .filter((actor) => actor.embodiment === "humanoid")
-        .map((actor, index) => [actor.actorId, generatedActorPlacement(actor, index)]),
+        .map((actor, index) => [
+          actor.actorId,
+          generatedActorPlacement(actor, index, { scenarioId: input.scenarioId }),
+        ]),
     ),
     equipmentPlacements: Object.fromEntries(
       input.equipment.map((equipment, index) => [equipment.equipmentId, generatedEquipmentPlacement(equipment, index)]),
@@ -1381,47 +1393,6 @@ function createGeneratedRuntimeSceneManifest(input: {
     roomProps: [],
     productionReadinessClaimed: false,
     notEvidenceFor: [...LOCAL_RUNTIME_NOT_EVIDENCE_FOR],
-  };
-}
-
-function safeRuntimeManifestKey(value: string): string {
-  return value.trim().replace(/[^a-zA-Z0-9_.:-]+/gu, "_") || "unknown";
-}
-
-function generatedActorLabel(actor: EncounterRuntimeActorAsset): string {
-  return actor.role
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function generatedActorPlacement(
-  actor: EncounterRuntimeActorAsset,
-  index: number,
-): EncounterRuntimeActorPlacement {
-  const slotKind: EncounterRuntimeActorPlacement["slotKind"] = actor.role === "patient"
-    ? "primary_patient"
-    : ["nurse", "consultant", "respiratory_therapist", "nurse_observer"].includes(actor.role)
-      ? "clinical_team"
-      : "family_or_observer";
-
-  return {
-    slotKind,
-    position: { x: -0.8 + (index * 0.8), y: 0.95, z: 0.3 + (index % 2) * 0.45 },
-    scale: { x: 1, y: 1, z: 1 },
-    verticalOffsetMeters: -0.95,
-    labelPrefix: generatedActorLabel(actor),
-  };
-}
-
-function generatedEquipmentPlacement(
-  equipment: EncounterRuntimeEquipmentAsset,
-  index: number,
-): EncounterRuntimeEquipmentPlacement {
-  return {
-    position: { x: 1.2 + (index * 0.45), y: 0, z: 0.45 + (index % 2) * 0.45 },
-    label: equipment.model.displayName,
-    interactionCueIds: ["selectable_equipment_reference"],
   };
 }
 
@@ -1454,9 +1425,9 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       { traceTag: "patient_note_submitted", actorId: "patient_robert_hayes_v1", text: "System: Patient note saved for faculty review.", gazeTargetKind: "learner_camera", gazeTargetActorId: null, affectTimeline: runtimeDialogueAffectTimeline("neutral", 0.2) },
     ],
     actorPlacements: {
-      patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.18, y: 1.02, z: -0.18 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" },
-      nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team" },
-      spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family" },
+      patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.18, y: 1.02, z: -0.18 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient", posture: "standing" },
+      nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: "standing" },
+      spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: "standing" },
     },
     equipmentPlacements: {
       ecg_cart_equipment: { position: { x: 1.6, y: 0, z: 0.28 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },

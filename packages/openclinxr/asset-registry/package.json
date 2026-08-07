@@ -23,6 +23,10 @@
     "./runtime-asset-review": {
       "types": "./dist/runtime-asset-review.d.ts",
       "default": "./dist/runtime-asset-review.js"
+    },
+    "./actor-posture": {
+      "types": "./dist/actor-posture.d.ts",
+      "default": "./dist/actor-posture.js"
     }
   },
   "scripts": {
