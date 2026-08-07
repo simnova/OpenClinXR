@@ -31,6 +31,7 @@ import {
 import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/slice-team.js";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
+import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -101,6 +102,12 @@ type DispatchOptions = {
    * undeclared main dirt still fails the leak detector (the --deny is only a literal-path matcher).
    */
   orchestratorPaths?: readonly string[];
+  /**
+   * #66: repo-relative asset paths to copy from main into the worker worktree (ignored GLBs,
+   * cagematch lanes, etc.). Merged with trusted brief `assetPaths`. Only declared paths are
+   * provisioned — whole-root copy is rejected on cost (see worktree-asset-provisioning.ts).
+   */
+  assetPaths?: readonly string[];
 };
 
 export type DispatchLedgerEntry = {
@@ -148,6 +155,11 @@ export class ContractProofsFailedError extends Error {
 type TrustedBrief = {
   id?: string;
   done_when?: string[];
+  /**
+   * #66: repo-relative paths the slice needs from main (often gitignored). Prepared into the
+   * worker worktree by {@link prepareWorktreeForWorker} → provisionWorktreeAssets.
+   */
+  assetPaths?: string[];
   synthesized?: boolean;
   [key: string]: unknown;
 };
@@ -380,6 +392,11 @@ export function buildArgv(options: DispatchOptions): string[] {
   return argv;
 }
 
+export type ResolveWorkerWorktreeOptions = {
+  /** Repo-relative assets to copy from main into the worktree (#66). */
+  assetPaths?: readonly string[];
+};
+
 /**
  * Resolve (creating if needed) the worktree this worker is bound to.
  *
@@ -391,7 +408,12 @@ export function resolveWorkerWorktree(
   worktree: string | true,
   name: string,
   branch?: string,
+  options?: ResolveWorkerWorktreeOptions,
 ): string {
+  const prepareOpts = {
+    repoRoot: mainRoot,
+    ...(options?.assetPaths?.length ? { assetPaths: [...options.assetPaths] } : {}),
+  };
   if (typeof worktree === "string") {
     if (worktree.startsWith(`${mainRoot}/`)) {
       throw new Error(
@@ -401,7 +423,7 @@ export function resolveWorkerWorktree(
     }
     // Pre-existing worktree path: prepare only when it is already on disk (unit tests pass
     // synthetic absolute paths that are not real checkouts).
-    if (existsSync(worktree)) prepareWorktreeForWorker(worktree);
+    if (existsSync(worktree)) prepareWorktreeForWorker(worktree, prepareOpts);
     return worktree;
   }
   const target = join(WORKTREE_ROOT, name);
@@ -414,7 +436,8 @@ export function resolveWorkerWorktree(
   }
   // #47: git worktree add checks out tracked files only — node_modules is never present until
   // we prepare. Do this before any worker spawn so brief verify cannot cache-green a dead tree.
-  prepareWorktreeForWorker(target);
+  // #66: also provision declared ignored assets (cagematch lanes, etc.) from main.
+  prepareWorktreeForWorker(target, prepareOpts);
   return target;
 }
 
@@ -470,6 +493,17 @@ export type PrepareWorktreeCommandRunner = (command: string, args: readonly stri
  */
 export const WORKSPACE_DIST_MARKER = "packages/openclinxr/shared-schemas/dist/index.js";
 
+export type PrepareWorktreeOptions = {
+  run?: PrepareWorktreeCommandRunner;
+  /**
+   * #66: repo-relative asset paths to copy from {@link repoRoot} (main) into this worktree.
+   * Only declared paths are provisioned. Empty/undefined = no asset copy (tracked files only).
+   */
+  assetPaths?: readonly string[];
+  /** Source of declared assets; defaults to process.cwd() inside the provisioner. */
+  repoRoot?: string;
+};
+
 /**
  * Prepare a freshly created (or bare) worktree so the worker can run brief verify without
  * discovering a missing node_modules mid-session — and without failing to resolve workspace
@@ -485,25 +519,32 @@ export const WORKSPACE_DIST_MARKER = "packages/openclinxr/shared-schemas/dist/in
  * alone left install-only trees "ready" forever — adding a build step without changing that
  * check would leave the bug fully reachable on exactly the trees that need it.
  *
+ * INCIDENT (#66 / thrash): install+build still leave gitignored inputs (cagematch, local
+ * `.openclinxr` evidence) absent. Workers spent ~30–40 turns re-copying by hand. Declared
+ * `assetPaths` are provisioned here so a real dispatch uses the provisioner (not documentation).
+ *
  * Mechanism:
  * 1. `pnpm install --prefer-offline --frozen-lockfile` when vitest is missing.
  * 2. `pnpm packages:build` when the workspace dist marker is missing (always after a fresh
  *    install; also when vitest exists but dist does not).
- * Content-addressable store + shared `TURBO_CACHE_DIR` make this mostly linking/restore.
+ * 3. `provisionWorktreeAssets` for brief/dispatch-declared paths (copy/clone, never symlink).
+ * Content-addressable store + shared `TURBO_CACHE_DIR` make install/build mostly linking/restore.
  *
  * Rejected: copy/symlink dist from main (stale SHA / isolation theater); build only
- * brief-touched packages (transitive resolve failures).
+ * brief-touched packages (transitive resolve failures); symlink or whole-root asset copy (#66).
  *
  * No HEAD stamp to skip rebuild: optional; skip until cold-cache cost is measured.
  *
- * No-ops (returns method:"existing") only when BOTH vitest and workspace dist are present.
+ * No-ops install/build (returns method:"existing") only when BOTH vitest and workspace dist are
+ * present — asset provisioning still runs when assetPaths are declared.
  */
 export function prepareWorktreeForWorker(
   worktreePath: string,
-  options?: { run?: PrepareWorktreeCommandRunner },
+  options?: PrepareWorktreeOptions,
 ): {
   method: "existing" | "install" | "build";
   nodeModulesPath: string;
+  provisioned?: { path: string; bytes: number }[];
 } {
   if (!existsSync(worktreePath)) {
     throw new Error(`prepareWorktreeForWorker: path does not exist: ${worktreePath}`);
@@ -524,40 +565,56 @@ export function prepareWorktreeForWorker(
       });
     });
 
+  let method: "existing" | "install" | "build" = "existing";
+
   // #54: ready only when install AND workspace package dist are present. Vitest alone is not enough.
-  if (existsSync(readinessMarker) && existsSync(distMarker)) {
-    return { method: "existing", nodeModulesPath };
-  }
+  if (!(existsSync(readinessMarker) && existsSync(distMarker))) {
+    method = "build";
 
-  let method: "install" | "build" = "build";
-
-  if (!existsSync(readinessMarker)) {
-    run("pnpm", ["install", "--prefer-offline", "--frozen-lockfile"]);
     if (!existsSync(readinessMarker)) {
+      run("pnpm", ["install", "--prefer-offline", "--frozen-lockfile"]);
+      if (!existsSync(readinessMarker)) {
+        throw new Error(
+          `prepareWorktreeForWorker: pnpm install finished but ${readinessMarker} is missing. `
+          + `Refusing to hand a non-buildable worktree to a worker (cache-green-then-force-red class, #37).`,
+        );
+      }
+      method = "install";
+    }
+
+    if (!existsSync(distMarker)) {
+      // Script name includes "build" so injected-run contracts can assert execution without
+      // trusting file presence alone.
+      run("pnpm", ["packages:build"]);
+      if (method !== "install") method = "build";
+    }
+
+    if (!existsSync(distMarker)) {
       throw new Error(
-        `prepareWorktreeForWorker: pnpm install finished but ${readinessMarker} is missing. `
-        + `Refusing to hand a non-buildable worktree to a worker (cache-green-then-force-red class, #37).`,
+        `prepareWorktreeForWorker: packages build finished but workspace dist is still missing `
+        + `(expected ${distMarker}). Refusing to hand over a worktree that cannot resolve workspace `
+        + `package entry points (#54).`,
       );
     }
-    method = "install";
   }
 
-  if (!existsSync(distMarker)) {
-    // Script name includes "build" so injected-run contracts can assert execution without
-    // trusting file presence alone.
-    run("pnpm", ["packages:build"]);
-    if (method !== "install") method = "build";
+  // #66: provision declared assets even when install/build already existed. A provisioner that
+  // only runs on cold trees would leave warm worktrees missing ignored inputs.
+  let provisioned: { path: string; bytes: number }[] | undefined;
+  if (options?.assetPaths && options.assetPaths.length > 0) {
+    const report = provisionWorktreeAssetsSync({
+      worktreePath,
+      assetPaths: [...options.assetPaths],
+      ...(options.repoRoot ? { repoRoot: options.repoRoot } : {}),
+    });
+    provisioned = report.provisioned;
   }
 
-  if (!existsSync(distMarker)) {
-    throw new Error(
-      `prepareWorktreeForWorker: packages build finished but workspace dist is still missing `
-      + `(expected ${distMarker}). Refusing to hand over a worktree that cannot resolve workspace `
-      + `package entry points (#54).`,
-    );
-  }
-
-  return { method, nodeModulesPath };
+  return {
+    method,
+    nodeModulesPath,
+    ...(provisioned ? { provisioned } : {}),
+  };
 }
 
 export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {
@@ -569,6 +626,18 @@ export function assertSafeEnvironment(env: NodeJS.ProcessEnv): void {
       );
     }
   }
+}
+
+/** Preserve first-seen order; drop empty strings. */
+function uniqueStrings(values: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
 }
 
 /**
@@ -682,6 +751,13 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     contractReason: options.contractReason,
   });
 
+  // #66: brief.assetPaths ∪ dispatch.assetPaths (unique, order preserved). Declaration drives
+  // provisionWorktreeAssets inside prepareWorktreeForWorker — a provisioner nothing calls is docs.
+  const assetPaths = uniqueStrings([
+    ...(Array.isArray(assembled.brief?.assetPaths) ? assembled.brief!.assetPaths! : []),
+    ...(options.assetPaths ?? []),
+  ]);
+
   // Worktree binding: resolve the tree, point the worker at it, and install the HARD deny on main.
   // Done here rather than left to callers so no dispatch path can forget the boundary.
   let effective = options;
@@ -692,6 +768,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
       options.worktree,
       options.slice ?? options.role ?? "worker",
       options.branch,
+      assetPaths.length > 0 ? { assetPaths } : undefined,
     );
     effective = {
       ...options,

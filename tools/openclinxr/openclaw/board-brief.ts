@@ -17,7 +17,17 @@ export type BoardIssue = { number: number; title: string; body: string };
 
 export type BriefResult =
   | { dispatchable: false; reason: string }
-  | { dispatchable: true; slice: string; proofs: string[]; prompt: string };
+  | {
+      dispatchable: true;
+      slice: string;
+      proofs: string[];
+      prompt: string;
+      /**
+       * #66: repo-relative paths from `## asset_paths` bullets. Land in trusted brief.json so
+       * prepareWorktreeForWorker → provisionWorktreeAssets copies them into the worker tree.
+       */
+      assetPaths?: string[];
+    };
 
 /**
  * Pull `done_when` BULLETS verbatim. Paraphrasing a proof means nobody agreed to it.
@@ -39,6 +49,25 @@ function extractDoneWhen(body: string): string[] {
     rules.push(bullet[1].trim());
   }
   return rules;
+}
+
+/**
+ * #66: optional `## asset_paths` bullet list of repo-relative files/dirs to provision into the
+ * worker worktree (gitignored GLBs, cagematch lanes, etc.). Same bullet parser as done_when.
+ */
+function extractAssetPaths(body: string): string[] {
+  const start = /##\s*asset_paths\s*\n/i.exec(body);
+  if (!start) return [];
+  const paths: string[] = [];
+  for (const line of body.slice(start.index + start[0].length).split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed === "") continue;
+    const bullet = /^[-*]\s+(.*)$/.exec(trimmed);
+    if (!bullet?.[1]) break;
+    const path = bullet[1].trim();
+    if (path) paths.push(path);
+  }
+  return paths;
 }
 
 export function briefFromIssue(issue: BoardIssue): BriefResult {
@@ -70,10 +99,12 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
     };
   }
 
+  const assetPaths = extractAssetPaths(issue.body);
   return {
     dispatchable: true,
     slice: `issue-${issue.number}`,
     proofs: rules,
+    ...(assetPaths.length > 0 ? { assetPaths } : {}),
     prompt: [
       `TARGET REPO: /Volumes/files/src/openclinxr (your own worktree — sole writer).`,
       ``,
