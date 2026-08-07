@@ -12,7 +12,8 @@
     "interruption": "Parent interrupts if breathing distress is not acknowledged",
     "stageAriaLabel": "Pediatric urgent-care station scene",
     "canvasAriaLabel": "3D pediatric urgent-care bay preview",
-    "initialDialogueText": "Maya Johnson: My chest feels tight and it is hard to breathe."
+    "initialDialogueText": "Maya Johnson: My chest feels tight and it is hard to breathe.",
+    "initialVitalsAuthorship": "legacy_hardcoded_unreviewed"
   },
   "roomProps": [
     {

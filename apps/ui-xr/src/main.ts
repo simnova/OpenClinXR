@@ -56,6 +56,7 @@ import {
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
+import { stationContextForScenario } from "./station-context.js";
 import {
   resolveActorPosture,
   seatedActorWorldPosition,
@@ -1404,155 +1405,14 @@ function initialDialogueTextForSelectedScenario(): string {
   });
 }
 
-function stationContextForSelectedScenario(): {
-  title: string;
-  subtitle: string;
-  chiefConcern: string;
-  initialVitals: string;
-  interruption: string;
-  stageAriaLabel: string;
-  canvasAriaLabel: string;
-} {
-  const runtimeContext = encounterRuntimeAssetBundle.sceneManifest.stationContext;
-  if (!isSelectedScenarioRuntimeBundleMismatch() && runtimeContext) {
-    return {
-      title: runtimeContext.title,
-      subtitle: runtimeContext.subtitle,
-      chiefConcern: runtimeContext.chiefConcern,
-      initialVitals: runtimeContext.initialVitals,
-      interruption: runtimeContext.interruption,
-      stageAriaLabel: runtimeContext.stageAriaLabel,
-      canvasAriaLabel: runtimeContext.canvasAriaLabel,
-    };
-  }
-  if (selectedScenarioId() === "peds_asthma_parent_anxiety_v1") {
-    return {
-      title: "Pediatric Asthma",
-      subtitle: "Child, anxious parent, and respiratory therapist in a time-boxed pediatric respiratory encounter.",
-      chiefConcern: "Shortness of breath and wheezing after activity",
-      initialVitals: "HR 124, RR 32, SpO2 93%, mild retractions",
-      interruption: "Parent anxiety escalates while respiratory status is reassessed",
-      stageAriaLabel: "Pediatric asthma station scene",
-      canvasAriaLabel: "3D pediatric respiratory room preview",
-    };
-  }
-  if (selectedScenarioId() === "psych_suicidal_ideation_safety_v1") {
-    return {
-      title: "Psych Safety Assessment",
-      subtitle: "Patient and observer in a time-boxed suicide-risk and safety-planning encounter.",
-      chiefConcern: "Suicidal ideation and inability to commit to being alone safely",
-      initialVitals: "Calm but withdrawn; no acute medical instability documented",
-      interruption: "Observer requests explicit safety plan and escalation threshold",
-      stageAriaLabel: "Psychiatric safety assessment station scene",
-      canvasAriaLabel: "3D psychiatric safety assessment room preview",
-    };
-  }
-  if (selectedScenarioId() === "telehealth_diabetes_health_literacy_v1") {
-    return {
-      title: "Telehealth Diabetes Plan",
-      subtitle: "Patient and daughter in a time-boxed telehealth counseling encounter focused on teach-back and access barriers.",
-      chiefConcern: "Diabetes medication confusion and difficulty following portal instructions",
-      initialVitals: "Remote visit; home glucose logs variable with recent hypoglycemia concern",
-      interruption: "Daughter begins answering for the patient unless communication is redirected respectfully",
-      stageAriaLabel: "Telehealth diabetes health-literacy station scene",
-      canvasAriaLabel: "3D telehealth counseling room preview",
-    };
-  }
-  if (selectedScenarioId() === "ob_headache_preeclampsia_triage_v1") {
-    return {
-      title: "OB Headache Preeclampsia Triage",
-      subtitle: "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
-      chiefConcern: "Severe headache with visual sensitivity in late pregnancy",
-      initialVitals: "BP cue requires repeat measurement and escalation consideration",
-      interruption: "Partner anxiety rises while nurse requests a concise escalation plan",
-      stageAriaLabel: "OB preeclampsia triage station scene",
-      canvasAriaLabel: "3D OB triage room preview",
-    };
-  }
-  if (selectedScenarioId() === "ed_stroke_alert_handoff_v1") {
-    return {
-      title: "ED Stroke Alert Handoff",
-      subtitle: "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
-      chiefConcern: "Acute speech difficulty and right-sided weakness",
-      initialVitals: "Bedside monitor and last-known-well clock drive urgency",
-      interruption: "Family member adds timeline details while stroke nurse presses for handoff clarity",
-      stageAriaLabel: "ED stroke alert handoff station scene",
-      canvasAriaLabel: "3D stroke alert room preview",
-    };
-  }
-  if (selectedScenarioId() === "stepdown_sepsis_nurse_escalation_v1") {
-    return {
-      title: "Stepdown Sepsis Escalation",
-      subtitle: "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
-      chiefConcern: "Worsening fever, chills, and respiratory concern after earlier stability",
-      initialVitals: "Monitor and IV pump cues support escalation and closed-loop team communication",
-      interruption: "Respiratory therapist requests prioritization while nurse seeks escalation orders",
-      stageAriaLabel: "Stepdown sepsis escalation station scene",
-      canvasAriaLabel: "3D stepdown sepsis room preview",
-    };
-  }
-  if (selectedScenarioId() === "clinic_abdominal_pain_interpreter_v1") {
-    return {
-      title: "Clinic Abdominal Pain Interpreter",
-      subtitle: "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
-      chiefConcern: "Right-lower-quadrant abdominal pain with interpreter-mediated history",
-      initialVitals: "Exam table and abdominal exam zone cues anchor the focused assessment",
-      interruption: "Family member answers out of turn unless the learner uses interpreter best practices",
-      stageAriaLabel: "Clinic abdominal pain interpreter station scene",
-      canvasAriaLabel: "3D clinic interpreter room preview",
-    };
-  }
-  if (selectedScenarioId() === "oncology_bad_news_family_v1") {
-    return {
-      title: "Oncology Bad News Family",
-      subtitle: "Patient and sister in a quiet oncology consultation focused on serious-news communication.",
-      chiefConcern: "Reviewing difficult scan results with family present",
-      initialVitals: "Chairs and tissue-box cues support emotionally realistic disclosure workflow",
-      interruption: "Family emotion escalates and requires empathy before further explanation",
-      stageAriaLabel: "Oncology serious-news family station scene",
-      canvasAriaLabel: "3D oncology consultation room preview",
-    };
-  }
-  if (selectedScenarioId() === "postop_fever_consult_pressure_v1") {
-    return {
-      title: "Postop Fever Consult Pressure",
-      subtitle: "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
-      chiefConcern: "Fever, worsening abdominal pain, and chills after surgery",
-      initialVitals: "Post-op bed and abdominal dressing cues drive focused exam and escalation",
-      interruption: "Consultant pressure risks premature closure unless the learner maintains safety priorities",
-      stageAriaLabel: "Postoperative fever consult-pressure station scene",
-      canvasAriaLabel: "3D postoperative fever room preview",
-    };
-  }
-  if (selectedScenarioId() !== "ed_chest_pain_priority_v1") {
-    const title = titleFromScenarioId(selectedScenarioId());
-    return {
-      title,
-      subtitle: "Scenario-bank generated encounter with actor, room prop, equipment, and dialogue evidence selected by runtime bundle.",
-      chiefConcern: "Generated scenario objective pending review",
-      initialVitals: "Generated environment evidence pending headset validation",
-      interruption: "Trace event cue pending review",
-      stageAriaLabel: `${title} station scene`,
-      canvasAriaLabel: `3D ${title} preview`,
-    };
-  }
-  return {
-    title: "ED Chest Pain",
-    subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
-    chiefConcern: "Crushing substernal chest pressure",
-    initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
-    interruption: "Nurse repeats vitals at minute seven",
-    stageAriaLabel: "Emergency department station scene",
-    canvasAriaLabel: "3D emergency department bay preview",
-  };
-}
-
-function titleFromScenarioId(scenarioId: string): string {
-  return scenarioId
-    .replace(/_v\d+$/u, "")
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+function stationContextForSelectedScenario() {
+  // #115: vitals always resolved via station-context (honest unauthored / legacy numeric).
+  // Removed the per-scenario vitals/prose table (main.ts:1433-1533) — pure drift, nothing consumed it.
+  return stationContextForScenario({
+    scenarioId: selectedScenarioId(),
+    runtimeContext: encounterRuntimeAssetBundle.sceneManifest.stationContext,
+    bundleMismatch: isSelectedScenarioRuntimeBundleMismatch(),
+  });
 }
 
 function learnerRuntimeAssetBundleId(): string {
@@ -1933,7 +1793,7 @@ app.innerHTML = `
         <h2>Simulated EHR</h2>
         <dl>
           <div><dt>Chief concern</dt><dd>${selectedStationContext.chiefConcern}</dd></div>
-          <div><dt>Initial vitals</dt><dd>${selectedStationContext.initialVitals}</dd></div>
+          <div data-ehr-vitals-charted="${selectedStationContext.presentedAsChartedVitals ? "true" : "false"}"><dt id="ehr-vitals-label">${selectedStationContext.vitalsEhrRowLabel}</dt><dd id="ehr-vitals-value">${selectedStationContext.initialVitals}</dd></div>
           <div><dt>Interruption</dt><dd>${selectedStationContext.interruption}</dd></div>
         </dl>
       </section>
@@ -2019,6 +1879,12 @@ function refreshStationContextFromRuntimeBundle(): void {
   if (ehrValues[0]) ehrValues[0].textContent = selectedStationContext.chiefConcern;
   if (ehrValues[1]) ehrValues[1].textContent = selectedStationContext.initialVitals;
   if (ehrValues[2]) ehrValues[2].textContent = selectedStationContext.interruption;
+  const vitalsLabel = document.querySelector<HTMLElement>("#ehr-vitals-label");
+  if (vitalsLabel) vitalsLabel.textContent = selectedStationContext.vitalsEhrRowLabel;
+  const vitalsRow = document.querySelector<HTMLElement>("[data-ehr-vitals-charted]");
+  if (vitalsRow) {
+    vitalsRow.dataset.ehrVitalsCharted = selectedStationContext.presentedAsChartedVitals ? "true" : "false";
+  }
   const dialogue = document.querySelector<HTMLElement>("#dialogue-line");
   if (dialogue) dialogue.textContent = initialDialogueText;
 }

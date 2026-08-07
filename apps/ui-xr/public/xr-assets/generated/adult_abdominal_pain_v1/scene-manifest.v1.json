@@ -8,11 +8,12 @@
     "title": "Adult Abdominal Pain With Guarding And Family Pressure",
     "subtitle": "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
     "chiefConcern": "Elicit focused abdominal pain history including migration and associated symptoms",
-    "initialVitals": "Scenario-specific vitals pending authored station shell",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
     "interruption": "Scenario event cue pending review",
     "stageAriaLabel": "Adult ED Abdominal Exam Bay station scene",
     "canvasAriaLabel": "3D Adult ED Abdominal Exam Bay preview",
-    "initialDialogueText": "Elena Vasquez: The pain is sharp on my lower right side, and it hurts when I move."
+    "initialDialogueText": "Elena Vasquez: The pain is sharp on my lower right side, and it hurts when I move.",
+    "initialVitalsAuthorship": "unauthored"
   },
   "roomProps": [
     {

@@ -8,11 +8,12 @@
     "title": "OB Headache Preeclampsia Triage",
     "subtitle": "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
     "chiefConcern": "Severe headache with visual sensitivity in late pregnancy",
-    "initialVitals": "BP cue requires repeat measurement and escalation consideration",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
     "interruption": "Partner anxiety rises while nurse requests a concise escalation plan",
     "stageAriaLabel": "OB preeclampsia triage station scene",
     "canvasAriaLabel": "3D OB triage room preview",
-    "initialDialogueText": "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes."
+    "initialDialogueText": "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes.",
+    "initialVitalsAuthorship": "unauthored"
   },
   "dialogueTurns": [
     {

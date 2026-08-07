@@ -12,7 +12,8 @@
     "interruption": "Nurse repeats vitals at minute seven",
     "stageAriaLabel": "Emergency department station scene",
     "canvasAriaLabel": "3D emergency department bay preview",
-    "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest."
+    "initialDialogueText": "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
+    "initialVitalsAuthorship": "legacy_hardcoded_unreviewed"
   },
   "roomProps": [
     {

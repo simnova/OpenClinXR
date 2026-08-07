@@ -704,10 +704,50 @@ export function factoryInitialDialogueTextForScenario(scenarioId: string): strin
   return factoryInitialDialogueTextForPatient(patient);
 }
 
+/**
+ * #115 — factory-side initial vitals. Does NOT invent clinical numbers.
+ * Default is honest unauthored copy. Only two historical hardcodes keep numeric strings,
+ * marked legacy_hardcoded_unreviewed (not clinician-reviewed). authored_reviewed is reserved
+ * for a future clinician-in-the-loop slice.
+ *
+ * Rejected: inventing BP/HR for the other stations; marking legacy as authored_reviewed;
+ * leaving environment-cue prose in the vitals slot (nothing consumed it — pure drift).
+ */
+export const FACTORY_UNAUTHORED_INITIAL_VITALS_COPY =
+  "Not charted — obtain vitals during the encounter";
+
+export type FactoryInitialVitalsAuthorship =
+  | "unauthored"
+  | "legacy_hardcoded_unreviewed"
+  | "authored_reviewed";
+
+export function factoryResolveInitialVitals(scenarioId: string): {
+  initialVitals: string;
+  initialVitalsAuthorship: FactoryInitialVitalsAuthorship;
+} {
+  if (scenarioId === "ed_chest_pain_priority_v1" || scenarioId === "ed_chest_pain_priority_v2") {
+    return {
+      initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
+      initialVitalsAuthorship: "legacy_hardcoded_unreviewed",
+    };
+  }
+  if (scenarioId === "peds_asthma_parent_anxiety_v1") {
+    return {
+      initialVitals: "HR 128, RR 32, SpO2 91% on room air",
+      initialVitalsAuthorship: "legacy_hardcoded_unreviewed",
+    };
+  }
+  return {
+    initialVitals: FACTORY_UNAUTHORED_INITIAL_VITALS_COPY,
+    initialVitalsAuthorship: "unauthored",
+  };
+}
+
 function runtimeStationContextForScenario(
   scenarioId: string,
   fallbackTitle: string,
 ): EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"] {
+  const vitals = factoryResolveInitialVitals(scenarioId);
   const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
   if (scenario) {
     const patient = scenario.actors.find((actor) => actor.role === "patient") ?? scenario.actors[0];
@@ -716,7 +756,8 @@ function runtimeStationContextForScenario(
       title: fallbackTitle,
       subtitle: scenario.environment?.description ?? scenario.title,
       chiefConcern: scenario.clinicalObjectives[0] ?? scenario.title,
-      initialVitals: initialVitalsForScenario(scenarioId),
+      initialVitals: vitals.initialVitals,
+      initialVitalsAuthorship: vitals.initialVitalsAuthorship,
       interruption: firstEvent
         ? `${actorDisplayName(firstEvent.actorId, scenario.actors.find((actor) => actor.actorId === firstEvent.actorId)?.role)} cue at ${firstEvent.atSecond}s: ${firstEvent.tag.replaceAll("_", " ")}`
         : "Scenario event cue pending review",
@@ -726,12 +767,12 @@ function runtimeStationContextForScenario(
       initialDialogueText: factoryInitialDialogueTextForPatient(patient),
     };
   }
-  const contexts: Record<string, EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"]> = {
+  // Unknown id: doorway labels only. Vitals stay honest (no environment-prose reuse).
+  const contexts: Record<string, Omit<EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"], "initialVitals" | "initialVitalsAuthorship">> = {
     ed_chest_pain_priority_v1: {
       title: "ED Chest Pain",
       subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
       chiefConcern: "Crushing substernal chest pressure",
-      initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
       interruption: "Nurse repeats vitals at minute seven",
       stageAriaLabel: "Emergency department station scene",
       canvasAriaLabel: "3D emergency department bay preview",
@@ -741,7 +782,6 @@ function runtimeStationContextForScenario(
       title: "Pediatric Asthma",
       subtitle: "Child, anxious parent, and respiratory therapist in a time-boxed pediatric respiratory encounter.",
       chiefConcern: "Shortness of breath and wheezing after activity",
-      initialVitals: "HR 124, RR 32, SpO2 93%, mild retractions",
       interruption: "Parent anxiety escalates while respiratory status is reassessed",
       stageAriaLabel: "Pediatric asthma station scene",
       canvasAriaLabel: "3D pediatric respiratory room preview",
@@ -751,7 +791,6 @@ function runtimeStationContextForScenario(
       title: "Psych Safety Assessment",
       subtitle: "Patient, partner, and behavioral-health nurse in a time-boxed suicide-risk and safety-planning encounter.",
       chiefConcern: "Suicidal ideation and inability to commit to being alone safely",
-      initialVitals: "Calm but withdrawn; no acute medical instability documented",
       interruption: "Partner presses confidentiality limits while nurse is ready for observation",
       stageAriaLabel: "Psychiatric safety assessment station scene",
       canvasAriaLabel: "3D psychiatric safety assessment room preview",
@@ -761,7 +800,6 @@ function runtimeStationContextForScenario(
       title: "Telehealth Diabetes Plan",
       subtitle: "Patient and daughter in a time-boxed telehealth counseling encounter focused on teach-back and access barriers.",
       chiefConcern: "Diabetes medication confusion and difficulty following portal instructions",
-      initialVitals: "Remote visit; home glucose logs variable with recent hypoglycemia concern",
       interruption: "Daughter begins answering for the patient unless communication is redirected respectfully",
       stageAriaLabel: "Telehealth diabetes health-literacy station scene",
       canvasAriaLabel: "3D telehealth counseling room preview",
@@ -771,7 +809,6 @@ function runtimeStationContextForScenario(
       title: "OB Headache Preeclampsia Triage",
       subtitle: "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
       chiefConcern: "Severe headache with visual sensitivity in late pregnancy",
-      initialVitals: "BP cue requires repeat measurement and escalation consideration",
       interruption: "Partner anxiety rises while nurse requests a concise escalation plan",
       stageAriaLabel: "OB preeclampsia triage station scene",
       canvasAriaLabel: "3D OB triage room preview",
@@ -781,7 +818,6 @@ function runtimeStationContextForScenario(
       title: "ED Stroke Alert Handoff",
       subtitle: "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
       chiefConcern: "Acute speech difficulty and right-sided weakness",
-      initialVitals: "Bedside monitor and last-known-well clock drive urgency",
       interruption: "Family member adds timeline details while stroke nurse presses for handoff clarity",
       stageAriaLabel: "ED stroke alert handoff station scene",
       canvasAriaLabel: "3D stroke alert room preview",
@@ -791,7 +827,6 @@ function runtimeStationContextForScenario(
       title: "Stepdown Sepsis Escalation",
       subtitle: "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
       chiefConcern: "Worsening fever, chills, and respiratory concern after earlier stability",
-      initialVitals: "Monitor and IV pump cues support escalation and closed-loop team communication",
       interruption: "Respiratory therapist requests prioritization while nurse seeks escalation orders",
       stageAriaLabel: "Stepdown sepsis escalation station scene",
       canvasAriaLabel: "3D stepdown sepsis room preview",
@@ -801,7 +836,6 @@ function runtimeStationContextForScenario(
       title: "Clinic Abdominal Pain Interpreter",
       subtitle: "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
       chiefConcern: "Right-lower-quadrant abdominal pain with interpreter-mediated history",
-      initialVitals: "Exam table and abdominal exam zone cues anchor the focused assessment",
       interruption: "Family member answers out of turn unless the learner uses interpreter best practices",
       stageAriaLabel: "Clinic abdominal pain interpreter station scene",
       canvasAriaLabel: "3D clinic interpreter room preview",
@@ -811,7 +845,6 @@ function runtimeStationContextForScenario(
       title: "Oncology Bad News Family",
       subtitle: "Patient and sister in a quiet oncology consultation focused on serious-news communication.",
       chiefConcern: "Reviewing difficult scan results with family present",
-      initialVitals: "Chairs and tissue-box cues support emotionally realistic disclosure workflow",
       interruption: "Family emotion escalates and requires empathy before further explanation",
       stageAriaLabel: "Oncology serious-news family station scene",
       canvasAriaLabel: "3D oncology consultation room preview",
@@ -821,29 +854,26 @@ function runtimeStationContextForScenario(
       title: "Postop Fever Consult Pressure",
       subtitle: "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
       chiefConcern: "Fever, worsening abdominal pain, and chills after surgery",
-      initialVitals: "Post-op bed and abdominal dressing cues drive focused exam and escalation",
       interruption: "Consultant pressure risks premature closure unless the learner maintains safety priorities",
       stageAriaLabel: "Postoperative fever consult-pressure station scene",
       canvasAriaLabel: "3D postoperative fever room preview",
       initialDialogueText: "Priya Shah: My belly hurts more today, and I have chills.",
     },
   };
-  return contexts[scenarioId] ?? {
+  const base = contexts[scenarioId] ?? {
     title: fallbackTitle,
     subtitle: "Scenario-bank generated encounter with actor, room prop, equipment, and dialogue evidence selected by runtime bundle.",
     chiefConcern: "Generated scenario objective pending review",
-    initialVitals: "Generated environment evidence pending headset validation",
     interruption: "Trace event cue pending review",
     stageAriaLabel: `${fallbackTitle} station scene`,
     canvasAriaLabel: `3D ${fallbackTitle} preview`,
     initialDialogueText: "Patient: I am ready to begin this encounter.",
   };
-}
-
-function initialVitalsForScenario(scenarioId: string): string {
-  if (scenarioId === "peds_asthma_parent_anxiety_v1") return "HR 128, RR 32, SpO2 91% on room air";
-  if (scenarioId === "ed_chest_pain_priority_v1") return "BP 152/92, HR 104, RR 20, SpO2 96%";
-  return "Generated environment evidence pending headset validation";
+  return {
+    ...base,
+    initialVitals: vitals.initialVitals,
+    initialVitalsAuthorship: vitals.initialVitalsAuthorship,
+  };
 }
 
 function runtimeDialogueTurnsForScenario(

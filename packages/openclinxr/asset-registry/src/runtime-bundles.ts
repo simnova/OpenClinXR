@@ -115,6 +115,7 @@ export type EncounterRuntimeStationContext = {
   subtitle: string;
   chiefConcern: string;
   initialVitals: string;
+  initialVitalsAuthorship?: "unauthored" | "legacy_hardcoded_unreviewed" | "authored_reviewed"; // #115
   interruption: string;
   stageAriaLabel: string;
   canvasAriaLabel: string;
@@ -212,7 +213,6 @@ export type PedsHumanoidMaterializationHandoffAsset = {
   promotionStatus?: string;
   notEvidenceFor: string[];
 };
-
 export type PedsHumanoidMaterializationHandoff = {
   schemaVersion: "openclinxr.peds-humanoid-materialization-handoff.v1";
   source: "worker_role_specific_humanoid_glb_materialization_metadata";
@@ -228,7 +228,6 @@ export type PedsHumanoidMaterializationHandoff = {
   scoringValidityClaimed: false;
   claimBoundary: string;
 };
-
 export type EncounterRuntimeAssetBundle = {
   bundleId: string;
   tenantId: string;
@@ -252,7 +251,6 @@ export type EncounterRuntimeAssetBundle = {
   notEvidenceFor: Array<"production_asset_readiness" | "quest_readiness" | "clinical_validity" | "scoring_validity">;
   pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff;
 };
-
 export type EncounterRuntimeLearnerUseGate = {
   canUseGeneratedBundleForLearnerRuntime: boolean;
   blockers: string[];
@@ -1393,7 +1391,8 @@ function createGeneratedRuntimeSceneManifest(input: {
       title: `Runtime scene for ${input.stationId}`,
       subtitle: `Generated fallback manifest for ${input.scenarioId}; provide an explicit sceneManifest for case-authored clinical context.`,
       chiefConcern: `Scenario context pending explicit scene manifest for ${input.scenarioId}`,
-      initialVitals: "Not provided by generated fallback manifest",
+      initialVitals: "Not charted — obtain vitals during the encounter",
+      initialVitalsAuthorship: "unauthored",
       interruption: "No interruption configured",
       stageAriaLabel: `Runtime station scene for ${input.stationId}`,
       canvasAriaLabel: `3D runtime preview for ${input.stationId}`,
@@ -1440,6 +1439,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
       chiefConcern: "Crushing substernal chest pressure",
       initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
+      initialVitalsAuthorship: "legacy_hardcoded_unreviewed",
       interruption: "Nurse repeats vitals at minute seven",
       stageAriaLabel: "Emergency department station scene",
       canvasAriaLabel: "3D emergency department bay preview",
