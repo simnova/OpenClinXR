@@ -26,6 +26,11 @@ import {
   type ExamStationRunQueueSnapshot,
 } from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
+import {
+  deriveRuntimeTraceActionTagsFromBundle,
+  resolveActorIdForTraceTag,
+  resolveRemoteActorTurnForTraceTag,
+} from "./scenario-conversation-surface.js";
 
 export type XrRuntimeState = {
   scenarioId: string;
@@ -1390,11 +1395,8 @@ export function createInitialRuntimeState(): XrRuntimeState {
 }
 
 export function deriveRuntimeTraceActionTags(bundle: LearnerRuntimeAssetBundle): string[] {
-  const runtimeTraceTags = (bundle.sceneManifest.dialogueTurns ?? [])
-    .map((turn) => turn.traceTag)
-    .filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
-  const uniqueRuntimeTraceTags = [...new Set(runtimeTraceTags)];
-  return uniqueRuntimeTraceTags.length > 0 ? uniqueRuntimeTraceTags : [...edChestPainScenario.requiredTraceTags];
+  // #106: scenario-bank requiredTraceTags (or dialogueTurns only when scenario unknown) — never silent ED.
+  return deriveRuntimeTraceActionTagsFromBundle(bundle);
 }
 
 export function createRuntimeStateFromBundle(
@@ -1800,29 +1802,13 @@ export function eventTypeForTraceTag(tag: string): string {
   return "learner.action";
 }
 
-export function actorIdForTraceTag(tag: string): string | undefined {
-  return remoteActorTurnForTraceTag(tag)?.actorId;
+export function actorIdForTraceTag(tag: string, scenarioId?: string): string | undefined {
+  return resolveActorIdForTraceTag(tag, scenarioId);
 }
 
-export function remoteActorTurnForTraceTag(tag: string): RemoteActorTurnPlan | undefined {
-  const turns: Record<string, RemoteActorTurnPlan> = {
-    history_opqrst: patientTurn(tag, "Can you describe the chest pain, when it started, what you were doing, and what makes it better or worse?"),
-    risk_factor_question: patientTurn(tag, "Do you have any heart risk factors or family history I should know about?"),
-    associated_symptom_question: patientTurn(tag, "Are you short of breath, nauseated, sweaty, or having pain anywhere else?"),
-    vitals_review: nurseTurn(tag, "Maria, please repeat the vitals now and call out any concerning changes."),
-    ecg_request: nurseTurn(tag, "Please obtain a 12-lead ECG now and let me know when it is ready."),
-    urgent_escalation: nurseTurn(tag, "Please notify the senior physician now; I am concerned about acute coronary syndrome."),
-    team_communication: nurseTurn(tag, "Maria, the immediate plan is ECG, IV access, cardiac monitoring, and senior escalation."),
-    family_communication: {
-      actorId: "spouse_anna_hayes_v1",
-      voiceId: "mock-anna-hayes",
-      learnerUtterance: "Anna, I know this is frightening. I will explain what we are doing and keep you updated.",
-      traceContextTags: [tag],
-    },
-    empathy_statement: patientTurn(tag, "Robert, I can see you are uncomfortable. We are going to treat this urgently and keep you informed."),
-  };
-
-  return turns[tag];
+export function remoteActorTurnForTraceTag(tag: string, scenarioId?: string): RemoteActorTurnPlan | undefined {
+  // #106: scenario-derived cast + seeds/synthesis; ED table is ED-only (default scenarioId).
+  return resolveRemoteActorTurnForTraceTag(tag, scenarioId);
 }
 
 export function actorResponseTextFromApiResult(result: unknown): string | undefined {
@@ -3421,24 +3407,6 @@ function isFullVrExperienceEvidence(value: XrExperienceModeEvidence): boolean {
     && value.phaseLabel === "Phase 1 Full VR"
     && value.requestedSessionMode === "immersive-vr"
     && value.mixedRealityPassthroughImplemented === false;
-}
-
-function patientTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnPlan {
-  return {
-    actorId: "patient_robert_hayes_v1",
-    voiceId: "mock-robert-hayes",
-    learnerUtterance,
-    traceContextTags: [traceTag],
-  };
-}
-
-function nurseTurn(traceTag: string, learnerUtterance: string): RemoteActorTurnPlan {
-  return {
-    actorId: "nurse_maria_alvarez_v1",
-    voiceId: "mock-maria-alvarez",
-    learnerUtterance,
-    traceContextTags: [traceTag],
-  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

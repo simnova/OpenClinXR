@@ -252,10 +252,18 @@ describe("XR runtime state", () => {
       },
     };
 
+    // #106: action set is the station's authored requiredTraceTags (set equality), not a
+    // dialogueTurns subset. Partial turns used to shrink the panel; OB still ships ED turns.
     expect(deriveRuntimeTraceActionTags(bundle)).toEqual([
       "work_of_breathing_assessment",
+      "inhaler_history",
+      "trigger_history",
       "oxygen_request",
+      "bronchodilator_plan",
+      "urgent_escalation",
       "parent_communication",
+      "empathy_statement",
+      "patient_note_submitted",
     ]);
     expect(createRuntimeStateFromBundle(bundle, {
       ...createInitialRuntimeState(),
@@ -267,14 +275,23 @@ describe("XR runtime state", () => {
       elapsedSecond: 42,
       requiredTraceTags: [
         "work_of_breathing_assessment",
+        "inhaler_history",
+        "trigger_history",
         "oxygen_request",
+        "bronchodilator_plan",
+        "urgent_escalation",
         "parent_communication",
+        "empathy_statement",
+        "patient_note_submitted",
       ],
       completedTraceTags: ["oxygen_request"],
     });
   });
 
-  it("falls back to ED requiredTraceTags when sceneManifest.dialogueTurns is absent (#69 telehealth shell boot)", () => {
+  it("recovers scenario-derived requiredTraceTags when sceneManifest.dialogueTurns is absent (#69 telehealth shell boot; #106)", () => {
+    // #106: title was "falls back to ED requiredTraceTags…" — that became false once the
+    // consumer reads the station's own bank tags instead of poisoning non-ED shells with ED.
+    // Assertions unchanged: non-empty tags + scenarioId preserved.
     const base = createEdChestPainLocalLearnerRuntimeAssetBundle();
     // Real static telehealth bundle omits dialogueTurns; cast through unknown to mirror that shape.
     const bundle = {
