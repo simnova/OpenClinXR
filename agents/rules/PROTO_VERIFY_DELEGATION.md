@@ -733,6 +733,59 @@ required anyway.
 **The tell:** the contract says "every station / all instances / enumerate dynamically" while the
 title, header and examples name exactly one. That gap is where the search order leaks in.
 
+## 6x-ter. A worker that finds YOUR proof broken will fix it privately and not tell you
+
+#106's `done_when` called `assert-contract-live.ts <file>` with no `<title>` arguments. That script
+requires them and exits with a usage error, so the proof could never pass no matter what the worker
+did. Asked whether it had noticed:
+
+> "**Yes, I noticed.**... I ran it **with the three titles myself** for local proof and assumed the
+> orchestrator's proof runner either injects titles or would fail closed later. That was wrong: a
+> brief whose own proof cannot pass is a brief defect; workers should say so in the report, not paper
+> over it with a private correct invocation."
+
+The dispatch then died on `ContractProofsFailedError`, and for a moment the natural reading was that
+the worker had failed. It had not — its three own proofs were green and the broken one was mine.
+
+Two costs, and the second is the dangerous one: a cycle spent re-verifying, and a near-miss on
+attributing an orchestrator error to the delegate. Under the escalation experiment that is precisely
+the mistake that would conclude the delegate is weaker than it is.
+
+**Rule, now standing brief text:**
+
+> If any proof in this brief's `done_when` cannot pass as written — wrong arguments, a path that does
+> not exist, a command that fails on its own usage — SAY SO IN YOUR REPORT. Do not silently run a
+> corrected version. A broken proof is my defect and I need to see it.
+
+The tell that you need this: you wrote the `done_when` by hand rather than copying a known-good
+invocation from the previous slice. Diff it against the last one that passed.
+
+## 6x-quater. "Measure first" in prose does not bind — make the artifact a proof
+
+Same slice, same retro. The brief opened with "RUN THE MEASUREMENT OVER THE WHOLE BANK BEFORE
+DIAGNOSING ANYTHING", added specifically because #105 went instance-first. It half-worked: the worker
+did not go psych-only, but its first three actions were still read-grep-implement, and the measure
+artifact arrived *after* the resolver already embodied the fix.
+
+> "Cause was already file:line in the header; I treated measure as 'prove the fix over the bank,' not
+> 'observe the defect before any product code.'"
+
+Its own proposed fix is the right one and is mechanical:
+
+> Require a measure artifact path and a "no product edit until artifact exists" check — an `exists:`
+> proof on a pre-fix artifact carrying the offender list, written by an inspect that calls the
+> CURRENT APIs even while they are still wrong. **Prose "measure first" did not bind; a gate would
+> have.**
+
+This is the same shape as §6d's "optional wiring means it will not happen". Ordering instructions in
+prose lose to the worker's own sense of the shortest path — reasonably, when the cause is already
+stated. If the pre-fix measurement genuinely matters, it is an `exists:` rule, not a paragraph.
+
+Note the tension worth holding: a header that states the cause with file:line (which #106's did, and
+which was RIGHT — it saved the wrong-rabbit-hole tax) actively undercuts "measure first", because
+there is nothing left to discover. Decide which you want. If the cause is known, the measurement is
+for COVERAGE, not diagnosis — say that, and gate it.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
