@@ -8,8 +8,8 @@
     "title": "Postop Fever Consult Pressure",
     "subtitle": "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
     "chiefConcern": "My belly hurts more today, and I have chills.",
-    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-    "interruption": "Not charted \u2014 observe interruptions during the encounter",
+    "initialVitals": "Not charted — obtain vitals during the encounter",
+    "interruption": "Not charted — observe interruptions during the encounter",
     "stageAriaLabel": "Postoperative fever consult-pressure station scene",
     "canvasAriaLabel": "3D postoperative fever room preview",
     "initialDialogueText": "Priya Shah: My belly hurts more today, and I have chills.",
@@ -162,116 +162,7 @@
       ]
     }
   },
-  "roomProps": [
-    {
-      "propId": "postop-fever-consult-pressure-primary-context",
-      "label": "Postoperative Fever With Surgical Consultant Pressure",
-      "semanticRole": "scenario_context",
-      "evidenceCue": "postop_fever_consult_pressure:primary_context_cue",
-      "colorHex": "#f8fafc",
-      "accentColorHex": "#0f766e",
-      "position": {
-        "x": -0.6,
-        "y": 0.85,
-        "z": -0.7
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "postop-fever-consult-pressure-primary-context:scenario_context",
-        "postop_fever_consult_pressure:primary_context_cue"
-      ],
-      "interactionTags": [
-        "scenario_context",
-        "postop_fever_consult_pressure_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "postop-fever-consult-pressure-objective-cue",
-      "label": "Develop focused postoperative fever differential",
-      "semanticRole": "objective_cue",
-      "evidenceCue": "postop_fever_consult_pressure:objective_cue",
-      "colorHex": "#eff6ff",
-      "accentColorHex": "#2563eb",
-      "position": {
-        "x": 1.25,
-        "y": 0.95,
-        "z": -0.4
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "postop-fever-consult-pressure-objective-cue:objective_cue",
-        "postop_fever_consult_pressure:objective_cue"
-      ],
-      "interactionTags": [
-        "objective_cue",
-        "postop_fever_consult_pressure_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "postop-fever-consult-pressure-communication-cue",
-      "label": "postop_day_identified",
-      "semanticRole": "communication_cue",
-      "evidenceCue": "postop_fever_consult_pressure:communication_cue",
-      "colorHex": "#fef3c7",
-      "accentColorHex": "#d97706",
-      "position": {
-        "x": -1.45,
-        "y": 0.65,
-        "z": 0.75
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "postop-fever-consult-pressure-communication-cue:communication_cue",
-        "postop_fever_consult_pressure:communication_cue"
-      ],
-      "interactionTags": [
-        "communication_cue",
-        "postop_fever_consult_pressure_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    },
-    {
-      "propId": "postop-fever-consult-pressure-review-cue",
-      "label": "Faculty review evidence cue",
-      "semanticRole": "review_cue",
-      "evidenceCue": "postop_fever_consult_pressure:faculty_review_cue",
-      "colorHex": "#f3e8ff",
-      "accentColorHex": "#7c3aed",
-      "position": {
-        "x": 1.5,
-        "y": 0.7,
-        "z": 0.65
-      },
-      "scale": {
-        "x": 0.7,
-        "y": 0.18,
-        "z": 0.42
-      },
-      "affordanceCueIds": [
-        "postop-fever-consult-pressure-review-cue:review_cue",
-        "postop_fever_consult_pressure:faculty_review_cue"
-      ],
-      "interactionTags": [
-        "review_cue",
-        "postop_fever_consult_pressure_v1"
-      ],
-      "generatedBy": "scene_manifest"
-    }
-  ],
+  "roomProps": [],
   "productionReadinessClaimed": false,
   "notEvidenceFor": [
     "production_asset_readiness",

@@ -212,8 +212,8 @@
       "title": "ED Stroke Alert Handoff",
       "subtitle": "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
       "chiefConcern": "My right arm feels weak, and I cannot get the words out clearly.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "ED stroke alert handoff station scene",
       "canvasAriaLabel": "3D stroke alert room preview",
       "initialDialogueText": "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
@@ -366,116 +366,7 @@
         ]
       }
     },
-    "roomProps": [
-      {
-        "propId": "ed-stroke-alert-handoff-primary-context",
-        "label": "Stroke Alert With Time Pressure And Handoff",
-        "semanticRole": "scenario_context",
-        "evidenceCue": "ed_stroke_alert_handoff:primary_context_cue",
-        "colorHex": "#f8fafc",
-        "accentColorHex": "#0f766e",
-        "position": {
-          "x": -0.6,
-          "y": 0.85,
-          "z": -0.7
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "ed-stroke-alert-handoff-primary-context:scenario_context",
-          "ed_stroke_alert_handoff:primary_context_cue"
-        ],
-        "interactionTags": [
-          "scenario_context",
-          "ed_stroke_alert_handoff_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "ed-stroke-alert-handoff-objective-cue",
-        "label": "Elicit last-known-well and focused stroke history",
-        "semanticRole": "objective_cue",
-        "evidenceCue": "ed_stroke_alert_handoff:objective_cue",
-        "colorHex": "#eff6ff",
-        "accentColorHex": "#2563eb",
-        "position": {
-          "x": 1.25,
-          "y": 0.95,
-          "z": -0.4
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "ed-stroke-alert-handoff-objective-cue:objective_cue",
-          "ed_stroke_alert_handoff:objective_cue"
-        ],
-        "interactionTags": [
-          "objective_cue",
-          "ed_stroke_alert_handoff_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "ed-stroke-alert-handoff-communication-cue",
-        "label": "last_known_well",
-        "semanticRole": "communication_cue",
-        "evidenceCue": "ed_stroke_alert_handoff:communication_cue",
-        "colorHex": "#fef3c7",
-        "accentColorHex": "#d97706",
-        "position": {
-          "x": -1.45,
-          "y": 0.65,
-          "z": 0.75
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "ed-stroke-alert-handoff-communication-cue:communication_cue",
-          "ed_stroke_alert_handoff:communication_cue"
-        ],
-        "interactionTags": [
-          "communication_cue",
-          "ed_stroke_alert_handoff_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "ed-stroke-alert-handoff-review-cue",
-        "label": "Faculty review evidence cue",
-        "semanticRole": "review_cue",
-        "evidenceCue": "ed_stroke_alert_handoff:faculty_review_cue",
-        "colorHex": "#f3e8ff",
-        "accentColorHex": "#7c3aed",
-        "position": {
-          "x": 1.5,
-          "y": 0.7,
-          "z": 0.65
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "ed-stroke-alert-handoff-review-cue:review_cue",
-          "ed_stroke_alert_handoff:faculty_review_cue"
-        ],
-        "interactionTags": [
-          "review_cue",
-          "ed_stroke_alert_handoff_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      }
-    ],
+    "roomProps": [],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",

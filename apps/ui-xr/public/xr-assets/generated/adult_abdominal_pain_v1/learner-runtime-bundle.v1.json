@@ -208,8 +208,8 @@
       "title": "Adult Abdominal Pain With Guarding And Family Pressure",
       "subtitle": "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
       "chiefConcern": "The pain is sharp on my lower right side, and it hurts when I move.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Adult ED Abdominal Exam Bay station scene",
       "canvasAriaLabel": "3D Adult ED Abdominal Exam Bay preview",
       "initialDialogueText": "Elena Vasquez: The pain is sharp on my lower right side, and it hurts when I move.",
@@ -217,116 +217,7 @@
       "chiefConcernAuthorship": "authored_patient_voice",
       "interruptionAuthorship": "unauthored"
     },
-    "roomProps": [
-      {
-        "propId": "adult-abdominal-pain-primary-context",
-        "label": "Adult Abdominal Pain With Guarding And Family Pressure",
-        "semanticRole": "scenario_context",
-        "evidenceCue": "adult_abdominal_pain:primary_context_cue",
-        "colorHex": "#f8fafc",
-        "accentColorHex": "#0f766e",
-        "position": {
-          "x": -0.6,
-          "y": 0.85,
-          "z": -0.7
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "adult-abdominal-pain-primary-context:scenario_context",
-          "adult_abdominal_pain:primary_context_cue"
-        ],
-        "interactionTags": [
-          "scenario_context",
-          "adult_abdominal_pain_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "adult-abdominal-pain-objective-cue",
-        "label": "Elicit focused abdominal pain history including migration and associated symptoms",
-        "semanticRole": "objective_cue",
-        "evidenceCue": "adult_abdominal_pain:objective_cue",
-        "colorHex": "#eff6ff",
-        "accentColorHex": "#2563eb",
-        "position": {
-          "x": 1.25,
-          "y": 0.95,
-          "z": -0.4
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "adult-abdominal-pain-objective-cue:objective_cue",
-          "adult_abdominal_pain:objective_cue"
-        ],
-        "interactionTags": [
-          "objective_cue",
-          "adult_abdominal_pain_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "adult-abdominal-pain-communication-cue",
-        "label": "history_opqrst",
-        "semanticRole": "communication_cue",
-        "evidenceCue": "adult_abdominal_pain:communication_cue",
-        "colorHex": "#fef3c7",
-        "accentColorHex": "#d97706",
-        "position": {
-          "x": -1.45,
-          "y": 0.65,
-          "z": 0.75
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "adult-abdominal-pain-communication-cue:communication_cue",
-          "adult_abdominal_pain:communication_cue"
-        ],
-        "interactionTags": [
-          "communication_cue",
-          "adult_abdominal_pain_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "adult-abdominal-pain-review-cue",
-        "label": "Faculty review evidence cue",
-        "semanticRole": "review_cue",
-        "evidenceCue": "adult_abdominal_pain:faculty_review_cue",
-        "colorHex": "#f3e8ff",
-        "accentColorHex": "#7c3aed",
-        "position": {
-          "x": 1.5,
-          "y": 0.7,
-          "z": 0.65
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "adult-abdominal-pain-review-cue:review_cue",
-          "adult_abdominal_pain:faculty_review_cue"
-        ],
-        "interactionTags": [
-          "review_cue",
-          "adult_abdominal_pain_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      }
-    ],
+    "roomProps": [],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",

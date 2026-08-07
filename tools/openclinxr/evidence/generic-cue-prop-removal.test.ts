@@ -86,6 +86,14 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether the generic cue quartet reaches a learner's room. Says NOTHING about prop activation
  * (leaving it broken is deliberate), equipment (#140), fixtures (#143), or what a room should contain.
+ *
+ * ## FIXED (#139)
+ * Factory generic preset now emits `roomProps: []` (stop emitting, not activate). Shipped public
+ * manifests for the ten generic-quartet stations patched empty. Hand-authored psych/telehealth/peds
+ * and ED-fallback presets untouched. ED reactive props (monitor-waveform-card, monitor-vitals-badge,
+ * ekg-leads-on-bed) restored onto shipped ED manifests from runtime-bundles SSOT so the counterweight
+ * is live against the shipped path (they previously existed only in the local fixture).
+ * inspectGenericCuePropRemoval() measures declared vs live body meshes.
  */
 
 const load = async () => import("./generic-cue-prop-removal.js") as Promise<Record<string, unknown>>;
@@ -109,7 +117,7 @@ const ED_REACTIVE_PROP_IDS = ["monitor-waveform-card", "monitor-vitals-badge", "
 const HAND_AUTHORED_PROP_IDS = ["safe-room-soft-chair", "observer-station", "glucometer-log-review"];
 
 describe("no station renders a cube labelled with authoring metadata (#139)", () => {
-  it.fails("the generic cue quartet does not reach the scene", async () => {
+  it("the generic cue quartet does not reach the scene", async () => {
     // Ten of fifteen stations ship <slug>-primary-context / -objective-cue / -communication-cue /
     // -review-cue. The labels never render because activePropIds is a closed ED allow-list; the cube
     // bodies render unconditionally at main.ts:6131.
@@ -129,7 +137,7 @@ describe("no station renders a cube labelled with authoring metadata (#139)", ()
     expect(offenders, `metadata-labelled props still rendering:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("no station is left rendering a prop it does not declare", async () => {
+  it("no station is left rendering a prop it does not declare", async () => {
     // Kills a lazy satisfaction of the first contract: filtering at the runtime while the factory
     // keeps emitting them leaves the manifests lying about what the room contains, which is the
     // declaration-versus-product gap this project has now hit four times.
@@ -148,7 +156,7 @@ describe("no station renders a cube labelled with authoring metadata (#139)", ()
     expect(ghosts, `props rendered but not declared:\n${ghosts.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ED reactive props and hand-authored props survive (COUNTERWEIGHT)", async () => {
+  it("the ED reactive props and hand-authored props survive (COUNTERWEIGHT)", async () => {
     // The cheap satisfaction is deleting every room prop everywhere. The ED bay's props are the only
     // reactive scenery in the product, and psych/telehealth/peds carry real clinical names.
     const mod = await load();
