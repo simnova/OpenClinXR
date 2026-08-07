@@ -50,6 +50,14 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: argument handling on the integrate entry point. Says nothing about whether the kill rules
  * are correctly calibrated.
+ *
+ * ## FIXED (#84)
+ *
+ * - `assertIntegrateHeadUsable(head)` throws when head is missing/empty/whitespace, naming `--head`
+ *   and never mentioning forgery. Called at the top of `integrate()` before `runMergeKill`.
+ * - CLI no longer defaults `flag("head") ?? ""`; missing flag exits 1 with the same message.
+ * - Counterweight stays green: `head: "main"` with `base: "main"` and passing proofs still kills
+ *   with `empty-diff-with-passing-proofs` (forgery defence preserved).
  */
 
 const load = async () =>
@@ -71,7 +79,7 @@ const GREEN = {
 };
 
 describe("a missing --head is refused, not mistaken for forgery (#84)", () => {
-  it.fails("an empty head is refused by name and never reaches the forged-proof kill", async () => {
+  it("an empty head is refused by name and never reaches the forged-proof kill", async () => {
     // The whole defect in one assertion: the operator's mistake must be reported as the operator's
     // mistake. Reaching merge-kill at all is the bug, because merge-kill's only available verdict
     // for this input is an accusation against the worker.

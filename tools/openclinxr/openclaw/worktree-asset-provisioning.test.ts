@@ -76,6 +76,28 @@ import { describe, expect, it } from "vitest";
  * SCOPE: provisioning ignored inputs into a worker's tree. Says nothing about the other direction —
  * #64's outputs were themselves gitignored and the merge did not carry them, which is the same root
  * cause on the far side of the loop and is deliberately NOT in this slice.
+ *
+ * ## FIXED (#66)
+ *
+ * - `provisionWorktreeAssets` / `provisionWorktreeAssetsSync` copy only declared repo-relative
+ *   paths from `repoRoot` (main) into `worktreePath`. Content verified by hash in contracts.
+ * - Copy strategy: `COPYFILE_FICLONE` (CoW/clonefile when available) else plain copy. No symlink,
+ *   no hardlink (worker writes must not appear in main).
+ * - Wired: `prepareWorktreeForWorker` calls provision when `assetPaths` set; `dispatch` merges
+ *   trusted brief `assetPaths` ∪ `DispatchOptions.assetPaths`; `board-brief` extracts
+ *   `## asset_paths` bullets into `BriefResult.assetPaths` for trusted brief writers.
+ * - Findings (NOT DETERMINED items measured in this worktree):
+ *   - `generated-humanoids/*.glb` are TRACKED (git ls-files); cagematch is gitignored. Manifests
+ *     beside GLBs (`.anny_manifest.json`, `.bundle.json`, provenance) are also tracked and small
+ *     (4–28 KB). Local `.openclinxr/` is gitignored except README — evidence/manifests there are
+ *     checkout-local and cheap to regenerate vs multi-MB GLBs; declare them only when a slice
+ *     cannot rebuild them.
+ *   - `pnpm test` red on a bare worktree is NOT only missing ignored paths: #54 already proved
+ *     missing workspace `dist/` (build-emitting packages) fails 17 files; install+packages:build
+ *     is the primary red cause. Missing cagematch is a separate thrash class for asset slices.
+ *   - Freeze-ceiling thrash (#81) is a SEPARATE root cause from missing ignored assets: SIZE_FREEZE
+ *     lives in architecture-rules and fires when a file grows past budget; provisioning does not
+ *     raise ceilings. Same thrash bucket in turn counts, different fix (split file vs provision).
  */
 
 import { execFileSync } from "node:child_process";
@@ -103,7 +125,7 @@ const sha256 = (path: string) =>
   execFileSync("shasum", ["-a", "256", path], { encoding: "utf8" }).split(/\s+/)[0] ?? "";
 
 describe("a worker's tree arrives with the inputs its slice declared (#66)", () => {
-  it.fails("a declared asset is provisioned with content identical to main", async () => {
+  it("a declared asset is provisioned with content identical to main", async () => {
     // Hash, not existence. The first draft of this contract asserted the path existed and would have
     // passed on an empty directory — the peer round caught it, and that is exactly the class of
     // vacuous proof this repo has already paid for six times.
@@ -120,7 +142,7 @@ describe("a worker's tree arrives with the inputs its slice declared (#66)", () 
     expect(report.provisioned.find((p) => p.path === DECLARED)?.bytes, "report claims zero bytes").toBeGreaterThan(0);
   }, 300_000);
 
-  it.fails("an undeclared heavy root is not copied", async () => {
+  it("an undeclared heavy root is not copied", async () => {
     // Kills "copy everything always", which satisfies the first contract and re-earns the ~1.2 GB
     // per cycle the peer round rejected. Declaration has to mean something.
     const mod = await load();

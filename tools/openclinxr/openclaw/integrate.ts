@@ -178,7 +178,28 @@ function mergeVerifyContractForSlice(
   }
 }
 
+/**
+ * #84: empty `--head` is an operator/orchestrator error, not a forged proof.
+ *
+ * `git diff base...` with an empty head resolves to `base...base` (zero files, exit 0). That trips
+ * merge-kill's empty-diff-with-passing-proofs rule and blames the WORKER for an ORCHESTRATOR typo.
+ * Refuse by name before any kill logic runs. A genuine head===base still reaches merge-kill.
+ */
+export function assertIntegrateHeadUsable(head: string): void {
+  if (typeof head !== "string" || head.trim() === "") {
+    throw new Error(
+      `integrate: --head is required and must not be empty. `
+      + `An empty head makes \`git diff base...\` resolve to base...base (zero files) and would `
+      + `mis-attribute an orchestrator CLI omission to the worker via the empty-diff kill. `
+      + `Pass the worker branch or commit SHA.`,
+    );
+  }
+}
+
 export function integrate(input: IntegrateInput): IntegrateResult {
+  // Operator mistake must be named as such BEFORE merge-kill can reframe it as forgery (#84).
+  assertIntegrateHeadUsable(input.head);
+
   // Kill FIRST. Nothing below this line may run if it fires.
   const killReport = runMergeKill({
     repoRoot: input.repoRoot,
@@ -240,12 +261,22 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     return index >= 0 ? args[index + 1] : undefined;
   };
   const slice = flag("slice") ?? "unscoped";
+  // Do not default --head to "". Empty head is not a default — it is a value that parses into a
+  // forged-proof false positive (#84). Fail closed at the CLI boundary with the same message the
+  // library throws so dry-run and live share one refusal path.
+  const head = flag("head");
+  try {
+    assertIntegrateHeadUsable(head ?? "");
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
   const result = integrate({
     repoRoot: process.cwd(),
     base: flag("base") ?? "HEAD",
-    head: flag("head") ?? "",
+    head: head!,
     slice,
-    contract: contractForSlice(process.cwd(), slice, flag("head") ?? ""),
+    contract: contractForSlice(process.cwd(), slice, head),
     dryRun: args.includes("--dry-run"),
   });
   console.log(
