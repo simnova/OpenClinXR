@@ -258,7 +258,11 @@ describe("static browser assets", () => {
   });
 
   it("adds local mesh hand models with primitive fallback and experimental locomotion affordances", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // #91: clinical idle arm hang + joint aliases live in clinical-idle-posture.ts (shrink extract).
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
+    ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
     expect(mainSource).toContain("XRHandModelFactory");
@@ -611,16 +615,16 @@ describe("static browser assets", () => {
   });
 
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
-    // Reads main.ts TOGETHER WITH the runtime-asset-url module rather than main.ts alone. #85 split
-    // `resolveLocalHumanoidRuntimeAssetFileName` and its URL construction into
-    // humanoid-runtime-asset-url.ts, and this assertion went red on a refactor that improved the
-    // tree — the same failure the physics-touch fence hit after #83's split. main.ts is under a
-    // shrink-only ratchet and will keep being split, so the check follows the CODE.
+    // Reads main.ts TOGETHER WITH extracted runtime modules rather than main.ts alone. #85 split
+    // `resolveLocalHumanoidRuntimeAssetFileName` into humanoid-runtime-asset-url.ts; #91 split
+    // clinical idle arm hang into clinical-idle-posture.ts. main.ts is under a shrink-only ratchet
+    // and will keep being split, so the check follows the CODE.
     //
     // Strength is unchanged: every string below must still appear verbatim in shipped runtime source.
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 

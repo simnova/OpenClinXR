@@ -41,6 +41,10 @@ import {
 } from "./encounter-actor-framing.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
+import {
+  applyGeneratedHumanoidClinicalIdlePosture,
+  applyHumanoidJointRotationsByAlias,
+} from "./clinical-idle-posture.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
@@ -4534,78 +4538,19 @@ function updateExamineeLocomotionTrail(trail: Group, evidence: ExamineeLocomotio
   trail.userData.openClinXrExamineeLocomotionEvidence = evidence;
 }
 
-function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Group): void {
-  const postureRotations = new Map<string, { x?: number; y?: number; z?: number }>([
-    ["upper_arm.L", { z: -0.24, y: 0.04 }],
-    ["forearm.L", { z: -0.12, y: -0.06 }],
-    ["hand.L", { z: -0.05, y: -0.02 }],
-    ["upper_arm.R", { z: 0.24, y: -0.04 }],
-    ["forearm.R", { z: 0.12, y: 0.06 }],
-    ["hand.R", { z: 0.05, y: 0.02 }],
-    ["upper_armL", { x: -1.42, y: 0.08, z: -0.22 }],
-    ["forearmL", { x: -0.18, y: -0.08, z: 0.14 }],
-    ["handL", { x: 0.04, y: 0.02, z: -0.04 }],
-    ["upper_armR", { x: -1.42, y: -0.08, z: 0.22 }],
-    ["forearmR", { x: -0.18, y: 0.08, z: -0.14 }],
-    ["handR", { x: 0.04, y: -0.02, z: 0.04 }],
-    ["head", { x: -0.04 }],
-  ]);
-  humanoid.traverse((object) => {
-    const rotation = postureRotations.get(object.name);
-    if (!rotation) return;
-    if (rotation.x !== undefined) object.rotation.x = rotation.x;
-    if (rotation.y !== undefined) object.rotation.y = rotation.y;
-    if (rotation.z !== undefined) object.rotation.z = rotation.z;
-    object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
-  });
-  humanoid.userData.openClinXrClinicalIdlePostureCueIds = [
-    "relaxed_upper_arm_pose_cue",
-    "bent_forearm_conversation_pose_cue",
-    "head_attention_posture_cue",
-    "arms_lowered_from_generator_bind_pose_cue",
-  ];
-}
-
-const humanoidJointAliases = new Map<string, string[]>([
-  ["head", ["head", "neck"]],
-  ["upper_armL", ["upper_arml", "upperarm_l", "leftarm", "left_arm", "leftupperarm", "left_upper_arm", "mixamorigleftarm"]],
-  ["forearmL", ["forearml", "forearm_l", "leftforearm", "left_forearm", "leftlowerarm", "left_lower_arm", "mixamorigleftforearm"]],
-  ["handL", ["handl", "hand_l", "lefthand", "left_hand", "mixamoriglefthand"]],
-  ["upper_armR", ["upper_armr", "upperarm_r", "rightarm", "right_arm", "rightupperarm", "right_upper_arm", "mixamorigrightarm"]],
-  ["forearmR", ["forearmr", "forearm_r", "rightforearm", "right_forearm", "rightlowerarm", "right_lower_arm", "mixamorigrightforearm"]],
-  ["handR", ["handr", "hand_r", "righthand", "right_hand", "mixamorigrighthand"]],
-]);
-
-function applyHumanoidJointRotationsByAlias(
-  humanoid: Group,
-  rotations: Map<string, { x?: number; y?: number; z?: number }>,
-  poseId: string,
-): void {
-  humanoid.traverse((object) => {
-    const normalizedName = object.name.toLowerCase().replaceAll(/[^a-z0-9_]+/g, "");
-    for (const [jointId, aliases] of humanoidJointAliases) {
-      if (!aliases.some((alias) => normalizedName.includes(alias))) {
-        continue;
-      }
-      const rotation = rotations.get(jointId);
-      if (!rotation) {
-        continue;
-      }
-      if (rotation.x !== undefined) object.rotation.x = rotation.x;
-      if (rotation.y !== undefined) object.rotation.y = rotation.y;
-      if (rotation.z !== undefined) object.rotation.z = rotation.z;
-      object.userData.openClinXrRoleSpecificPose = poseId;
-      break;
-    }
-  });
-}
-
+/**
+ * #91: clinical idle owns arm hang (clinical-idle-posture.ts). Role maps keep head +
+ * whole-root silhouette only — pre-fix showed role arm eulers overwrote hang and left
+ * family wrists under 0.25 m drop / patient arms with z=±0.74 plank abduction.
+ * Pediatric asthma keeps hands-near-chest (case-driven distress), still wrist-below-shoulder.
+ */
 function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: string): void {
   const actorRole = runtimeActorRole(actorId);
   if (actorId === runtimePatientActorId()) {
     if (isPediatricAsthmaRuntimeScenario()) {
       const pediatricRespiratoryDistressRotations = new Map<string, { x?: number; y?: number; z?: number }>([
         ["head", { x: -0.18, y: 0.1 }],
+        // Hands near chest for work-of-breathing — hang-compatible drop, not T-pose plank.
         ["upper_armL", { x: -1.34, y: 0.16, z: -0.5 }],
         ["forearmL", { x: -0.78, y: -0.2, z: 0.62 }],
         ["handL", { x: 0.18, y: 0.14, z: -0.24 }],
@@ -4613,15 +4558,11 @@ function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: str
         ["forearmR", { x: -0.7, y: 0.2, z: -0.58 }],
         ["handR", { x: 0.18, y: -0.14, z: 0.24 }],
       ]);
-      humanoid.traverse((object) => {
-        const rotation = pediatricRespiratoryDistressRotations.get(object.name);
-        if (!rotation) return;
-        if (rotation.x !== undefined) object.rotation.x = rotation.x;
-        if (rotation.y !== undefined) object.rotation.y = rotation.y;
-        if (rotation.z !== undefined) object.rotation.z = rotation.z;
-        object.userData.openClinXrRoleSpecificPose = "pediatric_asthma_hunched_hands_near_chest";
-      });
-      applyHumanoidJointRotationsByAlias(humanoid, pediatricRespiratoryDistressRotations, "pediatric_asthma_hunched_hands_near_chest");
+      applyHumanoidJointRotationsByAlias(
+        humanoid,
+        pediatricRespiratoryDistressRotations,
+        "pediatric_asthma_hunched_hands_near_chest",
+      );
       humanoid.scale.set(0.78, 0.74, 0.78);
       humanoid.rotation.x = -0.14;
       humanoid.rotation.y = 0.08;
@@ -4633,23 +4574,10 @@ function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: str
       ];
       return;
     }
+    // Head only — arms remain clinical-idle hang (#91). Rejected: re-planking with z=±0.74.
     const patientRotations = new Map<string, { x?: number; y?: number; z?: number }>([
       ["head", { x: -0.12, y: 0.08 }],
-      ["upper_armL", { x: -0.34, y: 0.08, z: -0.74 }],
-      ["forearmL", { x: -0.24, y: -0.12, z: 0.36 }],
-      ["handL", { x: 0.06, y: 0.08, z: -0.08 }],
-      ["upper_armR", { x: -0.34, y: -0.08, z: 0.74 }],
-      ["forearmR", { x: -0.24, y: 0.12, z: -0.36 }],
-      ["handR", { x: 0.06, y: -0.08, z: 0.08 }],
     ]);
-    humanoid.traverse((object) => {
-      const rotation = patientRotations.get(object.name);
-      if (!rotation) return;
-      if (rotation.x !== undefined) object.rotation.x = rotation.x;
-      if (rotation.y !== undefined) object.rotation.y = rotation.y;
-      if (rotation.z !== undefined) object.rotation.z = rotation.z;
-      object.userData.openClinXrRoleSpecificPose = "patient_low_guarded_clinical_attention_pose";
-    });
     applyHumanoidJointRotationsByAlias(humanoid, patientRotations, "patient_low_guarded_clinical_attention_pose");
     humanoid.rotation.x = -0.08;
     humanoid.userData.openClinXrRoleSpecificPostureCueIds = [
@@ -4662,21 +4590,7 @@ function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: str
   if (actorId === runtimeClinicalTeamActorId()) {
     const clinicalTeamRotations = new Map<string, { x?: number; y?: number; z?: number }>([
       ["head", { x: -0.04, y: -0.1 }],
-      ["upper_armL", { x: -0.28, y: 0.14, z: -0.2 }],
-      ["forearmL", { x: -0.16, y: -0.12, z: 0.2 }],
-      ["handL", { x: 0.08, y: 0.06, z: -0.14 }],
-      ["upper_armR", { x: -0.42, y: -0.18, z: 0.26 }],
-      ["forearmR", { x: -0.16, y: 0.14, z: -0.24 }],
-      ["handR", { x: 0.04, y: -0.1, z: 0.18 }],
     ]);
-    humanoid.traverse((object) => {
-      const rotation = clinicalTeamRotations.get(object.name);
-      if (!rotation) return;
-      if (rotation.x !== undefined) object.rotation.x = rotation.x;
-      if (rotation.y !== undefined) object.rotation.y = rotation.y;
-      if (rotation.z !== undefined) object.rotation.z = rotation.z;
-      object.userData.openClinXrRoleSpecificPose = "clinical_team_low_asymmetric_attention_pose";
-    });
     applyHumanoidJointRotationsByAlias(humanoid, clinicalTeamRotations, "clinical_team_low_asymmetric_attention_pose");
     humanoid.scale.set(1.04, 1.08, 1.04);
     humanoid.rotation.y = -0.16;
@@ -4691,21 +4605,7 @@ function applyGeneratedHumanoidRoleSpecificPosture(humanoid: Group, actorId: str
   if (actorId === runtimeFamilyActorId()) {
     const familyRotations = new Map<string, { x?: number; y?: number; z?: number }>([
       ["head", { x: -0.08, y: 0.14 }],
-      ["upper_armL", { x: -0.3, y: 0.16, z: -0.2 }],
-      ["forearmL", { x: -0.22, y: -0.18, z: 0.26 }],
-      ["handL", { x: 0.08, y: 0.18, z: -0.18 }],
-      ["upper_armR", { x: -0.36, y: -0.16, z: 0.22 }],
-      ["forearmR", { x: -0.26, y: 0.16, z: -0.28 }],
-      ["handR", { x: 0.12, y: -0.18, z: 0.2 }],
     ]);
-    humanoid.traverse((object) => {
-      const rotation = familyRotations.get(object.name);
-      if (!rotation) return;
-      if (rotation.x !== undefined) object.rotation.x = rotation.x;
-      if (rotation.y !== undefined) object.rotation.y = rotation.y;
-      if (rotation.z !== undefined) object.rotation.z = rotation.z;
-      object.userData.openClinXrRoleSpecificPose = "family_low_anxious_observer_pose";
-    });
     applyHumanoidJointRotationsByAlias(humanoid, familyRotations, "family_low_anxious_observer_pose");
     humanoid.scale.set(1.05, 1.04, 1.05);
     humanoid.rotation.y = 0.18;
