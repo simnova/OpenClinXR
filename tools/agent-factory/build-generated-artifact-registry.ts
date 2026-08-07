@@ -1,6 +1,14 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+import {
+  decideRegistryShrink,
+  loadRegisteredPaths,
+  parseAllowShrink,
+  worktreeNote,
+} from "./registry-shrink-guard.ts";
 
 export type GeneratedArtifactAuthority =
   | "keep-current"
@@ -19,9 +27,34 @@ export type GeneratedArtifactEntry = {
   rationale: string;
 };
 
-const root = process.cwd();
+export type BuildGeneratedArtifactRegistryOptions = {
+  cwd?: string;
+  allowShrink?: boolean;
+  /**
+   * Test seam: skip filesystem walk and classify these paths instead.
+   * Production CLI never sets this — only the shrink-refusal harness.
+   */
+  pathListOverride?: readonly string[];
+  /** Capture stderr-style messages (tests); defaults to console.error. */
+  logError?: (message: string) => void;
+};
+
+export type BuildGeneratedArtifactRegistryResult = {
+  ok: boolean;
+  exitCode: number;
+  wrote: boolean;
+  removedPaths: string[];
+  stderr: string;
+  outputJson: string;
+  outputMd: string;
+  total: number;
+  counts: Record<string, number>;
+};
+
+const defaultRoot = process.cwd();
 const outputJson = "docs/openclinxr/generated-artifact-registry-2026-05-27.json";
 const outputMd = "docs/openclinxr/generated-artifact-registry-2026-05-27.md";
+const REGISTRY_LABEL = "generated-artifact-registry";
 
 const scannedRoots = [
   ".agent-factory",
@@ -87,14 +120,14 @@ const stalePatterns = [
   /visual-qa-evidence-2026-05-04/u,
 ];
 
-function walk(dir: string, out: string[] = []): string[] {
+function walk(dir: string, root: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
   for (const name of readdirSync(dir)) {
     if (excludedDirectoryNames.has(name)) continue;
     const full = path.join(dir, name);
     const stats = statSync(full);
     if (stats.isDirectory()) {
-      walk(full, out);
+      walk(full, root, out);
       continue;
     }
     const ext = path.extname(name).toLowerCase();
@@ -105,11 +138,17 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-function loadTrackedFiles(): Set<string> {
-  const gitIndex = path.join(root, ".git", "index");
-  if (!existsSync(gitIndex)) return new Set();
-  const output = execFileSync("git", ["ls-files"], { cwd: root, encoding: "utf8" });
-  return new Set(output.split("\n").filter(Boolean));
+function loadTrackedFiles(cwd: string): Set<string> {
+  const gitIndex = path.join(cwd, ".git", "index");
+  const gitFile = path.join(cwd, ".git");
+  // Worktrees have `.git` as a file; still try ls-files when git works.
+  if (!existsSync(gitIndex) && !existsSync(gitFile)) return new Set();
+  try {
+    const output = execFileSync("git", ["ls-files"], { cwd, encoding: "utf8" });
+    return new Set(output.split("\n").filter(Boolean));
+  } catch {
+    return new Set();
+  }
 }
 
 function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
@@ -168,26 +207,115 @@ function classify(file: string, tracked: boolean): GeneratedArtifactEntry {
   return { path: file, authority: "keep-current", tracked, action: "keep", rationale: "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules." };
 }
 
-const trackedFiles = loadTrackedFiles();
-const files = scannedRoots.flatMap((scanRoot) => walk(path.resolve(root, scanRoot))).sort();
-const entries = files.map((file) => classify(file, trackedFiles.has(file)));
-const counts = entries.reduce<Record<string, number>>((acc, entry) => {
-  acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
-  return acc;
-}, {});
-const registry = {
-  schemaVersion: "2026-05-27",
-  claimBoundary: "generated artifact navigation registry for cleanup only; not product, clinical, Quest, scoring, or production readiness evidence",
-  protectedRule: "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
-  usageRule: "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
-  counts,
-  entries,
-};
+export function buildGeneratedArtifactRegistry(
+  options: BuildGeneratedArtifactRegistryOptions = {},
+): BuildGeneratedArtifactRegistryResult {
+  const cwd = options.cwd ?? defaultRoot;
+  const allowShrink = options.allowShrink ?? parseAllowShrink();
+  const logError = options.logError ?? ((message: string) => console.error(message));
 
-mkdirSync(path.dirname(path.resolve(root, outputJson)), { recursive: true });
-writeFileSync(path.resolve(root, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
+  const stderrParts: string[] = [];
+  const note = worktreeNote(cwd);
+  if (note) {
+    stderrParts.push(note);
+    logError(note);
+  }
 
-const byAuthority = [...entries].sort((a, b) => a.authority.localeCompare(b.authority) || a.path.localeCompare(b.path));
-const md = `# Generated Artifact Registry\n\nDate: 2026-05-27\n\nThis generated registry complements the Markdown authority registry. It classifies non-Markdown artifacts so cleanup agents can prune stale evidence and local cache files without touching protected OpenClaw-style / OpenClaw-inspired control surfaces or product assets.\n\n## Protected Rule\n\nDo not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.\n\n## Counts\n\n${Object.entries(counts).sort().map(([key, value]) => `- ${key}: ${value}`).join("\n")}\n\n## Cleanup Actions\n\n${byAuthority.map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.action}; ${entry.rationale}`).join("\n")}\n`;
-writeFileSync(path.resolve(root, outputMd), md);
-console.log(JSON.stringify({ outputJson, outputMd, total: entries.length, counts }, null, 2));
+  const trackedFiles = loadTrackedFiles(cwd);
+  const files =
+    options.pathListOverride !== undefined
+      ? [...options.pathListOverride].sort()
+      : scannedRoots.flatMap((scanRoot) => walk(path.resolve(cwd, scanRoot), cwd)).sort();
+  const entries = files.map((file) => classify(file, trackedFiles.has(file)));
+  const counts = entries.reduce<Record<string, number>>((acc, entry) => {
+    acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const previousPaths = loadRegisteredPaths(path.resolve(cwd, outputJson));
+  const nextPaths = entries.map((entry) => entry.path);
+  const decision = decideRegistryShrink({
+    registryLabel: REGISTRY_LABEL,
+    previousPaths,
+    nextPaths,
+    allowShrink,
+  });
+
+  if (decision.message) {
+    stderrParts.push(decision.message);
+    logError(decision.message);
+  }
+
+  if (!decision.allowWrite) {
+    return {
+      ok: false,
+      exitCode: 2,
+      wrote: false,
+      removedPaths: decision.removedPaths,
+      stderr: stderrParts.join("\n"),
+      outputJson,
+      outputMd,
+      total: entries.length,
+      counts,
+    };
+  }
+
+  const registry = {
+    schemaVersion: "2026-05-27",
+    claimBoundary:
+      "generated artifact navigation registry for cleanup only; not product, clinical, Quest, scoring, or production readiness evidence",
+    protectedRule:
+      "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
+    usageRule:
+      "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
+    counts,
+    entries,
+  };
+
+  mkdirSync(path.dirname(path.resolve(cwd, outputJson)), { recursive: true });
+  writeFileSync(path.resolve(cwd, outputJson), `${JSON.stringify(registry, null, 2)}\n`);
+
+  const byAuthority = [...entries].sort(
+    (a, b) => a.authority.localeCompare(b.authority) || a.path.localeCompare(b.path),
+  );
+  const md = `# Generated Artifact Registry\n\nDate: 2026-05-27\n\nThis generated registry complements the Markdown authority registry. It classifies non-Markdown artifacts so cleanup agents can prune stale evidence and local cache files without touching protected OpenClaw-style / OpenClaw-inspired control surfaces or product assets.\n\n## Protected Rule\n\nDo not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.\n\n## Counts\n\n${Object.entries(counts)
+    .sort()
+    .map(([key, value]) => `- ${key}: ${value}`)
+    .join("\n")}\n\n## Cleanup Actions\n\n${byAuthority
+    .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.action}; ${entry.rationale}`)
+    .join("\n")}\n`;
+  writeFileSync(path.resolve(cwd, outputMd), md);
+
+  return {
+    ok: true,
+    exitCode: 0,
+    wrote: true,
+    removedPaths: decision.removedPaths,
+    stderr: stderrParts.join("\n"),
+    outputJson,
+    outputMd,
+    total: entries.length,
+    counts,
+  };
+}
+
+async function main(): Promise<void> {
+  const result = buildGeneratedArtifactRegistry({
+    allowShrink: parseAllowShrink(),
+  });
+  if (!result.ok) {
+    process.exitCode = result.exitCode;
+    return;
+  }
+  console.log(
+    JSON.stringify(
+      { outputJson: result.outputJson, outputMd: result.outputMd, total: result.total, counts: result.counts },
+      null,
+      2,
+    ),
+  );
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}
