@@ -131,7 +131,7 @@ const KNOWN_KINDS = [
 const ED = "ed_chest_pain_priority_v1";
 
 describe("a station renders the equipment it declares (#140)", () => {
-  it.fails("every declared equipment id is mounted in the station that declares it", async () => {
+  it("every declared equipment id is mounted in the station that declares it", async () => {
     // ed_stroke_alert_handoff_v1 declares a wall clock and a bedside monitor and renders neither,
     // because main.ts:3455-3490 mounts two module-level ED assets for every station.
     const mod = await load();
@@ -151,7 +151,7 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(missing, `declared equipment that never reaches the room:\n${missing.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("a recognisable kind is more than one scaled cube", async () => {
+  it("a recognisable kind is more than one scaled cube", async () => {
     // Kills the cheap satisfaction of the first contract: mounting a BoxGeometry per id satisfies
     // "mounted" and leaves the room reading as coloured boxes, which is what it does today.
     const mod = await load();
@@ -172,7 +172,7 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(cubes, `known kinds still rendering as a single box:\n${cubes.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ED bay keeps its real equipment GLBs (COUNTERWEIGHT)", async () => {
+  it("the ED bay keeps its real equipment GLBs (COUNTERWEIGHT)", async () => {
     // The two assets that already have real geometry — ecg-cart-12-lead.glb (288 tris) and
     // iv-pole-with-pump.glb (144 tris). A rewrite of the mount path must not cost them.
     const mod = await load();
