@@ -15,6 +15,10 @@ import {
   resolveLocalHumanoidRuntimeAssetUrl,
 } from "./humanoid-runtime-asset-url.js";
 import {
+  assignRuntimeActorSlots,
+  type RuntimeSlotAssignment,
+} from "./runtime-actor-slots.js";
+import {
   arbitrateTurnTaking,
   buildHistoryTakingCoverageSpec,
   initialHistoryTakingCoverageState,
@@ -446,6 +450,15 @@ declare global {
     __openClinXrSelectedRuntimeAssetBundleId?: string;
     __openClinXrRuntimeSceneManifestEvidence?: RuntimeSceneManifestEvidence;
     __openClinXrRuntimeBundleScenarioMatch?: { source: "window.__openClinXrRuntimeBundleScenarioMatch"; selectedScenarioId: string; bundleScenarioId: string; matches: boolean; reason?: string };
+    /** #122 — machine-readable residual for declared humanoids not staged in a slot. */
+    __openClinXrActorSlotAssignment?: {
+      source: "window.__openClinXrActorSlotAssignment";
+      scenarioId: string;
+      declaredHumanoidActorIds: string[];
+      stagedActorIds: string[];
+      notStagedActorIds: { actorId: string; reason: string }[];
+      maxVisibleSlots: number;
+    };
     __openClinXrLearnerRuntimeUseGateEvidence?: LearnerRuntimeUseGateEvidence;
     __openClinXrLastStationSceneBootErrorStack?: string;
     __openClinXrExamFlowEvidence?: OpenClinXrExamFlowEvidence;
@@ -603,6 +616,12 @@ let spouseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "spouse_anna_hayes_v1")?.model,
   "spouse_anna_hayes_v1",
 );
+let additionalRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
+  findRuntimeActorAsset(encounterRuntimeAssetBundle, "nurse_maria_alvarez_v1")?.model
+    ?? findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
+  "additional_cast_actor",
+);
+let cachedRuntimeSlotAssignment: RuntimeSlotAssignment | null = null;
 let ecgCartRuntimeAsset = requireEncounterRuntimeAsset(
   findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, "ecg_cart_equipment")?.model,
   "ecg_cart_equipment",
@@ -620,30 +639,32 @@ function useEncounterRuntimeAssetBundle(
   } = { source: "local_fixture_fallback" },
 ): void {
   encounterRuntimeAssetBundle = bundle;
+  cachedRuntimeSlotAssignment = null;
   window.__openClinXrSelectedRuntimeAssetBundleId = bundle.bundleId;
   window.__openClinXrRuntimeSceneManifestEvidence = buildRuntimeSceneManifestEvidence(bundle);
   recordLearnerRuntimeUseGateEvidence(bundle, options.source, options.fallbackReason ?? null);
+  const slots = resolveRuntimeSlotAssignment(bundle);
+  const modelFor = (actorId: string) =>
+    (actorId ? findRuntimeActorAsset(bundle, actorId)?.model : undefined)
+    ?? bundle.actors.find((a) => a.embodiment !== "virtual_device" && a.embodiment !== "voice_only")?.model
+    ?? bundle.actors[0]?.model;
   patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-    findRuntimeActorAsset(bundle, "patient_robert_hayes_v1")?.model
-      ?? findRuntimeActorAssetByRole(bundle, ["patient"])?.model
-      ?? bundle.actors[0]?.model,
-    "primary_patient_actor",
+    modelFor(slots.patientActorId),
+    slots.patientActorId || "primary_patient_actor",
   );
   nurseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-    findRuntimeActorAsset(bundle, "nurse_maria_alvarez_v1")?.model
-      ?? findRuntimeHumanoidActorAssetByRole(bundle, ["nurse", "respiratory_therapist", "nurse_observer", "consultant"])?.model
-      ?? bundle.actors[1]?.model
-      ?? bundle.actors[0]?.model,
-    "clinical_team_actor",
+    modelFor(slots.clinicalTeamActorId || slots.patientActorId),
+    slots.clinicalTeamActorId || "clinical_team_actor",
   );
   spouseRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
-    findRuntimeActorAsset(bundle, "spouse_anna_hayes_v1")?.model
-      ?? findRuntimeHumanoidActorAssetByRole(bundle, ["spouse", "parent", "family", "consultant"])?.model
-      ?? bundle.actors[2]?.model
-      ?? bundle.actors[1]?.model
-      ?? bundle.actors[0]?.model,
-    "family_or_observer_actor",
+    modelFor(slots.familyActorId || slots.patientActorId),
+    slots.familyActorId || "family_or_observer_actor",
   );
+  additionalRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
+    modelFor(slots.additionalActorId || slots.patientActorId),
+    slots.additionalActorId || "additional_cast_actor",
+  );
+  publishRuntimeActorSlotAssignmentEvidence(bundle, slots);
   ecgCartRuntimeAsset = requireEncounterRuntimeAsset(
     findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model
       ?? bundle.equipment[0]?.model,
@@ -736,14 +757,6 @@ function runtimeBundleAssets(bundle: LearnerRuntimeAssetBundle): EncounterRuntim
   ];
 }
 
-function findRuntimeActorAssetByRole(bundle: LearnerRuntimeAssetBundle, roles: string[]) {
-  return bundle.actors.find((actor) => roles.includes(actor.role));
-}
-
-function findRuntimeHumanoidActorAssetByRole(bundle: LearnerRuntimeAssetBundle, roles: string[]) {
-  return bundle.actors.find((actor) => roles.includes(actor.role) && actor.embodiment !== "virtual_device" && actor.embodiment !== "voice_only");
-}
-
 function runtimeActorEmbodiment(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {
   return bundle.actors.find((actor) => actor.actorId === actorId)?.embodiment;
 }
@@ -776,26 +789,59 @@ function reportRuntimeBundleScenarioMatch(): void {
   };
 }
 
+function resolveRuntimeSlotAssignment(
+  bundle: LearnerRuntimeAssetBundle = encounterRuntimeAssetBundle,
+): RuntimeSlotAssignment {
+  if (cachedRuntimeSlotAssignment && bundle === encounterRuntimeAssetBundle) {
+    return cachedRuntimeSlotAssignment;
+  }
+  const assignment = assignRuntimeActorSlots(
+    bundle.actors.map((actor) => ({
+      actorId: actor.actorId,
+      role: actor.role,
+      embodiment: actor.embodiment,
+    })),
+  );
+  if (bundle === encounterRuntimeAssetBundle) {
+    cachedRuntimeSlotAssignment = assignment;
+  }
+  return assignment;
+}
+
+function publishRuntimeActorSlotAssignmentEvidence(
+  bundle: LearnerRuntimeAssetBundle,
+  slots: RuntimeSlotAssignment = resolveRuntimeSlotAssignment(bundle),
+): void {
+  const declaredHumanoidActorIds = bundle.actors
+    .filter((actor) => {
+      if (actor.embodiment === "virtual_device" || actor.embodiment === "voice_only") return false;
+      if (/_phone_|_tablet_|telehealth_system/iu.test(actor.actorId)) return false;
+      return true;
+    })
+    .map((actor) => actor.actorId);
+  const evidence = {
+    source: "window.__openClinXrActorSlotAssignment" as const,
+    scenarioId: bundle.scenarioId,
+    declaredHumanoidActorIds,
+    stagedActorIds: [...slots.stagedActorIds],
+    notStagedActorIds: slots.notStagedActorIds.map((n) => ({ ...n })),
+    maxVisibleSlots: 4,
+  };
+  window.__openClinXrActorSlotAssignment = evidence;
+}
+
+// #122 unique slot accessors — empty string means unfilled (never clone).
 function runtimePatientActorId(): string {
-  return findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.actorId
-    ?? findRuntimeActorAssetByRole(encounterRuntimeAssetBundle, ["patient"])?.actorId
-    ?? encounterRuntimeAssetBundle.actors[0]?.actorId
-    ?? "patient_robert_hayes_v1";
+  return resolveRuntimeSlotAssignment().patientActorId;
 }
-
 function runtimeClinicalTeamActorId(): string {
-  return findRuntimeActorAsset(encounterRuntimeAssetBundle, "nurse_maria_alvarez_v1")?.actorId
-    ?? findRuntimeHumanoidActorAssetByRole(encounterRuntimeAssetBundle, ["nurse", "respiratory_therapist", "nurse_observer", "consultant"])?.actorId
-    ?? encounterRuntimeAssetBundle.actors[1]?.actorId
-    ?? runtimePatientActorId();
+  return resolveRuntimeSlotAssignment().clinicalTeamActorId;
 }
-
 function runtimeFamilyActorId(): string {
-  return findRuntimeActorAsset(encounterRuntimeAssetBundle, "spouse_anna_hayes_v1")?.actorId
-    ?? findRuntimeHumanoidActorAssetByRole(encounterRuntimeAssetBundle, ["spouse", "parent", "family", "consultant"])?.actorId
-    ?? encounterRuntimeAssetBundle.actors[2]?.actorId
-    ?? encounterRuntimeAssetBundle.actors[1]?.actorId
-    ?? runtimePatientActorId();
+  return resolveRuntimeSlotAssignment().familyActorId;
+}
+function runtimeAdditionalActorId(): string {
+  return resolveRuntimeSlotAssignment().additionalActorId;
 }
 
 function actorNameplateLabel(prefix: string, actorId: string): string {
@@ -3631,7 +3677,9 @@ function createStationScene(): StationSceneRuntime {
     });
   }
 
-  const patientPlacement = runtimeActorPlacement(runtimePatientActorId(), {
+  // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
+  publishRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle);
+  const patientPlacement = runtimeActorPlacement(runtimePatientActorId() || "unfilled_primary_patient", {
     slotKind: "primary_patient",
     position: { x: -0.72, y: 1.06, z: -0.12 },
     scale: { x: 1.1, y: 1.1, z: 1.1 },
@@ -3641,27 +3689,33 @@ function createStationScene(): StationSceneRuntime {
   const patient = actorMesh(0x8fb9aa);
   patient.name = iwsdkStationSceneObjects.patientRobertHayes;
   patient.position.set(patientPlacement.position.x, patientPlacement.position.y, patientPlacement.position.z);
-  patient.visible = !selectedScenarioRuntimeMismatch;
+  patient.visible = Boolean(runtimePatientActorId()) && !selectedScenarioRuntimeMismatch;
   patient.scale.set(patientPlacement.scale.x, patientPlacement.scale.y, patientPlacement.scale.z);
-  applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
-  patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
+  if (runtimePatientActorId()) applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
+  if (runtimePatientActorId()) {
+    patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
+  }
   scene.add(patient);
   // #83: slotKind + posture on the slot BEFORE load — load must not default missing slotKind to primary_patient
   // (that seated every telehealth actor via resolveActorPosture).
   patient.userData.openClinXrSlotKind = patientPlacement.slotKind;
   patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
   patient.userData.openClinXrActorId = runtimePatientActorId();
-  loadGeneratedHumanoidIntoActorSlot(patient, {
-    assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
-    assetId: patientRuntimeHumanoidAsset.assetId,
-    objectName: runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset),
-    actorId: runtimePatientActorId(),
-    roleTintColor: 0x8fb9aa,
-    verticalOffsetMeters: patientPlacement.verticalOffsetMeters,
-    posture: patientPlacement.posture ?? "standing",
-  });
+  if (runtimePatientActorId()) {
+    loadGeneratedHumanoidIntoActorSlot(patient, {
+      assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
+      assetId: patientRuntimeHumanoidAsset.assetId,
+      objectName: runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset),
+      actorId: runtimePatientActorId(),
+      roleTintColor: 0x8fb9aa,
+      verticalOffsetMeters: patientPlacement.verticalOffsetMeters,
+      posture: patientPlacement.posture ?? "standing",
+    });
+  } else {
+    patient.userData.openClinXrSlotUnfilledReason = "no_unique_patient_humanoid_for_station";
+  }
 
-  const nursePlacement = runtimeActorPlacement(runtimeClinicalTeamActorId(), {
+  const nursePlacement = runtimeActorPlacement(runtimeClinicalTeamActorId() || "unfilled_clinical_team", {
     slotKind: "clinical_team",
     position: { x: 1.45, y: 0.95, z: 0.55 },
     scale: { x: 1, y: 1, z: 1 },
@@ -3671,29 +3725,37 @@ function createStationScene(): StationSceneRuntime {
   const nurse = actorMesh(0x5a9bd5);
   nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
   nurse.position.set(nursePlacement.position.x, nursePlacement.position.y, nursePlacement.position.z);
-  nurse.visible = !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
+  nurse.visible = Boolean(runtimeClinicalTeamActorId()) && !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture || !runtimeClinicalTeamActorId()) {
     nurse.visible = false;
-    nurse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    if (cleanHumanoidSourceComparatorCapture) {
+      nurse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    }
   }
   nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
-  applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
-  nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
+  if (runtimeClinicalTeamActorId()) applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
+  if (runtimeClinicalTeamActorId()) {
+    nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
+  }
   scene.add(nurse);
   nurse.userData.openClinXrSlotKind = nursePlacement.slotKind;
   nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
   nurse.userData.openClinXrActorId = runtimeClinicalTeamActorId();
-  loadGeneratedHumanoidIntoActorSlot(nurse, {
-    assetPath: resolveEmulatorRuntimeAssetUrl(nurseRuntimeHumanoidAsset),
-    assetId: nurseRuntimeHumanoidAsset.assetId,
-    objectName: runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset),
-    actorId: runtimeClinicalTeamActorId(),
-    roleTintColor: 0x5a9bd5,
-    verticalOffsetMeters: nursePlacement.verticalOffsetMeters,
-    posture: nursePlacement.posture ?? "standing",
-  });
+  if (runtimeClinicalTeamActorId()) {
+    loadGeneratedHumanoidIntoActorSlot(nurse, {
+      assetPath: resolveEmulatorRuntimeAssetUrl(nurseRuntimeHumanoidAsset),
+      assetId: nurseRuntimeHumanoidAsset.assetId,
+      objectName: runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset),
+      actorId: runtimeClinicalTeamActorId(),
+      roleTintColor: 0x5a9bd5,
+      verticalOffsetMeters: nursePlacement.verticalOffsetMeters,
+      posture: nursePlacement.posture ?? "standing",
+    });
+  } else {
+    nurse.userData.openClinXrSlotUnfilledReason = "no_unique_clinical_humanoid_for_station";
+  }
 
-  const spousePlacement = runtimeActorPlacement(runtimeFamilyActorId(), {
+  const spousePlacement = runtimeActorPlacement(runtimeFamilyActorId() || "unfilled_family_or_observer", {
     slotKind: "family_or_observer",
     position: { x: -2.0, y: 0.95, z: 0.7 },
     scale: { x: 1, y: 1, z: 1 },
@@ -3703,33 +3765,80 @@ function createStationScene(): StationSceneRuntime {
   const spouse = actorMesh(0xd5a75a);
   spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
   spouse.position.set(spousePlacement.position.x, spousePlacement.position.y, spousePlacement.position.z);
-  spouse.visible = !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
+  spouse.visible = Boolean(runtimeFamilyActorId()) && !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture || !runtimeFamilyActorId()) {
     spouse.visible = false;
-    spouse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    if (cleanHumanoidSourceComparatorCapture) {
+      spouse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    }
   }
-  if (isPediatricAsthmaRuntimeScenario()) {
+  if (isPediatricAsthmaRuntimeScenario() && runtimeFamilyActorId()) {
     spouse.position.x = Math.max(spouse.position.x, -1.42);
     spouse.position.z = 0.42;
     spouse.rotation.y = -0.26;
     spouse.userData.openClinXrDynamicScenePolicy = "parent_actor_reframed_from_case_defined_parent_chair_zone_for_visible_three_actor_review";
   }
   spouse.scale.set(spousePlacement.scale.x, spousePlacement.scale.y, spousePlacement.scale.z);
-  applyCleanEncounterVisualReviewActorFraming(spouse, runtimeFamilyActorId());
-  spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
+  if (runtimeFamilyActorId()) applyCleanEncounterVisualReviewActorFraming(spouse, runtimeFamilyActorId());
+  if (runtimeFamilyActorId()) {
+    spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
+  }
   scene.add(spouse);
   spouse.userData.openClinXrSlotKind = spousePlacement.slotKind;
   spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
   spouse.userData.openClinXrActorId = runtimeFamilyActorId();
-  loadGeneratedHumanoidIntoActorSlot(spouse, {
-    assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
-    assetId: spouseRuntimeHumanoidAsset.assetId,
-    objectName: runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset),
-    actorId: runtimeFamilyActorId(),
-    roleTintColor: 0xd5a75a,
-    verticalOffsetMeters: spousePlacement.verticalOffsetMeters,
-    posture: spousePlacement.posture ?? "standing",
-  });
+  if (runtimeFamilyActorId()) {
+    loadGeneratedHumanoidIntoActorSlot(spouse, {
+      assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
+      assetId: spouseRuntimeHumanoidAsset.assetId,
+      objectName: runtimeGeneratedSceneObjectName(spouseRuntimeHumanoidAsset),
+      actorId: runtimeFamilyActorId(),
+      roleTintColor: 0xd5a75a,
+      verticalOffsetMeters: spousePlacement.verticalOffsetMeters,
+      posture: spousePlacement.posture ?? "standing",
+    });
+  } else {
+    spouse.userData.openClinXrSlotUnfilledReason = "no_unique_family_humanoid_for_station";
+  }
+
+  // #122 fourth slot — budget permits four (~112k tris); stages remaining cast (e.g. ward physician).
+  const additional = actorMesh(0x7c6bb5);
+  additional.name = "runtime_additional_cast_slot";
+  additional.position.set(0.35, 0.95, 1.15);
+  additional.visible = Boolean(runtimeAdditionalActorId()) && !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture || !runtimeAdditionalActorId()) {
+    additional.visible = false;
+    if (cleanHumanoidSourceComparatorCapture) {
+      additional.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
+    }
+  }
+  additional.scale.set(1, 1, 1);
+  if (runtimeAdditionalActorId()) applyCleanEncounterVisualReviewActorFraming(additional, runtimeAdditionalActorId());
+  if (runtimeAdditionalActorId()) {
+    additional.add(createActorNameplate(actorNameplateLabel("Cast", runtimeAdditionalActorId()), 0x5b4a9a));
+  }
+  scene.add(additional);
+  additional.userData.openClinXrSlotKind = "additional_cast";
+  additional.userData.openClinXrActorPosture = "standing";
+  additional.userData.openClinXrActorId = runtimeAdditionalActorId();
+  if (runtimeAdditionalActorId()) {
+    loadGeneratedHumanoidIntoActorSlot(additional, {
+      assetPath: resolveEmulatorRuntimeAssetUrl(additionalRuntimeHumanoidAsset),
+      assetId: additionalRuntimeHumanoidAsset.assetId,
+      objectName: runtimeGeneratedSceneObjectName(additionalRuntimeHumanoidAsset),
+      actorId: runtimeAdditionalActorId(),
+      roleTintColor: 0x7c6bb5,
+      verticalOffsetMeters: -0.95,
+      posture: "standing",
+    });
+  } else {
+    additional.userData.openClinXrSlotUnfilledReason = "no_remaining_unique_humanoid_for_additional_slot";
+  }
+  const slotEvidence = window.__openClinXrActorSlotAssignment;
+  if (slotEvidence) {
+    scene.userData.openClinXrNotStagedActorIds = slotEvidence.notStagedActorIds;
+    scene.userData.openClinXrActorSlotAssignment = slotEvidence;
+  }
 
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
     if (!selectedScenarioRuntimeMismatch && !cleanHumanoidSourceComparatorCapture) {

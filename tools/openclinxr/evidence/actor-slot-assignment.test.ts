@@ -112,7 +112,13 @@ const ED = "ed_chest_pain_priority_v1";
 const filled = (ids: string[]) => ids.filter((id) => id.trim().length > 0);
 
 describe("each humanoid slot stages a different person (#122)", () => {
-  it.fails("no station stages the same person twice", async () => {
+  // ## FIXED (#122)
+  // Unique role-class assignment + optional fourth `additional_cast` slot.
+  // Unfilled slots keep empty openClinXrActorId (hidden). Residual publishes
+  // window.__openClinXrActorSlotAssignment.notStagedActorIds when capacity is exceeded.
+  // Decisions: fourth slot ON (budget ~112k/180k); priority patient→clinical→family→bank;
+  // unfilled hidden (not removed); ED-id-first lookups deleted.
+  it("no station stages the same person twice", async () => {
     // oncology and telehealth each mount their family actor into two slots, because the clinical-team
     // resolver falls through to actors[1] when no nurse-ish role exists. Measured live before traced.
     const mod = await load();
@@ -134,7 +140,8 @@ describe("each humanoid slot stages a different person (#122)", () => {
     expect(duplicated, `people staged twice:\n${duplicated.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("every declared humanoid is staged or explicitly recorded as not staged", async () => {
+  // ## FIXED (#122) — see header above.
+  it("every declared humanoid is staged or explicitly recorded as not staged", async () => {
     // Kills the cheap satisfaction of the first contract: hiding the duplicate root removes the clone
     // and leaves the clinician missing with nothing saying so. Ward's senior resident is dropped today
     // because 'physician' is not on the clinical allow-list.
@@ -159,7 +166,8 @@ describe("each humanoid slot stages a different person (#122)", () => {
     expect(unaccounted, `declared people who silently vanish:\n${unaccounted.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ED bay still stages three distinct people (COUNTERWEIGHT — green today)", async () => {
+  // ## FIXED (#122) — counterweight held after rewrite.
+  it("the ED bay still stages three distinct people (COUNTERWEIGHT — green today)", async () => {
     // The ED bay is the one station whose cast matches the hardcoded scaffold. A rewrite of the
     // resolvers must not cost it.
     const mod = await load();
