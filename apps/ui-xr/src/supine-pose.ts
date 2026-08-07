@@ -1,28 +1,37 @@
 /**
- * Procedural supine (recumbent) pose on the existing 23-bone runtime subset (#150).
+ * Procedural supine (recumbent) pose on the existing 23-bone runtime subset (#150/#153).
  *
  * ED chest-pain patient lies on the procedural stretcher deck — not a standing figure
  * tipped with one root euler (that clips rails and reads as a rigid plank).
  *
  * Decisions (#150):
- *  - Method: root reorientation (Z = +π/2 so head → −X pillow end) + limb bone map
- *    (legs extended, arms along torso). Rejected pure root.x=90 tip; rejected new clip
- *    authoring (no asset rebake; anny absent in worktrees).
+ *  - Method: root reorientation + limb bone map (legs extended, arms along torso).
+ *    Rejected pure root.x=90 tip; rejected new clip authoring (no asset rebake).
  *  - Head end: stretcher geometry length axis = X, pillow at local −X (live pre-fix).
  *  - Height ownership: plantSupineBodyOnDeck measures live mesh minY vs deck top.
  *    NEVER call seatedVerticalOffsetForSeatHeight (hip-on-chair ≠ torso-on-deck).
  *  - Clip binding: SUPINE_CLIP_NAME procedural (not the lying standing-clip alias).
  *
+ * Decisions (#153) — verified against live landmarks (issue-153/pre-fix.json):
+ *  - #150's root.rotation.z = +π/2 alone maps standing left/right onto WORLD Y, so the
+ *    figure is SIDE-LYING (one wrist up, one down). True supine needs face → +Y and
+ *    left/right → ±Z. Root uses the basis map below (not a single Z euler).
+ *  - Load-time clinical idle overwrote arms (main.ts guard). Map already had arms-along-
+ *    sides intent; idle residual + missing `neck` left standing hang/neck on the figure.
+ *  - `neck` is in the map so the standing idle alias cannot leave a residual angle.
+ *
  * claimScope: runtime recumbent pose + deck plant for ED primary_patient.
  * notEvidenceFor: clinical lying realism, Quest readiness, other stations' posture.
  */
 
-import type { Object3D } from "three";
+import { Euler, Quaternion, type Object3D } from "three";
 import {
+  DEFAULT_STRETCHER_POSITION,
   SUPINE_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
 } from "@openclinxr/asset-registry";
+import { STRETCHER_LENGTH_METERS } from "./station-stretcher.js";
 
 const d2r = (deg: number) => (deg * Math.PI) / 180;
 
@@ -34,14 +43,15 @@ const THIGH_REST_X = -Math.PI;
 const SUPINE_KNEE_FLEX = d2r(8);
 
 /**
- * Bone eulers for a recumbent figure AFTER root.rotation.z = +π/2 maps head to −X.
- * Arms tucked along the torso so wrists stay inside deck width (rails at ±0.45 Z).
+ * Bone eulers for a recumbent figure AFTER the on-back root basis map
+ * (head → −X, left → +Z, face → +Y). Arms along torso sides so wrists sit near
+ * the deck plane and outside the rib volume (rails at ±0.45 Z).
  */
 const SUPINE_BONE_EULERS = new Map<string, { x?: number; y?: number; z?: number; absolute?: boolean }>([
   ["pelvis", { x: 0, y: 0, z: 0, absolute: true }],
   ["spine", { x: d2r(4), absolute: true }],
   ["chest", { x: d2r(2), absolute: true }],
-  // Legs extended along the bed (toward +X after root Z rot).
+  // Legs extended along the bed (toward +X after on-back root map).
   ["thighL", { x: THIGH_REST_X, y: 0.04, z: -0.04, absolute: true }],
   ["thighR", { x: THIGH_REST_X, y: -0.04, z: 0.04, absolute: true }],
   ["shinL", { x: -SUPINE_KNEE_FLEX, y: 0, z: 0, absolute: true }],
@@ -49,17 +59,35 @@ const SUPINE_BONE_EULERS = new Map<string, { x?: number; y?: number; z?: number;
   ["footL", { x: 0.4, y: 0.6, z: -1.2, absolute: true }],
   ["footR", { x: 0.4, y: -0.6, z: 1.2, absolute: true }],
   // Arms along sides — not T-pose plank that punches through rails.
-  ["upper_armL", { x: d2r(-12), y: d2r(8), z: d2r(-70), absolute: true }],
-  ["upper_armR", { x: d2r(-12), y: d2r(-8), z: d2r(70), absolute: true }],
-  ["forearmL", { x: d2r(20), y: d2r(6), z: d2r(10), absolute: true }],
-  ["forearmR", { x: d2r(20), y: d2r(-6), z: d2r(-10), absolute: true }],
+  // Staging (#153, measured world): wrists near deck (above <0.35 m), lateral outside
+  // ribs (~0.12 m half-width) and inside rails (±0.45). On-back root maps left→−Z;
+  // mild upper-arm Y + Z keeps wrists beside the hips, not through the torso.
+  // Asymmetric: live R wrist lat stayed ~0.06 inside ribs (need ≥ ~0.12); push R further out.
+  ["upper_armL", { x: d2r(-16), y: d2r(32), z: d2r(-65), absolute: true }],
+  ["upper_armR", { x: d2r(-16), y: d2r(-48), z: d2r(62), absolute: true }],
+  ["forearmL", { x: d2r(18), y: d2r(10), z: d2r(2), absolute: true }],
+  ["forearmR", { x: d2r(18), y: d2r(-22), z: d2r(-8), absolute: true }],
   ["handL", { x: 0, y: 0, z: 0, absolute: true }],
   ["handR", { x: 0, y: 0, z: 0, absolute: true }],
-  ["head", { x: d2r(-6), absolute: true }],
+  // Neutral neck so standing clinical-idle residual cannot hang the head past the pillow.
+  ["neck", { x: 0, y: 0, z: 0, absolute: true }],
+  ["head", { x: d2r(-4), absolute: true }],
 ]);
 
-/** Root Z rotation: standing +Y → world −X (pillow / head end). Live stretcher axis = X. */
+/**
+ * #150 exported a single Z euler (side-lying in practice). Kept for callers that still
+ * read the constant; applySupinePose uses SUPINE_ROOT_EULER instead.
+ */
 export const SUPINE_ROOT_ROTATION_Z = Math.PI / 2;
+
+/**
+ * On-back root euler (order XYZ): Rx(−π/2)·Rz(+π/2) composition via makeRotationFromEuler.
+ * Maps standing left=+X → world −Z, head=+Y → world −X (pillow), face=+Z → world +Y.
+ * det=+1 (proper rotation). A prior basis matrix with left→+Z had det=−1 and was a reflection.
+ * #150's Z-only map put left/right on world Y (side-lying); measured issue-153/pre-fix.
+ */
+const SUPINE_ROOT_EULER = new Euler(-Math.PI / 2, 0, Math.PI / 2, "XYZ");
+const SUPINE_ROOT_QUAT = new Quaternion().setFromEuler(SUPINE_ROOT_EULER);
 
 export type ApplySupinePoseResult = {
   applied: boolean;
@@ -95,12 +123,11 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
   humanoidRoot.userData.openClinXrClipRootTranslation = "stripped_not_applied";
   humanoidRoot.userData.openClinXrSupineHeadEnd = "negative_x";
   humanoidRoot.userData.openClinXrSupineLengthAxis = "x";
+  humanoidRoot.userData.openClinXrSupineRootBasis = "head_neg_x_left_neg_z_face_pos_y";
 
-  // Root reorientation: head toward pillow (−X). Keep Y plant for plantSupineBodyOnDeck.
-  humanoidRoot.rotation.x = 0;
-  humanoidRoot.rotation.y = 0;
-  humanoidRoot.rotation.z = SUPINE_ROOT_ROTATION_Z;
-  humanoidRoot.quaternion.setFromEuler(humanoidRoot.rotation);
+  // On-back root (proper rotation, det=+1): head → −X, left → −Z, face → +Y.
+  humanoidRoot.quaternion.copy(SUPINE_ROOT_QUAT);
+  humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
 
   const bonesTouched: string[] = [];
 
@@ -125,6 +152,16 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
   });
 
   humanoidRoot.userData.openClinXrSupinePoseBones = bonesTouched;
+  // Staging marker for #153 contracts: neck last written by the supine map.
+  humanoidRoot.userData.openClinXrNeckPoseSource = bonesTouched.includes("neck")
+    ? "supine_map"
+    : "supine_map_missing_neck";
+  humanoidRoot.traverse((object) => {
+    if (object.name === "neck" || object.name === "Neck") {
+      object.userData.openClinXrNeckPoseSource = "supine_map";
+      object.userData.openClinXrSupinePose = SUPINE_CLIP_NAME;
+    }
+  });
   humanoidRoot.userData.openClinXrActiveRoleAnimationClipName = SUPINE_CLIP_NAME;
   humanoidRoot.updateMatrixWorld?.(true);
 
@@ -139,8 +176,8 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
 /**
  * Shift the humanoid root so the torso rests on the deck top.
  *
- * After root.rotation.z = +π/2, the back lies along world Y ≈ bone world-Y of
- * pelvis/spine/chest. Plant those bones onto deckTop + torso half-thickness.
+ * After the on-back root basis, contact bones (pelvis/spine/chest) sit above the
+ * deck plane. Plant those bones onto deckTop + torso half-thickness.
  * Unskinned mesh matrixWorld alone under-reads minY and left the figure floating
  * ~0.14 m (post-fix smoke). Does NOT use seatedVerticalOffsetForSeatHeight.
  *
@@ -221,27 +258,84 @@ export function applyAndPlantSupineOnDeck(
   input: {
     deckTopWorldY: number;
     deckCenter: { x: number; z: number };
+    /** World X of the pillow rest point (default: deck center X − 0.95 stretcher local). */
+    pillowWorldX?: number;
     torsoHalfThickness?: number;
   },
 ): {
   plantDeltaY: number;
   bodyMinYBefore: number | null;
   center: { deltaX: number; deltaZ: number };
+  headAlignDeltaX: number;
 } {
   const thickness = input.torsoHalfThickness ?? 0.26;
   applySupinePose(humanoidRoot);
   const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness);
   const center = centerSupineBodyOnDeck(humanoidRoot, input.deckCenter);
+  // #153: bias so the head bone sits at the pillow mesh rest XZ (not body AABB center).
+  // Procedural pillow is at stretcher local (−length*0.38, 0); default stretcher at
+  // DEFAULT_STRETCHER_POSITION (−0.9, −0.1). Slot.x is stretcher center, not pillow.
+  const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
+  const pillowX =
+    input.pillowWorldX
+    ?? (DEFAULT_STRETCHER_POSITION.x + pillowLocalX);
+  // Pillow local Z = 0 on the procedural stretcher → world Z = stretcher Z (not actorSlot drift).
+  const pillowZ = DEFAULT_STRETCHER_POSITION.z;
+  const headAlign = alignSupineHeadToPillow(humanoidRoot, { x: pillowX, z: pillowZ });
   const plant2 = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness);
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY + plant2.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
   humanoidRoot.userData.openClinXrSupineCenterDelta = center;
+  humanoidRoot.userData.openClinXrSupineHeadAlignDelta = headAlign;
   humanoidRoot.updateMatrixWorld?.(true);
   return {
     plantDeltaY: plant.deltaY + plant2.deltaY,
     bodyMinYBefore: plant.bodyMinYBefore,
     center,
+    headAlignDeltaX: headAlign.deltaX,
   };
+}
+
+/**
+ * Shift root XZ so the head bone sits on the pillow rest point (staging, not anatomy).
+ * Call after centerSupineBodyOnDeck; re-plant Y afterwards.
+ */
+export function alignSupineHeadToPillow(
+  humanoidRoot: Object3D,
+  pillowWorld: { x: number; z: number },
+): { deltaX: number; deltaZ: number } {
+  humanoidRoot.updateMatrixWorld?.(true);
+  let headX: number | null = null;
+  let headZ: number | null = null;
+  const consider = (object: Object3D) => {
+    if (object.name !== "head" && object.name !== "Head") return;
+    const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
+      || (object as Object3D & { type?: string }).type === "Bone";
+    if (!isBone && object.name !== "head") return;
+    object.updateWorldMatrix?.(true, false);
+    const e = object.matrixWorld?.elements;
+    if (!e) return;
+    headX = e[12] ?? null;
+    headZ = e[14] ?? null;
+  };
+  humanoidRoot.traverse(consider);
+  humanoidRoot.traverse((object) => {
+    const skinned = object as Object3D & {
+      isSkinnedMesh?: boolean;
+      skeleton?: { bones: Object3D[]; update?: () => void };
+    };
+    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+    skinned.skeleton.update?.();
+    for (const bone of skinned.skeleton.bones) consider(bone);
+  });
+  if (headX === null || headZ === null) return { deltaX: 0, deltaZ: 0 };
+  const deltaX = pillowWorld.x - headX;
+  const deltaZ = pillowWorld.z - headZ;
+  if (Math.abs(deltaX) < 1e-4 && Math.abs(deltaZ) < 1e-4) return { deltaX: 0, deltaZ: 0 };
+  humanoidRoot.position.x += deltaX;
+  humanoidRoot.position.z += deltaZ;
+  humanoidRoot.updateMatrixWorld?.(true);
+  return { deltaX, deltaZ };
 }
 
 /**
