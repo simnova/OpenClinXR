@@ -35,7 +35,8 @@
       "fabricPalette": "soft_blue_and_warm_white",
       "materialFinish": "cotton_matte",
       "accessoryMarkers": [],
-      "fitProfile": "pediatric_slim_fit"
+      "fitProfile": "pediatric_slim_fit",
+      "sleeveGeometryExpansion": "v2_obvious_sleeves_from_preset_factory_no_hand_tune"
     },
     "actor_id": "patient_maya_johnson_v1"
   },
@@ -117,5 +118,6 @@
     "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
     "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
     "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
-  ]
+  ],
+  "reuse_note": "blender_only_rebake_on_tracked_anny_base_obj_issue_96_94_no_anny_forward_pass"
 }

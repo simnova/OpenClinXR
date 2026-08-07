@@ -98,6 +98,34 @@ import { describe, expect, it } from "vitest";
  * SCOPE: which asset each role resolves to, and whether declared garments exist as geometry. Says
  * NOTHING about whether any garment looks good, drapes, or is clinically appropriate — the last
  * needs a clinician and is not claimed.
+ *
+ * ## FIXED (#96 + #94)
+ *
+ * ROLE → BASE MAP (named decision):
+ *   - ED patient  → adult_male base (`peds_nurse_kevin.anny_base.obj`, 176 cm) + `hospital_gown`
+ *     → `ed_chest_pain_adult_cast.glb`
+ *   - ED nurse    → same adult_male base + scrub_top/scrub_pocket
+ *     → `ed_chest_pain_nurse_adult.glb` (ED provenance, not peds nurse file)
+ *   - ED spouse   → adult_female base (`peds_anxious_parent.anny_base.obj`, 166 cm) + casual_top/open_cardigan
+ *     → `ed_chest_pain_spouse_adult.glb` (ED provenance)
+ *   - Peds patient → `peds_patient_child.anny_base.obj` (125 cm) + `short_sleeve_exam_tshirt`
+ *     → re-baked `peds_patient_child.glb` with real garment mesh + non-null region
+ *
+ * Rejected:
+ *   - Full `orchestrate_character` without anny (silent ~0.8 MB stubs — #73 thrash class)
+ *   - Three assetIds pointing at one scrub nurse GLB (the measured defect)
+ *   - Pointing ED nurse/spouse at peds_* GLBs (fails #85 same-scenario provenance)
+ *   - Generating new Anny bases (package not importable)
+ *   - Hand-tuning garment shape literals in automate_blender.py (operator ruled against)
+ *   - Child base for any ED adult role (age-band refuse still holds)
+ *
+ * Rig note: same child re-bake produced **23 joints** (bonus — previously 17). Not chased as a goal.
+ *
+ * Absolute-floor note (child sleeve_r0 max(..., 0.045)): factory constants left unchanged; if sleeves
+ * read over-inflated on the 1.25 m body in pixel grade, that is a factory residual, not hand-tuned away.
+ *
+ * Wiring: actor-casting SSOT + runtime-bundles role blob paths + UI-XR resolveHumanoidVariantOrCastPath
+ * per-role ED map. Inspector: inspectActorIdentityAndWardrobe (content hash + garment inventory).
  */
 
 const load = async () =>
@@ -119,7 +147,7 @@ const ED = "ed_chest_pain_priority_v1";
 const PEDS = "peds_asthma_parent_anxiety_v1";
 
 describe("actors are distinguishable and dressed (#96 + #94)", () => {
-  it.fails("no two ED roles resolve to the same asset content", async () => {
+  it("no two ED roles resolve to the same asset content", async () => {
     // Identity by CONTENT HASH, not assetId — the current defect has three distinct assetIds
     // (`..._glb`, `..._nurse_glb`, `..._spouse_glb`) all pointing at byte-identical data.
     const mod = await load();
@@ -137,7 +165,7 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     ).toHaveLength(0);
   }, 600_000);
 
-  it.fails("the ED patient is not dressed as clinical staff", async () => {
+  it("the ED patient is not dressed as clinical staff", async () => {
     // A cardiac patient in scrub_top+scrub_pocket is indistinguishable from the nurse examining him,
     // which is the specific thing that makes "address the right person" unassessable.
     const mod = await load();
@@ -154,7 +182,7 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     expect(patient!.garmentMeshNames.length, "the ED patient wears nothing at all").toBeGreaterThan(0);
   }, 600_000);
 
-  it.fails("the pediatric patient's declared garment exists as geometry", async () => {
+  it("the pediatric patient's declared garment exists as geometry", async () => {
     // Declaration AND geometry must agree. Today the report says `garmentLayers: tshirt` while
     // `realGarmentRegionFromPhenotype` is null and the GLB has one mesh — the declaration alone is
     // already green on a naked figure.
@@ -185,7 +213,7 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     );
   }, 600_000);
 
-  it.fails("the parent and nurse still carry their garment shells (COUNTERWEIGHT — already true)", async () => {
+  it("the parent and nurse still carry their garment shells (COUNTERWEIGHT — already true)", async () => {
     // Deliberately EXCLUDES the adult cast: asserting it keeps its garments is vacuous while it is
     // the nurse file byte-for-byte. A re-bake that dresses the child must not undress anyone.
     const mod = await load();

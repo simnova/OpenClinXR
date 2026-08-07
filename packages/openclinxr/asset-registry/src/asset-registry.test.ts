@@ -622,7 +622,8 @@ describe("asset registry", () => {
             scenarioAssetId: "spouse_anna_hayes_character",
             blobRef: expect.objectContaining({
               storeKind: "app_public_fixture",
-              blobName: "generated-humanoids/ed_chest_pain_adult_cast.glb",
+              // #96: spouse street-clothes asset with ED provenance (not patient gown cast).
+              blobName: "generated-humanoids/ed_chest_pain_spouse_adult.glb",
             }),
           }),
         ]),
@@ -908,8 +909,9 @@ describe("asset registry", () => {
     const azureBundle = createEdChestPainLocalEncounterRuntimeAssetBundle({
       assetStore: azureStore,
     });
+    // #96: nurse resolves to ED scrub shell (distinct content from patient gown cast).
     expect(resolveRuntimeAssetUrl(findRuntimeActorAsset(azureBundle, "nurse_maria_alvarez_v1")?.model ?? azureBundle.environment))
-      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/generated-humanoids/ed_chest_pain_adult_cast.glb");
+      .toBe("https://openclinxrprodassets.blob.core.windows.net/tenant-assets/generated-humanoids/ed_chest_pain_nurse_adult.glb");
     expect(azureBundle.assetStoreKind).toBe("azure_blob");
   });
 

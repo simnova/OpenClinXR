@@ -1,11 +1,11 @@
 {
   "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
   "scenarioId": "ed_chest_pain_priority_v1",
-  "actorId": "patient_robert_hayes_v1",
-  "actorRole": "patient",
-  "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
-  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast_rigging_report.json",
-  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_manifest.json",
+  "actorId": "nurse_maria_alvarez_v1",
+  "actorRole": "nurse",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+  "riggingReportPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult_rigging_report.json",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_manifest.json",
   "generatorMode": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
@@ -15,13 +15,14 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "0a5c63005c318eb57e2673d821d05cb43756aac957963bc4599b67c19b14468e",
-  "outputBytes": 6003212,
-  "generatedAt": "2026-08-07T05:52:32.141003+00:00",
+  "outputSha256": "d5caadc0e98bd9fe5e714e74a45e7f0cb92b65fd915011b70bda7859b78ba6e7",
+  "outputBytes": 5999320,
+  "generatedAt": "2026-08-07T05:56:01.495046+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
   "garmentLayers": [
-    "hospital_gown"
+    "scrub_top",
+    "scrub_pocket"
   ],
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
@@ -34,7 +35,7 @@
   ],
   "sourceNotes": [
     "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
-    "Base apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj; garmentLayers=['hospital_gown'].",
+    "Base apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj; garmentLayers=['scrub_top', 'scrub_pocket'].",
     "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
     "Not B+ realism / production / clinical readiness."
   ],

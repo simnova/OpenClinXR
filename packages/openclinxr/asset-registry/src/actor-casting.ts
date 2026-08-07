@@ -39,13 +39,17 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const RUNTIME_GENERATED = "/generated-humanoids";
 
 /**
- * Adult ED cast GLB (shared by patient/nurse/spouse until role-distinct adults exist).
- * Must be upright adult-stature Anny candidate (identity pelvis). The first promote
- * (adult_bod @ 1.79 m) had pelvis −90° X / joints on −Z and rendered diagonal — replaced
- * with upright 1.76 m topology; provenance.scenarioId stays ed_chest_pain_priority_v1.
+ * ED patient GLB (adult male base + hospital_gown). Historically shared with nurse/spouse
+ * as a single scrub-wearing cast (#96); now role-distinct via wardrobe re-bake.
+ * Must be upright adult-stature Anny candidate (identity pelvis). Provenance.scenarioId
+ * stays ed_chest_pain_priority_v1 for casting contracts.
  */
 const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
 const ED_ADULT_CAST_PROV = "ed_chest_pain_adult_cast.provenance.json";
+/** ED nurse: adult-male base + scrubs, ED provenance (not the peds nurse file). */
+const ED_NURSE_GLB = "ed_chest_pain_nurse_adult.glb";
+/** ED spouse: adult-female base + street clothes, ED provenance. */
+const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
 
 /**
  * Declared age band from scenario + role — NOT from the resolved asset.
@@ -93,7 +97,8 @@ function castEntry(input: {
  */
 export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[] {
   if (scenarioId === ED_CHEST_PAIN_SCENARIO_ID || scenarioId === "ed_chest_pain_priority_v2") {
-    // All three ED roles are adults. Same promoted adult cast mesh; provenance scenarioId is ED.
+    // All three ED roles are adults with role-distinct wardrobe (#96):
+    // patient = male base + hospital_gown; nurse = male scrubs; spouse = female street clothes.
     // Age-band refuse: never map these slots to peds_patient_child (1.25 m / peds provenance).
     return [
       castEntry({
@@ -106,13 +111,13 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         actorId: "nurse_maria_alvarez_v1",
         role: "nurse",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: ED_ADULT_CAST_GLB,
+        glbFile: ED_NURSE_GLB,
       }),
       castEntry({
         actorId: "spouse_anna_hayes_v1",
         role: "family",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: ED_ADULT_CAST_GLB,
+        glbFile: ED_SPOUSE_GLB,
       }),
     ];
   }

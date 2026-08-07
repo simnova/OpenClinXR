@@ -6512,10 +6512,11 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
   if (assetPath === "/generated-humanoids/peds_nurse_kevin.glb") {
     return { ...realAnnyCandidate, provenanceManifestPath: "/generated-humanoids/peds_nurse_kevin.provenance.json" };
   }
-  if (assetPath === "/generated-humanoids/ed_chest_pain_adult_cast.glb") {
+  // #85/#96: any ed_chest_pain_* generated-humanoid cast (patient gown, nurse, spouse).
+  if (assetPath.startsWith("/generated-humanoids/ed_chest_pain_") && assetPath.endsWith(".glb")) {
     return {
       ...realAnnyCandidate,
-      provenanceManifestPath: "/generated-humanoids/ed_chest_pain_adult_cast.provenance.json",
+      provenanceManifestPath: assetPath.replace(/\.glb$/u, ".provenance.json"),
     };
   }
   if (assetPath.includes("/cagematch/anny-mpfb2-eye-rig/")) {

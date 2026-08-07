@@ -19,7 +19,7 @@ export type HumanoidRuntimeAssetLike = {
   blob: { blobName: string; url?: string };
 };
 
-/** Mirrors actor-casting ED_ADULT_CAST_RUNTIME_PATH — keep in sync when renaming the GLB. */
+/** Mirrors actor-casting ED patient cast path — keep in sync when renaming the GLB. */
 export const ED_ADULT_CAST_RUNTIME_PATH = "/generated-humanoids/ed_chest_pain_adult_cast.glb";
 
 const ED_SCENARIO_IDS = new Set([
@@ -28,6 +28,16 @@ const ED_SCENARIO_IDS = new Set([
 ]);
 
 const PEDS_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+
+/**
+ * Runtime public paths for ED cast (#96 role-distinct wardrobe).
+ * Mirrors actor-casting: patient gown, nurse scrubs, spouse street clothes.
+ */
+const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
+  patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
+  nurse_maria_alvarez_v1: "/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+  spouse_anna_hayes_v1: "/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+};
 
 /** Runtime public paths for peds cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
@@ -49,8 +59,13 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
   const fileName = blobName.split("/").at(-1);
   if (!fileName) return resolveRuntimeAssetUrl(asset as HumanoidRuntimeAssetLike);
 
-  // #85: ED adult cast and other generated-humanoids must load from their cast path.
-  if (blobName.includes("generated-humanoids/") || fileName.startsWith("ed_chest_pain_adult_cast")) {
+  // #85/#96: ED adult cast variants and other generated-humanoids must load from their cast path.
+  if (
+    blobName.includes("generated-humanoids/")
+    || fileName.startsWith("ed_chest_pain_adult_cast")
+    || fileName.startsWith("ed_chest_pain_nurse_adult")
+    || fileName.startsWith("ed_chest_pain_spouse_adult")
+  ) {
     return `/generated-humanoids/${fileName}`;
   }
   if (
@@ -87,7 +102,15 @@ export function resolveHumanoidVariantOrCastPath(input: {
   if (input.comparatorOverridePath) return input.comparatorOverridePath;
 
   if (ED_SCENARIO_IDS.has(input.scenarioId)) {
-    // All adult ED roles → adult cast (never peds_patient_child).
+    const byActor = ED_RUNTIME_CAST_BY_ACTOR[input.actorId];
+    if (byActor) return byActor;
+    const role = input.role.toLowerCase();
+    if (role === "patient") return ED_RUNTIME_CAST_BY_ACTOR.patient_robert_hayes_v1!;
+    if (role === "nurse") return ED_RUNTIME_CAST_BY_ACTOR.nurse_maria_alvarez_v1!;
+    if (role === "family" || role === "family_member" || role === "spouse" || role === "parent") {
+      return ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1!;
+    }
+    // Unknown adult ED role → patient gown path (never peds_patient_child).
     return ED_ADULT_CAST_RUNTIME_PATH;
   }
 
