@@ -2,6 +2,13 @@ import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  decideRegistryShrink,
+  loadRegisteredPaths,
+  parseAllowShrink,
+  worktreeNote,
+} from "./registry-shrink-guard.ts";
+
 export type DocAuthority =
   | "protected-policy"
   | "canonical"
@@ -24,9 +31,10 @@ export type DocAuthorityEntry = {
   rationale: string;
 };
 
-const root = process.cwd();
+const defaultRoot = process.cwd();
 const outputJson = "docs/openclinxr/doc-authority-registry-2026-05-27.json";
 const outputMd = "docs/openclinxr/doc-authority-registry-2026-05-27.md";
+const REGISTRY_LABEL = "doc-authority-registry";
 
 const excluded = new Set(["node_modules", ".git", ".openclinxr-local", "tmp"]);
 const protectedPaths = new Set([
@@ -133,17 +141,41 @@ const retainedEvidence = new Set([
 const DATED_AGENT_OPS = /docs\/agent-ops\/\d{4}-\d{2}-\d{2}-/u;
 const DATED_SEGMENT = /\/\d{4}-\d{2}-\d{2}-/u;
 
-function walk(dir: string, out: string[] = []): string[] {
+function walk(dir: string, root: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     if (excluded.has(name)) continue;
     const full = path.join(dir, name);
     const rel = path.relative(root, full).replaceAll(path.sep, "/");
     const stats = statSync(full);
-    if (stats.isDirectory()) walk(full, out);
+    if (stats.isDirectory()) walk(full, root, out);
     else if (/\.mdx?$/u.test(name)) out.push(rel);
   }
   return out;
 }
+
+export type BuildDocAuthorityRegistryOptions = {
+  cwd?: string;
+  allowShrink?: boolean;
+  /**
+   * Test seam: skip filesystem walk and classify these paths instead.
+   * Production CLI never sets this — only the shrink-refusal harness.
+   */
+  pathListOverride?: readonly string[];
+  /** Capture stderr-style messages (tests); defaults to console.error. */
+  logError?: (message: string) => void;
+};
+
+export type BuildDocAuthorityRegistryResult = {
+  ok: boolean;
+  exitCode: number;
+  wrote: boolean;
+  removedPaths: string[];
+  stderr: string;
+  outputJson: string;
+  outputMd: string;
+  total: number;
+  counts: Record<string, number>;
+};
 
 /**
  * Classify a repo-relative markdown path for the doc authority registry.
@@ -424,18 +456,66 @@ export function classify(file: string): DocAuthorityEntry {
   };
 }
 
-export function buildDocAuthorityRegistry(cwd: string = root): {
-  outputJson: string;
-  outputMd: string;
-  total: number;
-  counts: Record<string, number>;
-} {
-  const files = walk(cwd).sort();
+/**
+ * Build and (when allowed) write the doc-authority registry pair.
+ *
+ * Overload: `buildDocAuthorityRegistry(cwd)` keeps the prior string-cwd call shape.
+ * Options form adds shrink-guard + test seams (#116).
+ */
+export function buildDocAuthorityRegistry(
+  cwdOrOptions: string | BuildDocAuthorityRegistryOptions = {},
+): BuildDocAuthorityRegistryResult {
+  const options: BuildDocAuthorityRegistryOptions =
+    typeof cwdOrOptions === "string" ? { cwd: cwdOrOptions } : cwdOrOptions;
+  const cwd = options.cwd ?? defaultRoot;
+  const allowShrink = options.allowShrink ?? parseAllowShrink();
+  const logError = options.logError ?? ((message: string) => console.error(message));
+
+  const stderrParts: string[] = [];
+  const note = worktreeNote(cwd);
+  if (note) {
+    stderrParts.push(note);
+    logError(note);
+  }
+
+  const files =
+    options.pathListOverride !== undefined
+      ? [...options.pathListOverride].sort()
+      : walk(cwd, cwd).sort();
   const entries = files.map(classify);
   const counts = entries.reduce<Record<string, number>>((acc, entry) => {
     acc[entry.authority] = (acc[entry.authority] ?? 0) + 1;
     return acc;
   }, {});
+
+  const previousPaths = loadRegisteredPaths(path.resolve(cwd, outputJson));
+  const nextPaths = entries.map((entry) => entry.path);
+  const decision = decideRegistryShrink({
+    registryLabel: REGISTRY_LABEL,
+    previousPaths,
+    nextPaths,
+    allowShrink,
+  });
+
+  if (decision.message) {
+    stderrParts.push(decision.message);
+    logError(decision.message);
+  }
+
+  if (!decision.allowWrite) {
+    return {
+      ok: false,
+      exitCode: 2,
+      wrote: false,
+      removedPaths: decision.removedPaths,
+      stderr: stderrParts.join("\n"),
+      outputJson,
+      outputMd,
+      total: entries.length,
+      counts,
+    };
+  }
+
   const registry = {
     schemaVersion: "2026-05-27",
     claimBoundary:
@@ -470,12 +550,38 @@ export function buildDocAuthorityRegistry(cwd: string = root): {
     .map((entry) => `- \`${entry.path}\` - ${entry.authority}; ${entry.rationale}`)
     .join("\n")}\n`;
   writeFileSync(path.resolve(cwd, outputMd), md);
-  return { outputJson, outputMd, total: entries.length, counts };
+
+  return {
+    ok: true,
+    exitCode: 0,
+    wrote: true,
+    removedPaths: decision.removedPaths,
+    stderr: stderrParts.join("\n"),
+    outputJson,
+    outputMd,
+    total: entries.length,
+    counts,
+  };
 }
 
 async function main(): Promise<void> {
-  const result = buildDocAuthorityRegistry();
-  console.log(JSON.stringify(result, null, 2));
+  const result = buildDocAuthorityRegistry({ allowShrink: parseAllowShrink() });
+  if (!result.ok) {
+    process.exitCode = result.exitCode;
+    return;
+  }
+  console.log(
+    JSON.stringify(
+      {
+        outputJson: result.outputJson,
+        outputMd: result.outputMd,
+        total: result.total,
+        counts: result.counts,
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

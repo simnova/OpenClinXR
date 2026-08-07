@@ -81,6 +81,11 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether regenerating a protected registry can silently shrink it. Says NOTHING about whether
  * the classifications are right, nor about any other guard that prescribes a destructive command.
+ *
+ * ## FIXED (#116)
+ * Zero-tolerance shrink guard shared by both builders (`registry-shrink-guard.ts`). Opt-in:
+ * `--allow-shrink` or `OPENCLINXR_REGISTRY_ALLOW_SHRINK=1`. Refusal leaves output bytes unchanged.
+ * Growth remains flagless. Worktree detection is logged only, never a gate.
  */
 
 const load = async () => import("./registry-shrink-refusal.js") as Promise<Record<string, unknown>>;
@@ -109,7 +114,7 @@ type Run = (input: {
 const BUILDERS = ["generated-artifact", "doc-authority"] as const;
 
 describe("regenerating a protected registry cannot silently shrink it (#116)", () => {
-  it.fails("an incomplete tree is refused, and nothing is written", async () => {
+  it("an incomplete tree is refused, and nothing is written", async () => {
     // The reproduction: 2356 entries to 199, exit 0. A warning that still writes does not fix this,
     // which is why the assertion is on the output bytes rather than on the message.
     const mod = await load();
@@ -130,7 +135,7 @@ describe("regenerating a protected registry cannot silently shrink it (#116)", (
     }
   }, 600_000);
 
-  it.fails("the opt-in allows a genuine cleanup and reports what went", async () => {
+  it("the opt-in allows a genuine cleanup and reports what went", async () => {
     // Removing stale entries is a real workflow. Refusing it outright would push people back to
     // hand-editing a protected file, which is how it drifts.
     const mod = await load();
@@ -153,7 +158,7 @@ describe("regenerating a protected registry cannot silently shrink it (#116)", (
     }
   }, 600_000);
 
-  it.fails("growth still succeeds without the opt-in (COUNTERWEIGHT)", async () => {
+  it("growth still succeeds without the opt-in (COUNTERWEIGHT)", async () => {
     // The cheapest way to pass a refusal contract is to refuse everything. Adding a newly generated
     // artifact is the normal case and must stay a plain, flagless success — #114 needed exactly this.
     const mod = await load();
