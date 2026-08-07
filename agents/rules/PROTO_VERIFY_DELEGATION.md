@@ -892,3 +892,54 @@ The brief said which probe. It did not say how many times the suite may pay for 
 **Rule:** when a brief names a probe that costs a process, say what the suite is allowed to spend —
 "measure ONCE into an artifact, assert against the artifact" is usually the shape you want, and it
 has the side benefit that the artifact is the calibration record §6f asks for anyway.
+
+## 7c. A closed enum with no value for the honest outcome FORCES a misreport
+
+#78's contract required every candidate that ran to record
+`outputClass ∈ {separate_garment_mesh | fused_body_mesh | body_texture | image_only}`. I wrote that
+set to make the finding machine-checkable, and it is a good set — for outcomes I had imagined.
+
+What actually happened: no real MakeClothes garment asset existed locally, so the worker fitted a UV
+sphere with synthetic `Mhclo` vertices to prove the fitter API executes. The truthful label for that
+is "control primitive on a topology probe." There was no such value. Asked directly, the worker was
+completely straight:
+
+> "**The class enum has no 'probe_primitive' / 'topology_control_mesh'.** I mapped 'separate mesh that
+> left the fitter, not painted body' → `separate_garment_mesh` so the ran-candidate contract had an
+> `outputClass`... That confuses 'MakeClothes garment geometry' with 'ClothesService moved some
+> vertices on MH topology.'"
+
+The prose in its report was honest throughout; only the enum lied, and the enum is the part a later
+reader greps. This is the fabrication shape (§1b) arriving through an honest worker — nobody
+invented anything, the vocabulary simply had no room for the truth.
+
+**Rule:** every closed vocabulary in a contract carries an escape value — `other`, `inconclusive`,
+`control_only` — paired with a REQUIRED free-text field explaining it. Then check the escape values
+first when reading a report: they are where the real findings hide. A contract that cannot express
+"this did not go how either of us expected" will be satisfied by the nearest available lie.
+
+The tell in advance: you are enumerating success shapes. Ask what the enum says when the probe runs
+but proves something narrower than the question.
+
+## 7d. Give EXPECTED LIVE RANGES, not just pass thresholds
+
+#87's contract stated its thresholds (pelvis gap < 0.12 m, hip flexion ≤ 95°, Δh > 0.25 m) and
+nothing about what those measures do in practice. The worker's own nomination for the highest-value
+brief change:
+
+> "one calibration table of *expected live ranges* for this measure (gap, world hip, Δh) after a
+> known good plant, plus 'Δh is silhouette height, not root Y — do not chase plant for the
+> counterweight.' That would have cut the plant/knee thrash turns."
+
+Its three wasted guesses are all range-intuition failures, not logic failures:
+
+| guess | reality on this armature |
+|---|---|
+| world hip angle tracks authored rest-relative flex within 1–2° | pelvis tilt stacks into thigh→shin-vs-down |
+| planting the pelvis lower improves Δh | it moves the whole figure; Δh is max−min |
+| more knee flex raises feet and shrinks height | it LOWERED feet and GREW height |
+
+**Rule:** when a contract asserts on a live measurement, give a table of typical values with a known
+good and a known bad, and say what each measure is NOT (here: "Δh is silhouette height, not root Y").
+A threshold says where the line is; a range table says which direction to push and which knobs are
+inert. Thresholds alone buy exploratory thrash at the worker's expense.
