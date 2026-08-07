@@ -5,6 +5,25 @@ import { describe, expect, it } from "vitest";
  * the scoring objective, a raw trace tag and "Faculty review evidence cue". The labels never render.
  * The cubes always do.
  *
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * SECOND ATTEMPT. THE FIRST LANDED AND WAS REVERTED — AND THE BLOCKER IS NOW GONE.
+ *
+ * `6b1c2db` did exactly this and every contract passed. Emptying `roomProps` then dropped ten
+ * stations into debug mode: five floating evidence panels, giant equipment nameplates, primitive
+ * fallbacks and legacy bed/monitor boxes. Reverted at `5430b3a`.
+ *
+ * The cause was `isDynamicGeneratedEncounterSceneMode()` defining "this is a generated learner
+ * station" as `roomProps.length > 0`. **#139 fixed that** (`00e5190`) — the predicate is now
+ * `environment.reviewStatus !== "blocked"` alone. I verified it on main by emptying stepdown's
+ * `roomProps` by hand and capturing: clean room, no panels, no nameplates, no legacy boxes.
+ *
+ * So the trap this slice fell into is closed. **Do not re-derive it and do not work around it.**
+ * If emptying a station's props still produces debug chrome, STOP — that means #139 did not hold and
+ * I want to know immediately rather than have it worked around.
+ *
+ * The reverted commit is the reference implementation. Reusing its approach is fine and expected;
+ * it was correct work defeated by an unrelated defect.
+ *
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — the ED bay's environmental props and the
  * hand-authored psych / telehealth / peds props must survive. It is `it.fails` only because the
  * module is absent.
@@ -86,6 +105,7 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether the generic cue quartet reaches a learner's room. Says NOTHING about prop activation
  * (leaving it broken is deliberate), equipment (#140), fixtures (#143), or what a room should contain.
+ *
  */
 
 const load = async () => import("./generic-cue-prop-removal.js") as Promise<Record<string, unknown>>;
