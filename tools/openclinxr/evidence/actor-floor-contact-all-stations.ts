@@ -5,6 +5,10 @@
  * via readLivePostureGeometryFromPage (ui-xr-environment-room-capture.ts).
  * Stations enumerated from listShippedCastScenarioIds() — never a hardcoded list.
  *
+ * #145: the probe must not count #122 unfilled slot placeholders (empty openClinXrActorId,
+ * hidden, primitive scaffold at y≈0.95 → y0≈0.93). Product grounding was already correct;
+ * the defect was what counted as an actor. See .openclinxr/evidence/issue-145/pre-fix.json.
+ *
  * claimScope: lowest skinned-mesh vertex Y vs floor top y=0 across all cast stations.
  * notEvidenceFor: posture quality, wardrobe, clinical plausibility, Quest readiness.
  */

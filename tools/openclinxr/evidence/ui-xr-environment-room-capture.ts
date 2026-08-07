@@ -333,6 +333,35 @@ export async function readLivePostureGeometryFromPage(page: Page): Promise<LiveP
     for (let r = 0; r < humanoidRoots.length; r++) {
       const root = humanoidRoots[r];
       const posture = root.userData.openClinXrActorPosture;
+      // #145: #122 leaves unfilled slots in the scene graph (hidden, empty openClinXrActorId)
+      // with primitive scaffold meshes at slot.y≈0.95. They never call loadGeneratedHumanoidIntoActorSlot,
+      // so openClinXrEffectiveVerticalOffsetMeters is absent. Counting them as actors made the floor
+      // contact gate report y0≈0.93 floaters while staged humanoids were already grounded.
+      // Discriminator: non-empty openClinXrActorId on the root or an ancestor (not root.name fallback).
+      const resolvedId = resolveActorId(root, r);
+      const rawSlotId =
+        root.userData && typeof root.userData.openClinXrActorId === "string"
+          ? root.userData.openClinXrActorId
+          : "";
+      let hasStagedActorId = typeof rawSlotId === "string" && rawSlotId.length > 0;
+      if (!hasStagedActorId) {
+        let p = root.parent;
+        let depth = 0;
+        while (p && depth < 6) {
+          if (
+            p.userData
+            && typeof p.userData.openClinXrActorId === "string"
+            && p.userData.openClinXrActorId.length > 0
+          ) {
+            hasStagedActorId = true;
+            break;
+          }
+          p = p.parent;
+          depth++;
+        }
+      }
+      if (!hasStagedActorId) continue;
+
       if (typeof root.updateMatrixWorld === "function") root.updateMatrixWorld(true);
       let minY = Infinity;
       let maxY = -Infinity;
@@ -346,6 +375,8 @@ export async function readLivePostureGeometryFromPage(page: Page): Promise<LiveP
           if (bounds.minY < minY) minY = bounds.minY;
           if (bounds.maxY > maxY) maxY = bounds.maxY;
         });
+        // Non-skinned fallback only for staged roots (failed-load primitives still surface as defects).
+        // Unfilled placeholders are already excluded by the actorId gate above.
         if (!any) {
           root.traverse(function (object) {
             if (!object.geometry || !object.geometry.attributes || !object.geometry.attributes.position) return;
@@ -359,7 +390,7 @@ export async function readLivePostureGeometryFromPage(page: Page): Promise<LiveP
       }
       if (!any || !Number.isFinite(minY) || !Number.isFinite(maxY)) continue;
       actors.push({
-        actorId: resolveActorId(root, r),
+        actorId: resolvedId,
         declaredPosture: posture,
         meshHeightMeters: maxY - minY,
         lowestVertexY: minY,
