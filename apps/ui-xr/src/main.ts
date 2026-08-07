@@ -3809,7 +3809,7 @@ function createStationScene(): StationSceneRuntime {
   // #122/#123 fourth slot — placement SSOT (team-adjacent secondary), not doorway hardcode.
   const additionalPlacement = runtimeActorPlacement(
     runtimeAdditionalActorId() || "unfilled_additional_cast",
-    additionalCastPlacementFallback() as Parameters<typeof runtimeActorPlacement>[1],
+    additionalCastPlacementFallback(),
   );
   const additional = actorMesh(0x7c6bb5);
   additional.name = "runtime_additional_cast_slot";

@@ -16,22 +16,13 @@
  * (protects first-three counterweight positions in the bundle).
  */
 
+import type { EncounterRuntimeActorPlacement } from "@openclinxr/asset-registry/runtime-bundles";
 import type { RuntimeSlotAssignment } from "./runtime-actor-slots.js";
 
-export type SlotKind =
-  | "primary_patient"
-  | "clinical_team"
-  | "family_or_observer"
-  | "additional_cast";
+export type SlotKind = EncounterRuntimeActorPlacement["slotKind"];
 
-export type ActorPlacementRecord = {
-  slotKind: SlotKind;
-  position: { x: number; y: number; z: number };
-  scale: { x: number; y: number; z: number };
-  verticalOffsetMeters: number;
-  labelPrefix: string;
-  posture?: "standing" | "seated" | "supine";
-};
+/** Local alias of the package placement record (includes posture: standing|seated|supine). */
+export type ActorPlacementRecord = EncounterRuntimeActorPlacement;
 
 /** Slot-kind anchors matching main.ts first-three fallbacks + clinical secondary. */
 export const SLOT_PLACEMENT_ANCHORS: Record<SlotKind, ActorPlacementRecord> = {
@@ -69,12 +60,13 @@ export const SLOT_PLACEMENT_ANCHORS: Record<SlotKind, ActorPlacementRecord> = {
 /** Live framing XZ for additional_cast (floor y=0), team-adjacent — not doorway z=1.15. */
 export const ADDITIONAL_CAST_FRAMING_XZ = { x: 1.95, z: 0.15 } as const;
 
-/** Minimal bundle surface — accepts package LearnerRuntimeAssetBundle without coupling. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * Minimal bundle surface — matches LearnerRuntimeAssetBundle.sceneManifest.actorPlacements
+ * without requiring the full bundle graph.
+ */
 type BundleWithPlacements = {
   sceneManifest: {
-    // any: package posture includes "supine"; we only add missing keys.
-    actorPlacements?: Record<string, any>;
+    actorPlacements?: Record<string, EncounterRuntimeActorPlacement>;
   };
 };
 
@@ -93,7 +85,7 @@ export function ensureActorPlacementsForStagedSlots(
   bundle: BundleWithPlacements,
   slots: RuntimeSlotAssignment,
 ): { declaredActorIds: string[]; addedActorIds: string[] } {
-  const placements: Record<string, ActorPlacementRecord> = {
+  const placements: Record<string, EncounterRuntimeActorPlacement> = {
     ...(bundle.sceneManifest.actorPlacements ?? {}),
   };
   const addedActorIds: string[] = [];
@@ -116,6 +108,12 @@ export function ensureActorPlacementsForStagedSlots(
   return { declaredActorIds: Object.keys(placements), addedActorIds };
 }
 
+export type ActorPlacementSsotEvidence = {
+  declaredActorIds: string[];
+  addedActorIds: string[];
+  actorPlacements: Record<string, EncounterRuntimeActorPlacement>;
+};
+
 /** Ensure missing placement keys and publish evidence for live inspectors. */
 export function ensureAndPublishActorPlacementSsot(
   bundle: BundleWithPlacements,
@@ -123,19 +121,26 @@ export function ensureAndPublishActorPlacementSsot(
 ): void {
   const result = ensureActorPlacementsForStagedSlots(bundle, slots);
   if (typeof window !== "undefined") {
-    (window as unknown as { __openClinXrActorPlacementSsot?: unknown }).__openClinXrActorPlacementSsot = {
+    const evidence: ActorPlacementSsotEvidence = {
       declaredActorIds: result.declaredActorIds,
       addedActorIds: result.addedActorIds,
       actorPlacements: bundle.sceneManifest.actorPlacements ?? {},
     };
+    window.__openClinXrActorPlacementSsot = evidence;
   }
 }
 
-export function additionalCastPlacementFallback(): ActorPlacementRecord {
+export function additionalCastPlacementFallback(): EncounterRuntimeActorPlacement {
   const a = SLOT_PLACEMENT_ANCHORS.additional_cast;
   return {
     ...a,
     position: { ...a.position },
     scale: { ...a.scale },
   };
+}
+
+declare global {
+  interface Window {
+    __openClinXrActorPlacementSsot?: ActorPlacementSsotEvidence;
+  }
 }
