@@ -1153,11 +1153,24 @@ describe("static browser assets", () => {
     expect(artifact.notEvidenceFor).toContain("learner_readiness");
     expect(artifact.notEvidenceFor).toContain("production_asset_readiness");
 
-    // main.ts contains the pre-production fence const
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    expect(mainSource).toContain("UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false");
-    expect(mainSource).toContain("PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1)");
-    expect(mainSource).toContain("OPT-IN CAPTURE ONLY");
-    expect(mainSource).toContain("notEvidenceFor: [\n        ...artifact.notEvidenceFor,\n        \"production_physics_readiness\",\n        \"learner_readiness\",\n      ]");
+    // The runtime source carries the pre-production fence.
+    //
+    // This reads main.ts AND the physics-touch modules together rather than main.ts alone. #83 split
+    // `applyPhysicsBoneTransforms` out of main.ts (which LOWERED main.ts's size ceiling 10198 ->
+    // 10121), and the `notEvidenceFor` block went with it — so a fence keyed to a filename went red
+    // on a refactor that improved the tree. main.ts is under a shrink-only ratchet and will keep
+    // being split, so the fence follows the CODE, not the file it currently lives in.
+    //
+    // Strength is unchanged: every string below must still appear verbatim in shipped ui-xr runtime
+    // source. Widening this to a glob over all of src/ would be weaker — a string could then satisfy
+    // it from a file nothing imports.
+    const fencedSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./physics-touch/apply-physics-bone-transforms.ts", import.meta.url), "utf8"),
+    ].join("\n");
+    expect(fencedSource).toContain("UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false");
+    expect(fencedSource).toContain("PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1)");
+    expect(fencedSource).toContain("OPT-IN CAPTURE ONLY");
+    expect(fencedSource).toContain("notEvidenceFor: [\n        ...artifact.notEvidenceFor,\n        \"production_physics_readiness\",\n        \"learner_readiness\",\n      ]");
   });
 });
