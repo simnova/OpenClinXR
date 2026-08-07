@@ -213,20 +213,32 @@ export async function inspectWorktreeBaseFreshness(): Promise<{
     });
     const mainHead = git(mainRoot, ["rev-parse", "HEAD"]);
 
-    // Stale commit on the worktree branch (previous run).
+    // Stale commit on the worktree branch (previous run). Built with plumbing so the inspect
+    // harness never invokes `git commit` (and never needs a hook bypass): stage → write-tree →
+    // commit-tree → reset --hard onto the new object. Same object model as a real prior dispatch
+    // commit; hooks are simply not on this path.
     const markerRel = "tools/openclinxr/openclaw/.issue-148-inspect-stale.txt";
     writeFileSync(join(reusePath, markerRel), `stale-${stamp}\n`);
     git(reusePath, ["add", markerRel]);
-    execFileSync(
+    const tree = git(reusePath, ["write-tree"]);
+    const parent = git(reusePath, ["rev-parse", "HEAD"]);
+    const staleSha = execFileSync(
       "git",
-      ["-c", "user.email=issue-148@test", "-c", "user.name=issue-148", "commit", "--no-verify", "-m", "stale previous-run commit (#148 inspect)"],
+      ["commit-tree", tree, "-p", parent, "-m", "stale previous-run commit (#148 inspect)"],
       {
         cwd: reusePath,
         encoding: "utf8",
         stdio: ["ignore", "pipe", "pipe"],
-        env: { ...process.env, OPENCLAW_SKIP_HOOKS: "1" },
+        env: {
+          ...process.env,
+          GIT_AUTHOR_NAME: "issue-148-inspect",
+          GIT_AUTHOR_EMAIL: "issue-148-inspect@local",
+          GIT_COMMITTER_NAME: "issue-148-inspect",
+          GIT_COMMITTER_EMAIL: "issue-148-inspect@local",
+        },
       },
-    );
+    ).trim();
+    git(reusePath, ["reset", "--hard", staleSha]);
     const headBefore = git(reusePath, ["rev-parse", "HEAD"]);
     // Dirty file (doc-archive churn class) — tracked file modified in working tree
     appendFileSync(join(reusePath, "PROJECT_STATUS.md"), `\n# issue-148-inspect dirt ${stamp}\n`);
