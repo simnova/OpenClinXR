@@ -365,15 +365,17 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v7_skip_torso_paint_when_real_garment_owns_silhouette_issue_73",
+    "clothingRegionRevision": "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment",
     "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
     "trimMaterialName": null,
+    "armMaterialName": "openclinxr_role_mesh_clothing_patient_arm",
     "topFaceCount": 0,
     "lowerFaceCount": 3340,
     "trimFaceCount": 0,
+    "armFaceCount": 1786,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 1728,
+    "skippedTorsoPaintFaceCount": 1332,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -758,7 +760,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-08-07T14:49:16.024445Z",
+    "generatedAt": "2026-08-07T16:45:08.715588Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,

@@ -15,9 +15,9 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "508517894dfd8650761edaf5687834301b4ef1082866b9e680049207db8c37a6",
-  "outputBytes": 7205276,
-  "generatedAt": "2026-08-07T14:49:48.002425+00:00",
+  "outputSha256": "dd9c43488fefdf8b1a902c9efce5be1d3551384e19ef93990a25edd1d4466736",
+  "outputBytes": 7217660,
+  "generatedAt": "2026-08-07T16:45:40.689581+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
   "garmentLayers": [
@@ -45,19 +45,5 @@
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
     "rebakedFrom": "peds_anxious_parent.anny_base.obj (tracked, unchanged by this re-bake)",
     "garmentAuthoringClass": "body_surface_normal_offset_issue_121"
-  },
-  "licenseChain": {
-    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
-    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
-    "generatedCandidate": "OpenClinXR local blender-only rebake on tracked real-Anny base OBJ; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
-  },
-  "derivativeLineage": {
-    "caseId": "peds_asthma_parent_anxiety_v1",
-    "actorId": "parent_tara_johnson_v1",
-    "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
-    "sourceParametersHash": "96004384e0e78429009b1c0842bedb0fb2283925e788186347c1061a3a16515a",
-    "rebakePath": "blender_only_rebake_on_tracked_real_anny_base_obj_v1"
-  },
-  "toolVersion": "openclinxr-blender-only-rebake-on-tracked-real-anny-base-obj-v1",
-  "promptOrCaseParameterHash": "96004384e0e78429009b1c0842bedb0fb2283925e788186347c1061a3a16515a"
+  }
 }

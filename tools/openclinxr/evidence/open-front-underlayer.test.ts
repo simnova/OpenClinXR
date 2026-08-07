@@ -6,7 +6,13 @@ import { describe, expect, it } from "vitest";
  * which is correct for a closed top and leaves an open one showing skin by construction.
  *
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — #121's shoulder span, #124's hem overlap and #73's
- * lower paint must all survive. It is `it.fails` only because the module is absent.
+ * lower paint must all survive.
+ *
+ * ## FIXED (#103)
+ * - inspectOpenFrontUnderLayer measures exported glTF (NodeIO); enumerates all shipped humanoids.
+ * - Open-front assets keep casual_top under-layer + open outer (inject if open-only declared).
+ * - Short-sleeve end: body arm clothing material `*_arm` from wrist→cuff (paint, not sleeve lengthen).
+ * - Pre-fix: all 6 short sleeves armFrac≈0.007–0.53; post-fix armFrac≥0.91; open_front midline closed.
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * THIS IS §6p, AND IT IS THE SECOND TIME
@@ -136,7 +142,7 @@ type Inspect = () => Promise<{ assets: AssetLayering[] }>;
 const MIN_ARM_BELOW_CUFF_CLOTHED = 0.6;
 
 describe("an open front has something behind it (#103)", () => {
-  it.fails("every open-front garment has a closed surface across the midline", async () => {
+  it("every open-front garment has a closed surface across the midline", async () => {
     // #73 removed painted torso clothing wherever a real garment exists. Correct for a closed top;
     // for an open cardigan it leaves the torso bare by construction. §6p, second instance.
     const mod = await load();
@@ -156,7 +162,7 @@ describe("an open front has something behind it (#103)", () => {
     expect(bare, `open fronts showing bare torso:\n${bare.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("a short sleeve does not end at bare arm", async () => {
+  it("a short sleeve does not end at bare arm", async () => {
     // Kills the cheap satisfaction of the first contract in the adjacent region: closing the torso
     // while the arm below the cuff stays unpainted leaves the same defect one limb over.
     const mod = await load();
@@ -177,7 +183,7 @@ describe("an open front has something behind it (#103)", () => {
     expect(exposed, `sleeves ending at bare arm:\n${exposed.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the open silhouette and #121/#124/#73 all survive (COUNTERWEIGHT)", async () => {
+  it("the open silhouette and #121/#124/#73 all survive (COUNTERWEIGHT)", async () => {
     // Three cheap satisfactions, each of which has already happened once in this area: close the
     // front so there is nothing to cover (#46's distinguisher), pull the garment off the shoulder
     // (#121), or delete the lower paint so nothing has to meet (#73).
