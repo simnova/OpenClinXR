@@ -164,6 +164,7 @@ export function createExamStationRunQueueSnapshot(
     ...(input.scenarioSource !== undefined ? { scenarioSource: input.scenarioSource } : {}),
     ...(input.fallbackActive !== undefined ? { fallbackActive: input.fallbackActive } : {}),
     ...(input.fallbackReason !== undefined ? { fallbackReason: input.fallbackReason } : {}),
+    ...(input.stationBodySources !== undefined ? { stationBodySources: input.stationBodySources } : {}),
   };
 }
 

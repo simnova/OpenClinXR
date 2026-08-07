@@ -3720,11 +3720,7 @@ export function formatExamFormRunClock(run: ExamFormRunState): {
   };
 }
 
-/**
- * Persist current station-run-queue snapshot via injected sink (ApiPersistenceSink-compatible).
- * Does not open mongo — caller supplies sink (e.g. createStationApiPersistenceSink).
- * options may include #57 acquisition markers (scenarioSource / fallbackActive / fallbackReason).
- */
+/** Persist station-run-queue snapshot via sink; options may carry #57/#88 markers. */
 export async function persistExamFormRunQueueSnapshot(
   run: ExamFormRunState,
   sink: ExamAssemblyPersistenceSink,

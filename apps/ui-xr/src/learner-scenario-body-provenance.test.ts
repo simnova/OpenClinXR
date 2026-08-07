@@ -130,7 +130,7 @@ const fetchWithNothingAuthored: typeof fetch = (async (url: string | URL) => {
 }) as unknown as typeof fetch;
 
 describe("an authored scenario reaches the learner (#88)", () => {
-  it.fails("an authored body beats a fixture of the same id", async () => {
+  it("an authored body beats a fixture of the same id", async () => {
     // The server already implements this (exam-assembly-pool.ts:9, "Authored wins on scenarioId
     // clash"). The client discards it by checking the bank first and never asking.
     const mod = await load();
@@ -146,7 +146,7 @@ describe("an authored scenario reaches the learner (#88)", () => {
     ).toBe("from_admin");
   });
 
-  it.fails("each record says where its own body came from", async () => {
+  it("each record says where its own body came from", async () => {
     // A per-set label cannot describe a mixed queue honestly. scenarioSource stays for QUEUE mode;
     // body provenance belongs on the record.
     const mod = await load();
@@ -179,3 +179,19 @@ describe("an authored scenario reaches the learner (#88)", () => {
     expect(result.fallbackActive, "a 404 on an un-authored id was mislabelled as a degrade").toBe(false);
   });
 });
+
+/*
+ * ## FIXED (#88)
+ *
+ * Resolver: for each queue id with baseUrl, GET /scenarios/:id first; on success label
+ * bodySource "api_authored"; on GET miss (404/transport) bank residual with bodySource
+ * "bank_residual"; accept-null (malformed 200) still skips — never labelled fallback (#53).
+ * scenarioSource stays queue-mode only (fixture_offline | fixture_fallback | api_queue).
+ *
+ * Consumers: ExamStationRunQueueScenarioBodySource + stationBodySources on snapshot types;
+ * api-client StationRunQueueSnapshotRequest/Response + persistence sink forward markers;
+ * bootLearnerExamFormFromApi → stationBodySourcesFromResolution (required wiring);
+ * QueueReviewSnapshotHistory renders "api authored" / "bank residual" count tags.
+ *
+ * No MADR/comment/test established bank-first; none found during implementation.
+ */

@@ -189,23 +189,37 @@ export type AdvanceExamFormRunStationInput = {
 };
 
 /**
- * How the learner run acquired its station scenarios (#57).
+ * How the learner run acquired its station QUEUE (#57).
  * offline = deliberate zero-network mode (not a fallback).
  * fixture_fallback = transport failure while baseUrl was configured.
  * api_queue = healthy station-run-queue resolution.
+ * Does not describe per-station body provenance — see stationBodySources / bodySource (#88).
  */
 export type ExamStationRunQueueScenarioSource = "fixture_offline" | "fixture_fallback" | "api_queue";
+
+/**
+ * Where a single station's scenario BODY came from (#88) — not the queue acquisition mode.
+ * A real queue may mix api_authored and bank_residual; one set-level label cannot describe that.
+ */
+export type ExamStationRunQueueScenarioBodySource = "api_authored" | "bank_residual";
+
+export type ExamStationRunQueueStationBodySource = {
+  scenarioId: string;
+  bodySource: ExamStationRunQueueScenarioBodySource;
+};
 
 export type ExamStationRunQueueSnapshot = {
   snapshotId: string;
   createdAt: string;
   reviewerId?: string;
   queue: ExamStationRunQueue;
-  /** Present when the learner recorded how scenarios were acquired (#57). Not stuffed into reviewerId. */
+  /** Present when the learner recorded how the queue was acquired (#57). Not stuffed into reviewerId. */
   scenarioSource?: ExamStationRunQueueScenarioSource;
   /** True only for transport-failure degrade; false for offline and healthy api_queue. */
   fallbackActive?: boolean;
   fallbackReason?: string;
+  /** Per-station body provenance for mixed api_queue runs (#88). Not a fourth scenarioSource value. */
+  stationBodySources?: ExamStationRunQueueStationBodySource[];
 };
 
 /**
@@ -224,6 +238,7 @@ export type CreateExamStationRunQueueSnapshotInput = {
   scenarioSource?: ExamStationRunQueueScenarioSource;
   fallbackActive?: boolean;
   fallbackReason?: string;
+  stationBodySources?: ExamStationRunQueueStationBodySource[];
 };
 
 /**
