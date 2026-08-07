@@ -33,9 +33,17 @@ Measured on 2026-08-07:
 - Grepping `apps/ui-xr` and `packages/openclinxr` for a collision or reachability constraint returns
   **zero hits**. No such abstraction exists.
 
-The consequence, graded from three fresh room captures: **patients stand waist-deep inside their own
-furniture in 3 of 3 rooms sampled**, feet protruding below the box. Two independent coordinate
-sources that happen to collide in some environments and not others.
+The consequence, **measured across all 15 shipped stations by #169**: two patients stood inside their
+own support furniture — `telehealth_diabetes_health_literacy_v1` at an overlap fraction of **1.00**
+(entirely inside) and `ob_headache_preeclampsia_triage_v1` at **0.57**. Independent coordinate sources
+that happen to collide in some environments and not others.
+
+> **Premise corrected 2026-08-07.** This section originally read *"patients stand waist-deep inside
+> their own furniture in 3 of 3 rooms sampled"*, from my pixel grade of postop / oncology / primary
+> care. Those three measured **clear** — #133's offsets had already fixed them — and the real
+> offenders were two stations I had never captured. The defect was real; my inference from those
+> particular pixels to that particular mechanism was not. The argument below is unaffected and the
+> measured numbers are stronger than the graded ones.
 
 That is precisely the failure a declarative `constraints: { no_collision: true }` would prevent by
 construction, and it is the strongest available argument for the proposal.
