@@ -365,7 +365,7 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment",
+    "clothingRegionRevision": "v9_arm_colour_tracks_outermost_garment_exact_match_issue_146",
     "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
     "trimMaterialName": null,
@@ -485,6 +485,13 @@
       "short_sleeve_exam_tshirt"
     ],
     "declaredUpperGarmentLayerCount": 1,
+    "armClothingColourSource": "outermost_real_garment_mesh_exact_match",
+    "armClothingColour": [
+      0.08,
+      0.52,
+      0.95,
+      1.0
+    ],
     "realGarmentRegion": {
       "mode": "phenotype_embedded_body_surface_derived_garment_v1",
       "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
@@ -760,7 +767,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-08-07T16:45:08.715588Z",
+    "generatedAt": "2026-08-07T17:41:19.413294Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,

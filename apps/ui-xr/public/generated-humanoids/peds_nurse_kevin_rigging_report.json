@@ -358,7 +358,7 @@
   },
   "roleClothingMaterialRegions": {
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
-    "clothingRegionRevision": "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment",
+    "clothingRegionRevision": "v9_arm_colour_tracks_outermost_garment_exact_match_issue_146",
     "topMaterialName": null,
     "lowerMaterialName": "openclinxr_role_mesh_clothing_nurse_lower",
     "trimMaterialName": null,
@@ -578,6 +578,13 @@
       "scrub_pocket"
     ],
     "declaredUpperGarmentLayerCount": 2,
+    "armClothingColourSource": "outermost_real_garment_mesh_exact_match",
+    "armClothingColour": [
+      0.04,
+      0.42,
+      0.48,
+      1.0
+    ],
     "realGarmentRegion": {
       "mode": "phenotype_embedded_body_surface_derived_garment_v1",
       "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
@@ -861,7 +868,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-07T16:46:12.302491Z",
+    "generatedAt": "2026-08-07T17:42:22.831725Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anny_topology\": \"default\", \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_scrubs_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"peds_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

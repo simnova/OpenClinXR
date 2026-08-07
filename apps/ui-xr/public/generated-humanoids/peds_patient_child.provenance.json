@@ -80,9 +80,9 @@
   ],
   "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
   "promotionGates": false,
-  "outputSha256": "59a896fc86ab56c552078f1c13660b54162df9635357ac6ff66729e975a42b2e",
+  "outputSha256": "3540862d341685982f4fee9e5855b75813b32d1440a5f0487e6a7f0a2c0cd913",
   "outputBytes": 6312300,
-  "generatedAt": "2026-08-07T16:45:08.833636+00:00",
+  "generatedAt": "2026-08-07T17:41:19.529630+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_patient_child.anny_base.obj",
   "garmentLayers": [
