@@ -682,8 +682,19 @@ straps: *"Separate grid, not welded to torso top-row verts or sleeve ring verts.
 in a docstring only — no shared indices, no stitch faces."* Second, when #82's worker then authored a
 lofted sector that DID share torso-rim and sleeve-root indices, it still exported as detached blades —
 so **sharing indices at authoring time is not sufficient for a continuous exported surface in this
-pipeline, and why remains undiagnosed.** Measure continuity from the exported glTF, never from the
-Blender script.
+pipeline.** Measure continuity from the exported glTF, never from the Blender script.
+
+**RESOLVED 2026-08-07 by #121's worker, after this had sat open for weeks.** The cause is the
+SOLIDIFY modifier: its rim geometry re-splits during glTF export into 4-vertex micro-islands, so
+Blender reports one connected component and the exported file reports several. Dropping solidify —
+the offset alone already satisfies the offset band — produced a genuinely single-component export.
+The worker paid roughly 40 turns rediscovering this by rebaking one child asset repeatedly.
+
+Two lessons beyond the specific modifier. First, an authoring tool's own topology report is not a
+claim about the file it writes; the export is a transformation and it can split what the editor
+joined. Second, when a rules file records "why remains undiagnosed", that sentence is a standing bill
+— someone will pay it, and the brief that hands them the mystery should also hand them a budget for
+it (§7x).
 
 ## 6u. "Contract won by default" survives being told not to
 
@@ -1195,6 +1206,37 @@ no position. The question to ask of any additive slice is not "what reads this" 
 decorative. Asked whether the banned "hide the duplicate root" was tempting: *"more tempting as a
 one-line visible=false... Without the ban I might have tried hide-first for contract (1), then
 discovered residual need later — the ban saved a wrong-first green on (1) alone."*
+
+## 8a. Turn counts from a large slice need the breakdown before they mean anything
+
+#121 ran 92 turns — double the previous maximum — on the largest-scope slice this pipeline has
+attempted. I reported that as the first clean measurement of how far the delegate goes when scope is
+genuinely large. **That was wrong, and its own worker corrected me.**
+
+| bucket | ~turns |
+|---|---|
+| thrash — repeated rebakes of ONE child asset chasing an export-continuity mystery | **40–45** |
+| product — helper, replace-verts loop, inspect, contracts, rebake all six, provenance | 30–35 |
+| diagnosis the brief had already paid for | 8–12 |
+| verify and commit | 8–10 |
+
+Its own summary: *"Not model ceiling; environment/export thrash + silent open-front + continuity
+measure. Same product with a two-rebake continuity stop rule and explicit weight-transfer decision is
+a ~45–55 turn slice."*
+
+Asked directly whether it felt near a limit, the answer was precise and worth quoting in full:
+
+> "**Yes — thrash/diagnosis room, not product capacity.**... That felt like 'this vertical is chewing
+> the budget,' not 'I need to drop a humanoid.' I did **not** cut scope. I did **not** hit maxTurns or
+> plan to. I did lose some track of which child bake was current until the log line forced a re-diff."
+
+So the largest turn count on record still says nothing about capacity. It says the environment had an
+undiagnosed trap in it, which §6t had recorded and nobody had budgeted for.
+
+**Rule:** never report a turn count as evidence about the delegate without asking for the breakdown
+first. §7w established that turns measure `scope + undone-diagnosis + environment friction`; this is
+the case that proves the third term can dominate at nearly half the slice. A number that large is a
+prompt to go looking for the trap, not a conclusion about the worker.
 
 ## 7. Ask delegates for feedback on the brief
 
