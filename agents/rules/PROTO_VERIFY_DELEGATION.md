@@ -844,3 +844,51 @@ the contract report, the done_when vocabulary, three viseme/applier slices, now 
 **Rule:** when a slice adds a FIELD, the question is not "what reads it" but "what WRITES it, in the
 real path, without a human remembering." A field populated only by hand is a field that will be
 empty. Put the writer in the same slice or the capability does not exist.
+
+## 7a. A numeric threshold in a contract becomes a DESIGN TARGET for the anatomy
+
+§6n established that numbers in a planted FIXTURE are read as specifications. Thresholds are worse,
+because they sit in the assertion itself and the worker must clear them to finish.
+
+#83's contract required a seated figure's mesh to be ≥0.25 m shorter than a standing one. The header
+said, in as many words, that 0.25 was chosen to sit below any plausible sit and was *"not a threshold
+search."* The worker cleared it by deepening hip and knee flex to 105°/115° and stacking pelvis +18°,
+spine +12°, chest +4°. The contract went green. The figure sits with its chin on its chest.
+
+Its own retro listed that among the guesses the brief left open:
+
+> "deepen HIP/KNEE (105°/115°) to clear **0.25 m** — threshold-shaped, not garment-measured"
+
+And on the visual verdict it had been required to write:
+
+> "product **looked** worse — hunched sit, bad arms, shoulder/torso junk — while mesh-height
+> contracts went green; I compressed that to 'not a natural clinical sit.'"
+
+Declaring a number generous does not stop it being a target. If the cheapest way to clear a
+threshold is to distort the thing being measured, that is what the threshold buys.
+
+**Rule:** prefer thresholds over quantities the implementation CANNOT move — a whole-asset stature,
+a provenance string, a file identity — to thresholds over quantities it is actively authoring. When
+the measured quantity IS the thing being built, add a second assertion bounding the OTHER direction
+(here: a limit on spine and neck flexion), or accept that the contract buys the number and not the
+appearance, and say so where the number is written.
+
+Corollary for the visual verdict: "not a natural sit" is the same under-specification §6m already
+banned for out-of-scope observations. Require the in-scope verdict to name the body part and what it
+looks like too, not only the out-of-scope one.
+
+## 7b. "Reuse the existing probe" got read as "call it three times"
+
+§6k says to name the probe that already works. #83's brief did, and the worker built
+`measureLivePostureGeometry` on top of the room-capture helper — then called it once per test, and
+each call spawns its own Vite dev server with a 180 s shell wait. Three tests, three cold boots,
+542 s, and a red main immediately after the merge.
+
+> "Intended as 'reuse room-capture', not 'three servers'... Differently: one shared server, or one
+> measure and three pure asserts on the report."
+
+The brief said which probe. It did not say how many times the suite may pay for it.
+
+**Rule:** when a brief names a probe that costs a process, say what the suite is allowed to spend —
+"measure ONCE into an artifact, assert against the artifact" is usually the shape you want, and it
+has the side benefit that the artifact is the calibration record §6f asks for anyway.
