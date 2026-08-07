@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 /**
- * PLANTED CONTRACTS (#164) — LANE B, which has had **zero board items this entire session**. Per the
+ * PLANTED CONTRACTS (#165) — LANE B, which has had **zero board items this entire session**. Per the
  * loop's own rule an empty lane means go read that lane's code, so I did, and I was wrong about what
  * I would find.
  *
@@ -114,7 +114,7 @@ import { describe, expect, it } from "vitest";
  * not change: the REAL `resolveLearnerExamScenarios` is called — not a copy, not a re-implementation —
  * and the API is the real `createApiApp()`.
  *
- * CALIBRATION — `.openclinxr/evidence/issue-164/pre-fix.json` BEFORE any product edit, recording:
+ * CALIBRATION — `.openclinxr/evidence/issue-165/pre-fix.json` BEFORE any product edit, recording:
  * how many blueprints are activation-ready, `canStartLearnerExam`, how many stations the queue
  * returns, and for each what `bodySource` the resolver assigns today. I predict `api_authored` is
  * **zero**. If it is not, say so — that is data about my premise.
