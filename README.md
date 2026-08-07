@@ -134,6 +134,79 @@ Encounter flows are meant to be **blueprint-driven** through the factory, not ha
 
 ---
 
+## Asset licensing constraints
+
+OpenClinXR ships generated 3D assets. Several tools that can produce them carry licences whose terms
+depend on **facts about the product**, not about the code — so the same tool can be fine today and
+prohibited later. The parameters are recorded in
+[MADR 0046](docs/madr/0046-licence-gate-parameters-revenue-and-territory.md):
+
+| Parameter | Current value |
+|---|---|
+| Annual revenue | **below USD 1,000,000** |
+| Operating territory | **United States only** |
+| Distribution model | **not yet stated** — affects notice obligations |
+
+**If either of the first two changes, re-read this table before generating another asset.** Two of the
+restrictions below terminate or reach backwards into assets already produced.
+
+### Restricted by REVENUE
+
+| Tool | Gate | What happens at the threshold |
+|---|---|---|
+| **Stable Fast 3D** | Stability AI Community License, ~USD 1M annual revenue (org-wide, any source) | The licence **terminates automatically**. An Enterprise licence is required to continue. Commercial use below the threshold also requires registration at `stability.ai/community-license`. |
+
+Treat the revenue threshold as a **hard product gate with a tripwire**, not a reminder. Outputs you
+already generated are yours (§IV.c.iii), but continued use of the model is not.
+
+### Restricted by GEOGRAPHY
+
+| Tool | Gate | What happens outside it |
+|---|---|---|
+| **Hunyuan3D-2** | Tencent Community License: Territory is worldwide **excluding the EU, the UK and South Korea** | AUP §5.c bars distributing or **displaying the Outputs** outside Territory — not just the model. Expanding to those markets **re-blocks meshes already generated**. |
+
+Because the restriction follows the Output, anything generated this way must record its **generator**
+in the MADR 0016 asset manifest, not merely its licence — otherwise a future territory change means
+auditing every asset by hand.
+
+Hunyuan also carries a 1M-monthly-active-user gate measured at its 2025-01-21 release date, and an AUP
+whose medicine clauses (§14 high-stakes automated decisions, §20 unlicensed practice) restrict
+**automated clinical decision-making**, not the generation of props for a training simulator. Neither
+binds today.
+
+### Restricted by COPYLEFT — unchanged by revenue or geography
+
+| Tool | Licence | Posture |
+|---|---|---|
+| **MPFB2** | GPL-3.0-or-later | Out-of-repo authoring tool. Never vendored, never imported by repo code, never shipped. |
+| **StableGen** | GPL-3.0 | Same. Also does not complete headless — its generation is a modal Blender operator. |
+| **ComfyUI** | GPL-3.0 | Same. Output textures are governed by the **checkpoint** licence, not ComfyUI's. |
+
+The outputs of these tools ship; their code does not. That split is the whole posture — see
+[MADR 0044](docs/madr/0044-makeclothes-with-anny-as-reference-cagematch.md).
+
+For MakeHuman-derived assets the safer factual basis is the **asset** licence, not the tool's: the
+`hm08` base mesh is explicitly CC0, and each community garment carries its own `license:` field in its
+`.mhclo` header — machine-readable, so a parser can feed the manifest directly.
+
+### Blocked for other reasons
+
+| Tool | Why |
+|---|---|
+| **TRELLIS** | Core is MIT, but `diffoctreerast` and the Inria gaussian-splatting family are **research / non-commercial**. Also requires CUDA, which this workstation does not have. |
+| **Infinigen** (whole rooms) | BSD-3-Clause and licence-clean. Blocked on **geometry**, not licence: ~15.5M triangles against a 180,000 per-station budget. Its `infinigen_gpl` submodule is snow and particles, and is not on the indoor path. |
+
+### Permissive, no gate
+
+Poly Haven and ambientCG are CC0 by site policy — but **their APIs carry no per-asset licence field**,
+so record the policy URL plus a byte hash in the manifest rather than scraping a page. NIH 3D is
+per-entry and must be read individually.
+
+**This section is an engineering reading of licence texts, not legal advice.** Counsel should sign
+anything that ships.
+
+---
+
 ## Useful links
 
 | Doc | Role |
@@ -144,6 +217,7 @@ Encounter flows are meant to be **blueprint-driven** through the factory, not ha
 | [AGENTS.md](AGENTS.md) | Agent operating contract (for AI/agent contributors) |
 | [docs/openclinxr/](docs/openclinxr/) | Product docs and evidence |
 | [docs/madr/README.md](docs/madr/README.md) | Architecture decision records / arena-to-decision map |
+| [docs/madr/0046-...](docs/madr/0046-licence-gate-parameters-revenue-and-territory.md) | **Licence gate parameters** — revenue band, territory, and what they unblock |
 
 **Not live SSOT** (historical names only — recover from git history if needed; do not recreate as living ledgers):
 
