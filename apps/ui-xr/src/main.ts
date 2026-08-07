@@ -7540,10 +7540,7 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath, comparatorOverridePath: comparatorOverride });
   }
 
-  if (/older|elder|geriatric|delirium/u.test(`${scenarioId} ${actorId} ${role}`)) {
-    return '/xr-assets/humanoids/variants/older-adult-kyphotic-generated-human.glb';
-  }
-
+  // #111: cast SSOT only — no older|elder|geriatric|delirium substring short-circuit.
   return resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath });
 }
 

@@ -126,7 +126,15 @@ const BLANKET_OVERRIDE = "older-adult-kyphotic-generated-human.glb";
 const sorted = (v: readonly string[]) => [...new Set(v)].sort();
 
 describe("every actor resolves to the model the casting SSOT chose (#111)", () => {
-  it.fails("no actor is diverted away from its cast by a scenario-id string match", async () => {
+  /**
+   * ## FIXED (#111)
+   * Deleted the `/older|elder|geriatric|delirium/` substring short-circuit in
+   * `runtimeHumanoidVariantAssetPath` so ward (and any future id containing those
+   * words) reaches `resolveHumanoidVariantOrCastPath` / casting SSOT. Decisions:
+   * delete-outright (not patient-only narrow); kyphotic stays a static asset only;
+   * no other blanket regex overrides on this path (OB/peds/ED use exact scenario ids).
+   */
+  it("no actor is diverted away from its cast by a scenario-id string match", async () => {
     // Ward's four actors all resolve to older-adult-kyphotic today because the scenario id contains
     // "delirium". Path identity, not a geometry predicate — a peer round killed the geometry version
     // as vacuous, since that variant is skinned.
@@ -153,7 +161,7 @@ describe("every actor resolves to the model the casting SSOT chose (#111)", () =
     ).toHaveLength(0);
   }, 600_000);
 
-  it.fails("ward's slotted actors resolve to distinct models, as its cast declares", async () => {
+  it("ward's slotted actors resolve to distinct models, as its cast declares", async () => {
     // Kills the cheap satisfaction of the first contract. Pointing ward's actors at one arbitrary
     // non-kyphotic file would clear (1)'s blanket check while every figure in the room stays
     // identical — which is what a learner actually sees.
@@ -172,7 +180,7 @@ describe("every actor resolves to the model the casting SSOT chose (#111)", () =
     ).toBe(paths.length);
   }, 600_000);
 
-  it.fails("stations that resolve correctly today still do (COUNTERWEIGHT)", async () => {
+  it("stations that resolve correctly today still do (COUNTERWEIGHT)", async () => {
     // ED and psych reach the casting SSOT because their ids match no override word. A fix that
     // reroutes resolution must not cost them what already works.
     const mod = await load();
