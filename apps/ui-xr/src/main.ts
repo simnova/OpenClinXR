@@ -2748,7 +2748,7 @@ async function recordRemoteTraceAction(
   const atSecond = state.elapsedSecond;
   try {
     const actorId =
-      (typeof payload?.actorId === "string" ? payload.actorId : undefined) ?? actorIdForTraceTag(tag);
+      (typeof payload?.actorId === "string" ? payload.actorId : undefined) ?? actorIdForTraceTag(tag, state.scenarioId);
     await stationApi.recordTraceAction(remoteStationRunId, {
       eventType: eventTypeForTraceTag(tag),
       atSecond,
@@ -2770,7 +2770,7 @@ async function recordRemoteTraceAction(
     return;
   }
 
-  const actorTurn = remoteActorTurnForTraceTag(tag);
+  const actorTurn = remoteActorTurnForTraceTag(tag, state.scenarioId);
   if (!actorTurn) {
     return;
   }
@@ -9272,7 +9272,7 @@ function localDialogueActorIdForTraceTag(tag: string): string | undefined {
     family_communication: runtimeFamilyActorId(),
     empathy_statement: runtimePatientActorId(),
   };
-  return actorIds[tag] ?? actorIdForTraceTag(tag);
+  return actorIds[tag] ?? actorIdForTraceTag(tag, selectedScenarioId());
 }
 
 function localDialogueGazeTargetForTraceTag(tag: string): HumanoidDialogueGazeTarget {

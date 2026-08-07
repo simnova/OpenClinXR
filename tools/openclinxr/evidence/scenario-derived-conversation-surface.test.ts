@@ -160,7 +160,7 @@ const ED_ACTOR_IDS = ["patient_robert_hayes_v1", "nurse_maria_alvarez_v1", "spou
 const sorted = (values: readonly string[]) => [...new Set(values)].sort();
 
 describe("each station's conversation surface comes from that station (#106)", () => {
-  it.fails("the learner's action set is the station's own authored trace tags", async () => {
+  it("the learner's action set is the station's own authored trace tags", async () => {
     // Set equality, not "differs from ED" — the peer round killed that as vacuous. Psych currently
     // offers an ECG button in a suicide-risk safety-planning encounter.
     const mod = await load();
@@ -183,7 +183,7 @@ describe("each station's conversation surface comes from that station (#106)", (
     expect(offenders, `stations offering an action set that is not their own:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("every safety-critical moment is spoken by the station's own cast", async () => {
+  it("every safety-critical moment is spoken by the station's own cast", async () => {
     // Kills the cheap satisfaction of the first contract: correct buttons whose every click is still
     // answered by an ED patient about chest pain, or answered by nobody at all.
     const mod = await load();
@@ -214,7 +214,7 @@ describe("each station's conversation surface comes from that station (#106)", (
     expect(uncovered, "safety-critical trace tags with no actor turn at all").toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ED bay keeps its own surface (COUNTERWEIGHT — working today)", async () => {
+  it("the ED bay keeps its own surface (COUNTERWEIGHT — working today)", async () => {
     // A generalisation that breaks the one station that works has traded one defect for another.
     const mod = await load();
     const inspect = mod["inspectScenarioConversationSurface"] as Inspect | undefined;
