@@ -22,7 +22,8 @@ import {
 
 describe("exam assembly", () => {
   // Single-station pilot: pass a one-scenario list so selection yields exactly one slot.
-  // No-arg createDefaultClinicalSkillsBlueprint() is multi-station (STEP2CS_STATION_COUNT).
+  // No-arg createDefaultClinicalSkillsBlueprint() defaults to [edChestPainScenario] -> ONE slot.
+  // Pass the pool/bank for the multi-station form (STEP2CS_STATION_COUNT).
   const singleStationPilotBlueprint = () => createDefaultClinicalSkillsBlueprint([edChestPainScenario]);
 
   it("pilot blueprint from the scenario bank has enough slots for its declared break checkpoints", () => {

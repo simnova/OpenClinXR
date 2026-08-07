@@ -786,6 +786,87 @@ which was RIGHT — it saved the wrong-rabbit-hole tax) actively undercuts "meas
 there is nothing left to discover. Decide which you want. If the cause is known, the measurement is
 for COVERAGE, not diagnosis — say that, and gate it.
 
+## 7l. A scope boundary is a design constraint — resolve it in the brief or pay for a redesign
+
+#108 ran concurrently with a slice that owned `apps/ui-xr`, so its brief said: do not edit
+`runtime-state.ts` or `main.ts`, and STOP and report if the work genuinely requires it. That boundary
+was correct and the worker respected it. It also cost roughly half the slice.
+
+What happened, in the worker's own account:
+
+> "I first made no-arg multi-station (`default = scenarioBank` → 12 slots). `packages:test` then
+> failed: `ui-xr` `runtime-state.test.ts` 'keeps single-station… additive' expected queue length
+> **1**, got **12** — because `createMultiStationExamRuntime` calls
+> `createDefaultClinicalSkillsBlueprint()` with no args when `scenarios.length <= 1`. Brief forbade
+> editing `runtime-state.ts` and said STOP if ui-xr is required. I chose **API-side split** over STOP
+> or scope breach... Not aesthetics — concurrent-scope constraint after a real red."
+
+Its turn accounting put the biggest thrash item as exactly that: build it the obvious way, hit the
+red, redesign around the boundary. ~15 of 35 turns.
+
+The boundary did its job — nothing collided, and the fix it forced (no-arg stays single-station,
+multi-station only when the pool is passed) is defensible and documented. But the DESIGN CHOICE the
+boundary implies was knowable in advance, by me, from one grep for callers.
+
+**Rule:** when a brief forbids touching a file, grep for what that file consumes from the code being
+changed, and resolve the resulting design question IN THE BRIEF. Either name the call sites that must
+change and say the old default stays for the forbidden consumer, or pre-authorise the one-line edit
+there. The worker's own wording:
+
+> Name the multi-station call sites that must pass the pool, and say no-arg may remain single-station
+> for ui-xr — or forbid that split and pre-authorise the one-line ui-xr fix.
+
+A "STOP and report if you need to cross this line" escape hatch is still right to include, but it is
+a backstop for what you missed, not a substitute for looking. An unexamined boundary hands the worker
+an architecture decision disguised as a constraint.
+
+## 7m. "Do not edit existing tests" has two readings and workers pick the permissive one
+
+Same brief, same retro. My line was: *"Do not edit existing tests to make these pass. If one
+genuinely encodes the old behaviour, say which and why in your report rather than quietly rewriting
+it."*
+
+The worker edited two test files and reported both. Asked whether the wording was clear:
+
+> "Brief wording was **ambiguous**. Reading A: *don't rewrite; only name them* → I violated A.
+> Reading B: *don't silently rewrite; report which/why if you must* → I followed B. I took B."
+
+Reading B is what I actually wanted, and the edits were sound — a helper for tests that legitimately
+want the old single-station shape, plus two new tests pinning both behaviours, nothing weakened. But
+I did not know that until I audited the diff, because the sentence permits either reading and the
+worker had to choose.
+
+**Rule, now standing brief text — say which of the two you mean, explicitly:**
+
+> You MAY update package or app tests that encode the old behaviour. Name each file you touched in
+> your report and say what the old assertion was. You may NOT weaken any assertion in the planted
+> contract.
+
+The distinction that matters is not edited-versus-not-edited; it is *the planted contract is
+inviolable, everything else is negotiable if declared*. Say that, rather than a blanket prohibition
+the worker will correctly read as narrower than it sounds.
+
+## 7n. Sourcing a threshold from authored data helps less than the counterweight does
+
+§7a says a numeric threshold in a contract becomes a design target for the thing being measured.
+#108's contract tried to dodge that by reading `breakAfterStationOrders: [3, 6, 9]` — a number
+already authored in the repo — instead of a station count I picked. Asked directly whether that
+framing changed anything, or whether a plain `>= 10` would have done as well:
+
+> "Helped for the contract; less for product choice... A plain `>= 10` would have been almost as good
+> for my implementation path; **the real anti-cheat was contract (2) + counterweight (3)**, not where
+> the number came from. Authored-data framing did stop me from writing `10` as *my* design target
+> into the test."
+
+So the technique is real but small: it prevents the orchestrator's invented number from becoming the
+product's specification. It does NOT prevent gaming — the worker still shipped 12, from a different
+authored constant, and what stopped a padded ten-slot ED list was the distinctness contract and the
+approval counterweight.
+
+**Calibration:** keep sourcing thresholds from authored data, it is nearly free. But do not treat it
+as the anti-gaming mechanism. The counterweight is the mechanism. If a contract has a number and no
+counterweight, the number is the whole specification and it will be met exactly.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
