@@ -1862,4 +1862,48 @@ The practical consequence for the escalation experiment: a turn count is not evi
 unless the breakdown comes with it, and the breakdown has to be *asked for* — no worker volunteers it.
 #137's 13 turns and #136's 42 turns had nearly the same product content once diagnosis was subtracted.
 
+## 8k. When your candidates are probably all wrong, give the FIRST MEASUREMENT instead
+
+§6j says list diagnosis candidates unranked, because a rank pulls a turn of story-fitting. §6l added
+that they may all be wrong. #144 finishes the thought — the actual cause (a hardcoded OB-only branch
+in `runtimeHumanoidVariantAssetPath`) was on none of my five candidates, and its worker was precise
+about what the list cost:
+
+> "Slight help as anti-bias — I did not open on 'regenerate bundles.' It did not point at the real
+> cause... Prefer **none** plus 'measure loadedUrl vs cast first' over a wrong shortlist. **Unranked
+> wrong candidates still burn a skim.**"
+
+So the hierarchy is: **naming the first measurement > an unranked candidate list > a ranked one.** A
+list of causes is what you write when you cannot say what to measure; if you *can*, say that instead
+and skip the list entirely.
+
+The tell: you are about to write "candidates, unranked" and you already know which single number
+would separate them. Write the number.
+
+## 8l. The contract's FIELD LIST is a diagnostic instrument, not just an assertion surface
+
+#144's brief required `liveMeshHeightMeters` in the report type. The worker did not plan to use it —
+and it produced the finding that explained something I had noticed for two cycles and could not
+account for (OB's figures were not framed wider, they were **half size**, 0.67–0.85 m against ~1.4 m).
+
+Asked whether that was its plan or the contract's, it was straight:
+
+> "**Fell out of the contract field list** (`liveMeshHeightMeters`), not a planned diagnostic. I
+> logged it... **Contract fields did the work; I did not invent the measure.**"
+
+So choosing report fields is choosing what gets discovered. Fields that are not asserted on still earn
+their place: they cost nothing to populate and they are the only things in the artifact when a
+diagnosis has to be made later.
+
+**Rule:** when writing a planted contract's report type, add the two or three adjacent quantities you
+would want if the obvious explanation turns out wrong — scale beside position, byte size beside
+triangle count, resolved path beside loaded path. Assert on the ones the contract is about; record the
+rest.
+
+**Corollary from the same retro, and it is the sharper half:** #144's worker nominated *"require one
+pre-fix table row — `scenarioId | cast basename | loaded basename | pathOk` — for the motivating pair,
+as an `exists:` artifact before any product edit"*, on the grounds that **"the cause was a path string,
+not a mesh quality metric."** When a defect might be identity rather than quality, the discriminator
+table belongs in the brief, not just the field list.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
