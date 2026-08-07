@@ -1,5 +1,6 @@
 {
   "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "blender_only_rebake",
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "parent_tara_johnson_v1",
   "actorRole": "parent",
@@ -15,15 +16,52 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "dd9c43488fefdf8b1a902c9efce5be1d3551384e19ef93990a25edd1d4466736",
-  "outputBytes": 7217660,
-  "generatedAt": "2026-08-07T16:45:40.689581+00:00",
-  "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
-  "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
-  "garmentLayers": [
-    "casual_top",
-    "open_cardigan"
-  ],
+  "sourceOriginChain": {
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "rebakedFrom": "peds_anxious_parent.anny_base.obj (tracked, unchanged by this re-bake)",
+    "garmentAuthoringClass": "body_surface_normal_offset_issue_121",
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "derivationNote": "Topology class inherited from tracked base OBJ; this step did not re-run Anny."
+  },
+  "licenseChain": {
+    "status": "inherited_from_base_not_reverified",
+    "base": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+    "baseTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "sourceRecordPath": "sources/anny-github-2026.json",
+    "sourceRecordClaimsSupported": [
+      "Anny code is licensed under Apache-2.0 and uses adapted MPFB2 assets licensed CC0."
+    ],
+    "notRun": [
+      "anny_forward_pass",
+      "orchestrate_character",
+      "licence_text_reenumeration",
+      "mesh_regeneration_from_anny_package"
+    ],
+    "explicitUnknown": [
+      "Licence text was not re-read or re-asserted at rebake time; posture is inherited from the base topology class and source record only.",
+      "Base OBJ has no separate .provenance.json sidecar; chain is path + topology class + source record, not a verified hash chain of licence documents."
+    ],
+    "notes": "Blender-only rebake consumed a tracked real-Anny base OBJ and did not run the Anny package. Do not treat this record as an orchestrate-time licence enumeration."
+  },
+  "derivativeLineage": {
+    "status": "wardrobe_rebake_derivative",
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "parent_tara_johnson_v1",
+    "actorRole": "parent",
+    "reuseKey": "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:parent:anny_candidate",
+    "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+    "rebakePath": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+    "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
+    "sourceParametersHash": "114c31fd51036b0fe248b1a5a47d87f4bdacf5bb4af65e983be2f9f49e4ef13f",
+    "notRun": [
+      "anny_forward_pass",
+      "orchestrate_character",
+      "licence_text_reenumeration",
+      "mesh_regeneration_from_anny_package"
+    ]
+  },
+  "toolVersion": "openclinxr-blender-only-rebake-on-tracked-real-anny-base-obj-v1",
+  "promptOrCaseParameterHash": "114c31fd51036b0fe248b1a5a47d87f4bdacf5bb4af65e983be2f9f49e4ef13f",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "quest_readiness",
@@ -37,13 +75,18 @@
     "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
     "Base apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj; garmentLayers=['casual_top', 'open_cardigan'].",
     "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
-    "Not B+ realism / production / clinical readiness."
+    "Not B+ realism / production / clinical readiness.",
+    "Issue #142: licence/derivative chains are mode-tagged inherited_from_base_not_reverified \u2014 not an orchestrate licence fiction."
   ],
   "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
   "promotionGates": false,
-  "sourceOriginChain": {
-    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
-    "rebakedFrom": "peds_anxious_parent.anny_base.obj (tracked, unchanged by this re-bake)",
-    "garmentAuthoringClass": "body_surface_normal_offset_issue_121"
-  }
+  "outputSha256": "dd9c43488fefdf8b1a902c9efce5be1d3551384e19ef93990a25edd1d4466736",
+  "outputBytes": 7217660,
+  "generatedAt": "2026-08-07T16:45:40.689581+00:00",
+  "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
+  "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+  "garmentLayers": [
+    "casual_top",
+    "open_cardigan"
+  ]
 }

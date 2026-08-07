@@ -35,6 +35,14 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 HERE = Path(__file__).parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+from humanoid_provenance import (  # noqa: E402
+    DERIVATION_MODE_ORCHESTRATE,
+    build_provenance_document,
+    write_provenance_document,
+)
+
 GEN_MESH = HERE / "generate_mesh.py"
 BLENDER_STAGE = HERE / "automate_blender.py"
 MPFB2_EYE_RIG = HERE / "add_mpfb2_eye_rig.py"
@@ -263,58 +271,45 @@ def read_optional_json(path: Optional[str]) -> Optional[Dict[str, Any]]:
 
 
 def write_provenance(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, report_path: str, manifest_path: str, optimization_report_path: Optional[str] = None) -> str:
+    """Write orchestrate-mode provenance via shared mode-tagged builder (issue #142)."""
     provenance_path = provenance_path_for(output_glb)
     actor_id = str(params.get("actor_id") or params.get("actorId") or f"{actor_role}_candidate")
-    params_hash = hashlib.sha256(json.dumps(params, sort_keys=True).encode("utf-8")).hexdigest()
     source_summary = source_generation_summary(manifest_path)
     optimization_handoff = read_optional_json(optimization_report_path)
-    payload = {
-        "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-        "scenarioId": case_id,
-        "actorId": actor_id,
-        "actorRole": actor_role,
-        "assetPath": output_glb,
-        "riggingReportPath": report_path,
-        "sourceManifestPath": manifest_path,
-        "generatorMode": source_summary["generatorMode"],
-        "sourceKind": source_summary["sourceKind"],
-        "usesRealAnnyForwardPass": source_summary["usesRealAnnyForwardPass"],
-        "realAnnyWeightsUsed": source_summary["realAnnyWeightsUsed"],
-        "textureMode": "procedural_fallback",
-        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-        "optimizationMode": "meshopt_post_blender_glb" if optimization_handoff else "unoptimized_post_blender_glb",
-        "realismGrade": "B",
-        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-        "sourceOriginChain": {
-            "sourceRecordPath": "sources/anny-github-2026.json",
-            "meshStage": str(GEN_MESH),
-            "blenderStage": str(BLENDER_STAGE),
-            "orchestrator": str(HERE / "orchestrate_character.py"),
-            "optimizationStage": str(OPTIMIZE_GLB) if optimization_handoff else None,
-            "sourceManifestKind": source_summary["manifest"].get("source_kind"),
-            "sourceTopologyMode": source_summary["manifest"].get("output", {}).get("source_topology_mode") if isinstance(source_summary["manifest"].get("output"), dict) else None,
-        },
-        "optimizationHandoff": optimization_handoff,
-        "licenseChain": {
-            "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
-            "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
-            "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used" if source_summary["usesRealAnnyForwardPass"] else "OpenClinXR deterministic local fixture; no external generated third-party asset committed",
-        },
-        "derivativeLineage": {
-            "caseId": case_id,
-            "actorId": actor_id,
-            "reuseKey": f"{case_id}:{actor_id}:{actor_role}:anny_candidate",
-            "sourceParametersHash": params_hash,
-        },
-        "toolVersion": source_summary["toolVersion"],
-        "promptOrCaseParameterHash": params_hash,
-        "notEvidenceFor": source_summary["notEvidenceFor"],
-        "sourceNotes": source_summary["sourceNotes"],
+    source_origin = {
+        "sourceRecordPath": "sources/anny-github-2026.json",
+        "meshStage": str(GEN_MESH),
+        "blenderStage": str(BLENDER_STAGE),
+        "orchestrator": str(HERE / "orchestrate_character.py"),
+        "optimizationStage": str(OPTIMIZE_GLB) if optimization_handoff else None,
+        "sourceManifestKind": source_summary["manifest"].get("source_kind"),
+        "sourceTopologyMode": (
+            source_summary["manifest"].get("output", {}).get("source_topology_mode")
+            if isinstance(source_summary["manifest"].get("output"), dict)
+            else None
+        ),
     }
-    os.makedirs(os.path.dirname(provenance_path) or ".", exist_ok=True)
-    with open(provenance_path, "w") as f:
-        json.dump(payload, f, indent=2)
-    return provenance_path
+    payload = build_provenance_document(
+        derivation_mode=DERIVATION_MODE_ORCHESTRATE,
+        scenario_id=case_id,
+        actor_id=actor_id,
+        actor_role=actor_role,
+        asset_path=output_glb,
+        generator_mode=source_summary["generatorMode"],
+        source_kind=source_summary["sourceKind"],
+        uses_real_anny_forward_pass=bool(source_summary["usesRealAnnyForwardPass"]),
+        real_anny_weights_used=bool(source_summary["realAnnyWeightsUsed"]),
+        not_evidence_for=source_summary["notEvidenceFor"],
+        source_notes=source_summary["sourceNotes"],
+        params_for_hash=params,
+        rigging_report_path=report_path,
+        source_manifest_path=manifest_path,
+        optimization_mode="meshopt_post_blender_glb" if optimization_handoff else "unoptimized_post_blender_glb",
+        tool_version=source_summary["toolVersion"],
+        source_origin_chain_extra=source_origin,
+        optimization_handoff=optimization_handoff,
+    )
+    return write_provenance_document(provenance_path, payload)
 
 
 def write_bundle_sidecar(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, report_path: str, provenance_path: str, manifest_path: str, obj_path: str, use_comfy: bool, optimization_report_path: Optional[str] = None) -> str:
