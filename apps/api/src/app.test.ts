@@ -111,7 +111,14 @@ describe("OpenClinXR API shell", () => {
       "nurse_maria_alvarez_v1",
       "spouse_anna_hayes_v1",
     ]);
-    expect(body.actors[0]?.model.blob.url).toBe("/xr-assets/humanoids/neutral-generated-human.glb");
+    // #85 recast the adult ED roles off pediatric assets onto a promoted adult humanoid; the
+    // casting table is SSOT and the blob path follows it (runtime-bundles.ts:692-699). This
+    // expectation still named the pre-#85 neutral humanoid and was RED on main from that merge
+    // until found — the top-level gate reported green from a stale turbo cache (#92).
+    //
+    // The learner-safe assertions around it are untouched and still pass: opaque identity scope,
+    // no tenantId/userId/examRunId/encounterId, productionCloudCall false.
+    expect(body.actors[0]?.model.blob.url).toBe("/generated-humanoids/ed_chest_pain_adult_cast.glb");
     expect(body.equipment.map((equipment) => equipment.equipmentId)).toEqual(["ecg_cart_equipment", "iv_stand_equipment"]);
     expect(body.notEvidenceFor).toContain("quest_readiness");
   });
