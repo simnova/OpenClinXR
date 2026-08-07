@@ -5,13 +5,13 @@
   "usageRule": "Agents must consult this registry before treating Markdown outside the canonical control surfaces as active instructions.",
   "counts": {
     "agent-methodology": 72,
-    "current-reference": 210,
+    "current-reference": 213,
     "archive-candidate": 13,
-    "evidence": 39,
+    "evidence": 41,
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 26
+    "decision-record": 27
   },
   "entries": [
     {
@@ -1765,6 +1765,41 @@
       "rationale": "Package/app-local README or provenance reference; local to its module."
     },
     {
+      "path": "apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md",
+      "authority": "current-reference",
+      "agentInstructionWeight": "low",
+      "action": "use-as-current",
+      "rationale": "Package/app-local README or provenance reference; local to its module."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/operator-open-questions-DvqAC8BK.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "apps/arena/model-vetting-studio/dist/assets/operator-steering-needed-questions-BaY_qOd0.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
       "path": "apps/arena/physics-clinical-touch/README.md",
       "authority": "current-reference",
       "agentInstructionWeight": "low",
@@ -2347,6 +2382,13 @@
     },
     {
       "path": "docs/madr/0035-digital-native-station-primitives.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0036-external-asset-tool-evaluations-2026-08.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",

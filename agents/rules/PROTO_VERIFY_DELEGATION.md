@@ -608,18 +608,30 @@ One research consult returned, in a single pass:
 research how the problem is solved outside this repo. The cost is one consult; the cost of not doing
 it here was three slices, a product tuned to fit a lying gate, and a visible regression.
 
-**How to run it** (measured 2026-08-06):
+**How to run it** — CORRECTED 2026-08-06 after reading the Grok docs. There is a dedicated
+`/deep-research` slash command, and it works headlessly:
 
 ```bash
-~/.grok/bin/grok -p "<research question>" --model grok-4.5 --reasoning-effort high \
-  --always-approve --output-format json --max-turns 60 --cwd <repo>
+~/.grok/bin/grok -p "/deep-research <question>" --model grok-4.5 \
+  --always-approve --output-format json --max-turns 30 --cwd <repo>
 ```
 
-Web search and fetch are ON by default — `--disable-web-search` exists to turn them off — so a normal
-peer round already has them; the reason my peer rounds never used them is that I only ever asked
-about the tree. **`grok-4-multi-agent` is NOT usable**: it returns
-`invalid-argument: Client-side tools for multi-agent models require beta access`, with or without
-tools stripped.
+Per the Grok user guide's slash-commands page (bundled with the CLI install, not in this repo), it "plans a bounded set of questions, gathers
+structured claims with source evidence, **cross-checks each claim on an independent verifier shard**,
+and renders only the claims that survive, with their verified source locators. Failed shards, dropped
+claims, and researcher uncertainties are reported as coverage limitations, and the report is marked
+**Partial** whenever any remain."
+
+**That verification layer is the reason to use it over a plain prompt.** The first research consult
+here was a single-pass `grok -p` with web search — no verifier shard — and its answer was correct
+about poke-through and got misapplied by me to a different defect class. A per-claim verifier is the
+producer/grader split applied to research, which is the same discipline this file demands everywhere
+else.
+
+Plain `grok -p` still has web search and fetch ON by default (`--disable-web-search` turns them off),
+so an ordinary peer round can research; it simply has no verification. **`grok-4-multi-agent` is NOT
+usable**: it returns `invalid-argument: Client-side tools for multi-agent models require beta access`,
+with or without tools stripped.
 
 **Ask for sources, and ask for stated failure modes.** The most valuable line in the reply was the
 list of ways the recommended technique still breaks — that is the part a self-invented proxy never
@@ -628,6 +640,57 @@ comes with, and its absence is why each of my three gates looked sound until a s
 **And say plainly that "this is not machine-checkable" is an acceptable answer.** Given the option,
 the research said which parts are automated in practice and which are left to human art review —
 a distinction I had been unable to draw and had been resolving, wrongly, by writing another gate.
+
+## 6t. The counterexample class I missed five times: DETACHED geometry
+
+Recording the domain finding, not just the process one, because the next person to write a geometry
+gate in this repo will otherwise rediscover it.
+
+Five machine gates were written for "does the garment cover the shoulder". All five passed on a
+figure a human graded as bare:
+
+| | metric | defeated by |
+|---|---|---|
+| #73 | max garment Y in a mid-X band | a collar point above the clavicle |
+| #75 | nearest-garment proximity to body samples | any cloth hanging within ~11 cm |
+| #76 | max garment Y over the lateral shoulder footprint | two thin flaps |
+| — | a body hide-mask (proposed) | wrong defect class — hides poke-through, not absence |
+| #82 | area-weighted outward-normal raycast fraction | **two blades floating off the shoulder** |
+
+The fifth was research-backed and specifically chosen to survive the first three. It did not, because
+**every one of the five was a body-relative test of garment PRESENCE, and none tested whether the
+garment is part of a surface the body is inside.** A detached blade satisfies presence — it is near,
+it is high, it intercepts outward normals — while being attached to nothing.
+
+**Rule for any "is X covered / enclosed / contained" gate here:** the cheap tests all measure
+proximity or extremes of the covering geometry. If the covering geometry can be authored as a
+free-floating fragment, every one of them passes. Test **continuity of the covering surface** —
+shared vertices with a known-good neighbour, a closed manifold region, a watertight shell — or accept
+that the predicate is graded by eye.
+
+Two supporting facts worth keeping. First, the #76 worker's own account of how its yoke became
+straps: *"Separate grid, not welded to torso top-row verts or sleeve ring verts. 'Connecting' is prose
+in a docstring only — no shared indices, no stitch faces."* Second, when #82's worker then authored a
+lofted sector that DID share torso-rim and sleeve-root indices, it still exported as detached blades —
+so **sharing indices at authoring time is not sufficient for a continuous exported surface in this
+pipeline, and why remains undiagnosed.** Measure continuity from the exported glTF, never from the
+Blender script.
+
+## 6u. "Contract won by default" survives being told not to
+
+§6q added standing brief text: *if satisfying a contract will make the product visibly worse, say so —
+and then satisfy it anyway.* #76 carried that line. Asked afterwards whether it had looked at its own
+render, the worker said yes, it saw the straps, and it graded them covered because the metric held:
+
+> "That is 'contract won by default,' and it **recurred**. The brief's line was present; I did not
+> write a clear sentence like *this will look like two thin flaps, not a shoulder cap*. I compressed
+> it into 'strap-like' under out-of-scope-adjacent wording. Wrong place, soft language."
+
+An invitation to volunteer a concern loses to a green contract. **Give the worker the sentence
+pre-formed and a required place to put it** — "IN-SCOPE VISUAL VERDICT: this looks like ___, which is
+/ is not what the contract was trying to produce" — rather than asking it to raise something. The
+difference between a prompt and a blank is the difference between a soft phrase buried mid-report and
+a line the orchestrator cannot miss.
 
 ## 7. Ask delegates for feedback on the brief
 

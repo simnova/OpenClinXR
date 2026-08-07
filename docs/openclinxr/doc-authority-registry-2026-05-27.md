@@ -13,9 +13,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - agent-memory: 34
 - agent-methodology: 72
 - archive-candidate: 13
-- current-reference: 210
-- decision-record: 26
-- evidence: 39
+- current-reference: 213
+- decision-record: 27
+- evidence: 41
 - historical-synthesis: 11
 - protected-policy: 10
 
@@ -152,6 +152,9 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/api-python-backend/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md` - current-reference; Package/app-local README or provenance reference; local to its module.
+- `apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
