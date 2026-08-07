@@ -71,6 +71,23 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: what git state a reused worktree starts from. Says NOTHING about `node_modules`
  * provisioning (that works), the isolation deny, or anything a worker does once it is running.
+ *
+ * ## FIXED (#148)
+ *
+ * Decision: **reset with a loud log**, not refuse.
+ *   - Rejected refuse: every re-dispatch after kill/revert would require hand-clean; that is the
+ *     incident recurring as process.
+ *   - Rejected delete+recreate: throws away node_modules (#66 / three blocked workers).
+ *   - Rejected silent reset: discards recoverable on-disk work without telling the orchestrator (§7i).
+ *   - Rejected `clean -fdx`: would wipe gitignored node_modules/dist.
+ *
+ * What "reset" means: `git reset --hard <mainHead>` + `git clean -fd` + `checkout -B <branch>
+ * <mainHead>` via `ensureWorktreeBaseFresh` in worktree-base-freshness.ts. Wired only on the
+ * managed path in `resolveWorkerWorktree` when the directory already exists. Caller-supplied
+ * absolute paths are untouched (synthetic unit-test paths).
+ *
+ * Caller sees: stderr line starting `[openclaw:worktree-base] REUSING managed worktree…` with
+ * slice, path, was/now HEADs, dirty count, and a resume-instead-of-redispatch hint.
  */
 
 const load = async () => import("./worktree-base-freshness.js") as Promise<Record<string, unknown>>;
@@ -97,7 +114,7 @@ type ReuseOutcome = {
 type Inspect = () => Promise<{ reuse: ReuseOutcome; freshCreate: ReuseOutcome }>;
 
 describe("a reused worktree starts from main (#148)", () => {
-  it.fails("a second dispatch does not inherit the previous run's commits or dirt", async () => {
+  it("a second dispatch does not inherit the previous run's commits or dirt", async () => {
     // dispatch-worker.ts:429 skips `git worktree add` when the directory exists, and
     // prepareWorktreeForWorker never touches the branch. A retried slice therefore starts from
     // whatever the last run left, including work that has since been reverted on main.
@@ -110,7 +127,7 @@ describe("a reused worktree starts from main (#148)", () => {
     expect(report.reuse.dirtyAfter, "reused worktree kept the previous run's dirty files").toBe(0);
   }, 900_000);
 
-  it.fails("the reuse is announced rather than silent", async () => {
+  it("the reuse is announced rather than silent", async () => {
     // Kills the cheap satisfaction of the first contract: resetting quietly discards whatever was
     // there. §7i records two slices where a killed worker's in-progress work was worth 80-100 turns,
     // so a silent reset can throw away something recoverable. The orchestrator must be told.
@@ -122,7 +139,7 @@ describe("a reused worktree starts from main (#148)", () => {
     expect(report.reuse.reuseWasAnnounced, "the worktree was reused with no signal to the caller").toBe(true);
   }, 900_000);
 
-  it.fails("first-dispatch creation and node_modules survive (COUNTERWEIGHT)", async () => {
+  it("first-dispatch creation and node_modules survive (COUNTERWEIGHT)", async () => {
     // The cheapest satisfaction is deleting and recreating the worktree every time, which throws away
     // the provisioning three separate workers were blocked on (§6c's first retro sweep).
     const mod = await load();
