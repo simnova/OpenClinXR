@@ -361,11 +361,67 @@ Blueprint-driven encounter factory. Sizable collaborative vertical slices only (
 2. Peds/ED real-garment factory + UI-XR evidence (Q1/Q5) — **parked**; no further garment thrash without BOD.
 3. Encounter authoring + review packet / durableStore / admin replay (Q1/Q4) — **batch closed enough**.
 
+**Procedural-factory north star (operator, 2026-08-07):** *"The challenge we're trying to solve is how
+far we can procedurally develop the factory before needing LLMs to step in and get involved. Goal is to
+minimize your involvement and make it repeatable."* AI inside a **deterministic, focused building
+block** (seed + prompt + ControlNet, a library fit call) is in scope; an agent making per-asset shape
+judgements is not. **Every cagematch is now graded on this axis first:** does it reduce per-asset agent
+involvement and increase repeatability? A candidate that cannot be driven from a case blueprint fails
+regardless of its output quality — that is what rejected Infinigen Indoors (#130), which is a random
+residential sampler with no clinical station addressing, independent of its 86x triangle overshoot.
+
+4. **Deterministic asset selection over authored geometry (Q1/Q5) — ACTIVE.** #131 measured the
+   alternative: MPFB2 fits a CC-BY Scrub Shirt from the community Medical Scrubs Kit onto hm08 in
+   **12.6 ms** at 9,384 triangles. Our own garment is ~2,000 lines of parametric Blender python, eight
+   planted contracts and five slices, still grading `improved_not_natural`. The gate is #134 — whether
+   hm08 topology can carry our rig, weights and painted regions. MPFB2 is GPL-3, **deferred by operator
+   decision, not resolved**; StableGen likewise (#132).
+
 **Human gate (optional future):** flip `runtimePromotionAllowed` only after BOD review of MADR 0030 + dual evidence — not autonomous.
 
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-07 three-lane-cagematch-wave (Q5 + lane C)
+
+Product path advanced: three lane-C cagematches dispatched in parallel on disjoint scopes, two landed.
+**#130 Infinigen Indoors — `reject_measured`** (`90ae386`, L5 / 33 turns): 15,476,539 triangles against
+a 180,000 station budget (86x), 1.09 GB glTF refused before parse, 23 min/room, BSD-3 clean — and
+decisively `parameterisable: false`, residential semantics only, no clinical station addressing.
+**#131 MakeClothes with anny as reference — `adopt_mh_body`** (`167d9a0`, L5 / 47 turns): MPFB2 v2.0.15
+loads on Blender 5.1.1; CC-BY Scrub Shirt from the Medical Scrubs Kit fits hm08 in **12.6 ms** at 9,384
+tris; MH stature matches anny 1.760/1.760, mean deviation 22.9 mm; **proximity transfer onto anny
+shatters into floating fragments** (orchestrator pixel grade — `clearly_worse`). #132 StableGen still in
+flight.
+
+Blueprint/factory tie: Q1 (what can drive asset generation from a case blueprint) and Q5 (measured
+decisions with evidence). Both MADRs registered surgically; neither pruned the registry.
+
+Touched files: `docs/madr/0043`, `docs/madr/0044`, `evidence/infinigen-indoors-cagematch-probe.ts`,
+`evidence/makeclothes-anny-reference-probe.ts`, `evidence/blender/makeclothes_anny_reference_stage.py`,
+doc-authority registry (+2 decision-record entries, count 28 -> 30).
+
+Evidence: probe reports and Workbench renders under each worktree's
+`.openclinxr/evidence/<cagematch>/latest/` (gitignored — MADRs carry the durable numbers).
+
+Risk remaining: main is red on five gates (#129). The neckline half was **misdiagnosed by me and
+corrected in place** — `garmentNecklineY` is `torsoShellMaxY`, which reads the deliberate #76 shoulder
+yoke (`automate_blender.py:2618`, `yoke_peak = shoulder_top + 0.045`), not the neck opening. Lowering
+the neck cut would have re-bared the deltoid and shipped a sixth dead garment gate. Seated Delta-h cause
+still NOT DETERMINED; my posture-module bisect was void (atomic `git checkout` failure) and is recorded
+as such.
+
+Guard finding: #130 and #131 both added a decision-record entry, so the second integrate hit a registry
+merge conflict. Resolved by keeping BOTH entries (count -> 30), rebasing the branch, and re-integrating
+through the gate. The pre-commit integrate gate correctly refused a hand-resolved tree whose kill report
+was stale — no override, no forged report.
+
+Token introspection: n/a (dispatched workers; ledger in `.openclinxr/openclaw/worker-sessions.jsonl`).
+
+Next: #134 (can hm08 carry our rig) gates the deterministic garment path; #133 (rooms at 204 tris) and
+#103 (open-front exposure) are the other two product moves. #129's neckline needs a metric rewrite, not
+a geometry tweak.
 
 ### 2026-08-07 chart-honesty-and-garment-hem-dual-land (Q1+Q5)
 
