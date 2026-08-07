@@ -960,6 +960,36 @@ does not exist" is indistinguishable from a broken system if you never question 
 §1b's fabrication fingerprint arriving from the other direction — confident detail, uncertain
 premise, except the uncertain premise was mine.
 
+## 7r. A contract that invents a derived field must say how to derive it
+
+#111's planted contract carried `hasSlot: boolean` — "true when the actor has a humanoid slot in the
+runtime shell" — because the runtime has three slots and the bank can declare four actors, and I
+wanted the contract to fail on the defect rather than on shell architecture. That reasoning was
+right. The field was underspecified.
+
+The worker had to invent the derivation, and said so when asked where it guessed:
+
+> "`hasSlot` = patient + nurse-class + family-class (mirror `runtime*ActorId` role lists) →
+> physician/`senior_resident` → unslotted"
+
+It guessed correctly. It also nominated this as its single spec change:
+
+> "Name `hasSlot` derivation in the brief (or point at the three `runtime*ActorId` helpers) so the
+> inspect does not invent role-class lists."
+
+A guessed derivation is a product decision made in a test fixture — the same class as §6n, where a
+number in a planted fixture became the specification. Here a role-classification rule would have
+become the definition of who can appear in a station.
+
+**Rule:** every field a planted contract's report type introduces that is not read directly off an
+existing API needs one line saying where it comes from — the function to call, or the rule to apply.
+If you cannot say, that is a signal the field is doing more design work than a contract should.
+
+The same retro flagged a second instance: the contract's `resolvedPath` could have been read from
+either the full resolver or its inner cast helper, and which one you pick changes what the contract
+proves. The worker chose the inner helper so unrelated hardcodes could not poison path identity, and
+suggested the brief should have named it. Both are the same rule.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
