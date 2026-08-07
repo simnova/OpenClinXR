@@ -2267,7 +2267,7 @@ MAGNITUDE and what they did about it, not just whether it happened — "did X ge
 significant, and what did you do to offset it". A yes/no invites a yes, and the mitigation stays
 invisible to the person writing the follow-up item.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9a. Test the subject in isolation — the full-room capture is an integration test used as a unit test
 
@@ -2309,5 +2309,37 @@ nothing has to be specified in advance.
 
 **The trap to avoid:** a harness that renders the subject through its own code path grades something
 the learner never sees, which is worse than no harness. It must drive the product's renderer.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9b. A port answering is not proof it is answering from your build
+
+I reported "zero TRELLIS nodes registered" three times across two cycles and **every reading was
+wrong**. The sequence, because the shape recurs:
+
+1. First zero — **impatience**. The node's metadata scan is a cold **72.5 s**; I queried
+   `/object_info` before it finished. On a warm cache the identical load takes **2.6 s**.
+2. Later zeros — **a stale server**. My `pip install --break-system-packages` runs had broken
+   ComfyUI's own dependency set (`psutil`, then `mpmath` via sympy), so every new boot died at
+   `main.py:206` — while **a process started before the install stayed bound to port 8188**. I
+   queried it three times and read its unchanged 808 nodes as evidence that the install had failed.
+
+The tell was available the whole time and I did not look: the boot log said `0.0 seconds` for a node
+whose load takes seconds, and the traceback was sitting in the log I was tailing the wrong end of.
+
+**Rule:** when a service "does not pick up a change", the first check is that the process answering
+you is the one you started — not that the change is wrong. Kill by pattern and confirm the port goes
+silent before concluding anything. A responding port proves a server exists, not that it is *your*
+server.
+
+This is §7s's stale-measurement-cache problem in a network costume, and it belongs beside it: an
+instrument that answers instantly and confidently with last hour's state is worse than one that
+errors.
+
+**And the second-order lesson, which is mine:** having found `psutil` missing I installed `psutil`,
+then found `mpmath` missing and reached for `mpmath`. That is the §6s violation — a second attempt at
+the same predicate is the signal to stop patching. The correct fix was one command,
+`pip install -r requirements.txt`, restoring the whole set my own installs had disturbed. Symptom-fixing
+in a dependency graph is guessing with extra steps.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
