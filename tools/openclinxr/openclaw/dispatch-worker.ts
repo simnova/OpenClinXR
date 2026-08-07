@@ -32,6 +32,7 @@ import type { DoneWhenCheck } from "../../../packages/openclinxr/agent-loop/src/
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { assertLoopNotPaused } from "./loop-pause.js";
 import { provisionWorktreeAssetsSync } from "./worktree-asset-provisioning.js";
+import { ensureWorktreeBaseFresh } from "./worktree-base-freshness.js";
 
 /**
  * INCIDENT: a worker was capped at 50 turns and died at exactly turn 50; another survived by one
@@ -427,11 +428,22 @@ export function resolveWorkerWorktree(
     return worktree;
   }
   const target = join(WORKTREE_ROOT, name);
+  const managedBranch = branch ?? `wt/${name}`;
   if (!existsSync(target)) {
     mkdirSync(WORKTREE_ROOT, { recursive: true });
-    execFileSync("git", ["worktree", "add", "-b", branch ?? `wt/${name}`, target], {
+    execFileSync("git", ["worktree", "add", "-b", managedBranch, target], {
       cwd: mainRoot,
       stdio: ["ignore", "pipe", "pipe"],
+    });
+  } else {
+    // #148: reuse without reset inherited previous-run commits + dirt (incl. work reverted on
+    // main). Reset git state to main's tip and announce loudly; keep node_modules (#66).
+    // Caller-supplied absolute paths above are NOT reset — synthetic unit-test paths.
+    ensureWorktreeBaseFresh({
+      worktreePath: target,
+      mainRoot,
+      branch: managedBranch,
+      slice: name,
     });
   }
   // #47: git worktree add checks out tracked files only — node_modules is never present until
