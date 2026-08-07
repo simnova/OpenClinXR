@@ -2342,7 +2342,7 @@ the same predicate is the signal to stop patching. The correct fix was one comma
 `pip install -r requirements.txt`, restoring the whole set my own installs had disturbed. Symptom-fixing
 in a dependency graph is guessing with extra steps.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9c. The calibration artifact carries the MECHANISM, not only the counts
 
@@ -2383,5 +2383,33 @@ this is the version where the reading is not even in the report type.
 **The discipline that keeps it honest:** the extra measurement must be a READING, never a second
 contract. A worker asked to *assert* on something adjacent will optimise for it; a worker asked to
 *record* it just records it.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9e. Name the forbidden shortcuts anyway — they are a cheap fence, not the working defence
+
+#167's brief banned four things by name: auto-approving `stage_0`, relaxing `isActivationEligible`,
+lowering `STEP2CS_STATION_COUNT`, marking anything `validated_summative`. Asked whether any were
+tempting:
+
+> "None were tempting. Naming them was **useful noise**: short fence, zero pull. The real cheap cheat
+> was different and already gated by contract (2)/(3): seed an already-approved scenario, or poke the
+> store without routes."
+
+Two things follow, and the second is the important one.
+
+**Keep naming them.** Four lines that cost nothing and remove a class of catastrophic
+misinterpretation are worth writing, especially where the shortcut would silently convert a safety
+gate into a formality. "Zero pull" is the outcome you want from a fence.
+
+**But do not mistake the fence for the defence.** The bans addressed the *clinical* failure mode —
+the one I was anxious about. The shortcut a worker would actually have reached for was the
+*methodological* one: start from an already-approved scenario and call it a promotion. That was
+caught by the counterweight contract, not by the prose.
+
+**Rule:** write the named bans for the consequences you fear, and write the counterweight contract for
+the shortcut a competent implementer would actually take. They are usually different, and only the
+second is enforced. If you find yourself with a long list of bans and no counterweight, you have
+written a warning label instead of a gate (§6d — a prose warning is not a proof).
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
