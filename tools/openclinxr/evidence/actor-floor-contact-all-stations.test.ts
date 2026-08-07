@@ -133,7 +133,16 @@ describe("actors stand on the floor in every station (#105)", () => {
     const report = await measure!();
     expect(report.actors.length, "no actors were measured at all").toBeGreaterThan(0);
 
-    const floating = report.actors.filter((a) => a.lowestVertexY > MAX_FLOAT_METERS);
+    // #150: an actor on a support surface is not floating. The ED patient is supine on a stretcher
+    // whose deck top is 0.55 m, so his lowest vertex is ~0.562 — correct, and this contract predates
+    // supine existing. The guarantee for those actors did not disappear; it MOVED to
+    // supine-patient-on-deck.test.ts, which asserts clearance above the deck and forbids sinking
+    // into it. This exemption is scoped to postures that put a body on furniture, and every
+    // standing actor is still held to MAX_FLOAT_METERS.
+    const onSupportSurface = (posture: string): boolean => posture === "supine" || posture === "seated";
+    const floating = report.actors.filter(
+      (a) => !onSupportSurface(a.declaredPosture) && a.lowestVertexY > MAX_FLOAT_METERS,
+    );
     expect(
       floating.map((a) => `${a.scenarioId}/${a.actorId} y0=${a.lowestVertexY.toFixed(3)}`),
       "actors hovering above the floor",

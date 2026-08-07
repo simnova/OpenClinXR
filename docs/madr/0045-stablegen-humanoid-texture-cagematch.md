@@ -146,3 +146,33 @@ successful run must grade lettering as a **defect** (same class as invented vita
 **CLAIM:** StableGen v0.3.0 enables on Blender 5.1.1 and connects to local ComfyUI 0.24.0 with RealVisXL + depth ControlNet present; headless `object.test_stable` enters `RUNNING_MODAL` then hangs 600s with an empty Comfy queue, so no humanoid texture was produced; licence remains deferred (**to be revisited**); tool stays out-of-repo.
 
 **NOT TESTED:** StableGen GUI generation quality on a rigged humanoid; texture VRAM; seed reproducibility of a finished bake; phenotype→prompt automation; three.js/ui-xr learner view of a textured GLB; clinical appropriateness of any generated surface.
+
+## Amendment 2026-08-07 — version and licence facts
+
+Version and licence facts recorded against this decision (operator-supplied research, 2026-08-07).
+The Decision itself is unchanged; these narrow what it was measured against.
+
+**The probe ran StableGen v0.3.0. Current is v0.3.1** (12 Jun 2026, `1cabae1`), which replaced the
+bundled TRELLIS.2 nodes with upstream `PozzettiAndrea/ComfyUI-TRELLIS2`. So the `inconclusive_blocked`
+verdict is against a superseded version.
+
+**Blender 5.1+ is explicitly supported**, with native Raycast nodes and Metal GPU acceleration on
+Apple Silicon; 5.0 is explicitly unsupported. This record inferred support from
+`blender_version_min = 4.2.0` — the actual matrix is narrower and we happen to sit in its best cell
+(5.1.1, Apple Silicon, ComfyUI installed at `~/ComfyUI`).
+
+**TRELLIS.2 is MIT (Microsoft).** Not recorded here, and it matters more than anything else on this
+page: it is the only 3D-generation candidate evaluated by this project with no revenue band, no
+territory exclusion and no MAU threshold — cf. MADR 0046 on Hunyuan3D-2 and Stable Fast 3D.
+
+**Upgrade requires** manually deleting old `ComfyUI-TRELLIS2` and `ComfyUI-Geometrypack` from ComfyUI
+`custom_nodes/` before running the v0.3.1 installer.
+
+The headless blocker this record measured — `add_cameras` needing a 3D viewport region, and a modal
+operator needing an event loop — is a GUI fact, not a capability fact, and this record already scoped
+it that way ("Not a finding that StableGen is incapable of texturing humanoids in the GUI"). That
+scoping holds.
+
+Follow-on filed as #154, which pursues **TRELLIS.2 prop generation** rather than humanoid texturing,
+because that is where the MIT licence and a live product defect (#133, props rendered as scaled cubes)
+intersect.

@@ -162,7 +162,30 @@ describe("an open front has something behind it (#103)", () => {
     expect(bare, `open fronts showing bare torso:\n${bare.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it("a short sleeve does not end at bare arm", async () => {
+  /**
+   * KNOWN-BROKEN PROBE (#155) — `it.fails` because the MEASUREMENT is wrong, not the product.
+   *
+   * `measureArmBelowCuff` (open-front-underlayer.ts:346) samples lateral body triangles from
+   * `body.minY + body.height * 0.14` — SHIN HEIGHT — up to the cuff, so the band contains lateral
+   * LEG vertices as well as the arm. It also contains the hand, which #147 correctly made skin.
+   *
+   * It passed until 2026-08-07 only because the hand used to be painted, which masked both errors.
+   * Measured on peds_nurse_kevin: arm vertices span relY 0.50-0.79 and clothing steps 1% -> 81% at
+   * relY 0.57. The 1800 hand verts at 1% averaged with 1838 forearm verts at 81% gives the ~40%
+   * this reports on a forearm that is 81% clothed.
+   *
+   * THE GUARANTEE IS NOT LOST. #103's actual requirement — no bare skin between the cuff and the
+   * wrist — is asserted STRICTER (>= 0.85) and correctly, from the `hand.L`/`hand.R` bone landmark
+   * with a shared DISTAL_HAND_FRACTION = 0.32, by sleeve-wrist-boundary.test.ts contract (2). I
+   * verified that contract is non-vacuous on 2026-08-07: against pre-#147 GLBs it fails with six
+   * gloved figures; against the shipped ones it passes.
+   *
+   * I attempted two corrections to the band and BOTH FAILED (37% -> 40%, then 37%). Per the rule
+   * that a second failed attempt at the same predicate is the signal to stop guessing, this is
+   * marked and filed rather than patched a third time. Do NOT flip it back without replacing the
+   * band with an arm-axis measurement.
+   */
+  it.fails("a short sleeve does not end at bare arm", async () => {
     // Kills the cheap satisfaction of the first contract in the adjacent region: closing the torso
     // while the arm below the cuff stays unpainted leaves the same defect one limb over.
     const mod = await load();
