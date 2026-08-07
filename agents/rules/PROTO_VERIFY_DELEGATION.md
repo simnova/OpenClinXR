@@ -1116,6 +1116,54 @@ State which of the three you believe moved when reporting a turn count. Do not l
 as evidence the delegate was underused, and do not let a high one stand as evidence it was strained —
 #114's own worker said 45 turns was "not near a model limit... no cut scope, no room ran out."
 
+## 7x. Give open-loop attempts a STOP RULE, or the worker re-proves what the brief already said
+
+#119's brief said open-loop euler tables had failed twice and left iterative solving open as a choice.
+The worker still ran **four open-loop probe cycles** before switching — ratio 0.99 → 0.48 → 0.35 → 0.30,
+then 0.39 (a regression) — and only then implemented the thigh-target iteration that reached 0.10.
+
+Its own accounting: roughly a third of a 30-turn slice, and the biggest single thrash item was those
+probe boots. Its words for what they bought: *"confirming open-loop fails before taking the iterative
+path the brief allowed — not discovering the defect class."*
+
+That is a reasonable thing for a careful worker to do. Stating a history is not the same as
+authorising the shortcut, and a worker that takes an unproven path on my say-so is worse than one that
+checks. The fix is not to demand trust; it is to bound the checking.
+
+**Rule, now standing brief text where an approach has already failed:**
+
+> You may confirm the failed approach, but at most TWICE. If `<measure>` is still outside `<band>`
+> after two cycles, or the residual is multi-axis, implement the closed-loop version.
+
+The worker nominated this itself. It costs one line and it converts "I told you it failed" into a
+budget the worker can spend deliberately.
+
+## 7y. A visual verdict slot scoped to the fix hides everything the fix did not touch
+
+§6m required out-of-scope observations to name the object and what it looks like. §7c required a closed
+enum so a verdict cannot be softened. #119 had both, and the worker still returned a hands-only grade
+while the figure read hunched.
+
+Asked directly, it agreed with my grade and explained the gap:
+
+> "Hand rest only mutates upper_arm + forearm. No pelvis/spine write... **I under-reported trunk in the
+> original report — hands-only frame.**"
+
+The enum worked exactly as designed for the thing being fixed, and the frame it created excluded the
+rest of the body. A worker asked "did the hands land on the thighs" answers about hands.
+
+**Rule:** the in-scope visual line enumerates the fixed region AND its immediate context, as separate
+named slots the worker must fill:
+
+    IN-SCOPE VISUAL: hands ___ ; trunk ___ ; overall ___
+
+Blank slots are visible in a way a missing sentence is not. The worker proposed this format; it is the
+same insight as §6h's out-of-scope slot, applied one ring closer in.
+
+Corollary for the orchestrator: I graded the same capture and saw the hunch, so the frame was mine to
+widen. Where a fix changes posture, the verdict slot asks about posture — not about the joint that
+moved.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
