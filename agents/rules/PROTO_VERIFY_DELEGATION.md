@@ -1036,3 +1036,33 @@ session has context; a session directory is not.**
 Corollary: watch a resumed worker's first output before letting it run. One minute of `git status`
 caught this. Left alone it would have committed doc churn under a stretcher contract, and the
 contract would have refused it — but only after burning the slice.
+
+## 7h. "Do not re-derive this" must fence the MEASUREMENT, never the CONCLUSION
+
+#97's planted header carried a heading — *"THE DEFECT, MEASURED — do not re-derive this"* — over a
+node-transform table AND the inference I drew from it: that the white slab dominating every capture
+was the shell's edge-standing mattress.
+
+The table was right. The inference was wrong. The slab was a generated `roomProps[monitor]` at 1×1×1
+scale rendering white because `parseInt("#111827", 16)` is `NaN` and falls back to a default.
+
+The worker's account of how it got past my fence is the rule:
+
+> "I treated the header as authoritative diagnosis of the SHELL, not as a closed claim that every
+> white occluder in every capture was that mesh... **The useful half is 'don't re-derive the shell
+> TRS'; the hazardous half is reading it as 'don't question the pixel identity of the slab.'** That
+> wording would have made a weaker agent stop earlier."
+
+**Rule:** scope every "established, do not re-derive" to the thing you actually measured, and state
+the inference separately as an inference. "These are the node transforms — measured, trust them. I
+BELIEVE the slab is this mesh; that is a hypothesis, check it." Cost: one sentence. The version
+without it fences off exactly the claim most likely to be wrong, because a measurement is data and an
+inference is you.
+
+The tell: you are about to write "measured" over something you did not measure but concluded.
+
+**And note what actually recovered it** — not scepticism, but the pixel grade. Asked whether the live
+scene dump was its first instinct, the worker said no: it trusted the header, applied the mechanical
+fix, re-captured, saw the slab still there, hid the entire shell root, re-captured, saw it *still*
+there, and only then dumped live bounds. **Three failed pixel grades forced the re-diagnosis.** A
+contract that closed on machine proofs alone would have shipped a suppressed shell and a white slab.
