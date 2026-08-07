@@ -1008,18 +1008,30 @@ resumed it with a "start the work now" delta. Sixty seconds later the worktree h
 files: `PROJECT_STATUS.md`, `docs/_archive/**`, an archive manifest, a wiki index. **Doc-hygiene
 work, on a slice about a stretcher standing on its edge.**
 
-The session had no memory of the brief — the kill preceded it. Resumed empty, with this repo's
-autonomous-continuation rules in project context, it did what those rules say to do when there is no
-task. Reasonable behaviour; entirely wrong work.
+**MY FIRST EXPLANATION WAS WRONG AND IS WITHDRAWN.** I wrote that the session was empty — the kill
+preceded the brief — and that an empty session falls back to this repo's standing autonomous rules.
+Then a SECOND worker, in a session I had verified *does* contain the stretcher brief, produced the
+same churn alongside correct product work: `PROJECT_STATUS.md`, `docs/_archive/**`, four wiki topic
+files, an archive manifest, and both halves of the PROTECTED doc-authority registry.
 
-**Rule:** before `--resume` on a WORK session, confirm the session actually contains your brief —
-the ledger entry, a commit, or worktree changes consistent with the task. Absent all three, the
-session is empty and resuming it hands an agent your repo with no instructions but the standing ones.
-Dispatch fresh instead.
+So it is not an empty-session fallback. **NOT DETERMINED what actually triggers it.** No rule, hook
+or pre-commit profile instructs archiving — the only candidate found is that `check-openclaw-drift.ts`
+mentions `archive-candidate` entries, which a worker may read as a to-do. That is a hypothesis and
+nothing more.
 
-The tell that distinguishes the two cases: #96's kill left ~80–100 turns of correct work on disk and
-resuming it was right. #97's kill left nothing, and resuming it was a category error. **Work on disk
-is the evidence that a session has context; a session directory is not.**
+What IS established, twice:
+- workers in this repo produce doc-archive churn that nobody asked for, and
+- that churn includes the protected registry, which is the #95 damage arriving by a second route.
+
+**Rule, and it does not depend on the mechanism:** verify a resumed session contains your brief
+before resuming (grep the session's `updates.jsonl` for a distinctive term from the task), AND watch
+the first minute of output. Then take INTENDED FILES ONLY at integration — never the whole branch —
+because correct product work and unrequested churn arrive in the same worktree. #90 established that
+pattern and it has now been needed three times.
+
+The tell that a resume is worth attempting at all: #96's kill left ~80–100 turns of correct work on
+disk and resuming it was right. #97's first kill left nothing. **Work on disk is the evidence that a
+session has context; a session directory is not.**
 
 Corollary: watch a resumed worker's first output before letting it run. One minute of `git status`
 caught this. Left alone it would have committed doc churn under a stretcher contract, and the
