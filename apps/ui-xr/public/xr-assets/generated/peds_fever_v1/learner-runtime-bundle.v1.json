@@ -208,8 +208,8 @@
       "title": "Pediatric Fever With Parent Anxiety And Escalation",
       "subtitle": "Child-sized urgent-care bay with pulse oximeter, thermometer tray, parent chair, and pediatric distraction items.",
       "chiefConcern": "I feel hot and tired. My tummy hurts a little.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Pediatric Fever Urgent Care Bay station scene",
       "canvasAriaLabel": "3D Pediatric Fever Urgent Care Bay preview",
       "initialDialogueText": "Noah Chen: I feel hot and tired. My tummy hurts a little.",
@@ -217,116 +217,7 @@
       "chiefConcernAuthorship": "authored_patient_voice",
       "interruptionAuthorship": "unauthored"
     },
-    "roomProps": [
-      {
-        "propId": "peds-fever-primary-context",
-        "label": "Pediatric Fever With Parent Anxiety And Escalation",
-        "semanticRole": "scenario_context",
-        "evidenceCue": "peds_fever:primary_context_cue",
-        "colorHex": "#f8fafc",
-        "accentColorHex": "#0f766e",
-        "position": {
-          "x": -0.6,
-          "y": 0.85,
-          "z": -0.7
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "peds-fever-primary-context:scenario_context",
-          "peds_fever:primary_context_cue"
-        ],
-        "interactionTags": [
-          "scenario_context",
-          "peds_fever_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "peds-fever-objective-cue",
-        "label": "Assess pediatric fever severity and hydration status",
-        "semanticRole": "objective_cue",
-        "evidenceCue": "peds_fever:objective_cue",
-        "colorHex": "#eff6ff",
-        "accentColorHex": "#2563eb",
-        "position": {
-          "x": 1.25,
-          "y": 0.95,
-          "z": -0.4
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "peds-fever-objective-cue:objective_cue",
-          "peds_fever:objective_cue"
-        ],
-        "interactionTags": [
-          "objective_cue",
-          "peds_fever_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "peds-fever-communication-cue",
-        "label": "fever_duration_history",
-        "semanticRole": "communication_cue",
-        "evidenceCue": "peds_fever:communication_cue",
-        "colorHex": "#fef3c7",
-        "accentColorHex": "#d97706",
-        "position": {
-          "x": -1.45,
-          "y": 0.65,
-          "z": 0.75
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "peds-fever-communication-cue:communication_cue",
-          "peds_fever:communication_cue"
-        ],
-        "interactionTags": [
-          "communication_cue",
-          "peds_fever_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      },
-      {
-        "propId": "peds-fever-review-cue",
-        "label": "Faculty review evidence cue",
-        "semanticRole": "review_cue",
-        "evidenceCue": "peds_fever:faculty_review_cue",
-        "colorHex": "#f3e8ff",
-        "accentColorHex": "#7c3aed",
-        "position": {
-          "x": 1.5,
-          "y": 0.7,
-          "z": 0.65
-        },
-        "scale": {
-          "x": 0.7,
-          "y": 0.18,
-          "z": 0.42
-        },
-        "affordanceCueIds": [
-          "peds-fever-review-cue:review_cue",
-          "peds_fever:faculty_review_cue"
-        ],
-        "interactionTags": [
-          "review_cue",
-          "peds_fever_v1"
-        ],
-        "generatedBy": "scene_manifest"
-      }
-    ],
+    "roomProps": [],
     "productionReadinessClaimed": false,
     "notEvidenceFor": [
       "production_asset_readiness",
