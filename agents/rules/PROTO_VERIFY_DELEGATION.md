@@ -701,6 +701,38 @@ pre-formed and a required place to put it** — "IN-SCOPE VISUAL VERDICT: this l
 difference between a prompt and a blank is the difference between a soft phrase buried mid-report and
 a line the orchestrator cannot miss.
 
+## 6x-bis. "CAUSE UNKNOWN" does not neutralise a title written about one instance
+
+#105 carried the §6d line verbatim — *"THE CAUSE IS NOT KNOWN TO ME BEYOND THE RENDER — my last three
+diagnoses in this area were each withdrawn, so do not take a hypothesis of mine as fact"* — and it
+worked for what it covers. The worker did not adopt a story. It still spent its opening on the wrong
+station, because the issue title, the header and every example were about psych:
+
+> "The line stopped me inventing a psych story, but the header + title still set the first three
+> actions... I ran `--scenario psych_suicidal_ideation_safety_v1` **first** (not full bank, not OB).
+> Only after psych came back `y0≈0.01` did I run the full bank and find OB at `0.180`. So 'cause
+> unknown' limited **diagnosis prose**; it did not stop **psych-first** work order."
+
+Psych was fine. The floater was OB, and my pixel grade of psych — the whole premise — was wrong.
+
+The disclaimer and the framing operate on different things. One governs what the worker *believes*;
+the other governs what it *does first*. Withholding a hypothesis while naming a single subject in the
+title, the header and every example still hands over a search order.
+
+**Rule:** when a contract enumerates a population, **open the brief with the measurement over the
+whole population, and say explicitly that the motivating instance is the MOTIVATION, not the measured
+locus.** The worker's own wording, now standing brief text:
+
+> Run `<measure>` over `<dynamic enumeration>` and write the artifact BEFORE diagnosing anything.
+> Report every member outside the band. `<instance>` is why this issue exists; it is not necessarily
+> where the defect is, and it may measure clean.
+
+That inverts the order that cost this slice its opening — and it is free, because the artifact was
+required anyway.
+
+**The tell:** the contract says "every station / all instances / enumerate dynamically" while the
+title, header and examples name exactly one. That gap is where the search order leaks in.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
