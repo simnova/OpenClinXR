@@ -8,6 +8,15 @@ import { describe, expect, it } from "vitest";
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — the stations that render correctly today must keep
  * doing so. It is `it.fails` only because the module is absent.
  *
+ * ## FIXED (#144)
+ * Discriminator (measured live in pre-fix.json): OB alone short-circuited
+ * `runtimeHumanoidVariantAssetPath` to `/xr-assets/humanoids/variants/ob-*-generated-human.glb`
+ * while psych (and 13 other stations) used cast SSOT → `/generated-humanoids/ed_chest_pain_*.glb`.
+ * OB loadedUrl ≠ cast file; hasGarmentRegionLive=false (no openclinxr_real_garment_*); height ~0.67–0.85 m
+ * from sub-unity framing scale. Fix: remove default OB variant returns; keep bake-off comparator
+ * overrides only; fall through to resolveHumanoidVariantOrCastPath. Rejected: regenerating GLBs;
+ * regenerating bundles; azurite URL chase (withdrawn).
+ *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * MY FIRST DIAGNOSIS WAS WRONG AND IS WITHDRAWN. THE CORRECTED ONE IS FIRST.
  *
@@ -127,7 +136,7 @@ const MIN_LIVE_TO_SOURCE_TRIANGLE_RATIO = 0.8;
 const KNOWN_GOOD = ["psych_suicidal_ideation_safety_v1", "ed_chest_pain_priority_v1"];
 
 describe("what a station renders matches what its cast resolves to (#144)", () => {
-  it.fails("every staged actor loads the mesh its cast resolves to", async () => {
+  it("every staged actor loads the mesh its cast resolves to", async () => {
     // OB and psych resolve to the same three GLBs and render completely differently, so something
     // between the resolver and the scene graph is diverging. Measured live, not from the files.
     const mod = await load();
@@ -151,7 +160,7 @@ describe("what a station renders matches what its cast resolves to (#144)", () =
     expect(diverged, `actors not loading their cast-resolved mesh:\n${diverged.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the live mesh is intact relative to its source file", async () => {
+  it("the live mesh is intact relative to its source file", async () => {
     // Kills the cheap satisfaction of the first contract: the right URL can still produce a broken
     // scene if the mesh half-loads, is substituted after load, or is scaled to something else. Every
     // existing garment gate reads the FILE and they are all green while OB renders torn figures.
@@ -177,7 +186,7 @@ describe("what a station renders matches what its cast resolves to (#144)", () =
     expect(broken, `live meshes that do not match their source:\n${broken.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the stations that render correctly keep doing so (COUNTERWEIGHT)", async () => {
+  it("the stations that render correctly keep doing so (COUNTERWEIGHT)", async () => {
     // Two cheap satisfactions: point every station at one known-good asset, which deletes the
     // role-distinct casting #96 and #102 built; or relax until everything passes. Both are forbidden.
     const mod = await load();

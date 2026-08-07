@@ -7293,6 +7293,9 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
   const role = (runtimeActorRole(actorId) ?? '').toLowerCase();
   const scenarioId = encounterRuntimeAssetBundle.scenarioId;
 
+  // #144: OB bake-off comparators only. Default cast must use resolveHumanoidVariantOrCastPath
+  // (same six regenerated humanoids as psych) — do NOT fall back to stale
+  // /xr-assets/humanoids/variants/ob-*-generated-human.glb (pre-#103 torn/nude mesh path).
   if (scenarioId === 'ob_headache_preeclampsia_triage_v1') {
     const humanoidSourceComparator = selectedHumanoidSourceComparator();
     if (humanoidSourceComparator === "mpfb_ob_patient" && actorId === runtimePatientActorId()) {
@@ -7319,9 +7322,7 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
     if (humanoidSourceComparator === "reom_namuhekam_polo_patient" && actorId === runtimePatientActorId()) {
       return '/xr-assets/humanoids/candidates/reom-namuhekam-polo-clearance-candidate.glb';
     }
-    if (actorId === runtimePatientActorId()) return '/xr-assets/humanoids/variants/ob-patient-aisha-generated-human.glb';
-    if (actorId === runtimeClinicalTeamActorId()) return '/xr-assets/humanoids/variants/ob-nurse-williams-generated-human.glb';
-    if (actorId === runtimeFamilyActorId()) return '/xr-assets/humanoids/variants/ob-partner-omar-generated-human.glb';
+    // No default variant short-circuit — fall through to cast SSOT below.
   }
 
   if (scenarioId === 'peds_asthma_parent_anxiety_v1') {
