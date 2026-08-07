@@ -583,6 +583,52 @@ orchestrate — without the `anny` package it silently produces ~0.8 MB stubs th
 This is the same shape as §6k (name the probe that already works). When a repo has two ways to do
 something and one of them fails quietly, the brief picks.
 
+## 6s. When you are inventing the third fix for the same problem, RESEARCH IT INSTEAD
+
+Standing operator direction, 2026-08-06: *"consult with grok whenever you hit a wall and use its deep
+research capabilities, that way I don't need to step in as much."*
+
+The wall that prompted it: three machine gates written for "does the garment cover the shoulder",
+three passes on visibly bare shoulders, three different counterexamples I had not anticipated. Each
+time I designed a fourth guess rather than asking how the problem is solved elsewhere.
+
+One research consult returned, in a single pass:
+
+- **The industry does not measure coverage.** Games and avatar systems hide or delete the body under
+  the garment; digital-fashion tools prevent poke-through with collision offsets and inspect
+  stress/strain maps. Nobody automates "does this free-form mesh cover the shoulder" because nobody
+  poses that question — the shipping question is "is the skin under this garment hidden".
+- **The vocabulary I was missing**: *poke-through*, *body part hiding*, *alpha mask*, *air gap
+  thickness*, *contact area*, *skin offset*. Searching for "coverage" found nothing because that is
+  not what it is called. Three cycles of failure came partly from not knowing the word.
+- **A formulation that survives all three of my counterexamples** — area-weighted outward-normal
+  raycast — **with its own stated failure modes**, which is what I had been unable to produce myself.
+
+**Rule:** the second failed attempt at the same predicate is the signal. Before writing a third,
+research how the problem is solved outside this repo. The cost is one consult; the cost of not doing
+it here was three slices, a product tuned to fit a lying gate, and a visible regression.
+
+**How to run it** (measured 2026-08-06):
+
+```bash
+~/.grok/bin/grok -p "<research question>" --model grok-4.5 --reasoning-effort high \
+  --always-approve --output-format json --max-turns 60 --cwd <repo>
+```
+
+Web search and fetch are ON by default — `--disable-web-search` exists to turn them off — so a normal
+peer round already has them; the reason my peer rounds never used them is that I only ever asked
+about the tree. **`grok-4-multi-agent` is NOT usable**: it returns
+`invalid-argument: Client-side tools for multi-agent models require beta access`, with or without
+tools stripped.
+
+**Ask for sources, and ask for stated failure modes.** The most valuable line in the reply was the
+list of ways the recommended technique still breaks — that is the part a self-invented proxy never
+comes with, and its absence is why each of my three gates looked sound until a shape defeated it.
+
+**And say plainly that "this is not machine-checkable" is an acceptable answer.** Given the option,
+the research said which parts are automated in practice and which are left to human art review —
+a distinction I had been unable to draw and had been resolving, wrongly, by writing another gate.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
