@@ -97,6 +97,15 @@ import { describe, expect, it } from "vitest";
  * about arm placement, gaze, facial expression, or clinical appropriateness — the last needs a
  * clinician and is not claimed. The arms and the torso spike are NOT fixed by this contract and
  * remain open on #87.
+ *
+ * ## FIXED (#87)
+ * - `measureSeatedContact()` loads the telehealth scene once, dumps
+ *   `.openclinxr/evidence/seated-posture/seated-contact-measurements.json`, asserts from the artifact.
+ * - Pelvis–seat gap from world Y (pelvis bone vs chair seatHeightMeters); hip flex from thigh→shin
+ *   vs world-down (not SEATED_BONE_EULERS / openClinXr* / applyPosturePose return).
+ * - Product: HIP_FLEX 93° + KNEE 95°, trunk near rest (no #83 pelvis18/spine12/chest4 stack);
+ *   `plantSeatedPelvisOnSeat` two-pass so height comes from seat descent + ordinary fold.
+ * - Calibration (post-fix live): gap≈0.002 m, hip≈91.4°, Δh≈0.261 m (stand 1.61 − sit 1.35).
  */
 
 const load = async () =>
@@ -120,7 +129,7 @@ type Measure = () => Promise<{ scenarioId: string; seated: SeatedContact[] }>;
 const HIP_FLEXION_CEILING_DEGREES = 95;
 
 describe("a seated figure rests on the chair within ordinary joint range (#87)", () => {
-  it.fails("the pelvis rests on the seat rather than hovering above it", async () => {
+  it("the pelvis rests on the seat rather than hovering above it", async () => {
     // The independent measurement: figure against CHAIR, two separately-authored objects. Nothing
     // in the pose table can satisfy this by itself.
     const mod = await load();
@@ -142,7 +151,7 @@ describe("a seated figure rests on the chair within ordinary joint range (#87)",
     }
   }, 600_000);
 
-  it.fails("hip flexion stays within ordinary seated range", async () => {
+  it("hip flexion stays within ordinary seated range", async () => {
     // An UPPER bound cannot be gamed by exceeding it, and it directly forbids the move that made
     // #83 green: deepening the fold to buy mesh height. 95° is ordinary sitting; the shipped pose
     // is 105° and says in its own comment that the extra exists for the 0.25m margin.
@@ -164,7 +173,7 @@ describe("a seated figure rests on the chair within ordinary joint range (#87)",
     }
   }, 600_000);
 
-  it.fails("the seated silhouette is still materially shorter than standing (COUNTERWEIGHT — already true at 0.33m)", async () => {
+  it("the seated silhouette is still materially shorter than standing (COUNTERWEIGHT — already true at 0.33m)", async () => {
     // #83's guarantee, which must survive the flexion cap. Satisfying the cap by straightening the
     // legs would break this — that tension is the design.
     const mod = await load();
