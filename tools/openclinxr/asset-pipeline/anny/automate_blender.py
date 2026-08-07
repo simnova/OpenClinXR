@@ -1889,13 +1889,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             if body_shoulder_tops
             else (body_min_y + body_height * 0.84)
         )
-        # Cloth above skin. Extra lift (beyond solidify thickness) compensates Catmull-Clark
-        # SUBSURF level-1 which otherwise collapses a single peak row below the body surface.
-        # Not a coverage-gate fudge: after subsurf the surface must still sit on top of skin.
-        yoke_peak_y = body_shoulder_top_y + 0.045
+        # #82: body-face offset cap over deltoid (not free-floating Y-peak strap, not top_y raise).
         print(
-            f"[blender] #76 shoulder yoke targets: body_shoulder_top_y={body_shoulder_top_y:.4f} "
-            f"yoke_peak_y={yoke_peak_y:.4f} (pre-subsurf authoring height)"
+            f"[blender] #82 shoulder cap targets: body_shoulder_top_y={body_shoulder_top_y:.4f} "
+            f"(body-offset deltoid patch + dome — not yoke_peak_y / not welded loft)"
         )
 
         UPPER_LAYER_MARKERS = (
@@ -2205,74 +2202,153 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             sR = _add_sleeve_tube(shoulder_R, arm_dir_Rn, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
             _ = (sL, sR)
 
-            def _add_shoulder_yoke(
-                shoulder: tuple,
-                arm_dir_n: tuple,
-                sign_x: float,
-            ) -> int:
+            def _add_shoulder_cap_body_offset(sign_x: float) -> Dict[str, Any]:
                 """
-                #76 yoke: faces connecting torso rim to sleeve root over the acromion.
+                #82 shoulder CAP — body-face offset patch over the deltoid/acromion.
 
-                Prior shells were a torso ring + separate sleeve tubes from `_arm_p` with
-                nothing over the deltoid top — raising top_y twice left bare shoulders.
-                Peak Y is measured body shoulder top + cloth thickness.
+                Why not a free grid or a torso↔sleeve loft:
+                - #76 free yoke: thin F-B strap, max-Y green, bare to the eye and to
+                  area-weighted outward-normal rays.
+                - Welded loft (mid attempt): spans F-B (~0.27 m) but the surface sits on a
+                  medial→lateral path that most deltoid outward rays miss (~0.23 fraction).
+
+                Construction that matches the metric: for each body face in the shoulder
+                belt on this side, emit a parallel cloth triangle offset along the face's
+                outward normal. Rays that leave those faces along n hit cloth by geometry,
+                not by a height threshold. A second slightly larger offset shell adds
+                thickness before SOLIDIFY. Unique verts only (no shared-index invalid mesh).
                 """
+                # Match the evidence metric's shoulder belt (see shoulder-raycast-coverage.ts).
+                yn_lo = 0.66
+                yn_hi = 0.92
+                lat_cut = max(shoulder_half * 0.50, body_width * 0.14)
+                offset_inner = 0.016  # sit just outside skin
+                offset_outer = 0.034  # second shell — catches rays after subsurf shrink
+                min_ny = 0.08
+
+                body_mesh = mesh_obj.data
+                # loop_triangles give a stable tessellation without mutating body topology
+                try:
+                    body_mesh.calc_loop_triangles()
+                except Exception:
+                    pass
+                tri_iter = list(getattr(body_mesh, "loop_triangles", []) or [])
+                if not tri_iter:
+                    # Fallback: fan polygons
+                    for poly in body_mesh.polygons:
+                        pv = list(poly.vertices)
+                        if len(pv) < 3:
+                            continue
+                        for k in range(1, len(pv) - 1):
+                            tri_iter.append(type("T", (), {"vertices": (pv[0], pv[k], pv[k + 1])})())
+
+                face_count = 0
+                for tri in tri_iter:
+                    idxs = list(tri.vertices)
+                    if len(idxs) < 3:
+                        continue
+                    p0 = body_mesh.vertices[idxs[0]].co
+                    p1 = body_mesh.vertices[idxs[1]].co
+                    p2 = body_mesh.vertices[idxs[2]].co
+                    cx_t = (p0.x + p1.x + p2.x) / 3.0
+                    cy_t = (p0.y + p1.y + p2.y) / 3.0
+                    cz_t = (p0.z + p1.z + p2.z) / 3.0
+                    yn = (cy_t - body_min_y) / body_height
+                    if yn < yn_lo or yn > yn_hi:
+                        continue
+                    if abs(cx_t - cx) < lat_cut:
+                        continue
+                    if sign_x > 0.0 and cx_t < cx:
+                        continue
+                    if sign_x < 0.0 and cx_t >= cx:
+                        continue
+                    e1x, e1y, e1z = p1.x - p0.x, p1.y - p0.y, p1.z - p0.z
+                    e2x, e2y, e2z = p2.x - p0.x, p2.y - p0.y, p2.z - p0.z
+                    nx = e1y * e2z - e1z * e2y
+                    ny = e1z * e2x - e1x * e2z
+                    nz = e1x * e2y - e1y * e2x
+                    nlen = math.sqrt(nx * nx + ny * ny + nz * nz)
+                    if nlen < 1e-12:
+                        continue
+                    nx, ny, nz = nx / nlen, ny / nlen, nz / nlen
+                    if nx * sign_x < 0.0:
+                        nx, ny, nz = -nx, -ny, -nz
+                    if ny < min_ny:
+                        continue
+                    # Mild extra outward bias so baggy cloth sits off the deltoid bulk
+                    ox = nx * 1.0 + sign_x * 0.15
+                    oy = ny * 1.0 + 0.20
+                    oz = nz * 1.0
+                    olen = math.sqrt(ox * ox + oy * oy + oz * oz) or 1.0
+                    ox, oy, oz = ox / olen, oy / olen, oz / olen
+
+                    for off in (offset_inner, offset_outer):
+                        base = len(verts)
+                        for p in (p0, p1, p2):
+                            # Slight tangential expand so patch is a bit larger than the body face
+                            # (reduces edge gaps between adjacent offset tris).
+                            tx = p.x - cx_t
+                            ty = p.y - cy_t
+                            tz = p.z - cz_t
+                            expand = 1.08
+                            verts.append((
+                                cx_t + tx * expand + ox * off,
+                                cy_t + ty * expand + oy * off,
+                                cz_t + tz * expand + oz * off,
+                            ))
+                        faces.append((base, base + 1, base + 2))
+                    face_count += 1
+
+                # Supplemental dense dome for visual continuity / SUBSURF (fills small gaps
+                # between body-face samples). Does not replace the offset patch.
+                cap_rows, cap_cols = 8, 12
+                a = max(shoulder_half * 0.65, body_width * 0.14, 0.06)
+                b = 0.042
+                c = max(body_depth * 0.34, 0.07)
+                acr_x = cx + sign_x * max(shoulder_half * 0.85, body_width * 0.20)
+                acr_y = body_shoulder_top_y
+                acr_z = cz
                 s0 = len(verts)
-                # Dense plateau so SUBSURF L1 cannot collapse peak below body shoulder top.
-                yoke_rows = 8
-                yoke_cols = 12
-                # Medial attach near neckline lateral side of torso
-                medial_x = cx + sign_x * max(r_base * 0.62, shoulder_half * 0.55)
-                medial_y = top_y
-                medial_z = cz
-                # Along-arm outer slightly down the sleeve so yoke meets the tube
-                outer_x = shoulder[0] + arm_dir_n[0] * (sleeve_along * 0.10) + sign_x * sleeve_r0 * 0.55
-                outer_y = shoulder[1] + arm_dir_n[1] * (sleeve_along * 0.10) + sleeve_r0 * 0.65
-                outer_z = shoulder[2] + arm_dir_n[2] * (sleeve_along * 0.10)
-                # Peak over acromion (above body shoulder surface), lateral enough for inspect
-                peak_x = shoulder[0] + sign_x * max(body_width * 0.04, shoulder_half * 0.25)
-                peak_z = shoulder[2] + body_depth * 0.02
+                for ri in range(cap_rows):
+                    u = ri / float(cap_rows - 1) if cap_rows > 1 else 0.0
+                    phi = u * (math.pi * 0.55)
+                    for cj in range(cap_cols):
+                        v = cj / float(cap_cols - 1) if cap_cols > 1 else 0.5
+                        theta = -math.pi * 0.55 + v * (math.pi * 1.10)
+                        sp, cp = math.sin(phi), math.cos(phi)
+                        lat = sp * math.cos(theta)
+                        ant = sp * math.sin(theta)
+                        x = acr_x + sign_x * (a * max(lat, 0.0) + 0.012)
+                        if lat < 0.0:
+                            x = acr_x - sign_x * (0.01 + a * 0.18 * abs(lat))
+                        y = acr_y + 0.014 + b * cp
+                        z = acr_z + c * ant
+                        verts.append((x, y, z))
+                for ri in range(cap_rows - 1):
+                    for cj in range(cap_cols - 1):
+                        a_i = s0 + ri * cap_cols + cj
+                        b_i = s0 + ri * cap_cols + (cj + 1)
+                        c_i = s0 + (ri + 1) * cap_cols + (cj + 1)
+                        d_i = s0 + (ri + 1) * cap_cols + cj
+                        faces.append((a_i, b_i, c_i, d_i))
 
-                for ri in range(yoke_rows):
-                    u = ri / float(yoke_rows - 1) if yoke_rows > 1 else 0.0
-                    # Height: rise → hold plateau at peak → ease to sleeve.
-                    # Plateau rows keep max-Y after Catmull-Clark (single peak row collapses).
-                    if u < 0.22:
-                        y = medial_y + (yoke_peak_y - medial_y) * (u / 0.22)
-                    elif u <= 0.72:
-                        y = yoke_peak_y
-                    else:
-                        y = yoke_peak_y + (outer_y - yoke_peak_y) * ((u - 0.72) / 0.28)
-                    # Planar path medial → peak → outer
-                    if u <= 0.50:
-                        t2 = u / 0.50
-                        bx = medial_x + (peak_x - medial_x) * t2
-                        bz = medial_z + (peak_z - medial_z) * t2
-                    else:
-                        t2 = (u - 0.50) / 0.50
-                        bx = peak_x + (outer_x - peak_x) * t2
-                        bz = peak_z + (outer_z - peak_z) * t2
-                    # Front→back span grows with u (wider over deltoid)
-                    half_span = (0.035 + 0.070 * u) * (1.0 + 0.15 * radius_stack)
-                    for cj in range(yoke_cols):
-                        v = cj / float(yoke_cols - 1) if yoke_cols > 1 else 0.5
-                        # v=0 front (+Z in Anny anterior), v=1 back
-                        z_off = (v - 0.5) * 2.0 * half_span
-                        # Radial lift so yoke sits outside body / deltoid
-                        x_lift = sign_x * (0.010 + 0.018 * u)
-                        fold = 0.0025 * math.sin(v * math.pi * 2.0 + u * 3.0)
-                        verts.append((bx + x_lift + fold * sign_x, y + fold * 0.2, bz + z_off))
-                for ri in range(yoke_rows - 1):
-                    for cj in range(yoke_cols - 1):
-                        a = s0 + ri * yoke_cols + cj
-                        b = s0 + ri * yoke_cols + (cj + 1)
-                        c = s0 + (ri + 1) * yoke_cols + (cj + 1)
-                        d = s0 + (ri + 1) * yoke_cols + cj
-                        faces.append((a, b, c, d))
-                return s0
+                print(
+                    f"[blender] #82 shoulder cap sign_x={sign_x}: "
+                    f"body_offset_faces={face_count} + dome {cap_rows}x{cap_cols} "
+                    f"offsets={offset_inner:.3f}/{offset_outer:.3f}"
+                )
+                return {
+                    "bodyOffset": True,
+                    "bodyOffsetFaceCount": face_count,
+                    "domeRows": cap_rows,
+                    "domeCols": cap_cols,
+                    "offsetInnerM": offset_inner,
+                    "offsetOuterM": offset_outer,
+                }
 
-            _add_shoulder_yoke(shoulder_L, arm_dir_Ln, 1.0)
-            _add_shoulder_yoke(shoulder_R, arm_dir_Rn, -1.0)
+            cap_L = _add_shoulder_cap_body_offset(1.0)
+            cap_R = _add_shoulder_cap_body_offset(-1.0)
+            _ = (cap_L, cap_R)
 
             col0 = len(verts)
             collar_cols = torso_col_count
@@ -2483,7 +2559,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             face_count = len(faces)
             layer_meta = {
                 "mode": "phenotype_embedded_real_garment_region_v1",
-                "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+                "revision": "embed_real_garment_shoulder_cap_body_offset_v1_issue_82",
                 "objectName": garment.name,
                 "meshName": gmesh_name,
                 "layerIndex": layer_index,
@@ -2491,8 +2567,12 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "layerKind": kind,
                 "faceCount": face_count,
                 "vertexCount": len(verts),
-                "hasShoulderYoke": True,
-                "yokePeakY": round(yoke_peak_y, 4),
+                # #82: body-face offset deltoid cap (replaces #76 yoke flaps + failed welded loft)
+                "hasShoulderCap": True,
+                "hasShoulderYoke": False,
+                "shoulderCapBodyOffset": True,
+                "shoulderCapLeft": cap_L,
+                "shoulderCapRight": cap_R,
                 "bodyShoulderTopY": round(body_shoulder_top_y, 4),
                 "hasSleeveGeometry": True,
                 "sleeveCoverage": sleeve_cov,

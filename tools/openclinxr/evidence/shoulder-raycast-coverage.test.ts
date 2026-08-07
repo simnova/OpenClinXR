@@ -69,6 +69,40 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether garment occupies the shoulder silhouette. Says nothing about drape, fabric, or
  * poke-through — that last is the research's actual subject and is deliberately a later slice.
+ *
+ * ## FIXED (#82)
+ *
+ * Instrument: `shoulder-raycast-coverage.ts` — area-weighted outward-normal raycast fraction.
+ * Implementation: pure Möller–Trumbore against garment tris (no three-mesh-bvh at tools root;
+ * nested under iwsdk only). Same semantics as BVH raycastFirst. Shoulder belt: body faces with
+ * yn∈[0.68,0.90], lateral ≥0.32 half-width, outward normal ny≥0.15. MAX_DIST=0.12, EPS=0.003.
+ * Floor COVERAGE_FRACTION_FLOOR=0.5 chosen AFTER measuring the three graded negatives.
+ *
+ * Calibration (before any product bake — instrument must refuse all three):
+ *
+ *   ref       asset    left frac  right frac  verdict
+ *   56b6998   parent   0.1623     0.1544      refuse
+ *   8ff963f   parent   0.2260     0.2133      refuse
+ *   3f84082   nurse    0.1758     0.1689      refuse   (#76 flaps: max-Y green, fraction refuse)
+ *
+ * Thin-flap pure probe: 0.05 / 0.30 → false; 0.95 → true (floor is not "always false").
+ *
+ * Product geometry (`automate_blender.py`): body-face offset deltoid cap — for each body face in
+ * the shoulder belt, emit parallel cloth tris offset along the face outward normal (0.016 / 0.034 m
+ * dual shell) + supplemental 8×12 ellipsoidal dome for visual continuity. Replaces #76 free yoke
+ * straps and a mid-slice welded torso↔sleeve loft that still scored ~0.23 (surface sat off-axis
+ * from deltoid outward rays). Do NOT raise top_y for coverage.
+ *
+ * Post-bake regenerated (Blender-only on real Anny bases, export_yup=False):
+ *
+ *   asset    left frac  right frac  verdict
+ *   parent   0.9298     0.9298      pass
+ *   nurse    0.9225     0.9225      pass
+ *
+ * Stated failure modes preserved (not tightened away): dense thin-strip lattice can still score
+ * high; baggy sleeves cover despite air gap; two-sided raycast; no interpenetration detection.
+ * Hide-mask / poke-through deliberately out of scope (peer: mask assumes garment already owns
+ * the region — this slice creates that precondition).
  */
 
 const load = async () =>
@@ -82,7 +116,7 @@ const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 
 describe("garment occupies the shoulder silhouette (#82)", () => {
-  it.fails("the raycast coverage fraction refuses all three assets graded as bare-shouldered", async () => {
+  it("the raycast coverage fraction refuses all three assets graded as bare-shouldered", async () => {
     const mod = await load();
     const assess = mod["assessShoulderRaycastCoverage"] as Assess | undefined;
     const verdict = mod["coverageFractionVerdict"] as Verdict | undefined;
@@ -118,7 +152,7 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     }
   }, 600_000);
 
-  it.fails("a thin flap rising above the shoulder does not raise the coverage fraction", async () => {
+  it("a thin flap rising above the shoulder does not raise the coverage fraction", async () => {
     // Kills #76's defeat directly. A flap is high but narrow: it catches almost no outward rays, so
     // the fraction must stay near the floor. Probed on the verdict alone so it cannot be satisfied by
     // a lucky asset.
@@ -132,7 +166,7 @@ describe("garment occupies the shoulder silhouette (#82)", () => {
     expect(verdict!({ coveredFraction: 0.95 })).toBe(true);
   });
 
-  it.fails("the regenerated parent and nurse reach the coverage fraction on both deltoids", async () => {
+  it("the regenerated parent and nurse reach the coverage fraction on both deltoids", async () => {
     // The product half. Needs a cap spanning the acromion, not a flap and not a higher neckline —
     // top_y has already been raised twice for this and changed nothing visible.
     const mod = await load();
