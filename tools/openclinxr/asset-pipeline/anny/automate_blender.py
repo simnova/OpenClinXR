@@ -2466,12 +2466,94 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     skipped_back_faces = 0
     skipped_torso_paint_faces = 0
     lower_paint_max_ch = -1e9
-    # #103 short-sleeve end: procedural sleeves stop near the elbow (~0.55–0.65 body height).
-    # Paint clothing on the limb from wrist up through the cuff band so the sleeve does not
-    # end at bare arm. Hands below wrist stay skin. Lateral half-width only (not torso).
-    arm_wrist_h = min_h + height_h * 0.12
-    arm_cuff_h = min_h + height_h * 0.66
+    # #103 short-sleeve end: paint clothing on the limb so the sleeve does not end at bare arm.
+    # #147: DO NOT use a global body-height plane for the wrist (0.12×height ≈ ankle — same class
+    # as #124's hem). Anatomical wrist = hand.L/R bone head (= forearm.tail). Two positive rules:
+    #   clothe by proximity to the elbow→hand forearm segment distal of the cuff;
+    #   leave skin by proximity to the mesh-distal band toward the hand bone (hands).
+    # Shrinking a Y band re-opens the bare forearm gap #103 closed (§6p / #73 trap).
+    # Universal skin hands for v1 (role gloves later, clinician-gated).
+    arm_cuff_h = min_h + height_h * 0.66  # cuff height bound kept; NOT the wrist
     arm_lat_min = body_width_l * 0.20
+
+    def _bone_head_mesh_local(bname: str):
+        if arm_obj is None:
+            return None
+        bone = arm_obj.data.bones.get(bname)
+        if bone is None:
+            return None
+        # Bones are authored from mesh bbox in mesh-local space (create_canonical_armature).
+        # Use rest head_local directly — parenting/world transforms double-apply and miss the limb.
+        h = bone.head_local
+        return (float(h.x), float(h.y), float(h.z))
+
+    hand_L = _bone_head_mesh_local("hand.L")
+    hand_R = _bone_head_mesh_local("hand.R")
+    elbow_L = _bone_head_mesh_local("forearm.L")  # forearm head = elbow
+    elbow_R = _bone_head_mesh_local("forearm.R")
+    # Fallback: same bbox limb factors as create_canonical_armature (hand 0.42, elbow 0.58).
+    if hand_L is None or hand_R is None or elbow_L is None or elbow_R is None:
+        half_span = max(body_width_l * 0.44, height_h * 0.32)
+        elbow_off = max(body_width_l * 0.34, half_span * 0.75)
+        center_z_l = (min_z_l + max_z_l) * 0.5
+
+        def _limb(x_off: float, y_factor: float):
+            return (center_x + x_off, min_h + height_h * y_factor, center_z_l)
+
+        if hand_L is None:
+            hand_L = _limb(half_span, 0.42)
+        if hand_R is None:
+            hand_R = _limb(-half_span, 0.42)
+        if elbow_L is None:
+            elbow_L = _limb(elbow_off, 0.58)
+        if elbow_R is None:
+            elbow_R = _limb(-elbow_off, 0.58)
+
+    def _seg_s_and_dist(px: float, py: float, pz: float, a, b):
+        ax, ay, az = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+        fl2 = ax * ax + ay * ay + az * az
+        if fl2 < 1e-12:
+            return 0.0, 1e9
+        fl = fl2 ** 0.5
+        tx, ty, tz = px - a[0], py - a[1], pz - a[2]
+        s = (tx * ax + ty * ay + tz * az) / fl2  # 0 at elbow, 1 at hand bone
+        projx, projy, projz = a[0] + ax * s, a[1] + ay * s, a[2] + az * s
+        d = ((px - projx) ** 2 + (py - projy) ** 2 + (pz - projz) ** 2) ** 0.5
+        return s, d
+
+    # Generous tube radius: Anny arm verts sit off the bone axis (depth/Z bulge); too tight → arm_faces=0.
+    arm_r = max(body_width_l * 0.22, 0.10)
+    # Pass 1: among lateral faces near either forearm segment (below cuff), record max s per side.
+    # Mesh arms often end short of the hand bone (s_max ≪ 1); the distal band IS the visual hand.
+    side_s_max = [-1e9, -1e9]
+    side_s_min = [1e9, 1e9]
+    for polygon in mesh_obj.data.polygons:
+        center = polygon.center
+        ch = center.y if height_axis == "y" else center.z
+        rel_x = abs(center.x - center_x)
+        if arm_index < 0 or rel_x < arm_lat_min or ch > arm_cuff_h + height_h * 0.02:
+            continue
+        px, py, pz = float(center.x), float(center.y), float(center.z)
+        for side_i, (elb, hnd) in enumerate(((elbow_L, hand_L), (elbow_R, hand_R))):
+            s, d = _seg_s_and_dist(px, py, pz, elb, hnd)
+            if d > arm_r * 1.35 or s < -0.35 or s > 1.15:
+                continue
+            if s > side_s_max[side_i]:
+                side_s_max[side_i] = s
+            if s < side_s_min[side_i]:
+                side_s_min[side_i] = s
+
+    # Distal ~32% of each side's mesh arm extent → skin hands; proximal → clothed forearm.
+    # 0.28 left ~10.6% residual clothing on the distal band (just over the 0.10 seam allowance).
+    DISTAL_HAND_FRACTION = 0.32
+    side_hand_cut = [1.0, 1.0]
+    for side_i in (0, 1):
+        if side_s_max[side_i] < -1e8:
+            side_hand_cut[side_i] = 1.0
+            continue
+        span = max(side_s_max[side_i] - side_s_min[side_i], 0.05)
+        side_hand_cut[side_i] = side_s_max[side_i] - max(span * DISTAL_HAND_FRACTION, 0.04)
+
     for polygon in mesh_obj.data.polygons:
         # Local face center (not world) — stable under OBJ import rotation.
         center = polygon.center
@@ -2505,12 +2587,26 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             )
             and rel_x <= lower_half
         )
-        # #103 arm clothing (short sleeve end) — lateral limb only, wrist→cuff.
-        is_arm_clothing = (
-            arm_index >= 0
-            and arm_wrist_h <= ch <= arm_cuff_h
-            and rel_x >= arm_lat_min
-        )
+        # #147 arm clothing: forearm-segment proximity, not global height plane; distal band = skin.
+        is_arm_clothing = False
+        if arm_index >= 0 and rel_x >= arm_lat_min and ch <= arm_cuff_h + height_h * 0.02:
+            px, py, pz = float(center.x), float(center.y), float(center.z)
+            best_side = -1
+            best_d = 1e9
+            best_s = 0.0
+            for side_i, (elb, hnd) in enumerate(((elbow_L, hand_L), (elbow_R, hand_R))):
+                s, d = _seg_s_and_dist(px, py, pz, elb, hnd)
+                if d < best_d:
+                    best_d = d
+                    best_s = s
+                    best_side = side_i
+            if (
+                best_side >= 0
+                and best_d <= arm_r * 1.35
+                and best_s >= -0.25
+                and best_s < side_hand_cut[best_side]
+            ):
+                is_arm_clothing = True
         # #124: paint lower FIRST so the shared waist band is claimed even when
         # skip_torso_paint would have continued past is_top faces (top_min=0.42*h
         # overlaps lower_max=0.50*h — that overlap is exactly the midriff gap).
@@ -2536,11 +2632,13 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             top_faces += 1
 
     print(
-        f"[blender] #124 paint bands: height_axis={height_axis} min_h={min_h:.4f} "
+        f"[blender] #124/#147 paint bands: height_axis={height_axis} min_h={min_h:.4f} "
         f"height_h={height_h:.4f} lower_max_h={lower_max_h:.4f} "
         f"SHARED_WAIST_FRACTION={SHARED_WAIST_FRACTION} lower_faces={lower_faces} "
         f"lower_paint_max_ch={lower_paint_max_ch:.4f} "
-        f"top_faces={top_faces} arm_faces={arm_faces} skip_torso={skip_torso_paint}"
+        f"top_faces={top_faces} arm_faces={arm_faces} skip_torso={skip_torso_paint} "
+        f"hand_cut_L={side_hand_cut[0]:.3f} hand_cut_R={side_hand_cut[1]:.3f} "
+        f"s_max_L={side_s_max[0]:.3f} s_max_R={side_s_max[1]:.3f}"
     )
     if lower_faces == 0:
         raise RuntimeError(
@@ -2556,7 +2654,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     ret = {
         "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
         "clothingRegionRevision": (
-            "v8_arm_clothing_below_short_cuff_issue_103_keep_skip_torso_when_real_garment"
+            "v9_arm_clothing_hand_bone_wrist_boundary_issue_147_keep_forearm_coverage_103_colour_146"
             if skip_torso_paint
             else "v6_garment_source_quality_wider_native_trim_pediatric_school_age"
         ),

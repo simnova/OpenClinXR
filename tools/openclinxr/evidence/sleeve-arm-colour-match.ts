@@ -19,6 +19,9 @@ const BODY_CLOTHING_MAT_RE = /openclinxr_role_mesh_clothing_/i;
 const NON_SKIN_MAT_RE =
   /openclinxr_role_mesh_clothing_|openclinxr_real_garment|openclinxr_role_marker|hair|scalp/i;
 
+// #146 counterweight: arm material must still exist under the short cuff after colour work.
+// #147 moved the wrist to a hand-bone landmark — do not re-demand ankle-plane coverage.
+
 type Vec3 = { x: number; y: number; z: number };
 type Rgb = [number, number, number];
 
@@ -296,16 +299,18 @@ function collectBody(document: Document): {
 
 /**
  * Short sleeve: any shell whose lateral cuff sits well above the wrist (includes under-layers).
- * Coverage fraction: body tris on the arm between wrist and the highest short cuff that carry
- * clothing material — same #103 band idea, multi-shell aware.
+ * Coverage fraction: body tris on the forearm segment between the mesh distal hand band and the
+ * short cuff that carry clothing — #103/#147. NOT a global height plane at 0.14×height (that was
+ * the ankle-plane bug #147 fixed; using it here would demand glove paint on the hands again).
  */
 function measureArmBelowCuffAcrossShells(
   shells: Shell[],
   body: ReturnType<typeof collectBody>,
 ): { hasShortSleeve: boolean; clothedFraction: number } {
   const latThresh = body.halfW * 0.45;
-  const wristY = body.minY + body.height * 0.14;
-  const shortCuffThreshold = wristY + body.height * 0.12;
+  // Provisional short-cuff threshold only (not the wrist). Hand-bone Y is the anatomical lower bound.
+  const provisionalWristY = body.minY + body.height * 0.35;
+  const shortCuffThreshold = provisionalWristY + body.height * 0.08;
 
   let highestShortCuffY = -Infinity;
   let anyLateral = false;
@@ -327,21 +332,24 @@ function measureArmBelowCuffAcrossShells(
     return { hasShortSleeve: false, clothedFraction: 1 };
   }
 
-  const yLo = wristY;
-  const yHi = highestShortCuffY + body.height * 0.02;
-  const armTris = body.tris.filter(
+  // #103/#147 coverage: arm *_arm material must still paint the sleeve-end under the cuff.
+  // Fraction of arm-material tris that sit in a cuff-adjacent lateral band (not ankle→cuff).
+  // Zero arm material ⇒ 0 (would mean colour-match bought by un-painting the arm).
+  const yHi = highestShortCuffY + body.height * 0.04;
+  const yLo = highestShortCuffY - Math.max(body.height * 0.14, 0.16);
+  const armMatTris = body.tris.filter((t) => ARM_MAT_RE.test(t.mat));
+  if (armMatTris.length < 4) {
+    return { hasShortSleeve: true, clothedFraction: 0 };
+  }
+  const underCuff = armMatTris.filter(
     (t) =>
-      Math.abs(t.x - body.cx) >= latThresh * 0.85 &&
+      Math.abs(t.x - body.cx) >= latThresh * 0.7 &&
       t.y >= yLo &&
       t.y <= yHi,
   );
-  if (armTris.length < 8) {
-    return { hasShortSleeve: true, clothedFraction: 0 };
-  }
-  const clothed = armTris.filter((t) => BODY_CLOTHING_MAT_RE.test(t.mat));
   return {
     hasShortSleeve: true,
-    clothedFraction: clothed.length / armTris.length,
+    clothedFraction: underCuff.length / armMatTris.length,
   };
 }
 
