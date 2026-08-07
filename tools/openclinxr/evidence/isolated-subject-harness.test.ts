@@ -168,7 +168,7 @@ const MIN_FRAME_COVERAGE = 0.08;
 const MAX_DEV_SERVER_BOOTS = 2;
 
 describe("a subject can be rendered in isolation, in variants (#163)", () => {
-  it.fails("subjects render alone — no room, no HUD, no other actors", async () => {
+  it("subjects render alone — no room, no HUD, no other actors", async () => {
     // Every visual check today boots the full encounter and captures a room in which the subject is a
     // few hundred pixels, confounded by room lighting, HUD chrome and every other actor.
     const mod = await load();
@@ -195,7 +195,7 @@ describe("a subject can be rendered in isolation, in variants (#163)", () => {
     expect(contaminated, `subjects that were not isolated:\n${contaminated.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("a variant sweep costs one boot and lands as one contact sheet", async () => {
+  it("a variant sweep costs one boot and lands as one contact sheet", async () => {
     // Kills the cheap satisfaction of the first contract: isolating subjects correctly while booting a
     // dev server per subject is slower than what it replaces. §7b records a suite that paid three cold
     // boots, took 542s and left main red. Speed IS the requirement here, not a nice-to-have.
@@ -221,7 +221,7 @@ describe("a subject can be rendered in isolation, in variants (#163)", () => {
     expect(run.browserLaunches, "one browser for the run").toBeLessThanOrEqual(MAX_DEV_SERVER_BOOTS);
   }, 1_800_000);
 
-  it.fails("the room-capture path still works (COUNTERWEIGHT)", async () => {
+  it("the room-capture path still works (COUNTERWEIGHT)", async () => {
     // The cheapest satisfaction is rebuilding capture from scratch and leaving the existing path
     // broken. Fourteen stations and six contracts read room captures; #133, #150 and #153 all closed
     // on them this week. The harness ADDS an isolated path, it does not replace the integrated one.
