@@ -2229,7 +2229,13 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/telehealth_diabetes_health_literacy_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
-- `apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/ward_delirium_med_rec_v1/scene-manifest.v1.json`
+- `apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/peds_fever_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/peds_fever_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity. - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.

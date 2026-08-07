@@ -1,0 +1,307 @@
+{
+  "bundleId": "primary_care_dyslipidemia_joint_pain_v1:learner-runtime-bundle:v1",
+  "stationId": "primary_care_dyslipidemia_joint_pain_station_v1",
+  "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+  "assetStoreKind": "azurite_blob",
+  "identityScope": "learner_runtime_opaque_bundle",
+  "frozenForEncounter": true,
+  "generatedAt": "2026-08-07T11:22:39.061Z",
+  "expiresAt": "2027-08-07T11:22:39.062Z",
+  "environment": {
+    "assetId": "openclinxr.primary_care_dyslipidemia_joint_pain_v1.environment.generated-glb",
+    "version": "descriptor-only-2026-08-07",
+    "kind": "environment_model",
+    "displayName": "Primary Care Clinic Room",
+    "scenarioAssetId": "primary_care_dyslipidemia_joint_pain_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      "shared_exam_bay_shell_placeholder",
+      "no_station_specific_environment_mesh_#114"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_mario_guzman_v1",
+      "embodiment": "humanoid",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.primary_care_dyslipidemia_joint_pain_v1.patient_mario_guzman_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "patient mario guzman",
+        "scenarioAssetId": "patient_mario_guzman_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "medical_assistant_jones_v1",
+      "embodiment": "humanoid",
+      "role": "nurse",
+      "model": {
+        "assetId": "openclinxr.primary_care_dyslipidemia_joint_pain_v1.medical_assistant_jones_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "medical assistant jones",
+        "scenarioAssetId": "medical_assistant_jones_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "ehr_screen_equipment",
+      "model": {
+        "assetId": "openclinxr.primary_care_dyslipidemia_joint_pain_v1.ehr_screen_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "ehr screen",
+        "scenarioAssetId": "primary_care_dyslipidemia_joint_pain_v1:ehr_screen_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/equipment/ehr_screen_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/equipment/ehr_screen_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "lab_results_panel_equipment",
+      "model": {
+        "assetId": "openclinxr.primary_care_dyslipidemia_joint_pain_v1.lab_results_panel_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "lab results panel",
+        "scenarioAssetId": "primary_care_dyslipidemia_joint_pain_v1:lab_results_panel_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/equipment/lab_results_panel_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/equipment/lab_results_panel_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:primary_care_dyslipidemia_joint_pain_v1:primary_care_dyslipidemia_joint_pain_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+    "stationId": "primary_care_dyslipidemia_joint_pain_station_v1",
+    "stationContext": {
+      "title": "Dyslipidemia And Joint Pain Primary Care Visit",
+      "subtitle": "Primary care room with exam table, chairs, EHR screen, lab results, joint diagram, and medication list.",
+      "chiefConcern": "Characterize chronic joint pain and screen inflammatory red flags",
+      "initialVitals": "Scenario-specific vitals pending authored station shell",
+      "interruption": "Scenario event cue pending review",
+      "stageAriaLabel": "Primary Care Clinic Room station scene",
+      "canvasAriaLabel": "3D Primary Care Clinic Room preview",
+      "initialDialogueText": "Mario Guzman: My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain."
+    },
+    "roomProps": [
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-primary-context",
+        "label": "Dyslipidemia And Joint Pain Primary Care Visit",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-primary-context:scenario_context",
+          "primary_care_dyslipidemia_joint_pain:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-objective-cue",
+        "label": "Characterize chronic joint pain and screen inflammatory red flags",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-objective-cue:objective_cue",
+          "primary_care_dyslipidemia_joint_pain:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-communication-cue",
+        "label": "joint_pain_characterization",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-communication-cue:communication_cue",
+          "primary_care_dyslipidemia_joint_pain:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "primary-care-dyslipidemia-joint-pain-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "primary_care_dyslipidemia_joint_pain:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "primary-care-dyslipidemia-joint-pain-review-cue:review_cue",
+          "primary_care_dyslipidemia_joint_pain:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "primary_care_dyslipidemia_joint_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "uiSurfaces": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

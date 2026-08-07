@@ -148,7 +148,12 @@ const AUTHORED_LINES_TODAY: Record<string, string> = {
 const sorted = (v: readonly string[]) => [...new Set(v)].sort();
 
 describe("the station a learner selected is the station the runtime presents (#114)", () => {
-  it.fails("every station's trace actions are its own, bundle or no bundle", async () => {
+  // ## FIXED (#114)
+  // Identity: deriveRuntimeTraceActionTagsFromBundle(bundle, selectedScenarioId) — bank tags win
+  // even when the static fetch 404s and the ED fixture stays loaded for assets.
+  // Ship: three learner-runtime-bundle.v1.json under public/xr-assets/generated/<id>/ with each
+  // station's own bank cast (not a renamed ED copy). Counterweight lines for #113 preserved.
+  it("every station's trace actions are its own, bundle or no bundle", async () => {
     // The identity half. peds_fever offers an ECG button because the ED fallback supplies the
     // scenarioId that deriveRuntimeTraceActionTagsFromBundle keys on. Needs no new files.
     const mod = await load();
@@ -172,7 +177,7 @@ describe("the station a learner selected is the station the runtime presents (#1
     expect(offenders, `stations presenting another station's actions:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the three bundle-less stations ship a bundle that is genuinely theirs", async () => {
+  it("the three bundle-less stations ship a bundle that is genuinely theirs", async () => {
     // The ship half. Kills stub directories and the copy-ED-and-rename cheat: the cast has to be
     // that station's own bank cast, which a renamed scenarioId cannot fake.
     const mod = await load();
@@ -193,7 +198,7 @@ describe("the station a learner selected is the station the runtime presents (#1
     }
   }, 900_000);
 
-  it.fails("the eleven stations that already ship a bundle are untouched (COUNTERWEIGHT)", async () => {
+  it("the eleven stations that already ship a bundle are untouched (COUNTERWEIGHT)", async () => {
     // The likeliest way to satisfy (2) is a script that walks every station and rewrites every
     // bundle. That would erase the authored opening utterances #113 landed.
     const mod = await load();

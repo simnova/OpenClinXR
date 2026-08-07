@@ -416,7 +416,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("scenarioId = selectedScenarioId()");
     expect(mainSource).toContain("scenarioBank.find((candidate) => candidate.scenarioId === scenarioId)");
     expect(mainSource).toContain("window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence = buildCaseDefinedHumanoidPerformanceContractEvidence()");
-    expect(mainSource).toContain("buildCaseDefinedHumanoidPerformanceContractEvidence(encounterRuntimeAssetBundle.scenarioId)");
+    // #114: humanoid performance contract keys on the learner-selected station, not a foreign
+    // fallback bundle.scenarioId (old assertion used encounterRuntimeAssetBundle.scenarioId).
+    expect(mainSource).toContain("buildCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId())");
     expect(mainSource).toContain("formatCaseDefinedHumanoidPerformanceContractEvidence");
     expect(mainSource).toContain(`case humanoid contract \${evidence.actorCount} actors`);
     expect(mainSource).toContain("case_definition_humanoid_performance_metadata_only");

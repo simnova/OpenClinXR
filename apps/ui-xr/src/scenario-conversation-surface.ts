@@ -118,11 +118,26 @@ export function scenarioActorIdsForScenario(scenarioId: string): string[] {
 
 /**
  * Bundle → Trace Action tags (same path createRuntimeStateFromBundle uses).
+ *
+ * #114: when the learner selected a station, pass that id as `selectedScenarioId`.
+ * A missing static bundle leaves the ED fixture in place; without this arg, tags
+ * (and any surface keyed on them) become ED's — including ECG on peds fever.
+ * Asset paths may still use `bundle.scenarioId`; identity for the action set does not.
+ * Rejected alternative: rebinding the ED fallback's scenarioId so mismatch goes away
+ * and the ED room renders as if it were the selected station.
  */
-export function deriveRuntimeTraceActionTagsFromBundle(bundle: LearnerRuntimeAssetBundle): string[] {
+export function deriveRuntimeTraceActionTagsFromBundle(
+  bundle: LearnerRuntimeAssetBundle,
+  selectedScenarioId?: string,
+): string[] {
+  const scenarioId = selectedScenarioId?.trim() || bundle.scenarioId;
   return deriveScenarioTraceActionTags({
-    scenarioId: bundle.scenarioId,
-    dialogueTurns: bundle.sceneManifest.dialogueTurns ?? null,
+    scenarioId,
+    // Only trust dialogueTurns when they belong to the identity station.
+    dialogueTurns:
+      scenarioId === bundle.scenarioId
+        ? (bundle.sceneManifest.dialogueTurns ?? null)
+        : null,
   });
 }
 

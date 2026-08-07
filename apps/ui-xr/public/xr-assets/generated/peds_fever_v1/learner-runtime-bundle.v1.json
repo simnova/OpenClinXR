@@ -1,0 +1,342 @@
+{
+  "bundleId": "peds_fever_v1:learner-runtime-bundle:v1",
+  "stationId": "peds_fever_station_v1",
+  "scenarioId": "peds_fever_v1",
+  "assetStoreKind": "azurite_blob",
+  "identityScope": "learner_runtime_opaque_bundle",
+  "frozenForEncounter": true,
+  "generatedAt": "2026-08-07T11:22:39.064Z",
+  "expiresAt": "2027-08-07T11:22:39.064Z",
+  "environment": {
+    "assetId": "openclinxr.peds_fever_v1.environment.generated-glb",
+    "version": "descriptor-only-2026-08-07",
+    "kind": "environment_model",
+    "displayName": "Pediatric Fever Urgent Care Bay",
+    "scenarioAssetId": "peds_fever_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      "shared_exam_bay_shell_placeholder",
+      "no_station_specific_environment_mesh_#114"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_noah_chen_v1",
+      "embodiment": "humanoid",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.peds_fever_v1.patient_noah_chen_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "patient noah chen",
+        "scenarioAssetId": "patient_noah_chen_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/peds_patient_child.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "parent_mei_chen_v1",
+      "embodiment": "humanoid",
+      "role": "family",
+      "model": {
+        "assetId": "openclinxr.peds_fever_v1.parent_mei_chen_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "parent mei chen",
+        "scenarioAssetId": "parent_mei_chen_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "nurse_aisha_brooks_v1",
+      "embodiment": "humanoid",
+      "role": "nurse",
+      "model": {
+        "assetId": "openclinxr.peds_fever_v1.nurse_aisha_brooks_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "nurse aisha brooks",
+        "scenarioAssetId": "nurse_aisha_brooks_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "model": {
+        "assetId": "openclinxr.peds_fever_v1.digital_thermometer_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "digital thermometer",
+        "scenarioAssetId": "peds_fever_v1:digital_thermometer_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_fever_v1/equipment/digital_thermometer_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_fever_v1/equipment/digital_thermometer_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "model": {
+        "assetId": "openclinxr.peds_fever_v1.pulse_oximeter_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "pulse oximeter",
+        "scenarioAssetId": "peds_fever_v1:pulse_oximeter_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/peds_fever_v1/equipment/pulse_oximeter_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/peds_fever_v1/equipment/pulse_oximeter_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:peds_fever_v1:peds_fever_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "peds_fever_v1",
+    "stationId": "peds_fever_station_v1",
+    "stationContext": {
+      "title": "Pediatric Fever With Parent Anxiety And Escalation",
+      "subtitle": "Child-sized urgent-care bay with pulse oximeter, thermometer tray, parent chair, and pediatric distraction items.",
+      "chiefConcern": "Assess pediatric fever severity and hydration status",
+      "initialVitals": "Scenario-specific vitals pending authored station shell",
+      "interruption": "Scenario event cue pending review",
+      "stageAriaLabel": "Pediatric Fever Urgent Care Bay station scene",
+      "canvasAriaLabel": "3D Pediatric Fever Urgent Care Bay preview",
+      "initialDialogueText": "Noah Chen: I feel hot and tired. My tummy hurts a little."
+    },
+    "roomProps": [
+      {
+        "propId": "peds-fever-primary-context",
+        "label": "Pediatric Fever With Parent Anxiety And Escalation",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "peds_fever:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "peds-fever-primary-context:scenario_context",
+          "peds_fever:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "peds_fever_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "peds-fever-objective-cue",
+        "label": "Assess pediatric fever severity and hydration status",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "peds_fever:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "peds-fever-objective-cue:objective_cue",
+          "peds_fever:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "peds_fever_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "peds-fever-communication-cue",
+        "label": "fever_duration_history",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "peds_fever:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "peds-fever-communication-cue:communication_cue",
+          "peds_fever:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "peds_fever_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "peds-fever-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "peds_fever:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "peds-fever-review-cue:review_cue",
+          "peds_fever:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "peds_fever_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "uiSurfaces": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}

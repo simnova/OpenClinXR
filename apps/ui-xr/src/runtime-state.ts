@@ -27,6 +27,10 @@ import {
 } from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
+  findScenarioFixtureById,
+  scenarioBank,
+} from "@openclinxr/scenario-fixtures/scenario-bank";
+import {
   deriveRuntimeTraceActionTagsFromBundle,
   resolveActorIdForTraceTag,
   resolveRemoteActorTurnForTraceTag,
@@ -1394,20 +1398,31 @@ export function createInitialRuntimeState(): XrRuntimeState {
   };
 }
 
-export function deriveRuntimeTraceActionTags(bundle: LearnerRuntimeAssetBundle): string[] {
-  // #106: scenario-bank requiredTraceTags (or dialogueTurns only when scenario unknown) — never silent ED.
-  return deriveRuntimeTraceActionTagsFromBundle(bundle);
+export function deriveRuntimeTraceActionTags(
+  bundle: LearnerRuntimeAssetBundle,
+  selectedScenarioId?: string,
+): string[] {
+  // #106: bank requiredTraceTags (or dialogueTurns only when scenario unknown) — never silent ED.
+  // #114: selectedScenarioId wins over a foreign fallback bundle's scenarioId.
+  return deriveRuntimeTraceActionTagsFromBundle(bundle, selectedScenarioId);
 }
 
 export function createRuntimeStateFromBundle(
   bundle: LearnerRuntimeAssetBundle,
   previousState?: XrRuntimeState,
+  selectedScenarioId?: string,
 ): XrRuntimeState {
-  const requiredTraceTags = deriveRuntimeTraceActionTags(bundle);
+  const scenarioId = selectedScenarioId?.trim() || bundle.scenarioId;
+  const requiredTraceTags = deriveRuntimeTraceActionTags(bundle, scenarioId);
   const requiredTraceTagSet = new Set(requiredTraceTags);
+  const bankScenario = findScenarioFixtureById(scenarioId, scenarioBank);
   return {
-    scenarioId: bundle.scenarioId,
-    title: bundle.sceneManifest.stationContext?.title ?? previousState?.title ?? bundle.stationId,
+    scenarioId,
+    title:
+      bankScenario?.title
+      ?? bundle.sceneManifest.stationContext?.title
+      ?? previousState?.title
+      ?? bundle.stationId,
     elapsedSecond: previousState?.elapsedSecond ?? 0,
     requiredTraceTags,
     completedTraceTags: previousState?.completedTraceTags.filter((tag) => requiredTraceTagSet.has(tag)) ?? [],

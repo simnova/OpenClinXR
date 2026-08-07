@@ -1,0 +1,342 @@
+{
+  "bundleId": "adult_abdominal_pain_v1:learner-runtime-bundle:v1",
+  "stationId": "adult_abdominal_pain_station_v1",
+  "scenarioId": "adult_abdominal_pain_v1",
+  "assetStoreKind": "azurite_blob",
+  "identityScope": "learner_runtime_opaque_bundle",
+  "frozenForEncounter": true,
+  "generatedAt": "2026-08-07T11:22:39.063Z",
+  "expiresAt": "2027-08-07T11:22:39.063Z",
+  "environment": {
+    "assetId": "openclinxr.adult_abdominal_pain_v1.environment.generated-glb",
+    "version": "descriptor-only-2026-08-07",
+    "kind": "environment_model",
+    "displayName": "Adult ED Abdominal Exam Bay",
+    "scenarioAssetId": "adult_abdominal_pain_v1:environment",
+    "blob": {
+      "storeKind": "azurite_blob",
+      "containerName": "openclinxr-assets",
+      "blobName": ".openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb",
+      "contentHash": "bytes:65012",
+      "contentType": "model/gltf-binary",
+      "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/environment/ed-exam-bay-shell.glb"
+    },
+    "reviewStatus": "approved_for_local_runtime",
+    "provenanceRefs": [
+      "shared_exam_bay_shell_placeholder",
+      "no_station_specific_environment_mesh_#114"
+    ],
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "actors": [
+    {
+      "actorId": "patient_elena_vasquez_v1",
+      "embodiment": "humanoid",
+      "role": "patient",
+      "model": {
+        "assetId": "openclinxr.adult_abdominal_pain_v1.patient_elena_vasquez_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "patient elena vasquez",
+        "scenarioAssetId": "patient_elena_vasquez_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "partner_diego_vasquez_v1",
+      "embodiment": "humanoid",
+      "role": "family",
+      "model": {
+        "assetId": "openclinxr.adult_abdominal_pain_v1.partner_diego_vasquez_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "partner diego vasquez",
+        "scenarioAssetId": "partner_diego_vasquez_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "nurse_priya_nair_v1",
+      "embodiment": "humanoid",
+      "role": "nurse",
+      "model": {
+        "assetId": "openclinxr.adult_abdominal_pain_v1.nurse_priya_nair_v1.generated-humanoid-glb",
+        "version": "cast-pool-2026-08-07",
+        "kind": "humanoid_model",
+        "displayName": "nurse priya nair",
+        "scenarioAssetId": "nurse_priya_nair_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "actor_casting_ssot",
+          "bundleless_station_identity_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipmentId": "bedside_monitor_equipment",
+      "model": {
+        "assetId": "openclinxr.adult_abdominal_pain_v1.bedside_monitor_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "bedside monitor",
+        "scenarioAssetId": "adult_abdominal_pain_v1:bedside_monitor_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/adult_abdominal_pain_v1/equipment/bedside_monitor_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/adult_abdominal_pain_v1/equipment/bedside_monitor_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    },
+    {
+      "equipmentId": "stretcher_equipment",
+      "model": {
+        "assetId": "openclinxr.adult_abdominal_pain_v1.stretcher_equipment.slot-only",
+        "version": "slot-only-2026-08-07",
+        "kind": "equipment_model",
+        "displayName": "stretcher",
+        "scenarioAssetId": "adult_abdominal_pain_v1:stretcher_equipment",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": "xr-assets/generated/adult_abdominal_pain_v1/equipment/stretcher_equipment.slot-only.json",
+          "contentType": "application/json",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/xr-assets/generated/adult_abdominal_pain_v1/equipment/stretcher_equipment.slot-only.json"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          "bank_equipment_label_only",
+          "no_authored_equipment_mesh_#114"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      }
+    }
+  ],
+  "sceneManifest": {
+    "schemaVersion": "openclinxr.runtime-scene-manifest.v1",
+    "manifestId": "scene_manifest:adult_abdominal_pain_v1:adult_abdominal_pain_station_v1",
+    "source": "generated_scene_pipeline",
+    "scenarioId": "adult_abdominal_pain_v1",
+    "stationId": "adult_abdominal_pain_station_v1",
+    "stationContext": {
+      "title": "Adult Abdominal Pain With Guarding And Family Pressure",
+      "subtitle": "Curtained ED bay with stretcher, bedside monitor, abdominal exam lighting, and hallway interruptions for family pressure.",
+      "chiefConcern": "Elicit focused abdominal pain history including migration and associated symptoms",
+      "initialVitals": "Scenario-specific vitals pending authored station shell",
+      "interruption": "Scenario event cue pending review",
+      "stageAriaLabel": "Adult ED Abdominal Exam Bay station scene",
+      "canvasAriaLabel": "3D Adult ED Abdominal Exam Bay preview",
+      "initialDialogueText": "Elena Vasquez: The pain is sharp on my lower right side, and it hurts when I move."
+    },
+    "roomProps": [
+      {
+        "propId": "adult-abdominal-pain-primary-context",
+        "label": "Adult Abdominal Pain With Guarding And Family Pressure",
+        "semanticRole": "scenario_context",
+        "evidenceCue": "adult_abdominal_pain:primary_context_cue",
+        "colorHex": "#f8fafc",
+        "accentColorHex": "#0f766e",
+        "position": {
+          "x": -0.6,
+          "y": 0.85,
+          "z": -0.7
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "adult-abdominal-pain-primary-context:scenario_context",
+          "adult_abdominal_pain:primary_context_cue"
+        ],
+        "interactionTags": [
+          "scenario_context",
+          "adult_abdominal_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "adult-abdominal-pain-objective-cue",
+        "label": "Elicit focused abdominal pain history including migration and associated symptoms",
+        "semanticRole": "objective_cue",
+        "evidenceCue": "adult_abdominal_pain:objective_cue",
+        "colorHex": "#eff6ff",
+        "accentColorHex": "#2563eb",
+        "position": {
+          "x": 1.25,
+          "y": 0.95,
+          "z": -0.4
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "adult-abdominal-pain-objective-cue:objective_cue",
+          "adult_abdominal_pain:objective_cue"
+        ],
+        "interactionTags": [
+          "objective_cue",
+          "adult_abdominal_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "adult-abdominal-pain-communication-cue",
+        "label": "history_opqrst",
+        "semanticRole": "communication_cue",
+        "evidenceCue": "adult_abdominal_pain:communication_cue",
+        "colorHex": "#fef3c7",
+        "accentColorHex": "#d97706",
+        "position": {
+          "x": -1.45,
+          "y": 0.65,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "adult-abdominal-pain-communication-cue:communication_cue",
+          "adult_abdominal_pain:communication_cue"
+        ],
+        "interactionTags": [
+          "communication_cue",
+          "adult_abdominal_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      },
+      {
+        "propId": "adult-abdominal-pain-review-cue",
+        "label": "Faculty review evidence cue",
+        "semanticRole": "review_cue",
+        "evidenceCue": "adult_abdominal_pain:faculty_review_cue",
+        "colorHex": "#f3e8ff",
+        "accentColorHex": "#7c3aed",
+        "position": {
+          "x": 1.5,
+          "y": 0.7,
+          "z": 0.65
+        },
+        "scale": {
+          "x": 0.7,
+          "y": 0.18,
+          "z": 0.42
+        },
+        "affordanceCueIds": [
+          "adult-abdominal-pain-review-cue:review_cue",
+          "adult_abdominal_pain:faculty_review_cue"
+        ],
+        "interactionTags": [
+          "review_cue",
+          "adult_abdominal_pain_v1"
+        ],
+        "generatedBy": "scene_manifest"
+      }
+    ],
+    "productionReadinessClaimed": false,
+    "notEvidenceFor": [
+      "production_asset_readiness",
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity"
+    ]
+  },
+  "uiSurfaces": [],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "clinical_validity",
+    "scoring_validity"
+  ]
+}
