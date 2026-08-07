@@ -83,13 +83,31 @@ type RegionFacts = {
   hasRealGarmentMesh: boolean;
   paintedTorsoClothingTriangles: number;
   hairTrianglesInFaceBand: number;
+  /** True neck opening Y (centerline), not yoke peak — reimplemented #137. */
   garmentNecklineY: number;
+  /** Lateral garment yoke peak from exported glTF. */
+  yokePeakY: number;
+  /** Lateral body shoulder top from exported glTF. */
+  bodyShoulderTopY: number;
   clavicleY: number;
 };
 type Inspect = (input: { glbPath: string }) => Promise<RegionFacts>;
+type ListShipped = (dir?: string) => string[];
 
 const PARENT = "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb";
 const NURSE = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
+
+/**
+ * ## FIXED (#137)
+ *
+ * `garmentNecklineY` previously called torsoShellMaxY (main-shell max Y). After #121 that
+ * peak is the deliberate shoulder yoke, so parent measured 1.416 against ceiling
+ * clavicle+0.12 = 1.398 and failed while the neck *opening* sat inside the band.
+ * Metric rewritten to centerline min(frontMax, backMax); ceiling 0.12 kept (calibration
+ * shows all six pass without threshold change). Yoke coverage is a separate assertion
+ * (yokePeakY >= bodyShoulderTopY from exported glTF). Six-asset enumeration is a NEW
+ * assertion so the subject-set axis stays separable from the metric rewrite.
+ */
 
 describe("material regions do not fight the garment or the face (#73)", () => {
   it("a body wearing a real garment mesh carries no painted clothing regions on the torso", async () => {
@@ -119,9 +137,8 @@ describe("material regions do not fight the garment or the face (#73)", () => {
   }, 180_000);
 
   it("the garment neckline reaches the clavicle rather than sitting below it", async () => {
-    // top_y was body_min_y + body_height * 0.76 for every role (under collarbone). Raised to 0.81.
-    // A neckline AT or ABOVE the clavicle is the ask; a garment that swallows the neck would be
-    // its own defect, so the upper bound matters too.
+    // #137: garmentNecklineY is the centerline neck *opening*, not the yoke peak.
+    // Floor: at/above clavicle. Ceiling: clavicle+0.12 (anti-scarf) — threshold unchanged.
     const mod = await load();
     const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -135,6 +152,55 @@ describe("material regions do not fight the garment or the face (#73)", () => {
       ).toBeGreaterThanOrEqual(facts.clavicleY);
       // And not up over the chin — a scarf is not a fix.
       expect(facts.garmentNecklineY).toBeLessThan(facts.clavicleY + 0.12);
+    }
+  }, 180_000);
+
+  it("the garment shoulder yoke covers the body shoulder top (exported glTF)", async () => {
+    // #137 split: shoulder coverage is NOT the neckline metric. Yoke is deliberate
+    // (body_shoulder_top + 0.045 in automate_blender); assert it from the shipped mesh.
+    const mod = await load();
+    const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    for (const glbPath of [PARENT, NURSE]) {
+      const facts = await inspect!({ glbPath });
+      expect(facts.yokePeakY, `${glbPath} reported no yoke peak`).toBeGreaterThan(0);
+      expect(facts.bodyShoulderTopY, `${glbPath} reported no body shoulder top`).toBeGreaterThan(0);
+      expect(
+        facts.yokePeakY,
+        `${glbPath} yoke ${facts.yokePeakY} below body shoulder ${facts.bodyShoulderTopY}`,
+      ).toBeGreaterThanOrEqual(facts.bodyShoulderTopY);
+    }
+  }, 180_000);
+
+  it("neck opening and shoulder coverage hold for every shipped humanoid GLB", async () => {
+    // #137 NEW assertion — subject set enumerated from what ships, not PARENT/NURSE only.
+    // Separable from the metric rewrite above so a two-of-six green cannot hide four reds.
+    const mod = await load();
+    const inspect = mod["inspectMaterialRegionHygiene"] as Inspect | undefined;
+    const listShipped = mod["listShippedHumanoidGlbs"] as ListShipped | undefined;
+    expect(inspect).toBeTypeOf("function");
+    expect(listShipped).toBeTypeOf("function");
+
+    const glbs = listShipped!();
+    expect(glbs.length, "expected six shipped humanoid GLBs").toBeGreaterThanOrEqual(6);
+
+    for (const glbPath of glbs) {
+      const facts = await inspect!({ glbPath });
+      expect(facts.hasRealGarmentMesh, `${glbPath} missing real garment mesh`).toBe(true);
+      expect(facts.clavicleY, `${glbPath} reported no clavicle`).toBeGreaterThan(0);
+      expect(
+        facts.garmentNecklineY,
+        `${glbPath} neck opening ${facts.garmentNecklineY} below clavicle ${facts.clavicleY}`,
+      ).toBeGreaterThanOrEqual(facts.clavicleY);
+      expect(
+        facts.garmentNecklineY,
+        `${glbPath} neck opening ${facts.garmentNecklineY} is scarf-high (≥ clavicle+0.12=${facts.clavicleY + 0.12})`,
+      ).toBeLessThan(facts.clavicleY + 0.12);
+      expect(
+        facts.yokePeakY,
+        `${glbPath} yoke ${facts.yokePeakY} below body shoulder ${facts.bodyShoulderTopY}`,
+      ).toBeGreaterThanOrEqual(facts.bodyShoulderTopY);
     }
   }, 180_000);
 });
