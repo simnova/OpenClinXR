@@ -5,11 +5,10 @@ import { describe, expect, it } from "vitest";
  * assembles an exam form hardcodes the ED chest-pain scenario. A Step 2 CS-style multi-station exam
  * cannot be assembled at all.
  *
- * ALL THREE ARE `it.fails` AND ALL THREE FLIP. They are not all REDs:
- *   (1) and (2) are REDs — behaviour that does not exist.
- *   (3) is a COUNTERWEIGHT — `assembleExamForm` refuses unapproved scenarios today
- *       (`assembly.ts:234-238`) and must still refuse them. It is `it.fails` only because the module
- *       is absent.
+ * ALL THREE FLIPPED LIVE (#108). They are not all REDs:
+ *   (1) and (2) were REDs — multi-station blueprint + distinct pool assembly.
+ *   (3) is a COUNTERWEIGHT — `assembleExamForm` refuses unapproved scenarios
+ *       and must still refuse them.
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * MEASURE THE WHOLE ASSEMBLY PATH BEFORE CHANGING ANYTHING
@@ -141,7 +140,7 @@ type AssemblyReport = {
 type Inspect = () => Promise<AssemblyReport>;
 
 describe("a multi-station exam assembles from the approved pool (#108)", () => {
-  it.fails("the blueprint has enough stations for its own declared breaks", async () => {
+  it("the blueprint has enough stations for its own declared breaks", async () => {
     // assembly.ts:38-43 declares breaks after stations 3, 6 and 9 while :49-57 declares one slot.
     // The number here is read from the repo's own timing, not chosen by me.
     const mod = await load();
@@ -156,7 +155,7 @@ describe("a multi-station exam assembles from the approved pool (#108)", () => {
     ).toBeGreaterThan(latestBreak);
   }, 300_000);
 
-  it.fails("every assembled station is a distinct scenario drawn from the pool", async () => {
+  it("every assembled station is a distinct scenario drawn from the pool", async () => {
     // Kills the cheap satisfaction of the first contract: padding the blueprint with copies of the ED
     // slot makes the count pass while the exam is still one station repeated.
     const mod = await load();
@@ -176,7 +175,7 @@ describe("a multi-station exam assembles from the approved pool (#108)", () => {
     }
   }, 300_000);
 
-  it.fails("an unapproved scenario is still refused (COUNTERWEIGHT — true today)", async () => {
+  it("an unapproved scenario is still refused (COUNTERWEIGHT — true today)", async () => {
     // The cheapest way to fill ten slots is to stop checking status === "approved"
     // (assembly.ts:234-238). That would put an unreviewed scenario in front of a learner.
     const mod = await load();

@@ -1,5 +1,15 @@
 import type { Hono } from "hono";
-import { assembleExamForm, createDefaultClinicalSkillsBlueprint, createExamStationRunQueue, createExamTimingPlan, createStep2CsStyleSeedBlueprint, evaluateBlueprintScenarioReadiness, evaluateScenarioVersionDrift } from "@openclinxr/exam-assembly";
+import {
+  assembleExamForm,
+  createDefaultClinicalSkillsBlueprint,
+  createExamStationRunQueue,
+  createExamTimingPlan,
+  createStep2CsStyleSeedBlueprint,
+  evaluateBlueprintScenarioReadiness,
+  evaluateScenarioVersionDrift,
+  selectExamStationScenarios,
+  STEP2CS_STATION_COUNT,
+} from "@openclinxr/exam-assembly";
 import { routeById } from "@openclinxr/rest";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import type { ApiAppContext } from "../api-app-context.js";
@@ -11,7 +21,11 @@ import { buildExamAssemblyScenarioPool } from "../exam-assembly-pool.js";
 export function registerExamRoutes(app: Hono<{ Variables: ApiAppVariables }>, ctx: ApiAppContext): void {
   const { persistence } = ctx;
 
-  app.get(routeById("default-exam-blueprint").path, (context) => context.json(createDefaultClinicalSkillsBlueprint()));
+  app.get(routeById("default-exam-blueprint").path, async (context) => {
+    // Multi-station pilot blueprint from the assembly pool (not the no-arg single-station default).
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    return context.json(createDefaultClinicalSkillsBlueprint(pool));
+  });
 
   app.get(routeById("step2cs-seed-exam-blueprint").path, async (context) => {
     const pool = await buildExamAssemblyScenarioPool(persistence);
@@ -53,11 +67,32 @@ export function registerExamRoutes(app: Hono<{ Variables: ApiAppVariables }>, ct
   });
 
   app.post(routeById("create-exam-form").path, async (context) => {
-    const body = (await context.req.json().catch(() => ({}))) as { examFormId?: string };
+    // Multi-station pilot form from the assembly pool (not a hardcoded ED singleton).
+    // Decisions (#108):
+    // - Optional body.stationCount; default STEP2CS_STATION_COUNT (12).
+    // - Blueprint slots from selectExamStationScenarios over the pool (includes drafts as slot
+    //   definitions so breakAfterStationOrders stay consistent).
+    // - Form scenarios: only status===approved members of that selection, in selection order.
+    // - When approved count < slot count: assemble short form against the full multi-station
+    //   blueprint (stationCount.ok false / assemblyIssues) — fail soft, not throw. Rejected:
+    //   shrinking the blueprint to approved-only (hides incomplete capacity); including drafts
+    //   (breaks approval gate); throwing when pool is short (breaks 1-approved pilot demos).
+    const body = (await context.req.json().catch(() => ({}))) as {
+      examFormId?: string;
+      stationCount?: unknown;
+    };
+    const pool = await buildExamAssemblyScenarioPool(persistence);
+    const stationCount =
+      typeof body.stationCount === "number" && Number.isFinite(body.stationCount) && body.stationCount > 0
+        ? Math.floor(body.stationCount)
+        : STEP2CS_STATION_COUNT;
+    const blueprint = createDefaultClinicalSkillsBlueprint(pool, { stationCount });
+    const selected = selectExamStationScenarios(pool, stationCount);
+    const approvedSelected = selected.filter((scenario) => scenario.status === "approved");
     const form = assembleExamForm({
       examFormId: body.examFormId ?? "form_openclinxr_pilot_001",
-      blueprint: createDefaultClinicalSkillsBlueprint(),
-      scenarios: [edChestPainScenario],
+      blueprint,
+      scenarios: approvedSelected,
     });
     await persistence.saveExamForm?.(form);
     return context.json(form, 201);

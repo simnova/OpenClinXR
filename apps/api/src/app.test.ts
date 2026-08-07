@@ -4200,14 +4200,23 @@ describe("OpenClinXR API shell", () => {
     });
   });
 
-  it("serves the default exam blueprint and assembles a ready review form", async () => {
+  it("serves the default multi-station exam blueprint and assembles a form from the pool", async () => {
+    // #108: default blueprint is multi-station (breaks after 3/6/9); create-exam-form uses the pool.
+    // Only ed_chest_pain is fixture-approved today, so the form locks that one station against a
+    // 12-slot blueprint (stationCount incomplete until more scenarios are approved).
     const app = createApiApp();
     const blueprintResponse = await app.request("/exam-blueprints/default");
-    const blueprint = await json(blueprintResponse) as { blueprintId: string; stationSlots: Array<{ order: number }> };
+    const blueprint = await json(blueprintResponse) as {
+      blueprintId: string;
+      stationSlots: Array<{ order: number; slotId: string }>;
+      timing: { breakAfterStationOrders: number[] };
+    };
 
     expect(blueprintResponse.status).toBe(200);
     expect(blueprint.blueprintId).toBe("blueprint_openclinxr_clinical_skills_pilot_v1");
-    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1]);
+    const latestBreak = Math.max(...blueprint.timing.breakAfterStationOrders);
+    expect(blueprint.stationSlots.length).toBeGreaterThan(latestBreak);
+    expect(blueprint.stationSlots.map((slot) => slot.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 
     const formResponse = await app.request("/exam-forms", {
       method: "POST",
@@ -4217,13 +4226,18 @@ describe("OpenClinXR API shell", () => {
     const form = await json(formResponse) as {
       status: string;
       stationRefs: Array<{ order: number; scenarioId: string; scenarioVersion: number; title: string }>;
-      coverage: { missingTraceTags: string[] };
+      coverage: { missingTraceTags: string[]; stationCount: { required: number; actual: number; ok: boolean } };
     };
 
     expect(formResponse.status).toBe(201);
-    expect(form.status).toBe("ready_for_review");
-    expect(form.stationRefs).toEqual([{ order: 1, scenarioId: "ed_chest_pain_priority_v1", scenarioVersion: 1, title: "ED Chest Pain With Nurse Interruption And Family Pressure" }]);
-    expect(form.coverage.missingTraceTags).toEqual([]);
+    expect(form.stationRefs.length).toBeGreaterThan(0);
+    expect(new Set(form.stationRefs.map((ref) => ref.scenarioId)).size).toBe(form.stationRefs.length);
+    expect(form.stationRefs.map((ref) => ref.scenarioId)).toContain("ed_chest_pain_priority_v1");
+    expect(form.coverage.stationCount.required).toBe(12);
+    expect(form.coverage.stationCount.actual).toBe(form.stationRefs.length);
+    // Incomplete until more pool members are approved — still a multi-station blueprint assembly.
+    expect(form.status).toBe("blueprint_incomplete");
+    expect(form.coverage.stationCount.ok).toBe(false);
 
     const driftResponse = await app.request("/exam-forms/version-drift", {
       method: "POST",
@@ -4237,13 +4251,15 @@ describe("OpenClinXR API shell", () => {
     });
 
     expect(driftResponse.status).toBe(200);
-    expect(await json(driftResponse)).toEqual([
-      {
-        scenarioId: "ed_chest_pain_priority_v1",
-        lockedVersion: 0,
-        currentVersion: 1,
-      },
-    ]);
+    expect(await json(driftResponse)).toEqual(
+      expect.arrayContaining([
+        {
+          scenarioId: "ed_chest_pain_priority_v1",
+          lockedVersion: 0,
+          currentVersion: 1,
+        },
+      ]),
+    );
   });
 
   it("serves the 12-station seed blueprint with governance readiness blockers", async () => {
