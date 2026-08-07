@@ -119,9 +119,11 @@ const DEFAULT_SCENARIOS = [
   "telehealth_diabetes_health_literacy_v1",
 ] as const;
 
-const ROOM_CAPTURE_MODE = "scene-overview";
+/** Exported for #83 posture measure (same probe, same scene-overview mode). */
+export const ROOM_CAPTURE_MODE = "scene-overview";
 
-function buildCaptureUrl(baseUrl: string, scenarioId: string, captureMode: string): string {
+/** Build the same capture URL the room CLI uses — shared with posture measure. */
+export function buildRoomCaptureUrl(baseUrl: string, scenarioId: string, captureMode: string): string {
   const params = new URLSearchParams({
     openclinxrScenarioId: scenarioId,
     scenarioId,
@@ -133,6 +135,243 @@ function buildCaptureUrl(baseUrl: string, scenarioId: string, captureMode: strin
   const root = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   return `${root}?${params.toString()}`;
 }
+
+/** @deprecated use buildRoomCaptureUrl */
+function buildCaptureUrl(baseUrl: string, scenarioId: string, captureMode: string): string {
+  return buildRoomCaptureUrl(baseUrl, scenarioId, captureMode);
+}
+
+/** One actor row for #83 live posture geometry (skinned mesh world bounds). */
+export type LivePostureGeometry = {
+  actorId: string;
+  declaredPosture: "standing" | "seated" | "supine";
+  meshHeightMeters: number;
+  lowestVertexY: number;
+  highestVertexY: number;
+  framesAdvanced: number;
+};
+
+export type LivePostureGeometryReport = {
+  scenarioId: string;
+  actors: LivePostureGeometry[];
+};
+
+/**
+ * #83 — measure SKINNED mesh world bounds after the render loop has advanced.
+ * String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
+ * Does NOT read openClinXr* pose markers or applyPosturePose return values for the numbers.
+ */
+export async function readLivePostureGeometryFromPage(page: Page): Promise<LivePostureGeometryReport> {
+  // NOTE: keep this body free of TypeScript-only syntax — it is serialized into the page.
+  return page.evaluate(`(() => {
+    const win = window;
+    const framesAdvanced = (win.__openClinXrFrameStats && win.__openClinXrFrameStats.framesObserved) || 0;
+    const scene = win.__openClinXrDebugScene;
+    const params = new URLSearchParams(window.location.search);
+    let scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
+    if (scene && scene.userData && scene.userData.openClinXrStationEnvironment &&
+        typeof scene.userData.openClinXrStationEnvironment.scenarioId === "string") {
+      scenarioId = scene.userData.openClinXrStationEnvironment.scenarioId || scenarioId;
+    }
+    if (!scene || typeof scene.traverse !== "function") {
+      return { scenarioId: scenarioId, actors: [] };
+    }
+
+    // Prefer the humanoid GLB root (has skinned mesh + posture) over the actor slot that also
+    // carries openClinXrActorPosture for re-apply. Skip a tagged node if a tagged descendant exists.
+    const tagged = [];
+    scene.traverse(function (object) {
+      const posture = object.userData && object.userData.openClinXrActorPosture;
+      if (posture === "standing" || posture === "seated" || posture === "supine") {
+        tagged.push(object);
+      }
+    });
+    const humanoidRoots = tagged.filter(function (root) {
+      let hasTaggedDescendant = false;
+      if (typeof root.traverse === "function") {
+        root.traverse(function (child) {
+          if (child === root) return;
+          const p = child.userData && child.userData.openClinXrActorPosture;
+          if (p === "standing" || p === "seated" || p === "supine") hasTaggedDescendant = true;
+        });
+      }
+      return !hasTaggedDescendant;
+    });
+
+    function mulMat4Vec3(e, x, y, z) {
+      const w = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
+      return [
+        (e[0] * x + e[4] * y + e[8] * z + e[12]) * w,
+        (e[1] * x + e[5] * y + e[9] * z + e[13]) * w,
+        (e[2] * x + e[6] * y + e[10] * z + e[14]) * w
+      ];
+    }
+
+    function mulMat4(ae, be) {
+      const te = new Float64Array(16);
+      const a11 = ae[0], a12 = ae[4], a13 = ae[8], a14 = ae[12];
+      const a21 = ae[1], a22 = ae[5], a23 = ae[9], a24 = ae[13];
+      const a31 = ae[2], a32 = ae[6], a33 = ae[10], a34 = ae[14];
+      const a41 = ae[3], a42 = ae[7], a43 = ae[11], a44 = ae[15];
+      const b11 = be[0], b12 = be[4], b13 = be[8], b14 = be[12];
+      const b21 = be[1], b22 = be[5], b23 = be[9], b24 = be[13];
+      const b31 = be[2], b32 = be[6], b33 = be[10], b34 = be[14];
+      const b41 = be[3], b42 = be[7], b43 = be[11], b44 = be[15];
+      te[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+      te[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+      te[8] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+      te[12] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+      te[1] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+      te[5] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+      te[9] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+      te[13] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+      te[2] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+      te[6] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+      te[10] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+      te[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+      te[3] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+      te[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+      te[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+      te[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+      return te;
+    }
+
+    function skinnedWorldBounds(mesh) {
+      if (typeof mesh.updateMatrixWorld === "function") mesh.updateMatrixWorld(true);
+      if (mesh.skeleton && typeof mesh.skeleton.update === "function") mesh.skeleton.update();
+      const pos = mesh.geometry && mesh.geometry.attributes && mesh.geometry.attributes.position;
+      if (!pos || pos.count === 0) return null;
+      const skinIndex = mesh.geometry.attributes.skinIndex;
+      const skinWeight = mesh.geometry.attributes.skinWeight;
+      const skeleton = mesh.skeleton;
+      const bindMatrix = mesh.bindMatrix && mesh.bindMatrix.elements;
+      const bindMatrixInverse = mesh.bindMatrixInverse && mesh.bindMatrixInverse.elements;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      const stride = Math.max(1, Math.floor(pos.count / 4000));
+
+      if (skinIndex && skinWeight && skeleton && skeleton.bones && skeleton.bones.length && bindMatrix && bindMatrixInverse) {
+        const bones = skeleton.bones;
+        const inverses = skeleton.boneInverses;
+        for (let i = 0; i < pos.count; i += stride) {
+          const vx = pos.getX(i);
+          const vy = pos.getY(i);
+          const vz = pos.getZ(i);
+          const bound = mulMat4Vec3(bindMatrix, vx, vy, vz);
+          let sx = 0, sy = 0, sz = 0;
+          for (let k = 0; k < 4; k++) {
+            const weight = k === 0 ? skinWeight.getX(i) : k === 1 ? skinWeight.getY(i) : k === 2 ? skinWeight.getZ(i) : (skinWeight.getW ? skinWeight.getW(i) : 0);
+            if (weight === 0) continue;
+            const boneIdx = k === 0 ? skinIndex.getX(i) : k === 1 ? skinIndex.getY(i) : k === 2 ? skinIndex.getZ(i) : (skinIndex.getW ? skinIndex.getW(i) : 0);
+            const bone = bones[boneIdx];
+            const inv = inverses[boneIdx];
+            if (!bone || !bone.matrixWorld || !bone.matrixWorld.elements || !inv || !inv.elements) continue;
+            const boneMat = mulMat4(bone.matrixWorld.elements, inv.elements);
+            const p = mulMat4Vec3(boneMat, bound[0], bound[1], bound[2]);
+            sx += p[0] * weight;
+            sy += p[1] * weight;
+            sz += p[2] * weight;
+          }
+          const invP = mulMat4Vec3(bindMatrixInverse, sx, sy, sz);
+          const weightSum = skinWeight.getX(i) + skinWeight.getY(i) + skinWeight.getZ(i) + (skinWeight.getW ? skinWeight.getW(i) : 0);
+          let finalY;
+          if (weightSum > 1e-6) {
+            finalY = mesh.matrixWorld && mesh.matrixWorld.elements
+              ? mulMat4Vec3(mesh.matrixWorld.elements, invP[0], invP[1], invP[2])[1]
+              : invP[1];
+          } else {
+            finalY = mesh.matrixWorld && mesh.matrixWorld.elements
+              ? mulMat4Vec3(mesh.matrixWorld.elements, vx, vy, vz)[1]
+              : vy;
+          }
+          if (finalY < minY) minY = finalY;
+          if (finalY > maxY) maxY = finalY;
+        }
+      } else {
+        for (let i = 0; i < pos.count; i += stride) {
+          const vx = pos.getX(i);
+          const vy = pos.getY(i);
+          const vz = pos.getZ(i);
+          const y = mesh.matrixWorld && mesh.matrixWorld.elements
+            ? mulMat4Vec3(mesh.matrixWorld.elements, vx, vy, vz)[1]
+            : vy;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+      if (!Number.isFinite(minY) || !Number.isFinite(maxY)) return null;
+      return { minY: minY, maxY: maxY, height: maxY - minY };
+    }
+
+    function resolveActorId(root, index) {
+      if (root.userData && typeof root.userData.openClinXrActorId === "string" && root.userData.openClinXrActorId.length > 0) {
+        return root.userData.openClinXrActorId;
+      }
+      let p = root.parent;
+      let depth = 0;
+      while (p && depth < 6) {
+        const name = p.name || "";
+        if (name.indexOf("patient") >= 0 || name.indexOf("Patient") >= 0 || name.indexOf("robert") >= 0 || name.indexOf("Robert") >= 0) {
+          return "patient_primary";
+        }
+        if (name.indexOf("nurse") >= 0 || name.indexOf("Nurse") >= 0 || name.indexOf("maria") >= 0 || name.indexOf("Maria") >= 0) {
+          return "clinical_team";
+        }
+        if (name.indexOf("spouse") >= 0 || name.indexOf("Spouse") >= 0 || name.indexOf("family") >= 0 || name.indexOf("anna") >= 0 || name.indexOf("Anna") >= 0) {
+          return "family_or_observer";
+        }
+        if (p.userData && typeof p.userData.openClinXrSlotKind === "string" && p.userData.openClinXrSlotKind.length > 0) {
+          return p.userData.openClinXrSlotKind;
+        }
+        p = p.parent;
+        depth++;
+      }
+      return (root.name && root.name.length > 0) ? root.name : ("actor_" + index);
+    }
+
+    const actors = [];
+    for (let r = 0; r < humanoidRoots.length; r++) {
+      const root = humanoidRoots[r];
+      const posture = root.userData.openClinXrActorPosture;
+      if (typeof root.updateMatrixWorld === "function") root.updateMatrixWorld(true);
+      let minY = Infinity;
+      let maxY = -Infinity;
+      let any = false;
+      if (typeof root.traverse === "function") {
+        root.traverse(function (object) {
+          if (!object.isSkinnedMesh) return;
+          const bounds = skinnedWorldBounds(object);
+          if (!bounds) return;
+          any = true;
+          if (bounds.minY < minY) minY = bounds.minY;
+          if (bounds.maxY > maxY) maxY = bounds.maxY;
+        });
+        if (!any) {
+          root.traverse(function (object) {
+            if (!object.geometry || !object.geometry.attributes || !object.geometry.attributes.position) return;
+            const bounds = skinnedWorldBounds(object);
+            if (!bounds) return;
+            any = true;
+            if (bounds.minY < minY) minY = bounds.minY;
+            if (bounds.maxY > maxY) maxY = bounds.maxY;
+          });
+        }
+      }
+      if (!any || !Number.isFinite(minY) || !Number.isFinite(maxY)) continue;
+      actors.push({
+        actorId: resolveActorId(root, r),
+        declaredPosture: posture,
+        meshHeightMeters: maxY - minY,
+        lowestVertexY: minY,
+        highestVertexY: maxY,
+        framesAdvanced: framesAdvanced
+      });
+    }
+    return { scenarioId: scenarioId, actors: actors };
+  })()`) as Promise<LivePostureGeometryReport>;
+}
+
+
 
 type LiveShellFromPage = LiveShell & { ready: boolean; reason?: string };
 
@@ -260,7 +499,8 @@ async function reframeCameraForRoom(page: Page): Promise<string> {
   });
 }
 
-async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
+/** Wait until station shell is present (exported for #83 measure). */
+export async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
   // Playwright signature is (fn, arg, options) — options must be the third argument.
   await page.waitForFunction(
     () => {

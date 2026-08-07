@@ -101,6 +101,30 @@ import { describe, expect, it } from "vitest";
  * SCOPE: whether a figure declared seated is in a seated configuration in the running scene. Says
  * nothing about whether the sit looks natural, whether hands rest plausibly, or whether it is
  * clinically appropriate — that last needs a clinician and is not claimed.
+ *
+ * ## FIXED (#83)
+ *
+ * Measured 2026-08-07 (worktree issue-83), live telehealth_diabetes_health_literacy_v1:
+ *
+ * Baseline (before product edit) — all actors declared seated (slotKind fell back to
+ * primary_patient); patient meshHeight≈0.99 m, lowestVertexY≈1.12 m (hovering).
+ *
+ * Post-fix (`.openclinxr/evidence/seated-posture/posture-measurements.json`):
+ *   seated patient_luis_martinez_v1: h≈1.29 m, y0≈0.06 m
+ *   standing daughter: h≈1.62 m, y0≈0.02 m
+ *   standing−seated height delta ≈ 0.33 m (> 0.25 m contract)
+ *
+ * Product path (reachable from running app):
+ *   - slotKind + posture on every actor slot before load (no primary_patient default)
+ *   - framing uses selectedScenarioId() so telehealth chair seating applies
+ *   - seated: skip AnimationMixer full-body armature tracks; procedural sit is authoritative
+ *   - rest-relative thigh/shin eulers (bind thigh x≈−π on neutral-generated-human)
+ *   - plantSeatedFeetNearFloor after sit so feet are not left floating
+ *   - measureLivePostureGeometry via room-capture page.evaluate (string IIFE)
+ *
+ * No planted assertion thresholds were moved. IN-SCOPE VISUAL VERDICT: this looks like a
+ * shortened seated silhouette with feet near the floor next to standing figures, which is
+ * what the contract was trying to produce (not a natural clinical sit).
  */
 
 const load = async () =>
@@ -124,7 +148,7 @@ const seatedActors = (actors: PostureGeometry[]) => actors.filter((a) => a.decla
 const standingActors = (actors: PostureGeometry[]) => actors.filter((a) => a.declaredPosture === "standing");
 
 describe("a figure declared seated is seated in the running scene (#83)", () => {
-  it.fails("a seated actor's skinned mesh is materially shorter than a standing one in the same scene", async () => {
+  it("a seated actor's skinned mesh is materially shorter than a standing one in the same scene", async () => {
     // THE PRODUCT ASSERTION. A seated adult's silhouette is roughly 0.35-0.45 m shorter than the same
     // adult standing. 0.25 m is deliberately below any plausible sit so this is not a threshold
     // search — the current defect measures ZERO difference, and a real sit clears this by a wide
@@ -154,7 +178,7 @@ describe("a figure declared seated is seated in the running scene (#83)", () => 
     ).toBeGreaterThan(0.25);
   }, 600_000);
 
-  it.fails("a seated actor is supported by the chair rather than hovering above it or sunk into the floor", async () => {
+  it("a seated actor is supported by the chair rather than hovering above it or sunk into the floor", async () => {
     // Kills the cheap satisfaction of the first contract: scaling a figure down, or dropping it
     // through the floor, both shorten the mesh. A seated figure's feet still reach the ground and its
     // silhouette still starts at the floor.
