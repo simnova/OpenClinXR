@@ -1094,3 +1094,47 @@ The working posture, which cost several cycles to arrive at:
 recovery into the loop rather than treating each one as a surprise, and never let it reach the
 escalation record as evidence about the delegate — criterion 3 covers it, and rolling back rung size
 on an infrastructure reap would conclude the delegate is weaker than it is.
+
+## 7j. A fix on a shared path generalises; a fix on one station's data does not
+
+Five instances in one session, and the split is clean:
+
+| fix | changed | generalised? |
+|---|---|---|
+| #100 colour parse | a shared parse site (`main.ts:6219`) | **YES** — verified in three stations nobody had captured |
+| #96 cast identity | one scenario's casting data | no — oncology and ED stroke still duplicated |
+| #94 wardrobe | one asset | no — OB and peds asthma still show undressed figures |
+| #72 grounding | assembled-room placement | no — psych still floats |
+| #97 occluding prop | one scenario's manifest | no — peds asthma has its own |
+
+Four of five were declared complete against the two default captures and none held. The one that
+spread changed code every station runs through.
+
+**Rule:** before closing a slice, ask which layer it touched. A shared parse, resolver, or builder
+propagates by construction; a scenario's data, an asset, or a hardcoded list does not. If the fix is
+at the data layer, either say plainly in the close that it is a point fix, or generalise it in the
+same slice — do not let "it works now" stand in for "it works everywhere."
+
+**And the mechanism that keeps this invisible:** the evidence pipeline captured 2 of 12 stations
+(`DEFAULT_SCENARIOS`, a hardcoded pair). Every appearance verdict rested on the two rooms already
+being iterated on. The fix that finally generalised, #102, did so because its contract required
+scenarios be **enumerated from what ships** rather than listed — the same property, one level up.
+
+Whenever a check, a capture, or a fix names its subjects explicitly, that list is the thing that will
+be wrong later.
+
+## 7k. A name-based filter is a marker check, including when you run it
+
+I checked whether seven humanoid assets carried garments by filtering mesh names for
+`/garment|cloth|scrub/` and reported "all dressed". That is the marker problem — the same class that
+has let six gates here pass on the defect they were written to catch — and I ran it while holding a
+render that appeared to show a nude figure.
+
+Reading the actual mesh list and triangle counts turned the filter output into a fact:
+`neutral-generated-human.glb` genuinely carries a scrub shirt at 3626 tris, sleeves at 1370 each and
+pants at 1880. The conclusion happened to survive; the method did not deserve to.
+
+**Rule:** a name match tells you what something is called. When the question is whether something
+EXISTS with substance, read the substance — counts, bounds, bytes. This applies to the orchestrator's
+own spot checks, not only to planted contracts, and it is easier to violate there because nothing
+reviews them.
