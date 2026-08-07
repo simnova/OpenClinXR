@@ -127,7 +127,10 @@ const MIN_SHOULDER_TO_WRIST_DROP_METERS = 0.25;
 const standing = (arms: ArmAbduction[]) => arms.filter((a) => a.posture === "standing");
 
 describe("standing arms hang beside the body, not abducted (#117)", () => {
-  it.fails("no standing wrist sits further out than 1.3x the figure's half shoulder span", async () => {
+  // ## FIXED (#117) — clinical-idle upper_arm |z| 0.74→1.12 (hang-from-T toward side rest).
+  // Pre-fix standing ratio 2.14–2.29; post-fix psych+peds fever 1.10–1.25 (≤1.3). Diagnosis above
+  // is immutable. k=1.3 was not fitted to the pose.
+  it("no standing wrist sits further out than 1.3x the figure's half shoulder span", async () => {
     // Post-#91 the range is 0.309-0.452m absolute, which is 1.5-2x a half-shoulder hang. The bound is
     // relative so the child scales with it.
     const mod = await load();
@@ -153,7 +156,8 @@ describe("standing arms hang beside the body, not abducted (#117)", () => {
     expect(abducted, `wrists abducted beyond the shoulders:\n${abducted.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("no standing wrist is pulled inside the body", async () => {
+  // ## FIXED (#117) — counterweight to the ceiling: wrists stay ≥0.5× halfSpan (not through torso).
+  it("no standing wrist is pulled inside the body", async () => {
     // Kills the cheap satisfaction of the first contract: rotating the arms inward until the wrists
     // pass through the torso would clear any ceiling.
     const mod = await load();
@@ -170,7 +174,8 @@ describe("standing arms hang beside the body, not abducted (#117)", () => {
     ).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("#91's vertical hang survives (COUNTERWEIGHT — green today)", async () => {
+  // ## FIXED (#117) — #91 drop floor still holds after abduction was reduced (module now present).
+  it("#91's vertical hang survives (COUNTERWEIGHT — green today)", async () => {
     // Bringing the arms in must not put them back up. #91 took the minimum standing drop from 0.232
     // to 0.325.
     const mod = await load();
