@@ -155,7 +155,7 @@ const MAX_BACK_GAP_METERS = 0.06;
 const MAX_BACK_PENETRATION_METERS = 0.04;
 
 describe("the head of bed raises and the body follows it (#159)", () => {
-  it.fails("the deck articulates to the requested incline", async () => {
+  it("the deck articulates to the requested incline", async () => {
     // #163's harness sweep showed the deck flat at all four inclines while the body rotated against
     // nothing. station-stretcher.ts builds one rigid mattress; there is no back section to raise.
     const mod = await load();
@@ -180,7 +180,7 @@ describe("the head of bed raises and the body follows it (#159)", () => {
     expect(wrong, `the deck did not reach the requested incline:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the body rests ON the raised deck, not against air", async () => {
+  it("the body rests ON the raised deck, not against air", async () => {
     // Kills the cheap satisfaction of the first contract: rotate the mattress and the body
     // independently so both report the right angle while the body floats above the back section or
     // sinks into the seat. supine-pose.ts:238 plants against a single flat scalar today, so this is
@@ -213,7 +213,7 @@ describe("the head of bed raises and the body follows it (#159)", () => {
     expect(report.contactSheetPath.length, "no contact sheet was produced for grading").toBeGreaterThan(0);
   }, 1_800_000);
 
-  it.fails("flat supine still works exactly as it does today (COUNTERWEIGHT)", async () => {
+  it("flat supine still works exactly as it does today (COUNTERWEIGHT)", async () => {
     // #150 and #153 landed flat supine and the ED station uses it right now. An articulating deck
     // that regresses 0° trades a working state for an unproven one, and the angle has not been
     // chosen yet — 0° may well remain what ships.

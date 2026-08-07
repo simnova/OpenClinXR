@@ -1,5 +1,5 @@
 /**
- * Procedural supine (recumbent) pose on the existing 23-bone runtime subset (#150/#153).
+ * Procedural supine (recumbent) pose on the existing 23-bone runtime subset (#150/#153/#159).
  *
  * ED chest-pain patient lies on the procedural stretcher deck — not a standing figure
  * tipped with one root euler (that clips rails and reads as a rigid plank).
@@ -20,18 +20,30 @@
  *    sides intent; idle residual + missing `neck` left standing hang/neck on the figure.
  *  - `neck` is in the map so the standing idle alias cannot leave a residual angle.
  *
- * claimScope: runtime recumbent pose + deck plant for ED primary_patient.
- * notEvidenceFor: clinical lying realism, Quest readiness, other stations' posture.
+ * Decisions (#159) — articulating head of bed (deck leads, body follows):
+ *  - Incline SSOT is stretcher.userData.openClinXrStretcherInclineDegrees; pose reads the
+ *    live back plane (REJECTED threading a second body-only angle that can desync).
+ *  - Body tip about pelvis matches deck angle; plant uses pelvis-on-seat when inclined so
+ *    re-plant does not pull the torso into the seat (#67/#156 half-work class).
+ *  - ACTOR_POSTURES unchanged: 0° remains today's flat supine. No fourth enum member.
+ *  - N = 15° torso-vs-back tolerance (contract band; admits staging jitter, not collapse).
+ *
+ * claimScope: runtime recumbent pose + deck plant + staging incline follow for ED patient.
+ * notEvidenceFor: clinical lying realism, Quest readiness, multi-joint bed fidelity.
  */
 
-import { Euler, Quaternion, type Object3D } from "three";
+import { Euler, Quaternion, Vector3, type Object3D } from "three";
 import {
   DEFAULT_STRETCHER_POSITION,
   SUPINE_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
 } from "@openclinxr/asset-registry";
-import { STRETCHER_LENGTH_METERS } from "./station-stretcher.js";
+import {
+  STRETCHER_LENGTH_METERS,
+  readStretcherBackSectionWorldDeg,
+  readStretcherInclineDegrees,
+} from "./station-stretcher.js";
 
 const d2r = (deg: number) => (deg * Math.PI) / 180;
 
@@ -174,6 +186,12 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
 }
 
 /**
+ * Contact-bone filter. Flat supine plants all torso contacts; inclined plants
+ * pelvis/seat only so a re-plant cannot drag the raised back into the seat.
+ */
+export type SupinePlantContactMode = "all_torso" | "pelvis_seat";
+
+/**
  * Shift the humanoid root so the torso rests on the deck top.
  *
  * After the on-back root basis, contact bones (pelvis/spine/chest) sit above the
@@ -181,10 +199,14 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
  * Unskinned mesh matrixWorld alone under-reads minY and left the figure floating
  * ~0.14 m (post-fix smoke). Does NOT use seatedVerticalOffsetForSeatHeight.
  *
- * deckTopWorldY — mattress top in world space (procedural stretcher: 0.55).
+ * deckTopWorldY — mattress top in world space (procedural stretcher seat: 0.55).
  * torsoHalfThickness — contact-bone height above deck. Calibrated on ed cast:
  * skinned minY sits ~0.25 m below pelvis/spine after Z reorientation, so the
  * bone plant target must be high enough that skinned clearanceAboveDeck ≥ 0.
+ *
+ * #159: when inclineDeg > 0, use contactMode "pelvis_seat" — hinge the mattress
+ * without this and a flat re-plant crumples the body into the seat (or leaves the
+ * back floating against air). That is the #67/#156 class.
  */
 export function plantSupineBodyOnDeck(
   humanoidRoot: Object3D,
@@ -194,8 +216,13 @@ export function plantSupineBodyOnDeck(
    * Default 0.26 → skinned minY near deck top on ed_chest_pain adult cast (smoke).
    */
   torsoHalfThickness = 0.26,
+  options?: { contactMode?: SupinePlantContactMode },
 ): { deltaY: number; bodyMinYBefore: number | null } {
-  const CONTACT_BONE = /^(pelvis|hips|spine|chest|spine\d*|thigh)/i;
+  const mode: SupinePlantContactMode = options?.contactMode ?? "all_torso";
+  const CONTACT_BONE =
+    mode === "pelvis_seat"
+      ? /^(pelvis|hips|thigh)/i
+      : /^(pelvis|hips|spine|chest|spine\d*|thigh)/i;
 
   const readContactY = (): number | null => {
     humanoidRoot.updateMatrixWorld?.(true);
@@ -235,6 +262,8 @@ export function plantSupineBodyOnDeck(
   const bodyMinYBefore = readContactY();
   if (bodyMinYBefore === null) return { deltaY: 0, bodyMinYBefore: null };
 
+  // Flat scalar plant for the seat surface. Inclined back surface contact is
+  // owned by applySupineInclineMatchingDeck (body follows live back plane).
   const targetContactY = deckTopWorldY + torsoHalfThickness;
   let totalDelta = 0;
   for (let pass = 0; pass < 3; pass += 1) {
@@ -249,9 +278,110 @@ export function plantSupineBodyOnDeck(
   return { deltaY: totalDelta, bodyMinYBefore };
 }
 
+function readPelvisWorld(humanoid: Object3D): Vector3 | null {
+  humanoid.updateMatrixWorld?.(true);
+  let found: Vector3 | null = null;
+  const consider = (object: Object3D) => {
+    if (found) return;
+    if (!/^(pelvis|hips)$/i.test(object.name ?? "")) return;
+    const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
+      || (object as Object3D & { type?: string }).type === "Bone";
+    if (!isBone) return;
+    object.updateWorldMatrix?.(true, false);
+    found = new Vector3().setFromMatrixPosition(object.matrixWorld);
+  };
+  humanoid.traverse(consider);
+  humanoid.traverse((object) => {
+    const skinned = object as Object3D & {
+      isSkinnedMesh?: boolean;
+      skeleton?: { bones: Object3D[]; update?: () => void };
+    };
+    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+    skinned.skeleton.update?.();
+    for (const bone of skinned.skeleton.bones) consider(bone);
+  });
+  return found;
+}
+
+/**
+ * Tip the recumbent body about the pelvis so the torso follows the deck incline.
+ * After on-back basis, head ≈ −X; a **world** R_z(−θ) lifts head toward +Y.
+ *
+ * Must be world-space: euler `rotation.z +=` after Rx(−π/2)·Rz(+π/2) does **not**
+ * raise the head (it rolls about the post-basis local axis). #163's body-only tip
+ * looked like a fold for that reason; with an articulating deck we need the true
+ * world hinge match.
+ *
+ * Incline comes from the stretcher (deck leads). Do not invent a second body angle.
+ */
+export function applySupineInclineMatchingDeck(
+  humanoidRoot: Object3D,
+  inclineDegrees: number,
+): void {
+  if (!Number.isFinite(inclineDegrees) || Math.abs(inclineDegrees) < 1e-6) {
+    humanoidRoot.userData.openClinXrSupineInclineDegrees = 0;
+    return;
+  }
+  const before = readPelvisWorld(humanoidRoot);
+  const rad = (-inclineDegrees * Math.PI) / 180;
+  // World-space premultiply: rotate the already-on-back figure about world +Z.
+  const worldTip = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), rad);
+  humanoidRoot.quaternion.premultiply(worldTip);
+  humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
+  humanoidRoot.updateMatrixWorld?.(true);
+  const after = readPelvisWorld(humanoidRoot);
+  if (before && after) {
+    humanoidRoot.position.x += before.x - after.x;
+    humanoidRoot.position.y += before.y - after.y;
+    humanoidRoot.position.z += before.z - after.z;
+    humanoidRoot.updateMatrixWorld?.(true);
+  }
+  humanoidRoot.userData.openClinXrSupineInclineDegrees = inclineDegrees;
+  humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_world_z";
+}
+
+/**
+ * World-space torso axis angle from horizontal (degrees), from pelvis→chest/spine.
+ * Bind-relative eulers lie after root reorientation — measure world only (#153/#159).
+ */
+export function readSupineTorsoWorldDeg(humanoidRoot: Object3D): number {
+  humanoidRoot.updateMatrixWorld?.(true);
+  const points = new Map<string, Vector3>();
+  const consider = (object: Object3D) => {
+    const name = (object.name ?? "").toLowerCase();
+    if (!/^(pelvis|hips|spine|chest)$/i.test(name)) return;
+    const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
+      || (object as Object3D & { type?: string }).type === "Bone";
+    if (!isBone) return;
+    object.updateWorldMatrix?.(true, false);
+    const key = name.startsWith("hip") ? "pelvis" : name.startsWith("spine") ? "spine" : name;
+    if (!points.has(key)) points.set(key, new Vector3().setFromMatrixPosition(object.matrixWorld));
+  };
+  humanoidRoot.traverse(consider);
+  humanoidRoot.traverse((object) => {
+    const skinned = object as Object3D & {
+      isSkinnedMesh?: boolean;
+      skeleton?: { bones: Object3D[]; update?: () => void };
+    };
+    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+    skinned.skeleton.update?.();
+    for (const bone of skinned.skeleton.bones) consider(bone);
+  });
+  const pelvis = points.get("pelvis") ?? points.get("hips");
+  const upper = points.get("chest") ?? points.get("spine");
+  if (!pelvis || !upper) return 0;
+  const dx = upper.x - pelvis.x;
+  const dy = upper.y - pelvis.y;
+  // Head is −X when flat; incline raises dy. Angle from horizontal:
+  return (Math.atan2(dy, Math.abs(dx) < 1e-6 ? 1e-6 : -dx) * 180) / Math.PI;
+}
+
 /**
  * One-shot: pose + plant Y + center XZ + re-plant (used at humanoid register).
  * Keeps main.ts under the shrink-only freeze ceiling.
+ *
+ * #159: optional stretcher — live-query incline (deck leads). 0° path is byte-identical
+ * in behaviour to pre-#159 flat supine (same plant mode, no body tip).
  */
 export function applyAndPlantSupineOnDeck(
   humanoidRoot: Object3D,
@@ -261,20 +391,44 @@ export function applyAndPlantSupineOnDeck(
     /** World X of the pillow rest point (default: deck center X − 0.95 stretcher local). */
     pillowWorldX?: number;
     torsoHalfThickness?: number;
+    /**
+     * Procedural stretcher with incline SSOT. When provided, body follows
+     * readStretcherInclineDegrees / live back plane. Prefer this over a bare number.
+     */
+    stretcher?: Object3D;
+    /**
+     * Fallback incline when stretcher is absent (harness). Prefer stretcher SSOT.
+     */
+    inclineDegrees?: number;
   },
 ): {
   plantDeltaY: number;
   bodyMinYBefore: number | null;
   center: { deltaX: number; deltaZ: number };
   headAlignDeltaX: number;
+  inclineDegrees: number;
 } {
   const thickness = input.torsoHalfThickness ?? 0.26;
+  // Deck leads: live query of stretcher SSOT; reject a second body-only angle.
+  let incline = 0;
+  if (input.stretcher) {
+    incline = readStretcherInclineDegrees(input.stretcher);
+    // Cross-check live back plane (cannot desync if setStretcherInclineDegrees owns both).
+    const liveBack = readStretcherBackSectionWorldDeg(input.stretcher);
+    humanoidRoot.userData.openClinXrDeckBackSectionWorldDeg = liveBack;
+  } else if (typeof input.inclineDegrees === "number" && Number.isFinite(input.inclineDegrees)) {
+    incline = Math.max(0, Math.min(45, input.inclineDegrees));
+  }
+  const inclined = Math.abs(incline) >= 1e-3;
+  const contactMode: SupinePlantContactMode = inclined ? "pelvis_seat" : "all_torso";
+
   applySupinePose(humanoidRoot);
-  const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness);
+  const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode });
   const center = centerSupineBodyOnDeck(humanoidRoot, input.deckCenter);
   // #153: bias so the head bone sits at the pillow mesh rest XZ (not body AABB center).
   // Procedural pillow is at stretcher local (−length*0.38, 0); default stretcher at
   // DEFAULT_STRETCHER_POSITION (−0.9, −0.1). Slot.x is stretcher center, not pillow.
+  // When inclined, pillow rides the back section — still target head-end −X on the deck.
   const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
   const pillowX =
     input.pillowWorldX
@@ -282,17 +436,23 @@ export function applyAndPlantSupineOnDeck(
   // Pillow local Z = 0 on the procedural stretcher → world Z = stretcher Z (not actorSlot drift).
   const pillowZ = DEFAULT_STRETCHER_POSITION.z;
   const headAlign = alignSupineHeadToPillow(humanoidRoot, { x: pillowX, z: pillowZ });
-  const plant2 = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness);
+  if (inclined) {
+    applySupineInclineMatchingDeck(humanoidRoot, incline);
+  }
+  // Re-plant pelvis on seat only when inclined so the raised torso is not dragged flat.
+  const plant2 = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode });
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY + plant2.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
   humanoidRoot.userData.openClinXrSupineCenterDelta = center;
   humanoidRoot.userData.openClinXrSupineHeadAlignDelta = headAlign;
+  humanoidRoot.userData.openClinXrSupineInclineDegrees = incline;
   humanoidRoot.updateMatrixWorld?.(true);
   return {
     plantDeltaY: plant.deltaY + plant2.deltaY,
     bodyMinYBefore: plant.bodyMinYBefore,
     center,
     headAlignDeltaX: headAlign.deltaX,
+    inclineDegrees: incline,
   };
 }
 
