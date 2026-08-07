@@ -2216,7 +2216,7 @@ the one that flatters.** `glb-grade-capture` writes both for exactly this reason
 finding came from which. Where they disagree — "looks clothed" versus "two surfaces" — the structure
 pass wins on anything structural.
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 8y. Clinical staging is not an implementer decision either — and §8u means you can now supply it
 
@@ -2266,5 +2266,48 @@ entirely to the missing bounce.
 MAGNITUDE and what they did about it, not just whether it happened — "did X get worse: none / mild /
 significant, and what did you do to offset it". A yes/no invites a yes, and the mitigation stays
 invisible to the person writing the follow-up item.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9a. Test the subject in isolation — the full-room capture is an integration test used as a unit test
+
+Standing operator direction, 2026-08-07:
+
+> "switch into a mode where you (and grok) use a special harness to test things in an isolated
+> environment. I feel that you are testing in a full room environment and get lots of noise, whereas
+> if you followed a software development approach (test only what is under test, and use harnesses to
+> isolate items from everything else) your iterations can go faster (allowing delegation) and unlock
+> parallelism and multiple variants tested simultaneously."
+
+It is correct and it names a bottleneck this file had circled without seeing. Read back through the
+sections above: §6i (one green under ambient conditions is not reproducible), §7b (three cold boots,
+542 s, red main), §7s (a cached measurement to avoid boot cost, which then went stale), §6k (build a
+measurement harness before the product edit), §8n (a byte floor on an image standing in for a grade).
+**Every one is a symptom of the same cause — the only way to see anything was to boot the whole app.**
+
+The distinction is ordinary software practice and the project had drifted off it:
+
+| | integrated capture | isolated harness |
+|---|---|---|
+| answers | does the whole encounter still assemble | is THIS thing right |
+| confounds | room lighting, HUD, every other actor, capture framing | none by construction |
+| cost | a dev-server boot, shell wait, humanoid wait | amortised across N subjects |
+| variants | one per run | N in one pass |
+| delegable | a worker produces one image you must interpret | a worker produces a labelled contact sheet you grade once |
+
+**Rule:** when a slice asks "is this posture / garment / builder / asset right", the evidence is an
+isolated render of that subject. Reserve the full room capture for what it is actually good at —
+proving the integrated scene still assembles, and catching things that only appear in combination
+(#100's colour parse, #97's occluding prop, #133's ceiling).
+
+**And prefer a variant sweep to a decision.** Where a parameter is genuinely uncertain — a semi-Fowler
+incline, a garment hem, a light level — render 3–5 values as one labelled sheet and grade the sheet.
+That converts "the orchestrator picks a number and a worker implements it" into "the worker produces
+the evidence and the orchestrator chooses", which is both faster and the correct division: §7a warns
+that a threshold in a contract becomes a design target, and a sweep sidesteps that entirely because
+nothing has to be specified in advance.
+
+**The trap to avoid:** a harness that renders the subject through its own code path grades something
+the learner never sees, which is worse than no harness. It must drive the product's renderer.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
