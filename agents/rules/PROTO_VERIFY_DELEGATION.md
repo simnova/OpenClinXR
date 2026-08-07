@@ -1814,4 +1814,52 @@ a preferred starting point plus a cap would have compressed it.
 just saves them a coin-flip, because the measurement immediately tells them whether it worked. Rank
 methods; do not rank causes.
 
+## 8i. Bundle freely — but give every cause its own proof
+
+A peer round warned me that putting three independent failure classes in one dispatch invites "fix
+two, hand-wave one". I split five causes into three slices on that advice. The three-cause slice
+(#136) then came back and said the warning was half right:
+
+> "Did not hand-wave one. All three got tree measurement and a green contract. Under-done vs dedicated
+> slices: Cause D least deep — I restored the provenance fields without proving the rebake *pipeline*
+> will keep writing them next time."
+
+So bundling did not produce a skipped cause. It produced a **shallower** one, and the worker named
+which and why unprompted. Its own spec change is the rule:
+
+> One dispatch, three causes: require **three measure subsections with separate fail lines** (or three
+> `done_when` groups). Bundling is fine only if each cause has its own non-vacuous proof; **"all green"
+> alone is how one gets half-fixed.**
+
+This resolves the tension between the escalation mandate (dispatch bigger each cycle) and the
+anti-bundling instinct. The problem was never the number of causes — it was a single aggregate proof
+standing in for N of them. Give each cause a proof that fails on its own, and a three-cause slice is
+just a bigger slice.
+
+**Corollary:** when a bundled slice under-does one cause, the residual belongs on the board that day.
+#136's own NOT TESTED — "whether the next rebake re-emits license/derivative fields" — is a real
+regression path that only exists because the cause was fixed at the artifact rather than at the
+writer.
+
+## 8j. Turn counts keep coming back discovery-dominated — stop reading them as size
+
+Third breakdown in a row, and the pattern is now consistent enough to state as fact rather than
+observation:
+
+| slice | turns | product | thrash | discovery |
+|---|---:|---:|---:|---:|
+| #121 | 92 | 30–35 | 40–45 | (undiagnosed export trap) |
+| #124 | 92 | 25–30 | — | 50–55 |
+| #136 | 42 | 18–22 | 6–8 | **12–16** |
+| #137 | 13 | ~7 | ~2 | ~4 |
+| #138 | 22 | — | — | — |
+
+§7w established that turns measure `scope + undone-diagnosis + environment friction`. §8c added
+discovery as a third bucket distinct from thrash. Across five measured slices, **the product bucket
+has never exceeded ~35 turns**, and the variance is almost entirely in the other two.
+
+The practical consequence for the escalation experiment: a turn count is not evidence about slice size
+unless the breakdown comes with it, and the breakdown has to be *asked for* — no worker volunteers it.
+#137's 13 turns and #136's 42 turns had nearly the same product content once diagnosis was subtracted.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
