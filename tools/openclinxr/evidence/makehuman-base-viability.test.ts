@@ -127,7 +127,7 @@ type Probe = () => Promise<{
 }>;
 
 describe("MakeHuman topology could host our factory (#90)", () => {
-  it.fails("a real clinical garment is either fitted with measurements or blocked with its licence", async () => {
+  it("a real clinical garment is either fitted with measurements or blocked with its licence", async () => {
     // #78's control was a UV sphere. This demands a REAL `.mhclo` and, if it cannot be obtained
     // under an acceptable licence, says so explicitly — which is a legitimate result that settles
     // the fork toward keeping Anny.
@@ -158,7 +158,7 @@ describe("MakeHuman topology could host our factory (#90)", () => {
     }
   }, 3_600_000);
 
-  it.fails("the MakeHuman default rig collapses to the same 23 runtime joints we already use", async () => {
+  it("the MakeHuman default rig collapses to the same 23 runtime joints we already use", async () => {
     // The peer round measured 0 missing against MPFB `rig.default`, because runtime_bone_map already
     // declares MakeHuman-style labels. This proves it end-to-end rather than by name comparison.
     const mod = await load();
@@ -176,7 +176,7 @@ describe("MakeHuman topology could host our factory (#90)", () => {
     );
   }, 3_600_000);
 
-  it.fails("every shipped humanoid still carries its 23-joint runtime rig (COUNTERWEIGHT — already true)", async () => {
+  it("every shipped humanoid still carries its 23-joint runtime rig (COUNTERWEIGHT — already true)", async () => {
     // Nothing in this slice may touch what ships. An investigation that regenerates a humanoid to
     // make its own point has changed the thing it was measuring.
     const mod = await load();

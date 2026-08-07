@@ -6,12 +6,12 @@
   "counts": {
     "agent-methodology": 72,
     "current-reference": 213,
-    "archive-candidate": 13,
-    "evidence": 41,
+    "archive-candidate": 11,
     "protected-policy": 10,
     "agent-memory": 34,
+    "evidence": 25,
     "historical-synthesis": 11,
-    "decision-record": 27
+    "decision-record": 28
   },
   "entries": [
     {
@@ -1177,137 +1177,11 @@
       "rationale": "Unclassified Markdown; review before using as instruction."
     },
     {
-      "path": ".openclinxr/delegation/scorecard.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/body-rigging/appendage-motion-cagematch/2026-06-07-two-test-models/body-rig-appendage-motion-cagematch.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-attempt/quest-rerun.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/evidence/physics-clinical-touch/2026-08-02-quest-skip/quest-rerun.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/openclaw/task-cost-latest.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md",
-      "authority": "archive-candidate",
-      "agentInstructionWeight": "none",
-      "action": "summarize-before-use",
-      "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
       "path": ".openclinxr/slices/dispatch-chokepoint/EVIDENCE.md",
       "authority": "archive-candidate",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/anny/data/mpfb2/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/distributions/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/philox/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy-2.4.6.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/numpy/random/LICENSE.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
-    },
-    {
-      "path": ".openclinxr/tool-runtimes/anny-py311/torchgen/packaged/autograd/README.md",
-      "authority": "evidence",
-      "agentInstructionWeight": "low",
-      "action": "treat-as-evidence",
-      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
     },
     {
       "path": "AGENTS.md",
@@ -2389,6 +2263,13 @@
     },
     {
       "path": "docs/madr/0036-external-asset-tool-evaluations-2026-08.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0037-humanoid-base-topology-fork.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
