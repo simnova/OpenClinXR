@@ -33,13 +33,22 @@ import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
+import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
+import { applyPosturePose } from "./seated-pose.js";
+import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
+import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
+import {
+  resolveActorPosture,
+  seatedActorWorldPosition,
+  seatedVerticalOffsetForSeatHeight,
+  type ActorPosture,
+} from "@openclinxr/asset-registry";
 import {
   AnimationClip,
   AnimationMixer,
   BoxGeometry,
   BufferGeometry,
   CanvasTexture,
-  CapsuleGeometry,
   Color,
   CylinderGeometry,
   DirectionalLight,
@@ -800,13 +809,26 @@ function runtimeActorPlacement(
   fallback: LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string],
 ): LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] {
   const placement = encounterRuntimeAssetBundle.sceneManifest.actorPlacements?.[actorId];
+  const slotKind = placement?.slotKind ?? fallback.slotKind;
+  const posture = resolveActorPosture({
+    declared: placement?.posture ?? fallback.posture,
+    scenarioId: selectedScenarioId(),
+    environmentId: resolveActiveEnvironmentId(),
+    slotKind,
+  });
+  const seated = posture === "seated";
+  const verticalOffsetMeters = seated
+    ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
+    : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
+  const position = hasVector3(placement?.position) ? placement.position : fallback.position;
   return {
     ...fallback,
     ...placement,
-    position: hasVector3(placement?.position) ? placement.position : fallback.position,
+    position: seated ? seatedActorWorldPosition({}) : position,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
-    verticalOffsetMeters: placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters,
+    verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
+    posture,
   };
 }
 
@@ -3642,6 +3664,7 @@ function createStationScene(): StationSceneRuntime {
   applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
   patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
   scene.add(patient);
+  patient.userData.openClinXrSlotKind = patientPlacement.slotKind;
   loadGeneratedHumanoidIntoActorSlot(patient, {
     assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
     assetId: patientRuntimeHumanoidAsset.assetId,
@@ -3649,6 +3672,7 @@ function createStationScene(): StationSceneRuntime {
     actorId: runtimePatientActorId(),
     roleTintColor: 0x8fb9aa,
     verticalOffsetMeters: patientPlacement.verticalOffsetMeters,
+    ...(patientPlacement.posture ? { posture: patientPlacement.posture } : {}),
   });
 
   const nursePlacement = runtimeActorPlacement(runtimeClinicalTeamActorId(), {
@@ -6120,31 +6144,12 @@ function readXrGamepadLocomotion(session: XrSession | undefined): {
   };
 }
 
-function deadzone(value: number): number {
-  return Math.abs(value) < xrGamepadDeadzone ? 0 : clampUnit(value);
-}
-
-function isLocomotionVectorActive(vector: LocomotionVectorEvidence): boolean {
-  return Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
-}
-
-function clampUnit(value: number): number {
-  return clamp(value, -1, 1);
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
-
-function actorMesh(color: number): Group {
-  const group = new Group();
-  const body = new Mesh(new CapsuleGeometry(0.22, 0.7, 8, 16), new MeshStandardMaterial({ color, roughness: 0.7 }));
-  body.position.y = 0.55;
-  const head = new Mesh(new SphereGeometry(0.2, 24, 16), new MeshStandardMaterial({ color: 0xcaa889, roughness: 0.75 }));
-  head.position.y = 1.15;
-  group.add(body, head);
-  return group;
-}
+const deadzone = (v: number) => Math.abs(v) < xrGamepadDeadzone ? 0 : clampUnit(v);
+const isLocomotionVectorActive = (vector: LocomotionVectorEvidence) =>
+  Math.abs(vector.forward) > 0 || Math.abs(vector.strafe) > 0 || Math.abs(vector.turn) > 0;
+const clampUnit = (value: number) => clamp(value, -1, 1);
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const actorMesh = (color: number): Group => createPrimitiveActorMesh(color);
 
 function createVirtualDeviceActorAffordance(actorId: string): Group {
   const placement = runtimeActorPlacement(actorId, {
@@ -6154,33 +6159,14 @@ function createVirtualDeviceActorAffordance(actorId: string): Group {
     verticalOffsetMeters: 0,
     labelPrefix: "Remote",
   });
-  const group = new Group();
-  group.name = `openclinxr.virtual-device-actor.${actorId}`;
-  group.position.set(placement.position.x, placement.position.y + 0.18, placement.position.z);
-  group.scale.set(placement.scale.x, placement.scale.y, placement.scale.z);
-  const tablet = new Mesh(
-    new BoxGeometry(0.38, 0.28, 0.035),
-    new MeshStandardMaterial({ color: 0x101820, emissive: 0x12324a, roughness: 0.5 }),
-  );
-  tablet.name = `${group.name}.tablet-body`;
-  const screen = new Mesh(
-    new PlaneGeometry(0.32, 0.21),
-    new MeshBasicMaterial({ color: 0x79d4ff, transparent: true, opacity: 0.88, side: DoubleSide }),
-  );
-  screen.name = `${group.name}.remote-screen`;
-  screen.position.set(0, 0, -0.021);
-  group.add(tablet, screen);
-  const marker = createAffordanceMarker(`${actorId}:virtual_device_dialogue_target`, 0x79d4ff);
-  marker.position.set(0, 0.22, 0);
-  group.add(marker);
-  const labelPlate = createActorNameplate(actorNameplateLabel(placement.labelPrefix, actorId), 0x79d4ff);
-  labelPlate.position.set(0, 0.38, 0);
-  labelPlate.scale.set(0.42, 0.42, 0.42);
-  group.add(labelPlate);
-  group.userData.openClinXrVirtualDeviceActor = actorId;
-  group.userData.openClinXrAffordances = ["virtual_device_dialogue_target", "remote_actor_presence_cue"];
-  virtualDeviceActorSlotsByActorId.set(actorId, group);
-  return group;
+  return buildVirtualDeviceActorAffordance({
+    actorId,
+    placement,
+    createAffordanceMarker,
+    createActorNameplate,
+    actorNameplateLabel,
+    registerSlot: (id, group) => { virtualDeviceActorSlotsByActorId.set(id, group); },
+  });
 }
 
 function createActorNameplate(label: string, accentColor: number): Mesh {
@@ -6561,7 +6547,6 @@ function generatedHumanoidSourceProvenance(assetPath: string): SceneAssetEvidenc
   }
   return undefined;
 }
-
 
 function createHumanoidInteractionCollisionCues(assetId: string): Group {
   const safeAssetId = assetId.replaceAll(/[^a-z0-9:_-]+/gi, "-");
@@ -7073,6 +7058,7 @@ function loadGeneratedHumanoidIntoActorSlot(
     actorId: string;
     roleTintColor: number;
     verticalOffsetMeters: number;
+    posture?: ActorPosture | undefined;
   },
 ): void {
   const primitiveFallbackChildren = [...actorSlot.children];
@@ -7114,6 +7100,13 @@ function loadGeneratedHumanoidIntoActorSlot(
       humanoid.userData.openClinXrRequestedVerticalOffsetMeters = options.verticalOffsetMeters;
       humanoid.rotation.y = 0;
       humanoid.scale.set(1, 1, 1);
+      const posture = options.posture
+        ?? resolveActorPosture({
+          scenarioId: selectedScenarioId(),
+          environmentId: resolveActiveEnvironmentId(),
+          slotKind: actorSlot.userData.openClinXrSlotKind ?? "primary_patient",
+        });
+      applyPosturePose(humanoid, posture);
       neutralizeGeneratedHumanoidMorphTargets(humanoid);
       const humanoidSourceComparator = selectedHumanoidSourceComparator();
       const isRealGarmentPrimaryActor =
@@ -8245,6 +8238,10 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     slot.mixer?.update(deltaSeconds);
     applyGeneratedHumanoidClinicalIdlePosture(slot.root);
     applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
+    // #81: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
+    if (slot.root.userData.openClinXrActorPosture === "seated" || slot.actorSlot.userData.openClinXrActorPosture === "seated") {
+      applyPosturePose(slot.root, "seated");
+    }
     const t = (nowMs + slot.phaseOffsetMs) / 1000;
     const breathing = Math.sin(t * 1.15);
     const isSpeaking = slot.activeSpeech !== undefined;
@@ -10177,7 +10174,6 @@ enterXrButton.addEventListener("click", () => {
 });
 tick();
 recordBootPhase("clock_started");
-
 async function bootStationScene(): Promise<void> {
   await initializeLearnerRuntimeAssetBundle(stationApi);
   refreshStationContextFromRuntimeBundle();

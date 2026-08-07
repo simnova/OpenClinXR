@@ -11,6 +11,7 @@ export type {
 } from "./object-store.js";
 export * from "./runtime-asset-review.js";
 export * from "./runtime-bundles.js";
+export * from "./actor-posture.js";
 export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
   FALLBACK_ENVIRONMENT_SHELL,
@@ -2830,7 +2831,6 @@ function isPlaceholderAsset(manifest: AssetManifest): boolean {
     || (manifest.provenance?.sourceRefs ?? []).some((sourceRef) => sourceRef.includes("placeholder"))
     || (manifest.pipelineStages ?? []).some((stage) => stage.notes.toLowerCase().includes("not production clinical realism"));
 }
-
 function hasProductionLimitingQuestQaStatus(status: AssetQuestQaStatus | undefined): boolean {
   return status?.limitations.some((limitation) => {
     const normalized = limitation.toLowerCase();

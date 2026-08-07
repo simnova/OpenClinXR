@@ -60,6 +60,26 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: the wiring. Says nothing about whether the sit looks right, and nothing about clinical
  * plausibility of the posture — that needs a clinician.
+ *
+ * ## FIXED (#81)
+ *
+ * Measured 2026-08-06 (worktree issue-81):
+ *
+ * - EncounterRuntimeActorPlacement.posture?: standing|seated|supine (runtime-bundles.ts).
+ *   Telehealth primary_patient defaults to seated via resolveActorPosture(environment/scenario).
+ *   ED chest-pain placements declare posture: "standing".
+ * - patient_chair: buildPatientChair procedural geometry (station-chair.ts) with
+ *   seatHeightMeters=0.45, isMarkerCube=false. Other fixture slots remain layout markers.
+ * - Clip binding: seated → openclinxr_seated_sit_idle; standing → openclinxr_posture_shift_standing.
+ *   Seated height owner: verticalOffsetMeters + chair seatHeightMeters; clip root/pelvis
+ *   translation stripped / not applied (Sitting_Idle carries ~0.33 Y pelvis translation).
+ * - SHIPPED_CLIP_SOURCES lists openclinxr procedural + mesh2motion human-base Sitting_* only;
+ *   CarnegieMellonAnimations / rancidmilk excluded (not under LICENSE-CC0.MD grant).
+ * - Mesh2Motion 66→23 retarget: NOT the shipping sit path. Procedural rotation-only sit on the
+ *   existing 23 bones lands the data-flow + room capture. Library residual (Sitting_* clips) is
+ *   recorded as source provenance; cagematch visual grade of a retargeted Sitting_Idle is a
+ *   separate residual if pursued (spike-gated: stop after two visual fails).
+ * - actor-floor-composition non-standing skip preserved; humanoid upright guard unchanged.
  */
 
 const load = async () =>
@@ -74,7 +94,7 @@ type Wiring = {
 type Inspect = () => Promise<Wiring>;
 
 describe("a declared posture reaches the runtime and there is something to sit on (#81)", () => {
-  it.fails("a placement declares a posture and the runtime receives it", async () => {
+  it("a placement declares a posture and the runtime receives it", async () => {
     const mod = await load();
     const inspect = mod["inspectSeatedPostureWiring"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -87,7 +107,7 @@ describe("a declared posture reaches the runtime and there is something to sit o
     expect([...postures], "no actor is seated anywhere").toContain("seated");
   }, 180_000);
 
-  it.fails("the patient_chair fixture builds real geometry with a stated seat height, not a marker cube", async () => {
+  it("the patient_chair fixture builds real geometry with a stated seat height, not a marker cube", async () => {
     // Kills "declare seated and leave the marker cube": a figure in a sitting pose over a 6 cm cube is
     // a figure sitting on nothing, which is worse than a standing one.
     const mod = await load();
@@ -102,7 +122,7 @@ describe("a declared posture reaches the runtime and there is something to sit o
     expect(w.chairFixture!.seatHeightMeters).toBeLessThan(0.8);
   }, 180_000);
 
-  it.fails("a seated actor is bound to a seated clip and a standing actor is not", async () => {
+  it("a seated actor is bound to a seated clip and a standing actor is not", async () => {
     // Kills a posture field nothing consumes. Two-sided so "bind the sitting clip to everyone" fails.
     const mod = await load();
     const inspect = mod["inspectSeatedPostureWiring"] as Inspect | undefined;
@@ -117,7 +137,7 @@ describe("a declared posture reaches the runtime and there is something to sit o
     for (const b of standing) expect(b.clipName.toLowerCase()).not.toMatch(/sit/);
   }, 180_000);
 
-  it.fails("no clip sourced from the CarnegieMellonAnimations folder is shipped", async () => {
+  it("no clip sourced from the CarnegieMellonAnimations folder is shipped", async () => {
     // Licence guard, orthogonal to the other three. That folder's readme points at rancidmilk.itch.io
     // and is NOT covered by Mesh2Motion's CC0 grant, which does cover the GLB animation libraries.
     const mod = await load();
