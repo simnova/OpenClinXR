@@ -70,6 +70,11 @@ describe("Anny candidate preflight", () => {
       expect(candidate.provenance.sourceOriginChainPresent).toBe(true);
       expect(candidate.provenance.licenseChainPresent).toBe(true);
       expect(candidate.provenance.derivativeLineagePresent).toBe(true);
+      // #142: mode-tagged honesty — shipped candidates are blender_only_rebake.
+      expect(candidate.provenance.derivationMode).toBe("blender_only_rebake");
+      expect(candidate.provenance.licenseChainHonestForMode).toBe(true);
+      expect(candidate.provenance.toolVersionPresent).toBe(true);
+      expect(candidate.provenance.promptOrCaseParameterHashPresent).toBe(true);
       expect(candidate.provenance.notEvidenceFor).not.toContain("real_anny_model_output");
       expect(candidate.provenance.notEvidenceFor).toContain("b_plus_visual_realism_gate");
       expect(candidate.rigControlEvidence.requiredMorphTargets).toEqual([

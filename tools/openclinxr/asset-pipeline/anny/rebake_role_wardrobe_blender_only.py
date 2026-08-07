@@ -18,15 +18,19 @@ hand-tuning garment shape literals in automate_blender.py.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
+
+# Shared mode-tagged provenance writer (#142). Do not hand-edit chain fields on artifacts.
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+from humanoid_provenance import write_blender_only_rebake_provenance  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[4]
 GEN = ROOT / "apps/ui-xr/public/generated-humanoids"
@@ -37,10 +41,6 @@ AUTOMATE = ROOT / "tools/openclinxr/asset-pipeline/anny/automate_blender.py"
 def write_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-
-
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def overlay_manifest(
@@ -113,58 +113,21 @@ def write_provenance(
     garment_layers: List[str],
     report_path: Path | None,
 ) -> None:
-    prov = {
-        "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-        "scenarioId": case_id,
-        "actorId": actor_id,
-        "actorRole": actor_role,
-        "assetPath": str(output_glb.relative_to(ROOT)),
-        "riggingReportPath": (
-            str(report_path.relative_to(ROOT)) if report_path and report_path.is_file() else None
-        ),
-        "sourceManifestPath": str(
-            output_glb.with_suffix(".anny_manifest.json").relative_to(ROOT)
-        ),
-        "generatorMode": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
-        "sourceKind": "real_anny_candidate_unverified",
-        "usesRealAnnyForwardPass": True,
-        "realAnnyWeightsUsed": False,
-        "textureMode": "procedural_fallback",
-        "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
-        "optimizationMode": "unoptimized_post_blender_glb",
-        "realismGrade": "B",
-        "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-        "outputSha256": sha256(output_glb),
-        "outputBytes": output_glb.stat().st_size,
-        "generatedAt": datetime.now(timezone.utc).isoformat(),
-        "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
-        "baseObj": base_obj,
-        "garmentLayers": garment_layers,
-        "notEvidenceFor": [
-            "b_plus_visual_realism_gate",
-            "quest_readiness",
-            "production_asset_readiness",
-            "learner_readiness",
-            "clinical_validity",
-            "scoring_validity",
-            "scene_placement_readiness",
-        ],
-        "sourceNotes": [
-            "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
-            f"Base {base_obj}; garmentLayers={garment_layers}.",
-            "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
-            "Not B+ realism / production / clinical readiness.",
-        ],
-        "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
-        "promotionGates": False,
-        # Restored after #96 re-bake drop; static-assets.test asserts sourceTopologyMode.
-        "sourceOriginChain": {
-            "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
-            "rebakedFrom": f"{Path(base_obj).name} (tracked, unchanged by this re-bake)",
-            "garmentAuthoringClass": "body_surface_normal_offset_issue_121",
-        },
-    }
-    write_json(output_glb.with_suffix(".provenance.json"), prov)
+    """Delegate to shared mode-tagged writer (issue #142).
+
+    Emits derivationMode=blender_only_rebake with inherited_from_base_not_reverified
+    licence posture — not an orchestrate-shaped annyCode/mpfb2 fiction.
+    """
+    write_blender_only_rebake_provenance(
+        output_glb=output_glb,
+        case_id=case_id,
+        actor_id=actor_id,
+        actor_role=actor_role,
+        base_obj=base_obj,
+        garment_layers=garment_layers,
+        report_path=report_path,
+        repo_root=ROOT,
+    )
 
 
 def rebake_ed_patient() -> None:

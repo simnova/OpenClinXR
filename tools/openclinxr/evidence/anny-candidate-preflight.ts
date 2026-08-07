@@ -62,6 +62,8 @@ type RawHumanoidProvenance = {
   actorRole?: unknown;
   assetPath?: unknown;
   generatorMode?: unknown;
+  /** Mode-tagged derivation (#142): orchestrate | blender_only_rebake */
+  derivationMode?: unknown;
   usesRealAnnyForwardPass?: unknown;
   realAnnyWeightsUsed?: unknown;
   textureMode?: unknown;
@@ -243,11 +245,14 @@ type CandidatePreflight = {
     promotionStatus: string;
     notEvidenceFor: string[];
     documentSha256: string;
+    derivationMode: string;
     sourceOriginChainPresent: boolean;
     licenseChainPresent: boolean;
     derivativeLineagePresent: boolean;
     toolVersionPresent: boolean;
     promptOrCaseParameterHashPresent: boolean;
+    /** True when licence chain matches the honest shape for this derivation mode (#142). */
+    licenseChainHonestForMode: boolean;
   };
   roleNormalization: {
     sourceActorRole: string;
@@ -488,8 +493,10 @@ async function evaluateCandidate(spec: AnnyCandidateSpec): Promise<CandidatePref
     ...(provenance.generatorMode === spec.expectedGeneratorMode ? [] : ["unexpected_generator_mode"]),
     ...(typeof provenance.realAnnyWeightsUsed === "boolean" ? [] : ["real_anny_weights_flag_missing"]),
     ...(hasRecordOrString(provenance.sourceOriginChain) ? [] : ["source_origin_chain_missing"]),
+    // #142: presence required for both modes; content is mode-tagged (orchestrate fat chain vs rebake inheritance).
     ...(hasRecordOrString(provenance.licenseChain) ? [] : ["license_chain_missing"]),
     ...(hasRecordOrString(provenance.derivativeLineage) ? [] : ["derivative_lineage_missing"]),
+    ...(licenseChainHonestForMode(provenance) ? [] : ["license_chain_dishonest_for_derivation_mode"]),
     ...(typeof provenance.toolVersion === "string" && provenance.toolVersion.length > 0 ? [] : ["tool_version_missing"]),
     ...(typeof provenance.promptOrCaseParameterHash === "string" && /^[a-f0-9]{32,64}$/u.test(provenance.promptOrCaseParameterHash) ? [] : ["prompt_or_case_parameter_hash_missing"]),
     ...(provenance.usesRealAnnyForwardPass === true || notEvidenceFor.includes("real_anny_model_output") ? [] : ["real_anny_false_gate_missing"]),
@@ -577,11 +584,13 @@ async function evaluateCandidate(spec: AnnyCandidateSpec): Promise<CandidatePref
       promotionStatus: String(provenance.promotionStatus ?? "unknown"),
       notEvidenceFor,
       documentSha256: createHash("sha256").update(provenanceBytes).digest("hex"),
+      derivationMode: resolveDerivationMode(provenance),
       sourceOriginChainPresent: hasRecordOrString(provenance.sourceOriginChain),
       licenseChainPresent: hasRecordOrString(provenance.licenseChain),
       derivativeLineagePresent: hasRecordOrString(provenance.derivativeLineage),
       toolVersionPresent: typeof provenance.toolVersion === "string" && provenance.toolVersion.length > 0,
       promptOrCaseParameterHashPresent: typeof provenance.promptOrCaseParameterHash === "string" && /^[a-f0-9]{32,64}$/u.test(provenance.promptOrCaseParameterHash),
+      licenseChainHonestForMode: licenseChainHonestForMode(provenance),
     },
     roleNormalization: {
       sourceActorRole,
@@ -684,11 +693,13 @@ function buildMissingGeneratedAssetCandidate(
       promotionStatus: String(provenance.promotionStatus ?? "unknown"),
       notEvidenceFor,
       documentSha256: createHash("sha256").update(provenanceBytes).digest("hex"),
+      derivationMode: resolveDerivationMode(provenance),
       sourceOriginChainPresent: hasRecordOrString(provenance.sourceOriginChain),
       licenseChainPresent: hasRecordOrString(provenance.licenseChain),
       derivativeLineagePresent: hasRecordOrString(provenance.derivativeLineage),
       toolVersionPresent: typeof provenance.toolVersion === "string" && provenance.toolVersion.length > 0,
       promptOrCaseParameterHashPresent: typeof provenance.promptOrCaseParameterHash === "string" && /^[a-f0-9]{32,64}$/u.test(provenance.promptOrCaseParameterHash),
+      licenseChainHonestForMode: licenseChainHonestForMode(provenance),
     },
     roleNormalization: {
       sourceActorRole,
@@ -1231,6 +1242,65 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function hasRecordOrString(value: unknown): boolean {
   return (typeof value === "string" && value.length > 0) || isRecord(value);
+}
+
+/** Infer derivation mode from explicit field or generatorMode (#142). */
+function resolveDerivationMode(provenance: RawHumanoidProvenance): string {
+  if (typeof provenance.derivationMode === "string" && provenance.derivationMode.length > 0) {
+    return provenance.derivationMode;
+  }
+  if (provenance.generatorMode === "blender_only_rebake_on_tracked_real_anny_base_obj_v1") {
+    return "blender_only_rebake";
+  }
+  if (
+    provenance.generatorMode === "real_anny_local_forward_pass_plus_blender_procedural"
+    || provenance.generatorMode === "anny_compatible_stub_plus_blender_procedural"
+  ) {
+    return "orchestrate";
+  }
+  return "unknown";
+}
+
+/**
+ * Mode-tagged licence honesty (#142).
+ * - blender_only_rebake: must be inheritance-shaped (status + base + notRun); must NOT look like
+ *   a fresh orchestrate annyCode/mpfb2 enumeration without inheritance markers.
+ * - orchestrate: annyCode / enumerated status, or any non-empty record for legacy orchestrate docs.
+ * - missing licence chain: dishonest (presence is a separate blocker).
+ */
+function licenseChainHonestForMode(provenance: RawHumanoidProvenance): boolean {
+  const mode = resolveDerivationMode(provenance);
+  const license = provenance.licenseChain;
+  if (!hasRecordOrString(license)) return false;
+  if (typeof license === "string") {
+    // String form is weak but non-empty; accept for either mode as presence-only honesty.
+    return license.length > 0;
+  }
+  if (!isRecord(license)) return false;
+
+  if (mode === "blender_only_rebake") {
+    const status = license["status"];
+    const hasInheritanceStatus = status === "inherited_from_base_not_reverified"
+      || status === "inherited_from_base";
+    const hasBase = typeof license["base"] === "string" && license["base"].length > 0;
+    const hasNotRun = Array.isArray(license["notRun"]) && license["notRun"].length > 0;
+    // Reject pure orchestrate fiction on a rebake path (the #136 overclaim class).
+    const looksLikeOrchestrateFiction = typeof license["annyCode"] === "string"
+      && typeof license["mpfb2AdaptedAssets"] === "string"
+      && !hasInheritanceStatus
+      && !hasNotRun;
+    if (looksLikeOrchestrateFiction) return false;
+    return hasInheritanceStatus && hasBase && hasNotRun;
+  }
+
+  if (mode === "orchestrate") {
+    return typeof license["annyCode"] === "string"
+      || license["status"] === "enumerated_from_source_record_at_orchestrate"
+      || Object.keys(license).length > 0;
+  }
+
+  // Unknown mode: presence alone.
+  return true;
 }
 
 function normalizeActorRole(sourceActorRole: string, normalizedActorRole: AnnyCandidateSpec["actorRole"]): { aliasAccepted: boolean; mappingNote: string } {
