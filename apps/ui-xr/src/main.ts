@@ -57,10 +57,16 @@ import {
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import {
+  applyAndPlantSupineOnDeck,
+  applySupinePose,
+  holdSupinePlantFrame,
+} from "./supine-pose.js";
+import {
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
 } from "./clinical-idle-posture.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
+import { STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import { stationContextForScenario } from "./station-context.js";
@@ -68,6 +74,8 @@ import {
   resolveActorPosture,
   seatedActorWorldPosition,
   seatedVerticalOffsetForSeatHeight,
+  supineActorWorldPosition,
+  supineVerticalOffsetSeed,
   type ActorPosture,
 } from "@openclinxr/asset-registry";
 import {
@@ -875,14 +883,16 @@ function runtimeActorPlacement(
     slotKind,
   });
   const seated = posture === "seated";
+  const supine = posture === "supine";
+  // #150: never seatedVerticalOffsetForSeatHeight for supine (hip-on-chair ≠ torso-on-deck).
   const verticalOffsetMeters = seated
     ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
-    : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
+    : supine ? supineVerticalOffsetSeed()
+      : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
   const position = hasVector3(placement?.position) ? placement.position : fallback.position;
   return {
-    ...fallback,
-    ...placement,
-    position: seated ? seatedActorWorldPosition({}) : position,
+    ...fallback, ...placement,
+    position: seated ? seatedActorWorldPosition({}) : supine ? supineActorWorldPosition({}) : position,
     scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale,
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
@@ -1437,6 +1447,7 @@ type GeneratedHumanoidAnimationSlot = {
   root: Group;
   actorSlot: Group;
   baseY: number;
+  baseX: number; // #150 plant X
   baseScaleX: number;
   baseScaleY: number;
   baseScaleZ: number;
@@ -6958,7 +6969,8 @@ function loadGeneratedHumanoidIntoActorSlot(
       humanoid.userData.openClinXrActorId = options.actorId;
       actorSlot.userData.openClinXrActorPosture = posture;
       actorSlot.userData.openClinXrActorId = options.actorId;
-      applyPosturePose(humanoid, posture);
+      if (posture === "supine") applySupinePose(humanoid);
+      else applyPosturePose(humanoid, posture);
       neutralizeGeneratedHumanoidMorphTargets(humanoid);
       const humanoidSourceComparator = selectedHumanoidSourceComparator();
       const isRealGarmentPrimaryActor =
@@ -7470,7 +7482,11 @@ function registerGeneratedHumanoidAnimation(input: {
   const isSeated =
     input.humanoid.userData.openClinXrActorPosture === "seated"
     || input.actorSlot.userData.openClinXrActorPosture === "seated";
-  const mixer = input.playbackEnabled && input.animationClips.length > 0 && !isSeated
+  const isSupine =
+    input.humanoid.userData.openClinXrActorPosture === "supine"
+    || input.actorSlot.userData.openClinXrActorPosture === "supine";
+  // #150: no mixer for supine — standing tracks undo the recumbent plant.
+  const mixer = input.playbackEnabled && input.animationClips.length > 0 && !isSeated && !isSupine
     ? new AnimationMixer(input.humanoid)
     : undefined;
   // Response clips are registered on roleAnimationClipNames for discoverability but must not
@@ -7484,10 +7500,10 @@ function registerGeneratedHumanoidAnimation(input: {
   const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
   );
-  // Never fall back to "play every clip" for seated — neutral_generated_human armatureAction is standing.
+  // Never fall back to "play every clip" for seated/supine — neutral armatureAction is standing.
   const clipsToPlay = selectedRoleClips.length > 0
     ? [...selectedRoleClips, ...selectedGazeProbeClips]
-    : isSeated
+    : isSeated || isSupine
       ? []
       : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
   const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip): clip is AnimationClip => clip instanceof AnimationClip);
@@ -7512,6 +7528,12 @@ function registerGeneratedHumanoidAnimation(input: {
     input.humanoid.userData.openClinXrSeatedPlantPelvisBefore = plant.pelvisBefore;
     input.humanoid.updateMatrixWorld(true);
   }
+  if (isSupine) {
+    applyAndPlantSupineOnDeck(input.humanoid, {
+      deckTopWorldY: STRETCHER_DECK_TOP_METERS,
+      deckCenter: { x: input.actorSlot.position.x, z: input.actorSlot.position.z },
+    });
+  }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
   const activeGazeProbeAnimationClipName = selectedGazeProbeClips[0]?.name;
   const slot = {
@@ -7520,6 +7542,7 @@ function registerGeneratedHumanoidAnimation(input: {
     root: input.humanoid,
     actorSlot: input.actorSlot,
     baseY: input.humanoid.position.y,
+    baseX: input.humanoid.position.x,
     baseScaleX: input.humanoid.scale.x,
     baseScaleY: input.humanoid.scale.y,
     baseScaleZ: input.humanoid.scale.z,
@@ -8109,12 +8132,22 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
       continue;
     }
     slot.mixer?.update(deltaSeconds);
-    applyGeneratedHumanoidClinicalIdlePosture(slot.root);
-    applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
+    const isSupineFrame =
+      slot.root.userData.openClinXrActorPosture === "supine"
+      || slot.actorSlot.userData.openClinXrActorPosture === "supine";
+    // Supine: skip standing clinical-idle arm hang (would fight recumbent limb map).
+    if (!isSupineFrame) {
+      applyGeneratedHumanoidClinicalIdlePosture(slot.root);
+      applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
+    }
     // #81/#83: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
+    // #150: re-apply supine after idle path so arm hang does not undo recumbent limbs.
     // Do not re-plant every frame (would fight baseY); plant once at register, keep baseY.
     if (slot.root.userData.openClinXrActorPosture === "seated" || slot.actorSlot.userData.openClinXrActorPosture === "seated") {
       applyPosturePose(slot.root, "seated");
+    }
+    if (isSupineFrame) {
+      applySupinePose(slot.root);
     }
     const t = (nowMs + slot.phaseOffsetMs) / 1000;
     const breathing = Math.sin(t * 1.15);
@@ -8124,7 +8157,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     const dialogueWeightShift = isSpeaking ? Math.sin(t * 3.1) * 0.008 : 0;
     const pediatricAsthmaOverlay = pediatricAsthmaActingOverlayForSlot(slot, t, isSpeaking);
     // Live apply from gen drive (loco/gaze/lip from case spec -> replay/drive for peds/ed) to humanoid for posture/loco/gaze/lip-sync/viseme in player (desktop fallback + WebXR). Makes the generated behavior drive actual humanoid motion in launched experience (Q1/2 blueprint->runtime consumption). Fallback to prior procedural if no drive. Smallest wire.
-    if (drive) {
+    if (drive && !isSupineFrame) {
       const locomotion = generatedDriveScalar(drive.locomotion);
       if (locomotion !== null) {
         slot.root.position.z = slot.baseZ + locomotion * 0.6;
@@ -8136,14 +8169,21 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
       const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
       if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme); // #63 named viseme_*
     }
-    // baseY already includes seated plant delta from registerGeneratedHumanoidAnimation.
-    slot.root.position.y = slot.baseY + breathing * 0.018;
-    slot.root.position.x = emotionalSway + dialogueWeightShift;
-    slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
-    slot.root.rotation.z = Math.sin(t * 0.72) * 0.012 + pediatricAsthmaOverlay.rotationZ;
-    slot.root.scale.x = slot.baseScaleX + pediatricAsthmaOverlay.scaleXDelta;
-    slot.root.scale.y = slot.baseScaleY + breathing * 0.012 + pediatricAsthmaOverlay.scaleYDelta;
-    slot.root.scale.z = slot.baseScaleZ + pediatricAsthmaOverlay.scaleZDelta;
+    // baseY includes seated/supine plant. #150: hold plant XZ + root Z (no standing lean/sway).
+    if (isSupineFrame) {
+      holdSupinePlantFrame(slot.root, {
+        x: slot.baseX, y: slot.baseY, z: slot.baseZ,
+        scaleX: slot.baseScaleX, scaleY: slot.baseScaleY, scaleZ: slot.baseScaleZ,
+      }, breathing);
+    } else {
+      slot.root.position.y = slot.baseY + breathing * 0.018;
+      slot.root.position.x = emotionalSway + dialogueWeightShift;
+      slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
+      slot.root.rotation.z = Math.sin(t * 0.72) * 0.012 + pediatricAsthmaOverlay.rotationZ;
+      slot.root.scale.x = slot.baseScaleX + pediatricAsthmaOverlay.scaleXDelta;
+      slot.root.scale.y = slot.baseScaleY + breathing * 0.012 + pediatricAsthmaOverlay.scaleYDelta;
+      slot.root.scale.z = slot.baseScaleZ + pediatricAsthmaOverlay.scaleZDelta;
+    }
     slot.root.userData.openClinXrBodyMotionCue = {
       cueIds: isSpeaking
         ? [

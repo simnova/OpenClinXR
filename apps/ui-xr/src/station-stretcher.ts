@@ -6,8 +6,8 @@
  * Follows #81 buildPatientChair: procedural, fixture-slot driven, no authored GLB.
  *
  * claimScope: fixture geometry + deck height metadata for bedside layout.
- * notEvidenceFor: furniture realism, clinical stretcher fidelity, Quest readiness,
- * supine patient placement (out of scope for #97).
+ * notEvidenceFor: furniture realism, clinical stretcher fidelity, Quest readiness.
+ * Supine patient placement on this deck is #150 (runtime pose + plant), not this module.
  */
 
 import {

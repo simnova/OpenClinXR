@@ -1454,7 +1454,7 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       { traceTag: "patient_note_submitted", actorId: "patient_robert_hayes_v1", text: "System: Patient note saved for faculty review.", gazeTargetKind: "learner_camera", gazeTargetActorId: null, affectTimeline: runtimeDialogueAffectTimeline("neutral", 0.2) },
     ],
     actorPlacements: {
-      patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.18, y: 1.02, z: -0.18 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient", posture: "standing" },
+      patient_robert_hayes_v1: { slotKind: "primary_patient", position: { x: -0.9, y: 0, z: -0.1 }, scale: { x: 1.06, y: 1.06, z: 1.06 }, verticalOffsetMeters: 0, labelPrefix: "Patient", posture: "supine" }, /* #150 supine on stretcher */
       nurse_maria_alvarez_v1: { slotKind: "clinical_team", position: { x: 1.78, y: 0.95, z: 0.42 }, scale: { x: 0.98, y: 0.98, z: 0.98 }, verticalOffsetMeters: -0.95, labelPrefix: "Team", posture: "standing" },
       spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: "standing" },
     },
