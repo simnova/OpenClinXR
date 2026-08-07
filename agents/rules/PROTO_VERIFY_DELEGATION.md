@@ -2061,4 +2061,62 @@ So the ordering is now three-deep and worker-confirmed: **a contradicting measur
 candidate list > silence > a ranked cause.** A number is not a hypothesis; hand it over in full,
 including how you obtained it, and ask for both instruments back.
 
+
+
+## 8s. A confident traced cause narrows the search — give the finding a named slot or it hides
+
+#153's brief carried a traced cause I had verified: `main.ts:7104` applies the standing clinical idle
+after the supine map with no posture guard, and the map never names `neck`. Both were real and both
+were cheap to fix. The worker's verdict on it was exactly split:
+
+> "**Helped half, narrowed half.** Helped: load guard + `neck` were real… Narrowed: 'limb map is not
+> the problem' + 'plant/axis/head end are correct' pushed me to treat composition as the whole defect.
+> After frames, idle was already re-overwritten by `applySupinePose` — so arms still wrong *with* the
+> map applied. **That is not what the brief predicted as the primary arm failure mode.**"
+
+What it actually found, none of which I predicted:
+
+- `root.rotation.z = +π/2` alone produces a **side-lying** body — left/right separated on world Y by
+  0.4 m. That was visible in the pre-fix artifact I read and did not act on.
+- the first on-back basis had **determinant −1** — a reflection, not a rotation. "Eulers lied until
+  measured", which is §6v's lesson in a new costume.
+- the plant re-applies supine after the idle at register time, so the load-time overwrite alone does
+  not explain the post-frame arms.
+
+**The worker SAW the side-lying and had nowhere to put it:**
+
+> "Yes — first pre-fix table (shoulders Y 1.098 vs 0.702, same X/Z). **Nowhere clean to put it:** brief
+> said not to re-derive the pose, limb map OK, only composition… The unverified `z=+π/2` guess line was
+> the only soft permission; **it was not a named slot.**"
+
+This is §6h and §8m recurring one ring further in. A tightly scoped brief buys focus by narrowing what
+counts, and a *diagnosis* narrows it harder than a scope statement does — because the worker is now
+being told not just what to work on but what is already known.
+
+**Rule, and it is the worker's own proposal, adopted verbatim:** when a brief carries a traced cause,
+the pre-fix table must include the measurements that would FALSIFY it, with the interpretive rule
+stated. Here:
+
+> Require a pre-fix landmark table with **shoulder span on Y vs Z**, and the line "if spanY ≫ spanZ the
+> body is side-lying", as an `exists:` artifact **before** any composition story is treated as
+> complete.
+
+That converts "the cause is X" from a closed claim into a hypothesis the artifact can refute — which
+is what §7h asked for in prose and what §8q showed prose cannot deliver.
+
+**And add the slot explicitly:** *"If the pre-fix measurement contradicts my traced cause, say so and
+follow the measurement. Naming it is the most valuable thing you can do in this slice."* Without that
+sentence a worker that finds your diagnosis wrong will fix the real thing and report it as an aside —
+which is what happened, and I only caught it by reading the artifact myself.
+
+## 8t. A determinant is a cheap check on any hand-authored basis
+
+Recorded because it will recur. #153's worker constructed an on-back basis and got **det = −1** — a
+reflection rather than a rotation, which produces a mirrored body that looks almost right and whose
+eulers are meaningless. It found this by measuring rather than by inspection.
+
+Any code that assembles a rotation matrix from hand-chosen axis vectors should assert `det ≈ +1`. It
+is one line, it is exact, and the failure it catches is otherwise diagnosed only by noticing that a
+figure's left and right are swapped.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
