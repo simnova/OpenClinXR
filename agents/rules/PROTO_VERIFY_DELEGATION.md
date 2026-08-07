@@ -786,3 +786,61 @@ a capture loop re-run because nothing told the worker which changes require a re
 the PRODUCT half saturates. Rolling back on thrash punishes the delegate for the environment, and
 this project's escalation experiment has already established that failing on prep is the
 orchestrator's failure. Attack the thrash; hold the rung.
+
+## 6x. A fixture that does not exhibit the failure class proves the wrong thing
+
+#66 provisioned gitignored assets into worker worktrees. Its contract declared
+`generated-humanoids/peds_anxious_parent.glb` as the asset to copy, with a comment calling it an
+ignored-path test. That file is TRACKED. `git worktree add` already checks it out, so the contract
+never exercised the failure it was written for — a worker arriving with no `cagematch/`.
+
+The worker found this mid-slice, recorded it in its FIXED block, and implemented anyway. Asked, it
+was precise about its own miss:
+
+> "A tracked GLB still proves hash-equal copy and 'undeclared root absent,' but it does not prove
+> the real failure class... I should have named the vacuity risk before implementing, even while
+> still implementing the decided design."
+
+Both halves are right. The fixture choice was mine.
+
+**Rule:** before planting, ask whether the fixture ACTUALLY EXHIBITS the defect. A contract about
+ignored paths uses an ignored path; a contract about a detached mesh uses a detached mesh; a
+contract about a missing dependency uses a tree that is missing it. Reach for the real broken
+artifact, or construct one in the test — never a nearby healthy stand-in that happens to be
+convenient.
+
+The tell: the fixture was picked because it was easy to name, not because it was the thing that
+breaks.
+
+## 6y. "Implement it anyway if you disagree" costs nothing and buys a report slot
+
+The #66 brief said the design was decided by a peer round, listed the rejected alternatives with
+their reasons, and added: *if you believe one is wrong, say why in your report and implement the
+decided design anyway.* Asked whether that helped or was noise:
+
+> "The 'implement decided design anyway' line helped: it removed peer-reopen thrash and made
+> disagreement a report slot, not a redesign. Low noise."
+
+Same shape as §6q (the contract-makes-it-worse warning) and it generalises: whenever a brief carries
+a decision the worker could reasonably relitigate, state the decision, state the rejected options
+AND why they lost, and give disagreement somewhere to go that is not the implementation.
+
+Without the rejected reasons, a worker re-derives them. Without the "anyway", the instruction
+competes with the contract.
+
+## 6z. The incomplete-loop tell: a field nothing populates
+
+#66 landed `assetPaths` on the trusted brief, on `DispatchOptions`, and as a `## asset_paths`
+extraction in `board-brief`. Nothing writes board results into the trusted `brief.json`, so the
+extraction reaches nothing. The worker flagged it unprompted:
+
+> "with only dispatch-time `assetPaths` and no automatic brief write from board, asset slices can
+> still ship without declarations and thrash the same way until someone remembers the field. That is
+> an incomplete loop, not a regression."
+
+This is the fifth instance of the build-it-but-don't-connect-it class in this repo (`merge-kill`,
+the contract report, the done_when vocabulary, three viseme/applier slices, now this).
+
+**Rule:** when a slice adds a FIELD, the question is not "what reads it" but "what WRITES it, in the
+real path, without a human remembering." A field populated only by hand is a field that will be
+empty. Put the writer in the same slice or the capability does not exist.
