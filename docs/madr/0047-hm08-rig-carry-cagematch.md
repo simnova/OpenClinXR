@@ -1,94 +1,107 @@
-# MADR 0047: hm08 rig-carry cagematch — bake-first gate on MakeClothes runtime path
+# MADR 0047: hm08 rig-carry cagematch — bake surface intact; rig carries under freeze
 
-Status: Accepted  
+Status: Accepted (corrected 2026-08-07)  
 Date: 2026-08-07  
 Issue: #134  
 Evidence:
 
 - `.openclinxr/evidence/issue-134/pre-fix.json` (done_when)
 - `.openclinxr/evidence/issue-134/probe-report.json`
+- `.openclinxr/evidence/issue-134/hm08-rig-carry-candidate.glb` (evidence path only)
+- `.openclinxr/evidence/issue-134/hm08-export-attempt-{1,2}.json`
 - Probe: `tools/openclinxr/evidence/hm08-rig-carry-cagematch.ts`
+- Blender stage: `tools/openclinxr/evidence/blender/hm08_rig_carry_stage.py`
 - Contract: `tools/openclinxr/evidence/hm08-rig-carry-cagematch.test.ts`
 
-Related: MADR 0044 (`adopt_mh_body` for MakeClothes fit), MADR 0037 (topology fork), #131, #151
+Related: MADR 0044 (`adopt_mh_body` for MakeClothes fit), MADR 0037, #131, #151, #121 / §6t
 
-## Context
+## Decision (CORRECTED)
 
-#131 established that MakeClothes works on MakeHuman `hm08` topology (CC-BY Scrub Shirt, ~12.6 ms, 9 384 tris) and that proximity transfer onto Anny shatters the garment. Operator framing asked how far the factory can go deterministically before craft/LLM shape judgement.
+**`verdict: adopt_hm08`** — for **runtime rig carry on an evidence-path candidate only**.
 
-#134 asked the residual: **can hm08 carry everything the runtime already needs** (23 joints as three.js sees them, weights, painted regions, morphs, triangle budget) — or is migration blocked?
+1. **Bake does not degrade body surface continuity** when measured correctly (position-merged components across multi-material primitives).
+2. **hm08 can carry the 23 canonical joints** as three.js sees them (`thighL`, `upper_armL`, …): fresh bounds-driven armature + auto-weight export, all 23 names resolve, skinned mesh, **36 972 tris** (under 60 000).
+3. **Not production adoption.** Candidate stays under `.openclinxr/evidence/issue-134/`. Nothing promoted to `generated-humanoids/`. MPFB2 GPL-3 remains deferred. Morph/viseme count on candidate = **0** (gap recorded, not closed).
 
-Separately, #134 recorded an **unmeasured claim**: raw `*.anny_base.obj` looks better (clean shoulders/deltoids/neck) than the GLBs baked from them. A peer round required measuring that **before** any MPFB2 work: if the bake is the defect, hm08 does not fix it.
+Withdrawn: earlier `reject_measured` that treated index-based multi-material islands as bake degradation — false; fence only.
 
-Licence: MPFB2 is GPL-3 and deferred (MADR 0044 posture). This MADR does not resolve that.
+## Contract (1) re-measure — index vs position-merged
 
-## Decision
+Measure that answers “does the bake degrade the body surface”:
 
-**`verdict: reject_measured`**
+| asset | base verts | unique pos (5dp) | base comps | **index-based body comps** | **position-merged comps** | bake degrades? |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `ed_chest_pain_adult_cast` | 13 348 | 13 348 | 1 | 14 | **1** | no |
+| `ed_chest_pain_nurse_adult` | 13 348 | 13 348 | 1 | 14 | **1** | no |
+| `ed_chest_pain_spouse_adult` | 13 348 | 13 348 | 1 | 14 | **1** | no |
+| `peds_anxious_parent` | 13 348 | 13 348 | 1 | 14 | **1** | no |
+| `peds_nurse_kevin` | 13 348 | 13 348 | 1 | 14 | **1** | no |
+| `peds_patient_child` | 13 718 | 13 718 | 4 | 20 | **4** | no |
 
-**Do not attempt an hm08 rig-carry candidate until the Anny bake path stops subtracting body-mesh surface integrity.**
+Primary measure name: `body_mesh_position_merged_connected_components`.
 
-Contract (1) ended the slice successfully. No MPFB2 export was run (0 attempts; stop rule allows at most 2). No shipped asset was touched. Nothing was promoted to `generated-humanoids/`.
+**Why the numbers differed:** a multi-material glTF mesh is one primitive per material with independent index buffers; material-boundary vertices are duplicated (same position, new index). Summing per-primitive index connectivity reports material islands as disconnected even when the surface is continuous. Independent check (orchestrator): `peds_nurse_kevin` → `uniqueVertPositions=13348`, `COMPONENTS=1` after position merge — matches base OBJ vertex count exactly.
 
-### Measured numbers (six shipped humanoids)
+**Blender non-manifold 0→~1050 (withdrawn as degradation):** on `peds_nurse_kevin`, raw import reports ~1056 non-manifold edges and 14 index components; after `remove_doubles` at 1e-5 → **0 non-manifold, 1 component, 13 348 verts**. That figure measured material-split duplicates, not holes in the surface. §6t: authoring/import topology reports are not automatically claims about continuous geometry.
 
-Measure: **`body_mesh_connected_components`** on the body shell only (`*anny_base*` mesh vs tracked `*.anny_base.obj`).
+What position-merge **cannot** see: UV seams, normal discontinuities, weight quality, pixel-grade shoulder appearance under wardrobe overlays, or whether multi-material encoding causes consumer bugs unrelated to surface connectivity.
 
-| asset | base OBJ tris | body GLB tris | base components | body components | bake degrades |
-| --- | ---: | ---: | ---: | ---: | --- |
-| `ed_chest_pain_adult_cast.glb` | 26 692 | 26 692 | **1** | **14** | yes |
-| `ed_chest_pain_nurse_adult.glb` | 26 692 | 26 692 | **1** | **14** | yes |
-| `ed_chest_pain_spouse_adult.glb` | 26 692 | 26 692 | **1** | **14** | yes |
-| `peds_anxious_parent.glb` | 26 692 | 26 692 | **1** | **14** | yes |
-| `peds_nurse_kevin.glb` | 26 692 | 26 692 | **1** | **14** | yes |
-| `peds_patient_child.glb` | 27 420 | 27 420 | **4** | **20** | yes |
+## Rig-carry result (hard freeze)
 
-Supporting observations (not the contract measure):
+In scope only: name 23 canonical joints on hm08, auto-weight, export, inspect.
 
-- Body triangle count is **preserved** (OBJ quads triangulate to the same face count as the baked body shell). Height classes match issue inventory (~1.76 / 1.66 / 1.25 m).
-- Body primitives after bake: adults `primComps ≈ [7,1,2,4]` (four material-split primitives, already multi-island). Export + multi-material paint is the likely splitter — same class as SOLIDIFY rim micro-islands (#121 / §6t), not a missing hm08 joint.
-- Blender-side non-manifold edge count on evaluated body: **0 → ~1050** (adults); components **1 → 14**. Shoulder P95 dihedral was **not** worse on the GLB body alone — the visual “worse than base” grade is consistent with **surface continuity / wardrobe overlay**, not smoother-or-rougher shoulder angles on the body shell.
-- Runtime joints on all six GLBs: **23 / 23** canonical names as three.js sees them (`thighL`, `upper_armL`, …). `weightSource` remains position-painted heuristics (`ensure_deterministic_skinning_fallback`), not MPFB heat weights.
-- Morph targets on body: **100** slots per body mesh (plus garment morphs in total document). Material/region surface count: **5–6 materials + declared/garment meshes**.
+| item | result |
+| --- | --- |
+| Attempt 1 | `ARMATURE_AUTO` — **failed** (23 vertex groups created, 0 groups with non-zero weights under the stage’s check) |
+| Attempt 2 | `ARMATURE_ENVELOPE` — **ok** (23/23 weighted groups); stop rule respected (no third attempt) |
+| File-side bone names | full dotted set (`upper_arm.L`, …) |
+| As three.js sees them | all 23 undotted names present; extra `neutral_bone` from exporter |
+| Candidate tris | 36 972 ≤ 60 000 |
+| Morph targets | **0** (gap number; out of scope to close) |
+| Path | `.openclinxr/evidence/issue-134/hm08-rig-carry-candidate.glb` — **not** under `generated-humanoids/` |
+| Shipped assets | untouched |
 
-### Closed visual checklist
+### Still true from first pass (undisputed)
+
+- Shipped humanoids: **23/23** canonical joints as three.js sees them.
+- `weightSource` on shipped assets: position-painted heuristics (`ensure_deterministic_skinning_fallback`), not MPFB heat weights.
+- Body morph slots on shipped anny_base meshes: **100** (plus garment morphs in full document).
+- Height classes ~1.76 / 1.66 / 1.25 m; three content classes per #151 inventory.
+- `phenotype.bmi` does not move vertices (#151).
+
+## Closed visual checklist
 
 | slot | value |
 | --- | --- |
-| `base_obj_vs_shipped_glb` | `base_better` |
-| `where_they_differ` | body surface continuity (multi-material islands after bake export); not stature |
-| `hm08_candidate_loads` | `not_attempted` |
-| `hm08_figure_intact` | `not_attempted` |
+| `base_obj_vs_shipped_glb` | `same` (under position-merged continuity) |
+| `where_they_differ` | none under that measure; index-based multi-material split is export encoding |
+| `hm08_candidate_loads` | `yes` (NodeIO + skin + 23 joints; Workbench PNG under evidence path) |
+| `hm08_figure_intact` | `yes` (continuous hm08 body mesh in Workbench; not a shattered transfer) |
 
-Observable capture requirement **lapsed** with contract (1) — no candidate was built.
+Ui-xr room capture of the candidate was **not** wired (would require promotion or scenario cast changes — out of freeze). Load proof is glTF-transform skin/joints + Blender re-import/render of the evidence GLB.
 
 ## Consequences
 
 Positive:
 
-- The unmeasured #134 claim is now measured: **the bake path degrades body surface integrity** relative to the tracked base OBJ on every shipped humanoid.
-- MakeClothes / hm08 migration is **correctly deprioritized** until bake continuity is fixed — avoids a multi-week retarget that would not address the learner-visible defect class.
-- Pre-fix inventory is durable and re-runnable (`pnpm exec tsx tools/openclinxr/evidence/hm08-rig-carry-cagematch.ts`).
-- MPFB2 GPL posture unchanged; no promotion risk.
+- MakeClothes path is no longer blocked by a false “bake destroys the body” gate.
+- hm08 + 23-name armature + weights is a measured, exportable evidence candidate.
+- Correct continuity metric is codified (position-merge across primitives).
 
 Negative / residuals (NOT DETERMINED):
 
-- Whether fixing multi-material / glTF split on the Anny bake restores pixel parity with base renders (shoulder/deltoid appearance) without hm08.
-- Whether an hm08 body with a freshly named 23-bone armature + auto-weight would then clear the runtime bind surface (posture maps, seated/supine).
-- Morph/viseme parity cost on hm08 (deliberately out of scope; gap not closed).
-- Real weight quality of MPFB vs position paint (#126 residual).
-- Whether a correspondence-class transfer (not proximity) can ever put MakeClothes garments on Anny without adopting hm08.
+- Whether envelope weights are good enough for clinical-idle / seated / supine maps (bind quality not graded beyond name resolution + skin presence).
+- Why `ARMATURE_AUTO` produced empty weights on this mesh/Blender 5.1.1 (first attempt failed for real under the stage’s weight check).
+- Morph/viseme/gaze parity cost on hm08.
+- Full migration cost (wardrobe paint, seated maps, captures, UI-XR default).
 - Operator licence decision for MPFB2 / community garments.
-
-## Redirect (next product slice)
-
-Repair **Anny bake export continuity** (body mesh connected components / non-manifold after multi-material paint) so the shipped GLB body remains a single connected surface matching the base OBJ — then reopen hm08 rig-carry if MakeClothes is still the garment strategy.
+- Whether pixel “base looks better than shipped” under wardrobe overlays is still real for other reasons (lighting, garments, paint) even though body surface continuity holds.
 
 ## Compliance
 
-- `claimScope`: local bake-first cagematch; evidence path only.
-- `notEvidenceFor`: production readiness, Quest, clinical realism, GPL resolution, garment fit, morph parity, adoption.
-- No `generated-humanoids/` writes. No MPFB2 candidate file.
+- `claimScope`: bake-first position-merged measure + evidence-path hm08 rig-carry only.
+- `notEvidenceFor`: production readiness, Quest, clinical realism, GPL resolution, garment fit, morph parity, adoption into orchestrate_character.
+- No `generated-humanoids/` writes.
 
 ## Probe entrypoint
 

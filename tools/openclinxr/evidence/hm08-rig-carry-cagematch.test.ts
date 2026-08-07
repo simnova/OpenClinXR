@@ -117,11 +117,13 @@ import { describe, expect, it } from "vitest";
  *
  * ## FIXED (#134)
  *
- * Contract (1) measured body-mesh connected components: base OBJ adults=1 / child=4 → baked body
- * shell 14 / 20. `bakeDegrades=true` on all six shipped humanoids. Verdict `reject_measured` with
- * attempts=0 (MPFB2 not started — bake defect means hm08 answers the wrong question). Pre-fix
- * inventory at `.openclinxr/evidence/issue-134/pre-fix.json`. MADR 0047 records Decision + numbers.
- * Candidate path empty; no `generated-humanoids/` write.
+ * Contract (1) primary measure is position-merged connected components across body primitives
+ * (5dp quantised verts). Side-by-side: index-based still reports 14/20 (multi-material islands);
+ * position-merged matches base (adults 1, child 4) and uniqueVertPositions == base vert count.
+ * Withdrawn: treating index islands as bake degradation. Bake does not stop the slice.
+ * Rig: attempt1 ARMATURE_AUTO failed empty weights; attempt2 ARMATURE_ENVELOPE ok →
+ * evidence candidate with 23/23 joints as three.js sees them, 36972 tris, morphs=0.
+ * Verdict `adopt_hm08` (rig carry / evidence path only). MADR 0047 corrected claim first.
  */
 
 const load = async () => import("./hm08-rig-carry-cagematch.js") as Promise<Record<string, unknown>>;

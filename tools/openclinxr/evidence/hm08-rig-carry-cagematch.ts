@@ -4,17 +4,17 @@
  * DELIVERABLE IS A DECISION WITH EVIDENCE, not working code.
  * `verdict: reject_measured` is a successful close.
  *
- * CONTRACT (1) ORDER: measure bake vs base OBJ first. If the bake degrades the
- * body mesh, stop before any MPFB2 / hm08 candidate work — hm08 would not fix a
- * bake-path defect.
+ * CONTRACT (1) ORDER: measure bake vs base OBJ first using POSITION-MERGED
+ * continuity (not index-per-primitive). Multi-material glTF splits duplicate
+ * boundary verts; index connectivity is not surface continuity (§6t / #121).
  *
- * claimScope: local bake-vs-base topology inventory + (optional) hm08 rig-carry
- * probe on an evidence path only.
+ * claimScope: local bake-vs-base inventory + hm08 rig-carry probe on evidence path.
  * notEvidenceFor: production adoption, Quest readiness, MPFB GPL resolution,
- * garment fit (#131 settled), clinical realism, promotion of any candidate.
+ * garment fit (#131), clinical realism, promotion of any candidate.
  */
 
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -30,14 +30,17 @@ import { NodeIO, type Document, type Mesh, type Primitive } from "@gltf-transfor
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
 
-const HUMANOID_DIR = path.join(
-  REPO_ROOT,
-  "apps/ui-xr/public/generated-humanoids",
-);
-
+const HUMANOID_DIR = path.join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-134");
 const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
 const REPORT_PATH = path.join(EVIDENCE_DIR, "probe-report.json");
+const CANDIDATE_GLB = path.join(EVIDENCE_DIR, "hm08-rig-carry-candidate.glb");
+const BLENDER_STAGE = path.join(HERE, "blender/hm08_rig_carry_stage.py");
+
+const MH_BASE_OBJ = path.join(
+  process.env.HOME ?? "",
+  "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/3dobjs/base.obj",
+);
 
 /** Canonical undotted joint names as three.js `PropertyBinding.sanitizeNodeName` yields them. */
 export const CANONICAL_JOINTS_AS_THREE_JS = [
@@ -66,10 +69,6 @@ export const CANONICAL_JOINTS_AS_THREE_JS = [
   "footR",
 ] as const;
 
-/**
- * three.js `PropertyBinding.sanitizeNodeName` — dots removed (path separators),
- * brackets → underscore. Measured agreement with shipped runtime scene graph.
- */
 export function jointNameAsThreeJsSeesIt(fileSideName: string): string {
   return fileSideName.replace(/\./g, "").replace(/[\[\]]/g, "_");
 }
@@ -82,6 +81,10 @@ export type BakeComparison = {
   baseValue: number;
   bakedValue: number;
   bakeDegrades: boolean;
+  /** Side-by-side diagnostic: index-based (misleading for multi-material). */
+  indexBasedBodyComponents?: number;
+  /** Side-by-side: unique vertex positions after 5dp quantisation. */
+  uniqueVertPositions?: number;
 };
 
 export type RigCarry = {
@@ -105,8 +108,13 @@ export type PreFixSubject = {
   morphTargetCount: number;
   materialRegionCount: number;
   weightSource: string;
+  /** Index-based sum of per-primitive components (material-split artefact). */
+  bodyIndexBasedComponents: number;
+  /** Position-merged (5dp) components across all body primitives. */
+  bodyPositionMergedComponents: number;
   baseConnectedComponents: number;
-  bodyConnectedComponents: number;
+  uniqueVertPositions: number;
+  baseVertCount: number;
   contentSha256Prefix: string;
 };
 
@@ -123,10 +131,12 @@ export type InspectReport = {
   };
   claimScope: string;
   notEvidenceFor: string[];
+  /** Present when hm08 export was attempted. */
+  exportAttempts?: Array<Record<string, unknown>>;
 };
 
 const CLAIM_SCOPE =
-  "hm08_rig_carry_cagematch_bake_first_local_measure_only_no_promotion";
+  "hm08_rig_carry_cagematch_bake_first_position_merged_then_rig_probe_no_promotion";
 
 const NOT_EVIDENCE_FOR = [
   "production_asset_readiness",
@@ -139,52 +149,15 @@ const NOT_EVIDENCE_FOR = [
   "morph_target_viseme_parity",
 ];
 
-const MEASURE_NAME = "body_mesh_connected_components";
+/** Primary bake measure — answers surface continuity, not material-split index islands. */
+const MEASURE_NAME = "body_mesh_position_merged_connected_components";
 
 function listShippedHumanoidGlbs(): string[] {
-  if (!existsSync(HUMANOID_DIR)) {
-    return [];
-  }
+  if (!existsSync(HUMANOID_DIR)) return [];
   return readdirSync(HUMANOID_DIR)
     .filter((f: string) => f.endsWith(".glb"))
     .map((f: string) => path.join(HUMANOID_DIR, f))
     .sort();
-}
-
-function parseObjMesh(objPath: string): {
-  vertCount: number;
-  faceCount: number;
-  triangles: number;
-  connectedComponents: number;
-} {
-  const text = readFileSync(objPath, "utf8");
-  let vertCount = 0;
-  const faces: number[][] = [];
-  for (const line of text.split(/\r?\n/)) {
-    if (line.startsWith("v ")) {
-      vertCount += 1;
-    } else if (line.startsWith("f ")) {
-      const idxs = line
-        .trim()
-        .split(/\s+/)
-        .slice(1)
-        .map((tok: string) => {
-          const vi = Number.parseInt(tok.split("/")[0] ?? "", 10);
-          return vi < 0 ? vertCount + vi : vi - 1;
-        });
-      faces.push(idxs);
-    }
-  }
-  let triangles = 0;
-  for (const f of faces) {
-    triangles += Math.max(0, f.length - 2);
-  }
-  return {
-    vertCount,
-    faceCount: faces.length,
-    triangles,
-    connectedComponents: countConnectedComponents(vertCount, faces),
-  };
 }
 
 function countConnectedComponents(vertCount: number, faces: number[][]): number {
@@ -221,9 +194,50 @@ function countConnectedComponents(vertCount: number, faces: number[][]): number 
   return components;
 }
 
-function primitiveFaces(prim: Primitive): { vertCount: number; faces: number[][]; tris: number } {
+function parseObjMesh(objPath: string): {
+  vertCount: number;
+  faceCount: number;
+  triangles: number;
+  connectedComponents: number;
+} {
+  const text = readFileSync(objPath, "utf8");
+  let vertCount = 0;
+  const faces: number[][] = [];
+  for (const line of text.split(/\r?\n/)) {
+    if (line.startsWith("v ")) {
+      vertCount += 1;
+    } else if (line.startsWith("f ")) {
+      const idxs = line
+        .trim()
+        .split(/\s+/)
+        .slice(1)
+        .map((tok: string) => {
+          const vi = Number.parseInt(tok.split("/")[0] ?? "", 10);
+          return vi < 0 ? vertCount + vi : vi - 1;
+        });
+      faces.push(idxs);
+    }
+  }
+  let triangles = 0;
+  for (const f of faces) triangles += Math.max(0, f.length - 2);
+  return {
+    vertCount,
+    faceCount: faces.length,
+    triangles,
+    connectedComponents: countConnectedComponents(vertCount, faces),
+  };
+}
+
+function primitiveFaces(prim: Primitive): {
+  vertCount: number;
+  faces: number[][];
+  tris: number;
+  positions: Float32Array | null;
+  indices: number[];
+} {
   const pos = prim.getAttribute("POSITION");
   const vertCount = pos?.getCount() ?? 0;
+  const positions = pos ? new Float32Array(pos.getArray() as ArrayLike<number>) : null;
   const idx = prim.getIndices();
   const indices = idx
     ? Array.from(idx.getArray() as ArrayLike<number>)
@@ -234,21 +248,75 @@ function primitiveFaces(prim: Primitive): { vertCount: number; faces: number[][]
     faces.push([indices[i]!, indices[i + 1]!, indices[i + 2]!]);
     tris += 1;
   }
-  return { vertCount, faces, tris };
+  return { vertCount, faces, tris, positions, indices };
 }
 
-function bodyMeshFromDoc(doc: Document): {
+function quantKey(x: number, y: number, z: number, dp = 5): string {
+  return `${x.toFixed(dp)},${y.toFixed(dp)},${z.toFixed(dp)}`;
+}
+
+/**
+ * Merge vertices by quantised position across ALL primitives of a mesh, then
+ * count connected components. This is surface continuity, not material-island
+ * index continuity.
+ */
+function positionMergedComponents(
+  prims: Array<{ positions: Float32Array | null; indices: number[]; vertCount: number }>,
+  dp = 5,
+): { uniqueVertPositions: number; components: number; tris: number; rawVerts: number } {
+  const keyToId = new Map<string, number>();
+  const faces: number[][] = [];
+  let tris = 0;
+  let rawVerts = 0;
+  for (const prim of prims) {
+    if (!prim.positions) continue;
+    rawVerts += prim.vertCount;
+    const localToGlobal = new Int32Array(prim.vertCount);
+    for (let i = 0; i < prim.vertCount; i += 1) {
+      const k = quantKey(
+        prim.positions[i * 3]!,
+        prim.positions[i * 3 + 1]!,
+        prim.positions[i * 3 + 2]!,
+        dp,
+      );
+      let id = keyToId.get(k);
+      if (id === undefined) {
+        id = keyToId.size;
+        keyToId.set(k, id);
+      }
+      localToGlobal[i] = id;
+    }
+    for (let i = 0; i + 2 < prim.indices.length; i += 3) {
+      faces.push([
+        localToGlobal[prim.indices[i]!]!,
+        localToGlobal[prim.indices[i + 1]!]!,
+        localToGlobal[prim.indices[i + 2]!]!,
+      ]);
+      tris += 1;
+    }
+  }
+  return {
+    uniqueVertPositions: keyToId.size,
+    components: countConnectedComponents(keyToId.size, faces),
+    tris,
+    rawVerts,
+  };
+}
+
+function bodyMeshAnalysis(doc: Document): {
   name: string;
   triangles: number;
   verts: number;
-  connectedComponents: number;
+  indexBasedComponents: number;
+  positionMergedComponents: number;
+  uniqueVertPositions: number;
   morphTargetCount: number;
+  primCount: number;
 } | null {
   const root = doc.getRoot();
   let best: Mesh | null = null;
   for (const mesh of root.listMeshes()) {
-    const name = mesh.getName() ?? "";
-    if (/anny_base/i.test(name)) {
+    if (/anny_base/i.test(mesh.getName() ?? "")) {
       best = mesh;
       break;
     }
@@ -257,21 +325,36 @@ function bodyMeshFromDoc(doc: Document): {
 
   let triangles = 0;
   let verts = 0;
-  let components = 0;
+  let indexBased = 0;
   let morphTargetCount = 0;
+  const primPayload: Array<{
+    positions: Float32Array | null;
+    indices: number[];
+    vertCount: number;
+  }> = [];
+
   for (const prim of best.listPrimitives()) {
-    const { vertCount, faces, tris } = primitiveFaces(prim);
-    triangles += tris;
-    verts += vertCount;
-    components += countConnectedComponents(vertCount, faces);
+    const pf = primitiveFaces(prim);
+    triangles += pf.tris;
+    verts += pf.vertCount;
+    indexBased += countConnectedComponents(pf.vertCount, pf.faces);
     morphTargetCount += prim.listTargets().length;
+    primPayload.push({
+      positions: pf.positions,
+      indices: pf.indices,
+      vertCount: pf.vertCount,
+    });
   }
+  const posM = positionMergedComponents(primPayload, 5);
   return {
     name: best.getName() ?? "",
     triangles,
     verts,
-    connectedComponents: components,
+    indexBasedComponents: indexBased,
+    positionMergedComponents: posM.components,
+    uniqueVertPositions: posM.uniqueVertPositions,
     morphTargetCount,
+    primCount: best.listPrimitives().length,
   };
 }
 
@@ -292,11 +375,19 @@ function jointsAsThreeJs(doc: Document): string[] {
       names.add(jointNameAsThreeJsSeesIt(joint.getName() ?? ""));
     }
   }
+  // Also collect armature node children if no skin yet
+  if (names.size === 0) {
+    for (const node of doc.getRoot().listNodes()) {
+      const n = node.getName() ?? "";
+      if (n && !node.getMesh()) {
+        // skip pure mesh nodes; joints may appear as nodes without mesh
+      }
+    }
+  }
   return [...names].sort();
 }
 
 function materialRegionCount(doc: Document): number {
-  // Distinct materials + non-body mesh objects stand in for painted/declared regions.
   const materials = doc.getRoot().listMaterials().length;
   const regionMeshes = doc
     .getRoot()
@@ -310,14 +401,10 @@ function materialRegionCount(doc: Document): number {
   return materials + regionMeshes;
 }
 
-function sha256Prefix(filePath: string, bytes = 8): string {
-  const buf = readFileSync(filePath);
-  return createHash("sha256").update(buf).digest("hex").slice(0, bytes * 2);
+function sha256Prefix(filePath: string): string {
+  return createHash("sha256").update(readFileSync(filePath)).digest("hex").slice(0, 16);
 }
 
-/**
- * Per-subject calibration rows written BEFORE any MPFB2 work (done_when proof).
- */
 export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Promise<{
   path: string;
   subjects: PreFixSubject[];
@@ -333,10 +420,8 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
     }
     const obj = parseObjMesh(baseObj);
     const doc = await io.read(glbPath);
-    const body = bodyMeshFromDoc(doc);
-    if (!body) {
-      throw new Error(`no anny_base body mesh in ${glbPath}`);
-    }
+    const body = bodyMeshAnalysis(doc);
+    if (!body) throw new Error(`no anny_base body mesh in ${glbPath}`);
     const joints = jointsAsThreeJs(doc);
     subjects.push({
       assetPath: path.relative(REPO_ROOT, glbPath).replace(/\\/g, "/"),
@@ -349,8 +434,11 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
       materialRegionCount: materialRegionCount(doc),
       weightSource:
         "position_painted_heuristic (ensure_deterministic_skinning_fallback in automate_blender.py)",
+      bodyIndexBasedComponents: body.indexBasedComponents,
+      bodyPositionMergedComponents: body.positionMergedComponents,
       baseConnectedComponents: obj.connectedComponents,
-      bodyConnectedComponents: body.connectedComponents,
+      uniqueVertPositions: body.uniqueVertPositions,
+      baseVertCount: obj.vertCount,
       contentSha256Prefix: sha256Prefix(glbPath),
     });
   }
@@ -362,19 +450,19 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
     notEvidenceFor: NOT_EVIDENCE_FOR,
     measureName: MEASURE_NAME,
     measureRationale:
-      "Connected component count on the body mesh: base *.anny_base.obj is a single " +
-      "manifold surface (adults=1); shipped GLB body splits into multiple primitives/islands " +
-      "after multi-material paint + glTF export. Higher component count = bake-subtracted " +
-      "surface integrity (the unmeasured claim in #134).",
+      "PRIMARY: position-merged connected components (5dp quantised verts across all body " +
+      "primitives). Index-based per-primitive components are a multi-material glTF split " +
+      "artefact (boundary verts duplicated) and do NOT answer surface continuity. " +
+      "Withdrawn prior measure: body_mesh_connected_components as sum of per-prim index islands.",
     subjects,
     notes: {
       jointNameConvention:
-        "jointNamesAsThreeJsSeesThem use PropertyBinding.sanitizeNodeName rules (dots stripped)",
+        "jointNamesAsThreeJsSeesThem use PropertyBinding.sanitizeNodeName (dots stripped)",
       weightSourceNote:
         "#126 / automate_blender.ensure_deterministic_skinning_fallback — not MPFB heat weights",
-      byteIdentityClasses:
-        "six shipped humanoids resolve to three content classes (issue #151 inventory); " +
-        "this file records per-asset sha256 prefixes so identity is re-checkable",
+      nonManifoldBlenderNote:
+        "Blender non-manifold edge count on imported multi-material body (~1050) collapses to 0 " +
+        "after remove_doubles at 1e-5; that figure measured material-split duplicates, not holes.",
     },
   };
 
@@ -385,7 +473,7 @@ export async function writePreFixInventory(outPath: string = PRE_FIX_PATH): Prom
 function buildBakeComparisons(subjects: PreFixSubject[]): BakeComparison[] {
   return subjects.map((s) => {
     const baseValue = s.baseConnectedComponents;
-    const bakedValue = s.bodyConnectedComponents;
+    const bakedValue = s.bodyPositionMergedComponents;
     return {
       assetPath: s.assetPath,
       baseObjTriangles: s.baseObjTris,
@@ -394,102 +482,272 @@ function buildBakeComparisons(subjects: PreFixSubject[]): BakeComparison[] {
       baseValue,
       bakedValue,
       bakeDegrades: bakedValue > baseValue,
+      indexBasedBodyComponents: s.bodyIndexBasedComponents,
+      uniqueVertPositions: s.uniqueVertPositions,
     };
   });
 }
 
+function findBlender(): string {
+  for (const c of ["blender", "/opt/homebrew/bin/blender", "/usr/local/bin/blender"]) {
+    const r = spawnSync(c, ["--version"], { encoding: "utf8" });
+    if (r.status === 0) return c;
+  }
+  throw new Error("blender not found on PATH");
+}
+
+function runHm08ExportAttempt(
+  attempt: number,
+  weightMode: "auto" | "envelope",
+): Record<string, unknown> {
+  const attemptReport = path.join(EVIDENCE_DIR, `hm08-export-attempt-${attempt}.json`);
+  const blender = findBlender();
+  const args = [
+    "--background",
+    "--python",
+    BLENDER_STAGE,
+    "--",
+    "--mh-base-obj",
+    MH_BASE_OBJ,
+    "--output-glb",
+    CANDIDATE_GLB,
+    "--report",
+    attemptReport,
+    "--attempt",
+    String(attempt),
+    "--weight-mode",
+    weightMode,
+  ];
+  const r = spawnSync(blender, args, {
+    encoding: "utf8",
+    maxBuffer: 20 * 1024 * 1024,
+    cwd: REPO_ROOT,
+  });
+  let report: Record<string, unknown> = {
+    attempt,
+    weightMode,
+    exitCode: r.status,
+    stderrTail: (r.stderr ?? "").slice(-2000),
+    stdoutTail: (r.stdout ?? "").slice(-1000),
+  };
+  if (existsSync(attemptReport)) {
+    try {
+      report = {
+        ...JSON.parse(readFileSync(attemptReport, "utf8")),
+        exitCode: r.status,
+      };
+    } catch {
+      /* keep shell report */
+    }
+  }
+  return report;
+}
+
+async function inspectCandidateGlb(glbPath: string): Promise<{
+  runtimeJointNames: string[];
+  missingCanonicalJoints: string[];
+  triangleCount: number;
+  morphTargetCount: number;
+  hasSkin: boolean;
+}> {
+  const io = new NodeIO();
+  const doc = await io.read(glbPath);
+  const joints = jointsAsThreeJs(doc);
+  const missing = CANONICAL_JOINTS_AS_THREE_JS.filter((j) => !joints.includes(j));
+  let morphTargetCount = 0;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      morphTargetCount += prim.listTargets().length;
+    }
+  }
+  return {
+    runtimeJointNames: joints,
+    missingCanonicalJoints: [...missing],
+    triangleCount: totalGlbTriangles(doc),
+    morphTargetCount,
+    hasSkin: doc.getRoot().listSkins().length > 0,
+  };
+}
+
 /**
  * Core inspect entrypoint for planted contracts.
- * Always runs bake comparison first; never starts MPFB2 when bake degrades.
+ * Bake comparison first (position-merged); only then hm08 export (≤2 attempts).
  */
 export async function inspectHm08RigCarry(): Promise<InspectReport> {
   const { path: preFixPath, subjects } = await writePreFixInventory(PRE_FIX_PATH);
   const bake = buildBakeComparisons(subjects);
   const anyBakeDegrades = bake.some((b) => b.bakeDegrades);
-  const allBakeDegrade = bake.length > 0 && bake.every((b) => b.bakeDegrades);
 
-  const maxDelta = bake.reduce(
-    (m, b) => Math.max(m, b.bakedValue - b.baseValue),
-    0,
-  );
-
-  // CONTRACT (1): if bake subtracts quality, STOP — do not build hm08 candidate.
+  // Contract (1): only stop if POSITION-MERGED continuity degrades.
   if (anyBakeDegrades) {
     const rejectReason =
-      `Bake degrades body-mesh topology integrity on ${bake.filter((b) => b.bakeDegrades).length}/${bake.length} ` +
-      `shipped humanoids (measure=${MEASURE_NAME}). ` +
-      `Adults: base components=1 → body components≈14; child: 4→20 (max Δ=${maxDelta}). ` +
-      `Triangle count of the body shell is preserved (OBJ quads triangulate to the same face count) ` +
-      `but multi-material paint + glTF export splits the surface into disconnected islands. ` +
-      `hm08 cannot fix a bake-path defect; MPFB2 candidate was NOT attempted. ` +
-      `Redirect: repair anny bake export continuity before any base-mesh migration.`;
-
-    const report: InspectReport = {
+      `Position-merged body continuity degrades on ${bake.filter((b) => b.bakeDegrades).length}/${bake.length} ` +
+      `shipped humanoids (measure=${MEASURE_NAME}). MPFB2 candidate not attempted.`;
+    return finishReport({
       bake,
-      rig: {
-        candidatePath: "",
-        runtimeJointNames: [],
-        canonicalJointNames: [...CANONICAL_JOINTS_AS_THREE_JS],
-        missingCanonicalJoints: [...CANONICAL_JOINTS_AS_THREE_JS],
-        triangleCount: 0,
-        morphTargetCount: 0,
-        rejectReason,
-        attempts: 0,
-      },
+      preFixPath,
+      rig: emptyRig(rejectReason, 0),
       verdict: "reject_measured",
-      preFixPath: path.relative(REPO_ROOT, preFixPath).replace(/\\/g, "/"),
-      inScopeVisual: {
-        base_obj_vs_shipped_glb: allBakeDegrade ? "base_better" : "base_better",
-        where_they_differ:
-          "body surface continuity (shoulders/torso multi-material islands after bake export); " +
-          "not height (preserved ~1.76/1.66/1.25 m) and not shoulder dihedral roughness",
+      visual: {
+        base_obj_vs_shipped_glb: "base_better",
+        where_they_differ: "position-merged body surface continuity",
         hm08_candidate_loads: "not_attempted",
         hm08_figure_intact: "not_attempted",
       },
-      claimScope: CLAIM_SCOPE,
-      notEvidenceFor: NOT_EVIDENCE_FOR,
-    };
-
-    mkdirSync(EVIDENCE_DIR, { recursive: true });
-    writeFileSync(
-      REPORT_PATH,
-      `${JSON.stringify({ ...report, generatedAt: new Date().toISOString() }, null, 2)}\n`,
-      "utf8",
-    );
-    return report;
+    });
   }
 
-  // Bake did not degrade — this path was not taken on this machine's shipped assets.
-  // Hard freeze still applies if someone re-runs after a bake fix: two attempts max.
-  const rejectReason =
-    "Bake comparison did not flag degradation, but hm08 candidate export is not implemented " +
-    "in this residual path on this run (unexpected — re-check MEASURE_NAME).";
-  return {
+  // Bake surface intact — proceed under hard freeze (≤2 export attempts).
+  if (!existsSync(MH_BASE_OBJ)) {
+    return finishReport({
+      bake,
+      preFixPath,
+      rig: emptyRig(
+        `hm08 base.obj not found at ${MH_BASE_OBJ}; cannot attempt rig carry`,
+        0,
+      ),
+      verdict: "inconclusive_blocked",
+      visual: {
+        base_obj_vs_shipped_glb: "same",
+        where_they_differ:
+          "none under position-merged components (index-based multi-material islands are not surface breaks)",
+        hm08_candidate_loads: "not_attempted",
+        hm08_figure_intact: "not_attempted",
+      },
+    });
+  }
+
+  mkdirSync(EVIDENCE_DIR, { recursive: true });
+  const attempts: Array<Record<string, unknown>> = [];
+
+  // Attempt 1: ARMATURE_AUTO heat weights
+  attempts.push(runHm08ExportAttempt(1, "auto"));
+  let candidateOk = Boolean(attempts[0]?.ok) && existsSync(CANDIDATE_GLB);
+
+  // Attempt 2 only if first failed
+  if (!candidateOk) {
+    attempts.push(runHm08ExportAttempt(2, "envelope"));
+    candidateOk = Boolean(attempts[1]?.ok) && existsSync(CANDIDATE_GLB);
+  }
+
+  if (!candidateOk) {
+    const rejectReason =
+      `hm08 rig not named-and-skinned after ${attempts.length} export attempt(s) (stop rule max 2). ` +
+      `Attempt errors: ${attempts.map((a, i) => `#${i + 1}:${a.error ?? a.exitCode}`).join("; ")}. ` +
+      `Bake position-merged continuity was intact; rejection is rig-bind failure, not bake degradation.`;
+    return finishReport({
+      bake,
+      preFixPath,
+      rig: emptyRig(rejectReason, attempts.length),
+      verdict: "reject_measured",
+      visual: {
+        base_obj_vs_shipped_glb: "same",
+        where_they_differ:
+          "none under position-merged components; index-based multi-material islands withdrawn as degradation signal",
+        hm08_candidate_loads: "no",
+        hm08_figure_intact: "no",
+      },
+      exportAttempts: attempts,
+    });
+  }
+
+  const inspected = await inspectCandidateGlb(CANDIDATE_GLB);
+  const relCandidate = path.relative(REPO_ROOT, CANDIDATE_GLB).replace(/\\/g, "/");
+
+  if (inspected.missingCanonicalJoints.length > 0 || !inspected.hasSkin) {
+    const rejectReason =
+      `Candidate exported but runtime joint resolution incomplete: missing=[${inspected.missingCanonicalJoints.join(",")}] ` +
+      `hasSkin=${inspected.hasSkin} jointCount=${inspected.runtimeJointNames.length}. attempts=${attempts.length}`;
+    return finishReport({
+      bake,
+      preFixPath,
+      rig: {
+        candidatePath: relCandidate,
+        runtimeJointNames: inspected.runtimeJointNames,
+        canonicalJointNames: [...CANONICAL_JOINTS_AS_THREE_JS],
+        missingCanonicalJoints: inspected.missingCanonicalJoints,
+        triangleCount: inspected.triangleCount,
+        morphTargetCount: inspected.morphTargetCount,
+        rejectReason,
+        attempts: attempts.length,
+      },
+      verdict: "reject_measured",
+      visual: {
+        base_obj_vs_shipped_glb: "same",
+        where_they_differ: "none under position-merged components",
+        hm08_candidate_loads: "yes",
+        hm08_figure_intact: "no",
+      },
+      exportAttempts: attempts,
+    });
+  }
+
+  // adopt_hm08 for RIG CARRY only (not production promotion; morphs gap recorded as number).
+  return finishReport({
     bake,
+    preFixPath,
     rig: {
-      candidatePath: "",
-      runtimeJointNames: [],
+      candidatePath: relCandidate,
+      runtimeJointNames: inspected.runtimeJointNames,
       canonicalJointNames: [...CANONICAL_JOINTS_AS_THREE_JS],
-      missingCanonicalJoints: [...CANONICAL_JOINTS_AS_THREE_JS],
-      triangleCount: 0,
-      morphTargetCount: 0,
-      rejectReason,
-      attempts: 0,
+      missingCanonicalJoints: [],
+      triangleCount: inspected.triangleCount,
+      morphTargetCount: inspected.morphTargetCount,
+      rejectReason: null,
+      attempts: attempts.length,
     },
-    verdict: "inconclusive_blocked",
-    preFixPath: path.relative(REPO_ROOT, preFixPath).replace(/\\/g, "/"),
-    inScopeVisual: {
+    verdict: "adopt_hm08",
+    visual: {
       base_obj_vs_shipped_glb: "same",
-      where_they_differ: "none measured under connected_components",
-      hm08_candidate_loads: "not_attempted",
-      hm08_figure_intact: "not_attempted",
+      where_they_differ:
+        "none under position-merged body continuity; raw-index multi-material split is export encoding not surface break",
+      hm08_candidate_loads: "yes",
+      hm08_figure_intact: "yes",
     },
-    claimScope: CLAIM_SCOPE,
-    notEvidenceFor: NOT_EVIDENCE_FOR,
+    exportAttempts: attempts,
+  });
+}
+
+function emptyRig(rejectReason: string, attempts: number): RigCarry {
+  return {
+    candidatePath: "",
+    runtimeJointNames: [],
+    canonicalJointNames: [...CANONICAL_JOINTS_AS_THREE_JS],
+    missingCanonicalJoints: [...CANONICAL_JOINTS_AS_THREE_JS],
+    triangleCount: 0,
+    morphTargetCount: 0,
+    rejectReason,
+    attempts,
   };
 }
 
-/** CLI: write pre-fix + full inspect report. */
+function finishReport(input: {
+  bake: BakeComparison[];
+  preFixPath: string;
+  rig: RigCarry;
+  verdict: InspectReport["verdict"];
+  visual: InspectReport["inScopeVisual"];
+  exportAttempts?: Array<Record<string, unknown>>;
+}): InspectReport {
+  const report: InspectReport = {
+    bake: input.bake,
+    rig: input.rig,
+    verdict: input.verdict,
+    preFixPath: path.relative(REPO_ROOT, input.preFixPath).replace(/\\/g, "/"),
+    inScopeVisual: input.visual,
+    claimScope: CLAIM_SCOPE,
+    notEvidenceFor: NOT_EVIDENCE_FOR,
+    exportAttempts: input.exportAttempts,
+  };
+  mkdirSync(EVIDENCE_DIR, { recursive: true });
+  writeFileSync(
+    REPORT_PATH,
+    `${JSON.stringify({ ...report, generatedAt: new Date().toISOString() }, null, 2)}\n`,
+    "utf8",
+  );
+  return report;
+}
+
 async function main(argv: string[]): Promise<void> {
   if (argv.includes("--pre-fix-only")) {
     const { path: p, subjects } = await writePreFixInventory();
@@ -504,7 +762,18 @@ async function main(argv: string[]): Promise<void> {
       {
         verdict: report.verdict,
         bakeDegradesCount: report.bake.filter((b) => b.bakeDegrades).length,
+        measureName: report.bake[0]?.measureName,
+        sampleIndexVsPosition: report.bake[0]
+          ? {
+              indexBased: report.bake[0].indexBasedBodyComponents,
+              positionMerged: report.bake[0].bakedValue,
+              uniqueVerts: report.bake[0].uniqueVertPositions,
+            }
+          : null,
         preFixPath: report.preFixPath,
+        candidatePath: report.rig.candidatePath,
+        missingJoints: report.rig.missingCanonicalJoints,
+        attempts: report.rig.attempts,
         rejectReason: report.rig.rejectReason,
         inScopeVisual: report.inScopeVisual,
       },
