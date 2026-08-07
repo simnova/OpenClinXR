@@ -186,7 +186,7 @@ const dist = (a: Vec3, b: Vec3): number =>
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 
 describe("a supine figure's limbs rest rather than float (#153)", () => {
-  it.fails("the hands rest near the deck and the head is on the pillow", async () => {
+  it("the hands rest near the deck and the head is on the pillow", async () => {
     // main.ts:7104 applies the standing clinical idle after the supine map with no posture guard, and
     // the map never names `neck`, so the standing neck angle survives on a recumbent figure.
     const mod = await load();
@@ -219,7 +219,7 @@ describe("a supine figure's limbs rest rather than float (#153)", () => {
     expect(wrong, `supine limbs that are not resting:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the arms are beside the torso, not inside it or through the rails", async () => {
+  it("the arms are beside the torso, not inside it or through the rails", async () => {
     // Kills the cheap satisfaction of the first contract: driving the arms into the torso puts the
     // wrists near the deck and inside the ribs, which reads worse than the raised arm it replaces.
     const mod = await load();
@@ -249,7 +249,7 @@ describe("a supine figure's limbs rest rather than float (#153)", () => {
     expect(wrong, `arms that are not beside the torso:\n${wrong.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("#150's plant and the floor-contact exemption survive (COUNTERWEIGHT)", async () => {
+  it("#150's plant and the floor-contact exemption survive (COUNTERWEIGHT)", async () => {
     // Changing the limb map can move the body's lowest vertex and re-open the float/sink loop #150's
     // worker spent its discovery budget on, or push the actor off the deck entirely.
     const mod = await load();

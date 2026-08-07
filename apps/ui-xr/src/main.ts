@@ -7100,12 +7100,17 @@ function loadGeneratedHumanoidIntoActorSlot(
           "source_materials_preserved_for_clean_comparator_capture_no_runtime_tint";
       }
       humanoid.userData.openClinXrClinicalIdlePoseClipPresent = hasAuthoredClinicalIdlePoseClip(gltf.animations);
-      if (!cleanSourceComparatorCapture) {
+      // #153: skip standing clinical idle / role posture on supine — they overwrite the
+      // recumbent limb map at load (frame loop already guards; load path did not).
+      if (!cleanSourceComparatorCapture && posture !== "supine") {
         applyGeneratedHumanoidClinicalIdlePosture(humanoid);
         applyGeneratedHumanoidRoleSpecificPosture(humanoid, options.actorId);
-      } else {
+      } else if (cleanSourceComparatorCapture) {
         humanoid.userData.openClinXrSourceComparatorPosturePolicy =
           "source_pose_preserved_for_clean_comparator_capture_no_runtime_posture_override";
+      } else {
+        humanoid.userData.openClinXrSupineLoadPosturePolicy =
+          "clinical_idle_and_role_posture_skipped_for_supine_recumbent_map";
       }
       if (cleanSourceComparatorCapture) {
         humanoid.userData.openClinXrRoleSpecificVisualsPolicy = "skipped_for_clean_source_comparator_capture";
