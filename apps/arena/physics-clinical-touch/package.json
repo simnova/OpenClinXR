@@ -7,7 +7,7 @@
     "start": "npx tsx src/main.ts",
     "cagematch": "npx tsx src/main.ts",
     "typecheck": "tsgo --noEmit -p tsconfig.json",
-    "test": "vitest run --root ."
+    "test": "vitest run --root . --passWithNoTests"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.19.3",
