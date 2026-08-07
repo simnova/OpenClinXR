@@ -25,7 +25,7 @@ export const oncologyBadNewsScenario = draftScenario({
       ["warning_shot", "plain_language", "pause_for_emotion"],
       ["diagnosis_blurted", "emotion_ignored", "next_steps_rushed"],
       ["serious-illness communication", "plain cancer language", "emotion-responsive pacing"],
-    )),
+    ), "I want my sister here before we talk about the scan results."),
     actor("sister_rachel_miller_v1", "family", "Rachel Miller", "quiet supportive sister who becomes tearful", [
       "Will ask about next steps after patient absorbs diagnosis",
     ], satirProfile(

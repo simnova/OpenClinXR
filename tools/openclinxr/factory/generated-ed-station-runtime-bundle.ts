@@ -668,6 +668,42 @@ function runtimeScenarioRoomProp(
   return { propId, label, semanticRole, evidenceCue, colorHex, accentColorHex, x, y, z };
 }
 
+/**
+ * What the factory emits into sceneManifest.stationContext.initialDialogueText.
+ * SSOT is patient.openingUtterance on the scenario bank actor — never demeanor.
+ */
+export function factoryInitialDialogueTextForPatient(
+  patient:
+    | {
+        actorId?: string;
+        role?: string;
+        displayName?: string;
+        openingUtterance?: string;
+        demeanor?: string;
+      }
+    | undefined,
+): string {
+  const name =
+    patient?.displayName?.trim() ||
+    actorDisplayName(patient?.actorId ?? "patient_v1", patient?.role);
+  const opening = patient?.openingUtterance?.trim() ?? "";
+  if (opening.length > 0) {
+    return `${name}: ${opening}`;
+  }
+  // Loud absence — do not fall back to demeanor (stage direction ≠ speech).
+  return `${name}: [missing patient opening utterance]`;
+}
+
+/** Producer-side initial dialogue for a bank scenario id (for contracts / inspect). */
+export function factoryInitialDialogueTextForScenario(scenarioId: string): string {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
+  if (!scenario) {
+    return "Patient: [missing patient opening utterance]";
+  }
+  const patient = scenario.actors.find((actor) => actor.role === "patient") ?? scenario.actors[0];
+  return factoryInitialDialogueTextForPatient(patient);
+}
+
 function runtimeStationContextForScenario(
   scenarioId: string,
   fallbackTitle: string,
@@ -686,8 +722,8 @@ function runtimeStationContextForScenario(
         : "Scenario event cue pending review",
       stageAriaLabel: `${scenario.environment?.name ?? fallbackTitle} station scene`,
       canvasAriaLabel: `3D ${scenario.environment?.name ?? fallbackTitle} preview`,
-      // Prefer bank displayName (#107) so dialogue cannot name a stale cast id.
-      initialDialogueText: `${patient?.displayName ?? actorDisplayName(patient?.actorId ?? "patient_v1", patient?.role)}: ${patient?.demeanor ?? "I am ready to begin this encounter."}`,
+      // Prefer bank displayName (#107) + patient.openingUtterance (#113). Never speak demeanor.
+      initialDialogueText: factoryInitialDialogueTextForPatient(patient),
     };
   }
   const contexts: Record<string, EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"]> = {

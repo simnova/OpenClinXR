@@ -148,7 +148,7 @@ const GENERIC = "I am ready to begin this encounter.";
 const norm = (s: string) => s.trim().toLowerCase();
 
 describe("a patient's first words are authored, not their demeanor (#113)", () => {
-  it.fails("every patient has an opening utterance that is not their demeanor", async () => {
+  it("every patient has an opening utterance that is not their demeanor", async () => {
     // Copying the demeanor string into a new field is the cheapest way to satisfy a presence check,
     // and it is exactly the defect wearing a new name.
     const mod = await load();
@@ -172,7 +172,7 @@ describe("a patient's first words are authored, not their demeanor (#113)", () =
     expect(bad, `patients without a real authored opening line:\n${bad.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("the producer and the runtime both speak the authored line", async () => {
+  it("the producer and the runtime both speak the authored line", async () => {
     // Kills the cheap satisfaction of the first contract: authoring the field and leaving the factory
     // emitting demeanor, or leaving the four broken stations on the generic ready-to-begin string.
     const mod = await load();
@@ -196,7 +196,7 @@ describe("a patient's first words are authored, not their demeanor (#113)", () =
     expect(bad, `producer/runtime disagreeing with the authored line:\n${bad.join("\n")}`).toHaveLength(0);
   }, 600_000);
 
-  it.fails("the eleven lines someone already wrote survive (COUNTERWEIGHT)", async () => {
+  it("the eleven lines someone already wrote survive (COUNTERWEIGHT)", async () => {
     // These are good writing, currently stranded in a hardcoded runtime table. Moving their home must
     // not become an excuse to regenerate everything into blandness.
     const mod = await load();

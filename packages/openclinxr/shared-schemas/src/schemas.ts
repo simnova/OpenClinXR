@@ -143,6 +143,13 @@ export const ActorCardSchema = Type.Object({
   role: ActorRoleSchema,
   displayName: Type.String({ minLength: 1 }),
   demeanor: Type.Optional(Type.String()),
+  /**
+   * Patient cold-open speech for Mock Dialogue / stationContext.initialDialogueText.
+   * First-class authored utterance on the patient actor (not scenario root; not learner seeds).
+   * Optional in schema so non-patient roles omit it; bank patients are expected to set it.
+   * Do not put demeanor here — demeanor is stage direction for emotion, not spoken words.
+   */
+  openingUtterance: Type.Optional(Type.String({ minLength: 1 })),
   hiddenFacts: Type.Optional(Type.Array(Type.String())),
   communicationProfile: Type.Optional(CommunicationProfileSchema),
   bodyMechanics: Type.Optional(BodyMechanicsSchema),

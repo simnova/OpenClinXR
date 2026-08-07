@@ -34,6 +34,7 @@ export const wardDeliriumScenario = draftScenario({
         escalationTriggers: ["rushed_questions", "ignored_bed_exit", "family_excluded"],
         culturalLanguageNotes: ["older-adult respectful address", "hearing-aware pacing", "plain-language delirium framing"],
       },
+      "I need to go home. Where is my daughter? I cannot hear you well.",
     ),
     actor(
       "daughter_lena_ellis_v1",

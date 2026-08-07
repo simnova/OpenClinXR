@@ -26,7 +26,7 @@ export const primaryCareDyslipidemiaScenario = draftScenario({
       ["concerns_validated", "risk_explained_plainly", "workday_plan_created"],
       ["medication_fear_ignored", "diet_plan_unrealistic", "pain_goal_not_addressed"],
       ["shared decision-making", "work-context counseling", "plain cardiovascular-risk language"],
-    )),
+    ), "My knees and hands hurt all day at work, and I stopped that cholesterol pill because I was scared of muscle pain."),
     actor("medical_assistant_jones_v1", "medical_assistant", "Medical Assistant Jones", "optional vitals and lab handoff", [
       "Can surface EHR lab panel at minute eight",
     ], satirProfile(

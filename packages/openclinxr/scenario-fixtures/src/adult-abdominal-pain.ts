@@ -30,6 +30,7 @@ export const adultAbdominalPainScenario: Scenario = {
       role: "patient",
       displayName: "Elena Vasquez",
       demeanor: "guarded, diaphoretic, protective of right lower abdomen",
+      openingUtterance: "The pain is sharp on my lower right side, and it hurts when I move.",
       communicationProfile: {
         styleFamily: "satir",
         style: "withdrawn_guarded",
