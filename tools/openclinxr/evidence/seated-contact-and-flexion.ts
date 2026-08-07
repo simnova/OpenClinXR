@@ -11,10 +11,15 @@
  * notEvidenceFor: natural sit appearance, arm placement, clinical appropriateness, Quest readiness.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -50,6 +55,8 @@ type ArtifactPayload = {
   kind: "seated_contact_and_flexion";
   label: string;
   generatedAt: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: SeatedContactReport;
@@ -104,16 +111,14 @@ export async function measureSeatedContact(input?: {
 }
 
 async function tryReadArtifact(): Promise<SeatedContactReport | null> {
-  try {
-    const raw = await readFile(artifactPath(), "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
-    if (parsed?.report?.seated && Array.isArray(parsed.report.seated) && parsed.report.seated.length > 0) {
-      return parsed.report;
+  // #141: refuse stale stamps (missing/mismatch → null → re-measure). Fresh stamps still serve.
+  return tryReadStampedArtifact(artifactPath(), (parsed) => {
+    const report = parsed.report as SeatedContactReport | undefined;
+    if (report?.seated && Array.isArray(report.seated) && report.seated.length > 0) {
+      return report;
     }
-  } catch {
-    // missing or corrupt — re-measure
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writeSeatedContactDump(
@@ -122,9 +127,9 @@ export async function writeSeatedContactDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? artifactPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.seated-contact-measurements.v1",
-    kind: "seated_contact_and_flexion",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.seated-contact-measurements.v1" as const,
+    kind: "seated_contact_and_flexion" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
     claimScope: [
@@ -139,7 +144,7 @@ export async function writeSeatedContactDump(
       "quest_readiness",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`seated-contact: wrote ${outputPath}\n`);
   return outputPath;

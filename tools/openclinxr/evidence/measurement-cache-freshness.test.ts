@@ -108,7 +108,7 @@ type CachingModule = {
 type Inspect = () => Promise<{ modules: CachingModule[] }>;
 
 describe("a cached measurement knows what it measured (#141)", () => {
-  it.fails("every cache-reading evidence module records a tree stamp", async () => {
+  it("every cache-reading evidence module records a tree stamp", async () => {
     // seated-contact-and-flexion.ts:108-109 readFile's its artifact with no record of the scene it
     // measured. Enumerated rather than listed — I found one by chasing a failure and never swept.
     const mod = await load();
@@ -124,7 +124,7 @@ describe("a cached measurement knows what it measured (#141)", () => {
     expect(unstamped, `caches that cannot know if they are stale:\n${unstamped.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("a stamp that no longer matches is refused", async () => {
+  it("a stamp that no longer matches is refused", async () => {
     // Kills the cheap satisfaction of the first contract: writing a stamp nobody compares leaves the
     // stale artifact being served exactly as before, with a field that makes it look handled.
     const mod = await load();
@@ -138,7 +138,7 @@ describe("a cached measurement knows what it measured (#141)", () => {
     expect(ignored, `stamps nobody checks:\n${ignored.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the cache still serves an unchanged tree (COUNTERWEIGHT)", async () => {
+  it("the cache still serves an unchanged tree (COUNTERWEIGHT)", async () => {
     // The cache exists because #105 measured three cold Vite boots inside one suite. Deleting it to
     // make the other two contracts trivially true would re-earn that cost. Refusing EVERY cache is
     // the cheap satisfaction here and it is forbidden.

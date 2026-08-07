@@ -9,11 +9,16 @@
  * notEvidenceFor: posture quality, wardrobe, clinical plausibility, Quest readiness.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -43,6 +48,8 @@ type ArtifactPayload = {
   kind: "actor_floor_contact_all_stations";
   label: string;
   generatedAt: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: ActorFloorContactReport;
@@ -98,22 +105,20 @@ export async function measureActorFloorContact(input?: {
 }
 
 async function tryReadArtifact(): Promise<ActorFloorContactReport | null> {
-  try {
-    const raw = await readFile(artifactPath(), "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
+  // #141: refuse stale stamps (missing/mismatch → null → re-measure). Fresh stamps still serve.
+  return tryReadStampedArtifact(artifactPath(), (parsed) => {
+    const report = parsed.report as ActorFloorContactReport | undefined;
     if (
-      parsed?.report?.scenarios
-      && Array.isArray(parsed.report.scenarios)
-      && parsed.report.scenarios.length > 0
-      && Array.isArray(parsed.report.actors)
-      && parsed.report.actors.length > 0
+      report?.scenarios
+      && Array.isArray(report.scenarios)
+      && report.scenarios.length > 0
+      && Array.isArray(report.actors)
+      && report.actors.length > 0
     ) {
-      return parsed.report;
+      return report;
     }
-  } catch {
-    // missing or corrupt — re-measure
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writeFloorContactDump(
@@ -122,9 +127,9 @@ export async function writeFloorContactDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? artifactPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.actor-floor-contact-all-stations.v1",
-    kind: "actor_floor_contact_all_stations",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.actor-floor-contact-all-stations.v1" as const,
+    kind: "actor_floor_contact_all_stations" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
     claimScope: [
@@ -138,7 +143,7 @@ export async function writeFloorContactDump(
       "quest_readiness",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`floor-contact: wrote ${outputPath}\n`);
   return outputPath;

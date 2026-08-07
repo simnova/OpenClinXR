@@ -14,11 +14,16 @@
  * hand articulation, standing arm hang (covered by #117).
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -73,6 +78,8 @@ type ArtifactPayload = {
   kind: "seated_hands_rest_live_geometry";
   label: string;
   generatedAt: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: SeatedHandsRestReport;
@@ -157,19 +164,14 @@ export async function inspectStandingAbductionForCounterweight(input?: {
 }
 
 async function tryReadArtifact(filePath: string): Promise<SeatedHandsRestReport | null> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
-    if (
-      parsed?.report?.seatedScenarios
-      && Array.isArray(parsed.report.hands)
-    ) {
-      return parsed.report;
+  // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
+  return tryReadStampedArtifact(filePath, (parsed) => {
+    const report = parsed.report as SeatedHandsRestReport | undefined;
+    if (report?.seatedScenarios && Array.isArray(report.hands)) {
+      return report;
     }
-  } catch {
-    // missing or corrupt
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writeSeatedHandsDump(
@@ -178,9 +180,9 @@ export async function writeSeatedHandsDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.seated-hands-rest.v1",
-    kind: "seated_hands_rest_live_geometry",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.seated-hands-rest.v1" as const,
+    kind: "seated_hands_rest_live_geometry" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
     claimScope: [
@@ -196,7 +198,7 @@ export async function writeSeatedHandsDump(
       "standing_arm_hang",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`seated-hands-rest: wrote ${outputPath}\n`);
   return outputPath;
