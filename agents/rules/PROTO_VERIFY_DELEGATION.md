@@ -1961,4 +1961,56 @@ checklist above. The proof establishes the file; the checklist establishes that 
 three; ask for four, because a slice whose verify bucket dominates is telling you the evidence loop
 costs more than the change.
 
+
+
+## 8o. The calibration row is now a four-worker consensus — make it per-asset, not per-measure
+
+§7u asked for a calibration table of observed ranges. §7p recorded three workers independently
+nominating a gated pre-fix artifact. #147 and #150 make it four and five, and they sharpen it: the
+table must be **per subject**, not per measure.
+
+> #147: *"Require a pre-fix calibration row per asset: `handY | elbowY | mesh_arm_s_max |
+> arm_paint_y_range | handClothed | forearmClothed`."*
+>
+> #150: *"Ship a plant calibration row with expected live ranges (contact-bone Y vs skinned minY vs
+> deck 0.55, target clear band) and require one ED-only measure artifact before multi-station."*
+
+Both spent their largest bucket on **discovery** — ~15 of 45 and ~13 of 44 — and both say a per-subject
+row would have cut it roughly in half. #150's was a literal float→sink→retune loop: it guessed
+`torsoHalfThickness = 0.26` from two failed smoke runs because nothing told it the body's thickness.
+
+**Rule:** for any slice measuring a physical quantity across N subjects, the brief carries a row per
+subject with the landmark values the implementer will need, and requires the pre-fix artifact to
+reproduce them. A per-measure range table says which axis is wrong; a per-subject row says what the
+geometry actually is, and that is what stops the guess-and-retune loop.
+
+**And scope the first measurement to ONE subject.** #150 ran the full bank for a smoke test it could
+have run on one station. "Measure first" plus "enumerate from what ships" reads as "measure
+everything first"; say explicitly that the calibration loop is single-subject and the full sweep comes
+after the fix.
+
+## 8p. A landed slice can invalidate another contract's ASSUMPTION, and that is not a regression
+
+#147 correctly stopped painting the hands. Two other contracts then went red, and neither was a
+product defect:
+
+| contract | why it broke |
+|---|---|
+| #105 actor-floor-contact | asserts no actor floats; #150's supine patient legitimately rests on a 0.55 m deck |
+| #103 arm-below-cuff | its band runs from SHIN height and averages lateral leg verts with the arm; it passed only because the hand used to be painted |
+
+The second is the sharper one: **the contract had never measured what its name says, and a correct
+product change was the thing that revealed it.** A gate passing for the wrong reason is invisible
+until something removes the coincidence propping it up.
+
+**Rule:** when a landing turns another contract red, the first question is not "what did the slice
+break" but "what did that contract actually measure, and was it measuring it before?" Reach for the
+ground truth — here, slicing arm vertices by height and reading the clothing fraction per slice showed
+`1% | 81%` either side of the wrist and explained the reported 40% exactly.
+
+**And stop at two failed corrections.** §6s says the second failed attempt at a predicate is the
+signal. I patched #103's band twice (37% → 40% → 37%) before measuring properly, and the real cause —
+leg contamination — was in neither attempt. Mark it, file it with the ground truth, and let a slice
+fix it; do not patch a third time.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
