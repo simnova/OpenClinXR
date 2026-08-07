@@ -6,7 +6,15 @@ import { describe, expect, it } from "vitest";
  * self-check reported perfect agreement.
  *
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — #134's rig-carry result must survive unchanged.
- * It is `it.fails` only because the module is absent.
+ *
+ * ## FIXED (#156)
+ * Chosen treatment: `force_z_up_standing` + `export_yup=True` + Z-up armature layout + envelope
+ * weights (heat failed same as #134 attempt 1). Treatment table recorded every column:
+ *   baseline export_yup=False          mesh Z joints X  FAIL
+ *   export_yup=True alone              mesh Y joints X  FAIL  (#67 trap class)
+ *   force_z alone + export_yup=False   mesh Z joints Z  FAIL
+ *   force_z + export_yup=True          mesh Y joints Y  PASS  H=1.695
+ * export_morph left False. Upright candidate under issue-156/; lying #134 original preserved.
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * MEASURED BY ME, 2026-08-07 — trust these numbers, verify the inference
@@ -164,7 +172,7 @@ const MIN_HEIGHT_OVER_HORIZONTAL = 1.5;
 const MIN_PLAUSIBLE_HEIGHT = 1.0;
 
 describe("the hm08 candidate exports upright (#156)", () => {
-  it.fails("the exported mesh stands taller than it is wide or deep", async () => {
+  it("the exported mesh stands taller than it is wide or deep", async () => {
     // Measured: W=0.995 H=0.436 D=1.695. hm08_rig_carry_stage.py:298 sets export_yup=False, which is
     // the Anny rule (content already Y-height) applied to MPFB content that is native Blender Z-up.
     const mod = await load();
@@ -184,7 +192,7 @@ describe("the hm08 candidate exports upright (#156)", () => {
       .toBeGreaterThan(MIN_PLAUSIBLE_HEIGHT);
   }, 1_800_000);
 
-  it.fails("the skeleton stands in the SAME frame as the mesh", async () => {
+  it("the skeleton stands in the SAME frame as the mesh", async () => {
     // Kills the cheap satisfaction of the first contract, and it is the exact trap #67 fell into:
     // rotating the mesh alone gives an upright figure whose rig still lies on Z, so it cannot be
     // posed. Treatment two in #67's table had identity root and standing joints WITH a lying mesh —
@@ -210,7 +218,7 @@ describe("the hm08 candidate exports upright (#156)", () => {
     expect(report.chosen.length, "no treatment was recorded as chosen").toBeGreaterThan(0);
   }, 1_800_000);
 
-  it.fails("#134's rig-carry result survives (COUNTERWEIGHT)", async () => {
+  it("#134's rig-carry result survives (COUNTERWEIGHT)", async () => {
     // The cheapest way to make an axis check pass is to re-export something simpler — a mesh with no
     // skin, or a rig with fewer joints. #134's finding is that hm08 carries all 23 canonical names at
     // 36,972 triangles, and that must still be true of whatever ships out of this slice.
