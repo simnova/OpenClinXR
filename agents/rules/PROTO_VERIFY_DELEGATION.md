@@ -2412,7 +2412,7 @@ the shortcut a competent implementer would actually take. They are usually diffe
 second is enforced. If you find yourself with a long list of bans and no counterweight, you have
 written a warning label instead of a gate (§6d — a prose warning is not a proof).
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
 
 ## 9f. Shrink what is under test to the minimum that proves the claim — standing direction
 
@@ -2459,5 +2459,76 @@ larger than the claim.
 **And the failure it must NOT cause:** shrinking past the defect. §9a's warning stands — a harness
 that renders a subject through its own code path grades something the learner never sees. Minimum
 necessary, not minimum possible.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9g. Disclose your own FAILED instrument, not just the failure
+
+#168's brief told the worker that my numeric probe had failed and exactly how — I applied node
+translation without node scale, so every part measured as 1.000 m tall. Asked whether that was useful
+or noise:
+
+> "**Useful, not noise.** One sentence of *what not to do* (T without S) plus the peer shape (T×R×S,
+> contact not topology) saved a third geometry probe and matched the contract. **Without it I would
+> have rebuilt the broken measurement and wasted a discovery bucket on a known dead instrument.**"
+
+§6d says hand over the failure and withhold the story. This is the neighbouring case and it points the
+other way: when *you* tried to measure something and the instrument was wrong, say so, and say what
+was wrong with it. The worker is otherwise likely to build the same broken thing — the obvious
+measurement is obvious to both of you.
+
+**Rule:** if you attempted a measurement and it failed, the brief carries three things: that you
+attempted it, the specific defect in the instrument, and the shape of a correct one if you know it.
+This costs two sentences and it is the difference between a worker starting at the right rung and
+rediscovering a dead end you already paid for.
+
+The distinction from §6d, stated plainly: **withhold your diagnosis of the PRODUCT; disclose your
+failures of METHOD.** One is a story that biases the search; the other is a map of a hole you already
+fell into.
+
+## 9h. Calibrate against a KNOWN-GOOD reference, not only the defect
+
+§7u asked for observed ranges. §8o asked for per-subject rows. #168's worker adds the missing column
+and it is the one that would have saved it a mid-slice retune:
+
+> Ship a one-row calibration of the **fixed target metric** before the product edit, not only pre-fix
+> parts:
+>
+> | measure | broken cart | good IV pole | band |
+> |---|---|---|---|
+> | max nearest-support vertical gap (XZ overlap; lateral touch = 0) | ≥ 0.2 | ≤ 0.08 | ≤ 0.08 |
+> | orphan parts (3D adjacency) | > 0 | 0 | 0 |
+>
+> "That would have **killed the cantilever false-positive before I implemented**, and forced the
+> support-gap definition into the brief instead of mid-slice."
+
+The cantilever case is the point: a shelf overlaps the body laterally but its *nearest part below* is a
+caster 0.45 m down. A naive vertical-gap metric flags a perfectly assembled cart. The worker had to
+invent "lateral adjacency ⇒ gap 0" mid-slice to keep both the fixed cart and the IV pole green.
+
+**A known-good reference would have exposed that at planting time**, because the IV pole — already
+correct, already in the tree, rendered in the same pass — would have failed the naive metric too.
+
+**Rule:** every calibration table gets a **known-good column** beside the broken one. If nothing in the
+tree is known-good, say so explicitly — that absence is itself a finding, and it means the metric's
+band is being invented rather than observed.
+
+The tell that you need it: your contract has a threshold and only one subject to calibrate it on.
+
+## 9i. Refinement to §6j — keep the fence, drop the preferred cause
+
+#168's worker, asked whether my labelled lead helped or whether no hypothesis would have been better:
+
+> "**Helped.** 'Not a conclusion / last three withdrawn' stopped me opening on Z↔Y and sent me to
+> world-matrix numbers first. A bare hypothesis would have cost a turn of story-fitting. Unranked
+> 'measure both' would have been almost as good; **ranked 'likely axes' would have hurt. Keep the
+> fence, not the preferred cause.**"
+
+That is the cleanest statement yet of the §6j / §8k ordering, and it was tested: the lead was **wrong**
+(the cause was placement numbers, disproved cleanly because the IV pole uses the same export path and
+was already assembled), and the labelling meant no wrong-rabbit-hole tax was paid.
+
+**So the fence is the valuable half, not the hypothesis.** "My last three guesses here were withdrawn"
+is worth more than the guess it accompanies. Write the fence even when you have no candidate at all.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
