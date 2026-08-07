@@ -10,7 +10,7 @@
  * notEvidenceFor: wardrobe, posture, placement, clinical realism, Quest readiness.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
@@ -20,6 +20,11 @@ import {
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -45,7 +50,8 @@ type ArtifactPayload = {
   kind: "actor_slot_assignment_live";
   label: string;
   generatedAt: string;
-  measuredTree?: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: ActorSlotAssignmentReport;
@@ -126,20 +132,18 @@ export async function inspectActorSlotAssignment(input?: {
 }
 
 async function tryReadArtifact(filePath: string): Promise<ActorSlotAssignmentReport | null> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
+  // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
+  return tryReadStampedArtifact(filePath, (parsed) => {
+    const report = parsed.report as ActorSlotAssignmentReport | undefined;
     if (
-      parsed?.report?.stations
-      && Array.isArray(parsed.report.stations)
-      && parsed.report.stations.length > 0
+      report?.stations
+      && Array.isArray(report.stations)
+      && report.stations.length > 0
     ) {
-      return parsed.report;
+      return report;
     }
-  } catch {
-    // missing or corrupt
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writeSlotAssignmentDump(
@@ -148,19 +152,11 @@ export async function writeSlotAssignmentDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  let measuredTree: string | undefined;
-  try {
-    const { execSync } = await import("node:child_process");
-    measuredTree = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
-  } catch {
-    measuredTree = undefined;
-  }
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.actor-slot-assignment.v1",
-    kind: "actor_slot_assignment_live",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.actor-slot-assignment.v1" as const,
+    kind: "actor_slot_assignment_live" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
-    ...(measuredTree ? { measuredTree } : {}),
     claimScope: [
       "live_scene_userData_openClinXrActorId_on_slot_roots",
       "declared_humanoids_from_scenario_cast_bank",
@@ -174,7 +170,7 @@ export async function writeSlotAssignmentDump(
       "quest_readiness",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`actor-slot-assignment: wrote ${outputPath}\n`);
   return outputPath;

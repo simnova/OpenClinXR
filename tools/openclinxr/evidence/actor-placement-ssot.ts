@@ -9,12 +9,17 @@
  * notEvidenceFor: layout quality, in-frame at roomCam, clinical staging, Quest readiness.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -45,7 +50,8 @@ type ArtifactPayload = {
   kind: "actor_placement_ssot_live";
   label: string;
   generatedAt: string;
-  measuredTree?: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: ActorPlacementSsotReport;
@@ -110,21 +116,20 @@ export async function inspectActorPlacementSsot(input?: {
 }
 
 async function tryReadArtifact(filePath: string): Promise<ActorPlacementSsotReport | null> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
+  // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
+  // (prior measuredTree field was write-only and never compared — that is the trap.)
+  return tryReadStampedArtifact(filePath, (parsed) => {
+    const report = parsed.report as ActorPlacementSsotReport | undefined;
     if (
-      parsed?.report?.stations
-      && Array.isArray(parsed.report.stations)
-      && parsed.report.stations.length > 0
-      && Array.isArray(parsed.report.staged)
+      report?.stations
+      && Array.isArray(report.stations)
+      && report.stations.length > 0
+      && Array.isArray(report.staged)
     ) {
-      return parsed.report;
+      return report;
     }
-  } catch {
-    // missing or corrupt
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writePlacementSsotDump(
@@ -133,19 +138,11 @@ export async function writePlacementSsotDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  let measuredTree: string | undefined;
-  try {
-    const { execSync } = await import("node:child_process");
-    measuredTree = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
-  } catch {
-    measuredTree = undefined;
-  }
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.actor-placement-ssot.v1",
-    kind: "actor_placement_ssot_live",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.actor-placement-ssot.v1" as const,
+    kind: "actor_placement_ssot_live" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
-    ...(measuredTree ? { measuredTree } : {}),
     claimScope: [
       "live_scene_slot_root_world_xz",
       "declared_placement_from_loaded_runtime_bundle_actorPlacements",
@@ -157,7 +154,7 @@ export async function writePlacementSsotDump(
       "quest_readiness",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`actor-placement-ssot: wrote ${outputPath}\n`);
   return outputPath;

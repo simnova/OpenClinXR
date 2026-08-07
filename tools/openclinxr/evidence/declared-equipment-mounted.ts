@@ -18,6 +18,11 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  tryReadStampedArtifact,
+  withTreeStamp,
+  type MeasurementTreeStamp,
+} from "./lib/measurement-tree-stamp.js";
+import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
   waitForStationShell,
@@ -49,7 +54,8 @@ type ArtifactPayload = {
   kind: "declared_equipment_mounting_live";
   label: string;
   generatedAt: string;
-  measuredTree?: string;
+  /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
+  treeStamp: MeasurementTreeStamp;
   claimScope: string[];
   notEvidenceFor: string[];
   report: DeclaredEquipmentMountingReport;
@@ -139,20 +145,18 @@ export async function inspectDeclaredEquipmentMounting(input?: {
 }
 
 async function tryReadArtifact(filePath: string): Promise<DeclaredEquipmentMountingReport | null> {
-  try {
-    const raw = await readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as ArtifactPayload;
+  // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
+  return tryReadStampedArtifact(filePath, (parsed) => {
+    const report = parsed.report as DeclaredEquipmentMountingReport | undefined;
     if (
-      parsed?.report?.stations
-      && Array.isArray(parsed.report.stations)
-      && parsed.report.stations.length > 0
+      report?.stations
+      && Array.isArray(report.stations)
+      && report.stations.length > 0
     ) {
-      return parsed.report;
+      return report;
     }
-  } catch {
-    // missing or corrupt
-  }
-  return null;
+    return null;
+  });
 }
 
 export async function writeEquipmentMountDump(
@@ -161,19 +165,11 @@ export async function writeEquipmentMountDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
-  let measuredTree: string | undefined;
-  try {
-    const { execSync } = await import("node:child_process");
-    measuredTree = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
-  } catch {
-    measuredTree = undefined;
-  }
-  const payload: ArtifactPayload = {
-    schemaVersion: "openclinxr.declared-equipment-mounted.v1",
-    kind: "declared_equipment_mounting_live",
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.declared-equipment-mounted.v1" as const,
+    kind: "declared_equipment_mounting_live" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
-    ...(measuredTree ? { measuredTree } : {}),
     claimScope: [
       "shipped_scene_manifest_equipmentPlacements",
       "live_scene_userData_openClinXrEquipmentId",
@@ -187,7 +183,7 @@ export async function writeEquipmentMountDump(
       "scoring_validity",
     ],
     report,
-  };
+  }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`declared-equipment-mounted: wrote ${outputPath}\n`);
   return outputPath;
