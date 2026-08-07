@@ -528,6 +528,43 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
   return reading;
 }
 
+/**
+ * Wait until generated humanoid GLBs report loaded (not primitive fallbacks).
+ * #85: 700ms settle after shell was too short — capture froze bare mannequins mid-load.
+ */
+export async function waitForHumanoidAssetsLoaded(page: Page, timeoutMs = 180_000): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const evidence = (window as unknown as {
+        __openClinXrSceneAssetEvidence?: {
+          pendingCount?: number;
+          loadedCount?: number;
+          assets?: Array<{ assetId?: string; assetPath?: string; status?: string; fallbackActive?: boolean }>;
+        };
+      }).__openClinXrSceneAssetEvidence;
+      if (!evidence?.assets?.length) return false;
+      const humanoids = evidence.assets.filter((a) =>
+        (a.assetPath ?? "").includes("humanoid")
+        || (a.assetPath ?? "").includes("generated-humanoids")
+        || (a.assetId ?? "").includes("cast")
+        || (a.assetId ?? "").includes("humanoid")
+        || (a.assetId ?? "").includes("patient")
+        || (a.assetId ?? "").includes("nurse")
+        || (a.assetId ?? "").includes("spouse"),
+      );
+      // Prefer explicit humanoid rows; fall back to any loaded row count.
+      const rows = humanoids.length > 0 ? humanoids : evidence.assets;
+      const loaded = rows.filter((a) => a.status === "loaded" && a.fallbackActive !== true);
+      const pending = rows.filter((a) => a.status === "pending");
+      // ED/peds encounters load 3 humanoids; require all pending cleared and ≥2 loaded
+      // (equipment may share the evidence map).
+      return pending.length === 0 && loaded.length >= 2;
+    },
+    undefined,
+    { timeout: timeoutMs },
+  );
+}
+
 export type CaptureStationEnvironmentRoomsInput = {
   /** Absolute or repo-relative output directory. */
   outputDir?: string;
@@ -588,11 +625,14 @@ export async function captureStationEnvironmentRooms(
             );
           }
 
+          // #85: shell-ready ≠ humanoids loaded; wait for GLB cast rows before screenshot.
+          await waitForHumanoidAssetsLoaded(page, 180_000);
+
           const frameNote = await reframeCameraForRoom(page);
           process.stdout.write(`room-capture: ${scenarioId} live env=${live.environmentId} depth=${String(live.roomDepthMeters)} floor=${String(live.floorColor)} cam=${frameNote}\n`);
 
-          // Let one render frame settle after reframe.
-          await page.waitForTimeout(700);
+          // Extra frames after reframe + loads so skinned materials bind before screenshot.
+          await page.waitForTimeout(1500);
 
           const imageName = `${scenarioId}-room.png`;
           const imagePath = path.join(outputDir, imageName);

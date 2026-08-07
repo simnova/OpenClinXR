@@ -4,6 +4,19 @@ import {
   generatedEquipmentPlacement,
   safeRuntimeManifestKey,
 } from "./actor-placement.js";
+import {
+  ED_ADULT_CAST_ASSET_PATH,
+  ED_ADULT_CAST_PROVENANCE_PATH,
+  ED_ADULT_CAST_RUNTIME_PATH,
+  resolveScenarioActorCast,
+} from "./actor-casting.js";
+
+export {
+  ADULT_STATURE_FLOOR_METERS, declareAgeBand, ED_ADULT_CAST_ASSET_PATH, ED_ADULT_CAST_PROVENANCE_PATH,
+  ED_ADULT_CAST_RUNTIME_PATH, ED_CHEST_PAIN_SCENARIO_ID, PEDS_ASTHMA_SCENARIO_ID,
+  provenancePathForRuntimeAsset, resolveRuntimeCastAssetPath, resolveScenarioActorCast,
+  type DeclaredAgeBand, type ScenarioActorCast,
+} from "./actor-casting.js";
 
 export type RuntimeAssetKind = "humanoid_model" | "environment_model" | "equipment_model" | "animation_clip" | "audio_clip" | "texture" | "ui_schema" | "phoneme_map";
 
@@ -676,15 +689,23 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
     storeKind: input.assetStoreKind ?? "app_public_fixture",
     containerName: defaultRuntimeAssetContainerName(input.assetStoreKind ?? "app_public_fixture"),
   });
-  const humanoidModel = localFixtureAsset({
-    assetId: "neutral_generated_humanoid_model_glb",
+  // #85: adult ED cast (promoted adult Anny candidate) — not pediatric generated-humanoids.
+  // Casting table is SSOT; blob path must match so runtime/emulator resolve to the adult cast.
+  const adultCastModel = localFixtureAsset({
+    assetId: "ed_chest_pain_adult_cast_glb",
     scenarioAssetId: "patient_robert_hayes_character",
     kind: "humanoid_model",
-    displayName: "Neutral generated humanoid GLB fixture",
-    blobName: "xr-assets/humanoids/neutral-generated-human.glb",
+    displayName: "ED adult cast humanoid GLB (age-band casting)",
+    blobName: ED_ADULT_CAST_ASSET_PATH.replace(/^apps\/ui-xr\/public\//u, ""),
     contentType: "model/gltf-binary",
     assetStore,
   });
+  adultCastModel.provenanceRefs = [
+    ...adultCastModel.provenanceRefs,
+    ED_ADULT_CAST_PROVENANCE_PATH,
+    `casting:${ED_ADULT_CAST_RUNTIME_PATH}`,
+    `cast_table:${resolveScenarioActorCast(input.scenarioId ?? "ed_chest_pain_priority_v1").map((a) => a.actorId).join(",")}`,
+  ];
 
   return buildEncounterRuntimeAssetBundle({
     bundleId: `${input.examRunId ?? "local_exam_run"}:${input.encounterId ?? "ed_chest_pain_local_encounter"}:runtime-assets`,
@@ -739,7 +760,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       actorId: "patient_robert_hayes_v1",
       embodiment: "humanoid",
       role: "patient",
-        model: humanoidModel,
+        model: adultCastModel,
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
@@ -747,7 +768,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       actorId: "nurse_maria_alvarez_v1",
       embodiment: "humanoid",
       role: "nurse",
-        model: { ...humanoidModel, scenarioAssetId: "nurse_maria_alvarez_character" },
+        model: { ...adultCastModel, scenarioAssetId: "nurse_maria_alvarez_character", assetId: "ed_chest_pain_adult_cast_nurse_glb" },
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
@@ -755,7 +776,7 @@ export function createEdChestPainLocalEncounterRuntimeAssetBundle(
       actorId: "spouse_anna_hayes_v1",
       embodiment: "humanoid",
       role: "family_member",
-      model: { ...humanoidModel, scenarioAssetId: "spouse_anna_hayes_character" },
+      model: { ...adultCastModel, scenarioAssetId: "spouse_anna_hayes_character", assetId: "ed_chest_pain_adult_cast_spouse_glb" },
         animationClips: [],
         gazeProfile: { defaultTarget: "learner_camera", supportsActorTargets: true },
       },
