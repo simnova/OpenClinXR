@@ -1018,6 +1018,60 @@ away three Vite boots created a permanent stale-evidence path, and nothing in th
 **The tell:** the brief contains the words "measure once" and the report type has no field naming
 what was measured against.
 
+## 7t. Ask for VACUOUS proofs too, not only unpassable ones
+
+§6x-ter added standing brief text: if a proof cannot pass as written, say so. #91's worker followed it
+exactly — and stayed silent about a proof that passed trivially.
+
+My contract (2) forbade a wrist closer than 0.05 m to the body mid-line. The measured range was
+0.309–0.731 m. Nothing was within an order of magnitude of failing, and the assertion pointed the
+wrong way besides: the defect was arms too FAR from the body, so the useful bound was a ceiling.
+
+Asked why it had not flagged it:
+
+> "I saw measured laterals 0.3–0.7 m and that 0.05 m could not fail. **I did not report it.** Reason:
+> brief only required reporting proofs that **cannot pass as written**; vacuous greens were out of
+> that sentence."
+
+That is a correct reading of what I wrote. The sentence covers broken proofs and says nothing about
+proofs that are green on arrival.
+
+**Rule — the brief text becomes:**
+
+> If any proof in this brief cannot pass as written, OR passes trivially against the ambient measured
+> range, OR asserts the opposite direction from the defect described, SAY SO IN YOUR REPORT. A
+> vacuous proof is my defect exactly as a broken one is.
+
+The worker's own words for why this matters: a vacuous proof is indistinguishable from a satisfied
+one in the final report, so it silently converts a three-contract slice into a two-contract slice.
+
+## 7u. A brief that gives thresholds without measured ranges hides which axis is wrong
+
+Same retro, the worker's nominated spec change, and it is the deeper version of §7t.
+
+#91's contracts gave two pass thresholds and no context. The pre-fix dump — which the brief itself
+required — already showed that the visible plank was HIGH LATERAL (nurse ~0.64 m) while several arms
+already cleared the vertical drop floor. The worker saw that and optimised the gated proof anyway:
+
+> "I still optimized for contract (1) world drop because that was the gated proof. Pixel residual you
+> graded is exactly the lateral/shape half the contracts did not pin."
+
+A threshold tells a worker where the line is. It does not tell them which measurement is the defect.
+When those differ, the gated one wins — correctly, and the product does not improve where it is
+wrong.
+
+**Rule:** any brief carrying a pre-fix measurement gate must also carry a calibration table with a row
+per measure: the observed range, the target band with BOTH bounds where both exist, and which
+direction is better. The worker's format:
+
+| measure | pre-fix observed | target band | direction |
+|---|---|---|---|
+| drop (shoulder−wrist) | 0.23 – 0.46 | ≥ 0.25 standing | higher = better |
+| lateral offset | 0.31 – 0.64 | 0.15 – 0.40 | **lower** = better |
+
+Writing that table forces you to notice, before dispatch, that one row has only one bound and the
+other row's bound is on the wrong side. I did not write it and shipped both errors.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
