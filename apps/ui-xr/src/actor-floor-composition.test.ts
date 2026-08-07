@@ -80,6 +80,11 @@ import { describe, expect, it } from "vitest";
  * floor-standing (|y|<0.2). Framing extracted to `encounter-actor-framing.ts`. Composition assess +
  * `describeRuntimeBundleScenarioMatch` (wired onto window + fallback reasons) so mismatch is reported.
  * Posture: standing check only; seated/supine skipped — no speculative posture system.
+ *
+ * ## FIXED (#105)
+ *
+ * Live full-bank measure: psych already in-band (y0≈0.01). Only floater was OB patient at 0.180
+ * (elevated framing retained ED verticalOffset). resolveFloorBandPlantLocalY plants out-of-band only.
  */
 
 const load = async () => import("./actor-floor-composition.js") as Promise<Record<string, unknown>>;
@@ -138,6 +143,35 @@ describe("actors stand on the floor of the room they are in (#72)", () => {
       actors: [{ actorId: "patient_luis_martinez_v1", lowestMeshWorldY: 0.5 }],
     });
     expect(floating.ok).toBe(false);
+  });
+
+  it("elevated sub-unity-scale slots re-solve ED vertical offsets onto the floor (#105)", async () => {
+    const mod = await load();
+    const resolve = mod["resolveEffectiveVerticalOffsetMeters"] as
+      | ((input: {
+          slotLocalY: number;
+          verticalOffsetMeters: number;
+          slotScaleY?: number;
+        }) => number)
+      | undefined;
+    expect(resolve).toBeTypeOf("function");
+
+    // #72 still holds: floor-standing slot zeros large negative offset.
+    expect(resolve!({ slotLocalY: 0, verticalOffsetMeters: -0.95 })).toBe(0);
+
+    // OB patient: slot y=0.58, scale 0.42, ED offset -0.98 → re-solve to land origin at ~0.
+    const ob = resolve!({
+      slotLocalY: 0.58,
+      verticalOffsetMeters: -0.98,
+      slotScaleY: 0.42,
+    });
+    expect(ob).toBeCloseTo(-0.58 / 0.42, 5);
+    expect(0.58 + ob * 0.42).toBeCloseTo(0, 5);
+
+    // Unscaled elevated slot keeps the authored offset (not the #105 scale path).
+    expect(
+      resolve!({ slotLocalY: 1.06, verticalOffsetMeters: -0.98, slotScaleY: 1.1 }),
+    ).toBe(-0.98);
   });
 
   it("a scenario whose runtime bundle does not match it is reported rather than silently composed", async () => {

@@ -7099,11 +7099,11 @@ function loadGeneratedHumanoidIntoActorSlot(
         return;
       }
       humanoid.name = options.objectName;
-      // #72: clean framing sets slot y=0; legacy verticalOffset≈-0.95 was for slot y≈1.0.
-      // Applying it on a floor-standing slot buries feet-near-origin humanoids (~0.87 m live).
+      // #72 floor-standing zeros ED offsets; #105 elevated+scale re-solves so feet land near floor.
       const effectiveVerticalOffset = resolveEffectiveVerticalOffsetMeters({
         slotLocalY: actorSlot.position.y,
         verticalOffsetMeters: options.verticalOffsetMeters,
+        slotScaleY: actorSlot.scale.y,
       });
       humanoid.position.set(0, effectiveVerticalOffset, 0);
       humanoid.userData.openClinXrEffectiveVerticalOffsetMeters = effectiveVerticalOffset;

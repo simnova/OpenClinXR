@@ -80,6 +80,29 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether actors touch the floor. Says NOTHING about posture quality, wardrobe, or whether a
  * figure is clinically plausible — the last needs a clinician.
+ *
+ * ## FIXED (#105)
+ *
+ * LIVE (scene-overview, full bank via listShippedCastScenarioIds, 2026-08-07):
+ * Floor top y=0 every station. Psych was already in-band after #72 floor-standing plant:
+ *   patient_morgan_lee_v1 y0≈0.014, nurse_observer_jamie_v1 y0≈0.006 / -0.002.
+ * Pixel capture (psych_suicidal_ideation_safety_v1-room.png): both figures stand with feet on the
+ * floor plane (left on the purple pad at floor level, right feet at the gray floor).
+ *
+ * Real interaction found: not psych posture skip, not a different floor height, not bundle URLs.
+ * OB elevated framing (slot y=0.58, scale≈0.42) kept ED-era verticalOffset≈-0.98 because
+ * resolveEffectiveVerticalOffsetMeters only zeroed offsets when |slotY|<0.2 — scale shrank the
+ * offset so it no longer cancelled slot height → patient_aisha_khan_v1 lowestVertexY=0.180.
+ * Only floater across 14 stations / 42 actors; sink count 0.
+ *
+ * Product: resolveEffectiveVerticalOffsetMeters(slotScaleY) re-solves elevated+sub-unity-scale
+ * slots so slotY + offset*scaleY ≈ 0. measureActorFloorContact() one Vite boot, enumerates
+ * listShippedCastScenarioIds() → `.openclinxr/evidence/actor-floor-contact/`.
+ * Post-fix: OB patient y0≈0.006, psych still in-band.
+ *
+ * IN-SCOPE VISUAL VERDICT: in psych the two figures are standing with feet on the floor plane.
+ * OUT-OF-SCOPE: incomplete teal gown shells leaving bare thighs/shoulders; floating beige room
+ * prop boxes mid-air on the back wall; family slot reuses nurse_observer actor id.
  */
 
 const load = async () =>
@@ -101,7 +124,7 @@ const MAX_FLOAT_METERS = 0.15;
 const MAX_SINK_METERS = -0.05;
 
 describe("actors stand on the floor in every station (#105)", () => {
-  it.fails("no actor floats above the floor", async () => {
+  it("no actor floats above the floor", async () => {
     // The product assertion. Psych's figures hover with visible air beneath them.
     const mod = await load();
     const measure = mod["measureActorFloorContact"] as Measure | undefined;
@@ -121,7 +144,7 @@ describe("actors stand on the floor in every station (#105)", () => {
     }
   }, 1_800_000);
 
-  it.fails("every shipped station is measured, enumerated dynamically", async () => {
+  it("every shipped station is measured, enumerated dynamically", async () => {
     // The property that made #102 generalise while four other fixes stayed local. A hardcoded list
     // is how psych went unrendered for the life of the project.
     const mod = await load();
@@ -141,7 +164,7 @@ describe("actors stand on the floor in every station (#105)", () => {
     }
   }, 1_800_000);
 
-  it.fails("no actor sinks into the floor (COUNTERWEIGHT — #72's guarantee, green today)", async () => {
+  it("no actor sinks into the floor (COUNTERWEIGHT — #72's guarantee, green today)", async () => {
     // Kills the cheap satisfaction of the first contract. Dropping every figure through the floor
     // removes all float and re-creates the defect #72 fixed.
     const mod = await load();
