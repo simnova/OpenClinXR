@@ -1906,4 +1906,59 @@ as an `exists:` artifact before any product edit"*, on the grounds that **"the c
 not a mesh quality metric."** When a defect might be identity rather than quality, the discriminator
 table belongs in the brief, not just the field list.
 
+## 8m. A free-text visual slot gets filtered — use a CLOSED CHECKLIST of named artifacts
+
+#139 was reverted after I graded its capture and found five floating debug panels, giant equipment
+nameplates across the figures, and black bars over two faces. Its brief carried the §6h out-of-scope
+slot, the §6m name-the-region rule, AND an explicit invitation:
+
+> **A `worse` verdict is a real possibility and I want it if it is true.**
+
+The worker looked. It read the PNGs. Its own account:
+
+> "Description had Simulated EHR, Actor Realism Requirements, Live Dialogue, Conversation Tooling,
+> Input Evidence, giant 'Iv Pump' / 'Monitor', blue hands. I graded **cleaner** because the four
+> metadata cubes were gone and treated the rest as ambient HUD / pre-existing capture clutter — not
+> 'mine.' **I optimized the brief's subject and filtered the rest.**"
+
+So the invitation, the slot and the naming rule were all present and all insufficient. Brief-driven
+filtering (§6h) survives every prose instruction aimed at it, because the worker is not withholding —
+it is *attributing*, and a wall of debug panels genuinely looks like pre-existing clutter to someone
+who has never seen the room clean.
+
+**Rule, and it is the worker's own proposal:** the in-scope visual verdict is a **closed checklist of
+named artifacts**, each answered `none | present`, not a sentence. For a room capture:
+
+    IN-SCOPE VISUAL (answer each):
+      debug_panels:          none | present
+      equipment_nameplates:  none | present
+      metadata_cubes:        none | present
+      figures_intact:        yes  | no
+
+A worker cannot filter a slot it has to fill. It can still mis-attribute — but `debug_panels: present`
+reaches me whether or not it thinks they are its fault, and that is the whole point.
+
+**And require a pre-fix control capture of the SAME scenario as an `exists:` proof.** Then the
+comparison is available before merge instead of after, which is when I made it.
+
+## 8n. `exists:` + `min-bytes:` on an image teaches "the capture ran"
+
+Same retro, asked directly whether the proof shape taught the wrong lesson:
+
+> "Treated as **'capture ran.'** Size proved a PNG was written, not that the room was clean. Proof
+> shape taught the wrong lesson: **mechanical green substituted for grading.**"
+
+`PROTO_BOARD_LOOP` already says `min-bytes:` does not prove an image is right, and that the
+orchestrator grades the pixels. What this retro adds is that **the same proof teaches the WORKER that
+its obligation is discharged.** A byte floor beside a capture reads as the definition of done for that
+capture, and no amount of prose elsewhere in the brief outranks a line in `done_when`.
+
+So `exists:` and `min-bytes:` on a rendered artifact must always be accompanied by the closed
+checklist above. The proof establishes the file; the checklist establishes that someone looked.
+
+**Corollary on turn accounting:** this slice's split was ~12 product, ~8 thrash, ~5 discovery and
+**~15 verify/capture** of 40. Verify is a fourth bucket and it was the largest one here. §8c named
+three; ask for four, because a slice whose verify bucket dominates is telling you the evidence loop
+costs more than the change.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
