@@ -1072,6 +1072,50 @@ direction is better. The worker's format:
 Writing that table forces you to notice, before dispatch, that one row has only one bound and the
 other row's bound is on the wrong side. I did not write it and shipped both errors.
 
+## 7v. A named knob needs a named DIRECTION, or the worker spends a turn discovering the sign
+
+#117's brief located the residual precisely — `clinical-idle-posture.ts:41-47`, `z ≈ ±0.74` — and the
+worker confirmed that saved it from re-reading the role maps out of habit. It did not say which way to
+turn the knob. The worker's first edit reduced `|z|` (because "less abduction" reads like a smaller
+number), overshot in the other direction on the second try, and interpolated to land on the third.
+
+That was the ENTIRE product thrash of the slice. Its nominated fix, one line:
+
+> On these assets, upper_arm local `|z|` *increases* hang-from-horizontal (nurse ~0.2 plank, patient
+> ~0.74 better hang); do not reduce `|z|` to clear lateral.
+
+**Rule:** when a brief names the knob, name the direction that improves the measure — or say
+explicitly that you do not know the sign, so the worker budgets a probe instead of assuming. The
+information was already in the file's own header history (two values with known outcomes); I quoted
+the location and not the gradient.
+
+This pairs with §7u. The calibration table gives the worker which MEASURE is wrong; the direction line
+gives it which WAY the knob moves it. Neither substitutes for the other.
+
+## 7w. Turn counts are contaminated by brief quality in BOTH directions
+
+Recorded because this project runs a slice-size escalation experiment that uses turns as its proxy,
+and a 20-turn slice was about to enter that record as evidence of a small task.
+
+#117 landed in 20 turns. Asked whether that meant the slice was small, the worker was precise:
+
+> "**Genuinely small product** *because* the brief did orchestrator work: residual located, k fixed,
+> standing-only contracts, counterweights, measure-first proof path, capture pair named. Without that,
+> same fix is a **35–50 turn diagnosis+probe slice**. Brief carried most of the search cost."
+
+So the same product change is a 20-turn slice or a 40-turn slice depending on how much diagnosis the
+brief already did. The inverse is equally true and already recorded: #111 spent ~15 of 27 turns on
+worktree thrash, and #114 ~13–17 of 45.
+
+**Consequence for the escalation record:** turns measure `scope + diagnosis-not-yet-done +
+environment friction`. They are a usable trend only when the brief quality and environment are held
+roughly constant, and they have not been — they have been improving throughout. A falling turn count
+across cycles is at least as likely to be better briefs as smaller slices.
+
+State which of the three you believe moved when reporting a turn count. Do not let a low number stand
+as evidence the delegate was underused, and do not let a high one stand as evidence it was strained —
+#114's own worker said 45 turns was "not near a model limit... no cut scope, no room ran out."
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
