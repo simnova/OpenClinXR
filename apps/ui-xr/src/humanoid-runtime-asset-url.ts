@@ -1,5 +1,5 @@
 /**
- * Local humanoid URL resolution for UI-XR emulator/fixture assets (#85 casting).
+ * Local humanoid URL resolution for UI-XR emulator/fixture assets (#85/#96/#102 casting).
  *
  * Keeps apps/ui-xr/src/main.ts under SIZE_FREEZE while teaching the loader about
  * generated-humanoids cast paths (adult ED cast must not fall through to neutral
@@ -11,8 +11,15 @@
  * re-exports and Vite fails the whole main.ts graph — so waitForStationShell
  * times out for EVERY scenario (including telehealth). Cast *contract* SSOT
  * stays in packages/.../actor-casting.ts (inspectScenarioCasting). This module
- * only needs public URL paths for the loader.
+ * mirrors public URL paths for the loader; #102 pool assignment reads scenarioBank
+ * for sibling roles so within-scenario distinctness does not require main.ts edits.
+ *
+ * #102: within-scenario distinct cast paths for every station. ED/peds keep
+ * explicit maps; all other scenarios use the same pool-assignment order as
+ * actor-casting (adult pool + child mesh for peds patients only).
  */
+
+import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
 
 export type HumanoidRuntimeAssetLike = {
   kind: string;
@@ -27,7 +34,22 @@ const ED_SCENARIO_IDS = new Set([
   "ed_chest_pain_priority_v2",
 ]);
 
-const PEDS_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+
+const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
+const ED_NURSE_GLB = "ed_chest_pain_nurse_adult.glb";
+const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
+const PEDS_PARENT_GLB = "peds_anxious_parent.glb";
+const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
+const PEDS_CHILD_GLB = "peds_patient_child.glb";
+
+const ADULT_POOL_GLBS = [
+  ED_ADULT_CAST_GLB,
+  ED_NURSE_GLB,
+  ED_SPOUSE_GLB,
+  PEDS_PARENT_GLB,
+  PEDS_NURSE_GLB,
+] as const;
 
 /**
  * Runtime public paths for ED cast (#96 role-distinct wardrobe).
@@ -35,16 +57,119 @@ const PEDS_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
-  nurse_maria_alvarez_v1: "/generated-humanoids/ed_chest_pain_nurse_adult.glb",
-  spouse_anna_hayes_v1: "/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+  nurse_maria_alvarez_v1: `/generated-humanoids/${ED_NURSE_GLB}`,
+  spouse_anna_hayes_v1: `/generated-humanoids/${ED_SPOUSE_GLB}`,
 };
 
-/** Runtime public paths for peds cast (mirrors actor-casting table). */
+/** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
-  patient_maya_johnson_v1: "/generated-humanoids/peds_patient_child.glb",
-  parent_tara_johnson_v1: "/generated-humanoids/peds_anxious_parent.glb",
-  nurse_kevin_lee_v1: "/generated-humanoids/peds_nurse_kevin.glb",
+  patient_maya_johnson_v1: `/generated-humanoids/${PEDS_CHILD_GLB}`,
+  parent_tara_johnson_v1: `/generated-humanoids/${PEDS_PARENT_GLB}`,
+  nurse_kevin_lee_v1: `/generated-humanoids/${PEDS_NURSE_GLB}`,
 };
+
+function runtimePath(glbFile: string): string {
+  return `/generated-humanoids/${glbFile}`;
+}
+
+function isPedsChildPatient(scenarioId: string, role: string, actorId: string): boolean {
+  if (!scenarioId.startsWith("peds_")) return false;
+  if (role.toLowerCase() !== "patient") return false;
+  return true;
+}
+
+function pickAdultGlb(role: string, used: Set<string>): string {
+  const r = role.toLowerCase();
+  const preferred: string[] = [];
+  if (r === "patient") {
+    preferred.push(ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB);
+  } else if (
+    r === "nurse"
+    || r === "medical_assistant"
+    || r === "respiratory_therapist"
+    || r === "physician"
+    || r === "consultant"
+  ) {
+    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB);
+  } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
+    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
+  } else {
+    preferred.push(...ADULT_POOL_GLBS);
+  }
+  for (const glb of preferred) {
+    if (!used.has(glb)) return glb;
+  }
+  for (const glb of ADULT_POOL_GLBS) {
+    if (!used.has(glb)) return glb;
+  }
+  return ED_ADULT_CAST_GLB;
+}
+
+/**
+ * Deterministic within-scenario pool assignment for one role, mirroring
+ * actor-casting.castFromScenarioBank. Callers that only know one actor still get
+ * a stable path; callers that walk all actors must use the same sort order so
+ * used-set assignment matches the SSOT (actorId sort after child-first).
+ *
+ * When only one actor is resolved in isolation, we approximate by role preference
+ * without siblings — good enough for single-actor loads; room capture loads all
+ * actors and should prefer resolveRuntimeCastAssetPath from the package after build.
+ */
+function poolPathForIsolatedActor(input: {
+  scenarioId: string;
+  actorId: string;
+  role: string;
+}): string | null {
+  const role = input.role.toLowerCase();
+  if (role === "system") return null;
+  if (/_phone_|_tablet_|telehealth_system/iu.test(input.actorId)) return null;
+
+  if (isPedsChildPatient(input.scenarioId, role, input.actorId)) {
+    return runtimePath(PEDS_CHILD_GLB);
+  }
+
+  // Isolated single-role resolution: use first preferred unused (= full pool free).
+  const glb = pickAdultGlb(role, new Set());
+  return runtimePath(glb);
+}
+
+/**
+ * Full-scenario assignment for known sibling actor lists (optional). When the
+ * runtime has the full actor roster, pass it so within-scenario distinctness holds.
+ */
+export function resolvePoolCastPathWithSiblings(input: {
+  scenarioId: string;
+  actorId: string;
+  role: string;
+  siblings: ReadonlyArray<{ actorId: string; role: string }>;
+}): string | null {
+  const humanoids = input.siblings.filter((a) => {
+    if (a.role.toLowerCase() === "system") return false;
+    if (/_phone_|_tablet_|telehealth_system/iu.test(a.actorId)) return false;
+    return true;
+  });
+
+  const ordered = [...humanoids].sort((a, b) => {
+    const aChild = isPedsChildPatient(input.scenarioId, a.role, a.actorId) ? 0 : 1;
+    const bChild = isPedsChildPatient(input.scenarioId, b.role, b.actorId) ? 0 : 1;
+    if (aChild !== bChild) return aChild - bChild;
+    return a.actorId.localeCompare(b.actorId);
+  });
+
+  const used = new Set<string>();
+  const assignment = new Map<string, string>();
+  for (const actor of ordered) {
+    let glb: string;
+    if (isPedsChildPatient(input.scenarioId, actor.role, actor.actorId)) {
+      glb = PEDS_CHILD_GLB;
+    } else {
+      glb = pickAdultGlb(actor.role, used);
+    }
+    used.add(glb);
+    assignment.set(actor.actorId, runtimePath(glb));
+  }
+  return assignment.get(input.actorId) ?? poolPathForIsolatedActor(input);
+}
 
 /**
  * Map a runtime-bundle humanoid asset to a public URL the GLTFLoader can fetch.
@@ -59,19 +184,15 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
   const fileName = blobName.split("/").at(-1);
   if (!fileName) return resolveRuntimeAssetUrl(asset as HumanoidRuntimeAssetLike);
 
-  // #85/#96: ED adult cast variants and other generated-humanoids must load from their cast path.
+  // #85/#96/#102: generated-humanoids cast variants load from their cast path.
   if (
     blobName.includes("generated-humanoids/")
     || fileName.startsWith("ed_chest_pain_adult_cast")
     || fileName.startsWith("ed_chest_pain_nurse_adult")
     || fileName.startsWith("ed_chest_pain_spouse_adult")
-  ) {
-    return `/generated-humanoids/${fileName}`;
-  }
-  if (
-    fileName === "peds_patient_child.glb"
-    || fileName === "peds_anxious_parent.glb"
-    || fileName === "peds_nurse_kevin.glb"
+    || fileName === PEDS_CHILD_GLB
+    || fileName === PEDS_PARENT_GLB
+    || fileName === PEDS_NURSE_GLB
   ) {
     return `/generated-humanoids/${fileName}`;
   }
@@ -88,7 +209,7 @@ export function resolveLocalHumanoidRuntimeAssetFileName(fileName: string): stri
 
 /**
  * Variant/cast override after the bundle path is known.
- * Prefer scenario casting table (age-band + scenario provenance) over silent fallbacks.
+ * Prefer scenario casting table (age-band + within-scenario distinct bodies) over silent fallbacks.
  * Does not import package dist — see file header (#85 regression).
  */
 export function resolveHumanoidVariantOrCastPath(input: {
@@ -98,6 +219,8 @@ export function resolveHumanoidVariantOrCastPath(input: {
   fallbackPath: string;
   /** Optional comparator override already chosen by caller (e.g. real-garment cagematch). */
   comparatorOverridePath?: string | null;
+  /** Optional full roster for within-scenario distinct pool assignment (#102). */
+  siblings?: ReadonlyArray<{ actorId: string; role: string }>;
 }): string {
   if (input.comparatorOverridePath) return input.comparatorOverridePath;
 
@@ -110,11 +233,10 @@ export function resolveHumanoidVariantOrCastPath(input: {
     if (role === "family" || role === "family_member" || role === "spouse" || role === "parent") {
       return ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1!;
     }
-    // Unknown adult ED role → patient gown path (never peds_patient_child).
     return ED_ADULT_CAST_RUNTIME_PATH;
   }
 
-  if (input.scenarioId === PEDS_SCENARIO_ID) {
+  if (input.scenarioId === PEDS_ASTHMA_SCENARIO_ID) {
     const byActor = PEDS_RUNTIME_CAST_BY_ACTOR[input.actorId];
     if (byActor) return byActor;
     const role = input.role.toLowerCase();
@@ -123,6 +245,30 @@ export function resolveHumanoidVariantOrCastPath(input: {
     if (role === "family" || role === "family_member" || role === "parent") {
       return PEDS_RUNTIME_CAST_BY_ACTOR.parent_tara_johnson_v1!;
     }
+  }
+
+  // #102: all other shipped stations — pool assignment with bank siblings (or explicit).
+  const bankSiblings =
+    input.siblings
+    ?? scenarioBank.find((s) => s.scenarioId === input.scenarioId)?.actors.map((a) => ({
+      actorId: a.actorId,
+      role: a.role,
+    }));
+  if (bankSiblings && bankSiblings.length > 0) {
+    const pooled = resolvePoolCastPathWithSiblings({
+      scenarioId: input.scenarioId,
+      actorId: input.actorId,
+      role: input.role,
+      siblings: bankSiblings,
+    });
+    if (pooled) return pooled;
+  } else {
+    const pooled = poolPathForIsolatedActor({
+      scenarioId: input.scenarioId,
+      actorId: input.actorId,
+      role: input.role,
+    });
+    if (pooled) return pooled;
   }
 
   // Defense: never leave an ED adult on the pediatric patient GLB (stale fallback paths).

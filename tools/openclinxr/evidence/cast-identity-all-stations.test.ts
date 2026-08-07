@@ -96,7 +96,20 @@ const ED = "ed_chest_pain_priority_v1";
 const rolesIn = (roles: RoleAsset[], scenarioId: string) => roles.filter((r) => r.scenarioId === scenarioId);
 
 describe("no station renders two roles as the same body (#102)", () => {
-  it.fails("every scenario's roles resolve to distinct asset content", async () => {
+  /**
+   * ## FIXED (#102)
+   * - Casting SSOT `resolveScenarioActorCast` now assigns every shipped bank scenario
+   *   (enumerated via `scenarioBank` / `listShippedCastScenarioIds`) a within-scenario
+   *   distinct body from the 6 on-disk humanoid GLBs. Cross-scenario reuse expected.
+   * - Identity compared by GLB content hash in `inspectCastIdentityAcrossStations`.
+   * - Provenance: same-station generation keeps scenarioId; age-compatible pool reuse
+   *   across stations reports null; child-on-adult (or inverse) surfaces foreign id.
+   * - Sex/gender: actor records carry NO structured sex/gender field — only displayName
+   *   (and role). Do not infer sex from names; presentation is wardrobe/body-pool only.
+   * - UI-XR `resolveHumanoidVariantOrCastPath` mirrors pool assignment using scenarioBank
+   *   siblings so room captures load distinct meshes per role.
+   */
+  it("every scenario's roles resolve to distinct asset content", async () => {
     // The generalisation. #96 asserted this for the ED bay alone; oncology renders two identical
     // female meshes and ED stroke renders three.
     const mod = await load();
@@ -119,7 +132,7 @@ describe("no station renders two roles as the same body (#102)", () => {
     expect(offenders, `stations rendering duplicate bodies:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("no role is played by an asset generated for a different station", async () => {
+  it("no role is played by an asset generated for a different station", async () => {
     // Kills the cheap satisfaction of the first contract: handing each role any unused body would
     // make them distinct while a peds child plays an adult stroke patient. Provenance is recorded at
     // generation and a runtime assignment cannot touch it.
@@ -137,7 +150,7 @@ describe("no station renders two roles as the same body (#102)", () => {
     ).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the ED bay stays distinct (COUNTERWEIGHT — already true since #96)", async () => {
+  it("the ED bay stays distinct (COUNTERWEIGHT — already true since #96)", async () => {
     // A generalisation that regresses the one station already fixed has traded one defect for
     // another. This is green today.
     const mod = await load();
