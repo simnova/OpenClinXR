@@ -156,7 +156,7 @@ type PromotionRun = {
 type Inspect = () => Promise<PromotionRun>;
 
 describe("a review decision through a real route reaches the learner (#167)", () => {
-  it.fails("a promoted scenario becomes activation_ready and arrives as api_authored", async () => {
+  it("a promoted scenario becomes activation_ready and arrives as api_authored", async () => {
     // Nothing has ever driven review decisions through the real routes against a real bank fixture.
     // exam-assembly.test.ts and app.test.ts do it with synthetic scenarios.
     const mod = await load();
@@ -175,7 +175,7 @@ describe("a review decision through a real route reaches the learner (#167)", ()
     ).toBeTruthy();
   }, 900_000);
 
-  it.fails("it started genuinely unpromoted and crossed real review routes", async () => {
+  it("it started genuinely unpromoted and crossed real review routes", async () => {
     // Kills the cheap satisfaction of the first contract: seeding an already-approved scenario and
     // calling it a promotion. The BEFORE state has to be the unpromoted one I measured.
     const mod = await load();
@@ -197,7 +197,7 @@ describe("a review decision through a real route reaches the learner (#167)", ()
     expect(run.browserLaunches, "isolated proof — no browser").toBe(0);
   }, 900_000);
 
-  it.fails("the gate is not weakened and the shipped bank is unchanged (COUNTERWEIGHT)", async () => {
+  it("the gate is not weakened and the shipped bank is unchanged (COUNTERWEIGHT)", async () => {
     // The cheapest satisfaction is relaxing isActivationEligible, auto-approving stage_0, or editing
     // the shipped fixtures. All three are forbidden: they would silently convert a safety gate into
     // a formality, and 52 review decisions are a HUMAN judgement this test makes none of.
