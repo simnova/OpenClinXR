@@ -370,10 +370,10 @@
     "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
     "trimMaterialName": null,
     "topFaceCount": 0,
-    "lowerFaceCount": 882,
+    "lowerFaceCount": 3340,
     "trimFaceCount": 0,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 2146,
+    "skippedTorsoPaintFaceCount": 1728,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -391,8 +391,8 @@
         "layerIndex": 0,
         "layerToken": "short_sleeve_exam_tshirt",
         "layerKind": "tshirt",
-        "faceCount": 2044,
-        "vertexCount": 2174,
+        "faceCount": 2084,
+        "vertexCount": 2010,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.022,
@@ -407,7 +407,7 @@
         "sleeveR0M": 0.0511,
         "sleeveRFactor": 0.264,
         "torsoRBaseM": 0.1936,
-        "meanRadiusM": 0.1172,
+        "meanRadiusM": 0.1273,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -435,7 +435,7 @@
         "bindPoseLocalBBox": {
           "min": [
             -0.25245,
-            0.577073,
+            0.59,
             -0.056159
           ],
           "max": [
@@ -448,7 +448,7 @@
           "min": [
             -0.25245,
             -0.199185,
-            0.577073
+            0.59
           ],
           "max": [
             0.25245,
@@ -491,8 +491,8 @@
       "layerIndex": 0,
       "layerToken": "short_sleeve_exam_tshirt",
       "layerKind": "tshirt",
-      "faceCount": 2044,
-      "vertexCount": 2174,
+      "faceCount": 2084,
+      "vertexCount": 2010,
       "hasShoulderYoke": false,
       "authoringClass": "body_surface_normal_offset",
       "clothOffsetM": 0.022,
@@ -507,7 +507,7 @@
       "sleeveR0M": 0.0511,
       "sleeveRFactor": 0.264,
       "torsoRBaseM": 0.1936,
-      "meanRadiusM": 0.1172,
+      "meanRadiusM": 0.1273,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -535,7 +535,7 @@
       "bindPoseLocalBBox": {
         "min": [
           -0.25245,
-          0.577073,
+          0.59,
           -0.056159
         ],
         "max": [
@@ -548,7 +548,7 @@
         "min": [
           -0.25245,
           -0.199185,
-          0.577073
+          0.59
         ],
         "max": [
           0.25245,
@@ -588,8 +588,8 @@
     "layerIndex": 0,
     "layerToken": "short_sleeve_exam_tshirt",
     "layerKind": "tshirt",
-    "faceCount": 2044,
-    "vertexCount": 2174,
+    "faceCount": 2084,
+    "vertexCount": 2010,
     "hasShoulderYoke": false,
     "authoringClass": "body_surface_normal_offset",
     "clothOffsetM": 0.022,
@@ -604,7 +604,7 @@
     "sleeveR0M": 0.0511,
     "sleeveRFactor": 0.264,
     "torsoRBaseM": 0.1936,
-    "meanRadiusM": 0.1172,
+    "meanRadiusM": 0.1273,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -632,7 +632,7 @@
     "bindPoseLocalBBox": {
       "min": [
         -0.25245,
-        0.577073,
+        0.59,
         -0.056159
       ],
       "max": [
@@ -645,7 +645,7 @@
       "min": [
         -0.25245,
         -0.199185,
-        0.577073
+        0.59
       ],
       "max": [
         0.25245,
@@ -758,7 +758,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-08-07T13:39:29.495317Z",
+    "generatedAt": "2026-08-07T14:49:16.024445Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,

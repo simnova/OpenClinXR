@@ -370,10 +370,10 @@
     "lowerMaterialName": "openclinxr_role_mesh_clothing_patient_lower",
     "trimMaterialName": null,
     "topFaceCount": 0,
-    "lowerFaceCount": 684,
+    "lowerFaceCount": 1080,
     "trimFaceCount": 0,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 1818,
+    "skippedTorsoPaintFaceCount": 1422,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -391,8 +391,8 @@
         "layerIndex": 0,
         "layerToken": "hospital_gown",
         "layerKind": "gown",
-        "faceCount": 2456,
-        "vertexCount": 2581,
+        "faceCount": 2718,
+        "vertexCount": 2670,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.0224,
@@ -407,7 +407,7 @@
         "sleeveR0M": 0.1048,
         "sleeveRFactor": 0.391,
         "torsoRBaseM": 0.2683,
-        "meanRadiusM": 0.1612,
+        "meanRadiusM": 0.1659,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -435,7 +435,7 @@
         "bindPoseLocalBBox": {
           "min": [
             -0.421259,
-            0.562086,
+            0.5632,
             -0.050835
           ],
           "max": [
@@ -448,7 +448,7 @@
           "min": [
             -0.421259,
             -0.224651,
-            0.562086
+            0.5632
           ],
           "max": [
             0.421259,
@@ -491,8 +491,8 @@
       "layerIndex": 0,
       "layerToken": "hospital_gown",
       "layerKind": "gown",
-      "faceCount": 2456,
-      "vertexCount": 2581,
+      "faceCount": 2718,
+      "vertexCount": 2670,
       "hasShoulderYoke": false,
       "authoringClass": "body_surface_normal_offset",
       "clothOffsetM": 0.0224,
@@ -507,7 +507,7 @@
       "sleeveR0M": 0.1048,
       "sleeveRFactor": 0.391,
       "torsoRBaseM": 0.2683,
-      "meanRadiusM": 0.1612,
+      "meanRadiusM": 0.1659,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -535,7 +535,7 @@
       "bindPoseLocalBBox": {
         "min": [
           -0.421259,
-          0.562086,
+          0.5632,
           -0.050835
         ],
         "max": [
@@ -548,7 +548,7 @@
         "min": [
           -0.421259,
           -0.224651,
-          0.562086
+          0.5632
         ],
         "max": [
           0.421259,
@@ -588,8 +588,8 @@
     "layerIndex": 0,
     "layerToken": "hospital_gown",
     "layerKind": "gown",
-    "faceCount": 2456,
-    "vertexCount": 2581,
+    "faceCount": 2718,
+    "vertexCount": 2670,
     "hasShoulderYoke": false,
     "authoringClass": "body_surface_normal_offset",
     "clothOffsetM": 0.0224,
@@ -604,7 +604,7 @@
     "sleeveR0M": 0.1048,
     "sleeveRFactor": 0.391,
     "torsoRBaseM": 0.2683,
-    "meanRadiusM": 0.1612,
+    "meanRadiusM": 0.1659,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -632,7 +632,7 @@
     "bindPoseLocalBBox": {
       "min": [
         -0.421259,
-        0.562086,
+        0.5632,
         -0.050835
       ],
       "max": [
@@ -645,7 +645,7 @@
       "min": [
         -0.421259,
         -0.224651,
-        0.562086
+        0.5632
       ],
       "max": [
         0.421259,
@@ -758,7 +758,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v1, actor=patient)",
-    "generatedAt": "2026-08-07T13:37:47.219184Z",
+    "generatedAt": "2026-08-07T14:47:24.239277Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.18, \"anny_topology\": \"default\", \"anxious\": 0.65, \"bmi\": 26.0, \"brow_tension\": 0.55, \"build\": \"average_adult\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"clinical_exam_hospital_gown_chest_pain\", \"eye_color\": \"brown\", \"fabricPalette\": \"hospital_gown_blue_pattern\", \"fitProfile\": \"adult_standard_fit\", \"flush\": 0.15, \"garmentLayers\": [\"hospital_gown\"], \"gender_presentation\": \"adult_male\", \"hair_color\": \"brown\", \"hair_density\": 0.65, \"height_cm\": 176, \"materialFinish\": \"cotton_slight_sheen\", \"role_visual_cue\": \"ed_chest_pain_patient\", \"skin_tone\": \"warm_medium\", \"sleeveGeometryExpansion\": \"v2_gown_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"ed_patient_exam\"}"
   },
   "licenseExceptionRequired": false,
