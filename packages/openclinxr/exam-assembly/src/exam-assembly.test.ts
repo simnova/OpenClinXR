@@ -21,8 +21,27 @@ import {
 } from "./index.js";
 
 describe("exam assembly", () => {
-  it("assembles approved scenarios into an ordered exam form with complete coverage", () => {
+  // Single-station pilot: pass a one-scenario list so selection yields exactly one slot.
+  // No-arg createDefaultClinicalSkillsBlueprint() is multi-station (STEP2CS_STATION_COUNT).
+  const singleStationPilotBlueprint = () => createDefaultClinicalSkillsBlueprint([edChestPainScenario]);
+
+  it("pilot blueprint from the scenario bank has enough slots for its declared break checkpoints", () => {
+    // Multi-station path passes the bank/pool; no-arg remains single-station for additive runtimes.
+    const blueprint = createDefaultClinicalSkillsBlueprint(scenarioBank);
+    const latestBreak = Math.max(...blueprint.timing.breakAfterStationOrders);
+    expect(blueprint.stationSlots.length).toBeGreaterThan(latestBreak);
+    expect(blueprint.stationSlots).toHaveLength(12);
+    expect(new Set(blueprint.stationSlots.map((slot) => slot.slotId)).size).toBe(12);
+  });
+
+  it("no-arg pilot blueprint stays single-station for additive learner runtimes", () => {
     const blueprint = createDefaultClinicalSkillsBlueprint();
+    expect(blueprint.stationSlots).toHaveLength(1);
+    expect(blueprint.stationSlots[0]?.slotId).toContain("ed_chest_pain");
+  });
+
+  it("assembles approved scenarios into an ordered exam form with complete coverage", () => {
+    const blueprint = singleStationPilotBlueprint();
     const form = assembleExamForm({
       examFormId: "form_openclinxr_pilot_001",
       blueprint,
@@ -44,7 +63,7 @@ describe("exam assembly", () => {
 
   it("marks forms with missing required coverage as incomplete", () => {
     const blueprint = {
-      ...createDefaultClinicalSkillsBlueprint(),
+      ...singleStationPilotBlueprint(),
       requiredTraceTags: [...edChestPainScenario.requiredTraceTags, "shared_decision_making"],
     };
     const form = assembleExamForm({
@@ -59,7 +78,7 @@ describe("exam assembly", () => {
 
   it("deduplicates repeated blueprint trace requirements before coverage reporting", () => {
     const blueprint = {
-      ...createDefaultClinicalSkillsBlueprint(),
+      ...singleStationPilotBlueprint(),
       requiredTraceTags: [...edChestPainScenario.requiredTraceTags, "shared_decision_making", "shared_decision_making"],
     };
     const form = assembleExamForm({
@@ -73,7 +92,7 @@ describe("exam assembly", () => {
   });
 
   it("reports station count, environment, and safety-critical coverage gaps", () => {
-    const defaultBlueprint = createDefaultClinicalSkillsBlueprint();
+    const defaultBlueprint = singleStationPilotBlueprint();
     const blueprint = {
       ...defaultBlueprint,
       stationSlots: [
@@ -112,7 +131,7 @@ describe("exam assembly", () => {
   it("detects scenario version drift after an exam form is assembled", () => {
     const form = assembleExamForm({
       examFormId: "form_openclinxr_pilot_001",
-      blueprint: createDefaultClinicalSkillsBlueprint(),
+      blueprint: singleStationPilotBlueprint(),
       scenarios: [edChestPainScenario],
     });
 
@@ -129,7 +148,7 @@ describe("exam assembly", () => {
     expect(() =>
       assembleExamForm({
         examFormId: "form_unapproved",
-        blueprint: createDefaultClinicalSkillsBlueprint(),
+        blueprint: singleStationPilotBlueprint(),
         scenarios: [{ ...edChestPainScenario, status: "draft" }],
       }),
     ).toThrow("Cannot assemble unapproved scenario");
@@ -359,7 +378,8 @@ describe("exam assembly", () => {
   });
 
   it("keeps single-station form run additive and complete after one advance", () => {
-    const blueprint = createDefaultClinicalSkillsBlueprint();
+    // Explicit one-scenario list keeps the additive single-station path; no-arg default is multi-station.
+    const blueprint = createDefaultClinicalSkillsBlueprint([edChestPainScenario]);
     let run = createExamFormRun({
       examRunId: "exam_run_single_001",
       examFormId: "form_single_001",
@@ -384,7 +404,7 @@ describe("exam assembly", () => {
   });
 
   it("persists station-run-queue snapshot via injected ApiPersistenceSink-shaped sink (no mongo)", async () => {
-    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(), [edChestPainScenario]);
+    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint([edChestPainScenario]), [edChestPainScenario]);
     const saved: ExamStationRunQueueSnapshot[] = [];
     const sink: ExamAssemblyPersistenceSink = {
       saveStationRunQueueSnapshot: (snapshot) => {
@@ -441,7 +461,7 @@ describe("the station queue parser is bound to the producer (#53)", () => {
     expect(parse).toBeTypeOf("function");
 
     const scenarios = [edChestPainScenario];
-    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(), scenarios);
+    const queue = createExamStationRunQueue(createDefaultClinicalSkillsBlueprint(scenarios), scenarios);
 
     // The producer's own return value — not a literal shaped like today's response.
     const parsed = parse!(queue);

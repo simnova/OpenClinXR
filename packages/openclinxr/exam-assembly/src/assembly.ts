@@ -42,22 +42,65 @@ const step2CsStyleTiming: ExamBlueprintTiming = {
   breakAfterStationOrders: [3, 6, 9],
 };
 
-export function createDefaultClinicalSkillsBlueprint(): ExamBlueprint {
+/**
+ * Build station slots from a selected scenario list.
+ *
+ * Per-slot environment + trace requirements come from the assigned scenario (not a copied ED
+ * station). Blueprint-level requiredTraceTags / safety-critical tags are the ordered union across
+ * selected stations.
+ */
+function stationSlotsFromSelectedScenarios(selected: readonly Scenario[]): ExamStationSlot[] {
+  return selected.map((scenario, index): ExamStationSlot => ({
+    slotId: `station_${String(index + 1).padStart(3, "0")}_${scenario.scenarioId}`,
+    order: index + 1,
+    label: scenario.title,
+    requiredEnvironmentIds: scenario.environment?.environmentId ? [scenario.environment.environmentId] : [],
+    requiredTraceTags: [...scenario.requiredTraceTags],
+  }));
+}
+
+function blueprintTagsFromSelected(selected: readonly Scenario[]): {
+  requiredTraceTags: string[];
+  requiredSafetyCriticalTraceTags: string[];
+} {
+  return {
+    requiredTraceTags: uniqueInOrder(selected.flatMap((scenario) => scenario.requiredTraceTags)),
+    requiredSafetyCriticalTraceTags: uniqueInOrder(
+      selected.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags),
+    ),
+  };
+}
+
+/**
+ * Clinical-skills pilot blueprint.
+ *
+ * Station slots are produced by `selectExamStationScenarios` (coverage-greedy, deterministic).
+ * Pass the assembly pool / bank for a multi-station form (STEP2CS_STATION_COUNT = 12) so the slot
+ * count is consistent with `breakAfterStationOrders: [3, 6, 9]` (must be > latest break).
+ *
+ * No-arg / single-scenario list stays additive single-station for existing learner runtimes that
+ * call `createDefaultClinicalSkillsBlueprint()` without a pool (ui-xr createMultiStationExamRuntime).
+ * Multi-station assembly paths (GET default blueprint, create-exam-form, inspect) MUST pass the pool.
+ *
+ * Decisions (#108):
+ * - Slots: derived via selection over the provided scenario list — not a stale literal list.
+ * - Slot env/tags: from the assigned scenario (reject ED copy for every slot).
+ * - Top-level requiredTraceTags: ordered union across selected slots (reject ED-only copy; reject drop).
+ * - No-arg default remains one approved pilot case so concurrent ui-xr single-station path stays valid.
+ */
+export function createDefaultClinicalSkillsBlueprint(
+  scenarios: readonly Scenario[] = [edChestPainScenario],
+  options: { stationCount?: number } = {},
+): ExamBlueprint {
+  const selected = selectExamStationScenarios(scenarios, options.stationCount ?? STEP2CS_STATION_COUNT);
+  const tags = blueprintTagsFromSelected(selected);
   return {
     blueprintId: "blueprint_openclinxr_clinical_skills_pilot_v1",
     title: "OpenClinXR Clinical Skills Pilot",
-    stationSlots: [
-      {
-        slotId: "station_001_ed_urgent_recognition",
-        order: 1,
-        label: "Emergency department urgent recognition and communication",
-        requiredEnvironmentIds: ["ed_exam_bay_v1"],
-        requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
-      },
-    ],
+    stationSlots: stationSlotsFromSelectedScenarios(selected),
     timing: { ...step2CsStyleTiming },
-    requiredTraceTags: [...edChestPainScenario.requiredTraceTags],
-    requiredSafetyCriticalTraceTags: [...edChestPainScenario.governance.safetyCriticalTraceTags],
+    requiredTraceTags: tags.requiredTraceTags,
+    requiredSafetyCriticalTraceTags: tags.requiredSafetyCriticalTraceTags,
   };
 }
 
@@ -72,21 +115,15 @@ export function createStep2CsStyleSeedBlueprint(
   options: { stationCount?: number } = {},
 ): ExamBlueprint {
   const selected = selectExamStationScenarios(scenarios, options.stationCount ?? STEP2CS_STATION_COUNT);
-  const stationSlots = selected.map((scenario, index): ExamStationSlot => ({
-    slotId: `station_${String(index + 1).padStart(3, "0")}_${scenario.scenarioId}`,
-    order: index + 1,
-    label: scenario.title,
-    requiredEnvironmentIds: scenario.environment?.environmentId ? [scenario.environment.environmentId] : [],
-    requiredTraceTags: [...scenario.requiredTraceTags],
-  }));
+  const tags = blueprintTagsFromSelected(selected);
 
   return {
     blueprintId: "blueprint_openclinxr_step2cs_style_seed_v1",
     title: "OpenClinXR Step 2 CS-Style 12-Station Seed Form",
-    stationSlots,
+    stationSlots: stationSlotsFromSelectedScenarios(selected),
     timing: { ...step2CsStyleTiming },
-    requiredTraceTags: uniqueInOrder(selected.flatMap((scenario) => scenario.requiredTraceTags)),
-    requiredSafetyCriticalTraceTags: uniqueInOrder(selected.flatMap((scenario) => scenario.governance.safetyCriticalTraceTags)),
+    requiredTraceTags: tags.requiredTraceTags,
+    requiredSafetyCriticalTraceTags: tags.requiredSafetyCriticalTraceTags,
   };
 }
 
