@@ -622,6 +622,15 @@ and renders only the claims that survive, with their verified source locators. F
 claims, and researcher uncertainties are reported as coverage limitations, and the report is marked
 **Partial** whenever any remain."
 
+**HEADLESS CAVEAT, measured 2026-08-06.** `/deep-research` kicks off a BACKGROUND workflow and the
+`-p` call returns an acknowledgement — *"started in the background… use /workflows to follow
+progress"* — not the report. On one query the reply also carried an inline summary; on another it was
+168 characters of acknowledgement and nothing else, and `--resume`-ing that session minutes later
+answered `STILL RUNNING`. So in an autonomous loop, treat it as **fire-and-poll**: capture the
+session id from the JSON, resume that session later to collect the report, and do not block a cycle
+waiting. If you need an answer inside the turn, a plain `grok -p --reasoning-effort high` returns
+inline — with web search but **no verifier shard**, so weight it accordingly.
+
 **That verification layer is the reason to use it over a plain prompt.** The first research consult
 here was a single-pass `grok -p` with web search — no verifier shard — and its answer was correct
 about poke-through and got misapplied by me to a different defect class. A per-claim verifier is the
