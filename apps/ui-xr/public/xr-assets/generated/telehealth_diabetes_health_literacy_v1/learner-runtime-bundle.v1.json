@@ -276,7 +276,17 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "stationContext": {
+      "title": "Telehealth Diabetes Plan",
+      "subtitle": "Video visit view of patient at home with low-bandwidth interruptions, medication bottles, and caregiver offscreen/on-screen transitions.",
+      "chiefConcern": "Reconcile medication use and barriers",
+      "initialVitals": "Generated environment evidence pending headset validation",
+      "interruption": "cue at 240s: teach back",
+      "stageAriaLabel": "Telehealth Home Visit station scene",
+      "canvasAriaLabel": "3D Telehealth Home Visit preview",
+      "initialDialogueText": "Luis Martinez: I want to follow the plan, but the instructions are hard to understand."
+    }
   },
   "generatedAt": "2026-05-23T15:52:17.607Z",
   "expiresAt": null,

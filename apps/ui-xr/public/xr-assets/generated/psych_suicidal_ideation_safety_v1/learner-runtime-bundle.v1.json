@@ -33,14 +33,14 @@
   },
   "actors": [
     {
-      "actorId": "patient_morgan_lee_v1",
+      "actorId": "patient_jordan_reed_v1",
       "role": "patient",
       "model": {
-        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.patient_morgan_lee_v1.generated-humanoid-glb",
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.patient_jordan_reed_v1.generated-humanoid-glb",
         "version": "generated-human-rigging-2026-05-23",
         "kind": "humanoid_model",
-        "displayName": "patient morgan lee",
-        "scenarioAssetId": "patient_morgan_lee_character",
+        "displayName": "patient jordan reed",
+        "scenarioAssetId": "patient_jordan_reed_character",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
@@ -69,14 +69,50 @@
       }
     },
     {
-      "actorId": "nurse_observer_jamie_v1",
-      "role": "nurse_observer",
+      "actorId": "partner_sam_reed_v1",
+      "role": "family",
       "model": {
-        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.nurse_observer_jamie_v1.generated-humanoid-glb",
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.partner_sam_reed_v1.generated-humanoid-glb",
         "version": "generated-human-rigging-2026-05-23",
         "kind": "humanoid_model",
-        "displayName": "nurse observer jamie",
-        "scenarioAssetId": "nurse_observer_jamie_character",
+        "displayName": "partner sam reed",
+        "scenarioAssetId": "partner_sam_reed_character",
+        "blob": {
+          "storeKind": "azurite_blob",
+          "containerName": "openclinxr-assets",
+          "blobName": ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb",
+          "contentHash": "bytes:3901100:declared:3901100",
+          "contentType": "model/gltf-binary",
+          "url": "http://127.0.0.1:10000/devstoreaccount1/openclinxr-assets/.openclinxr/asset-production/ed-chest-pain/generated-human-rigging/neutral-generated-human.glb"
+        },
+        "reviewStatus": "approved_for_local_runtime",
+        "provenanceRefs": [
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/canonical-skeleton-binding.json",
+          ".openclinxr/asset-production/ed-chest-pain/generated-human-rigging/skin-weight-quality.json",
+          "generated_human_rigging_report"
+        ],
+        "notEvidenceFor": [
+          "production_asset_readiness",
+          "quest_readiness",
+          "clinical_validity",
+          "scoring_validity"
+        ]
+      },
+      "animationClips": [],
+      "gazeProfile": {
+        "defaultTarget": "learner_camera",
+        "supportsActorTargets": true
+      }
+    },
+    {
+      "actorId": "behavioral_health_nurse_owens_v1",
+      "role": "nurse",
+      "model": {
+        "assetId": "openclinxr.psych_suicidal_ideation_safety_v1.behavioral_health_nurse_owens_v1.generated-humanoid-glb",
+        "version": "generated-human-rigging-2026-05-23",
+        "kind": "humanoid_model",
+        "displayName": "behavioral health nurse owens",
+        "scenarioAssetId": "behavioral_health_nurse_owens_character",
         "blob": {
           "storeKind": "azurite_blob",
           "containerName": "openclinxr-assets",
@@ -276,7 +312,17 @@
       "quest_readiness",
       "clinical_validity",
       "scoring_validity"
-    ]
+    ],
+    "stationContext": {
+      "title": "Psych Safety Assessment",
+      "subtitle": "Quiet room with safe furniture, visible door, privacy constraints, and nurse access for safety observation.",
+      "chiefConcern": "Ask directly about suicidal ideation, intent, plan, means, and protective factors",
+      "initialVitals": "Generated environment evidence pending headset validation",
+      "interruption": "cue at 360s: confidentiality explanation",
+      "stageAriaLabel": "Behavioral Health Private Interview Room station scene",
+      "canvasAriaLabel": "3D Behavioral Health Private Interview Room preview",
+      "initialDialogueText": "Jordan Reed: I do not feel safe being alone right now."
+    }
   },
   "generatedAt": "2026-05-23T15:46:56.813Z",
   "expiresAt": null,
