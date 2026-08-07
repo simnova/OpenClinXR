@@ -114,6 +114,14 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether hm08 can carry the runtime rig, and whether our bake degrades the base. Says NOTHING
  * about garment fit (#131 settled it), body parametrics (#151), or whether to migrate.
+ *
+ * ## FIXED (#134)
+ *
+ * Contract (1) measured body-mesh connected components: base OBJ adults=1 / child=4 → baked body
+ * shell 14 / 20. `bakeDegrades=true` on all six shipped humanoids. Verdict `reject_measured` with
+ * attempts=0 (MPFB2 not started — bake defect means hm08 answers the wrong question). Pre-fix
+ * inventory at `.openclinxr/evidence/issue-134/pre-fix.json`. MADR 0047 records Decision + numbers.
+ * Candidate path empty; no `generated-humanoids/` write.
  */
 
 const load = async () => import("./hm08-rig-carry-cagematch.js") as Promise<Record<string, unknown>>;
@@ -156,7 +164,7 @@ const VERDICTS = ["adopt_hm08", "reject_measured", "inconclusive_blocked"];
 const MAX_TRIANGLES = 60_000;
 
 describe("can hm08 carry the runtime rig (#134)", () => {
-  it.fails("the bake is compared against its own base before any MPFB2 work", async () => {
+  it("the bake is compared against its own base before any MPFB2 work", async () => {
     // #134 records this as UNMEASURED: the raw anny base looks better than the GLB we bake from it.
     // If true, hm08 does not fix it and this comparison answers the wrong question.
     const mod = await load();
@@ -176,7 +184,7 @@ describe("can hm08 carry the runtime rig (#134)", () => {
     }
   }, 1_800_000);
 
-  it.fails("the bake-off reached a recorded verdict", async () => {
+  it("the bake-off reached a recorded verdict", async () => {
     // The cagematch deliverable is a DECISION WITH EVIDENCE, not working code. reject_measured is a
     // successful outcome. What is forbidden is finishing without one, or without saying what blocked
     // it — a candidate that was never attempted must carry a rejectReason.
@@ -209,7 +217,7 @@ describe("can hm08 carry the runtime rig (#134)", () => {
       .toBeLessThanOrEqual(2);
   }, 1_800_000);
 
-  it.fails("no shipped asset was touched and nothing was promoted (COUNTERWEIGHT)", async () => {
+  it("no shipped asset was touched and nothing was promoted (COUNTERWEIGHT)", async () => {
     // The cheap satisfactions are promoting the candidate into generated-humanoids/ so it "loads",
     // or rebaking a shipped humanoid to make the comparison flattering. MPFB2 is GPL-3 and deferred;
     // MADR 0044's posture only holds while the candidate stays on an evidence path.
