@@ -275,7 +275,8 @@ describe("generated ED station runtime bundle", () => {
       expect(report.bundle?.sceneManifest.stationContext).toMatchObject({
         title: "Pediatric Asthma",
         subtitle: expect.stringContaining("pulse oximeter"),
-        chiefConcern: "Assess pediatric respiratory distress",
+        // #127 / #136: learner chart is authored patient voice, not the scoring objective.
+        chiefConcern: "My chest feels tight and it is hard to breathe.",
         stageAriaLabel: "Pediatric Urgent Care Bay station scene",
       });
       expect(report.bundle?.sceneManifest.dialogueTurns.map((turn) => turn.traceTag)).toEqual([

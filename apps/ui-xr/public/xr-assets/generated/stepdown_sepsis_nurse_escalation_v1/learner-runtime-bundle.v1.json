@@ -212,8 +212,8 @@
       "title": "Stepdown Sepsis Escalation",
       "subtitle": "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
       "chiefConcern": "I feel worse than this morning, and I am shaking again.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Stepdown sepsis escalation station scene",
       "canvasAriaLabel": "3D stepdown sepsis room preview",
       "initialDialogueText": "Helen Carter: I feel worse than this morning, and I am shaking again.",
@@ -325,11 +325,11 @@
         "labelPrefix": "Team"
       },
       "respiratory_therapist_ng_v1": {
-        "slotKind": "family_or_observer",
+        "slotKind": "additional_cast",
         "position": {
-          "x": -2,
+          "x": 1.95,
           "y": 0.95,
-          "z": 0.7
+          "z": 0.15
         },
         "scale": {
           "x": 1,
@@ -337,7 +337,7 @@
           "z": 1
         },
         "verticalOffsetMeters": -0.95,
-        "labelPrefix": "Family"
+        "labelPrefix": "Respiratory"
       }
     },
     "equipmentPlacements": {

@@ -331,7 +331,8 @@ const defaultCandidates: AnnyCandidateSpec[] = [
     sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
     reuseKey: "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_candidate",
-    expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+    // #136: accept blender-only rebake on tracked real-Anny base OBJ (shipped provenance).
+    expectedGeneratorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   },
   {
     candidateId: "peds_anxious_parent_anny_compatible_candidate",
@@ -342,7 +343,7 @@ const defaultCandidates: AnnyCandidateSpec[] = [
     sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.provenance.json",
     reuseKey: "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1:family:anny_candidate",
-    expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+    expectedGeneratorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   },
   {
     candidateId: "peds_nurse_kevin_anny_compatible_candidate",
@@ -353,7 +354,7 @@ const defaultCandidates: AnnyCandidateSpec[] = [
     sourceGlbPath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.provenance.json",
     reuseKey: "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
-    expectedGeneratorMode: "real_anny_local_forward_pass_plus_blender_procedural",
+    expectedGeneratorMode: "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   },
 ];
 
