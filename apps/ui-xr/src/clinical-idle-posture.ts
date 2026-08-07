@@ -25,35 +25,40 @@ import type { Object3D } from "three";
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
 
 /**
- * Standing idle arm hang — world-space goal is wrist ≥0.25 m below shoulder with hands
- * clear of the torso mid-line. Calibrated from pre-fix live dump on this armature:
+ * Standing idle arm hang — world-space goals (#91 hang + #117 abduction ceiling):
+ *   - wrist ≥0.25 m below shoulder (drop floor)
+ *   - wrist lateral ≤ 1.3 × half live shoulder span (abduction ceiling; NOT calibrated on pose)
+ *   - wrist lateral ≥ 0.5 × half span (not through the torso)
  *
- *   role map (pre-fix)     upper_armL xyz              drop    lateral
- *   patient                 (-0.34, 0.08, -0.74)        0.46 m  0.43 m  ← best hang
- *   nurse                   (-0.28, 0.14, -0.2)         0.30 m  0.64 m  plank splay
- *   family                  (-0.30, 0.16, -0.2)         0.23 m  0.58 m  FAIL drop
- *   clinical idle x=-1.12   (-1.12, 0.06, -0.18)        0.18 m  0.50 m  WORSE — rejected
+ * #91 chose patient-map eulers (z≈±0.74) that cleared drop but left ratio ~2.1–2.3
+ * (lateral 0.31–0.45 m ≈ 1.5–2× half-span). On this T-pose bind, upper_arm local Z is the
+ * primary lower-from-horizontal axis: nurse z≈±0.2 → plank splay 0.64 m; patient z≈±0.74 →
+ * better hang 0.43 m. Rest hang needs ~π/2 from T-pose horizontal, not A-pose (~0.5–0.8).
  *
- * Decision: SSOT is the patient-map eulers that already cleared world drop on this rig.
- * Apply them to every standing role so family/nurse stop overwriting with weaker hang.
- * Not a threshold search — values already shipped on the patient path; unified only.
+ * Decision (#117): raise |z| toward a true side hang (~1.12 rad; z=1.25 overshot inward) and keep
+ * mild elbow flexion so the arm is not a straight stick. Seated figures are NOT re-mapped here —
+ * telehealth seated still uses seated-pose (pre-fix ~0.63–0.66 m lateral; left as residual).
+ *
+ * Pre-fix (#117): standing ratio 2.14–2.29; halfSpan 0.141–0.201; k=1.3 from shoulder geometry.
  */
 const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   // Canonical undotted runtime names (pre-fix: scene graph reports upper_armL not upper_arm.L).
-  ["upper_armL", { x: -0.34, y: 0.08, z: -0.74, absolute: true }],
-  ["forearmL", { x: -0.24, y: -0.12, z: 0.36, absolute: true }],
-  ["handL", { x: 0.06, y: 0.08, z: -0.08, absolute: true }],
-  ["upper_armR", { x: -0.34, y: -0.08, z: 0.74, absolute: true }],
-  ["forearmR", { x: -0.24, y: 0.12, z: -0.36, absolute: true }],
-  ["handR", { x: 0.06, y: -0.08, z: 0.08, absolute: true }],
+  // #117: |z| 0.74 → ~1.12 (hang-from-T toward side rest; trial z=1.25 sat ratio~0.8, slightly
+  // inside half-span; 1.12 targets ratio ~1.0–1.2 without calibrating k). Mild elbow flexion kept.
+  ["upper_armL", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
+  ["forearmL", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
+  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_armR", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
+  ["forearmR", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
+  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
   ["head", { x: -0.04, absolute: true }],
   // Dotted file-side aliases (dead on current GLBs; kept so a dotted load still hangs).
-  ["upper_arm.L", { x: -0.34, y: 0.08, z: -0.74, absolute: true }],
-  ["forearm.L", { x: -0.24, y: -0.12, z: 0.36, absolute: true }],
-  ["hand.L", { x: 0.06, y: 0.08, z: -0.08, absolute: true }],
-  ["upper_arm.R", { x: -0.34, y: -0.08, z: 0.74, absolute: true }],
-  ["forearm.R", { x: -0.24, y: 0.12, z: -0.36, absolute: true }],
-  ["hand.R", { x: 0.06, y: -0.08, z: 0.08, absolute: true }],
+  ["upper_arm.L", { x: -0.22, y: 0.06, z: -1.12, absolute: true }],
+  ["forearm.L", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
+  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_arm.R", { x: -0.22, y: -0.06, z: 1.12, absolute: true }],
+  ["forearm.R", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
+  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
 ]);
 
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
