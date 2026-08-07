@@ -743,37 +743,110 @@ export function factoryResolveInitialVitals(scenarioId: string): {
   };
 }
 
+/**
+ * #127 — factory-side chief concern + interruption. Does NOT print scoring objectives
+ * or event-schedule tags. Does NOT invent clinical presenting complaints for the bank.
+ *
+ * Decisions (named with rejected alternatives):
+ * 1. Provenance fields: chiefConcernAuthorship / interruptionAuthorship matching #115's
+ *    initialVitalsAuthorship shape, plus authored_patient_voice for #113 openings.
+ *    Rejected: inventing a separate provenance schema.
+ * 2. Chief concern from patient.openingUtterance when present (authored_patient_voice).
+ *    Rejected: clinicalObjectives[0] (prints the exam); inventing 11 presenting complaints;
+ *    blank rows (§6p / #73). Opening line is not a classic complaint, but it is authored
+ *    patient voice already in the bank — safer than the objective or invented clinical text.
+ * 3. Interruption always unauthored honest copy. Rejected: event-schedule tag synthesis
+ *    ("cue at 240s: fall risk action"); inventing narrative interruptions from the
+ *    contexts table for bank stations.
+ * 4. Hand-authored `contexts` table kept only as unknown-id doorway labels
+ *    (title/subtitle/aria/dialogue). Chief/interruption always come from resolve helpers
+ *    even on that path. Rejected: deleting the table this slice (would thrash title/aria
+ *    fallbacks); rejected using it as a chief-concern fast path (oncology row was itself
+ *    an objective).
+ *
+ * Unauthored copy voice is NOT implementer choice — matches #115 shape:
+ * "Not charted — obtain … during the encounter" / observe interruptions variant.
+ */
+export const FACTORY_UNAUTHORED_CHIEF_CONCERN_COPY =
+  "Not charted — obtain chief concern during the encounter";
+
+export const FACTORY_UNAUTHORED_INTERRUPTION_COPY =
+  "Not charted — observe interruptions during the encounter";
+
+export type FactoryChartFieldAuthorship =
+  | "unauthored"
+  | "authored_patient_voice"
+  | "legacy_hardcoded_unreviewed"
+  | "authored_reviewed";
+
+export function factoryResolveChartFields(scenarioId: string): {
+  chiefConcern: string;
+  chiefConcernAuthorship: FactoryChartFieldAuthorship;
+  interruption: string;
+  interruptionAuthorship: FactoryChartFieldAuthorship;
+} {
+  const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
+  const patient =
+    scenario?.actors.find((actor) => actor.role === "patient") ?? scenario?.actors[0];
+  const opening = patient?.openingUtterance?.trim() ?? "";
+  const interruption = {
+    interruption: FACTORY_UNAUTHORED_INTERRUPTION_COPY,
+    interruptionAuthorship: "unauthored" as const,
+  };
+  if (opening.length > 0) {
+    return {
+      chiefConcern: opening,
+      chiefConcernAuthorship: "authored_patient_voice",
+      ...interruption,
+    };
+  }
+  return {
+    chiefConcern: FACTORY_UNAUTHORED_CHIEF_CONCERN_COPY,
+    chiefConcernAuthorship: "unauthored",
+    ...interruption,
+  };
+}
+
 function runtimeStationContextForScenario(
   scenarioId: string,
   fallbackTitle: string,
 ): EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"] {
   const vitals = factoryResolveInitialVitals(scenarioId);
+  const chart = factoryResolveChartFields(scenarioId);
   const scenario = scenarioBank.find((candidate) => candidate.scenarioId === scenarioId);
   if (scenario) {
     const patient = scenario.actors.find((actor) => actor.role === "patient") ?? scenario.actors[0];
-    const firstEvent = scenario.eventSchedule[0];
     return {
       title: fallbackTitle,
       subtitle: scenario.environment?.description ?? scenario.title,
-      chiefConcern: scenario.clinicalObjectives[0] ?? scenario.title,
+      chiefConcern: chart.chiefConcern,
+      chiefConcernAuthorship: chart.chiefConcernAuthorship,
       initialVitals: vitals.initialVitals,
       initialVitalsAuthorship: vitals.initialVitalsAuthorship,
-      interruption: firstEvent
-        ? `${actorDisplayName(firstEvent.actorId, scenario.actors.find((actor) => actor.actorId === firstEvent.actorId)?.role)} cue at ${firstEvent.atSecond}s: ${firstEvent.tag.replaceAll("_", " ")}`
-        : "Scenario event cue pending review",
+      interruption: chart.interruption,
+      interruptionAuthorship: chart.interruptionAuthorship,
       stageAriaLabel: `${scenario.environment?.name ?? fallbackTitle} station scene`,
       canvasAriaLabel: `3D ${scenario.environment?.name ?? fallbackTitle} preview`,
       // Prefer bank displayName (#107) + patient.openingUtterance (#113). Never speak demeanor.
       initialDialogueText: factoryInitialDialogueTextForPatient(patient),
     };
   }
-  // Unknown id: doorway labels only. Vitals stay honest (no environment-prose reuse).
-  const contexts: Record<string, Omit<EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"], "initialVitals" | "initialVitalsAuthorship">> = {
+  // Unknown id: doorway labels only. Chart rows + vitals always from resolve helpers.
+  const contexts: Record<
+    string,
+    Omit<
+      EncounterRuntimeAssetBundle["sceneManifest"]["stationContext"],
+      | "initialVitals"
+      | "initialVitalsAuthorship"
+      | "chiefConcern"
+      | "chiefConcernAuthorship"
+      | "interruption"
+      | "interruptionAuthorship"
+    >
+  > = {
     ed_chest_pain_priority_v1: {
       title: "ED Chest Pain",
       subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
-      chiefConcern: "Crushing substernal chest pressure",
-      interruption: "Nurse repeats vitals at minute seven",
       stageAriaLabel: "Emergency department station scene",
       canvasAriaLabel: "3D emergency department bay preview",
       initialDialogueText: "Robert Hayes: It feels heavy, like someone is sitting on my chest.",
@@ -781,8 +854,6 @@ function runtimeStationContextForScenario(
     peds_asthma_parent_anxiety_v1: {
       title: "Pediatric Asthma",
       subtitle: "Child, anxious parent, and respiratory therapist in a time-boxed pediatric respiratory encounter.",
-      chiefConcern: "Shortness of breath and wheezing after activity",
-      interruption: "Parent anxiety escalates while respiratory status is reassessed",
       stageAriaLabel: "Pediatric asthma station scene",
       canvasAriaLabel: "3D pediatric respiratory room preview",
       initialDialogueText: "Maya Johnson: My chest feels tight and it is hard to breathe.",
@@ -790,8 +861,6 @@ function runtimeStationContextForScenario(
     psych_suicidal_ideation_safety_v1: {
       title: "Psych Safety Assessment",
       subtitle: "Patient, partner, and behavioral-health nurse in a time-boxed suicide-risk and safety-planning encounter.",
-      chiefConcern: "Suicidal ideation and inability to commit to being alone safely",
-      interruption: "Partner presses confidentiality limits while nurse is ready for observation",
       stageAriaLabel: "Psychiatric safety assessment station scene",
       canvasAriaLabel: "3D psychiatric safety assessment room preview",
       initialDialogueText: "Jordan Reed: I do not feel safe being alone right now.",
@@ -799,8 +868,6 @@ function runtimeStationContextForScenario(
     telehealth_diabetes_health_literacy_v1: {
       title: "Telehealth Diabetes Plan",
       subtitle: "Patient and daughter in a time-boxed telehealth counseling encounter focused on teach-back and access barriers.",
-      chiefConcern: "Diabetes medication confusion and difficulty following portal instructions",
-      interruption: "Daughter begins answering for the patient unless communication is redirected respectfully",
       stageAriaLabel: "Telehealth diabetes health-literacy station scene",
       canvasAriaLabel: "3D telehealth counseling room preview",
       initialDialogueText: "Luis Martinez: I want to follow the plan, but the instructions are hard to understand.",
@@ -808,8 +875,6 @@ function runtimeStationContextForScenario(
     ob_headache_preeclampsia_triage_v1: {
       title: "OB Headache Preeclampsia Triage",
       subtitle: "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
-      chiefConcern: "Severe headache with visual sensitivity in late pregnancy",
-      interruption: "Partner anxiety rises while nurse requests a concise escalation plan",
       stageAriaLabel: "OB preeclampsia triage station scene",
       canvasAriaLabel: "3D OB triage room preview",
       initialDialogueText: "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes.",
@@ -817,8 +882,6 @@ function runtimeStationContextForScenario(
     ed_stroke_alert_handoff_v1: {
       title: "ED Stroke Alert Handoff",
       subtitle: "Patient, family member, and stroke nurse in a time-critical handoff with clock and bedside monitor cues.",
-      chiefConcern: "Acute speech difficulty and right-sided weakness",
-      interruption: "Family member adds timeline details while stroke nurse presses for handoff clarity",
       stageAriaLabel: "ED stroke alert handoff station scene",
       canvasAriaLabel: "3D stroke alert room preview",
       initialDialogueText: "Samuel Brooks: My right arm feels weak, and I cannot get the words out clearly.",
@@ -826,8 +889,6 @@ function runtimeStationContextForScenario(
     stepdown_sepsis_nurse_escalation_v1: {
       title: "Stepdown Sepsis Escalation",
       subtitle: "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
-      chiefConcern: "Worsening fever, chills, and respiratory concern after earlier stability",
-      interruption: "Respiratory therapist requests prioritization while nurse seeks escalation orders",
       stageAriaLabel: "Stepdown sepsis escalation station scene",
       canvasAriaLabel: "3D stepdown sepsis room preview",
       initialDialogueText: "Helen Carter: I feel worse than this morning, and I am shaking again.",
@@ -835,8 +896,6 @@ function runtimeStationContextForScenario(
     clinic_abdominal_pain_interpreter_v1: {
       title: "Clinic Abdominal Pain Interpreter",
       subtitle: "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
-      chiefConcern: "Right-lower-quadrant abdominal pain with interpreter-mediated history",
-      interruption: "Family member answers out of turn unless the learner uses interpreter best practices",
       stageAriaLabel: "Clinic abdominal pain interpreter station scene",
       canvasAriaLabel: "3D clinic interpreter room preview",
       initialDialogueText: "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter.",
@@ -844,8 +903,6 @@ function runtimeStationContextForScenario(
     oncology_bad_news_family_v1: {
       title: "Oncology Bad News Family",
       subtitle: "Patient and sister in a quiet oncology consultation focused on serious-news communication.",
-      chiefConcern: "Reviewing difficult scan results with family present",
-      interruption: "Family emotion escalates and requires empathy before further explanation",
       stageAriaLabel: "Oncology serious-news family station scene",
       canvasAriaLabel: "3D oncology consultation room preview",
       initialDialogueText: "David Miller: I want my sister here before we talk about the scan results.",
@@ -853,8 +910,6 @@ function runtimeStationContextForScenario(
     postop_fever_consult_pressure_v1: {
       title: "Postop Fever Consult Pressure",
       subtitle: "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
-      chiefConcern: "Fever, worsening abdominal pain, and chills after surgery",
-      interruption: "Consultant pressure risks premature closure unless the learner maintains safety priorities",
       stageAriaLabel: "Postoperative fever consult-pressure station scene",
       canvasAriaLabel: "3D postoperative fever room preview",
       initialDialogueText: "Priya Shah: My belly hurts more today, and I have chills.",
@@ -863,14 +918,16 @@ function runtimeStationContextForScenario(
   const base = contexts[scenarioId] ?? {
     title: fallbackTitle,
     subtitle: "Scenario-bank generated encounter with actor, room prop, equipment, and dialogue evidence selected by runtime bundle.",
-    chiefConcern: "Generated scenario objective pending review",
-    interruption: "Trace event cue pending review",
     stageAriaLabel: `${fallbackTitle} station scene`,
     canvasAriaLabel: `3D ${fallbackTitle} preview`,
     initialDialogueText: "Patient: I am ready to begin this encounter.",
   };
   return {
     ...base,
+    chiefConcern: chart.chiefConcern,
+    chiefConcernAuthorship: chart.chiefConcernAuthorship,
+    interruption: chart.interruption,
+    interruptionAuthorship: chart.interruptionAuthorship,
     initialVitals: vitals.initialVitals,
     initialVitalsAuthorship: vitals.initialVitalsAuthorship,
   };

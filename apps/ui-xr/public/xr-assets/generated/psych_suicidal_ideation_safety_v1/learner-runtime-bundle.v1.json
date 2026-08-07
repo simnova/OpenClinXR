@@ -316,13 +316,15 @@
     "stationContext": {
       "title": "Psych Safety Assessment",
       "subtitle": "Quiet room with safe furniture, visible door, privacy constraints, and nurse access for safety observation.",
-      "chiefConcern": "Ask directly about suicidal ideation, intent, plan, means, and protective factors",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "cue at 360s: confidentiality explanation",
+      "chiefConcern": "I do not feel safe being alone right now.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Behavioral Health Private Interview Room station scene",
       "canvasAriaLabel": "3D Behavioral Health Private Interview Room preview",
       "initialDialogueText": "Jordan Reed: I do not feel safe being alone right now.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     }
   },
   "generatedAt": "2026-05-23T15:46:56.813Z",

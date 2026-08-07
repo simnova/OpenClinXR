@@ -114,14 +114,15 @@ export type EncounterRuntimeStationContext = {
   title: string;
   subtitle: string;
   chiefConcern: string;
+  chiefConcernAuthorship?: "unauthored" | "authored_patient_voice" | "legacy_hardcoded_unreviewed" | "authored_reviewed"; // #127
   initialVitals: string;
   initialVitalsAuthorship?: "unauthored" | "legacy_hardcoded_unreviewed" | "authored_reviewed"; // #115
   interruption: string;
+  interruptionAuthorship?: "unauthored" | "authored_patient_voice" | "legacy_hardcoded_unreviewed" | "authored_reviewed"; // #127
   stageAriaLabel: string;
   canvasAriaLabel: string;
   initialDialogueText: string;
 };
-
 export type EncounterRuntimeDialogueTurn = {
   traceTag: string;
   actorId: string;
@@ -168,7 +169,6 @@ export type EncounterRuntimeActorPlacement = {
   /** Standing default; telehealth primary_patient is seated (#81). */
   posture?: "standing" | "seated" | "supine";
 };
-
 export type EncounterRuntimeEquipmentPlacement = {
   position: { x: number; y: number; z: number };
   label: string;
@@ -1390,10 +1390,10 @@ function createGeneratedRuntimeSceneManifest(input: {
     stationContext: {
       title: `Runtime scene for ${input.stationId}`,
       subtitle: `Generated fallback manifest for ${input.scenarioId}; provide an explicit sceneManifest for case-authored clinical context.`,
-      chiefConcern: `Scenario context pending explicit scene manifest for ${input.scenarioId}`,
+      chiefConcern: "Not charted — obtain chief concern during the encounter",
       initialVitals: "Not charted — obtain vitals during the encounter",
       initialVitalsAuthorship: "unauthored",
-      interruption: "No interruption configured",
+      interruption: "Not charted — observe interruptions during the encounter",
       stageAriaLabel: `Runtime station scene for ${input.stationId}`,
       canvasAriaLabel: `3D runtime preview for ${input.stationId}`,
       initialDialogueText: "Explicit dialogue not provided for this generated fallback manifest.",
@@ -1437,10 +1437,10 @@ export function createEdChestPainRuntimeSceneManifest(input: {
     stationContext: {
       title: "ED Chest Pain",
       subtitle: "Patient, spouse, and nurse in a time-boxed emergency department encounter.",
-      chiefConcern: "Crushing substernal chest pressure",
+      chiefConcern: "It feels heavy, like someone is sitting on my chest.",
       initialVitals: "BP 152/92, HR 104, RR 20, SpO2 96%",
       initialVitalsAuthorship: "legacy_hardcoded_unreviewed",
-      interruption: "Nurse repeats vitals at minute seven",
+      interruption: "Not charted — observe interruptions during the encounter",
       stageAriaLabel: "Emergency department station scene",
       canvasAriaLabel: "3D emergency department bay preview",
       initialDialogueText: "Robert Hayes: It feels heavy, like someone is sitting on my chest.",

@@ -7,13 +7,15 @@
   "stationContext": {
     "title": "Postop Fever Consult Pressure",
     "subtitle": "Postoperative patient with floor nurse and surgery resident under consult-pressure dynamics.",
-    "chiefConcern": "Fever, worsening abdominal pain, and chills after surgery",
-    "initialVitals": "Not charted — obtain vitals during the encounter",
-    "interruption": "Consultant pressure risks premature closure unless the learner maintains safety priorities",
+    "chiefConcern": "My belly hurts more today, and I have chills.",
+    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+    "interruption": "Not charted \u2014 observe interruptions during the encounter",
     "stageAriaLabel": "Postoperative fever consult-pressure station scene",
     "canvasAriaLabel": "3D postoperative fever room preview",
     "initialDialogueText": "Priya Shah: My belly hurts more today, and I have chills.",
-    "initialVitalsAuthorship": "unauthored"
+    "initialVitalsAuthorship": "unauthored",
+    "chiefConcernAuthorship": "authored_patient_voice",
+    "interruptionAuthorship": "unauthored"
   },
   "dialogueTurns": [
     {

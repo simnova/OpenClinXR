@@ -211,13 +211,15 @@
     "stationContext": {
       "title": "Stepdown Sepsis Escalation",
       "subtitle": "Deteriorating patient with nurse and respiratory therapist in a stepdown escalation encounter.",
-      "chiefConcern": "Worsening fever, chills, and respiratory concern after earlier stability",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Respiratory therapist requests prioritization while nurse seeks escalation orders",
+      "chiefConcern": "I feel worse than this morning, and I am shaking again.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Stepdown sepsis escalation station scene",
       "canvasAriaLabel": "3D stepdown sepsis room preview",
       "initialDialogueText": "Helen Carter: I feel worse than this morning, and I am shaking again.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "dialogueTurns": [
       {

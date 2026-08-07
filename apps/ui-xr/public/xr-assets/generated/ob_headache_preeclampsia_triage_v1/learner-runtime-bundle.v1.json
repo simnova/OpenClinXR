@@ -211,13 +211,15 @@
     "stationContext": {
       "title": "OB Headache Preeclampsia Triage",
       "subtitle": "Pregnant patient, partner, and OB nurse in a time-boxed triage encounter with fetal monitor and blood-pressure equipment.",
-      "chiefConcern": "Severe headache with visual sensitivity in late pregnancy",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Partner anxiety rises while nurse requests a concise escalation plan",
+      "chiefConcern": "My headache is getting worse, and the lights are bothering my eyes.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "OB preeclampsia triage station scene",
       "canvasAriaLabel": "3D OB triage room preview",
       "initialDialogueText": "Aisha Khan: My headache is getting worse, and the lights are bothering my eyes.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "dialogueTurns": [
       {

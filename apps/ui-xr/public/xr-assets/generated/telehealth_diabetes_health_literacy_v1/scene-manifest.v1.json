@@ -112,12 +112,14 @@
   "stationContext": {
     "title": "Telehealth Diabetes Plan",
     "subtitle": "Video visit view of patient at home with low-bandwidth interruptions, medication bottles, and caregiver offscreen/on-screen transitions.",
-    "chiefConcern": "Reconcile medication use and barriers",
-    "initialVitals": "Not charted — obtain vitals during the encounter",
-    "interruption": "cue at 240s: teach back",
+    "chiefConcern": "I want to follow the plan, but the instructions are hard to understand.",
+    "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+    "interruption": "Not charted \u2014 observe interruptions during the encounter",
     "stageAriaLabel": "Telehealth Home Visit station scene",
     "canvasAriaLabel": "3D Telehealth Home Visit preview",
     "initialDialogueText": "Luis Martinez: I want to follow the plan, but the instructions are hard to understand.",
-    "initialVitalsAuthorship": "unauthored"
+    "initialVitalsAuthorship": "unauthored",
+    "chiefConcernAuthorship": "authored_patient_voice",
+    "interruptionAuthorship": "unauthored"
   }
 }

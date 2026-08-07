@@ -207,13 +207,15 @@
     "stationContext": {
       "title": "Pediatric Fever With Parent Anxiety And Escalation",
       "subtitle": "Child-sized urgent-care bay with pulse oximeter, thermometer tray, parent chair, and pediatric distraction items.",
-      "chiefConcern": "Assess pediatric fever severity and hydration status",
-      "initialVitals": "Not charted — obtain vitals during the encounter",
-      "interruption": "Scenario event cue pending review",
+      "chiefConcern": "I feel hot and tired. My tummy hurts a little.",
+      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
+      "interruption": "Not charted \u2014 observe interruptions during the encounter",
       "stageAriaLabel": "Pediatric Fever Urgent Care Bay station scene",
       "canvasAriaLabel": "3D Pediatric Fever Urgent Care Bay preview",
       "initialDialogueText": "Noah Chen: I feel hot and tired. My tummy hurts a little.",
-      "initialVitalsAuthorship": "unauthored"
+      "initialVitalsAuthorship": "unauthored",
+      "chiefConcernAuthorship": "authored_patient_voice",
+      "interruptionAuthorship": "unauthored"
     },
     "roomProps": [
       {

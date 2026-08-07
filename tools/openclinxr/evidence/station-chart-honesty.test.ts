@@ -164,7 +164,16 @@ const HONEST_SOURCES: ChartFieldSource[] = [
 const ED = "ed_chest_pain_priority_v1";
 
 describe("the learner-visible chart does not print the test (#127)", () => {
-  it.fails("no chart field is derived from a scoring objective or an event-schedule tag", async () => {
+  /**
+   * ## FIXED (#127)
+   * Producer no longer uses clinicalObjectives[0] or event-schedule synthesis.
+   * chiefConcern ← patient.openingUtterance (authored_patient_voice) or unauthored copy;
+   * interruption ← unauthored copy only. Runtime stationContextForScenario always
+   * re-resolves (SSOT), so stale shipped bundles cannot re-print the test.
+   * Pre-fix measure: .openclinxr/evidence/station-chart-honesty/pre-fix.json
+   * (MAX_OBJECTIVE_OVERLAP 0.5; ward/oncology were 100% objective overlap).
+   */
+  it("no learner-visible chart field is derived from a scoring objective or an event-schedule tag", async () => {
     // ward renders "Distinguish delirium from baseline cognitive impairment" under CHIEF CONCERN and
     // "cue at 240s: fall risk action" under INTERRUPTION. The overlap bound is what stops a synonym
     // rewrite satisfying this; it is not a proof that the replacement is patient voice.
@@ -193,7 +202,8 @@ describe("the learner-visible chart does not print the test (#127)", () => {
     expect(spoiled, `chart rows that print the test:\n${spoiled.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("every chart field carries a source with recorded provenance", async () => {
+  /** ## FIXED (#127) — chiefConcernAuthorship / interruptionAuthorship on resolve + view. */
+  it("every chart field carries a source with recorded provenance", async () => {
     // Kills the cheap satisfaction of the first contract in the other direction: paraphrasing the
     // objective enough to slip under the overlap bound leaves the field still undeclared. An honest
     // source is one of four; "derived_from_objective" and "derived_from_event_schedule" are the two
@@ -217,7 +227,8 @@ describe("the learner-visible chart does not print the test (#127)", () => {
     expect(undeclared, `chart rows with no honest provenance:\n${undeclared.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("#115's vitals classes and the ED bay's chart survive (COUNTERWEIGHT)", async () => {
+  /** ## FIXED (#127) — module present; vitals untouched; ED chief concern still matches /chest/. */
+  it("#115's vitals classes and the ED bay's chart survive (COUNTERWEIGHT)", async () => {
     // Two ways to buy the first two contracts cheaply: blank every chart row, or regress #115 while
     // reworking the same producer. The ED bay is the one station whose chart is hand-authored and
     // clinically shaped today; a rewrite must not cost it.
