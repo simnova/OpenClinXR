@@ -996,3 +996,31 @@ Audit remediation commands the same way you audit the check itself.
 The general shape, third instance in this repo: **a gate that verifies well-formedness cannot see
 incompleteness.** `docs:drift-check` asks "is registered Markdown present and classified?" and never
 "is anything missing?" — the same blind spot that produced `markdown-references.ts`.
+
+## 7g. Resuming a session you have not verified is §6c wearing work clothes
+
+§6c established that a wrong session id does not error — it confabulates, because a fresh session
+loads project memory and fills the gap. That was written about RETROS, where the cost is a fabricated
+finding. The same hazard exists on the WORK side and costs more.
+
+#97's dispatch was killed with zero changes. A session directory existed for that worktree, so I
+resumed it with a "start the work now" delta. Sixty seconds later the worktree held twelve modified
+files: `PROJECT_STATUS.md`, `docs/_archive/**`, an archive manifest, a wiki index. **Doc-hygiene
+work, on a slice about a stretcher standing on its edge.**
+
+The session had no memory of the brief — the kill preceded it. Resumed empty, with this repo's
+autonomous-continuation rules in project context, it did what those rules say to do when there is no
+task. Reasonable behaviour; entirely wrong work.
+
+**Rule:** before `--resume` on a WORK session, confirm the session actually contains your brief —
+the ledger entry, a commit, or worktree changes consistent with the task. Absent all three, the
+session is empty and resuming it hands an agent your repo with no instructions but the standing ones.
+Dispatch fresh instead.
+
+The tell that distinguishes the two cases: #96's kill left ~80–100 turns of correct work on disk and
+resuming it was right. #97's kill left nothing, and resuming it was a category error. **Work on disk
+is the evidence that a session has context; a session directory is not.**
+
+Corollary: watch a resumed worker's first output before letting it run. One minute of `git status`
+caught this. Left alone it would have committed doc churn under a stretcher contract, and the
+contract would have refused it — but only after burning the slice.
