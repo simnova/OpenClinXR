@@ -925,6 +925,41 @@ is what #107 and #108 both did and is fine. The failure it prevents is the #106 
 arriving after the resolver already embodied the fix, so it proves the fix rather than observing the
 defect.
 
+## 7q. Three of my own premises died in one cycle — the pattern is filing from pixels before measuring
+
+Recorded because it is the orchestrator making exactly the error this file spends sixty sections
+warning workers about.
+
+In a single cycle, working from captures I had graded myself:
+
+| Premise I filed or proposed | What the measurement said |
+|---|---|
+| Adult figures wear a child-sized garment (`peds_upper_v1` on adults) | Garments ARE body-relative — adult garment top at 82.6% of body height, child at 82.2%. The name is historical. |
+| The 1-triangle `declared_upper_layers__*` meshes are stubs where a garment should be | Deliberate markers carrying the declared-layer count SSOT, consumed by `garment-layer-coverage.ts:73-88` and explicitly excluded from real-shell checks |
+| Twelve station environments are declared and some are not built (#109) | All twelve have descriptors. My "ED fallback" observation came from capturing `ob_preeclampsia_triage_v1` — a scenario id that does not exist. The bank id is `ob_headache_preeclampsia_triage_v1`. The placard was the system correctly telling me I had asked for nothing. |
+
+A peer round killed two more the same cycle (that `mustKeep` pinned geometry rather than a name; that
+missing lower-body *mesh* meant undressed legs, when lower clothing is deliberate paint per #73). And
+it killed a contract I had already written as **vacuous on arrival** — "every actor renders a skinned
+mesh", against a variant that has a skin.
+
+**The common shape:** a pixel observation is real, the INFERENCE from it to a mechanism is a guess,
+and the guess is cheap to check and I checked it late or not at all. Every one of these took under
+two minutes to falsify once measured — reading the glTF, running the capture with a corrected id,
+grepping for the consumer.
+
+**Rule for the orchestrator, same as §7h asks of briefs:** a pixel grade establishes THAT something
+looks wrong. It never establishes WHY. Before filing an issue whose body names a mechanism, measure
+the mechanism — and if you cannot, write the issue as "here is what I see, cause not determined"
+rather than as a diagnosis. #111 was filed that way after this run of errors and is the better
+document for it.
+
+**The one that generalises furthest:** when a capture, a report or a fallback message looks wrong,
+first check that YOUR INPUT was valid. A system correctly reporting "you asked for something that
+does not exist" is indistinguishable from a broken system if you never question the request. That is
+§1b's fabrication fingerprint arriving from the other direction — confident detail, uncertain
+premise, except the uncertain premise was mine.
+
 ## 7. Ask delegates for feedback on the brief
 
 Bidirectional or it does not improve. Ask specifically: what helped, what wasted turns, where did
