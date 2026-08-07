@@ -27,8 +27,17 @@ import {
 export const SCENE_MODE_EVIDENCE_DIR = ".openclinxr/evidence/issue-139";
 export const PRE_FIX_NAME = "pre-fix.json";
 
-/** Primary station used for the emptied-props trap (#139 revert). */
-export const PRIMARY_SCENARIO_ID = "stepdown_sepsis_nurse_escalation_v1";
+/**
+ * Primary station used for the emptied-props trap (#139 revert).
+ *
+ * Must be a station that STILL SHIPS ROOM PROPS — the four-cell table needs a with-props row, and the
+ * zero-props row is produced by emptying this station via route intercept. It was
+ * `stepdown_sepsis_nurse_escalation_v1` until #149 removed the generic cue quartet from ten stations,
+ * at which point both rows measured zero props and the counterweight could no longer find a
+ * prop-carrying station. The ED bay's props are protected by #149's own counterweight, so it is the
+ * most stable choice.
+ */
+export const PRIMARY_SCENARIO_ID = "ed_chest_pain_priority_v1";
 
 /** Capture mode that must still surface debug chrome when isDynamic is true. */
 export const DEBUG_CAPTURE_MODE = "debug-scene-chrome";
