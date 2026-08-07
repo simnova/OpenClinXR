@@ -6,7 +6,7 @@
   "counts": {
     "keep-evidence": 113,
     "ignore-local-cache": 2112,
-    "keep-current": 95,
+    "keep-current": 101,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
@@ -15244,6 +15244,20 @@
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/generated/adult_abdominal_pain_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,
@@ -15342,6 +15356,20 @@
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
+      "path": "apps/ui-xr/public/xr-assets/generated/peds_fever_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/generated/peds_fever_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/learner-runtime-bundle.v1.json",
       "authority": "keep-current",
       "tracked": true,
@@ -15350,6 +15378,20 @@
     },
     {
       "path": "apps/ui-xr/public/xr-assets/generated/postop_fever_consult_pressure_v1/scene-manifest.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/learner-runtime-bundle.v1.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/generated/primary_care_dyslipidemia_joint_pain_v1/scene-manifest.v1.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",

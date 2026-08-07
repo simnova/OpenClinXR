@@ -1946,9 +1946,10 @@ app.innerHTML = `
 `;
 
 function refreshStationContextFromRuntimeBundle(): void {
-  state = createRuntimeStateFromBundle(encounterRuntimeAssetBundle, state);
+  // #114: pass selectedScenarioId so a foreign ED fallback cannot poison Trace Actions.
+  state = createRuntimeStateFromBundle(encounterRuntimeAssetBundle, state, selectedScenarioId());
   window.__openClinXrCaseDefinedHumanoidPerformanceContractEvidence =
-    buildCaseDefinedHumanoidPerformanceContractEvidence(encounterRuntimeAssetBundle.scenarioId);
+    buildCaseDefinedHumanoidPerformanceContractEvidence(selectedScenarioId());
   window.__openClinXrActorPlayerRuntimeMetadataSummary =
     buildActorPlayerRuntimeMetadataSummary(encounterRuntimeAssetBundle.scenarioId);
   initialDialogueText = initialDialogueTextForSelectedScenario();
