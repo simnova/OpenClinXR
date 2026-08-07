@@ -172,7 +172,14 @@ type Inspect = () => Promise<{
 }>;
 
 describe("no standing actor occupies its own furniture (#169)", () => {
-  it.fails("no actor stands inside a support surface, in any station", async () => {
+  /**
+   * ## FIXED (#169)
+   * Pre-fix: 15 stations enumerated. Standing plant-through on OB stretcher + family/observer
+   * co-located with DEFAULT equipment (1.6, 0.28). Pixel-sampled trio (postop/oncology/primary)
+   * already clear for *patients* after #133 offsets — residual was observer-vs-equipment and OB
+   * framing vs OFFSET_STRETCHER. Metric f=0.18 of smaller footprint; furniture moved.
+   */
+  it("no actor stands inside a support surface, in any station", async () => {
     // 3 of 3 rooms sampled show the patient waist-deep in a box. #133's contract (3) asserted this
     // and passed, because it required the actor's XZ centre inside a footprint shrunk 0.12m per side.
     const mod = await load();
@@ -197,7 +204,12 @@ describe("no standing actor occupies its own furniture (#169)", () => {
     expect(inside, `actors standing inside furniture:\n${inside.join("\n")}`).toHaveLength(0);
   }, 1_800_000);
 
-  it.fails("the detector sees equipment-mounted supports and a half-in figure", async () => {
+  /**
+   * ## FIXED (#169)
+   * Equipment sources + fixture sources both appear. Control = ED nurse grazing stretcher
+   * (~5% overlap, not inside). Rejected centre-in-shrunk-box.
+   */
+  it("the detector sees equipment-mounted supports and a half-in figure", async () => {
     // Kills two cheap satisfactions. First: walking only fixture slots, which reports zero on
     // oncology whose support comes from chairs_equipment via #140. Second: keeping a centre-in-
     // shrunk-box metric that cannot see a figure standing half in and half out.
@@ -227,7 +239,14 @@ describe("no standing actor occupies its own furniture (#169)", () => {
     ).toBeGreaterThanOrEqual(0);
   }, 1_800_000);
 
-  it.fails("#133's ceilings and one-support-per-station survive (COUNTERWEIGHT)", async () => {
+  /**
+   * ## FIXED (#169)
+   * Detector: XZ overlap fraction of the smaller footprint ≥ 0.18 + standing + feet near
+   * floor + body straddles deck. Covers fixture AND equipment-mounted supports. Seated/
+   * supine skipped with named gap (pelvis-on-seat contact is #159/#166). Furniture moved
+   * off clean-encounter framing anchors (not per-env patient anchors as a larger change).
+   */
+  it("#133's ceilings and one-support-per-station survive (COUNTERWEIGHT)", async () => {
     // The cheapest satisfaction is deleting the furniture #133 just added — no furniture, no
     // collision. The ED supine patient is also SUPPOSED to be on his deck and must not be moved off
     // it in the name of clearance.

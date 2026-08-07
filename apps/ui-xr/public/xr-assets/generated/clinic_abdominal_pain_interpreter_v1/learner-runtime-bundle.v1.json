@@ -215,8 +215,8 @@
       "title": "Clinic Abdominal Pain Interpreter",
       "subtitle": "Patient, father, and remote interpreter tablet in an ambulatory abdominal-pain encounter.",
       "chiefConcern": "The pain is mostly on the lower right side, and I need the interpreter.",
-      "initialVitals": "Not charted \u2014 obtain vitals during the encounter",
-      "interruption": "Not charted \u2014 observe interruptions during the encounter",
+      "initialVitals": "Not charted — obtain vitals during the encounter",
+      "interruption": "Not charted — observe interruptions during the encounter",
       "stageAriaLabel": "Clinic abdominal pain interpreter station scene",
       "canvasAriaLabel": "3D clinic interpreter room preview",
       "initialDialogueText": "Lucia Morales: The pain is mostly on the lower right side, and I need the interpreter.",
@@ -346,9 +346,9 @@
     "equipmentPlacements": {
       "exam_table_equipment": {
         "position": {
-          "x": 1.6,
+          "x": -2.05,
           "y": 0,
-          "z": 0.28
+          "z": -0.75
         },
         "label": "Exam Table",
         "interactionCueIds": [

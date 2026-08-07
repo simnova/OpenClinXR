@@ -125,10 +125,16 @@ export type PlanStationEquipmentInput = {
   equipmentPlacements: Readonly<Record<string, Partial<EquipmentPlacement> | undefined>>;
 };
 
+/**
+ * Default equipment mounts when a placement map is empty.
+ * #169: first slot was (1.6, 0.28) — co-located with clean-encounter family framing
+ * (1.42, 0.04), so chairs/exam tables bisected standing observers. Patient-side
+ * offset first; doorway/wall mounts after.
+ */
 const DEFAULT_POSITIONS: ReadonlyArray<{ x: number; y: number; z: number }> = [
-  { x: 1.6, y: 0, z: 0.28 },
+  { x: -1.55, y: 0, z: -0.85 },
   { x: 0.95, y: 0, z: 0.98 },
-  { x: 2.05, y: 0, z: -0.18 },
+  { x: 2.15, y: 0, z: -0.55 },
   { x: -0.62, y: 0, z: -0.58 },
   { x: -1.72, y: 0, z: 0.28 },
   { x: 1.9, y: 0, z: 0.82 },
@@ -344,6 +350,9 @@ export function buildExamTableEquipment(equipmentId: string): Group {
   rail.name = `${root.name}.rail`;
   rail.position.set(0, 0.62, 0.36);
   root.add(base, mattress, pillow, rail);
+  // Mattress top ≈ 0.55 m — not box.maxY (rail tip). Clearance detectors need the deck.
+  root.userData.deckTopYMeters = 0.55;
+  root.userData.seatHeightMeters = 0.55;
   return tagEquipmentRoot(root, equipmentId, "parametric");
 }
 
@@ -413,6 +422,9 @@ function buildSimpleChairEquipment(equipmentId: string): Group {
   leg.position.set(0, 0.2, 0);
   leg.name = `${root.name}.legs`;
   root.add(seat, back, leg);
+  // Seat top — not box.maxY (backrest). Clearance detectors need the deck, not the back tip.
+  root.userData.seatHeightMeters = 0.45;
+  root.userData.deckTopYMeters = 0.45;
   return tagEquipmentRoot(root, equipmentId, "parametric");
 }
 
