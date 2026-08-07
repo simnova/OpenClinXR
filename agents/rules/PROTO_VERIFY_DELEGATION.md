@@ -1066,3 +1066,31 @@ scene dump was its first instinct, the worker said no: it trusted the header, ap
 fix, re-captured, saw the slab still there, hid the entire shell root, re-captured, saw it *still*
 there, and only then dumped live bounds. **Three failed pixel grades forced the re-diagnosis.** A
 contract that closed on machine proofs alone would have shipped a suppressed shell and a white slab.
+
+## 7i. Background dispatches get reaped — treat resume as routine, not exceptional
+
+Measured over one long session: **four kill events**, one of them a mass reap that took a dispatch,
+two waiters and a peer round simultaneously. Foreground is not an escape — the tool ceiling is 10
+minutes, shorter than any L5 slice has ever taken.
+
+None of this is a capability signal. Every dispatch that reached its ledger entry ended `end_turn`;
+none hit `maxTurns`, none returned `UNABLE`. **The kills leave no ledger entry at all**, so they are
+invisible to any turn-count trend — which is a second reason turns cannot measure the delegate here.
+
+The working posture, which cost several cycles to arrive at:
+
+1. **Poll the worktree, not the task.** `git -C <worktree> status --porcelain | wc -l` tells you
+   whether work exists. The dispatch's own output file stays empty until the very end.
+2. **On a kill, apply §7g before resuming** — grep the session's `updates.jsonl` for a distinctive
+   term from the brief. Present means resume; absent means the kill preceded the brief and resuming
+   hands an agent your repo with only the standing rules.
+3. **Resume with "finish it, do not start over, do not re-plan"** plus the specific remaining steps.
+   Two slices (#96, #100) had 80–100 turns of correct work on disk when killed; re-dispatching would
+   have discarded all of it.
+4. **Say "commit product files only"** in the resume text. Workers here produce unrequested
+   doc-archive churn (#99) and a resumed worker under time pressure is more likely to sweep it in.
+
+**Rule:** a killed dispatch is an ordinary event in this environment, not an incident. Build the
+recovery into the loop rather than treating each one as a surprise, and never let it reach the
+escalation record as evidence about the delegate — criterion 3 covers it, and rolling back rung size
+on an infrastructure reap would conclude the delegate is weaker than it is.
