@@ -11,7 +11,7 @@
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 29
+    "decision-record": 30
   },
   "entries": [
     {
@@ -2403,6 +2403,13 @@
     },
     {
       "path": "docs/madr/0043-infinigen-indoors-environment-cagematch.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0044-makeclothes-with-anny-as-reference-cagematch.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
