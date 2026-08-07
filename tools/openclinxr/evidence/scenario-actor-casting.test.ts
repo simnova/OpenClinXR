@@ -4,9 +4,23 @@ import { describe, expect, it } from "vitest";
  * PLANTED CONTRACTS (#85) — an adult emergency-department encounter is cast entirely from
  * pediatric assets, and the patient is a 1.25 m child standing in for a 1.76 m adult.
  *
- * TWO `it.fails` FLIP (1 and 2). THE THIRD IS NOT A RED — it is the counterweight, it must be green
- * as soon as `inspectScenarioCasting` exists, and it must stay green. This header is THE RECORD, not
- * scratch: flip the two, append a `## FIXED (#85)` block below, leave the measured tables intact.
+ * ALL THREE ARE `it.fails` AND ALL THREE FLIP TO `it(` — but they are not all REDs, and the
+ * difference matters when you decide what to change.
+ *
+ *   (1) and (2) are REDs: they describe behaviour that does not exist. Make them true.
+ *   (3) is a COUNTERWEIGHT: it describes behaviour that is ALREADY correct and must survive your
+ *       change. It is `it.fails` only because `inspectScenarioCasting` does not exist yet, so it
+ *       cannot run — a missing import, not missing behaviour. The peds patient measures 1.250 m
+ *       today and must still measure under 1.5 m when you are done. If making (1) and (2) pass
+ *       breaks (3), you have traded one defect for another; stop and report rather than adjusting
+ *       it.
+ *
+ * (A previous plant left the counterweight as a plain `it(` and it turned main red for the whole
+ * dispatch window, because a test whose module is absent fails whatever it asserts. Uniform
+ * `it.fails` at plant time is the fix; the header carries the semantics.)
+ *
+ * This header is THE RECORD, not scratch: flip all three, append a `## FIXED (#85)` block below,
+ * leave the measured tables intact.
  *
  * ────────────────────────────────────────────────────────────────────────────────────────────────
  * MEASURED — every number here was read off the shipped assets, not estimated
@@ -147,7 +161,7 @@ describe("a scenario's declared roles resolve to age-appropriate assets (#85)", 
     }
   }, 300_000);
 
-  it("the pediatric scenario still casts pediatric actors (NOT A RED — must go green and stay green)", async () => {
+  it.fails("the pediatric scenario still casts pediatric actors (COUNTERWEIGHT — flip to it( like the others; it asserts what is ALREADY true)", async () => {
     // The counterweight. Both contracts above are satisfiable by making every asset adult, which
     // would break the peds encounter — the one place a 1.25 m patient is correct.
     const mod = await load();
