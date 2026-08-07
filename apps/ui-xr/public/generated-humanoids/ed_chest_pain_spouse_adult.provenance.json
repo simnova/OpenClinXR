@@ -15,9 +15,9 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "cef7bb0e84209cb52b3ebb5dda16c9a9016cd80bd063b593fedd32899607aef8",
-  "outputBytes": 7205460,
-  "generatedAt": "2026-08-07T14:48:43.072484+00:00",
+  "outputSha256": "4d1cd6a7a9536db5c4b9c146e194c3ea96a91a2545df4866552d9747068e8bec",
+  "outputBytes": 7184472,
+  "generatedAt": "2026-08-07T13:49:49.342184+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
   "garmentLayers": [

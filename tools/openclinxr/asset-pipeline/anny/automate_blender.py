@@ -1669,8 +1669,6 @@ def _build_body_surface_derived_garment(
 ) -> bpy.types.Object:
     """
     #121 authoring-class change: garment shell = body surface offset along outward normals.
-    #124 hem: planar bisect after offset (not a y-threshold vertex delete) so the lower boundary
-    is a regular loop; neck/arm stay landmark-aligned cylinder cuts.
 
     Rejected ring+tube parametric cages (torso ellipse + separate sleeve tubes + detached yoke):
     research + six failed gates established that class cannot produce a continuous deltoid cap or
@@ -1680,10 +1678,8 @@ def _build_body_surface_derived_garment(
     Decisions:
       - offset distance: base cloth_offset (layer-stacked by caller); +15% anterior chest, −20% underarm
       - neck/arm cuts: neck_y landmark + distance-to-upper-arm segment (shoulder→elbow)
-      - hem (#124): rough drop well below bot_y, then bmesh bisect_plane at bot_y AFTER offset
-        (rejected: height-threshold delete alone → staircase; solidify rim → export micro-islands)
       - body faces NOT hidden/deleted (#73 counterweight — garment covers without removing skin)
-      - lower-body paint left untouched (caller owns that; shared waistline in caller)
+      - lower-body paint left untouched (caller owns that)
     """
     import bmesh
     import math
@@ -1698,11 +1694,6 @@ def _build_body_surface_derived_garment(
             gmesh.materials.pop(index=0)
     garment = bpy.data.objects.new(gname, gmesh)
     bpy.context.collection.objects.link(garment)
-    _body_ys = [float(v.co.y) for v in gmesh.vertices]
-    print(
-        f"[blender] #124 body-copy for garment: verts={len(gmesh.vertices)} "
-        f"y=[{min(_body_ys):.4f},{max(_body_ys):.4f}] bot_y={bot_y:.4f} neck_y={neck_y:.4f}"
-    )
 
     bm = bmesh.new()
     bm.from_mesh(gmesh)
@@ -1732,13 +1723,9 @@ def _build_body_surface_derived_garment(
     neck_hole_r = max(body_width * 0.08, body_depth * 0.10, 0.035)
     sleeve_r_soft = max(sleeve_radius * 1.55, body_width * 0.22, 0.07)
     half_gap = front_opening_rad * 0.5 if layer_is_open else 0.0
-    # Hard exclusions: neck hole / head / past-cuff / open-front gap, plus a ROUGH lower
-    # drop well below the target hem. The finished hem is a planar bisect AFTER offset
-    # (#124) — a hard y < bot_y vertex delete leaves a staircase through body triangles.
+    # Hard exclusions only (hem / neck hole / head / past-cuff / open-front gap).
     # Soft envelope filters severed the armpit bridge and split sleeves off; do not
     # reintroduce that. After hard deletes, flood-fill keeps ONE body-derived shell.
-    hem_margin = max(0.04, (neck_y - bot_y) * 0.06)  # keep band below bot_y for clean bisect
-    rough_bot = bot_y - hem_margin
     hard_delete = []
     for v in bm.verts:
         p = v.co
@@ -1746,7 +1733,7 @@ def _build_body_surface_derived_garment(
         x = float(p.x)
         z = float(p.z)
         r_xz = math.hypot(x - cx, z - cz)
-        if y < rough_bot:
+        if y < bot_y:
             hard_delete.append(v)
             continue
         if y >= neck_y - body_width * 0.02 and r_xz <= neck_hole_r:
@@ -1757,33 +1744,22 @@ def _build_body_surface_derived_garment(
             continue
         dL, tL = _seg_dist(p, sL, eL)
         dR, tR = _seg_dist(p, sR, eR)
-        # #124: past-cuff cuts must stay on the TRUE sleeve (far lateral). Without the
-        # lateral gate, short-sleeve scrub cuts punched a face-disconnection through the
-        # mid-torso and face-flood dropped the whole hem island (minY≈1.04).
-        true_sleeve_lat = body_width * 0.20
-        if tL > t_max_L and dL < sleeve_r_soft * 1.5 and abs(x - cx) >= true_sleeve_lat:
+        if tL > t_max_L and dL < sleeve_r_soft * 1.5:
             hard_delete.append(v)
             continue
-        if tR > t_max_R and dR < sleeve_r_soft * 1.5 and abs(x - cx) >= true_sleeve_lat:
+        if tR > t_max_R and dR < sleeve_r_soft * 1.5:
             hard_delete.append(v)
             continue
-        if (
-            (p - cuff_L).length < sleeve_r_soft * 0.95
-            and tL >= t_max_L * 0.90
-            and abs(x - cx) >= true_sleeve_lat
-        ):
+        if (p - cuff_L).length < sleeve_r_soft * 0.95 and tL >= t_max_L * 0.90:
             hard_delete.append(v)
             continue
-        if (
-            (p - cuff_R).length < sleeve_r_soft * 0.95
-            and tR >= t_max_R * 0.90
-            and abs(x - cx) >= true_sleeve_lat
-        ):
+        if (p - cuff_R).length < sleeve_r_soft * 0.95 and tR >= t_max_R * 0.90:
             hard_delete.append(v)
             continue
-        # #124: do NOT far-lateral-delete near the hem. That cut punched side holes that
-        # face-disconnected the lower torso island from the chest (hem jumped to y≈1.04).
-        # Hands/feet already dropped by rough_bot; sleeves handled by arm-segment cuts.
+        # Lower legs / feet well below hem already gone; drop far-lateral hands if any remain.
+        if y < bot_y + (neck_y - bot_y) * 0.08 and abs(x - cx) > body_width * 0.35:
+            hard_delete.append(v)
+            continue
         if layer_is_open and half_gap > 0.0 and y <= neck_y + body_width * 0.02:
             # Anterior sector cut (cardigan). Must leave a large mid-height angular gap
             # so garment-role-distinguish hasAnteriorOpening stays true (#46).
@@ -1797,7 +1773,7 @@ def _build_body_surface_derived_garment(
             in_front_wedge = abs(d_ang) < open_wedge and r_xz > neck_hole_r * 0.25
             # Keep true sleeves (far lateral) even if slightly anterior.
             far_sleeve = abs(x - cx) >= body_width * 0.28
-            if (in_front_wedge or near_sternum) and not far_sleeve and y >= rough_bot:
+            if (in_front_wedge or near_sternum) and not far_sleeve and y >= bot_y:
                 hard_delete.append(v)
                 continue
 
@@ -1823,16 +1799,9 @@ def _build_body_surface_derived_garment(
     if not bm.verts:
         bm.free()
         raise RuntimeError("#121 surface-derived garment: empty after hard cuts")
-    _ys = [float(v.co.y) for v in bm.verts]
-    print(
-        f"[blender] #124 after hard cuts: verts={len(bm.verts)} "
-        f"y=[{min(_ys):.4f},{max(_ys):.4f}] bot_y={bot_y:.4f} rough_bot={rough_bot:.4f}"
-    )
 
     chest_target = Vector((cx, 0.5 * (bot_y + min(neck_y, bot_y + (neck_y - bot_y) * 0.7)), cz + body_depth * 0.12))
     seed = min(bm.verts, key=lambda v: (v.co - chest_target).length_squared)
-    # #124: walk FACE adjacency (not edge-only). Edge-only bridges survive flood-fill then
-    # vanish on glTF export (triangle-index connectivity), leaving a hem island + bare midriff.
     kept = set()
     stack = [seed]
     while stack:
@@ -1840,22 +1809,16 @@ def _build_body_surface_derived_garment(
         if v in kept:
             continue
         kept.add(v)
-        for f in v.link_faces:
-            for ov in f.verts:
-                if ov not in kept:
-                    stack.append(ov)
+        for e in v.link_edges:
+            ov = e.other_vert(v)
+            if ov is not None and ov not in kept:
+                stack.append(ov)
 
     orphan = [v for v in bm.verts if v not in kept]
     if orphan:
         bmesh.ops.delete(bm, geom=orphan, context="VERTS")
     bm.verts.ensure_lookup_table()
     bm.faces.ensure_lookup_table()
-    if bm.verts:
-        _ys2 = [float(v.co.y) for v in bm.verts]
-        print(
-            f"[blender] #124 after face-flood-fill: verts={len(bm.verts)} kept={len(kept)} "
-            f"orphan={len(orphan)} y=[{min(_ys2):.4f},{max(_ys2):.4f}]"
-        )
 
     def _keep_largest_component(bm_local) -> None:
         """Delete every connected component except the largest (export continuity)."""
@@ -1889,189 +1852,6 @@ def _build_body_surface_derived_garment(
         bm_local.verts.ensure_lookup_table()
         bm_local.faces.ensure_lookup_table()
 
-    def _weld_nearby_components(bm_local, max_dist: float = 0.12) -> None:
-        """Merge multi-island garment shells by snapping nearest vert pairs and remove_doubles.
-
-        #124: arm-hole cuts can leave a lower-torso island disconnected from the chest shell.
-        Keep both (hem must survive) then weld nearest pairs so export is one component
-        (shoulderSpanned counterweight).
-        """
-        bm_local.verts.ensure_lookup_table()
-        if not bm_local.verts:
-            return
-
-        def _components():
-            seen_cc: set = set()
-            out = []
-            for v0 in bm_local.verts:
-                if v0 in seen_cc:
-                    continue
-                stack_cc = [v0]
-                comp = []
-                while stack_cc:
-                    vv = stack_cc.pop()
-                    if vv in seen_cc:
-                        continue
-                    seen_cc.add(vv)
-                    comp.append(vv)
-                    for e in vv.link_edges:
-                        ov = e.other_vert(vv)
-                        if ov is not None and ov not in seen_cc:
-                            stack_cc.append(ov)
-                if comp:
-                    out.append(comp)
-            out.sort(key=len, reverse=True)
-            return out
-
-        max_d2 = max_dist * max_dist
-        for _pass in range(6):
-            components_list = _components()
-            if len(components_list) <= 1:
-                break
-            primary = components_list[0]
-            merged_any = False
-            for comp in components_list[1:]:
-                best = None
-                best_d2 = max_d2
-                # Sample for speed on large comps
-                sample_a = comp if len(comp) <= 80 else comp[:: max(1, len(comp) // 80)]
-                sample_b = primary if len(primary) <= 120 else primary[:: max(1, len(primary) // 120)]
-                for a in sample_a:
-                    ap = a.co
-                    for b in sample_b:
-                        d2 = (ap - b.co).length_squared
-                        if d2 < best_d2:
-                            best_d2 = d2
-                            best = (a, b)
-                if best is not None:
-                    a, b = best
-                    mid = (a.co + b.co) * 0.5
-                    a.co = mid
-                    b.co = mid
-                    # Face bridge (not edge-only): glTF/export connectedComponents walks
-                    # triangle indices, so a bare edge does not join shells.
-                    try:
-                        # Find a second near pair for a thin triangle
-                        a2 = None
-                        b2 = None
-                        best2 = max_d2
-                        for aa in sample_a:
-                            if aa == a:
-                                continue
-                            for bb in sample_b:
-                                if bb == b:
-                                    continue
-                                d2 = (aa.co - bb.co).length_squared
-                                if d2 < best2:
-                                    best2 = d2
-                                    a2, b2 = aa, bb
-                        if a2 is not None and b2 is not None:
-                            try:
-                                bm_local.faces.new((a, b, a2))
-                            except Exception:
-                                pass
-                            try:
-                                bm_local.faces.new((b, b2, a2))
-                            except Exception:
-                                pass
-                        else:
-                            # Degenerate micro-tri: duplicate a slightly offset
-                            c = bm_local.verts.new(
-                                (
-                                    mid.x + 1e-4,
-                                    mid.y,
-                                    mid.z + 1e-4,
-                                )
-                            )
-                            try:
-                                bm_local.faces.new((a, b, c))
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
-                    merged_any = True
-            bm_local.verts.ensure_lookup_table()
-            bm_local.edges.ensure_lookup_table()
-            bm_local.faces.ensure_lookup_table()
-            if bm_local.verts:
-                bmesh.ops.remove_doubles(
-                    bm_local, verts=list(bm_local.verts), dist=max(2e-3, max_dist * 0.2)
-                )
-                bm_local.verts.ensure_lookup_table()
-                bm_local.edges.ensure_lookup_table()
-                bm_local.faces.ensure_lookup_table()
-            if not merged_any:
-                # Widen search once
-                max_d2 = (max_dist * 1.6) ** 2
-        n_comp = len(_components())
-        print(f"[blender] #124 weld_nearby_components residual_comps={n_comp}")
-
-    def _keep_garment_y_band_components(bm_local, y_lo: float, y_hi: float) -> None:
-        """#124: keep every non-trivial component that intersects the garment height band.
-
-        After arm/neck cuts the lower torso can become a second island. Dropping it via
-        keep-largest alone raised the hem from bot_y≈0.82 to ≈1.04 (bare midriff). Keep
-        all islands that still sit in the torso band; drop only micro-debris.
-        """
-        bm_local.verts.ensure_lookup_table()
-        if not bm_local.verts:
-            return
-        seen_cc: set = set()
-        components_list = []
-        for v0 in bm_local.verts:
-            if v0 in seen_cc:
-                continue
-            stack_cc = [v0]
-            comp = []
-            while stack_cc:
-                vv = stack_cc.pop()
-                if vv in seen_cc:
-                    continue
-                seen_cc.add(vv)
-                comp.append(vv)
-                for e in vv.link_edges:
-                    ov = e.other_vert(vv)
-                    if ov is not None and ov not in seen_cc:
-                        stack_cc.append(ov)
-            components_list.append(comp)
-        if len(components_list) <= 1:
-            return
-        min_keep = max(24, int(0.02 * sum(len(c) for c in components_list)))
-        drop = []
-        kept_n = 0
-        for comp in components_list:
-            ys = [float(v.co.y) for v in comp]
-            cmin, cmax = min(ys), max(ys)
-            in_band = cmax >= y_lo and cmin <= y_hi
-            if in_band and len(comp) >= min_keep:
-                kept_n += 1
-                continue
-            # Always keep the single largest even if band test fails (safety).
-            drop.extend(comp)
-        # If we would drop everything, fall back to largest-only.
-        if kept_n == 0:
-            components_list.sort(key=len, reverse=True)
-            drop = [v for c in components_list[1:] for v in c]
-        else:
-            # Recompute drop: anything not kept
-            keep_ids = set()
-            for comp in components_list:
-                ys = [float(v.co.y) for v in comp]
-                cmin, cmax = min(ys), max(ys)
-                in_band = cmax >= y_lo and cmin <= y_hi
-                if in_band and len(comp) >= min_keep:
-                    for v in comp:
-                        keep_ids.add(v.index)
-            # Ensure at least the largest is kept
-            components_list.sort(key=len, reverse=True)
-            for v in components_list[0]:
-                keep_ids.add(v.index)
-            drop = [v for v in bm_local.verts if v.index not in keep_ids]
-        if drop:
-            bmesh.ops.delete(bm_local, geom=drop, context="VERTS")
-        bm_local.verts.ensure_lookup_table()
-        bm_local.faces.ensure_lookup_table()
-
     _keep_largest_component(bm)
 
     if bm.faces:
@@ -2094,13 +1874,6 @@ def _build_body_surface_derived_garment(
         off = cloth_offset * max(0.55, scale)
         v.co = p + n * off
 
-    if bm.verts:
-        _ys_off = [float(v.co.y) for v in bm.verts]
-        print(
-            f"[blender] #124 after normal offset: verts={len(bm.verts)} "
-            f"y=[{min(_ys_off):.4f},{max(_ys_off):.4f}]"
-        )
-
     # No solidify: rim faces export as detached micro-islands after glTF split-by-normal.
     # Cloth offset alone keeps vertices inside the inspect offset band.
 
@@ -2111,9 +1884,6 @@ def _build_body_surface_derived_garment(
         bm.verts.ensure_lookup_table()
         bm.edges.ensure_lookup_table()
         bm.faces.ensure_lookup_table()
-    if bm.verts:
-        _ys_w = [float(v.co.y) for v in bm.verts]
-        print(f"[blender] #124 after remove_doubles: verts={len(bm.verts)} y=[{min(_ys_w):.4f},{max(_ys_w):.4f}]")
     if bm.edges:
         try:
             bmesh.ops.dissolve_degenerate(bm, dist=2e-4, edges=list(bm.edges))
@@ -2121,31 +1891,13 @@ def _build_body_surface_derived_garment(
             pass
         bm.verts.ensure_lookup_table()
         bm.faces.ensure_lookup_table()
-    if bm.verts:
-        _ys_dg = [float(v.co.y) for v in bm.verts]
-        print(f"[blender] #124 after dissolve_degen: verts={len(bm.verts)} y=[{min(_ys_dg):.4f},{max(_ys_dg):.4f}]")
-    # Drop pure isolates only (no faces AND no edges). Deleting edge-only bridge verts
-    # split the lower-torso island from the chest (#124 midriff root cause: hem jumped
-    # from bot_y≈0.82 to ≈1.04 after keep-largest dropped the orphaned hem island).
-    loose = [v for v in bm.verts if (not v.link_faces) and (not v.link_edges)]
+    # Drop loose verts (no faces).
+    loose = [v for v in bm.verts if not v.link_faces]
     if loose:
         bmesh.ops.delete(bm, geom=loose, context="VERTS")
         bm.verts.ensure_lookup_table()
         bm.faces.ensure_lookup_table()
-    if bm.verts:
-        _ys_lo = [float(v.co.y) for v in bm.verts]
-        print(
-            f"[blender] #124 after isolate-drop: isolates={len(loose)} verts={len(bm.verts)} "
-            f"y=[{min(_ys_lo):.4f},{max(_ys_lo):.4f}]"
-        )
-    # #124: keep ALL non-trivial torso-band islands (hem island must survive if still split).
-    _keep_garment_y_band_components(bm, bot_y - 0.05, neck_y + 0.05)
-    if bm.verts:
-        _ys_kl = [float(v.co.y) for v in bm.verts]
-        print(
-            f"[blender] #124 after keep_y_band: verts={len(bm.verts)} "
-            f"y=[{min(_ys_kl):.4f},{max(_ys_kl):.4f}]"
-        )
+    _keep_largest_component(bm)
     if bm.faces:
         bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
 
@@ -2188,119 +1940,9 @@ def _build_body_surface_derived_garment(
                 bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
             print(f"[blender] #121 open-front second-pass dropped={len(drop_front)} remaining={len(bm.verts)}")
 
-    # #124 hem finish (measured Blender 5.1): bmesh.ops.bisect_plane is UNUSABLE here —
-    # even cut-only (no clear_inner/outer) deleted the whole lower band (minY 0.78→1.04).
-    # Instead: (1) delete verts below bot_y, (2) snap hem-boundary verts onto the plane,
-    # (3) Laplacian-smooth the hem boundary in XZ so the loop is regular not a staircase.
-    if bm.verts and bm.faces:
-        # Histogram to catch density gaps (why delete-below raised minY past bot_y).
-        _hist = [0] * 10
-        _ymin_h, _ymax_h = 0.0, 1.76
-        for v in bm.verts:
-            yn = (float(v.co.y) - _ymin_h) / max(_ymax_h - _ymin_h, 1e-6)
-            bi = min(9, max(0, int(yn * 10)))
-            _hist[bi] += 1
-        print(f"[blender] #124 y-hist(10 bins 0..1.76) before hem snap: {_hist}")
-        # SNAP (not delete) verts below bot_y onto the hem plane. Deleting severed the
-        # lower-torso island from the chest (export comps=2, shoulder counterweight red).
-        # Snapping preserves face connectivity; a later remove_doubles collapses the
-        # flattened band into a regular coplanar loop.
-        n_snap = 0
-        for v in bm.verts:
-            if float(v.co.y) < bot_y - 1e-5:
-                v.co.y = bot_y
-                n_snap += 1
-        bm.verts.ensure_lookup_table()
-        if bm.verts:
-            # Aggressive weld on the hem plane to erase the staircase polyline.
-            bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=0.008)
-            bm.verts.ensure_lookup_table()
-            bm.edges.ensure_lookup_table()
-            bm.faces.ensure_lookup_table()
-            _ys_d2 = [float(v.co.y) for v in bm.verts]
-            print(
-                f"[blender] #124 after hem-plane snap: snapped={n_snap} "
-                f"verts={len(bm.verts)} y=[{min(_ys_d2):.4f},{max(_ys_d2):.4f}]"
-            )
-        # Collect boundary verts in the lowest band (the hem). Open-front garments have a
-        # non-closed hem arc; contract (1) measures path regularity, not loop count.
-        hem_band = bot_y + max(0.03, (neck_y - bot_y) * 0.04)
-        hem_vs = []
-        if bm.edges:
-            for e in bm.edges:
-                if not e.is_boundary:
-                    continue
-                for v in e.verts:
-                    if float(v.co.y) <= hem_band:
-                        hem_vs.append(v)
-        # Unique preserve order
-        seen_h: set = set()
-        hem_unique: list = []
-        for v in hem_vs:
-            if v.index not in seen_h:
-                seen_h.add(v.index)
-                hem_unique.append(v)
-        for v in hem_unique:
-            v.co.y = bot_y
-        # Laplacian smooth in XZ only (keep y=bot_y) — damps staircase spikes / turn angles.
-        # 12 iterations, 0.65 blend: target hemMaxTurnDegrees ≤ 100 and perimeter ratio ≤ 1.35.
-        if len(hem_unique) >= 4:
-            adj: Dict[int, list] = {}
-            for e in bm.edges:
-                if not e.is_boundary:
-                    continue
-                a, b = e.verts[0], e.verts[1]
-                if a.index in seen_h and b.index in seen_h:
-                    adj.setdefault(a.index, []).append(b)
-                    adj.setdefault(b.index, []).append(a)
-            for _iter in range(12):
-                updates = []
-                for v in hem_unique:
-                    nbrs = adj.get(v.index) or []
-                    if not nbrs:
-                        continue
-                    mx = sum(float(n.co.x) for n in nbrs) / len(nbrs)
-                    mz = sum(float(n.co.z) for n in nbrs) / len(nbrs)
-                    updates.append((v, mx, mz))
-                for v, mx, mz in updates:
-                    v.co.x = 0.35 * float(v.co.x) + 0.65 * mx
-                    v.co.z = 0.35 * float(v.co.z) + 0.65 * mz
-                    v.co.y = bot_y
-        if bm.verts:
-            bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=5e-4)
-            bm.verts.ensure_lookup_table()
-            bm.faces.ensure_lookup_table()
-        # Isolates only — do not delete edge-bridge verts (see above).
-        loose_h = [v for v in bm.verts if (not v.link_faces) and (not v.link_edges)]
-        if loose_h:
-            bmesh.ops.delete(bm, geom=loose_h, context="VERTS")
-            bm.verts.ensure_lookup_table()
-            bm.faces.ensure_lookup_table()
-        # Keep every torso-band island (never largest-only — that is the #124 midriff drop).
-        _keep_garment_y_band_components(bm, bot_y - 0.05, neck_y + 0.05)
-        # #124: if arm/neck cuts left multiple islands, weld nearest pairs within 8cm so
-        # export stays one component (shoulderSpanned counterweight).
-        _weld_nearby_components(bm, max_dist=0.12)
-        if bm.faces:
-            bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
-        if bm.verts:
-            _ys_bis = [float(v.co.y) for v in bm.verts]
-            print(
-                f"[blender] #124 hem delete+snap+smooth at bot_y={bot_y:.4f} "
-                f"hem_boundary_verts={len(hem_unique)} verts={len(bm.verts)} "
-                f"faces={len(bm.faces)} y=[{min(_ys_bis):.4f},{max(_ys_bis):.4f}]"
-            )
-        else:
-            print(f"[blender] #124 hem finish at bot_y={bot_y:.4f} EMPTY")
-
     bm.to_mesh(gmesh)
     bm.free()
     gmesh.update()
-    _ys_out = [float(v.co.y) for v in gmesh.vertices]
-    print(
-        f"[blender] #124 to_mesh garment: verts={len(gmesh.vertices)} "
-        f"y=[{min(_ys_out):.4f},{max(_ys_out):.4f}]"
-    )
     # Drop copied body UVs — UV seams force the glTF exporter to split shared vertices.
     while gmesh.uv_layers:
         gmesh.uv_layers.remove(gmesh.uv_layers[0])
@@ -2316,8 +1958,8 @@ def _build_body_surface_derived_garment(
     for p in gmesh.polygons:
         p.use_smooth = True
     print(
-        f"[blender] #121/#124 surface-derived shell verts={len(gmesh.vertices)} "
-        f"faces={len(gmesh.polygons)} (planar hem, post-weld single-component, no solidify)"
+        f"[blender] #121 surface-derived shell verts={len(gmesh.vertices)} "
+        f"faces={len(gmesh.polygons)} (post-weld single-component, no solidify)"
     )
     return garment
 
@@ -2422,17 +2064,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     # + adjusted factors for better visual clothing "intent" and reduced abrupt jagged seam
     # read on low-poly pediatric school-age topology (still fully mesh-native bounds-based,
     # no detached geometry, no regression to live skinning/garment-trim prior work).
-    #
-    # #124 shared waistline: painted lower top AND closed-top mesh hems meet here.
-    # One fraction drives both systems so a bare midriff cannot open between them.
-    # Long garments (gown, open cardigan) still cut well below; short tops bisect at
-    # waist - small absolute overlap so hemLowestY <= paintedLowerTopY.
-    # 0.50: paint top high enough that face *centroids* (not just verts) reach the hem.
-    SHARED_WAIST_FRACTION = 0.50
     top_min_h = min_h + height_h * 0.42
     top_max_h = min_h + height_h * 0.74
     lower_min_h = min_h + height_h * 0.08
-    lower_max_h = min_h + height_h * SHARED_WAIST_FRACTION
+    lower_max_h = min_h + height_h * 0.46
     max_torso_half_width = max(body_width_l * 0.50, 0.12)
     shoulder_half_width = max(body_width_l * 0.36, 0.09)
 
@@ -2443,7 +2078,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
     trim_faces = 0
     skipped_back_faces = 0
     skipped_torso_paint_faces = 0
-    lower_paint_max_ch = -1e9
     for polygon in mesh_obj.data.polygons:
         # Local face center (not world) — stable under OBJ import rotation.
         center = polygon.center
@@ -2455,37 +2089,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         is_collar_trim = (top_max_h - height_h * 0.024) <= ch <= top_max_h and rel_x <= shoulder_half_width * 0.80
         is_waist_trim = (top_min_h - height_h * 0.019) <= ch <= (top_min_h + height_h * 0.019) and rel_x <= effective_half_width * 0.98
         is_top = top_min_h <= ch <= top_max_h and rel_x <= effective_half_width
-        # #124: near the shared waist the torso widens (and arms attach); the old half-width
-        # test capped paint at ~0.70m while lower_max_h was 0.88m. In the upper lower-band
-        # (above 0.40 of height) use nearly full body half-width so paint meets the hem.
-        near_waist = ch >= (min_h + height_h * 0.40)
-        lower_half = (
-            body_width_l * 0.52 if near_waist else effective_half_width * 0.95
-        )
-        poly_max_h = ch
-        try:
-            for vi in polygon.vertices:
-                vh = body_vs[vi].co.y if height_axis == "y" else body_vs[vi].co.z
-                if vh > poly_max_h:
-                    poly_max_h = vh
-        except Exception:
-            pass
-        is_lower = (
-            (
-                (lower_min_h <= ch <= lower_max_h)
-                or (lower_min_h <= poly_max_h <= lower_max_h + height_h * 0.02 and ch >= lower_min_h)
-            )
-            and rel_x <= lower_half
-        )
-        # #124: paint lower FIRST so the shared waist band is claimed even when
-        # skip_torso_paint would have continued past is_top faces (top_min=0.42*h
-        # overlaps lower_max=0.50*h — that overlap is exactly the midriff gap).
-        if is_lower:
-            polygon.material_index = lower_index
-            lower_faces += 1
-            if ch > lower_paint_max_ch:
-                lower_paint_max_ch = ch
-            continue
+        is_lower = lower_min_h <= ch <= lower_max_h and rel_x <= effective_half_width * 0.95
         if skip_torso_paint and (is_collar_trim or is_waist_trim or is_top):
             # Leave skin material — real garment mesh owns this silhouette (#73).
             skipped_torso_paint_faces += 1
@@ -2496,14 +2100,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         elif not skip_torso_paint and is_top:
             polygon.material_index = top_index
             top_faces += 1
+        elif is_lower:
+            polygon.material_index = lower_index
+            lower_faces += 1
 
-    print(
-        f"[blender] #124 paint bands: height_axis={height_axis} min_h={min_h:.4f} "
-        f"height_h={height_h:.4f} lower_max_h={lower_max_h:.4f} "
-        f"SHARED_WAIST_FRACTION={SHARED_WAIST_FRACTION} lower_faces={lower_faces} "
-        f"lower_paint_max_ch={lower_paint_max_ch:.4f} "
-        f"top_faces={top_faces} skip_torso={skip_torso_paint}"
-    )
     if lower_faces == 0:
         raise RuntimeError(
             f"role clothing material assignment failed: top_faces={top_faces}, "
@@ -2571,12 +2171,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
         r_base_shared = torso_half_w * 1.06
         # Neckline height kept at 0.81 (#73); coverage of deltoids is geometry+under-layer, not higher top_y.
         top_y_shared = body_min_y + body_height * 0.81
-        # #124: shared waist with painted lower (SHARED_WAIST_FRACTION above). Short tops
-        # bisect slightly below so the mesh hem overlaps the paint top (not a height floor
-        # gate — the inspect measures mesh-vs-paint relationship and hem regularity).
-        HEM_OVERLAP_M = 0.035  # ~3.5 cm mesh overhang into painted lower region
-        shared_waist_y = body_min_y + body_height * SHARED_WAIST_FRACTION
-        bot_y_default = shared_waist_y - HEM_OVERLAP_M
+        bot_y_default = body_min_y + body_height * 0.46
 
         def _arm_p(x_factor: float, y_factor: float, z_factor: float = 0.0) -> tuple:
             return (
@@ -2727,7 +2322,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 10, 14
                 sleeve_along = arm_len * 0.72
                 sleeve_r0 = max(body_depth * 0.22, r_base * 0.42)
-                # Long drape well below shared waist (still overlaps painted lower).
                 bot_y = body_min_y + body_height * 0.32
                 r_base = torso_half_w * 1.14 * radius_stack
                 torso_rows, torso_cols = 11, 16
@@ -2739,7 +2333,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 11, 12
                 sleeve_along = arm_len * 0.92
                 sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.042) * (0.96 + 0.04 * radial_rank)
-                # Hip-length cardigan; below shared waist so front opening does not bare midriff.
                 bot_y = body_min_y + body_height * 0.31
                 r_base = torso_half_w * 1.10 * radius_stack
                 torso_rows, torso_cols = 11, 16
@@ -2753,8 +2346,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 7, 10
                 sleeve_along = arm_len * 0.42
                 sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.040) * (0.96 + 0.04 * radial_rank)
-                # #124: meet painted lower at shared waist (was 0.48 fraction ABOVE paint top 0.46).
-                bot_y = bot_y_default
+                bot_y = body_min_y + body_height * 0.48
                 r_base = torso_half_w * 1.04 * radius_stack
                 torso_rows, torso_cols = 8, 12
                 topology_class = "closed_scrub_ring"
@@ -2768,7 +2360,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 6, 10
                 sleeve_along = arm_len * 0.38
                 sleeve_r0 = max(body_depth * 0.12, torso_half_w * 0.24, 0.038) * radius_stack
-                bot_y = bot_y_default
+                bot_y = body_min_y + body_height * 0.50
                 r_base = torso_half_w * 1.08 * radius_stack
                 torso_rows, torso_cols = 7, 14
                 topology_class = "closed_scrub_pocket_shell"
@@ -2782,8 +2374,7 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 9, 12
                 sleeve_along = arm_len * 0.55
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
-                # Under-layer hem at shared waist (outer cardigan is longer).
-                bot_y = bot_y_default
+                bot_y = body_min_y + body_height * 0.44
                 r_base = torso_half_w * 1.00 * radius_stack
                 torso_rows, torso_cols = 9, 18
                 topology_class = "closed_casual_top_under_layer"
@@ -2794,7 +2385,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 9, 12
                 sleeve_along = arm_len * 0.58
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
-                bot_y = bot_y_default
                 topology_class = "closed_tshirt_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
                 slf = 0.58
@@ -2803,7 +2393,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 sleeve_rows, sleeve_cols = 9, 12
                 sleeve_along = arm_len * 0.58
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
-                bot_y = bot_y_default
                 topology_class = "closed_default_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
                 slf = 0.58
