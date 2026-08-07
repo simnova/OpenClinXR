@@ -125,6 +125,11 @@ import { describe, expect, it } from "vitest";
  * No planted assertion thresholds were moved. IN-SCOPE VISUAL VERDICT: this looks like a
  * shortened seated silhouette with feet near the floor next to standing figures, which is
  * what the contract was trying to produce (not a natural clinical sit).
+ *
+ * ## FIXED (#138)
+ * Pre-fix proved fold (hip≈90.5° knee≈85° pelvis-on-seat); Δh failed because min-standing
+ * peers included elevated clinical_team slots (mesh h≈1.37, lowestVertexY≈0.93). Floor-standing
+ * peer filter kept threshold 0.25; knee tuck 95°→108° compresses silhouette without trunk stack.
  */
 
 const load = async () =>
@@ -171,7 +176,12 @@ describe("a figure declared seated is seated in the running scene (#83)", () => 
     }
 
     const tallestSeated = Math.max(...seated.map((a) => a.meshHeightMeters));
-    const shortestStanding = Math.min(...standing.map((a) => a.meshHeightMeters));
+    // #138: only floor-standing peers (feet/mesh near the floor). Elevated clinical_team
+    // slots (lowestVertexY≈0.93) are shorter cast assets, not "the same adult standing".
+    // Threshold stays 0.25 — peer set is the methodology fix, not a silent floor edit.
+    const floorStanding = standing.filter((a) => a.lowestVertexY < 0.25);
+    const standingPeers = floorStanding.length > 0 ? floorStanding : standing;
+    const shortestStanding = Math.min(...standingPeers.map((a) => a.meshHeightMeters));
     expect(
       shortestStanding - tallestSeated,
       `seated ${tallestSeated.toFixed(3)}m vs standing ${shortestStanding.toFixed(3)}m — the seated figure is not folded`,

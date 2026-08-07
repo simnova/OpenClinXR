@@ -106,6 +106,12 @@ import { describe, expect, it } from "vitest";
  * - Product: HIP_FLEX 93° + KNEE 95°, trunk near rest (no #83 pelvis18/spine12/chest4 stack);
  *   `plantSeatedPelvisOnSeat` two-pass so height comes from seat descent + ordinary fold.
  * - Calibration (post-fix live): gap≈0.002 m, hip≈91.4°, Δh≈0.261 m (stand 1.61 − sit 1.35).
+ *
+ * ## FIXED (#138)
+ * Counterweight regressed to Δh≈0.236 under a standing average that mixed elevated cast slots
+ * (feet at y≈0.93, h≈1.37) with floor-standing family (h≈1.41). Pre-fix: figure still folded
+ * (hip≈90.5°, gap≈0.02). Measure now uses floor-standing peers only; KNEE_FLEX 108° shortens
+ * seated mesh height; hip stays under 95°; 0.25 floor unchanged.
  */
 
 const load = async () =>

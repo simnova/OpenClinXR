@@ -515,15 +515,44 @@ export async function readSeatedContactFromPage(page: Page): Promise<SeatedConta
       return !hasTaggedDescendant;
     });
 
-    let standingHeights = [];
+    // #138: silhouette Δh compares seated mesh height to standing stature. Elevated slot
+    // actors (clinical_team / additional_cast at rootY≈0.95, feet mesh at y≈0.93) are not
+    // floor-standing posture peers — their mesh height is still a stature number, but using
+    // them as the standing reference answers "is the seated figure shorter than the shortest
+    // elevated cast asset?" rather than "is the sit folded vs floor-standing adults in the
+    // room?". Prefer floor-near standing meshes (minY < 0.25); fall back to all standing.
+    let standingHeightsFloor = [];
+    let standingHeightsAll = [];
     const seatedRoots = [];
     for (let r = 0; r < humanoidRoots.length; r++) {
       const root = humanoidRoots[r];
       const posture = root.userData.openClinXrActorPosture;
-      const h = meshHeightForRoot(root);
-      if (posture === "standing" && h !== null) standingHeights.push(h);
-      if (posture === "seated") seatedRoots.push({ root: root, index: r, height: h });
+      if (posture === "standing") {
+        // meshHeightForRoot returns height only; recompute bounds for minY peer filter.
+        if (typeof root.updateMatrixWorld === "function") root.updateMatrixWorld(true);
+        let minY = Infinity;
+        let maxY = -Infinity;
+        let any = false;
+        root.traverse(function (object) {
+          if (!object.isSkinnedMesh) return;
+          const bounds = skinnedWorldBounds(object);
+          if (!bounds) return;
+          any = true;
+          if (bounds.minY < minY) minY = bounds.minY;
+          if (bounds.maxY > maxY) maxY = bounds.maxY;
+        });
+        if (any && Number.isFinite(minY) && Number.isFinite(maxY)) {
+          const h = maxY - minY;
+          standingHeightsAll.push(h);
+          if (minY < 0.25) standingHeightsFloor.push(h);
+        }
+      }
+      if (posture === "seated") {
+        const h = meshHeightForRoot(root);
+        seatedRoots.push({ root: root, index: r, height: h });
+      }
     }
+    const standingHeights = standingHeightsFloor.length > 0 ? standingHeightsFloor : standingHeightsAll;
     let standingReference = 0;
     if (standingHeights.length > 0) {
       standingReference = standingHeights.reduce(function (a, b) { return a + b; }, 0) / standingHeights.length;

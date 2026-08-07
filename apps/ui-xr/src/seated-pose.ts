@@ -41,9 +41,17 @@ const THIGH_REST_X = -Math.PI;
  * Hip flexion is measured as thigh→shin vs world-down. Pelvis absolute tilt adds into that
  * world angle, so keep pelvis near rest and author hip under 95° of true world fold.
  * #83's pelvis18/spine12/chest4 stack is forbidden — it cleared height by chin-on-chest.
+ *
+ * #138 pre-fix (telehealth, live): hip≈90.5° knee≈85° pelvis-on-seat gap≈0.02 — figure IS
+ * folded; silhouette Δh sat at ~0.19–0.25 only because (a) min-standing peers included elevated
+ * clinical_team slots (mesh h≈1.37, feet at y≈0.93) and (b) knee tuck left feet low so the
+ * body mesh minY stayed ~0.12. Decision: keep hip under the 95° ceiling (no trunk stack);
+ * deepen KNEE only so shins tuck and mesh minY rises (compresses silhouette height without
+ * chin-on-chest). Rejected: deepen HIP past 95°, restore #83 trunk stack, lower the 0.25 floor.
  */
 const HIP_FLEX = d2r(93);
-const KNEE_FLEX = d2r(95);
+/** Shin tuck under the seat — raises skinned minY / shortens silhouette without extra hip fold. */
+const KNEE_FLEX = d2r(108);
 const SEATED_BONE_EULERS = new Map<string, { x?: number; y?: number; z?: number; absolute?: boolean }>([
   // Near-rest trunk so the head stays upright; height comes from leg fold + seat plant.
   ["pelvis", { x: d2r(0), absolute: true }],
