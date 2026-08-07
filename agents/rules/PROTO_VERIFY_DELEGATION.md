@@ -1275,7 +1275,6 @@ ceremony. If an approach is not written down, it does not exist.
 - Both of the above are the same error as the ones above them: a status signal that was built rather
   than observed. Prefer the artifact the work itself writes over any proxy for "is it alive".
 
-After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
 
 ## 6v. Measure with the instrument the RUNTIME uses, not the one that reads the file
 
@@ -1685,3 +1684,85 @@ pants at 1880. The conclusion happened to survive; the method did not deserve to
 EXISTS with substance, read the substance — counts, bounds, bytes. This applies to the orchestrator's
 own spot checks, not only to planted contracts, and it is easier to violate there because nothing
 reviews them.
+
+## 8b. Cap the CLASS, not the instance
+
+#124's brief named the #121 trap precisely — solidify rim geometry re-splitting into 4-vertex islands
+on glTF export, ~40 turns paid for it once — and capped the worker at TWO continuity rebakes on one
+asset. Both halves were right and neither bound:
+
+> "**Did not hit solidify** — never reintroduced it. Cap **did not bind** for the trap I actually hit.
+> I spent well over two continuity-ish rebakes on one nurse asset on: bisect → keep_largest → paint
+> order → face-flood → arm lateral. Same *class* as #121 (export/topology ≠ Blender intent), different
+> modifier."
+
+The class is "the exporter disagrees with the authoring tool about connectivity". Solidify was one
+member. `bmesh.ops.bisect_plane` deleting a band on Blender 5.1, edge-flood versus face-flood
+connectivity, and short-sleeve cuts face-severing the mid-torso were three more, and the brief's cap
+was worded around the member rather than the class.
+
+**Rule:** when a brief names a known trap, name the CLASS it belongs to and scope the budget to the
+class. "At most two rebakes chasing any disagreement between what Blender reports and what the export
+contains" would have bound; "at most two continuity rebakes" did not, because the worker correctly did
+not classify a bisect failure as a continuity rebake.
+
+The tell: you are writing a cap in the vocabulary of the specific bug you already know about.
+
+## 8c. Discovery is a third bucket, and it is not thrash
+
+§6w established that thrash is environment cost and does not mean the slice was too big. #124 forces a
+distinction inside the remaining time. Asked for a split, its worker gave 50–55 turns of "thrash",
+25–30 product, 8–12 verify — and then corrected the label itself:
+
+> "Thrash was **not worktree prep** (bases, Blender, tracked GLBs were fine). It was **diagnosis of
+> three silent mechanisms the brief did not name**."
+
+Those mechanisms were not knowable in advance; I could not have named them, and finding them is what
+made the fix work. That is neither thrash (which is preventable, and the orchestrator's fault) nor
+product edits (which are the visible output). It is discovery, and a slice into unproven territory is
+mostly discovery by construction.
+
+**Rule:** ask for three buckets, not two — product, environment thrash, discovery — and only the
+environment bucket is evidence about preparation. A large discovery bucket is evidence the slice was
+genuinely novel, which is the opposite of evidence that it was too big.
+
+**Corollary for the escalation ladder:** the worker's own advice was "treat 92 as thrash-dominated,
+not as L5 product capacity", and it is right that 92 is not a capacity number. But it is not a
+rollback signal either. A slice cannot be sized by turns when the ratio of discovery to product is
+unknown before starting.
+
+## 8d. Learner-facing copy is not an implementer decision
+
+#115 left "what the unauthored state says to a learner" as one of its named unlocked decisions. The
+worker chose well — "Not charted — obtain vitals during the encounter" — and then named the same
+thing as its top brief improvement: put the decisions in as a filled table
+
+> "so the worker implements rather than **designs product copy mid-slice**."
+
+Naming unlocked decisions is right (§6c) and this is the exception. Copy a learner reads is product
+voice, and in a clinical tool it carries the same risk the rest of the slice was built to avoid: an
+LLM writing text a learner takes as clinical truth. Delegating the mechanism is correct; delegating
+the words is how invented clinical language arrives by the back door.
+
+**Rule:** specify learner-facing strings in the brief, verbatim. Keep the decision *slot* — "if you
+believe a different string is right, say so in your report and use the specified one anyway" (§6y) —
+so disagreement has somewhere to go that is not the product.
+
+## 8e. The out-of-scope slot is not a substitute for looking
+
+§6h added a slot for out-of-scope wrongness; §6m required it to name the region and appearance. #115's
+worker filled it honestly and produced:
+
+> "Figures still look **fixture-grade humanoids** (stiff, low-realism cast mesh)... not anatomy tears
+> specific enough to name a joint."
+
+I graded the same two images and saw a figure bare from the ribs to mid-thigh with no trousers at all,
+a hole through another figure's abdomen, and a grey slab intersecting a third's neck. The worker was
+not being evasive — it reported at the resolution it looked at, and its brief was about a text field.
+
+**Rule:** the slot recovers observations that would otherwise be thrown away. It does not transfer the
+grading duty. When a slice produces images, the orchestrator opens them, every time, regardless of
+what the report says — and a vague out-of-scope line is a reason to look harder, not a summary that
+replaces looking.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
