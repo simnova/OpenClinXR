@@ -6,7 +6,12 @@
  * presentation is unit-testable without importing the DOM-touching main module.
  */
 
-import type { ExamAssemblyPersistenceSink, ExamFormRunState } from "@openclinxr/exam-assembly";
+import type {
+  ExamAssemblyPersistenceSink,
+  ExamFormRunState,
+  ExamStationRunQueueScenarioSource,
+  ExamStationRunQueueStationBodySource,
+} from "@openclinxr/exam-assembly";
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures/ed-chest-pain";
 import {
   resolveLearnerExamScenarios,
@@ -143,9 +148,10 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
     const snapshotOptions: {
       snapshotId: string;
       reviewerId: string;
-      scenarioSource?: "fixture_offline" | "fixture_fallback" | "api_queue";
+      scenarioSource?: ExamStationRunQueueScenarioSource;
       fallbackActive?: boolean;
       fallbackReason?: string;
+      stationBodySources?: ExamStationRunQueueStationBodySource[];
     } = {
       snapshotId: `queue_snapshot_${input.examRunId}_boot`,
       reviewerId: "ui_xr_learner_runtime",
@@ -156,6 +162,11 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
       if (resolution.fallbackReason !== undefined) {
         snapshotOptions.fallbackReason = resolution.fallbackReason;
       }
+      // #88 — required wiring: per-record body provenance reaches the boot snapshot (not optional).
+      const stationBodySources = stationBodySourcesFromResolution(resolution);
+      if (stationBodySources.length > 0) {
+        snapshotOptions.stationBodySources = stationBodySources;
+      }
     } else {
       snapshotOptions.scenarioSource = "fixture_offline";
       snapshotOptions.fallbackActive = false;
@@ -164,6 +175,19 @@ export async function bootLearnerExamFormFromApi(input: BootLearnerExamFormFromA
       // Best-effort; local form still runs. Marker loss is a residual, not a silent exam.
     });
   }
+}
+
+/** Extract per-station bodySource markers from a resolution result for snapshot persistence (#88). */
+export function stationBodySourcesFromResolution(
+  resolution: ResolveLearnerExamScenariosResult,
+): ExamStationRunQueueStationBodySource[] {
+  const out: ExamStationRunQueueStationBodySource[] = [];
+  for (const record of resolution.scenarios) {
+    if (record.bodySource === "api_authored" || record.bodySource === "bank_residual") {
+      out.push({ scenarioId: record.scenarioId, bodySource: record.bodySource });
+    }
+  }
+  return out;
 }
 
 function humanizeFallbackReason(reason: string): string {

@@ -62,14 +62,27 @@ export type StationApiClientOptions = {
   getAccessToken?: () => string | undefined | Promise<string | undefined>;
 };
 
+/** Queue acquisition mode (#57). Not per-station body provenance. */
+export type StationRunQueueScenarioSource = "fixture_offline" | "fixture_fallback" | "api_queue";
+
+/** Per-station body provenance (#88). Mirrors ExamStationRunQueueScenarioBodySource. */
+export type StationRunQueueScenarioBodySource = "api_authored" | "bank_residual";
+
+export type StationRunQueueStationBodySource = {
+  scenarioId: string;
+  bodySource: StationRunQueueScenarioBodySource;
+};
+
 export type StationRunQueueSnapshotRequest = {
   snapshotId?: string;
   createdAt?: string;
   reviewerId?: string;
   /** #57 acquisition markers (API may ignore until control-plane extended). */
-  scenarioSource?: "fixture_offline" | "fixture_fallback" | "api_queue";
+  scenarioSource?: StationRunQueueScenarioSource;
   fallbackActive?: boolean;
   fallbackReason?: string;
+  /** #88 per-station body provenance (API may ignore until control-plane extended). */
+  stationBodySources?: StationRunQueueStationBodySource[];
 };
 
 export type StationRunQueueSnapshotResponse = {
@@ -77,9 +90,10 @@ export type StationRunQueueSnapshotResponse = {
   createdAt: string;
   reviewerId?: string;
   queue: unknown;
-  scenarioSource?: "fixture_offline" | "fixture_fallback" | "api_queue";
+  scenarioSource?: StationRunQueueScenarioSource;
   fallbackActive?: boolean;
   fallbackReason?: string;
+  stationBodySources?: StationRunQueueStationBodySource[];
 };
 
 /** Minimal ApiPersistenceSink-compatible surface for station-run-queue snapshots (no mongo rewire). */
@@ -179,6 +193,7 @@ export function createStationApiPersistenceSink(client: Pick<StationApiClient, "
         request.reviewerId = snapshot.reviewerId;
       }
       // #57 — forward acquisition markers so review history can show fixture fallback.
+      // #88 — forward per-station body provenance (mixed authored + bank residual).
       // API may still ignore unknown fields until the control-plane route is extended (residual).
       if (snapshot.scenarioSource !== undefined) {
         request.scenarioSource = snapshot.scenarioSource;
@@ -188,6 +203,9 @@ export function createStationApiPersistenceSink(client: Pick<StationApiClient, "
       }
       if (snapshot.fallbackReason !== undefined) {
         request.fallbackReason = snapshot.fallbackReason;
+      }
+      if (snapshot.stationBodySources !== undefined) {
+        request.stationBodySources = snapshot.stationBodySources;
       }
       await client.createStationRunQueueSnapshot(request);
     },
