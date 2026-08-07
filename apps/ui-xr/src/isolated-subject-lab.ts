@@ -1,12 +1,15 @@
 /**
- * Isolated subject lab (#163) — render ONE subject (furniture builder, runtime posture,
+ * Isolated subject lab (#163 / #159) — render ONE subject (furniture builder, runtime posture,
  * or posture+furniture) with the product three.js stack and zero room/HUD/actors.
  *
  * Driven by URLSearchParams (same pattern as model-vetting-studio capture routes).
  * Builders/postures are imported from this app — never duplicated.
  *
- * claimScope: isolated harness capture for visual iteration.
- * notEvidenceFor: clinical validity, Quest readiness, semi-Fowler product ship.
+ * #159: inclineDegrees is applied to the stretcher first (deck leads); body follows via
+ * applyAndPlantSupineOnDeck live query — not a body-only tip against a flat mattress.
+ *
+ * claimScope: isolated harness capture for visual iteration + HOB measure.
+ * notEvidenceFor: clinical validity, Quest readiness, multi-joint bed fidelity.
  */
 
 import {
@@ -26,12 +29,17 @@ import {
 } from "three";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import {
+  measureArticulatingHob,
+  type ArticulatingHobMeasure,
+} from "./articulating-hob-measure.js";
 import { buildPatientChair } from "./station-chair.js";
 import {
   STRETCHER_DECK_TOP_METERS,
+  STRETCHER_LENGTH_METERS,
   buildPatientStretcher,
 } from "./station-stretcher.js";
-import { applySupinePose, plantSupineBodyOnDeck } from "./supine-pose.js";
+import { applyAndPlantSupineOnDeck } from "./supine-pose.js";
 
 export type IsolatedSubjectKind =
   | "furniture_builder"
@@ -48,7 +56,10 @@ export type IsolatedSubjectSpec = {
   posture?: "supine";
   /** Repo-public path under ui-xr public/, e.g. generated-humanoids/ed_chest_pain_adult_cast.glb */
   bodyGlb?: string;
-  /** Harness-local semi-Fowler incline degrees (does NOT ship as runtime posture). */
+  /**
+   * Head-of-bed incline degrees. Applied to the stretcher SSOT first; body follows.
+   * Not a product ship angle — contact sheet grades 0/15/30/45.
+   */
   inclineDegrees?: number;
   label?: string;
 };
@@ -73,9 +84,13 @@ export type IsolatedSubjectEvidence = {
   notEvidenceFor: string[];
 };
 
+export type { ArticulatingHobMeasure };
+
 declare global {
   interface Window {
     __openClinXrIsolatedSubjectEvidence?: IsolatedSubjectEvidence;
+    __openClinXrArticulatingHobMeasure?: ArticulatingHobMeasure;
+    __openClinXrIsolatedSceneRoot?: Object3D;
   }
 }
 
@@ -158,40 +173,6 @@ function frameCamera(camera: PerspectiveCamera, bounds: Box3): void {
   camera.updateProjectionMatrix();
 }
 
-function readPelvisWorld(humanoid: Object3D): Vector3 | null {
-  humanoid.updateMatrixWorld(true);
-  let found: Vector3 | null = null;
-  humanoid.traverse((object) => {
-    if (found) return;
-    if (/^(pelvis|hips)$/i.test(object.name ?? "")) {
-      found = new Vector3().setFromMatrixPosition(object.matrixWorld);
-    }
-  });
-  return found;
-}
-
-/**
- * Harness-local semi-Fowler: tip the posed body about world Z so the head rises.
- * After on-back basis, head ≈ −X; R_z(−θ) lifts head toward +Y. Pivot near pelvis.
- * Does NOT mutate production posture tables / enums.
- */
-function applyHarnessIncline(humanoid: Object3D, degrees: number): void {
-  if (!Number.isFinite(degrees) || Math.abs(degrees) < 1e-6) return;
-  const before = readPelvisWorld(humanoid) ?? computeMeshBounds(humanoid).getCenter(new Vector3());
-  const rad = (-degrees * Math.PI) / 180;
-  humanoid.rotation.z += rad;
-  humanoid.quaternion.setFromEuler(humanoid.rotation);
-  humanoid.updateMatrixWorld(true);
-  const after = readPelvisWorld(humanoid);
-  if (after) {
-    humanoid.position.x += before.x - after.x;
-    humanoid.position.y += before.y - after.y;
-    humanoid.position.z += before.z - after.z;
-    humanoid.updateMatrixWorld(true);
-  }
-  humanoid.userData.openClinXrHarnessInclineDegrees = degrees;
-}
-
 async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
@@ -203,7 +184,10 @@ async function loadHumanoid(bodyGlb: string): Promise<Object3D> {
   return root;
 }
 
-function buildFurniture(builder: "patient_stretcher" | "patient_chair"): Group {
+function buildFurniture(
+  builder: "patient_stretcher" | "patient_chair",
+  inclineDegrees?: number,
+): Group {
   if (builder === "patient_chair") {
     return buildPatientChair({
       slotId: "isolated_patient_chair",
@@ -217,6 +201,7 @@ function buildFurniture(builder: "patient_stretcher" | "patient_chair"): Group {
     purpose: "isolated subject harness",
     position: { x: 0, y: 0, z: 0 },
     trimColor: 0x3a7ca5,
+    inclineDegrees: inclineDegrees ?? 0,
   });
 }
 
@@ -226,31 +211,33 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
 }> {
   const container = new Group();
   container.name = `isolated_subject.${spec.subjectId}`;
+  const incline = spec.inclineDegrees ?? 0;
 
   if (spec.subjectKind === "furniture_builder") {
     const builder = spec.builder ?? "patient_stretcher";
-    container.add(buildFurniture(builder));
+    container.add(buildFurniture(builder, incline));
   } else if (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
     const humanoid = await loadHumanoid(bodyGlb);
+    let stretcher: Group | null = null;
     if (spec.subjectKind === "posture_on_furniture" || spec.builder === "patient_stretcher") {
-      const stretcher = buildFurniture("patient_stretcher");
+      // Deck leads: incline on the stretcher builder, not a body-only tip.
+      stretcher = buildFurniture("patient_stretcher", incline);
       container.add(stretcher);
     }
-    applySupinePose(humanoid);
-    plantSupineBodyOnDeck(humanoid, STRETCHER_DECK_TOP_METERS);
-    // Center XZ on origin deck for framing.
+    const pillowWorldX = -STRETCHER_LENGTH_METERS * 0.38;
+    applyAndPlantSupineOnDeck(humanoid, {
+      deckTopWorldY: STRETCHER_DECK_TOP_METERS,
+      deckCenter: { x: 0, z: 0 },
+      pillowWorldX,
+      ...(stretcher ? { stretcher } : { inclineDegrees: incline }),
+    });
     humanoid.updateMatrixWorld(true);
     const hb = computeMeshBounds(humanoid);
     const hc = hb.getCenter(new Vector3());
     humanoid.position.x -= hc.x;
     humanoid.position.z -= hc.z;
     humanoid.updateMatrixWorld(true);
-    if (spec.inclineDegrees != null) {
-      applyHarnessIncline(humanoid, spec.inclineDegrees);
-      // Re-plant lightly so hips stay near deck after tip.
-      plantSupineBodyOnDeck(humanoid, STRETCHER_DECK_TOP_METERS);
-    }
     container.add(humanoid);
   } else if (spec.subjectKind === "glb") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
@@ -287,8 +274,6 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   fill.position.set(-3.5, 2.8, -2.2);
   scene.add(fill);
 
-  // Neutral ground plane only (not room geometry) so furniture legs read against a floor.
-  // Explicitly not a station shell / wall / HUD.
   const ground = new Mesh(
     new PlaneGeometry(6, 6),
     new MeshStandardMaterial({
@@ -305,19 +290,34 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   const { root, meshCount } = await buildSubjectRoot(spec);
   scene.add(root);
+  window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
   const bounds = computeMeshBounds(root);
   if (!Number.isFinite(bounds.min.x)) {
     throw new Error(`Subject ${spec.subjectId} produced empty mesh bounds`);
   }
   const size = bounds.getSize(new Vector3());
-  // Sit subject on ground if furniture already does; ground is y=0.
 
   const camera = new PerspectiveCamera(35, WIDTH / HEIGHT, 0.01, 100);
   frameCamera(camera, bounds);
-  renderer.render(scene, camera);
 
-  // Projected coverage hint: subject AABB vs frustum mid-plane (proxy).
+  let framesAdvanced = 0;
+  await new Promise<void>((resolve) => {
+    const step = () => {
+      renderer.render(scene, camera);
+      framesAdvanced += 1;
+      if (framesAdvanced >= 4) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+
+  const requestedDeg = spec.inclineDegrees ?? 0;
+  window.__openClinXrArticulatingHobMeasure = measureArticulatingHob(root, requestedDeg, framesAdvanced);
+
   const frameCoverageHint = Math.min(
     0.95,
     Math.max(0.05, (size.x * size.y) / Math.max(size.length() * size.length() * 0.35, 0.01)),
@@ -350,6 +350,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
       "learner_readiness",
       "semi_fowler_product_ship",
       "visual_realism_b_plus",
+      "multi_joint_articulation",
     ],
   };
   window.__openClinXrIsolatedSubjectEvidence = evidence;

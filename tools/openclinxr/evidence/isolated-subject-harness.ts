@@ -358,11 +358,12 @@ export async function inspectIsolatedSubjectHarness(): Promise<HarnessRun> {
   return runIsolatedSubjectHarness();
 }
 
-// CLI
-const isMain = process.argv[1]
-  && (import.meta.url === `file://${process.argv[1]}`
-    || import.meta.url.endsWith(process.argv[1]!.replaceAll("\\", "/"))
-    || import.meta.url.includes("isolated-subject-harness"));
+// CLI — only when this file is the entrypoint (never on import as a dependency).
+const isMain = Boolean(
+  process.argv[1]
+  && (import.meta.url === `file://${path.resolve(process.argv[1])}`
+    || import.meta.url.endsWith(process.argv[1]!.replaceAll("\\", "/"))),
+);
 
 if (isMain) {
   runIsolatedSubjectHarness({ force: true })
