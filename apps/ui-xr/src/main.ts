@@ -34,7 +34,7 @@ import {
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
-import { applyPosturePose } from "./seated-pose.js";
+import { applyPosturePose, plantSeatedFeetNearFloor } from "./seated-pose.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import {
@@ -164,16 +164,9 @@ import {
 } from "./runtime-state.js";
 import "./styles.css";
 
-// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms from Rapier palpation.
-// Generated offline by packages/openclinxr/arena/physics-touch-contract/src/cli/generate-physics-bone-transforms.ts.
-// UI-XR consumes only the static JSON artifact — NO @dimforge/rapier or @openclinxr/physics-touch-contract in prod deps.
-//
-// PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
-//   Physics bone transforms are opt-in capture only via capture=physics-clinical-touch|physics-touch.
-//   Default session path does NOT apply physics transforms (gated by isPhysicsClinicalTouchCapture).
-//   UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false (not yet promoted to runtime default).
-//   userData claim: notEvidenceFor production_physics_readiness, learner_readiness.
-import physicsBoneTransformsArtifact from "./physics-touch/ed-palpation-bone-transforms.json" with { type: "json" };
+// Physics clinical-touch realbind R3 (AD-3): precomputed bone transforms — see physics-touch/.
+// PRE-PRODUCTION FENCE: opt-in capture only; default session path does not apply.
+import { applyPhysicsBoneTransforms as applyPhysicsBoneTransformsImpl } from "./physics-touch/apply-physics-bone-transforms.js";
 
 /** Pre-production fence: physics bone apply is opt-in capture only. Default session path does NOT apply physics transforms. */
 export const UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false;
@@ -3664,7 +3657,11 @@ function createStationScene(): StationSceneRuntime {
   applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
   patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
   scene.add(patient);
+  // #83: slotKind + posture on the slot BEFORE load — load must not default missing slotKind to primary_patient
+  // (that seated every telehealth actor via resolveActorPosture).
   patient.userData.openClinXrSlotKind = patientPlacement.slotKind;
+  patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
+  patient.userData.openClinXrActorId = runtimePatientActorId();
   loadGeneratedHumanoidIntoActorSlot(patient, {
     assetPath: resolveEmulatorRuntimeAssetUrl(patientRuntimeHumanoidAsset),
     assetId: patientRuntimeHumanoidAsset.assetId,
@@ -3672,7 +3669,7 @@ function createStationScene(): StationSceneRuntime {
     actorId: runtimePatientActorId(),
     roleTintColor: 0x8fb9aa,
     verticalOffsetMeters: patientPlacement.verticalOffsetMeters,
-    ...(patientPlacement.posture ? { posture: patientPlacement.posture } : {}),
+    posture: patientPlacement.posture ?? "standing",
   });
 
   const nursePlacement = runtimeActorPlacement(runtimeClinicalTeamActorId(), {
@@ -3694,6 +3691,9 @@ function createStationScene(): StationSceneRuntime {
   applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
   nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
   scene.add(nurse);
+  nurse.userData.openClinXrSlotKind = nursePlacement.slotKind;
+  nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
+  nurse.userData.openClinXrActorId = runtimeClinicalTeamActorId();
   loadGeneratedHumanoidIntoActorSlot(nurse, {
     assetPath: resolveEmulatorRuntimeAssetUrl(nurseRuntimeHumanoidAsset),
     assetId: nurseRuntimeHumanoidAsset.assetId,
@@ -3701,6 +3701,7 @@ function createStationScene(): StationSceneRuntime {
     actorId: runtimeClinicalTeamActorId(),
     roleTintColor: 0x5a9bd5,
     verticalOffsetMeters: nursePlacement.verticalOffsetMeters,
+    posture: nursePlacement.posture ?? "standing",
   });
 
   const spousePlacement = runtimeActorPlacement(runtimeFamilyActorId(), {
@@ -3728,6 +3729,9 @@ function createStationScene(): StationSceneRuntime {
   applyCleanEncounterVisualReviewActorFraming(spouse, runtimeFamilyActorId());
   spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
   scene.add(spouse);
+  spouse.userData.openClinXrSlotKind = spousePlacement.slotKind;
+  spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
+  spouse.userData.openClinXrActorId = runtimeFamilyActorId();
   loadGeneratedHumanoidIntoActorSlot(spouse, {
     assetPath: resolveEmulatorRuntimeAssetUrl(spouseRuntimeHumanoidAsset),
     assetId: spouseRuntimeHumanoidAsset.assetId,
@@ -3735,6 +3739,7 @@ function createStationScene(): StationSceneRuntime {
     actorId: runtimeFamilyActorId(),
     roleTintColor: 0xd5a75a,
     verticalOffsetMeters: spousePlacement.verticalOffsetMeters,
+    posture: spousePlacement.posture ?? "standing",
   });
 
   for (const virtualActor of encounterRuntimeAssetBundle.actors.filter((actor) => actor.embodiment === "virtual_device")) {
@@ -4004,7 +4009,7 @@ function createStationScene(): StationSceneRuntime {
     const floorDrive = floor.userData.genDrive ?? floor.userData.pedsRuntimeDrive;
     const genDriveForHumanoid = window.__openClinXrPedsDrive ?? (isGeneratedRuntimeDrive(floorDrive) ? floorDrive : null);
     updateGeneratedHumanoidAnimations(deltaSeconds, now, camera, genDriveForHumanoid);
-    applyPhysicsBoneTransforms(now);
+    applyPhysicsBoneTransforms(now); // capture-gated; extracted module
     updateEnvironmentRealismAnimations(deltaSeconds, now);
     // Deeper visual cue from drive in per-frame for live transitions on env world in launched player (richer integration of caseDerived env + gen drive/emotion). Uses deeperVisualCue from handoff (set at load from pedsRuntimeDrive/scaffold) and current emotion cues. Modulates emissive/scale on gltfEnvContainer/children for affect (e.g. anxious/urgent). Called every frame in renderSceneFrame (and fallback). Makes the virtual env world react dynamically in the full WebXR/desktop experience when running the app. (Previously only at load; now live per drive.)
     if (typeof gltfEnvContainer !== 'undefined' && gltfEnvContainer) {
@@ -4240,10 +4245,12 @@ function createStationScene(): StationSceneRuntime {
 }
 
 function applyCleanEncounterVisualReviewActorFraming(actor: Group, actorId: string): void {
+  // #83: frame from the SELECTED scenario (URL), not the local ED fixture bundle id.
+  // Telehealth patient_chair seating never applied while bundle stayed ed_chest_pain_*.
   applyEncounterActorFraming({
     actor,
     actorId,
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    scenarioId: selectedScenarioId(),
     role: runtimeActorRole(actorId) ?? String(actor.userData.openClinXrActorRole ?? ""),
     skipFraming:
       isHumanoidFaceDetailCaptureMode()
@@ -7100,12 +7107,21 @@ function loadGeneratedHumanoidIntoActorSlot(
       humanoid.userData.openClinXrRequestedVerticalOffsetMeters = options.verticalOffsetMeters;
       humanoid.rotation.y = 0;
       humanoid.scale.set(1, 1, 1);
+      // #83: never default missing slotKind to primary_patient — that seated every telehealth actor.
+      const slotKind =
+        (typeof actorSlot.userData.openClinXrSlotKind === "string" && actorSlot.userData.openClinXrSlotKind.length > 0
+          ? actorSlot.userData.openClinXrSlotKind
+          : undefined)
+        ?? "unknown_slot";
       const posture = options.posture
         ?? resolveActorPosture({
           scenarioId: selectedScenarioId(),
           environmentId: resolveActiveEnvironmentId(),
-          slotKind: actorSlot.userData.openClinXrSlotKind ?? "primary_patient",
+          slotKind,
         });
+      humanoid.userData.openClinXrActorId = options.actorId;
+      actorSlot.userData.openClinXrActorPosture = posture;
+      actorSlot.userData.openClinXrActorId = options.actorId;
       applyPosturePose(humanoid, posture);
       neutralizeGeneratedHumanoidMorphTargets(humanoid);
       const humanoidSourceComparator = selectedHumanoidSourceComparator();
@@ -7612,7 +7628,15 @@ function registerGeneratedHumanoidAnimation(input: {
   playbackEnabled: boolean;
   fixedSourcePoseSampleSeconds: number | null;
 }): void {
-  const mixer = input.playbackEnabled && input.animationClips.length > 0 ? new AnimationMixer(input.humanoid) : undefined;
+  // #83: seated figures keep a mixer only for non-leg facial/upper clips when role clips exist.
+  // Falling back to ALL glTF clips played standing armature tracks that overwrote the sit every frame
+  // (re-apply helped only when it ran; full-body tracks + missing role names = bind/stand forever).
+  const isSeated =
+    input.humanoid.userData.openClinXrActorPosture === "seated"
+    || input.actorSlot.userData.openClinXrActorPosture === "seated";
+  const mixer = input.playbackEnabled && input.animationClips.length > 0 && !isSeated
+    ? new AnimationMixer(input.humanoid)
+    : undefined;
   // Response clips are registered on roleAnimationClipNames for discoverability but must not
   // auto-loop as role idle — they are one-shot via handleClinicalTouch / respondToTouch.
   const oneShotResponseClipNames = new Set(clinicalTouchResponseClipNamesForActor(input.actorId));
@@ -7624,9 +7648,12 @@ function registerGeneratedHumanoidAnimation(input: {
   const selectedGazeProbeClips = input.animationClips.filter((clip): clip is AnimationClip =>
     clip instanceof AnimationClip && input.gazeProbeAnimationClipNames.includes(clip.name)
   );
+  // Never fall back to "play every clip" for seated — neutral_generated_human armatureAction is standing.
   const clipsToPlay = selectedRoleClips.length > 0
     ? [...selectedRoleClips, ...selectedGazeProbeClips]
-    : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
+    : isSeated
+      ? []
+      : input.animationClips.filter((clip): clip is AnimationClip => clip instanceof AnimationClip);
   const fixedSourcePoseClip = selectedRoleClips[0] ?? input.animationClips.find((clip): clip is AnimationClip => clip instanceof AnimationClip);
   if (!input.playbackEnabled && fixedSourcePoseClip && input.fixedSourcePoseSampleSeconds !== null) {
     const fixedPoseMixer = new AnimationMixer(input.humanoid);
@@ -7638,6 +7665,15 @@ function registerGeneratedHumanoidAnimation(input: {
     for (const clip of clipsToPlay) {
       mixer.clipAction(clip)?.play();
     }
+  }
+  // Seated: procedural sit is authoritative; re-apply once after any fixed-pose sample so legs stay folded.
+  // Then plant feet near the floor (bind thigh is ~−π — fold alone leaves residual float).
+  if (isSeated) {
+    applyPosturePose(input.humanoid, "seated");
+    const plant = plantSeatedFeetNearFloor(input.humanoid, 0.04);
+    input.humanoid.userData.openClinXrSeatedPlantDeltaY = plant.deltaY;
+    input.humanoid.userData.openClinXrSeatedPlantLowestBefore = plant.lowestBefore;
+    input.humanoid.updateMatrixWorld(true);
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
   const activeGazeProbeAnimationClipName = selectedGazeProbeClips[0]?.name;
@@ -8238,7 +8274,8 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
     slot.mixer?.update(deltaSeconds);
     applyGeneratedHumanoidClinicalIdlePosture(slot.root);
     applyGeneratedHumanoidRoleSpecificPosture(slot.root, slot.actorId);
-    // #81: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
+    // #81/#83: re-apply seated pose after mixer/clinical idle so legs stay folded (rotation-only sit).
+    // Do not re-plant every frame (would fight baseY); plant once at register, keep baseY.
     if (slot.root.userData.openClinXrActorPosture === "seated" || slot.actorSlot.userData.openClinXrActorPosture === "seated") {
       applyPosturePose(slot.root, "seated");
     }
@@ -8262,6 +8299,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
       const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
       if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme); // #63 named viseme_*
     }
+    // baseY already includes seated plant delta from registerGeneratedHumanoidAnimation.
     slot.root.position.y = slot.baseY + breathing * 0.018;
     slot.root.position.x = emotionalSway + dialogueWeightShift;
     slot.root.rotation.x = dialogueLean + pediatricAsthmaOverlay.rotationX;
@@ -8305,127 +8343,12 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
   updateVirtualDeviceActorSpeechPulses(nowMs);
 }
 
-/**
- * arena-physics-realbind-r3-ui-xr-bind (R3 / AD-3):
- * Apply precomputed Rapier palpation bone transforms to the patient humanoid.
- *
- * PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
- *   Gated by isPhysicsClinicalTouchCapture() — only applies when capture mode is
- *   "physics-clinical-touch" or "physics-touch". Default session path returns early.
- *   UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false (not yet promoted to runtime default).
- *   userData.notEvidenceFor: production_physics_readiness, learner_readiness.
- *   This function is CAPTURE-EVIDENCE-ONLY; not enabled for production or learner sessions.
- *
- * Reads tick from elapsed time (loops every 6s = 360 ticks at 60Hz),
- * looks up bone deltas from the precomputed JSON artifact, and applies
- * position/rotation deltas to the named bones on the patient slot.
- *
- * Garment mesh (skinned to clavicle/upper_arm/chest) deforms as bones move.
- */
+/** Capture-gated physics bone apply (#83 split from main for file-size freeze). */
 function applyPhysicsBoneTransforms(nowMs: number): void {
-  if (!isPhysicsClinicalTouchCapture()) return;
-
-  const artifact = physicsBoneTransformsArtifact;
-  const totalTicks = artifact.frames.length;
-  if (totalTicks === 0) return;
-
-  // 6s scenario, loop every 6 seconds
-  const scenarioDurationMs = (totalTicks / 60) * 1000;
-  const elapsedInCycle = nowMs % scenarioDurationMs;
-  const tick = Math.floor((elapsedInCycle / scenarioDurationMs) * totalTicks);
-  const frame = artifact.frames[Math.min(tick, totalTicks - 1)]!;
-
-  // Find patient slot
-  const patientSlot = generatedHumanoidAnimationSlots.find(
-    (s) => s.actorId === runtimePatientActorId(),
-  );
-  if (!patientSlot) return;
-
-  // Cache: build bone name → object map once per slot
-  if (!(patientSlot as any)._physicsBoneMap) {
-    const map = new Map<string, Group["children"][number]>();
-    patientSlot.root.traverse((obj) => {
-      if (artifact.bones.includes(obj.name)) {
-        map.set(obj.name, obj);
-      }
-    });
-    (patientSlot as any)._physicsBoneMap = map;
-  }
-
-  const boneMap = (patientSlot as any)._physicsBoneMap as Map<string, Group["children"][number]>;
-
-  for (const [boneName, delta] of Object.entries(frame.boneDeltas)) {
-    const bone = boneMap.get(boneName);
-    if (!bone) continue;
-
-    // Save bind pose on first application
-    if (!(bone as any)._physicsBindPos) {
-      (bone as any)._physicsBindPos = bone.position.clone();
-      (bone as any)._physicsBindRot = bone.quaternion.clone();
-    }
-
-    const bindPos = (bone as any)._physicsBindPos as Vector3;
-    const bindRot = (bone as any)._physicsBindRot as { x: number; y: number; z: number; w: number };
-
-    // Apply position delta on top of bind pose
-    bone.position.set(
-      bindPos.x + delta.position.x,
-      bindPos.y + delta.position.y,
-      bindPos.z + delta.position.z,
-    );
-
-    // Apply rotation delta (multiply quaternion)
-    bone.quaternion.set(
-      bindRot.x, bindRot.y, bindRot.z, bindRot.w,
-    );
-    // Multiply by delta quaternion
-    const dq = { x: delta.rotation.x, y: delta.rotation.y, z: delta.rotation.z, w: delta.rotation.w };
-    const q = bone.quaternion;
-    const x = q.x, y = q.y, z = q.z, w = q.w;
-    q.x = w * dq.x + x * dq.w + y * dq.z - z * dq.y;
-    q.y = w * dq.y - x * dq.z + y * dq.w + z * dq.x;
-    q.z = w * dq.z + x * dq.y - y * dq.x + z * dq.w;
-    q.w = w * dq.w - x * dq.x - y * dq.y - z * dq.z;
-  }
-
-  // --- Physics touch evidence surfaces (R3 / AD-3) ---
-  // PRE-PRODUCTION FENCE (physics-realbind-pre-prod-fence-v1):
-  //   Tag the real garment mesh with physics-touch evidence for CAPTURE MODE ONLY.
-  //   frustumCulled=false and distinct orange emissive for capture readability.
-  //   These userData tags are NOT applied in default session path.
-  //   userData.notEvidenceFor includes production_physics_readiness, learner_readiness.
-  patientSlot.root.traverse((obj) => {
-    if (!(obj instanceof Mesh)) return;
-    const nm = obj.name || "";
-    if (!/openclinxr_real_garment|real_garment_from_phenotype/i.test(nm)) return;
-
-    obj.frustumCulled = false;
-    obj.visible = true;
-
-    // Distinct emissive: orange-red glow on palpated garment region
-    const mat = obj.material as MeshStandardMaterial;
-    if (mat && mat.emissive && !(obj.userData as any).openClinXrPhysicsTouchEvidenceApplied) {
-      mat.emissive = new Color(0xff4400);
-      mat.emissiveIntensity = 0.8;
-      mat.needsUpdate = true;
-      (obj.userData as any).openClinXrPhysicsTouchEvidenceApplied = true;
-    }
-
-    (obj.userData as any).openClinXrPhysicsTouchEvidence = {
-      engineId: artifact.engineId,
-      seed: artifact.seed,
-      scenarioId: artifact.scenarioId,
-      bonesAffected: artifact.bones,
-      currentTick: tick,
-      spineDz: frame.boneDeltas.spine?.position.z ?? 0,
-      guardingAngle: frame.boneDeltas["upper_arm.L"]?.rotation.x ?? 0,
-      runtimePromotionAllowed: false,
-      notEvidenceFor: [
-        ...artifact.notEvidenceFor,
-        "production_physics_readiness",
-        "learner_readiness",
-      ],
-    };
+  applyPhysicsBoneTransformsImpl({
+    enabled: isPhysicsClinicalTouchCapture(),
+    nowMs,
+    patientSlot: generatedHumanoidAnimationSlots.find((s) => s.actorId === runtimePatientActorId()),
   });
 }
 
