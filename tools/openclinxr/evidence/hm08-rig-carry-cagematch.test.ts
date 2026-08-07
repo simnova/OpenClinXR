@@ -114,6 +114,16 @@ import { describe, expect, it } from "vitest";
  *
  * SCOPE: whether hm08 can carry the runtime rig, and whether our bake degrades the base. Says NOTHING
  * about garment fit (#131 settled it), body parametrics (#151), or whether to migrate.
+ *
+ * ## FIXED (#134)
+ *
+ * Contract (1) primary measure is position-merged connected components across body primitives
+ * (5dp quantised verts). Side-by-side: index-based still reports 14/20 (multi-material islands);
+ * position-merged matches base (adults 1, child 4) and uniqueVertPositions == base vert count.
+ * Withdrawn: treating index islands as bake degradation. Bake does not stop the slice.
+ * Rig: attempt1 ARMATURE_AUTO failed empty weights; attempt2 ARMATURE_ENVELOPE ok →
+ * evidence candidate with 23/23 joints as three.js sees them, 36972 tris, morphs=0.
+ * Verdict `adopt_hm08` (rig carry / evidence path only). MADR 0047 corrected claim first.
  */
 
 const load = async () => import("./hm08-rig-carry-cagematch.js") as Promise<Record<string, unknown>>;
@@ -156,7 +166,7 @@ const VERDICTS = ["adopt_hm08", "reject_measured", "inconclusive_blocked"];
 const MAX_TRIANGLES = 60_000;
 
 describe("can hm08 carry the runtime rig (#134)", () => {
-  it.fails("the bake is compared against its own base before any MPFB2 work", async () => {
+  it("the bake is compared against its own base before any MPFB2 work", async () => {
     // #134 records this as UNMEASURED: the raw anny base looks better than the GLB we bake from it.
     // If true, hm08 does not fix it and this comparison answers the wrong question.
     const mod = await load();
@@ -176,7 +186,7 @@ describe("can hm08 carry the runtime rig (#134)", () => {
     }
   }, 1_800_000);
 
-  it.fails("the bake-off reached a recorded verdict", async () => {
+  it("the bake-off reached a recorded verdict", async () => {
     // The cagematch deliverable is a DECISION WITH EVIDENCE, not working code. reject_measured is a
     // successful outcome. What is forbidden is finishing without one, or without saying what blocked
     // it — a candidate that was never attempted must carry a rejectReason.
@@ -209,7 +219,7 @@ describe("can hm08 carry the runtime rig (#134)", () => {
       .toBeLessThanOrEqual(2);
   }, 1_800_000);
 
-  it.fails("no shipped asset was touched and nothing was promoted (COUNTERWEIGHT)", async () => {
+  it("no shipped asset was touched and nothing was promoted (COUNTERWEIGHT)", async () => {
     // The cheap satisfactions are promoting the candidate into generated-humanoids/ so it "loads",
     // or rebaking a shipped humanoid to make the comparison flattering. MPFB2 is GPL-3 and deferred;
     // MADR 0044's posture only holds while the candidate stays on an evidence path.
