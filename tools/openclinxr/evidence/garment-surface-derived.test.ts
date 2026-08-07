@@ -136,8 +136,29 @@ type Inspect = () => Promise<{ assets: GarmentDerivation[] }>;
 /** Cloth sits close to skin. A free-standing cage does not. */
 const MIN_FRACTION_WITHIN_OFFSET_BAND = 0.9;
 
+/**
+ * ## FIXED (#121)
+ *
+ * Pre-fix (exported glTF, ring+tube cage): connectedComponentCount≈10, shoulderSpanned=false,
+ * fractionWithinOffsetBand≈0.41–0.59, bodyTriangleCount≈26k–27k.
+ *
+ * Authoring-class change in `automate_blender.py`: `_build_body_surface_derived_garment` duplicates
+ * the body mesh, hard-cuts neck/hem/cuff from landmarks, flood-fills one component from the chest,
+ * offsets along outward normals (chest ease-out / underarm ease-in). No ring+tube, no solidify rim
+ * (export was splitting rim debris into micro-islands). Lower-body paint untouched; body faces not
+ * hidden/deleted.
+ *
+ * Unlocked decisions:
+ *   - offset: ~1.0–2.2 cm base × layer rank; variable anterior/underarm scale
+ *   - neck/arm cuts: neck_y landmark + distance-to-upper-arm segment (shoulder→elbow)
+ *   - body faces NOT hidden (#73 counterweight)
+ *   - lower paint survives
+ *
+ * Post-fix: comps=1 meaningful, span=true, frac=1.0, body tris retained on all six humanoids.
+ * Pixel grade is the orchestrator's — contracts assert structure only.
+ */
 describe("the garment is a surface derived from the body (#121)", () => {
-  it.fails("one connected surface spans the shoulder", async () => {
+  it("one connected surface spans the shoulder", async () => {
     // §6t's never-implemented conclusion. Two flaps satisfy every presence test ever written here and
     // fail this one, because they are not one surface.
     const mod = await load();
@@ -159,7 +180,7 @@ describe("the garment is a surface derived from the body (#121)", () => {
     expect(broken, `garments that are not one surface over the shoulder:\n${broken.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the garment surface follows the body it is worn on", async () => {
+  it("the garment surface follows the body it is worn on", async () => {
     // Kills the cheap satisfaction of the first contract: a closed tube floating around the torso is
     // one connected component and is not worn by anything.
     const mod = await load();
@@ -179,7 +200,7 @@ describe("the garment is a surface derived from the body (#121)", () => {
     expect(floating, `garments not derived from the body surface:\n${floating.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it.fails("the body underneath is not deleted (COUNTERWEIGHT — #73's lesson)", async () => {
+  it("the body underneath is not deleted (COUNTERWEIGHT — #73's lesson)", async () => {
     // #73 removed painted clothing where a real garment existed and left a figure topless under an
     // open cardigan. Hiding or deleting body faces to make a garment "fit" repeats that exactly.
     const mod = await load();

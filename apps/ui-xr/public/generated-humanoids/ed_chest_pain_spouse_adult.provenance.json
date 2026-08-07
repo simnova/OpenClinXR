@@ -15,9 +15,9 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "outputSha256": "f56d0f7b4af8c853296c068386714b9331444a438cc87d81d46ab4e5676122cd",
-  "outputBytes": 5681352,
-  "generatedAt": "2026-08-07T05:56:37.763788+00:00",
+  "outputSha256": "4d1cd6a7a9536db5c4b9c146e194c3ea96a91a2545df4866552d9747068e8bec",
+  "outputBytes": 7184472,
+  "generatedAt": "2026-08-07T13:49:49.342184+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
   "garmentLayers": [
@@ -40,5 +40,10 @@
     "Not B+ realism / production / clinical readiness."
   ],
   "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
-  "promotionGates": false
+  "promotionGates": false,
+  "sourceOriginChain": {
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "rebakedFrom": "peds_anxious_parent.anny_base.obj (tracked, unchanged by this re-bake)",
+    "garmentAuthoringClass": "body_surface_normal_offset_issue_121"
+  }
 }

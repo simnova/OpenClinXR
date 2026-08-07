@@ -384,16 +384,18 @@
     ],
     "realGarmentLayers": [
       {
-        "mode": "phenotype_embedded_real_garment_region_v1",
-        "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+        "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+        "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
         "objectName": "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
         "meshName": "openclinxr_real_garment_peds_tshirt_v1_mesh",
         "layerIndex": 0,
         "layerToken": "short_sleeve_exam_tshirt",
         "layerKind": "tshirt",
-        "faceCount": 534,
-        "vertexCount": 672,
-        "hasShoulderYoke": true,
+        "faceCount": 2044,
+        "vertexCount": 2174,
+        "hasShoulderYoke": false,
+        "authoringClass": "body_surface_normal_offset",
+        "clothOffsetM": 0.022,
         "yokePeakY": 1.0189,
         "bodyShoulderTopY": 0.9739,
         "hasSleeveGeometry": true,
@@ -410,7 +412,7 @@
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
         "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-        "topologyClass": "closed_tshirt_ring",
+        "topologyClass": "body_surface_offset_closed_v1",
         "hasAnteriorOpening": false,
         "anteriorOpeningRadians": 0.0,
         "torsoWrapClosed": true,
@@ -426,32 +428,32 @@
         "deformsWithBreathing": true,
         "hasVisibleVolume": true,
         "hasSeamFoldHints": true,
-        "hasFabricThicknessSolidify": true,
-        "hasLightSubsurf": true,
-        "hasGentleDisplacementFolds": true,
+        "hasFabricThicknessSolidify": false,
+        "hasLightSubsurf": false,
+        "hasGentleDisplacementFolds": false,
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.25901,
-            0.57105,
-            0.001968
+            -0.25245,
+            0.577073,
+            -0.056159
           ],
           "max": [
-            0.25901,
-            1.0285,
-            0.263539
+            0.25245,
+            1.231888,
+            0.199185
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.25901,
-            -0.263539,
-            0.57105
+            -0.25245,
+            -0.199185,
+            0.577073
           ],
           "max": [
-            0.25901,
-            -0.001967,
-            1.0285
+            0.25245,
+            0.056159,
+            1.231888
           ]
         },
         "bodyLocalHeightRange": [
@@ -465,15 +467,16 @@
           "short_sleeve_exam_tshirt"
         ],
         "role": "patient",
-        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
         "notEvidenceFor": [
           "production_asset_readiness",
           "b_plus_visual_realism_gate",
           "clinical_validity",
           "scoring_validity",
-          "believable_clinical_costume"
+          "believable_clinical_costume",
+          "looks_worn_pixel_grade"
         ],
-        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+        "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
       }
     ],
     "declaredUpperGarmentLayers": [
@@ -481,16 +484,18 @@
     ],
     "declaredUpperGarmentLayerCount": 1,
     "realGarmentRegion": {
-      "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+      "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+      "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
       "objectName": "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
       "meshName": "openclinxr_real_garment_peds_tshirt_v1_mesh",
       "layerIndex": 0,
       "layerToken": "short_sleeve_exam_tshirt",
       "layerKind": "tshirt",
-      "faceCount": 534,
-      "vertexCount": 672,
-      "hasShoulderYoke": true,
+      "faceCount": 2044,
+      "vertexCount": 2174,
+      "hasShoulderYoke": false,
+      "authoringClass": "body_surface_normal_offset",
+      "clothOffsetM": 0.022,
       "yokePeakY": 1.0189,
       "bodyShoulderTopY": 0.9739,
       "hasSleeveGeometry": true,
@@ -507,7 +512,7 @@
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
       "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-      "topologyClass": "closed_tshirt_ring",
+      "topologyClass": "body_surface_offset_closed_v1",
       "hasAnteriorOpening": false,
       "anteriorOpeningRadians": 0.0,
       "torsoWrapClosed": true,
@@ -523,32 +528,32 @@
       "deformsWithBreathing": true,
       "hasVisibleVolume": true,
       "hasSeamFoldHints": true,
-      "hasFabricThicknessSolidify": true,
-      "hasLightSubsurf": true,
-      "hasGentleDisplacementFolds": true,
+      "hasFabricThicknessSolidify": false,
+      "hasLightSubsurf": false,
+      "hasGentleDisplacementFolds": false,
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.25901,
-          0.57105,
-          0.001968
+          -0.25245,
+          0.577073,
+          -0.056159
         ],
         "max": [
-          0.25901,
-          1.0285,
-          0.263539
+          0.25245,
+          1.231888,
+          0.199185
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.25901,
-          -0.263539,
-          0.57105
+          -0.25245,
+          -0.199185,
+          0.577073
         ],
         "max": [
-          0.25901,
-          -0.001967,
-          1.0285
+          0.25245,
+          0.056159,
+          1.231888
         ]
       },
       "bodyLocalHeightRange": [
@@ -562,29 +567,32 @@
         "short_sleeve_exam_tshirt"
       ],
       "role": "patient",
-      "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+      "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
         "clinical_validity",
         "scoring_validity",
-        "believable_clinical_costume"
+        "believable_clinical_costume",
+        "looks_worn_pixel_grade"
       ],
-      "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
-    "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+    "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+    "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
     "objectName": "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt",
     "meshName": "openclinxr_real_garment_peds_tshirt_v1_mesh",
     "layerIndex": 0,
     "layerToken": "short_sleeve_exam_tshirt",
     "layerKind": "tshirt",
-    "faceCount": 534,
-    "vertexCount": 672,
-    "hasShoulderYoke": true,
+    "faceCount": 2044,
+    "vertexCount": 2174,
+    "hasShoulderYoke": false,
+    "authoringClass": "body_surface_normal_offset",
+    "clothOffsetM": 0.022,
     "yokePeakY": 1.0189,
     "bodyShoulderTopY": 0.9739,
     "hasSleeveGeometry": true,
@@ -601,7 +609,7 @@
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
     "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-    "topologyClass": "closed_tshirt_ring",
+    "topologyClass": "body_surface_offset_closed_v1",
     "hasAnteriorOpening": false,
     "anteriorOpeningRadians": 0.0,
     "torsoWrapClosed": true,
@@ -617,32 +625,32 @@
     "deformsWithBreathing": true,
     "hasVisibleVolume": true,
     "hasSeamFoldHints": true,
-    "hasFabricThicknessSolidify": true,
-    "hasLightSubsurf": true,
-    "hasGentleDisplacementFolds": true,
+    "hasFabricThicknessSolidify": false,
+    "hasLightSubsurf": false,
+    "hasGentleDisplacementFolds": false,
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.25901,
-        0.57105,
-        0.001968
+        -0.25245,
+        0.577073,
+        -0.056159
       ],
       "max": [
-        0.25901,
-        1.0285,
-        0.263539
+        0.25245,
+        1.231888,
+        0.199185
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.25901,
-        -0.263539,
-        0.57105
+        -0.25245,
+        -0.199185,
+        0.577073
       ],
       "max": [
-        0.25901,
-        -0.001967,
-        1.0285
+        0.25245,
+        0.056159,
+        1.231888
       ]
     },
     "bodyLocalHeightRange": [
@@ -656,15 +664,16 @@
       "short_sleeve_exam_tshirt"
     ],
     "role": "patient",
-    "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+    "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
       "clinical_validity",
       "scoring_validity",
-      "believable_clinical_costume"
+      "believable_clinical_costume",
+      "looks_worn_pixel_grade"
     ],
-    "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+    "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -749,7 +758,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-08-07T05:53:04.959379Z",
+    "generatedAt": "2026-08-07T13:39:29.495317Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,

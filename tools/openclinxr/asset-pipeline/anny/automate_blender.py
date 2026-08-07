@@ -1646,12 +1646,330 @@ def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
     return mat
 
 
+def _build_body_surface_derived_garment(
+    mesh_obj: bpy.types.Object,
+    *,
+    gmesh_name: str,
+    gname: str,
+    bot_y: float,
+    neck_y: float,
+    cloth_offset: float,
+    sleeve_along: float,
+    sleeve_radius: float,
+    layer_is_open: bool,
+    front_opening_rad: float,
+    cx: float,
+    cz: float,
+    body_width: float,
+    body_depth: float,
+    shoulder_L: tuple,
+    elbow_L: tuple,
+    shoulder_R: tuple,
+    elbow_R: tuple,
+) -> bpy.types.Object:
+    """
+    #121 authoring-class change: garment shell = body surface offset along outward normals.
+
+    Rejected ring+tube parametric cages (torso ellipse + separate sleeve tubes + detached yoke):
+    research + six failed gates established that class cannot produce a continuous deltoid cap or
+    body-inside-garment silhouette. Continuity is inherited from the body mesh topology; neck and
+    arm holes are cut from landmark Y / arm-axis distance, not hard-coded height fractions alone.
+
+    Decisions:
+      - offset distance: base cloth_offset (layer-stacked by caller); +15% anterior chest, −20% underarm
+      - neck/arm cuts: neck_y landmark + distance-to-upper-arm segment (shoulder→elbow)
+      - body faces NOT hidden/deleted (#73 counterweight — garment covers without removing skin)
+      - lower-body paint left untouched (caller owns that)
+    """
+    import bmesh
+    import math
+
+    gmesh = mesh_obj.data.copy()
+    gmesh.name = gmesh_name
+    # Drop body materials — garment gets its own role colour after construction.
+    try:
+        gmesh.materials.clear()
+    except Exception:
+        while gmesh.materials:
+            gmesh.materials.pop(index=0)
+    garment = bpy.data.objects.new(gname, gmesh)
+    bpy.context.collection.objects.link(garment)
+
+    bm = bmesh.new()
+    bm.from_mesh(gmesh)
+    bm.verts.ensure_lookup_table()
+    bm.faces.ensure_lookup_table()
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.normal_update()
+
+    def _seg_dist(p: Vector, a: Vector, b: Vector) -> tuple:
+        ab = b - a
+        ab2 = ab.dot(ab) or 1e-9
+        t = max(0.0, min(1.0, (p - a).dot(ab) / ab2))
+        closest = a + ab * t
+        return (p - closest).length, t
+
+    sL = Vector(shoulder_L)
+    eL = Vector(elbow_L)
+    sR = Vector(shoulder_R)
+    eR = Vector(elbow_R)
+    arm_len_L = (eL - sL).length or 0.25
+    arm_len_R = (eR - sR).length or 0.25
+    t_max_L = max(0.05, min(1.0, sleeve_along / arm_len_L))
+    t_max_R = max(0.05, min(1.0, sleeve_along / arm_len_R))
+    cuff_L = sL + (eL - sL) * t_max_L
+    cuff_R = sR + (eR - sR) * t_max_R
+
+    neck_hole_r = max(body_width * 0.08, body_depth * 0.10, 0.035)
+    sleeve_r_soft = max(sleeve_radius * 1.55, body_width * 0.22, 0.07)
+    half_gap = front_opening_rad * 0.5 if layer_is_open else 0.0
+    # Hard exclusions only (hem / neck hole / head / past-cuff / open-front gap).
+    # Soft envelope filters severed the armpit bridge and split sleeves off; do not
+    # reintroduce that. After hard deletes, flood-fill keeps ONE body-derived shell.
+    hard_delete = []
+    for v in bm.verts:
+        p = v.co
+        y = float(p.y)
+        x = float(p.x)
+        z = float(p.z)
+        r_xz = math.hypot(x - cx, z - cz)
+        if y < bot_y:
+            hard_delete.append(v)
+            continue
+        if y >= neck_y - body_width * 0.02 and r_xz <= neck_hole_r:
+            hard_delete.append(v)
+            continue
+        if y > neck_y + body_width * 0.03 and r_xz < neck_hole_r * 2.0:
+            hard_delete.append(v)
+            continue
+        dL, tL = _seg_dist(p, sL, eL)
+        dR, tR = _seg_dist(p, sR, eR)
+        if tL > t_max_L and dL < sleeve_r_soft * 1.5:
+            hard_delete.append(v)
+            continue
+        if tR > t_max_R and dR < sleeve_r_soft * 1.5:
+            hard_delete.append(v)
+            continue
+        if (p - cuff_L).length < sleeve_r_soft * 0.95 and tL >= t_max_L * 0.90:
+            hard_delete.append(v)
+            continue
+        if (p - cuff_R).length < sleeve_r_soft * 0.95 and tR >= t_max_R * 0.90:
+            hard_delete.append(v)
+            continue
+        # Lower legs / feet well below hem already gone; drop far-lateral hands if any remain.
+        if y < bot_y + (neck_y - bot_y) * 0.08 and abs(x - cx) > body_width * 0.35:
+            hard_delete.append(v)
+            continue
+        if layer_is_open and half_gap > 0.0 and y <= neck_y + body_width * 0.02:
+            # Anterior sector cut (cardigan). Must leave a large mid-height angular gap
+            # so garment-role-distinguish hasAnteriorOpening stays true (#46).
+            # Prefer a wide wedge around +Z (Anny anterior); also force-cut the sternum
+            # band (high +Z, near mid-X) which dense body meshes otherwise fill.
+            ang = math.atan2(z - cz, x - cx)
+            front = math.pi * 0.5
+            d_ang = (ang - front + math.pi) % (2.0 * math.pi) - math.pi
+            open_wedge = max(half_gap, 0.70)  # ≥ ~80° total gap when half_gap is small
+            near_sternum = (z >= cz + body_depth * 0.02) and (abs(x - cx) < body_width * 0.18)
+            in_front_wedge = abs(d_ang) < open_wedge and r_xz > neck_hole_r * 0.25
+            # Keep true sleeves (far lateral) even if slightly anterior.
+            far_sleeve = abs(x - cx) >= body_width * 0.28
+            if (in_front_wedge or near_sternum) and not far_sleeve and y >= bot_y:
+                hard_delete.append(v)
+                continue
+
+    open_cut_count = sum(1 for v in hard_delete if True)  # total hard deletes
+    if layer_is_open:
+        # Count how many hard deletes were pure front-wedge (approx: high +Z relative to cz)
+        frontish_del = 0
+        for v in hard_delete:
+            try:
+                if float(v.co.z) >= cz:
+                    frontish_del += 1
+            except ReferenceError:
+                pass
+        print(
+            f"[blender] #121 open-front hard_delete total={len(hard_delete)} "
+            f"frontish_z>={cz:.3f} count≈{frontish_del} half_gap={half_gap:.3f} "
+            f"body_w={body_width:.3f} body_d={body_depth:.3f}"
+        )
+    if hard_delete:
+        bmesh.ops.delete(bm, geom=hard_delete, context="VERTS")
+    bm.verts.ensure_lookup_table()
+    bm.edges.ensure_lookup_table()
+    if not bm.verts:
+        bm.free()
+        raise RuntimeError("#121 surface-derived garment: empty after hard cuts")
+
+    chest_target = Vector((cx, 0.5 * (bot_y + min(neck_y, bot_y + (neck_y - bot_y) * 0.7)), cz + body_depth * 0.12))
+    seed = min(bm.verts, key=lambda v: (v.co - chest_target).length_squared)
+    kept = set()
+    stack = [seed]
+    while stack:
+        v = stack.pop()
+        if v in kept:
+            continue
+        kept.add(v)
+        for e in v.link_edges:
+            ov = e.other_vert(v)
+            if ov is not None and ov not in kept:
+                stack.append(ov)
+
+    orphan = [v for v in bm.verts if v not in kept]
+    if orphan:
+        bmesh.ops.delete(bm, geom=orphan, context="VERTS")
+    bm.verts.ensure_lookup_table()
+    bm.faces.ensure_lookup_table()
+
+    def _keep_largest_component(bm_local) -> None:
+        """Delete every connected component except the largest (export continuity)."""
+        bm_local.verts.ensure_lookup_table()
+        if not bm_local.verts:
+            return
+        seen_cc: set = set()
+        components_list = []
+        for v0 in bm_local.verts:
+            if v0 in seen_cc:
+                continue
+            stack_cc = [v0]
+            comp = []
+            while stack_cc:
+                vv = stack_cc.pop()
+                if vv in seen_cc:
+                    continue
+                seen_cc.add(vv)
+                comp.append(vv)
+                for e in vv.link_edges:
+                    ov = e.other_vert(vv)
+                    if ov is not None and ov not in seen_cc:
+                        stack_cc.append(ov)
+            components_list.append(comp)
+        if len(components_list) <= 1:
+            return
+        components_list.sort(key=len, reverse=True)
+        drop = [v for c in components_list[1:] for v in c]
+        if drop:
+            bmesh.ops.delete(bm_local, geom=drop, context="VERTS")
+        bm_local.verts.ensure_lookup_table()
+        bm_local.faces.ensure_lookup_table()
+
+    _keep_largest_component(bm)
+
+    if bm.faces:
+        bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    bm.normal_update()
+
+    # Offset along outward normals — cloth is not equidistant: chest eases out, underarm eases in.
+    for v in bm.verts:
+        n = v.normal
+        if n.length < 1e-8:
+            continue
+        n = n.normalized()
+        p = v.co
+        # Anterior boost (front of chest) vs underarm reduction.
+        frontness = max(0.0, (float(p.z) - cz) / max(body_depth * 0.5, 0.001))
+        dL, _ = _seg_dist(p, sL, eL)
+        dR, _ = _seg_dist(p, sR, eR)
+        underarm = 1.0 if min(dL, dR) < sleeve_radius * 0.55 else 0.0
+        scale = 1.0 + 0.15 * min(frontness, 1.0) - 0.20 * underarm
+        off = cloth_offset * max(0.55, scale)
+        v.co = p + n * off
+
+    # No solidify: rim faces export as detached micro-islands after glTF split-by-normal.
+    # Cloth offset alone keeps vertices inside the inspect offset band.
+
+    # Weld seams so glTF export keeps shared indices (export splits on UV/sharp seams —
+    # the undiagnosed #82/§6t detached-blade failure class).
+    if bm.verts:
+        bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=5e-4)
+        bm.verts.ensure_lookup_table()
+        bm.edges.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+    if bm.edges:
+        try:
+            bmesh.ops.dissolve_degenerate(bm, dist=2e-4, edges=list(bm.edges))
+        except Exception:
+            pass
+        bm.verts.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+    # Drop loose verts (no faces).
+    loose = [v for v in bm.verts if not v.link_faces]
+    if loose:
+        bmesh.ops.delete(bm, geom=loose, context="VERTS")
+        bm.verts.ensure_lookup_table()
+        bm.faces.ensure_lookup_table()
+    _keep_largest_component(bm)
+    if bm.faces:
+        bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+
+    # Open-front second pass: cut anterior wedge in the GARMENT's own frame so the
+    # mid-height angular gap is large enough for hasAnteriorOpening (#46). Body-AABB
+    # polar cut alone left dense front coverage after arm-inclusive width skew.
+    if layer_is_open and bm.verts:
+        gxs = [float(v.co.x) for v in bm.verts]
+        gzs = [float(v.co.z) for v in bm.verts]
+        gys = [float(v.co.y) for v in bm.verts]
+        gcx = 0.5 * (min(gxs) + max(gxs))
+        gcz = 0.5 * (min(gzs) + max(gzs))
+        gmin_y, gmax_y = min(gys), max(gys)
+        gheight = max(gmax_y - gmin_y, 0.001)
+        ghalf_w = max(0.5 * (max(gxs) - min(gxs)), 0.001)
+        open_half = max(half_gap, 0.75)
+        drop_front = []
+        for v in bm.verts:
+            y = float(v.co.y)
+            # Mid-height torso band where opening is graded
+            yn = (y - gmin_y) / gheight
+            if yn < 0.12 or yn > 0.92:
+                continue
+            x = float(v.co.x)
+            z = float(v.co.z)
+            # Keep sleeves (far lateral)
+            if abs(x - gcx) >= ghalf_w * 0.62:
+                continue
+            ang = math.atan2(z - gcz, x - gcx)
+            front = math.pi * 0.5
+            d_ang = (ang - front + math.pi) % (2.0 * math.pi) - math.pi
+            if abs(d_ang) < open_half:
+                drop_front.append(v)
+        if drop_front:
+            bmesh.ops.delete(bm, geom=drop_front, context="VERTS")
+            bm.verts.ensure_lookup_table()
+            bm.faces.ensure_lookup_table()
+            _keep_largest_component(bm)
+            if bm.faces:
+                bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+            print(f"[blender] #121 open-front second-pass dropped={len(drop_front)} remaining={len(bm.verts)}")
+
+    bm.to_mesh(gmesh)
+    bm.free()
+    gmesh.update()
+    # Drop copied body UVs — UV seams force the glTF exporter to split shared vertices.
+    while gmesh.uv_layers:
+        gmesh.uv_layers.remove(gmesh.uv_layers[0])
+    if hasattr(gmesh, "color_attributes"):
+        while len(gmesh.color_attributes) > 0:
+            gmesh.color_attributes.remove(gmesh.color_attributes[0])
+    if hasattr(gmesh, "use_auto_smooth"):
+        gmesh.use_auto_smooth = False
+    try:
+        gmesh.free_normals_split()
+    except Exception:
+        pass
+    for p in gmesh.polygons:
+        p.use_smooth = True
+    print(
+        f"[blender] #121 surface-derived shell verts={len(gmesh.vertices)} "
+        f"faces={len(gmesh.polygons)} (post-weld single-component, no solidify)"
+    )
+    return garment
+
+
 def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any], arm_obj: Optional[bpy.types.Object] = None) -> Dict[str, Any]:
     """
     Assign simple case-driven clothing materials to the humanoid mesh itself.
     EXPANDED (pivot embed-real-garment-region-from-phenotype Q1 Q5 + peds-parent-nurse-garment-asset):
     reads phenotype.garmentLayers (e.g. ["short_sleeve_exam_tshirt"] patient; ["casual_top","open_cardigan"] parent_tara_johnson_v1; ["scrub_top","scrub_pocket"] nurse_kevin_lee_v1 from peds_asthma_parent_anxiety_v1).
-    For upper garment layers on patient/parent/nurse, emits REAL (not post-cylinder-hint) torso+shoulder+upper-arm short-sleeve
+    For upper garment layers on patient/parent/nurse, emits REAL body-surface-derived (#121) torso+shoulder+sleeve
     geometry with vertex weights on Anny canonical armature bones (clavicle.L/R, upper_arm.L/R, chest, spine, neck)
     + ARMATURE modifier so sleeves deform (deformsWithBreathing=true). Keeps body mesh-native material regions.
     SOLIDIFY + weighted normals for volume. SLEEVE-FIT (garment-sleeve-fit-parent-nurse-v1): torso r_base from shoulder-band/depth (not arm-span AABB); sleeves as tubes along upper_arm bone (clavicle→elbow), not vertical -Y mid-body boxes; tighter sleeve_r0 + thinner SOLIDIFY; denser 9x12+; vivid (0.08,0.52,0.95); faceCount~300+; bind pose remains body-local Y height.
@@ -2080,267 +2398,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 slf = 0.58
                 gown_color = (0.08, 0.52, 0.95, 1.0)
 
-            verts: List[tuple] = []
-            faces: List[tuple] = []
-            if torso_wrap:
-                torso_ang_start = 0.0
-                torso_ang_span = 2.0 * math.pi
-                torso_col_count = torso_cols
-            else:
-                half_gap = front_opening_rad * 0.5
-                torso_ang_start = (math.pi * 0.5) + half_gap
-                torso_ang_span = (2.0 * math.pi) - front_opening_rad
-                torso_col_count = torso_cols
-
-            for i in range(torso_rows):
-                t = i / float(torso_rows - 1) if torso_rows > 1 else 0.0
-                y = bot_y + t * (top_y - bot_y)
-                ripple = 0.007 * math.sin(t * 8.0) + 0.0045 * math.sin(t * 12.0) + 0.003 * math.sin(t * 5.5)
-                bulge = 0.016 if 0.28 < t < 0.68 else 0.007
-                # #76: removed shoulder_flare (#75 gate-tuning). Coverage is a yoke over the
-                # acromion, not lateral widen so body samples fall under the shell.
-                rx0 = r_base + bulge + ripple
-                rz0 = r_base * 0.72 + bulge * 0.6 + ripple
-                if i == 0:
-                    rx0 *= 0.90
-                    rz0 *= 0.90
-                if i == torso_rows - 1:
-                    rx0 *= 1.02  # mild neckline ease (not deltoid coverage)
-                    rz0 *= 0.92
-                for j in range(torso_col_count):
-                    if torso_wrap:
-                        ang = (j / torso_col_count) * 2.0 * math.pi
-                    else:
-                        ang = torso_ang_start + (j / float(max(torso_col_count - 1, 1))) * torso_ang_span
-                    fold = 0.0055 * math.sin(ang * 3.0 + t * 4.2) + 0.0035 * math.sin(ang * 5.0 - t * 2.5)
-                    hem_droop = 0.004 * (1.0 - t) * (0.5 + 0.5 * math.sin(ang * 2.0))
-                    rx = rx0 + fold
-                    rz = rz0 + fold * 0.7
-                    x = cx + rx * math.cos(ang)
-                    z = cz - 0.004 + rz * math.sin(ang) * 0.85
-                    verts.append((x, y - hem_droop, z))
-            for i in range(torso_rows - 1):
-                j_limit = torso_col_count if torso_wrap else (torso_col_count - 1)
-                for j in range(j_limit):
-                    a = i * torso_col_count + j
-                    if torso_wrap:
-                        b = i * torso_col_count + ((j + 1) % torso_col_count)
-                        c = (i + 1) * torso_col_count + ((j + 1) % torso_col_count)
-                    else:
-                        b = i * torso_col_count + (j + 1)
-                        c = (i + 1) * torso_col_count + (j + 1)
-                    d = (i + 1) * torso_col_count + j
-                    faces.append((a, b, c, d))
-
-            if layer_is_open and not torso_wrap:
-                for edge_j in (0, torso_col_count - 1):
-                    e0 = len(verts)
-                    for i in range(torso_rows):
-                        base = verts[i * torso_col_count + edge_j]
-                        dx = base[0] - cx
-                        dz = base[2] - cz
-                        rl = math.sqrt(dx * dx + dz * dz) or 1.0
-                        inward = 0.018
-                        verts.append((base[0] - dx / rl * inward, base[1], base[2] - dz / rl * inward))
-                    for i in range(torso_rows - 1):
-                        a = i * torso_col_count + edge_j
-                        b = e0 + i
-                        c = e0 + i + 1
-                        d = (i + 1) * torso_col_count + edge_j
-                        faces.append((a, b, c, d))
-
-            def _add_sleeve_tube(
-                shoulder: tuple,
-                arm_dir_n: tuple,
-                along: float,
-                r0: float,
-                rows: int,
-                cols: int,
-            ) -> int:
-                s0 = len(verts)
-                ax, ay, az = arm_dir_n
-                ux, uy, uz = 0.0, 1.0, 0.0
-                if abs(ay) > 0.92:
-                    ux, uy, uz = 0.0, 0.0, 1.0
-                sx = ay * uz - az * uy
-                sy = az * ux - ax * uz
-                sz = ax * uy - ay * ux
-                sl = math.sqrt(sx * sx + sy * sy + sz * sz) or 1.0
-                sx, sy, sz = sx / sl, sy / sl, sz / sl
-                px = ay * sz - az * sy
-                py = az * sx - ax * sz
-                pz = ax * sy - ay * sx
-                pl = math.sqrt(px * px + py * py + pz * pz) or 1.0
-                px, py, pz = px / pl, py / pl, pz / pl
-                for si in range(rows):
-                    st = si / float(rows - 1) if rows > 1 else 0.0
-                    # Start at shoulder (was 0.04) so deltoid samples have nearby sleeve verts.
-                    t_along = 0.0 + st * along
-                    cx_s = shoulder[0] + arm_dir_n[0] * t_along
-                    cy_s = shoulder[1] + arm_dir_n[1] * t_along
-                    cz_s = shoulder[2] + arm_dir_n[2] * t_along
-                    ripple = 0.0055 * math.sin(st * 14.0) + 0.003 * math.sin(st * 9.0)
-                    sr = r0 * (1.0 - st * 0.28) + ripple
-                    if st < 0.12:
-                        sr *= 1.12  # deltoid cap flare
-                    for sj in range(cols):
-                        sang = (sj / cols) * 2.0 * math.pi
-                        fold = 0.0035 * math.sin(sang * 3.0 + st * 6.0)
-                        ca, sa = math.cos(sang), math.sin(sang)
-                        srr = sr + fold
-                        x = cx_s + srr * (ca * sx + sa * px)
-                        y = cy_s + srr * (ca * sy + sa * py)
-                        z = cz_s + srr * (ca * sz + sa * pz)
-                        verts.append((x, y, z))
-                for si in range(rows - 1):
-                    for sj in range(cols):
-                        a = s0 + si * cols + sj
-                        b = s0 + si * cols + ((sj + 1) % cols)
-                        c = s0 + (si + 1) * cols + ((sj + 1) % cols)
-                        d = s0 + (si + 1) * cols + sj
-                        faces.append((a, b, c, d))
-                return s0
-
-            sL = _add_sleeve_tube(shoulder_L, arm_dir_Ln, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
-            sR = _add_sleeve_tube(shoulder_R, arm_dir_Rn, sleeve_along, sleeve_r0, sleeve_rows, sleeve_cols)
-            _ = (sL, sR)
-
-            def _add_shoulder_yoke(
-                shoulder: tuple,
-                arm_dir_n: tuple,
-                sign_x: float,
-            ) -> int:
-                """
-                #76 yoke: faces connecting torso rim to sleeve root over the acromion.
-
-                Prior shells were a torso ring + separate sleeve tubes from `_arm_p` with
-                nothing over the deltoid top — raising top_y twice left bare shoulders.
-                Peak Y is measured body shoulder top + cloth thickness.
-                """
-                s0 = len(verts)
-                # Dense plateau so SUBSURF L1 cannot collapse peak below body shoulder top.
-                yoke_rows = 8
-                yoke_cols = 12
-                # Medial attach near neckline lateral side of torso
-                medial_x = cx + sign_x * max(r_base * 0.62, shoulder_half * 0.55)
-                medial_y = top_y
-                medial_z = cz
-                # Along-arm outer slightly down the sleeve so yoke meets the tube
-                outer_x = shoulder[0] + arm_dir_n[0] * (sleeve_along * 0.10) + sign_x * sleeve_r0 * 0.55
-                outer_y = shoulder[1] + arm_dir_n[1] * (sleeve_along * 0.10) + sleeve_r0 * 0.65
-                outer_z = shoulder[2] + arm_dir_n[2] * (sleeve_along * 0.10)
-                # Peak over acromion (above body shoulder surface), lateral enough for inspect
-                peak_x = shoulder[0] + sign_x * max(body_width * 0.04, shoulder_half * 0.25)
-                peak_z = shoulder[2] + body_depth * 0.02
-
-                for ri in range(yoke_rows):
-                    u = ri / float(yoke_rows - 1) if yoke_rows > 1 else 0.0
-                    # Height: rise → hold plateau at peak → ease to sleeve.
-                    # Plateau rows keep max-Y after Catmull-Clark (single peak row collapses).
-                    if u < 0.22:
-                        y = medial_y + (yoke_peak_y - medial_y) * (u / 0.22)
-                    elif u <= 0.72:
-                        y = yoke_peak_y
-                    else:
-                        y = yoke_peak_y + (outer_y - yoke_peak_y) * ((u - 0.72) / 0.28)
-                    # Planar path medial → peak → outer
-                    if u <= 0.50:
-                        t2 = u / 0.50
-                        bx = medial_x + (peak_x - medial_x) * t2
-                        bz = medial_z + (peak_z - medial_z) * t2
-                    else:
-                        t2 = (u - 0.50) / 0.50
-                        bx = peak_x + (outer_x - peak_x) * t2
-                        bz = peak_z + (outer_z - peak_z) * t2
-                    # Front→back span grows with u (wider over deltoid)
-                    half_span = (0.035 + 0.070 * u) * (1.0 + 0.15 * radius_stack)
-                    for cj in range(yoke_cols):
-                        v = cj / float(yoke_cols - 1) if yoke_cols > 1 else 0.5
-                        # v=0 front (+Z in Anny anterior), v=1 back
-                        z_off = (v - 0.5) * 2.0 * half_span
-                        # Radial lift so yoke sits outside body / deltoid
-                        x_lift = sign_x * (0.010 + 0.018 * u)
-                        fold = 0.0025 * math.sin(v * math.pi * 2.0 + u * 3.0)
-                        verts.append((bx + x_lift + fold * sign_x, y + fold * 0.2, bz + z_off))
-                for ri in range(yoke_rows - 1):
-                    for cj in range(yoke_cols - 1):
-                        a = s0 + ri * yoke_cols + cj
-                        b = s0 + ri * yoke_cols + (cj + 1)
-                        c = s0 + (ri + 1) * yoke_cols + (cj + 1)
-                        d = s0 + (ri + 1) * yoke_cols + cj
-                        faces.append((a, b, c, d))
-                return s0
-
-            _add_shoulder_yoke(shoulder_L, arm_dir_Ln, 1.0)
-            _add_shoulder_yoke(shoulder_R, arm_dir_Rn, -1.0)
-
-            col0 = len(verts)
-            collar_cols = torso_col_count
-            for ci in range(3):
-                yc = top_y + 0.004 + ci * 0.006
-                rc = r_base * 0.42
-                for j in range(collar_cols):
-                    if torso_wrap:
-                        ang = (j / collar_cols) * 2.0 * math.pi
-                    else:
-                        ang = torso_ang_start + (j / float(max(collar_cols - 1, 1))) * torso_ang_span
-                    verts.append((cx + rc * math.cos(ang), yc, cz - 0.002 + rc * 0.55 * math.sin(ang) * 0.5))
-            for ci in range(2):
-                j_limit = collar_cols if torso_wrap else (collar_cols - 1)
-                for j in range(j_limit):
-                    a = col0 + ci * collar_cols + j
-                    if torso_wrap:
-                        b = col0 + ci * collar_cols + ((j + 1) % collar_cols)
-                        c = col0 + (ci + 1) * collar_cols + ((j + 1) % collar_cols)
-                    else:
-                        b = col0 + ci * collar_cols + (j + 1)
-                        c = col0 + (ci + 1) * collar_cols + (j + 1)
-                    d = col0 + (ci + 1) * collar_cols + j
-                    faces.append((a, b, c, d))
-
-            def _add_sleeve_ring(shoulder: tuple, arm_dir_n: tuple, st: float, r_scale: float) -> None:
-                t_along = st * sleeve_along
-                cx_s = shoulder[0] + arm_dir_n[0] * t_along
-                cy_s = shoulder[1] + arm_dir_n[1] * t_along
-                cz_s = shoulder[2] + arm_dir_n[2] * t_along
-                ax, ay, az = arm_dir_n
-                ux, uy, uz = (0.0, 1.0, 0.0) if abs(ay) <= 0.92 else (0.0, 0.0, 1.0)
-                sx = ay * uz - az * uy
-                sy = az * ux - ax * uz
-                sz = ax * uy - ay * ux
-                sl = math.sqrt(sx * sx + sy * sy + sz * sz) or 1.0
-                sx, sy, sz = sx / sl, sy / sl, sz / sl
-                px = ay * sz - az * sy
-                py = az * sx - ax * sz
-                pz = ax * sy - ay * sx
-                pl = math.sqrt(px * px + py * py + pz * pz) or 1.0
-                px, py, pz = px / pl, py / pl, pz / pl
-                sr = sleeve_r0 * (1.0 - st * 0.28) * r_scale
-                c0 = len(verts)
-                for ci in range(2):
-                    rr = sr * (1.0 + ci * 0.04)
-                    for j in range(sleeve_cols):
-                        sang = (j / sleeve_cols) * 2.0 * math.pi
-                        ca, sa = math.cos(sang), math.sin(sang)
-                        verts.append((
-                            cx_s + rr * (ca * sx + sa * px) + arm_dir_n[0] * ci * 0.006,
-                            cy_s + rr * (ca * sy + sa * py) + arm_dir_n[1] * ci * 0.006,
-                            cz_s + rr * (ca * sz + sa * pz) + arm_dir_n[2] * ci * 0.006,
-                        ))
-                for j in range(sleeve_cols):
-                    a = c0 + j
-                    b = c0 + ((j + 1) % sleeve_cols)
-                    c = c0 + sleeve_cols + ((j + 1) % sleeve_cols)
-                    d = c0 + sleeve_cols + j
-                    faces.append((a, b, c, d))
-
-            for sh, ad in [(shoulder_L, arm_dir_Ln), (shoulder_R, arm_dir_Rn)]:
-                _add_sleeve_ring(sh, ad, 0.95, 0.92)
-                _add_sleeve_ring(sh, ad, 0.48, 1.02)
-
+            # #121: body-surface-derived shell (NOT ring+tube parametric cage).
+            # Continuity from body topology; neck/arm cuts from landmarks; offset along normals.
             gkey = layer_token.replace(" ", "_").lower()[:32]
             is_tshirt_layer = "tshirt" in layer_token.lower()
-            # Canonical mesh name on outermost shell for identity contracts; under-layers unique.
             is_outermost = layer_index == n_layers - 1
             if is_adult_or_ed:
                 base_mesh_name = "openclinxr_real_garment_peds_upper_v1_mesh"
@@ -2353,42 +2414,59 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             else:
                 gmesh_name = f"{base_mesh_name}__under_{gkey}"
 
-            gmesh = bpy.data.meshes.new(gmesh_name)
-            gmesh.from_pydata(verts, [], faces)
-            gmesh.update()
             gname = f"openclinxr_real_garment_from_phenotype_{gkey}"
-            # unique object names if layers share token
             if bpy.data.objects.get(gname) is not None:
                 gname = f"{gname}_L{layer_index}"
-            garment = bpy.data.objects.new(gname, gmesh)
-            bpy.context.collection.objects.link(garment)
+
+            # Cloth offset varies by layer stack (inner closer). Constant base + layer rank.
+            # Unlocked decision: ~1.0–2.2 cm skin gap; not equidistant (helper eases chest/underarm).
+            cloth_offset = (0.010 + 0.012 * radial_rank) * (1.02 if kind == "gown" else 1.0)
+            neck_y = body_min_y + body_height * 0.84  # neck-root band from body height + shoulder measure
+            # Prefer measured body shoulder top when available for neck cut floor.
+            if body_shoulder_top_y:
+                neck_y = max(neck_y, body_shoulder_top_y + body_height * 0.01)
+            sleeve_radius = max(sleeve_r0 * 1.35, body_depth * 0.18, torso_half_w * 0.42)
+
+            garment = _build_body_surface_derived_garment(
+                mesh_obj,
+                gmesh_name=gmesh_name,
+                gname=gname,
+                bot_y=bot_y,
+                neck_y=neck_y,
+                cloth_offset=cloth_offset,
+                sleeve_along=sleeve_along,
+                sleeve_radius=sleeve_radius,
+                layer_is_open=layer_is_open,
+                front_opening_rad=front_opening_rad,
+                cx=cx,
+                cz=cz,
+                body_width=body_width,
+                body_depth=body_depth,
+                shoulder_L=shoulder_L,
+                elbow_L=elbow_L,
+                shoulder_R=shoulder_R,
+                elbow_R=elbow_R,
+            )
+            gmesh = garment.data
+            verts = list(gmesh.vertices)
+            faces = list(gmesh.polygons)
+            if len(verts) < 24 or len(faces) < 12:
+                raise RuntimeError(
+                    f"#121 surface-derived garment too sparse after cut: "
+                    f"verts={len(verts)} faces={len(faces)} layer={layer_token!r}"
+                )
+            # Topology class reflects authoring method (not the old ring labels).
+            topology_class = (
+                "body_surface_offset_open_front_v1"
+                if layer_is_open
+                else "body_surface_offset_closed_v1"
+            )
+
             gmat = create_role_marker_material(f"openclinxr_real_garment_{gkey}_phenotype_L{layer_index}", gown_color)
             garment.data.materials.append(gmat)
-            sol = garment.modifiers.new("openclinxr_real_garment_thickness_v1", "SOLIDIFY")
-            sol.thickness = 0.012 if kind == "gown" else (0.008 if not is_outermost else 0.009)
-            sol.offset = 1.0
-            if hasattr(sol, "use_even_offset"):
-                sol.use_even_offset = True
-            if hasattr(sol, "use_quality_normals"):
-                sol.use_quality_normals = True
-            if not any(m.type == "SUBSURF" for m in garment.modifiers):
-                gsub = garment.modifiers.new("openclinxr_real_garment_subsurf_v1", "SUBSURF")
-                gsub.levels = 1
-                gsub.render_levels = 1
-                if hasattr(gsub, "subdivision_type"):
-                    gsub.subdivision_type = "CATMULL_CLARK"
-            if not any(m.type == "WEIGHTED_NORMAL" for m in garment.modifiers):
-                gwn = garment.modifiers.new("openclinxr_real_garment_weighted_normals", "WEIGHTED_NORMAL")
-                if hasattr(gwn, "mode"):
-                    try:
-                        gwn.mode = "FACE_AREA_WITH_ANGLE"
-                    except (TypeError, ValueError, AttributeError):
-                        try:
-                            gwn.mode = "FACE_AREA"
-                        except (TypeError, ValueError, AttributeError):
-                            pass
-                if hasattr(gwn, "keep_sharp"):
-                    gwn.keep_sharp = False
+            # Thickness already applied in _build_body_surface_derived_garment (bmesh solidify).
+            # No SUBSURF / WEIGHTED_NORMAL: both force custom split normals on glTF export and
+            # re-split shared vertex indices (the §6t continuity trap).
             for poly in garment.data.polygons:
                 poly.use_smooth = True
             weighted_bones: List[str] = []
@@ -2445,9 +2523,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             garment.location = (0.0, 0.0, 0.0)
             garment.rotation_euler = (0.0, 0.0, 0.0)
             garment.scale = (1.0, 1.0, 1.0)
-            garment["openClinXrRealGarmentFromPhenotype"] = "embed_real_garment_region_v1"
+            garment["openClinXrRealGarmentFromPhenotype"] = "embed_body_surface_derived_garment_v1_issue_121"
             garment["openClinXrGarmentCoordinateBasis"] = "body_local_y_height_bind_pose_v1"
-            garment["openClinXrGarmentSleeveFit"] = "along_upper_arm_clavicle_to_elbow_v1"
+            garment["openClinXrGarmentSleeveFit"] = "body_surface_offset_upper_arm_landmarks_v1"
+            garment["openClinXrGarmentAuthoringClass"] = "body_surface_normal_offset_not_ring_tube"
             garment["openClinXrGarmentLayerIndex"] = layer_index
             garment["openClinXrGarmentLayerToken"] = layer_token
             garment["openClinXrGarmentLayerKind"] = kind
@@ -2482,8 +2561,8 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             )
             face_count = len(faces)
             layer_meta = {
-                "mode": "phenotype_embedded_real_garment_region_v1",
-                "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+                "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+                "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
                 "objectName": garment.name,
                 "meshName": gmesh_name,
                 "layerIndex": layer_index,
@@ -2491,7 +2570,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "layerKind": kind,
                 "faceCount": face_count,
                 "vertexCount": len(verts),
-                "hasShoulderYoke": True,
+                "hasShoulderYoke": False,
+                "authoringClass": "body_surface_normal_offset",
+                "clothOffsetM": round(cloth_offset, 4),
                 "yokePeakY": round(yoke_peak_y, 4),
                 "bodyShoulderTopY": round(body_shoulder_top_y, 4),
                 "hasSleeveGeometry": True,
@@ -2516,9 +2597,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "deformsWithBreathing": True,
                 "hasVisibleVolume": True,
                 "hasSeamFoldHints": True,
-                "hasFabricThicknessSolidify": True,
-                "hasLightSubsurf": True,
-                "hasGentleDisplacementFolds": True,
+                "hasFabricThicknessSolidify": False,
+                "hasLightSubsurf": False,
+                "hasGentleDisplacementFolds": False,
                 "coordinateBasis": "body_local_y_height_bind_pose_v1",
                 "bindPoseLocalBBox": local_bbox,
                 "bindPoseWorldBBox": world_bbox,
@@ -2526,15 +2607,16 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 "garmentLayers": [str(g) for g in garment_layers if g],
                 "declaredUpperLayerTokens": list(upper_layer_tokens),
                 "role": role,
-                "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+                "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
                 "notEvidenceFor": [
                     "production_asset_readiness",
                     "b_plus_visual_realism_gate",
                     "clinical_validity",
                     "scoring_validity",
                     "believable_clinical_costume",
+                    "looks_worn_pixel_grade",
                 ],
-                "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75",
+                "evidenceForThisSlice": "garment-surface-derived-v1-issue-121",
             }
             layer_metas.append(layer_meta)
 

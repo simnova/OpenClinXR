@@ -384,16 +384,18 @@
     ],
     "realGarmentLayers": [
       {
-        "mode": "phenotype_embedded_real_garment_region_v1",
-        "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+        "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+        "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
         "objectName": "openclinxr_real_garment_from_phenotype_hospital_gown",
         "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
         "layerIndex": 0,
         "layerToken": "hospital_gown",
         "layerKind": "gown",
-        "faceCount": 654,
-        "vertexCount": 808,
-        "hasShoulderYoke": true,
+        "faceCount": 2456,
+        "vertexCount": 2581,
+        "hasShoulderYoke": false,
+        "authoringClass": "body_surface_normal_offset",
+        "clothOffsetM": 0.0224,
         "yokePeakY": 1.4536,
         "bodyShoulderTopY": 1.4086,
         "hasSleeveGeometry": true,
@@ -405,12 +407,12 @@
         "sleeveR0M": 0.1048,
         "sleeveRFactor": 0.391,
         "torsoRBaseM": 0.2683,
-        "meanRadiusM": 0.1696,
+        "meanRadiusM": 0.1612,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
         "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-        "topologyClass": "closed_gown_drape",
+        "topologyClass": "body_surface_offset_closed_v1",
         "hasAnteriorOpening": false,
         "anteriorOpeningRadians": 0.0,
         "torsoWrapClosed": true,
@@ -426,32 +428,32 @@
         "deformsWithBreathing": true,
         "hasVisibleVolume": true,
         "hasSeamFoldHints": true,
-        "hasFabricThicknessSolidify": true,
-        "hasLightSubsurf": true,
-        "hasGentleDisplacementFolds": true,
+        "hasFabricThicknessSolidify": false,
+        "hasLightSubsurf": false,
+        "hasGentleDisplacementFolds": false,
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.389122,
-            0.5592,
-            0.010481
+            -0.421259,
+            0.562086,
+            -0.050835
           ],
           "max": [
-            0.389122,
-            1.454119,
-            0.367601
+            0.421259,
+            1.52449,
+            0.224651
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.389122,
-            -0.367601,
-            0.5592
+            -0.421259,
+            -0.224651,
+            0.562086
           ],
           "max": [
-            0.389122,
-            -0.010481,
-            1.454119
+            0.421259,
+            0.050835,
+            1.52449
           ]
         },
         "bodyLocalHeightRange": [
@@ -465,15 +467,16 @@
           "hospital_gown"
         ],
         "role": "patient",
-        "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+        "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
         "notEvidenceFor": [
           "production_asset_readiness",
           "b_plus_visual_realism_gate",
           "clinical_validity",
           "scoring_validity",
-          "believable_clinical_costume"
+          "believable_clinical_costume",
+          "looks_worn_pixel_grade"
         ],
-        "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+        "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
       }
     ],
     "declaredUpperGarmentLayers": [
@@ -481,16 +484,18 @@
     ],
     "declaredUpperGarmentLayerCount": 1,
     "realGarmentRegion": {
-      "mode": "phenotype_embedded_real_garment_region_v1",
-      "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+      "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+      "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
       "objectName": "openclinxr_real_garment_from_phenotype_hospital_gown",
       "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
       "layerIndex": 0,
       "layerToken": "hospital_gown",
       "layerKind": "gown",
-      "faceCount": 654,
-      "vertexCount": 808,
-      "hasShoulderYoke": true,
+      "faceCount": 2456,
+      "vertexCount": 2581,
+      "hasShoulderYoke": false,
+      "authoringClass": "body_surface_normal_offset",
+      "clothOffsetM": 0.0224,
       "yokePeakY": 1.4536,
       "bodyShoulderTopY": 1.4086,
       "hasSleeveGeometry": true,
@@ -502,12 +507,12 @@
       "sleeveR0M": 0.1048,
       "sleeveRFactor": 0.391,
       "torsoRBaseM": 0.2683,
-      "meanRadiusM": 0.1696,
+      "meanRadiusM": 0.1612,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
       "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-      "topologyClass": "closed_gown_drape",
+      "topologyClass": "body_surface_offset_closed_v1",
       "hasAnteriorOpening": false,
       "anteriorOpeningRadians": 0.0,
       "torsoWrapClosed": true,
@@ -523,32 +528,32 @@
       "deformsWithBreathing": true,
       "hasVisibleVolume": true,
       "hasSeamFoldHints": true,
-      "hasFabricThicknessSolidify": true,
-      "hasLightSubsurf": true,
-      "hasGentleDisplacementFolds": true,
+      "hasFabricThicknessSolidify": false,
+      "hasLightSubsurf": false,
+      "hasGentleDisplacementFolds": false,
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.389122,
-          0.5592,
-          0.010481
+          -0.421259,
+          0.562086,
+          -0.050835
         ],
         "max": [
-          0.389122,
-          1.454119,
-          0.367601
+          0.421259,
+          1.52449,
+          0.224651
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.389122,
-          -0.367601,
-          0.5592
+          -0.421259,
+          -0.224651,
+          0.562086
         ],
         "max": [
-          0.389122,
-          -0.010481,
-          1.454119
+          0.421259,
+          0.050835,
+          1.52449
         ]
       },
       "bodyLocalHeightRange": [
@@ -562,29 +567,32 @@
         "hospital_gown"
       ],
       "role": "patient",
-      "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+      "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
       "notEvidenceFor": [
         "production_asset_readiness",
         "b_plus_visual_realism_gate",
         "clinical_validity",
         "scoring_validity",
-        "believable_clinical_costume"
+        "believable_clinical_costume",
+        "looks_worn_pixel_grade"
       ],
-      "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+      "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
     }
   },
   "garmentSourceGeometryHint": null,
   "realGarmentRegionFromPhenotype": {
-    "mode": "phenotype_embedded_real_garment_region_v1",
-    "revision": "embed_real_garment_shoulder_yoke_v1_issue_76",
+    "mode": "phenotype_embedded_body_surface_derived_garment_v1",
+    "revision": "body_surface_normal_offset_issue_121_not_ring_tube",
     "objectName": "openclinxr_real_garment_from_phenotype_hospital_gown",
     "meshName": "openclinxr_real_garment_peds_upper_v1_mesh",
     "layerIndex": 0,
     "layerToken": "hospital_gown",
     "layerKind": "gown",
-    "faceCount": 654,
-    "vertexCount": 808,
-    "hasShoulderYoke": true,
+    "faceCount": 2456,
+    "vertexCount": 2581,
+    "hasShoulderYoke": false,
+    "authoringClass": "body_surface_normal_offset",
+    "clothOffsetM": 0.0224,
     "yokePeakY": 1.4536,
     "bodyShoulderTopY": 1.4086,
     "hasSleeveGeometry": true,
@@ -596,12 +604,12 @@
     "sleeveR0M": 0.1048,
     "sleeveRFactor": 0.391,
     "torsoRBaseM": 0.2683,
-    "meanRadiusM": 0.1696,
+    "meanRadiusM": 0.1612,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
     "sleeveDirection": "clavicle_to_elbow_upper_arm_bone",
-    "topologyClass": "closed_gown_drape",
+    "topologyClass": "body_surface_offset_closed_v1",
     "hasAnteriorOpening": false,
     "anteriorOpeningRadians": 0.0,
     "torsoWrapClosed": true,
@@ -617,32 +625,32 @@
     "deformsWithBreathing": true,
     "hasVisibleVolume": true,
     "hasSeamFoldHints": true,
-    "hasFabricThicknessSolidify": true,
-    "hasLightSubsurf": true,
-    "hasGentleDisplacementFolds": true,
+    "hasFabricThicknessSolidify": false,
+    "hasLightSubsurf": false,
+    "hasGentleDisplacementFolds": false,
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.389122,
-        0.5592,
-        0.010481
+        -0.421259,
+        0.562086,
+        -0.050835
       ],
       "max": [
-        0.389122,
-        1.454119,
-        0.367601
+        0.421259,
+        1.52449,
+        0.224651
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.389122,
-        -0.367601,
-        0.5592
+        -0.421259,
+        -0.224651,
+        0.562086
       ],
       "max": [
-        0.389122,
-        -0.010481,
-        1.454119
+        0.421259,
+        0.050835,
+        1.52449
       ]
     },
     "bodyLocalHeightRange": [
@@ -656,15 +664,16 @@
       "hospital_gown"
     ],
     "role": "patient",
-    "claimScope": "case_phenotype_garment_layers_multi_shell_coverage_q1_factory_not_hint_cylinder_not_production_not_clinical_costume",
+    "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
     "notEvidenceFor": [
       "production_asset_readiness",
       "b_plus_visual_realism_gate",
       "clinical_validity",
       "scoring_validity",
-      "believable_clinical_costume"
+      "believable_clinical_costume",
+      "looks_worn_pixel_grade"
     ],
-    "evidenceForThisSlice": "garment-layer-coverage-v1-issue-75"
+    "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
   },
   "scalpHairMaterialRegion": {
     "meshRegionMaterialMode": "bounds_based_mesh_native_scalp_hair_surface",
@@ -749,7 +758,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v1, actor=patient)",
-    "generatedAt": "2026-08-07T05:52:32.019817Z",
+    "generatedAt": "2026-08-07T13:37:47.219184Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.18, \"anny_topology\": \"default\", \"anxious\": 0.65, \"bmi\": 26.0, \"brow_tension\": 0.55, \"build\": \"average_adult\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"clinical_exam_hospital_gown_chest_pain\", \"eye_color\": \"brown\", \"fabricPalette\": \"hospital_gown_blue_pattern\", \"fitProfile\": \"adult_standard_fit\", \"flush\": 0.15, \"garmentLayers\": [\"hospital_gown\"], \"gender_presentation\": \"adult_male\", \"hair_color\": \"brown\", \"hair_density\": 0.65, \"height_cm\": 176, \"materialFinish\": \"cotton_slight_sheen\", \"role_visual_cue\": \"ed_chest_pain_patient\", \"skin_tone\": \"warm_medium\", \"sleeveGeometryExpansion\": \"v2_gown_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"ed_patient_exam\"}"
   },
   "licenseExceptionRequired": false,

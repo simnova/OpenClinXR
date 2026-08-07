@@ -6,7 +6,7 @@
   "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
   "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin_rigging_report.json",
   "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
-  "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+  "generatorMode": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
   "realAnnyWeightsUsed": false,
@@ -15,29 +15,15 @@
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
-  "sourceOriginChain": {
-    "sourceRecordPath": "sources/anny-github-2026.json",
-    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
-    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
-    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-75/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
-    "optimizationStage": null,
-    "sourceManifestKind": "real_anny_candidate_unverified",
-    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
-  },
-  "optimizationHandoff": null,
-  "licenseChain": {
-    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
-    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
-    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
-  },
-  "derivativeLineage": {
-    "caseId": "peds_asthma_parent_anxiety_v1",
-    "actorId": "nurse_kevin_lee_v1",
-    "reuseKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
-    "sourceParametersHash": "d987f3433978f6f96b3d5c642da5084df5094ff18475dbde02b3b4c4a4963eaa"
-  },
-  "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
-  "promptOrCaseParameterHash": "d987f3433978f6f96b3d5c642da5084df5094ff18475dbde02b3b4c4a4963eaa",
+  "outputSha256": "7d7964748af7b89e54826f6d1ff048ab38a668f1169637f128c9cf0cb0529350",
+  "outputBytes": 7133168,
+  "generatedAt": "2026-08-07T13:49:49.354383+00:00",
+  "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
+  "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
+  "garmentLayers": [
+    "scrub_top",
+    "scrub_pocket"
+  ],
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "quest_readiness",
@@ -45,16 +31,19 @@
     "learner_readiness",
     "clinical_validity",
     "scoring_validity",
-    "scene_placement_readiness",
-    "provider_runtime_readiness",
-    "production_asset_readiness",
-    "quest_readiness",
-    "learner_readiness",
-    "clinical_validity",
-    "scoring_validity"
+    "scene_placement_readiness"
   ],
   "sourceNotes": [
-    "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
-    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
-  ]
+    "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
+    "Base apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj; garmentLayers=['scrub_top', 'scrub_pocket'].",
+    "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
+    "Not B+ realism / production / clinical readiness."
+  ],
+  "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
+  "promotionGates": false,
+  "sourceOriginChain": {
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "rebakedFrom": "peds_nurse_kevin.anny_base.obj (tracked, unchanged by this re-bake)",
+    "garmentAuthoringClass": "body_surface_normal_offset_issue_121"
+  }
 }
