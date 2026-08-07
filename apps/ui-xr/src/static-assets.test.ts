@@ -404,8 +404,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("__openClinXrPediatricRespiratoryEquipmentCueEvidence");
     expect(mainSource).toContain("addPediatricRespiratoryEquipmentCues");
     expect(mainSource).toContain("generated-equipment-slot");
-    expect(mainSource).toContain("case_definition_equipment_loaded_from_runtime_bundle");
-    expect(mainSource).toContain("dynamic_encounter_equipment_context");
+    // #140 — equipment is manifest-driven (planStationEquipmentMounts), not hardcoded ED slots.
+    expect(mainSource).toContain("planStationEquipmentMounts");
+    expect(mainSource).toContain("manifest_declared_equipment_mount");
+    expect(mainSource).toContain("buildDeclaredEquipmentGeometry");
     expect(mainSource).toContain("pediatric_nebulizer_mask_readability_cue");
     expect(mainSource).toContain("oxygen_wall_port_round_connector_cue");
     expect(mainSource).toContain("pulse_ox_finger_clip_readability_cue");
@@ -632,10 +634,11 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
     expect(mainSource).toContain("iwsdkStationSceneObjects.ecgCart");
     expect(mainSource).toContain("iwsdkStationSceneObjects.ivPoleWithPump");
-    expect(mainSource).toContain("generated-equipment-slot.${ecgCartRuntimeAsset.assetId}");
-    expect(mainSource).toContain("generated-equipment-slot.${ivPoleRuntimeAsset.assetId}");
-    expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(ecgCart");
-    expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(ivPole");
+    // #140 — slots named by equipmentId; ED bay still uses IWSDK names for ECG/IV GLBs.
+    expect(mainSource).toContain("generated-equipment-slot.${item.equipmentId}");
+    expect(mainSource).toContain("loadGeneratedEquipmentIntoSceneSlot(slot");
+    expect(mainSource).toContain("ecg-cart-12-lead.glb");
+    expect(mainSource).toContain("iv-pole-with-pump.glb");
     expect(mainSource).toContain("loadGeneratedEnvironmentIntoSceneSlot(environmentShell");
     expect(mainSource).toContain("__openClinXrSceneAssetEvidence");
     expect(mainSource).toContain("sceneAssetEvidence: window.__openClinXrSceneAssetEvidence");
@@ -767,8 +770,7 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("generated_humanoid_asset_loaded");
     expect(mainSource).toContain("generated_humanoid_asset_load_failed");
     expect(runtimeStateSource).toContain("procedural_dialogue_expression_gaze_fallback");
-    expect(mainSource).toContain("runtimeGeneratedSceneObjectName(ecgCartRuntimeAsset)");
-    expect(mainSource).toContain("runtimeGeneratedSceneObjectName(ivPoleRuntimeAsset)");
+    expect(mainSource).toContain("runtimeGeneratedSceneObjectName(bundleModel)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(encounterRuntimeAssetBundle.environment)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(patientRuntimeHumanoidAsset)");
     expect(mainSource).toContain("runtimeGeneratedSceneObjectName(nurseRuntimeHumanoidAsset)");
@@ -781,8 +783,9 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId())");
     expect(mainSource).toContain("actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId())");
     expect(mainSource).toContain("runtimeSceneObjectPrefix()}.actor-nameplate");
-    expect(mainSource).toContain("runtimeAssetDisplayLabel(ecgCartRuntimeAsset");
-    expect(mainSource).toContain("runtimeAssetDisplayLabel(ivPoleRuntimeAsset");
+    // #140 — equipment labels come from plan items / equipmentDisplayLabel, not hardcoded ED assets.
+    expect(mainSource).toContain("createActorNameplate(item.label");
+    expect(mainSource).toContain("__openClinXrDeclaredEquipmentMountEvidence");
     expect(mainSource).toContain("roleTintColor");
     expect(mainSource).toContain("tintGeneratedSceneMaterials");
     expect(mainSource).toContain("registerGeneratedHumanoidAnimation");
@@ -1061,9 +1064,11 @@ describe("static browser assets", () => {
 
     expect(mainSource).toContain("function hasVector3");
     expect(mainSource).toContain("typeof vector.x === \"number\"");
-    expect(mainSource).toContain("position: hasVector3(placement?.position) ? placement.position : fallback.position");
+    // Actor placements still normalize via hasVector3; equipment placements moved to
+    // planStationEquipmentMounts in station-equipment.ts (#140).
+    expect(mainSource).toContain("const position = hasVector3(placement?.position) ? placement.position : fallback.position");
     expect(mainSource).toContain("scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale");
-    expect(mainSource).toContain("interactionCueIds: Array.isArray(placement?.interactionCueIds) ? placement.interactionCueIds : fallback.interactionCueIds");
+    expect(mainSource).toContain("planStationEquipmentMounts");
     expect(mainSource).toContain("fallbackPositions[propIndex % fallbackPositions.length]");
     expect(mainSource).toContain("hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 }");
     expect(mainSource).toContain("prop.label ?? prop.propId.replaceAll");

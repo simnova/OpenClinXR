@@ -40,6 +40,13 @@ import { buildStationEnvironment } from "./station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
 import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
 import {
+  buildDeclaredEquipmentGeometry,
+  buildGltfEquipmentPlaceholderSlot,
+  collectDeclaredEquipmentEvidenceFromScene,
+  countEquipmentGeometry,
+  planStationEquipmentMounts,
+} from "./station-equipment.js";
+import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
 } from "./actor-floor-composition.js";
@@ -246,6 +253,19 @@ type PediatricRespiratoryEquipmentCueEvidence = {
     equipmentId: string;
     cueId: string;
     sceneObjectName: string;
+  }>;
+  notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "equipment_asset_readiness">;
+};
+
+/** #140 — live declared-equipment mount evidence for inspectors / captures. */
+type DeclaredEquipmentMountEvidence = {
+  source: "window.__openClinXrDeclaredEquipmentMountEvidence";
+  scenarioId: string;
+  items: Array<{
+    equipmentId: string;
+    source: "gltf" | "parametric" | "fallback" | "none";
+    triangleCount: number;
+    meshCount: number;
   }>;
   notEvidenceFor: Array<"quest_readiness" | "clinical_validity" | "scoring_validity" | "production_readiness" | "equipment_asset_readiness">;
 };
@@ -472,6 +492,7 @@ declare global {
     __openClinXrDynamicSceneObjectNamingEvidence?: DynamicSceneObjectNamingEvidence;
     __openClinXrRoleDistinctHumanoidCueEvidence?: RoleDistinctHumanoidCueEvidence;
      __openClinXrPediatricRespiratoryEquipmentCueEvidence?: PediatricRespiratoryEquipmentCueEvidence;
+    __openClinXrDeclaredEquipmentMountEvidence?: DeclaredEquipmentMountEvidence;
      __openClinXrRuntimeHumanoidActingCueEvidence?: RuntimeHumanoidActingCueEvidence;
       __openClinXrPedsDrive?: GeneratedRuntimeDrive;
       __openClinXrPortalTransitionEvidence?: PortalTransitionEvidence;
@@ -627,14 +648,6 @@ let additionalRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   "additional_cast_actor",
 );
 let cachedRuntimeSlotAssignment: RuntimeSlotAssignment | null = null;
-let ecgCartRuntimeAsset = requireEncounterRuntimeAsset(
-  findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, "ecg_cart_equipment")?.model,
-  "ecg_cart_equipment",
-);
-let ivPoleRuntimeAsset = requireEncounterRuntimeAsset(
-  findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, "iv_stand_equipment")?.model,
-  "iv_stand_equipment",
-);
 
 function useEncounterRuntimeAssetBundle(
   bundle: LearnerRuntimeAssetBundle,
@@ -671,17 +684,6 @@ function useEncounterRuntimeAssetBundle(
     slots.additionalActorId || "additional_cast_actor",
   );
   publishRuntimeActorSlotAssignmentEvidence(bundle, slots);
-  ecgCartRuntimeAsset = requireEncounterRuntimeAsset(
-    findRuntimeEquipmentAsset(bundle, "ecg_cart_equipment")?.model
-      ?? bundle.equipment[0]?.model,
-    "primary_equipment",
-  );
-  ivPoleRuntimeAsset = requireEncounterRuntimeAsset(
-    findRuntimeEquipmentAsset(bundle, "iv_stand_equipment")?.model
-      ?? bundle.equipment[1]?.model
-      ?? bundle.equipment[0]?.model,
-    "secondary_equipment",
-  );
 }
 
 function runtimeBundleMatchesSelectedScenario(bundle: LearnerRuntimeAssetBundle): boolean {
@@ -885,21 +887,6 @@ function runtimeActorPlacement(
     verticalOffsetMeters,
     labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
     posture,
-  };
-}
-
-function runtimeEquipmentPlacement(
-  asset: EncounterRuntimeAsset,
-  fallback: LearnerRuntimeAssetBundle["sceneManifest"]["equipmentPlacements"][string],
-): LearnerRuntimeAssetBundle["sceneManifest"]["equipmentPlacements"][string] {
-  const equipment = encounterRuntimeAssetBundle.equipment.find((item) => item.model.assetId === asset.assetId);
-  const placement = equipment ? encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements?.[equipment.equipmentId] : undefined;
-  return {
-    ...fallback,
-    ...placement,
-    position: hasVector3(placement?.position) ? placement.position : fallback.position,
-    label: placement?.label ?? fallback.label,
-    interactionCueIds: Array.isArray(placement?.interactionCueIds) ? placement.interactionCueIds : fallback.interactionCueIds,
   };
 }
 
@@ -1263,7 +1250,21 @@ function shouldSuppressGeneratedEnvironmentShell(asset: EncounterRuntimeAsset): 
 }
 
 function shouldSuppressGeneratedEquipmentModel(_assetId: string, assetPath: string): boolean {
+  // Real library medical-equipment GLBs (ECG cart, IV pole) are shared across stations
+  // and must not be treated as scenario-mismatched placeholders (#140 counterweight).
+  if (/\/medical-equipment\/(ecg-cart-12-lead|iv-pole-with-pump)\.glb/iu.test(assetPath)) {
+    return false;
+  }
   return isGeneratedPlaceholderSourceForDifferentScenario(assetPath);
+}
+
+function refreshDeclaredEquipmentMountEvidenceFromScene(): void {
+  const evidence = window.__openClinXrDeclaredEquipmentMountEvidence;
+  const scene = window.__openClinXrDebugScene;
+  if (!evidence || !scene) return;
+  const items = collectDeclaredEquipmentEvidenceFromScene(scene);
+  if (items.length === 0) return;
+  window.__openClinXrDeclaredEquipmentMountEvidence = { ...evidence, items };
 }
 
 function shouldShowRuntimeAffordanceMarkers(): boolean {
@@ -3452,101 +3453,69 @@ function createStationScene(): StationSceneRuntime {
     scene.add(prop);
   }
 
-  const ecgCartPlacement = runtimeEquipmentPlacement(ecgCartRuntimeAsset, {
-    position: { x: 1.6, y: 0, z: 0.28 },
-    label: runtimeAssetDisplayLabel(ecgCartRuntimeAsset, "Equipment"),
-    interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"],
+  // #140 — mount equipment declared by this station's scene manifest / bundle
+  // (parametric multi-mesh for kinds without real GLBs; keep ED bay GLBs).
+  runtimeEquipmentSlotsByAssetId.clear();
+  const equipmentPlan = planStationEquipmentMounts({
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    equipment: encounterRuntimeAssetBundle.equipment,
+    equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
   });
-  const ecgCart = equipmentSlotMesh(0xf3f5f0, 0x111820);
-  ecgCart.name = isDynamicGeneratedEncounterSceneMode()
-    ? `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${ecgCartRuntimeAsset.assetId}`
-    : iwsdkStationSceneObjects.ecgCart;
-  ecgCart.position.set(ecgCartPlacement.position.x, ecgCartPlacement.position.y, ecgCartPlacement.position.z);
-  ecgCart.visible = !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
-    ecgCart.visible = false;
-    ecgCart.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-  }
-  if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    ecgCart.visible = false;
-    ecgCart.userData.openClinXrObVisualReviewPolicy = "hidden_to_prevent_non_ob_edge_equipment_artifact_in_portal_entry_evidence";
-  }
-  ecgCart.userData.openClinXrRuntimeEquipmentPlacementCueIds = ecgCartPlacement.interactionCueIds;
-  ecgCart.add(createActorNameplate(ecgCartPlacement.label, 0x286b54));
-  scene.add(ecgCart);
-  loadGeneratedEquipmentIntoSceneSlot(ecgCart, {
-    assetPath: resolveEmulatorRuntimeAssetUrl(ecgCartRuntimeAsset),
-    assetId: ecgCartRuntimeAsset.assetId,
-    objectName: runtimeGeneratedSceneObjectName(ecgCartRuntimeAsset),
-  });
-
-  const ivPolePlacement = runtimeEquipmentPlacement(ivPoleRuntimeAsset, {
-    position: { x: 0.95, y: 0, z: 0.98 },
-    label: runtimeAssetDisplayLabel(ivPoleRuntimeAsset, "Equipment"),
-    interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"],
-  });
-  const ivPole = equipmentSlotMesh(0xd8dde1, 0x2b3034);
-  ivPole.name = isDynamicGeneratedEncounterSceneMode()
-    ? `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${ivPoleRuntimeAsset.assetId}`
-    : iwsdkStationSceneObjects.ivPoleWithPump;
-  ivPole.position.set(ivPolePlacement.position.x, ivPolePlacement.position.y, ivPolePlacement.position.z);
-  ivPole.visible = !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture) {
-    ivPole.visible = false;
-    ivPole.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-  }
-  if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
-    ivPole.visible = false;
-    ivPole.userData.openClinXrObVisualReviewPolicy = "hidden_to_prevent_non_ob_edge_equipment_artifact_in_portal_entry_evidence";
-  }
-  ivPole.userData.openClinXrRuntimeEquipmentPlacementCueIds = ivPolePlacement.interactionCueIds;
-  ivPole.add(createActorNameplate(ivPolePlacement.label, 0x5a6f9f));
-  scene.add(ivPole);
-  loadGeneratedEquipmentIntoSceneSlot(ivPole, {
-    assetPath: resolveEmulatorRuntimeAssetUrl(ivPoleRuntimeAsset),
-    assetId: ivPoleRuntimeAsset.assetId,
-    objectName: runtimeGeneratedSceneObjectName(ivPoleRuntimeAsset),
-  });
-
-  const loadedEquipmentAssetIds = new Set([ecgCartRuntimeAsset.assetId, ivPoleRuntimeAsset.assetId]);
-  const additionalEquipmentPositions = [
-    { x: 2.05, y: 0, z: -0.18 },
-    { x: -0.62, y: 0, z: -0.58 },
-    { x: -1.72, y: 0, z: 0.28 },
-    { x: 1.9, y: 0, z: 0.82 },
-  ];
-  for (const [equipmentIndex, runtimeEquipment] of encounterRuntimeAssetBundle.equipment.entries()) {
-    if (loadedEquipmentAssetIds.has(runtimeEquipment.model.assetId)) {
-      continue;
+  const equipmentEvidenceItems: DeclaredEquipmentMountEvidence["items"] = [];
+  for (const item of equipmentPlan) {
+    const slot =
+      item.source === "gltf"
+        ? buildGltfEquipmentPlaceholderSlot(item.equipmentId)
+        : buildDeclaredEquipmentGeometry(item.equipmentId);
+    if (item.equipmentId === "ecg_cart_equipment" && !isDynamicGeneratedEncounterSceneMode()) {
+      slot.name = iwsdkStationSceneObjects.ecgCart;
+    } else if (item.equipmentId === "iv_stand_equipment" && !isDynamicGeneratedEncounterSceneMode()) {
+      slot.name = iwsdkStationSceneObjects.ivPoleWithPump;
+    } else {
+      slot.name = `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${item.equipmentId}`;
     }
-    const fallbackPosition = additionalEquipmentPositions[equipmentIndex % additionalEquipmentPositions.length] ?? { x: 1.9, y: 0, z: 0.82 };
-    const placement = runtimeEquipmentPlacement(runtimeEquipment.model, {
-      position: fallbackPosition,
-      label: runtimeAssetDisplayLabel(runtimeEquipment.model, "Equipment"),
-      interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue", "dynamic_encounter_equipment_context"],
-    });
-    const slot = equipmentSlotMesh(0xe8eef3, 0x2563eb);
-    slot.name = `${runtimeSceneObjectPrefix()}.generated-equipment-slot.${runtimeEquipment.equipmentId}`;
-    slot.position.set(placement.position.x, placement.position.y, placement.position.z);
+    slot.position.set(item.position.x, item.position.y, item.position.z);
     slot.visible = !selectedScenarioRuntimeMismatch;
     if (cleanHumanoidSourceComparatorCapture) {
       slot.visible = false;
       slot.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
     }
-    if (encounterRuntimeAssetBundle.scenarioId === "ob_headache_preeclampsia_triage_v1") {
-      slot.visible = false;
-      slot.userData.openClinXrObVisualReviewPolicy = "hidden_when_ob_specific_set_dressing_supplies_required_equipment_context";
-    }
-    slot.userData.openClinXrRuntimeEquipmentPlacementCueIds = placement.interactionCueIds;
-    slot.userData.openClinXrDynamicEncounterEquipmentSlot = "case_definition_equipment_loaded_from_runtime_bundle";
-    slot.add(createActorNameplate(placement.label, 0x2563eb));
+    slot.userData.openClinXrRuntimeEquipmentPlacementCueIds = item.interactionCueIds;
+    slot.userData.openClinXrDynamicEncounterEquipmentSlot = "manifest_declared_equipment_mount";
+    slot.userData.openClinXrEquipmentDeclared = item.declared;
+    slot.add(createActorNameplate(item.label, item.source === "gltf" ? 0x286b54 : 0x2563eb));
     scene.add(slot);
-    loadGeneratedEquipmentIntoSceneSlot(slot, {
-      assetPath: resolveEmulatorRuntimeAssetUrl(runtimeEquipment.model),
-      assetId: runtimeEquipment.model.assetId,
-      objectName: runtimeGeneratedSceneObjectName(runtimeEquipment.model),
+    if (item.source === "gltf" && item.gltfFileName) {
+      const bundleModel = findRuntimeEquipmentAsset(encounterRuntimeAssetBundle, item.equipmentId)?.model;
+      const assetId = bundleModel?.assetId ?? item.equipmentId;
+      loadGeneratedEquipmentIntoSceneSlot(slot, {
+        assetPath: `/xr-assets/medical-equipment/${item.gltfFileName}`,
+        assetId,
+        objectName: bundleModel ? runtimeGeneratedSceneObjectName(bundleModel) : item.equipmentId,
+      });
+    } else {
+      addPediatricRespiratoryEquipmentCues(slot, item.equipmentId);
+    }
+    const counts = countEquipmentGeometry(slot);
+    equipmentEvidenceItems.push({
+      equipmentId: item.equipmentId,
+      source: item.source,
+      triangleCount: counts.triangleCount,
+      meshCount: counts.meshCount,
     });
   }
+  window.__openClinXrDeclaredEquipmentMountEvidence = {
+    source: "window.__openClinXrDeclaredEquipmentMountEvidence",
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    items: equipmentEvidenceItems,
+    notEvidenceFor: [
+      "quest_readiness",
+      "clinical_validity",
+      "scoring_validity",
+      "production_readiness",
+      "equipment_asset_readiness",
+    ],
+  };
 
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
   publishRuntimeActorSlotAssignmentEvidence(encounterRuntimeAssetBundle);
@@ -9297,16 +9266,6 @@ function tintGeneratedMaterial(material: Mesh["material"], tint: Color): Mesh["m
   return cloned;
 }
 
-function equipmentSlotMesh(primaryColor: number, accentColor: number): Group {
-  const group = new Group();
-  const body = new Mesh(new BoxGeometry(0.42, 0.72, 0.32), new MeshStandardMaterial({ color: primaryColor, roughness: 0.72 }));
-  body.position.y = 0.46;
-  const accent = new Mesh(new BoxGeometry(0.32, 0.18, 0.04), new MeshStandardMaterial({ color: accentColor, roughness: 0.65 }));
-  accent.position.set(0, 0.92, -0.18);
-  group.add(body, accent);
-  return group;
-}
-
 function addPediatricRespiratoryEquipmentCues(slot: Group, equipmentId: string): void {
   if (!isPediatricAsthmaRuntimeScenario()) return;
   const key = equipmentId.toLowerCase();
@@ -9418,17 +9377,6 @@ function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {
   return asset.assetId.replace(/[^a-z0-9:_-]+/giu, "-");
 }
 
-function runtimeAssetDisplayLabel(asset: EncounterRuntimeAsset, fallback: string): string {
-  const rawSegment = asset.assetId.split(".").at(-2) ?? fallback;
-  const label = rawSegment
-    .replace(/_equipment$/u, "")
-    .split(/[-_]+/u)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-  return label || fallback;
-}
-
 function loadGeneratedEquipmentIntoSceneSlot(
   sceneSlot: Group,
   options: {
@@ -9484,9 +9432,11 @@ function loadGeneratedEquipmentIntoSceneSlot(
         child.visible = false;
       }
       sceneSlot.add(equipment);
+      sceneSlot.userData.openClinXrEquipmentSource = "gltf";
       if (window.__openClinXrEnvironmentStateEvidence) {
         applyRuntimeEquipmentTraceVisuals(window.__openClinXrEnvironmentStateEvidence);
       }
+      refreshDeclaredEquipmentMountEvidenceFromScene();
       recordSceneAssetStatus({
         assetId: options.assetId,
         assetPath: options.assetPath,
