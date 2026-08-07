@@ -26,6 +26,7 @@ export const psychiatricSafetyScenario: Scenario = {
       role: "patient",
       displayName: "Jordan Reed",
       demeanor: "withdrawn, tearful, initially guarded",
+      openingUtterance: "I do not feel safe being alone right now.",
       communicationProfile: satirProfile(
         "appeaser",
         0.72,

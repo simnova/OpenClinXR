@@ -88,10 +88,21 @@ export function actor(
   demeanor: string,
   hiddenFacts: string[],
   communicationProfile?: Scenario["actors"][number]["communicationProfile"],
+  /** Authored patient cold-open speech (role=patient). Never pass demeanor here. */
+  openingUtterance?: string,
 ): Scenario["actors"][number] {
-  return communicationProfile
-    ? { actorId, role, displayName, demeanor, communicationProfile, hiddenFacts }
-    : { actorId, role, displayName, demeanor, hiddenFacts };
+  const base = {
+    actorId,
+    role,
+    displayName,
+    demeanor,
+    hiddenFacts,
+    ...(communicationProfile ? { communicationProfile } : {}),
+    ...(openingUtterance && openingUtterance.trim().length > 0
+      ? { openingUtterance: openingUtterance.trim() }
+      : {}),
+  };
+  return base as Scenario["actors"][number];
 }
 
 export function rubric(rubricId: string, label: string, requiredTraceTags: string[]): Scenario["reviewRubric"][number] {

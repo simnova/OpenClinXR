@@ -34,6 +34,7 @@ export const obPreeclampsiaScenario = draftScenario({
         escalationTriggers: ["visual_symptoms_ignored", "severe_bp_unexplained", "partner_excluded"],
         culturalLanguageNotes: ["respectful pregnancy language", "plain maternal-fetal risk explanation", "include partner with consent"],
       },
+      "My headache is getting worse, and the lights are bothering my eyes.",
     ),
     actor(
       "partner_omar_khan_v1",

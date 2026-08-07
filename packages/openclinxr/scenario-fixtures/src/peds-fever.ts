@@ -30,6 +30,7 @@ export const pedsFeverScenario: Scenario = {
       role: "patient",
       displayName: "Noah Chen",
       demeanor: "listless, febrile, short answers, looks to parent",
+      openingUtterance: "I feel hot and tired. My tummy hurts a little.",
       communicationProfile: {
         styleFamily: "satir",
         style: "appeaser",

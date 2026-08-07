@@ -26,7 +26,7 @@ export const strokeAlertScenario = draftScenario({
       ["slow_yes_no_questions", "speech_difficulty_acknowledged", "exam_step_explained"],
       ["rapid_fire_questions", "ignored_deficits", "no_stroke_activation_explanation"],
       ["aphasia-aware pacing", "preserve patient agency", "plain stroke-alert explanation"],
-    )),
+    ), "My right arm feels weak, and I cannot get the words out clearly."),
     actor("son_eric_brooks_v1", "family", "Eric Brooks", "anxious son who knows last-known-well and gets frustrated if ignored", [
       "Saw patient normal at breakfast at 7:30",
     ], satirProfile(

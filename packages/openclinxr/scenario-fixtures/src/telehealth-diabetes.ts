@@ -25,6 +25,7 @@ export const telehealthDiabetesScenario: Scenario = {
       role: "patient",
       displayName: "Luis Martinez",
       demeanor: "polite, embarrassed about not understanding instructions",
+      openingUtterance: "I want to follow the plan, but the instructions are hard to understand.",
       communicationProfile: {
         styleFamily: "satir",
         style: "appeaser",

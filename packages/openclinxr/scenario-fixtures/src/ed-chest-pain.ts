@@ -34,6 +34,7 @@ export const edChestPainScenario: Scenario = {
       role: "patient",
       displayName: "Robert Hayes",
       demeanor: "anxious, diaphoretic, protective of chest",
+      openingUtterance: "It feels heavy, like someone is sitting on my chest.",
       communicationProfile: {
         styleFamily: "satir",
         style: "withdrawn_guarded",

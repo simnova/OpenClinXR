@@ -26,7 +26,7 @@ export const postopFeverScenario = draftScenario({
       ["pain_acknowledged", "focused_fever_questions", "uncertainty_explained"],
       ["wound_symptoms_ignored", "respiratory_questions_skipped", "consult_pressure_transferred"],
       ["postoperative uncertainty language", "pain-aware pacing", "plain differential explanation"],
-    )),
+    ), "My belly hurts more today, and I have chills."),
     actor("floor_nurse_bennett_v1", "nurse", "Nurse Bennett", "floor nurse reporting fever and asking about cultures", [
       "Needs orders and prioritization if learner hesitates",
     ], satirProfile(

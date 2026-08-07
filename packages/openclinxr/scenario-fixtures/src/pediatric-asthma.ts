@@ -26,6 +26,7 @@ export const pediatricAsthmaScenario: Scenario = {
       role: "patient",
       displayName: "Maya Johnson",
       demeanor: "short sentences, scared, audible wheeze",
+      openingUtterance: "My chest feels tight and it is hard to breathe.",
       communicationProfile: {
         styleFamily: "satir",
         style: "appeaser",

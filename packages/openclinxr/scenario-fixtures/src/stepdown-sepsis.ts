@@ -26,7 +26,7 @@ export const stepdownSepsisScenario = draftScenario({
       ["breathing_acknowledged", "focused_questions", "allergy_clarified_plainly"],
       ["oxygen_delay", "infection_source_ignored", "hypotension_not_explained"],
       ["confusion-aware pacing", "plain sepsis language", "allergy history humility"],
-    )),
+    ), "I feel worse than this morning, and I am shaking again."),
     actor("stepdown_nurse_rivera_v1", "nurse", "Nurse Rivera", "worried, assertive, reports worsening vitals", [
       "Blood pressure dropped compared with one hour ago",
     ], satirProfile(

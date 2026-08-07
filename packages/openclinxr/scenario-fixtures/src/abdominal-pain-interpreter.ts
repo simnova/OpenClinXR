@@ -26,7 +26,7 @@ export const abdominalPainInterpreterScenario = draftScenario({
       ["privacy_requested", "qualified_interpreter_used", "direct_patient_question"],
       ["family_interpreter_used", "sensitive_history_public", "surgical_red_flags_ignored"],
       ["adolescent privacy", "interpreter-mediated direct address", "plain surgical-risk language"],
-    )),
+    ), "The pain is mostly on the lower right side, and I need the interpreter."),
     actor("father_carlos_morales_v1", "family", "Carlos Morales", "Spanish-speaking father who tries to answer for patient", [
       "Believes patient ate something bad and may resist private history",
     ], satirProfile(
