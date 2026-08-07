@@ -3567,9 +3567,8 @@ function createStationScene(): StationSceneRuntime {
     patient.add(createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, runtimePatientActorId()), 0x286b54));
   }
   scene.add(patient);
-  // #83: slotKind + posture on the slot BEFORE load — load must not default missing slotKind to primary_patient
-  // (that seated every telehealth actor via resolveActorPosture).
-  patient.userData.openClinXrSlotKind = patientPlacement.slotKind;
+  // #83/#136: canonical slot kind on the root BEFORE load (never placement.slotKind — stale family tags collide).
+  patient.userData.openClinXrSlotKind = "primary_patient";
   patient.userData.openClinXrActorPosture = patientPlacement.posture ?? "standing";
   patient.userData.openClinXrActorId = runtimePatientActorId();
   if (runtimePatientActorId()) {
@@ -3609,7 +3608,7 @@ function createStationScene(): StationSceneRuntime {
     nurse.add(createActorNameplate(actorNameplateLabel(nursePlacement.labelPrefix, runtimeClinicalTeamActorId()), 0x2f65a7));
   }
   scene.add(nurse);
-  nurse.userData.openClinXrSlotKind = nursePlacement.slotKind;
+  nurse.userData.openClinXrSlotKind = "clinical_team";
   nurse.userData.openClinXrActorPosture = nursePlacement.posture ?? "standing";
   nurse.userData.openClinXrActorId = runtimeClinicalTeamActorId();
   if (runtimeClinicalTeamActorId()) {
@@ -3655,7 +3654,7 @@ function createStationScene(): StationSceneRuntime {
     spouse.add(createActorNameplate(actorNameplateLabel(spousePlacement.labelPrefix, runtimeFamilyActorId()), 0x9b642d));
   }
   scene.add(spouse);
-  spouse.userData.openClinXrSlotKind = spousePlacement.slotKind;
+  spouse.userData.openClinXrSlotKind = "family_or_observer";
   spouse.userData.openClinXrActorPosture = spousePlacement.posture ?? "standing";
   spouse.userData.openClinXrActorId = runtimeFamilyActorId();
   if (runtimeFamilyActorId()) {
@@ -3688,7 +3687,7 @@ function createStationScene(): StationSceneRuntime {
     }
   }
   additional.scale.set(additionalPlacement.scale.x, additionalPlacement.scale.y, additionalPlacement.scale.z);
-  additional.userData.openClinXrSlotKind = additionalPlacement.slotKind ?? "additional_cast";
+  additional.userData.openClinXrSlotKind = "additional_cast";
   additional.userData.openClinXrActorPosture = additionalPlacement.posture ?? "standing";
   additional.userData.openClinXrActorId = runtimeAdditionalActorId();
   if (runtimeAdditionalActorId()) applyCleanEncounterVisualReviewActorFraming(additional, runtimeAdditionalActorId());

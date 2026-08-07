@@ -1209,28 +1209,48 @@ function runtimeActorPlacementsForScenario(
     ?? actorByRole(preset, "interpreter")
     ?? preset.actors[1]
     ?? patient;
+  // #136: family slot is family-class only. Do NOT dump a second clinical actor (RT, consultant,
+  // physician) into family_or_observer — that collides with assignRuntimeActorSlots which places
+  // them in additional_cast, and shipped stepdown/postop JSON made those actors vanish live.
+  const familyRoleClass = new Set(["family", "family_member", "parent", "spouse", "interpreter"]);
   const family = actorByRole(preset, "family")
     ?? actorByRole(preset, "family_member")
     ?? actorByRole(preset, "parent")
     ?? actorByRole(preset, "spouse")
-    ?? preset.actors.find((actor) => actor.actorId !== patient.actorId && actor.actorId !== team.actorId)
-    ?? preset.actors[2]
-    ?? team;
-  const used = new Set([patient.actorId, team.actorId, family.actorId]);
+    ?? preset.actors.find((actor) =>
+      actor.actorId !== patient.actorId
+      && actor.actorId !== team.actorId
+      && familyRoleClass.has(actor.role.toLowerCase())
+    );
+  const used = new Set([patient.actorId, team.actorId, ...(family ? [family.actorId] : [])]);
   // Team-adjacent clinical secondary — not doorway (x:0.35 z:1.15). See #123.
   const additional = preset.actors.find((actor) => !used.has(actor.actorId));
   const placements: EncounterRuntimeAssetBundle["sceneManifest"]["actorPlacements"] = {
     [patient.actorId]: { slotKind: "primary_patient", position: { x: -0.72, y: 1.06, z: -0.12 }, scale: { x: 1.1, y: 1.1, z: 1.1 }, verticalOffsetMeters: -0.98, labelPrefix: "Patient" },
     [team.actorId]: { slotKind: "clinical_team", position: { x: 1.45, y: 0.95, z: 0.55 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: team.role === "interpreter" ? "Interpreter" : "Team" },
-    [family.actorId]: { slotKind: "family_or_observer", position: { x: -2.0, y: 0.95, z: 0.7 }, scale: { x: 1, y: 1, z: 1 }, verticalOffsetMeters: -0.95, labelPrefix: family.role === "consultant" ? "Consultant" : "Family" },
   };
+  if (family && family.actorId !== patient.actorId && family.actorId !== team.actorId) {
+    placements[family.actorId] = {
+      slotKind: "family_or_observer",
+      position: { x: -2.0, y: 0.95, z: 0.7 },
+      scale: { x: 1, y: 1, z: 1 },
+      verticalOffsetMeters: -0.95,
+      labelPrefix: "Family",
+    };
+  }
   if (additional && additional.actorId !== patient.actorId) {
+    const clinicalSecondaryLabel =
+      additional.role === "consultant"
+        ? "Consultant"
+        : additional.role === "respiratory_therapist"
+          ? "Respiratory"
+          : "Cast";
     placements[additional.actorId] = {
       slotKind: "additional_cast",
       position: { x: 1.95, y: 0.95, z: 0.15 },
       scale: { x: 1, y: 1, z: 1 },
       verticalOffsetMeters: -0.95,
-      labelPrefix: additional.role === "physician" ? "Physician" : "Cast",
+      labelPrefix: clinicalSecondaryLabel,
     };
   }
   return placements;

@@ -44,5 +44,19 @@
     "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
     "rebakedFrom": "peds_patient_child.anny_base.obj (tracked, unchanged by this re-bake)",
     "garmentAuthoringClass": "body_surface_normal_offset_issue_121"
-  }
+  },
+  "licenseChain": {
+    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+    "generatedCandidate": "OpenClinXR local blender-only rebake on tracked real-Anny base OBJ; no cloud provider, paid API, credential, external model download, or noncommercial download helper used"
+  },
+  "derivativeLineage": {
+    "caseId": "peds_asthma_parent_anxiety_v1",
+    "actorId": "patient_maya_johnson_v1",
+    "reuseKey": "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1:patient:anny_candidate",
+    "sourceParametersHash": "e7b9d76b7a5ddbf4dc401e4b55a2f889f1f8e46f0e44e6b5529013315751d3d4",
+    "rebakePath": "blender_only_rebake_on_tracked_real_anny_base_obj_v1"
+  },
+  "toolVersion": "openclinxr-blender-only-rebake-on-tracked-real-anny-base-obj-v1",
+  "promptOrCaseParameterHash": "e7b9d76b7a5ddbf4dc401e4b55a2f889f1f8e46f0e44e6b5529013315751d3d4"
 }

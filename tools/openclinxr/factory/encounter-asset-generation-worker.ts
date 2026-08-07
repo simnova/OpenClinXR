@@ -48,7 +48,10 @@ type PedsHumanoidMaterializationHandoffAsset = {
   assetPath: string;
   runtimeAssetPath: string;
   provenanceManifestPath: string;
-  generatorMode: "anny_compatible_stub_plus_blender_procedural" | "real_anny_local_forward_pass_plus_blender_procedural";
+  generatorMode:
+    | "anny_compatible_stub_plus_blender_procedural"
+    | "real_anny_local_forward_pass_plus_blender_procedural"
+    | "blender_only_rebake_on_tracked_real_anny_base_obj_v1";
   sourceKind: "case_driven_generated_humanoid_candidate" | "real_anny_candidate_unverified";
   realAnnyWeightsUsed: false;
   textureMode: "procedural_fallback";
@@ -489,7 +492,11 @@ async function buildPedsHumanoidMaterializationHandoffAsset(
     assetPath: `apps/ui-xr/public/generated-humanoids/${publicFileName}`,
     runtimeAssetPath: `/generated-humanoids/${publicFileName}`,
     provenanceManifestPath,
-    generatorMode: requireManifestOneOf(provenance.generatorMode, ["anny_compatible_stub_plus_blender_procedural", "real_anny_local_forward_pass_plus_blender_procedural"], "generatorMode", provenanceManifestPath),
+    generatorMode: requireManifestOneOf(provenance.generatorMode, [
+      "anny_compatible_stub_plus_blender_procedural",
+      "real_anny_local_forward_pass_plus_blender_procedural",
+      "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+    ], "generatorMode", provenanceManifestPath),
     sourceKind: requireManifestOneOf(provenance.sourceKind, ["case_driven_generated_humanoid_candidate", "real_anny_candidate_unverified"], "sourceKind", provenanceManifestPath),
     realAnnyWeightsUsed: requireManifestLiteral(provenance.realAnnyWeightsUsed, false, "realAnnyWeightsUsed", provenanceManifestPath),
     textureMode: requireManifestLiteral(provenance.textureMode, "procedural_fallback", "textureMode", provenanceManifestPath),
@@ -575,7 +582,11 @@ function validatePedsHumanoidMaterializationHandoffAsset(value: unknown, pathNam
   requireString(value.assetPath, `${pathName}/assetPath`, errors);
   requireString(value.runtimeAssetPath, `${pathName}/runtimeAssetPath`, errors);
   requireString(value.provenanceManifestPath, `${pathName}/provenanceManifestPath`, errors);
-  requireOneOf(value.generatorMode, ["anny_compatible_stub_plus_blender_procedural", "real_anny_local_forward_pass_plus_blender_procedural"], `${pathName}/generatorMode`, errors);
+  requireOneOf(value.generatorMode, [
+    "anny_compatible_stub_plus_blender_procedural",
+    "real_anny_local_forward_pass_plus_blender_procedural",
+    "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+  ], `${pathName}/generatorMode`, errors);
   requireOneOf(value.sourceKind, ["case_driven_generated_humanoid_candidate", "real_anny_candidate_unverified"], `${pathName}/sourceKind`, errors);
   requireLiteral(value.realAnnyWeightsUsed, false, `${pathName}/realAnnyWeightsUsed`, errors);
   requireLiteral(value.textureMode, "procedural_fallback", `${pathName}/textureMode`, errors);

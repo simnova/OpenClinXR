@@ -92,16 +92,26 @@ export function ensureActorPlacementsForStagedSlots(
 
   for (let i = 0; i < SLOT_FOR_INDEX.length; i += 1) {
     const actorId = slots.stagedActorIds[i] ?? "";
-    if (!actorId.trim() || placements[actorId]) continue;
+    if (!actorId.trim()) continue;
     const slotKind = SLOT_FOR_INDEX[i]!;
     const anchor = SLOT_PLACEMENT_ANCHORS[slotKind];
+    const existing = placements[actorId];
+    // #136: shipped factory JSON sometimes tags a second clinical actor as family_or_observer
+    // while assignRuntimeActorSlots places them in additional_cast. Correct the slotKind and
+    // re-anchor so main.ts does not mount them under a colliding kind or wrong station position.
+    if (existing && existing.slotKind === slotKind) continue;
     placements[actorId] = {
       ...anchor,
       slotKind,
       position: { ...anchor.position },
       scale: { ...anchor.scale },
+      ...(existing?.verticalOffsetMeters !== undefined
+        ? { verticalOffsetMeters: existing.verticalOffsetMeters }
+        : {}),
+      ...(existing?.labelPrefix ? { labelPrefix: existing.labelPrefix } : {}),
+      ...(existing?.posture ? { posture: existing.posture } : {}),
     };
-    addedActorIds.push(actorId);
+    if (!existing) addedActorIds.push(actorId);
   }
 
   bundle.sceneManifest.actorPlacements = placements;
