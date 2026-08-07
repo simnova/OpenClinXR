@@ -1,0 +1,133 @@
+# MADR 0043: Infinigen Indoors Environment Cagematch — Reject for Direct Runtime Use
+
+Status: Accepted
+Date: 2026-08-07
+Issue: #130
+Lane: C (cagematch — decision with evidence, not working product code)
+
+## Context
+
+Operator request 2026-08-07: try a room created with Infinigen Indoors and compare it to a
+hand-made OpenClinXR station shell. The environment lane still has no generator registered for
+clinical stations; shells come from `buildStationEnvironment` + `environment-descriptors.ts`
+(`ed_exam_bay_v1`, `inpatient_ward_room_v1`, …).
+
+#71 established licence/hardware viability only (BSD-3-Clause, Apple Silicon, no CUDA for indoors).
+#77 / MADR 0036 already declined Infinigen for `buildStationEnvironment` on triangle count and
+wall-clock; #130 re-runs the cagematch with an explicit same-renderer comparison duty, named
+measurement fields, and a hand-made visual baseline.
+
+## Decision
+
+**`verdict: reject_measured`** — do **not** adopt Infinigen Indoors as a direct environment source
+for the ui-xr learner runtime or as an `environmentId`-driven factory generator.
+
+A negative measured result is a successful cagematch close. Adopting Infinigen is a separate
+decision this issue does not make.
+
+### Measured fields (probe-report.json)
+
+| Field | Infinigen Indoors (DiningRoom, seed 0, fast_solve + singleroom) | Hand-made baseline |
+| --- | --- | --- |
+| `triangleCount` | **15,476,539** | `ed_exam_bay_v1`: **204**; `inpatient_ward_room_v1`: **84** |
+| `materialCount` | **176** | 17 / 7 |
+| `textureBytes` | ~95 MB estimate (image buffers in blend) | 0 (procedural colors) |
+| `generationWallClockSeconds` | **1377.98** (~23 min) from `#77` run log `MAIN TOTAL finished in 0:22:57.977913` | <1 s (runtime build) |
+| `parameterisable` | **false** for clinical factory | **true** via `environmentId` |
+| `gltfExportPath` | `~/.openclinxr-tools/infinigen/exports/dining-room-seed0.glb` (**1.0 GB**, export ~14 s) | n/a (built in three.js) |
+| `provenance` | BSD-3-Clause source; **no** MADR 0016 runtime asset manifest on the export | Shell descriptors in registry |
+
+Quest posture (`packages/openclinxr/asset-registry/src/index.ts` quest3 budgets):
+
+- `maxTriangles` per asset: **60,000** → Infinigen is **~258×** over
+- `maxVisibleTriangles` per station: **180,000** → Infinigen is **~86×** over
+
+### Parameterisation (factory-killer on its own)
+
+Infinigen Indoors is driven by **seed + gin configs + residential room Semantics**
+(`DiningRoom`, `Bedroom`, … via `restrict_parent_rooms`). It does **not** accept OpenClinXR
+`environmentId` values (`ed_exam_bay_v1`, `inpatient_ward_room_v1`). Seed 0 is reproducible for
+the same residential type, but that is random-residential sampling, not “emit this clinical bay
+from the case blueprint.” A blueprint-driven encounter factory needs the latter.
+
+### Same-renderer comparison
+
+- Hand-made: `tools/openclinxr/evidence/ui-xr-environment-room-capture.ts` (reuses
+  `spawnPortlessDevServer` + `buildRoomCaptureUrl`) → three.js scene-overview PNG of
+  `ed_exam_bay_v1` under `ed_chest_pain_priority_v1`.
+- Infinigen: GLB **1.0 GB / 15.5M tris** refused **before** `GLTFLoader` parse under a 200 MB
+  WebXR soft cap written in the probe (`threejs-load-attempt.json`). It therefore **cannot** be
+  loaded into the ui-xr scene for a same-instrument screenshot.
+- Blender Workbench stills of the DiningRoom are stored and labelled
+  **`not-the-same-instrument`**.
+
+`CONTRACT_MET_VISUAL: not_comparable:infinigen_cannot_load_into_ui_xr_threejs_1GB_glb_15M_tris`
+
+### IN-SCOPE VISUAL (filled)
+
+- **infinigen room:** Blender Workbench interior (not three.js) — detailed paneled door with
+  handle/casing, residential shell mass, flat gray coarse-stage materials.
+- **hand-made room:** ui-xr three.js ED exam bay — colored walls/floor, stretcher, three cast
+  humanoids, doorway placard, clinical UI chrome.
+- **what the generated one has that ours lacks:** dense architectural mesh detail and multi-million-triangle
+  furniture/window assemblies; photoreal research-scene ambition.
+- **what ours has that it lacks:** clinical station semantics (`environmentId`, stretcher fixture,
+  actor slots, EHR/dialogue UI), WebXR-loadable triangle budget (~10² vs ~10⁷ tris), factory
+  parameterisation by scenario.
+
+### OUT-OF-SCOPE WRONGNESS
+
+- Hand-made ED cast humanoids still show torn/jagged garment edges (pre-existing; not this
+  cagematch subject).
+- Infinigen Workbench still understates material richness vs a Cycles beauty pass — Cycles would
+  still be the wrong comparison instrument against three.js.
+
+## Consequences
+
+Positive:
+
+- Environment generator question for **direct** runtime use is closed with numbers, images, and a
+  machine-checkable probe (`--validate-latest`).
+- Confirms parametric shells remain the correct learner-path posture at current budgets.
+- Install hygiene documented outside the repo; nothing vendored.
+
+Negative / residual:
+
+- **Decimation / LOD as an offline authoring source** is still unevaluated. meshopt is already
+  accepted by MADR 0016; whether Infinigen → aggressive simplify → clinical remapping could ever
+  pay off is a **separate** cagematch.
+- No clinical station Semantics exist in Infinigen Indoors; even a decimated pipeline would need a
+  mapping layer from `environmentId` / case blueprint → room program.
+- MADR 0036 already declined; this MADR supersedes only the comparison/visual duty of #130 and
+  re-affirms reject with stronger same-renderer evidence.
+
+## Compliance and boundaries
+
+- No cloud/paid APIs; no vendoring; install under `~/.openclinxr-tools/infinigen` (and/or
+  `/tmp/ocxr77_tools` from #77).
+- `claimScope`: local generate-or-reuse, structural measure, three.js load refusal, budget compare.
+- `notEvidenceFor`: clinical appropriateness of any room, Quest worn readiness, decimation
+  viability, production promotion.
+
+## Evidence paths
+
+```
+.openclinxr/evidence/infinigen-indoors-cagematch/latest/probe-report.json
+.openclinxr/evidence/infinigen-indoors-cagematch/latest/threejs-load-attempt.json
+.openclinxr/evidence/infinigen-indoors-cagematch/latest/hand-made-ed_exam_bay_v1-room.png
+.openclinxr/evidence/infinigen-indoors-cagematch/latest/infinigen-dining-room-blender-workbench.png
+tools/openclinxr/evidence/infinigen-indoors-cagematch-probe.ts
+```
+
+Validate:
+
+```bash
+pnpm exec tsx tools/openclinxr/evidence/infinigen-indoors-cagematch-probe.ts --validate-latest
+```
+
+## Reversal trigger
+
+Revisit only if a measured pipeline produces a glTF that (1) clears `maxVisibleTriangles` 180k
+per station after LOD, (2) loads in ui-xr three.js at a comparable camera, (3) is driven by
+`environmentId` / case blueprint fields, and (4) carries a MADR 0016 asset manifest. Until then,
+keep hand-made parametric shells.
