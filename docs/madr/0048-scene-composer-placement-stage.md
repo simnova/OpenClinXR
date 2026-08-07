@@ -53,6 +53,48 @@ or Quest readiness evidence."* No MADR adopts Godot for scene rendering.
 procedural core belongs in the three.js path alongside `station-environment.ts`,
 `station-stretcher.ts` and `runtime-actor-placements.ts`.
 
+### Godot re-examined, 2026-08-07 — the correction stands, with a reopen gate
+
+Correction 1 was challenged deliberately rather than left to stand. Findings, with the claims
+separated by kind:
+
+**Godot as the learner XR runtime — no, and the reason is that nothing has been measured.** Godot 4
+ships OpenXR and a native Quest APK path is real, so a long-term native case genuinely exists. What
+does not exist is any evidence that WebXR is a ceiling for *this* content class. Declared budgets are
+180,000 visible triangles per station against a native Quest 3 guidance band of roughly 1.3–1.8 M — so
+triangles are not the pressure. The pressure, if there is any, is draw calls, overdraw, skinned-mesh
+CPU and JS main-thread time, and every one of those is fixable inside WebXR. **"Browser WebXR cannot
+run a three-actor clinical room" is folklore until a Quest trace says otherwise**, and this project
+has never run one.
+
+**Godot as an offline placement solver — no, and this one is not close.** The v1 constraints are AABB
+overlap, vertical pierce, seat/deck plant and yaw facing. That is static layout validation, not
+simulation. Routing it through a second scene graph adds a third hop (descriptors → Godot nodes →
+JSON → three.js) to a defect whose entire cause is that placement already has **three** uncoupled
+sources. Porting engines before collapsing them produces the same bug in GDScript.
+
+**What should own the deterministic core:** TypeScript pure functions over the same world AABBs the
+three.js builders already produce. `three-mesh-bvh` (MIT, not currently in the tree) if boxes ever
+lie. `@dimforge/rapier3d-compat` (Apache-2.0) only if constraints outgrow geometry — **verified
+already in the tree** at `apps/arena/physics-clinical-touch` and
+`packages/openclinxr/arena/physics-touch-contract`, for clinical touch rather than layout. No AGPL in
+any of it.
+
+**Switching cost, for the record:** the learner shell, fourteen environment descriptors and their
+builders, the skin/bind/pose path, the React overlays, and the entire evidence harness — which
+measures the **live three.js scene graph** — would all be rewritten. Against days-to-weeks for the
+anchor binding this record already sequences.
+
+**The reopen gate, and it is the only thing that changes this:** native OpenXR is out of scope until a
+three-actor station is measured on a Quest and fails a written frame budget *after* budgeted
+optimization. That measurement is the one missing fact that could move the runtime half of this
+decision, and it belongs in a new MADR rather than inside SceneComposer implementation.
+
+One precision on the original wording: Correction 1 said the runtime is three.js and an agent
+implementing the proposal literally would build in the wrong runtime. That is correct and
+load-bearing. It should not be read as "Godot is irrelevant forever" — it remains a valid future
+native-runtime candidate under evidence.
+
 ## CORRECTION 2 — the status-quo risk rating is too generous
 
 The proposal's comparison table rates the current approach **"Risk of clinical invalid layouts: Low
