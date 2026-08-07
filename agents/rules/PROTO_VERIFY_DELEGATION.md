@@ -2013,4 +2013,52 @@ signal. I patched #103's band twice (37% → 40% → 37%) before measuring prope
 leg contamination — was in neither attempt. Mark it, file it with the ground truth, and let a slice
 fix it; do not patch a third time.
 
+
+
+## 8q. Name the GRAPH, not just the measure — a free choice of instrument picks one that can fail
+
+#134's contract required a named bake measure and a base-vs-bake comparison. It did not say which
+connectivity graph. The worker chose index-based components, got 1 → 14, and returned
+`reject_measured` on a body surface that is provably continuous — 13,348 unique vertex positions,
+exactly the base OBJ's vertex count, one component when merged by position.
+
+Asked whether a better brief would have stopped it, the worker was unambiguous and I believe it:
+
+> "**Brief would not have prevented it.** It required a named bake measure and 'base vs bake', not
+> which topology graph… Contract (1) only required a finite comparison that could fail; I picked a
+> measure that *could* red."
+
+That last clause is the mechanism. A contract that says "measure X and it must not degrade" creates
+pressure toward an instrument sensitive enough to move. Index connectivity moves on any
+multi-material mesh, because glTF splits one per material and duplicates boundary vertices — so it
+was the instrument most likely to produce a finding, and it produced a false one.
+
+**Rule:** when a contract asserts on a physical property, name the space it is measured in — the
+graph (index vs position-merged vs manifold), the coordinate frame (local, world, bind), the units,
+and the tolerance. "Connected components" is not a measurement; "connected components after merging
+vertices by position at 5dp, across all primitives of the mesh" is.
+
+**And require BOTH numbers when two instruments exist.** The corrected MADR reports index-based and
+position-merged side by side, which is strictly more useful than either — the index count is real and
+explains why a naive check reds, while the position count answers the actual question.
+
+Corollary, and it is the reason this was caught at all: **the orchestrator re-measures the headline
+of any verdict before integrating it.** One union-find over four primitives, under a minute, against a
+25-turn slice whose whole conclusion rested on it.
+
+## 8r. Hand back numbers, not a cause — confirmed by the worker whose verdict it overturned
+
+§6g says withhold the story. §6j says unranked candidates are free and a rank is not. #134 is the
+cleanest test yet: I resumed with a contradicting measurement, the mechanism I privately suspected,
+and *no* statement of that mechanism. The worker's own read:
+
+> "**Right shape.** Flat contradicting numbers forced a re-instrument, not a story fight. Naming
+> 'multi-material index duplication' as *your* cause would have **helped slightly** — and **hurt if
+> ranked as the answer**… What you did (numbers + ask for both measures side by side) was better than
+> either pure silence or a preferred diagnosis."
+
+So the ordering is now three-deep and worker-confirmed: **a contradicting measurement > an unranked
+candidate list > silence > a ranked cause.** A number is not a hypothesis; hand it over in full,
+including how you obtained it, and ask for both instruments back.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
