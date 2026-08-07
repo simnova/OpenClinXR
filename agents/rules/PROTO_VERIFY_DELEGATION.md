@@ -1765,4 +1765,53 @@ grading duty. When a slice produces images, the orchestrator opens them, every t
 what the report says — and a vague out-of-scope line is a reason to look harder, not a summary that
 replaces looking.
 
+## 8f. Put the CORRECTED claim first and fence the withdrawn one in a line
+
+#137's brief carried a diagnosis I had already withdrawn, labelled as withdrawn, alongside the
+corrected one. Asked whether that helped, the worker was clear that it did — *"without 'do not
+re-derive / do not lower the cut', I would have opened `automate_blender` first"* — and equally clear
+about the ordering:
+
+> "Prefer: **corrected claim first**, then one short 'withdrawn: neck cut too high — false.' Full wrong
+> story still useful as a fence; burying the correction under the old lead would hurt."
+
+So a withdrawn hypothesis earns its place as a **fence** — it stops the worker walking down a path you
+already know is dead. It does not earn a paragraph, and it must never come first. §7q says correct a
+premise where it is stated; this is the ordering rule that goes with it.
+
+## 8g. An aggregation policy is a product decision — name it or it gets guessed
+
+#137 rewrote a metric over garment meshes and had to decide how to combine several of them. The brief
+said nothing, so the worker chose:
+
+> "**Multi-layer aggregate** — silent. Chose **min** across meshes (max re-hit nurse under-layer yoke)."
+
+`min` versus `max` across N meshes is the difference between "the garment's neckline" and "the highest
+thing any layer does", and it was settled in a metric implementation because nobody named it.
+
+**Rule:** whenever a measurement collapses several objects into one number — meshes, actors, stations,
+files — the brief states the aggregation (min / max / mean / per-item) or explicitly delegates it as a
+named unlocked decision. This is §7r's derived-field rule applied one level up: not "where does this
+field come from" but "how are N of them combined".
+
+The tell: the measured subject is plural anywhere in the sentence.
+
+## 8h. For IMPLEMENTATION methods, give a preferred candidate and a stop rule — the opposite of §6j
+
+§6j established that for DIAGNOSIS candidates you list them unranked, because a rank pulls a turn of
+story-fitting. #137's worker asked for the opposite treatment on method choice, and the distinction is
+real:
+
+> "Name multi-layer policy and one preferred neck method as **candidates with stop rule** — 'try
+> centerline first; if any asset outside band after two probes, stop and report — do not invent a
+> third'. That would cut the discovery half of the probe thrash."
+
+Its own split was ~7 turns product, **~4 turns discovery** probing which neck definition cleared the
+band, ~2 thrash. That discovery was "which replacement metric is true", not "what is the defect" — and
+a preferred starting point plus a cap would have compressed it.
+
+**The distinction:** ranking a *cause* invites the worker to prove your story. Ranking a *method*
+just saves them a coin-flip, because the measurement immediately tells them whether it worked. Rank
+methods; do not rank causes.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
