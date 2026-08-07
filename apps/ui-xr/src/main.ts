@@ -29,6 +29,7 @@ import {
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
+import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
 import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
@@ -4376,12 +4377,7 @@ function addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: Scen
     scene.add(chart);
   }
   if (sid === "ed_chest_pain_priority_v1") {
-    // props from case: gurney, cardiac_monitor, crash_cart, iv_stand, defibrillator (matches factory caseDerived for ed_trauma_bay)
-    const gurney = new Mesh(new BoxGeometry(2.0, 0.55, 0.75), new MeshStandardMaterial({ color: 0x475569, roughness: 0.65 }));
-    gurney.name = `${runtimeSceneObjectPrefix()}.ed-gurney`;
-    gurney.position.set(-0.3, 0.28, -0.7);
-    gurney.userData.openClinXrCaseDerivedVirtualEnvironmentProp = "gurney_ed_trauma_bay_center";
-    scene.add(gurney);
+    // #97: skip case-derived gurney — procedural stretcher slot is the single visible bed.
     const monBack = new Mesh(new BoxGeometry(0.55, 0.32, 0.04), new MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 }));
     monBack.name = `${runtimeSceneObjectPrefix()}.ed-cardiac-monitor`;
     monBack.position.set(-2.6, 1.45, -1.4);
@@ -9682,6 +9678,7 @@ function loadGeneratedEnvironmentIntoSceneSlot(
       const environment = gltf.scene;
       environment.name = options.objectName;
       environment.userData.openClinXrAffordances = ["room_boundary_reference", "spatial_orientation_cue"];
+      Object.assign(environment.userData, prepareLoadedEnvironmentShell(environment)); // #97 axis+bed
       environment.add(createAffordanceMarker(`${options.objectName}:room_boundary`, 0xf4d35e));
       sceneSlot.add(environment);
       recordSceneAssetStatus({

@@ -227,16 +227,8 @@ function shell(
   return {
     ...partial,
     fixtureSlots: partial.fixtureSlots ?? [
-      {
-        slotId: "primary_patient",
-        purpose: "Primary patient placement",
-        position: { x: -0.9, y: 0, z: 0.08 },
-      },
-      {
-        slotId: "learner_start",
-        purpose: "Learner entry standing position",
-        position: { x: 0, y: 0, z: 1.4 },
-      },
+      { slotId: "primary_patient", purpose: "Primary patient placement", position: { x: -0.9, y: 0, z: 0.08 } },
+      { slotId: "learner_start", purpose: "Learner entry standing position", position: { x: 0, y: 0, z: 1.4 } },
     ],
   };
 }
@@ -473,6 +465,11 @@ export const FALLBACK_ENVIRONMENT_SHELL: EnvironmentShellDescriptor = shell({
   ambientHemisphereGround: 0x223042,
   keyLightIntensity: 2.0,
   zoneTemplates: GENERIC_CLINIC_ZONES,
+  // #97: unknown ids (telehealth_consult_room_v1) still get real chair geometry.
+  fixtureSlots: [
+    { slotId: "patient_chair", purpose: "Fallback seating", position: { x: -0.4, y: 0, z: -0.2 } },
+    { slotId: "learner_start", purpose: "Learner entry", position: { x: 0, y: 0, z: 1.2 } },
+  ],
 });
 
 export function resolveEnvironmentShellDescriptor(environmentId: string): ResolvedEnvironmentShell {
