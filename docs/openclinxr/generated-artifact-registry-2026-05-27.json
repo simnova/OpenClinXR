@@ -15076,6 +15076,20 @@
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "#215 MakeClothes factory library GLB (hm08 + ClothesService-fitted CC-BY scrub); preserve for factory clothing station + runtime comparator path."
+    },
+    {
+      "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.provenance.json",
+      "authority": "keep-current",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "#215 MakeClothes factory library GLB (hm08 + ClothesService-fitted CC-BY scrub); preserve for factory clothing station + runtime comparator path."
+    },
+    {
       "path": "apps/ui-xr/dist/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
       "authority": "keep-current",
       "tracked": false,
@@ -15466,6 +15480,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#215 MakeClothes factory library GLB (hm08 + ClothesService-fitted CC-BY scrub); preserve for factory clothing station + runtime comparator path."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#215 MakeClothes factory library GLB (hm08 + ClothesService-fitted CC-BY scrub); preserve for factory clothing station + runtime comparator path."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",

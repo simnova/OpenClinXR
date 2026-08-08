@@ -7312,7 +7312,7 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
       return '/xr-assets/humanoids/candidates/charmorph-reom-ob-patient-candidate.glb';
     }
     if (humanoidSourceComparator === "reom_local_fitted_garment_patient" && actorId === runtimePatientActorId()) {
-      return '/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb';
+      return '/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb';
     }
     if (humanoidSourceComparator === "reom_local_authored_curved_garment_patient" && actorId === runtimePatientActorId()) {
       return '/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb';
