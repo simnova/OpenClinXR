@@ -186,7 +186,9 @@ describe("the garment parameter space is swept in a bake harness (#195)", () => 
 
     // These are the values on main at plant time. If a sweep changed the source, this fails.
     for (const [name, expected] of [
-      ["cardigan_bot_y_fraction", 0.31],
+      // #197: DECIDED from the #195 sweep — 0.31 produced a below-knee coat (hemY 0.546).
+      // 0.42 reads as a cardigan (hemY 0.739). This is RED until the generator matches.
+      ["cardigan_bot_y_fraction", 0.42],
       ["gown_bot_y_fraction", 0.32],
       ["cardigan_sleeve_along_fraction", 0.92],
       ["gown_sleeve_along_fraction", 0.72],
