@@ -16,6 +16,20 @@ import { existsSync, readFileSync } from "node:fs";
  * 4. Decomposed visual: toe_defined | heel_defined | sole_plane (not "reads_as_footwear")
  *
  * Header IMMUTABLE — append ## FIXED (#212).
+ *
+ * ## FIXED (#212)
+ * - pre-fix-attachment.json: library + Anny footwear measured detached
+ *   (sharesVertexPositionWithBody=false, indexComponents=2, positionMerged=2).
+ * - MakeClothes shoe search: no licence-clean staged .mhclo (combat_boots 404,
+ *   shoes01 pack unavailable, local caches shirt-only).
+ * - embed_library_footwear.py: foot-vertex longitudinal slices + sole plane +
+ *   heel counter + elongated toe box + body-foot attachment anchors
+ *   (revision issue_212_foot_vertex_landmark_shell_v1).
+ * - post-fix library: sharesVertex=true (24 hits), tris≈324/asset.
+ * - verdict: procedural_foot_vertex_improved.
+ * - grade: .openclinxr/evidence/issue-212/footwear-grade.png (EEVEE feet frame).
+ * - Residual: Anny rail still AABB #188 shells; pixel "reads as last" still
+ *   load-bearing for anatomical shoe quality (toe/heel markers present, not fashion last).
  */
 
 type AttachmentRow = {
