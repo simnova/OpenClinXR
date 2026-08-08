@@ -56,7 +56,11 @@ const SCRUB = {
     "http://www.makehumancommunity.org/sites/default/files/clothes/8124/966709161/Scrub_Shirt.obj",
 };
 
-/** Two body classes: lean female-presenting vs heavier male-presenting weight macros. */
+/**
+ * Two body classes: lean female-presenting vs heavier male-presenting weight macros.
+ * #221: each class names its Anny reference so MPFB match keeps age/size/gender aligned
+ * (D11 / MADR 0044) rather than scaling both classes to one adult cast.
+ */
 export const BODY_CLASSES = [
   {
     bodyClassId: "adult_lean_female",
@@ -67,6 +71,11 @@ export const BODY_CLASSES = [
     height: 0.5,
     proportions: 0.5,
     phenotypeNote: "lean / female presentation — low weight macro",
+    annyReferenceAsset: "ed_chest_pain_nurse_adult",
+    annyObj: path.join(
+      REPO_ROOT,
+      "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    ),
   },
   {
     bodyClassId: "adult_heavy_male",
@@ -77,9 +86,15 @@ export const BODY_CLASSES = [
     height: 0.5,
     proportions: 0.5,
     phenotypeNote: "heavy / male presentation — high weight macro",
+    annyReferenceAsset: "ed_chest_pain_adult_cast",
+    annyObj: path.join(
+      REPO_ROOT,
+      "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+    ),
   },
 ] as const;
 
+/** Fallback Anny OBJ when a class omits annyObj (legacy single-ref path). */
 const ANNY_REFERENCE_OBJ = path.join(
   REPO_ROOT,
   "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
@@ -106,6 +121,10 @@ export type BodyParamCatalogEntry = {
   fitWallClockS: number | null;
   glbSha256: string;
   gradePngPath: string;
+  /** #221 — Anny figure this MPFB body was stature/girth matched to. */
+  annyReferenceAsset: string | null;
+  morphTargetCount?: number;
+  morphTargetNames?: string[];
 };
 
 export type BodyParamCatalog = {
@@ -430,6 +449,13 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     const glbPublicPath = `/xr-assets/humanoids/candidates/${destName}`;
 
     const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
+    const annyReferenceAsset =
+      typeof sc["annyReferenceAsset"] === "string" && sc["annyReferenceAsset"]
+        ? String(sc["annyReferenceAsset"])
+        : null;
+    const morphTargetNames = Array.isArray(sc["morphTargetNames"])
+      ? (sc["morphTargetNames"] as string[])
+      : [];
     const entry: BodyParamCatalogEntry = {
       bodyClassId,
       garmentId: LIBRARY_GARMENT_ID,
@@ -452,10 +478,13 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
         typeof sc["fitWallClockS"] === "number" ? (sc["fitWallClockS"] as number) : null,
       glbSha256: sha256File(destDisk),
       gradePngPath: path.relative(REPO_ROOT, GRADE_PNG_PATH).split(path.sep).join("/"),
+      annyReferenceAsset,
+      morphTargetCount: Number(sc["morphTargetCount"] ?? morphTargetNames.length),
+      morphTargetNames,
     };
     entries.push(entry);
 
-    // Per-GLB provenance sidecar
+    // Per-GLB provenance sidecar (tracked next to library GLB — clean clones keep it)
     writeFileSync(
       destDisk.replace(/\.glb$/i, ".provenance.json"),
       JSON.stringify(
@@ -466,16 +495,25 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           garmentId: LIBRARY_GARMENT_ID,
           garmentFittedToBodyClass: entry.garmentFittedToBodyClass,
           phenotype: entry.phenotype,
+          annyReferenceAsset: entry.annyReferenceAsset,
+          annyObj: typeof sc["annyObj"] === "string" ? sc["annyObj"] : null,
+          annyStatureAlign: sc["annyStatureAlign"] ?? null,
+          morphTargetCount: entry.morphTargetCount,
+          morphTargetNames: entry.morphTargetNames,
+          deformation: sc["deformation"] ?? null,
           licenseToken: license.token,
           licenseSource: license.source,
           clothesServiceApi: entry.clothesServiceApi,
           glbSha256: entry.glbSha256,
           torsoGirthProxyMeters: entry.torsoGirthProxyMeters,
+          heightMeters: entry.heightMeters,
           notEvidenceFor: [
             "clinical_body_realism",
             "quest_readiness",
             "converting_shipped_anny_roles",
             "shipping_mpfb_gpl",
+            "phoneme_readiness",
+            "false_viseme_name_map",
           ],
         },
         null,

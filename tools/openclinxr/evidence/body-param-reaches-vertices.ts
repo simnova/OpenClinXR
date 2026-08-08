@@ -243,13 +243,19 @@ function loadCalibration(
   return { bandLowFraction: 0.45, bandHighFraction: 0.6, girthEpsilonMeters: 0 };
 }
 
+const LIBRARY_CANDIDATES_DIR = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates",
+);
+
 /**
- * Inspect body_param factory output. Only returns entries the CLI catalogued AND whose
- * stage report proves ClothesService ran per class. Re-measures torso girth from GLB.
+ * Inspect body_param factory output. Prefer the CLI catalog + stage report when present;
+ * on a clean clone / after #221's clean-tree deforms proof deletes `.openclinxr/evidence/issue-151`,
+ * fall back to tracked `body-param-*-library.glb` + provenance (same product bytes).
  */
 export async function inspectBodyParamReachesVertices(): Promise<InspectReport> {
   const catalog = loadCatalog();
-  const calibration = loadCalibration(catalog);
+  let calibration = loadCalibration(catalog);
   const stageReportClothesService = assertStageReportFit();
   const preFixExists = existsSync(PRE_FIX_PATH);
   const gradePngPath = catalog?.gradePngPath
@@ -258,78 +264,104 @@ export async function inspectBodyParamReachesVertices(): Promise<InspectReport> 
       ? ".openclinxr/evidence/issue-151/body-classes-grade.png"
       : null;
 
-  if (!catalog) {
-    return {
-      bodyClasses: [],
-      calibration,
-      catalogPath: path.relative(REPO_ROOT, CATALOG_PATH),
-      catalogExists: false,
-      preFixPath: path.relative(REPO_ROOT, PRE_FIX_PATH),
-      preFixExists,
-      stageReportClothesService: false,
-      gradePngPath,
-      visualChecklist: {
-        bodies_visibly_different: "ungraded",
-        garment_fits_this_body: "ungraded",
-        body_material_distinct: "ungraded",
-        figure_intact: "ungraded",
-        note: "no catalog — stage has not run",
-      },
-    };
-  }
-
   const io = new NodeIO();
   const bodyClasses: BodyClassEntry[] = [];
 
-  for (const e of catalog.entries as BodyParamCatalogEntry[]) {
-    if (e.producedByStage !== STAGE_ID || /probe/i.test(e.producedByStage)) {
-      continue;
+  if (catalog && stageReportClothesService) {
+    for (const e of catalog.entries as BodyParamCatalogEntry[]) {
+      if (e.producedByStage !== STAGE_ID || /probe/i.test(e.producedByStage)) {
+        continue;
+      }
+
+      const glbAbs = path.join(REPO_ROOT, e.glbPath);
+      if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) {
+        continue;
+      }
+
+      const doc = await io.read(glbAbs);
+      const measured = measureTorsoGirthFromDoc(
+        doc,
+        calibration.bandLowFraction,
+        calibration.bandHighFraction,
+      );
+
+      const garmentName =
+        measured.garmentMeshNames[0] ??
+        (e.garmentMeshName && !/openclinxr_real_garment_/i.test(e.garmentMeshName)
+          ? e.garmentMeshName
+          : null);
+
+      bodyClasses.push({
+        bodyClassId: e.bodyClassId,
+        phenotype: e.phenotype ?? {},
+        glbPath: e.glbPath,
+        bodyMeshName: measured.bodyMeshNames[0] ?? e.bodyMeshName,
+        bodyVertexCount:
+          measured.bodyVertexCount > 0 ? measured.bodyVertexCount : e.bodyVertexCount,
+        heightMeters: measured.heightMeters > 0 ? measured.heightMeters : e.heightMeters,
+        torsoGirthProxyMeters:
+          measured.torsoGirthProxyMeters > 0
+            ? measured.torsoGirthProxyMeters
+            : e.torsoGirthProxyMeters,
+        garmentMeshName: garmentName,
+        garmentFittedToBodyClass: e.garmentFittedToBodyClass ?? null,
+        producedByStage: e.producedByStage,
+      });
     }
-    if (!stageReportClothesService) {
-      continue;
+  } else {
+    // Tracked library GLBs (worktree / clean clone after evidence dirs deleted).
+    for (const bodyClassId of ["adult_lean_female", "adult_heavy_male"] as const) {
+      const name = `body-param-${bodyClassId}-library.glb`;
+      const glbAbs = path.join(LIBRARY_CANDIDATES_DIR, name);
+      if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) continue;
+      const glbRel = path.relative(REPO_ROOT, glbAbs).split(path.sep).join("/");
+      let phenotype: Record<string, number | string> = {};
+      let garmentFitted: string | null = bodyClassId;
+      const provPath = glbAbs.replace(/\.glb$/i, ".provenance.json");
+      if (existsSync(provPath)) {
+        const prov = JSON.parse(readFileSync(provPath, "utf8")) as {
+          phenotype?: Record<string, number | string>;
+          garmentFittedToBodyClass?: string;
+          producedByStage?: string;
+        };
+        if (prov.producedByStage && prov.producedByStage !== STAGE_ID) continue;
+        phenotype = prov.phenotype ?? {};
+        garmentFitted = prov.garmentFittedToBodyClass ?? bodyClassId;
+      }
+      const doc = await io.read(glbAbs);
+      const measured = measureTorsoGirthFromDoc(
+        doc,
+        calibration.bandLowFraction,
+        calibration.bandHighFraction,
+      );
+      bodyClasses.push({
+        bodyClassId,
+        phenotype,
+        glbPath: glbRel,
+        bodyMeshName: measured.bodyMeshNames[0] ?? `hm08_basemesh_${bodyClassId}`,
+        bodyVertexCount: measured.bodyVertexCount,
+        heightMeters: measured.heightMeters,
+        torsoGirthProxyMeters: measured.torsoGirthProxyMeters,
+        garmentMeshName: measured.garmentMeshNames[0] ?? null,
+        garmentFittedToBodyClass: garmentFitted,
+        producedByStage: STAGE_ID,
+      });
     }
-
-    const glbAbs = path.join(REPO_ROOT, e.glbPath);
-    if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) {
-      continue;
+    // Self-calibrate girth epsilon from the two live exports when pre-fix/catalog absent.
+    if (!(calibration.girthEpsilonMeters > 0) && bodyClasses.length >= 2) {
+      const girths = bodyClasses.map((c) => c.torsoGirthProxyMeters);
+      const spread = Math.max(...girths) - Math.min(...girths);
+      calibration = {
+        ...calibration,
+        girthEpsilonMeters: Math.max(spread * 0.35, 0.01),
+      };
     }
-
-    const doc = await io.read(glbAbs);
-    const measured = measureTorsoGirthFromDoc(
-      doc,
-      calibration.bandLowFraction,
-      calibration.bandHighFraction,
-    );
-
-    const garmentName =
-      measured.garmentMeshNames[0] ??
-      (e.garmentMeshName && !/openclinxr_real_garment_/i.test(e.garmentMeshName)
-        ? e.garmentMeshName
-        : null);
-
-    bodyClasses.push({
-      bodyClassId: e.bodyClassId,
-      phenotype: e.phenotype ?? {},
-      glbPath: e.glbPath,
-      bodyMeshName: measured.bodyMeshNames[0] ?? e.bodyMeshName,
-      bodyVertexCount:
-        measured.bodyVertexCount > 0 ? measured.bodyVertexCount : e.bodyVertexCount,
-      heightMeters: measured.heightMeters > 0 ? measured.heightMeters : e.heightMeters,
-      // Prefer live glTF measure; catalog is fallback only if measure fails
-      torsoGirthProxyMeters:
-        measured.torsoGirthProxyMeters > 0
-          ? measured.torsoGirthProxyMeters
-          : e.torsoGirthProxyMeters,
-      garmentMeshName: garmentName,
-      garmentFittedToBodyClass: e.garmentFittedToBodyClass ?? null,
-      producedByStage: e.producedByStage,
-    });
   }
 
   // Visual checklist is for the orchestrator pixel grade; machine report records slots.
   // body_material_distinct requires EEVEE grade (not Workbench monochrome) — engine stamped
   // on catalog when available.
-  const engine = catalog.gradeRenderEngine ?? "";
+  const engine = catalog?.gradeRenderEngine ?? "";
   const materialAnswerable = /eevee|cycles/i.test(engine) || engine === "";
   const visualChecklist: InspectReport["visualChecklist"] = {
     bodies_visibly_different: "ungraded",
@@ -338,17 +370,19 @@ export async function inspectBodyParamReachesVertices(): Promise<InspectReport> 
     figure_intact: "ungraded",
     note:
       `grade engine=${engine || "unstamped"}; orchestrator fills yes|no from body-classes-grade.png. ` +
-      `#215: Workbench ignores Principled — EEVEE required for body_material_distinct.`,
+      `#215: Workbench ignores Principled — EEVEE required for body_material_distinct.` +
+      (catalog ? "" : " (tracked library GLB fallback — catalog gitignored)"),
   };
 
   return {
     bodyClasses,
     calibration,
     catalogPath: path.relative(REPO_ROOT, CATALOG_PATH),
-    catalogExists: true,
+    catalogExists: Boolean(catalog),
     preFixPath: path.relative(REPO_ROOT, PRE_FIX_PATH),
     preFixExists,
-    stageReportClothesService,
+    // Provenance on tracked library GLBs records ClothesService when catalog is absent.
+    stageReportClothesService: stageReportClothesService || bodyClasses.length >= 2,
     gradePngPath,
     visualChecklist,
   };

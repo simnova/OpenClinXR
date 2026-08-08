@@ -12,15 +12,85 @@
     "height": 0.5,
     "proportions": 0.5
   },
+  "annyReferenceAsset": "ed_chest_pain_nurse_adult",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+  "annyStatureAlign": {
+    "uniformScale": 0.10159008043632978,
+    "girthScaleHorizontal": 1,
+    "referenceStatureMeters": 1.759999972908938,
+    "bodyStatureBeforeScaleMeters": 17.324525833129883,
+    "bodyStatureAfterScaleMeters": 1.7599999928606471,
+    "referenceGirthMeters": 0.5413415682214989,
+    "bodyGirthAfterStatureMeters": 0.49883718314508413,
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    "annyReferenceAsset": "ed_chest_pain_nurse_adult"
+  },
+  "morphTargetCount": 32,
+  "morphTargetNames": [
+    "eye-left-closure",
+    "eye-left-opened-up",
+    "eye-left-slit",
+    "eye-right-closure",
+    "eye-right-opened-up",
+    "eye-right-slit",
+    "eyebrows-left-down",
+    "eyebrows-left-extern-up",
+    "eyebrows-left-inner-up",
+    "eyebrows-left-up",
+    "eyebrows-right-down",
+    "eyebrows-right-extern-up",
+    "eyebrows-right-inner-up",
+    "eyebrows-right-up",
+    "mouth-compression",
+    "mouth-corner-puller",
+    "mouth-depression-retraction",
+    "mouth-depression",
+    "mouth-elevation",
+    "mouth-eversion",
+    "mouth-open",
+    "mouth-parling",
+    "mouth-part-later",
+    "mouth-protusion",
+    "mouth-pursing",
+    "mouth-retraction",
+    "mouth-upward-retraction",
+    "neck-platysma",
+    "nose-compression",
+    "nose-depression",
+    "nose-left-dilatation",
+    "nose-left-elevation"
+  ],
+  "deformation": {
+    "drivenBone": "upper_arm.L",
+    "rotationDegrees": 55,
+    "bodyDeformationMeters": 0.36185,
+    "garmentDeformationMeters": 0.13949,
+    "medianBoneTipMotionMeters": 0.31744,
+    "deformationEpsilonMeters": 0.15872,
+    "source": "calibrated_half_median_bone_tip_motion_this_export",
+    "boneTipDeltaCount": 1,
+    "drivenChainBoneNames": [
+      "upper_arm.L"
+    ],
+    "drivenChainTipMotions": {
+      "upper_arm.L": 0.31744
+    },
+    "drivenBandRadiusMeters": 0.18906,
+    "bodyBandVertexCount": 2306,
+    "garmentBandVertexCount": 926
+  },
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-216/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "a116052d34390b52623af8a21eb9230ae4ae4f670922142f78cd7078bcbbcba2",
+  "glbSha256": "8e1d90059703f6f66f5218c827f02cca5eb87b8a5d2da5448612eff6f9d92535",
   "torsoGirthProxyMeters": 0.4988371839992518,
+  "heightMeters": 1.7599999904632568,
   "notEvidenceFor": [
     "clinical_body_realism",
     "quest_readiness",
     "converting_shipped_anny_roles",
-    "shipping_mpfb_gpl"
+    "shipping_mpfb_gpl",
+    "phoneme_readiness",
+    "false_viseme_name_map"
   ]
 }

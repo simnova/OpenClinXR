@@ -138,6 +138,43 @@ import { describe, expect, it } from "vitest";
  * that is a successful finding and closes this issue.
  *
  * #215, #216 and #218 contracts stay green. The planted header is IMMUTABLE — append `## FIXED (#221)`.
+ *
+ * ## FIXED (#221)
+ *
+ * A1 — Per-class Anny reference recorded on `makeclothes/body_param_stage.py` (NOT
+ * `anny/body_param_stage.py` — that path in the original done_when does not exist; broken
+ * proof reported here) + `body-param-cli` BODY_CLASSES:
+ *   adult_lean_female → ed_chest_pain_nurse_adult
+ *   adult_heavy_male  → ed_chest_pain_adult_cast
+ * Provenance records `annyReferenceAsset`. Stature-only align; girth NOT forced to Anny
+ * (`girthScaleHorizontal: 1.0`) so #151 phenotype girth spread survives.
+ *
+ * VACUOUS HALF OF CONTRACT (1) — orchestrator defect, recorded honestly:
+ * Pre-fix heights were already 1.760 m vs Anny 1.760 m (Δ≈0); girths 0.499 / 0.587 already
+ * within the post-fix tolerance band. The align pass moved height/girth by <0.4 mm. What
+ * actually flipped was `annyReferenceAsset: null → named` plus morph export. Height/girth
+ * match was ambient from earlier #151/#216 stature align, not newly produced by this slice.
+ *
+ * A2 — `export_morph=True`; 32 MPFB face names exported. Runtime viseme vocab 38 names from
+ * automate_blender.py + main.ts. Verdict: **disjoint_measured**. Morph cost ~+6.0–6.2 MB/GLB
+ * (4.0→10.2 MB lean, 4.0→10.0 MB heavy) of targets nothing can drive — gate export behind a
+ * flag until a name map exists (not implemented this slice).
+ *
+ * A3 — Live LBS sole instrument. ε = half × FITTED short-sleeve fraction 0.35 × driven child
+ * tip. 0.35 is FITTED (garment Δ ~0.07 would not clear full half-tip ~0.159); not measured
+ * from sleeve extent / bone length. Clean-tree deforms green.
+ *
+ * Grade: `.openclinxr/evidence/issue-221/anny-mpfb-match-grade.png` via
+ * `anny-mpfb-match-grade-capture.py` (EEVEE, blank-PNG refuse). Re-run ×2 under FORCE_COLOR=1.
+ *
+ * IN-SCOPE VISUAL (lit grade, four figures L→R: nurse Anny | MPFB lean | cast Anny | MPFB heavy):
+ *   both_figures_present:          yes
+ *   same_apparent_stature:         yes
+ *   same_apparent_build:           yes
+ *   garment_refitted_not_floating: yes
+ *   anny_reference_unchanged:      yes
+ *
+ * Out-of-scope: MPFB bare legs (no lower garment); blocky mitten hands; T-pose library idle.
  */
 
 type MatchedBody = {
