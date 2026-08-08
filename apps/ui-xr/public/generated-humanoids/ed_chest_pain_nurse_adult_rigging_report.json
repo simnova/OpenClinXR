@@ -402,7 +402,7 @@
         "sleeveR0M": 0.0576,
         "sleeveRFactor": 0.258,
         "torsoRBaseM": 0.2232,
-        "meanRadiusM": 0.1552,
+        "meanRadiusM": 0.155,
         "radiusStackScale": 0.93,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -499,7 +499,7 @@
         "sleeveR0M": 0.0565,
         "sleeveRFactor": 0.222,
         "torsoRBaseM": 0.2542,
-        "meanRadiusM": 0.1615,
+        "meanRadiusM": 0.1613,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -609,7 +609,7 @@
       "sleeveR0M": 0.0565,
       "sleeveRFactor": 0.222,
       "torsoRBaseM": 0.2542,
-      "meanRadiusM": 0.1615,
+      "meanRadiusM": 0.1613,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -681,6 +681,54 @@
         "looks_worn_pixel_grade"
       ],
       "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
+    },
+    "footwearRegion": {
+      "mode": "parametric_foot_aabb_shell_v1",
+      "revision": "issue_188_footwear_only_no_lower_shell",
+      "kind": "clinical_shoe",
+      "shells": [
+        {
+          "side": "L",
+          "kind": "clinical_shoe",
+          "objectName": "openclinxr_footwear_clinical_shoe_L",
+          "meshName": "openclinxr_footwear_clinical_shoe_L_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.L"
+          ],
+          "minY": -0.002,
+          "maxY": 0.186603,
+          "footVertCount": 1105
+        },
+        {
+          "side": "R",
+          "kind": "clinical_shoe",
+          "objectName": "openclinxr_footwear_clinical_shoe_R",
+          "meshName": "openclinxr_footwear_clinical_shoe_R_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.R"
+          ],
+          "minY": -0.002,
+          "maxY": 0.186603,
+          "footVertCount": 1105
+        }
+      ],
+      "totalFaceCount": 96,
+      "bodyHeight": 1.76,
+      "bodyMinY": 0.0,
+      "bodyMaxY": 1.76,
+      "role": "nurse",
+      "claimScope": "procedural_footwear_geometry_on_foot_bones_not_clinical_costume_realism",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity",
+        "lower_body_garment_channel"
+      ]
     }
   },
   "garmentSourceGeometryHint": null,
@@ -708,7 +756,7 @@
     "sleeveR0M": 0.0565,
     "sleeveRFactor": 0.222,
     "torsoRBaseM": 0.2542,
-    "meanRadiusM": 0.1615,
+    "meanRadiusM": 0.1613,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -868,7 +916,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=ed_chest_pain_priority_v1, actor=nurse)",
-    "generatedAt": "2026-08-08T05:44:01.718035Z",
+    "generatedAt": "2026-08-08T10:45:41.968912Z",
     "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anny_topology\": \"default\", \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_female_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_scrubs_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"ed_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,

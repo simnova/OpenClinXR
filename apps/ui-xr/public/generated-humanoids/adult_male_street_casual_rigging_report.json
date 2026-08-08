@@ -409,7 +409,7 @@
         "sleeveR0M": 0.0601,
         "sleeveRFactor": 0.28,
         "torsoRBaseM": 0.2146,
-        "meanRadiusM": 0.1574,
+        "meanRadiusM": 0.1572,
         "radiusStackScale": 0.93,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -506,7 +506,7 @@
         "sleeveR0M": 0.06,
         "sleeveRFactor": 0.232,
         "torsoRBaseM": 0.2589,
-        "meanRadiusM": 0.1826,
+        "meanRadiusM": 0.1825,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -616,7 +616,7 @@
       "sleeveR0M": 0.06,
       "sleeveRFactor": 0.232,
       "torsoRBaseM": 0.2589,
-      "meanRadiusM": 0.1826,
+      "meanRadiusM": 0.1825,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -688,6 +688,54 @@
         "looks_worn_pixel_grade"
       ],
       "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
+    },
+    "footwearRegion": {
+      "mode": "parametric_foot_aabb_shell_v1",
+      "revision": "issue_188_footwear_only_no_lower_shell",
+      "kind": "casual_shoe",
+      "shells": [
+        {
+          "side": "L",
+          "kind": "casual_shoe",
+          "objectName": "openclinxr_footwear_casual_shoe_L",
+          "meshName": "openclinxr_footwear_casual_shoe_L_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.L"
+          ],
+          "minY": -0.002,
+          "maxY": 0.186603,
+          "footVertCount": 1105
+        },
+        {
+          "side": "R",
+          "kind": "casual_shoe",
+          "objectName": "openclinxr_footwear_casual_shoe_R",
+          "meshName": "openclinxr_footwear_casual_shoe_R_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.R"
+          ],
+          "minY": -0.002,
+          "maxY": 0.186603,
+          "footVertCount": 1105
+        }
+      ],
+      "totalFaceCount": 96,
+      "bodyHeight": 1.76,
+      "bodyMinY": 0.0,
+      "bodyMaxY": 1.76,
+      "role": "patient",
+      "claimScope": "procedural_footwear_geometry_on_foot_bones_not_clinical_costume_realism",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity",
+        "lower_body_garment_channel"
+      ]
     }
   },
   "garmentSourceGeometryHint": null,
@@ -715,7 +763,7 @@
     "sleeveR0M": 0.06,
     "sleeveRFactor": 0.232,
     "torsoRBaseM": 0.2589,
-    "meanRadiusM": 0.1826,
+    "meanRadiusM": 0.1825,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -872,7 +920,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=telehealth_diabetes_health_literacy_v1, actor=patient)",
-    "generatedAt": "2026-08-08T05:46:41.438584Z",
+    "generatedAt": "2026-08-08T10:48:23.073133Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.16, \"anny_topology\": \"default\", \"anxious\": 0.35, \"bmi\": 26.5, \"brow_tension\": 0.22, \"build\": \"average_adult\", \"clothing_color\": \"warm_olive_and_cream\", \"clothing_style\": \"home_street_casual_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"olive_knit_and_cream_casual\", \"fitProfile\": \"adult_standard_fit\", \"flush\": 0.08, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_male\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.6, \"height_cm\": 176, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"telehealth_home_patient\", \"skin_tone\": \"warm_medium\", \"sleeveGeometryExpansion\": \"v2_street_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"home_street_patient\"}"
   },
   "licenseExceptionRequired": false,

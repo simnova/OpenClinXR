@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "openclinxr.issue-188.pre-fix.v1",
+  "measuredAt": "2026-08-08T10:44:32.935Z",
+  "ambientFailureClass": "api_authored=N/A; footwear mesh count=0 on all seven shipped humanoids because nothing generates footwear — upper_layers only; lower clothing is body paint (#73)",
+  "mechanism": "No shoe|boot|foot|sock|sandal mesh in any exported glTF; foot.L/foot.R exist; ~2214 body verts at yn<0.08",
+  "assets": [
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2160,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.7599999904632568,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2160,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.7599999904632568,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2160,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.7599999904632568,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2192,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.659999966621399,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2192,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.659999966621399,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 2160,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.7599999904632568,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    },
+    {
+      "assetPath": "apps/ui-xr/public/generated-humanoids/peds_patient_child.glb",
+      "footwearMeshNames": [],
+      "footwearTriangles": 0,
+      "lowerPaintTriangles": 6680,
+      "bodyMinY": 0,
+      "bodyMaxY": 1.25,
+      "footVertsBandNote": "measured body has feet; footwear meshes absent"
+    }
+  ],
+  "claimScope": "pre_fix_calibration_not_a_product_fix"
+}

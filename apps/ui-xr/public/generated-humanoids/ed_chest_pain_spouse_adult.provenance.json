@@ -80,9 +80,9 @@
   ],
   "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
   "promotionGates": false,
-  "outputSha256": "a66139b90512de64e9d5d1f70cae42049ab9958f2e26211a5c83b5e4361b6297",
-  "outputBytes": 8028180,
-  "generatedAt": "2026-08-08T05:44:33.813085+00:00",
+  "outputSha256": "7d50911a1949a0b2353e924e9af4fab1fc38122f40ce42d6a5c704c0e4271f15",
+  "outputBytes": 8035300,
+  "generatedAt": "2026-08-08T10:46:14.328198+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
   "garmentLayers": [
