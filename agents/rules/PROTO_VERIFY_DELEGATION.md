@@ -3548,3 +3548,59 @@ studio boot for every slice is real cost. The brief has to decide which claim it
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10z. The gate-is-suspect line, measured across a matched pair in one cycle
+
+§10x recorded a worker saying that authorising "your gate is wrong" helped as permission. The same
+cycle produced the controlled version, by accident: two slices, same orchestrator, same day, both
+dispatched against a red main, both finding a mix of instrument faults and product faults.
+
+| | brief said "if you conclude the GATE is wrong, say so and stop" | when the instrument/product split formed |
+|---|---|---|
+| #208 (garments) | **yes** | **early — before any product edit** |
+| #209 (rooms/actors) | **no** | **"late and incomplete"** |
+
+#209's own account of why, unprompted:
+
+> "Brief made **product** easy ('do not weaken', 'equipment mounts must be included', unlocked
+> bed-vs-patient) and made **'your red is an instrument artifact' hard**: counterweight language reads
+> as 'stations wrong' more than 'gate miscounts.' **I treated green-the-contract as product ownership
+> of every red line.**"
+
+It got there in the end — three of its four failure groups turned out to be instrument faults — but its
+first pre-fix artifact "mixed product fixes into all four", and it named the moment the evidence was
+already sufficient to call it: the live log showed one station mounting `exam_table` while still
+reporting `support=2`, which is "declaration surface ≠ mount tag surface" before any furniture moved.
+
+**The mechanism is not subtlety, it is incentive.** A counterweight that says "do not weaken any
+assertion" reads as *the assertions are correct*. Combined with a `done_when` that demands a green
+suite, the only sanctioned reading is that the product owns every red line. The gate-is-suspect
+sentence is what makes the other verdict sayable.
+
+**Rule:** every brief dispatched against an existing RED carries both halves — "do not weaken any
+assertion to reach green" AND "if a red is an instrument artifact rather than a product defect, that
+is a successful finding; say so and stop." Omitting the second does not make workers more rigorous; it
+makes them fix the wrong layer first and discover the right one late.
+
+## 11a. `rm -rf` on an evidence directory stops being safe the moment one artifact is tracked
+
+I cleared `.openclinxr/evidence` before a full-suite run — the §9y discipline, and correct — and
+deleted two **tracked** files, because #209's worker had committed its `pre-fix.json` and
+`rooms-after.png` instead of leaving them gitignored. That was the worker doing the right thing (#64:
+a deliverable under a gitignored path has no land path) and it turned a routine cache clear into a
+destructive command.
+
+Exactly 2 of that tree's files were tracked, so `git status` caught it and `git checkout --` restored
+it. The next one may not be noticed as fast.
+
+**Rule:** clear caches with `git clean -fdx <path>`, which by construction cannot touch tracked
+files, rather than `rm -rf <path>`. Where `rm -rf` is genuinely wanted, run `git ls-files <path>`
+first and say what it returned.
+
+This is §7f from the other side: there the remediation command a guard recommended was unsafe in a
+worktree; here a command that is safe against a fully-ignored tree becomes unsafe the moment the tree
+stops being fully ignored. **A command's safety is a property of the tree it runs against, not of the
+command.**
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
