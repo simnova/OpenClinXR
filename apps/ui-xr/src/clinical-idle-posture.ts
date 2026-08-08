@@ -61,6 +61,28 @@ const CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
 ]);
 
+/**
+ * #219 — body-param / hm08 library armature uses the opposite upper_arm local Z sense from Anny.
+ * Pre-fix (issue-219): same Anny eulers applied → library wrist lateral 0.81 m vs nurse 0.24 m
+ * while local upper_armL matched exactly (−0.22, 0.06, −1.12). Live probe: flip upper_arm Z sign
+ * → lateral 0.337 m ≈ Anny median 0.340 m. Not a name mismatch (§6v already ruled that out).
+ */
+const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+  ["upper_armL", { x: -0.22, y: 0.06, z: 1.12, absolute: true }],
+  ["forearmL", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
+  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_armR", { x: -0.22, y: -0.06, z: -1.12, absolute: true }],
+  ["forearmR", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
+  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
+  ["head", { x: -0.04, absolute: true }],
+  ["upper_arm.L", { x: -0.22, y: 0.06, z: 1.12, absolute: true }],
+  ["forearm.L", { x: -0.18, y: -0.10, z: 0.22, absolute: true }],
+  ["hand.L", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_arm.R", { x: -0.22, y: -0.06, z: -1.12, absolute: true }],
+  ["forearm.R", { x: -0.18, y: 0.10, z: -0.22, absolute: true }],
+  ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
+]);
+
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
 const ARM_JOINT_ALIASES = new Map<string, string[]>([
   ["upper_armL", ["upper_arml", "upperarm_l", "leftarm", "left_arm", "leftupperarm", "left_upper_arm", "mixamorigleftarm"]],
@@ -91,15 +113,31 @@ function normalizeBoneToken(name: string): string {
   return name.toLowerCase().replaceAll(/[^a-z0-9_]+/g, "");
 }
 
-function resolveIdleRotation(boneName: string): EulerPartial | undefined {
-  const direct = CLINICAL_IDLE_ARM_HANG.get(boneName);
+function isLibraryHumanoidRail(humanoid: Object3D): boolean {
+  const rail = humanoid.userData?.openClinXrHumanoidRail;
+  if (rail === "library" || rail === "body_param_library") return true;
+  // Walk parents in case the tag was set on the actor slot / outer root.
+  let cur: Object3D | null = humanoid.parent;
+  while (cur) {
+    const r = cur.userData?.openClinXrHumanoidRail;
+    if (r === "library" || r === "body_param_library") return true;
+    cur = cur.parent;
+  }
+  return false;
+}
+
+function resolveIdleRotation(
+  boneName: string,
+  hangMap: Map<string, EulerPartial>,
+): EulerPartial | undefined {
+  const direct = hangMap.get(boneName);
   if (direct) return direct;
   const normalized = normalizeBoneToken(boneName);
   for (const [jointId, aliases] of ARM_JOINT_ALIASES) {
     if (!aliases.some((alias) => normalized.includes(alias) || normalized === alias)) {
       continue;
     }
-    return CLINICAL_IDLE_ARM_HANG.get(jointId);
+    return hangMap.get(jointId);
   }
   return undefined;
 }
@@ -107,12 +145,18 @@ function resolveIdleRotation(boneName: string): EulerPartial | undefined {
 /**
  * Apply relaxed standing arm hang + head attention to a loaded humanoid root.
  * Called on load and every frame after mixer.update (main.ts animation loop).
+ *
+ * #219: library (body-param/hm08) figures use LIBRARY_CLINICAL_IDLE_ARM_HANG when tagged
+ * `userData.openClinXrHumanoidRail = "library"` at load — same mechanism, flipped upper_arm Z.
  */
 export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): void {
   const bonesTouched: string[] = [];
+  const hangMap = isLibraryHumanoidRail(humanoid)
+    ? LIBRARY_CLINICAL_IDLE_ARM_HANG
+    : CLINICAL_IDLE_ARM_HANG;
 
   const tryApply = (object: Object3D) => {
-    const rotation = resolveIdleRotation(object.name);
+    const rotation = resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;
     applyBoneEuler(object, rotation);
     object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
@@ -141,8 +185,14 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     "bent_forearm_conversation_pose_cue",
     "head_attention_posture_cue",
     "arms_lowered_from_generator_bind_pose_cue",
+    ...(hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG
+      ? ["library_hm08_upper_arm_z_sense_flip_cue"]
+      : []),
   ];
   humanoid.userData.openClinXrClinicalIdleBonesTouched = bonesTouched;
+  if (hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG) {
+    humanoid.userData.openClinXrClinicalIdleHangMap = "library_hm08_z_flip";
+  }
 }
 
 /**

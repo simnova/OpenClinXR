@@ -6937,6 +6937,12 @@ function loadGeneratedHumanoidIntoActorSlot(
       humanoid.userData.openClinXrActorId = options.actorId;
       actorSlot.userData.openClinXrActorPosture = posture;
       actorSlot.userData.openClinXrActorId = options.actorId;
+      // #219: body-param library figures need flipped upper_arm Z hang (hm08 rest sense ≠ Anny).
+      // Tag before clinical idle so load + frame-loop apply the library hang map.
+      if (/body-param-.*-library\.glb/i.test(actorSpecificAssetPath)) {
+        humanoid.userData.openClinXrHumanoidRail = "library";
+        actorSlot.userData.openClinXrHumanoidRail = "library";
+      }
       if (posture === "supine") applySupinePose(humanoid);
       else applyPosturePose(humanoid, posture);
       neutralizeGeneratedHumanoidMorphTargets(humanoid);
