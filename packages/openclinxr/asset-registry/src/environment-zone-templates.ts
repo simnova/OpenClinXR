@@ -3,7 +3,12 @@
  * Split from environment-descriptors.ts to stay under the 500-line packages budget.
  */
 
-import type { EnvironmentFixtureSlot, EnvironmentZoneTemplate } from "./environment-descriptors.js";
+import type {
+  EnvironmentFixtureSlot,
+  EnvironmentZoneTemplate,
+  FixturePlacementRule,
+  NamedShellWall,
+} from "./environment-descriptors.js";
 
 export const ED_BAY_ZONES: readonly EnvironmentZoneTemplate[] = [
   {
@@ -172,12 +177,15 @@ export const GENERIC_CLINIC_ZONES: readonly EnvironmentZoneTemplate[] = [
  * actor anchor (-0.72, z≈-0.12) so a floor-planted figure is not embedded in the deck.
  * ED bay keeps the historical stretcher position (supine patient on deck via #150).
  *
- * #196: authored positions below are absolute metres for each environment's *descriptor*
- * dimensions. `resolveFixtureSlotPosition` scales non-learner slots when the shell is
- * rebuilt at a different width/depth so doors track walls under generator sweeps.
- * Derivation: **fraction** of room extents about the shell center (X scale by width
- * ratio; Z offset from floor-center scaled by depth ratio). Y stays absolute.
- * `learner_start` stays absolute — it is a person standing marker, not wall furniture.
+ * #196/#203: authored positions below are absolute metres for each environment's
+ * *descriptor* dimensions. `resolveFixtureSlotPosition` remaps slots when the shell
+ * is rebuilt at a different width/depth:
+ * - **fraction** (default furniture): X scales with width; Z offset from floor-center
+ *   scales with depth. Correct for chairs, beds, work surfaces.
+ * - **wall_anchor** (DOOR_LEAF, WALL_BOARD): fixed inset from a *named* wall plane so
+ *   the gap does not grow with the room. Identity at authored dimensions.
+ * - **absolute** (`learner_start`): person standing marker, never remapped.
+ * Y stays absolute for all rules (board height stays readable).
  */
 
 /** Floor center Z matching station-environment shell placement (doorway opens +Z). */
@@ -199,23 +207,23 @@ export function isAbsoluteFixtureSlotId(slotId: string): boolean {
 }
 
 /**
- * Map an authored fixture position from `authoredFor` room plan into `room` plan.
- * At identity (room === authoredFor) returns the authored coordinates unchanged.
- *
- * Strategy (recorded on #196 report): **fraction** — X scales with width; Z is
- * relative to the shell floor center and scales with depth. Not margin, not wall_anchor:
- * preserves relative layout of floor furniture while moving wall-side fixtures when
- * the shell resizes. Y is not scaled (board height stays readable).
+ * Effective placement rule for a slot. Explicit placementRule wins; otherwise
+ * learner_start → absolute, everything else → fraction.
  */
-export function resolveFixtureSlotPosition(
-  slot: Pick<EnvironmentFixtureSlot, "slotId" | "position">,
+export function fixturePlacementRule(
+  slot: Pick<EnvironmentFixtureSlot, "slotId" | "placementRule">,
+): FixturePlacementRule {
+  if (slot.placementRule) return slot.placementRule;
+  if (isAbsoluteFixtureSlotId(slot.slotId)) return "absolute";
+  return "fraction";
+}
+
+/** Fraction remap: relative layout of floor furniture about shell center. */
+function resolveFractionPosition(
+  authored: { x: number; y: number; z: number },
   room: RoomPlanDimensions,
   authoredFor: RoomPlanDimensions,
 ): { x: number; y: number; z: number } {
-  const authored = slot.position;
-  if (isAbsoluteFixtureSlotId(slot.slotId)) {
-    return { x: authored.x, y: authored.y, z: authored.z };
-  }
   const refW = Math.max(authoredFor.widthMeters, 1e-6);
   const refD = Math.max(authoredFor.depthMeters, 1e-6);
   const scaleX = room.widthMeters / refW;
@@ -230,7 +238,81 @@ export function resolveFixtureSlotPosition(
   };
 }
 
-/** Resolve every fixture slot for a room plan; learner_start left absolute. */
+/**
+ * Wall-anchor remap: preserve authored inset from the named wall plane.
+ * Shell is centred on X=0; Z walls use the same floor-center convention as fraction.
+ * Along-wall axes still fraction-scale so a door walks with depth changes.
+ */
+function resolveWallAnchorPosition(
+  authored: { x: number; y: number; z: number },
+  wall: NamedShellWall,
+  room: RoomPlanDimensions,
+  authoredFor: RoomPlanDimensions,
+): { x: number; y: number; z: number } {
+  const authHalfW = authoredFor.widthMeters / 2;
+  const roomHalfW = room.widthMeters / 2;
+  const authCenterZ = shellFloorCenterZ(authoredFor.depthMeters);
+  const roomCenterZ = shellFloorCenterZ(room.depthMeters);
+  const authHalfD = authoredFor.depthMeters / 2;
+  const roomHalfD = room.depthMeters / 2;
+  const scaleX = room.widthMeters / Math.max(authoredFor.widthMeters, 1e-6);
+  const scaleZ = room.depthMeters / Math.max(authoredFor.depthMeters, 1e-6);
+
+  if (wall === "+x") {
+    // Inset from +X wall toward interior (metres). Identity when room === authoredFor.
+    const inset = authHalfW - authored.x;
+    const localZ = authored.z - authCenterZ;
+    return { x: roomHalfW - inset, y: authored.y, z: localZ * scaleZ + roomCenterZ };
+  }
+  if (wall === "-x") {
+    const inset = authored.x - (-authHalfW);
+    const localZ = authored.z - authCenterZ;
+    return { x: -roomHalfW + inset, y: authored.y, z: localZ * scaleZ + roomCenterZ };
+  }
+  if (wall === "+z") {
+    // +Z wall plane at center + halfDepth (open-front shell exterior side).
+    const authPlaneZ = authCenterZ + authHalfD;
+    const roomPlaneZ = roomCenterZ + roomHalfD;
+    const inset = authPlaneZ - authored.z;
+    return { x: authored.x * scaleX, y: authored.y, z: roomPlaneZ - inset };
+  }
+  // wall === "-z" — back wall
+  const authPlaneZ = authCenterZ - authHalfD;
+  const roomPlaneZ = roomCenterZ - roomHalfD;
+  const inset = authored.z - authPlaneZ;
+  return { x: authored.x * scaleX, y: authored.y, z: roomPlaneZ + inset };
+}
+
+/**
+ * Map an authored fixture position from `authoredFor` room plan into `room` plan.
+ * At identity (room === authoredFor) returns the authored coordinates unchanged
+ * for every rule (default geometry must not move).
+ *
+ * Per-slot rules (#203): wall_anchor for door_leaf / wall_board; fraction for
+ * furniture; absolute for learner_start. Not a global margin replacement.
+ */
+export function resolveFixtureSlotPosition(
+  slot: Pick<EnvironmentFixtureSlot, "slotId" | "position" | "placementRule" | "wall">,
+  room: RoomPlanDimensions,
+  authoredFor: RoomPlanDimensions,
+): { x: number; y: number; z: number } {
+  const authored = slot.position;
+  const rule = fixturePlacementRule(slot);
+  if (rule === "absolute") {
+    return { x: authored.x, y: authored.y, z: authored.z };
+  }
+  if (rule === "wall_anchor") {
+    const wall = slot.wall;
+    if (!wall) {
+      // Fail soft to fraction rather than invent a wall from sign(x) (#203 rejected that).
+      return resolveFractionPosition(authored, room, authoredFor);
+    }
+    return resolveWallAnchorPosition(authored, wall, room, authoredFor);
+  }
+  return resolveFractionPosition(authored, room, authoredFor);
+}
+
+/** Resolve every fixture slot for a room plan under its placement rule. */
 export function resolveFixtureSlotsForRoom(
   slots: readonly EnvironmentFixtureSlot[],
   room: RoomPlanDimensions,
@@ -307,13 +389,20 @@ export const DOOR_LEAF: EnvironmentFixtureSlot = {
   slotId: "door_leaf",
   purpose: "Solid door leaf at learner entry",
   // Open front of shell is +Z; park leaf toward doorway corner, clear of plant.
+  // Authored for 7 m ED bay: gap to +X wall = 3.5 − 2.15 = 1.35 m (leaf + frame setback).
   position: { x: 2.15, y: 0, z: 1.05 },
+  // #203: a door is architecture — fixed inset from the named wall, not a fraction.
+  placementRule: "wall_anchor",
+  wall: "+x",
 };
 
 export const WALL_BOARD: EnvironmentFixtureSlot = {
   slotId: "wall_board",
   purpose: "Wall-mounted clinical board",
+  // Authored for 7 m ED bay: gap to −X wall = 3.5 − 2.25 = 1.25 m (board frame thickness).
   position: { x: -2.25, y: 1.4, z: -1.05 },
+  placementRule: "wall_anchor",
+  wall: "-x",
 };
 
 export const WORK_SURFACE: EnvironmentFixtureSlot = {

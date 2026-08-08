@@ -158,7 +158,8 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
     ...slot,
     position: { ...slot.position },
   }));
-  shell.userData.fixtureLayoutDerivation = "fraction";
+  // #203: per-slot rules — wall_anchor for door/board, fraction for furniture, absolute learner.
+  shell.userData.fixtureLayoutDerivation = "per_slot:wall_anchor|fraction|absolute";
   shell.userData.environmentFallbackActive = resolved.environmentFallbackActive;
   shell.userData.environmentFallbackReason = resolved.environmentFallbackReason ?? "";
   shell.userData.openClinXrEnvironmentPolicy =
