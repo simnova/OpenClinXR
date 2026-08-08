@@ -3673,3 +3673,53 @@ check) applied to a conjunction rather than to two instruments.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11d. A closed checklist whose cells RESTATE the question is not a gate — decompose the quality
+
+§8m established the closed per-cell checklist, because a free-text visual slot gets filtered. #188
+carried one and it still let a defect through, for a reason worth separating from §8m entirely.
+
+My cells were `shoes_present`, `shoes_on_feet`, **`reads_as_footwear`**, `legs_still_clothed`. The
+worker saw rounded blobs with no toe or heel, answered `reads_as_footwear: yes`, and explained why
+that was the correct answer to the question I asked:
+
+> "I still scored `reads_as_footwear: yes` because the brief's machine gates were green and the
+> brief's visual bar was **'shoe-sized on the feet', not 'anatomical last'**. That is
+> contract-won-by-default on appearance — I under-reported 'blob, not shoe last'."
+
+I graded the same sheet and wrote "rounded blobs with no defined toe or heel". **Both graders saw the
+same thing; only one of us had a cell to put it in.**
+
+The defect is that `reads_as_footwear` is the whole question wearing a checkbox. It is satisfied by
+anything shoe-shaped-enough, which is precisely the class under suspicion. Its own proposed
+replacement decomposes the quality into features a blob cannot fake:
+
+    toe_defined:   yes | no
+    heel_defined:  yes | no
+    sole_plane:    yes | no
+
+**Rule:** every cell in a visual checklist must be a FEATURE that the suspected failure mode fails.
+If you can imagine the defect you are worried about answering `yes` to a cell, that cell is a
+restatement, not a check. Write the cells by asking "what would this look like if it were done badly,
+and which of these cells goes to `no`?" — if the answer is none of them, the checklist is decoration.
+
+This is the §8m technique failing on content rather than on form, and it pairs with §11c: there, four
+scalar bounds did not add up to attachment; here, four checklist cells did not add up to shape. **Both
+times the pixel grade was the only thing that could have caught it, and both times I graded it and
+wrote the defect down in prose while the contract recorded a pass.**
+
+## 11e. Naming the renderer worked — measured, and it is cheap
+
+§10y required the brief to name the renderer for a grade artifact after a bare `exists:` produced a
+vertex point cloud. #188 was the first brief to carry it ("lit three.js, framed on lower legs and
+feet"). Asked whether it helped:
+
+> "**Helped.** I did not ship a point cloud... Without the name I would likely have optimised for
+> `exists:` with something cheaper. Naming cost almost no planning turns; thrash was tooling, not
+> ambiguity."
+
+Three minutes of origin/import-map thrash on the first capture attempt, but the target was never in
+doubt. Keep doing it — the rule holds on its first controlled outing.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
