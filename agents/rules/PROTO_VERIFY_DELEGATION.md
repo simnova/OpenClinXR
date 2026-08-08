@@ -3146,3 +3146,34 @@ default" is how a 2,528-face shell arrived attached to 11,362,518 faces of furni
 as a whole.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10j. `--resume` can restore and then execute NOTHING — count turns, not restorations
+
+#184 was "resumed" four times. Every attempt printed
+
+    Session 019fdf12-… found locally (originally in …/issue-184)
+
+and then produced no output. The tell was not in the harness status — it was in the session log:
+`updates.jsonl` sat at **203 lines across all four attempts**. Zero turns executed. The worktree was
+byte-identical each time.
+
+Three of those were reported as "killed" and I read them as environment reaps (§10d). The fourth ran
+in the foreground with no reap and still produced nothing, which is what separated the two
+explanations. **A reap and a broken resume look identical from the outside**; only the turn count
+distinguishes them.
+
+What worked: a **fresh session** in the same worktree, with the context in the prompt, started
+immediately and got a new session id. So the failure was specific to resuming that session, not to the
+worktree, the model, or the harness.
+
+**Rule:** after a resume, check that `updates.jsonl` GREW before concluding anything about why the
+work did not progress. If two consecutive resumes leave the line count unchanged, stop resuming —
+commit the worker's WIP to its branch, then start a **fresh session in the same worktree** and put the
+state in the prompt. The committed tree carries the context that `--resume` was supposed to.
+
+**And commit the WIP first.** Uncommitted work in a worktree is a hostage to the next reap; the
+orchestrator committing a worker's partial state to a worktree branch — labelled WIP, hooks bypassed,
+never a land — costs nothing and removes the hostage. That is §10d's rule taken one step further after
+three reaps proved "the worker will commit eventually" unsafe.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
