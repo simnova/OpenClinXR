@@ -539,7 +539,9 @@ def rebake_peds_nurse() -> None:
         "role_visual_cue": "clinical_nurse",
         "wardrobeRole": "peds_nurse_scrubs",
         "garmentLayers": ["scrub_top", "scrub_pocket"],
-        "fabricPalette": "teal_scrubs_and_white_badge",
+        # #180a: distinct palette so co-present nurse-class bodies do not share primary
+        # outer pocket colour. scrub_top stays locked at teal (counterweight #180b).
+        "fabricPalette": "teal_scrubs_peds_shift",
         "materialFinish": "poly_cotton_slight_sheen",
         "accessoryMarkers": ["name_badge", "scrub_pocket"],
         "fitProfile": "adult_clinical_team_fit",

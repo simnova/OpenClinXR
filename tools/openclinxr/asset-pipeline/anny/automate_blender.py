@@ -1637,6 +1637,93 @@ def role_marker_color(phenotype: Dict[str, Any], actor_role: str) -> tuple:
     return (0.38, 0.40, 0.42, 1.0)
 
 
+# #180a / #184: locked clinical colours — counterweight for #180b (do not move).
+_GARMENT_COLOR_GOWN = (0.15, 0.55, 0.82, 1.0)
+_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)
+# Kind defaults when fabricPalette / role do not resolve a named row.
+_GARMENT_KIND_DEFAULTS: Dict[str, tuple] = {
+    "gown": _GARMENT_COLOR_GOWN,
+    "scrub": _GARMENT_COLOR_SCRUB,
+    "scrub_pocket": (0.04, 0.42, 0.48, 1.0),
+    "open_front": (0.62, 0.28, 0.38, 1.0),  # family muted-rose cardigan
+    "closed_casual": (0.42, 0.36, 0.40, 1.0),
+    "tshirt": (0.08, 0.52, 0.95, 1.0),
+    "default": (0.08, 0.52, 0.95, 1.0),
+}
+# Named fabricPalette → kind → RGBA. fabricPalette is a real enum input, not decorative.
+# scrub_top always maps to _GARMENT_COLOR_SCRUB when present (counterweight).
+_FABRIC_PALETTE_KIND_COLORS: Dict[str, Dict[str, tuple]] = {
+    "hospital_gown_blue_pattern": {
+        "gown": _GARMENT_COLOR_GOWN,
+    },
+    "teal_scrubs_and_white_badge": {
+        "scrub": _GARMENT_COLOR_SCRUB,
+        "scrub_pocket": (0.04, 0.42, 0.48, 1.0),
+    },
+    # Distinct outer pocket for the second scrub body so co-present nurse-class
+    # actors do not share a primary material (scrub_top stays locked).
+    "teal_scrubs_peds_shift": {
+        "scrub": _GARMENT_COLOR_SCRUB,
+        "scrub_pocket": (0.06, 0.36, 0.44, 1.0),
+    },
+    "muted_rose_and_neutral": {
+        "open_front": (0.62, 0.28, 0.38, 1.0),
+        "closed_casual": (0.42, 0.36, 0.40, 1.0),
+    },
+    "olive_knit_and_cream_casual": {
+        "open_front": (0.48, 0.42, 0.28, 1.0),  # warm olive cardigan (street patient)
+        "closed_casual": (0.72, 0.68, 0.55, 1.0),  # cream under-layer
+    },
+}
+
+
+def garment_shell_color(kind: str, actor_role: str, phenotype: Dict[str, Any]) -> tuple:
+    """Visible real-garment base colour: f(role, kind, fabricPalette).
+
+    #180a: break the kind→colour monopoly so co-present actors do not share a
+    primary garment material by construction. Gown and scrub_top colours are
+    locked (counterweight for #180b encounter-distance legibility).
+
+    Decision: fabricPalette is a named-enum table (not free-text→colour). Role
+    is a fallback for casual kinds when palette is missing/unmapped so a second
+    role assigned the same kind still diverges.
+    """
+    k = (kind or "default").lower()
+    # Locked clinical colours — never overridden by palette or role.
+    if k == "gown":
+        return _GARMENT_COLOR_GOWN
+    if k == "scrub":
+        return _GARMENT_COLOR_SCRUB
+
+    palette_raw = str(
+        phenotype.get("fabricPalette")
+        or phenotype.get("clothing_color")
+        or ""
+    ).strip().lower()
+    role = (actor_role or "").lower()
+
+    # Named fabricPalette table (substring match so clothing_color synonyms work).
+    for palette_key, kind_map in _FABRIC_PALETTE_KIND_COLORS.items():
+        if palette_key in palette_raw or palette_raw == palette_key:
+            if k in kind_map:
+                return kind_map[k]
+
+    # Role fallback for street casual layers only.
+    if k in ("open_front", "closed_casual"):
+        is_patient = "patient" in role
+        is_family = any(
+            token in role for token in ("family", "parent", "spouse", "guardian")
+        )
+        if is_patient:
+            olive = _FABRIC_PALETTE_KIND_COLORS["olive_knit_and_cream_casual"]
+            return olive.get(k, _GARMENT_KIND_DEFAULTS[k])
+        if is_family:
+            rose = _FABRIC_PALETTE_KIND_COLORS["muted_rose_and_neutral"]
+            return rose.get(k, _GARMENT_KIND_DEFAULTS[k])
+
+    return _GARMENT_KIND_DEFAULTS.get(k, _GARMENT_KIND_DEFAULTS["default"])
+
+
 def create_role_marker_material(name: str, color: tuple) -> bpy.types.Material:
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
@@ -2887,7 +2974,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_gown_drape"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_hospital_gown_sleeve"
                 slf = 0.72
-                gown_color = (0.15, 0.55, 0.82, 1.0)
             elif kind == "open_front":
                 sleeve_rows, sleeve_cols = 11, 12
                 sleeve_along = arm_len * 0.92
@@ -2901,7 +2987,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "open_front_c_shell_anterior_gap"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve"
                 slf = 0.92
-                gown_color = (0.62, 0.28, 0.38, 1.0)
             elif kind == "scrub":
                 sleeve_rows, sleeve_cols = 7, 10
                 sleeve_along = arm_len * 0.42
@@ -2913,7 +2998,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_scrub_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve"
                 slf = 0.42
-                gown_color = (0.05, 0.48, 0.52, 1.0)
             elif kind == "scrub_pocket":
                 # Second upper layer for nurse: closed pocket-bearing shell outside scrub_top.
                 # Keep torso_cols >= 12 so mid-height angular step stays below open-front detector
@@ -2927,7 +3011,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_scrub_pocket_shell"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer"
                 slf = 0.38
-                gown_color = (0.04, 0.42, 0.48, 1.0)
             elif kind == "closed_casual":
                 # Under-layer for open cardigan: closed front, smaller radius, covers chest/delts.
                 # Dense ring (>=16 cols) so mid-height angular step stays well below open-front
@@ -2942,7 +3025,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_casual_top_under_layer"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_casual_top_closed"
                 slf = 0.55
-                gown_color = (0.42, 0.36, 0.40, 1.0)  # under-layer neutral (visible through open cardigan)
             elif kind == "tshirt":
                 sleeve_rows, sleeve_cols = 9, 12
                 sleeve_along = arm_len * 0.58
@@ -2951,7 +3033,6 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_tshirt_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
                 slf = 0.58
-                gown_color = (0.08, 0.52, 0.95, 1.0)
             else:
                 sleeve_rows, sleeve_cols = 9, 12
                 sleeve_along = arm_len * 0.58
@@ -2960,7 +3041,9 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 topology_class = "closed_default_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
                 slf = 0.58
-                gown_color = (0.08, 0.52, 0.95, 1.0)
+
+            # #180a: colour = f(role, kind, fabricPalette) — not kind alone.
+            gown_color = garment_shell_color(kind, role, phenotype)
 
             # #121: body-surface-derived shell (NOT ring+tube parametric cage).
             # Continuity from body topology; neck/arm cuts from landmarks; offset along normals.

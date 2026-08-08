@@ -580,9 +580,9 @@
     "declaredUpperGarmentLayerCount": 2,
     "armClothingColourSource": "outermost_real_garment_mesh_exact_match",
     "armClothingColour": [
-      0.04,
-      0.42,
-      0.48,
+      0.06,
+      0.36,
+      0.44,
       1.0
     ],
     "realGarmentRegion": {
@@ -833,7 +833,7 @@
       "scrub_top",
       "scrub_pocket"
     ],
-    "fabricPalette": "teal_scrubs_and_white_badge",
+    "fabricPalette": "teal_scrubs_peds_shift",
     "materialFinish": "poly_cotton_slight_sheen",
     "fitProfile": "adult_clinical_team_fit",
     "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe"
@@ -868,8 +868,8 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-07T19:14:31.805452Z",
-    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anny_topology\": \"default\", \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_scrubs_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"peds_nurse_scrubs\"}"
+    "generatedAt": "2026-08-08T03:11:14.323709Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anny_topology\": \"default\", \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_peds_shift\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_scrubs_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"peds_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,
   "realismGrade": "B",
@@ -894,7 +894,7 @@
       "scrub_top",
       "scrub_pocket"
     ],
-    "fabricPalette": "teal_scrubs_and_white_badge",
+    "fabricPalette": "teal_scrubs_peds_shift",
     "materialFinish": "poly_cotton_slight_sheen",
     "accessoryMarkers": [
       "name_badge",
