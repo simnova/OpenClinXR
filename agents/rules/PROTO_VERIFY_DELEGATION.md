@@ -20,6 +20,43 @@ append-only and 4,000 lines deep, and burying them there is how they stopped bin
 | D6 | **Alternatives, not just attack** | 08-07 | "Always ask it to help find alternatives to what you propose based on codebase, context, goal and project direction." |
 | D7 | **Periodic honest review** | 08-08 | "Periodically summarize the last handful of iterations and ask for grok's input as a matter of your normal operating procedure... ask for an honest review." Cadence: every 5–8 landed slices. |
 | D8 | **Minimal generator config** | 08-07 | "Optimize the prompt for the room to make it minimal and remember that it can be optimized further in the pipeline." |
+| D9 | **DARK FACTORY — minimal LLM involvement** | 08-08 | "Build a **dark software factory with minimal LLM involvement necessary**. The tooling we've discussed are more **deterministic components** that help to build things — and it's a **pipeline**, so each step is part of the factory. Look at it from an automation perspective and understand and **optimize that entire pipeline**. **Duration of execution is not the issue**, that can be refined; the ability to take **multiple cases** and run them through it and get a **full experience** at the end, **capable of allowing an examination to perform with no further LLM involvement**, is ideal. **LLMs can only be used in the final product for narrow purposes (e.g. dynamic dialogue generation) where absolutely necessary.**" |
+| D10 | **Consult grok as a PEER, in conversation** | 08-08 | "Consult with grok as a **peer** and have a **conversation** (not merely send a single message to)." Use `--resume` across multiple exchanges; push back, ask follow-ups, let it correct you mid-thread. A one-shot prompt is not a consult. |
+
+## D9 in operational terms — what "dark factory" means for slice selection
+
+A dark factory runs lights-out: no humans on the floor. Here the analogue is **no LLM in the
+production path**. That converts every slice choice into one question:
+
+> Does this slice move a step of the pipeline from **LLM-authored** to **deterministic**, or does it
+> add more LLM-authored output?
+
+**The pipeline, as steps** — each is a factory station, and each is either deterministic today or not:
+
+| step | today | dark-factory target |
+|---|---|---|
+| case definition → scenario | authored data | deterministic |
+| body generation | **one adult body**, phenotype never reaches a vertex (#151) | parametric from phenotype |
+| clothing | **LLM-authored Blender Python** (shoe shells, hem clamps, surface shells) | **fitted from a garment library** (MakeClothes, proven, unconsumed) |
+| rigging | Blender auto-weights + a 23-bone armature | deterministic; AniGen licence-blocked |
+| motion | hand-tuned eulers + procedural poses | retargeted clips (Mesh2Motion, approved, **unused**) |
+| lip-sync | none | Rhubarb → viseme JSON → existing morphs (offline, no NVIDIA) |
+| rooms / equipment | parametric builders | deterministic; keep |
+| staging / placement | descriptor + framing passes | deterministic; keep |
+| **dialogue at runtime** | — | **the ONE sanctioned LLM use**, and only where necessary |
+
+**Consequences that bind slice selection:**
+
+- **Execution duration is explicitly not a constraint.** A multi-hour bake is acceptable. Do not
+  reject an automation path for being slow, and do not optimise wall-clock ahead of determinism.
+- **The success measure is throughput of CASES, not greenness of contracts.** "Take multiple cases,
+  run them through, get a full experience at the end." A slice that improves one asset but leaves the
+  pipeline LLM-dependent has not advanced the factory.
+- **"Proven and unconsumed" is the factory's characteristic defect.** MakeClothes fits garments today
+  and nothing consumes it. Mesh2Motion is "approved, preferred and unused" (#70). MADR 0044 adopted
+  hm08 and all seven humanoids are still Anny. **Wiring a proven component beats proving a new one.**
+- **A worker writing bespoke geometry code is the anti-pattern**, even when the output passes every
+  contract — because the next case needs a human-equivalent to write it again.
 
 ## Why these stopped binding — diagnosed 2026-08-08 at operator challenge
 
