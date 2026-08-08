@@ -432,6 +432,59 @@ async function inspectOneGlbAsync(
   };
 }
 
+/** Tracked library GLBs when the gitignored #151 catalog is absent (worktrees). */
+const LIBRARY_CANDIDATES_DIR = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates",
+);
+
+function listTrackedLibraryBodies(): Array<{ bodyClassId: string; glbRel: string; glbAbs: string }> {
+  const out: Array<{ bodyClassId: string; glbRel: string; glbAbs: string }> = [];
+  for (const bodyClassId of ["adult_lean_female", "adult_heavy_male"] as const) {
+    const name = `body-param-${bodyClassId}-library.glb`;
+    const glbAbs = path.join(LIBRARY_CANDIDATES_DIR, name);
+    if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) continue;
+    out.push({
+      bodyClassId,
+      glbRel: path.relative(REPO_ROOT, glbAbs),
+      glbAbs,
+    });
+  }
+  return out;
+}
+
+/**
+ * #216 FIXED: ε = half **driven-bone** tip motion (not median over all joints —
+ * stationary bones pull the median and make ε too high for the sleeve band).
+ */
+async function selfCalibrateEpsilon(
+  glbAbs: string,
+  drivenBone: string,
+  rotationDeg: number,
+): Promise<number> {
+  const io = new NodeIO();
+  const doc = await io.read(glbAbs);
+  const root = doc.getRoot();
+  const skin = root.listSkins()[0];
+  if (!skin) return 0;
+  const joints = skin.listJoints();
+  const drivenIdx = joints.findIndex(
+    (j) =>
+      (j.getName() || "") === drivenBone
+      || (j.getName() || "").replace(/\./g, "") === drivenBone.replace(/\./g, ""),
+  );
+  for (const node of root.listNodes()) {
+    if (!node.getSkin()) continue;
+    const { tipDeltas } = measureMeshDeformation(doc, node, drivenBone, rotationDeg);
+    const tip =
+      drivenIdx >= 0 && drivenIdx < tipDeltas.length
+        ? tipDeltas[drivenIdx]!
+        : Math.max(0, ...tipDeltas);
+    if (tip > 1e-6) return tip * 0.5;
+  }
+  return 0;
+}
+
 /**
  * Inspect parametric body library GLBs for skins + real deformation under one bone pose.
  */
@@ -439,55 +492,58 @@ export async function inspectParametricBodyDeforms(): Promise<InspectReport> {
   const catalog = loadCatalog();
   let calibration = loadCalibration(catalog);
 
-  if (!catalog) {
-    return { bodies: [], calibration };
-  }
-
   const bodies: BodyRig[] = [];
 
-  for (const e of catalog.entries) {
-    if (e.producedByStage !== STAGE_ID || /probe/i.test(e.producedByStage)) continue;
-    const glbAbs = path.join(REPO_ROOT, e.glbPath);
-    if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) continue;
+  if (catalog) {
+    for (const e of catalog.entries) {
+      if (e.producedByStage !== STAGE_ID || /probe/i.test(e.producedByStage)) continue;
+      const glbAbs = path.join(REPO_ROOT, e.glbPath);
+      if (!existsSync(glbAbs) || statSync(glbAbs).size < 10_000) continue;
 
-    const body = await inspectOneGlbAsync(
-      glbAbs,
-      e.bodyClassId,
-      e.glbPath,
-      calibration.drivenBone,
-      calibration.rotationDegrees,
-      e.producedByStage,
-    );
-    bodies.push(body);
+      const body = await inspectOneGlbAsync(
+        glbAbs,
+        e.bodyClassId,
+        e.glbPath,
+        calibration.drivenBone,
+        calibration.rotationDegrees,
+        e.producedByStage,
+      );
+      bodies.push(body);
+    }
+  } else {
+    // #218 worktree / clean clone: catalog under .openclinxr/evidence is gitignored.
+    // Fall back to tracked body-param-*-library.glb candidates (same files the stage writes).
+    for (const e of listTrackedLibraryBodies()) {
+      const body = await inspectOneGlbAsync(
+        e.glbAbs,
+        e.bodyClassId,
+        e.glbRel,
+        calibration.drivenBone,
+        calibration.rotationDegrees,
+        STAGE_ID,
+      );
+      bodies.push(body);
+    }
   }
 
   // Self-calibrate epsilon from live LBS tip motion if still zero
   if (!(calibration.deformationEpsilonMeters > 0) && bodies.length > 0) {
-    const first = catalog.entries[0];
-    if (first) {
-      const glbAbs = path.join(REPO_ROOT, first.glbPath);
-      if (existsSync(glbAbs)) {
-        const io = new NodeIO();
-        const doc = await io.read(glbAbs);
-        for (const node of doc.getRoot().listNodes()) {
-          if (!node.getSkin()) continue;
-          const { tipDeltas } = measureMeshDeformation(
-            doc,
-            node,
-            calibration.drivenBone,
-            calibration.rotationDegrees,
-          );
-          const nonzero = tipDeltas.filter((d) => d > 1e-6).sort((a, b) => a - b);
-          if (nonzero.length) {
-            const mid = nonzero[Math.floor(nonzero.length / 2)]!;
-            calibration = {
-              ...calibration,
-              deformationEpsilonMeters: mid * 0.5,
-              source: "calibrated_half_median_bone_tip_motion_this_export",
-            };
-          }
-          break;
-        }
+    const firstAbs =
+      catalog?.entries[0] != null
+        ? path.join(REPO_ROOT, catalog.entries[0].glbPath)
+        : listTrackedLibraryBodies()[0]?.glbAbs;
+    if (firstAbs && existsSync(firstAbs)) {
+      const eps = await selfCalibrateEpsilon(
+        firstAbs,
+        calibration.drivenBone,
+        calibration.rotationDegrees,
+      );
+      if (eps > 0) {
+        calibration = {
+          ...calibration,
+          deformationEpsilonMeters: eps,
+          source: "calibrated_half_median_bone_tip_motion_this_export",
+        };
       }
     }
   }

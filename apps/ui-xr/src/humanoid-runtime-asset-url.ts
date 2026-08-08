@@ -44,6 +44,13 @@ const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 const PEDS_CHILD_GLB = "peds_patient_child.glb";
 /** Mirrors actor-casting ADULT_MALE_STREET_CASUAL_GLB (#160). */
 const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
+/**
+ * #218 — body-param library GLB (tracked under candidates/).
+ * Staged on ED spouse only; patient stays Anny gown (#160).
+ * Mirrors actor-casting LIBRARY_ADULT_LEAN_FEMALE_GLB.
+ */
+export const LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH =
+  "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -103,13 +110,14 @@ function environmentIdForScenario(scenarioId: string): string {
 }
 
 /**
- * Runtime public paths for ED cast (#96 role-distinct wardrobe).
- * Mirrors actor-casting: patient gown, nurse scrubs, spouse street clothes.
+ * Runtime public paths for ED cast (#96 role-distinct wardrobe; #218 library spouse).
+ * Mirrors actor-casting: patient gown, nurse scrubs, spouse = body-param library.
+ * Rejected full cast migration and patient-library swap (#160 gown counterweight).
  */
 const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_robert_hayes_v1: ED_ADULT_CAST_RUNTIME_PATH,
   nurse_maria_alvarez_v1: `/generated-humanoids/${ED_NURSE_GLB}`,
-  spouse_anna_hayes_v1: `/generated-humanoids/${ED_SPOUSE_GLB}`,
+  spouse_anna_hayes_v1: LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
 };
 
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
@@ -272,6 +280,15 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
     || fileName === ADULT_MALE_STREET_CASUAL_GLB
   ) {
     return `/generated-humanoids/${fileName}`;
+  }
+
+  // #218: body-param / MakeClothes library GLBs under candidates/ stay there.
+  if (
+    blobName.includes("humanoids/candidates/")
+    || (fileName.includes("body-param-") && fileName.endsWith("-library.glb"))
+    || fileName.startsWith("makeclothes-hm08-")
+  ) {
+    return `/xr-assets/humanoids/candidates/${fileName}`;
   }
 
   return `/xr-assets/humanoids/${resolveLocalHumanoidRuntimeAssetFileName(fileName)}`;

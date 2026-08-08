@@ -37,6 +37,9 @@ export const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
 
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const RUNTIME_GENERATED = "/generated-humanoids";
+/** #218 — parametric body-param library line under candidates/ (tracked GLBs). */
+const CANDIDATES = "apps/ui-xr/public/xr-assets/humanoids/candidates";
+const RUNTIME_CANDIDATES = "/xr-assets/humanoids/candidates";
 
 /**
  * Distinct humanoid bodies on disk (by content hash). Reuse across scenarios
@@ -55,6 +58,12 @@ const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 const PEDS_CHILD_GLB = "peds_patient_child.glb";
 /** Male street casual — blender-only rebake (#160); not a gown, not female street. */
 export const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
+/**
+ * #218 library body class staged into ONE ED family slot (not the gown patient).
+ * adult_lean_female: female spouse phenotype cue; scrub fitted by #215/#216.
+ * Rejected adult_heavy_male for this slot (male body class on female actor id).
+ */
+export const LIBRARY_ADULT_LEAN_FEMALE_GLB = "body-param-adult_lean_female-library.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */
 const ADULT_POOL_GLBS = [
@@ -184,6 +193,23 @@ function castEntry(input: {
   };
 }
 
+/** #218 — cast row pointing at the body-param library under candidates/ (not generated-humanoids). */
+function libraryCastEntry(input: {
+  actorId: string;
+  role: string;
+  scenarioId: string;
+  glbFile: string;
+}): ScenarioActorCast {
+  return {
+    actorId: input.actorId,
+    role: input.role,
+    declaredAgeBand: declareAgeBand({ scenarioId: input.scenarioId, role: input.role, actorId: input.actorId }),
+    assetPath: `${CANDIDATES}/${input.glbFile}`,
+    runtimeAssetPath: `${RUNTIME_CANDIDATES}/${input.glbFile}`,
+    provenanceManifestPath: `${CANDIDATES}/${input.glbFile.replace(/\.glb$/u, ".provenance.json")}`,
+  };
+}
+
 /** Non-embodied / non-mesh actors — do not consume a humanoid body slot. */
 function isHumanoidCastActor(actor: { actorId: string; role: string }): boolean {
   const role = actor.role.toLowerCase();
@@ -305,11 +331,13 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
         glbFile: ED_NURSE_GLB,
       }),
-      castEntry({
+      // #218: stage ONE library body via ordinary cast resolution (spouse only).
+      // Patient keeps Anny gown (#160 counterweight). Nurse keeps Anny scrubs.
+      libraryCastEntry({
         actorId: "spouse_anna_hayes_v1",
         role: "family",
         scenarioId: ED_CHEST_PAIN_SCENARIO_ID,
-        glbFile: ED_SPOUSE_GLB,
+        glbFile: LIBRARY_ADULT_LEAN_FEMALE_GLB,
       }),
     ];
   }
