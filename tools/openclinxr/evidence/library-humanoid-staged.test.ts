@@ -66,6 +66,25 @@ import { describe, expect, it } from "vitest";
  * than sprawling — `reject_measured` with a named blocker closes this successfully.
  *
  * The planted header is IMMUTABLE. Flip the assertion and append a `## FIXED (#218)` block below.
+ *
+ * ## FIXED (#218)
+ *
+ * Ordinary cast resolution stages ONE library humanoid:
+ *   station: ed_chest_pain_priority_v1
+ *   actor:   spouse_anna_hayes_v1
+ *   body:    adult_lean_female → /xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb
+ *
+ * Mapping lives in the existing ED literal tables (actor-casting libraryCastEntry +
+ * humanoid-runtime-asset-url ED_RUNTIME_CAST_BY_ACTOR). Patient stays Anny gown (#160);
+ * nurse stays Anny scrubs. No comparator flag; no .py edits.
+ *
+ * Unlocked decisions (rejected alternatives):
+ *   - Station/actor: ED spouse only — rejected ED patient (breaks #160 gown counterweight),
+ *     rejected multi-role migration, rejected comparator-only path.
+ *   - Body class: adult_lean_female for female spouse id — rejected adult_heavy_male here;
+ *     phenotype-driven pick is future work (hardcoded one-row staging for this slice).
+ *   - Mapping layer: extend ED literal tables — rejected new libraryHumanoidByActorId subsystem
+ *     until phenotype drives selection across stations.
  */
 
 type StagedActor = {

@@ -618,12 +618,12 @@ describe("asset registry", () => {
         ]),
         generatedAssetRefs: expect.arrayContaining([
           expect.objectContaining({
+            // #218: same spouse assetId, library blob path (ordinary cast — not Anny street shell).
             assetId: "ed_chest_pain_adult_cast_spouse_glb",
             scenarioAssetId: "spouse_anna_hayes_character",
             blobRef: expect.objectContaining({
               storeKind: "app_public_fixture",
-              // #96: spouse street-clothes asset with ED provenance (not patient gown cast).
-              blobName: "generated-humanoids/ed_chest_pain_spouse_adult.glb",
+              blobName: "xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
             }),
           }),
         ]),
