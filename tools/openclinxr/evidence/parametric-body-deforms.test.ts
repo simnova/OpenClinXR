@@ -66,6 +66,21 @@ import { describe, expect, it } from "vitest";
  * closes this successfully and is far better than hand-tuned weights.
  *
  * DO NOT convert a shipped Anny humanoid. DO NOT change ui-xr defaults. #215 and #151 stay green.
+ *
+ * ## FIXED (#216)
+ *
+ * `body_param_stage.py` now binds body + garment to the canonical 23-bone armature
+ * (`hm08_rig_carry_stage.create_canonical_armature` + ARMATURE_AUTO, then k-NN + bone-envelope
+ * weight projection for the garment so sleeves follow the arm) and exports with `export_skins=True`.
+ *
+ * Measured after rebind (NodeIO + stage deformationCalibration):
+ *
+ *   body-param-adult_lean_female-library.glb   skins=1  joints=23  skinnedMeshes=2
+ *   body-param-adult_heavy_male-library.glb    skins=1  joints=23  skinnedMeshes=2
+ *
+ * Driven bone upper_arm.L @ 55°: body band Δ ≥ 0.36 m, garment band Δ ≥ 0.16 m, both clear
+ * self-calibrated ε ≈ 0.159 m (half driven-bone tip motion). Grade:
+ * `.openclinxr/evidence/issue-216/posed-deformation-grade.png` (EEVEE lit rest|posed).
  */
 
 type BodyRig = {

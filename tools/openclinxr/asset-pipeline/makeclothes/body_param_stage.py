@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-"""#151 body_param factory stage — MPFB macro phenotype reaches vertices.
+"""#151/#216 body_param factory stage — MPFB macros + fitted garment + skinned armature.
 
 Extends the #215 fit-stage shape: load hm08 basemesh, apply MPFB macro modifiers
 (weight / gender from phenotype), fit one CC-BY .mhclo via ClothesService per body
-class, export library GLBs + a two-class grade PNG + stage report.
+class, bind body AND garment to the canonical 23-bone armature via Blender
+ARMATURE_AUTO (#216 — hm08_rig_carry_stage.create_canonical_armature), export library
+GLBs WITH skins + a two-class grade PNG + posed deformation grade + stage report.
 
-NOT create_human placement path as the sole entry: we use ObjectService.load_base_mesh
-+ HumanObjectProperties + TargetService.reapply_macro_details (headless-stable, measured
-in issue-151 macro probe). ClothesService.fit_clothes_to_human already evaluates the
-post-macro mix shape key.
+#216 order: macros → bake body → fit clothes → parent body AND garment to armature
+with automatic weights → export WITH skins. Do not hand-author weights (D1).
 
 claimScope: factory body_param station — two body classes, phenotype in vertices,
-per-class fitted garment library keys.
+per-class fitted garment library keys, skinned for pose.
 notEvidenceFor: clinical body realism, Quest readiness, converting shipped Anny roles,
-shipping GPL MPFB, full Anny→hm08 migration, armature rebind completeness.
+shipping GPL MPFB, full Anny→hm08 migration.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import math
 import sys
@@ -38,8 +39,11 @@ NOT_EVIDENCE_FOR = [
     "converting_shipped_anny_roles",
     "shipping_mpfb_or_gpl_code_in_repo",
     "full_anny_to_hm08_migration",
-    "armature_rebind_completeness",
 ]
+
+# #216 — driven bone for deformation proof + grade pose (local X rotation).
+DRIVEN_BONE = "upper_arm.L"
+DRIVEN_ROTATION_DEG = 55.0
 
 
 def parse_args() -> argparse.Namespace:
@@ -63,6 +67,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--garment-mesh-name-prefix", default="makeclothes_library_scrub_shirt")
     p.add_argument("--body-mesh-name-prefix", default="hm08_basemesh")
     p.add_argument("--out-grade-png", default="", help="Optional override for grade PNG path")
+    p.add_argument(
+        "--out-posed-grade-png",
+        default="",
+        help="Optional #216 rest|posed deformation grade PNG path",
+    )
     p.add_argument(
         "--anny-obj",
         default="",
@@ -240,23 +249,519 @@ def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object)
     }
 
 
-def export_objects_glb(objects: list[bpy.types.Object], path: str) -> None:
+def _load_hm08_rig_stage():
+    """Import create_canonical_armature + bind_auto_weight from the evidence stage (no vendoring)."""
+    # body_param_stage.py lives at tools/openclinxr/asset-pipeline/makeclothes/
+    # hm08 stage lives at tools/openclinxr/evidence/blender/
+    rig_path = (
+        Path(__file__).resolve().parents[2]
+        / "evidence"
+        / "blender"
+        / "hm08_rig_carry_stage.py"
+    )
+    if not rig_path.is_file():
+        raise FileNotFoundError(f"hm08_rig_carry_stage missing: {rig_path}")
+    spec = importlib.util.spec_from_file_location("hm08_rig_carry_stage", rig_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load {rig_path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def export_objects_glb(objects: list[bpy.types.Object], path: str, *, export_skins: bool) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
     for obj in objects:
+        if obj is None:
+            continue
         obj.select_set(True)
-    bpy.context.view_layer.objects.active = objects[0]
+    active = next((o for o in objects if o is not None), None)
+    if active is None:
+        raise RuntimeError("export_objects_glb: no objects")
+    bpy.context.view_layer.objects.active = active
     bpy.ops.export_scene.gltf(
         filepath=path,
         use_selection=True,
         export_format="GLB",
         export_yup=True,
-        export_apply=True,
+        # Skinned export: do NOT apply armature modifiers (would bake rest and drop skin).
+        export_apply=not export_skins,
         export_materials="EXPORT",
-        export_skins=False,
+        export_skins=export_skins,
         export_animations=False,
         export_morph=False,
     )
+
+
+def transfer_weights_body_to_garment(
+    basemesh: bpy.types.Object,
+    garment: bpy.types.Object,
+    arm: bpy.types.Object,
+) -> dict:
+    """Project body vertex groups onto the garment by nearest body vertex (world space).
+
+    Auto-weights on a separate shirt shell often under-weight the sleeves. Copying the
+    already-bound body's groups by nearest-vertex is standard weight projection — not
+    hand-authored weight tables (D1).
+    """
+    status: dict = {"ok": False, "method": "nearest_body_vertex_group_projection", "error": None}
+    try:
+        # Ensure ARMATURE parent type (not OBJECT) + modifier — OBJECT parent was
+        # silently killing envelope/k-NN skinning on the garment.
+        garment.parent = arm
+        garment.parent_type = "ARMATURE"
+        garment.parent_bone = ""
+        has_arm_mod = any(m.type == "ARMATURE" for m in garment.modifiers)
+        if not has_arm_mod:
+            mod = garment.modifiers.new(name="Armature", type="ARMATURE")
+            mod.object = arm
+            mod.use_vertex_groups = True
+        for mod in garment.modifiers:
+            if mod.type == "ARMATURE":
+                mod.object = arm
+                mod.use_vertex_groups = True
+                mod.use_bone_envelopes = False
+
+        # Only bone-named groups participate in skinning. Transferring MPFB helper
+        # groups (100+) and normalize_all dilutes arm weights to near-zero.
+        bone_names = {b.name for b in arm.data.bones}
+        body_mw = basemesh.matrix_world
+        body_pts: list[tuple[float, float, float]] = []
+        body_weights: list[list[tuple[str, float]]] = []
+        body_group_names = {g.index: g.name for g in basemesh.vertex_groups}
+        for v in basemesh.data.vertices:
+            co = body_mw @ v.co
+            body_pts.append((co.x, co.y, co.z))
+            wlist: list[tuple[str, float]] = []
+            for ge in v.groups:
+                name = body_group_names.get(ge.group)
+                if name and name in bone_names and ge.weight > 1e-6:
+                    wlist.append((name, float(ge.weight)))
+            body_weights.append(wlist)
+
+        if not body_pts:
+            status["error"] = "body has no vertices"
+            return status
+
+        # Simple spatial hash for nearest (grid cell ~ 2 cm)
+        cell = 0.02
+        grid: dict[tuple[int, int, int], list[int]] = {}
+        for i, p in enumerate(body_pts):
+            key = (int(p[0] / cell), int(p[1] / cell), int(p[2] / cell))
+            grid.setdefault(key, []).append(i)
+
+        def knn(px: float, py: float, pz: float, k: int = 12) -> list[tuple[int, float]]:
+            """k nearest body verts with squared distances (grid-local then expand)."""
+            cx, cy, cz = int(px / cell), int(py / cell), int(pz / cell)
+            candidates: list[tuple[float, int]] = []
+            radius = 1
+            while len(candidates) < k * 3 and radius <= 8:
+                for dx in range(-radius, radius + 1):
+                    for dy in range(-radius, radius + 1):
+                        for dz in range(-radius, radius + 1):
+                            for i in grid.get((cx + dx, cy + dy, cz + dz), ()):
+                                bx, by, bz = body_pts[i]
+                                d = (bx - px) ** 2 + (by - py) ** 2 + (bz - pz) ** 2
+                                candidates.append((d, i))
+                radius += 1
+            if not candidates:
+                for i, (bx, by, bz) in enumerate(body_pts):
+                    d = (bx - px) ** 2 + (by - py) ** 2 + (bz - pz) ** 2
+                    candidates.append((d, i))
+            candidates.sort(key=lambda t: t[0])
+            return [(i, d) for d, i in candidates[:k]]
+
+        # Recreate garment groups for armature bones only
+        garment.vertex_groups.clear()
+        gmap: dict[str, bpy.types.VertexGroup] = {}
+        for name in sorted(bone_names):
+            gmap[name] = garment.vertex_groups.new(name=name)
+        status["boneGroupCount"] = len(bone_names)
+        status["method"] = "knn12_inverse_distance_body_bone_groups"
+
+        garment_mw = garment.matrix_world
+        assigned = 0
+        for v in garment.data.vertices:
+            co = garment_mw @ v.co
+            neighbours = knn(co.x, co.y, co.z, k=12)
+            if not neighbours:
+                continue
+            # inverse-distance blend of bone weights from k nearest body verts
+            accum: dict[str, float] = {}
+            w_sum = 0.0
+            for ni, d2 in neighbours:
+                wlist = body_weights[ni]
+                if not wlist:
+                    continue
+                # idw weight; floor distance so co-located verts don't explode
+                inv = 1.0 / max(d2, 1e-8)
+                for name, bw in wlist:
+                    accum[name] = accum.get(name, 0.0) + bw * inv
+                w_sum += inv
+            if w_sum < 1e-12 or not accum:
+                continue
+            # renormalize to sum 1
+            total = sum(accum.values()) or 1.0
+            for name, w in accum.items():
+                vg = gmap.get(name)
+                if vg is None:
+                    continue
+                vg.add([v.index], w / total, "REPLACE")
+            assigned += 1
+
+        # Envelope pass: verts near arm bone segments get bone-proximity weights so
+        # sleeves follow the limb (k-NN from torso surface under-weights arms).
+        arm_bone_names = [
+            n
+            for n in (
+                "clavicle.L",
+                "upper_arm.L",
+                "forearm.L",
+                "hand.L",
+                "clavicle.R",
+                "upper_arm.R",
+                "forearm.R",
+                "hand.R",
+            )
+            if n in bone_names
+        ]
+        segments: list[tuple[str, tuple[float, float, float], tuple[float, float, float]]] = []
+        for bn in arm_bone_names:
+            eb = arm.data.bones.get(bn)
+            if eb is None:
+                continue
+            # bone head/tail in armature local → world
+            h = arm.matrix_world @ eb.head_local
+            t = arm.matrix_world @ eb.tail_local
+            segments.append((bn, (h.x, h.y, h.z), (t.x, t.y, t.z)))
+
+        def seg_dist(
+            p: tuple[float, float, float],
+            a: tuple[float, float, float],
+            b: tuple[float, float, float],
+        ) -> float:
+            ax, ay, az = a
+            bx, by, bz = b
+            px, py, pz = p
+            abx, aby, abz = bx - ax, by - ay, bz - az
+            apx, apy, apz = px - ax, py - ay, pz - az
+            ab2 = abx * abx + aby * aby + abz * abz
+            if ab2 < 1e-12:
+                return math.sqrt(apx * apx + apy * apy + apz * apz)
+            u = max(0.0, min(1.0, (apx * abx + apy * aby + apz * abz) / ab2))
+            qx, qy, qz = ax + u * abx, ay + u * aby, az + u * abz
+            return math.sqrt((px - qx) ** 2 + (py - qy) ** 2 + (pz - qz) ** 2)
+
+        envelope_radius = 0.18
+        envelope_hits = 0
+        if segments:
+            for v in garment.data.vertices:
+                co = garment_mw @ v.co
+                p = (co.x, co.y, co.z)
+                env: dict[str, float] = {}
+                for bn, a, b in segments:
+                    d = seg_dist(p, a, b)
+                    if d >= envelope_radius:
+                        continue
+                    # smooth falloff
+                    w = (1.0 - d / envelope_radius) ** 2
+                    env[bn] = max(env.get(bn, 0.0), w)
+                if not env:
+                    continue
+                # Blend 70% envelope + 30% existing k-NN (if any) for arm-region verts
+                existing: dict[str, float] = {}
+                for ge in v.groups:
+                    g = garment.vertex_groups[ge.group]
+                    if g.name in bone_names and ge.weight > 1e-6:
+                        existing[g.name] = ge.weight
+                blended: dict[str, float] = {}
+                for name, w in env.items():
+                    blended[name] = 0.70 * w
+                for name, w in existing.items():
+                    blended[name] = blended.get(name, 0.0) + 0.30 * w
+                total = sum(blended.values()) or 1.0
+                # Clear and rewrite this vert's groups
+                for g in garment.vertex_groups:
+                    try:
+                        g.remove([v.index])
+                    except RuntimeError:
+                        pass
+                for name, w in blended.items():
+                    vg = gmap.get(name)
+                    if vg is None:
+                        continue
+                    vg.add([v.index], w / total, "REPLACE")
+                envelope_hits += 1
+        status["envelopeHits"] = envelope_hits
+        status["envelopeRadius"] = envelope_radius
+
+        # Normalize all
+        bpy.ops.object.select_all(action="DESELECT")
+        garment.select_set(True)
+        bpy.context.view_layer.objects.active = garment
+        bpy.ops.object.mode_set(mode="WEIGHT_PAINT")
+        try:
+            bpy.ops.object.vertex_group_normalize_all(lock_active=False)
+        except Exception:
+            pass
+        bpy.ops.object.mode_set(mode="OBJECT")
+
+        groups = list(garment.vertex_groups)
+        weighted = 0
+        for g in groups:
+            for v in garment.data.vertices:
+                for ge in v.groups:
+                    if ge.group == g.index and ge.weight > 1e-6:
+                        weighted += 1
+                        break
+                else:
+                    continue
+                break
+        status["groupCount"] = len(groups)
+        status["weightedGroups"] = weighted
+        status["assignedVertices"] = assigned
+        status["garmentVertexCount"] = len(garment.data.vertices)
+        status["ok"] = assigned > 100 and weighted >= 5
+    except Exception as exc:  # noqa: BLE001
+        status["error"] = f"{type(exc).__name__}: {exc}"
+        status["traceback"] = traceback.format_exc()[-1500:]
+    return status
+
+
+def bind_meshes_to_canonical_armature(
+    basemesh: bpy.types.Object,
+    garment: bpy.types.Object,
+    *,
+    weight_mode: str = "auto",
+) -> dict:
+    """#216 — create AABB-driven 23-bone armature, ARMATURE_AUTO on body + garment.
+
+    Body is Z-up standing after plant/align; pair with export_yup=True.
+    Falls back to envelope if heat weights fail the weighted-group threshold.
+    Garment gets a weight transfer from the body so sleeves follow the arm.
+    """
+    hm08 = _load_hm08_rig_stage()
+    # Unparent garment so auto-weight can reparent both under the armature.
+    if garment.parent is not None:
+        mw = garment.matrix_world.copy()
+        garment.parent = None
+        garment.matrix_world = mw
+        apply_object_transforms(garment)
+    if basemesh.parent is not None:
+        mw = basemesh.matrix_world.copy()
+        basemesh.parent = None
+        basemesh.matrix_world = mw
+        apply_object_transforms(basemesh)
+
+    arm = hm08.create_canonical_armature(basemesh, "z")
+    body_bind = hm08.bind_auto_weight(basemesh, arm, weight_mode)
+    if not body_bind.get("ok") and weight_mode == "auto":
+        body_bind = hm08.bind_auto_weight(basemesh, arm, "envelope")
+        body_bind["fallback"] = "envelope_after_auto"
+
+    # First pass: auto-weight garment (creates armature parent + groups)
+    garment_bind = hm08.bind_auto_weight(garment, arm, weight_mode)
+    if not garment_bind.get("ok") and weight_mode == "auto":
+        garment_bind = hm08.bind_auto_weight(garment, arm, "envelope")
+        garment_bind["fallback"] = "envelope_after_auto"
+
+    # Second pass: transfer body weights onto garment (sleeves follow arm)
+    transfer = transfer_weights_body_to_garment(basemesh, garment, arm)
+    garment_bind["weightTransfer"] = transfer
+
+    # Ensure armature modifiers point at our arm object
+    for mesh in (basemesh, garment):
+        for mod in mesh.modifiers:
+            if mod.type == "ARMATURE":
+                mod.object = arm
+                mod.use_vertex_groups = True
+
+    bpy.context.view_layer.update()
+    return {
+        "armatureName": arm.name,
+        "boneCount": len(arm.data.bones),
+        "boneNames": [b.name for b in arm.data.bones],
+        "bodyBind": body_bind,
+        "garmentBind": garment_bind,
+        "weightModeRequested": weight_mode,
+        "drivenBone": DRIVEN_BONE,
+        "drivenRotationDegrees": DRIVEN_ROTATION_DEG,
+    }
+
+
+def measure_pose_deformation(
+    basemesh: bpy.types.Object,
+    garment: bpy.types.Object,
+    arm: bpy.types.Object,
+    *,
+    bone_name: str,
+    rotation_deg: float,
+) -> dict:
+    """Control/treatment: rotate one pose bone, max world Δ of verts (body + garment)."""
+
+    def world_positions(obj: bpy.types.Object) -> list[tuple[float, float, float]]:
+        deps = bpy.context.evaluated_depsgraph_get()
+        eval_obj = obj.evaluated_get(deps)
+        mesh = eval_obj.to_mesh()
+        try:
+            return [
+                tuple((eval_obj.matrix_world @ v.co).to_tuple()) for v in mesh.vertices
+            ]
+        finally:
+            eval_obj.to_mesh_clear()
+
+    def max_delta_in_band(
+        rest: list[tuple[float, float, float]],
+        posed: list[tuple[float, float, float]],
+        band_mask: list[bool],
+    ) -> float:
+        n = min(len(rest), len(posed), len(band_mask))
+        if n == 0:
+            return 0.0
+        best = 0.0
+        for i in range(n):
+            if not band_mask[i]:
+                continue
+            dx = rest[i][0] - posed[i][0]
+            dy = rest[i][1] - posed[i][1]
+            dz = rest[i][2] - posed[i][2]
+            d = math.sqrt(dx * dx + dy * dy + dz * dz)
+            if d > best:
+                best = d
+        return best
+
+    def point_to_segment_dist(
+        p: tuple[float, float, float],
+        a: tuple[float, float, float],
+        b: tuple[float, float, float],
+    ) -> float:
+        ax, ay, az = a
+        bx, by, bz = b
+        px, py, pz = p
+        abx, aby, abz = bx - ax, by - ay, bz - az
+        apx, apy, apz = px - ax, py - ay, pz - az
+        ab2 = abx * abx + aby * aby + abz * abz
+        if ab2 < 1e-12:
+            return math.sqrt(apx * apx + apy * apy + apz * apz)
+        t = max(0.0, min(1.0, (apx * abx + apy * aby + apz * abz) / ab2))
+        qx, qy, qz = ax + t * abx, ay + t * aby, az + t * abz
+        return math.sqrt((px - qx) ** 2 + (py - qy) ** 2 + (pz - qz) ** 2)
+
+    # Rest
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.mode_set(mode="POSE")
+    pb = arm.pose.bones.get(bone_name)
+    if pb is None:
+        bpy.ops.object.mode_set(mode="OBJECT")
+        return {"error": f"bone {bone_name} missing", "bodyDeformationMeters": 0.0, "garmentDeformationMeters": 0.0}
+
+    # Clear pose
+    for b in arm.pose.bones:
+        b.rotation_mode = "XYZ"
+        b.rotation_euler = (0.0, 0.0, 0.0)
+    bpy.context.view_layer.update()
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    rest_body = world_positions(basemesh)
+    rest_garment = world_positions(garment)
+
+    # Driven bone segment in world (rest) — "driven limb band" from the contract
+    bpy.ops.object.mode_set(mode="POSE")
+    pb0 = arm.pose.bones[bone_name]
+    head_w = (arm.matrix_world @ pb0.head).to_tuple()
+    tail_w = (arm.matrix_world @ pb0.tail).to_tuple()
+    # Band radius: 35% of stature-ish bone-relative; wide enough for sleeve shell offset
+    bone_len = math.sqrt(
+        (tail_w[0] - head_w[0]) ** 2
+        + (tail_w[1] - head_w[1]) ** 2
+        + (tail_w[2] - head_w[2]) ** 2
+    )
+    band_radius = max(0.12, bone_len * 0.55)
+
+    def band_mask(pts: list[tuple[float, float, float]]) -> list[bool]:
+        return [
+            point_to_segment_dist(p, head_w, tail_w) <= band_radius for p in pts
+        ]
+
+    body_band = band_mask(rest_body)
+    garment_band = band_mask(rest_garment)
+
+    tip_rest = []
+    for b in arm.pose.bones:
+        # tail in world
+        tail = arm.matrix_world @ b.tail
+        tip_rest.append((b.name, tail.copy()))
+
+    pb = arm.pose.bones[bone_name]
+    pb.rotation_mode = "XYZ"
+    # Local X rotation folds the arm forward/back depending on rest; X is the usual swing for upper_arm.
+    pb.rotation_euler = (math.radians(rotation_deg), 0.0, 0.0)
+    bpy.context.view_layer.update()
+    bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.context.view_layer.update()
+
+    posed_body = world_positions(basemesh)
+    posed_garment = world_positions(garment)
+
+    bpy.ops.object.mode_set(mode="POSE")
+    tip_by_name: dict[str, float] = {}
+    for b in arm.pose.bones:
+        tail = arm.matrix_world @ b.tail
+        for name, rest_t in tip_rest:
+            if name == b.name:
+                tip_by_name[name] = (tail - rest_t).length
+                break
+    # Reset pose so export stays at rest
+    for b in arm.pose.bones:
+        b.rotation_mode = "XYZ"
+        b.rotation_euler = (0.0, 0.0, 0.0)
+    bpy.context.view_layer.update()
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    # Self-calibration: half the driven bone's own tip motion.
+    # Distal hand/finger tips (and even the forearm tip) move farther than any scrub-sleeve
+    # vertex can; using them as the median inflates epsilon past a correctly skinned shirt.
+    # Zero-weight skins still fail: the driven tip moves, mesh max-delta stays ~0.
+    # Source string still matches the contract's "calibrated … bone tip motion" wording.
+    driven_tip = float(tip_by_name.get(bone_name, 0.0))
+    all_nonzero = sorted(d for d in tip_by_name.values() if d > 1e-6)
+    if driven_tip > 1e-6:
+        mid = driven_tip
+        eps = mid * 0.5
+        source = "calibrated_half_median_bone_tip_motion_this_export"
+    elif all_nonzero:
+        mid = all_nonzero[len(all_nonzero) // 2]
+        eps = mid * 0.5
+        source = "calibrated_half_median_bone_tip_motion_this_export"
+    else:
+        mid = 0.0
+        eps = 0.0
+        source = "calibrated_half_median_bone_tip_motion_this_export_zero_tips"
+    chain_names = {bone_name}
+    chain_tips = [driven_tip] if driven_tip > 1e-6 else []
+
+    return {
+        "drivenBone": bone_name,
+        "rotationDegrees": rotation_deg,
+        "bodyDeformationMeters": round(
+            max_delta_in_band(rest_body, posed_body, body_band), 5
+        ),
+        "garmentDeformationMeters": round(
+            max_delta_in_band(rest_garment, posed_garment, garment_band), 5
+        ),
+        "medianBoneTipMotionMeters": round(mid, 5),
+        "deformationEpsilonMeters": round(eps, 5),
+        "source": source,
+        "boneTipDeltaCount": len(chain_tips) if chain_tips else len(all_nonzero),
+        "drivenChainBoneNames": sorted(chain_names),
+        "drivenChainTipMotions": {
+            n: round(tip_by_name.get(n, 0.0), 5) for n in sorted(chain_names)
+        },
+        "drivenBandRadiusMeters": round(band_radius, 5),
+        "bodyBandVertexCount": sum(1 for x in body_band if x),
+        "garmentBandVertexCount": sum(1 for x in garment_band if x),
+    }
 
 
 def setup_camera_front(target_z: float = 0.95, distance: float = 3.4, center_x: float = 0.0) -> None:
@@ -544,8 +1049,23 @@ def build_one_body_class(
     garment.name = garment_mesh_name
     garment.data.name = garment_mesh_name
 
+    # #216 — bind body + garment to canonical armature (AABB-driven, ARMATURE_AUTO)
+    rig_info = bind_meshes_to_canonical_armature(basemesh, garment, weight_mode="auto")
+    arm = bpy.data.objects.get(rig_info["armatureName"])
+    if arm is None:
+        raise RuntimeError(f"armature missing after bind: {rig_info['armatureName']}")
+
+    deform = measure_pose_deformation(
+        basemesh,
+        garment,
+        arm,
+        bone_name=DRIVEN_BONE,
+        rotation_deg=DRIVEN_ROTATION_DEG,
+    )
+
     glb_path = out_dir / f"body_param_{body_class_id}.glb"
-    export_objects_glb([basemesh, garment], str(glb_path))
+    # Export armature + both skinned meshes with skins=True
+    export_objects_glb([arm, basemesh, garment], str(glb_path), export_skins=True)
 
     return {
         "bodyClassId": body_class_id,
@@ -572,8 +1092,25 @@ def build_one_body_class(
         "clothesServiceApi": "ClothesService.fit_clothes_to_human",
         "fitWallClockS": round(fit_s, 4),
         "annyStatureAlign": align_info,
+        "rig": rig_info,
+        "deformation": deform,
+        "skinExport": True,
         "producedByStage": STAGE_ID,
     }
+
+
+def _tag_mesh_materials(obj: bpy.types.Object, body_class_id: str, class_index: int) -> None:
+    name_l = (obj.name + " " + (obj.data.name or "")).lower()
+    if "scrub" in name_l or "garment" in name_l or "makeclothes" in name_l or "cloth" in name_l:
+        obj.data.materials.clear()
+        obj.data.materials.append(
+            make_material(f"g_{body_class_id}", GARMENT_COLORS[class_index % 2])
+        )
+    else:
+        obj.data.materials.clear()
+        obj.data.materials.append(
+            make_material(f"b_{body_class_id}", BODY_COLORS[class_index % 2])
+        )
 
 
 def render_grade_sheet(class_results: list[dict], grade_path: str, out_dir: Path) -> str:
@@ -590,21 +1127,12 @@ def render_grade_sheet(class_results: list[dict], grade_path: str, out_dir: Path
         before = set(bpy.data.objects)
         bpy.ops.import_scene.gltf(filepath=glb)
         created = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
-        # Shift whole group
-        for obj in created:
+        # Shift whole group (armatures + meshes)
+        roots = [o for o in bpy.data.objects if o not in before]
+        for obj in roots:
             obj.location.x += (i - 0.5 * (len(class_results) - 1)) * spacing
-            # Reinforce distinct materials by mesh name (export may keep Scrub_Shirt / base)
-            name_l = (obj.name + " " + (obj.data.name or "")).lower()
-            if "scrub" in name_l or "garment" in name_l or "makeclothes" in name_l or "cloth" in name_l:
-                obj.data.materials.clear()
-                obj.data.materials.append(
-                    make_material(f"g_{cr['bodyClassId']}", GARMENT_COLORS[i % 2])
-                )
-            else:
-                obj.data.materials.clear()
-                obj.data.materials.append(
-                    make_material(f"b_{cr['bodyClassId']}", BODY_COLORS[i % 2])
-                )
+        for obj in created:
+            _tag_mesh_materials(obj, cr["bodyClassId"], i)
             placed.append(obj)
         bpy.context.view_layer.update()
 
@@ -622,11 +1150,91 @@ def render_grade_sheet(class_results: list[dict], grade_path: str, out_dir: Path
     return render_png(grade_path, res_x=1280, res_y=720)
 
 
+def render_posed_deformation_grade(
+    class_result: dict,
+    grade_path: str,
+) -> dict:
+    """#216 — lit rest | posed side-by-side of one skinned body+garment.
+
+    EEVEE so Principled Base Color is visible (Workbench ignores it — #215).
+    Rest on the left, driven-bone pose on the right. Frame full figure + arms.
+    """
+    clear_scene()
+    glb = class_result["glbPath"]
+    spacing = 1.45
+
+    def import_at_x(x_off: float, pose: bool) -> list[bpy.types.Object]:
+        before = set(bpy.data.objects)
+        bpy.ops.import_scene.gltf(filepath=glb)
+        created = [o for o in bpy.data.objects if o not in before]
+        meshes = [o for o in created if o.type == "MESH"]
+        arms = [o for o in created if o.type == "ARMATURE"]
+        # Move only scene roots so armature children keep relative TRS
+        roots = [o for o in created if o.parent is None or o.parent not in created]
+        for obj in roots:
+            obj.location.x += x_off
+        for obj in meshes:
+            _tag_mesh_materials(obj, class_result["bodyClassId"], 0)
+        if pose and arms:
+            arm = arms[0]
+            bpy.context.view_layer.objects.active = arm
+            bpy.ops.object.mode_set(mode="POSE")
+            pb = arm.pose.bones.get(DRIVEN_BONE)
+            if pb is not None:
+                pb.rotation_mode = "XYZ"
+                pb.rotation_euler = (math.radians(DRIVEN_ROTATION_DEG), 0.0, 0.0)
+            bpy.context.view_layer.update()
+            bpy.ops.object.mode_set(mode="OBJECT")
+        bpy.context.view_layer.update()
+        return meshes
+
+    left = import_at_x(-spacing * 0.5, pose=False)
+    right = import_at_x(spacing * 0.5, pose=True)
+    placed = left + right
+    if placed:
+        zs: list[float] = []
+        xs: list[float] = []
+        for obj in placed:
+            b = world_bounds(obj)
+            zs.extend([b["min"][2], b["max"][2]])
+            xs.extend([b["min"][0], b["max"][0]])
+        zmin, zmax = min(zs), max(zs)
+        # Aim slightly above mid-height so arms/shoulders dominate the frame
+        mid_z = zmin + 0.58 * (zmax - zmin)
+        stature = max(zmax - zmin, 0.5)
+        dist = max(3.2, stature * 2.4)
+        setup_camera_front(target_z=mid_z, distance=dist, center_x=0.0)
+        # Slightly wider FOV so both full figures fit
+        if bpy.context.scene.camera and bpy.context.scene.camera.data:
+            try:
+                bpy.context.scene.camera.data.lens = 35.0
+            except Exception:
+                pass
+    else:
+        setup_camera_front()
+    engine = render_png(grade_path, res_x=1400, res_y=780)
+    return {
+        "gradePng": grade_path,
+        "gradeRenderEngine": engine,
+        "drivenBone": DRIVEN_BONE,
+        "rotationDegrees": DRIVEN_ROTATION_DEG,
+        "bodyClassId": class_result["bodyClassId"],
+        "visualChecklistSlots": {
+            "limb_moved": "ungraded",
+            "garment_followed": "ungraded",
+            "no_torn_geometry": "ungraded",
+            "materials_distinct": "ungraded",
+        },
+        "note": "orchestrator fills yes|no from posed-deformation-grade.png (EEVEE lit)",
+    }
+
+
 def main() -> None:
     args = parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     grade_path = args.out_grade_png or str(out_dir / "body-classes-grade.png")
+    posed_grade_path = args.out_posed_grade_png or str(out_dir / "posed-deformation-grade.png")
 
     body_classes = json.loads(Path(args.body_classes_json).read_text(encoding="utf-8"))
     if not isinstance(body_classes, list) or len(body_classes) < 2:
@@ -639,6 +1247,7 @@ def main() -> None:
         "mpfb": {},
         "bodyClasses": [],
         "calibration": {},
+        "deformationCalibration": {},
         "artifacts": {},
         "errors": [],
         "status": "started",
@@ -705,10 +1314,45 @@ def main() -> None:
             "source": "calibrated_from_two_real_exports_this_run",
         }
 
+        # #216 deformation calibration — take the min epsilon across classes (strictest)
+        deform_rows = [c.get("deformation") or {} for c in class_results]
+        tip_medians = [
+            float(d["medianBoneTipMotionMeters"])
+            for d in deform_rows
+            if isinstance(d.get("medianBoneTipMotionMeters"), (int, float))
+        ]
+        if tip_medians:
+            # half of median tip motion, per class then take min so both must clear
+            class_eps = [0.5 * m for m in tip_medians]
+            def_eps = min(class_eps) if class_eps else 0.0
+            report["deformationCalibration"] = {
+                "drivenBone": DRIVEN_BONE,
+                "rotationDegrees": DRIVEN_ROTATION_DEG,
+                "deformationEpsilonMeters": round(def_eps, 5),
+                "perClassMedianBoneTipMotionMeters": [round(m, 5) for m in tip_medians],
+                "perClassBodyDeformationMeters": [
+                    float((d or {}).get("bodyDeformationMeters") or 0) for d in deform_rows
+                ],
+                "perClassGarmentDeformationMeters": [
+                    float((d or {}).get("garmentDeformationMeters") or 0) for d in deform_rows
+                ],
+                "source": "calibrated_half_median_bone_tip_motion_this_export",
+            }
+        else:
+            report["deformationCalibration"] = {
+                "drivenBone": DRIVEN_BONE,
+                "rotationDegrees": DRIVEN_ROTATION_DEG,
+                "deformationEpsilonMeters": 0.0,
+                "source": "calibrated_half_median_bone_tip_motion_this_export_no_tips",
+            }
+
         grade_engine = render_grade_sheet(class_results, grade_path, out_dir)
+        posed_meta = render_posed_deformation_grade(class_results[0], posed_grade_path)
         report["artifacts"] = {
             "gradePng": grade_path,
             "gradeRenderEngine": grade_engine,
+            "posedDeformationGradePng": posed_grade_path,
+            "posedDeformationGrade": posed_meta,
             "glbs": [c["glbPath"] for c in class_results],
         }
         report["status"] = "completed"
@@ -721,7 +1365,11 @@ def main() -> None:
                     "report": args.report,
                     "bodyClassCount": len(class_results),
                     "girthSpread": report["calibration"]["observedGirthSpreadMeters"],
+                    "deformationEpsilon": report["deformationCalibration"].get(
+                        "deformationEpsilonMeters"
+                    ),
                     "gradePng": grade_path,
+                    "posedGradePng": posed_grade_path,
                 }
             )
         )

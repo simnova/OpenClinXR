@@ -13,9 +13,9 @@
     "proportions": 0.5
   },
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-151/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-216/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "8ba02e5362c2a5441fcdbe528799b458a6d1f6b6c3a088c383741ef05f2398fd",
+  "glbSha256": "0ef6d0ffc08ae7fdc086a1e4d6e5145ff7191ff768206c7e205f11df08ca30f7",
   "torsoGirthProxyMeters": 0.5864284020526069,
   "notEvidenceFor": [
     "clinical_body_realism",
