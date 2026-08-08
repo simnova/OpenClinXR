@@ -32,10 +32,14 @@ const REPO_ROOT = path.resolve(HERE, "../../../..");
 export const STAGE_ID = "body_param_stage";
 export const LIBRARY_GARMENT_ID = "wojackowl_scrubs_shirt_hm08";
 export const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-151");
+export const EVIDENCE_DIR_216 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-216");
 export const CATALOG_PATH = path.join(EVIDENCE_DIR, "body-param-catalog.json");
 export const STAGE_REPORT_PATH = path.join(EVIDENCE_DIR, "body-param-stage-report.json");
 export const GRADE_PNG_PATH = path.join(EVIDENCE_DIR, "body-classes-grade.png");
 export const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
+/** #216 ambient pre-fix (skins=0 measured before rebind) + posed grade */
+export const PRE_FIX_PATH_216 = path.join(EVIDENCE_DIR_216, "pre-fix.json");
+export const POSED_GRADE_PNG_PATH = path.join(EVIDENCE_DIR_216, "posed-deformation-grade.png");
 export const STAGING_DIR = path.join(EVIDENCE_DIR, "staging");
 export const WORK_DIR = path.join(EVIDENCE_DIR, "work");
 export const CANDIDATES_DIR = path.join(
@@ -123,6 +127,15 @@ export type BodyParamCatalog = {
   gradePngPath: string;
   blenderExecutable: string;
   gradeRenderEngine?: string;
+  posedDeformationGradePng?: string;
+  deformationCalibration?: {
+    drivenBone: string;
+    rotationDegrees: number;
+    deformationEpsilonMeters: number;
+    source: string;
+    perClassBodyDeformationMeters?: number[];
+    perClassGarmentDeformationMeters?: number[];
+  };
 };
 
 function ensureDir(dir: string): void {
@@ -263,6 +276,7 @@ function writePreFixArtifact(args: {
 
 export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   ensureDir(EVIDENCE_DIR);
+  ensureDir(EVIDENCE_DIR_216);
   ensureDir(STAGING_DIR);
   ensureDir(WORK_DIR);
   ensureDir(CANDIDATES_DIR);
@@ -322,6 +336,7 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 
   const blender = resolveBlender();
   const stageGrade = path.join(WORK_DIR, "body-classes-grade.png");
+  const stagePosedGrade = path.join(WORK_DIR, "posed-deformation-grade.png");
   const blenderArgs = [
     "--background",
     "--python",
@@ -337,6 +352,8 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     WORK_DIR,
     "--out-grade-png",
     stageGrade,
+    "--out-posed-grade-png",
+    stagePosedGrade,
     "--report",
     STAGE_REPORT_PATH,
     "--body-classes-json",
@@ -393,6 +410,11 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     throw new Error(`grade PNG missing or too small: ${stageGrade}`);
   }
   copyFileSync(stageGrade, GRADE_PNG_PATH);
+
+  // #216 posed deformation grade (rest | posed, lit, distinct materials)
+  if (existsSync(stagePosedGrade) && statSync(stagePosedGrade).size >= 1_000) {
+    copyFileSync(stagePosedGrade, POSED_GRADE_PNG_PATH);
+  }
 
   const entries: BodyParamCatalogEntry[] = [];
   for (const sc of stageClasses) {
@@ -463,19 +485,37 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     );
   }
 
+  const deformRaw =
+    (stage["deformationCalibration"] as Record<string, unknown> | undefined) ?? {};
+  const deformationCalibration: BodyParamCatalog["deformationCalibration"] = {
+    drivenBone: String(deformRaw["drivenBone"] ?? "upper_arm.L"),
+    rotationDegrees: Number(deformRaw["rotationDegrees"] ?? 55),
+    deformationEpsilonMeters: Number(deformRaw["deformationEpsilonMeters"] ?? 0),
+    source: String(
+      deformRaw["source"] ?? "calibrated_half_median_bone_tip_motion_this_export",
+    ),
+    perClassBodyDeformationMeters: Array.isArray(deformRaw["perClassBodyDeformationMeters"])
+      ? (deformRaw["perClassBodyDeformationMeters"] as number[])
+      : undefined,
+    perClassGarmentDeformationMeters: Array.isArray(
+      deformRaw["perClassGarmentDeformationMeters"],
+    )
+      ? (deformRaw["perClassGarmentDeformationMeters"] as number[])
+      : undefined,
+  };
+
   const catalog: BodyParamCatalog = {
     schemaVersion: "openclinxr.body-param-catalog.v1",
     generatedAt: new Date().toISOString(),
     producedByStage: STAGE_ID,
     claimScope:
-      "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment",
+      "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_and_skin",
     notEvidenceFor: [
       "clinical_body_realism",
       "quest_readiness",
       "converting_shipped_anny_roles",
       "shipping_mpfb_gpl",
       "full_body_migration",
-      "armature_rebind_completeness",
     ],
     entries,
     calibration,
@@ -486,6 +526,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       typeof artifacts["gradeRenderEngine"] === "string"
         ? (artifacts["gradeRenderEngine"] as string)
         : undefined,
+    posedDeformationGradePng: existsSync(POSED_GRADE_PNG_PATH)
+      ? path.relative(REPO_ROOT, POSED_GRADE_PNG_PATH).split(path.sep).join("/")
+      : undefined,
+    deformationCalibration,
   };
 
   writeFileSync(CATALOG_PATH, JSON.stringify(catalog, null, 2) + "\n", "utf8");
@@ -496,6 +540,55 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     ambientNote:
       "Ambient on main: six adults one body (4+2 vertex signatures). Calibration rows from the two real body_param exports this run.",
   });
+
+  // #216 pre-fix: ambient skins=0 measured on the pre-rebind library (historical), plus
+  // deformation calibration from this skinned export (§6f).
+  writeFileSync(
+    PRE_FIX_PATH_216,
+    JSON.stringify(
+      {
+        schemaVersion: "openclinxr.body-param-deforms-pre-fix.v1",
+        measuredAt: new Date().toISOString(),
+        ambientFailureClass:
+          "parametric_library_glbs_exported_with_export_skins_false_skins_0_joints_0",
+        ambientMeasuredBeforeRebind: {
+          bodies: [
+            {
+              bodyClassId: "adult_lean_female",
+              skins: 0,
+              joints: 0,
+              skinnedMeshes: 0,
+              note: "NodeIO on body-param-*-library.glb before #216 rebind",
+            },
+            {
+              bodyClassId: "adult_heavy_male",
+              skins: 0,
+              joints: 0,
+              skinnedMeshes: 0,
+              note: "NodeIO on body-param-*-library.glb before #216 rebind",
+            },
+          ],
+          cause: "body_param_stage.py export_skins=False",
+        },
+        calibration: deformationCalibration,
+        bodyClassesAfterStage: entries.map((e) => ({
+          bodyClassId: e.bodyClassId,
+          glbPath: e.glbPath,
+          producedByStage: e.producedByStage,
+        })),
+        producedByStage: STAGE_ID,
+        claimScope: "calibration_and_ambient_for_body_param_skin_rebind_only",
+        notEvidenceFor: [
+          "clinical_body_realism",
+          "quest_readiness",
+          "converting_shipped_anny_roles",
+        ],
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
 
   return catalog;
 }
