@@ -43,18 +43,25 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-195";
 /** #197 decision + after-column (hem fix + sleeve chain). Reuses the same harness. */
 export const ISSUE_197_DIR = ".openclinxr/evidence/issue-197";
+/** #200: gown sleeve pin over redefined arm_len — sweep gown, not cardigan. */
+export const ISSUE_200_DIR = ".openclinxr/evidence/issue-200";
 export const PRE_FIX_PATH = path.join(ISSUE_EVIDENCE_DIR, "pre-fix.json");
 export const ISSUE_197_PRE_FIX_PATH = path.join(ISSUE_197_DIR, "pre-fix.json");
+export const ISSUE_200_PRE_FIX_PATH = path.join(ISSUE_200_DIR, "pre-fix.json");
 export const LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "garment-ledger.json");
 export const HEM_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "hem-sweep-sheet.png");
 export const SLEEVE_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "sleeve-sweep-sheet.png");
 export const OPENING_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "opening-sweep-sheet.png");
 export const HEM_SWEEP_AFTER_PATH = path.join(ISSUE_197_DIR, "hem-sweep-after.png");
 export const SLEEVE_DIAGNOSIS_PATH = path.join(ISSUE_197_DIR, "sleeve-diagnosis.json");
+export const GOWN_SLEEVE_SHEET_PATH = path.join(ISSUE_200_DIR, "gown-sleeve-sweep-sheet.png");
+export const GOWN_SLEEVE_LEDGER_PATH = path.join(ISSUE_200_DIR, "gown-sleeve-ledger.json");
 
 /** Fixed body — decision recorded in pre-fix + report. */
 export const BODY_BASE = "peds_nurse_kevin.anny_base.obj";
 export const GARMENT_LAYERS = ["open_cardigan"] as const;
+/** #200 gown sweep layers (same fixed body as cardigan matrix). */
+export const GOWN_GARMENT_LAYERS = ["hospital_gown"] as const;
 
 /**
  * Exploratory ranges — not design targets. Include shipping values.
@@ -65,6 +72,28 @@ export const BOT_Y_SWEEP = [0.22, 0.28, 0.31, 0.36, 0.42] as const;
 /** Full shoulder→wrist chain; 1.0 must reach the wrist after the #197 segment extension. */
 export const SLEEVE_ALONG_SWEEP = [0.55, 0.72, 0.85, 0.92, 1.0] as const;
 export const FRONT_OPENING_SWEEP = [0.0, 0.35, 0.65, 0.95, 1.2] as const;
+/**
+ * #200 gown sleeve_along_fraction sweep on the FULL shoulder→wrist chain.
+ * Include shipping 0.72 (saturates at arm terminus) plus shorter exam-gown candidates.
+ * NOT design targets — orchestrator grades the sheet.
+ */
+export const GOWN_SLEEVE_ALONG_SWEEP = [0.35, 0.42, 0.50, 0.55, 0.72] as const;
+
+/** Shipped GLBs used to measure role sleeve reach (issue #200 instrument). */
+export const SHIPPED_SLEEVE_ACTORS = [
+  {
+    garmentKind: "hospital_gown",
+    actorGlb: "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+  },
+  {
+    garmentKind: "open_cardigan",
+    actorGlb: "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+  },
+  {
+    garmentKind: "scrub",
+    actorGlb: "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+  },
+] as const;
 
 /** Arm landmarks (body AABB fractions) — must match automate_blender.py #197 chain. */
 export const ARM_LANDMARKS = {
@@ -109,6 +138,14 @@ export type VariantRow = {
   cellImagePath?: string;
 };
 
+export type ShippedSleeveReach = {
+  garmentKind: string;
+  actorGlb: string;
+  sleeveEndsAtYFrac: number;
+  lateralVertexCount: number;
+  bodyHeightM: number;
+};
+
 export type GarmentBakeMatrixReport = {
   bodyBase: string;
   shippedCoefficients: {
@@ -128,6 +165,20 @@ export type GarmentBakeMatrixReport = {
   bakePath: "blender_only_rebake" | `other:${string}`;
   coefficientsSwept: string[];
   valuesPerSweep: number;
+  /**
+   * #200: lowest body-height fraction of garment verts beyond 0.22 lateral on shipped GLBs.
+   * Formula: min_y of |x−cx| ≥ body_width×0.22 → (y − body_min_y) / body_height.
+   * Higher y_frac = shorter sleeve (cuff higher on the arm).
+   */
+  shippedSleeveReach: ShippedSleeveReach[];
+  gownSleeveSweep?: {
+    value: number;
+    cuffAlongBoneT: number;
+    cuffArcLengthM: number;
+    sleeveEndsAtYFrac: number;
+    sleeveReaches: string;
+    triangles: number;
+  }[];
   reportSummary: {
     coefficients_swept: string;
     values_per_sweep: number;
@@ -166,7 +217,13 @@ function readShippedCoefficientsFromSource(): {
     { name: "cardigan_bot_y_fraction", re: /bot_y = body_min_y \+ body_height \* (0\.42)/ },
     { name: "gown_bot_y_fraction", re: /bot_y = body_min_y \+ body_height \* (0\.32)/ },
     { name: "cardigan_sleeve_along_fraction", re: /sleeve_along = arm_len \* (0\.92)/ },
-    { name: "gown_sleeve_along_fraction", re: /sleeve_along = arm_len \* (0\.72)/ },
+    // #200: gown sleeve fraction is DECIDED from the gown sweep sheet (was 0.72 pin over full chain
+    // that saturated at the arm terminus next to the cardigan). Regex accepts the shipping number
+    // in the gown branch only — see gown block `sleeve_along = arm_len * <n>` before cardigan 0.92.
+    {
+      name: "gown_sleeve_along_fraction",
+      re: /if kind == "gown":[\s\S]*?sleeve_along = arm_len \* (0\.\d+)/,
+    },
     { name: "cardigan_front_opening_rad", re: /front_opening_rad = (0\.95)/ },
     { name: "cloth_offset_base", re: /cloth_offset = \((0\.010)/ },
     { name: "neck_y_fraction", re: /neck_y = body_min_y \+ body_height \* (0\.84)/ },
@@ -512,6 +569,82 @@ export async function measureExportedGarmentGlb(glbPath: string): Promise<{
   };
 }
 
+/**
+ * #200 instrument — lowest body-height fraction of garment verts beyond lateral band.
+ * Formula: for garment verts with |x−cx| ≥ body_width×0.22:
+ *   y_frac = (y − body_min_y) / body_height; report min y_frac.
+ * Higher = shorter sleeve (cuff sits higher on the arm surface).
+ */
+export async function measureSleeveEndsAtYFrac(glbPath: string): Promise<{
+  sleeveEndsAtYFrac: number;
+  lateralVertexCount: number;
+  bodyHeightM: number;
+}> {
+  const abs = path.isAbsolute(glbPath) ? glbPath : path.join(REPO_ROOT, glbPath);
+  if (!existsSync(abs)) {
+    throw new Error(`measureSleeveEndsAtYFrac: missing ${abs}`);
+  }
+  const document = await new NodeIO().read(abs);
+  const meshes = collectMeshes(document);
+  const garments = meshes.filter(
+    (m) => GARMENT_MESH_RE.test(m.name) && !DECLARED_RE.test(m.name),
+  );
+  const bodyish = meshes.filter(
+    (m) =>
+      !GARMENT_MESH_RE.test(m.name)
+      && !DECLARED_RE.test(m.name)
+      && !/hair|eye|tooth|lash|brow/i.test(m.name),
+  );
+  if (garments.length === 0) {
+    throw new Error(`measureSleeveEndsAtYFrac: no garment mesh in ${abs}`);
+  }
+  const bPos: number[] = [];
+  for (const b of bodyish) {
+    for (let i = 0; i < b.positions.length; i += 1) bPos.push(b.positions[i]!);
+  }
+  if (bPos.length < 9) {
+    throw new Error(`measureSleeveEndsAtYFrac: no body mesh in ${abs}`);
+  }
+  const bodyAabb = aabbOf(new Float32Array(bPos));
+  const bh = Math.max(bodyAabb.max[1] - bodyAabb.min[1], 0.2);
+  const bw = Math.max(bodyAabb.max[0] - bodyAabb.min[0], 0.05);
+  const cx = (bodyAabb.min[0] + bodyAabb.max[0]) / 2;
+  const lat = bw * 0.22;
+  let minYFrac = Infinity;
+  let n = 0;
+  for (const g of garments) {
+    const pos = g.positions;
+    for (let i = 0; i + 2 < pos.length; i += 3) {
+      const x = pos[i]!;
+      const y = pos[i + 1]!;
+      if (Math.abs(x - cx) < lat) continue;
+      const yf = (y - bodyAabb.min[1]) / bh;
+      if (yf < minYFrac) minYFrac = yf;
+      n += 1;
+    }
+  }
+  if (n === 0 || !Number.isFinite(minYFrac)) {
+    throw new Error(`measureSleeveEndsAtYFrac: no lateral garment verts in ${abs}`);
+  }
+  return { sleeveEndsAtYFrac: minYFrac, lateralVertexCount: n, bodyHeightM: bh };
+}
+
+/** Measure gown / cardigan / scrub sleeve terminus on shipped role GLBs. */
+export async function measureShippedSleeveReach(): Promise<ShippedSleeveReach[]> {
+  const out: ShippedSleeveReach[] = [];
+  for (const row of SHIPPED_SLEEVE_ACTORS) {
+    const m = await measureSleeveEndsAtYFrac(row.actorGlb);
+    out.push({
+      garmentKind: row.garmentKind,
+      actorGlb: row.actorGlb,
+      sleeveEndsAtYFrac: m.sleeveEndsAtYFrac,
+      lateralVertexCount: m.lateralVertexCount,
+      bodyHeightM: m.bodyHeightM,
+    });
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------------------
 // Software orthographic PNG (no WebGL) — same genus as #194 generator-sweep
 // ---------------------------------------------------------------------------
@@ -673,6 +806,8 @@ function bakeVariant(input: {
   outDir: string;
   /** #197: invalidate #195 cache so hem/sleeve changes re-bake. */
   force?: boolean;
+  /** Default open_cardigan; #200 gown sweep uses hospital_gown. */
+  garmentLayers?: readonly string[];
 }): string {
   const glbPath = path.join(input.outDir, `${input.variantId}.glb`);
   if (
@@ -683,6 +818,7 @@ function bakeVariant(input: {
     // Cache hit from prior partial run
     return glbPath;
   }
+  const layers = input.garmentLayers ?? GARMENT_LAYERS;
   const workDir = path.join(input.outDir, `_work_${input.variantId}`);
   const relGlb = path.relative(REPO_ROOT, glbPath);
   const args = [
@@ -691,7 +827,7 @@ function bakeVariant(input: {
     "--body-base",
     BODY_BASE,
     "--garment-layers",
-    GARMENT_LAYERS.join(","),
+    layers.join(","),
     "--actor-role",
     "patient",
     "--output-glb",
@@ -701,7 +837,11 @@ function bakeVariant(input: {
     "--work-dir",
     path.relative(REPO_ROOT, workDir),
   ];
-  console.log(`[garment-bake-matrix] baking ${input.variantId}`, JSON.stringify(input.overrides));
+  console.log(
+    `[garment-bake-matrix] baking ${input.variantId}`,
+    layers.join(","),
+    JSON.stringify(input.overrides),
+  );
   const result = spawnSync("python3", args, {
     cwd: REPO_ROOT,
     encoding: "utf8",
@@ -743,10 +883,115 @@ export function ensurePreFixArtifact(): string {
   return out;
 }
 
+/**
+ * #200 pre-fix: record ambient sleeve reach BEFORE any gown coefficient change.
+ * Does not overwrite — before-column is immutable once written.
+ */
+export async function ensureIssue200PreFixArtifact(): Promise<string> {
+  const out = absEvidence(ISSUE_200_PRE_FIX_PATH);
+  if (existsSync(out)) return out;
+  const reach = await measureShippedSleeveReach();
+  const shipped = readShippedCoefficientsFromSource();
+  const gownPin = shipped.find((c) => c.name === "gown_sleeve_along_fraction")?.value;
+  const cardPin = shipped.find((c) => c.name === "cardigan_sleeve_along_fraction")?.value;
+  const payload = {
+    schemaVersion: "openclinxr.garment-coeff-issue-200.pre-fix.v1",
+    measuredAt: new Date().toISOString(),
+    ambientFailureClass:
+      "gown_sleeve_along_fraction pinned at 0.72 over full shoulder→wrist arm_len (~0.65 m) "
+      + "after #197 redefined the denominator from shoulder→elbow (~0.33 m); "
+      + "absolute sleeve ≈ 0.47 m saturates at body arm-surface terminus next to cardigan 0.92. "
+      + "Scrub (unpinned, rescaled to 0.22) remains short — pin caused the regression.",
+    mechanism:
+      "Pinning a ratio does not pin an outcome when the slice may redefine the denominator. "
+      + "gown 0.72×0.33≈0.24 m (upper arm) → 0.72×0.65≈0.47 m (past elbow into terminus).",
+    shippedCoefficients: shipped,
+    gownSleeveAlongFractionAtMeasure: gownPin,
+    cardiganSleeveAlongFractionAtMeasure: cardPin,
+    shippedSleeveReach: reach,
+    gownVsCardiganDeltaYFrac: (() => {
+      const g = reach.find((r) => r.garmentKind === "hospital_gown")?.sleeveEndsAtYFrac;
+      const c = reach.find((r) => r.garmentKind === "open_cardigan")?.sleeveEndsAtYFrac;
+      return g != null && c != null ? Math.abs(g - c) : null;
+    })(),
+    claimScope: "pre-fix shipped sleeve reach on role GLBs (#200)",
+    notEvidenceFor: [
+      "clinical_validity",
+      "quest_readiness",
+      "visual_quality_grade",
+      "correct_gown_sleeve_length_choice",
+    ],
+  };
+  writeJson(out, payload);
+  return out;
+}
+
+async function bakeAndMeasureVariant(job: {
+  variantId: string;
+  param: string;
+  value: number;
+  overrides: Record<string, number>;
+  outDir: string;
+  garmentLayers?: readonly string[];
+  garmentKind: string;
+}): Promise<VariantRow> {
+  const glbPath = bakeVariant({
+    variantId: job.variantId,
+    param: job.param,
+    value: job.value,
+    overrides: job.overrides,
+    outDir: job.outDir,
+    force: false,
+    garmentLayers: job.garmentLayers,
+  });
+  const measure = await measureExportedGarmentGlb(glbPath);
+  const yReach = await measureSleeveEndsAtYFrac(glbPath);
+  const cellPath = path.join(job.outDir, `${job.variantId}_cell.png`);
+  const document = await new NodeIO().read(glbPath);
+  const allMeshes = collectMeshes(document);
+  const png = renderMeshesSoftware(
+    allMeshes,
+    480,
+    360,
+    `${job.param}=${job.value}`,
+  );
+  writeFileSync(cellPath, png);
+  writeJson(path.join(job.outDir, `${job.variantId}.measure.json`), {
+    triangles: measure.triangles,
+    hemY: measure.hemY,
+    sleeveExtent: measure.sleeveExtent,
+    cuffAlongBoneT: measure.cuffAlongBoneT,
+    cuffArcLengthM: measure.cuffArcLengthM,
+    sleeveReaches: measure.sleeveReaches,
+    sleeveEndsAtYFrac: yReach.sleeveEndsAtYFrac,
+    connectedComponents: measure.connectedComponents,
+    enclosesBody: measure.enclosesBody,
+    worldAabb: measure.worldAabb,
+  });
+  return {
+    variantId: job.variantId,
+    param: job.param,
+    value: job.value,
+    garmentKind: job.garmentKind,
+    triangles: measure.triangles,
+    worldAabb: measure.worldAabb,
+    hemY: measure.hemY,
+    sleeveExtent: measure.sleeveExtent,
+    cuffAlongBoneT: measure.cuffAlongBoneT,
+    cuffArcLengthM: measure.cuffArcLengthM,
+    sleeveReaches: measure.sleeveReaches,
+    connectedComponents: measure.connectedComponents,
+    enclosesBody: measure.enclosesBody,
+    glbPath: path.relative(REPO_ROOT, glbPath),
+    cellImagePath: path.relative(REPO_ROOT, cellPath),
+  };
+}
+
 export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixReport> {
   if (cachedReport) return cachedReport;
 
   ensurePreFixArtifact();
+  await ensureIssue200PreFixArtifact();
   const preFix = JSON.parse(readFileSync(absEvidence(PRE_FIX_PATH), "utf8")) as {
     shippedCoefficients?: Array<{
       name: string;
@@ -802,49 +1047,32 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
   const variants: VariantRow[] = [];
 
   for (const job of jobs) {
-    const glbPath = bakeVariant({ ...job, outDir, force: false });
-    const measure = await measureExportedGarmentGlb(glbPath);
-    const cellPath = path.join(outDir, `${job.variantId}_cell.png`);
-    // Render body+garment for visual context
-    const document = await new NodeIO().read(glbPath);
-    const allMeshes = collectMeshes(document);
-    const png = renderMeshesSoftware(
-      allMeshes,
-      480,
-      360,
-      `${job.param}=${job.value}`,
+    variants.push(
+      await bakeAndMeasureVariant({
+        ...job,
+        outDir,
+        garmentKind: "open_front",
+      }),
     );
-    writeFileSync(cellPath, png);
-    // Cache measure for resume
-    writeJson(path.join(outDir, `${job.variantId}.measure.json`), {
-      triangles: measure.triangles,
-      hemY: measure.hemY,
-      sleeveExtent: measure.sleeveExtent,
-      cuffAlongBoneT: measure.cuffAlongBoneT,
-      cuffArcLengthM: measure.cuffArcLengthM,
-      sleeveReaches: measure.sleeveReaches,
-      connectedComponents: measure.connectedComponents,
-      enclosesBody: measure.enclosesBody,
-      worldAabb: measure.worldAabb,
-    });
+  }
 
-    variants.push({
-      variantId: job.variantId,
-      param: job.param,
-      value: job.value,
-      garmentKind: "open_front",
-      triangles: measure.triangles,
-      worldAabb: measure.worldAabb,
-      hemY: measure.hemY,
-      sleeveExtent: measure.sleeveExtent,
-      cuffAlongBoneT: measure.cuffAlongBoneT,
-      cuffArcLengthM: measure.cuffArcLengthM,
-      sleeveReaches: measure.sleeveReaches,
-      connectedComponents: measure.connectedComponents,
-      enclosesBody: measure.enclosesBody,
-      glbPath: path.relative(REPO_ROOT, glbPath),
-      cellImagePath: path.relative(REPO_ROOT, cellPath),
-    });
+  // #200: gown sleeve sweep on hospital_gown (same fixed body). Independent of cardigan matrix.
+  const gownOutDir = absEvidence(ISSUE_200_DIR, "variants");
+  mkdirSync(gownOutDir, { recursive: true });
+  const gownVariants: VariantRow[] = [];
+  for (const value of GOWN_SLEEVE_ALONG_SWEEP) {
+    const tag = String(value).replace(".", "p");
+    gownVariants.push(
+      await bakeAndMeasureVariant({
+        variantId: `gown_sleeve_along_${tag}`,
+        param: "gown_sleeve_along_fraction",
+        value,
+        overrides: { sleeve_along_fraction: value },
+        outDir: gownOutDir,
+        garmentLayers: GOWN_GARMENT_LAYERS,
+        garmentKind: "hospital_gown",
+      }),
+    );
   }
 
   // Geometry moved? Prefer cuffAlongBoneT for sleeve sweep (radial sleeveExtent is wrong instrument).
@@ -899,17 +1127,41 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
   const sleeveSheet = absEvidence(SLEEVE_SHEET_PATH);
   const openingSheet = absEvidence(OPENING_SHEET_PATH);
   const hemAfter = absEvidence(HEM_SWEEP_AFTER_PATH);
+  const gownSleeveSheet = absEvidence(GOWN_SLEEVE_SHEET_PATH);
   await writeContactSheetFromCells(hemCells, hemSheet, 3);
   await writeContactSheetFromCells(sleeveCells, sleeveSheet, 3);
   await writeContactSheetFromCells(openingCells, openingSheet, 3);
   // #197 contract artifact — same hem sheet after the coefficient fix.
   await writeContactSheetFromCells(hemCells, hemAfter, 3);
 
+  // #200 gown sleeve contact sheet — each cell labelled with fraction + measured reach.
+  const gownSleeveCells: Array<{ imagePath: string; label: string }> = [];
+  for (const v of gownVariants) {
+    const yfPath = path.join(gownOutDir, `${v.variantId}.measure.json`);
+    let yf = Number.NaN;
+    if (existsSync(yfPath)) {
+      try {
+        yf = (JSON.parse(readFileSync(yfPath, "utf8")) as { sleeveEndsAtYFrac?: number })
+          .sleeveEndsAtYFrac ?? Number.NaN;
+      } catch {
+        yf = Number.NaN;
+      }
+    }
+    gownSleeveCells.push({
+      imagePath: absEvidence(v.cellImagePath!),
+      label:
+        `gown_sleeve=${v.value} t=${v.cuffAlongBoneT.toFixed(2)} `
+        + `y_frac=${Number.isFinite(yf) ? yf.toFixed(3) : "?"} ${v.sleeveReaches}`,
+    });
+  }
+  await writeContactSheetFromCells(gownSleeveCells, gownSleeveSheet, 3);
+
   const contactSheetPaths = [
     path.relative(REPO_ROOT, hemSheet),
     path.relative(REPO_ROOT, sleeveSheet),
     path.relative(REPO_ROOT, openingSheet),
     path.relative(REPO_ROOT, hemAfter),
+    path.relative(REPO_ROOT, gownSleeveSheet),
   ];
 
   const sleeveRows = variants.filter((v) => v.param === "sleeve_along_fraction");
@@ -941,7 +1193,7 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
       "radial sleeveExtent as long-sleeve instrument — lateral reach, not distal progress",
     ],
     shortSleeveRescale:
-      "scrub/tshirt/casual fractions reduced (~0.22/0.30/0.28 of full chain) so absolute sleeve_along stays upper-arm after arm_len doubled; cardigan 0.92 and gown 0.72 pins unchanged",
+      "scrub/tshirt/casual fractions reduced (~0.22/0.30/0.28 of full chain) so absolute sleeve_along stays upper-arm after arm_len doubled; cardigan 0.92 counterweight pin unchanged; gown 0.72 pin was #197 residual then #200 set gown to 0.42 (exam upper-arm) from gown-sleeve-sweep-sheet",
     landmarks: {
       shoulder: ARM_LANDMARKS.shoulder,
       elbow: ARM_LANDMARKS.elbow,
@@ -979,6 +1231,51 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     notEvidenceFor: ["clinical_validity", "quest_readiness", "visual_quality_grade"],
   });
 
+  // #200: live sleeve reach on shipped role GLBs (after any gown coefficient change + rebake).
+  const shippedSleeveReach = await measureShippedSleeveReach();
+
+  const gownSleeveSweep = gownVariants.map((v) => {
+    const yfPath = path.join(gownOutDir, `${v.variantId}.measure.json`);
+    let yf = Number.NaN;
+    if (existsSync(yfPath)) {
+      try {
+        yf = (JSON.parse(readFileSync(yfPath, "utf8")) as { sleeveEndsAtYFrac?: number })
+          .sleeveEndsAtYFrac ?? Number.NaN;
+      } catch {
+        yf = Number.NaN;
+      }
+    }
+    return {
+      value: v.value,
+      cuffAlongBoneT: v.cuffAlongBoneT,
+      cuffArcLengthM: v.cuffArcLengthM,
+      sleeveEndsAtYFrac: yf,
+      sleeveReaches: v.sleeveReaches,
+      triangles: v.triangles,
+    };
+  });
+
+  writeJson(absEvidence(GOWN_SLEEVE_LEDGER_PATH), {
+    schemaVersion: "openclinxr.garment-coeff-issue-200.gown-sleeve-ledger.v1",
+    bodyBase: BODY_BASE,
+    garmentLayers: [...GOWN_GARMENT_LAYERS],
+    sweep: [...GOWN_SLEEVE_ALONG_SWEEP],
+    variants: gownSleeveSweep,
+    shippedSleeveReach,
+    gownVsCardiganDeltaYFrac: (() => {
+      const g = shippedSleeveReach.find((r) => r.garmentKind === "hospital_gown")?.sleeveEndsAtYFrac;
+      const c = shippedSleeveReach.find((r) => r.garmentKind === "open_cardigan")?.sleeveEndsAtYFrac;
+      return g != null && c != null ? Math.abs(g - c) : null;
+    })(),
+    claimScope: "gown sleeve_along_fraction sweep + shipped role reach (#200)",
+    notEvidenceFor: [
+      "clinical_validity",
+      "quest_readiness",
+      "visual_quality_grade",
+      "correct_gown_sleeve_length_choice",
+    ],
+  });
+
   const report: GarmentBakeMatrixReport = {
     bodyBase: `apps/ui-xr/public/generated-humanoids/${BODY_BASE}`,
     shippedCoefficients,
@@ -987,12 +1284,13 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     contactSheetPaths,
     continuityRebakesSpent,
     claimScope:
-      "garment coefficient bake-matrix ledger + contact sheets on fixed Anny base (#195/#197)",
+      "garment coefficient bake-matrix ledger + contact sheets on fixed Anny base (#195/#197/#200)",
     notEvidenceFor: [
       "clinical_validity",
       "quest_readiness",
       "visual_quality_grade",
       "correct_hem_length_choice",
+      "correct_gown_sleeve_length_choice",
       "production_wardrobe",
     ],
     geometryMoved,
@@ -1000,6 +1298,8 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     bakePath: "blender_only_rebake",
     coefficientsSwept: sweeps.map((s) => s.param),
     valuesPerSweep: BOT_Y_SWEEP.length,
+    shippedSleeveReach,
+    gownSleeveSweep,
     reportSummary: {
       coefficients_swept: sweeps.map((s) => s.param).join(","),
       values_per_sweep: BOT_Y_SWEEP.length,
@@ -1033,16 +1333,105 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
   return report;
 }
 
-// CLI: pnpm exec tsx tools/openclinxr/evidence/garment-bake-matrix.ts
+/** #200 only: pre-fix + gown sleeve sweep + sheet (no cardigan matrix). */
+export async function runGownSleeveSweepOnly(): Promise<{
+  preFixPath: string;
+  sheetPath: string;
+  gownSleeveSweep: NonNullable<GarmentBakeMatrixReport["gownSleeveSweep"]>;
+  shippedSleeveReach: ShippedSleeveReach[];
+}> {
+  const preFixPath = await ensureIssue200PreFixArtifact();
+  const gownOutDir = absEvidence(ISSUE_200_DIR, "variants");
+  mkdirSync(gownOutDir, { recursive: true });
+  const gownVariants: VariantRow[] = [];
+  for (const value of GOWN_SLEEVE_ALONG_SWEEP) {
+    const tag = String(value).replace(".", "p");
+    gownVariants.push(
+      await bakeAndMeasureVariant({
+        variantId: `gown_sleeve_along_${tag}`,
+        param: "gown_sleeve_along_fraction",
+        value,
+        overrides: { sleeve_along_fraction: value },
+        outDir: gownOutDir,
+        garmentLayers: GOWN_GARMENT_LAYERS,
+        garmentKind: "hospital_gown",
+      }),
+    );
+  }
+  const gownSleeveSweep = gownVariants.map((v) => {
+    const yfPath = path.join(gownOutDir, `${v.variantId}.measure.json`);
+    let yf = Number.NaN;
+    if (existsSync(yfPath)) {
+      try {
+        yf = (JSON.parse(readFileSync(yfPath, "utf8")) as { sleeveEndsAtYFrac?: number })
+          .sleeveEndsAtYFrac ?? Number.NaN;
+      } catch {
+        yf = Number.NaN;
+      }
+    }
+    return {
+      value: v.value,
+      cuffAlongBoneT: v.cuffAlongBoneT,
+      cuffArcLengthM: v.cuffArcLengthM,
+      sleeveEndsAtYFrac: yf,
+      sleeveReaches: v.sleeveReaches,
+      triangles: v.triangles,
+    };
+  });
+  const gownSleeveSheet = absEvidence(GOWN_SLEEVE_SHEET_PATH);
+  const gownSleeveCells = gownVariants.map((v, i) => ({
+    imagePath: absEvidence(v.cellImagePath!),
+    label:
+      `gown_sleeve=${v.value} t=${v.cuffAlongBoneT.toFixed(2)} `
+      + `y_frac=${gownSleeveSweep[i]!.sleeveEndsAtYFrac.toFixed(3)} ${v.sleeveReaches}`,
+  }));
+  await writeContactSheetFromCells(gownSleeveCells, gownSleeveSheet, 3);
+  const shippedSleeveReach = await measureShippedSleeveReach();
+  writeJson(absEvidence(GOWN_SLEEVE_LEDGER_PATH), {
+    schemaVersion: "openclinxr.garment-coeff-issue-200.gown-sleeve-ledger.v1",
+    bodyBase: BODY_BASE,
+    garmentLayers: [...GOWN_GARMENT_LAYERS],
+    sweep: [...GOWN_SLEEVE_ALONG_SWEEP],
+    variants: gownSleeveSweep,
+    shippedSleeveReach,
+    sheetPath: path.relative(REPO_ROOT, gownSleeveSheet),
+    claimScope: "gown sleeve_along_fraction sweep only (#200)",
+    notEvidenceFor: [
+      "clinical_validity",
+      "quest_readiness",
+      "visual_quality_grade",
+      "correct_gown_sleeve_length_choice",
+    ],
+  });
+  return {
+    preFixPath: path.relative(REPO_ROOT, preFixPath),
+    sheetPath: path.relative(REPO_ROOT, gownSleeveSheet),
+    gownSleeveSweep,
+    shippedSleeveReach,
+  };
+}
+
+// CLI: pnpm exec tsx tools/openclinxr/evidence/garment-bake-matrix.ts [--gown-only]
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  inspectGarmentBakeMatrix()
-    .then((r) => {
-      console.log(JSON.stringify(r.reportSummary, null, 2));
-      console.log("variants", r.variants.length);
-      console.log("sheets", r.contactSheetPaths);
-    })
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
+  const gownOnly = process.argv.includes("--gown-only");
+  const run = gownOnly
+    ? runGownSleeveSweepOnly().then((r) => {
+        console.log(JSON.stringify({
+          mode: "gown-only",
+          preFix: r.preFixPath,
+          sheet: r.sheetPath,
+          sweep: r.gownSleeveSweep,
+          shippedSleeveReach: r.shippedSleeveReach,
+        }, null, 2));
+      })
+    : inspectGarmentBakeMatrix().then((r) => {
+        console.log(JSON.stringify(r.reportSummary, null, 2));
+        console.log("variants", r.variants.length);
+        console.log("sheets", r.contactSheetPaths);
+        console.log("shippedSleeveReach", r.shippedSleeveReach);
+      });
+  run.catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }

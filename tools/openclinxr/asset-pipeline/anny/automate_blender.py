@@ -3102,8 +3102,14 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
 
             if kind == "gown":
                 sleeve_rows, sleeve_cols = 10, 14
-                # 0.72 of full shoulder→wrist ≈ mid-forearm (was 0.72 of upper-only = near elbow).
-                sleeve_along = arm_len * 0.72
+                # #200: short/upper-arm hospital gown sleeve — DECIDED from gown-sleeve-sweep-sheet.
+                # #197 pinned 0.72 over the NEW full shoulder→wrist arm_len, which silently doubled
+                # absolute length (~0.24 m → ~0.47 m) and saturated next to the cardigan at the arm
+                # terminus. Sweep 0.35/0.42/0.50/0.55/0.72 on fixed body; 0.42 = upper_arm
+                # (cuffAlongBoneT≈0.39, y_frac≈0.63) — exam-access gown, not street long-sleeve.
+                # Cardigan stays 0.92 (counterweight). Scrub stays 0.22. Gown does NOT share the
+                # cardigan coefficient.
+                sleeve_along = arm_len * 0.42
                 sleeve_r0 = max(body_depth * 0.22, r_base * 0.42)
                 # Long drape well below shared waist (still overlaps painted lower).
                 # Gown hem stays at 0.32 (#197): below-knee hospital gown is intentional.
@@ -3111,8 +3117,8 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 r_base = torso_half_w * 1.14 * radius_stack
                 torso_rows, torso_cols = 11, 16
                 topology_class = "closed_gown_drape"
-                sleeve_cov = "torso+shoulder+full_arm_along_bone_hospital_gown_sleeve"
-                slf = 0.72
+                sleeve_cov = "torso+shoulder+upper_arm_along_bone_hospital_gown_exam_sleeve"
+                slf = 0.42
             elif kind == "open_front":
                 sleeve_rows, sleeve_cols = 11, 12
                 # 0.92 of full chain ≈ near wrist (long sleeve). Counterweight pin stays 0.92.
