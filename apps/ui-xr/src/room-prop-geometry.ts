@@ -22,6 +22,10 @@ import {
   Vector3,
 } from "three";
 import {
+  classifyRoomProp,
+  isRoomPropCueOrOverlay,
+} from "./room-prop-classification.js";
+import {
   buildDeclaredEquipmentGeometry,
   resolveRoomPropBuilderEquipmentId,
 } from "./station-equipment.js";
@@ -31,6 +35,13 @@ export {
   listDeclaredEquipmentBuilderArms,
   resolveRoomPropBuilderEquipmentId,
 } from "./station-equipment.js";
+export {
+  classifyRoomProp,
+  isRoomPropCueOrOverlay,
+  isRoomPropPhysicalObject,
+  type RoomPropClass,
+  type RoomPropClassification,
+} from "./room-prop-classification.js";
 
 export type RoomPropVector3 = { x: number; y: number; z: number };
 
@@ -42,6 +53,8 @@ export type BuildRoomPropInput = {
   scale: RoomPropVector3;
   label: string;
   affordanceCueIds: string[];
+  /** Optional semanticRole from scene manifest (classification). */
+  semanticRole?: string | null;
   /** Scene object name prefix (e.g. openclinxr.<scenario>.room-prop). */
   namePrefix: string;
   /**
@@ -67,6 +80,9 @@ export type BuildRoomPropInput = {
 
 /**
  * Build a room-prop root, or null when XOR suppresses (already equipment-mounted).
+ *
+ * #223: cue/overlay props keep affordance tags + a small non-box anchor mesh (markers),
+ * but never a scaled unit-box body. Physical props use builders when available.
  */
 export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
   const exclusive = toSet(input.exclusiveMountedEquipmentIds);
@@ -76,15 +92,34 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
     return null;
   }
 
+  const classified = classifyRoomProp(input.propId, {
+    label: input.label,
+    semanticRole: input.semanticRole ?? null,
+  });
+  const isCue = classified.classification === "cue_or_overlay";
+
   const group = new Group();
   group.name = `${input.namePrefix}.${input.propId}`;
   group.position.set(input.position.x, input.position.y, input.position.z);
   group.userData.openClinXrBaseY = input.position.y;
+  group.userData.openClinXrRoomPropClass = classified.classification;
+  group.userData.openClinXrRoomPropClassificationReason = classified.classificationReason;
 
   let markerY = input.scale.y + 0.08;
   let labelY = input.scale.y + 0.18;
 
-  if (builderId !== null) {
+  if (isCue) {
+    // Affordance-only channel: no unit-box furniture body, no giant nameplate slab.
+    // Do NOT set openClinXrEquipmentId — cues are not declared equipment mounts (#209).
+    // Affordance tags still reach the scene for the #223 counterweight.
+    group.userData.openClinXrRoomPropId = input.propId;
+    group.userData.openClinXrEquipmentSource = "cue_overlay";
+    group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = false;
+    group.userData.openClinXrRoomPropUsedBuilder = false;
+    group.userData.openClinXrRoomPropCueOverlay = true;
+    markerY = 0.12;
+    labelY = 0.22;
+  } else if (builderId !== null) {
     // Metric builder geometry — ignore manifest scale (box-proxy dimensions).
     const geometry = buildDeclaredEquipmentGeometry(builderId);
     geometry.name = `${group.name}.builder`;
@@ -145,17 +180,22 @@ export function buildRoomPropGroup(input: BuildRoomPropInput): Group | null {
   marker.position.set(0, markerY, 0);
   group.add(marker);
 
-  const labelPlate = input.createActorNameplate(input.label, input.accentColor);
-  labelPlate.name = `${group.name}.label`;
-  labelPlate.position.set(0, labelY, 0);
-  labelPlate.scale.set(0.48, 0.48, 0.48);
-  group.add(labelPlate);
+  // Nameplates on cues re-introduce pale slabs; keep them on physical props only.
+  if (!isCue) {
+    const labelPlate = input.createActorNameplate(input.label, input.accentColor);
+    labelPlate.name = `${group.name}.label`;
+    labelPlate.position.set(0, labelY, 0);
+    labelPlate.scale.set(0.48, 0.48, 0.48);
+    group.add(labelPlate);
+  }
 
-  group.userData.openClinXrAffordances = [
-    "room_context_cue",
-    "clinical_environment_reference",
-    "runtime_scene_manifest_prop",
-  ];
+  group.userData.openClinXrAffordances = isCue
+    ? ["room_context_cue", "runtime_scene_manifest_prop", "affordance_cue_overlay"]
+    : [
+      "room_context_cue",
+      "clinical_environment_reference",
+      "runtime_scene_manifest_prop",
+    ];
   group.userData.openClinXrRuntimeSceneManifestAffordanceCueIds = input.affordanceCueIds;
   group.userData.openClinXrDynamicEncounterAssetPolicy =
     "room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world";

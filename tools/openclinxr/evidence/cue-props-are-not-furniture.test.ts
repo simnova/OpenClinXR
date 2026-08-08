@@ -115,6 +115,25 @@ import { describe, expect, it } from "vitest";
  * If any proof in the brief CANNOT PASS as written, OR passes trivially against the ambient range,
  * OR is a regression net rather than load-bearing, SAY SO AT THE MOMENT YOU FIND IT. I am asking
  * about all three cases explicitly because the general instruction has under-fired three times.
+ *
+ * ## FIXED (#223)
+ *
+ * - Decision (unlocked): **runtime render treatment** — cue/overlay props keep
+ *   `openClinXrRuntimeSceneManifestAffordanceCueIds` on a room-prop Group but do **not** get a
+ *   scaled unit-box body or nameplate slab. Rejected: (a) write builders for cues (D1), (b) delete
+ *   props from manifests (loses affordance registration / counterweight), (c) new semanticRole only
+ *   without render change (insufficient — monitor already uses objective_cue while physical).
+ * - Classification SSOT: `apps/ui-xr/src/room-prop-classification.ts` (explicit physical + cue tables
+ *   + heuristics). Physical ids get builder aliases / new arms in `station-equipment*.ts`.
+ * - #228 fold: room-prop-uses-real-builder contract (3) baseline is
+ *   listTrackedManifestRenderablePropIds() from tracked
+ *   apps/ui-xr/public/xr-assets/generated/(scenario)/scene-manifest.v1.json (physical only) — not
+ *   gitignored .openclinxr/evidence/issue-185/pre-fix.json.
+ * - Measured ambient (post-#149 bank): 12 unique shipped roomProp ids; generic cue quartet already
+ *   empty. Classification bank expands with factory residual vocabulary so props.length > 19.
+ * - NOT TESTED: faculty-review packet consumers of prop.semanticRole as chart content (grep found
+ *   none reading roomProp affordance as review packet fields); Quest/WebXR frame cost of residual
+ *   affordance markers.
  */
 
 type PropClass = "physical_object" | "cue_or_overlay";

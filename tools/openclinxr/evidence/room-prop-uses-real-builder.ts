@@ -88,6 +88,30 @@ export async function listDeclaredEquipmentBuilderArms(): Promise<string[]> {
   return [...ids].sort();
 }
 
+/** Keep in sync with apps/ui-xr/src/station-equipment.ts ROOM_PROP_BUILDER_ALIASES. */
+const ROOM_PROP_BUILDER_ALIASES: Readonly<Record<string, string>> = {
+  "safe-room-soft-chair": "safe_room_chair_equipment",
+  safe_room_soft_chair: "safe_room_chair_equipment",
+  "telehealth-tablet-stand": "tablet_visit_equipment",
+  telehealth_tablet_stand: "tablet_visit_equipment",
+  "observer-station": "observation_station_equipment",
+  observer_station: "observation_station_equipment",
+  "safety-plan-whiteboard": "safety_plan_whiteboard_equipment",
+  safety_plan_whiteboard: "safety_plan_whiteboard_equipment",
+  "ekg-leads-on-bed": "ekg_leads_on_bed_equipment",
+  ekg_leads_on_bed: "ekg_leads_on_bed_equipment",
+  "chest-pain-monitor": "monitor_equipment",
+  chest_pain_monitor: "monitor_equipment",
+  "handoff-whiteboard": "safety_plan_whiteboard_equipment",
+  handoff_whiteboard: "safety_plan_whiteboard_equipment",
+  "parent-coaching-chair": "parent_chair_equipment",
+  parent_coaching_chair: "parent_chair_equipment",
+  "pediatric-pulse-ox-monitor": "pulse_oximeter_equipment",
+  pediatric_pulse_ox_monitor: "pulse_oximeter_equipment",
+  "pediatric-nebulizer-station": "nebulizer_mask_equipment",
+  pediatric_nebulizer_station: "nebulizer_mask_equipment",
+};
+
 export function resolveRoomPropBuilderEquipmentId(
   propId: string,
   armSet: ReadonlySet<string> | readonly string[],
@@ -95,6 +119,8 @@ export function resolveRoomPropBuilderEquipmentId(
   if (!propId) return null;
   const arms = armSet instanceof Set ? armSet : new Set(armSet);
   if (arms.has(propId)) return propId;
+  const alias = ROOM_PROP_BUILDER_ALIASES[propId] ?? ROOM_PROP_BUILDER_ALIASES[propId.replace(/-/gu, "_")];
+  if (alias && arms.has(alias)) return alias;
   const normalized = propId.replace(/-/gu, "_");
   if (arms.has(normalized)) return normalized;
   if (!normalized.endsWith("_equipment")) {
@@ -129,17 +155,22 @@ export async function listShippedScenarioIdsWithRoomProps(): Promise<string[]> {
 }
 
 export async function readRoomPropIds(scenarioId: string): Promise<string[]> {
+  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
   const manifestPath = path.join(generatedRoot, scenarioId, "scene-manifest.v1.json");
   if (!existsSync(manifestPath)) return [];
   const raw = JSON.parse(await readFile(manifestPath, "utf8")) as {
-    roomProps?: Array<{ propId?: string; semanticRole?: string | null }>;
+    roomProps?: Array<{ propId?: string; label?: string; semanticRole?: string | null }>;
   };
   const ids: string[] = [];
   for (const prop of raw.roomProps ?? []) {
     if (!prop.propId) continue;
-    if (prop.semanticRole === "review_cue" || prop.semanticRole === "objective_cue") {
-      // Still renderable room props for ED monitor etc. — include them.
-    }
+    // #223: cue/overlay props are not furniture-channel subjects for this contract.
+    // They keep affordance tags without unit-box geometry; #185 (3) measures physical only.
+    const cls = classifyRoomProp(prop.propId, {
+      label: prop.label ?? null,
+      semanticRole: prop.semanticRole ?? null,
+    });
+    if (cls.classification === "cue_or_overlay") continue;
     ids.push(prop.propId);
   }
   return ids;
@@ -178,14 +209,17 @@ export async function inspectRoomPropUsesRealBuilder(input?: {
       builderArmIds,
     });
 
-    // Always re-load pre-fix rendered id list from disk when present (contract 3).
+    // #228: baseline from tracked manifests (physical props). Not gitignored pre-fix.
     const preFixIds = await loadPreFixRenderedPropIds();
     if (preFixIds.length > 0) {
       report.preFixRenderedPropIds = preFixIds;
     }
 
     if (input?.writePreFix) {
-      report.preFixRenderedPropIds = [...new Set(report.props.map((p) => p.propId))].sort();
+      // Still write a dump for local calibration, but contract baseline prefers manifests.
+      if (report.preFixRenderedPropIds.length === 0) {
+        report.preFixRenderedPropIds = [...new Set(report.props.map((p) => p.propId))].sort();
+      }
       await writeDump(report, {
         outputPath: preFixPath(),
         label: input?.label ?? "pre-fix",
@@ -205,7 +239,31 @@ export async function inspectRoomPropUsesRealBuilder(input?: {
   }
 }
 
+/**
+ * #228 / #223 — baseline must come from TRACKED scene manifests, not a gitignored
+ * pre-fix snapshot under .openclinxr/evidence. Only physical (non-cue) prop ids are
+ * required to keep rendering geometry; cues are affordance-only after #223.
+ */
+export async function listTrackedManifestRenderablePropIds(): Promise<string[]> {
+  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
+  const scenarios = await listShippedScenarioIdsWithRoomProps();
+  const ids = new Set<string>();
+  for (const scenarioId of scenarios) {
+    const propIds = await readRoomPropIds(scenarioId);
+    for (const propId of propIds) {
+      const cls = classifyRoomProp(propId);
+      if (cls.classification === "physical_object") ids.add(propId);
+    }
+  }
+  return [...ids].sort();
+}
+
 async function loadPreFixRenderedPropIds(): Promise<string[]> {
+  // Prefer tracked manifests (clean-clone safe). Fall back to legacy pre-fix file only
+  // when manifests are empty (dev without generated assets).
+  const fromManifests = await listTrackedManifestRenderablePropIds();
+  if (fromManifests.length > 0) return fromManifests;
+
   if (!existsSync(preFixPath())) return [];
   try {
     const raw = JSON.parse(await readFile(preFixPath(), "utf8")) as {
@@ -418,9 +476,23 @@ async function readLivePropsFromPage(
     const armSet = {};
     for (let i = 0; i < builderArmIds.length; i++) armSet[builderArmIds[i]] = true;
 
+    var aliases = {
+      "safe-room-soft-chair": "safe_room_chair_equipment",
+      "telehealth-tablet-stand": "tablet_visit_equipment",
+      "observer-station": "observation_station_equipment",
+      "safety-plan-whiteboard": "safety_plan_whiteboard_equipment",
+      "ekg-leads-on-bed": "ekg_leads_on_bed_equipment",
+      "chest-pain-monitor": "monitor_equipment",
+      "handoff-whiteboard": "safety_plan_whiteboard_equipment",
+      "parent-coaching-chair": "parent_chair_equipment",
+      "pediatric-pulse-ox-monitor": "pulse_oximeter_equipment",
+      "pediatric-nebulizer-station": "nebulizer_mask_equipment"
+    };
     function resolveBuilderId(propId) {
       if (armSet[propId]) return propId;
+      if (aliases[propId] && armSet[aliases[propId]]) return aliases[propId];
       var norm = String(propId).replace(/-/g, "_");
+      if (aliases[norm] && armSet[aliases[norm]]) return aliases[norm];
       if (armSet[norm]) return norm;
       if (!/_equipment$/.test(norm) && armSet[norm + "_equipment"]) return norm + "_equipment";
       return null;
@@ -501,9 +573,13 @@ async function readLivePropsFromPage(
       var hasBuilder = builderId !== null;
       var roots = rootsForId(propId);
       // Also count roots tagged with the resolved builder arm (equipment channel).
+      // Dedup by object identity: a fixture stamped with both propId alias and builder
+      // equipmentId is ONE root (#223 / psych safe-room-soft-chair).
       if (builderId && builderId !== propId) {
         var extra = rootsForId(builderId);
-        for (var e = 0; e < extra.length; e++) roots.push(extra[e]);
+        for (var e = 0; e < extra.length; e++) {
+          if (roots.indexOf(extra[e]) < 0) roots.push(extra[e]);
+        }
       }
       var bodyMeshCount = 0;
       var triangleCount = 0;
