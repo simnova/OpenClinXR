@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "openclinxr.body-param-library-glb-provenance.v1",
+  "producedByStage": "body_param_stage",
+  "bodyClassId": "adult_lean_female",
+  "garmentId": "wojackowl_scrubs_shirt_hm08",
+  "garmentFittedToBodyClass": "adult_lean_female",
+  "phenotype": {
+    "weight": 0.18,
+    "gender": 0,
+    "age": 0.5,
+    "muscle": 0.45,
+    "height": 0.5,
+    "proportions": 0.5
+  },
+  "licenseToken": "CC-BY",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-151/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "clothesServiceApi": "ClothesService.fit_clothes_to_human",
+  "glbSha256": "254c12de777b11c150b16992cc676dfb9f40b1ec595b36afca78fa104c2530bb",
+  "torsoGirthProxyMeters": 0.4988371839992518,
+  "notEvidenceFor": [
+    "clinical_body_realism",
+    "quest_readiness",
+    "converting_shipped_anny_roles",
+    "shipping_mpfb_gpl"
+  ]
+}
