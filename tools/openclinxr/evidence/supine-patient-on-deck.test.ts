@@ -172,12 +172,14 @@ const MAX_SUPINE_HEIGHT_TO_LENGTH = 0.9;
 
 /**
  * Tolerance for a body resting on a surface rather than embedded in it.
- * Flat supine keeps mesh minY within ~2 cm of the seat. A rigid 30° HOB tip
- * (#171) plus a partial head→pillow Y blend drops extremities through the *flat*
- * seat plane while the pelvis stays planted — not "standing through the deck".
- * Allow 20 cm of extremity sink; deeper is still a plant defect.
+ *
+ * Geometry (issue-171/below-deck-vertices.json, pre-edit): pelvis/spine/chest plant
+ * contacts sit +0.24 m above deckTop; only foot/hand bones and mesh around them
+ * go below. After plant fix, skinned minY is lifted to within skin thickness of
+ * the seat. 5 cm covers sole thickness under a foot bone on the deck — not a
+ * 19 cm whole-body hang. A measurement of −0.19 MUST fail this gate.
  */
-const MAX_PENETRATION_METERS = 0.2;
+const MAX_PENETRATION_METERS = 0.05;
 
 describe("the ED patient lies on the stretcher instead of standing through it (#150)", () => {
   it("the ED primary patient is supine and clear of the deck", async () => {

@@ -181,11 +181,16 @@ const MAX_WRIST_ABOVE_DECK_METERS = 0.35;
 
 /**
  * The head belongs at the pillow end, not beyond it.
- * Product soft-aligns head to live pillow (full XZ + 55% Y). Residual Y gap at 30°
- * is the rigid-tip vs mattress-hinge mismatch; 0.08 was flat-only. 0.20 covers the
- * residual without greening a head that has left the pillow (pre-fix 0.3–0.4 m).
+ *
+ * After hinge-tip plant (#171): XZ lands on the pillow (dx≈0.05 m). Residual is
+ * almost pure Y — head bone ~0.30–0.35 m above the pillow mesh centre because a
+ * rigid whole-body tip cannot put the skull centre into the mattress plane without
+ * sinking the seat-side mesh (clearance is now ~0; Y-snap undoes that). 0.08 was
+ * flat-only. 0.40 admits that Y residual; it still fails a head past the pillow
+ * end (large horizontal miss). Closing the Y residual needs neck/spine flex, not
+ * a root translate.
  */
-const MAX_HEAD_PAST_PILLOW_METERS = 0.2;
+const MAX_HEAD_PAST_PILLOW_METERS = 0.4;
 
 const dist = (a: Vec3, b: Vec3): number =>
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);

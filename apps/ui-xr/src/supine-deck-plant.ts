@@ -12,17 +12,34 @@ import {
 import {
   STRETCHER_LENGTH_METERS,
   readStretcherBackSectionWorldDeg,
+  readStretcherHobHingeWorld,
   readStretcherInclineDegrees,
   readStretcherPillowWorld,
 } from "./station-stretcher.js";
 import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
 
 /**
- * Per-frame: re-apply flat on-back basis then re-tip to the stored deck incline (#171 seam 3).
- * Tip is rotation-only; `holdSupinePlantFrame` owns base XYZ; then reapply pillow soft-align.
+ * Per-frame: re-apply flat on-back basis then restore the register tip quaternion (#171 seam 3).
+ * Prefer the stored register quat (hinge tip) over re-deriving a rotation-only tip — the latter
+ * did not match hinge-about-point plant and left head ~0.3 m above the pillow in Y.
+ * `holdSupinePlantFrame` owns base XYZ; then reapply pillow XZ.
  */
 export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupinePoseResult {
   const result = applySupinePose(humanoidRoot);
+  const stored = humanoidRoot.userData?.openClinXrSupineRootQuat as
+    | { x: number; y: number; z: number; w: number }
+    | undefined;
+  if (
+    stored
+    && Number.isFinite(stored.x)
+    && Number.isFinite(stored.y)
+    && Number.isFinite(stored.z)
+    && Number.isFinite(stored.w)
+  ) {
+    humanoidRoot.quaternion.set(stored.x, stored.y, stored.z, stored.w);
+    humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
+    return result;
+  }
   const raw = humanoidRoot.userData?.openClinXrSupineInclineDegrees;
   const incline = typeof raw === "number" && Number.isFinite(raw) ? raw : 0;
   if (Math.abs(incline) >= 1e-3) {
@@ -31,19 +48,14 @@ export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupi
   return result;
 }
 
-/** After hold restores base XYZ, re-apply soft head→pillow from register. */
+/** After hold restores base XYZ, re-apply head→pillow XZ only (no Y — Y sink undoes seat plant). */
 export function reapplySupineHeadToStoredPillow(humanoidRoot: Object3D): void {
   const p = humanoidRoot.userData?.openClinXrSupinePillowWorld as
     | { x?: number; y?: number; z?: number }
     | undefined;
   if (!p || typeof p.x !== "number" || typeof p.z !== "number") return;
   if (!Number.isFinite(p.x) || !Number.isFinite(p.z)) return;
-  const y = typeof p.y === "number" && Number.isFinite(p.y) ? p.y : undefined;
-  if (y === undefined) {
-    alignSupineHeadToPillow(humanoidRoot, { x: p.x, z: p.z });
-    return;
-  }
-  alignSupineHeadToPillowSoft(humanoidRoot, { x: p.x, y, z: p.z }, 0.55);
+  alignSupineHeadToPillow(humanoidRoot, { x: p.x, z: p.z });
 }
 
 /** World-Z tip without pelvis translation — for per-frame hold that owns position. */
@@ -182,40 +194,59 @@ function readPelvisWorld(humanoid: Object3D): Vector3 | null {
 }
 
 /**
- * Tip the recumbent body about the pelvis so the torso follows the deck incline.
+ * Tip the recumbent body so the torso follows the deck incline.
  * After on-back basis, head ≈ −X; a **world** R_z(−θ) lifts head toward +Y.
  *
- * Must be world-space: euler `rotation.z +=` after Rx(−π/2)·Rz(+π/2) does **not**
- * raise the head (it rolls about the post-basis local axis). #163's body-only tip
- * looked like a fold for that reason; with an articulating deck we need the true
- * world hinge match.
+ * When `hingeWorld` is provided (stretcher HOB hip line on the deck top), the root
+ * position is rotated about that point so the seat-side (feet) stays on the flat
+ * seat plane — matching the mattress hinge. Pelvis-only tip dropped feet ~9 cm
+ * and mesh min ~19 cm below deck (issue-171/below-deck-vertices.json).
  *
  * Incline comes from the stretcher (deck leads). Do not invent a second body angle.
  */
 export function applySupineInclineMatchingDeck(
   humanoidRoot: Object3D,
   inclineDegrees: number,
+  hingeWorld?: { x: number; y: number; z: number },
 ): void {
   if (!Number.isFinite(inclineDegrees) || Math.abs(inclineDegrees) < 1e-6) {
     humanoidRoot.userData.openClinXrSupineInclineDegrees = 0;
     return;
   }
-  const before = readPelvisWorld(humanoidRoot);
   const rad = (-inclineDegrees * Math.PI) / 180;
-  // World-space premultiply: rotate the already-on-back figure about world +Z.
   const worldTip = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), rad);
-  humanoidRoot.quaternion.premultiply(worldTip);
-  humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
-  humanoidRoot.updateMatrixWorld?.(true);
-  const after = readPelvisWorld(humanoidRoot);
-  if (before && after) {
-    humanoidRoot.position.x += before.x - after.x;
-    humanoidRoot.position.y += before.y - after.y;
-    humanoidRoot.position.z += before.z - after.z;
+
+  if (hingeWorld) {
+    // Rotate root position about the mattress hinge, then apply the same orientation tip.
+    const hx = hingeWorld.x;
+    const hy = hingeWorld.y;
+    const hz = hingeWorld.z;
+    const px = humanoidRoot.position.x - hx;
+    const py = humanoidRoot.position.y - hy;
+    const pz = humanoidRoot.position.z - hz;
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    humanoidRoot.position.set(hx + (px * c - py * s), hy + (px * s + py * c), hz + pz);
+    humanoidRoot.quaternion.premultiply(worldTip);
+    humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
     humanoidRoot.updateMatrixWorld?.(true);
+    humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_hob_hinge";
+  } else {
+    // Harness / no stretcher: tip about pelvis (pre-#171 behaviour).
+    const before = readPelvisWorld(humanoidRoot);
+    humanoidRoot.quaternion.premultiply(worldTip);
+    humanoidRoot.rotation.setFromQuaternion(humanoidRoot.quaternion, humanoidRoot.rotation.order);
+    humanoidRoot.updateMatrixWorld?.(true);
+    const after = readPelvisWorld(humanoidRoot);
+    if (before && after) {
+      humanoidRoot.position.x += before.x - after.x;
+      humanoidRoot.position.y += before.y - after.y;
+      humanoidRoot.position.z += before.z - after.z;
+      humanoidRoot.updateMatrixWorld?.(true);
+    }
+    humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_world_z";
   }
   humanoidRoot.userData.openClinXrSupineInclineDegrees = inclineDegrees;
-  humanoidRoot.userData.openClinXrSupineInclineSource = "deck_leads_body_follows_world_z";
 }
 
 /**
@@ -306,28 +337,39 @@ export function applyAndPlantSupineOnDeck(
     contactMode: "all_torso",
   });
   const center = centerSupineBodyOnDeck(humanoidRoot, input.deckCenter);
-  // #153: head → pillow. Prefer live pillow mesh (rides HOB); fall back to flat local offset.
-  const livePillow = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
+  // Flat pillow rest (NOT the live inclined pillow — stretcher is already at 30° when
+  // we plant). Align head on the flat deck plane, then hinge-tip so head co-rotates
+  // with the mattress. Aligning to the raised pillow while the body is still flat
+  // yanked the whole root up and left a ~0.35 m pure-Y residual after tip.
+  const stretcherX =
+    input.stretcher?.position?.x
+    ?? DEFAULT_STRETCHER_POSITION.x;
+  const stretcherZ =
+    input.stretcher?.position?.z
+    ?? DEFAULT_STRETCHER_POSITION.z;
   const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
-  const pillowX =
-    input.pillowWorldX
-    ?? livePillow?.x
-    ?? (DEFAULT_STRETCHER_POSITION.x + pillowLocalX);
-  const pillowZ = livePillow?.z ?? DEFAULT_STRETCHER_POSITION.z;
-  let headAlign = alignSupineHeadToPillow(humanoidRoot, { x: pillowX, z: pillowZ });
+  const flatPillow = {
+    x: input.pillowWorldX ?? stretcherX + pillowLocalX,
+    y: input.deckTopWorldY + 0.04,
+    z: stretcherZ,
+  };
+  let headAlignDeltaX = alignSupineHeadToPillowWorld(humanoidRoot, flatPillow).deltaX;
   if (inclined) {
-    applySupineInclineMatchingDeck(humanoidRoot, incline);
-    // Re-plant pelvis on seat so the raised torso is not dragged flat (#159).
-    plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "pelvis_seat" });
-    // Mild seat-plane lift first (rigid tip drops extremities through the flat seat).
-    liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.08);
-    // Head→pillow: full XZ + partial Y. Full Y snap sinks the mesh ~0.25 m through the
-    // seat; XZ-only left head ~0.33 m above the pillow. Blend Y so both stay in band.
+    // Tip about the stretcher HOB hinge (seat plane hip line), not pelvis alone —
+    // pelvis tip dropped feet/mesh through the flat seat (below-deck-vertices dump).
+    const hinge = input.stretcher ? readStretcherHobHingeWorld(input.stretcher) : undefined;
+    applySupineInclineMatchingDeck(humanoidRoot, incline, hinge);
+    // Live (raised) pillow for XZ polish + per-frame reapply.
     const pillowAfter = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
     if (pillowAfter) {
-      headAlign = alignSupineHeadToPillowSoft(humanoidRoot, pillowAfter, 0.55);
+      headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
+        x: pillowAfter.x,
+        z: pillowAfter.z,
+      }).deltaX;
       humanoidRoot.userData.openClinXrSupinePillowWorld = { ...pillowAfter };
     }
+    // Only lift if skinned minY is still below seat (sole thickness). Do not float the body.
+    liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
   } else {
     plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode });
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
@@ -335,14 +377,21 @@ export function applyAndPlantSupineOnDeck(
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
   humanoidRoot.userData.openClinXrSupineCenterDelta = center;
-  humanoidRoot.userData.openClinXrSupineHeadAlignDelta = headAlign;
+  humanoidRoot.userData.openClinXrSupineHeadAlignDeltaX = headAlignDeltaX;
   humanoidRoot.userData.openClinXrSupineInclineDegrees = incline;
+  // Per-frame restores this exact tip (hinge plant) instead of re-deriving rotation-only.
+  humanoidRoot.userData.openClinXrSupineRootQuat = {
+    x: humanoidRoot.quaternion.x,
+    y: humanoidRoot.quaternion.y,
+    z: humanoidRoot.quaternion.z,
+    w: humanoidRoot.quaternion.w,
+  };
   humanoidRoot.updateMatrixWorld?.(true);
   return {
     plantDeltaY: plant.deltaY,
     bodyMinYBefore: plant.bodyMinYBefore,
     center,
-    headAlignDeltaX: headAlign.deltaX,
+    headAlignDeltaX,
     inclineDegrees: incline,
   };
 }
