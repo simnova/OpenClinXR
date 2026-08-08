@@ -162,11 +162,24 @@ type Inspect = () => Promise<{ actors: ActorPlacementFacts[] }>;
 
 const ED = "ed_chest_pain_priority_v1";
 
-/** A recumbent body's AABB is longer horizontally than vertically. */
-const MAX_SUPINE_HEIGHT_TO_LENGTH = 0.6;
+/**
+ * A recumbent body's AABB is longer horizontally than vertically.
+ * Flat supine (~0°) sits well under 0.6. A 30–45° semi-Fowler tip (#171) raises the
+ * head and grows world-Y extent — 0.6 was a flat-deck threshold and rejected a real
+ * inclined lie (measured ~0.68 at 30°). 0.9 still rejects a standing figure (~1.5+).
+ */
+const MAX_SUPINE_HEIGHT_TO_LENGTH = 0.9;
 
-/** Tolerance for a body resting on a surface rather than embedded in it. */
-const MAX_PENETRATION_METERS = 0.02;
+/**
+ * Tolerance for a body resting on a surface rather than embedded in it.
+ *
+ * Geometry (issue-171/below-deck-vertices.json, pre-edit): pelvis/spine/chest plant
+ * contacts sit +0.24 m above deckTop; only foot/hand bones and mesh around them
+ * go below. After plant fix, skinned minY is lifted to within skin thickness of
+ * the seat. 5 cm covers sole thickness under a foot bone on the deck — not a
+ * 19 cm whole-body hang. A measurement of −0.19 MUST fail this gate.
+ */
+const MAX_PENETRATION_METERS = 0.05;
 
 describe("the ED patient lies on the stretcher instead of standing through it (#150)", () => {
   it("the ED primary patient is supine and clear of the deck", async () => {

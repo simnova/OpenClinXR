@@ -14,7 +14,7 @@ import {
   readStretcherDeckSectionNames,
   readStretcherInclineDegrees,
 } from "./station-stretcher.js";
-import { readSupineTorsoWorldDeg } from "./supine-pose.js";
+import { readSupineTorsoWorldDeg } from "./supine-deck-plant.js";
 
 export type ArticulatingHobMeasure = {
   requestedDeg: number;
