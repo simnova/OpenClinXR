@@ -546,6 +546,8 @@ function scenarioRuntimePreset(scenarioId: string): {
     x: number;
     y: number;
     z: number;
+    /** Optional body scale; default box is not a floor decal. */
+    scale?: { x: number; y: number; z: number };
   }>;
 } {
   if (scenarioId === "peds_asthma_parent_anxiety_v1") {
@@ -585,9 +587,20 @@ function scenarioRuntimePreset(scenarioId: string): {
       stationContext: runtimeStationContextForScenario(scenarioId, "Psych Safety Assessment"),
       roomProps: [
         runtimeScenarioRoomProp("safe-room-soft-chair", "Safe room chair", "scenario_context", "safe_room_context_cue", "#e5e7eb", "#4b5563", -0.8, 0.45, -0.2),
-        // #183: cleared-zone pad was under clinical framing (0.64, 0.3) — nurse f=0.645 inside.
-        // Floor marker stays present; park at patient-side corner clear of standing plants.
-        runtimeScenarioRoomProp("ligature-risk-cleared-zone", "Cleared safety zone", "objective_cue", "ligature_risk_cleared_zone_cue", "#f3f4f6", "#0f766e", -2.05, 0.08, 0.9),
+        // #183 handback: clinical staging — floor marking at exam area (0.2, 0.35), not a
+        // corner lie. Thin scale so verticalStraddle cannot fire (decal, not volume).
+        runtimeScenarioRoomProp(
+          "ligature-risk-cleared-zone",
+          "Cleared safety zone",
+          "objective_cue",
+          "ligature_risk_cleared_zone_cue",
+          "#f3f4f6",
+          "#0f766e",
+          0.2,
+          0.01,
+          0.35,
+          { x: 0.9, y: 0.02, z: 0.55 },
+        ),
         // #183: was (1.65, 0.9, 0.65) — family framing (1.42, 0.04) f=0.195 inside. Wall-side desk.
         runtimeScenarioRoomProp("observer-station", "Observer station", "communication_cue", "observer_escalation_cue", "#e0f2fe", "#0284c7", 2.25, 0.9, -1.0),
         runtimeScenarioRoomProp("safety-plan-whiteboard", "Safety plan prompts", "review_cue", "safety_plan_review_cue", "#fefce8", "#ca8a04", 0.4, 1.65, -0.95),
@@ -670,8 +683,9 @@ function runtimeScenarioRoomProp(
   x: number,
   y: number,
   z: number,
+  scale?: { x: number; y: number; z: number },
 ): ReturnType<typeof scenarioRuntimePreset>["roomProps"][number] {
-  return { propId, label, semanticRole, evidenceCue, colorHex, accentColorHex, x, y, z };
+  return { propId, label, semanticRole, evidenceCue, colorHex, accentColorHex, x, y, z, scale };
 }
 
 /**
@@ -1385,7 +1399,8 @@ function createScenarioRuntimeSceneManifest(
       colorHex: prop.colorHex,
       accentColorHex: prop.accentColorHex,
       position: { x: prop.x, y: prop.y, z: prop.z },
-      scale: { x: 0.7, y: 0.18, z: 0.42 },
+      // Default volume for cue boxes; floor markings (ligature zone, etc.) pass thin scale.
+      scale: prop.scale ?? { x: 0.7, y: 0.18, z: 0.42 },
       affordanceCueIds: [`${prop.propId}:${prop.semanticRole}`, prop.evidenceCue],
       interactionTags: [prop.semanticRole, preset.scenarioId],
       generatedBy: "scene_manifest",
