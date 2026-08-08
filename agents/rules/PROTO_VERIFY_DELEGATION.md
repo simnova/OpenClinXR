@@ -3033,3 +3033,65 @@ empty tree at main's HEAD means the kill preceded the brief and a fresh dispatch
 decide from the task status alone — the harness reports "killed" identically in both cases.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10e. When two measures move in opposite directions, stop diagnosing single-cause — that IS the finding
+
+#171 took four attempts because each one fixed one constraint by breaking the other: seat clearance
+−0.146, then a widened gate at −0.190, then a hinge fix reaching +0.004 while the back floated 0.212,
+then finally both. Its worker on when the tension became visible:
+
+> "Not on the first green of either side. Early on it still felt like 'fix the bad plant.' The bind
+> became visible when **plant-steps had opposite-moving pairs on the same incline in one run** — hinge
+> tip: clearance `0.013 → −0.11/−0.25` while backGap went *into* band, then any pure-Y lift that fixed
+> seat **reopened** the gap. That is when I stopped treating #150 and #159 as sequential bugs and
+> started treating them as one trade with a budget."
+
+And its nominated fix, adopted:
+
+> Require from attempt one a **per-incline dual residual table** with a forced trade column —
+> `deg | backGap | seatClearance | pelvisOnSeat | Δgap | Δclear | trade?` — and a stop rule: **if
+> opposite-moving, do not widen either gate; switch instrument or path class.**
+
+This is §9u's rule (a residual that worsens after a fix implicates the fix) generalised from one
+measure to a pair. §9u catches the single-metric case; this catches the case where each metric looks
+individually fixable and the pair is a budget.
+
+**Rule:** whenever a slice has two contracts asserting on the same geometry, the pre-fix artifact
+records BOTH per step, with deltas, and the brief carries the stop rule. The artifact eventually grew
+an `oppositeMovingTrades` field on its own — that field should have been in the first measurement, not
+the fourth.
+
+## 10f. Name the frame-loop wipe wherever a plant mutates bones a per-frame pose resets
+
+The single cheapest thing missing from four briefs, by the worker's own ranking — "almost free":
+
+> Name the **frame-loop wipe** risk when a plant mutates bones that `applySupinePose` resets. That
+> alone would have saved the lab-green / room-red half-cycle.
+
+Its symptom is diagnostic and worth recognising: **green in the isolated lab, red in the assembled
+room.** Twice in this slice, a correct one-shot mutation was erased on the next frame, and the isolated
+harness — which does not run the room's animation loop — reported success.
+
+**Rule:** any brief whose slice mutates bones or transforms that a per-frame pose function also writes
+must say so explicitly, and the contract must measure **after frames have advanced**, not at register
+time. Where an isolated harness and a room capture disagree, suspect the frame loop first.
+
+## 10g. Hand back numbers AND the failed treatments — the filter is worth as much as the direction
+
+Asked whether my `gap/sin(θ) ≈ 0.40` handback pointed at the pivot or merely confirmed what it had,
+the worker was precise and did not flatter it:
+
+> "**Mostly confirmation + naming, not first discovery.** I already had 'pelvis tip floats the back;
+> hinge tip sinks the seat.' Your constant **sharpened** it — made the float look like a fixed lever
+> arm rather than soft plant error. It **did** push me away from 1−cos stories and full-normal settle,
+> which would have been chasing the wrong geometry. It **did not** alone pick the winning path."
+
+So the measurement's value was **as a filter on failed treatments**, not as direction. That is still
+high value and it is a different claim from the one I would have made for it.
+
+**Consequence for §8r's ordering** (a contradicting measurement > unranked candidates > silence >
+a ranked cause): a measurement earns its place partly by **excluding** shapes. When handing one back,
+say which alternative forms it rules out — here, that `1-cos` gave 2.93/1.58/0.93 and did not fit —
+because that half is what stops a worker exploring a dead geometry.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
