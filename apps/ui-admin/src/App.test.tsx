@@ -315,9 +315,16 @@ describe("AdminApp", () => {
     render(<AdminApp initialPath="/scenarios/peds_asthma_parent_anxiety_v1?version=1" controlPlaneClient={client} />);
 
     expect(await screen.findByRole("heading", { name: "Pediatric Asthma With Parent Anxiety" })).toBeInTheDocument();
-    expect(screen.getByText("clinical: draft")).toBeInTheDocument();
+    // Unmade gates render as pending (#176).
+    expect(screen.getByText("clinical: pending")).toBeInTheDocument();
+    expect(screen.getByLabelText("Psychometric review dimension")).toBeInTheDocument();
+    expect(screen.getByLabelText("Legal review dimension")).toBeInTheDocument();
+    expect(screen.getByLabelText("Simulation QA review dimension")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Record clinical approval" }));
+    fireEvent.change(screen.getByLabelText("Clinical rationale"), {
+      target: { value: "Clinical rationale from faculty reviewer for local formative only." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Submit clinical decision" }));
 
     expect(await screen.findByText("Review decision recorded")).toBeInTheDocument();
     expect(screen.getByText("clinical: approved")).toBeInTheDocument();
@@ -327,42 +334,24 @@ describe("AdminApp", () => {
       reviewerRole: "clinical",
       reviewerId: "admin_clinical_reviewer",
       decision: "APPROVED",
-      comments: "Clinical reviewer approval recorded from the local admin workbench.",
-      evidenceRefs: ["evidence:peds_asthma_parent_anxiety_v1:clinical:local-admin"],
+      comments: "Clinical rationale from faculty reviewer for local formative only.",
+      evidenceRefs: ["evidence:local-admin:peds_asthma_parent_anxiety_v1:clinical"],
     });
   });
 
-  it("does not submit clinical approval when the required clinical reviewer role is missing", async () => {
+  it("does not submit a dimension when rationale is empty", async () => {
+    // Old assertion: clinical blocked when requiredReviewerRoles omitted clinical (client soft-gate).
+    // #176: per-dimension auth is out of scope; all four dimensions are recordable, but rationale is required.
     const client = fakeControlPlaneClient();
-    const pediatricDraft = await client.getScenarioDetail({ scenarioId: "peds_asthma_parent_anxiety_v1", version: 1 });
-    if (!pediatricDraft.scenario) {
-      throw new Error("Expected pediatric draft scenario fixture");
-    }
-    const pediatricScenario = pediatricDraft.scenario;
-    client.getScenarioDetail = async () => ({
-      scenario: {
-        ...pediatricScenario,
-        scenarioId: "policy_only_draft_v1",
-        title: "Policy Only Draft",
-        governance: {
-          ...pediatricScenario.governance,
-          requiredReviewerRoles: ["psychometrician", "legal", "simulation_qa"],
-        },
-      },
-      assetReadiness: pediatricDraft.assetReadiness,
-    });
     const submitScenarioReview = vi.fn(client.submitScenarioReview);
     client.submitScenarioReview = submitScenarioReview;
 
-    render(<AdminApp initialPath="/scenarios/policy_only_draft_v1?version=1" controlPlaneClient={client} />);
+    render(<AdminApp initialPath="/scenarios/peds_asthma_parent_anxiety_v1?version=1" controlPlaneClient={client} />);
 
-    expect(await screen.findByRole("heading", { name: "Policy Only Draft" })).toBeInTheDocument();
-    const approvalButton = screen.getByRole("button", { name: "Record clinical approval" });
-    expect(approvalButton).toBeDisabled();
-    expect(screen.getByText("Clinical approval requires a clinical reviewer role in governance.")).toBeInTheDocument();
-
-    fireEvent.click(approvalButton);
-
+    expect(await screen.findByRole("heading", { name: "Pediatric Asthma With Parent Anxiety" })).toBeInTheDocument();
+    const submitLegal = screen.getByRole("button", { name: "Submit legal decision" });
+    expect(submitLegal).toBeDisabled();
+    fireEvent.click(submitLegal);
     expect(submitScenarioReview).not.toHaveBeenCalled();
   });
 

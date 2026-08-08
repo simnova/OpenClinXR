@@ -158,7 +158,7 @@ const ALL_DIMENSIONS: ReviewDimension[] = ["clinical", "psychometric", "legal", 
 const SHIPPED_APPROVED_COUNT = 1;
 
 describe("the human review gate is operable and its output reaches the pool (#176)", () => {
-  it.fails("a reviewer can record all four dimensions with their own rationale", async () => {
+  it("a reviewer can record all four dimensions with their own rationale", async () => {
     // App.tsx:890-937 is one button, reviewerRole "clinical", with reviewerId, comments and
     // evidenceRefs hardcoded. Three dimensions have no surface at all and the fourth cannot say why.
     const mod = await load();
@@ -179,7 +179,7 @@ describe("the human review gate is operable and its output reaches the pool (#17
     ).toBe(true);
   }, 600_000);
 
-  it.fails("a fully reviewed bank fixture reaches the exam assembly pool", async () => {
+  it("a fully reviewed bank fixture reaches the exam assembly pool", async () => {
     // scenario-review-promotion.ts:197 `if (!base) return` — a bank fixture is not in the authored
     // store, so four correct decisions record, the listing updates, and the promotion silently
     // no-ops. This is the half that makes 52 human decisions worthless.
@@ -212,7 +212,7 @@ describe("the human review gate is operable and its output reaches the pool (#17
     }
   }, 600_000);
 
-  it.fails("nothing was approved and no gate was relaxed (COUNTERWEIGHT)", async () => {
+  it("nothing was approved and no gate was relaxed (COUNTERWEIGHT)", async () => {
     // The cheap way to make an exam assemble is to approve things. That is a HUMAN decision and this
     // slice may not make it. The probe above operates on a TEST-SCOPED CLONE; the shipped bank must
     // come out exactly as it went in.
