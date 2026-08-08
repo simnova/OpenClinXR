@@ -127,9 +127,15 @@ async function measureOneAsset(
   const components = connectedComponents(outer.indices, outer.positions.length);
   const minMeaningful = Math.max(24, Math.floor(outer.positions.length * 0.01));
   const meaningful = components.filter((c) => c.length >= minMeaningful);
-  const shoulderSpannedByOneComponent = shoulderSpanned(
+  // Wardrobe-stack (#208): open outer may lack centerline front; closed under supplies it.
+  const underShell =
+    shells
+      .filter((s) => s.isUnder)
+      .sort((a, b) => b.triCount - a.triCount)[0] ?? null;
+  const shoulderSpannedByOneComponent = shoulderSpannedWardrobe(
     outer.positions,
     meaningful.length > 0 ? meaningful : components,
+    underShell,
     body,
   );
 
@@ -541,12 +547,27 @@ function connectedComponents(indices: number[], vertexCount: number): number[][]
   return [...buckets.values()].filter((comp) => comp.some((vi) => used.has(vi)));
 }
 
-function shoulderSpanned(
+type SpanFlags = {
+  oneComponent: boolean;
+  front: boolean;
+  back: boolean;
+  leftDeltoidTop: boolean;
+  rightDeltoidTop: boolean;
+};
+
+function spanFlags(
   positions: Vec3[],
   components: number[][],
   body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
-): boolean {
-  if (components.length !== 1 || positions.length === 0) return false;
+): SpanFlags {
+  const empty: SpanFlags = {
+    oneComponent: false,
+    front: false,
+    back: false,
+    leftDeltoidTop: false,
+    rightDeltoidTop: false,
+  };
+  if (components.length !== 1 || positions.length === 0) return empty;
   const comp = components[0]!;
   const height = Math.max(body.maxY - body.minY, 0.001);
   const yChestLo = body.minY + height * 0.5;
@@ -555,7 +576,7 @@ function shoulderSpanned(
   const yDeltoidHi = body.minY + height * 0.96;
   const lat = body.halfW * 0.32;
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
-  if (zs.length < 8) return false;
+  if (zs.length < 8) return empty;
   const zMin = Math.min(...zs);
   const zMax = Math.max(...zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
@@ -578,7 +599,36 @@ function shoulderSpanned(
       if (v.x < body.cx) rightDeltoidTop = true;
     }
   }
-  return front && back && leftDeltoidTop && rightDeltoidTop;
+  return {
+    oneComponent: true,
+    front,
+    back,
+    leftDeltoidTop,
+    rightDeltoidTop,
+  };
+}
+
+/** Wardrobe-stack shoulder span — same policy as garment-surface-derived (#208). */
+function shoulderSpannedWardrobe(
+  outerPositions: Vec3[],
+  outerComponents: number[][],
+  under: Shell | null,
+  body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
+): boolean {
+  const outer = spanFlags(outerPositions, outerComponents, body);
+  if (!outer.oneComponent) return false;
+  if (!outer.back || !outer.leftDeltoidTop || !outer.rightDeltoidTop) return false;
+  if (outer.front) return true;
+  if (!under) return false;
+  const underComps = connectedComponents(under.indices, under.positions.length);
+  const minMeaningful = Math.max(24, Math.floor(under.positions.length * 0.01));
+  const meaningful = underComps.filter((c) => c.length >= minMeaningful);
+  const underFlags = spanFlags(
+    under.positions,
+    meaningful.length > 0 ? meaningful : underComps,
+    body,
+  );
+  return underFlags.oneComponent && underFlags.front;
 }
 
 function positionsToVec3(arr: ArrayLike<number>): Vec3[] {

@@ -2447,7 +2447,8 @@ def _build_body_surface_derived_garment(
         for v in hem_unique:
             v.co.y = bot_y
         # Laplacian smooth in XZ only (keep y=bot_y) — damps staircase spikes / turn angles.
-        # 12 iterations, 0.65 blend: target hemMaxTurnDegrees ≤ 100 and perimeter ratio ≤ 1.35.
+        # #208: 12 iters left child tshirt at 147° (planar notch near x=0). 28 iters + peak
+        # turn clamp targets hemMaxTurnDegrees ≤ 100 and perimeter ratio ≤ 1.35.
         if len(hem_unique) >= 4:
             adj: Dict[int, list] = {}
             for e in bm.edges:
@@ -2457,7 +2458,7 @@ def _build_body_surface_derived_garment(
                 if a.index in seen_h and b.index in seen_h:
                     adj.setdefault(a.index, []).append(b)
                     adj.setdefault(b.index, []).append(a)
-            for _iter in range(12):
+            for _iter in range(28):
                 updates = []
                 for v in hem_unique:
                     nbrs = adj.get(v.index) or []
@@ -2467,9 +2468,72 @@ def _build_body_surface_derived_garment(
                     mz = sum(float(n.co.z) for n in nbrs) / len(nbrs)
                     updates.append((v, mx, mz))
                 for v, mx, mz in updates:
-                    v.co.x = 0.35 * float(v.co.x) + 0.65 * mx
-                    v.co.z = 0.35 * float(v.co.z) + 0.65 * mz
+                    v.co.x = 0.30 * float(v.co.x) + 0.70 * mx
+                    v.co.z = 0.30 * float(v.co.z) + 0.70 * mz
                     v.co.y = bot_y
+            # Peak-turn clamp: walk the ordered hem cycle and pull verts with XZ turn > 85°
+            # toward the chord of their two neighbours (preserves loop; kills 147° notches).
+            if adj:
+                # Build ordered cycle from any hem vert of degree 2.
+                start_v = next((v for v in hem_unique if len(adj.get(v.index) or []) >= 1), None)
+                if start_v is not None:
+                    ordered: list = []
+                    prev_i = -1
+                    cur_i = start_v.index
+                    seen_ord: set = set()
+                    while cur_i not in seen_ord:
+                        seen_ord.add(cur_i)
+                        ordered.append(cur_i)
+                        nbrs_i = adj.get(cur_i) or []
+                        nxt = None
+                        for n in nbrs_i:
+                            if n.index != prev_i:
+                                nxt = n
+                                break
+                        if nxt is None:
+                            break
+                        prev_i = cur_i
+                        cur_i = nxt.index
+                        if cur_i == start_v.index:
+                            break
+                    idx_to_vert = {v.index: v for v in hem_unique}
+                    for _clamp in range(8):
+                        moved = False
+                        n_ord = len(ordered)
+                        if n_ord < 4:
+                            break
+                        for i in range(n_ord):
+                            i0 = ordered[(i - 1) % n_ord]
+                            i1 = ordered[i]
+                            i2 = ordered[(i + 1) % n_ord]
+                            v0 = idx_to_vert.get(i0)
+                            v1 = idx_to_vert.get(i1)
+                            v2 = idx_to_vert.get(i2)
+                            if v0 is None or v1 is None or v2 is None:
+                                continue
+                            d1x = float(v1.co.x) - float(v0.co.x)
+                            d1z = float(v1.co.z) - float(v0.co.z)
+                            d2x = float(v2.co.x) - float(v1.co.x)
+                            d2z = float(v2.co.z) - float(v1.co.z)
+                            l1 = (d1x * d1x + d1z * d1z) ** 0.5
+                            l2 = (d2x * d2x + d2z * d2z) ** 0.5
+                            if l1 < 1e-9 or l2 < 1e-9:
+                                continue
+                            cos = max(-1.0, min(1.0, (d1x * d2x + d1z * d2z) / (l1 * l2)))
+                            ang = math.acos(cos) * 180.0 / math.pi
+                            if ang <= 85.0:
+                                continue
+                            # Pull toward midpoint of neighbours.
+                            v1.co.x = 0.25 * float(v1.co.x) + 0.375 * (
+                                float(v0.co.x) + float(v2.co.x)
+                            )
+                            v1.co.z = 0.25 * float(v1.co.z) + 0.375 * (
+                                float(v0.co.z) + float(v2.co.z)
+                            )
+                            v1.co.y = bot_y
+                            moved = True
+                        if not moved:
+                            break
         if bm.verts:
             bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=5e-4)
             bm.verts.ensure_lookup_table()

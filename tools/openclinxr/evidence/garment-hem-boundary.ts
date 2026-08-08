@@ -79,16 +79,27 @@ async function measureOneAsset(
   assetPath: string,
 ): Promise<HemBoundary | null> {
   const document = await new NodeIO().read(absPath);
-  const garment = pickPrimaryGarment(document);
-  if (!garment) return null;
+  const shells = collectGarmentShells(document);
+  if (shells.length === 0) return null;
+
+  // Primary = largest non-under shell. Aggregation: wardrobe-stack (#208) — see surface-derived.
+  const nonUnder = shells.filter((s) => !s.isUnder);
+  const garment =
+    nonUnder.sort((a, b) => b.vertexCount - a.vertexCount)[0] ??
+    shells.sort((a, b) => b.vertexCount - a.vertexCount)[0]!;
+  const under =
+    shells
+      .filter((s) => s.isUnder)
+      .sort((a, b) => b.vertexCount - a.vertexCount)[0] ?? null;
 
   const body = collectBodyMesh(document, garment.meshName);
   const components = connectedComponents(garment.indices, garment.vertexCount);
   const minMeaningful = Math.max(24, Math.floor(garment.vertexCount * 0.01));
   const meaningful = components.filter((c) => c.length >= minMeaningful);
-  const shoulderSpannedByOneComponent = shoulderSpanned(
+  const shoulderSpannedByOneComponent = shoulderSpannedWardrobe(
     garment.positions,
     meaningful.length > 0 ? meaningful : components,
+    under,
     body,
   );
 
@@ -116,15 +127,15 @@ type MeshGeom = {
   positions: Vec3[];
   indices: number[];
   vertexCount: number;
+  isUnder: boolean;
 };
 
-function pickPrimaryGarment(document: Document): MeshGeom | null {
-  let best: MeshGeom | null = null;
+function collectGarmentShells(document: Document): MeshGeom[] {
+  const shells: MeshGeom[] = [];
   for (const mesh of document.getRoot().listMeshes()) {
     const meshName = mesh.getName() || "";
     if (!GARMENT_MESH_RE.test(meshName)) continue;
     if (DECLARED_ANY_RE.test(meshName)) continue;
-    if (/__under_/i.test(meshName) && best && !/__under_/i.test(best.meshName)) continue;
 
     for (const prim of mesh.listPrimitives()) {
       const posAttr = prim.getAttribute("POSITION");
@@ -139,16 +150,17 @@ function pickPrimaryGarment(document: Document): MeshGeom | null {
       } else {
         for (let i = 0; i < positions.length; i++) indices.push(i);
       }
-      const geom: MeshGeom = {
+      shells.push({
         meshName,
         positions,
         indices,
         vertexCount: positions.length,
-      };
-      if (!best || positions.length > best.positions.length) best = geom;
+        isUnder: /__under_/i.test(meshName),
+      });
+      break;
     }
   }
-  return best;
+  return shells;
 }
 
 function measurePaintedLower(
@@ -552,12 +564,27 @@ function connectedComponents(indices: number[], vertexCount: number): number[][]
   return [...buckets.values()].filter((comp) => comp.some((vi) => used.has(vi)));
 }
 
-function shoulderSpanned(
+type SpanFlags = {
+  oneComponent: boolean;
+  front: boolean;
+  back: boolean;
+  leftDeltoidTop: boolean;
+  rightDeltoidTop: boolean;
+};
+
+function spanFlags(
   positions: Vec3[],
   components: number[][],
   body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
-): boolean {
-  if (components.length !== 1 || positions.length === 0) return false;
+): SpanFlags {
+  const empty: SpanFlags = {
+    oneComponent: false,
+    front: false,
+    back: false,
+    leftDeltoidTop: false,
+    rightDeltoidTop: false,
+  };
+  if (components.length !== 1 || positions.length === 0) return empty;
   const comp = components[0]!;
   const height = Math.max(body.maxY - body.minY, 0.001);
   const yChestLo = body.minY + height * 0.5;
@@ -566,7 +593,7 @@ function shoulderSpanned(
   const yDeltoidHi = body.minY + height * 0.96;
   const lat = body.halfW * 0.32;
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
-  if (zs.length < 8) return false;
+  if (zs.length < 8) return empty;
   const zMin = Math.min(...zs);
   const zMax = Math.max(...zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
@@ -589,7 +616,36 @@ function shoulderSpanned(
       if (v.x < body.cx) rightDeltoidTop = true;
     }
   }
-  return front && back && leftDeltoidTop && rightDeltoidTop;
+  return {
+    oneComponent: true,
+    front,
+    back,
+    leftDeltoidTop,
+    rightDeltoidTop,
+  };
+}
+
+/** Wardrobe-stack shoulder span — same policy as garment-surface-derived (#208). */
+function shoulderSpannedWardrobe(
+  outerPositions: Vec3[],
+  outerComponents: number[][],
+  under: MeshGeom | null,
+  body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
+): boolean {
+  const outer = spanFlags(outerPositions, outerComponents, body);
+  if (!outer.oneComponent) return false;
+  if (!outer.back || !outer.leftDeltoidTop || !outer.rightDeltoidTop) return false;
+  if (outer.front) return true;
+  if (!under) return false;
+  const underComps = connectedComponents(under.indices, under.vertexCount);
+  const minMeaningful = Math.max(24, Math.floor(under.vertexCount * 0.01));
+  const meaningful = underComps.filter((c) => c.length >= minMeaningful);
+  const underFlags = spanFlags(
+    under.positions,
+    meaningful.length > 0 ? meaningful : underComps,
+    body,
+  );
+  return underFlags.oneComponent && underFlags.front;
 }
 
 function inferGarmentKind(meshName: string, assetPath: string): string {
