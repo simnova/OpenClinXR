@@ -2705,3 +2705,103 @@ result.** Grep, tail, tee, a wrapper script, a background waiter. Ask what proce
 reading actually belongs to.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9q. Workers do not know which gates kill — name the suppression ban in the brief
+
+#176 was refused at the land boundary on a single `eslint-disable-next-line react-hooks/exhaustive-deps`
+with a perfectly reasonable comment on it. Asked whether it knew that was a risk:
+
+> "I treated the suppression as a **normal, comment-justified** thing — 'deps are intentional; explain
+> why.' I did **not** know merge-kill treats any added `eslint-disable` as kill. Risk was
+> underweighted; **the comment felt like diligence, not a workaround.**"
+
+That is the honest reading of the situation for anyone who has not read `merge-kill.ts`. Writing a
+justification beside a suppression is what a careful engineer does; it is exactly the wrong move here,
+and nothing told the worker so.
+
+**Rule, now standing brief text on any slice touching source:**
+
+> No new `eslint-disable`, `@ts-ignore`, `@ts-expect-error`, or `OPENCLAW_SKIP_HOOKS` in source paths —
+> merge-kill fails the land regardless of the comment justifying it. Prefer `useCallback` / inline
+> effect deps over silencing `exhaustive-deps`.
+
+Cost of omitting it here: a full refusal cycle plus a resume. Cost of including it: one line.
+
+The general shape: **a gate the worker cannot see is a trap, not a standard.** Any kill class that
+fires on something a competent engineer would do deliberately belongs in the brief, not only in the
+gate.
+
+## 9r. #99 narrowed: the doc-archive churn is NOT authored by the worker
+
+#99 records that workers produce unrequested doc-archive churn with cause unknown. #176's worker was
+asked directly and its answer narrows the search materially:
+
+> "**I did not author it.** On resume, before any product edit, `git status` already showed
+> staged/unstaged archive rename (`docs/agent-ops/…` → `docs/_archive/…`), `PROJECT_STATUS.md`, wiki
+> index. I never ran `docs:authority` or archive tools... it was present at resume start **after a
+> clean post-product commit earlier** — so something outside the product edit path."
+
+It then had to `git reset`, `git checkout -- docs/` and delete an untracked archive copy before
+pre-commit's drift-check would pass — cost it charged to environment thrash.
+
+So the churn exists **in the worktree at session start or resume**, before the worker acts. That rules
+out "the model decides to tidy the docs" and points at a hook, a session-start action, or something the
+dispatch path itself runs. Not proven further, and worth stating as a NOT DETERMINED rather than a
+diagnosis.
+
+**Practical consequence today:** a resumed worker inherits a dirty tree it did not create, and the
+first thing it must do is clean up after us. Check `git status` in the worktree before resuming and
+hand over a clean tree.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9s. The threshold-fit tell is the MARGIN, and it is one subtraction
+
+#171's resume split four failures into stale-assumption versus real defect, honestly and in a table,
+and named every threshold it widened. Three of the four widenings were right — most sharply
+`torsoAxis.y < 0.5`, which `sin(30°) = 0.5` makes impossible for a correct 30° tip to satisfy, an error
+of mine that its retro caught rather than mine.
+
+The fourth:
+
+| | clearance | gate | result |
+|---|---:|---:|---|
+| before the fix | −0.146 | −0.02 | RED |
+| after the fix | **−0.190** | **−0.20** | GREEN by **0.0103 m** |
+
+The residual got ~30% worse and the gate moved 10× to cover it. Nothing was hidden — the report said
+"Stale + real" and named the change. It is simply a number fitted to an observation, which §7a warns
+about from the product side and which arrives here from the contract side.
+
+**The tell is mechanical: subtract the measured value from the threshold.** A gate that clears by 1 cm
+on a 20 cm allowance was written after the measurement, not before it. A gate derived from geometry
+clears by whatever the geometry gives you, and the derivation can be stated: *"the seat plane is at
+0.55, a tipped heel reaches 0.44, so allow 0.12."*
+
+**Rule:** when a worker widens a threshold, compute the margin before accepting it. Ask for the
+DERIVATION, not the justification — "why this number" answered with a mechanism is an argument, and
+answered with "it covers the residual" is the residual choosing its own gate.
+
+And distinguish the two cases in the handback, because most widenings are legitimate: a threshold that
+is impossible to satisfy for a correct implementation (the `sin(30°)` case) is a defect in the gate and
+must be widened; a threshold the implementation misses by a little is a defect in the implementation.
+
+## 9t. Hand back the SEQUENCE of numbers, not a judgement
+
+Applying §8r to a disagreement rather than to a failure. The handback that goes with §9s is four
+numbers and no adjective:
+
+    before:  clearance -0.146, gate -0.02  -> RED
+    after:   clearance -0.190, gate -0.20  -> GREEN by 1 cm
+
+Followed by naming the widenings I ACCEPTED and why, so no work is redone; an explicit "I am not
+accusing you of hiding anything, I disagree with the calibration", because a worker that was
+transparent and gets treated as evasive learns to be less transparent; and a first measurement that
+splits the ambiguity — *which vertices are below the deck?* Two heels at −0.19 with the torso at +0.02
+is a different product problem from a body planted 19 cm low, and the fix and the threshold both
+depend on which it is.
+
+The general form: when you disagree with a delegate's judgement rather than its facts, the disagreement
+is still resolved by a measurement neither of you has taken yet. Name that measurement.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
