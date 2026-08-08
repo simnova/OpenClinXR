@@ -70,6 +70,64 @@ function extractAssetPaths(body: string): string[] {
   return paths;
 }
 
+
+/**
+ * OPERATOR DIRECTIVE D9 (dark factory) enforcement.
+ *
+ * "Build a dark software factory with minimal LLM involvement necessary... it's a pipeline so each
+ * step is part of the factory... capable of allowing an examination to perform with no further LLM
+ * involvement." — operator, 2026-08-08
+ *
+ * WHY THIS IS A GATE AND NOT PROSE. The operator observed that coaching lands and then behaviour
+ * reverts. A peer round diagnosed the mechanism as CYCLE-CERTAINTY MAXIMISATION: the orchestrator
+ * selects slices that maximise the chance of a green report this cycle, and any directive costing
+ * current-cycle certainty is deprioritised regardless of what was written down. Prose cannot beat
+ * that; a refusal can. The same peer scored a weaker proposal (`## automation:`) against ten real
+ * dispatched slices and it would have refused ONE. This check refuses the comfort cluster —
+ * measure-only instrumentation and hand-authored clothing — while letting real factory work through.
+ *
+ * Every board issue already passes through briefFromIssue, so this sits on the path by construction
+ * rather than being another mechanism that is built and never wired.
+ */
+export const FACTORY_STEPS = [
+  "body_param",
+  "clothing_consume",
+  "clothing_generate",
+  "motion_retarget",
+  "lip_sync",
+  "room_generate",
+  "equipment_generate",
+  "staging",
+  "dialogue_runtime",
+  "instrument",
+] as const;
+
+export type FactoryStep = (typeof FACTORY_STEPS)[number];
+
+/** Reads `## factory_step: <enum>` from an issue body. */
+export function extractFactoryStep(body: string): string | null {
+  const m = /^##\s*factory_step:\s*([a-z_]+)\s*$/im.exec(body);
+  return m ? m[1]! : null;
+}
+
+/** Reads an `unblocks: <step>` line — required when the step is `instrument`. */
+export function extractUnblocks(body: string): string | null {
+  const m = /^\s*unblocks:\s*([a-z_]+)\s*$/im.exec(body);
+  return m ? m[1]! : null;
+}
+
+/**
+ * D1: a clothing slice that describes new hand-authored shells without naming the adopted tooling is
+ * the anti-pattern the operator called out by name — "a handful of LLMs toiling in non-deterministic
+ * ways building things in the factory".
+ */
+export function clothingSliceLacksToolPath(step: string, body: string, title: string): boolean {
+  if (step !== "clothing_generate" && step !== "clothing_consume") return false;
+  const haystack = `${title}\n${body}`.toLowerCase();
+  const namesTool = /makeclothes|mhclo|hm08|mpfb/.test(haystack);
+  return !namesTool;
+}
+
 export function briefFromIssue(issue: BoardIssue): BriefResult {
   const rules = extractDoneWhen(issue.body);
   if (rules.length === 0) {
@@ -78,6 +136,39 @@ export function briefFromIssue(issue: BoardIssue): BriefResult {
       reason:
         `Issue #${issue.number} has no "## done_when" block, so there is nothing a worker could be `
         + `held to. Add machine-checkable rules (run:, changed:, exists:, min-bytes:) to dispatch it.`,
+    };
+  }
+
+  const factoryStep = extractFactoryStep(issue.body);
+  if (factoryStep === null || !(FACTORY_STEPS as readonly string[]).includes(factoryStep)) {
+    return {
+      dispatchable: false,
+      reason:
+        `Issue #${issue.number} has no valid "## factory_step:" line. The factory is a pipeline and `
+        + `every slice must say which station it moves (operator directive D9). Allowed: `
+        + `${FACTORY_STEPS.join(", ")}.`,
+    };
+  }
+  if (factoryStep === "instrument") {
+    const unblocks = extractUnblocks(issue.body);
+    if (unblocks === null || unblocks === "instrument"
+      || !(FACTORY_STEPS as readonly string[]).includes(unblocks)) {
+      return {
+        dispatchable: false,
+        reason:
+          `Issue #${issue.number} is "factory_step: instrument" with no valid "unblocks: <step>" line. `
+          + `Measuring is not building. Name the non-instrument station this unblocks, or scope the `
+          + `slice to that station instead.`,
+      };
+    }
+  }
+  if (clothingSliceLacksToolPath(factoryStep, issue.body, issue.title ?? "")) {
+    return {
+      dispatchable: false,
+      reason:
+        `Issue #${issue.number} is a clothing slice that names no adopted tool path (makeclothes, `
+        + `mhclo, hm08, mpfb). Hand-authored garment geometry is the anti-pattern directive D1 names. `
+        + `Cite the tool, or say explicitly why it cannot be used.`,
     };
   }
 
