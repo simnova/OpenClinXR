@@ -99,6 +99,7 @@ export function buildHospitalBedEquipment(equipmentId: string): Group {
   root.add(frame, mattress, headboard, footboard, pillow);
   root.userData.deckTopYMeters = deckTop;
   root.userData.seatHeightMeters = deckTop;
+  root.userData.openClinXrEquipmentFamily = "hospital_bed";
   return tagEquipmentRoot(root, equipmentId, "parametric");
 }
 
@@ -164,6 +165,7 @@ export function buildStretcherEquipment(equipmentId: string): Group {
   root.add(frame, mattress, leftRail, rightRail, pushBar, col);
   root.userData.deckTopYMeters = deckTop;
   root.userData.seatHeightMeters = deckTop;
+  root.userData.openClinXrEquipmentFamily = "stretcher";
   return tagEquipmentRoot(root, equipmentId, "parametric");
 }
 
@@ -217,5 +219,6 @@ export function buildSideRailsEquipment(equipmentId: string): Group {
   cross.position.set(railLen / 2, railY - railH / 4, 0);
 
   root.add(lp0, lp1, lb0, lb1, rp0, rp1, rb0, rb1, cross);
+  root.userData.openClinXrEquipmentFamily = "support_surface";
   return tagEquipmentRoot(root, equipmentId, "parametric");
 }
