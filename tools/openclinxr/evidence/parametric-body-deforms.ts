@@ -434,13 +434,18 @@ function listTrackedLibraryBodies(): Array<{ bodyClassId: string; glbRel: string
  * The driven joint's own origin is fixed under a pure local rotation (tipDelta[driven]=0).
  * The tip is the first child joint origin (forearm under upper_arm).
  *
- * Short-sleeve garments only cover ~⅓ of upper_arm length, so full half-tip (~0.17 m) is a
- * design target no scrub cuff can clear. Epsilon is half the tip motion evaluated at
- * SHORT_SLEEVE_BONE_FRACTION along the bone (geometry of the export, not mesh weights) —
- * zero-weight skins still fail (mesh Δ≈0); a bound sleeve clears.
+ * Short-sleeve garments only cover a fraction of upper_arm length, so full half-tip (~0.17 m)
+ * is a design target no scrub cuff can clear. Epsilon multiplies full child-tip motion by
+ * SHORT_SLEEVE_BONE_FRACTION then halves it.
+ *
+ * FITTED, not derived (#221 finish): 0.35 was chosen so live garment Δ (~0.07–0.08 m) clears
+ * while zero-weight skins still fail. A derived version would need sleeve extent along the
+ * driven bone (garment cuff projection / upper_arm bone length) measured from the export
+ * before the threshold is set — that measurement was not taken when 0.35 was introduced.
  *
  * Do NOT use median over all joints. Do NOT read pre-fix / stage-report overrides.
  */
+/** FITTED (#221) — not measured from sleeve geometry. See comment above. */
 const SHORT_SLEEVE_BONE_FRACTION = 0.35;
 
 async function selfCalibrateEpsilon(

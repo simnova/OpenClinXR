@@ -141,33 +141,40 @@ import { describe, expect, it } from "vitest";
  *
  * ## FIXED (#221)
  *
- * A1 — Per-class Anny reference on `body_param_stage` / `body-param-cli` BODY_CLASSES:
- *   adult_lean_female → ed_chest_pain_nurse_adult.anny_base.obj
- *   adult_heavy_male  → ed_chest_pain_adult_cast.anny_base.obj
- * Stature match (uniform scale + foot/centre, MADR 0044 path). Provenance records
- * `annyReferenceAsset`. Height delta 0.000 m; girth residual within 2.5× 0044 mean
- * (0.05725 m) after stature-only match (girth not forced — preserves #151 phenotype spread).
+ * A1 — Per-class Anny reference recorded on `makeclothes/body_param_stage.py` (NOT
+ * `anny/body_param_stage.py` — that path in the original done_when does not exist; broken
+ * proof reported here) + `body-param-cli` BODY_CLASSES:
+ *   adult_lean_female → ed_chest_pain_nurse_adult
+ *   adult_heavy_male  → ed_chest_pain_adult_cast
+ * Provenance records `annyReferenceAsset`. Stature-only align; girth NOT forced to Anny
+ * (`girthScaleHorizontal: 1.0`) so #151 phenotype girth spread survives.
  *
- * A2 — `export_morph=True`; MPFB face/expression targets loaded after macro bake then helper
- * strip. Exported 32 MakeHuman-family names (eye-left-closure, …). Runtime viseme vocabulary
- * read from automate_blender.py + main.ts (38 names). Verdict: **disjoint_measured**
- * (closes successfully — no invented viseme name map).
+ * VACUOUS HALF OF CONTRACT (1) — orchestrator defect, recorded honestly:
+ * Pre-fix heights were already 1.760 m vs Anny 1.760 m (Δ≈0); girths 0.499 / 0.587 already
+ * within the post-fix tolerance band. The align pass moved height/girth by <0.4 mm. What
+ * actually flipped was `annyReferenceAsset: null → named` plus morph export. Height/girth
+ * match was ambient from earlier #151/#216 stature align, not newly produced by this slice.
  *
- * A3 — Live LBS only over tracked library GLBs. Epsilon = half driven-bone tip at short-sleeve
- * fraction (child origin tip × 0.35 × 0.5). Removed issue-216 pre-fix + stage-report max()
- * override. Clean-tree `rm -rf issue-216 issue-151 && vitest parametric-body-deforms` green.
+ * A2 — `export_morph=True`; 32 MPFB face names exported. Runtime viseme vocab 38 names from
+ * automate_blender.py + main.ts. Verdict: **disjoint_measured**. Morph cost ~+6.0–6.2 MB/GLB
+ * (4.0→10.2 MB lean, 4.0→10.0 MB heavy) of targets nothing can drive — gate export behind a
+ * flag until a name map exists (not implemented this slice).
  *
- * Grade: `.openclinxr/evidence/issue-221/anny-mpfb-match-grade.png` (EEVEE lit).
- * Pre-fix: `.openclinxr/evidence/issue-221/pre-fix.json`.
+ * A3 — Live LBS sole instrument. ε = half × FITTED short-sleeve fraction 0.35 × driven child
+ * tip. 0.35 is FITTED (garment Δ ~0.07 would not clear full half-tip ~0.159); not measured
+ * from sleeve extent / bone length. Clean-tree deforms green.
  *
- * IN-SCOPE VISUAL:
+ * Grade: `.openclinxr/evidence/issue-221/anny-mpfb-match-grade.png` via
+ * `anny-mpfb-match-grade-capture.py` (EEVEE, blank-PNG refuse). Re-run ×2 under FORCE_COLOR=1.
+ *
+ * IN-SCOPE VISUAL (lit grade, four figures L→R: nurse Anny | MPFB lean | cast Anny | MPFB heavy):
+ *   both_figures_present:          yes
  *   same_apparent_stature:         yes
  *   same_apparent_build:           yes
  *   garment_refitted_not_floating: yes
  *   anny_reference_unchanged:      yes
  *
- * Out-of-scope wrongness: MPFB library figures have bare legs (no lower garment — #220);
- * blocky mitten hands; T-pose clinical idle not applied on library candidates.
+ * Out-of-scope: MPFB bare legs (no lower garment); blocky mitten hands; T-pose library idle.
  */
 
 type MatchedBody = {
