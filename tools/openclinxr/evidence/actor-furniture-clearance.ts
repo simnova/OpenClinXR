@@ -5,6 +5,14 @@
  * measures XZ footprint overlap between actors and support surfaces (fixture
  * chairs/stretchers AND equipment-mounted beds/chairs).
  *
+ * SCOPE (honest; do not substitute a wider claim):
+ *   This module only measures PATIENT SUPPORT surfaces — beds, stretchers, patient
+ *   chairs (plus family seats as collision furniture). It has NO opinion about
+ *   non-support geometry (work surfaces, layout carts, room props, wall equipment).
+ *   A green "inside=[none]" means "no standing actor is inside a support surface",
+ *   NOT "no standing actor is inside any room geometry". Non-support occupancy is
+ *   #183 (`actor-prop-intersection.ts`).
+ *
  * Detection metric (calibrated; not centre-in-shrunk-box):
  *   overlapFractionOfSmaller = area(actor∩support) / min(area(actor), area(support))
  *   AND body straddles deck top
@@ -13,7 +21,8 @@
  *   Supine on-deck is never "inside" (counterweight #133).
  *
  * claimScope: collision resolution — standing actor and support share space.
- * notEvidenceFor: clinical staging, seating patients, Quest readiness, furniture art.
+ * notEvidenceFor: clinical staging, seating patients, Quest readiness, furniture art,
+ * non_support_prop_occupancy (see #183).
  */
 
 import { existsSync } from "node:fs";

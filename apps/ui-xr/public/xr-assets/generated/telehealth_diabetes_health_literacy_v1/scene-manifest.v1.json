@@ -59,9 +59,9 @@
       "colorHex": "#dcfce7",
       "accentColorHex": "#16a34a",
       "position": {
-        "x": 1.45,
+        "x": -1.75,
         "y": 0.78,
-        "z": 0.45
+        "z": -0.95
       },
       "scale": {
         "x": 0.7,

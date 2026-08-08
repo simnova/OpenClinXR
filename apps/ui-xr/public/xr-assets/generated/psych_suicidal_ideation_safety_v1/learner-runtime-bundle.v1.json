@@ -239,9 +239,9 @@
         "colorHex": "#f3f4f6",
         "accentColorHex": "#0f766e",
         "position": {
-          "x": 0.2,
+          "x": -2.05,
           "y": 0.08,
-          "z": 0.35
+          "z": 0.9
         },
         "scale": {
           "x": 0.7,
@@ -263,9 +263,9 @@
         "colorHex": "#e0f2fe",
         "accentColorHex": "#0284c7",
         "position": {
-          "x": 1.65,
+          "x": 2.25,
           "y": 0.9,
-          "z": 0.65
+          "z": -1.0
         },
         "scale": {
           "x": 0.7,

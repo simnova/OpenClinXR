@@ -585,8 +585,11 @@ function scenarioRuntimePreset(scenarioId: string): {
       stationContext: runtimeStationContextForScenario(scenarioId, "Psych Safety Assessment"),
       roomProps: [
         runtimeScenarioRoomProp("safe-room-soft-chair", "Safe room chair", "scenario_context", "safe_room_context_cue", "#e5e7eb", "#4b5563", -0.8, 0.45, -0.2),
-        runtimeScenarioRoomProp("ligature-risk-cleared-zone", "Cleared safety zone", "objective_cue", "ligature_risk_cleared_zone_cue", "#f3f4f6", "#0f766e", 0.2, 0.08, 0.35),
-        runtimeScenarioRoomProp("observer-station", "Observer station", "communication_cue", "observer_escalation_cue", "#e0f2fe", "#0284c7", 1.65, 0.9, 0.65),
+        // #183: cleared-zone pad was under clinical framing (0.64, 0.3) — nurse f=0.645 inside.
+        // Floor marker stays present; park at patient-side corner clear of standing plants.
+        runtimeScenarioRoomProp("ligature-risk-cleared-zone", "Cleared safety zone", "objective_cue", "ligature_risk_cleared_zone_cue", "#f3f4f6", "#0f766e", -2.05, 0.08, 0.9),
+        // #183: was (1.65, 0.9, 0.65) — family framing (1.42, 0.04) f=0.195 inside. Wall-side desk.
+        runtimeScenarioRoomProp("observer-station", "Observer station", "communication_cue", "observer_escalation_cue", "#e0f2fe", "#0284c7", 2.25, 0.9, -1.0),
         runtimeScenarioRoomProp("safety-plan-whiteboard", "Safety plan prompts", "review_cue", "safety_plan_review_cue", "#fefce8", "#ca8a04", 0.4, 1.65, -0.95),
       ],
     };
@@ -605,7 +608,8 @@ function scenarioRuntimePreset(scenarioId: string): {
       roomProps: [
         runtimeScenarioRoomProp("telehealth-tablet-stand", "Telehealth tablet stand", "scenario_context", "telehealth_visit_context_cue", "#e0f2fe", "#0284c7", 0.8, 1.05, -0.45),
         runtimeScenarioRoomProp("plain-language-plan-card", "Plain-language plan card", "objective_cue", "teach_back_plain_language_cue", "#fef9c3", "#ca8a04", -0.65, 0.75, -0.65),
-        runtimeScenarioRoomProp("glucometer-log-review", "Glucometer log review", "review_cue", "home_glucose_log_review_cue", "#dcfce7", "#16a34a", 1.45, 0.78, 0.45),
+        // #183: was (1.45, 0.78, 0.45) — family framing (1.42, 0.04) daughter f=0.572 inside.
+        runtimeScenarioRoomProp("glucometer-log-review", "Glucometer log review", "review_cue", "home_glucose_log_review_cue", "#dcfce7", "#16a34a", -1.75, 0.78, -0.95),
         runtimeScenarioRoomProp("cost-access-barrier-cue", "Cost and access cue", "communication_cue", "cost_access_barrier_cue", "#fee2e2", "#dc2626", -1.45, 0.65, 0.72),
       ],
     };

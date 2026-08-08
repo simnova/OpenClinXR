@@ -343,9 +343,9 @@
     "equipmentPlacements": {
       "wall_clock_equipment": {
         "position": {
-          "x": 1.6,
-          "y": 0,
-          "z": 0.28
+          "x": -2.4,
+          "y": 1.55,
+          "z": -1.15
         },
         "label": "Wall Clock",
         "interactionCueIds": [
