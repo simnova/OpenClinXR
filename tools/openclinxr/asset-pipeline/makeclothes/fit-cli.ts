@@ -175,25 +175,181 @@ async function downloadIfNeeded(
   return { ok: true, bytes };
 }
 
-/** Licence token + source string from the asset's own .mhclo header (not the download page). */
+/**
+ * Licence token + source string from the asset's own .mhclo header (not the download page).
+ *
+ * Community .mhclo headers use several shapes (#215 scrub uses `# license: CC-BY`;
+ * Cortu pants pack uses `# Cortu Johnstone - CC0`; some use `# license CC0` without colon).
+ * Only the .mhclo header is authoritative — MakeClothes-exported .obj often stamps AGPL3
+ * for the *tool*, which must not be mistaken for the garment licence.
+ */
 export function readMhcloLicense(mhcloPath: string): {
   token: string;
   source: string;
   rawHeader: string;
 } {
   const header = readFileSync(mhcloPath, "utf8").slice(0, 1600);
-  const lic = header.match(/#\s*license:\s*(.+)/i);
+  const licColon = header.match(/#\s*license:\s*(.+)/i);
+  const licSpace = header.match(/#\s*license\s+(CC0|CC-?BY[^\n]*)/i);
+  // e.g. "# Cortu Johnstone - CC0"
+  const authorDashCc = header.match(
+    /#\s*([^\n]*?)\s*[-–—]\s*(CC0|CC-?BY(?:\s*[0-9.]+)?(?:\s*[^#\n]*)?)\s*$/im,
+  );
+  const anyCc = header.match(/\b(CC0|CC-?BY(?:\s*[0-9.]+)?|public\s+domain)\b/i);
   const author = header.match(/#\s*author:\s*(.+)/i);
-  const token = lic ? lic[1]!.trim() : "license_not_found_in_mhclo_header";
+
+  let token = "license_not_found_in_mhclo_header";
+  if (licColon) token = licColon[1]!.trim();
+  else if (licSpace) token = licSpace[1]!.trim();
+  else if (authorDashCc) token = authorDashCc[2]!.trim();
+  else if (anyCc) token = anyCc[1]!.trim();
+
   const source = [
     `mhclo_header:${path.basename(mhcloPath)}`,
-    lic ? `license=${lic[1]!.trim()}` : "",
-    author ? `author=${author[1]!.trim()}` : "",
+    `license=${token}`,
+    author
+      ? `author=${author[1]!.trim()}`
+      : authorDashCc
+        ? `author=${authorDashCc[1]!.trim()}`
+        : "",
     `path=${mhcloPath}`,
   ]
     .filter(Boolean)
     .join("; ");
   return { token, source, rawHeader: header };
+}
+
+/** Permitted factory wardrobe tokens (copyleft refused regardless of convenience). */
+export function isPermittedGarmentLicense(token: string): boolean {
+  return /cc0|cc-?by|public\s*domain/i.test(token) && !/agpl|gpl(?!\s*font)/i.test(token);
+}
+
+/**
+ * #220 lower-body garment candidates examined for find-or-stop.
+ * Licence is always re-read from the local .mhclo header when the file exists —
+ * never invented. Remote pack URLs may 404; local staging is the factory input.
+ */
+export type LowerGarmentCandidateRecord = {
+  garmentId: string;
+  sourceUrl: string;
+  /** Local relative path when staged; empty if never downloaded. */
+  localMhcloRel: string;
+  localObjRel: string;
+  /** Preference notes for selection among multiple CC0 options. */
+  selectionNote: string;
+};
+
+export const LOWER_GARMENT_CANDIDATES: LowerGarmentCandidateRecord[] = [
+  {
+    garmentId: "cortu_cargo_pants",
+    sourceUrl:
+      "makehumancommunity pants pack / Cortu Johnstone cargo_pants (local staging: .openclinxr/evidence/issue-151/staging/cortu_cargo_pants.mhclo)",
+    localMhcloRel: ".openclinxr/evidence/issue-151/staging/cortu_cargo_pants.mhclo",
+    localObjRel: ".openclinxr/evidence/issue-151/staging/cargo_pants.obj",
+    selectionNote: "full-length cargo pants; clinical/scrub-adjacent silhouette preferred",
+  },
+  {
+    garmentId: "cortu_jeans_shorts",
+    sourceUrl:
+      "makehumancommunity pants pack / Cortu Johnstone jeans_shorts (not staged — network 404 on asset_packs/pants01 path)",
+    localMhcloRel: "",
+    localObjRel: "",
+    selectionNote: "shorts (above-knee) — rejected when cargo pants available",
+  },
+  {
+    garmentId: "toigo_wool_pants",
+    sourceUrl:
+      "makehumancommunity pants pack / toigo wool pants (not staged — network 404 on asset_packs/pants01 path)",
+    localMhcloRel: "",
+    localObjRel: "",
+    selectionNote: "wool texture not clinical/scrub style",
+  },
+  {
+    garmentId: "toigo_harem_pants",
+    sourceUrl:
+      "makehumancommunity pants pack / toigo harem pants (not staged — network 404 on asset_packs/pants01 path)",
+    localMhcloRel: "",
+    localObjRel: "",
+    selectionNote: "harem style not clinical",
+  },
+];
+
+export const LIBRARY_LOWER_GARMENT_ID = "cortu_cargo_pants_hm08";
+export const LIBRARY_LOWER_MESH_PREFIX = "makeclothes_library_cargo_pants";
+
+export type ExaminedLowerGarment = {
+  garmentId: string;
+  sourceUrl: string;
+  licenseToken: string;
+  accepted: boolean;
+  rejectionReason: string | null;
+  localMhcloPath: string | null;
+  localObjPath: string | null;
+};
+
+/**
+ * Find-or-stop search: re-read every candidate's .mhclo header when present.
+ * Accepts the first permitted full-length lower garment (CC0 / CC-BY).
+ * Does NOT invent asset ids — unstaged candidates record license_not_found and reject.
+ */
+export function examineLowerGarmentCandidates(repoRoot: string = REPO_ROOT): ExaminedLowerGarment[] {
+  const out: ExaminedLowerGarment[] = [];
+  let acceptedOne = false;
+  for (const c of LOWER_GARMENT_CANDIDATES) {
+    const mhcloAbs = c.localMhcloRel ? path.join(repoRoot, c.localMhcloRel) : "";
+    const objAbs = c.localObjRel ? path.join(repoRoot, c.localObjRel) : "";
+    const hasFiles =
+      Boolean(mhcloAbs) &&
+      existsSync(mhcloAbs) &&
+      Boolean(objAbs) &&
+      existsSync(objAbs) &&
+      statSync(mhcloAbs).size > 50 &&
+      statSync(objAbs).size > 50;
+
+    if (!hasFiles) {
+      out.push({
+        garmentId: c.garmentId,
+        sourceUrl: c.sourceUrl,
+        licenseToken: "license_not_found_in_mhclo_header",
+        accepted: false,
+        rejectionReason:
+          "asset not present locally and remote asset_packs/pants01 URL returned 404 — cannot invent a licence token without the .mhclo header",
+        localMhcloPath: null,
+        localObjPath: null,
+      });
+      continue;
+    }
+
+    const license = readMhcloLicense(mhcloAbs);
+    const permitted = isPermittedGarmentLicense(license.token);
+    const isShorts = /short/i.test(c.garmentId);
+    let accepted = false;
+    let rejectionReason: string | null = null;
+    if (!permitted) {
+      rejectionReason = `licence "${license.token}" is not CC0/CC-BY (copyleft or unknown refused)`;
+    } else if (isShorts) {
+      rejectionReason =
+        "shorts (above-knee) — cargo pants preferred as primary full-length lower garment";
+    } else if (acceptedOne) {
+      rejectionReason = "another permitted full-length lower garment already accepted";
+    } else if (/wool|harem/i.test(c.garmentId) && /cargo/i.test(LIBRARY_LOWER_GARMENT_ID)) {
+      rejectionReason = c.selectionNote;
+    } else {
+      accepted = true;
+      acceptedOne = true;
+    }
+
+    out.push({
+      garmentId: c.garmentId,
+      sourceUrl: c.sourceUrl,
+      licenseToken: license.token,
+      accepted,
+      rejectionReason,
+      localMhcloPath: mhcloAbs,
+      localObjPath: objAbs,
+    });
+  }
+  return out;
 }
 
 function sha256File(filePath: string): string {
