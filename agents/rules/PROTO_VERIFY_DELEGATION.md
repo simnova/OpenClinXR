@@ -3767,3 +3767,51 @@ the candidate set, and nobody has measured which.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11h. A `grok -p --resume` handback produces NO contract report — integrate will refuse it, correctly
+
+I handed a regression back to a landed slice's worker with `grok -p --resume` rather than `dispatch()`.
+It did good work and committed. `integrate` then refused:
+
+    REFUSED — merge-kill fired:
+      - contract-not-verified: No contract verification attached
+
+That is the gate working exactly as designed. `dispatch()` re-runs the brief's proofs after the worker
+exits and writes the report integrate consumes; a bare `--resume` does none of that, so the branch
+arrives with a fix nobody has verified against the contract.
+
+**The sanctioned path already exists and I had not used it:** `contract-verify-cli`, whose own header
+says why it exists — *"verifying only at dispatch lets a LATER commit drop the proof before the branch
+is merged."* It loads the brief from the TRUSTED coordination root, re-runs the tree proofs against a
+candidate tree, and writes `.openclinxr/openclaw/contract-verify-<slice>-merge.json` anchored to the
+head sha:
+
+    pnpm exec tsx tools/openclinxr/openclaw/contract-verify-cli.ts --slice <id> --tree <worktree>
+
+Exit 0 = all proofs pass, exit 2 = contract failure (distinct from 1 = crash). `contractForSlice`
+prefers this report over the dispatch ledger precisely because a report anchored to the exact commit
+being landed is better evidence than what a dispatch observed earlier — that precedence was added
+after #43, where a stale `proofsOk: false` refused a slice whose every proof passed on re-run.
+
+**Rule:** any branch that reached its final state through a resume rather than a dispatch must be run
+through `contract-verify-cli` before integrate. Never author the report by hand — the whole point is
+that the proofs are re-EXECUTED. And do not reach for `--force`: a refusal here means the verification
+genuinely has not happened.
+
+## 11i. A handback needs a `done_when` too, or the fix lands with no evidence
+
+The same handback asked for two contracts re-run from a cleared cache, and nothing else. The worker
+did exactly that and the fix is sound — but it changed **garment hem geometry**, an appearance-affecting
+change, and the only image in the slice was the footwear grade sheet from before the fix, byte-identical
+and framed on the lower legs where a hem does not appear.
+
+So an appearance change landed with no visual evidence, and neither of us noticed until I checked the
+file size.
+
+**Rule:** a regression handback carries the same obligations as a brief — name the proofs, and if the
+change can alter appearance, name the renderer and the framing for a fresh capture (§10y), with a
+decomposed checklist (§11d). "Fix the red" is a `done_when` with one rule in it, and it buys exactly
+one rule's worth of evidence.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
