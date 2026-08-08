@@ -3604,3 +3604,34 @@ command.**
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11b. A brief delta posted as a COMMENT never reaches the worker — the dispatcher reads the BODY
+
+The dispatch script builds its prompt from
+
+    gh issue view <n> --json number,title,body
+
+**Body only.** Comments are not read.
+
+On #189 I wrote a careful pre-dispatch delta — the `main.ts` freeze ceiling and where to put new code,
+the §10z gate-is-suspect line, the §10y named renderer for the grade image, and the known-good column
+sitting in the same room — and posted it with `gh issue comment`. The worker never saw a word of it.
+Every correction I had just codified from two retros was invisible at the exact moment it mattered.
+
+Nothing warned me. `briefFromIssue` reported `brief ok, proofs: 5` because the body's `## done_when`
+was intact, and a brief missing half its guidance is still a *dispatchable* brief.
+
+**Rule:** pre-dispatch corrections go in the issue BODY, via `gh issue edit --body-file`. Use comments
+only for post-close records — retros, verdicts, corrections to a landed claim — where no worker will
+read them. When in doubt, re-read the body after editing and grep it for a distinctive phrase from the
+delta.
+
+This is the §6z incomplete-loop shape aimed at the orchestrator instead of the product: I wrote to a
+field nothing consumes. The tell is identical — **ask what READS this, not just where you put it.**
+
+**A cheap guard exists and is not built:** `dispatch()` could warn when an issue carries comments whose
+text is absent from the prompt. Filed rather than built mid-flight, because silence is the failure
+mode here and a warning would have caught it in one line.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
