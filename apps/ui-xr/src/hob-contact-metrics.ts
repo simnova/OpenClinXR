@@ -93,11 +93,12 @@ function mulMat4Point(
   y: number,
   z: number,
 ): [number, number, number] {
-  const w = e[3] * x + e[7] * y + e[11] * z + e[15] || 1;
+  // Non-null: Matrix4.elements is a length-16 Float32Array (same pattern as mulMat4 below).
+  const w = e[3]! * x + e[7]! * y + e[11]! * z + e[15]! || 1;
   return [
-    (e[0] * x + e[4] * y + e[8] * z + e[12]) / w,
-    (e[1] * x + e[5] * y + e[9] * z + e[13]) / w,
-    (e[2] * x + e[6] * y + e[10] * z + e[14]) / w,
+    (e[0]! * x + e[4]! * y + e[8]! * z + e[12]!) / w,
+    (e[1]! * x + e[5]! * y + e[9]! * z + e[13]!) / w,
+    (e[2]! * x + e[6]! * y + e[10]! * z + e[14]!) / w,
   ];
 }
 

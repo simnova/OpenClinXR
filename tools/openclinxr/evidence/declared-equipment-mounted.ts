@@ -360,37 +360,47 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
       return { meshCount: meshCount, triangleCount: triangleCount };
     }
 
-    function resolveEquipmentId(object) {
+    function resolveEquipmentIds(object) {
       const ud = object.userData || {};
+      const ids = [];
       if (typeof ud.openClinXrEquipmentId === "string" && ud.openClinXrEquipmentId.length > 0) {
-        return ud.openClinXrEquipmentId;
+        ids.push(ud.openClinXrEquipmentId);
       }
-      if (typeof ud.openClinXrRuntimeEquipmentAssetId === "string") {
+      // #209: fixture may fulfill multiple suppressed declared ids (aliases).
+      if (Array.isArray(ud.openClinXrEquipmentIdAliases)) {
+        for (let i = 0; i < ud.openClinXrEquipmentIdAliases.length; i++) {
+          const a = ud.openClinXrEquipmentIdAliases[i];
+          if (typeof a === "string" && a.length > 0 && ids.indexOf(a) < 0) ids.push(a);
+        }
+      }
+      if (ids.length === 0 && typeof ud.openClinXrRuntimeEquipmentAssetId === "string") {
         const assetId = ud.openClinXrRuntimeEquipmentAssetId;
         const m = assetId.match(/\\.([a-z0-9_]+_equipment)\\./i)
           || assetId.match(/(?:^|[.])([a-z0-9_]+_equipment)(?:$|[.])/i);
-        if (m) return m[1];
-        if (assetId === "ecg" || assetId.indexOf("ecg") >= 0) return "ecg_cart_equipment";
-        if (assetId.indexOf("iv") >= 0 && assetId.indexOf("pole") >= 0) return "iv_stand_equipment";
-        if (assetId === "iv" || /iv_stand|iv-pole/i.test(assetId)) return "iv_stand_equipment";
+        if (m) ids.push(m[1]);
+        else if (assetId === "ecg" || assetId.indexOf("ecg") >= 0) ids.push("ecg_cart_equipment");
+        else if (assetId.indexOf("iv") >= 0 && assetId.indexOf("pole") >= 0) ids.push("iv_stand_equipment");
+        else if (assetId === "iv" || /iv_stand|iv-pole/i.test(assetId)) ids.push("iv_stand_equipment");
       }
-      const name = typeof object.name === "string" ? object.name : "";
-      const nm = name.match(/([a-z0-9_]+_equipment)/i);
-      if (nm) return nm[1];
-      return "";
+      if (ids.length === 0) {
+        const name = typeof object.name === "string" ? object.name : "";
+        const nm = name.match(/([a-z0-9_]+_equipment)/i);
+        if (nm) ids.push(nm[1]);
+      }
+      return ids;
     }
 
     const byId = {};
     if (scene && typeof scene.traverse === "function") {
       scene.traverse(function (object) {
-        const id = resolveEquipmentId(object);
-        if (!id) return;
-        // Prefer outermost root tagged with this id (no ancestor also resolving to equipment).
+        const ids = resolveEquipmentIds(object);
+        if (!ids.length) return;
+        // Prefer outermost root tagged with equipment (no ancestor also resolving).
         let ancestorHas = false;
         let p = object.parent;
         let depth = 0;
         while (p && depth < 10) {
-          if (resolveEquipmentId(p)) {
+          if (resolveEquipmentIds(p).length > 0) {
             ancestorHas = true;
             break;
           }
@@ -408,15 +418,17 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
           // Pre-fix heuristic: real ED GLBs are denser than placeholder boxes.
           source = "gltf";
         }
-        // Keep the denser sighting if we see the same id twice.
-        const prev = byId[id];
-        if (!prev || counts.triangleCount > prev.triangleCount || counts.meshCount > prev.meshCount) {
-          byId[id] = {
-            equipmentId: id,
-            source: source,
-            triangleCount: counts.triangleCount,
-            meshCount: counts.meshCount,
-          };
+        for (let ii = 0; ii < ids.length; ii++) {
+          const id = ids[ii];
+          const prev = byId[id];
+          if (!prev || counts.triangleCount > prev.triangleCount || counts.meshCount > prev.meshCount) {
+            byId[id] = {
+              equipmentId: id,
+              source: source,
+              triangleCount: counts.triangleCount,
+              meshCount: counts.meshCount,
+            };
+          }
         }
       });
     }

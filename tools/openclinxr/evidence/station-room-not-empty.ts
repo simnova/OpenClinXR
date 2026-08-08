@@ -391,12 +391,25 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
           builtSlotIds.push(slotId);
           const kind = String(child.userData.openClinXrStretcherKind || child.userData.openClinXrChairKind || "");
           const idLow = slotId.toLowerCase();
-          const isSupport = kind.indexOf("stretcher") >= 0
-            || kind.indexOf("chair") >= 0
+          // #209: family/parent/visitor chairs are not patient supports (one-support rule).
+          const isFamilySeat = idLow.indexOf("family_chair") >= 0
+            || idLow.indexOf("parent_chair") >= 0
+            || idLow.indexOf("visitor_chair") >= 0;
+          const isBedClass = kind.indexOf("stretcher") >= 0
             || idLow === "stretcher" || idLow.indexOf("stretcher") >= 0
-            || idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
-            || idLow === "bed" || idLow.endsWith("_bed");
-          if (isSupport) fixtureSupportRoots.push(child);
+            || idLow === "bed" || idLow.endsWith("_bed")
+            || idLow.indexOf("exam_table") >= 0;
+          const isPatientChair = !isFamilySeat && (
+            idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
+            || (kind.indexOf("chair") >= 0 && !isBedClass)
+          );
+          if (!isFamilySeat && (isBedClass || isPatientChair)) {
+            fixtureSupportRoots.push({
+              root: child,
+              bedClass: isBedClass,
+              chairClass: isPatientChair && !isBedClass,
+            });
+          }
         }
       }
     }
@@ -435,11 +448,35 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
         }
         if (ancestorHas) return;
         if (mountedEquipmentIds.indexOf(id) < 0) mountedEquipmentIds.push(id);
-        if (PATIENT_SUPPORT_EQ[id]) equipmentSupportRoots.push(object);
+        if (PATIENT_SUPPORT_EQ[id]) {
+          equipmentSupportRoots.push({
+            root: object,
+            bedClass: id.indexOf("chair") < 0,
+            chairClass: id.indexOf("chair") >= 0,
+            id: id,
+          });
+        }
       });
     }
 
-    const patientSupportSurfaceCount = fixtureSupportRoots.length + equipmentSupportRoots.length;
+    // #209: one patient support — exclude family seats; if a bed/table exists, chairs are not patient supports.
+    // Dedup stamped fixtures that also carry openClinXrEquipmentId.
+    const patientCandidates = [];
+    const seenRoots = [];
+    function addCandidate(entry) {
+      const root = entry.root;
+      if (seenRoots.indexOf(root) >= 0) return;
+      seenRoots.push(root);
+      patientCandidates.push(entry);
+    }
+    for (let i = 0; i < fixtureSupportRoots.length; i++) addCandidate(fixtureSupportRoots[i]);
+    for (let i = 0; i < equipmentSupportRoots.length; i++) addCandidate(equipmentSupportRoots[i]);
+    const hasBedClass = patientCandidates.some(function (c) { return c.bedClass; });
+    const patientSupportRoots = patientCandidates.filter(function (c) {
+      if (hasBedClass) return c.bedClass;
+      return c.bedClass || c.chairClass;
+    });
+    const patientSupportSurfaceCount = patientSupportRoots.length;
 
     // Actors INSIDE furniture — contract counterweight is "stands inside", not "touches"
     // or "rests on". Supine/seated on a support is valid clinical staging (#150).
@@ -456,8 +493,7 @@ export async function readLiveRoomFactsFromPage(page: Page): Promise<RoomFacts> 
       }
       supportBoxes.push({ box: box, deckTop: deckTop });
     }
-    for (const r of fixtureSupportRoots) pushSupport(r, null);
-    for (const r of equipmentSupportRoots) pushSupport(r, null);
+    for (const r of patientCandidates) pushSupport(r.root, null);
 
     if (scene && typeof scene.traverse === "function") {
       const actorRoots = [];

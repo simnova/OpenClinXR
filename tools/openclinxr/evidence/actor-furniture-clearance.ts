@@ -439,12 +439,36 @@ export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation
         if (child.userData.isMarkerCube === true) continue;
         const kind = String(child.userData.openClinXrStretcherKind || child.userData.openClinXrChairKind || "");
         const idLow = slotId.toLowerCase();
-        const isSupport = kind.indexOf("stretcher") >= 0
-          || kind.indexOf("chair") >= 0
+        // family/parent/visitor chairs are collision furniture but NOT patient supports
+        // (#209 — oncology/psych legitimately ship two seats; one-support counts patient only).
+        const isFamilySeat = idLow.indexOf("family_chair") >= 0
+          || idLow.indexOf("parent_chair") >= 0
+          || idLow.indexOf("visitor_chair") >= 0;
+        const isBedClass = kind.indexOf("stretcher") >= 0
           || idLow === "stretcher" || idLow.indexOf("stretcher") >= 0
-          || idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
-          || idLow === "bed" || idLow.endsWith("_bed");
-        if (isSupport) fixtureSupportRoots.push({ root: child, id: slotId });
+          || idLow === "bed" || idLow.endsWith("_bed")
+          || idLow.indexOf("exam_table") >= 0;
+        const isPatientChair = idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
+          || (kind.indexOf("chair") >= 0 && !isFamilySeat && !isBedClass);
+        const isSupport = !isFamilySeat && (isBedClass || isPatientChair);
+        if (isSupport) {
+          fixtureSupportRoots.push({
+            root: child,
+            id: slotId,
+            bedClass: isBedClass,
+            chairClass: isPatientChair && !isBedClass,
+          });
+        }
+        // Family seats still participate in inside-furniture collision (standing through seat).
+        if (isFamilySeat && (kind.indexOf("chair") >= 0 || idLow.indexOf("chair") >= 0)) {
+          fixtureSupportRoots.push({
+            root: child,
+            id: slotId,
+            bedClass: false,
+            chairClass: false,
+            familySeat: true,
+          });
+        }
       }
     }
 
@@ -476,7 +500,18 @@ export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation
     }
 
     const supports = [];
-    function pushSupport(root, id, source) {
+    const seenSupportRoots = [];
+    function pushSupport(root, id, source, flags) {
+      // #209: stamped fixtures appear as both fixtureSlotId and openClinXrEquipmentId —
+      // keep one row; prefer equipment source so bank-wide source set includes mounts.
+      const existingIdx = seenSupportRoots.indexOf(root);
+      if (existingIdx >= 0) {
+        if (source === "equipment" && supports[existingIdx] && supports[existingIdx].source === "fixture") {
+          supports[existingIdx].source = "equipment";
+          supports[existingIdx].id = id;
+        }
+        return;
+      }
       const box = worldBox(root);
       if (!box) return;
       let deckTop = box.maxY;
@@ -498,20 +533,51 @@ export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation
           deckTop = Math.min(0.55, Math.max(0.42, box.minY + 0.45));
         }
       }
+      const idLow = String(id).toLowerCase();
+      const bedClass = flags && typeof flags.bedClass === "boolean"
+        ? flags.bedClass
+        : (
+          idLow.indexOf("stretcher") >= 0
+          || idLow.indexOf("bed") >= 0
+          || idLow.indexOf("exam_table") >= 0
+          || idLow.indexOf("table") >= 0
+        );
+      const familySeat = flags && flags.familySeat === true;
+      const chairClass = flags && typeof flags.chairClass === "boolean"
+        ? flags.chairClass
+        : (!bedClass && !familySeat && idLow.indexOf("chair") >= 0);
+      seenSupportRoots.push(root);
       supports.push({
         id: id,
         source: source,
         footprint: fpOf(box),
         deckTopY: deckTop,
         box: box,
+        bedClass: bedClass,
+        chairClass: chairClass,
+        familySeat: familySeat,
       });
     }
     for (let i = 0; i < fixtureSupportRoots.length; i++) {
-      pushSupport(fixtureSupportRoots[i].root, fixtureSupportRoots[i].id, "fixture");
+      const fr = fixtureSupportRoots[i];
+      // Prefer equipment source when the fixture fulfills a declared equipment id (#209 stamp).
+      const eqId = fr.root.userData && fr.root.userData.openClinXrEquipmentId;
+      const fixtureSource = (typeof eqId === "string" && PATIENT_SUPPORT_EQ[eqId]) ? "equipment" : "fixture";
+      const fixtureId = fixtureSource === "equipment" ? eqId : fr.id;
+      pushSupport(fr.root, fixtureId, fixtureSource, fr);
     }
     for (let i = 0; i < equipmentSupportRoots.length; i++) {
-      pushSupport(equipmentSupportRoots[i].root, equipmentSupportRoots[i].id, "equipment");
+      pushSupport(equipmentSupportRoots[i].root, equipmentSupportRoots[i].id, "equipment", null);
     }
+
+    // #209 — patientSupportSurfaceCount: one patient bed/table OR one patient chair.
+    // Family seats never count. When a bed-class support exists, chairs are seating only.
+    const hasBedClass = supports.some(function (s) { return s.bedClass && !s.familySeat; });
+    const patientSupportCount = supports.filter(function (s) {
+      if (s.familySeat) return false;
+      if (hasBedClass) return s.bedClass;
+      return s.bedClass || s.chairClass;
+    }).length;
 
     const actors = [];
     if (scene && typeof scene.traverse === "function") {
@@ -614,15 +680,21 @@ export async function readLiveClearanceFromPage(page: Page): Promise<LiveStation
       scenarioId: scenarioId,
       environmentId: environmentId,
       hasCeiling: hasCeiling,
-      patientSupportSurfaceCount: supports.length,
-      supportSurfaces: supports.map(function (s) {
-        return {
-          id: s.id,
-          source: s.source,
-          footprint: s.footprint,
-          deckTopY: s.deckTopY,
-        };
-      }),
+      patientSupportSurfaceCount: patientSupportCount,
+      supportSurfaces: supports
+        .filter(function (s) {
+          if (s.familySeat) return false;
+          if (hasBedClass) return s.bedClass;
+          return s.bedClass || s.chairClass;
+        })
+        .map(function (s) {
+          return {
+            id: s.id,
+            source: s.source,
+            footprint: s.footprint,
+            deckTopY: s.deckTopY,
+          };
+        }),
       actors: actors,
     };
   })()`) as Promise<LiveStation>;

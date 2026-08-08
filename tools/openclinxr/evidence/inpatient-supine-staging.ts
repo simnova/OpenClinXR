@@ -502,12 +502,27 @@ async function readLiveStationFromPage(page: Page): Promise<LiveStationReading> 
         if (child.userData.isMarkerCube === true) continue;
         const kind = String(child.userData.openClinXrStretcherKind || child.userData.openClinXrChairKind || "");
         const idLow = slotId.toLowerCase();
-        const isSupport = kind.indexOf("stretcher") >= 0
-          || kind.indexOf("chair") >= 0
+        // #209: family seats are not patient supports; bed-class wins over chairs.
+        const isFamilySeat = idLow.indexOf("family_chair") >= 0
+          || idLow.indexOf("parent_chair") >= 0
+          || idLow.indexOf("visitor_chair") >= 0;
+        const isBedClass = kind.indexOf("stretcher") >= 0
           || idLow === "stretcher" || idLow.indexOf("stretcher") >= 0
-          || idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
-          || idLow === "bed" || idLow.endsWith("_bed");
-        if (isSupport) fixtureSupportRoots.push(child);
+          || idLow === "bed" || idLow.endsWith("_bed")
+          || idLow.indexOf("exam_table") >= 0;
+        const isPatientChair = !isFamilySeat && (
+          idLow === "patient_chair" || idLow.indexOf("patient_chair") >= 0
+          || (kind.indexOf("chair") >= 0 && !isBedClass)
+        );
+        if (!isFamilySeat && (isBedClass || isPatientChair)) {
+          fixtureSupportRoots.push({
+            root: child,
+            bedClass: isBedClass,
+            chairClass: isPatientChair && !isBedClass,
+            source: "fixture",
+            kind: slotId,
+          });
+        }
       }
     }
 
@@ -532,23 +547,39 @@ async function readLiveStationFromPage(page: Page): Promise<LiveStationReading> 
         p = p.parent; depth++;
       }
       if (ancestorHas) return;
-      if (PATIENT_SUPPORT_EQ[id]) equipmentSupportRoots.push(object);
+      if (PATIENT_SUPPORT_EQ[id]) {
+        equipmentSupportRoots.push({
+          root: object,
+          bedClass: id.indexOf("chair") < 0,
+          chairClass: id.indexOf("chair") >= 0,
+          source: "equipment",
+          kind: id,
+        });
+      }
     });
 
-    const supportSurfaceCount = fixtureSupportRoots.length + equipmentSupportRoots.length;
+    const candidates = [];
+    const seen = [];
+    function addC(e) {
+      if (seen.indexOf(e.root) >= 0) return;
+      seen.push(e.root);
+      candidates.push(e);
+    }
+    for (let i = 0; i < fixtureSupportRoots.length; i++) addC(fixtureSupportRoots[i]);
+    for (let i = 0; i < equipmentSupportRoots.length; i++) addC(equipmentSupportRoots[i]);
+    const hasBed = candidates.some(function (c) { return c.bedClass; });
+    const patientSupports = candidates.filter(function (c) {
+      if (hasBed) return c.bedClass;
+      return c.bedClass || c.chairClass;
+    });
+    const supportSurfaceCount = patientSupports.length;
     let supportKind = null;
     let supportSource = null;
     let supportRoot = null;
-    if (fixtureSupportRoots.length > 0) {
-      supportRoot = fixtureSupportRoots[0];
-      supportSource = "fixture";
-      const sid = supportRoot.userData && supportRoot.userData.fixtureSlotId;
-      supportKind = typeof sid === "string" ? sid : "fixture_support";
-    } else if (equipmentSupportRoots.length > 0) {
-      supportRoot = equipmentSupportRoots[0];
-      supportSource = "equipment";
-      const eid = supportRoot.userData && supportRoot.userData.openClinXrEquipmentId;
-      supportKind = typeof eid === "string" ? eid : "equipment_support";
+    if (patientSupports.length > 0) {
+      supportRoot = patientSupports[0].root;
+      supportSource = patientSupports[0].source;
+      supportKind = patientSupports[0].kind;
     }
 
     // Deck top for clearance

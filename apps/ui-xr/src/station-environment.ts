@@ -29,7 +29,10 @@ import {
   type Object3D,
 } from "three";
 import { tryBuildArchitectureFixture } from "./station-architecture-fixtures.js";
-import { roleClassFromFixtureSlotId } from "./fixture-role-ownership.js";
+import {
+  ownedRolesFromFixtureSlots,
+  roleClassFromFixtureSlotId,
+} from "./fixture-role-ownership.js";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
 import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js";
 
@@ -240,11 +243,9 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   // Fixtures: architecture (door/board/surface) / stretcher / chair / layout;
   // learner_start stays a marker cube. #186 ownership roles stamped on each root.
   // Positions come from resolveFixtureSlotsForRoom (tracks shell under #196).
-  const ownedRoles = new Set<string>();
-  for (const slot of resolvedSlots) {
-    ownedRoles.add(roleClassFromFixtureSlotId(slot.slotId));
-  }
-  shell.userData.fixtureOwnedRoles = [...ownedRoles];
+  // #186 / #209: family_seating also claims seating ownership so parent_chair /
+  // chairs_equipment do not dual-mount beside FAMILY_CHAIR.
+  shell.userData.fixtureOwnedRoles = [...ownedRolesFromFixtureSlots(resolvedSlots)];
 
   for (const slot of resolvedSlots) {
     const arch = tryBuildArchitectureFixture({

@@ -38,11 +38,17 @@ export function applyCleanEncounterVisualReviewActorFraming(
 
   if (scenarioId === "ob_headache_preeclampsia_triage_v1") {
     if (role.includes("patient")) {
-      actor.position.set(-1.34, 0.58, -0.3);
-      actor.rotation.y = 0.18;
-      actor.scale.set(0.44, 0.42, 0.44);
+      // #209: prior frame (-1.34, -0.3) sat inside OFFSET_STRETCHER (center -2.05,
+      // half-length 1.1 → maxX≈-0.95) at 57% footprint overlap while posture stayed
+      // standing. Keep the bed at OFFSET (clears WORK_SURFACE 1.75,-0.85); move the
+      // ambulatory patient to the shared standing plant, clear of the deck.
+      // Rejected: re-authoring another local +X bed that re-collides the desk (#206).
+      actor.position.set(-0.72, 0, 0.08);
+      actor.rotation.y = 0.16;
+      actor.scale.setScalar(0.88);
       actor.userData.openClinXrEncounterStaging =
-        "ob_patient_seated_recliner_proof_frame_not_free_standing_on_bed";
+        "ob_patient_standing_beside_offset_stretcher_clear_of_deck_and_work_surface";
+      actor.userData.openClinXrFloorStandingFrame = true;
       onWardrobeCue?.(actor, "patient");
       return;
     }
