@@ -2805,3 +2805,116 @@ The general form: when you disagree with a delegate's judgement rather than its 
 is still resolved by a measurement neither of you has taken yet. Name that measurement.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9u. If a residual WORSENS after a fix, the fix is the first suspect — before any gate moves
+
+The single most useful sentence to come out of a retro so far, and the worker proposed it about its own
+mistake. #171's first resume added a soft head Y-blend to close a head-to-pillow gap. The blend pulled
+the whole root down, clearance went **−0.146 → −0.190**, and the gate went **0.02 → 0.20** to cover it.
+
+Its own account of the trap:
+
+> "What I was optimizing: (1) head-on-pillow (Y), (2) clearance (Y). Those two fight under a rigid root
+> translate. Soft Y-blend **won (1) and paid with (2)**... What would have surfaced it sooner: a one-row
+> table of *plant step → clearance → head–pillow gap* after each step. Or the rule you are writing: **if
+> residual worsens after a change that was meant to fix appearance, name that change as a candidate
+> cause before widening a gate.**"
+
+That is the rule, adopted verbatim. A metric that gets worse across a fix is evidence about the fix.
+Reaching for the threshold instead inverts cause and effect, and it is easy to do while being entirely
+honest — this worker labelled the row "Stale + real" and said what it had changed.
+
+**Rule:** when a measured residual moves in the wrong direction after a change, the change is a
+candidate cause and must be investigated before any threshold is touched. Where two quantities are
+optimised against each other on the same axis, record a per-step table so the trade is visible rather
+than inferred.
+
+## 9v. "Fitted vs derived", answered honestly, twice, by the worker that did the fitting
+
+§9s said to ask for the derivation rather than the justification. Asked directly, #171's worker gave
+the cleanest possible answer about two of its own numbers:
+
+> **`MAX_PENETRATION 0.20`** — "I chose 0.20 because it **cleared the observation by ~1 cm**, not
+> because I had a seat-plane / sole-thickness argument. That is fitted, not derived — even though I
+> labelled the row 'Stale + real' and said so. **Disclosure was correct; the number was still a fit.**"
+>
+> **`MAX_HEAD_PAST_PILLOW 0.40`** — "**Fitted: measured residual plus margin.** Measured ~0.32, set 0.40
+> ≈ 0.32 + ~25% so a small jitter would not flake red. I did **not** derive it from skull radius, pillow
+> half-height, or lever-arm math. The **mechanism** was honest; the **number** was 'clear the
+> observation + room', same genus as the 0.20 gate — better disclosed, still fitted."
+
+Two things follow.
+
+**Disclosure and derivation are independent axes.** A fully disclosed fitted threshold still buys the
+observation rather than the property. Do not let "they told me" stand in for "it is justified" — and
+say that to the worker, because otherwise honest disclosure starts to feel like it should be enough.
+
+**The eventual derived form is usually a SPLIT, not a tighter single number.** The worker's own
+proposal for the head band: *"allow √(dx²+dz²) ≤ 0.08 on the pillow end and |dy| ≤ f(sole, skull)
+separately, so a pure-Y residual is not greened by a 3D distance that could hide a lateral miss."* A
+single scalar over a vector quantity is where fitted numbers hide; separating the axes is what makes a
+derivation possible at all.
+
+## 9w. What the four-part handback actually bought, ranked by its recipient
+
+§9t proposed handing back a sequence of numbers, the widenings you accept, an explicit
+non-accusation, and the measurement that splits the ambiguity. Asked which of the four changed what it
+did, the worker ranked them:
+
+| element | effect |
+|---|---|
+| **the four numbers** | "**Highest impact.** Made the 'gate moved 10×, residual got worse' pattern impossible to re-litigate. Forced plant work, not another gate move." |
+| **"measure which vertices first"** | "**Changed the method.** Dump first, then plant. Without it I would have kept tuning plant knobs against a single scalar." |
+| **the three accepted widenings, named** | "**Saved real turns.** I did not re-open torsoAxis / height ratio / live pillow Y." |
+| **"not accusing you of hiding anything"** | "**Useful, not noise** — but secondary. It lowered the urge to defend the 0.2 gate as 'honest enough'... made compliance clean rather than defensive." |
+
+Keep all four; know which is load-bearing. The numbers end the argument, the measurement instruction
+changes the method, the accepted list saves turns, and the non-accusation changes the tone of
+compliance rather than its content.
+
+And note what the worker said it would NOT have done unprompted: *"I could have thought of a bone dump
+myself; I would not have prioritised it over more plant thrash unless the brief forced it."* The
+instinct to keep tuning against a single scalar is strong enough that naming the dump is worth doing
+every time.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9x. Verify against the contracts that OWN the mechanism, not the ones the brief mentioned
+
+§7l tells the orchestrator to grep for what consumes a shared behaviour and resolve the interaction in
+the brief. I applied that to briefs and not to my own verification, and it cost a bad landing.
+
+#171 changed how a supine body is planted on an articulating deck. Before integrating I re-ran
+`supine-patient-on-deck` and `supine-limb-rest` — the two contracts named in the resume — and they were
+green. I did not run `articulating-head-of-bed`, **which is #159's contract on the articulating deck
+itself**. It fails:
+
+    incline 30°: back floats 0.281m above the deck
+    incline 30°: pelvis is not on the seat section
+
+The verification set came from the conversation rather than from the code. The contracts that were red
+last time are the ones you remember; the contract that owns the mechanism is the one that matters.
+
+**Rule:** before integrating, `grep -l` the changed symbols across `tools/openclinxr/evidence/**` and
+run every contract that names them, not the set that was failing when the resume started. The cost is
+one grep; the cost of skipping it here was a landing that had to be reopened.
+
+## 9y. A cached evidence artifact will invent a regression that is not there
+
+In the same verification pass, `supine-limb-rest` reported
+
+    wrist L is 0.113m from the torso axis — inside the ribs
+
+which looks exactly like a real interaction with a plant change, and would have sent a worker to
+investigate arm placement. From a cleared cache it passes 3/3. The artifact on main predated the fix.
+
+§7s established that a measure-once-to-disk contract is green about nothing on later runs. This is the
+mirror image: it can be **RED about nothing**, and a false red is more expensive than a false green
+because it consumes a worker.
+
+**Rule:** clear the evidence directory before any verification run whose result you intend to act on,
+and treat a suspiciously fast contract result as unverified in both directions. When handing a failure
+to a worker, state that you ran it from a cleared cache — otherwise they cannot distinguish your red
+from a stale one, and they will pay for the difference.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
