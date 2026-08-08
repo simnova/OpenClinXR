@@ -59,7 +59,13 @@ function tagEquipmentRoot(
   return root;
 }
 
-/** Wall clock: housing + face + two hands (≥4 meshes). */
+/**
+ * Wall clock: housing + face + two hands (≥4 meshes).
+ *
+ * Geometry is origin-centered. Mount height is the equipment placement root Y only
+ * (main.ts: slot.position.set). Children used to bake y≈1.55 AND placements also set
+ * y=1.55 → world Y≈3.1 above a 2.65 m ceiling (#183 handback double-stack).
+ */
 export function buildWallClockEquipment(equipmentId: string): Group {
   const root = new Group();
   root.name = `openclinxr.equipment.${equipmentId}`;
@@ -69,23 +75,24 @@ export function buildWallClockEquipment(equipmentId: string): Group {
   );
   housing.name = `${root.name}.housing`;
   housing.rotation.x = Math.PI / 2;
-  housing.position.set(0, 1.55, 0);
+  housing.position.set(0, 0, 0);
   const face = new Mesh(
     new CylinderGeometry(WALL_CLOCK_FACE_DIAMETER_M / 2, WALL_CLOCK_FACE_DIAMETER_M / 2, 0.015, 24),
     mat(0xf5f0e6, 0.85, 0),
   );
   face.name = `${root.name}.face`;
   face.rotation.x = Math.PI / 2;
-  face.position.set(0, 1.55, 0.02);
+  face.position.set(0, 0, 0.02);
   const hour = new Mesh(new BoxGeometry(0.02, 0.09, 0.01), mat(0x1a1a1a, 0.6, 0.05));
   hour.name = `${root.name}.hour_hand`;
-  hour.position.set(0.02, 1.55, 0.035);
+  hour.position.set(0.02, 0, 0.035);
   hour.rotation.z = -0.4;
   const minute = new Mesh(new BoxGeometry(0.015, 0.12, 0.01), mat(0x111111, 0.6, 0.05));
   minute.name = `${root.name}.minute_hand`;
-  minute.position.set(-0.03, 1.58, 0.036);
+  minute.position.set(-0.03, 0.03, 0.036);
   minute.rotation.z = 0.9;
   root.add(housing, face, hour, minute);
+  root.userData.openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root";
   return tagEquipmentRoot(root, equipmentId, "parametric", "own_geometry");
 }
 
@@ -343,19 +350,21 @@ function buildHandheldDeviceOnStand(equipmentId: string, kind: HandheldKind): Gr
     spacer.name = `${root.name}.spacer`;
     root.add(base, stand, body, spacer);
   } else {
-    // Wall O2 port — short stem, no tall stand dominance.
+    // Wall O2 port — short stem. Origin-centered so placement Y is wall height only
+    // (#183 handback: same double-stack class as wall_clock when placement y was 1.2).
     const plate = new Mesh(new BoxGeometry(0.12, 0.16, 0.03), mat(0x7dd3fc, 0.5, 0.15));
-    plate.position.set(0, 1.1, 0);
+    plate.position.set(0, 0, 0);
     plate.name = `${root.name}.wall_plate`;
     const outlet = new Mesh(new CylinderGeometry(0.025, 0.025, 0.06, 10), mat(0xf8fafc, 0.45, 0.2));
     outlet.rotation.x = Math.PI / 2;
-    outlet.position.set(0, 1.1, 0.04);
+    outlet.position.set(0, 0, 0.04);
     outlet.name = `${root.name}.outlet`;
     const gauge = new Mesh(new CylinderGeometry(0.03, 0.03, 0.015, 12), mat(0xfef08a, 0.5, 0.1));
     gauge.rotation.x = Math.PI / 2;
-    gauge.position.set(0, 1.18, 0.02);
+    gauge.position.set(0, 0.08, 0.02);
     gauge.name = `${root.name}.gauge`;
     root.add(plate, outlet, gauge);
+    root.userData.openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root";
   }
   return tagEquipmentRoot(root, equipmentId, "parametric", "handheld_device");
 }
