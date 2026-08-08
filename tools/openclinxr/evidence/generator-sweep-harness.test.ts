@@ -161,23 +161,61 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     }
   }, 900_000);
 
-  it("the fallback ids are measured, not fixed (COUNTERWEIGHT)", async () => {
-    // Ten ids resolve to a 3-mesh / 56-triangle box. This slice measures that gap; it does not close
-    // it. A worker that writes a hospital-bed builder has changed the thing under measurement.
+  it("the clinical support surfaces have their own silhouettes (#198)", async () => {
+    // #194 measured 19 of 37 ids resolving to buildGenericClinicalEquipmentFallback — base box +
+    // upright cylinder + tray box, 3 meshes, 56 triangles, an identical grey pole for all of them.
+    // A hospital bed, a stretcher and bed side rails were among them.
+    //
+    // #198 flips this from "the gap is measured" to "the support surfaces are built". THE CHEAP GREEN
+    // is three more clones of the exam-table deck — #194 already measured that 18 parametric kinds
+    // collapse to ~8 triangle signatures, so having a builder is not having a silhouette. The
+    // collision check below is what catches it.
     const mod = await load();
     const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    const fallback = report.ledger.filter((r) => r.subjectFamily === "equipment" && r.resolvedToFallback);
+    const equipment = report.ledger.filter((r) => r.subjectFamily === "equipment");
 
+    const SUPPORT = ["hospital_bed_equipment", "stretcher_equipment", "side_rails_equipment"] as const;
+    for (const id of SUPPORT) {
+      const row = equipment.find((r) => r.subjectId === id);
+      expect(row, `${id} is not in the ledger at all`).toBeTruthy();
+      expect(
+        row!.resolvedToFallback,
+        `${id} still resolves to the generic fallback — 3 meshes, 56 triangles, a grey pole`,
+      ).toBe(false);
+    }
+
+    // silhouetteKey is partCount|triangles|footprintExtent — an EXTENT, not a single-sided max (§10o).
+    const keyOf = (r: typeof equipment[number]) => {
+      const e = [0, 1, 2].map((i) => (r.worldAabb.max[i]! - r.worldAabb.min[i]!).toFixed(2));
+      return `${r.meshCount}|${r.triangles}|${e.join(",")}`;
+    };
+    const TABLE_FAMILY = ["exam_table_equipment", "post_op_bed_equipment", "pediatric_stretcher_equipment"];
+    const collisions: string[] = [];
+    for (const id of SUPPORT) {
+      const row = equipment.find((r) => r.subjectId === id);
+      if (!row) continue;
+      for (const other of equipment) {
+        if (other.subjectId === id) continue;
+        const comparable = SUPPORT.includes(other.subjectId as never) || TABLE_FAMILY.includes(other.subjectId);
+        if (comparable && keyOf(other) === keyOf(row)) {
+          collisions.push(`${id} shares a silhouette with ${other.subjectId} (${keyOf(row)})`);
+        }
+      }
+    }
+    expect(collisions, "support surfaces sharing a silhouette — clones of one deck, not distinct objects")
+      .toEqual([]);
+
+    // The REST must stay fallback. This slice fixes the support surfaces; absorbing the other
+    // fourteen into a generic improvement destroys the before-column.
+    const stillFallback = equipment.filter((r) => r.resolvedToFallback);
     expect(
-      new Set(fallback.map((r) => r.subjectId)).size,
-      "fewer than 10 ids resolve to the fallback — did this slice write builders instead of measuring?",
-    ).toBeGreaterThanOrEqual(10);
-
-    // And the fallback must still BE the fallback: 3 meshes, small triangle count.
-    for (const row of fallback) {
+      new Set(stillFallback.map((r) => r.subjectId)).size,
+      "fewer than 12 ids still resolve to the fallback — did this slice quietly fix more than the support surfaces?",
+    ).toBeGreaterThanOrEqual(12);
+    for (const row of stillFallback) {
       expect(row.meshCount, `${row.subjectId} is marked fallback but has ${row.meshCount} meshes`)
         .toBeLessThanOrEqual(4);
     }

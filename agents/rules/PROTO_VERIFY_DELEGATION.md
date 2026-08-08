@@ -3351,4 +3351,47 @@ ledger.
 turns, and tag the turn count as bake-dominated. Comparing it against an in-process slice's count is
 comparing two different quantities.
 
+## 10r. Periodic orchestration review — standing operator procedure
+
+Operator direction, 2026-08-08: *"Be sure to periodically summarize the last handful of iterations and
+ask for grok's input as a matter of your normal operating procedure, codify it, and ensure grok has
+context of what you are attempting and ask for an honest review and feedback with suggestions."*
+
+This is distinct from the two rounds already in the loop, and the distinction is the point:
+
+| round | scope | question |
+|---|---|---|
+| **operationalize** (`PROTO_BOARD_LOOP`) | one issue | is this the right work, and would these proofs prove it? |
+| **alternatives** (§10h) | one proposal | what would you do instead of this? |
+| **orchestration review** (this) | the last ~5–8 iterations | is the whole approach working, and what am I not seeing? |
+
+The first two examine a decision. This one examines **the person making the decisions**, which nothing
+else in the loop does. An orchestrator can pass every per-slice review and still be running a strategy
+that does not pay.
+
+**Cadence:** every 5–8 landed slices, or immediately after a scope change from the operator. Not every
+cycle — it costs a full round and its value comes from having enough landings to see a trend.
+
+**What the prompt must carry**, or it degrades into a status update the peer agrees with:
+
+1. **What I am attempting, in my own words** — the thesis, not the task list. If I cannot state it in
+   three sentences, that is the finding.
+2. **The last N iterations with numbers** — rung, turns, what landed, what the measured outcome was.
+3. **My own errors in that stretch, named.** This is the load-bearing part. A review round given only
+   successes returns encouragement. §1b's fingerprint applies to me too: confident narrative on
+   unexamined premises.
+4. **An explicit invitation to say the direction is wrong**, and at least one question I do not want a
+   comfortable answer to — "am I building instruments instead of product?" beats "is the harness good?"
+5. **A request for something to STOP doing.** Reviews reliably produce additions; subtractions have to
+   be asked for by name.
+
+**What to do with the answer:** the same discipline as any other round. It is reliably right about
+structure and unreliable about mechanism — verify tree claims before acting. Findings land in
+`dispatch()`, the brief template, or a rules file; a finding that goes nowhere was a conversation
+(§6c tier 3).
+
+**The failure mode to watch:** this round is the one most likely to produce agreement, because it asks
+about a strategy I have been narrating confidently for several cycles. If it comes back approving, that
+is weak evidence — check whether the prompt gave it anything to disagree with.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
