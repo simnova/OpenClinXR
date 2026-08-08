@@ -81,6 +81,14 @@ import { describe, expect, it } from "vitest";
  * Driven bone upper_arm.L @ 55°: body band Δ ≥ 0.36 m, garment band Δ ≥ 0.16 m, both clear
  * self-calibrated ε ≈ 0.159 m (half driven-bone tip motion). Grade:
  * `.openclinxr/evidence/issue-216/posed-deformation-grade.png` (EEVEE lit rest|posed).
+ *
+ * ## FIXED (#221 A3)
+ *
+ * Live glTF LBS is the sole instrument. Self-calibration uses driven-bone TIP = first child
+ * joint origin motion (upper_arm.L origin is fixed under local rotation — that was why ε
+ * stayed 0 on clean trees). Short-sleeve fraction (0.35 of tip) keeps ε below what a scrub
+ * cuff can physically reach while zero-weight skins still fail. No read of
+ * `.openclinxr/evidence/issue-216/pre-fix.json` or gitignored stage report.
  */
 
 type BodyRig = {

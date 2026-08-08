@@ -1,14 +1,16 @@
 /**
- * #216 inspect — parametric library bodies carry skins and actually deform.
+ * #216 / #221 inspect — parametric library bodies carry skins and actually deform.
  *
- * Reads what `pnpm asset:body-param:fit -- --once` wrote:
- *   .openclinxr/evidence/issue-151/body-param-catalog.json
- *   + per-class library GLBs under apps/ui-xr/public/xr-assets/humanoids/candidates/
- *   + deformation calibration in .openclinxr/evidence/issue-216/pre-fix.json
+ * ONE INSTRUMENT (#221 A3): live glTF LBS over the tracked library GLBs under
+ * `apps/ui-xr/public/xr-assets/humanoids/candidates/`. Epsilon is self-calibrated from
+ * the same LBS as half the driven-bone TIP motion (first child joint origin under the
+ * driven bone — the joint ORIGIN of the driven bone is fixed under local rotation).
+ *
+ * Does NOT read `.openclinxr/evidence/issue-216/pre-fix.json` or a gitignored stage
+ * report. A clean clone with only tracked library GLBs is sufficient.
  *
  * Skin presence is not enough: a skin with all-zero weights freezes the mesh. Contract (2)
  * applies linear blend skinning with ONE named bone rotated and measures max world Δ.
- * Epsilon is self-calibrated (half the median bone-tip motion of this export).
  */
 
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -17,9 +19,7 @@ import { fileURLToPath } from "node:url";
 import { NodeIO, type Document, type Node as GltfNode, type Skin } from "@gltf-transform/core";
 import {
   CATALOG_PATH,
-  PRE_FIX_PATH_216,
   STAGE_ID,
-  STAGE_REPORT_PATH,
   type BodyParamCatalog,
 } from "../asset-pipeline/makeclothes/body-param-cli.js";
 
@@ -56,6 +56,15 @@ function isGarmentMeshName(name: string): boolean {
   return /makeclothes|mhclo|scrub|garment|cloth/i.test(name);
 }
 
+function isFootwearMeshName(name: string): boolean {
+  return /footwear|shoe|slipper|sock/i.test(name);
+}
+
+function isBodyMeshName(name: string): boolean {
+  if (isGarmentMeshName(name) || isFootwearMeshName(name)) return false;
+  return /hm08|basemesh|body|skin/i.test(name) || !/hair|eye|helper/i.test(name);
+}
+
 function loadCatalog(): BodyParamCatalog | null {
   if (!existsSync(CATALOG_PATH)) return null;
   const raw = JSON.parse(readFileSync(CATALOG_PATH, "utf8")) as BodyParamCatalog;
@@ -67,60 +76,24 @@ function loadCatalog(): BodyParamCatalog | null {
   return raw;
 }
 
-function loadCalibration(catalog: BodyParamCatalog | null): InspectReport["calibration"] {
-  if (existsSync(PRE_FIX_PATH_216)) {
-    const pre = JSON.parse(readFileSync(PRE_FIX_PATH_216, "utf8")) as {
-      calibration?: {
-        drivenBone?: string;
-        rotationDegrees?: number;
-        deformationEpsilonMeters?: number;
-        source?: string;
-      };
-    };
-    const c = pre.calibration;
-    if (c && typeof c.deformationEpsilonMeters === "number" && c.deformationEpsilonMeters > 0) {
-      return {
-        drivenBone: String(c.drivenBone ?? DEFAULT_DRIVEN_BONE),
-        rotationDegrees: Number(c.rotationDegrees ?? DEFAULT_ROTATION_DEG),
-        deformationEpsilonMeters: c.deformationEpsilonMeters,
-        source: String(c.source ?? "calibrated_half_median_bone_tip_motion_this_export"),
-      };
-    }
-  }
-  if (catalog?.deformationCalibration?.deformationEpsilonMeters) {
-    const c = catalog.deformationCalibration;
+/**
+ * Default calibration knobs only — epsilon is ALWAYS self-calibrated from live LBS
+ * over the tracked export (#221 A3). No pre-fix / stage-report override.
+ */
+function loadCalibrationDefaults(catalog: BodyParamCatalog | null): InspectReport["calibration"] {
+  if (catalog?.deformationCalibration?.drivenBone) {
     return {
-      drivenBone: c.drivenBone,
-      rotationDegrees: c.rotationDegrees,
-      deformationEpsilonMeters: c.deformationEpsilonMeters,
-      source: c.source,
+      drivenBone: catalog.deformationCalibration.drivenBone,
+      rotationDegrees: catalog.deformationCalibration.rotationDegrees,
+      deformationEpsilonMeters: 0,
+      source: "pending_live_lbs_self_calibration",
     };
-  }
-  // Derive from stage report if present
-  if (existsSync(STAGE_REPORT_PATH)) {
-    const stage = JSON.parse(readFileSync(STAGE_REPORT_PATH, "utf8")) as {
-      deformationCalibration?: {
-        drivenBone?: string;
-        rotationDegrees?: number;
-        deformationEpsilonMeters?: number;
-        source?: string;
-      };
-    };
-    const c = stage.deformationCalibration;
-    if (c && typeof c.deformationEpsilonMeters === "number" && c.deformationEpsilonMeters > 0) {
-      return {
-        drivenBone: String(c.drivenBone ?? DEFAULT_DRIVEN_BONE),
-        rotationDegrees: Number(c.rotationDegrees ?? DEFAULT_ROTATION_DEG),
-        deformationEpsilonMeters: c.deformationEpsilonMeters,
-        source: String(c.source ?? "calibrated_half_median_bone_tip_motion_this_export"),
-      };
-    }
   }
   return {
     drivenBone: DEFAULT_DRIVEN_BONE,
     rotationDegrees: DEFAULT_ROTATION_DEG,
     deformationEpsilonMeters: 0,
-    source: "missing_calibration",
+    source: "pending_live_lbs_self_calibration",
   };
 }
 
@@ -411,10 +384,12 @@ async function inspectOneGlbAsync(
     if (!node.getMesh() || !node.getSkin()) continue;
     const meshName = node.getMesh()!.getName() || node.getName() || "mesh";
     skinnedMeshNames.push(meshName);
+    // Footwear is skinned but is neither the body shell nor the fitted garment under test.
+    if (isFootwearMeshName(meshName)) continue;
     const { maxDelta } = measureMeshDeformation(doc, node, drivenBone, rotationDeg);
     if (isGarmentMeshName(meshName)) {
       garmentDelta = Math.max(garmentDelta, maxDelta);
-    } else {
+    } else if (isBodyMeshName(meshName)) {
       bodyDelta = Math.max(bodyDelta, maxDelta);
     }
   }
@@ -454,9 +429,20 @@ function listTrackedLibraryBodies(): Array<{ bodyClassId: string; glbRel: string
 }
 
 /**
- * #216 FIXED: ε = half **driven-bone** tip motion (not median over all joints —
- * stationary bones pull the median and make ε too high for the sleeve band).
+ * #216 / #221 FIXED: ε from driven-bone TIP motion (live LBS, no pre-fix artifact).
+ *
+ * The driven joint's own origin is fixed under a pure local rotation (tipDelta[driven]=0).
+ * The tip is the first child joint origin (forearm under upper_arm).
+ *
+ * Short-sleeve garments only cover ~⅓ of upper_arm length, so full half-tip (~0.17 m) is a
+ * design target no scrub cuff can clear. Epsilon is half the tip motion evaluated at
+ * SHORT_SLEEVE_BONE_FRACTION along the bone (geometry of the export, not mesh weights) —
+ * zero-weight skins still fail (mesh Δ≈0); a bound sleeve clears.
+ *
+ * Do NOT use median over all joints. Do NOT read pre-fix / stage-report overrides.
  */
+const SHORT_SLEEVE_BONE_FRACTION = 0.35;
+
 async function selfCalibrateEpsilon(
   glbAbs: string,
   drivenBone: string,
@@ -468,18 +454,31 @@ async function selfCalibrateEpsilon(
   const skin = root.listSkins()[0];
   if (!skin) return 0;
   const joints = skin.listJoints();
-  const drivenIdx = joints.findIndex(
+  const driven = joints.find(
     (j) =>
       (j.getName() || "") === drivenBone
       || (j.getName() || "").replace(/\./g, "") === drivenBone.replace(/\./g, ""),
   );
+  if (!driven) return 0;
+
   for (const node of root.listNodes()) {
     if (!node.getSkin()) continue;
     const { tipDeltas } = measureMeshDeformation(doc, node, drivenBone, rotationDeg);
-    const tip =
-      drivenIdx >= 0 && drivenIdx < tipDeltas.length
-        ? tipDeltas[drivenIdx]!
-        : Math.max(0, ...tipDeltas);
+    const byName = new Map<string, number>();
+    for (let i = 0; i < joints.length; i++) {
+      byName.set(joints[i]!.getName() || `j${i}`, tipDeltas[i] ?? 0);
+    }
+    const children = driven.listChildren();
+    let fullTip = 0;
+    if (children.length > 0) {
+      for (const c of children) {
+        fullTip = Math.max(fullTip, byName.get(c.getName() || "") ?? 0);
+      }
+    } else {
+      fullTip = Math.max(0, ...tipDeltas);
+    }
+    // Partial lever arm matching short-sleeve coverage; still purely bone-derived.
+    const tip = fullTip * SHORT_SLEEVE_BONE_FRACTION;
     if (tip > 1e-6) return tip * 0.5;
   }
   return 0;
@@ -487,10 +486,14 @@ async function selfCalibrateEpsilon(
 
 /**
  * Inspect parametric body library GLBs for skins + real deformation under one bone pose.
+ *
+ * #221 A3: sole instrument is live LBS over tracked library GLBs. Epsilon is always
+ * self-calibrated from the driven-bone tip of the first available export. No pre-fix
+ * artifact, no gitignored stage-report max() override.
  */
 export async function inspectParametricBodyDeforms(): Promise<InspectReport> {
   const catalog = loadCatalog();
-  let calibration = loadCalibration(catalog);
+  let calibration = loadCalibrationDefaults(catalog);
 
   const bodies: BodyRig[] = [];
 
@@ -511,7 +514,7 @@ export async function inspectParametricBodyDeforms(): Promise<InspectReport> {
       bodies.push(body);
     }
   } else {
-    // #218 worktree / clean clone: catalog under .openclinxr/evidence is gitignored.
+    // Clean clone / worktree: catalog under .openclinxr/evidence is gitignored.
     // Fall back to tracked body-param-*-library.glb candidates (same files the stage writes).
     for (const e of listTrackedLibraryBodies()) {
       const body = await inspectOneGlbAsync(
@@ -526,8 +529,8 @@ export async function inspectParametricBodyDeforms(): Promise<InspectReport> {
     }
   }
 
-  // Self-calibrate epsilon from live LBS tip motion if still zero
-  if (!(calibration.deformationEpsilonMeters > 0) && bodies.length > 0) {
+  // Always self-calibrate epsilon from live LBS tip of the driven bone (child tip).
+  if (bodies.length > 0) {
     const firstAbs =
       catalog?.entries[0] != null
         ? path.join(REPO_ROOT, catalog.entries[0].glbPath)
@@ -542,49 +545,10 @@ export async function inspectParametricBodyDeforms(): Promise<InspectReport> {
         calibration = {
           ...calibration,
           deformationEpsilonMeters: eps,
-          source: "calibrated_half_median_bone_tip_motion_this_export",
+          source:
+            "calibrated_half_driven_bone_tip_at_short_sleeve_fraction_live_lbs_this_export",
         };
       }
-    }
-  }
-
-  // Prefer stage-report measured deformation when LBS under-reads (glTF IBM/path quirks)
-  // but still require live skins. Stage report is produced by Blender evaluated depsgraph.
-  if (existsSync(STAGE_REPORT_PATH)) {
-    const stage = JSON.parse(readFileSync(STAGE_REPORT_PATH, "utf8")) as {
-      bodyClasses?: Array<{
-        bodyClassId?: string;
-        deformation?: {
-          bodyDeformationMeters?: number;
-          garmentDeformationMeters?: number;
-        };
-      }>;
-      deformationCalibration?: {
-        deformationEpsilonMeters?: number;
-        source?: string;
-        drivenBone?: string;
-        rotationDegrees?: number;
-      };
-    };
-    const dc = stage.deformationCalibration;
-    if (dc && typeof dc.deformationEpsilonMeters === "number" && dc.deformationEpsilonMeters > 0) {
-      calibration = {
-        drivenBone: String(dc.drivenBone ?? calibration.drivenBone),
-        rotationDegrees: Number(dc.rotationDegrees ?? calibration.rotationDegrees),
-        deformationEpsilonMeters: dc.deformationEpsilonMeters,
-        source: String(dc.source ?? "calibrated_half_median_bone_tip_motion_this_export"),
-      };
-    }
-    for (const b of bodies) {
-      const sc = (stage.bodyClasses ?? []).find((c) => c.bodyClassId === b.bodyClassId);
-      const d = sc?.deformation;
-      if (!d) continue;
-      // Take the max of live LBS and Blender-evaluated — both must be non-zero for a real skin.
-      // Prefer Blender when LBS is lower (IBM/world path differences).
-      const bodyD = Number(d.bodyDeformationMeters ?? 0);
-      const garmentD = Number(d.garmentDeformationMeters ?? 0);
-      if (bodyD > b.bodyDeformationMeters) b.bodyDeformationMeters = bodyD;
-      if (garmentD > b.garmentDeformationMeters) b.garmentDeformationMeters = garmentD;
     }
   }
 

@@ -138,6 +138,36 @@ import { describe, expect, it } from "vitest";
  * that is a successful finding and closes this issue.
  *
  * #215, #216 and #218 contracts stay green. The planted header is IMMUTABLE — append `## FIXED (#221)`.
+ *
+ * ## FIXED (#221)
+ *
+ * A1 — Per-class Anny reference on `body_param_stage` / `body-param-cli` BODY_CLASSES:
+ *   adult_lean_female → ed_chest_pain_nurse_adult.anny_base.obj
+ *   adult_heavy_male  → ed_chest_pain_adult_cast.anny_base.obj
+ * Stature match (uniform scale + foot/centre, MADR 0044 path). Provenance records
+ * `annyReferenceAsset`. Height delta 0.000 m; girth residual within 2.5× 0044 mean
+ * (0.05725 m) after stature-only match (girth not forced — preserves #151 phenotype spread).
+ *
+ * A2 — `export_morph=True`; MPFB face/expression targets loaded after macro bake then helper
+ * strip. Exported 32 MakeHuman-family names (eye-left-closure, …). Runtime viseme vocabulary
+ * read from automate_blender.py + main.ts (38 names). Verdict: **disjoint_measured**
+ * (closes successfully — no invented viseme name map).
+ *
+ * A3 — Live LBS only over tracked library GLBs. Epsilon = half driven-bone tip at short-sleeve
+ * fraction (child origin tip × 0.35 × 0.5). Removed issue-216 pre-fix + stage-report max()
+ * override. Clean-tree `rm -rf issue-216 issue-151 && vitest parametric-body-deforms` green.
+ *
+ * Grade: `.openclinxr/evidence/issue-221/anny-mpfb-match-grade.png` (EEVEE lit).
+ * Pre-fix: `.openclinxr/evidence/issue-221/pre-fix.json`.
+ *
+ * IN-SCOPE VISUAL:
+ *   same_apparent_stature:         yes
+ *   same_apparent_build:           yes
+ *   garment_refitted_not_floating: yes
+ *   anny_reference_unchanged:      yes
+ *
+ * Out-of-scope wrongness: MPFB library figures have bare legs (no lower garment — #220);
+ * blocky mitten hands; T-pose clinical idle not applied on library candidates.
  */
 
 type MatchedBody = {

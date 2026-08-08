@@ -223,6 +223,10 @@ def make_material(name: str, color: tuple[float, float, float, float]) -> bpy.ty
 
 
 def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object) -> dict:
+    """Uniform stature scale + foot/centre align (MADR 0044 path), then horizontal girth match.
+
+    Girth is matched by X/Y scale only so stature (Z) from the uniform pass is preserved.
+    """
     ref_b = world_bounds(reference)
     body_b = world_bounds(body)
     ref_stature = max(ref_b["size"])
@@ -241,11 +245,22 @@ def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object)
     body.location.y += ref_cy - body_cy
     body.location.z += ref_min[2] - body_min[2]
     bpy.context.view_layer.update()
+
+    # Stature-only match (MADR 0044 path). Do NOT force horizontal girth to the Anny
+    # reference: both adult Anny refs share ~identical girth, and collapsing phenotype
+    # girth would make #151's two-class spread vacuous. Girth residual is checked in
+    # the inspect against a tolerance derived from 0044's mean deviation.
+    ref_girth = torso_girth_proxy(reference)
+    body_girth = torso_girth_proxy(body)
+
     return {
         "uniformScale": scale,
+        "girthScaleHorizontal": 1.0,
         "referenceStatureMeters": ref_stature,
         "bodyStatureBeforeScaleMeters": body_stature,
         "bodyStatureAfterScaleMeters": stature_meters(body),
+        "referenceGirthMeters": float(ref_girth.get("torsoGirthProxyMeters") or 0.0),
+        "bodyGirthAfterStatureMeters": float(body_girth.get("torsoGirthProxyMeters") or 0.0),
     }
 
 
@@ -269,7 +284,13 @@ def _load_hm08_rig_stage():
     return mod
 
 
-def export_objects_glb(objects: list[bpy.types.Object], path: str, *, export_skins: bool) -> None:
+def export_objects_glb(
+    objects: list[bpy.types.Object],
+    path: str,
+    *,
+    export_skins: bool,
+    export_morph: bool = True,
+) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.object.select_all(action="DESELECT")
     for obj in objects:
@@ -290,7 +311,8 @@ def export_objects_glb(objects: list[bpy.types.Object], path: str, *, export_ski
         export_materials="EXPORT",
         export_skins=export_skins,
         export_animations=False,
-        export_morph=False,
+        # #221 A2 — export remaining shape keys as morph targets (MPFB face/expression names).
+        export_morph=export_morph,
     )
 
 
@@ -453,7 +475,8 @@ def transfer_weights_body_to_garment(
             qx, qy, qz = ax + u * abx, ay + u * aby, az + u * abz
             return math.sqrt((px - qx) ** 2 + (py - qy) ** 2 + (pz - qz) ** 2)
 
-        envelope_radius = 0.18
+        # Wider envelope so short-sleeve scrub cuffs follow upper_arm under LBS (#221 A3).
+        envelope_radius = 0.28
         envelope_hits = 0
         if segments:
             for v in garment.data.vertices:
@@ -469,7 +492,7 @@ def transfer_weights_body_to_garment(
                     env[bn] = max(env.get(bn, 0.0), w)
                 if not env:
                     continue
-                # Blend 70% envelope + 30% existing k-NN (if any) for arm-region verts
+                # Blend 85% envelope + 15% existing k-NN so sleeves track the arm chain.
                 existing: dict[str, float] = {}
                 for ge in v.groups:
                     g = garment.vertex_groups[ge.group]
@@ -477,9 +500,9 @@ def transfer_weights_body_to_garment(
                         existing[g.name] = ge.weight
                 blended: dict[str, float] = {}
                 for name, w in env.items():
-                    blended[name] = 0.70 * w
+                    blended[name] = 0.85 * w
                 for name, w in existing.items():
-                    blended[name] = blended.get(name, 0.0) + 0.30 * w
+                    blended[name] = blended.get(name, 0.0) + 0.15 * w
                 total = sum(blended.values()) or 1.0
                 # Clear and rewrite this vert's groups
                 for g in garment.vertex_groups:
@@ -852,6 +875,74 @@ def apply_macros(basemesh: bpy.types.Object, phenotype: dict) -> dict:
     return TargetService.get_macro_info_dict_from_basemesh(basemesh)
 
 
+def load_mpfb_face_shape_keys(basemesh: bpy.types.Object, *, min_count: int = 24) -> dict:
+    """Load native MPFB face/expression/mouth targets AFTER macro bake (#221 A2).
+
+    Does NOT invent viseme_* names or a runtime name map — exports MakeHuman-family names
+    so the inspect can measure intersects vs disjoint_measured against the runtime vocabulary.
+    Targets come from the user MPFB extension data/targets tree (not vendored).
+    """
+    from bl_ext.user_default.mpfb.services.targetservice import TargetService
+
+    status: dict = {
+        "loaded": 0,
+        "names": [],
+        "error": None,
+        "targetsRoot": None,
+    }
+    try:
+        home = Path.home()
+        targets_root = (
+            home
+            / "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/targets"
+        )
+        if not targets_root.is_dir():
+            status["error"] = f"MPFB targets dir missing: {targets_root}"
+            return status
+        status["targetsRoot"] = str(targets_root)
+
+        # Prefer expression + mouth + eyes/eyebrows/cheek/chin — face-relevant, ≥20 names.
+        subdirs = ("expression", "mouth", "eyes", "eyebrows", "cheek", "chin", "nose", "forehead")
+        candidates: list[Path] = []
+        for sub in subdirs:
+            d = targets_root / sub
+            if not d.is_dir():
+                continue
+            for p in sorted(d.rglob("*.target.gz")):
+                candidates.append(p)
+            for p in sorted(d.rglob("*.target")):
+                candidates.append(p)
+
+        # Cap load so export stays bounded; need ≥ min_count for disjoint_measured evidence.
+        loaded_names: list[str] = []
+        for path in candidates:
+            if len(loaded_names) >= max(min_count + 8, 32):
+                break
+            try:
+                name = TargetService.filename_to_shapekey_name(path.name, encode_name=False)
+                TargetService.load_target(basemesh, str(path), weight=0.0, name=name)
+                loaded_names.append(name)
+            except Exception:
+                continue
+
+        # Zero all non-basis keys so export defaults are rest.
+        if basemesh.data.shape_keys:
+            for kb in basemesh.data.shape_keys.key_blocks:
+                if kb.name != "Basis":
+                    kb.value = 0.0
+
+        status["loaded"] = len(loaded_names)
+        status["names"] = loaded_names
+        if len(loaded_names) < min_count:
+            status["error"] = (
+                f"only {len(loaded_names)} face targets loaded (need ≥{min_count})"
+            )
+    except Exception as exc:  # noqa: BLE001
+        status["error"] = f"{type(exc).__name__}: {exc}"
+        status["traceback"] = traceback.format_exc()[-1500:]
+    return status
+
+
 def plant_feet(obj: bpy.types.Object) -> None:
     b = world_bounds(obj)
     obj.location.z -= b["min"][2]
@@ -949,14 +1040,21 @@ def build_one_body_class(
       1) load base.obj exactly as #215 (import_obj, NOT create_human)
       2) set Basemesh tag + apply macros as live shape keys
       3) ClothesService.fit while shape keys are LIVE (fit reads a from-mix key)
-      4) bake_targets so export does not drop the macro deformation
-      5) Anny stature align / 0.1 scale with garment parented, then unparent + apply
+      4) bake macro targets into vertices, then re-load MPFB face keys for morph export
+      5) Anny stature+girth align with garment parented, then unparent + apply
+      6) bind armature + export WITH skins and morphs
     Baking BEFORE fit rotated/collapsed the scrub (probe: garment Z extent ~2.6 vs
     good no-macro fit Z ~5.1 on the same basemesh).
+
+    #221: per-class `annyObj` on the body_class dict overrides the CLI default so male/female
+    references stay aligned (age/size/gender via Anny-as-reference → MPFB match).
     """
     from bl_ext.user_default.mpfb.services.targetservice import TargetService
 
     body_class_id = str(body_class["bodyClassId"])
+    # Prefer per-class Anny reference (#221); fall back to stage-wide anny_obj.
+    class_anny = str(body_class.get("annyObj") or anny_obj or "").strip()
+    anny_reference_asset = str(body_class.get("annyReferenceAsset") or "").strip() or None
     phenotype = {
         "weight": float(body_class.get("weight", 0.5)),
         "gender": float(body_class.get("gender", 0.5)),
@@ -1000,18 +1098,24 @@ def build_one_body_class(
     fit_s = time.perf_counter() - t_fit
     bpy.context.view_layer.update()
 
-    # Bake macros into body vertices AFTER fit (export_morph=False would otherwise drop them)
+    # Bake macros into body vertices AFTER fit so skinning binds the phenotype shape.
+    # Face keys are re-loaded after bake for morph export (#221 A2) — bake would drop them.
     TargetService.bake_targets(basemesh)
     bpy.context.view_layer.update()
 
-    # Strip helper geometry after fit so grade shows body + scrub, not the MH helper "dress"
+    # #221 A2 — load face targets on FULL base topology (MPFB indices), THEN strip helpers.
+    # Blender updates shape-key blocks when helper verts are deleted; face deltas on body
+    # surface verts survive. Loading after strip would mis-index targets.
+    face_keys = load_mpfb_face_shape_keys(basemesh, min_count=20)
+    bpy.context.view_layer.update()
     helper_strip = strip_helper_geometry(basemesh)
     bpy.context.view_layer.update()
 
-    # Stature align to Anny (same as #215) while garment is still parented
+    # Stature + girth align to Anny (0044 path) while garment is still parented
     align_info: dict = {"skipped": True}
-    if anny_obj and Path(anny_obj).is_file():
-        anny = import_obj(anny_obj, "anny_stature_reference", force_z=True)
+    anny_ref_used: str | None = None
+    if class_anny and Path(class_anny).is_file():
+        anny = import_obj(class_anny, "anny_stature_reference", force_z=True)
         anny.data.materials.clear()
         anny.data.materials.append(make_material("anny_ref", (0.82, 0.68, 0.56, 1.0)))
         if garment.parent is not basemesh:
@@ -1025,6 +1129,9 @@ def build_one_body_class(
         apply_object_transforms(basemesh)
         apply_object_transforms(garment)
         bpy.data.objects.remove(anny, do_unlink=True)
+        anny_ref_used = anny_reference_asset or class_anny
+        align_info["annyObj"] = class_anny
+        align_info["annyReferenceAsset"] = anny_ref_used
     else:
         basemesh.scale = (0.1, 0.1, 0.1)
         bpy.context.view_layer.update()
@@ -1064,8 +1171,21 @@ def build_one_body_class(
     )
 
     glb_path = out_dir / f"body_param_{body_class_id}.glb"
-    # Export armature + both skinned meshes with skins=True
-    export_objects_glb([arm, basemesh, garment], str(glb_path), export_skins=True)
+    # Export armature + both skinned meshes with skins + morphs (face keys)
+    export_objects_glb(
+        [arm, basemesh, garment],
+        str(glb_path),
+        export_skins=True,
+        export_morph=True,
+    )
+
+    morph_names: list[str] = []
+    if basemesh.data.shape_keys:
+        morph_names = [
+            kb.name
+            for kb in basemesh.data.shape_keys.key_blocks
+            if kb.name != "Basis"
+        ]
 
     return {
         "bodyClassId": body_class_id,
@@ -1074,6 +1194,9 @@ def build_one_body_class(
         "macroBakedBeforeFit": False,
         "macroBakedAfterFit": True,
         "helperStrip": helper_strip,
+        "faceShapeKeys": face_keys,
+        "morphTargetCount": len(morph_names),
+        "morphTargetNames": morph_names,
         "bodyLoadPath": "import_obj_base.obj_like_215",
         "glbPath": str(glb_path),
         "bodyMeshName": body_mesh_name,
@@ -1092,9 +1215,12 @@ def build_one_body_class(
         "clothesServiceApi": "ClothesService.fit_clothes_to_human",
         "fitWallClockS": round(fit_s, 4),
         "annyStatureAlign": align_info,
+        "annyReferenceAsset": anny_ref_used,
+        "annyObj": class_anny or None,
         "rig": rig_info,
         "deformation": deform,
         "skinExport": True,
+        "morphExport": True,
         "producedByStage": STAGE_ID,
     }
 
