@@ -116,3 +116,79 @@ posture.
 This record is an engineering posture, not legal advice, and nobody involved in producing it is a
 lawyer. It is deliberately conservative: prefer CC0 and our own generation, so that the questions above
 stay hypothetical.
+
+## Update 2026-08-07 — the local Apple-Silicon path is licence-clear, and it changes the recommendation
+
+Operator direction: evaluate `pedronaugusto/trellis2-apple` and `shivampkumar/trellis-mac` as
+alternatives to Meshy, and check licences.
+
+**They are not alternatives.** `trellis-mac`'s `setup.sh` clones `trellis2-apple` plus four Metal
+kernel libraries by the same author; it is an installer around the other one. Both target TRELLIS.2.
+
+### The CUDA wall that closed #164 has a Metal replacement, pinned by commit
+
+`requirements_macos.txt` in `trellis2-apple` aliases the CUDA extensions to Metal implementations
+under their original import names:
+
+    cumesh      @ pedronaugusto/mtlmesh      (fork of JeffreyXiang/CuMesh, MIT)
+    flex_gemm   @ pedronaugusto/mtlgemm
+    mtldiffrast @ pedronaugusto/mtldiffrast
+    mtlbvh      @ pedronaugusto/mtlbvh
+
+and opens with `# NO: flash_attn, spconv, torchsparse (CUDA-only)`. `cumesh_vb` — the import inside
+`stages.run_multiview_shape_generation` that returned `reject_measured` on this machine — is exactly
+what `mtlmesh` replaces.
+
+`mtldiffrast` is a Metal **replacement** for nvdiffrast rather than a derivative of it. That is the
+distinction that made this project refuse AniGen-mac, whose vendored extension derived from NVIDIA
+instant-ngp under a non-commercial licence.
+
+### Licence position, verified per dependency
+
+| dependency | licence | source |
+|---|---|---|
+| `microsoft/TRELLIS.2-4B` | **MIT** | HF API |
+| `pedronaugusto/trellis2-apple` | **MIT** (Microsoft's, preserved through the fork) | GitHub API + LICENSE |
+| `mtlmesh` / `mtlgemm` / `mtldiffrast` / `mtlbvh` | **MIT** ×4 | GitHub API |
+| `JeffreyXiang/CuMesh` upstream | **MIT** | GitHub API |
+| `facebook/dinov3-vitl16-pretrain-lvd1689m` | custom, **commercial permitted** | licence text read in full |
+| `briaai/RMBG-2.0` | **CC BY-NC 4.0** — non-commercial | HF `license_link` |
+
+**`shivampkumar/trellis-mac` is refused on licence.** Its README requires gated access to RMBG-2.0,
+whose HuggingFace `license_link` resolves to `creativecommons.org/licenses/by-nc/4.0/`.
+
+**`trellis2-apple` does not require it** — `requirements_macos.txt` contains no background remover at
+all, and `app_mlx.py` imports none. That was the last open licence question.
+
+### DINOv3, read in full
+
+Grant: *"non-exclusive, worldwide, non-transferable and royalty-free limited license … to use,
+reproduce, distribute, copy, create derivative works of, and make modifications."* **No commercial
+restriction, no field-of-use restriction, and no Acceptable Use Policy annex** — unlike the Llama
+family. Across the whole agreement: `Acceptable Use` 0 hits, `medical` 0, `health` 0, `field of use` 0.
+
+Its conditions attach to **distributing the DINO Materials or derivative works thereof**: pass the
+agreement along and prominently display "Built with DINOv3". We would not redistribute the weights —
+the use is offline generation, shipping only the GLB — and §5(a) says derivative works we make are
+ours. **Whether a generated GLB is a "derivative work of the DINO Materials" is a lawyer question and
+is not answered here.** Adding "Built with DINOv3" to the credits surface costs nothing and means it
+never has to be.
+
+Three unusual terms, recorded because they are easy to miss: **§5(b)** patent-retaliation termination
+plus an indemnity running from us to Meta; **§8** Meta may modify the agreement unilaterally with
+changes *"effective immediately"*, so the accepted text and its date belong in the provenance record;
+**§7** California law and exclusive California jurisdiction.
+
+### What this changes, and what it does not
+
+**Changes:** the local path is licence-open and strictly better than Meshy on every licence axis — MIT
+model, our own generation, no attribution obligation on output, no cloud credential, no per-asset cost,
+no operator approval gate. The recommendation in this record — prefer CC0 or our own generation —
+now has a viable local implementation.
+
+**Does not change:** whether the output is usable. `trellis-mac` reports ~800K triangles against a
+60,000 per-asset ceiling **with simplification disabled**; thin elements (casters, IV poles, rails,
+bezels) are where this model class fails; and a generated medical device risks invented controls that
+look authoritative and are wrong. Our parametric ECG cart is 288 triangles and reads correctly.
+
+Licence-clear is necessary and not sufficient. The bake-off decides.
