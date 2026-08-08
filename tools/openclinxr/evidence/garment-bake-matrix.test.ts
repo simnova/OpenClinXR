@@ -229,8 +229,8 @@ describe("the garment parameter space is swept in a bake harness (#195)", () => 
   }, 3_600_000);
 
   it("the shipping coefficients are unchanged (COUNTERWEIGHT)", async () => {
-    // The cheap green is to "improve" 0.31 while measuring. That destroys the before-column and
-    // pre-empts a choice that belongs to whoever grades the sheet.
+    // Cardigan hem/sleeve and gown hem must not move under a gown-sleeve fix. Gown sleeve pin is
+    // the #200 DECIDED value from the gown sweep sheet (0.42), not the defective 0.72.
     const mod = await load();
     const inspect = mod["inspectGarmentBakeMatrix"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -238,21 +238,20 @@ describe("the garment parameter space is swept in a bake harness (#195)", () => 
     const report = await inspect!();
     const byName = new Map(report.shippedCoefficients.map((c) => [c.name, c.value]));
 
-    // These are the values on main at plant time. If a sweep changed the source, this fails.
     for (const [name, expected] of [
-      // #197: DECIDED from the #195 sweep — 0.31 produced a below-knee coat (hemY 0.546).
-      // 0.42 reads as a cardigan (hemY 0.739). This is RED until the generator matches.
+      // #197: DECIDED from the #195 sweep — 0.42 cardigan hem. Must not move under #200.
       ["cardigan_bot_y_fraction", 0.42],
       ["gown_bot_y_fraction", 0.32],
       ["cardigan_sleeve_along_fraction", 0.92],
-      ["gown_sleeve_along_fraction", 0.72],
+      // #200: DECIDED from gown-sleeve-sweep-sheet — 0.42 upper-arm exam gown (was 0.72 saturating).
+      ["gown_sleeve_along_fraction", 0.42],
       ["cardigan_front_opening_rad", 0.95],
     ] as const) {
       const actual = byName.get(name);
       expect(actual, `coefficient ${name} not recorded in the ledger`).toBeTypeOf("number");
       expect(
         Math.abs((actual as number) - expected),
-        `shipping coefficient ${name} changed from ${expected} to ${actual} — this slice measures, it does not tune`,
+        `shipping coefficient ${name} changed from ${expected} to ${actual} — counterweight regression`,
       ).toBeLessThan(1e-6);
     }
 
