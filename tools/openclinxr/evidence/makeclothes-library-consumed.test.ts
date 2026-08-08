@@ -42,11 +42,11 @@ import { describe, expect, it } from "vitest";
  *
  *   apps/ui-xr/src/main.ts:7314
  *     humanoidSourceComparator === "reom_local_fitted_garment_patient"
- *       -> '/xr-assets/humanoids/candidates/reom-local-fitted-scrub-top-candidate.glb'
+ *       -> '/xr-assets/humanoids/candidates/makeclothes-hm08-scrub-shirt-library.glb'
+ *         (was reom-local-fitted-scrub-top-candidate.glb; #215 factory stage owns the path)
  *
- * That GLB is on disk at 2.6 MB. A comparator resolving a fitted-garment humanoid is already a
- * supported shape. What is missing is a FACTORY STAGE that produces such a GLB from the MakeClothes
- * library, with provenance.
+ * A comparator resolving a fitted-garment humanoid is a supported shape. #215 wires a FACTORY STAGE
+ * that produces the library GLB from MakeClothes with provenance.
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * SCOPE — a peer round argued me down from "convert an existing role"
