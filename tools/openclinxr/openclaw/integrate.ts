@@ -39,6 +39,8 @@ export type IntegrateInput = {
 
 export type IntegrationEvent = {
   slice: string;
+  /** Build-emitting packages rebuilt after the merge (#152 / #196). */
+  rebuiltPackages?: string[];
   base: string;
   head: string;
   at: string;
@@ -196,6 +198,51 @@ export function assertIntegrateHeadUsable(head: string): void {
   }
 }
 
+
+/**
+ * #196 / #152: a land that changes a build-emitting package leaves the checkout STALE.
+ *
+ * `dist/` is gitignored, so `git merge` carries the source and not the build. The worker's proofs
+ * were true in its worktree — where the package had been built — and false on main a minute later.
+ * Observed 2026-08-08: `dist/environment-zone-templates.js` EXISTED but predated the new export, so
+ * the import resolved and handed back `undefined`. Five contracts failed with
+ * `TypeError: resolveFixtureSlotsForRoom is not a function`, which reads like a logic bug rather
+ * than a build problem. A MISSING artifact fails loudly at import; a STALE one fails at call time.
+ *
+ * No `done_when` can catch this — a proof that runs in the worktree cannot see what integration
+ * carries. So the land path rebuilds, and reports what it rebuilt.
+ */
+export function packagesNeedingRebuild(repoRoot: string, base: string, head: string): string[] {
+  let changed: string;
+  try {
+    changed = execFileSync("git", ["diff", "--name-only", `${base}...${head}`], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch {
+    return [];
+  }
+  const names = new Set<string>();
+  for (const line of changed.split("\n")) {
+    const match = /^(packages\/[^/]+\/[^/]+)\/src\//u.exec(line.trim());
+    if (!match) continue;
+    const pkgJson = join(repoRoot, match[1]!, "package.json");
+    if (!existsSync(pkgJson)) continue;
+    try {
+      const manifest = JSON.parse(readFileSync(pkgJson, "utf8")) as {
+        name?: string;
+        scripts?: Record<string, string>;
+      };
+      // Only packages that actually emit a build, and only if they name themselves.
+      if (manifest.name && manifest.scripts?.["build"]) names.add(manifest.name);
+    } catch {
+      // An unreadable manifest is not this function's problem to report.
+    }
+  }
+  return [...names].sort();
+}
+
 export function integrate(input: IntegrateInput): IntegrateResult {
   // Operator mistake must be named as such BEFORE merge-kill can reframe it as forgery (#84).
   assertIntegrateHeadUsable(input.head);
@@ -244,8 +291,27 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     throw new Error(`integrate: merge commit failed — ${detail.slice(0, 300)}`);
   }
 
+  // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale
+  // checkout rather than a reason to refuse a merge that already passed every gate.
+  const rebuilt = packagesNeedingRebuild(input.repoRoot, input.base, input.head);
+  for (const pkg of rebuilt) {
+    try {
+      execFileSync("pnpm", ["--filter", pkg, "build"], {
+        cwd: input.repoRoot,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch (error) {
+      const detail = error instanceof Error && "stderr" in error ? String((error as { stderr?: Buffer }).stderr) : "";
+      throw new Error(
+        `integrate: landed, but rebuilding ${pkg} FAILED — the checkout is stale and contracts will `
+        + `fail against a dist/ that predates this merge. ${detail.slice(0, 300)}`,
+      );
+    }
+  }
+
   const event: IntegrationEvent = {
     slice: input.slice,
+    ...(rebuilt.length > 0 ? { rebuiltPackages: rebuilt } : {}),
     base: input.base,
     head: input.head,
     at: new Date().toISOString(),
