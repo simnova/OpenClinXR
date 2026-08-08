@@ -28,17 +28,33 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
-import { readMhcloLicense } from "./fit-cli.js";
+import {
+  examineLowerGarmentCandidates,
+  isPermittedGarmentLicense,
+  LIBRARY_LOWER_GARMENT_ID,
+  LIBRARY_LOWER_MESH_PREFIX,
+  readMhcloLicense,
+  type ExaminedLowerGarment,
+} from "./fit-cli.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
 
 export const STAGE_ID = "body_param_stage";
 export const LIBRARY_GARMENT_ID = "wojackowl_scrubs_shirt_hm08";
+/** #220 — lower garment id when a licence-clean .mhclo is fitted into the finish pipeline. */
+export { LIBRARY_LOWER_GARMENT_ID, LIBRARY_LOWER_MESH_PREFIX };
 /** Public command that produces a finished figure (#226) — not a raw blender invocation. */
 export const PRODUCED_BY_COMMAND = "pnpm asset:body-param:fit -- --once";
 export const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-151");
 export const EVIDENCE_DIR_216 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-216");
+export const EVIDENCE_DIR_220 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-220");
+export const LOWER_GARMENT_SEARCH_PATH = path.join(
+  EVIDENCE_DIR_220,
+  "lower-garment-candidates.json",
+);
+export const LOWER_GARMENT_GRADE_PNG = path.join(EVIDENCE_DIR_220, "lower-garment-grade.png");
+export const PRE_FIX_PATH_220 = path.join(EVIDENCE_DIR_220, "pre-fix.json");
 /** #226 — catalog next to tracked library GLBs; never under gitignored evidence. */
 export const CATALOG_PATH = path.join(
   REPO_ROOT,
@@ -148,6 +164,12 @@ export type BodyParamCatalogEntry = {
   finishStepsRun?: string[];
   footwearMeshNames?: string[];
   footwearTriangleCount?: number;
+  /** #220 — lower garment mesh when outfit fit ran. */
+  lowerGarmentId?: string | null;
+  lowerGarmentMeshName?: string | null;
+  lowerGarmentTriangleCount?: number;
+  lowerGarmentLicenseToken?: string | null;
+  lowerPaintTriangleCount?: number;
 };
 
 export type BodyParamCatalog = {
@@ -472,6 +494,47 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     );
   }
 
+  // #220 find-or-stop — examine lower candidates (licence from .mhclo header only).
+  ensureDir(EVIDENCE_DIR_220);
+  const lowerExamined = examineLowerGarmentCandidates(REPO_ROOT);
+  writeFileSync(
+    LOWER_GARMENT_SEARCH_PATH,
+    JSON.stringify(
+      {
+        schemaVersion: "openclinxr.lower-garment-candidates.v1",
+        producedByStage: STAGE_ID,
+        examinedAt: new Date().toISOString(),
+        candidates: lowerExamined,
+        claimScope: "licence_search_for_lower_body_mhclo",
+        notEvidenceFor: ["clinical_wardrobe_correctness", "quest_readiness"],
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
+  const acceptedLower = lowerExamined.find((c) => c.accepted) ?? null;
+  if (acceptedLower) {
+    if (
+      !acceptedLower.localMhcloPath ||
+      !acceptedLower.localObjPath ||
+      !isPermittedGarmentLicense(acceptedLower.licenseToken)
+    ) {
+      throw new Error(
+        `accepted lower garment ${acceptedLower.garmentId} missing files or permitted licence`,
+      );
+    }
+    console.log(
+      `[body-param] #220 lower garment ACCEPTED id=${acceptedLower.garmentId} ` +
+        `license=${acceptedLower.licenseToken}`,
+    );
+  } else {
+    console.warn(
+      `[body-param] #220 no licence-clean lower garment — continuing upper+footwear only ` +
+        `(verdict will be blocked_no_licensed_asset if inspect runs without lower meshes)`,
+    );
+  }
+
   const bodyClassesPath = path.join(WORK_DIR, "body-classes.json");
   writeFileSync(bodyClassesPath, JSON.stringify(BODY_CLASSES, null, 2) + "\n", "utf8");
 
@@ -512,6 +575,16 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     "--body-classes-json",
     bodyClassesPath,
   ];
+  if (acceptedLower?.localMhcloPath && acceptedLower.localObjPath) {
+    blenderArgs.push(
+      "--lower-mhclo",
+      acceptedLower.localMhcloPath,
+      "--lower-garment-obj",
+      acceptedLower.localObjPath,
+      "--lower-garment-mesh-name-prefix",
+      LIBRARY_LOWER_MESH_PREFIX,
+    );
+  }
   if (existsSync(ANNY_REFERENCE_OBJ)) {
     blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
   }
@@ -588,7 +661,16 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 
     // #226 — finish steps OBSERVED this invocation (not a static config list).
     // body_param_stage always ran to produce workGlb; footwear is unconditional next.
+    // #220 — lower garment step is observed when the stage report names a lower mesh.
     const finishStepsRun: string[] = ["body_param_stage"];
+    const lowerMeshFromStage =
+      typeof sc["lowerGarmentMeshName"] === "string" && sc["lowerGarmentMeshName"]
+        ? String(sc["lowerGarmentMeshName"])
+        : null;
+    const lowerTrisFromStage = Number(sc["lowerGarmentTriangleEstimate"] ?? 0);
+    if (lowerMeshFromStage && lowerTrisFromStage >= 100) {
+      finishStepsRun.push("fit_lower_garment_outfit");
+    }
 
     // Role for #188 shell colour/kind: lean female → family casual, heavy male → patient slipper.
     const footwearRole = /female|lean/i.test(bodyClassId) ? "family" : "patient";
@@ -676,6 +758,11 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       finishStepsRun: [...finishStepsRun, "catalog_stamp"],
       footwearMeshNames,
       footwearTriangleCount,
+      lowerGarmentId: lowerMeshFromStage ? LIBRARY_LOWER_GARMENT_ID : null,
+      lowerGarmentMeshName: lowerMeshFromStage,
+      lowerGarmentTriangleCount: lowerTrisFromStage,
+      lowerGarmentLicenseToken: acceptedLower?.licenseToken ?? null,
+      lowerPaintTriangleCount: Number(sc["lowerPaintTriangleCount"] ?? 0),
     };
     entries.push(entry);
 
@@ -700,6 +787,11 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           finishStepsRun: entry.finishStepsRun,
           footwearMeshNames: entry.footwearMeshNames,
           footwearTriangleCount: entry.footwearTriangleCount,
+          lowerGarmentId: entry.lowerGarmentId,
+          lowerGarmentMeshName: entry.lowerGarmentMeshName,
+          lowerGarmentTriangleCount: entry.lowerGarmentTriangleCount,
+          lowerGarmentLicenseToken: entry.lowerGarmentLicenseToken,
+          lowerPaintTriangleCount: entry.lowerPaintTriangleCount,
           licenseToken: license.token,
           licenseSource: license.source,
           clothesServiceApi: entry.clothesServiceApi,
@@ -786,6 +878,32 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 
   // #226 lit feet-framed grade of both finished library figures
   await renderFinishedFigureGrade(blender, entries.map((e) => path.join(REPO_ROOT, e.glbPath)));
+
+  // #220 full-body grade of FINISHED library figures (hem + footwear both in frame).
+  if (acceptedLower) {
+    ensureDir(EVIDENCE_DIR_220);
+    const glbAbs = entries.map((e) => path.join(REPO_ROOT, e.glbPath)).filter((p) => existsSync(p));
+    if (glbAbs.length > 0 && existsSync(FINISH_GRADE_SCRIPT)) {
+      const gradeArgs = [
+        "--background",
+        "--python",
+        FINISH_GRADE_SCRIPT,
+        "--",
+        "--out",
+        LOWER_GARMENT_GRADE_PNG,
+        "--frame",
+        "full",
+        ...glbAbs.flatMap((p) => ["--glb", p]),
+      ];
+      console.log(`[body-param] #220 lower-garment full-body grade → ${LOWER_GARMENT_GRADE_PNG}`);
+      const gr = await runCmd(blender, gradeArgs, { cwd: REPO_ROOT, timeoutMs: 300_000 });
+      if (!existsSync(LOWER_GARMENT_GRADE_PNG) || statSync(LOWER_GARMENT_GRADE_PNG).size < 1_000) {
+        throw new Error(
+          `lower-garment grade PNG missing/small (exit ${gr.code}): ${gr.stderr.slice(-400)}`,
+        );
+      }
+    }
+  }
 
   writePreFixArtifact({
     stageCalibration: calibration,

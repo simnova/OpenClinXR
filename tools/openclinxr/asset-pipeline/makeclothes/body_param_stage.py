@@ -66,6 +66,18 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--garment-mesh-name-prefix", default="makeclothes_library_scrub_shirt")
     p.add_argument("--body-mesh-name-prefix", default="hm08_basemesh")
+    # #220 — optional second garment (lower body). Both fits run while macros are LIVE.
+    p.add_argument(
+        "--lower-mhclo",
+        default="",
+        help="Optional lower-body .mhclo (e.g. CC0 cargo pants). Empty = upper-only legacy path.",
+    )
+    p.add_argument("--lower-garment-obj", default="", help="OBJ companion for --lower-mhclo")
+    p.add_argument(
+        "--lower-garment-mesh-name-prefix",
+        default="makeclothes_library_cargo_pants",
+        help="Mesh name prefix for lower garment per body class",
+    )
     p.add_argument("--out-grade-png", default="", help="Optional override for grade PNG path")
     p.add_argument(
         "--out-posed-grade-png",
@@ -557,25 +569,28 @@ def bind_meshes_to_canonical_armature(
     garment: bpy.types.Object,
     *,
     weight_mode: str = "auto",
+    extra_garments: list | None = None,
 ) -> dict:
-    """#216 — create AABB-driven 23-bone armature, ARMATURE_AUTO on body + garment.
+    """#216 — create AABB-driven 23-bone armature, ARMATURE_AUTO on body + garment(s).
 
     Body is Z-up standing after plant/align; pair with export_yup=True.
     Falls back to envelope if heat weights fail the weighted-group threshold.
-    Garment gets a weight transfer from the body so sleeves follow the arm.
+    Each garment gets a weight transfer from the body so cloth follows limbs.
+    #220: extra_garments (e.g. lower cargo pants) bind the same way as the upper shirt.
     """
     hm08 = _load_hm08_rig_stage()
-    # Unparent garment so auto-weight can reparent both under the armature.
-    if garment.parent is not None:
-        mw = garment.matrix_world.copy()
-        garment.parent = None
-        garment.matrix_world = mw
-        apply_object_transforms(garment)
-    if basemesh.parent is not None:
-        mw = basemesh.matrix_world.copy()
-        basemesh.parent = None
-        basemesh.matrix_world = mw
-        apply_object_transforms(basemesh)
+    garments: list = [garment] + list(extra_garments or [])
+
+    def _unparent(obj: bpy.types.Object) -> None:
+        if obj.parent is not None:
+            mw = obj.matrix_world.copy()
+            obj.parent = None
+            obj.matrix_world = mw
+            apply_object_transforms(obj)
+
+    for g in garments:
+        _unparent(g)
+    _unparent(basemesh)
 
     arm = hm08.create_canonical_armature(basemesh, "z")
     body_bind = hm08.bind_auto_weight(basemesh, arm, weight_mode)
@@ -583,18 +598,19 @@ def bind_meshes_to_canonical_armature(
         body_bind = hm08.bind_auto_weight(basemesh, arm, "envelope")
         body_bind["fallback"] = "envelope_after_auto"
 
-    # First pass: auto-weight garment (creates armature parent + groups)
-    garment_bind = hm08.bind_auto_weight(garment, arm, weight_mode)
-    if not garment_bind.get("ok") and weight_mode == "auto":
-        garment_bind = hm08.bind_auto_weight(garment, arm, "envelope")
-        garment_bind["fallback"] = "envelope_after_auto"
-
-    # Second pass: transfer body weights onto garment (sleeves follow arm)
-    transfer = transfer_weights_body_to_garment(basemesh, garment, arm)
-    garment_bind["weightTransfer"] = transfer
+    garment_binds: list = []
+    for g in garments:
+        g_bind = hm08.bind_auto_weight(g, arm, weight_mode)
+        if not g_bind.get("ok") and weight_mode == "auto":
+            g_bind = hm08.bind_auto_weight(g, arm, "envelope")
+            g_bind["fallback"] = "envelope_after_auto"
+        transfer = transfer_weights_body_to_garment(basemesh, g, arm)
+        g_bind["weightTransfer"] = transfer
+        g_bind["meshName"] = g.name
+        garment_binds.append(g_bind)
 
     # Ensure armature modifiers point at our arm object
-    for mesh in (basemesh, garment):
+    for mesh in [basemesh, *garments]:
         for mod in mesh.modifiers:
             if mod.type == "ARMATURE":
                 mod.object = arm
@@ -606,7 +622,9 @@ def bind_meshes_to_canonical_armature(
         "boneCount": len(arm.data.bones),
         "boneNames": [b.name for b in arm.data.bones],
         "bodyBind": body_bind,
-        "garmentBind": garment_bind,
+        "garmentBind": garment_binds[0] if garment_binds else {},
+        "garmentBinds": garment_binds,
+        "garmentCount": len(garments),
         "weightModeRequested": weight_mode,
         "drivenBone": DRIVEN_BONE,
         "drivenRotationDegrees": DRIVEN_ROTATION_DEG,
@@ -1013,9 +1031,41 @@ BODY_COLORS = {
     1: (0.62, 0.48, 0.40, 1.0),  # cooler skin
 }
 GARMENT_COLORS = {
-    0: (0.08, 0.52, 0.95, 1.0),  # vivid blue
-    1: (0.10, 0.62, 0.28, 1.0),  # vivid green
+    0: (0.08, 0.52, 0.95, 1.0),  # vivid blue (upper)
+    1: (0.10, 0.62, 0.28, 1.0),  # vivid green (upper)
 }
+# #220 lower garment — scrub/teal distinct from upper + skin
+LOWER_GARMENT_COLORS = {
+    0: (0.12, 0.38, 0.42, 1.0),  # teal scrub pants
+    1: (0.18, 0.28, 0.40, 1.0),  # slate clinical pants
+}
+
+
+def _fit_one_garment(
+    *,
+    mhclo_path: str,
+    garment_obj_path: str,
+    garment_mesh_name: str,
+    basemesh: bpy.types.Object,
+    color: tuple[float, float, float, float],
+    ClothesService,
+    Mhclo,
+) -> tuple[bpy.types.Object, float]:
+    """Import + ClothesService.fit_clothes_to_human while basemesh macros are LIVE."""
+    garment = import_obj(garment_obj_path, garment_mesh_name, force_z=False)
+    garment.data.materials.clear()
+    garment.data.materials.append(make_material(f"mat_{garment_mesh_name}", color))
+    mhclo = Mhclo()
+    mhclo.load(mhclo_path)
+    try:
+        mhclo.clothes = garment
+    except Exception:
+        pass
+    t_fit = time.perf_counter()
+    ClothesService.fit_clothes_to_human(garment, basemesh, mhclo=mhclo, set_parent=True)
+    fit_s = time.perf_counter() - t_fit
+    bpy.context.view_layer.update()
+    return garment, fit_s
 
 
 def build_one_body_class(
@@ -1033,6 +1083,9 @@ def build_one_body_class(
     Mhclo,
     ObjectService,
     GeneralObjectProperties,
+    lower_mhclo_path: str = "",
+    lower_garment_obj_path: str = "",
+    lower_garment_prefix: str = "makeclothes_library_cargo_pants",
 ) -> dict:
     """Build one body class.
 
@@ -1078,27 +1131,39 @@ def build_one_body_class(
     bpy.context.view_layer.update()
     girth_pre = torso_girth_proxy(basemesh)
 
-    # Fit while macros are LIVE shape keys — ClothesService builds a from-mix key
+    # Fit while macros are LIVE shape keys — ClothesService builds a from-mix key.
+    # #220: fit UPPER then LOWER before baking macros so both mhclo maps read phenotype shape.
     garment_mesh_name = f"{garment_prefix}_{body_class_id}"
-    garment = import_obj(garment_obj_path, garment_mesh_name, force_z=False)
-    garment.data.materials.clear()
-    garment.data.materials.append(
-        make_material(f"garment_{body_class_id}", GARMENT_COLORS[class_index % 2])
+    garment, fit_s = _fit_one_garment(
+        mhclo_path=mhclo_path,
+        garment_obj_path=garment_obj_path,
+        garment_mesh_name=garment_mesh_name,
+        basemesh=basemesh,
+        color=GARMENT_COLORS[class_index % 2],
+        ClothesService=ClothesService,
+        Mhclo=Mhclo,
     )
 
-    mhclo = Mhclo()
-    mhclo.load(mhclo_path)
-    try:
-        mhclo.clothes = garment
-    except Exception:
-        pass
+    lower_garment: bpy.types.Object | None = None
+    lower_mesh_name: str | None = None
+    lower_fit_s = 0.0
+    if lower_mhclo_path and lower_garment_obj_path:
+        if not Path(lower_mhclo_path).is_file() or not Path(lower_garment_obj_path).is_file():
+            raise RuntimeError(
+                f"lower garment paths missing: mhclo={lower_mhclo_path} obj={lower_garment_obj_path}"
+            )
+        lower_mesh_name = f"{lower_garment_prefix}_{body_class_id}"
+        lower_garment, lower_fit_s = _fit_one_garment(
+            mhclo_path=lower_mhclo_path,
+            garment_obj_path=lower_garment_obj_path,
+            garment_mesh_name=lower_mesh_name,
+            basemesh=basemesh,
+            color=LOWER_GARMENT_COLORS[class_index % 2],
+            ClothesService=ClothesService,
+            Mhclo=Mhclo,
+        )
 
-    t_fit = time.perf_counter()
-    ClothesService.fit_clothes_to_human(garment, basemesh, mhclo=mhclo, set_parent=True)
-    fit_s = time.perf_counter() - t_fit
-    bpy.context.view_layer.update()
-
-    # Bake macros into body vertices AFTER fit so skinning binds the phenotype shape.
+    # Bake macros into body vertices AFTER all fits so skinning binds the phenotype shape.
     # Face keys are re-loaded after bake for morph export (#221 A2) — bake would drop them.
     TargetService.bake_targets(basemesh)
     bpy.context.view_layer.update()
@@ -1111,23 +1176,35 @@ def build_one_body_class(
     helper_strip = strip_helper_geometry(basemesh)
     bpy.context.view_layer.update()
 
-    # Stature + girth align to Anny (0044 path) while garment is still parented
+    def _ensure_parented(child: bpy.types.Object) -> None:
+        if child.parent is not basemesh:
+            child.parent = basemesh
+            child.matrix_parent_inverse = basemesh.matrix_world.inverted()
+
+    def _unparent_apply(child: bpy.types.Object) -> None:
+        mw_g = child.matrix_world.copy()
+        child.parent = None
+        child.matrix_world = mw_g
+        apply_object_transforms(child)
+
+    outfit: list[bpy.types.Object] = [garment]
+    if lower_garment is not None:
+        outfit.append(lower_garment)
+
+    # Stature + girth align to Anny (0044 path) while garments are still parented
     align_info: dict = {"skipped": True}
     anny_ref_used: str | None = None
     if class_anny and Path(class_anny).is_file():
         anny = import_obj(class_anny, "anny_stature_reference", force_z=True)
         anny.data.materials.clear()
         anny.data.materials.append(make_material("anny_ref", (0.82, 0.68, 0.56, 1.0)))
-        if garment.parent is not basemesh:
-            garment.parent = basemesh
-            garment.matrix_parent_inverse = basemesh.matrix_world.inverted()
+        for g in outfit:
+            _ensure_parented(g)
         align_info = align_body_to_reference(basemesh, anny)
         bpy.context.view_layer.update()
-        mw_g = garment.matrix_world.copy()
-        garment.parent = None
-        garment.matrix_world = mw_g
         apply_object_transforms(basemesh)
-        apply_object_transforms(garment)
+        for g in outfit:
+            _unparent_apply(g)
         bpy.data.objects.remove(anny, do_unlink=True)
         anny_ref_used = anny_reference_asset or class_anny
         align_info["annyObj"] = class_anny
@@ -1135,14 +1212,11 @@ def build_one_body_class(
     else:
         basemesh.scale = (0.1, 0.1, 0.1)
         bpy.context.view_layer.update()
-        if garment.parent is not basemesh:
-            garment.parent = basemesh
-            garment.matrix_parent_inverse = basemesh.matrix_world.inverted()
+        for g in outfit:
+            _ensure_parented(g)
         apply_object_transforms(basemesh)
-        mw_g = garment.matrix_world.copy()
-        garment.parent = None
-        garment.matrix_world = mw_g
-        apply_object_transforms(garment)
+        for g in outfit:
+            _unparent_apply(g)
         plant_feet(basemesh)
         apply_object_transforms(basemesh)
         align_info = {"uniformScale": 0.1, "path": "mpfb_default_0_1_without_anny"}
@@ -1155,9 +1229,15 @@ def build_one_body_class(
     basemesh.data.name = body_mesh_name
     garment.name = garment_mesh_name
     garment.data.name = garment_mesh_name
+    if lower_garment is not None and lower_mesh_name:
+        lower_garment.name = lower_mesh_name
+        lower_garment.data.name = lower_mesh_name
 
-    # #216 — bind body + garment to canonical armature (AABB-driven, ARMATURE_AUTO)
-    rig_info = bind_meshes_to_canonical_armature(basemesh, garment, weight_mode="auto")
+    # #216/#220 — bind body + upper (+ lower) to canonical armature
+    extra = [lower_garment] if lower_garment is not None else None
+    rig_info = bind_meshes_to_canonical_armature(
+        basemesh, garment, weight_mode="auto", extra_garments=extra
+    )
     arm = bpy.data.objects.get(rig_info["armatureName"])
     if arm is None:
         raise RuntimeError(f"armature missing after bind: {rig_info['armatureName']}")
@@ -1171,9 +1251,12 @@ def build_one_body_class(
     )
 
     glb_path = out_dir / f"body_param_{body_class_id}.glb"
-    # Export armature + both skinned meshes with skins + morphs (face keys)
+    export_objects = [arm, basemesh, garment]
+    if lower_garment is not None:
+        export_objects.append(lower_garment)
+    # Export armature + skinned meshes with skins + morphs (face keys)
     export_objects_glb(
-        [arm, basemesh, garment],
+        export_objects,
         str(glb_path),
         export_skins=True,
         export_morph=True,
@@ -1186,6 +1269,28 @@ def build_one_body_class(
             for kb in basemesh.data.shape_keys.key_blocks
             if kb.name != "Basis"
         ]
+
+    lower_info: dict = {
+        "lowerGarmentMeshName": lower_mesh_name,
+        "lowerGarmentTriangleEstimate": (
+            sum(len(p.vertices) - 2 for p in lower_garment.data.polygons)
+            if lower_garment is not None
+            else 0
+        ),
+        "lowerGarmentVertexCount": (
+            len(lower_garment.data.vertices) if lower_garment is not None else 0
+        ),
+        "lowerFitWallClockS": round(lower_fit_s, 4) if lower_garment is not None else None,
+        "lowerGarmentFittedToBodyClass": body_class_id if lower_garment is not None else None,
+        "outfitSteps": (
+            ["fit_upper_garment", "fit_lower_garment_outfit"]
+            if lower_garment is not None
+            else ["fit_upper_garment"]
+        ),
+        # hm08 library basemesh has no painted lower-body region (paint is Anny-rail only).
+        # When a lower mesh arrives, painted lower tris must stay 0 — muddy double forbidden.
+        "lowerPaintTriangleCount": 0,
+    }
 
     return {
         "bodyClassId": body_class_id,
@@ -1222,12 +1327,18 @@ def build_one_body_class(
         "skinExport": True,
         "morphExport": True,
         "producedByStage": STAGE_ID,
+        **lower_info,
     }
 
 
 def _tag_mesh_materials(obj: bpy.types.Object, body_class_id: str, class_index: int) -> None:
     name_l = (obj.name + " " + (obj.data.name or "")).lower()
-    if "scrub" in name_l or "garment" in name_l or "makeclothes" in name_l or "cloth" in name_l:
+    if any(k in name_l for k in ("cargo", "pant", "trouser", "lower", "skirt", "short")):
+        obj.data.materials.clear()
+        obj.data.materials.append(
+            make_material(f"lg_{body_class_id}", LOWER_GARMENT_COLORS[class_index % 2])
+        )
+    elif "scrub" in name_l or "garment" in name_l or "makeclothes" in name_l or "cloth" in name_l:
         obj.data.materials.clear()
         obj.data.materials.append(
             make_material(f"g_{body_class_id}", GARMENT_COLORS[class_index % 2])
@@ -1420,6 +1531,11 @@ def main() -> None:
                 Mhclo=Mhclo,
                 ObjectService=ObjectService,
                 GeneralObjectProperties=GeneralObjectProperties,
+                lower_mhclo_path=str(args.lower_mhclo or ""),
+                lower_garment_obj_path=str(args.lower_garment_obj or ""),
+                lower_garment_prefix=str(
+                    args.lower_garment_mesh_name_prefix or "makeclothes_library_cargo_pants"
+                ),
             )
             class_results.append(cr)
             report["bodyClasses"].append(cr)

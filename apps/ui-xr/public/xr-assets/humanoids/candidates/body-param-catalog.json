@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-08T16:57:20.470Z",
+  "generatedAt": "2026-08-08T20:14:06.575Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -25,7 +25,7 @@
       "garmentFittedToBodyClass": "adult_lean_female",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-220/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -36,8 +36,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0129,
-      "glbSha256": "29b9404fe8cf21685872dc536d1a08ab48320ef13af96eaf2587525b39d75fe6",
+      "fitWallClockS": 0.0132,
+      "glbSha256": "73a57349cb7b6a697026ef9a3e4be6786f2adf0705669eac7957ac574b376553",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -78,6 +78,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -85,7 +86,12 @@
         "openclinxr_footwear_casual_shoe_L_mesh",
         "openclinxr_footwear_casual_shoe_R_mesh"
       ],
-      "footwearTriangleCount": 96
+      "footwearTriangleCount": 96,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female",
+      "lowerGarmentTriangleCount": 392,
+      "lowerGarmentLicenseToken": "CC0",
+      "lowerPaintTriangleCount": 0
     },
     {
       "bodyClassId": "adult_heavy_male",
@@ -101,7 +107,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-220/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -112,8 +118,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.013,
-      "glbSha256": "69b7970c1dd49f813f199b13d2c91f90383b79c8e93732e86e6c71e2e7329d29",
+      "fitWallClockS": 0.0141,
+      "glbSha256": "0ec74db4b5c0138895199508390e5d20f37c58a6202dbeb27ab98eb49ec2943f",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -154,6 +160,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -161,7 +168,12 @@
         "openclinxr_footwear_hospital_slipper_L_mesh",
         "openclinxr_footwear_hospital_slipper_R_mesh"
       ],
-      "footwearTriangleCount": 96
+      "footwearTriangleCount": 96,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male",
+      "lowerGarmentTriangleCount": 392,
+      "lowerGarmentLicenseToken": "CC0",
+      "lowerPaintTriangleCount": 0
     }
   ],
   "calibration": {

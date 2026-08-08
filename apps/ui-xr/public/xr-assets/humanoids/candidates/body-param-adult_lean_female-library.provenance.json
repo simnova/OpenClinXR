@@ -14,7 +14,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_nurse_adult",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-220/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.10159008043632978,
     "girthScaleHorizontal": 1,
@@ -23,7 +23,7 @@
     "bodyStatureAfterScaleMeters": 1.7599999928606471,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.49883718314508413,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-220/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_nurse_adult"
   },
   "morphTargetCount": 32,
@@ -82,6 +82,7 @@
   },
   "finishStepsRun": [
     "body_param_stage",
+    "fit_lower_garment_outfit",
     "embed_library_footwear",
     "catalog_stamp"
   ],
@@ -90,10 +91,15 @@
     "openclinxr_footwear_casual_shoe_R_mesh"
   ],
   "footwearTriangleCount": 96,
+  "lowerGarmentId": "cortu_cargo_pants_hm08",
+  "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female",
+  "lowerGarmentTriangleCount": 392,
+  "lowerGarmentLicenseToken": "CC0",
+  "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-220/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "29b9404fe8cf21685872dc536d1a08ab48320ef13af96eaf2587525b39d75fe6",
+  "glbSha256": "73a57349cb7b6a697026ef9a3e4be6786f2adf0705669eac7957ac574b376553",
   "torsoGirthProxyMeters": 0.4988371839992518,
   "heightMeters": 1.7599999904632568,
   "notEvidenceFor": [

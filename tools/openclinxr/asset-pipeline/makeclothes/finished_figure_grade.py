@@ -28,6 +28,12 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="#226 finished-figure feet grade")
     p.add_argument("--out", required=True, help="Output PNG path")
     p.add_argument("--glb", action="append", default=[], help="Library GLB (repeatable)")
+    p.add_argument(
+        "--frame",
+        choices=("feet", "full"),
+        default="feet",
+        help="Camera frame: feet (default, #226 footwear) or full body (#220 lower hem)",
+    )
     return p.parse_args(args)
 
 
@@ -99,30 +105,37 @@ def main() -> None:
     height = max(0.01, bmax.z - bmin.z)
     width = max(0.01, bmax.x - bmin.x)
 
-    # Frame on lower legs / feet (bottom ~25% of figure height).
-    # Use world bounds so footwear is in-frame without cropping to tips only.
-    feet_z = bmin.z + height * 0.14
+    # Frame on lower legs / feet (default) or full body (#220 hem + footwear).
+    if args.frame == "full":
+        focus_z = center.z
+        dist = max(2.4, width * 2.2, height * 1.35)
+        lens = 40.0
+        key_z = center.z + height * 0.15
+    else:
+        focus_z = bmin.z + height * 0.14
+        dist = max(1.6, width * 1.8, height * 0.55)
+        lens = 45.0
+        key_z = focus_z + 0.6
     cam_data = bpy.data.cameras.new("finish_grade_cam")
     cam = bpy.data.objects.new("finish_grade_cam", cam_data)
     bpy.context.scene.collection.objects.link(cam)
     bpy.context.scene.camera = cam
-    dist = max(1.6, width * 1.8, height * 0.55)
-    cam.location = (center.x, -dist, feet_z)
-    direction = Vector((center.x, center.y, feet_z)) - cam.location
+    cam.location = (center.x, -dist, focus_z if args.frame == "full" else focus_z)
+    direction = Vector((center.x, center.y, focus_z)) - cam.location
     cam.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
-    cam_data.lens = 45.0
+    cam_data.lens = lens
 
     light_data = bpy.data.lights.new(name="finish_key", type="AREA")
     light_data.energy = 180.0
     light = bpy.data.objects.new(name="finish_key", object_data=light_data)
     bpy.context.scene.collection.objects.link(light)
-    light.location = (center.x + 1.0, -1.4, feet_z + 0.6)
+    light.location = (center.x + 1.0, -1.4, key_z)
 
     fill_data = bpy.data.lights.new(name="finish_fill", type="AREA")
     fill_data.energy = 70.0
     fill = bpy.data.objects.new(name="finish_fill", object_data=fill_data)
     bpy.context.scene.collection.objects.link(fill)
-    fill.location = (center.x - 1.2, 0.5, feet_z + 0.3)
+    fill.location = (center.x - 1.2, 0.5, focus_z + 0.3)
 
     # Ground plane under feet for readability
     bpy.ops.mesh.primitive_plane_add(size=max(4.0, width * 3), location=(center.x, center.y, bmin.z - 0.001))

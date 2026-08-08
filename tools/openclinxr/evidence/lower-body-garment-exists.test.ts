@@ -97,6 +97,24 @@ import { describe, expect, it } from "vitest";
  *
  * If any proof CANNOT PASS as written, OR passes trivially against the ambient range, OR is a
  * regression net rather than load-bearing, SAY SO AT THE MOMENT YOU FIND IT.
+ *
+ * ## FIXED (#220)
+ *
+ * Verdict: `garment_fitted` (not blocked).
+ *
+ * Licence search (headers re-read from .mhclo; no invented ids):
+ *   - cortu_cargo_pants — local staging `.openclinxr/evidence/issue-151/staging/cortu_cargo_pants.mhclo`
+ *     header `# Cortu Johnstone - CC0` → accepted, fitted both body classes
+ *   - cortu_jeans_shorts / toigo_wool_pants / toigo_harem_pants — not staged; remote
+ *     `asset_packs/pants01/...` returned 404; recorded as license_not_found (cannot invent token)
+ *
+ * Pipeline: `body_param_stage` fits upper scrub then lower cargo while macros are LIVE,
+ * binds body+upper+lower to armature, then `body-param-cli` finish steps
+ * `fit_lower_garment_outfit` + `embed_library_footwear` + `catalog_stamp` (observed).
+ * lowerPaintTriangleCount=0 (hm08 has no painted lower region — mesh arrives without muddy double).
+ *
+ * Measured on library GLBs: cargo pants mesh ~392 tris each class; upper scrub + footwear intact;
+ * finishStepsRun includes fit_lower_garment_outfit. Grade: isolated full-body EEVEE of finished GLBs.
  */
 
 type LowerGarmentCandidate = {
