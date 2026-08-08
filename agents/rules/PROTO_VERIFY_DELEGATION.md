@@ -3723,3 +3723,47 @@ doubt. Keep doing it — the rule holds on its first controlled outing.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11f. `pkill -f <tool>` kills your own worker — it is running that tool too
+
+I ran `pkill -f "vitest"` to stop a hung full-suite run and free the machine for a worker I had just
+resumed. The worker was in its verification step, running `pnpm exec vitest run …`. The pattern
+matched its command line and killed it — exit 144, no product work, ~10 minutes lost.
+
+This is the same genus as `pgrep -f <pattern>` matching the monitor's own command line (recorded under
+"Dispatch facts that cost real time"), and it is worse: that one produced a wrong status, this one
+destroyed work.
+
+**Rule:** never `pkill -f` on a tool name while any delegate is running. Kill by PID, taken from the
+process you actually started, or scope the pattern to something only your process has — the log path,
+a `--root` argument, an env marker. `OPENCLINXR_WORKER=1` is on every dispatched worker precisely so
+they can be distinguished; use it, or leave the hung process alone.
+
+The deeper error is the sequencing: I started a resume while a full suite was still running, then
+killed the suite to make room for the resume, and took the resume with it. **Do not start a delegate
+while a long local job is running.** Either wait, or kill the job BEFORE dispatching — never after.
+This is the third time in three cycles that a local suite and a worker have contended, twice with me
+starting the second thing.
+
+## 11g. The unrequested doc-archive churn (#99 / §9r) is still live, and it now costs product turns
+
+§9r narrowed #99: workers in this repo produce doc-archive churn nobody asked for, and it is present in
+the worktree before any product edit. The mechanism remains **NOT DETERMINED**.
+
+Fresh instance: a resumed worker's tree held ten changed files — `PROJECT_STATUS.md`,
+`docs/_archive/**`, four wiki topic files, an archive manifest, one rename — and **zero product
+files**, on a handback whose entire content was a hem-geometry regression.
+
+Two practical consequences, both cheap:
+
+- **Reset the tree before resuming**, not after. `git reset --hard <last product commit>` plus
+  `git clean -fd docs/` takes a second and removes a hostage the next reap would otherwise take.
+- **Say it in the resume text**: "Do NOT archive docs, do NOT touch `PROJECT_STATUS.md`,
+  `docs/_archive/**`, or any wiki file. Commit PRODUCT FILES ONLY." Prose does not always bind (§10y),
+  but the churn is not something the worker is being graded on, so there is no competing gradient.
+
+Still worth diagnosing properly. A hook, a session-start action, or something in the dispatch path is
+the candidate set, and nobody has measured which.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
