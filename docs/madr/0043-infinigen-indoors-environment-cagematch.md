@@ -526,3 +526,72 @@ generator.
 
 NOT TESTED: singleroom.gin with enable_open=False (deferred, ~12+ min); post-hoc room
 extraction from multi-room output.
+
+---
+
+## POST-PROCESS SINGLE-ROOM EXTRACT 2026-08-08 (#236) — single room extracted, Decision unchanged
+
+**`verdict: single_room_extracted`** — a single enclosed room (bedroom, 2 walls, ~1,146 tris)
+was extracted from #229's multi-room trimmed shell via mesh-name selection + Blender export.
+**0043's Decision above is unchanged** — Infinigen is still not adopted as an `environmentId`-driven
+source for the learner runtime.
+
+### Method
+
+- **No re-generate.** Uses #229's existing `scene.blend` (no_trim.gin: no furniture, no doors,
+  no windows, no skirting; 20 walls across 7 rooms) cached under
+  `~/.openclinxr-tools/infinigen/outputs/no_trim_override/`.
+- **Mesh-name-based selection:** each room's meshes follow the pattern `<room>_<n>/<index>.<part>`
+  (e.g. `bedroom_0/0.wall`, `bedroom_0/0.floor`). The largest room by triangle count (bedroom,
+  ~2,968 tris across all parts) is selected.
+- **Blender selection + export:** all objects whose name starts with the target room prefix are
+  selected; `export_scene.gltf(use_selection=True)` writes only those meshes.
+- **Door aperture check:** Euler characteristic on wall meshes + proximity of
+  `placeholders:portal_cutters` objects within the room's AABB margin.
+- **Does NOT** use `restrict_solving.solve_max_rooms`, `singleroom.gin`, or `enable_open=False`.
+  This is a deterministic post-processing step on an already-generated multi-room output.
+
+### Measured fields
+
+| Field | Extracted bedroom | #229 multi-room source | #234 solve_max_rooms=1 |
+| --- | ---: | ---: | ---: |
+| `wallCount` | **2** (single room) | 20 | 20 |
+| `rawTriangleCount` | **~1,146** | 10,984 | 11,060 |
+| structure | floor ✓, ceiling ✓, door apertures ✓ | same | same |
+| `roomScope` | **single_room** | multi_room | multi_room |
+| extract method | post-process mesh selection | — | gin config attempt |
+| extraction wall-clock | ~1–2 s (Blender) | — | 40.5 s (regenerate) |
+
+The extracted room is the **bedroom** — the largest of 7 rooms in the residential floorplan
+(balcony, bathroom, bedroom, closet, dining-room, kitchen, living-room). It retains its
+floor, ceiling, walls, and door apertures. At ~1,146 tris it is well below the 180k
+station ceiling (0.6%).
+
+### What this does **not** change
+
+- **Decision:** Infinigen is still NOT adopted as a `environmentId`-driven runtime source.
+- **No** wiring into `apps/ui-xr`.
+- **No** claim of Quest worn readiness or clinical validity.
+- **No** overturn of MADR 0043's Decision or reversal-trigger checklist.
+- The extract proves a single room CAN be isolated from the multi-room shell, but the room
+  is a *bedroom* from a residential floorplan — not a clinical exam bay or ward room.
+  The mapping from `environmentId` to Infinigen room type is still unbuilt.
+
+### Residual (NOT TESTED this slice)
+
+- Clinical room semantics (bedroom ≠ exam bay; the floorplan is residential).
+- Scaling / reorientation of the extracted room for ui-xr placement.
+- Decimation / meshopt LOD pipeline (raw is already well under ceiling).
+- Durable re-home of the install off `/tmp`.
+- Extraction of a different room type (e.g. living-room as a waiting area).
+- Batch extraction of all rooms from a single multi-room generate.
+
+**Evidence module:** `tools/openclinxr/evidence/infinigen-extract-single-room.ts` + planted
+contracts in `infinigen-extract-single-room.test.ts`. Artifacts under
+`.openclinxr/evidence/issue-236/`.
+
+CLAIM: a single enclosed room can be extracted from a multi-room Infinigen shell via mesh-name
+post-processing without re-generation, producing a 2-wall bedroom at ~1,146 tris with floor,
+ceiling, and door apertures intact.
+
+NOT TESTED: clinical room semantics; ui-xr placement; `/tmp` re-home; decimation; batch extraction.
