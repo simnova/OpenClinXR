@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-08-08T10:53:02.033Z",
+  "report": {
+    "ready": true,
+    "results": [
+      {
+        "label": "adult_male_street_casual",
+        "ok": true,
+        "height": 1.762000081823941
+      },
+      {
+        "label": "ed_chest_pain_adult_cast",
+        "ok": true,
+        "height": 1.7600000305230923
+      },
+      {
+        "label": "ed_chest_pain_nurse_adult",
+        "ok": true,
+        "height": 1.762000081823941
+      },
+      {
+        "label": "ed_chest_pain_spouse_adult",
+        "ok": true,
+        "height": 1.6619999966820131
+      },
+      {
+        "label": "peds_anxious_parent",
+        "ok": true,
+        "height": 1.6619999966820131
+      },
+      {
+        "label": "peds_nurse_kevin",
+        "ok": true,
+        "height": 1.762000081823941
+      },
+      {
+        "label": "peds_patient_child",
+        "ok": true,
+        "height": 1.250000056227763
+      }
+    ]
+  },
+  "out": ".openclinxr/evidence/issue-188/footwear-grade.png"
+}

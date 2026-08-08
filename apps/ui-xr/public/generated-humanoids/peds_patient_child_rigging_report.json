@@ -586,6 +586,54 @@
         "looks_worn_pixel_grade"
       ],
       "evidenceForThisSlice": "garment-surface-derived-v1-issue-121"
+    },
+    "footwearRegion": {
+      "mode": "parametric_foot_aabb_shell_v1",
+      "revision": "issue_188_footwear_only_no_lower_shell",
+      "kind": "hospital_slipper",
+      "shells": [
+        {
+          "side": "L",
+          "kind": "hospital_slipper",
+          "objectName": "openclinxr_footwear_hospital_slipper_L",
+          "meshName": "openclinxr_footwear_hospital_slipper_L_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.L"
+          ],
+          "minY": 0.009223,
+          "maxY": 0.094835,
+          "footVertCount": 1103
+        },
+        {
+          "side": "R",
+          "kind": "hospital_slipper",
+          "objectName": "openclinxr_footwear_hospital_slipper_R",
+          "meshName": "openclinxr_footwear_hospital_slipper_R_mesh",
+          "faceCount": 48,
+          "vertexCount": 42,
+          "weightedBones": [
+            "foot.R"
+          ],
+          "minY": 0.009223,
+          "maxY": 0.094836,
+          "footVertCount": 1103
+        }
+      ],
+      "totalFaceCount": 96,
+      "bodyHeight": 1.25,
+      "bodyMinY": 0.0,
+      "bodyMaxY": 1.25,
+      "role": "patient",
+      "claimScope": "procedural_footwear_geometry_on_foot_bones_not_clinical_costume_realism",
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "b_plus_visual_realism_gate",
+        "clinical_validity",
+        "scoring_validity",
+        "lower_body_garment_channel"
+      ]
     }
   },
   "garmentSourceGeometryHint": null,
@@ -767,7 +815,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=patient)",
-    "generatedAt": "2026-08-08T10:12:07.201758Z",
+    "generatedAt": "2026-08-08T10:46:46.615939Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.04, \"anny_topology\": \"default\", \"anxious\": 0.42, \"bmi\": 16.5, \"brow_tension\": 0.18, \"build\": \"slender_asthma\", \"clothing_color\": \"soft_blue\", \"clothing_style\": \"pediatric_soft_blue_exam_tshirt\", \"eye_color\": \"hazel\", \"fabricPalette\": \"soft_blue_and_warm_white\", \"fitProfile\": \"pediatric_slim_fit\", \"flush\": 0.05, \"garmentLayers\": [\"short_sleeve_exam_tshirt\"], \"gender_presentation\": \"child\", \"hair_color\": \"light_brown\", \"hair_density\": 0.55, \"height_cm\": 125, \"materialFinish\": \"cotton_matte\", \"role_visual_cue\": \"pediatric_patient\", \"skin_tone\": \"warm_light_child\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"patient_casual_child\"}"
   },
   "licenseExceptionRequired": false,

@@ -3541,7 +3541,251 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
 
     if real_garment:
         ret["realGarmentRegion"] = real_garment
+
+    # #188: footwear shells on foot.L / foot.R. Lower paint stays; no trouser/skirt shell.
+    footwear_meta = embed_role_footwear_shells(
+        mesh_obj, actor_role=actor_role, phenotype=phenotype, arm_obj=arm_obj
+    )
+    ret["footwearRegion"] = footwear_meta
     return ret
+
+
+def _footwear_kind_and_color(actor_role: str, phenotype: Dict[str, Any]) -> tuple:
+    """Role-class footwear for #188.
+
+    Decision (recorded): ROLE-DISTINCT shoes, not one shoe for everyone.
+      - nurse → clinical closed shoe (dark charcoal)
+      - patient with gown → soft blue hospital slipper
+      - patient child / other patient → soft blue slipper (same class, body-scale derived)
+      - parent / family / street → dark casual lace-up
+    Rejected: single shared shoe (loses role distinguishability that garmentLayers already carry).
+    Rejected: barefoot for gown patient (contract (1) requires all seven; a barefoot exception
+    would be reporting the gate wrong — not silently skipping).
+    """
+    role = (actor_role or "").lower()
+    layers = " ".join(str(g).lower() for g in (phenotype.get("garmentLayers") or []))
+    wardrobe = str(phenotype.get("wardrobeRole") or "").lower()
+    cue = str(phenotype.get("role_visual_cue") or "").lower()
+    is_gown = any(k in layers for k in ("hospital_gown", "gown", "patient_gown", "ed_gown"))
+    is_nurse = "nurse" in role or "scrub" in layers or "nurse" in wardrobe
+    is_family = any(k in role for k in ("parent", "family", "guardian", "spouse")) or "spouse" in cue or "parent" in cue
+    is_street = "street" in wardrobe or "casual_top" in layers or "open_cardigan" in layers
+    if is_nurse:
+        return "clinical_shoe", (0.08, 0.09, 0.10, 1.0)
+    if is_gown or ("patient" in role and not is_street and not is_family):
+        return "hospital_slipper", (0.18, 0.42, 0.78, 1.0)
+    if is_family or is_street:
+        return "casual_shoe", (0.12, 0.08, 0.05, 1.0)
+    return "casual_shoe", (0.10, 0.09, 0.08, 1.0)
+
+
+def embed_role_footwear_shells(
+    mesh_obj: bpy.types.Object,
+    actor_role: str,
+    phenotype: Dict[str, Any],
+    arm_obj: Optional[bpy.types.Object] = None,
+) -> Dict[str, Any]:
+    """#188: parametric footwear shells derived from body foot vertex clusters.
+
+    Derivation decision: parametric closed shoe primitive fitted to measured foot AABB
+    of body verts with yn < 0.08 (peer ~2214 verts adult). Rejected pure body-surface
+    offset of foot verts — feet are thin/open and solidify re-split traps apply; a solid
+    shell reads as a shoe and stays continuous on export without solidify.
+
+    Weights: 100% to foot.L / foot.R so the shell moves with the leg.
+    Does NOT add trousers/skirts/lower shells. Does NOT touch lower paint.
+    """
+    import math
+
+    kind, shoe_color = _footwear_kind_and_color(actor_role, phenotype)
+    body_vs = list(mesh_obj.data.vertices)
+    if not body_vs:
+        raise RuntimeError("#188 footwear: body mesh has no vertices")
+    bys = [v.co.y for v in body_vs]
+    body_min_y = min(bys)
+    body_max_y = max(bys)
+    body_height = max(body_max_y - body_min_y, 0.001)
+    # Foot band: bottom 8% of body height (peer measurement).
+    foot_cut = body_min_y + body_height * 0.08
+    left_pts = []
+    right_pts = []
+    for v in body_vs:
+        if v.co.y > foot_cut:
+            continue
+        if v.co.x >= 0.0:
+            left_pts.append(v.co.copy())
+        else:
+            right_pts.append(v.co.copy())
+    if len(left_pts) < 8 or len(right_pts) < 8:
+        raise RuntimeError(
+            f"#188 footwear: insufficient foot verts L={len(left_pts)} R={len(right_pts)} "
+            f"(need body feet at yn<0.08)"
+        )
+
+    arm_use = arm_obj or bpy.data.objects.get("openclinxr_canonical_humanoid_armature")
+    shells: List[Dict[str, Any]] = []
+
+    def _aabb(pts):
+        xs = [p.x for p in pts]
+        ys = [p.y for p in pts]
+        zs = [p.z for p in pts]
+        return {
+            "min": (min(xs), min(ys), min(zs)),
+            "max": (max(xs), max(ys), max(zs)),
+            "cx": (min(xs) + max(xs)) * 0.5,
+            "cy": (min(ys) + max(ys)) * 0.5,
+            "cz": (min(zs) + max(zs)) * 0.5,
+            "sx": max(max(xs) - min(xs), 0.02),
+            "sy": max(max(ys) - min(ys), 0.02),
+            "sz": max(max(zs) - min(zs), 0.04),
+        }
+
+    def _build_one(side: str, pts) -> Dict[str, Any]:
+        aabb = _aabb(pts)
+        # Expand slightly outside the foot so the shell covers paint-level toes/heels.
+        # Slipper is lower; clinical/casual shoes a bit taller — still < 14% body height.
+        pad_x = aabb["sx"] * 0.18 + 0.006
+        pad_z = aabb["sz"] * 0.12 + 0.008
+        sole_drop = 0.004  # sole sits just under body min without sinking past 0.02m
+        if kind == "hospital_slipper":
+            top_extra = aabb["sy"] * 0.18 + 0.008
+        else:
+            top_extra = aabb["sy"] * 0.35 + 0.012
+        hx = aabb["sx"] * 0.5 + pad_x
+        hz = aabb["sz"] * 0.5 + pad_z
+        y0 = body_min_y - sole_drop
+        y1 = aabb["max"][1] + top_extra
+        # Cap shoe top so contract topFrac ≤ 0.14 (with margin).
+        y1 = min(y1, body_min_y + body_height * 0.12)
+        if y1 <= y0 + 0.02:
+            y1 = y0 + max(aabb["sy"] + 0.02, 0.04)
+        cx, cz = aabb["cx"], aabb["cz"]
+
+        # Parametric shoe: 5 long rings (heel→toe) × 8 circumference, closed ends.
+        # Forward axis is +Z on this armature (foot tip at larger Z).
+        n_long = 5
+        n_circ = 8
+        verts = []
+        for i in range(n_long):
+            t = i / float(n_long - 1)
+            # Elliptical cross-section: wider mid-foot, tighter at heel/toe.
+            width_scale = 0.78 + 0.28 * math.sin(t * math.pi)
+            height_scale = 0.55 + 0.45 * (1.0 - abs(t - 0.35))
+            if kind == "hospital_slipper":
+                height_scale *= 0.72
+            z = (aabb["min"][2] - pad_z * 0.5) + t * (aabb["sz"] + pad_z)
+            for j in range(n_circ):
+                ang = (j / n_circ) * 2.0 * math.pi
+                # y from sole up; x lateral about foot center.
+                rx = hx * width_scale
+                ry = (y1 - y0) * 0.5 * height_scale
+                cy_ring = y0 + (y1 - y0) * 0.45  # mass slightly above sole
+                x = cx + rx * math.cos(ang)
+                y = cy_ring + ry * math.sin(ang)
+                # Flatten sole: bottom half sits flat-ish.
+                if y < y0 + 0.006:
+                    y = y0 + 0.002 + 0.004 * max(0.0, math.sin(ang))
+                verts.append((x, y, z))
+        faces = []
+        for i in range(n_long - 1):
+            for j in range(n_circ):
+                a = i * n_circ + j
+                b = i * n_circ + ((j + 1) % n_circ)
+                c = (i + 1) * n_circ + ((j + 1) % n_circ)
+                d = (i + 1) * n_circ + j
+                faces.append((a, b, c, d))
+        # Cap heel (i=0) and toe (i=n_long-1).
+        heel_c = len(verts)
+        verts.append((cx, y0 + (y1 - y0) * 0.35, aabb["min"][2] - pad_z * 0.55))
+        toe_c = len(verts)
+        verts.append((cx, y0 + (y1 - y0) * 0.30, aabb["max"][2] + pad_z * 0.55))
+        for j in range(n_circ):
+            a = j
+            b = (j + 1) % n_circ
+            faces.append((heel_c, b, a))
+            a2 = (n_long - 1) * n_circ + j
+            b2 = (n_long - 1) * n_circ + ((j + 1) % n_circ)
+            faces.append((toe_c, a2, b2))
+
+        mesh_name = f"openclinxr_footwear_{kind}_{side}_mesh"
+        obj_name = f"openclinxr_footwear_{kind}_{side}"
+        # Clear prior shells on re-bake.
+        for old in list(bpy.data.objects):
+            if old.name.startswith(obj_name):
+                bpy.data.objects.remove(old, do_unlink=True)
+        mesh = bpy.data.meshes.new(mesh_name)
+        mesh.from_pydata(verts, [], faces)
+        mesh.update()
+        shoe = bpy.data.objects.new(obj_name, mesh)
+        bpy.context.collection.objects.link(shoe)
+        mat = create_role_marker_material(f"openclinxr_footwear_{kind}_{side}_mat", shoe_color)
+        shoe.data.materials.append(mat)
+        for poly in shoe.data.polygons:
+            poly.use_smooth = True
+
+        bone_name = f"foot.{side}"
+        weighted_bones: List[str] = []
+        if arm_use is not None:
+            arm_mod = shoe.modifiers.new("openclinxr_footwear_armature", "ARMATURE")
+            arm_mod.object = arm_use
+            arm_mod.use_vertex_groups = True
+            bone_names = [b.name for b in arm_use.data.bones]
+            if bone_name in bone_names:
+                vg = shoe.vertex_groups.new(name=bone_name)
+                vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
+                weighted_bones = [bone_name]
+            else:
+                raise RuntimeError(f"#188 footwear: armature missing bone {bone_name}")
+        shoe.parent = mesh_obj
+        shoe.matrix_parent_inverse = Matrix.Identity(4)
+        shoe.location = (0.0, 0.0, 0.0)
+        shoe.rotation_euler = (0.0, 0.0, 0.0)
+        shoe.scale = (1.0, 1.0, 1.0)
+        shoe["openClinXrFootwear"] = kind
+        shoe["openClinXrFootwearSide"] = side
+        shoe["openClinXrFootwearRevision"] = "issue_188_parametric_foot_aabb_shell_v1"
+        face_count = len(faces)
+        ys = [v.co.y for v in shoe.data.vertices]
+        meta = {
+            "side": side,
+            "kind": kind,
+            "objectName": shoe.name,
+            "meshName": mesh_name,
+            "faceCount": face_count,
+            "vertexCount": len(shoe.data.vertices),
+            "weightedBones": weighted_bones,
+            "minY": round(min(ys), 6),
+            "maxY": round(max(ys), 6),
+            "footVertCount": len(pts),
+        }
+        print(
+            f"[blender] #188 footwear {side} kind={kind} faces={face_count} "
+            f"y=[{meta['minY']},{meta['maxY']}] bone={bone_name}"
+        )
+        return meta
+
+    shells.append(_build_one("L", left_pts))
+    shells.append(_build_one("R", right_pts))
+    total_faces = sum(s["faceCount"] for s in shells)
+    return {
+        "mode": "parametric_foot_aabb_shell_v1",
+        "revision": "issue_188_footwear_only_no_lower_shell",
+        "kind": kind,
+        "shells": shells,
+        "totalFaceCount": total_faces,
+        "bodyHeight": round(body_height, 6),
+        "bodyMinY": round(body_min_y, 6),
+        "bodyMaxY": round(body_max_y, 6),
+        "role": (actor_role or "").lower(),
+        "claimScope": "procedural_footwear_geometry_on_foot_bones_not_clinical_costume_realism",
+        "notEvidenceFor": [
+            "production_asset_readiness",
+            "b_plus_visual_realism_gate",
+            "clinical_validity",
+            "scoring_validity",
+            "lower_body_garment_channel",
+        ],
+    }
 
 
 def create_garment_source_geometry_hint(mesh_obj: bpy.types.Object, actor_role: str, phenotype: Dict[str, Any]) -> Dict[str, Any]:
