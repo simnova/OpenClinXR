@@ -2985,3 +2985,51 @@ diagnosis-complete slice and a 17-turn cause-unknown slice are not the same meas
 be averaged.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10c. A killed dispatch never writes a ledger entry — so take the session id from the SESSION DIRECTORY
+
+§6c says take the session id programmatically from the ledger, never by hand, because a wrong id
+confabulates. I violated it today and the failure mode was different and worth recording.
+
+A mass reap killed four background jobs at once — two dispatches and two peer rounds. Both worktrees
+held live uncommitted work, so both were resume candidates. I typed an id from memory:
+
+    Session "019fdf1b-6b0a-7b21-a20a-16bfb27e05eb" not found locally, restoring from remote...
+    Error: Failed to restore session from remote: 404 Not Found
+
+The real id was `019fdf12-eed5-73b2-8347-bb4718c07749` — two characters different.
+
+**It errored rather than confabulating**, because the id belonged to no session at all. §6c's danger
+is the id that belongs to *someone else's* session, which loads project memory and answers
+confidently. Both failure modes have the same cause: an id that was not read from a durable record.
+
+**And the ledger could not have helped**, which is the new part. `dispatch()` writes its ledger entry
+only after the worker returns. A killed dispatch returns nothing, so `grep '"slice":"issue-N"'
+worker-sessions.jsonl` finds nothing at all — exactly when you most need the id.
+
+**Rule:** for a killed dispatch, read the id from the session directory, newest first:
+
+    d=~/.grok/sessions/%2F<url-encoded-worktree-path>
+    id=$(ls -dt "$d"/*/ | head -1 | xargs -n1 basename)
+
+then confirm it is the right session before resuming, per §7g — grep its `updates.jsonl` for a
+distinctive term from the brief. Both of today's resumes were verified that way (67 and 56 hits) and
+both were correct.
+
+## 10d. Judge a reap by the WORKTREE, and it is usually worth resuming
+
+The mass reap took #184 four files into its product work. The `automate_blender.py` diff already had
+`garment_shell_color(kind, actor_role, phenotype)`, a palette→kind table, a patient/family role split,
+all seven hardcoded `gown_color` assignments removed, and — unprompted — the comment
+`# Locked clinical colours — never overridden by palette or role`, which is the counterweight
+respected without being asked twice.
+
+Re-dispatching would have discarded all of it. §7i measured a resume at ~5–10 turns against a
+re-implement, and that asymmetry is the whole argument for checking the tree before reaching for a
+fresh dispatch.
+
+**Rule:** on any kill, `git -C <worktree> status --porcelain` first. Files present means resume; an
+empty tree at main's HEAD means the kill preceded the brief and a fresh dispatch is correct. Never
+decide from the task status alone — the harness reports "killed" identically in both cases.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
