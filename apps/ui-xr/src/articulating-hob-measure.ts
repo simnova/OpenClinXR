@@ -40,95 +40,20 @@ function findHumanoid(root: Object3D): Object3D | null {
   return found;
 }
 
-/**
- * Signed gap: body back surface vs back-section top plane.
- * Positive = floating above deck; negative = penetrating.
- * Uses skinned mesh vertices (not bone centers) so plant contact reads near zero.
- */
-function measureBackToDeckGap(humanoid: Object3D, stretcher: Object3D): number {
-  stretcher.updateMatrixWorld(true);
-  humanoid.updateMatrixWorld(true);
-
-  const backPivotBox: { current: Object3D | null } = { current: null };
-  stretcher.traverse((obj) => {
-    if (backPivotBox.current) return;
-    if (obj.userData?.openClinXrDeckSection === "back") backPivotBox.current = obj;
-  });
-  const backPivot = backPivotBox.current;
-  let origin = new Vector3(0, STRETCHER_DECK_TOP_METERS, 0);
-  let normal = new Vector3(0, 1, 0);
-  if (backPivot) {
-    backPivot.updateWorldMatrix(true, false);
-    origin = new Vector3().setFromMatrixPosition(backPivot.matrixWorld);
-    const e = backPivot.matrixWorld.elements;
-    normal = new Vector3(e[4], e[5], e[6]).normalize();
-  }
-
-  let minSigned: number | null = null;
-  humanoid.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      geometry?: {
-        attributes?: {
-          position?: {
-            count: number;
-            getX: (i: number) => number;
-            getY: (i: number) => number;
-            getZ: (i: number) => number;
-          };
-        };
-      };
-      matrixWorld?: { elements: number[] };
-      skeleton?: { update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.geometry?.attributes?.position) return;
-    skinned.skeleton?.update?.();
-    const pos = skinned.geometry.attributes.position;
-    const e = skinned.matrixWorld?.elements;
-    if (!e) return;
-    const stride = Math.max(1, Math.floor(pos.count / 2500));
-    for (let i = 0; i < pos.count; i += stride) {
-      const vx = pos.getX(i);
-      const vy = pos.getY(i);
-      const vz = pos.getZ(i);
-      const w = 1 / (e[3] * vx + e[7] * vy + e[11] * vz + e[15] || 1);
-      const wx = (e[0] * vx + e[4] * vy + e[8] * vz + e[12]) * w;
-      const wy = (e[1] * vx + e[5] * vy + e[9] * vz + e[13]) * w;
-      const wz = (e[2] * vx + e[6] * vy + e[10] * vz + e[14]) * w;
-      if (wx > 0.15) continue;
-      if (Math.abs(wz) > 0.35) continue;
-      const signed = normal.dot(new Vector3(wx - origin.x, wy - origin.y, wz - origin.z));
-      if (minSigned === null || signed < minSigned) minSigned = signed;
-    }
-  });
-  return minSigned ?? 0;
-}
-
-function measurePelvisOnSeat(humanoid: Object3D, seatTopY: number): boolean {
-  humanoid.updateMatrixWorld(true);
-  let pelvisY: number | null = null;
-  const consider = (object: Object3D) => {
-    if (pelvisY !== null) return;
-    if (!/^(pelvis|hips)$/i.test(object.name ?? "")) return;
-    const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
-      || (object as Object3D & { type?: string }).type === "Bone";
-    if (!isBone) return;
-    object.updateWorldMatrix?.(true, false);
-    pelvisY = object.matrixWorld.elements[13] ?? null;
-  };
-  humanoid.traverse(consider);
-  humanoid.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { bones: Object3D[]; update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-    for (const bone of skinned.skeleton.bones) consider(bone);
-  });
-  if (pelvisY === null) return false;
-  const clearance = pelvisY - seatTopY;
-  return clearance > 0.05 && clearance < 0.55;
-}
+// Contact metrics live in hob-contact-metrics.ts (shared with plant step table).
+import {
+  measureBackToDeckGap,
+  measurePelvisOnSeat,
+} from "./hob-contact-metrics.js";
+export {
+  measureBackToDeckGap,
+  measurePelvisOnSeat,
+  measureSeatClearanceMeters,
+  measureHeadPillowGapMeters,
+  readBackSectionPlane,
+  settleSupineOntoBackSection,
+  settleSupineOntoBackSectionPreservingSeat,
+} from "./hob-contact-metrics.js";
 
 function measureRailsClippingTorso(root: Object3D, humanoid: Object3D): boolean {
   const railBoxes: Box3[] = [];

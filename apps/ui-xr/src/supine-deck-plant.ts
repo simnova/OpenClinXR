@@ -5,27 +5,77 @@
  * Pose bones stay in supine-pose.ts; this owns plant, tip, head-align, lift.
  */
 
-import { Box3, Quaternion, Vector3, type Object3D } from "three";
+import { Quaternion, Vector3, type Object3D } from "three";
 import {
   DEFAULT_STRETCHER_POSITION,
 } from "@openclinxr/asset-registry";
 import {
   STRETCHER_LENGTH_METERS,
   readStretcherBackSectionWorldDeg,
-  readStretcherHobHingeWorld,
   readStretcherInclineDegrees,
   readStretcherPillowWorld,
 } from "./station-stretcher.js";
+import {
+  measureBackToDeckGap,
+  measureHeadPillowGapMeters,
+  measurePelvisOnSeat,
+  measureSeatClearanceMeters,
+  readBackSectionPlane,
+  settleSupineOntoBackSectionPreservingSeat,
+} from "./hob-contact-metrics.js";
+import {
+  raiseSupineFeetOntoSeat,
+  reapplyStoredSupineFootFlex,
+} from "./hob-extremity-flex.js";
 import { applySupinePose, type ApplySupinePoseResult } from "./supine-pose.js";
+import {
+  alignSupineHeadToPillow,
+  liftSupineBodyAboveDeck,
+  centerSupineBodyOnDeck,
+} from "./hob-body-align.js";
+
+export type PlantStepMetrics = {
+  step: string;
+  inclineDeg: number;
+  backToDeckGapMeters: number | null;
+  pelvisOnSeatSection: boolean | null;
+  seatClearanceMeters: number | null;
+  headPillow: { dist: number; dx: number; dy: number; dz: number } | null;
+};
+
+function recordPlantStep(
+  humanoidRoot: Object3D,
+  step: string,
+  inclineDeg: number,
+  stretcher: Object3D | undefined,
+  deckTopY: number,
+): PlantStepMetrics {
+  const pillow = stretcher ? readStretcherPillowWorld(stretcher) : null;
+  const metrics: PlantStepMetrics = {
+    step,
+    inclineDeg,
+    backToDeckGapMeters: stretcher ? measureBackToDeckGap(humanoidRoot, stretcher) : null,
+    pelvisOnSeatSection: measurePelvisOnSeat(humanoidRoot, deckTopY),
+    seatClearanceMeters: measureSeatClearanceMeters(humanoidRoot, deckTopY),
+    headPillow: measureHeadPillowGapMeters(humanoidRoot, pillow),
+  };
+  const steps = (humanoidRoot.userData.openClinXrPlantSteps as PlantStepMetrics[] | undefined) ?? [];
+  steps.push(metrics);
+  humanoidRoot.userData.openClinXrPlantSteps = steps;
+  return metrics;
+}
 
 /**
  * Per-frame: re-apply flat on-back basis then restore the register tip quaternion (#171 seam 3).
  * Prefer the stored register quat (hinge tip) over re-deriving a rotation-only tip — the latter
  * did not match hinge-about-point plant and left head ~0.3 m above the pillow in Y.
+ * Re-apply plant-time knee/hip flex after pose — applySupinePose resets SUPINE_BONE_EULERS
+ * and would otherwise wipe extremity clearance every frame (full-room ED −0.11 vs lab green).
  * `holdSupinePlantFrame` owns base XYZ; then reapply pillow XZ.
  */
 export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupinePoseResult {
   const result = applySupinePose(humanoidRoot);
+  reapplyStoredSupineFootFlex(humanoidRoot);
   const stored = humanoidRoot.userData?.openClinXrSupineRootQuat as
     | { x: number; y: number; z: number; w: number }
     | undefined;
@@ -331,16 +381,19 @@ export function applyAndPlantSupineOnDeck(
   const inclined = Math.abs(incline) >= 1e-3;
   const contactMode: SupinePlantContactMode = inclined ? "pelvis_seat" : "all_torso";
 
+  /**
+   * Plant order from #159 land (4e5d520) — the combination that greened back contact:
+   * pose → plant (pelvis_seat if inclined) → center → head XZ → tip → re-plant pelvis_seat.
+   * #171 adds only: step metrics, stored tip quat, live pillow XZ, and a *bounded* seat
+   * lift that cannot push back gap past 0.05 (or is skipped when already floating).
+   */
+  humanoidRoot.userData.openClinXrPlantSteps = [];
   applySupinePose(humanoidRoot);
-  // Flat plant first so center/head-align have a known deck contact, then tip if needed.
   const plant = plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, {
-    contactMode: "all_torso",
+    contactMode,
   });
+  recordPlantStep(humanoidRoot, "initial_plant", incline, input.stretcher, input.deckTopWorldY);
   const center = centerSupineBodyOnDeck(humanoidRoot, input.deckCenter);
-  // Flat pillow rest (NOT the live inclined pillow — stretcher is already at 30° when
-  // we plant). Align head on the flat deck plane, then hinge-tip so head co-rotates
-  // with the mattress. Aligning to the raised pillow while the body is still flat
-  // yanked the whole root up and left a ~0.35 m pure-Y residual after tip.
   const stretcherX =
     input.stretcher?.position?.x
     ?? DEFAULT_STRETCHER_POSITION.x;
@@ -348,31 +401,86 @@ export function applyAndPlantSupineOnDeck(
     input.stretcher?.position?.z
     ?? DEFAULT_STRETCHER_POSITION.z;
   const pillowLocalX = -STRETCHER_LENGTH_METERS * 0.38;
-  const flatPillow = {
-    x: input.pillowWorldX ?? stretcherX + pillowLocalX,
-    y: input.deckTopWorldY + 0.04,
-    z: stretcherZ,
-  };
-  let headAlignDeltaX = alignSupineHeadToPillowWorld(humanoidRoot, flatPillow).deltaX;
+  const livePillow = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
+  let headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
+    x: input.pillowWorldX ?? livePillow?.x ?? stretcherX + pillowLocalX,
+    z: livePillow?.z ?? stretcherZ,
+  }).deltaX;
+  recordPlantStep(humanoidRoot, "head_align_xz", incline, input.stretcher, input.deckTopWorldY);
+
   if (inclined) {
-    // Tip about the stretcher HOB hinge (seat plane hip line), not pelvis alone —
-    // pelvis tip dropped feet/mesh through the flat seat (below-deck-vertices dump).
-    const hinge = input.stretcher ? readStretcherHobHingeWorld(input.stretcher) : undefined;
-    applySupineInclineMatchingDeck(humanoidRoot, incline, hinge);
-    // Live (raised) pillow for XZ polish + per-frame reapply.
-    const pillowAfter = input.stretcher ? readStretcherPillowWorld(input.stretcher) : null;
-    if (pillowAfter) {
-      headAlignDeltaX = alignSupineHeadToPillow(humanoidRoot, {
-        x: pillowAfter.x,
-        z: pillowAfter.z,
-      }).deltaX;
-      humanoidRoot.userData.openClinXrSupinePillowWorld = { ...pillowAfter };
+    /**
+     * Measured trade (plant-steps):
+     * - Hinge tip: backGap≈0.016 (good) but seat clearance −0.11/−0.25/−0.38 at 15/30/45
+     *   (whole rigid body drives the seat-side mesh through the flat seat).
+     * - Pelvis tip: clearance better (pelvis fixed) but gap/sin(θ)≈0.40 (constant-radius float).
+     * Path: pelvis tip + XZ-only settle (closes gap via n_x without sinking Y) + knee/hip flex
+     * for residual extremity sink. Full normal settle or pure-Y lift reopens the other residual.
+     * If both still fail: residual is spine flex (#181) — recorded on openClinXrSupineRigidTrade.
+     */
+    applySupineInclineMatchingDeck(humanoidRoot, incline);
+    recordPlantStep(humanoidRoot, "pelvis_tip", incline, input.stretcher, input.deckTopWorldY);
+
+    // Contract: back gap ≤ 0.06, seat penetration ≤ 0.05. Keep 1 mm headroom on each.
+    const MAX_GAP_BUDGET = 0.058;
+    const TARGET_CLEARANCE = -0.04;
+
+    if (input.stretcher) {
+      // XZ settle first — closes |gap| without burning Y budget (works for sink or float).
+      settleSupineOntoBackSectionPreservingSeat(humanoidRoot, input.stretcher, 0.02);
+      recordPlantStep(humanoidRoot, "xz_settle_back", incline, input.stretcher, input.deckTopWorldY);
     }
-    // Only lift if skinned minY is still below seat (sole thickness). Do not float the body.
-    liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
+
+    // Knee/hip flex before any root lift — true skinned clearance sees this (#150 instrument).
+    raiseSupineFeetOntoSeat(humanoidRoot, input.deckTopWorldY);
+    recordPlantStep(humanoidRoot, "knee_flex_feet", incline, input.stretcher, input.deckTopWorldY);
+
+    if (input.stretcher) {
+      const gapAfterFlex = measureBackToDeckGap(humanoidRoot, input.stretcher);
+      if (gapAfterFlex > 0.035 || gapAfterFlex < -0.02) {
+        settleSupineOntoBackSectionPreservingSeat(humanoidRoot, input.stretcher, 0.02);
+      }
+      recordPlantStep(humanoidRoot, "xz_settle_after_flex", incline, input.stretcher, input.deckTopWorldY);
+
+      const gap = measureBackToDeckGap(humanoidRoot, input.stretcher);
+      const clearance = measureSeatClearanceMeters(humanoidRoot, input.deckTopWorldY);
+      const { normal } = readBackSectionPlane(input.stretcher);
+      const ny = Math.max(0.25, Math.abs(normal.y));
+      const needLift = clearance < TARGET_CLEARANCE ? TARGET_CLEARANCE - clearance : 0;
+      const maxLift = Math.max(0, (MAX_GAP_BUDGET - gap) / ny);
+      const appliedLift = Math.min(needLift, maxLift);
+      if (appliedLift > 1e-4) {
+        humanoidRoot.position.y += appliedLift;
+        humanoidRoot.updateMatrixWorld?.(true);
+        humanoidRoot.userData.openClinXrSupineSinkLiftMeters = appliedLift;
+      }
+      humanoidRoot.userData.openClinXrSupineSeatLiftCapped = needLift > appliedLift + 1e-4;
+      humanoidRoot.userData.openClinXrSupineSeatClearanceAfter =
+        measureSeatClearanceMeters(humanoidRoot, input.deckTopWorldY);
+      humanoidRoot.userData.openClinXrSupineBackGapAfter =
+        measureBackToDeckGap(humanoidRoot, input.stretcher);
+      humanoidRoot.userData.openClinXrSupineRigidTrade = {
+        needLift,
+        maxLift,
+        appliedLift,
+        clearanceAfter: humanoidRoot.userData.openClinXrSupineSeatClearanceAfter,
+        backGapAfter: humanoidRoot.userData.openClinXrSupineBackGapAfter,
+        note:
+          needLift > appliedLift + 1e-3
+            ? "rigid_body_cannot_clear_seat_without_reopening_back_gap_or_spine_flex"
+            : "within_rigid_trade_band",
+      };
+      const pillowAfter = readStretcherPillowWorld(input.stretcher);
+      if (pillowAfter) {
+        humanoidRoot.userData.openClinXrSupinePillowWorld = { ...pillowAfter };
+      }
+      recordPlantStep(humanoidRoot, "bounded_seat_lift", incline, input.stretcher, input.deckTopWorldY);
+    }
+    recordPlantStep(humanoidRoot, "final", incline, input.stretcher, input.deckTopWorldY);
   } else {
-    plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode });
+    plantSupineBodyOnDeck(humanoidRoot, input.deckTopWorldY, thickness, { contactMode: "all_torso" });
     liftSupineBodyAboveDeck(humanoidRoot, input.deckTopWorldY, -0.02);
+    recordPlantStep(humanoidRoot, "final_flat", incline, input.stretcher, input.deckTopWorldY);
   }
   humanoidRoot.userData.openClinXrSupinePlantDeltaY = plant.deltaY;
   humanoidRoot.userData.openClinXrSupinePlantBodyMinBefore = plant.bodyMinYBefore;
@@ -396,193 +504,12 @@ export function applyAndPlantSupineOnDeck(
   };
 }
 
-/**
- * Raise the root if skinned world AABB minY is below deckTop + minClearance.
- * Prevents an inclined tip from leaving extremities 10cm+ through the seat plane
- * (same instrument family as #150's skinnedWorldAabb clearance).
- */
-export function liftSupineBodyAboveDeck(
-  humanoidRoot: Object3D,
-  deckTopWorldY: number,
-  minClearanceMeters = -0.02,
-): number {
-  humanoidRoot.updateMatrixWorld?.(true);
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { update?: () => void };
-    };
-    if (skinned.isSkinnedMesh) skinned.skeleton?.update?.();
-  });
-  const box = new Box3();
-  let any = false;
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & { isSkinnedMesh?: boolean };
-    if (!skinned.isSkinnedMesh) return;
-    const meshBox = new Box3().setFromObject(object);
-    if (meshBox.isEmpty()) return;
-    if (!any) {
-      box.copy(meshBox);
-      any = true;
-    } else {
-      box.union(meshBox);
-    }
-  });
-  if (!any || !Number.isFinite(box.min.y)) return 0;
-  const target = deckTopWorldY + minClearanceMeters;
-  if (box.min.y >= target - 1e-4) return 0;
-  const delta = target - box.min.y;
-  humanoidRoot.position.y += delta;
-  humanoidRoot.updateMatrixWorld?.(true);
-  humanoidRoot.userData.openClinXrSupineSinkLiftMeters = delta;
-  return delta;
-}
-
-/**
- * Shift root XZ so the head bone sits on the pillow rest point (staging, not anatomy).
- * Call after centerSupineBodyOnDeck; re-plant Y afterwards.
- */
-export function alignSupineHeadToPillow(
-  humanoidRoot: Object3D,
-  pillowWorld: { x: number; z: number },
-): { deltaX: number; deltaZ: number } {
-  const full = alignSupineHeadToPillowWorld(humanoidRoot, {
-    x: pillowWorld.x,
-    y: readHeadWorld(humanoidRoot)?.y ?? 0,
-    z: pillowWorld.z,
-  });
-  return { deltaX: full.deltaX, deltaZ: full.deltaZ };
-}
-
-/**
- * Match head bone to the live pillow in world XYZ (#171 inclined HOB).
- * XZ-only left the head ~0.3–0.4 m above a raised pillow after tip + sink lift.
- */
-export function alignSupineHeadToPillowWorld(
-  humanoidRoot: Object3D,
-  pillowWorld: { x: number; y: number; z: number },
-): { deltaX: number; deltaY: number; deltaZ: number } {
-  return alignSupineHeadToPillowSoft(humanoidRoot, pillowWorld, 1);
-}
-
-/**
- * Head→pillow with optional Y blend. yBlend=1 is full XYZ; yBlend=0 is XZ-only.
- * Rigid whole-body tip cannot put head on pillow AND keep feet on the seat; blend trades both.
- */
-export function alignSupineHeadToPillowSoft(
-  humanoidRoot: Object3D,
-  pillowWorld: { x: number; y: number; z: number },
-  yBlend: number,
-): { deltaX: number; deltaY: number; deltaZ: number } {
-  const head = readHeadWorld(humanoidRoot);
-  if (!head) return { deltaX: 0, deltaY: 0, deltaZ: 0 };
-  const blend = Math.max(0, Math.min(1, yBlend));
-  const deltaX = pillowWorld.x - head.x;
-  const deltaY = (pillowWorld.y - head.y) * blend;
-  const deltaZ = pillowWorld.z - head.z;
-  if (Math.abs(deltaX) < 1e-4 && Math.abs(deltaY) < 1e-4 && Math.abs(deltaZ) < 1e-4) {
-    return { deltaX: 0, deltaY: 0, deltaZ: 0 };
-  }
-  humanoidRoot.position.x += deltaX;
-  humanoidRoot.position.y += deltaY;
-  humanoidRoot.position.z += deltaZ;
-  humanoidRoot.updateMatrixWorld?.(true);
-  return { deltaX, deltaY, deltaZ };
-}
-
-function readHeadWorld(humanoidRoot: Object3D): { x: number; y: number; z: number } | null {
-  humanoidRoot.updateMatrixWorld?.(true);
-  let found: { x: number; y: number; z: number } | null = null;
-  const consider = (object: Object3D) => {
-    if (found) return;
-    if (object.name !== "head" && object.name !== "Head") return;
-    const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
-      || (object as Object3D & { type?: string }).type === "Bone";
-    if (!isBone && object.name !== "head") return;
-    object.updateWorldMatrix?.(true, false);
-    const e = object.matrixWorld?.elements;
-    if (!e) return;
-    found = { x: e[12] ?? 0, y: e[13] ?? 0, z: e[14] ?? 0 };
-  };
-  humanoidRoot.traverse(consider);
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      skeleton?: { bones: Object3D[]; update?: () => void };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
-    skinned.skeleton.update?.();
-    for (const bone of skinned.skeleton.bones) consider(bone);
-  });
-  return found;
-}
-
-/**
- * Per-frame plant hold: restore base XZ/Y with mild breathing; root Z owned by applySupinePose.
- */
-export function holdSupinePlantFrame(
-  root: Object3D,
-  base: { x: number; y: number; z: number; scaleX: number; scaleY: number; scaleZ: number },
-  breathing: number,
-): void {
-  root.position.y = base.y + breathing * 0.006;
-  root.position.x = base.x;
-  root.position.z = base.z;
-  root.scale.x = base.scaleX;
-  root.scale.y = base.scaleY + breathing * 0.006;
-  root.scale.z = base.scaleZ;
-}
-
-/**
- * Center the recumbent body on the stretcher XZ and nudge so the head end sits
- * toward the pillow (−X). Call after applySupinePose + plant Y.
- */
-export function centerSupineBodyOnDeck(
-  humanoidRoot: Object3D,
-  deckCenter: { x: number; z: number },
-): { deltaX: number; deltaZ: number } {
-  humanoidRoot.updateMatrixWorld?.(true);
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minZ = Infinity;
-  let maxZ = -Infinity;
-  let any = false;
-  humanoidRoot.traverse((object) => {
-    const skinned = object as Object3D & {
-      isSkinnedMesh?: boolean;
-      geometry?: {
-        attributes?: {
-          position?: { count: number; getX: (i: number) => number; getY: (i: number) => number; getZ: (i: number) => number };
-        };
-      };
-      matrixWorld?: { elements: number[] };
-    };
-    if (!skinned.isSkinnedMesh || !skinned.geometry?.attributes?.position) return;
-    const pos = skinned.geometry.attributes.position;
-    const e = skinned.matrixWorld?.elements;
-    if (!e) return;
-    any = true;
-    const stride = Math.max(1, Math.floor(pos.count / 2000));
-    for (let i = 0; i < pos.count; i += stride) {
-      const vx = pos.getX(i);
-      const vy = pos.getY(i);
-      const vz = pos.getZ(i);
-      const w = 1 / (e[3] * vx + e[7] * vy + e[11] * vz + e[15] || 1);
-      const wx = (e[0] * vx + e[4] * vy + e[8] * vz + e[12]) * w;
-      const wz = (e[2] * vx + e[6] * vy + e[10] * vz + e[14]) * w;
-      if (wx < minX) minX = wx;
-      if (wx > maxX) maxX = wx;
-      if (wz < minZ) minZ = wz;
-      if (wz > maxZ) maxZ = wz;
-    }
-  });
-  if (!any) return { deltaX: 0, deltaZ: 0 };
-  const bodyCx = (minX + maxX) / 2;
-  const bodyCz = (minZ + maxZ) / 2;
-  const deltaX = deckCenter.x - bodyCx;
-  const deltaZ = deckCenter.z - bodyCz;
-  humanoidRoot.position.x += deltaX;
-  humanoidRoot.position.z += deltaZ;
-  humanoidRoot.updateMatrixWorld?.(true);
-  return { deltaX, deltaZ };
-}
+// Body align helpers — re-exported for callers that import from this module.
+export {
+  liftSupineBodyAboveDeck,
+  alignSupineHeadToPillow,
+  alignSupineHeadToPillowWorld,
+  alignSupineHeadToPillowSoft,
+  holdSupinePlantFrame,
+  centerSupineBodyOnDeck,
+} from "./hob-body-align.js";
