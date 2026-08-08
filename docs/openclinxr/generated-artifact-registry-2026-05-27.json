@@ -16502,6 +16502,20 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes."
+    },
+    {
+      "path": "docs/openclinxr/value-decisions/issue-200.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Orchestrator value decision recorded after grading a rendered sweep (value-decision.ts). Tracked deliberately: the first version wrote under the gitignored .openclinxr tree, so the record vanished on clone while the assertion that reads it stayed. The sheet stays in evidence; the decision must survive."
+    },
+    {
+      "path": "docs/openclinxr/value-decisions/issue-204.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Orchestrator value decision recorded after grading a rendered sweep (value-decision.ts). Tracked deliberately: the first version wrote under the gitignored .openclinxr tree, so the record vanished on clone while the assertion that reads it stayed. The sheet stays in evidence; the decision must survive."
     }
   ]
 }

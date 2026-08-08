@@ -1,0 +1,11 @@
+[
+  {
+    "slice": "issue-200",
+    "key": "gown_sleeve_along_fraction",
+    "value": 0.42,
+    "gradedFrom": ".openclinxr/evidence/issue-200/gown-sleeve-sweep-sheet.png",
+    "why": "Graded the sweep independently and agree with the worker's recommendation. At 0.42 the sleeve ends mid upper-arm (y_frac 0.631), leaving the forearm and antecubital fossa clear for BP cuff, IV and ECG access — which is what a hospital gown is for. Separation from both neighbours is legible: scrub 0.683, cardigan 0.524. Rejected 0.35 (too near the scrub silhouette), 0.50/0.55 (elbow, reads long), 0.72 (the shipping defect that saturated with the cardigan). Staging judgement from a rendered sweep, NOT a clinician sign-off.",
+    "decidedBy": "orchestrator",
+    "at": "2026-08-08T08:55:13.646Z"
+  }
+]

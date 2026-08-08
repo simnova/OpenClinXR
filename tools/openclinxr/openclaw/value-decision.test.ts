@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { assertMatchesOrchestratorChoice, readDecision, recordDecision } from "./value-decision.js";
+import { assertMatchesOrchestratorChoice, decisionPath, readDecision, recordDecision } from "./value-decision.js";
 
 const roots: string[] = [];
 const makeRoot = () => {
@@ -65,5 +65,19 @@ describe("a value decision belongs to the orchestrator (#204 retro)", () => {
     expect(decision?.decidedBy).toBe("orchestrator");
     expect(decision?.gradedFrom).toContain("sweep.png");
     expect(decision?.why).toContain("jamb");
+  });
+});
+
+describe("a decision must survive a fresh clone", () => {
+  it("writes to a tracked path, not the gitignored evidence tree", () => {
+    // The first version wrote to .openclinxr/evidence/<slice>/, which .gitignore:9 ignores
+    // wholesale. Both decisions recorded through it existed on one disk only, and
+    // assertMatchesOrchestratorChoice would have failed on a fresh clone for a value that HAD been
+    // graded. That is the gitignored-deliverable class (#64), committed by a mechanism built one
+    // cycle after I wrote that lesson down.
+    const path = decisionPath("/repo", "issue-x");
+    expect(path, "value decisions must not live under the gitignored .openclinxr tree")
+      .not.toContain(".openclinxr");
+    expect(path).toContain(join("docs", "openclinxr", "value-decisions"));
   });
 });

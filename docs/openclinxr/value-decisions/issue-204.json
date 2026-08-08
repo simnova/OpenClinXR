@@ -1,0 +1,11 @@
+[
+  {
+    "slice": "issue-204",
+    "key": "door_wall_inset_m",
+    "value": 0.5,
+    "gradedFrom": ".openclinxr/evidence/issue-204/inset-sweep-sheet.png",
+    "why": "outer jamb sits at the wall plane; assembly half-span ~0.52m. My pixel read of 0.15-0.25 was measuring the CENTRE gap, not the jamb — the worker's argument is correct and I confirmed it after the disagreement was named.",
+    "decidedBy": "orchestrator",
+    "at": "2026-08-08T08:44:42.794Z"
+  }
+]

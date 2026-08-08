@@ -39,8 +39,21 @@ export type ValueDecision = {
   at: string;
 };
 
+/**
+ * TRACKED path, deliberately.
+ *
+ * The first version of this wrote to `.openclinxr/evidence/<slice>/` — which `.gitignore:9` ignores
+ * wholesale. Both decisions recorded through it existed only on one disk, and
+ * `assertMatchesOrchestratorChoice` would have failed on a fresh clone with "no orchestrator
+ * decision recorded" for a value that HAD been graded. A record that vanishes on clone is not a
+ * record, and this module's entire purpose is durability of a human judgement.
+ *
+ * That is the gitignored-deliverable class (#64), committed by a mechanism built one cycle after I
+ * wrote that lesson down. The sheet it was graded from stays in evidence and stays gitignored — the
+ * DECISION is the thing that has to survive.
+ */
 export function decisionPath(repoRoot: string, slice: string): string {
-  return join(repoRoot, ".openclinxr", "evidence", slice, "value-decisions.json");
+  return join(repoRoot, "docs", "openclinxr", "value-decisions", `${slice}.json`);
 }
 
 export function readDecision(repoRoot: string, slice: string, key: string): ValueDecision | null {
