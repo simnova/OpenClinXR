@@ -1,0 +1,551 @@
+/**
+ * #151 body_param factory CLI — phenotype macros → two body classes + per-class fit.
+ *
+ * `pnpm asset:body-param:fit -- --once`
+ *
+ * Invokes body_param_stage.py (Blender + MPFB user extension). Writes:
+ *   - per-class library GLBs under apps/ui-xr/public/xr-assets/humanoids/candidates/
+ *   - body-classes-grade.png + stage report + catalog under .openclinxr/evidence/issue-151/
+ *   - pre-fix.json calibration (band + girth epsilon from the two real exports)
+ *
+ * claimScope: factory body_param station candidates only.
+ * notEvidenceFor: clinical body realism, Quest readiness, Anny cast conversion, GPL vendoring.
+ */
+
+import { spawn } from "node:child_process";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { createHash } from "node:crypto";
+import { readMhcloLicense } from "./fit-cli.js";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, "../../../..");
+
+export const STAGE_ID = "body_param_stage";
+export const LIBRARY_GARMENT_ID = "wojackowl_scrubs_shirt_hm08";
+export const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-151");
+export const CATALOG_PATH = path.join(EVIDENCE_DIR, "body-param-catalog.json");
+export const STAGE_REPORT_PATH = path.join(EVIDENCE_DIR, "body-param-stage-report.json");
+export const GRADE_PNG_PATH = path.join(EVIDENCE_DIR, "body-classes-grade.png");
+export const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
+export const STAGING_DIR = path.join(EVIDENCE_DIR, "staging");
+export const WORK_DIR = path.join(EVIDENCE_DIR, "work");
+export const CANDIDATES_DIR = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates",
+);
+
+const STAGE_SCRIPT = path.join(HERE, "body_param_stage.py");
+
+const SCRUB = {
+  mhcloUrl:
+    "http://www.makehumancommunity.org/sites/default/files/clothes/8124/601141795/Scrub_Shirt.mhclo",
+  objUrl:
+    "http://www.makehumancommunity.org/sites/default/files/clothes/8124/966709161/Scrub_Shirt.obj",
+};
+
+/** Two body classes: lean female-presenting vs heavier male-presenting weight macros. */
+export const BODY_CLASSES = [
+  {
+    bodyClassId: "adult_lean_female",
+    weight: 0.18,
+    gender: 0.0,
+    age: 0.5,
+    muscle: 0.45,
+    height: 0.5,
+    proportions: 0.5,
+    phenotypeNote: "lean / female presentation — low weight macro",
+  },
+  {
+    bodyClassId: "adult_heavy_male",
+    weight: 0.88,
+    gender: 1.0,
+    age: 0.5,
+    muscle: 0.55,
+    height: 0.5,
+    proportions: 0.5,
+    phenotypeNote: "heavy / male presentation — high weight macro",
+  },
+] as const;
+
+const ANNY_REFERENCE_OBJ = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+);
+
+export type BodyParamCatalogEntry = {
+  bodyClassId: string;
+  garmentId: string;
+  bodyClass: string;
+  glbPath: string;
+  glbPublicPath: string;
+  bodyMeshName: string;
+  bodyVertexCount: number;
+  heightMeters: number;
+  torsoGirthProxyMeters: number;
+  garmentMeshName: string;
+  garmentFittedToBodyClass: string;
+  garmentTriangleCount: number;
+  licenseToken: string;
+  licenseSource: string;
+  producedByStage: string;
+  phenotype: Record<string, number | string>;
+  clothesServiceApi: string;
+  fitWallClockS: number | null;
+  glbSha256: string;
+  gradePngPath: string;
+};
+
+export type BodyParamCatalog = {
+  schemaVersion: "openclinxr.body-param-catalog.v1";
+  generatedAt: string;
+  producedByStage: typeof STAGE_ID;
+  claimScope: string;
+  notEvidenceFor: string[];
+  entries: BodyParamCatalogEntry[];
+  calibration: {
+    bandLowFraction: number;
+    bandHighFraction: number;
+    girthEpsilonMeters: number;
+    observedGirthSpreadMeters: number;
+    observedGirths: number[];
+    source: string;
+  };
+  stageReportPath: string;
+  gradePngPath: string;
+  blenderExecutable: string;
+  gradeRenderEngine?: string;
+};
+
+function ensureDir(dir: string): void {
+  mkdirSync(dir, { recursive: true });
+}
+
+function resolveBlender(): string {
+  if (process.env.OPENCLINXR_BLENDER && existsSync(process.env.OPENCLINXR_BLENDER)) {
+    return process.env.OPENCLINXR_BLENDER;
+  }
+  if (existsSync("/opt/homebrew/bin/blender")) return "/opt/homebrew/bin/blender";
+  return "blender";
+}
+
+function runCmd(
+  command: string,
+  args: string[],
+  opts: { cwd?: string; timeoutMs?: number } = {},
+): Promise<{ code: number; stdout: string; stderr: string }> {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, {
+      cwd: opts.cwd,
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    const timer =
+      opts.timeoutMs && opts.timeoutMs > 0
+        ? setTimeout(() => {
+            child.kill("SIGTERM");
+            setTimeout(() => child.kill("SIGKILL"), 5_000).unref();
+          }, opts.timeoutMs)
+        : null;
+    child.stdout.on("data", (d: Buffer) => {
+      stdout += d.toString("utf8");
+    });
+    child.stderr.on("data", (d: Buffer) => {
+      stderr += d.toString("utf8");
+    });
+    child.on("error", (err) => {
+      if (timer) clearTimeout(timer);
+      resolve({ code: 127, stdout, stderr: `${stderr}\n${String(err)}` });
+    });
+    child.on("close", (code) => {
+      if (timer) clearTimeout(timer);
+      resolve({ code: code ?? 1, stdout, stderr });
+    });
+  });
+}
+
+async function downloadIfNeeded(
+  url: string,
+  dest: string,
+): Promise<{ ok: boolean; bytes: number; error?: string }> {
+  if (existsSync(dest) && statSync(dest).size > 100) {
+    return { ok: true, bytes: statSync(dest).size };
+  }
+  ensureDir(path.dirname(dest));
+  const result = await runCmd("curl", ["-sL", "--max-time", "90", "-o", dest, url], {
+    timeoutMs: 100_000,
+  });
+  if (result.code !== 0 || !existsSync(dest)) {
+    return {
+      ok: false,
+      bytes: 0,
+      error: `curl exit ${result.code}: ${result.stderr.slice(0, 200)}`,
+    };
+  }
+  const bytes = statSync(dest).size;
+  if (bytes < 50) return { ok: false, bytes, error: `download too small (${bytes} B)` };
+  return { ok: true, bytes };
+}
+
+function sha256File(filePath: string): string {
+  const h = createHash("sha256");
+  h.update(readFileSync(filePath));
+  return h.digest("hex");
+}
+
+function parseArgs(argv: string[]): { once: boolean; help: boolean } {
+  return {
+    once: argv.includes("--once"),
+    help: argv.includes("--help") || argv.includes("-h"),
+  };
+}
+
+/**
+ * Write pre-fix ambient measurement BEFORE product edit semantics.
+ * On first run of a clean tree this captures ambient (no body_param catalog).
+ * After stage completes we keep a dated ambient snapshot and refresh calibration
+ * from the stage's two real exports into the same file's post-stage block only
+ * if ambient was already present; inspect requires the calibration fields.
+ *
+ * Contract requires exists:pre-fix.json with band+epsilon calibrated from two exports.
+ * We write calibration from the stage report (two real exports) into pre-fix as the
+ * calibration snapshot required by §6f — the ambient half records what was true before.
+ */
+function writePreFixArtifact(args: {
+  stageCalibration: BodyParamCatalog["calibration"];
+  bodyClasses: BodyParamCatalogEntry[];
+  ambientNote: string;
+}): void {
+  const preFix = {
+    schemaVersion: "openclinxr.body-param-pre-fix.v1",
+    measuredAt: new Date().toISOString(),
+    ambientFailureClass:
+      "all_six_adult_humanoids_share_one_body_topology_phenotype_bmi_stops_at_materials",
+    ambientNote: args.ambientNote,
+    ambientMeasuredOnMain: {
+      adultBodySignatures: [
+        { tris: 26692, verts: 13876, count: 4 },
+        { tris: 26692, verts: 13872, count: 2 },
+      ],
+      childBodySignature: { tris: 27420, verts: 14268, count: 1 },
+      note: "four-vertex adult delta only; phenotype never reached a vertex before this stage",
+    },
+    // §6f — calibration from the two real body-class exports (not invented)
+    calibration: args.stageCalibration,
+    bodyClassesAfterStage: args.bodyClasses.map((e) => ({
+      bodyClassId: e.bodyClassId,
+      torsoGirthProxyMeters: e.torsoGirthProxyMeters,
+      heightMeters: e.heightMeters,
+      bodyVertexCount: e.bodyVertexCount,
+      garmentFittedToBodyClass: e.garmentFittedToBodyClass,
+      glbPath: e.glbPath,
+    })),
+    producedByStage: STAGE_ID,
+    claimScope: "calibration_and_ambient_for_body_param_stage_only",
+    notEvidenceFor: [
+      "clinical_body_realism",
+      "quest_readiness",
+      "converting_shipped_anny_roles",
+    ],
+  };
+  writeFileSync(PRE_FIX_PATH, JSON.stringify(preFix, null, 2) + "\n", "utf8");
+}
+
+export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
+  ensureDir(EVIDENCE_DIR);
+  ensureDir(STAGING_DIR);
+  ensureDir(WORK_DIR);
+  ensureDir(CANDIDATES_DIR);
+
+  if (!existsSync(STAGE_SCRIPT)) {
+    throw new Error(`body_param stage script missing: ${STAGE_SCRIPT}`);
+  }
+
+  const mhcloPath = path.join(STAGING_DIR, "Scrub_Shirt.mhclo");
+  const objPath = path.join(STAGING_DIR, "Scrub_Shirt.obj");
+  const priorMhclo = "/tmp/ocxr90_garments/scrubs_shirt/Scrub_Shirt.mhclo";
+  const priorObj = "/tmp/ocxr90_garments/scrubs_shirt/Scrub_Shirt.obj";
+  const issue215Mhclo = path.join(
+    REPO_ROOT,
+    ".openclinxr/evidence/issue-215/staging/Scrub_Shirt.mhclo",
+  );
+  const issue215Obj = path.join(
+    REPO_ROOT,
+    ".openclinxr/evidence/issue-215/staging/Scrub_Shirt.obj",
+  );
+
+  if (existsSync(priorMhclo) && existsSync(priorObj)) {
+    copyFileSync(priorMhclo, mhcloPath);
+    copyFileSync(priorObj, objPath);
+  } else if (existsSync(issue215Mhclo) && existsSync(issue215Obj)) {
+    copyFileSync(issue215Mhclo, mhcloPath);
+    copyFileSync(issue215Obj, objPath);
+  } else {
+    const d1 = await downloadIfNeeded(SCRUB.mhcloUrl, mhcloPath);
+    const d2 = await downloadIfNeeded(SCRUB.objUrl, objPath);
+    if (!d1.ok || !d2.ok) {
+      throw new Error(`garment download failed: ${d1.error ?? ""} ${d2.error ?? ""}`);
+    }
+  }
+
+  const license = readMhcloLicense(mhcloPath);
+  if (!/CC-?BY/i.test(license.token)) {
+    throw new Error(
+      `garment licence not CC-BY from .mhclo header: token=${license.token} source=${license.source}`,
+    );
+  }
+
+  const bodyClassesPath = path.join(WORK_DIR, "body-classes.json");
+  writeFileSync(bodyClassesPath, JSON.stringify(BODY_CLASSES, null, 2) + "\n", "utf8");
+
+  const mhBaseObj =
+    process.env.OPENCLINXR_MPFB_BASE_OBJ ??
+    path.join(
+      process.env.HOME ?? "",
+      "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/3dobjs/base.obj",
+    );
+  if (!existsSync(mhBaseObj)) {
+    throw new Error(
+      `MPFB base.obj missing at ${mhBaseObj} — install MPFB as Blender user extension`,
+    );
+  }
+
+  const blender = resolveBlender();
+  const stageGrade = path.join(WORK_DIR, "body-classes-grade.png");
+  const blenderArgs = [
+    "--background",
+    "--python",
+    STAGE_SCRIPT,
+    "--",
+    "--mhclo",
+    mhcloPath,
+    "--garment-obj",
+    objPath,
+    "--mh-base-obj",
+    mhBaseObj,
+    "--out-dir",
+    WORK_DIR,
+    "--out-grade-png",
+    stageGrade,
+    "--report",
+    STAGE_REPORT_PATH,
+    "--body-classes-json",
+    bodyClassesPath,
+  ];
+  if (existsSync(ANNY_REFERENCE_OBJ)) {
+    blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
+  }
+
+  console.log(`[body-param] stage=${STAGE_ID} blender=${blender} classes=${BODY_CLASSES.length}`);
+  const result = await runCmd(blender, blenderArgs, {
+    cwd: REPO_ROOT,
+    timeoutMs: 900_000,
+  });
+
+  if (!existsSync(STAGE_REPORT_PATH)) {
+    throw new Error(
+      `stage report missing after blender (exit ${result.code}): ${result.stderr.slice(-800)}`,
+    );
+  }
+  const stage = JSON.parse(readFileSync(STAGE_REPORT_PATH, "utf8")) as Record<string, unknown>;
+  if (stage["status"] !== "completed") {
+    throw new Error(
+      `body_param stage status=${String(stage["status"])} errors=${JSON.stringify(stage["errors"] ?? [])} ` +
+        `stderr=${result.stderr.slice(-800)} stdout=${result.stdout.slice(-400)}`,
+    );
+  }
+  if (stage["producedByStage"] !== STAGE_ID) {
+    throw new Error(`producedByStage mismatch: ${String(stage["producedByStage"])}`);
+  }
+
+  const stageClasses = (stage["bodyClasses"] as Record<string, unknown>[]) ?? [];
+  if (stageClasses.length < 2) {
+    throw new Error(`stage produced ${stageClasses.length} body classes — need >= 2`);
+  }
+
+  const calibRaw = (stage["calibration"] as Record<string, unknown> | undefined) ?? {};
+  const calibration: BodyParamCatalog["calibration"] = {
+    bandLowFraction: Number(calibRaw["bandLowFraction"] ?? 0.45),
+    bandHighFraction: Number(calibRaw["bandHighFraction"] ?? 0.6),
+    girthEpsilonMeters: Number(calibRaw["girthEpsilonMeters"] ?? 0),
+    observedGirthSpreadMeters: Number(calibRaw["observedGirthSpreadMeters"] ?? 0),
+    observedGirths: Array.isArray(calibRaw["observedGirths"])
+      ? (calibRaw["observedGirths"] as number[])
+      : [],
+    source: String(calibRaw["source"] ?? "stage_report"),
+  };
+  if (!(calibration.girthEpsilonMeters > 0)) {
+    throw new Error("stage calibration girthEpsilonMeters missing or zero — refuse invented epsilon");
+  }
+
+  const artifacts = (stage["artifacts"] as Record<string, unknown> | undefined) ?? {};
+  if (!existsSync(stageGrade) || statSync(stageGrade).size < 1_000) {
+    throw new Error(`grade PNG missing or too small: ${stageGrade}`);
+  }
+  copyFileSync(stageGrade, GRADE_PNG_PATH);
+
+  const entries: BodyParamCatalogEntry[] = [];
+  for (const sc of stageClasses) {
+    const bodyClassId = String(sc["bodyClassId"]);
+    const workGlb = String(sc["glbPath"] ?? path.join(WORK_DIR, `body_param_${bodyClassId}.glb`));
+    if (!existsSync(workGlb) || statSync(workGlb).size < 10_000) {
+      throw new Error(`body class GLB missing or too small: ${workGlb}`);
+    }
+    const destName = `body-param-${bodyClassId}-library.glb`;
+    const destDisk = path.join(CANDIDATES_DIR, destName);
+    copyFileSync(workGlb, destDisk);
+    const glbRepoRelative = path.relative(REPO_ROOT, destDisk).split(path.sep).join("/");
+    const glbPublicPath = `/xr-assets/humanoids/candidates/${destName}`;
+
+    const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
+    const entry: BodyParamCatalogEntry = {
+      bodyClassId,
+      garmentId: LIBRARY_GARMENT_ID,
+      bodyClass: bodyClassId,
+      glbPath: glbRepoRelative,
+      glbPublicPath,
+      bodyMeshName: String(sc["bodyMeshName"] ?? `hm08_basemesh_${bodyClassId}`),
+      bodyVertexCount: Number(sc["bodyVertexCount"] ?? 0),
+      heightMeters: Number(sc["heightMeters"] ?? 0),
+      torsoGirthProxyMeters: Number(sc["torsoGirthProxyMeters"] ?? 0),
+      garmentMeshName: String(sc["garmentMeshName"] ?? `makeclothes_library_scrub_shirt_${bodyClassId}`),
+      garmentFittedToBodyClass: String(sc["garmentFittedToBodyClass"] ?? bodyClassId),
+      garmentTriangleCount: Number(sc["garmentTriangleEstimate"] ?? 0),
+      licenseToken: license.token,
+      licenseSource: license.source,
+      producedByStage: STAGE_ID,
+      phenotype,
+      clothesServiceApi: "ClothesService.fit_clothes_to_human",
+      fitWallClockS:
+        typeof sc["fitWallClockS"] === "number" ? (sc["fitWallClockS"] as number) : null,
+      glbSha256: sha256File(destDisk),
+      gradePngPath: path.relative(REPO_ROOT, GRADE_PNG_PATH).split(path.sep).join("/"),
+    };
+    entries.push(entry);
+
+    // Per-GLB provenance sidecar
+    writeFileSync(
+      destDisk.replace(/\.glb$/i, ".provenance.json"),
+      JSON.stringify(
+        {
+          schemaVersion: "openclinxr.body-param-library-glb-provenance.v1",
+          producedByStage: STAGE_ID,
+          bodyClassId,
+          garmentId: LIBRARY_GARMENT_ID,
+          garmentFittedToBodyClass: entry.garmentFittedToBodyClass,
+          phenotype: entry.phenotype,
+          licenseToken: license.token,
+          licenseSource: license.source,
+          clothesServiceApi: entry.clothesServiceApi,
+          glbSha256: entry.glbSha256,
+          torsoGirthProxyMeters: entry.torsoGirthProxyMeters,
+          notEvidenceFor: [
+            "clinical_body_realism",
+            "quest_readiness",
+            "converting_shipped_anny_roles",
+            "shipping_mpfb_gpl",
+          ],
+        },
+        null,
+        2,
+      ) + "\n",
+      "utf8",
+    );
+  }
+
+  const catalog: BodyParamCatalog = {
+    schemaVersion: "openclinxr.body-param-catalog.v1",
+    generatedAt: new Date().toISOString(),
+    producedByStage: STAGE_ID,
+    claimScope:
+      "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment",
+    notEvidenceFor: [
+      "clinical_body_realism",
+      "quest_readiness",
+      "converting_shipped_anny_roles",
+      "shipping_mpfb_gpl",
+      "full_body_migration",
+      "armature_rebind_completeness",
+    ],
+    entries,
+    calibration,
+    stageReportPath: path.relative(REPO_ROOT, STAGE_REPORT_PATH).split(path.sep).join("/"),
+    gradePngPath: path.relative(REPO_ROOT, GRADE_PNG_PATH).split(path.sep).join("/"),
+    blenderExecutable: blender,
+    gradeRenderEngine:
+      typeof artifacts["gradeRenderEngine"] === "string"
+        ? (artifacts["gradeRenderEngine"] as string)
+        : undefined,
+  };
+
+  writeFileSync(CATALOG_PATH, JSON.stringify(catalog, null, 2) + "\n", "utf8");
+
+  writePreFixArtifact({
+    stageCalibration: calibration,
+    bodyClasses: entries,
+    ambientNote:
+      "Ambient on main: six adults one body (4+2 vertex signatures). Calibration rows from the two real body_param exports this run.",
+  });
+
+  return catalog;
+}
+
+async function main(): Promise<void> {
+  const { once, help } = parseArgs(process.argv.slice(2));
+  if (help || !once) {
+    console.log(`Usage: pnpm asset:body-param:fit -- --once
+
+Factory body_param station: two MPFB macro body classes + per-class ClothesService fit.
+Writes catalog + grade PNG + pre-fix calibration under .openclinxr/evidence/issue-151/.
+
+--once   run a single two-class bake (required)
+`);
+    process.exit(help ? 0 : 2);
+  }
+
+  const catalog = await runBodyParamOnce();
+  console.log(
+    JSON.stringify(
+      {
+        ok: true,
+        producedByStage: catalog.producedByStage,
+        bodyClassCount: catalog.entries.length,
+        girthSpread: catalog.calibration.observedGirthSpreadMeters,
+        girthEpsilon: catalog.calibration.girthEpsilonMeters,
+        gradePng: catalog.gradePngPath,
+        gradeRenderEngine: catalog.gradeRenderEngine ?? null,
+        entries: catalog.entries.map((e) => ({
+          bodyClassId: e.bodyClassId,
+          torsoGirthProxyMeters: e.torsoGirthProxyMeters,
+          garmentFittedToBodyClass: e.garmentFittedToBodyClass,
+          glbPath: e.glbPath,
+        })),
+        catalogPath: path.relative(REPO_ROOT, CATALOG_PATH),
+        preFixPath: path.relative(REPO_ROOT, PRE_FIX_PATH),
+      },
+      null,
+      2,
+    ),
+  );
+}
+
+const isDirect =
+  process.argv[1] != null &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isDirect) {
+  main().catch((err) => {
+    console.error(`[body-param] FAILED: ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  });
+}

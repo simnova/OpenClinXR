@@ -153,8 +153,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 - `apps/arena/mock-realtime-voice-server/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/model-vetting-studio/dist/assets/AGENTS-BYKezdFc.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/arena/model-vetting-studio/dist/assets/PROJECT_STATUS-CciPX650.md` - current-reference; Package/app-local README or provenance reference; local to its module.
-- `apps/arena/model-vetting-studio/dist/assets/README--cBUUOLz.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/arena/physics-clinical-touch/README.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/environment/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
 - `apps/ui-xr/dist/xr-assets/humanoids/PROVENANCE.md` - current-reference; Package/app-local README or provenance reference; local to its module.
@@ -250,8 +248,6 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 These files should be summarized, archived, or explicitly marked historical before agents use them as instructions.
 
 - `.openclinxr/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/openclaw/task-cost-latest.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
-- `.openclinxr/slice-archive/worker-backlog-pre-optimization-2026-06-07.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `.openclinxr/slices/dispatch-chokepoint/EVIDENCE.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `AUTONOMOUS_WORK_PLAN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `PROJECT_COORDINATION_INDEX.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

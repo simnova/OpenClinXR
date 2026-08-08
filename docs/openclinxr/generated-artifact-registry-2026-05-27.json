@@ -6,7 +6,7 @@
   "counts": {
     "keep-evidence": 113,
     "ignore-local-cache": 2112,
-    "keep-current": 101,
+    "keep-current": 105,
     "keep-compatibility-input": 24,
     "keep-template": 6
   },
@@ -15494,6 +15494,34 @@
       "tracked": true,
       "action": "keep",
       "rationale": "#215 MakeClothes factory library GLB (hm08 + ClothesService-fitted CC-BY scrub); preserve for factory clothing station + runtime comparator path."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#151 body_param factory candidate — lean female MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#151 body_param factory candidate provenance for adult_lean_female library GLB."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#151 body_param factory candidate — heavy male MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#151 body_param factory candidate provenance for adult_heavy_male library GLB."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",

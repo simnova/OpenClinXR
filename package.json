@@ -363,7 +363,8 @@
     "openclaw:integrate-gate": "tsx tools/openclinxr/openclaw/integrate-gate-cli.ts",
     "asset:model-vetting:glb-grade": "tsx tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts",
     "asset:model-vetting:glb-grade:validate": "tsx tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts --validate-latest",
-    "asset:makeclothes:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts"
+    "asset:makeclothes:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts",
+    "asset:body-param:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
