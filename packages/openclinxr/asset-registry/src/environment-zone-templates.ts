@@ -177,13 +177,14 @@ export const GENERIC_CLINIC_ZONES: readonly EnvironmentZoneTemplate[] = [
  * actor anchor (-0.72, z≈-0.12) so a floor-planted figure is not embedded in the deck.
  * ED bay keeps the historical stretcher position (supine patient on deck via #150).
  *
- * #196/#203: authored positions below are absolute metres for each environment's
+ * #196/#203/#204: authored positions below are absolute metres for furniture
  * *descriptor* dimensions. `resolveFixtureSlotPosition` remaps slots when the shell
  * is rebuilt at a different width/depth:
  * - **fraction** (default furniture): X scales with width; Z offset from floor-center
  *   scales with depth. Correct for chairs, beds, work surfaces.
- * - **wall_anchor** (DOOR_LEAF, WALL_BOARD): fixed inset from a *named* wall plane so
- *   the gap does not grow with the room. Identity at authored dimensions.
+ * - **wall_anchor** (DOOR_LEAF, WALL_BOARD): fixed inset from a *named* wall plane
+ *   (`wallInsetMeters` bank-wide — #204) so the gap does not grow with the room
+ *   (#203) and is the same accident in every environment (#204).
  * - **absolute** (`learner_start`): person standing marker, never remapped.
  * Y stays absolute for all rules (board height stays readable).
  */
@@ -239,15 +240,21 @@ function resolveFractionPosition(
 }
 
 /**
- * Wall-anchor remap: preserve authored inset from the named wall plane.
+ * Wall-anchor remap: fixed inset from the named wall plane.
  * Shell is centred on X=0; Z walls use the same floor-center convention as fraction.
  * Along-wall axes still fraction-scale so a door walks with depth changes.
+ *
+ * #204: when `wallInsetMeters` is set it is the bank-wide gap (same in a 5 m clinic and
+ * a 7.2 m stroke bay). Without it, inset is derived from authored coords relative to
+ * `authoredFor` (the #203 behaviour — constant across width overrides of one room, but
+ * a different accident per environment when a shared absolute was reused).
  */
 function resolveWallAnchorPosition(
   authored: { x: number; y: number; z: number },
   wall: NamedShellWall,
   room: RoomPlanDimensions,
   authoredFor: RoomPlanDimensions,
+  wallInsetMeters?: number,
 ): { x: number; y: number; z: number } {
   const authHalfW = authoredFor.widthMeters / 2;
   const roomHalfW = room.widthMeters / 2;
@@ -257,15 +264,19 @@ function resolveWallAnchorPosition(
   const roomHalfD = room.depthMeters / 2;
   const scaleX = room.widthMeters / Math.max(authoredFor.widthMeters, 1e-6);
   const scaleZ = room.depthMeters / Math.max(authoredFor.depthMeters, 1e-6);
+  const explicitInset =
+    typeof wallInsetMeters === "number" && Number.isFinite(wallInsetMeters)
+      ? wallInsetMeters
+      : undefined;
 
   if (wall === "+x") {
-    // Inset from +X wall toward interior (metres). Identity when room === authoredFor.
-    const inset = authHalfW - authored.x;
+    // Inset from +X wall toward interior (metres).
+    const inset = explicitInset ?? authHalfW - authored.x;
     const localZ = authored.z - authCenterZ;
     return { x: roomHalfW - inset, y: authored.y, z: localZ * scaleZ + roomCenterZ };
   }
   if (wall === "-x") {
-    const inset = authored.x - (-authHalfW);
+    const inset = explicitInset ?? authored.x - (-authHalfW);
     const localZ = authored.z - authCenterZ;
     return { x: -roomHalfW + inset, y: authored.y, z: localZ * scaleZ + roomCenterZ };
   }
@@ -273,26 +284,29 @@ function resolveWallAnchorPosition(
     // +Z wall plane at center + halfDepth (open-front shell exterior side).
     const authPlaneZ = authCenterZ + authHalfD;
     const roomPlaneZ = roomCenterZ + roomHalfD;
-    const inset = authPlaneZ - authored.z;
+    const inset = explicitInset ?? authPlaneZ - authored.z;
     return { x: authored.x * scaleX, y: authored.y, z: roomPlaneZ - inset };
   }
   // wall === "-z" — back wall
   const authPlaneZ = authCenterZ - authHalfD;
   const roomPlaneZ = roomCenterZ - roomHalfD;
-  const inset = authored.z - authPlaneZ;
+  const inset = explicitInset ?? authored.z - authPlaneZ;
   return { x: authored.x * scaleX, y: authored.y, z: roomPlaneZ + inset };
 }
 
 /**
  * Map an authored fixture position from `authoredFor` room plan into `room` plan.
- * At identity (room === authoredFor) returns the authored coordinates unchanged
- * for every rule (default geometry must not move).
  *
- * Per-slot rules (#203): wall_anchor for door_leaf / wall_board; fraction for
- * furniture; absolute for learner_start. Not a global margin replacement.
+ * Per-slot rules (#203/#204): wall_anchor for door_leaf / wall_board (bank-wide
+ * wallInsetMeters when set); fraction for furniture; absolute for learner_start.
+ * #204 deliberately moves default rooms when wallInsetMeters replaces the accidental
+ * halfWidth−2.15 gaps — identity preservation of absolute x is no longer the goal.
  */
 export function resolveFixtureSlotPosition(
-  slot: Pick<EnvironmentFixtureSlot, "slotId" | "position" | "placementRule" | "wall">,
+  slot: Pick<
+    EnvironmentFixtureSlot,
+    "slotId" | "position" | "placementRule" | "wall" | "wallInsetMeters"
+  >,
   room: RoomPlanDimensions,
   authoredFor: RoomPlanDimensions,
 ): { x: number; y: number; z: number } {
@@ -307,7 +321,13 @@ export function resolveFixtureSlotPosition(
       // Fail soft to fraction rather than invent a wall from sign(x) (#203 rejected that).
       return resolveFractionPosition(authored, room, authoredFor);
     }
-    return resolveWallAnchorPosition(authored, wall, room, authoredFor);
+    return resolveWallAnchorPosition(
+      authored,
+      wall,
+      room,
+      authoredFor,
+      slot.wallInsetMeters,
+    );
   }
   return resolveFractionPosition(authored, room, authoredFor);
 }
@@ -385,24 +405,42 @@ export const OFFSET_CHAIR: EnvironmentFixtureSlot = {
  * Shared across rooms (never psych-only). Positions keep clear of actor plants
  * (-0.72, z≈-0.12) and known support decks (#169).
  */
+/**
+ * #204 bank-wide door inset (metres from +X wall plane to door root).
+ * Picked from inset-sweep-sheet.png: 0.50 m — outer jamb (~0.52 m half-span of the
+ * multi-mesh leaf/frame assembly) sits at the wall plane; flush (≤0.15) buries most of
+ * the assembly in the wall; the legacy 1.35 m (halfWidth−2.15 at 7 m) reads as a free
+ * prop. Same value in every environment; chairs/beds stay fraction.
+ */
+export const DOOR_WALL_INSET_METERS = 0.5;
+
+/**
+ * #204 board inset — SEPARATE from the door. A board is mounted on the wall (thin
+ * frame), not fitted as an entrance assembly. 0.08 m ≈ frame/mount setback.
+ */
+export const BOARD_WALL_INSET_METERS = 0.08;
+
 export const DOOR_LEAF: EnvironmentFixtureSlot = {
   slotId: "door_leaf",
   purpose: "Solid door leaf at learner entry",
   // Open front of shell is +Z; park leaf toward doorway corner, clear of plant.
-  // Authored for 7 m ED bay: gap to +X wall = 3.5 − 2.15 = 1.35 m (leaf + frame setback).
-  position: { x: 2.15, y: 0, z: 1.05 },
+  // position.x is documentation / fallback only when wallInsetMeters is absent;
+  // #204 places by wallInsetMeters so every room shares one gap.
+  position: { x: 3.0, y: 0, z: 1.05 },
   // #203: a door is architecture — fixed inset from the named wall, not a fraction.
   placementRule: "wall_anchor",
   wall: "+x",
+  wallInsetMeters: DOOR_WALL_INSET_METERS,
 };
 
 export const WALL_BOARD: EnvironmentFixtureSlot = {
   slotId: "wall_board",
   purpose: "Wall-mounted clinical board",
-  // Authored for 7 m ED bay: gap to −X wall = 3.5 − 2.25 = 1.25 m (board frame thickness).
-  position: { x: -2.25, y: 1.4, z: -1.05 },
+  // Mounted on −X; position.x is fallback only. wallInsetMeters is bank-wide (#204).
+  position: { x: -3.42, y: 1.4, z: -1.05 },
   placementRule: "wall_anchor",
   wall: "-x",
+  wallInsetMeters: BOARD_WALL_INSET_METERS,
 };
 
 export const WORK_SURFACE: EnvironmentFixtureSlot = {

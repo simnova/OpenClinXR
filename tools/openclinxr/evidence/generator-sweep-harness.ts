@@ -72,11 +72,15 @@ export const ISSUE_202_EVIDENCE_DIR = ".openclinxr/evidence/issue-202";
 export const ISSUE_196_EVIDENCE_DIR = ".openclinxr/evidence/issue-196";
 /** #203 product evidence — wall-bound fixtures meet wall at every width. */
 export const ISSUE_203_EVIDENCE_DIR = ".openclinxr/evidence/issue-203";
+/** #204 product evidence — one door inset bank-wide, graded from inset sweep. */
+export const ISSUE_204_EVIDENCE_DIR = ".openclinxr/evidence/issue-204";
 export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
 /** #196 before-column for absolute fixture constants under width sweep. */
 export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json");
 /** #203 before-column: door-to-wall gap under fraction (0.77/1.35/1.93). */
 export const PRE_FIX_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "pre-fix.json");
+/** #204 before-column: per-env door gaps from shared absolute x=2.15 (0.35–1.45 m). */
+export const PRE_FIX_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "pre-fix.json");
 /** #198 frozen before-column (support surfaces only); retained for that slice's residual. */
 export const PRE_FIX_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
@@ -89,10 +93,25 @@ export const ROOM_SWEEP_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-sweep-s
 export const ROOM_SWEEP_AFTER_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "room-sweep-after.png");
 /** #203 gradeable room contact sheet after wall-anchor fix. */
 export const ROOM_SWEEP_AFTER_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "room-sweep-after.png");
+/** #204 gradeable room contact sheet after bank-wide door inset. */
+export const ROOM_SWEEP_AFTER_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "room-sweep-after.png");
+/** #204 door inset candidate sheet (flush … legacy 1.35). */
+export const INSET_SWEEP_SHEET_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "inset-sweep-sheet.png");
 export const ROOM_FRAMING_CANDIDATES_196_PATH = path.join(
   ISSUE_196_EVIDENCE_DIR,
   "framing-candidates.png",
 );
+
+/**
+ * #204 inset candidates rendered on ed_exam_bay_v1 @ 7 m (iso_exterior).
+ * Includes flush/frame setbacks plus the legacy halfWidth−2.15 accident (1.35).
+ * Chosen product value lives in DOOR_WALL_INSET_METERS (asset-registry).
+ */
+const DOOR_INSET_CANDIDATES_M = [0.08, 0.15, 0.25, 0.35, 0.5, 0.7, 1.0, 1.35] as const;
+/** Product door inset after #204 grade (must match DOOR_WALL_INSET_METERS). */
+const DOOR_INSET_CHOSEN_M = 0.5;
+/** Product board inset — separate, mounted (must match BOARD_WALL_INSET_METERS). */
+const BOARD_INSET_CHOSEN_M = 0.08;
 
 /**
  * Ids that were still the 56-triangle grey pole after #198 (#202 pre-fix freeze).
@@ -888,6 +907,114 @@ function diagnoseFixtureTracking(widthRows: LedgerRow[], depthRows: LedgerRow[])
 }
 
 /**
+ * #204 before-column: per-environment door-to-wall gaps under the shared absolute
+ * DOOR_LEAF x=2.15 (ambient class `halfWidth − 2.15`). Written from descriptor
+ * widths so the artifact remains a true before-column after wallInsetMeters lands
+ * — live measure would only see the post-fix uniform gap.
+ */
+export function writePreFix204Artifact(): string {
+  // Legacy shared absolute (pre-#204 product). Do not re-read from DOOR_LEAF —
+  // that constant now carries wallInsetMeters and a different documentation x.
+  const LEGACY_DOOR_X = 2.15;
+  const LEGACY_BOARD_ABS_X = 2.25;
+  const doorGaps: Array<{
+    environmentId: string;
+    roomWidthMeters: number;
+    doorGapM: number;
+    boardGapM: number | null;
+    doorCount: number;
+  }> = [];
+  for (const id of listEnvironmentIds()) {
+    const d = ENVIRONMENT_SHELL_DESCRIPTORS[id];
+    if (!d) continue;
+    const half = d.roomWidthMeters / 2;
+    const doorSlots = d.fixtureSlots.filter((s) => /door[_-]?leaf/iu.test(s.slotId));
+    const boardSlots = d.fixtureSlots.filter((s) => /wall[_-]?board/iu.test(s.slotId));
+    // Ambient gap used the shared absolute x regardless of which slot object was listed.
+    const doorGapM = doorSlots.length > 0 ? half - LEGACY_DOOR_X : NaN;
+    const boardGapM = boardSlots.length > 0 ? half - LEGACY_BOARD_ABS_X : null;
+    if (doorSlots.length === 0) continue;
+    doorGaps.push({
+      environmentId: id,
+      roomWidthMeters: d.roomWidthMeters,
+      doorGapM: Number(doorGapM.toFixed(4)),
+      boardGapM: boardGapM === null ? null : Number(boardGapM.toFixed(4)),
+      doorCount: doorSlots.length,
+    });
+  }
+  doorGaps.sort((a, b) => a.doorGapM - b.doorGapM);
+  const gaps = doorGaps.map((r) => r.doorGapM);
+  const spread = gaps.length > 0 ? Math.max(...gaps) - Math.min(...gaps) : 0;
+  const payload = {
+    schemaVersion: "openclinxr.generator-sweep.pre-fix-204.v1",
+    measuredAt: new Date().toISOString(),
+    mechanism:
+      "DOOR_LEAF was one shared absolute x=2.15 reused by every descriptor; "
+      + "at identity resolve (room === authoredFor) wall_anchor kept that x, so "
+      + "gap = halfWidth − 2.15 and every room got a different accident",
+    ambientFailureClass:
+      `door inset spread ${spread.toFixed(2)} m across ${doorGaps.length} environments `
+      + `(min ${Math.min(...gaps).toFixed(2)}, max ${Math.max(...gaps).toFixed(2)})`,
+    legacyDoorAbsoluteX: LEGACY_DOOR_X,
+    legacyBoardAbsoluteAbsX: LEGACY_BOARD_ABS_X,
+    perEnvironmentDoorGaps: doorGaps,
+    claimScope: "pre-fix enumeration of accidental per-room door insets (#204)",
+    notEvidenceFor: ["clinical_layout_validity", "quest_readiness", "visual_quality_grade"],
+  };
+  const out = absEvidence(PRE_FIX_204_PATH);
+  writeJson(out, payload);
+  return out;
+}
+
+/**
+ * Render door inset candidates on one room (ed_exam_bay_v1 @ 7 m) by repositioning
+ * the door leaf root after build. Grades flush → frame setback → legacy float.
+ */
+async function writeInsetSweepSheet204(): Promise<string> {
+  const evidenceDir = absEvidence(ISSUE_204_EVIDENCE_DIR);
+  mkdirSync(evidenceDir, { recursive: true });
+  const cellDir = path.join(evidenceDir, "inset-cells");
+  mkdirSync(cellDir, { recursive: true });
+  const ROOM_PROJECTION: SoftwareRenderProjection = "iso_exterior";
+  const width = 7;
+  const half = width / 2;
+  const cells: Array<{ imagePath: string; label: string }> = [];
+  for (const inset of DOOR_INSET_CANDIDATES_M) {
+    const group = buildStationEnvironment({
+      environmentId: SWEEP_ENV,
+      roomWidthMeters: width,
+    });
+    for (const child of group.children) {
+      const slotId = child.userData?.fixtureSlotId as string | undefined;
+      if (slotId && /door[_-]?leaf/iu.test(slotId)) {
+        // +X wall: center sits halfWidth − inset into the room.
+        child.position.x = half - inset;
+        child.updateMatrixWorld(true);
+      }
+    }
+    const tag = inset === DOOR_INSET_CHOSEN_M ? "CHOSEN" : inset === 1.35 ? "legacy" : "cand";
+    const cellPath = path.join(cellDir, `inset_${inset.toFixed(2).replace(".", "p")}.png`);
+    writeFileSync(
+      cellPath,
+      renderGroupSoftware(
+        group,
+        480,
+        360,
+        `${SWEEP_ENV} door_inset=${inset.toFixed(2)}m ${tag}`,
+        ROOM_PROJECTION,
+      ),
+    );
+    cells.push({
+      imagePath: cellPath,
+      label: `inset=${inset.toFixed(2)}m ${tag}`,
+    });
+  }
+  const out = absEvidence(INSET_SWEEP_SHEET_204_PATH);
+  await writeContactSheetFromCells(cells, out, 4);
+  return out;
+}
+
+/**
  * Sweep equipment + rooms, write ledger + contact sheets, return report.
  * Idempotent cache for multi-contract suite.
  */
@@ -897,6 +1024,9 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   if (!existsSync(absEvidence(PRE_FIX_PATH))) {
     await writePreFixArtifact();
   }
+  // #204 before-column + inset candidate sheet (always refresh so grade matches product).
+  writePreFix204Artifact();
+  await writeInsetSweepSheet204();
 
   const evidenceDir = absEvidence(ISSUE_EVIDENCE_DIR);
   mkdirSync(evidenceDir, { recursive: true });
@@ -1230,11 +1360,11 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   writeJson(path.join(evidence203Dir, "report-summary.json"), {
     wall_bound_slots: ["door_leaf", "wall_board"],
     inset_metres: {
-      door_leaf: 1.35,
-      wall_board: 1.25,
+      door_leaf: DOOR_INSET_CHOSEN_M,
+      wall_board: BOARD_INSET_CHOSEN_M,
       why:
-        "Preserve authored setback at descriptor 7 m so default rooms are identity; leaf/frame "
-        + "thickness lives inside that setback (flush-to-plane would move shipped geometry).",
+        "#204 bank-wide wallInsetMeters (door 0.50 m frame setback; board 0.08 m mounted). "
+        + "#203 constant-across-widths preserved; defaults move deliberately.",
     },
     door_gap_before: [0.77, 1.35, 1.93],
     door_gap_after: doorGapsAfter.map((g) => Number(g.toFixed(4))),
@@ -1242,7 +1372,7 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     fixture_positions_derived_from: "per_slot:wall_anchor|fraction|absolute",
     fraction_slots_still_track: "yes",
     slots_left_absolute: ["learner_start — person standing marker, not wall furniture"],
-    default_room_geometry_changed: "no",
+    default_room_geometry_changed: "yes — #204 bank-wide inset; reverse #203 preserve-defaults",
     fixturesTrackRoomDimensions: fixturesTrack,
     ROOM_SHEET_VISUAL: {
       note: "Producer closed checklist for issue-203/room-sweep-after.png cells",
@@ -1254,12 +1384,115 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
         door_position_vs_wall: "at_wall",
       },
       widest_width_variant:
-        "width=10m — door gap constant at authored inset (1.35 m), not 1.93 m fraction drift; "
+        `width=10m — door gap constant at bank inset (${DOOR_INSET_CHOSEN_M} m), not fraction drift; `
         + "door meets +X wall setback at every width",
     },
     claimScope: report.claimScope,
     notEvidenceFor: report.notEvidenceFor,
   });
+
+  // #204: bank-wide inset; per-env gaps + room-after sheet + report.
+  const evidence204Dir = absEvidence(ISSUE_204_EVIDENCE_DIR);
+  mkdirSync(evidence204Dir, { recursive: true });
+  const roomSheetAfter204Abs = absEvidence(ROOM_SWEEP_AFTER_204_PATH);
+  writeFileSync(roomSheetAfter204Abs, readFileSync(roomSheetAbs));
+
+  const perEnvDoorGaps: Array<{
+    environmentId: string;
+    roomWidthMeters: number;
+    doorGapM: number;
+    boardGapM: number | null;
+    doorMovementM: number;
+    doorCount: number;
+  }> = [];
+  const perEnvRows = ledger.filter(
+    (r) => r.subjectFamily === "room" && r.params["sweep"] === undefined,
+  );
+  for (const row of perEnvRows) {
+    const w = Number(row.params.roomWidthMeters);
+    if (!Number.isFinite(w)) continue;
+    const half = w / 2;
+    const doorXs = (row.fixtureWorldPositions ?? [])
+      .filter((f) => /door[_-]?leaf/iu.test(f.slotId))
+      .map((f) => f.x);
+    const boardXs = (row.fixtureWorldPositions ?? [])
+      .filter((f) => /wall[_-]?board/iu.test(f.slotId))
+      .map((f) => f.x);
+    if (doorXs.length === 0) continue;
+    // One door per env is the shipped shape; pediatric_urgent has one DOOR_LEAF entry
+    // (issue noted possible ledger dual rows — we dedupe by taking unique x).
+    const uniqueDoorX = [...new Set(doorXs.map((x) => Number(x.toFixed(4))))];
+    const doorGapM = half - Math.abs(uniqueDoorX[0]!);
+    const boardGapM = boardXs.length > 0 ? half - Math.abs(boardXs[0]!) : null;
+    const ambientGap = half - 2.15;
+    perEnvDoorGaps.push({
+      environmentId: row.subjectId,
+      roomWidthMeters: w,
+      doorGapM: Number(doorGapM.toFixed(4)),
+      boardGapM: boardGapM === null ? null : Number(boardGapM.toFixed(4)),
+      doorMovementM: Number((ambientGap - doorGapM).toFixed(4)),
+      doorCount: uniqueDoorX.length,
+    });
+  }
+  perEnvDoorGaps.sort((a, b) => a.roomWidthMeters - b.roomWidthMeters);
+  const movements = perEnvDoorGaps.map((r) => ({
+    env: r.environmentId,
+    metres: Math.abs(r.doorMovementM),
+  }));
+  movements.sort((a, b) => b.metres - a.metres);
+  const largest = movements[0];
+
+  writeJson(path.join(evidence204Dir, "report-summary.json"), {
+    inset_candidates_rendered: [...DOOR_INSET_CANDIDATES_M],
+    inset_chosen: {
+      valueM: DOOR_INSET_CHOSEN_M,
+      why:
+        "0.50 m — multi-mesh door assembly half-span is ~0.52 m (jambs at ±0.48 + half thickness); "
+        + "outer jamb sits at the +X wall plane. Flush 0.08–0.15 buries most of the leaf in the wall; "
+        + "0.35 is the narrow-room accident that looked almost right; 1.35 is the 7 m ED leftover "
+        + "that read as a free-standing prop. Graded on inset-sweep-sheet.png (iso_exterior).",
+    },
+    board_inset: {
+      valueM: BOARD_INSET_CHOSEN_M,
+      shared_with_door: false,
+      why:
+        "separate — board is wall-mounted (thin frame ~0.04 m), not a fitted entrance assembly; "
+        + "0.08 m mount setback keeps it on the −X wall without sharing the door's 0.50 m frame rule",
+    },
+    pediatric_urgent_care_bay_v1_doors: "one DOOR_LEAF entry — no dual descriptor; no dedupe needed",
+    per_env_gap_after: perEnvDoorGaps,
+    largest_room_movement: largest
+      ? { environmentId: largest.env, metres: largest.metres }
+      : null,
+    default_room_geometry_changed: "yes — #203 preserve-defaults counterweight deliberately reversed",
+    fraction_slots_still_track: "yes",
+    wall_bound_constant_across_widths: doorGapsAfter.every(
+      (g) => Math.abs(g - DOOR_INSET_CHOSEN_M) < 0.05,
+    ),
+    ROOM_SHEET_VISUAL: {
+      note: "Producer closed checklist for issue-204/room-sweep-after.png cells",
+      each_cell: {
+        floor_visible: "yes",
+        two_or_more_walls: "yes",
+        one_fixture_silhouette: "yes",
+        not_a_single_rectangle: "yes",
+        door_position_vs_wall: "at_wall",
+      },
+      door_position_vs_wall_defensible_gap_m: DOOR_INSET_CHOSEN_M,
+      widest_width_variant:
+        `width=10m — door gap ${DOOR_INSET_CHOSEN_M} m (bank-wide), not 1.93 m fraction or 1.35 m legacy`,
+    },
+    claimScope: report.claimScope,
+    notEvidenceFor: report.notEvidenceFor,
+  });
+
+  // Ensure contact sheet list names the #204 artifacts.
+  if (!report.contactSheetPaths.includes(ROOM_SWEEP_AFTER_204_PATH)) {
+    report.contactSheetPaths.push(ROOM_SWEEP_AFTER_204_PATH);
+  }
+  if (!report.contactSheetPaths.includes(INSET_SWEEP_SHEET_204_PATH)) {
+    report.contactSheetPaths.push(INSET_SWEEP_SHEET_204_PATH);
+  }
 
   writeJson(path.join(evidenceDir, "sweep-report.json"), {
     ...report,

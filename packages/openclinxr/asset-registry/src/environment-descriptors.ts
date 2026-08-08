@@ -58,6 +58,14 @@ export type EnvironmentFixtureSlot = {
   placementRule?: FixturePlacementRule;
   /** Required when placementRule is wall_anchor. Named wall plane, not sign-derived. */
   wall?: NamedShellWall;
+  /**
+   * #204: fixed metres from the named wall plane into the room when placementRule is
+   * wall_anchor. ONE value for the bank — a door frame does not scale with room width.
+   * When set, wall-normal placement uses this inset at every environment size (not
+   * `halfWidth − authored.x`, which made every room a different accident from the
+   * shared DOOR_LEAF absolute coordinate). Along-wall axes still fraction-scale.
+   */
+  wallInsetMeters?: number;
 };
 
 /** Parametric shell a kit-bash or generated room plugs into later. */
