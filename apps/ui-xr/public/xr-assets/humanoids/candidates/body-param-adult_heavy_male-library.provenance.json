@@ -1,6 +1,7 @@
 {
   "schemaVersion": "openclinxr.body-param-library-glb-provenance.v1",
   "producedByStage": "body_param_stage",
+  "producedByCommand": "pnpm asset:body-param:fit -- --once",
   "bodyClassId": "adult_heavy_male",
   "garmentId": "wojackowl_scrubs_shirt_hm08",
   "garmentFittedToBodyClass": "adult_heavy_male",
@@ -13,7 +14,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_adult_cast",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.10368792203770874,
     "girthScaleHorizontal": 1,
@@ -22,7 +23,7 @@
     "bodyStatureAfterScaleMeters": 1.7599999875798498,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.5864284019543089,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_adult_cast"
   },
   "morphTargetCount": 32,
@@ -79,10 +80,20 @@
     "bodyBandVertexCount": 1625,
     "garmentBandVertexCount": 1158
   },
+  "finishStepsRun": [
+    "body_param_stage",
+    "embed_library_footwear",
+    "catalog_stamp"
+  ],
+  "footwearMeshNames": [
+    "openclinxr_footwear_hospital_slipper_L_mesh",
+    "openclinxr_footwear_hospital_slipper_R_mesh"
+  ],
+  "footwearTriangleCount": 96,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-221/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-226/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "fe016b649be8fa61d28496cf2a9a4f51b5c6f7327b05e940909ab56fb575e573",
+  "glbSha256": "69b7970c1dd49f813f199b13d2c91f90383b79c8e93732e86e6c71e2e7329d29",
   "torsoGirthProxyMeters": 0.5864284020526069,
   "heightMeters": 1.7599999904632568,
   "notEvidenceFor": [

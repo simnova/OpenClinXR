@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "openclinxr.makeclothes-fit-stage.v1",
+  "producedByStage": "makeclothes_fit_stage",
+  "status": "completed",
+  "steps": {
+    "clothesServiceFit": {
+      "api": "ClothesService.fit_clothes_to_human",
+      "regeneratedBy": "pnpm asset:body-param:fit -- --once",
+      "note": "stage report re-stamped beside tracked library GLB for clean-clone discovery (#226)"
+    }
+  },
+  "generatedAt": "2026-08-08T16:57:20.472Z"
+}
