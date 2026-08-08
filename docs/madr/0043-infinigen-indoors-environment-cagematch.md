@@ -308,3 +308,114 @@ slice (measure-only).
 
 **Evidence module:** `tools/openclinxr/evidence/infinigen-empty-shell.ts` + planted contracts in
 `infinigen-empty-shell.test.ts`.
+
+---
+
+## TRIM-OVERRIDE MEASURE 2026-08-08 (#229) — shell under ceiling, Decision unchanged
+
+**`verdict: shell_under_ceiling`** — with furniture and trim disabled at config time, the
+architectural shell clears the 180k triangle ceiling by a factor of 16 (10,984 tris, 6.1%).
+**0043's Decision above is unchanged** — Infinigen is still not adopted as an `environmentId`-driven
+source for the learner runtime.
+
+### What #135's reject_measured actually is
+
+#135 returned `reject_measured` at 203,136 triangles — a **13% miss on the raw intermediate**
+caused by doors, windows and skirting (joinery, not architecture). Per MADR 0050, a raw
+intermediate triangle count is not a generator disqualification: the pipeline should optimize
+first and judge the post-opt output. The empty-shell path is **unblocked** for harness + offline
+experiments.
+
+### Method
+
+- **`no_trim.gin`** created at install: includes `no_objects.gin` and adds:
+
+  ```
+  compose_indoors.room_doors_enabled    = False
+  compose_indoors.room_windows_enabled  = False
+  compose_indoors.skirting_floor_enabled = False
+  compose_indoors.skirting_ceiling_enabled = False
+  ```
+
+  The gin config FILE approach is required — `-p` command-line overrides do not reliably bind
+  `compose_indoors.*` parameters into the `RandomStageExecutor` params dictionary.
+- Furniture disabled at config time (`no_objects.gin` — `solve_{large,medium,small}_enabled=False`).
+- `compose_indoors.terrain_enabled=False`.
+- Generate: same seed 0, same `--task coarse`, ~38 s wall clock (faster than #135's 43 s because
+  trim stages are skipped).
+- Door opening survival measured by **Euler characteristic** on wall meshes: negative Euler
+  (V − E + F < 2) = holes. 18 of 20 wall/exterior meshes show negative Euler; 8 door aperture
+  cutters present in `placeholders:portal_cutters` collection.
+
+### Measured fields
+
+| Field | Trimmed shell (`no_trim.gin`) | #135 baseline (`no_objects`) |
+| --- | ---: | ---: |
+| `triangleCount` | **10,984** | 203,136 |
+| `meshCount` | 89 | 118 |
+| `materialCount` | 33 | 88 |
+| `textureCount` | **0** | 0 |
+| `exportBytes` | **7,344,372** (~7 MB) | 11,363,496 (~11 MB) |
+| `generationWallClockSeconds` | **38.2** | 43.1 |
+| structure | floor ✓, ceiling ✓, 20 walls, door apertures ✓ | floor ✓, ceiling ✓, 20 walls, doors ✓ |
+| architecture-only sum | **~4,280** (walls 2,068 + floor 424 + ceiling 320 + exterior 1,592) | ~4,286 |
+
+| `rawTriangleCount` | `postOptTriangleCount` | `optPass` | `featureSurvival` |
+| ---: | --- | --- | --- |
+| 10,984 | `null` | not run — raw already under ceiling | floor, ≥2 walls, ceiling, door aperture, no furniture |
+
+### The decisive question answered
+
+**`doorOpeningSurvives: true`.** The `placeholders:portal_cutters` collection contains 8 door
+aperture cutters with the same dimensions and positions as #135's output. The wall meshes show
+negative Euler characteristic (holes from boolean DIFFERENCE cuts baked into the mesh during
+solidification). Disabling `room_doors_enabled`, `room_windows_enabled`, and
+`skirting_floor/ceiling_enabled` removes the LEAF geometry (door panels, window frames, skirting
+extrusions) while preserving the APERTURES in the walls. A learner can enter.
+
+The portal cutters are created in the solidifier stage (`solidify()` in
+`infinigen/core/constraints/example_solver/room/solidifier.py`) independently of the decoration
+stages (`room_doors`, `room_windows`, etc.) controlled by the `compose_indoors.*_enabled` flags.
+This architectural separation is what makes partial trim override possible.
+
+### Trim savings breakdown
+
+| collection | #135 (w/ trim) | #229 (trim off) | saved |
+| --- | ---: | ---: | ---: |
+| doors | 15,493 | **0** | 15,493 |
+| windows | 45,168 | **0** | 45,168 |
+| skirting | 25,122 | **0** | 25,122 |
+| architecture | ~4,286 | ~4,280 | ~6 |
+| **total** | **203,136** | **10,984** | **192,152** |
+
+Architecture-only is nearly identical (~4,280 vs ~4,286), confirming the trim override did not
+damage the structural shell.
+
+### What this does **not** change
+
+- **Decision:** Infinigen is still NOT adopted as a `environmentId`-driven runtime source.
+- **No** wiring into `apps/ui-xr`.
+- **No** claim of Quest worn readiness or clinical validity.
+- **No** overturn of MADR 0043's Decision or reversal-trigger checklist.
+- Room scope is still multi-room (20 wall meshes; singleroom solve proved too slow, ~12+ min with
+  `BlueprintSolidifier.enable_open=False` in `singleroom.gin`).
+
+### Residual (NOT TESTED this slice)
+
+- Single-room restriction (`-p restrict_solving.solve_max_rooms=1` without `singleroom.gin`'s
+  `enable_open=False` side effect) — may produce a clinical-shaped room at even lower tri count;
+  singleroom solve was slower than expected and deferred.
+- Durable re-home of the install off `/tmp` (install still under `/private/tmp/...`).
+- Decimation / meshopt LOD pipeline (MADR 0050's post-opt column; `null` here because raw is
+  already under ceiling).
+- glTF-native export (1.14.0-dev's `FORMAT_CHOICES` still lists only `fbx, obj, usdc, usda, stl,
+  ply`; the `.glb` comes from a Blender export hop).
+
+**Evidence module:** `tools/openclinxr/evidence/infinigen-shell-trim-override.ts` + planted
+contracts in `infinigen-shell-trim-override.test.ts`. Artifacts under
+`.openclinxr/evidence/issue-229/`.
+
+CLAIM: a furniture-free Infinigen shell with trim disabled clears the 180k ceiling by 94%,
+preserves door apertures, and is a measurable room — but is not adopted for runtime use.
+
+NOT TESTED: single-room solve; decimation; `/tmp` re-home; glTF-native export; any ui-xr wiring.

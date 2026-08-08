@@ -167,3 +167,31 @@ describe("a trimmed Infinigen shell is measured against the ceiling (#229)", () 
     expect(broken, `shell_under_ceiling was claimed but this is not a room:\n${broken.join("\n")}`).toEqual([]);
   }, 1_800_000);
 });
+
+/**
+ * ## FIXED (#229)
+ *
+ * Implemented `inspectInfinigenShellTrimOverride` in `infinigen-shell-trim-override.ts`.
+ *
+ * Generated with a custom `no_trim.gin` config (includes `no_objects.gin` + all trim stages off):
+ * `room_doors_enabled=False`, `room_windows_enabled=False`, `skirting_floor_enabled=False`,
+ * `skirting_ceiling_enabled=False`. The gin config FILE approach was required — `-p` overrides
+ * don't reliably bind `compose_indoors.*` params into the `RandomStageExecutor` params dict.
+ *
+ * Measured: 10,984 tris / 7.3 MB / 0 textures / multi-room structure with floor+20 walls+
+ * ceiling+door apertures. Verdict `shell_under_ceiling`: 6.1% of the 180k Quest station ceiling.
+ *
+ * The decisive question: door OPENING survives disabling door GEOMETRY. The portal cutters
+ * (`placeholders:portal_cutters`, 8 door aperture objects) are created in the solidifier stage
+ * independently of the `room_doors` decoration stage. Wall meshes show negative Euler
+ * characteristic (V − E + F < 2 = holes). Trim savings: 192,152 tris from #135 baseline.
+ *
+ * Artifacts: `.openclinxr/evidence/issue-229/trim-measure.json`, `trimmed-shell.glb`,
+ * `trimmed-shell.png`. MADR 0043 Decision unchanged; dated trim-override section appended.
+ * No ui-xr wiring. Install still under `/tmp`.
+ *
+ * CLAIM: a furniture-free Infinigen shell with trim disabled clears the budget by 94%, preserves
+ * door apertures, and is a measurable room.
+ *
+ * NOT TESTED: single-room solve; decimation; `/tmp` re-home; glTF-native export.
+ */
