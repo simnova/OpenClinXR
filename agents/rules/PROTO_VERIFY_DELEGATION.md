@@ -3929,3 +3929,62 @@ decorative — the contract will win, as it should (§6q).
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11n. §11j has a sibling — a BREADTH requirement also defeats the instrument-artifact stop
+
+§11j removed the `changed:<source file>` rule so an honest "nothing to fix" could satisfy every proof.
+#211 proved that necessary and insufficient. Its worker knew my premise was dead at **station 6 of
+14** — psych printed `liveRoots=3, skinnedTris=32207/38827/34571` while eight stations remained — and
+did not stop. Asked why:
+
+> "I let the bank finish so `pre-fix.json` and the contracts' **'enumerate dynamically /
+> stations.length > 1'** stayed one artifact... I **over-weighted the contract surface.** A correct
+> instrument stop would have been: **psych + one known-good (ED) first**, write that as the falsifier,
+> then either stop or expand. Full bank was contract compliance + habit, not what the
+> instrument-artifact sentence needed."
+
+Two different rules compel two different things. `changed:<file>` compels an EDIT. `stations.length > 1`
+plus "enumerate dynamically from what ships" compels BREADTH. Removing the first without noticing the
+second leaves the stop legal but expensive — the worker must complete the whole sweep before it may
+report.
+
+**Rule:** when a brief offers the instrument-artifact stop, define the MINIMAL FALSIFIER and say that
+satisfying it is enough to stop:
+
+> Measure `<the motivating instance>` and ONE known-good control first, and write that as the pre-fix
+> artifact. If the motivating instance measures clean, stop and report — you do not need the full
+> sweep to close this.
+
+Then the breadth contract applies only on the branch where a defect is found. The cost here was small
+(~2 s per extra station) and the principle is not: a stop the contract makes expensive is a stop
+workers will keep declining to take at the moment they know.
+
+Note what still worked, and it is the half that matters — the worker's own table:
+
+| | with a `changed:` rule | #211 as written |
+|---|---|---|
+| full-bank measure | would still have happened | happened |
+| product edit after "actors are fine" | **high pressure to invent a touch** | **stopped — module and artifacts only** |
+
+## 11o. A floor that only bites the failure mode is not vacuous — but say which it is
+
+§7t asks workers to flag a proof that "passes trivially against the ambient measured range". #211's
+contract (2) required ≥3000 skinned triangles; the observed bank is **31,467–39,196**, a 9.5× margin,
+and the worker did not flag it at discovery. Its retro is precise about why that is defensible:
+
+> "**No legitimate shipped cast actor is near 3000.** Floor is vacuous on this bank for *real*
+> humanoids; it only bites dummies / stubs / mid-load primitives... Could something legitimate ship
+> below 3000 later? Yes if you add a low-poly / LOD / deliberate proxy. Then the floor is a design
+> target, not anatomy."
+
+That is the distinction §7t is missing. A threshold with enormous margin is **vacuous** if nothing can
+ever cross it, and a **regression net** if a known failure mode sits on the other side — here #187's
+~1,266-triangle load-failure dummy, at 24.9× below the observed minimum.
+
+**Rule:** when a threshold has a large margin, say in the contract WHICH failure mode is on the far
+side of it. If you cannot name one, it is vacuous and should be deleted rather than defended. And note
+the worker's warning: the day a legitimate low-poly proxy ships, that floor becomes a design target
+(§7a) — the correct response is to say so, not to raise it.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
