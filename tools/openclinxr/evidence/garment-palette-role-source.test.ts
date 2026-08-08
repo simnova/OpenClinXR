@@ -7,7 +7,11 @@ import { describe, expect, it } from "vitest";
  * `openclinxr_real_garment_casual_top_phenotype_L0` at `0.42, 0.36, 0.40` and
  * `..._open_cardigan_phenotype_L1` at `0.62, 0.28, 0.38`. Not similar — **identical**.
  *
- * TWO REDs FLIP. The third is a COUNTERWEIGHT and is `it.fails` only because the module is absent.
+ * ## FIXED (#180a)
+ * - colour is f(role, kind, fabricPalette) via garment_shell_color + _FABRIC_PALETTE_KIND_COLORS
+ * - inspectGarmentPaletteRoleSource reads exported glTF baseColorFactor
+ * - rebake: adult_male_street_casual → olive; peds_nurse pocket → teal_scrubs_peds_shift
+ * - all three contracts flipped from it.fails → it
  *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * THE CAUSE IS TRACED AND VERIFIED. Do not re-derive it; DO confirm it.
@@ -169,7 +173,7 @@ const near = (a: readonly number[], b: readonly number[]): boolean =>
   a.length === b.length && a.every((v, i) => Math.abs(v - b[i]!) < EPS);
 
 describe("garment colour is chosen with role, not garment kind alone (#180a)", () => {
-  it.fails("no two co-present actors share a primary garment material", async () => {
+  it("no two co-present actors share a primary garment material", async () => {
     // The telehealth patient and his daughter are byte-identical: casual_top 0.42,0.36,0.40 and
     // open_cardigan 0.62,0.28,0.38 on both. A learner cannot tell which figure is the patient, and
     // this half of that is pure identity — no threshold, no perceptual metric.
@@ -189,7 +193,7 @@ describe("garment colour is chosen with role, not garment kind alone (#180a)", (
       .toHaveLength(0);
   }, 900_000);
 
-  it.fails("colour selection reads role, not garment kind alone", async () => {
+  it("colour selection reads role, not garment kind alone", async () => {
     // automate_blender.py:2890-2963 picks the visible colour from `kind` with no role input, and
     // phenotype.fabricPalette is written to provenance at :3924 and never reaches a BSDF. Three
     // distinct palettes are authored as strings and all three are discarded.
@@ -217,7 +221,7 @@ describe("garment colour is chosen with role, not garment kind alone (#180a)", (
     }
   }, 900_000);
 
-  it.fails("the gown and scrub colours are untouched (COUNTERWEIGHT)", async () => {
+  it("the gown and scrub colours are untouched (COUNTERWEIGHT)", async () => {
     // The cheap way to make everything "differ" is to start nudging hexes across the board. The
     // gown/scrub pair is #180b's subject and is BLOCKED ON EVIDENCE — a contact sheet at encounter
     // distance has to exist before anyone decides whether the fix is palette, markers or silhouette.
