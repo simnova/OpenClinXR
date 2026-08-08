@@ -7,6 +7,12 @@ import { describe, expect, it } from "vitest";
  * TWO REDs FLIP. The third is a COUNTERWEIGHT — the shipped equipment and its licence posture must be
  * untouched. It is `it.fails` only because the module is absent.
  *
+ * ## FIXED (#164)
+ * Module `trellis-equipment-cagematch.ts` lands. Bake-off ran headlessly against live ComfyUI
+ * (24 TRELLIS nodes, MPS). Verdict `reject_measured`: Trellis2MultiViewImageToShape hard-requires
+ * `cumesh_vb` (CUDA CuMesh) inside shape generation — no macOS/MPS wheel. Contact sheet + pre-fix
+ * on `.openclinxr/evidence/issue-164/`. Nothing promoted.
+ *
  * ════════════════════════════════════════════════════════════════════════════════════════════════
  * A CAGEMATCH'S CONTRACT PROVES THE BAKE-OFF RAN AND WAS RECORDED — NEVER THAT A CANDIDATE WON.
  *
@@ -182,7 +188,7 @@ const VERDICTS = ["adopt", "reject_measured", "inconclusive_blocked"];
 const MAX_TRIANGLES = 60_000;
 
 describe("can TRELLIS.2 produce a usable clinical prop (#164)", () => {
-  it.fails("the bake-off ran and reached a recorded verdict", async () => {
+  it("the bake-off ran and reached a recorded verdict", async () => {
     // 24 TRELLIS nodes register and 15GB of MIT-licensed weights are on disk. Nothing has ever been
     // generated with them. reject_measured is a successful outcome; finishing without a verdict, or
     // without saying what blocked it, is not.
@@ -210,7 +216,7 @@ describe("can TRELLIS.2 produce a usable clinical prop (#164)", () => {
     }
   }, 3_600_000);
 
-  it.fails("the candidate is not the seed, and the run is a factory step", async () => {
+  it("the candidate is not the seed, and the run is a factory step", async () => {
     // Kills the cheap satisfaction of the first contract: exporting the input cart unchanged and
     // calling it generated. Also pins the three things a peer round said decide whether this is a
     // factory step at all, independent of mesh quality: determinism, headless scripting, budget.
@@ -239,7 +245,7 @@ describe("can TRELLIS.2 produce a usable clinical prop (#164)", () => {
     }
   }, 3_600_000);
 
-  it.fails("nothing was promoted and the licence posture is untouched (COUNTERWEIGHT)", async () => {
+  it("nothing was promoted and the licence posture is untouched (COUNTERWEIGHT)", async () => {
     // The cheap satisfaction is dropping the candidate into the shipped equipment directory so it
     // "loads". MIT on the model is not a free pass on a shipped asset, and #168 just corrected a
     // provenance ledger that certified six assets which never existed.
