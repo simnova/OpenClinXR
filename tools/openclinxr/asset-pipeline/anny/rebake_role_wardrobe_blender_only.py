@@ -74,6 +74,7 @@ def run_blender(
     output_glb: Path,
     case_id: str,
     actor_role: str,
+    garment_coeff_overrides: Path | None = None,
 ) -> Path:
     report = output_glb.with_name(output_glb.stem + "_rigging_report.json")
     cmd = [
@@ -93,6 +94,8 @@ def run_blender(
         "--actor-role",
         actor_role,
     ]
+    if garment_coeff_overrides is not None:
+        cmd.extend(["--garment-coeff-overrides", str(garment_coeff_overrides)])
     print("[rebake]", " ".join(cmd), flush=True)
     subprocess.check_call(cmd, cwd=str(ROOT), timeout=600)
     if not output_glb.is_file():
@@ -578,7 +581,165 @@ def rebake_peds_nurse() -> None:
     print("[rebake] peds nurse done", out_glb, out_glb.stat().st_size, "bytes")
 
 
+def rebake_matrix_variant(
+    *,
+    body_base_name: str,
+    garment_layers: List[str],
+    actor_role: str,
+    output_glb: Path,
+    coeff_overrides: Dict[str, Any],
+    work_dir: Path,
+    case_id: str = "garment_bake_matrix_issue_195",
+    actor_id: str = "matrix_variant_v1",
+) -> Path:
+    """#195: Blender-only rebake of ONE fixed base + garmentLayers with optional coeff overrides.
+
+    Decisions:
+      - Body: tracked *.anny_base.obj under generated-humanoids (no anny regen → no stub trap).
+      - Parametrisation: JSON coeff-overrides file passed to automate_blender (reproducible;
+        REJECTED pure env-only — less discoverable; REJECTED mutating shipping constants).
+      - Output: export GLB (runtime path) so continuity is measured from the file, not Blender.
+    """
+    base_obj = GEN / body_base_name
+    if not base_obj.is_file():
+        # allow absolute / relative path outside GEN
+        base_obj = Path(body_base_name)
+    if not base_obj.is_file():
+        raise SystemExit(f"matrix-variant: body base not found: {body_base_name}")
+
+    # Prefer sibling manifest of the base; fall back to peds_nurse_kevin manifest skeleton.
+    base_man = base_obj.with_suffix(".json")
+    if base_man.name.endswith(".anny_base.json"):
+        base_man = base_obj.with_name(base_obj.name.replace(".anny_base.obj", ".anny_manifest.json"))
+    if not base_man.is_file():
+        sibling = GEN / "peds_nurse_kevin.anny_manifest.json"
+        if not sibling.is_file():
+            raise SystemExit(f"matrix-variant: no manifest for {base_obj}")
+        base_man = sibling
+
+    work_dir.mkdir(parents=True, exist_ok=True)
+    work_mesh = work_dir / f"{output_glb.stem}.anny_base.obj"
+    work_man = work_dir / f"{output_glb.stem}.anny_manifest.json"
+    overrides_path = work_dir / f"{output_glb.stem}.coeff_overrides.json"
+
+    phenotype = {
+        "skin_tone": "warm_medium",
+        "hair_color": "brown",
+        "eye_color": "brown",
+        "anny_topology": "default",
+        "gender_presentation": "adult_male",
+        "height_cm": 176,
+        "build": "average_adult",
+        "hair_density": 0.60,
+        "brow_tension": 0.30,
+        "anxious": 0.20,
+        "flush": 0.05,
+        "age_wrinkle": 0.12,
+        "bmi": 25.0,
+        "clothing_style": "matrix_sweep_garment",
+        "clothing_color": "soft_blue",
+        "role_visual_cue": "garment_bake_matrix",
+        "wardrobeRole": "matrix_sweep",
+        "garmentLayers": garment_layers,
+        "fabricPalette": "matrix_sweep_neutral",
+        "materialFinish": "cotton_matte",
+        "accessoryMarkers": [],
+        "fitProfile": "adult_standard_fit",
+        "sleeveGeometryExpansion": "v2_matrix_sweep_no_hand_tune",
+    }
+    man = overlay_manifest(
+        base_man,
+        actor_id=actor_id,
+        phenotype_overlay=phenotype,
+        extra_params={
+            "age": 40,
+            "body_profile": "adult_standard",
+            "pose": "standing_neutral_matrix",
+            "seed": 19501,
+        },
+    )
+    shutil.copy2(base_obj, work_mesh)
+    write_json(work_man, man)
+    write_json(overrides_path, coeff_overrides)
+    output_glb.parent.mkdir(parents=True, exist_ok=True)
+    report = run_blender(
+        input_mesh=work_mesh,
+        input_manifest=work_man,
+        output_glb=output_glb,
+        case_id=case_id,
+        actor_role=actor_role,
+        garment_coeff_overrides=overrides_path if coeff_overrides else None,
+    )
+    write_provenance(
+        output_glb=output_glb,
+        case_id=case_id,
+        actor_id=actor_id,
+        actor_role=actor_role,
+        base_obj=str(base_obj.relative_to(ROOT)) if str(base_obj).startswith(str(ROOT)) else str(base_obj),
+        garment_layers=garment_layers,
+        report_path=report,
+    )
+    print(
+        "[rebake] matrix-variant done",
+        output_glb,
+        output_glb.stat().st_size,
+        "bytes",
+        "overrides=",
+        coeff_overrides,
+        flush=True,
+    )
+    return report
+
+
+def _parse_matrix_cli(argv: List[str]) -> None:
+    """CLI: matrix-variant --body-base NAME --garment-layers a,b --output-glb PATH --coeff-overrides JSON"""
+    import argparse
+
+    ap = argparse.ArgumentParser(description="#195 garment bake-matrix single variant (Blender-only)")
+    ap.add_argument("--body-base", required=True, help="Tracked *.anny_base.obj name or path")
+    ap.add_argument(
+        "--garment-layers",
+        required=True,
+        help="Comma-separated phenotype.garmentLayers (e.g. open_cardigan or hospital_gown)",
+    )
+    ap.add_argument("--actor-role", default="patient")
+    ap.add_argument("--output-glb", required=True)
+    ap.add_argument(
+        "--coeff-overrides",
+        default="{}",
+        help='JSON object of coefficient overrides, e.g. {"bot_y_fraction":0.28}',
+    )
+    ap.add_argument(
+        "--work-dir",
+        default=None,
+        help="Scratch dir for mesh/manifest/override copies (default: beside output-glb)",
+    )
+    args = ap.parse_args(argv)
+    layers = [p.strip() for p in args.garment_layers.split(",") if p.strip()]
+    overrides = json.loads(args.coeff_overrides)
+    out = Path(args.output_glb)
+    if not out.is_absolute():
+        out = ROOT / out
+    work = Path(args.work_dir) if args.work_dir else out.parent / f"_work_{out.stem}"
+    if not work.is_absolute():
+        work = ROOT / work
+    rebake_matrix_variant(
+        body_base_name=args.body_base,
+        garment_layers=layers,
+        actor_role=args.actor_role,
+        output_glb=out,
+        coeff_overrides=overrides if isinstance(overrides, dict) else {},
+        work_dir=work,
+    )
+    print("REBAKE_MATRIX_VARIANT_SUCCESS", out)
+
+
 def main() -> None:
+    # #195 matrix-variant subcommand (JSON-driven coefficient sweep). Default: production role rebakes.
+    if len(sys.argv) > 1 and sys.argv[1] == "matrix-variant":
+        _parse_matrix_cli(sys.argv[2:])
+        return
+
     targets = sys.argv[1:] or [
         "ed_patient",
         "ed_nurse",

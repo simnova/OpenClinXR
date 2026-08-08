@@ -73,7 +73,75 @@ def parse_cli() -> argparse.Namespace:
     ap.add_argument("--hair-density", type=float, default=0.6, help="Simple scalar for hair density in the demo hair system / geo nodes.")
     ap.add_argument("--skin-albedo-image", default=None, help="Optional seamless tileable skin-albedo PNG (e.g. RealVisXL output from realvisxl-skin-generate.ts). Wired as a glTF-safe Base Color IMAGE texture (survives export, unlike procedural node graphs). Guarded: missing/failed load leaves the solid factor intact.")
     ap.add_argument("--garment-source-geometry-hint", action="store_true", help="LEGACY (garment-hint-v1 aborted per chief/skeptic pivot 2026-06-07; Q1 violation, sub-pixel, no weights, no sleeve geo despite phenotype). Real garment now from phenotype.garmentLayers (e.g. short_sleeve_exam_tshirt) via expanded apply_role_clothing_material_regions (real torso+shoulder+upper-arm sleeve geo + vertex weights on clavicle/upper_arm for breathing deform). Flag kept for compat only; default OFF.")
+    # #195 bake-matrix only: optional JSON of coefficient overrides. Omitted → shipping defaults unchanged.
+    # Keys: bot_y_fraction, sleeve_along_fraction, front_opening_rad, cloth_offset_base, neck_y_fraction,
+    # sleeve_r0_body_depth_scale (multiplies the kind's sleeve_r0 after default computation).
+    ap.add_argument(
+        "--garment-coeff-overrides",
+        default=None,
+        help="JSON file path with optional garment coefficient overrides for bake-matrix sweeps (#195). "
+        "Does NOT change shipping defaults when omitted. Never used by production rebake targets.",
+    )
     return ap.parse_args(argv)
+
+
+# Optional #195 overrides loaded once in main(); empty ⇒ shipping coefficients only.
+_GARMENT_COEFF_OVERRIDES: Dict[str, float] = {}
+
+
+def _load_garment_coeff_overrides(path: Optional[str]) -> Dict[str, float]:
+    """Load optional coefficient overrides for bake-matrix sweeps. Empty when path is None."""
+    if not path:
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+    if not isinstance(raw, dict):
+        raise SystemExit(f"--garment-coeff-overrides must be a JSON object: {path}")
+    out: Dict[str, float] = {}
+    for k, v in raw.items():
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            out[str(k)] = float(v)
+    return out
+
+
+def _apply_garment_coeff_overrides(
+    *,
+    kind: str,
+    body_min_y: float,
+    body_height: float,
+    arm_len: float,
+    bot_y: float,
+    sleeve_along: float,
+    sleeve_r0: float,
+    front_opening_rad: float,
+    cloth_offset: float,
+    neck_y: float,
+    radial_rank: float,
+) -> tuple:
+    """Apply optional #195 overrides. Shipping values pass through when keys are absent.
+
+    Hem / sleeve / opening overrides target outer shells (open_front, gown) so a multi-layer
+    cardigan bake does not pull the closed under-layer hem with the outer sweep.
+    """
+    ov = _GARMENT_COEFF_OVERRIDES
+    if not ov:
+        return bot_y, sleeve_along, sleeve_r0, front_opening_rad, cloth_offset, neck_y
+    outer = kind in ("open_front", "gown")
+    if outer and "bot_y_fraction" in ov:
+        bot_y = body_min_y + body_height * float(ov["bot_y_fraction"])
+    if outer and "sleeve_along_fraction" in ov:
+        sleeve_along = arm_len * float(ov["sleeve_along_fraction"])
+    if kind == "open_front" and "front_opening_rad" in ov:
+        front_opening_rad = float(ov["front_opening_rad"])
+    if "cloth_offset_base" in ov:
+        cloth_offset = (float(ov["cloth_offset_base"]) + 0.012 * radial_rank) * (
+            1.02 if kind == "gown" else 1.0
+        )
+    if "neck_y_fraction" in ov:
+        neck_y = body_min_y + body_height * float(ov["neck_y_fraction"])
+    if outer and "sleeve_r0_body_depth_scale" in ov:
+        sleeve_r0 = sleeve_r0 * float(ov["sleeve_r0_body_depth_scale"])
+    return bot_y, sleeve_along, sleeve_r0, front_opening_rad, cloth_offset, neck_y
 
 
 def load_manifest(path: str) -> Dict[str, Any]:
@@ -3069,9 +3137,29 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
             # Unlocked decision: ~1.0–2.2 cm skin gap; not equidistant (helper eases chest/underarm).
             cloth_offset = (0.010 + 0.012 * radial_rank) * (1.02 if kind == "gown" else 1.0)
             neck_y = body_min_y + body_height * 0.84  # neck-root band from body height + shoulder measure
+            # #195 bake-matrix: optional coefficient overrides (shipping path when empty).
+            bot_y, sleeve_along, sleeve_r0, front_opening_rad, cloth_offset, neck_y = (
+                _apply_garment_coeff_overrides(
+                    kind=kind,
+                    body_min_y=body_min_y,
+                    body_height=body_height,
+                    arm_len=arm_len,
+                    bot_y=bot_y,
+                    sleeve_along=sleeve_along,
+                    sleeve_r0=sleeve_r0,
+                    front_opening_rad=front_opening_rad,
+                    cloth_offset=cloth_offset,
+                    neck_y=neck_y,
+                    radial_rank=radial_rank,
+                )
+            )
             # Prefer measured body shoulder top when available for neck cut floor.
             if body_shoulder_top_y:
                 neck_y = max(neck_y, body_shoulder_top_y + body_height * 0.01)
+            # Open-front topology follows the effective opening after overrides.
+            if kind == "open_front":
+                layer_is_open = bool(front_opening_rad > 1e-6)
+                torso_wrap = not layer_is_open
             sleeve_radius = max(sleeve_r0 * 1.35, body_depth * 0.18, torso_half_w * 0.42)
 
             garment = _build_body_surface_derived_garment(
@@ -3837,7 +3925,11 @@ def export_final_glb(output_path: str, export_yup: bool = True) -> None:
 
 
 def main() -> None:
+    global _GARMENT_COEFF_OVERRIDES
     args = parse_cli()
+    _GARMENT_COEFF_OVERRIDES = _load_garment_coeff_overrides(args.garment_coeff_overrides)
+    if _GARMENT_COEFF_OVERRIDES:
+        print(f"[blender] #195 garment coeff overrides active: {_GARMENT_COEFF_OVERRIDES}", flush=True)
     clear_scene()
 
     manifest = load_manifest(args.input_manifest)
