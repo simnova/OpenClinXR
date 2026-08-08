@@ -66,12 +66,38 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-194";
 /** #198 product evidence (support-surface builders + honest path ledger). */
 export const ISSUE_198_EVIDENCE_DIR = ".openclinxr/evidence/issue-198";
-export const PRE_FIX_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
+/** #202 product evidence — full equipment-generator distinctness. */
+export const ISSUE_202_EVIDENCE_DIR = ".openclinxr/evidence/issue-202";
+export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
+/** #198 frozen before-column (support surfaces only); retained for that slice's residual. */
+export const PRE_FIX_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
 export const ROOM_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-ledger.json");
 export const EQUIPMENT_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-sheet.png");
-export const EQUIPMENT_SHEET_AFTER_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "equipment-sheet-after.png");
+export const EQUIPMENT_SHEET_AFTER_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "equipment-sheet-after.png");
+export const EQUIPMENT_SHEET_AFTER_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "equipment-sheet-after.png");
 export const ROOM_SWEEP_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-sweep-sheet.png");
+
+/**
+ * Ids that were still the 56-triangle grey pole after #198 (#202 pre-fix freeze).
+ * Measured on main before family builders landed — do not re-derive.
+ */
+const GREY_POLE_RESIDUAL_IDS = new Set([
+  "12_lead_ecg_machine_equipment",
+  "abdominal_exam_light_equipment",
+  "antipyretic_tray_equipment",
+  "digital_thermometer_equipment",
+  "ehr_screen_equipment",
+  "glucometer_review_equipment",
+  "hydration_supplies_equipment",
+  "iv_pole_equipment",
+  "lab_results_panel_equipment",
+  "observation_station_equipment",
+  "oxygen_nasal_cannula_equipment",
+  "safe_room_chair_equipment",
+  "surgical_consult_phone_equipment",
+  "tablet_visit_equipment",
+]);
 
 const MEDICAL_EQUIPMENT_DIR = path.join(
   REPO_ROOT,
@@ -125,6 +151,11 @@ export type LedgerRow = {
   resolvedToFallback: boolean;
   /** Path identity: which production path produced this geometry. */
   resolvedSource: ResolvedSource;
+  /**
+   * Named family when the id is parametric via a shared family builder (#202).
+   * Undefined only for GLB or deliberately generic residual (none after #202).
+   */
+  family?: string;
   /** Fixture world positions (rooms only) — for track-vs-constant diagnosis. */
   fixtureWorldPositions?: Array<{ slotId: string; x: number; y: number; z: number }>;
 };
@@ -361,6 +392,11 @@ function sourceFromUserData(root: Object3D): ResolvedSource {
   return "fallback";
 }
 
+function familyFromUserData(root: Object3D): string | undefined {
+  const raw = root.userData?.openClinXrEquipmentFamily;
+  return typeof raw === "string" && raw.length > 0 ? raw : undefined;
+}
+
 /**
  * Load a real equipment GLB via GLTFLoader.parse (Node-safe ArrayBuffer path).
  * Cached once per absolute path for the process lifetime.
@@ -395,6 +431,7 @@ async function loadGltfEquipmentGroup(equipmentId: string, gltfFileName: string)
   root.userData.openClinXrEquipmentSource = "gltf";
   root.userData.openClinXrRuntimeEquipmentAssetId = equipmentId;
   root.userData.openClinXrGltfFileName = gltfFileName;
+  root.userData.openClinXrEquipmentFamily = "gltf";
   root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
   gltfGroupCache.set(abs, root);
   const clone = root.clone(true) as Group;
@@ -425,6 +462,7 @@ function measureGroup(
     params: Record<string, number | string | boolean>;
     resolvedToFallback: boolean;
     resolvedSource?: ResolvedSource;
+    family?: string;
   },
 ): LedgerRow {
   const counts = countEquipmentGeometry(root);
@@ -451,6 +489,9 @@ function measureGroup(
   const resolvedSource: ResolvedSource =
     input.resolvedSource
     ?? (input.subjectFamily === "equipment" ? sourceFromUserData(root) : "parametric");
+  const family =
+    input.family
+    ?? (input.subjectFamily === "equipment" ? familyFromUserData(root) : undefined);
   return {
     subjectId: input.subjectId,
     subjectFamily: input.subjectFamily,
@@ -467,6 +508,7 @@ function measureGroup(
     connectedComponents: countPositionMergedComponents(root),
     resolvedToFallback: input.resolvedToFallback,
     resolvedSource,
+    ...(family ? { family } : {}),
     ...(fixtureWorldPositions.length > 0 ? { fixtureWorldPositions } : {}),
   };
 }
@@ -652,18 +694,23 @@ function writeJson(filePath: string, data: unknown): void {
 }
 
 /**
- * Write pre-fix.json for #198.
+ * Write pre-fix.json for #202.
  *
- * Support-surface ids are measured with the GENERIC FALLBACK silhouette even after
- * builders land — that freezes the before-column. All other ids use the honest
- * resolve path (GLB when declared, else parametric).
+ * Freezes the #198 residual: the fourteen grey-pole ids are measured with
+ * buildGenericClinicalEquipmentFallback even after family builders land. Deck
+ * collisions (exam_table / post_op_bed / pediatric_stretcher) and
+ * iv_pump / fetal_monitor are measured via the honest resolve path at the
+ * moment of writing — when pre-fix is first written before product edits
+ * those paths still collide; once builders land, only the frozen pole set
+ * remains ambient-false. Callers must write pre-fix before product edits.
  */
 export async function writePreFixArtifact(): Promise<string> {
   const equipmentIds = listDeclaredEquipmentIds();
   const equipment: Array<Record<string, unknown>> = [];
   for (const id of equipmentIds) {
     let group: Group;
-    if (SUPPORT_SURFACE_IDS.has(id)) {
+    if (GREY_POLE_RESIDUAL_IDS.has(id) || SUPPORT_SURFACE_IDS.has(id)) {
+      // Before-column freeze: poles + the support surfaces #198 fixed from poles.
       group = buildGenericClinicalEquipmentFallback(id);
     } else {
       group = await resolveEquipmentGeometry(id);
@@ -674,11 +721,13 @@ export async function writePreFixArtifact(): Promise<string> {
       params: {},
       resolvedToFallback: sourceFromUserData(group) === "fallback",
       resolvedSource: sourceFromUserData(group),
+      family: familyFromUserData(group),
     });
     equipment.push({
       equipmentId: id,
       resolvedSource: row.resolvedSource,
       resolvedBuilder: row.resolvedSource,
+      family: row.family ?? null,
       meshCount: row.meshCount,
       partCount: row.partCount,
       triangles: row.triangles,
@@ -707,15 +756,15 @@ export async function writePreFixArtifact(): Promise<string> {
     schemaVersion: "openclinxr.generator-sweep.pre-fix.v1",
     measuredAt: new Date().toISOString(),
     mechanism:
-      "resolveEquipmentGeometry (GLB when declared else parametric) + support surfaces frozen as fallback silhouette for before-column; envs from ENVIRONMENT_SHELL_DESCRIPTORS",
+      "resolveEquipmentGeometry (GLB|parametric) with fourteen grey-pole residual ids + three support-surface ids frozen as buildGenericClinicalEquipmentFallback for the #202 before-column",
     ambientFailureClass:
-      "equipment: support surfaces + remaining ids resolved to buildGenericClinicalEquipmentFallback (3 meshes / 56 tris grey pole); two GLB ids (ecg_cart, iv_stand) were previously over-reported as fallback by the sync-only harness; rooms: fixture slot positions are descriptor constants not derived from room dimensions",
+      "equipment: 14 ids identical 56-triangle grey pole; exam_table/post_op_bed/pediatric_stretcher shared deck; iv_pump/fetal_monitor shared cart; rooms: fixture slots are descriptor constants",
     equipmentCount: equipment.length,
     environmentCount: environments.length,
     fallbackCount,
     equipment,
     environments,
-    claimScope: "pre-fix enumeration of in-process generator outputs (#198)",
+    claimScope: "pre-fix enumeration of in-process generator outputs (#202)",
     notEvidenceFor: ["clinical_validity", "quest_readiness", "visual_quality_grade"],
   };
   const out = absEvidence(PRE_FIX_PATH);
@@ -787,6 +836,8 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   mkdirSync(evidenceDir, { recursive: true });
   const evidence198Dir = absEvidence(ISSUE_198_EVIDENCE_DIR);
   mkdirSync(evidence198Dir, { recursive: true });
+  const evidence202Dir = absEvidence(ISSUE_202_EVIDENCE_DIR);
+  mkdirSync(evidence202Dir, { recursive: true });
   const cellDir = path.join(evidenceDir, "cells");
   mkdirSync(cellDir, { recursive: true });
 
@@ -799,19 +850,21 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   for (const id of equipmentIds) {
     const group = await resolveEquipmentGeometry(id);
     const source = sourceFromUserData(group);
+    const family = familyFromUserData(group);
     const row = measureGroup(group, {
       subjectId: id,
       subjectFamily: "equipment",
       params: {},
       resolvedToFallback: source === "fallback",
       resolvedSource: source,
+      family,
     });
     ledger.push(row);
     const cellPath = path.join(cellDir, `eq_${id}.png`);
     writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, id));
     equipmentCells.push({
       imagePath: cellPath,
-      label: `${id} ${row.triangles}t ${source}`,
+      label: `${id} ${row.triangles}t ${source}${family ? ` ${family}` : ""}`,
     });
   }
 
@@ -943,10 +996,14 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
 
   const eqSheetAbs = absEvidence(EQUIPMENT_SHEET_PATH);
   const eqSheetAfterAbs = absEvidence(EQUIPMENT_SHEET_AFTER_PATH);
+  const eqSheetAfter198Abs = absEvidence(EQUIPMENT_SHEET_AFTER_198_PATH);
   const roomSheetAbs = absEvidence(ROOM_SWEEP_SHEET_PATH);
   await writeContactSheetFromCells(equipmentCells, eqSheetAbs, 5);
-  // #198 after sheet — same framing/cells as the primary equipment sheet.
+  // #202 after sheet — same framing/cells as the primary equipment sheet.
   writeFileSync(eqSheetAfterAbs, readFileSync(eqSheetAbs));
+  // Keep #198 path warm for residual contracts that still name it.
+  mkdirSync(path.dirname(eqSheetAfter198Abs), { recursive: true });
+  writeFileSync(eqSheetAfter198Abs, readFileSync(eqSheetAbs));
   // Room sheet: prefer sweep cells + a sample of envs (cap for readability)
   const roomSheetCells = [
     ...roomCells.filter((c) =>

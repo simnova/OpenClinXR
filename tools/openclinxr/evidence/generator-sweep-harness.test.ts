@@ -259,16 +259,13 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     expect(collisions, "support surfaces sharing a silhouette — clones of one deck, not distinct objects")
       .toEqual([]);
 
-    // The REST must stay fallback. This slice fixes the support surfaces; absorbing the other
-    // fourteen into a generic improvement destroys the before-column.
-    const stillFallback = equipment.filter((r) => r.resolvedToFallback);
-    expect(
-      new Set(stillFallback.map((r) => r.subjectId)).size,
-      "fewer than 12 ids still resolve to the fallback — did this slice quietly fix more than the support surfaces?",
-    ).toBeGreaterThanOrEqual(12);
-    for (const row of stillFallback) {
-      expect(row.meshCount, `${row.subjectId} is marked fallback but has ${row.meshCount} meshes`)
-        .toBeLessThanOrEqual(4);
+    // #202 absorbed the fourteen grey-pole residual into named families. Support
+    // surfaces remain non-fallback and mutually distinct (asserted above). The old
+    // residual "≥12 still fallback" is retired — that was the #198 before-column,
+    // not a permanent product invariant.
+    for (const id of SUPPORT) {
+      const row = equipment.find((r) => r.subjectId === id)!;
+      expect(row.meshCount, `${id} should be multi-mesh`).toBeGreaterThan(3);
     }
 
     expect(report.contactSheetPaths.length, "no contact sheet was produced for the orchestrator to grade")
