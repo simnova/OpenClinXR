@@ -3615,8 +3615,21 @@ The dispatch script builds its prompt from
 
 On #189 I wrote a careful pre-dispatch delta — the `main.ts` freeze ceiling and where to put new code,
 the §10z gate-is-suspect line, the §10y named renderer for the grade image, and the known-good column
-sitting in the same room — and posted it with `gh issue comment`. The worker never saw a word of it.
-Every correction I had just codified from two retros was invisible at the exact moment it mattered.
+sitting in the same room — and posted it with `gh issue comment`, where the dispatcher cannot see it.
+
+**COST CORRECTED, 2026-08-08.** I originally wrote that "the worker never saw a word of it." The
+MECHANISM is verified — the script reads `body` and never `comments` — but the observed cost was not
+what I claimed. That first dispatch crashed seconds in with `no sessionId`; I merged the delta into the
+body and re-dispatched, and the worker that did the work confirms it saw all four items: *"I only ever
+saw ONE dispatch body. That body DID contain all four."* So the rule stands on the mechanism, and the
+near-miss is the evidence, not a measured loss. Its own report on the four:
+
+| item | changed behaviour? |
+|---|---|
+| `main.ts` freeze / extract | **yes** — kept main at 9964; the product change was a null, not a new block |
+| named renderer for the grade PNG | **yes** — used the room-capture path, not a point cloud |
+| child as the known-good column | **yes** — used for classification and the counterweight |
+| "instrument artifact → stop" | **half** — see §11j |
 
 Nothing warned me. `briefFromIssue` reported `brief ok, proofs: 5` because the body's `## done_when`
 was intact, and a brief missing half its guidance is still a *dispatchable* brief.
@@ -3812,6 +3825,65 @@ file size.
 change can alter appearance, name the renderer and the framing for a fresh capture (§10y), with a
 decomposed checklist (§11d). "Fix the red" is a `done_when` with one rule in it, and it buys exactly
 one rule's worth of evidence.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11j. A `changed:<file>` rule COMPELS an edit — it silently defeats the instrument-artifact stop
+
+§10z and §10x established that a brief must say "if a red is an instrument artifact rather than a
+product defect, that is a successful finding; say so and stop." #189's brief carried it. Its worker
+found exactly that — the garment-presence contracts were never measuring a real defect — and did not
+stop. Asked why:
+
+> "**Half.** I *found* instrument-on-presence, then still shipped product + inspect to green the
+> planted suite and **satisfy `changed:main.ts` / post-fix PNG**. Did not stop at 'contracts cannot
+> fail.'"
+
+The `done_when` contained `changed:apps/ui-xr/src/main.ts`. A rule of that shape cannot be satisfied by
+a report; it can only be satisfied by editing the file. So the contract layer *required* a product edit
+at the same moment the prose *permitted* stopping without one, and the contract won — as it should,
+because contracts are binding and prose is not (§6q).
+
+It happened to end well here: the worker found a genuine, separate product defect (a humanoid loaded as
+the environment) and the edit was the right one. **That is luck, not design.** With no real defect to
+find, the same pressure produces a manufactured change to satisfy a `changed:` rule.
+
+**Rule:** a brief that offers the instrument-artifact stop must not also carry a `changed:<product
+file>` rule, or must say explicitly which rules are waived when the stop is taken. Write it into the
+`done_when` itself:
+
+    - changed:apps/ui-xr/src/main.ts   (WAIVED if you report the red as an instrument artifact)
+
+`exists:` on a measurement artifact is the compatible shape — it is satisfied by *reporting*, which is
+what the stop asks for. `changed:` on a source file is not.
+
+The general tell: **look for a `done_when` rule that no honest "I found nothing to fix" report could
+satisfy.** That rule is the real instruction; everything in prose that contradicts it is decoration.
+
+## 11k. The gated pre-fix artifact caught an ORCHESTRATOR error — this is what it is for
+
+§7p recorded three workers, then six, asking for a gated pre-fix measurement, and §9n complained it was
+still prose. #189 shows the payoff, and it is not the one anyone argued for.
+
+My planted header asserted, under a "measured, trust these" heading, that only the skin primitive
+reaches the scene. The worker's `pre-fix.json` — written before any product edit, as the brief
+required — said the opposite in its first four rows:
+
+| kind | inFile | inScene | visible | tris |
+|---|---|---|---|---:|
+| real_garment ×2 | true | true | true | 4149 / 4529 |
+| skin | true | true | true | 18272 |
+| scalp | true | true | true | 3428 |
+
+Its own account: *"That is the opposite of 'skin alone in the scene.' The fence protected the FILE
+numbers (good). It did NOT stop questioning the RENDER inference, because the worktree already had a
+live presence dump that contradicted it."*
+
+The measure-first rule is usually argued for as discipline against the worker — stop it editing before
+observing. **Its larger value is that it puts a falsifier for the ORCHESTRATOR'S premise on disk before
+anyone acts on it.** §8s asked for the pre-fix table to include measurements that would falsify a
+traced cause; here that happened by construction and it worked.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
