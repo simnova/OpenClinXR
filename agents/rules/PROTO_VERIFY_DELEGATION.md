@@ -3758,7 +3758,7 @@ while a long local job is running.** Either wait, or kill the job BEFORE dispatc
 This is the third time in three cycles that a local suite and a worker have contended, twice with me
 starting the second thing.
 
-## 11g. The unrequested doc-archive churn (#99 / §9r) is still live, and it now costs product turns
+## 11g. The unrequested doc-archive churn (#99 / §9r) — SOLVED, see §11p
 
 §9r narrowed #99: workers in this repo produce doc-archive churn nobody asked for, and it is present in
 the worktree before any product edit. The mechanism remains **NOT DETERMINED**.
@@ -3985,6 +3985,46 @@ ever cross it, and a **regression net** if a known failure mode sits on the othe
 side of it. If you cannot name one, it is vacuous and should be deleted rather than defended. And note
 the worker's warning: the day a legitimate low-poly proxy ships, that floor becomes a design target
 (§7a) — the correct response is to say so, not to raise it.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11p. The doc-archive churn was a SessionStart hook, and my resume command was missing the guard
+
+Open since #99, narrowed by §9r to "present in the worktree before any product edit, mechanism NOT
+DETERMINED", and recorded again in §11g as still costing turns. It has a cause and the cause is mine.
+
+`.grok/hooks/session-start-docs-hygiene.json` runs `pnpm docs:hygiene:session-start --auto-run` on
+every session start — and skips when a worker guard is set:
+
+    if [ "${OPENCLINXR_WORKER:-0}" = "1" ] || [ -n "${GROK_SUBAGENT:-}" ]; then
+      echo 'DOC HYGIENE: skipped (worker/subagent session)'; exit 0; fi
+
+`dispatch-worker.ts:47` declares `REQUIRED_ENV = { OPENCLINXR_WORKER: "1", GROK_SUBAGENTS: "1" }`, so
+**dispatched** workers are guarded. My **handbacks** are bare `grok -p --resume …` with no env at all,
+so every resumed session starts by auto-archiving docs.
+
+That is why the churn appeared **only on resumes** — exactly what §9r observed and could not explain.
+The signature is identical every time because it is a deterministic script, not a model deciding to
+tidy: `PROJECT_STATUS.md`, `docs/_archive/README.md`, the same manifest, the same four wiki topics, the
+same one file renamed into `docs/_archive/agent-ops/2026-08/`.
+
+**It also explains why prose never bound.** §11g suggested "say commit product files only" and noted
+there was no competing gradient. There was no gradient because there was no decision — the files were
+already changed before the worker read a word.
+
+**Rule:** every `grok -p --resume` handback carries the same env a dispatch does:
+
+    OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1 OPENCLINXR_RAW_GROK_SANCTIONED=1 ~/.grok/bin/grok -p …
+
+The general lesson is the one this file keeps relearning from the other side: **a delegate started
+outside the sanctioned path does not inherit the sanctioned path's protections.** §11h found the same
+shape for contract verification — a resume produces no contract report because `dispatch()` is what
+writes one. Resume is not "dispatch, but shorter"; it is a different entry point that opts out of
+everything dispatch does for you.
+
+**What was actually wasted:** three handback attempts across two slices, each starting dirty, one of
+which I then had to reset and re-run. Roughly a cycle. The fix is one prefix.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
