@@ -26,6 +26,8 @@ import {
   type ColorRepresentation,
   type Object3D,
 } from "three";
+import { tryBuildArchitectureFixture } from "./station-architecture-fixtures.js";
+import { roleClassFromFixtureSlotId } from "./fixture-role-ownership.js";
 import { buildPatientChair, isPatientChairSlotId } from "./station-chair.js";
 import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js";
 
@@ -200,8 +202,25 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   wallTrim.userData.openClinXrDynamicScenePolicy = "environmentId_driven_wall_trim";
   shell.add(wallTrim);
 
-  // Fixtures: stretcher / chair / layout prop; learner_start stays a marker cube.
+  // Fixtures: architecture (door/board/surface) / stretcher / chair / layout;
+  // learner_start stays a marker cube. #186 ownership roles stamped on each root.
+  const ownedRoles = new Set<string>();
   for (const slot of d.fixtureSlots) {
+    ownedRoles.add(roleClassFromFixtureSlotId(slot.slotId));
+  }
+  shell.userData.fixtureOwnedRoles = [...ownedRoles];
+
+  for (const slot of d.fixtureSlots) {
+    const arch = tryBuildArchitectureFixture({
+      slotId: slot.slotId,
+      purpose: slot.purpose,
+      position: slot.position,
+      trimColor: d.wallTrimColor,
+    });
+    if (arch) {
+      shell.add(arch);
+      continue;
+    }
     if (isPatientChairSlotId(slot.slotId)) {
       const chair = buildPatientChair({
         slotId: slot.slotId,
@@ -209,6 +228,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         position: slot.position,
         trimColor: d.wallTrimColor,
       });
+      chair.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
       shell.add(chair);
       continue;
     }
@@ -221,6 +241,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         // Descriptor-driven HOB incline (#171) — slot carries position + angle together.
         ...(typeof slot.inclineDegrees === "number" ? { inclineDegrees: slot.inclineDegrees } : {}),
       });
+      stretcher.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
       shell.add(stretcher);
       continue;
     }
@@ -239,18 +260,19 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       marker.userData.fixtureSlotId = slot.slotId;
       marker.userData.fixtureSlotPurpose = slot.purpose;
       marker.userData.isMarkerCube = true;
+      marker.userData.openClinXrFixtureRole = "learner_start";
       shell.add(marker);
       continue;
     }
     // Other declared slots (monitor, desk, cart): real layout props, not marker cubes.
-    shell.add(
-      buildFixtureLayoutProp({
-        slotId: slot.slotId,
-        purpose: slot.purpose,
-        position: slot.position,
-        trimColor: d.wallTrimColor,
-      }),
-    );
+    const layout = buildFixtureLayoutProp({
+      slotId: slot.slotId,
+      purpose: slot.purpose,
+      position: slot.position,
+      trimColor: d.wallTrimColor,
+    });
+    layout.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(slot.slotId);
+    shell.add(layout);
   }
 
   return shell;

@@ -75,6 +75,12 @@ import {
   OFFSET_STRETCHER,
   PLANT_ALIGNED_STRETCHER,
   OFFSET_CHAIR,
+  DOOR_LEAF,
+  WALL_BOARD,
+  WORK_SURFACE,
+  FAMILY_CHAIR,
+  OVERBED_SURFACE,
+  EXAM_WORK_SURFACE,
 } from "./environment-zone-templates.js";
 
 function shell(
@@ -113,10 +119,13 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     keyLightIntensity: 2.5,
     zoneTemplates: ED_BAY_ZONES,
     // Prefer ED_STRETCHER helper so inclineDegrees stays in one place (#171).
+    // #186: door + wall board — architecture shared with all bays (not psych-only).
     fixtureSlots: [
       ED_STRETCHER,
       { slotId: "monitor", purpose: "Bedside monitor wall mount", position: { x: -1.6, y: 1.4, z: -1.2 } },
       { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: 1.1, y: 0, z: 0.4 } },
+      DOOR_LEAF,
+      WALL_BOARD,
       { slotId: "learner_start", purpose: "Learner entry", position: { x: 0, y: 0, z: 1.4 } },
     ],
   }),
@@ -134,8 +143,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     keyLightIntensity: 2.55,
     zoneTemplates: ED_BAY_ZONES,
     // Stroke bank patient is standing — offset stretcher so they are not planted through the deck.
-    // (ed_exam_bay keeps ED_STRETCHER for the supine chest-pain plant via #150.)
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   adult_ed_abdominal_bay_v1: shell({
     environmentId: "adult_ed_abdominal_bay_v1",
@@ -150,8 +158,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.45,
     zoneTemplates: ED_BAY_ZONES,
-    // Standing bank cast — offset bed, not under-foot ED plant.
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   telehealth_home_visit_v1: shell({
     environmentId: "telehealth_home_visit_v1",
@@ -168,10 +175,13 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x3d2c1e,
     keyLightIntensity: 1.85,
     zoneTemplates: TELEHEALTH_HOME_ZONES,
+    // laptop_desk remains layout prop (not work_surface role — avoids dual desk with architecture).
     fixtureSlots: [
       { slotId: "patient_chair", purpose: "Home seating facing camera", position: { x: -0.4, y: 0, z: -0.2 } },
       { slotId: "laptop_desk", purpose: "Video visit device surface", position: { x: 0.5, y: 0.75, z: 0.3 } },
       { slotId: "medication_shelf", purpose: "Home medication props", position: { x: -1.6, y: 1.1, z: -0.9 } },
+      DOOR_LEAF,
+      WALL_BOARD,
       { slotId: "learner_start", purpose: "Learner / examiner virtual frame", position: { x: 0, y: 0, z: 1.1 } },
     ],
   }),
@@ -188,8 +198,10 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a3040,
     keyLightIntensity: 1.95,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // Consult-style psych room → chair, not stretcher.
-    fixtureSlots: [OFFSET_CHAIR, LEARNER_START],
+    // #186 staging: two chairs + door + board. Identity is architecture + absence
+    // (no IV pole / rail / hanging cord / sharp tray — enforced by not declaring them
+    // and by equipment ownership filters; cleared zone is metadata, no mesh).
+    fixtureSlots: [OFFSET_CHAIR, FAMILY_CHAIR, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   oncology_consult_room_v1: shell({
     environmentId: "oncology_consult_room_v1",
@@ -204,8 +216,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2438,
     keyLightIntensity: 2.0,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // chairs_equipment already mounts seating — no fixture chair (anti double-bed).
-    fixtureSlots: [LEARNER_START],
+    // #186: fixture seating + door + work surface; chairs_equipment suppressed by ownership.
+    fixtureSlots: [OFFSET_CHAIR, FAMILY_CHAIR, DOOR_LEAF, WORK_SURFACE, LEARNER_START],
   }),
   urgent_care_clinic_room_v1: shell({
     environmentId: "urgent_care_clinic_room_v1",
@@ -220,8 +232,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2e28,
     keyLightIntensity: 2.1,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // exam_table_equipment is the support surface — fixture path stays empty of beds.
-    fixtureSlots: [LEARNER_START],
+    // Staging: seating + door + counter. Support stays exam_table_equipment (one bed).
+    // One work_surface only — dual counter/exam_surface would fail ownership counterweight.
+    fixtureSlots: [OFFSET_CHAIR, DOOR_LEAF, WORK_SURFACE, LEARNER_START],
   }),
   surgical_ward_room_v1: shell({
     environmentId: "surgical_ward_room_v1",
@@ -236,8 +249,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2218,
     keyLightIntensity: 2.15,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // post_op_bed_equipment owns the bed — do not fixture-double it.
-    fixtureSlots: [LEARNER_START],
+    // Fixture bed owns support — post_op_bed_equipment suppressed by ownership.
+    fixtureSlots: [PLANT_ALIGNED_STRETCHER, OVERBED_SURFACE, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   stepdown_room_v1: shell({
     environmentId: "stepdown_room_v1",
@@ -252,9 +265,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2834,
     keyLightIntensity: 2.2,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // #179: recumbent patient — plant-aligned stretcher proxy (not OFFSET beside standing plant).
-    // Monitors stay equipment-only. Flat incline (undeclared = 0 for #171 counterweight).
-    fixtureSlots: [PLANT_ALIGNED_STRETCHER, LEARNER_START],
+    // #179: recumbent plant-aligned stretcher. #186: door + board.
+    fixtureSlots: [PLANT_ALIGNED_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   ob_triage_room_v1: shell({
     environmentId: "ob_triage_room_v1",
@@ -269,15 +281,15 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x2a2228,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // #169: OB patient is framed at (-1.34, -0.3) on the set-dressing recliner.
-    // Shared OFFSET_STRETCHER (-2.05, -0.75) contained that plant (standing through deck).
-    // Park the support on the opposite side — still one support surface, no plant-through.
+    // #169: support parked away from framed patient plant. #186: door + counter.
     fixtureSlots: [
       {
         slotId: "stretcher",
         purpose: "OB triage bed (away from framed patient plant)",
         position: { x: 1.85, y: 0, z: -0.9 },
       },
+      DOOR_LEAF,
+      WORK_SURFACE,
       LEARNER_START,
     ],
   }),
@@ -294,9 +306,8 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2830,
     keyLightIntensity: 2.1,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // #179: ward bed via stretcher proxy under the recumbent plant (skin deferred —
-    // station-stretcher.ts owned by concurrent lane). Plant-aligned, flat incline.
-    fixtureSlots: [PLANT_ALIGNED_STRETCHER, LEARNER_START],
+    // #179 plant-aligned stretcher + #186 door / board / overbed identity.
+    fixtureSlots: [PLANT_ALIGNED_STRETCHER, OVERBED_SURFACE, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   primary_care_clinic_room_v1: shell({
     environmentId: "primary_care_clinic_room_v1",
@@ -311,7 +322,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e293b,
     keyLightIntensity: 1.9,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    fixtureSlots: [OFFSET_CHAIR, LEARNER_START],
+    fixtureSlots: [OFFSET_CHAIR, DOOR_LEAF, WORK_SURFACE, LEARNER_START],
   }),
   pediatric_fever_urgent_care_bay_v1: shell({
     environmentId: "pediatric_fever_urgent_care_bay_v1",
@@ -326,7 +337,7 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1a2a32,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
   pediatric_urgent_care_bay_v1: shell({
     environmentId: "pediatric_urgent_care_bay_v1",
@@ -341,8 +352,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1a2a32,
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // pediatric_stretcher_equipment owns the bed — fixture path does not add another.
-    fixtureSlots: [LEARNER_START],
+    // Staging: exam surface + parent seating + door. Keep equipment stretcher as
+    // sole support (no second bed); exam_surface is work_surface role.
+    fixtureSlots: [EXAM_WORK_SURFACE, FAMILY_CHAIR, DOOR_LEAF, WALL_BOARD, LEARNER_START],
   }),
 };
 
