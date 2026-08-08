@@ -3303,3 +3303,52 @@ assertion cannot fail on the axis it was written for, and the only tell is that 
 that axis from scope.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10p. A ledger field named in English gets implemented as whatever is easy — give the formula
+
+#195's contract type declared `sleeveExtent: number` with the comment *"furthest extent of the sleeve
+along the arm, in metres."* It was implemented as `max √(dx²+dz²)` over vertices above mid-garment Y —
+lateral reach, not distal progress along the arm. The worker disclosed it unprompted in the retro:
+
+> "That is **radial/lateral reach, not distal progress along the arm**… **Do not trust my
+> `sleeveExtent` field for 'long sleeve'.**"
+
+I then published a headline — "the sleeve cannot be made long" — off that field. The conclusion happened
+to survive, because the real bound is that `arm_len` is shoulder→elbow only and fraction 1.0 IS the
+elbow. But the method did not deserve to, and the next slice would have inherited a number that does not
+mean what its name says.
+
+Its nominated spec change, adopted:
+
+> Require ledger columns to be defined as **named world landmarks with formulas** — e.g.
+> `cuffAlongArmT = project(cuff, shoulder→elbow)`, `hemY`, `anteriorGapRad` — **not free English field
+> names.** That would have stopped me inventing radial `sleeveExtent`, made the elbow-cap bound obvious
+> in the first smoke bake, and forced a non-vacuous opening column.
+
+**Rule:** every measured field in a planted report type carries the expression that computes it, in the
+type. A prose description is a wish; a formula is a specification. This is §7r (a derived field needs
+its derivation) sharpened — 7r asks *where does this come from*, and the answer must be an expression,
+not a sentence.
+
+**The tell:** the field name contains a preposition — "along", "across", "between", "from". Those encode
+a geometric relationship the name cannot carry, and whoever implements it will pick an axis.
+
+## 10q. For Blender slices, turns undercount the work by the bake time
+
+#195 ran 32 turns — comfortably inside the median — and its own accounting is the reason that number
+cannot enter the escalation record unqualified:
+
+> "What dominated **wall-clock**: Blender, ~30–35 s × 15 ≈ **8 minutes** in one sequential pass. What
+> dominated **turns**: product wiring. **Do not read '32 turns' as 'small product'** — the expensive
+> work was offline in `spawnSync`."
+
+§7w established that turns measure `scope + undone-diagnosis + environment friction`. This adds a fourth
+term that is invisible to the count entirely: **work delegated to a subprocess costs wall-clock and no
+turns at all.** A slice that spawns fifteen Blender bakes and one that spawns none look identical in the
+ledger.
+
+**Rule:** when a slice's `done_when` spawns an external tool per variant, ask for wall-clock alongside
+turns, and tag the turn count as bake-dominated. Comparing it against an in-process slice's count is
+comparing two different quantities.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
