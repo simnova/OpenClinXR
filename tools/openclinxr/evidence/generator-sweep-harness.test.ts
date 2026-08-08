@@ -262,6 +262,82 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     expect(drifting, "wall-bound fixtures whose distance from the wall changes with room width").toEqual([]);
   }, 900_000);
 
+  it("fixture AABB clearance is measured; doors do not intersect other fixtures (#205)", async () => {
+    // #204 moved doors up to 0.95 m toward fraction-placed furniture. Nothing measured what
+    // they moved toward. Positions alone cannot see a collision; the harness now records
+    // per-fixture world AABBs and every unordered pair's gap + overlaps boolean.
+    //
+    // Contract asserts OVERLAP (objective), not proximity (unlocked threshold). The #204
+    // residual is whether the DOOR now intersects anything. Pre-existing non-door pairs
+    // (e.g. overbed_surface∩stretcher — intentional overbed geometry) are recorded in the
+    // table and must not be "fixed" by inventing placement moves in this slice.
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const perEnv = report.ledger.filter(
+      (r) =>
+        r.subjectFamily === "room"
+        && r.params["sweep"] === undefined
+        && r.params["measure"] === undefined,
+    );
+    expect(perEnv.length, "fewer than 14 per-environment rows").toBeGreaterThanOrEqual(14);
+
+    type FixtureAabbRow = {
+      slotId: string;
+      worldAabb: { min: [number, number, number]; max: [number, number, number] };
+    };
+    for (const row of perEnv) {
+      const boxes = (row as { fixtureWorldAabbs?: FixtureAabbRow[] }).fixtureWorldAabbs;
+      expect(
+        boxes && boxes.length > 0,
+        `${row.subjectId}: no fixtureWorldAabbs — collision instrument missing`,
+      ).toBeTruthy();
+    }
+
+    // Rebuild from ledger so a stale JSON cannot green-wash a red product.
+    const build = mod["buildFixtureClearanceTable"] as
+      | ((rows: typeof perEnv) => {
+          summary: {
+            environmentsMeasured: number;
+            fixturePairsMeasured: number;
+            overlapsFound: number;
+            overlappingPairs: Array<{ environmentId: string; a: string; b: string }>;
+          };
+          environments: Array<{ environmentId: string; pairs: Array<{ a: string; b: string; overlaps: boolean; gapM: number }> }>;
+        })
+      | undefined;
+    expect(build, "buildFixtureClearanceTable not exported").toBeTypeOf("function");
+    const table = build!(perEnv);
+    expect(table.summary.environmentsMeasured, "not all environments measured")
+      .toBeGreaterThanOrEqual(14);
+    expect(
+      table.summary.fixturePairsMeasured,
+      "zero pairs — fixtures missing or enumeration hard-coded empty",
+    ).toBeGreaterThan(0);
+
+    // #204 residual: the moved door must not share volume with any other fixture.
+    const doorOverlaps = table.summary.overlappingPairs.filter(
+      (p) => /door/iu.test(p.a) || /door/iu.test(p.b),
+    );
+    expect(
+      doorOverlaps,
+      `door AABB overlaps after #204 inset: ${
+        doorOverlaps.map((p) => `${p.environmentId}:${p.a}∩${p.b}`).join(", ")
+      }`,
+    ).toEqual([]);
+
+    // Every environment that has a door contributes door pairs to the dynamic enumeration.
+    let doorPairCount = 0;
+    for (const env of table.environments) {
+      for (const p of env.pairs) {
+        if (/door/iu.test(p.a) || /door/iu.test(p.b)) doorPairCount += 1;
+      }
+    }
+    expect(doorPairCount, "no door pairs measured — doors missing from AABBs?").toBeGreaterThan(0);
+  }, 900_000);
+
   it("one door inset, not fourteen accidents (#204)", async () => {
     // #203 made the wall gap constant ACROSS WIDTHS for a given room. It is still a DIFFERENT
     // constant in every room, because DOOR_LEAF is one shared coordinate (x = 2.15) that every

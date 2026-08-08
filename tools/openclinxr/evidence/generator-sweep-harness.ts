@@ -1,5 +1,9 @@
 /**
- * #194 / #198 — in-process generator sweep harness for the two pure three.js builders.
+ * #194 / #198 / #205 — in-process generator sweep harness for the two pure three.js builders.
+ *
+ * #205: room rows carry fixtureWorldAabbs (full mesh AABB per fixtureSlotId) and write
+ * `.openclinxr/evidence/issue-205/fixture-clearance-table.json` — every unordered pair's
+ * world-AABB gapM + overlaps boolean. Positions alone cannot see a collision after a door moves.
  *
  * Subjects:
  *  - equipment: resolveEquipmentGeometry(id) — parametric builder OR real GLB when
@@ -74,6 +78,8 @@ export const ISSUE_196_EVIDENCE_DIR = ".openclinxr/evidence/issue-196";
 export const ISSUE_203_EVIDENCE_DIR = ".openclinxr/evidence/issue-203";
 /** #204 product evidence — one door inset bank-wide, graded from inset sweep. */
 export const ISSUE_204_EVIDENCE_DIR = ".openclinxr/evidence/issue-204";
+/** #205 product evidence — pairwise fixture world-AABB clearance after #204 door moves. */
+export const ISSUE_205_EVIDENCE_DIR = ".openclinxr/evidence/issue-205";
 export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
 /** #196 before-column for absolute fixture constants under width sweep. */
 export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json");
@@ -81,6 +87,11 @@ export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json"
 export const PRE_FIX_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "pre-fix.json");
 /** #204 before-column: per-env door gaps from shared absolute x=2.15 (0.35–1.45 m). */
 export const PRE_FIX_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "pre-fix.json");
+/** #205: every fixture pair AABB gap + overlaps boolean (dynamic pairs, no hardcoded list). */
+export const FIXTURE_CLEARANCE_TABLE_PATH = path.join(
+  ISSUE_205_EVIDENCE_DIR,
+  "fixture-clearance-table.json",
+);
 /** #198 frozen before-column (support surfaces only); retained for that slice's residual. */
 export const PRE_FIX_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
@@ -193,6 +204,59 @@ export type LedgerRow = {
   family?: string;
   /** Fixture world positions (rooms only) — for track-vs-constant diagnosis. */
   fixtureWorldPositions?: Array<{ slotId: string; x: number; y: number; z: number }>;
+  /**
+   * Fixture world AABBs (rooms only) — #205 clearance instrument.
+   * Positions alone cannot see collisions after a door moves toward fraction-placed furniture.
+   */
+  fixtureWorldAabbs?: Array<{
+    slotId: string;
+    worldAabb: { min: [number, number, number]; max: [number, number, number] };
+  }>;
+};
+
+/** Axis-aligned box used by the #205 fixture-clearance instrument. */
+export type FixtureAabb = {
+  min: [number, number, number];
+  max: [number, number, number];
+};
+
+export type FixtureClearancePair = {
+  a: string;
+  b: string;
+  /** Euclidean separation of closest AABB points; 0 when boxes touch or intersect. */
+  gapM: number;
+  /** True when the two world AABBs have positive volume intersection on all three axes. */
+  overlaps: boolean;
+};
+
+export type FixtureClearanceEnvironment = {
+  environmentId: string;
+  roomWidthMeters: number;
+  roomDepthMeters: number;
+  roomHeightMeters: number;
+  fixtures: Array<{ slotId: string; worldAabb: FixtureAabb }>;
+  pairs: FixtureClearancePair[];
+};
+
+export type FixtureClearanceTable = {
+  schemaVersion: "openclinxr.fixture-clearance-table.v1";
+  kind: "fixture_aabb_clearance";
+  generatedAt: string;
+  environments: FixtureClearanceEnvironment[];
+  summary: {
+    environmentsMeasured: number;
+    fixturePairsMeasured: number;
+    overlapsFound: number;
+    overlappingPairs: Array<{ environmentId: string; a: string; b: string; gapM: number }>;
+    closestNonOverlapping: {
+      environmentId: string;
+      a: string;
+      b: string;
+      gapM: number;
+    } | null;
+  };
+  claimScope: string;
+  notEvidenceFor: string[];
 };
 
 export type GeneratorSweepReport = {
@@ -376,6 +440,146 @@ function worldAabb(root: Object3D): { min: [number, number, number]; max: [numbe
   };
 }
 
+/**
+ * #205 — axis separation (0 when ranges overlap on that axis).
+ * gapM is the Euclidean length of the separation vector; overlaps when every axis gap is 0
+ * *and* the boxes have positive extent intersection (strict interior / face-touch counts as
+ * overlap only when ranges truly interpenetrate or touch: a.max >= b.min on all axes with
+ * positive overlap length or zero-volume face contact). Face-touch: gapM=0, overlaps=true.
+ */
+export function aabbAxisSeparation(a: FixtureAabb, b: FixtureAabb, axis: 0 | 1 | 2): number {
+  if (a.max[axis]! < b.min[axis]!) return b.min[axis]! - a.max[axis]!;
+  if (b.max[axis]! < a.min[axis]!) return a.min[axis]! - b.max[axis]!;
+  return 0;
+}
+
+/** True when the two AABBs intersect or touch on all three axes (closed intervals). */
+export function aabbsOverlap(a: FixtureAabb, b: FixtureAabb): boolean {
+  return (
+    a.min[0]! <= b.max[0]!
+    && a.max[0]! >= b.min[0]!
+    && a.min[1]! <= b.max[1]!
+    && a.max[1]! >= b.min[1]!
+    && a.min[2]! <= b.max[2]!
+    && a.max[2]! >= b.min[2]!
+  );
+}
+
+/**
+ * Euclidean gap between two AABBs (0 when they touch or overlap).
+ * Formula: √(dx²+dy²+dz²) where each axis component is max(0, separation).
+ */
+export function aabbGapMeters(a: FixtureAabb, b: FixtureAabb): number {
+  const dx = aabbAxisSeparation(a, b, 0);
+  const dy = aabbAxisSeparation(a, b, 1);
+  const dz = aabbAxisSeparation(a, b, 2);
+  return Math.hypot(dx, dy, dz);
+}
+
+/** All unordered pairs of fixtures in one environment — never a hardcoded pair list. */
+export function pairsFromFixtures(
+  fixtures: Array<{ slotId: string; worldAabb: FixtureAabb }>,
+): FixtureClearancePair[] {
+  const pairs: FixtureClearancePair[] = [];
+  for (let i = 0; i < fixtures.length; i += 1) {
+    for (let j = i + 1; j < fixtures.length; j += 1) {
+      const fa = fixtures[i]!;
+      const fb = fixtures[j]!;
+      const gapM = aabbGapMeters(fa.worldAabb, fb.worldAabb);
+      pairs.push({
+        a: fa.slotId,
+        b: fb.slotId,
+        gapM: Number(gapM.toFixed(4)),
+        overlaps: aabbsOverlap(fa.worldAabb, fb.worldAabb),
+      });
+    }
+  }
+  pairs.sort((p, q) => p.a.localeCompare(q.a) || p.b.localeCompare(q.b));
+  return pairs;
+}
+
+/**
+ * Build the #205 clearance table from per-environment room ledger rows
+ * (subjectFamily=room, no sweep tag — the fourteen shipped defaults).
+ */
+export function buildFixtureClearanceTable(
+  roomRows: LedgerRow[],
+  generatedAt = new Date().toISOString(),
+): FixtureClearanceTable {
+  const environments: FixtureClearanceEnvironment[] = [];
+  for (const row of roomRows) {
+    if (row.subjectFamily !== "room") continue;
+    // Per-env shipped defaults only — width/height sweeps tag `sweep`; depth tags `measure`.
+    if (row.params["sweep"] !== undefined || row.params["measure"] !== undefined) continue;
+    const fixtures = (row.fixtureWorldAabbs ?? []).map((f) => ({
+      slotId: f.slotId,
+      worldAabb: {
+        min: [...f.worldAabb.min] as [number, number, number],
+        max: [...f.worldAabb.max] as [number, number, number],
+      },
+    }));
+    fixtures.sort((a, b) => a.slotId.localeCompare(b.slotId));
+    environments.push({
+      environmentId: row.subjectId,
+      roomWidthMeters: Number(row.params["roomWidthMeters"]),
+      roomDepthMeters: Number(row.params["roomDepthMeters"]),
+      roomHeightMeters: Number(row.params["roomHeightMeters"]),
+      fixtures,
+      pairs: pairsFromFixtures(fixtures),
+    });
+  }
+  environments.sort((a, b) => a.environmentId.localeCompare(b.environmentId));
+
+  const overlappingPairs: FixtureClearanceTable["summary"]["overlappingPairs"] = [];
+  let closest: FixtureClearanceTable["summary"]["closestNonOverlapping"] = null;
+  let pairCount = 0;
+  for (const env of environments) {
+    for (const p of env.pairs) {
+      pairCount += 1;
+      if (p.overlaps) {
+        overlappingPairs.push({
+          environmentId: env.environmentId,
+          a: p.a,
+          b: p.b,
+          gapM: p.gapM,
+        });
+      } else if (closest === null || p.gapM < closest.gapM) {
+        closest = {
+          environmentId: env.environmentId,
+          a: p.a,
+          b: p.b,
+          gapM: p.gapM,
+        };
+      }
+    }
+  }
+
+  return {
+    schemaVersion: "openclinxr.fixture-clearance-table.v1",
+    kind: "fixture_aabb_clearance",
+    generatedAt,
+    environments,
+    summary: {
+      environmentsMeasured: environments.length,
+      fixturePairsMeasured: pairCount,
+      overlapsFound: overlappingPairs.length,
+      overlappingPairs,
+      closestNonOverlapping: closest,
+    },
+    claimScope:
+      "pairwise world-AABB gap + overlap among procedural room fixtures after #204 door inset; "
+      + "overlap is objective (no proximity threshold)",
+    notEvidenceFor: [
+      "door_swing_clearance_threshold",
+      "clinical_layout_validity",
+      "equipment_mount_DEFAULT_POSITIONS",
+      "actor_anchor_vs_door",
+      "door_as_wall_opening_not_prop",
+      "quest_readiness",
+    ],
+  };
+}
+
 /** footprintExtent = worldAabb.max − worldAabb.min (vector, not scalar). */
 function footprintExtentOf(
   aabb: { min: [number, number, number]; max: [number, number, number] },
@@ -505,6 +709,7 @@ function measureGroup(
   const extent = footprintExtentOf(aabb);
   const partCount = counts.meshCount;
   const fixtureWorldPositions: LedgerRow["fixtureWorldPositions"] = [];
+  const fixtureWorldAabbs: NonNullable<LedgerRow["fixtureWorldAabbs"]> = [];
   if (input.subjectFamily === "room") {
     for (const child of root.children) {
       const slotId = child.userData?.fixtureSlotId as string | undefined;
@@ -518,8 +723,26 @@ function measureGroup(
         y: Number(p.y.toFixed(4)),
         z: Number(p.z.toFixed(4)),
       });
+      // Full mesh AABB (not just slot origin) — #205 collision instrument.
+      const box = worldAabb(child);
+      fixtureWorldAabbs.push({
+        slotId,
+        worldAabb: {
+          min: [
+            Number(box.min[0]!.toFixed(4)),
+            Number(box.min[1]!.toFixed(4)),
+            Number(box.min[2]!.toFixed(4)),
+          ],
+          max: [
+            Number(box.max[0]!.toFixed(4)),
+            Number(box.max[1]!.toFixed(4)),
+            Number(box.max[2]!.toFixed(4)),
+          ],
+        },
+      });
     }
     fixtureWorldPositions.sort((a, b) => a.slotId.localeCompare(b.slotId));
+    fixtureWorldAabbs.sort((a, b) => a.slotId.localeCompare(b.slotId));
   }
   const resolvedSource: ResolvedSource =
     input.resolvedSource
@@ -545,6 +768,7 @@ function measureGroup(
     resolvedSource,
     ...(family ? { family } : {}),
     ...(fixtureWorldPositions.length > 0 ? { fixtureWorldPositions } : {}),
+    ...(fixtureWorldAabbs.length > 0 ? { fixtureWorldAabbs } : {}),
   };
 }
 
@@ -1493,6 +1717,37 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   if (!report.contactSheetPaths.includes(INSET_SWEEP_SHEET_204_PATH)) {
     report.contactSheetPaths.push(INSET_SWEEP_SHEET_204_PATH);
   }
+
+  // #205 — pairwise fixture world-AABB clearance after #204 door inset moves.
+  // Overlap is objective; proximity thresholds are intentionally NOT asserted.
+  // Non-door overlaps (e.g. overbed∩stretcher) are pre-existing / intentional and recorded —
+  // not moved in this slice (counterweight: no placement churn without a door residual).
+  const evidence205Dir = absEvidence(ISSUE_205_EVIDENCE_DIR);
+  mkdirSync(evidence205Dir, { recursive: true });
+  const clearanceTable = buildFixtureClearanceTable(perEnvRows);
+  const doorOverlaps = clearanceTable.summary.overlappingPairs.filter(
+    (p) => /door/iu.test(p.a) || /door/iu.test(p.b),
+  );
+  writeJson(absEvidence(FIXTURE_CLEARANCE_TABLE_PATH), clearanceTable);
+  writeJson(path.join(evidence205Dir, "report-summary.json"), {
+    environments_measured: clearanceTable.summary.environmentsMeasured,
+    fixture_pairs_measured: clearanceTable.summary.fixturePairsMeasured,
+    overlaps_found: clearanceTable.summary.overlapsFound,
+    overlapping_pairs: clearanceTable.summary.overlappingPairs,
+    door_overlaps_found: doorOverlaps.length,
+    door_overlapping_pairs: doorOverlaps,
+    closest_non_overlapping: clearanceTable.summary.closestNonOverlapping,
+    fixtures_moved: "none",
+    non_door_overlap_note:
+      "5 non-door pairs overlap at shipped geometry: overbed_surface∩stretcher (ward×2, intentional "
+      + "overhang), stretcher∩work_surface (ob_triage), family_chair∩work_surface (oncology, ~1.5 cm X), "
+      + "exam_surface∩family_chair (peds_urgent). None involve door_leaf. Not moved — counterweight.",
+    out_of_scope_wrongness: [
+      "door assembly still freestanding leaf+jamb block near corner, not a wall opening cut into the shell (filed; not this slice)",
+    ],
+    claimScope: clearanceTable.claimScope,
+    notEvidenceFor: clearanceTable.notEvidenceFor,
+  });
 
   writeJson(path.join(evidenceDir, "sweep-report.json"), {
     ...report,
