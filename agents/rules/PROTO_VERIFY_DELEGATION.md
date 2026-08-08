@@ -3887,3 +3887,45 @@ traced cause; here that happened by construction and it worked.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11l. A thumbnail in a contact sheet cannot support a NEGATIVE verdict
+
+I filed #211 — "the suicidal-ideation station declares three actors and renders none" — from one panel
+in a seven-panel multi-station capture. Measured live, all three actors render, visible, at
+**32,207 / 34,571 / 38,827 skinned triangles**, and the single-station lit capture shows three
+upright clothed figures. There was never anything wrong.
+
+The panel was real and my reading of it was not. At that scale the figures were **not resolvable**, and
+"I cannot see any humanoid geometry" became "there is no humanoid geometry" in the writing.
+
+**Rule:** a contact sheet supports COMPARATIVE and POSITIVE verdicts — this cell differs from that
+one; this cell contains a figure. It does not support "X is absent". Absence needs a single-subject
+capture at full framing, or a measurement. Before filing anything whose claim is that something is
+MISSING, render the one subject alone.
+
+This is the third premise of mine withdrawn in this area in three cycles — #206's OB bed, #189's nude
+parent, #211's empty room. §7q already named the shape: **a pixel observation is real; the inference
+from it to a mechanism is a guess, and it is cheap to check.** What is new here is that the observation
+itself was wrong, not just the inference, because the instrument was too coarse for the question.
+
+## 11m. §11j paid for itself on the next slice — the instrument-artifact exit needs a satisfiable done_when
+
+#189 taught (§11j) that a `changed:<source file>` rule compels a product edit and silently defeats the
+"if this is an instrument artifact, say so and stop" permission. #211 was the first brief written with
+that in mind: it carried the permission AND deliberately no `changed:` rule, leaving
+
+    run:<the contract>
+    exists:<pre-fix measurement>
+    exists:<lit single-station capture>
+    run:assert-contract-live …
+
+Every one of those is satisfiable by an honest "nothing to fix here, and here is the measurement
+proving it". The worker took the exit, measured the whole bank rather than the one station, and
+manufactured nothing. 28 turns, no wasted product edit, and a real inspection capability landed anyway.
+
+**Rule:** when a brief offers the instrument-artifact stop, read every `done_when` rule and ask whether
+a report of "no defect found" satisfies it. If any rule requires a file to change, the permission is
+decorative — the contract will win, as it should (§6q).
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
