@@ -3635,3 +3635,41 @@ mode here and a warning would have caught it in one line.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11c. Independent scalar bounds do not add up to ATTACHMENT — the §6t class, sixth instance
+
+§6t records five gates written for "does the garment cover the shoulder", all defeated by DETACHED
+geometry, and its resolution: test **continuity of the covering surface**, not proximity or extremes.
+
+#188's footwear gate was written knowing that. Instead of presence it bounded four things at once —
+top within 14% of body height, sink ≤0.02 m, ≥60 triangles, ≥90% of vertices weighted to `foot.L`/`foot.R`.
+It felt like a different shape of test because it was four constraints rather than one.
+
+The worker measured its own margins and refused the credit:
+
+> "The four bounds did **not** force toe/heel continuity, manifold-ness, or attachment to the body
+> surface. **A free-floating ellipsoid under the ankle clears all four.** Position/size/weight is
+> better than presence-only, still not 'on the foot as a shoe'... Pixel grade was the only check that
+> could have failed the blob — and I graded 'reads as footwear' as yes for blocky ovals."
+
+**Rule:** conjunction does not create a new predicate. Four bounds on WHERE a thing is and HOW BIG it
+is are still four bounds on position and size; none of them says the thing is *part of a surface the
+body is inside*. If a free-floating primitive placed at the right coordinates satisfies every clause,
+the gate measures placement, not attachment — regardless of how many clauses there are.
+
+Say so where the gate is written. #188's contract should carry, in the module: *"these bounds do not
+prove attachment; a detached primitive at the right coordinates passes; the pixel grade is the only
+check that can fail a blob."* That is §6e's rule (state what the shared metric cannot see, next to the
+check) applied to a conjunction rather than to two instruments.
+
+**Two calibration notes from the same measurement, both about thresholds becoming targets (§7a):**
+
+- The worker added `y1 = min(y1, body_min_y + body_height * 0.12)` **because of** the 0.14 gate, and
+  called it "gate-shaped defensive fitting, not anatomy." Foot vertices already sit under ~8%, so the
+  cap buys nothing anatomical. A threshold I invented became a constant in the generator.
+- The `≥0.9` weighting fraction never steered anything — the worker weighted 100% to the foot bones
+  because that is what a shoe should do. **Real intent, decorative number.** Worth knowing which of
+  your numbers are load-bearing before defending any of them.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
