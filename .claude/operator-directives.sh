@@ -39,6 +39,16 @@ D9  DARK FACTORY. Each tool is a deterministic station in a PIPELINE. Optimize t
 D10 CONSULT GROK AS A PEER, IN CONVERSATION — multi-turn via --resume, pushing back. A one-shot
     prompt is not a consult.
 
+BEFORE WRITING ANY CAPTURE LINE IN A done_when, answer this (D3/D4):
+  Is the claim about a THING or a COMPOSITION?
+    THING       (is this prop/figure/garment shaped right?) -> ISOLATED HARNESS, subject alone.
+                tools/openclinxr/evidence/isolated-subject-harness.ts. Name it in the done_when.
+    COMPOSITION (does the assembled room/scene still hold together?) -> full capture, and NAME THE
+                STATION. Never let the default station stand in for one that exhibits the defect.
+  Measured today: 46 evidence modules boot the full app; 5 use the isolated harness (#170). Two
+  consecutive retros put verify+capture as the LARGEST turn bucket (#185 12-15/51, #226 12-16/36).
+  That is the cost of testing something larger than the claim.
+
 BEFORE ANY DISPATCH, answer these three IN WRITING (not in your head):
   1. Which directive does this slice serve?
   2. Which does it violate? "None" must be defended, not assumed.
