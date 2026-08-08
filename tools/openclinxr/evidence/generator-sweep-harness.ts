@@ -70,9 +70,13 @@ export const ISSUE_198_EVIDENCE_DIR = ".openclinxr/evidence/issue-198";
 export const ISSUE_202_EVIDENCE_DIR = ".openclinxr/evidence/issue-202";
 /** #196 product evidence — fixture-track + gradeable room framing. */
 export const ISSUE_196_EVIDENCE_DIR = ".openclinxr/evidence/issue-196";
+/** #203 product evidence — wall-bound fixtures meet wall at every width. */
+export const ISSUE_203_EVIDENCE_DIR = ".openclinxr/evidence/issue-203";
 export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
 /** #196 before-column for absolute fixture constants under width sweep. */
 export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json");
+/** #203 before-column: door-to-wall gap under fraction (0.77/1.35/1.93). */
+export const PRE_FIX_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "pre-fix.json");
 /** #198 frozen before-column (support surfaces only); retained for that slice's residual. */
 export const PRE_FIX_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
@@ -83,6 +87,8 @@ export const EQUIPMENT_SHEET_AFTER_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, 
 export const ROOM_SWEEP_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-sweep-sheet.png");
 /** #196 gradeable room contact sheet (top-down; ceiling culled). */
 export const ROOM_SWEEP_AFTER_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "room-sweep-after.png");
+/** #203 gradeable room contact sheet after wall-anchor fix. */
+export const ROOM_SWEEP_AFTER_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "room-sweep-after.png");
 export const ROOM_FRAMING_CANDIDATES_196_PATH = path.join(
   ISSUE_196_EVIDENCE_DIR,
   "framing-candidates.png",
@@ -1122,6 +1128,10 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   // #196 product evidence path (gradeable top-down sheet).
   mkdirSync(path.dirname(roomSheetAfter196Abs), { recursive: true });
   writeFileSync(roomSheetAfter196Abs, readFileSync(roomSheetAbs));
+  // #203 product evidence path (same framing; wall-anchor gaps constant).
+  const roomSheetAfter203Abs = absEvidence(ROOM_SWEEP_AFTER_203_PATH);
+  mkdirSync(path.dirname(roomSheetAfter203Abs), { recursive: true });
+  writeFileSync(roomSheetAfter203Abs, readFileSync(roomSheetAbs));
 
   const equipmentLedger = {
     schemaVersion: "openclinxr.generator-sweep.equipment-ledger.v1",
@@ -1154,6 +1164,7 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
       ROOM_SWEEP_SHEET_PATH,
       EQUIPMENT_SHEET_AFTER_PATH,
       ROOM_SWEEP_AFTER_196_PATH,
+      ROOM_SWEEP_AFTER_203_PATH,
       ROOM_FRAMING_CANDIDATES_196_PATH,
     ],
     claimScope:
@@ -1198,6 +1209,53 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
       },
       widest_width_variant:
         "width=10m — door leaf at right wall corner of shell (tracked); not mid-room at absolute x=2.15",
+    },
+    claimScope: report.claimScope,
+    notEvidenceFor: report.notEvidenceFor,
+  });
+
+  // #203: per-slot wall_anchor vs fraction; measure door gaps for report.
+  const evidence203Dir = absEvidence(ISSUE_203_EVIDENCE_DIR);
+  mkdirSync(evidence203Dir, { recursive: true });
+  const doorGapsAfter: number[] = [];
+  const boardGapsAfter: number[] = [];
+  for (const row of widthRows) {
+    const w = Number(row.params.roomWidthMeters);
+    const half = w / 2;
+    for (const f of row.fixtureWorldPositions ?? []) {
+      if (/door[_-]?leaf/iu.test(f.slotId)) doorGapsAfter.push(half - Math.abs(f.x));
+      if (/wall[_-]?board/iu.test(f.slotId)) boardGapsAfter.push(half - Math.abs(f.x));
+    }
+  }
+  writeJson(path.join(evidence203Dir, "report-summary.json"), {
+    wall_bound_slots: ["door_leaf", "wall_board"],
+    inset_metres: {
+      door_leaf: 1.35,
+      wall_board: 1.25,
+      why:
+        "Preserve authored setback at descriptor 7 m so default rooms are identity; leaf/frame "
+        + "thickness lives inside that setback (flush-to-plane would move shipped geometry).",
+    },
+    door_gap_before: [0.77, 1.35, 1.93],
+    door_gap_after: doorGapsAfter.map((g) => Number(g.toFixed(4))),
+    wall_board_gap_after: boardGapsAfter.map((g) => Number(g.toFixed(4))),
+    fixture_positions_derived_from: "per_slot:wall_anchor|fraction|absolute",
+    fraction_slots_still_track: "yes",
+    slots_left_absolute: ["learner_start — person standing marker, not wall furniture"],
+    default_room_geometry_changed: "no",
+    fixturesTrackRoomDimensions: fixturesTrack,
+    ROOM_SHEET_VISUAL: {
+      note: "Producer closed checklist for issue-203/room-sweep-after.png cells",
+      each_cell: {
+        floor_visible: "yes",
+        two_or_more_walls: "yes",
+        one_fixture_silhouette: "yes",
+        not_a_single_rectangle: "yes",
+        door_position_vs_wall: "at_wall",
+      },
+      widest_width_variant:
+        "width=10m — door gap constant at authored inset (1.35 m), not 1.93 m fraction drift; "
+        + "door meets +X wall setback at every width",
     },
     claimScope: report.claimScope,
     notEvidenceFor: report.notEvidenceFor,

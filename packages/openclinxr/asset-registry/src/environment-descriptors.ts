@@ -27,6 +27,20 @@ export type EnvironmentZoneTemplate = {
   clinicalFidelityNotes: readonly string[];
 };
 
+/**
+ * How a fixture slot remaps when the shell is rebuilt at non-authored dimensions (#196/#203).
+ * - fraction: offset scales with room extents (furniture / conversation layout).
+ * - wall_anchor: fixed inset from a named wall plane (doors / wall-mounted boards).
+ * - absolute: authored metres unchanged (person standing markers).
+ */
+export type FixturePlacementRule = "absolute" | "fraction" | "wall_anchor";
+
+/**
+ * Named shell wall for wall_anchor slots. Never derive the wall from sign(x) —
+ * that silently breaks when a room is not centred on the origin (#203).
+ */
+export type NamedShellWall = "+x" | "-x" | "+z" | "-z";
+
 export type EnvironmentFixtureSlot = {
   slotId: string;
   purpose: string;
@@ -37,6 +51,13 @@ export type EnvironmentFixtureSlot = {
    * Staging only — not a clinical positioning claim. Default (absent) = 0 flat.
    */
   inclineDegrees?: number;
+  /**
+   * Placement remap rule under shell dimension overrides (#196/#203).
+   * Absent → absolute for learner_start ids, otherwise fraction.
+   */
+  placementRule?: FixturePlacementRule;
+  /** Required when placementRule is wall_anchor. Named wall plane, not sign-derived. */
+  wall?: NamedShellWall;
 };
 
 /** Parametric shell a kit-bash or generated room plugs into later. */
