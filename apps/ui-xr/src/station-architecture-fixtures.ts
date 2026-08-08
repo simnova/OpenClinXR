@@ -1,10 +1,15 @@
 /**
- * Parametric room-architecture fixtures (#186): door leaf, wall board, work surface.
+ * Parametric room-architecture fixtures (#186 / #207): door, board, work surface,
+ * overbed table, exam table.
  *
  * Same pattern as station-chair / station-stretcher — multi-mesh identity geometry
  * with plant tags. Not generic 1×1×1 boxes and not buildGenericClinicalEquipmentFallback.
  *
- * claimScope: shell identity dressing (door / board / counter) for environment shells.
+ * #207: exam_surface is a full-length exam table (EXAM_TABLE_LENGTH_M), not a desk.
+ * Geometry is pure fixture builders on the descriptor path — never equipment kinds
+ * (would dual-place with the mount planner; #133 double-bed class).
+ *
+ * claimScope: shell identity dressing (door / board / counter / exam table) for shells.
  * notEvidenceFor: clinical furniture realism, kit-bashed rooms, Quest readiness.
  */
 
@@ -17,6 +22,7 @@ import {
   type ColorRepresentation,
 } from "three";
 import { roleClassFromFixtureSlotId } from "./fixture-role-ownership.js";
+import { EXAM_TABLE_LENGTH_M } from "./station-equipment-builders.js";
 
 export type BuildArchitectureFixtureInput = {
   slotId: string;
@@ -25,6 +31,13 @@ export type BuildArchitectureFixtureInput = {
   trimColor: ColorRepresentation;
 };
 
+export type ArchitectureFixtureKind =
+  | "door_leaf"
+  | "wall_board"
+  | "work_surface"
+  | "overbed_surface"
+  | "exam_surface";
+
 function mat(color: ColorRepresentation, roughness = 0.62, metalness = 0.08): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });
 }
@@ -32,7 +45,7 @@ function mat(color: ColorRepresentation, roughness = 0.62, metalness = 0.08): Me
 function tagArchitectureRoot(
   root: Group,
   input: BuildArchitectureFixtureInput,
-  kind: "door_leaf" | "wall_board" | "work_surface" | "overbed_surface",
+  kind: ArchitectureFixtureKind,
 ): void {
   root.userData.fixtureSlotId = input.slotId;
   root.userData.fixtureSlotPurpose = input.purpose ?? kind;
@@ -132,7 +145,7 @@ export function buildWorkSurfaceFixture(input: BuildArchitectureFixtureInput): G
   return root;
 }
 
-/** Overbed table — inpatient / surgical identity surface (fourth kind). */
+/** Overbed table — inpatient / surgical identity surface (mobile tray on a column). */
 export function buildOverbedSurfaceFixture(input: BuildArchitectureFixtureInput): Group {
   const root = new Group();
   root.name = `openclinxr.station-environment.fixture-slot.${input.slotId}`;
@@ -157,50 +170,130 @@ export function buildOverbedSurfaceFixture(input: BuildArchitectureFixtureInput)
   return root;
 }
 
+/**
+ * Exam table fixture — reuses EXAM_TABLE_LENGTH_M (1.85 m) from equipment builders for
+ * size identity, but remains a fixture root (fixtureSlotId / openClinXrFixtureKind).
+ * Does NOT emit equipment userData or equipment kinds (mount planner must not place it).
+ *
+ * Orientation (unlocked decision): long axis on local **Z** (room depth). Equipment's
+ * buildExamTableEquipment uses length on X for mount-planner placement; the clinic bay
+ * co-declares family_chair on −X, so a 1.85 m X-span collides the chair. Depth-axis
+ * length keeps half-width ~0.36 m and clears the chair without shrinking the table.
+ */
+export function buildExamSurfaceFixture(input: BuildArchitectureFixtureInput): Group {
+  const root = new Group();
+  root.name = `openclinxr.station-environment.fixture-slot.${input.slotId}`;
+  root.position.set(input.position.x, 0, input.position.z);
+
+  const frame = mat(0x6b7280, 0.5, 0.25);
+  const mattressMat = mat(0xd1d5db, 0.75, 0.02);
+  const pillowMat = mat(0xf3f4f6, 0.8, 0);
+  const railMat = mat(input.trimColor, 0.45, 0.35);
+
+  // Length on Z, width on X — see orientation note above.
+  const base = new Mesh(new BoxGeometry(0.62, 0.12, EXAM_TABLE_LENGTH_M * 0.9), frame);
+  base.name = `${root.name}.base`;
+  base.position.set(0, 0.35, 0);
+  const mattress = new Mesh(new BoxGeometry(0.7, 0.1, EXAM_TABLE_LENGTH_M), mattressMat);
+  mattress.name = `${root.name}.mattress`;
+  mattress.position.set(0, 0.5, 0);
+  const pillow = new Mesh(new BoxGeometry(0.4, 0.08, 0.28), pillowMat);
+  pillow.name = `${root.name}.pillow`;
+  pillow.position.set(0, 0.58, -EXAM_TABLE_LENGTH_M * 0.35);
+  const rail = new Mesh(new BoxGeometry(0.03, 0.04, EXAM_TABLE_LENGTH_M * 0.7), railMat);
+  rail.name = `${root.name}.rail`;
+  rail.position.set(0.36, 0.62, 0);
+  // Pedestal feet — multi-mesh identity (not a single slab).
+  const legHead = new Mesh(new BoxGeometry(0.5, 0.28, 0.12), frame.clone());
+  legHead.name = `${root.name}.leg.head`;
+  legHead.position.set(0, 0.14, -EXAM_TABLE_LENGTH_M * 0.32);
+  const legFoot = new Mesh(new BoxGeometry(0.5, 0.28, 0.12), frame.clone());
+  legFoot.name = `${root.name}.leg.foot`;
+  legFoot.position.set(0, 0.14, EXAM_TABLE_LENGTH_M * 0.32);
+
+  root.add(base, mattress, pillow, rail, legHead, legFoot);
+  tagArchitectureRoot(root, input, "exam_surface");
+  // Deck top for any future plant/clearance reader — mattress top ≈ 0.55 m.
+  root.userData.deckTopYMeters = 0.55;
+  root.userData.workSurfaceHeightMeters = 0.55;
+  root.userData.openClinXrExamSurface = true;
+  root.userData.openClinXrExamTableLengthM = EXAM_TABLE_LENGTH_M;
+  root.userData.openClinXrExamTableLongAxis = "z";
+  return root;
+}
+
 export function isDoorSlotId(slotId: string): boolean {
-  return slotId.toLowerCase().includes("door");
+  const id = slotId.toLowerCase();
+  return id === "door_leaf" || id.startsWith("door_");
 }
 
 export function isWallBoardSlotId(slotId: string): boolean {
   const id = slotId.toLowerCase();
-  return id.includes("board") || id.includes("whiteboard");
+  return id === "wall_board" || id.includes("whiteboard") || id.endsWith("_board");
 }
 
 export function isWorkSurfaceSlotId(slotId: string): boolean {
   const id = slotId.toLowerCase();
-  return (
-    id.includes("work_surface")
-    || id.includes("counter")
-    || (id.includes("surface") && !id.includes("exam_surface") && !id.includes("laptop"))
-  );
+  // Explicit ids only — do not match exam_surface / overbed_surface via "surface" substring.
+  // laptop_desk stays a layout prop (telehealth dual-desk avoid — environment-descriptors).
+  return id === "work_surface" || id.includes("counter");
 }
 
 export function isOverbedSurfaceSlotId(slotId: string): boolean {
-  return slotId.toLowerCase().includes("overbed");
+  const id = slotId.toLowerCase();
+  return id === "overbed_surface" || id.includes("overbed");
 }
 
 export function isExamSurfaceSlotId(slotId: string): boolean {
   const id = slotId.toLowerCase();
-  return id.includes("exam_surface") || id === "exam_table";
+  return id === "exam_surface" || id === "exam_table";
+}
+
+/**
+ * Explicit slot-id → architecture kind map (preferred over open-ended substring match).
+ * Unknown / unlisted ids fall through to the predicate helpers below.
+ */
+const ARCHITECTURE_SLOT_KIND: Readonly<Record<string, ArchitectureFixtureKind>> = {
+  door_leaf: "door_leaf",
+  wall_board: "wall_board",
+  work_surface: "work_surface",
+  overbed_surface: "overbed_surface",
+  exam_surface: "exam_surface",
+};
+
+function buildByKind(kind: ArchitectureFixtureKind, input: BuildArchitectureFixtureInput): Group {
+  switch (kind) {
+    case "door_leaf":
+      return buildDoorLeafFixture(input);
+    case "wall_board":
+      return buildWallBoardFixture(input);
+    case "work_surface":
+      return buildWorkSurfaceFixture(input);
+    case "overbed_surface":
+      return buildOverbedSurfaceFixture(input);
+    case "exam_surface":
+      return buildExamSurfaceFixture(input);
+    default: {
+      const _exhaustive: never = kind;
+      return _exhaustive;
+    }
+  }
 }
 
 /**
  * Dispatch architecture / identity fixture builders. Returns null when the slot is
  * not an architecture identity kind (caller continues to chair/stretcher/layout).
+ *
+ * #207: explicit map first; predicates only for legacy/alias ids not in the bank map.
  */
 export function tryBuildArchitectureFixture(input: BuildArchitectureFixtureInput): Group | null {
+  const mapped = ARCHITECTURE_SLOT_KIND[input.slotId.toLowerCase()];
+  if (mapped) return buildByKind(mapped, input);
+
   if (isDoorSlotId(input.slotId)) return buildDoorLeafFixture(input);
   if (isWallBoardSlotId(input.slotId)) return buildWallBoardFixture(input);
+  if (isExamSurfaceSlotId(input.slotId)) return buildExamSurfaceFixture(input);
   if (isOverbedSurfaceSlotId(input.slotId)) return buildOverbedSurfaceFixture(input);
-  if (isWorkSurfaceSlotId(input.slotId) || isExamSurfaceSlotId(input.slotId)) {
-    // exam_surface uses the work-surface silhouette with a longer top for bay identity
-    if (isExamSurfaceSlotId(input.slotId)) {
-      const desk = buildWorkSurfaceFixture(input);
-      desk.userData.openClinXrFixtureKind = "work_surface";
-      desk.userData.openClinXrExamSurface = true;
-      return desk;
-    }
-    return buildWorkSurfaceFixture(input);
-  }
+  if (isWorkSurfaceSlotId(input.slotId)) return buildWorkSurfaceFixture(input);
   return null;
 }

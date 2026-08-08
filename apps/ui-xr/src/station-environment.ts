@@ -56,7 +56,9 @@ export function isLearnerStartSlotId(slotId: string): boolean {
 }
 
 /**
- * Cheap multi-mesh layout prop for non-support fixture slots (monitor, desk, cart).
+ * Cheap multi-mesh layout prop for residual non-architecture fixture slots
+ * (monitor, laptop_desk, cart). Clinical surfaces (exam / overbed / work) are
+ * architecture fixtures — see station-architecture-fixtures.ts (#207).
  * Not a marker cube: isMarkerCube=false, larger than 0.18³, multi-part silhouette.
  */
 export function buildFixtureLayoutProp(input: {
@@ -80,8 +82,16 @@ export function buildFixtureLayoutProp(input: {
     metalness: 0.08,
   });
 
+  // Explicit residual kinds — not open-ended "surface" matching (architecture owns those).
   const id = input.slotId.toLowerCase();
-  if (id.includes("monitor") || id.includes("shelf")) {
+  const kind: "monitor_stand" | "laptop_desk" | "generic_cart" =
+    id.includes("monitor") || id.includes("shelf")
+      ? "monitor_stand"
+      : id.includes("desk") || id.includes("laptop")
+        ? "laptop_desk"
+        : "generic_cart";
+
+  if (kind === "monitor_stand") {
     const stand = new Mesh(new BoxGeometry(0.08, 1.1, 0.08), frame);
     stand.position.set(0, 0.55, 0);
     stand.name = `${root.name}.stand`;
@@ -89,7 +99,7 @@ export function buildFixtureLayoutProp(input: {
     panel.position.set(0, 1.2, 0);
     panel.name = `${root.name}.panel`;
     root.add(stand, panel);
-  } else if (id.includes("desk") || id.includes("laptop")) {
+  } else if (kind === "laptop_desk") {
     const legs = new Mesh(new BoxGeometry(0.7, 0.72, 0.4), frame);
     legs.position.set(0, 0.36, 0);
     legs.name = `${root.name}.legs`;
@@ -98,7 +108,7 @@ export function buildFixtureLayoutProp(input: {
     top.name = `${root.name}.top`;
     root.add(legs, top);
   } else {
-    // Generic cart / layout block
+    // Generic cart / layout block (ecg_cart and similar residual ids)
     const body = new Mesh(new BoxGeometry(0.45, 0.55, 0.35), frame);
     body.position.set(0, 0.35, 0);
     body.name = `${root.name}.body`;
@@ -112,6 +122,7 @@ export function buildFixtureLayoutProp(input: {
   root.userData.fixtureSlotPurpose = input.purpose ?? "layout prop";
   root.userData.isMarkerCube = false;
   root.userData.openClinXrFixtureKind = "procedural_layout_prop";
+  root.userData.openClinXrLayoutPropKind = kind;
   root.userData.openClinXrDynamicScenePolicy = "non_support_fixture_slot_builds_layout_prop_not_marker";
   return root;
 }
