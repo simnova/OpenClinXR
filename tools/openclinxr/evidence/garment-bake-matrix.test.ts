@@ -174,6 +174,60 @@ describe("the garment parameter space is swept in a bake harness (#195)", () => 
     expect(detached, "variants whose shell does not enclose the body").toEqual([]);
   }, 3_600_000);
 
+  it("a hospital gown and a cardigan do not have the same sleeve (#200)", async () => {
+    // #197 extended arm_len from shoulder->elbow to the full shoulder->elbow->wrist chain, roughly
+    // DOUBLING it. It rescaled the three UNPINNED fractions (scrub/tshirt/casual) so their absolute
+    // sleeve length stayed upper-arm. It could not rescale gown_sleeve_along_fraction because MY
+    // counterweight pinned it — and its retro said so unprompted:
+    //
+    //   "Gown 0.72 of full also lengthens past old elbow — I left that pin alone on purpose
+    //    (counterweight); that is a real residual, not a success."
+    //
+    // Measured on the shipped GLBs, lowest y_frac of garment vertices beyond 0.22 lateral:
+    //
+    //   gown     (ed_chest_pain_adult_cast) sleeve ends at y_frac 0.547
+    //   cardigan (peds_anxious_parent)      sleeve ends at y_frac 0.524
+    //   scrub    (peds_nurse_kevin)         sleeve ends at y_frac 0.686   <- correctly short
+    //
+    // Both the gown and the cardigan now run to the body's arm-surface terminus (#199: the arm ends
+    // between y_frac 0.54 and 0.50). They SATURATE at the same place, so a hospital gown and an open
+    // cardigan are geometrically indistinguishable at the sleeve. The scrub, which was rescaled, is
+    // correctly different — which is what shows this is the pin's doing and not a body limit.
+    //
+    // PINNING A RATIO DOES NOT PIN AN OUTCOME when the slice may redefine the denominator. That is
+    // my error, not an implementer's.
+    //
+    // NO TARGET VALUE IS SPECIFIED. What a hospital gown sleeve should be has never been decided —
+    // the old 0.24 m was an artefact of the elbow-only segment, not a choice. Sweep it, render it,
+    // recommend one with a reason; the orchestrator grades the sheet and confirms or overrides, as
+    // for the hem (#197) and the door inset (#204).
+    const mod = await load();
+    const inspect = mod["inspectGarmentBakeMatrix"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const reach = (report as { shippedSleeveReach?: { garmentKind: string; sleeveEndsAtYFrac: number }[] })
+      .shippedSleeveReach;
+    expect(
+      reach,
+      "the ledger does not record shippedSleeveReach — the defect is invisible to this contract",
+    ).toBeTruthy();
+
+    const byKind = new Map(reach!.map((r) => [r.garmentKind, r.sleeveEndsAtYFrac]));
+    const gown = byKind.get("hospital_gown");
+    const cardigan = byKind.get("open_cardigan");
+    expect(gown, "no hospital_gown reach recorded").toBeTypeOf("number");
+    expect(cardigan, "no open_cardigan reach recorded").toBeTypeOf("number");
+
+    // A gown and a cardigan are different garments. Their sleeves must be distinguishable by more
+    // than a few centimetres on a 1.76 m body.
+    expect(
+      Math.abs(gown! - cardigan!),
+      `gown sleeve ends at y_frac ${gown!.toFixed(3)} and cardigan at ${cardigan!.toFixed(3)} — `
+      + "both saturate at the body's arm terminus, so the two garments are indistinguishable at the sleeve",
+    ).toBeGreaterThan(0.06);
+  }, 3_600_000);
+
   it("the shipping coefficients are unchanged (COUNTERWEIGHT)", async () => {
     // The cheap green is to "improve" 0.31 while measuring. That destroys the before-column and
     // pre-empts a choice that belongs to whoever grades the sheet.
