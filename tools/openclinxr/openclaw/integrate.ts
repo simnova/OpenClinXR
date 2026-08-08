@@ -269,6 +269,13 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     // --no-ff as well as --no-commit: a fast-forward would move the ref with nothing left to commit,
   // so there would be no commit for the pre-commit gate to inspect and no consistent tree to key the
   // report to. Forcing a merge commit gives one shape for both.
+  // Capture BEFORE the merge. Afterwards `base...head` is empty — the branch is an ancestor — so a
+  // detector run post-merge returns nothing and the rebuild silently never fires. That is exactly
+  // what shipped in 8144ca5: I probed packagesNeedingRebuild() against a simulated pre-merge range
+  // and it passed, then wired it in AFTER the commit where the same call sees no changes. Tested
+  // the function, not the integration.
+  const rebuildTargets = packagesNeedingRebuild(input.repoRoot, input.base, input.head);
+
   execFileSync("git", ["merge", "--no-edit", "--no-ff", "--no-commit", input.head], {
     cwd: input.repoRoot,
     stdio: ["ignore", "pipe", "pipe"],
@@ -293,7 +300,7 @@ export function integrate(input: IntegrateInput): IntegrateResult {
 
   // Rebuild AFTER the commit: the sources are now on the branch, and a failure here is a stale
   // checkout rather than a reason to refuse a merge that already passed every gate.
-  const rebuilt = packagesNeedingRebuild(input.repoRoot, input.base, input.head);
+  const rebuilt = rebuildTargets;
   for (const pkg of rebuilt) {
     try {
       execFileSync("pnpm", ["--filter", pkg, "build"], {
