@@ -157,7 +157,7 @@ type Report = {
 type Inspect = () => Promise<Report>;
 
 describe("the hm08 calibration anchor survives its own fix (#178)", () => {
-  it.fails("the pre-fix guard does not abort once the product is upright", async () => {
+  it("the pre-fix guard does not abort once the product is upright", async () => {
     // The whole red. ensurePreFix re-measures a live anchor on every run and throws unless it is
     // still the broken shape — which freezes the PRODUCT to the defect so the GATE stays green.
     const mod = await load();
@@ -171,7 +171,7 @@ describe("the hm08 calibration anchor survives its own fix (#178)", () => {
     ).toBe(false);
   }, 600_000);
 
-  it.fails("the historical lying row survives a clean checkout", async () => {
+  it("the historical lying row survives a clean checkout", async () => {
     // The written artifact holds the honest before-column and is gitignored, so a fresh clone has no
     // calibration at all. And the GLB that was described as "preserved for calibration" is now
     // byte-identical to the upright product — a preserved file that a later run can overwrite is not
@@ -194,7 +194,7 @@ describe("the hm08 calibration anchor survives its own fix (#178)", () => {
     expect(report.historicalRow!.longestAxis).toBe("z");
   }, 600_000);
 
-  it.fails("the trap class is still recorded and nothing was deleted (COUNTERWEIGHT)", async () => {
+  it("the trap class is still recorded and nothing was deleted (COUNTERWEIGHT)", async () => {
     // The cheap way to green this is to delete ensurePreFix, delete the constants, or delete the three
     // product its. All three are forbidden. #67 shipped six head-down humanoids because a single
     // column looked right — the four-column table is the evidence of that class and it must survive.

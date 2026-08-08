@@ -27,12 +27,34 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 const EVIDENCE_134 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-134");
 const EVIDENCE_156 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-156");
 const PRE_FIX_PATH = path.join(EVIDENCE_156, "pre-fix.json");
+/**
+ * #134 product path — still written by hm08-rig-carry-cagematch. NOT a preserved lying control
+ * (#178: shared stage defaults made re-runs overwrite the lying anchor with upright product).
+ */
 const ORIGINAL_CANDIDATE = path.join(EVIDENCE_134, "hm08-rig-carry-candidate.glb");
-/** Upright re-export lives alongside; original #134 candidate is preserved for calibration. */
+/** Upright product candidate (#156). */
 const UPRIGHT_CANDIDATE = path.join(EVIDENCE_156, "hm08-rig-carry-candidate-upright.glb");
+/**
+ * Optional live lying control out of #134 write reach. Cold-path baseline prefers tracked seed
+ * numbers when this file is absent (clean clone / worktree without gitignored evidence).
+ */
+const LYING_CONTROL_GLB = path.join(
+  EVIDENCE_156,
+  "hm08-rig-carry-candidate-lying-control.glb",
+);
+/** Tracked before-column seed — survives clean clone (#178). */
+const LYING_SEED_PATH = path.join(HERE, "hm08-lying-calibration-seed.json");
 const BLENDER_STAGE = path.join(HERE, "blender/hm08_rig_carry_stage.py");
 const TREATMENTS_DIR = path.join(EVIDENCE_156, "treatments");
 const TREATMENT_TABLE_PATH = path.join(EVIDENCE_156, "treatment-table.json");
+
+/** Historical lying band from #156 orchestrator measure — kept for documentation, not hard-abort. */
+export const HISTORICAL_LYING_MESH = {
+  meshW: 0.995,
+  meshH: 0.436,
+  meshD: 1.695,
+  meshLongestAxis: "z" as const,
+};
 
 const MH_BASE_OBJ = path.join(
   process.env.HOME ?? "",
@@ -328,60 +350,143 @@ function runExport(
   return report;
 }
 
+type LyingSeedFile = {
+  historicalLyingRow: {
+    meshW: number;
+    meshH: number;
+    meshD: number;
+    meshMinY?: number;
+    meshLongestAxis: string;
+    jointLongestAxis: string;
+    jointSpanY?: number;
+    triangleCount?: number;
+    jointCount?: number;
+    rootIsIdentity?: boolean;
+    verdict: string;
+    treatment?: string;
+  };
+};
+
+function loadLyingSeed(): LyingSeedFile {
+  if (!existsSync(LYING_SEED_PATH)) {
+    throw new Error(
+      `tracked lying calibration seed missing at ${LYING_SEED_PATH} — required for clean-clone before-column (#178)`,
+    );
+  }
+  return JSON.parse(readFileSync(LYING_SEED_PATH, "utf8")) as LyingSeedFile;
+}
+
+/** AxisMeasure for the historical lying control — seed first, optional live GLB if present. */
+export function historicalLyingBaselineMeasure(): AxisMeasure {
+  const hist = loadLyingSeed().historicalLyingRow;
+  return {
+    assetPath: path.relative(REPO_ROOT, LYING_SEED_PATH).replace(/\\/g, "/"),
+    meshWidth: hist.meshW,
+    meshHeight: hist.meshH,
+    meshDepth: hist.meshD,
+    meshMinY: hist.meshMinY ?? -0.326,
+    meshLongestAxis: hist.meshLongestAxis,
+    jointLongestAxis: hist.jointLongestAxis,
+    jointSpanY: hist.jointSpanY ?? 0.386,
+    rootIsIdentity: hist.rootIsIdentity ?? true,
+    runtimeJointNames: [],
+    triangleCount: hist.triangleCount ?? 36972,
+  };
+}
+
 /**
- * Ensure pre-fix exists with the CURRENT #134 candidate as row 0.
- * Does not re-export. Calibration stop: meshW/H/D must match orchestrator numbers.
+ * Ensure pre-fix exists with the HISTORICAL lying row as row 0 (#178).
+ *
+ * - Artifact absent → write from tracked seed (clean clone has a before-column).
+ * - Artifact present → do NOT require live product to match the historical broken row.
+ * - Live product disagrees with historical → record a delta note; never abort.
+ * - Product uprightness is enforced by the three product `it`s, not this guard.
  */
 export async function ensurePreFix(): Promise<AxisMeasure> {
   mkdirSync(EVIDENCE_156, { recursive: true });
-  if (!existsSync(ORIGINAL_CANDIDATE)) {
-    throw new Error(
-      `missing #134 candidate at ${ORIGINAL_CANDIDATE} — copy from a complete checkout before measuring`,
-    );
-  }
-  const current = await measureGlbAxes(ORIGINAL_CANDIDATE);
-  const row = {
-    treatment: "current_candidate_as_shipped_by_134",
+  const seed = loadLyingSeed();
+  const hist = seed.historicalLyingRow;
+  const seedRel = path.relative(REPO_ROOT, LYING_SEED_PATH).replace(/\\/g, "/");
+
+  const historicalRow = {
+    treatment: hist.treatment ?? "current_candidate_as_shipped_by_134",
     export_yup: false,
     force_z_up: false,
-    rootIsIdentity: current.rootIsIdentity,
-    meshW: current.meshWidth,
-    meshH: current.meshHeight,
-    meshD: current.meshDepth,
-    meshMinY: current.meshMinY,
-    meshLongestAxis: current.meshLongestAxis,
-    jointLongestAxis: current.jointLongestAxis,
-    jointSpanY: current.jointSpanY,
-    triangleCount: current.triangleCount,
-    jointCount: current.runtimeJointNames.length,
-    assetPath: current.assetPath,
-    verdict: treatmentPasses(current) ? "PASS" : "FAIL_lying_or_misaligned",
+    rootIsIdentity: hist.rootIsIdentity ?? true,
+    meshW: hist.meshW,
+    meshH: hist.meshH,
+    meshD: hist.meshD,
+    meshMinY: hist.meshMinY ?? -0.326,
+    meshLongestAxis: hist.meshLongestAxis,
+    jointLongestAxis: hist.jointLongestAxis,
+    jointSpanY: hist.jointSpanY ?? 0.386,
+    triangleCount: hist.triangleCount ?? 36972,
+    jointCount: hist.jointCount ?? 24,
+    assetPath: seedRel,
+    verdict: hist.verdict,
+    source: "tracked_seed",
   };
 
-  // Hard stop if calibration does not reproduce orchestrator numbers.
-  if (
-    Math.abs(row.meshW - 0.995) > 0.02 ||
-    Math.abs(row.meshH - 0.436) > 0.02 ||
-    Math.abs(row.meshD - 1.695) > 0.02
-  ) {
-    throw new Error(
-      `CALIBRATION MISMATCH vs orchestrator W=0.995 H=0.436 D=1.695 — measured ` +
-        `W=${row.meshW} H=${row.meshH} D=${row.meshD}. STOP before product edit.`,
-    );
+  // Optional live measure of product paths — record drift, never throw (#178).
+  let liveDelta: Record<string, unknown> | null = null;
+  let liveMeasure: AxisMeasure | null = null;
+  const livePath = existsSync(UPRIGHT_CANDIDATE)
+    ? UPRIGHT_CANDIDATE
+    : existsSync(ORIGINAL_CANDIDATE)
+      ? ORIGINAL_CANDIDATE
+      : existsSync(LYING_CONTROL_GLB)
+        ? LYING_CONTROL_GLB
+        : null;
+  if (livePath) {
+    liveMeasure = await measureGlbAxes(livePath);
+    const disagrees =
+      Math.abs(liveMeasure.meshWidth - HISTORICAL_LYING_MESH.meshW) > 0.02 ||
+      Math.abs(liveMeasure.meshHeight - HISTORICAL_LYING_MESH.meshH) > 0.02 ||
+      Math.abs(liveMeasure.meshDepth - HISTORICAL_LYING_MESH.meshD) > 0.02;
+    if (disagrees) {
+      liveDelta = {
+        path: path.relative(REPO_ROOT, livePath).replace(/\\/g, "/"),
+        meshW: liveMeasure.meshWidth,
+        meshH: liveMeasure.meshHeight,
+        meshD: liveMeasure.meshDepth,
+        meshLongestAxis: liveMeasure.meshLongestAxis,
+        jointLongestAxis: liveMeasure.jointLongestAxis,
+        note:
+          "Live product no longer matches historical lying band W=0.995 H=0.436 D=1.695 — " +
+          "expected after upright fix. Historical row remains in tracked seed; product " +
+          "assertions hard-fail on uprightness separately.",
+      };
+    }
   }
 
   if (!existsSync(PRE_FIX_PATH)) {
     const payload = {
       schemaVersion: "openclinxr.hm08-upright.pre-fix.v1",
       generatedAt: new Date().toISOString(),
-      note: "Calibration BEFORE product edit. First row is CURRENT #134 candidate.",
+      note:
+        "Calibration before-column from TRACKED seed (#178). First row is historical lying shape, " +
+        "not a re-measure of the live product path.",
       claimScope: CLAIM_SCOPE,
       notEvidenceFor: NOT_EVIDENCE_FOR,
-      rows: [row],
+      historicalSeedPath: seedRel,
+      liveAnchorDelta: liveDelta,
+      rows: [historicalRow],
     };
     writeFileSync(PRE_FIX_PATH, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  } else if (liveDelta) {
+    // Artifact present + live disagrees: record delta without rewriting historical first row.
+    try {
+      const pre = JSON.parse(readFileSync(PRE_FIX_PATH, "utf8")) as Record<string, unknown>;
+      pre.liveAnchorDelta = liveDelta;
+      pre.historicalSeedPath = seedRel;
+      writeFileSync(PRE_FIX_PATH, `${JSON.stringify(pre, null, 2)}\n`, "utf8");
+    } catch {
+      /* non-fatal */
+    }
   }
-  return current;
+
+  // Prefer returning live product measure when available; else historical seed measure.
+  return liveMeasure ?? historicalLyingBaselineMeasure();
 }
 
 /**
@@ -426,8 +531,16 @@ export async function inspectHm08UprightExport(): Promise<InspectReport> {
     throw new Error(`hm08 base.obj not found at ${MH_BASE_OBJ}`);
   }
 
-  // Always include the calibrated original as the first measured treatment row (no re-export).
-  const baseline = await measureGlbAxes(ORIGINAL_CANDIDATE);
+  // Baseline = historical lying control (#178 cold-path trap).
+  // Do NOT re-measure ORIGINAL_CANDIDATE: after #156 it may be upright product (collision),
+  // which would record a PASS control and erase the #67 trap-class evidence.
+  // Prefer live lying-control GLB under issue-156 if present; else tracked seed numbers.
+  let baseline: AxisMeasure;
+  if (existsSync(LYING_CONTROL_GLB)) {
+    baseline = await measureGlbAxes(LYING_CONTROL_GLB);
+  } else {
+    baseline = historicalLyingBaselineMeasure();
+  }
   treatments.push({
     ...baseline,
     treatment: "baseline_export_yup_false_no_force_z",
@@ -482,11 +595,13 @@ export async function inspectHm08UprightExport(): Promise<InspectReport> {
     treatments[treatments.length - 1]!;
 
   const chosen = chosenRow.treatment;
-  // Copy chosen treatment GLB to the upright candidate path.
-  // NEVER overwrite the #134 lying candidate — it is the pre-fix calibration anchor.
+  // Copy chosen treatment GLB to the upright candidate path under issue-156 only.
+  // Never write upright product into the lying-control path or treat issue-134 as control (#178).
   const chosenGlb =
     chosen === "baseline_export_yup_false_no_force_z"
-      ? ORIGINAL_CANDIDATE
+      ? existsSync(LYING_CONTROL_GLB)
+        ? LYING_CONTROL_GLB
+        : path.join(TREATMENTS_DIR, `${chosen}.glb`)
       : path.join(TREATMENTS_DIR, `${chosen}.glb`);
   if (!existsSync(chosenGlb)) {
     throw new Error(`chosen treatment GLB missing: ${chosenGlb}`);
@@ -555,8 +670,10 @@ export async function inspectHm08UprightExport(): Promise<InspectReport> {
     exportMorph: false,
     notes: [
       "export_morph left False — #134 scoped morph parity out deliberately",
-      "original lying #134 candidate preserved at .openclinxr/evidence/issue-134/hm08-rig-carry-candidate.glb",
+      "historical lying before-column: tools/openclinxr/evidence/hm08-lying-calibration-seed.json (tracked, #178)",
+      "optional live lying control: .openclinxr/evidence/issue-156/hm08-rig-carry-candidate-lying-control.glb",
       "upright candidate at .openclinxr/evidence/issue-156/hm08-rig-carry-candidate-upright.glb",
+      "issue-134 candidate path is product output for #134 cagematch — not a preserved lying control",
       `chosen treatment: ${chosen}`,
     ],
   };

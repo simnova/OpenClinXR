@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "openclinxr.hm08-lying-calibration-seed.v1",
+  "purpose": "Tracked before-column for #156/#178. Survives clean clone; not overwritable by #134 cagematch.",
+  "claimScope": "hm08_export_upright_axis_only_no_promotion",
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "b_plus_visual_realism_gate",
+    "mpfb2_gpl3_licence_resolution",
+    "adoption_into_orchestrate_character_or_generated_humanoids",
+    "morph_target_viseme_parity",
+    "auto_weight_deformation_quality",
+    "clinical_validity"
+  ],
+  "historicalLyingRow": {
+    "treatment": "current_candidate_as_shipped_by_134",
+    "export_yup": false,
+    "force_z_up": false,
+    "rootIsIdentity": true,
+    "meshW": 0.995,
+    "meshH": 0.436,
+    "meshD": 1.695,
+    "meshMinY": -0.326,
+    "meshLongestAxis": "z",
+    "jointLongestAxis": "x",
+    "jointSpanY": 0.386,
+    "triangleCount": 36972,
+    "jointCount": 24,
+    "assetPath": ".openclinxr/evidence/issue-134/hm08-rig-carry-candidate.glb",
+    "verdict": "FAIL_lying_or_misaligned",
+    "measuredAt": "2026-08-07T21:37:59.632Z",
+    "note": "Orchestrator NodeIO measure of the pre-#156 lying candidate. Constants W/H/D match hm08-upright-export ensurePreFix historical band."
+  },
+  "treatmentTable": [
+    {
+      "label": "baseline_export_yup_false_no_force_z",
+      "exportYup": false,
+      "forceZUpStanding": false,
+      "meshW": 0.995,
+      "meshH": 0.436,
+      "meshD": 1.695,
+      "meshMinY": -0.326,
+      "meshLongestAxis": "z",
+      "jointLongestAxis": "x",
+      "jointSpanY": 0.386,
+      "triangleCount": 36972,
+      "rootIsIdentity": true,
+      "verdict": "FAIL"
+    },
+    {
+      "label": "export_yup_true_alone",
+      "exportYup": true,
+      "forceZUpStanding": false,
+      "meshW": 0.995,
+      "meshH": 1.695,
+      "meshD": 0.436,
+      "meshMinY": -0.845,
+      "meshLongestAxis": "y",
+      "jointLongestAxis": "x",
+      "jointSpanY": 0.07,
+      "triangleCount": 36972,
+      "rootIsIdentity": true,
+      "verdict": "FAIL",
+      "note": "#67 trap class: upright MESH over skeleton still lying on X"
+    },
+    {
+      "label": "force_z_up_alone_export_yup_false",
+      "exportYup": false,
+      "forceZUpStanding": true,
+      "meshW": 0.995,
+      "meshH": 0.436,
+      "meshD": 1.695,
+      "meshMinY": -0.326,
+      "meshLongestAxis": "z",
+      "jointLongestAxis": "z",
+      "jointSpanY": 0.017,
+      "triangleCount": 36972,
+      "rootIsIdentity": true,
+      "verdict": "FAIL"
+    },
+    {
+      "label": "force_z_up_plus_export_yup_true",
+      "exportYup": true,
+      "forceZUpStanding": true,
+      "meshW": 0.995,
+      "meshH": 1.695,
+      "meshD": 0.436,
+      "meshMinY": 0,
+      "meshLongestAxis": "y",
+      "jointLongestAxis": "y",
+      "jointSpanY": 1.5,
+      "triangleCount": 36972,
+      "rootIsIdentity": true,
+      "verdict": "PASS"
+    }
+  ],
+  "decisions": {
+    "historicalRowCarrier": "tracked_seed_json",
+    "rejected": [
+      "gitignored_only_pre_fix",
+      "tracked_lying_glb_under_issue_134_write_path",
+      "require_live_product_to_match_historical_broken_row"
+    ],
+    "anchorCollisionFix": "move_calibration_out_of_issue_134_write_path_and_make_134_pass_explicit_upright_flags"
+  }
+}
