@@ -192,3 +192,57 @@ bezels) are where this model class fails; and a generated medical device risks i
 look authoritative and are wrong. Our parametric ECG cart is 288 triangles and reads correctly.
 
 Licence-clear is necessary and not sufficient. The bake-off decides.
+
+## Update 2026-08-08 — #225 Metal backend gate: `inconclusive_blocked`
+
+**Verdict:** `inconclusive_blocked` — the `trellis2-apple` MLX inference backbone loads on this Apple
+Silicon machine (torch 2.13.0 MPS, mlx 0.32.0, all MLX backend modules import cleanly), but three
+independent blockers prevent a full end-to-end shape→mesh→textured-export run.
+
+### What was tested
+
+| layer | outcome |
+|---|---|
+| `trellis2-apple` venv creation | installed at `~/.openclinxr-tools/trellis2-apple/venv` with torch 2.13.0, mlx 0.32.0, transformers 5.14.1 |
+| MLX backend import | runs — `mlx_backend`, all transformer blocks, attention, sparse conv |
+| `trellis2.pipelines` import | runs (after installing `easydict`) |
+| `postprocess_cpu.to_glb` import | runs — pure Python, no C++ deps; fast_simplification + xatlas UV + MPS rasterization + OpenCV inpainting → PBR GLB path is independently viable |
+| Backend resolution | `HAS_MPS=True, HAS_CUDA=False, BACKEND=cpu, HAS_DR=False, HAS_MESH=False, HAS_TRIMESH=True, HAS_FAST_SIMPLIFICATION=True, HAS_FLEX_GEMM=False` |
+| Stock ComfyUI `Trellis2ImageToShape` | **throws** — `No module named 'cumesh_vb'` at runtime (confirmed live on 8188, matching #164's finding) |
+
+### Blockers (all three are environment, not architecture)
+
+1. **Metal Toolchain not installed.** `xcrun metal` refuses with "missing Metal Toolchain; use:
+   `xcodebuild -downloadComponent MetalToolchain`". Without it, the four Metal GPU kernel packages
+   (`mtlmesh`/`mtlgemm`/`mtldiffrast`/`mtlbvh`, all MIT) cannot be compiled from source. All four
+   `pip install --no-build-isolation` attempts failed identically.
+
+2. **`o_voxel` C++ extension fails to build.** `flexible_dual_grid.cpp` torch extension compilation
+   fails (`c++` exits non-zero). The pure-Python `postprocess_cpu.py` fallback is independently
+   viable but the pipeline's default export path imports from the C++ layer.
+
+3. **DINOv3 is a gated HuggingFace model.** `DINOv3ViTModel.from_pretrained("facebook/dinov3-vitl16-
+   pretrain-lvd1689m")` requires HF authentication. No HF token is configured. The stock
+   ComfyUI-TRELLIS2 custom node ships its own `dinov3.py` that avoids this download, but
+   `trellis2-apple` does not reuse it.
+
+### What would unblock
+
+1. `sudo xcodebuild -downloadComponent MetalToolchain` (requires operator credentials)
+2. Re-run `pip install --no-build-isolation` for the four Metal packages
+3. Point `trellis2-apple` at the local DINOv3 implementation from ComfyUI-TRELLIS2
+4. Bypass `o_voxel` C++ build; wire `postprocess_cpu.to_glb` into the pipeline export
+
+### What this means for the prop lane
+
+The operator's four parallel prop workers (clock / monitor / cart / room shell via TRELLIS.2) cannot
+be dispatched today. The MLX inference backbone is viable, but three environment blockers stand
+between here and a measurable exported mesh. The stock ComfyUI-TRELLIS2 path is `blocked_cuda`
+(matching #164). The pure-Python CPU/MPS PBR export path exists but is not yet wired.
+
+**This does not weaken** the licence findings recorded above. All four Metal GPU packages and the
+`trellis2-apple` fork remain MIT-licensed. The 15 GB `microsoft/TRELLIS.2-4B` weights remain on
+disk and reusable.
+
+Evidence: `.openclinxr/evidence/issue-225/backend-measure.json`.
+Implementation: `tools/openclinxr/evidence/trellis-metal-backend-gate.ts`.
