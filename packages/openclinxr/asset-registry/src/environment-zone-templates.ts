@@ -196,11 +196,28 @@ export const ED_STRETCHER: EnvironmentFixtureSlot = {
  * contain a floor-planted ambulatory patient (contract counterweight).
  * Stretcher footprint is ~2.2×0.9 m; center must keep the primary standing plant
  * (-0.72, z≈-0.12) outside the deck.
+ *
+ * Use for stations whose primary patient remains standing. Do NOT use for
+ * recumbent inpatient staging (#179) — runtime supine plant hard-centers on
+ * DEFAULT_STRETCHER_POSITION via supineActorWorldPosition(); use PLANT_ALIGNED_STRETCHER.
  */
 export const OFFSET_STRETCHER: EnvironmentFixtureSlot = {
   slotId: "stretcher",
   purpose: "Patient bed / stretcher (beside standing exam zone)",
   position: { x: -2.05, y: 0, z: -0.75 },
+};
+
+/**
+ * #179: fixture stretcher co-located with the runtime supine plant center
+ * (`DEFAULT_STRETCHER_POSITION` / `supineActorWorldPosition` in actor-posture.ts).
+ * Flat (no inclineDegrees) — #171 keeps undeclared incline at 0; semi-Fowler for
+ * these rooms is a follow-on once that counterweight is retuned.
+ * claimScope: staging placement. notEvidenceFor: ward-bed skin / clinical angle.
+ */
+export const PLANT_ALIGNED_STRETCHER: EnvironmentFixtureSlot = {
+  slotId: "stretcher",
+  purpose: "Patient bed under recumbent plant (aligned with default supine plant)",
+  position: { x: -0.9, y: 0, z: -0.1 },
 };
 
 /** Consult / clinic seating offset from standing anchor. */

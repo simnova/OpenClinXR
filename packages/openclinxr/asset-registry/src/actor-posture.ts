@@ -46,9 +46,43 @@ export function isActorPosture(value: unknown): value is ActorPosture {
 }
 
 /**
+ * #179: bank scenarios that stage the primary patient recumbent on the existing
+ * support surface (fixture stretcher proxy or equipment bed). Staging only —
+ * not a claim that every inpatient is clinically bed-bound.
+ *
+ * Unlocked decision (named): scenario-id markers in this module, same pattern as
+ * ed_chest_pain. Rejected a descriptor `patientPosture` field — larger surface for
+ * three stations; rejected care-setting auto-supine (ambulatory clinics stay standing).
+ */
+export const INPATIENT_RECUMBENT_SCENARIO_MARKERS = [
+  "ward_delirium_med_rec",
+  "stepdown_sepsis_nurse_escalation",
+  "postop_fever_consult_pressure",
+] as const;
+
+/** True when scenarioId matches a declared inpatient-recumbent staging station. */
+export function isInpatientRecumbentScenario(
+  scenarioId: string | null | undefined,
+): boolean {
+  const scenario = (scenarioId ?? "").toLowerCase();
+  if (!scenario) return false;
+  return INPATIENT_RECUMBENT_SCENARIO_MARKERS.some((marker) => scenario.includes(marker));
+}
+
+/**
+ * Where `defaultPostureForEnvironmentSlot` / `resolveActorPosture` get recumbent
+ * staging decisions — for evidence reports so the next reader does not re-grep.
+ */
+export const POSTURE_SOURCE_DESCRIPTION =
+  "packages/openclinxr/asset-registry/src/actor-posture.ts defaultPostureForEnvironmentSlot "
+  + "(scenario-id markers: telehealth seated, ed_chest_pain + INPATIENT_RECUMBENT_SCENARIO_MARKERS supine; "
+  + "else standing). resolveActorPosture prefers env/scenario over declared standing.";
+
+/**
  * Default posture from environment + slot.
  * - Telehealth primary_patient → seated (patient_chair fixture) (#81)
  * - ED chest-pain primary_patient → supine on shell stretcher fixture (#150)
+ * - Declared inpatient recumbent stations → supine on existing support (#179)
  * - Everyone else stands. Do NOT auto-supine every station with furniture —
  *   ambulatory patients and stations without a bed stay standing.
  */
@@ -69,6 +103,11 @@ export function defaultPostureForEnvironmentSlot(input: {
   // Scenario-id gate — not "any ed_* env" (stroke/abdominal bays keep standing patients).
   const edChestPain = scenario.includes("ed_chest_pain");
   if (edChestPain && input.slotKind === "primary_patient") {
+    return "supine";
+  }
+  // #179: three inpatient stations stage recumbent on support they already ship.
+  // Flat deck (0° incline) so #171 counterweight (undeclared incline = 0) stays green.
+  if (isInpatientRecumbentScenario(scenario) && input.slotKind === "primary_patient") {
     return "supine";
   }
   return "standing";
