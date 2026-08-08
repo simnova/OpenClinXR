@@ -4069,3 +4069,65 @@ longer have these values" has to be an acceptable answer, or the request is an i
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11r. Orchestration review #3 — the instruments are thickening while the generators stay primitive
+
+Standing operator procedure (§10r), third run, after twelve landed slices. Given my own errors to
+attack rather than only successes. Its verdict on me, not on any issue:
+
+> "Direction is right. **Your process is drifting into a measurement lab that protects the factory
+> instead of extending it.** Workers are outperforming you at diagnosis; you are outperforming them
+> at grading pixels and writing law. That split is inverted for the orchestrator role."
+>
+> "Instruments should **thin out** as generators improve; yours are **thickening**."
+
+**The claim I verified before accepting any of it.** It said the product still has "three body hashes,
+upper-only garments, and rooms that are furniture proxies". Measured with NodeIO across the seven
+shipped humanoids:
+
+| body signature | assets |
+|---|---|
+| 26692 tris / 13876 verts | **4** — street-casual male, ED patient, ED nurse, peds nurse |
+| 26692 tris / **13872** verts | **2** — spouse, anxious parent |
+| 27420 / 14268 | 1 — the child |
+
+**All six adults are one body**, the two variants differing by four vertices. Phenotype does not reach
+a vertex. That is #151, open, and I have walked past it for twelve slices.
+
+**The line that explains why**, and it is the most useful sentence in three reviews:
+
+> "**Avoidance pattern:** anything without a pre-written RED path and a known file:line. You optimize
+> for **dispatchable certainty**, not **factory capability**."
+
+Every slice I chose had a known file, a known fix shape, and a contract I could write before
+dispatching. That is what made them safe, and it is also what made them small.
+
+**On the escalation experiment specifically:**
+
+> "You have plateaued at L3–L4 execution packages, not true L5... **Raising maxTurns while scope stays
+> 'fix known bug in known file' is not escalation.** Genuine L5 would change the GENERATION CLASS —
+> body volume from phenotype, a lower-garment channel, a parametric room that is not box furniture —
+> with unknown mechanism, multi-hour bakes, and `reject_measured` an allowed outcome."
+
+I have been recording rung L4 honestly and calling the trend flat. The trend is flat because the
+scope has been flat.
+
+**Adopted subtractions, verbatim from the review:**
+
+1. **Do not file a primary issue from an unlocated pixel grade.** A pixel grade says *something looks
+   wrong*; it may not name the object. Run the first measurement — NodeIO, a live dump, one probe —
+   **before** opening the issue. Six of my premises have been withdrawn; the workers caught every one
+   by measuring. Pixels stay for GRADING a post-fix capture, which is where they are reliable.
+2. **At most ONE new rule per day, or one that replaces three.** ~40 numbered rules in a day is
+   accretion. "If a rule isn't grepped by a worker brief or enforced by a test, it's dead weight."
+   One-off process injuries belong in a one-page operator checklist, not permanent numbered law.
+3. **No new gate before a bank-wide inventory artifact exists.**
+4. **No concurrent full-suite run and new worker.** Three times is a habit, not an accident.
+5. **No handback without `OPENCLINXR_WORKER=1`** (§11p).
+6. **"Contract green" is not product done** without a pixel grade on a post-land capture.
+
+**This entry is the one rule for today, and it retires more than it adds** — items 1–6 above replace
+the reflex that produced the accretion it is complaining about.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
