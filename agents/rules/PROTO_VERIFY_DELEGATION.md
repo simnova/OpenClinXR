@@ -22,6 +22,7 @@ append-only and 4,000 lines deep, and burying them there is how they stopped bin
 | D8 | **Minimal generator config** | 08-07 | "Optimize the prompt for the room to make it minimal and remember that it can be optimized further in the pipeline." |
 | D9 | **DARK FACTORY — minimal LLM involvement** | 08-08 | "Build a **dark software factory with minimal LLM involvement necessary**. The tooling we've discussed are more **deterministic components** that help to build things — and it's a **pipeline**, so each step is part of the factory. Look at it from an automation perspective and understand and **optimize that entire pipeline**. **Duration of execution is not the issue**, that can be refined; the ability to take **multiple cases** and run them through it and get a **full experience** at the end, **capable of allowing an examination to perform with no further LLM involvement**, is ideal. **LLMs can only be used in the final product for narrow purposes (e.g. dynamic dialogue generation) where absolutely necessary.**" |
 | D10 | **Consult grok as a PEER, in conversation** | 08-08 | "Consult with grok as a **peer** and have a **conversation** (not merely send a single message to)." Use `--resume` across multiple exchanges; push back, ask follow-ups, let it correct you mid-thread. A one-shot prompt is not a consult. |
+| D11 | **MPFB is FIRST-CLASS, not a replacement — split by job** | 08-08 | "Don't rule out MPFB — treat it as a **first-class alternative to Anny**. Prefer **MPFB** when you need **standard rig, face shape keys, or MakeHuman wardrobe libraries**; keep **Anny** for **case-driven phenotype binding**. Hybrid (Anny mesh + MPFB2 eyes/gaze) is already available. **Next: implement Anny-as-reference → MPFB body match so age/size/gender stay aligned while gaining MPFB rigging and phonemes.**" |
 
 ## D9 in operational terms — what "dark factory" means for slice selection
 
@@ -130,6 +131,34 @@ term and get a constant ratio, you have written a tautology with units.
 girth spread, and the measured 8.76 cm is a good result. Correct the REASONING publicly and keep the
 RESULT — do not withdraw a finding because its justification was weak (§10l: the scope of an
 overturning matters as much as the overturning).
+
+## D11 in operational terms — the two rails have different jobs
+
+I had been treating this as "Anny rail vs deterministic rail", with the implicit goal of the second
+replacing the first. **That framing is wrong.** The operator's split:
+
+| use | rail | why |
+|---|---|---|
+| case-driven **phenotype binding** | **Anny** | the case definition drives identity; this is the blueprint-factory job |
+| standard **rig** | **MPFB** | canonical armature, auto-weights, no bespoke rigger |
+| **face shape keys / phonemes** | **MPFB** | viseme targets for lip-sync — the Anny rail has no morph stack |
+| **MakeHuman wardrobe** | **MPFB** | `.mhclo` library; `ClothesService` refuses non-basemesh topology |
+| eyes / gaze | **hybrid** — Anny mesh + MPFB2 | already available |
+
+**The consequence for slice selection:** stop asking "which rail wins". Ask "which job is this, and
+which rail owns that job". A slice that migrates a job to the wrong rail is wasted even if it lands
+green.
+
+**And it re-affirms MADR 0044's own operator direction from 2026-08-07**, which is quoted inside that
+document: *"create a humanoid with anny then use that as a reference for creating a humanoid with MPFB
+or other alternative, so that anny becomes the reference but you can leverage the clothing options
+from makeclothes."* The named next step — **Anny-as-reference → MPFB body match** — is that direction
+made concrete: Anny supplies age/size/gender, MPFB supplies rig and phonemes, and the match is what
+keeps them the same person.
+
+**Phonemes is the part I had deferred.** I ranked lip-sync low twice on the grounds that the library
+body has no morph stack. D11 says the morph stack is a REASON to use MPFB, not an obstacle — the face
+shape keys come with the rail.
 
 ## Why these stopped binding — diagnosed 2026-08-08 at operator challenge
 
