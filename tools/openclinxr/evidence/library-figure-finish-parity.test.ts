@@ -68,6 +68,26 @@ import { describe, expect, it } from "vitest";
  * That reference is independent of the treatment: fixing the library figure cannot move the Anny
  * baseline. (#151's `eps = spread * 0.35` passed by construction because its reference was a fraction
  * of its own result; do not repeat that shape.)
+ *
+ * ## FIXED (#219)
+ *
+ * Pre-fix measured (ED chest pain, same capture):
+ *   nurse Anny:   lateral 0.244 m, upper_armL = (−0.22, 0.06, −1.12), footwearTris=160, idleBones=8
+ *   library spouse: lateral 0.810 m, upper_armL = (−0.22, 0.06, −1.12), footwearTris=0, idleBones=8
+ * So idle WAS applied (same local eulers as nurse) — not a name mismatch, not never-applied.
+ * World hang differed because hm08 library upper_arm local Z has the opposite sense from Anny.
+ *
+ * Fixes:
+ *   1. Tag body-param library loads `openClinXrHumanoidRail = "library"` (main.ts load path).
+ *   2. clinical-idle-posture.ts LIBRARY_CLINICAL_IDLE_ARM_HANG flips upper_arm Z
+ *      (L z=+1.12, R z=−1.12). Live probe: lateral 0.337 → post-fix 0.341 vs Anny median 0.340.
+ *   3. Footwear: tools/.../embed_library_footwear.py reuses #188 parametric foot-AABB shell
+ *      topology (Z-up post-import) → openclinxr_footwear_* meshes, 160 tris, foot.L/R weights.
+ *      Baked into both body-param-*-library.glb assets.
+ *
+ * Post-fix: library lateral 0.341 m within Anny-derived tol 0.12 m; footwearTris=160 both rails.
+ * IN-SCOPE VISUAL (finish-parity-grade.png): library_arms_at_side=yes; library_shod=yes (brown
+ * casual shells); anny_actors_normal=yes; materials_distinct=yes.
  */
 
 type FigureFinish = {
