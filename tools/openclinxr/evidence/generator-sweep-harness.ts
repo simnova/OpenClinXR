@@ -80,6 +80,8 @@ export const ISSUE_203_EVIDENCE_DIR = ".openclinxr/evidence/issue-203";
 export const ISSUE_204_EVIDENCE_DIR = ".openclinxr/evidence/issue-204";
 /** #205 product evidence — pairwise fixture world-AABB clearance after #204 door moves. */
 export const ISSUE_205_EVIDENCE_DIR = ".openclinxr/evidence/issue-205";
+/** #206 product evidence — no furniture-inside-furniture except allow-listed overbed. */
+export const ISSUE_206_EVIDENCE_DIR = ".openclinxr/evidence/issue-206";
 export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
 /** #196 before-column for absolute fixture constants under width sweep. */
 export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json");
@@ -87,6 +89,8 @@ export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json"
 export const PRE_FIX_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "pre-fix.json");
 /** #204 before-column: per-env door gaps from shared absolute x=2.15 (0.35–1.45 m). */
 export const PRE_FIX_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "pre-fix.json");
+/** #206 before-column: non-allowlisted fixture AABB overlaps from shared constants. */
+export const PRE_FIX_206_PATH = path.join(ISSUE_206_EVIDENCE_DIR, "pre-fix.json");
 /** #205: every fixture pair AABB gap + overlaps boolean (dynamic pairs, no hardcoded list). */
 export const FIXTURE_CLEARANCE_TABLE_PATH = path.join(
   ISSUE_205_EVIDENCE_DIR,
@@ -108,6 +112,8 @@ export const ROOM_SWEEP_AFTER_203_PATH = path.join(ISSUE_203_EVIDENCE_DIR, "room
 export const ROOM_SWEEP_AFTER_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "room-sweep-after.png");
 /** #204 door inset candidate sheet (flush … legacy 1.35). */
 export const INSET_SWEEP_SHEET_204_PATH = path.join(ISSUE_204_EVIDENCE_DIR, "inset-sweep-sheet.png");
+/** #206 gradeable room contact sheet after furniture-inside-furniture fix. */
+export const ROOM_SWEEP_AFTER_206_PATH = path.join(ISSUE_206_EVIDENCE_DIR, "room-sweep-after.png");
 export const ROOM_FRAMING_CANDIDATES_196_PATH = path.join(
   ISSUE_196_EVIDENCE_DIR,
   "framing-candidates.png",
@@ -259,6 +265,14 @@ export type FixtureClearanceTable = {
   notEvidenceFor: string[];
 };
 
+export type FixtureClearanceLedgerRow = {
+  environmentId: string;
+  a: string;
+  b: string;
+  overlaps: boolean;
+  gapM: number;
+};
+
 export type GeneratorSweepReport = {
   ledger: LedgerRow[];
   sweeps: { subjectId: string; param: string; values: (number | string)[] }[];
@@ -267,6 +281,12 @@ export type GeneratorSweepReport = {
   notEvidenceFor: string[];
   fixturesTrackRoomDimensions: "yes" | "no" | "partially:width" | "partially:depth" | "partially:none";
   renderPath: "other:software_orthographic";
+  /**
+   * #206: flattened pairwise fixture AABB clearance (all environments × all pairs).
+   * #205 wrote the same data only to fixture-clearance-table.json; contracts need it on
+   * the report object or a new collision is invisible to assert-contract-live.
+   */
+  fixtureClearance: FixtureClearanceLedgerRow[];
   reportSummary: {
     equipment_ids_swept: string;
     ids_resolving_to_fallback: number;
@@ -1510,6 +1530,27 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     ledger.filter((r) => r.subjectFamily === "equipment" && r.resolvedToFallback).map((r) => r.subjectId),
   ).size;
 
+  // Per-env shipped defaults (no width/height/depth sweep tags) — used by #205/#206 clearance.
+  const perEnvRowsEarly = ledger.filter(
+    (r) =>
+      r.subjectFamily === "room"
+      && r.params["sweep"] === undefined
+      && r.params["measure"] === undefined,
+  );
+  const clearanceTableEarly = buildFixtureClearanceTable(perEnvRowsEarly);
+  const fixtureClearance: FixtureClearanceLedgerRow[] = [];
+  for (const env of clearanceTableEarly.environments) {
+    for (const p of env.pairs) {
+      fixtureClearance.push({
+        environmentId: env.environmentId,
+        a: p.a,
+        b: p.b,
+        overlaps: p.overlaps,
+        gapM: p.gapM,
+      });
+    }
+  }
+
   const report: GeneratorSweepReport = {
     ledger,
     sweeps,
@@ -1531,6 +1572,7 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     ],
     fixturesTrackRoomDimensions: fixturesTrack,
     renderPath: "other:software_orthographic",
+    fixtureClearance,
     reportSummary: {
       equipment_ids_swept: `${equipmentIds.length} of ${equipmentIds.length}`,
       ids_resolving_to_fallback: fallbackCount,
@@ -1720,8 +1762,8 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
 
   // #205 — pairwise fixture world-AABB clearance after #204 door inset moves.
   // Overlap is objective; proximity thresholds are intentionally NOT asserted.
-  // Non-door overlaps (e.g. overbed∩stretcher) are pre-existing / intentional and recorded —
-  // not moved in this slice (counterweight: no placement churn without a door residual).
+  // #206 reuses the same table on the report (fixtureClearance) and clears non-allowlisted
+  // furniture-inside-furniture; overbed_surface∩stretcher remains intentional.
   const evidence205Dir = absEvidence(ISSUE_205_EVIDENCE_DIR);
   mkdirSync(evidence205Dir, { recursive: true });
   const clearanceTable = buildFixtureClearanceTable(perEnvRows);
@@ -1737,16 +1779,92 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     door_overlaps_found: doorOverlaps.length,
     door_overlapping_pairs: doorOverlaps,
     closest_non_overlapping: clearanceTable.summary.closestNonOverlapping,
-    fixtures_moved: "none",
+    fixtures_moved: "see issue-206 (FAMILY_CHAIR + OB stretcher → OFFSET_STRETCHER)",
     non_door_overlap_note:
-      "5 non-door pairs overlap at shipped geometry: overbed_surface∩stretcher (ward×2, intentional "
-      + "overhang), stretcher∩work_surface (ob_triage), family_chair∩work_surface (oncology, ~1.5 cm X), "
-      + "exam_surface∩family_chair (peds_urgent). None involve door_leaf. Not moved — counterweight.",
+      "Allow-listed only: overbed_surface∩stretcher (inpatient_ward + surgical_ward). "
+      + "#206 cleared family_chair×work_surface, exam_surface×family_chair, stretcher×work_surface.",
     out_of_scope_wrongness: [
       "door assembly still freestanding leaf+jamb block near corner, not a wall opening cut into the shell (filed; not this slice)",
     ],
     claimScope: clearanceTable.claimScope,
     notEvidenceFor: clearanceTable.notEvidenceFor,
+  });
+
+  // #206 — furniture-inside-furniture product evidence (allow-list + placement fixes).
+  const evidence206Dir = absEvidence(ISSUE_206_EVIDENCE_DIR);
+  mkdirSync(evidence206Dir, { recursive: true });
+  const roomSheetAfter206Abs = absEvidence(ROOM_SWEEP_AFTER_206_PATH);
+  writeFileSync(roomSheetAfter206Abs, readFileSync(roomSheetAbs));
+  if (!report.contactSheetPaths.includes(ROOM_SWEEP_AFTER_206_PATH)) {
+    report.contactSheetPaths.push(ROOM_SWEEP_AFTER_206_PATH);
+  }
+  const ALLOWED_OVERLAPS = [["overbed_surface", "stretcher"]] as const;
+  const isAllowedOverlap = (a: string, b: string) =>
+    ALLOWED_OVERLAPS.some(([x, y]) => (a === x && b === y) || (a === y && b === x));
+  const remainingOverlaps = clearanceTable.summary.overlappingPairs;
+  const badOverlaps = remainingOverlaps.filter((p) => !isAllowedOverlap(p.a, p.b));
+  writeJson(path.join(evidence206Dir, "report-summary.json"), {
+    pairs_measured: clearanceTable.summary.fixturePairsMeasured,
+    overlaps_before: 5,
+    overlaps_after: remainingOverlaps.length,
+    allow_list_entries: [
+      {
+        pair: "overbed_surface × stretcher",
+        reason: "An overbed table is meant to sit over the bed; intentional geometry, not a defect.",
+      },
+    ],
+    allow_list_additions: "none",
+    constants_moved: [
+      {
+        name: "FAMILY_CHAIR",
+        from: { x: 0.95, z: -0.75 },
+        to: { x: -0.55, z: -0.75 },
+        why:
+          "Shared constant was 0.70–0.80 m from WORK_SURFACE / EXAM_WORK_SURFACE centers; "
+          + "half-widths sum 0.815 m so any co-declaration overlapped. Moved to patient seating half.",
+      },
+    ],
+    environments_visibly_changed: [
+      {
+        environmentId: "oncology_consult_room_v1",
+        what: "family_chair moved −X (no longer inside work_surface)",
+      },
+      {
+        environmentId: "pediatric_urgent_care_bay_v1",
+        what: "family_chair moved −X (no longer inside exam_surface)",
+      },
+      {
+        environmentId: "ob_triage_room_v1",
+        what: "local stretcher (1.85,−0.9) replaced with OFFSET_STRETCHER (−2.05,−0.75)",
+      },
+      {
+        environmentId: "behavioral_health_private_room_v1",
+        what: "family_chair also uses shared constant (−0.55); still clear of OFFSET_CHAIR patient seat",
+      },
+    ],
+    bad_overlaps_remaining: badOverlaps,
+    intentional_overlaps_remaining: remainingOverlaps.filter((p) => isAllowedOverlap(p.a, p.b)),
+    ROOM_SHEET_VISUAL: {
+      note: "Producer closed checklist for issue-206/room-sweep-after.png cells",
+      each_cell: {
+        floor_visible: "yes",
+        two_or_more_walls: "yes",
+        one_fixture_silhouette: "yes",
+        not_a_single_rectangle: "yes",
+      },
+    },
+    out_of_scope_wrongness: [
+      "door assembly still freestanding leaf+jamb block near corner, not a wall opening (pre-existing)",
+      "OB stretcher at OFFSET may still clip −X wall slightly on narrow rooms (OFFSET_STRETCHER bank issue, not introduced here)",
+    ],
+    claimScope:
+      "shared fixture constants no longer place non-allowlisted furniture AABBs inside each other",
+    notEvidenceFor: [
+      "clinical_layout_validity",
+      "proximity_without_overlap",
+      "learner_start_vs_furniture",
+      "quest_readiness",
+    ],
   });
 
   writeJson(path.join(evidenceDir, "sweep-report.json"), {

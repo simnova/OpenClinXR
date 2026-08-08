@@ -311,16 +311,10 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     keyLightIntensity: 2.05,
     zoneTemplates: GENERIC_CLINIC_ZONES,
     // #169: support parked away from framed patient plant. #186: door + counter.
-    fixtureSlots: [
-      {
-        slotId: "stretcher",
-        purpose: "OB triage bed (away from framed patient plant)",
-        position: { x: 1.85, y: 0, z: -0.9 },
-      },
-      DOOR_LEAF,
-      WORK_SURFACE,
-      LEARNER_START,
-    ],
+    // #206: was inline stretcher at (1.85, −0.9) — same volume as WORK_SURFACE (1.75, −0.85).
+    // OFFSET_STRETCHER (−2.05, −0.75) is the bank constant for "beside standing plant" and
+    // clears the desk; rejected re-authoring another local +X bed that re-collides the desk.
+    fixtureSlots: [OFFSET_STRETCHER, DOOR_LEAF, WORK_SURFACE, LEARNER_START],
   }),
   inpatient_ward_room_v1: shell({
     environmentId: "inpatient_ward_room_v1",
