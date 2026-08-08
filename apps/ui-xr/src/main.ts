@@ -38,7 +38,10 @@ import {
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
-import { roomPropSuppressedByFixtureOwnership } from "./fixture-role-ownership.js";
+import {
+  roomPropSuppressedByFixtureOwnership,
+  stampSuppressedDeclaredEquipmentOntoFixtures,
+} from "./fixture-role-ownership.js";
 import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
 import {
   buildDeclaredEquipmentGeometry,
@@ -3528,6 +3531,18 @@ function createStationScene(): StationSceneRuntime {
       meshCount: counts.meshCount,
     });
   }
+
+  // #209: stamp fixture-suppressed declared ids (no dual mesh). Helper lives outside main.
+  equipmentEvidenceItems.push(
+    ...stampSuppressedDeclaredEquipmentOntoFixtures({
+      shell: stationEnvironment,
+      plannedEquipmentIds: equipmentPlan.map((item) => item.equipmentId),
+      equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
+      equipment: encounterRuntimeAssetBundle.equipment,
+      roomProps: encounterRuntimeAssetBundle.sceneManifest.roomProps,
+    }),
+  );
+
   window.__openClinXrDeclaredEquipmentMountEvidence = {
     source: "window.__openClinXrDeclaredEquipmentMountEvidence",
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -6144,6 +6159,13 @@ function roomProp(
   group.userData.openClinXrAffordances = ["room_context_cue", "clinical_environment_reference", "runtime_scene_manifest_prop"];
   group.userData.openClinXrRuntimeSceneManifestAffordanceCueIds = affordanceCueIds;
   group.userData.openClinXrDynamicEncounterAssetPolicy = "room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world";
+  // #209: declared-equipment inspector unions roomProps into declared ids and measures
+  // openClinXrEquipmentId in the live scene. Tag the prop root so ekg-leads / monitor
+  // cards / psych soft-chair props count as mounted rather than "renders nothing".
+  group.userData.openClinXrEquipmentId = propId;
+  group.userData.openClinXrRuntimeEquipmentAssetId = propId;
+  group.userData.openClinXrEquipmentSource = "fallback";
+  group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = true;
   return group;
 }
 

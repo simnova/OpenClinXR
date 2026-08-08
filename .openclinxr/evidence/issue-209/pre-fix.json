@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "openclinxr.issue-209.pre-fix.v1",
+  "kind": "issue_209_room_actor_equipment_pre_fix",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-08T10:11:17.968644+00:00",
+  "claimScope": [
+    "live_vitest_measure_before_product_edit",
+    "actor_furniture_clearance_and_declared_equipment_mounting"
+  ],
+  "notEvidenceFor": [
+    "clinical_staging_correctness",
+    "quest_readiness",
+    "scoring_validity",
+    "when_main_first_went_red"
+  ],
+  "premiseCheck": {
+    "issueClaimedOnlyEdRoomPropsMissing": true,
+    "measuredMissingDeclaredIdsCount": 17,
+    "premiseFalse": "Issue text listed three ED roomProp ids only; live bank also misses fixture-suppressed beds/chairs and psych/telehealth roomProps. #206 not causal (confirmed by issue; re-derived mechanisms are framing/ownership/roomProp tags)."
+  },
+  "bankWide": {
+    "supportSourcesSeenAcrossActors": [
+      "fixture"
+    ],
+    "equipmentSupportSourceSeen": false,
+    "mechanism": "No actor's nearestSupportSource is equipment because dual-support equipment is suppressed or family/fixture chairs win nearest-neighbor; pediatric stretcher (would be pure equipment support) is suppressed by exam_surface mis-role."
+  },
+  "stations": [
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "failures": [
+        "actor_inside_furniture"
+      ],
+      "measurement": {
+        "patientSupportSurfaceCount": 1,
+        "supportSources": [
+          "fixture"
+        ],
+        "insideActors": [
+          {
+            "actorId": "patient_aisha_khan_v1",
+            "posture": "standing",
+            "nearestSupportId": "stretcher",
+            "nearestSupportSource": "fixture",
+            "overlapFractionOfSmaller": 0.57
+          }
+        ],
+        "obPatientFramingXZ": {
+          "x": -1.34,
+          "z": -0.3
+        },
+        "offsetStretcherCenterXZ": {
+          "x": -2.05,
+          "z": -0.75
+        },
+        "stretcherHalfLengthM": 1.1,
+        "workSurfaceXZ": {
+          "x": 1.75,
+          "z": -0.85
+        }
+      },
+      "mechanism": "OB clean-encounter framing parks patient at (-1.34,-0.3) which sits inside OFFSET_STRETCHER AABB (center -2.05, length 2.2 \u2192 maxX\u2248-0.95); posture remains standing so clearance flags plant-through. Desk at (1.75,-0.85) is clear \u2014 actor axis, not #206 desk axis."
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "failures": [
+        "two_support_surfaces"
+      ],
+      "measurement": {
+        "patientSupportSurfaceCount": 2,
+        "supportSourcesLikely": [
+          "fixture:patient_chair",
+          "equipment:exam_table_equipment"
+        ],
+        "declaredEquipmentMounted": [
+          "exam_table_equipment",
+          "abdominal_exam_zone_equipment"
+        ],
+        "insideActors": []
+      },
+      "mechanism": "Detector counts OFFSET_CHAIR (patient_chair) AND exam_table_equipment as patient supports; staging intends exam table as sole patient support (#133 one-support rule). Family/visitor seating is not a second patient bed."
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "failures": [
+        "two_support_surfaces",
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "patientSupportSurfaceCount": 2,
+        "fixtures": [
+          "patient_chair",
+          "family_chair"
+        ],
+        "declaredEquipmentIds": [
+          "chairs_equipment",
+          "tissue_box_equipment"
+        ],
+        "mountedEquipmentIds": [
+          "tissue_box_equipment"
+        ],
+        "missing": [
+          "chairs_equipment"
+        ]
+      },
+      "mechanism": "Two chair fixtures both match detector chair/support predicate (family_chair counted). chairs_equipment is suppressed by fixture seating ownership (#186 dual-mesh) so openClinXrEquipmentId never appears \u2014 inspector still requires the declared id."
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "failures": [
+        "two_support_surfaces",
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "patientSupportSurfaceCount": 2,
+        "fixtures": [
+          "patient_chair",
+          "family_chair"
+        ],
+        "declaredFromRoomProps": [
+          "ligature-risk-cleared-zone",
+          "observer-station",
+          "safe-room-soft-chair",
+          "safety-plan-whiteboard"
+        ],
+        "mountedEquipmentIds": [
+          "observation_station_equipment"
+        ],
+        "missing": [
+          "ligature-risk-cleared-zone",
+          "observer-station",
+          "safe-room-soft-chair",
+          "safety-plan-whiteboard"
+        ]
+      },
+      "mechanism": "Dual chair fixtures inflate support count (family_chair). RoomProps enter declared set via #186 union but roomProp() never tags openClinXrEquipmentId, so live inspector reports source=none."
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "failures": [
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "declaredFromRoomProps": [
+          "ekg-leads-on-bed",
+          "monitor-vitals-badge",
+          "monitor-waveform-card"
+        ],
+        "equipmentPlacements": {},
+        "mountedEquipmentIds": [
+          "ecg_cart_equipment",
+          "iv_stand_equipment"
+        ],
+        "missing": [
+          "ekg-leads-on-bed",
+          "monitor-vitals-badge",
+          "monitor-waveform-card"
+        ]
+      },
+      "mechanism": "Scene-manifest roomProps declare three environmental_detail ids; createDetailedEdRoomProps renders box groups without openClinXrEquipmentId, and planStationEquipmentMounts never reads roomProps \u2014 detector only matches equipment userData tags."
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v2",
+      "failures": [
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "declaredFromRoomProps": [
+          "ekg-leads-on-bed",
+          "monitor-vitals-badge",
+          "monitor-waveform-card"
+        ],
+        "missing": [
+          "ekg-leads-on-bed",
+          "monitor-vitals-badge",
+          "monitor-waveform-card"
+        ]
+      },
+      "mechanism": "Same as ed_chest_pain_priority_v1: roomProps declared, not equipment-tagged at mount."
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "failures": [
+        "declared_equipment_missing",
+        "equipment_support_source_absent_bankwide"
+      ],
+      "measurement": {
+        "declaredEquipmentIds": [
+          "pediatric_stretcher_equipment",
+          "parent_chair_equipment",
+          "pulse_oximeter_equipment",
+          "nebulizer_mask_equipment",
+          "oxygen_wall_port_equipment",
+          "inhaler_spacer_equipment"
+        ],
+        "mounted": [
+          "pulse_oximeter_equipment",
+          "nebulizer_mask_equipment",
+          "oxygen_wall_port_equipment",
+          "parent_chair_equipment",
+          "inhaler_spacer_equipment"
+        ],
+        "missing": [
+          "pediatric_stretcher_equipment"
+        ],
+        "fixtureSlots": [
+          "exam_surface",
+          "family_chair"
+        ]
+      },
+      "mechanism": "roleClassFromFixtureSlotId maps exam_surface \u2192 support_surface (matches exam_surface before work_surface), so fixtureOwnedRoles suppresses pediatric_stretcher_equipment; EXAM_WORK_SURFACE intent is work_surface not a bed."
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "failures": [
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "declaredEquipmentIds": [
+          "post_op_bed_equipment",
+          "abdominal_dressing_equipment"
+        ],
+        "mounted": [
+          "abdominal_dressing_equipment"
+        ],
+        "missing": [
+          "post_op_bed_equipment"
+        ],
+        "fixtureSlots": [
+          "stretcher (PLANT_ALIGNED)"
+        ]
+      },
+      "mechanism": "PLANT_ALIGNED_STRETCHER owns support_surface; planStationEquipmentMounts filters post_op_bed_equipment (#186). Fixture fulfills the bed geometrically but is not stamped with openClinXrEquipmentId=post_op_bed_equipment."
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "failures": [
+        "declared_equipment_missing"
+      ],
+      "measurement": {
+        "declaredFromRoomProps": [
+          "cost-access-barrier-cue",
+          "glucometer-log-review",
+          "plain-language-plan-card",
+          "telehealth-tablet-stand"
+        ],
+        "mountedUnderscoreEquipment": [
+          "tablet_visit_equipment",
+          "glucometer_review_equipment"
+        ],
+        "missing": [
+          "cost-access-barrier-cue",
+          "glucometer-log-review",
+          "plain-language-plan-card",
+          "telehealth-tablet-stand"
+        ]
+      },
+      "mechanism": "RoomProp kebab ids are declared; equipment path mounts different underscore ids. roomProp roots lack openClinXrEquipmentId equal to the propId the inspector requires."
+    }
+  ],
+  "unlockedDecisionDrafts": {
+    "obPatientOrBed": "Move OB patient framing off OFFSET_STRETCHER; bed stays at OFFSET clearing WORK_SURFACE.",
+    "twoSupportSurfaces": "Contract one-patient-support is right; detector must not count family_chair / dual chair+bed as two patient supports.",
+    "equipmentMountsInDetector": "Must count equipment supports; also fix exam_surface role and stamp/alias suppressed equipment onto fulfilling fixtures; tag roomProps with equipment ids."
+  }
+}
