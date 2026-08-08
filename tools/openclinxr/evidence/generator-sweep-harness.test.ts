@@ -262,6 +262,58 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     expect(drifting, "wall-bound fixtures whose distance from the wall changes with room width").toEqual([]);
   }, 900_000);
 
+  it("one door inset, not fourteen accidents (#204)", async () => {
+    // #203 made the wall gap constant ACROSS WIDTHS for a given room. It is still a DIFFERENT
+    // constant in every room, because DOOR_LEAF is one shared coordinate (x = 2.15) that every
+    // descriptor reuses regardless of its own size. Measured across all fourteen:
+    //
+    //   primary_care_clinic_room_v1   W=5.0   gap 0.35m   <- accidentally almost right
+    //   inpatient_ward_room_v1        W=6.0   gap 0.85m
+    //   ed_exam_bay_v1                W=7.0   gap 1.35m
+    //   ed_stroke_bay_v1              W=7.2   gap 1.45m   <- a prop standing in the room
+    //
+    // Exactly `halfWidth - 2.15`. A 4x spread, and nobody designed any of it.
+    //
+    // A door frame does not scale with the room, so the inset must be ONE value for the bank. This
+    // asserts UNIFORMITY, not a target number — a threshold in a contract becomes a design target
+    // for the thing being measured, which is how 0.31 became a cardigan hem. The VALUE is picked
+    // from the rendered sweep after the orchestrator grades it.
+    //
+    // SHIPPED ROOM GEOMETRY WILL MOVE — up to 1.1 m in the stroke bay. #203's counterweight said
+    // defaults must not change; this slice deliberately reverses it, and that is the trade being
+    // made explicitly rather than silently.
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    // Per-environment rows, not the width sweep — the population matters (§ predicate-subject).
+    const perEnv = report.ledger.filter(
+      (r) => r.subjectFamily === "room" && r.params["sweep"] === undefined,
+    );
+    expect(perEnv.length, "fewer than 14 per-environment rows — wrong population").toBeGreaterThanOrEqual(14);
+
+    type SlotPos = { slotId: string; x: number; y: number; z: number };
+    const gaps: { env: string; gap: number }[] = [];
+    for (const row of perEnv) {
+      const width = Number(row.params["roomWidthMeters"]);
+      if (!Number.isFinite(width)) continue;
+      for (const slot of ((row as { fixtureWorldPositions?: SlotPos[] }).fixtureWorldPositions ?? [])) {
+        if (!/door[_-]?leaf/iu.test(slot.slotId)) continue;
+        gaps.push({ env: row.subjectId, gap: width / 2 - Math.abs(slot.x) });
+      }
+    }
+    expect(gaps.length, "no door found in any environment").toBeGreaterThanOrEqual(10);
+
+    const values = gaps.map((g) => g.gap);
+    const spread = Math.max(...values) - Math.min(...values);
+    expect(
+      spread,
+      `the door inset differs by ${spread.toFixed(2)}m across environments — `
+      + gaps.sort((a, b) => a.gap - b.gap).map((g) => `${g.env}=${g.gap.toFixed(2)}`).join(", "),
+    ).toBeLessThan(0.05);
+  }, 900_000);
+
   it("a parameter sweep produces measurably distinct geometry per variant", async () => {
     // The cheap green is calling each builder once and calling it a sweep. A sweep whose variants are
     // geometrically identical is one render repeated.
