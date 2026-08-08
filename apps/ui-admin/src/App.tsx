@@ -45,6 +45,7 @@ import { ReviewReplayReadinessSummaryPanel } from "./ReviewReplayReadinessSummar
 import { ReviewReplaySafetyPanel } from "./ReviewReplaySafetyPanel.js";
 import { RuntimeSelectionReviewPacketPanel } from "./RuntimeSelectionReviewPacketPanel.js";
 import { ScenarioBankMaturityPanel } from "./ScenarioBankMaturityPanel.js";
+import { ScenarioReviewGatePanel } from "./ScenarioReviewGatePanel.js";
 import { SeedExamReadinessBoundaryPanel } from "./SeedExamReadinessBoundaryPanel.js";
 
 const { Content, Sider } = Layout;
@@ -814,12 +815,6 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
   const [searchParams] = useSearchParams();
   const version = Number.parseInt(searchParams.get("version") ?? "1", 10);
   const [state, setState] = useState<ScenarioDetailWorkbenchState>({ status: "loading" });
-  const [reviewDecisionState, setReviewDecisionState] = useState<
-    | { status: "idle" }
-    | { status: "saving" }
-    | { status: "saved"; reviewerRole: string }
-    | { status: "error"; message: string }
-  >({ status: "idle" });
 
   useEffect(() => {
     let active = true;
@@ -888,38 +883,6 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
     );
   }
 
-  const canRecordClinicalApproval = hasClinicalReviewerRole(scenario.governance.requiredReviewerRoles);
-  const recordClinicalApproval = async () => {
-    if (!canRecordClinicalApproval) {
-      setReviewDecisionState({
-        status: "error",
-        message: "Clinical approval requires a clinical reviewer role in governance.",
-      });
-      return;
-    }
-
-    setReviewDecisionState({ status: "saving" });
-    try {
-      const nextScenario = await controlPlaneClient.submitScenarioReview({
-        scenarioId: scenario.scenarioId,
-        version: scenario.version,
-        reviewerRole: "clinical",
-        reviewerId: "admin_clinical_reviewer",
-        decision: "APPROVED",
-        comments: "Clinical reviewer approval recorded from the local admin workbench.",
-        evidenceRefs: [`evidence:${scenario.scenarioId}:clinical:local-admin`],
-      });
-      setState((currentState) =>
-        currentState.status === "ready"
-          ? { ...currentState, detail: { ...currentState.detail, scenario: nextScenario } }
-          : currentState
-      );
-      setReviewDecisionState({ status: "saved", reviewerRole: "clinical" });
-    } catch (error) {
-      setReviewDecisionState({ status: "error", message: error instanceof Error ? error.message : "Unknown review decision error" });
-    }
-  };
-
   return (
     <section className="scenario-detail-workbench" aria-label="Scenario detail governance">
       <div className="workbench-title-row">
@@ -932,9 +895,6 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
           <Typography.Text type="secondary">{`${scenario.scenarioId} v${scenario.version}`}</Typography.Text>
         </div>
         <Space wrap>
-          <Button disabled={!canRecordClinicalApproval} loading={reviewDecisionState.status === "saving"} onClick={() => void recordClinicalApproval()}>
-            Record clinical approval
-          </Button>
           <Tag color={scenarioStatusColor(scenario.status)}>{scenario.status.toLowerCase().replaceAll("_", " ")}</Tag>
           <Tag color={assetReadiness.devReady ? "green" : "red"}>Dev-ready assets</Tag>
           <Tag color={assetReadiness.productionReady ? "green" : "gold"}>
@@ -950,21 +910,18 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
         showIcon
       />
 
-      {!canRecordClinicalApproval ? (
-        <Alert
-          type="warning"
-          title="Clinical approval unavailable"
-          description="Clinical approval requires a clinical reviewer role in governance."
-          showIcon
-        />
-      ) : null}
-
-      {reviewDecisionState.status === "saved" ? (
-        <Alert type="success" title="Review decision recorded" description={`${reviewDecisionState.reviewerRole} gate updated`} showIcon />
-      ) : null}
-      {reviewDecisionState.status === "error" ? (
-        <Alert type="error" title="Review decision failed" description={reviewDecisionState.message} showIcon />
-      ) : null}
+      <ScenarioReviewGatePanel
+        scenario={scenario}
+        submitScenarioReview={(input) => controlPlaneClient.submitScenarioReview(input)}
+        listScenarioReviewDecisions={(input) => controlPlaneClient.listScenarioReviewDecisions(input)}
+        onScenarioUpdated={(nextScenario) => {
+          setState((currentState) =>
+            currentState.status === "ready"
+              ? { ...currentState, detail: { ...currentState.detail, scenario: nextScenario } }
+              : currentState
+          );
+        }}
+      />
 
       <div className="readiness-strip scenario-bank-strip">
         <ReadinessMetric label={`${scenario.clinicalObjectives.length} objectives`} detail={`${scenario.requiredTraceTags.length} required trace tags`} />
@@ -1023,15 +980,6 @@ function ScenarioDetailWorkbench({ controlPlaneClient }: { controlPlaneClient: A
               </li>
             ))}
           </ol>
-        </section>
-
-        <section className="workbench-panel" aria-label="Scenario review gates">
-          <Typography.Title level={4}>Review Gates</Typography.Title>
-          <div className="tag-row">
-            {scenarioReviewGateEntries(scenario).map(([gate, stateName]) => (
-              <Tag key={gate} color={reviewGateColor(stateName)}>{`${gate}: ${stateName}`}</Tag>
-            ))}
-          </div>
         </section>
 
         {publicationReadiness ? (
@@ -1558,11 +1506,6 @@ function scenarioReviewGateEntries(scenario: AdminScenario): Array<[string, stri
   return Object.entries(scenario.review).filter(([gate, stateName]) =>
     gate !== "__typename" && typeof stateName === "string"
   ) as Array<[string, string]>;
-}
-
-function hasClinicalReviewerRole(requiredReviewerRoles: readonly string[]): boolean {
-  const nonClinicalGateRoles = new Set(["legal", "psychometrician", "simulation_qa"]);
-  return requiredReviewerRoles.some((role) => !nonClinicalGateRoles.has(role));
 }
 
 function formatScenarioGovernanceNotice(scenario: AdminScenario): string {

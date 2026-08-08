@@ -2,6 +2,7 @@ import {
   type AdminGraphqlScenario,
   AdminGraphqlScenarioStatus,
 } from "@openclinxr/graphql";
+import { scenarioBank } from "@openclinxr/scenario-fixtures";
 import type { Scenario } from "@openclinxr/shared-schemas";
 import type { ApiPersistenceSink, ApiScenarioReviewDecisionRecord } from "./api-types.js";
 
@@ -179,9 +180,25 @@ async function nextGovernanceForPromotion(
 }
 
 /**
+ * Bank fixtures are TypeScript catalog entries, not authored documents. On first review decision,
+ * clone the matching fixture into the authored store so subsequent promotion updates reach
+ * `buildExamAssemblyScenarioPool` (authored ∪ bank, authored wins when approved).
+ *
+ * Chosen over "promotion reads bank directly" (would leave no durable authored document for
+ * governance.validationStageBasis / later edits) and over requiring a separate human "import to
+ * authored" click before any gate can land (extra step with no safety benefit once a reviewer has
+ * already decided).
+ */
+function findBankFixtureScenario(scenarioId: string, version: number): Scenario | undefined {
+  return scenarioBank.find(
+    (candidate) => candidate.scenarioId === scenarioId && candidate.version === version,
+  );
+}
+
+/**
  * Persist review-derived status/gates onto the authored scenario document so
  * `buildExamAssemblyScenarioPool` (listAuthoredScenarios + status === approved) sees promotion.
- * No-op when the scenario is fixture-only (not in authored store) or save is unavailable.
+ * Clone-on-first-review for bank fixtures; no-op when save is unavailable or no base exists.
  */
 export async function persistAuthoredScenarioReviewPromotion(
   persistence: ApiPersistenceSink,
@@ -189,11 +206,17 @@ export async function persistAuthoredScenarioReviewPromotion(
 ): Promise<void> {
   if (!persistence.saveAuthoredScenario) return;
 
-  const base = await findAuthoredScenarioDocument(
+  let base = await findAuthoredScenarioDocument(
     persistence,
     nextScenario.scenarioId,
     nextScenario.version,
   );
+  // #176 — bank fixtures were never cloned: decisions recorded, GraphQL listing updated, promotion
+  // silently no-oped. Clone the fixture into the authored store on first review so the pool can
+  // see approved gates after a complete four-gate set.
+  if (!base) {
+    base = findBankFixtureScenario(nextScenario.scenarioId, nextScenario.version);
+  }
   if (!base) return;
 
   const domainStatus = toDomainScenarioStatus(nextScenario.status);
