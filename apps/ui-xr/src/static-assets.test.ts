@@ -615,14 +615,16 @@ describe("static browser assets", () => {
   it("names station scene objects for future IWSDK scene hierarchy checks", () => {
     // Reads main.ts TOGETHER WITH extracted runtime modules rather than main.ts alone. #85 split
     // `resolveLocalHumanoidRuntimeAssetFileName` into humanoid-runtime-asset-url.ts; #91 split
-    // clinical idle arm hang into clinical-idle-posture.ts. main.ts is under a shrink-only ratchet
-    // and will keep being split, so the check follows the CODE.
+    // clinical idle arm hang into clinical-idle-posture.ts; #185 split room-prop builder routing
+    // into room-prop-geometry.ts. main.ts is under a shrink-only ratchet and will keep being
+    // split, so the check follows the CODE.
     //
     // Strength is unchanged: every string below must still appear verbatim in shipped runtime source.
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./humanoid-runtime-asset-url.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./room-prop-geometry.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
@@ -1123,7 +1125,11 @@ describe("static browser assets", () => {
   });
 
   it("derives doorway visual theme from the selected encounter bundle instead of hardcoding one shared room identity", () => {
-    const mainSource = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+    // #185: room_prop policy string lives in room-prop-geometry.ts (main is shrink-only).
+    const mainSource = [
+      readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./room-prop-geometry.ts", import.meta.url), "utf8"),
+    ].join("\n");
 
     expect(mainSource).toContain("scenarioDoorwayVisualTheme");
     expect(mainSource).toContain("addReusableExteriorPreEncounterRoom");
