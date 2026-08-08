@@ -152,7 +152,10 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     fixtureSlots: [
       ED_STRETCHER,
       { slotId: "monitor", purpose: "Bedside monitor wall mount", position: { x: -1.6, y: 1.4, z: -1.2 } },
-      { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: 1.1, y: 0, z: 0.4 } },
+      // #183: was (1.1, 0, 0.4) — sits between clinical_team framing (0.64, 0.3) and family
+      // framing (1.42, 0.04); nurse + spouse both measured ≥0.63 XZ inside the cart body.
+      // Park on patient-side bay, clear of standing plants and the stretcher at (-0.9, −0.1).
+      { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: -2.15, y: 0, z: 0.55 } },
       DOOR_LEAF,
       WALL_BOARD,
       { slotId: "learner_start", purpose: "Learner entry", position: { x: 0, y: 0, z: 1.4 } },

@@ -1459,8 +1459,8 @@ export function createEdChestPainRuntimeSceneManifest(input: {
       spouse_anna_hayes_v1: { slotKind: "family_or_observer", position: { x: -2.05, y: 0.93, z: 0.36 }, scale: { x: 0.94, y: 0.94, z: 0.94 }, verticalOffsetMeters: -0.95, labelPrefix: "Family", posture: "standing" },
     },
     equipmentPlacements: {
-      ecg_cart_equipment: { position: { x: 1.6, y: 0, z: 0.28 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
-      iv_stand_equipment: { position: { x: 0.95, y: 0, z: 0.98 }, label: "IV pump", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
+      ecg_cart_equipment: { position: { x: -2.15, y: 0, z: 0.55 }, label: "12-lead ECG", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
+      iv_stand_equipment: { position: { x: -1.85, y: 0, z: 0.95 }, label: "IV pump", interactionCueIds: ["selectable_equipment_reference", "clinical_workflow_cue"] },
     },
     roomProps: [
       runtimeRoomProp("oxygen-panel", "O2", "c7d8df", "305a6c", { x: 1.85, y: 1.35, z: -1.46 }, { x: 0.36, y: 0.22, z: 0.04 }, ["equipment_wall"]),
