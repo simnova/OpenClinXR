@@ -132,6 +132,75 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     }
   }, 900_000);
 
+  it("fixture positions track the room they are in (#196)", async () => {
+    // MEASURED: fixture slot positions in environment-zone-templates.ts are ABSOLUTE METRES, not
+    // fractions. DOOR_LEAF sits at x=2.15 in ed_exam_bay_v1, which is roomWidthMeters: 7 — so the
+    // door is 1.35 m short of its own wall at the SHIPPED size. Sweep the width to 10 m, as this
+    // harness already does, and the half-width becomes 5.0 while the door stays at 2.15: the door
+    // ends up 2.85 m from the wall it is supposed to be in.
+    //
+    // That is why #194's ledger reported 276 triangles constant across every width, height and
+    // depth variant — the shell resizes and nothing else moves.
+    //
+    // THE CHEAP GREEN is scaling the whole fixture group with the room, which would move the bed
+    // and the learner-start marker too. LEARNER_START is where a person stands, not a fixture; the
+    // decision of which slots are wall-anchored and which are absolute is NAMED in the issue and is
+    // yours to make and record.
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const rooms = report.ledger.filter((r) => r.subjectFamily === "room");
+
+    // Variants of ONE environment that differ only in width must differ in fixture geometry, not
+    // only in shell extent. Compare an EXTENT per axis, never a single-sided max — #194's signature
+    // used worldAabb.max and the doorway pins max-Z, so it was blind on the axis it swept (§10o).
+    // EVERY environment row carries roomWidthMeters from its own descriptor
+    // (generator-sweep-harness.ts:879), so filtering on that field alone selects all fourteen
+    // environments — where different fixtures are guaranteed and the contract passes vacuously.
+    // The width SWEEP rows are tagged `sweep: "roomWidthMeters"` and share one subjectId (:909).
+    const widthVariants = rooms.filter((r) => r.params["sweep"] === "roomWidthMeters");
+    expect(
+      widthVariants.length,
+      "no width sweep recorded — this contract cannot see the defect it was written for",
+    ).toBeGreaterThanOrEqual(3);
+    expect(
+      new Set(widthVariants.map((r) => r.subjectId)).size,
+      "width variants span more than one environment — different rooms have different fixtures, "
+      + "so this comparison would pass for the wrong reason",
+    ).toBe(1);
+
+    // The harness already records fixtureWorldPositions as
+    //   Array<{ slotId: string; x: number; y: number; z: number }>  (generator-sweep-harness.ts:160)
+    // so this contract reads the SHIPPED shape rather than one I assumed.
+    type SlotPos = { slotId: string; x: number; y: number; z: number };
+    const fixtureSignature = (r: typeof rooms[number]) => {
+      const slots = (r as { fixtureWorldPositions?: SlotPos[] }).fixtureWorldPositions;
+      if (!slots || slots.length === 0) return null;
+      return JSON.stringify(
+        slots
+          // LEARNER_START is where a person stands, not a fixture — it may legitimately stay absolute.
+          .filter((sl) => !/learner[_-]?start/iu.test(sl.slotId))
+          .slice()
+          .sort((a, b) => a.slotId.localeCompare(b.slotId))
+          .map((sl) => [sl.slotId, sl.x.toFixed(2), sl.y.toFixed(2), sl.z.toFixed(2)]),
+      );
+    };
+
+    const signatures = widthVariants.map(fixtureSignature);
+    expect(
+      signatures.filter((sig) => sig === null),
+      "width variants with no recorded fixture positions — the defect is invisible to this contract",
+    ).toEqual([]);
+
+    expect(
+      new Set(signatures).size,
+      `fixture world positions are IDENTICAL across ${widthVariants.length} width variants — `
+      + "the shell resizes and the fixtures do not move with it",
+    ).toBeGreaterThan(1);
+  }, 900_000);
+
   it("a parameter sweep produces measurably distinct geometry per variant", async () => {
     // The cheap green is calling each builder once and calling it a sweep. A sweep whose variants are
     // geometrically identical is one render repeated.
