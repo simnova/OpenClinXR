@@ -58,6 +58,41 @@ production path**. That converts every slice choice into one question:
 - **A worker writing bespoke geometry code is the anti-pattern**, even when the output passes every
   contract — because the next case needs a human-equivalent to write it again.
 
+## Standing brief-template lines — add these to every planted contract
+
+Both earned by a worker telling me the brief was missing them, not by my noticing.
+
+**1. The planted header is immutable.** #215's worker rewrote a path in the diagnosis block and said
+plainly: *"I did not know (or did not retrieve) the convention. Brief did not say it. That cost is on
+both of us: the convention lives deep in PROTO_VERIFY_DELEGATION; the brief did not restate it."* It
+also said which wording would have bound it, so use exactly this:
+
+> Diagnosis and measured tables in the planted header are IMMUTABLE. Flip the assertion and append a
+> `## FIXED (#N)` block below. Do not rewrite the original paths or numbers.
+
+Its own note: *"I would have followed that. Prose 'prefer not to edit comments' would not have."*
+
+**2. Name the renderer AND forbid the one that discards materials.** §10y said name the renderer;
+#215 named it and still produced an ungradeable image, because
+`scene.render.engine = "BLENDER_WORKBENCH"` **ignores Principled Base Color**. The worker HAD set the
+garment to teal; Workbench threw it away, I got grey-on-grey, and I misread a correct scrub shirt as
+a floor-length robe. So:
+
+> The grade render must show the subject and its context in DISTINCT materials. Blender Workbench
+> ignores Principled Base Color — use EEVEE/Cycles, or set per-slot VIEWPORT DISPLAY colour, which
+> Workbench does honour. Cost is ~1–2 minutes and D9 says duration is not a constraint.
+
+## Do not inject into a LIVE worker — the session id is unavailable by design
+
+I tried to hand a useful fact to a running worker and reached for its session id from
+`DISPATCH_RESULT`, which is only written when the dispatch ENDS. The `--resume` was empty and failed
+harmlessly. Taking the id from the session directory instead (§10c) would have "worked" and been
+worse: two processes writing one transcript.
+
+**Rule:** a running dispatch is not addressable. If a fact is important enough to inject, it belonged
+in the brief; if it arrives late, wait for the return and hand it back then. The only sanctioned
+resume targets are a dispatch that has RETURNED or one that was KILLED.
+
 ## Why these stopped binding — diagnosed 2026-08-08 at operator challenge
 
 The human observed: *"each time I've coached you it seems like you understand but then immediately you
