@@ -183,6 +183,12 @@ export const ED_STRETCHER: EnvironmentFixtureSlot = {
   slotId: "stretcher",
   purpose: "ED stretcher / bedside",
   position: { x: -0.9, y: 0, z: -0.1 },
+  /**
+   * #171 staging semi-Fowler: graded 30° from #159 contact sheet (15≈flat, 45 sits up).
+   * Shared env `ed_exam_bay_v1` serves chest-pain v1+v2 — both inherit this angle.
+   * claimScope: staging. notEvidenceFor: clinical positioning correctness.
+   */
+  inclineDegrees: 30,
 };
 
 /**

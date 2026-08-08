@@ -31,6 +31,12 @@ export type EnvironmentFixtureSlot = {
   slotId: string;
   purpose: string;
   position: { x: number; y: number; z: number };
+  /**
+   * Optional head-of-bed incline degrees for stretcher slots (#171).
+   * Descriptor-driven so MADR 0048 placement anchors stay co-located with position.
+   * Staging only — not a clinical positioning claim. Default (absent) = 0 flat.
+   */
+  inclineDegrees?: number;
 };
 
 /** Parametric shell a kit-bash or generated room plugs into later. */
@@ -105,8 +111,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x223042,
     keyLightIntensity: 2.5,
     zoneTemplates: ED_BAY_ZONES,
+    // Prefer ED_STRETCHER helper so inclineDegrees stays in one place (#171).
     fixtureSlots: [
-      { slotId: "stretcher", purpose: "ED stretcher / bedside", position: { x: -0.9, y: 0, z: -0.1 } },
+      ED_STRETCHER,
       { slotId: "monitor", purpose: "Bedside monitor wall mount", position: { x: -1.6, y: 1.4, z: -1.2 } },
       { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: 1.1, y: 0, z: 0.4 } },
       { slotId: "learner_start", purpose: "Learner entry", position: { x: 0, y: 0, z: 1.4 } },

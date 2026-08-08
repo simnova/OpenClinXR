@@ -123,6 +123,21 @@ function applyEuler(
 }
 
 /**
+ * Per-frame: re-apply flat on-back basis then re-tip to the stored deck incline (#171 seam 3).
+ * `applySupinePose` alone resets the root to flat and discards a one-shot tip at register.
+ * Flat path (no stored incline / 0°) is byte-identical to calling applySupinePose alone.
+ */
+export function applySupinePoseHoldingIncline(humanoidRoot: Object3D): ApplySupinePoseResult {
+  const result = applySupinePose(humanoidRoot);
+  const raw = humanoidRoot.userData?.openClinXrSupineInclineDegrees;
+  const incline = typeof raw === "number" && Number.isFinite(raw) ? raw : 0;
+  if (Math.abs(incline) >= 1e-3) {
+    applySupineInclineMatchingDeck(humanoidRoot, incline);
+  }
+  return result;
+}
+
+/**
  * Apply procedural recumbent rotations + root Z reorientation.
  * Call plantSupineBodyOnDeck after this to rest the back on the deck top.
  */
