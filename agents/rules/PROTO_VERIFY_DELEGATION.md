@@ -3247,4 +3247,59 @@ early", the artifact must be sampled where the existing code samples it.
 The general form: name WHEN the pre-fix rows are taken, not only that they are taken. A settled
 sample and a release-instant sample are different artifacts and only one of them can see a race.
 
+## 10n. "I grade the sheet" tells the worker the sheet is not its problem
+
+The ledger/pixels split is right and it has a cost nobody had named. #194's brief said *"contracts assert
+the LEDGER; the orchestrator grades the SHEET"* — written to stop a contract asserting that something
+looks correct, which is the failure this repo has recorded six times. The worker shipped a room contact
+sheet in which every cell is a flat wall plane. Asked whether it had looked:
+
+> "**I did not open the room sheet before shipping.** I opened `equipment-sheet.png`… and treated the
+> room path as 'sheet written + ledger is the contract'. That was wrong for a grade artifact... the
+> brief said 'labelled contact sheet' and **'I grade the sheet'**. I optimized the ledger + green
+> contracts and under-used the visual verdict slot."
+
+Correct behaviour against what I wrote. **Assigning the grading duty away also assigned away the duty to
+check the artifact is gradeable at all**, and those are different jobs: grading asks "is this right",
+gradeability asks "can anyone tell from this". The producer owns the second one and only the second one.
+
+**Rule:** whenever a brief says the orchestrator grades an artifact, it must ALSO carry a closed per-cell
+checklist the producer fills before green — the worker's own proposal, adopted:
+
+    IN-SCOPE VISUAL (room sheet, each cell):
+      floor_visible:          yes | no
+      two_or_more_walls:      yes | no
+      one_fixture_silhouette: yes | no
+      not_a_single_rectangle: yes | no
+
+A worker cannot filter a slot it has to fill, and a pale rectangle cannot answer `two_or_more_walls: yes`.
+This is §8m's closed checklist applied one level up: §8m stopped a worker filtering what it reported;
+this stops it never looking.
+
+**The mechanism, worth keeping because it is not carelessness.** The same code produced a good sheet and a
+useless one: *"the same orthographic X/Y projection is a natural exterior view of a small OBJECT. Rooms
+built with doorway at +Z and back wall far −Z collapse to a front wall/floor slab — camera effectively
+inside the enclosure looking at a face."* A framing correctly chosen for one subject class becomes
+meaningless for another with no code change and no error. When a harness serves two subject kinds, the
+camera is per-kind, not per-harness.
+
+## 10o. A distinctness signature over a bounded volume needs an extent, not a max
+
+#194's planted contract compared sweep variants by `triangles | worldAabb.max`. The room shell's doorway
+sits at the +Z extreme, so **max-Z is constant however deep the room gets**. The signature was blind on
+one of the three axes the brief asked to be swept.
+
+The worker measured depth for diagnosis, could not enter it in `sweeps[]` without failing my contract, and
+said so in its commit — where I did not register it until the retro:
+
+> "planted signature (tris + **max** AABB) could not see depth — doorway pins maxZ ≈ 0.95."
+
+**Rule:** a signature intended to prove that variants differ must use `min` AND `max`, or an extent
+(`max − min`), on every axis it claims to cover. A single-sided bound is pinned by whatever geometry is
+extreme on that side, and that geometry is usually a fixture that does not move.
+
+The general shape is §7t's vacuous proof arriving through a comparison rather than a threshold: the
+assertion cannot fail on the axis it was written for, and the only tell is that a worker quietly drops
+that axis from scope.
+
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
