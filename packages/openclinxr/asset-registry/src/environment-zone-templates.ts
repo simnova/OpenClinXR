@@ -449,11 +449,19 @@ export const WORK_SURFACE: EnvironmentFixtureSlot = {
   position: { x: 1.75, y: 0, z: -0.85 },
 };
 
-/** Second seat for family / parent — builds via patient-chair path (`*_chair`). */
+/**
+ * Second seat for family / parent — builds via patient-chair path (`*_chair`).
+ *
+ * #206: was x=0.95 (0.80 m from WORK_SURFACE, 0.70 m from EXAM_WORK_SURFACE). Procedural
+ * chair seat is 0.48 m wide and work-surface top is 1.15 m — half-widths sum 0.815 m, so
+ * any co-declaration of FAMILY_CHAIR + a work surface AABB-overlapped. Moved to the patient
+ * seating half (−X), clear of desks; not a per-room override (the collision is in the shared
+ * constant pair, same shape as the door's absolute x=2.15).
+ */
 export const FAMILY_CHAIR: EnvironmentFixtureSlot = {
   slotId: "family_chair",
   purpose: "Family or parent seating",
-  position: { x: 0.95, y: 0, z: -0.75 },
+  position: { x: -0.55, y: 0, z: -0.75 },
 };
 
 export const OVERBED_SURFACE: EnvironmentFixtureSlot = {
