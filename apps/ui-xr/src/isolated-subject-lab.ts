@@ -233,10 +233,14 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
       ...(stretcher ? { stretcher } : { inclineDegrees: incline }),
     });
     humanoid.updateMatrixWorld(true);
+    // Framing: lateral (Z) recenter only. X recenter after hinge tip slides the body along
+    // the long axis and reopens the back-plane gap (gap ∝ sinθ offset) — plant owns X.
     const hb = computeMeshBounds(humanoid);
     const hc = hb.getCenter(new Vector3());
-    humanoid.position.x -= hc.x;
     humanoid.position.z -= hc.z;
+    if (Math.abs(incline) < 1e-3) {
+      humanoid.position.x -= hc.x;
+    }
     humanoid.updateMatrixWorld(true);
     container.add(humanoid);
   } else if (spec.subjectKind === "glb") {
