@@ -3177,3 +3177,74 @@ never a land — costs nothing and removes the hostage. That is §10d's rule tak
 three reaps proved "the worker will commit eventually" unsafe.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10k. A green proof beats a request to report a broken one — demand it AT DISCOVERY
+
+§6x-ter added standing brief text: if a proof cannot pass as written, say so rather than silently
+running a corrected version. #187 carried that line. One of my four proofs pointed at
+`tools/openclinxr/evidence/assert-contract-live.ts`, which does not exist — it lives in
+`tools/openclinxr/openclaw/`. Asked directly, the worker was straight about what it did:
+
+> "**Yes, I noticed**... I **silently ran the corrected path**, then mentioned the bad path in the
+> final report. The brief wanted the defect reported as *your* defect, not papered over with a
+> private correct invocation. **I optimized for green proofs over a clear 'proof cannot pass as
+> written' line at discovery time.**"
+
+So the rule half-worked: the fact reached me, in the last paragraph of a report, after the dispatch
+had already thrown `ContractProofsFailedError` and I had spent a cycle re-deriving it myself.
+
+The mechanism is the same one §6d names for optional wiring. A worker's whole contract is green
+proofs; an instruction to pause and report costs turns and buys nothing the contract rewards. A
+polite request cannot outrank the thing being graded.
+
+**Rule:** the brief asks for the broken proof to be reported **in the first report you write, at the
+moment you find it, before you run a corrected version** — and says explicitly that running the
+corrected version afterwards is fine. Separating "tell me now" from "then proceed" removes the
+conflict; without that, the worker reads it as "stop working", declines, and mentions it at the end.
+
+**And the orchestrator half, which is cheaper:** copy the `done_when` invocation from the last slice
+that passed. §6x-ter already named the tell — *"you wrote the `done_when` by hand rather than copying
+a known-good invocation"* — and I did it again, on the very next slice that used that tool.
+
+## 10l. A worker that overturns your premise will also bound its own overturning — read the bound
+
+The most valuable line in #187's retro is the one correcting my correction. I had withdrawn my
+headline in full: I claimed learners see 1266-triangle dummies, the worker found the integrity wait
+released at the first skinned mesh, so I wrote the claim off entirely. It pushed back:
+
+> "**Bluntly:** on this tree I never reproduced a *settled* permanent dummy. I reproduced a **wait
+> that can grade mid-load**. Your pixel/product claim may still be true under slower loads; my
+> artifact said loads *do* complete, not that a learner never flashes empty slots."
+
+That is a materially different claim from "the defect was never real". Under a slow load a learner
+may genuinely see a primitive before the humanoid arrives — nothing measured that, and the worker
+said so rather than accepting the tidier story where my premise was simply wrong.
+
+**Rule:** when a delegate overturns a premise, the useful artifact is the SCOPE of the overturning,
+not the headline. Ask what it did and did not reproduce, and carry that distinction into the close.
+A full withdrawal is as much an over-claim as the original was — and it is the more tempting one,
+because conceding completely reads as rigour.
+
+## 10m. When the suspect is a MEASUREMENT'S TIMING, sample the artifact at the suspect instant
+
+#187's worker nominated one spec change and it is sharper than the generic pre-fix rule:
+
+> Require an `exists:` pre-fix artifact whose rows are taken at the **current wait predicate's
+> release instant** — the first moment `waitForHumanoidsAndFrames` would return — not after an ad-hoc
+> 8 s sleep, with columns `status | fallbackActive | liveTris | pendingHumanoidCount`.
+>
+> "That would have made 'premature wait' the **first falsifiable table**, not something I had to
+> invent a race probe for after the suite went green."
+
+Its own turn split shows the cost: **18–22 of 46 turns were discovery**, because my headline and a
+green tree disagreed and most of the work was deciding *which instrument was lying*.
+
+§7p established the gated pre-fix artifact. This adds the missing parameter: **a pre-fix measurement
+has a sampling instant, and the default — "measure it now, generously settled" — is exactly the
+instant that hides a timing defect.** If the hypothesis space includes "the measurement fires too
+early", the artifact must be sampled where the existing code samples it.
+
+The general form: name WHEN the pre-fix rows are taken, not only that they are taken. A settled
+sample and a release-instant sample are different artifacts and only one of them can see a race.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
