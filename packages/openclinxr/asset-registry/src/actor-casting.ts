@@ -39,8 +39,12 @@ const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const RUNTIME_GENERATED = "/generated-humanoids";
 
 /**
- * Six distinct humanoid bodies on disk (by content hash). Reuse across scenarios
+ * Distinct humanoid bodies on disk (by content hash). Reuse across scenarios
  * is expected; within one scenario each humanoid role must get a different body.
+ *
+ * #160: adult_male_street_casual is the male street body for home/ambulatory
+ * patient attire (telehealth + clinic share it). Female street remains on
+ * spouse/parent shells.
  */
 const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
 const ED_ADULT_CAST_PROV = "ed_chest_pain_adult_cast.provenance.json";
@@ -49,6 +53,8 @@ const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
 const PEDS_PARENT_GLB = "peds_anxious_parent.glb";
 const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 const PEDS_CHILD_GLB = "peds_patient_child.glb";
+/** Male street casual — blender-only rebake (#160); not a gown, not female street. */
+export const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */
 const ADULT_POOL_GLBS = [
@@ -57,7 +63,74 @@ const ADULT_POOL_GLBS = [
   ED_SPOUSE_GLB,
   PEDS_PARENT_GLB,
   PEDS_NURSE_GLB,
+  ADULT_MALE_STREET_CASUAL_GLB,
 ] as const;
+
+/**
+ * Patient wardrobe class vocabulary (#160).
+ * Decision: two classes — `street_casual` (home + ambulatory clinic/primary/oncology)
+ * and `inpatient_gown` (ED, ward, stepdown, postop, stroke, OB, psych, peds exam).
+ * Rejected: four-way home|clinic|inpatient|ed split (no clinic-distinct asset);
+ * psych exam-gown intermediate (second asset, out of scope).
+ */
+export type PatientWardrobeClass = "street_casual" | "inpatient_gown";
+
+/**
+ * Explicit environmentId → patient wardrobe class (#160).
+ * Shape matches #44 shell table / #81 posture table. Pattern match is FALLBACK only.
+ */
+export const PATIENT_WARDROBE_CLASS_BY_ENVIRONMENT_ID: Readonly<
+  Record<string, PatientWardrobeClass>
+> = {
+  telehealth_home_visit_v1: "street_casual",
+  primary_care_clinic_room_v1: "street_casual",
+  urgent_care_clinic_room_v1: "street_casual",
+  oncology_consult_room_v1: "street_casual",
+  ed_exam_bay_v1: "inpatient_gown",
+  ed_stroke_bay_v1: "inpatient_gown",
+  adult_ed_abdominal_bay_v1: "inpatient_gown",
+  inpatient_ward_room_v1: "inpatient_gown",
+  stepdown_room_v1: "inpatient_gown",
+  surgical_ward_room_v1: "inpatient_gown",
+  ob_triage_room_v1: "inpatient_gown",
+  behavioral_health_private_room_v1: "inpatient_gown",
+  pediatric_urgent_care_bay_v1: "inpatient_gown",
+  pediatric_fever_urgent_care_bay_v1: "inpatient_gown",
+};
+
+/**
+ * Resolve patient wardrobe class for an environment id.
+ * Named FALLBACK: substring match only when the id is not in the explicit table.
+ */
+export function patientWardrobeClassForEnvironment(
+  environmentId: string,
+): PatientWardrobeClass {
+  const explicit = PATIENT_WARDROBE_CLASS_BY_ENVIRONMENT_ID[environmentId];
+  if (explicit) return explicit;
+  const id = environmentId.toLowerCase();
+  // FALLBACK for unknown ids — not the SSOT (explicit table is).
+  if (
+    id.includes("telehealth")
+    || id.includes("home")
+    || id.includes("primary_care")
+    || id.includes("clinic")
+    || id.includes("oncology")
+  ) {
+    return "street_casual";
+  }
+  return "inpatient_gown";
+}
+
+/** Read environmentId from a bank scenario (nested under environment). */
+export function environmentIdForScenario(scenarioId: string): string {
+  const scenario = scenarioBank.find((s) => s.scenarioId === scenarioId) as
+    | { environment?: { environmentId?: string }; environmentId?: string }
+    | undefined;
+  if (!scenario) return "";
+  return scenario.environment?.environmentId
+    ?? scenario.environmentId
+    ?? "";
+}
 
 /**
  * Declared age band from scenario + role — NOT from the resolved asset.
@@ -122,16 +195,42 @@ function isHumanoidCastActor(actor: { actorId: string; role: string }): boolean 
 /**
  * Prefer role-appropriate wardrobe from the adult pool, then any unused body.
  * Guarantees within-scenario content-hash distinctness when roles.length <= pool size.
+ *
+ * #160: patient preference is conditioned on PatientWardrobeClass (care setting),
+ * not a hard-coded gown-first list. Street patients take the male street body first
+ * so family can keep female street shells without content collision.
  */
-function pickAdultGlb(role: string, used: Set<string>): string {
+function pickAdultGlb(
+  role: string,
+  used: Set<string>,
+  patientWardrobeClass: PatientWardrobeClass = "inpatient_gown",
+): string {
   const r = role.toLowerCase();
   const preferred: string[] = [];
   if (r === "patient") {
-    preferred.push(ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB);
+    if (patientWardrobeClass === "street_casual") {
+      preferred.push(
+        ADULT_MALE_STREET_CASUAL_GLB,
+        ED_SPOUSE_GLB,
+        PEDS_PARENT_GLB,
+        ED_NURSE_GLB,
+        PEDS_NURSE_GLB,
+        ED_ADULT_CAST_GLB,
+      );
+    } else {
+      preferred.push(
+        ED_ADULT_CAST_GLB,
+        ED_NURSE_GLB,
+        PEDS_NURSE_GLB,
+        ED_SPOUSE_GLB,
+        PEDS_PARENT_GLB,
+        ADULT_MALE_STREET_CASUAL_GLB,
+      );
+    }
   } else if (r === "nurse" || r === "medical_assistant" || r === "respiratory_therapist" || r === "physician" || r === "consultant") {
-    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB);
+    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
-    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
+    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
   } else {
     preferred.push(...ADULT_POOL_GLBS);
   }
@@ -141,7 +240,7 @@ function pickAdultGlb(role: string, used: Set<string>): string {
   for (const glb of ADULT_POOL_GLBS) {
     if (!used.has(glb)) return glb;
   }
-  // Exhausted pool (should not happen: max humanoid roles per scenario ≤ 4, pool = 5).
+  // Exhausted pool — prefer gown body as last resort for clinical safety of default.
   return ED_ADULT_CAST_GLB;
 }
 
@@ -152,6 +251,8 @@ function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
   const humanoids = scenario.actors.filter(isHumanoidCastActor);
   const used = new Set<string>();
   const out: ScenarioActorCast[] = [];
+  const envId = environmentIdForScenario(scenarioId);
+  const patientWardrobe = patientWardrobeClassForEnvironment(envId);
 
   // Child patients first so they claim the single child mesh before adults fill the pool.
   const ordered = [...humanoids].sort((a, b) => {
@@ -168,7 +269,7 @@ function castFromScenarioBank(scenarioId: string): ScenarioActorCast[] {
       glbFile = PEDS_CHILD_GLB;
       used.add(glbFile);
     } else {
-      glbFile = pickAdultGlb(actor.role, used);
+      glbFile = pickAdultGlb(actor.role, used, patientWardrobe);
       used.add(glbFile);
     }
     out.push(castEntry({

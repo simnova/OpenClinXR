@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 /**
+ * ## FIXED (#160)
+ * - EnvironmentId → patientWardrobeClass table (street_casual | inpatient_gown).
+ * - Male street body adult_male_street_casual.glb via blender-only rebake.
+ * - Both pickAdultGlb copies care-setting-conditioned; content-hash + geometry class.
+ *
  * PLANTED CONTRACTS (#160). The telehealth patient is at home, on a chair, in a hospital gown.
  *
  * `pickAdultGlb` prefers `ED_ADULT_CAST_GLB` first for every role `"patient"`, and that body's upper
@@ -165,7 +170,7 @@ const TELEHEALTH = "telehealth_diabetes_health_literacy_v1";
 const ED_CHEST_PAIN = "ed_chest_pain_priority_v1";
 
 describe("patient attire follows the care setting (#160)", () => {
-  it.fails("the telehealth patient is not wearing a hospital gown at home", async () => {
+  it("the telehealth patient is not wearing a hospital gown at home", async () => {
     // Every pool-assigned patient draws ED_ADULT_CAST_GLB first, so the man sitting in his own living
     // room is dressed for an emergency department. Asserted on CONTENT: a different body, with garment
     // geometry whose class is not gown. Renaming clothingLayer must not satisfy this.
@@ -195,7 +200,7 @@ describe("patient attire follows the care setting (#160)", () => {
       .toBeGreaterThan(0);
   }, 900_000);
 
-  it.fails("both copies of the cast resolver agree, for every station", async () => {
+  it("both copies of the cast resolver agree, for every station", async () => {
     // pickAdultGlb exists TWICE — actor-casting.ts:129-130 and humanoid-runtime-asset-url.ts:81-85.
     // Fixing the registry alone leaves the learner looking at the old body, and nothing today would
     // catch that.
@@ -222,7 +227,7 @@ describe("patient attire follows the care setting (#160)", () => {
     }
   }, 900_000);
 
-  it.fails("gowned settings still get gowns, and nobody shares a body (COUNTERWEIGHT)", async () => {
+  it("gowned settings still get gowns, and nobody shares a body (COUNTERWEIGHT)", async () => {
     // Two cheap satisfactions this forbids: dress EVERY patient in street clothes, or reassign the
     // telehealth patient onto the family member's street body — which would break within-scenario
     // content distinctness and put a male actor on a female-presenting mesh.

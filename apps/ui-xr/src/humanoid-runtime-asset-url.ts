@@ -42,6 +42,8 @@ const ED_SPOUSE_GLB = "ed_chest_pain_spouse_adult.glb";
 const PEDS_PARENT_GLB = "peds_anxious_parent.glb";
 const PEDS_NURSE_GLB = "peds_nurse_kevin.glb";
 const PEDS_CHILD_GLB = "peds_patient_child.glb";
+/** Mirrors actor-casting ADULT_MALE_STREET_CASUAL_GLB (#160). */
+const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -49,7 +51,56 @@ const ADULT_POOL_GLBS = [
   ED_SPOUSE_GLB,
   PEDS_PARENT_GLB,
   PEDS_NURSE_GLB,
+  ADULT_MALE_STREET_CASUAL_GLB,
 ] as const;
+
+/**
+ * Mirrors actor-casting PATIENT_WARDROBE_CLASS_BY_ENVIRONMENT_ID (#160).
+ * Keep in lockstep — contract asserts both resolvers agree per station.
+ */
+type PatientWardrobeClass = "street_casual" | "inpatient_gown";
+
+const PATIENT_WARDROBE_CLASS_BY_ENVIRONMENT_ID: Readonly<Record<string, PatientWardrobeClass>> = {
+  telehealth_home_visit_v1: "street_casual",
+  primary_care_clinic_room_v1: "street_casual",
+  urgent_care_clinic_room_v1: "street_casual",
+  oncology_consult_room_v1: "street_casual",
+  ed_exam_bay_v1: "inpatient_gown",
+  ed_stroke_bay_v1: "inpatient_gown",
+  adult_ed_abdominal_bay_v1: "inpatient_gown",
+  inpatient_ward_room_v1: "inpatient_gown",
+  stepdown_room_v1: "inpatient_gown",
+  surgical_ward_room_v1: "inpatient_gown",
+  ob_triage_room_v1: "inpatient_gown",
+  behavioral_health_private_room_v1: "inpatient_gown",
+  pediatric_urgent_care_bay_v1: "inpatient_gown",
+  pediatric_fever_urgent_care_bay_v1: "inpatient_gown",
+};
+
+function patientWardrobeClassForEnvironment(environmentId: string): PatientWardrobeClass {
+  const explicit = PATIENT_WARDROBE_CLASS_BY_ENVIRONMENT_ID[environmentId];
+  if (explicit) return explicit;
+  const id = environmentId.toLowerCase();
+  // FALLBACK for unknown ids — explicit table is SSOT.
+  if (
+    id.includes("telehealth")
+    || id.includes("home")
+    || id.includes("primary_care")
+    || id.includes("clinic")
+    || id.includes("oncology")
+  ) {
+    return "street_casual";
+  }
+  return "inpatient_gown";
+}
+
+function environmentIdForScenario(scenarioId: string): string {
+  const scenario = scenarioBank.find((s) => s.scenarioId === scenarioId) as
+    | { environment?: { environmentId?: string }; environmentId?: string }
+    | undefined;
+  if (!scenario) return "";
+  return scenario.environment?.environmentId ?? scenario.environmentId ?? "";
+}
 
 /**
  * Runtime public paths for ED cast (#96 role-distinct wardrobe).
@@ -78,11 +129,34 @@ function isPedsChildPatient(scenarioId: string, role: string, actorId: string): 
   return true;
 }
 
-function pickAdultGlb(role: string, used: Set<string>): string {
+/** Mirrors actor-casting.pickAdultGlb — care-setting-conditioned patient preference (#160). */
+function pickAdultGlb(
+  role: string,
+  used: Set<string>,
+  patientWardrobeClass: PatientWardrobeClass = "inpatient_gown",
+): string {
   const r = role.toLowerCase();
   const preferred: string[] = [];
   if (r === "patient") {
-    preferred.push(ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB, ED_SPOUSE_GLB, PEDS_PARENT_GLB);
+    if (patientWardrobeClass === "street_casual") {
+      preferred.push(
+        ADULT_MALE_STREET_CASUAL_GLB,
+        ED_SPOUSE_GLB,
+        PEDS_PARENT_GLB,
+        ED_NURSE_GLB,
+        PEDS_NURSE_GLB,
+        ED_ADULT_CAST_GLB,
+      );
+    } else {
+      preferred.push(
+        ED_ADULT_CAST_GLB,
+        ED_NURSE_GLB,
+        PEDS_NURSE_GLB,
+        ED_SPOUSE_GLB,
+        PEDS_PARENT_GLB,
+        ADULT_MALE_STREET_CASUAL_GLB,
+      );
+    }
   } else if (
     r === "nurse"
     || r === "medical_assistant"
@@ -90,9 +164,9 @@ function pickAdultGlb(role: string, used: Set<string>): string {
     || r === "physician"
     || r === "consultant"
   ) {
-    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB);
+    preferred.push(ED_NURSE_GLB, PEDS_NURSE_GLB, ED_ADULT_CAST_GLB, PEDS_PARENT_GLB, ED_SPOUSE_GLB, ADULT_MALE_STREET_CASUAL_GLB);
   } else if (r === "family" || r === "family_member" || r === "parent" || r === "spouse") {
-    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
+    preferred.push(ED_SPOUSE_GLB, PEDS_PARENT_GLB, ADULT_MALE_STREET_CASUAL_GLB, ED_ADULT_CAST_GLB, ED_NURSE_GLB, PEDS_NURSE_GLB);
   } else {
     preferred.push(...ADULT_POOL_GLBS);
   }
@@ -128,8 +202,9 @@ function poolPathForIsolatedActor(input: {
     return runtimePath(PEDS_CHILD_GLB);
   }
 
+  const wardrobe = patientWardrobeClassForEnvironment(environmentIdForScenario(input.scenarioId));
   // Isolated single-role resolution: use first preferred unused (= full pool free).
-  const glb = pickAdultGlb(role, new Set());
+  const glb = pickAdultGlb(role, new Set(), wardrobe);
   return runtimePath(glb);
 }
 
@@ -156,6 +231,7 @@ export function resolvePoolCastPathWithSiblings(input: {
     return a.actorId.localeCompare(b.actorId);
   });
 
+  const wardrobe = patientWardrobeClassForEnvironment(environmentIdForScenario(input.scenarioId));
   const used = new Set<string>();
   const assignment = new Map<string, string>();
   for (const actor of ordered) {
@@ -163,7 +239,7 @@ export function resolvePoolCastPathWithSiblings(input: {
     if (isPedsChildPatient(input.scenarioId, actor.role, actor.actorId)) {
       glb = PEDS_CHILD_GLB;
     } else {
-      glb = pickAdultGlb(actor.role, used);
+      glb = pickAdultGlb(actor.role, used, wardrobe);
     }
     used.add(glb);
     assignment.set(actor.actorId, runtimePath(glb));
@@ -184,7 +260,7 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
   const fileName = blobName.split("/").at(-1);
   if (!fileName) return resolveRuntimeAssetUrl(asset as HumanoidRuntimeAssetLike);
 
-  // #85/#96/#102: generated-humanoids cast variants load from their cast path.
+  // #85/#96/#102/#160: generated-humanoids cast variants load from their cast path.
   if (
     blobName.includes("generated-humanoids/")
     || fileName.startsWith("ed_chest_pain_adult_cast")
@@ -193,6 +269,7 @@ export function resolveLocalHumanoidRuntimeAssetUrl(
     || fileName === PEDS_CHILD_GLB
     || fileName === PEDS_PARENT_GLB
     || fileName === PEDS_NURSE_GLB
+    || fileName === ADULT_MALE_STREET_CASUAL_GLB
   ) {
     return `/generated-humanoids/${fileName}`;
   }

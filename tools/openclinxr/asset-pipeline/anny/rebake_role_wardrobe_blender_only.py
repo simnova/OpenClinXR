@@ -445,6 +445,76 @@ def rebake_peds_parent() -> None:
     print("[rebake] peds parent done", out_glb, out_glb.stat().st_size, "bytes")
 
 
+def rebake_male_street_patient() -> None:
+    """Adult male base + casual_top/open_cardigan → adult_male_street_casual.glb (#160).
+
+    Telehealth / ambulatory patients need a MALE street body; female street shells
+    already sit on peds_anxious_parent / ed spouse. Base: peds_nurse_kevin adult male.
+    Rejected: reusing spouse body (breaks within-scenario distinctness + gender), full
+    orchestrate_character (silent stubs without anny).
+    """
+    base_obj = GEN / "peds_nurse_kevin.anny_base.obj"
+    base_man = GEN / "peds_nurse_kevin.anny_manifest.json"
+    out_glb = GEN / "adult_male_street_casual.glb"
+    work_mesh = GEN / "adult_male_street_casual.anny_base.obj"
+    work_man = GEN / "adult_male_street_casual.anny_manifest.json"
+    phenotype = {
+        "skin_tone": "warm_medium",
+        "hair_color": "dark_brown",
+        "eye_color": "brown",
+        "anny_topology": "default",
+        "gender_presentation": "adult_male",
+        "height_cm": 176,
+        "build": "average_adult",
+        "hair_density": 0.60,
+        "brow_tension": 0.22,
+        "anxious": 0.35,
+        "flush": 0.08,
+        "age_wrinkle": 0.16,
+        "bmi": 26.5,
+        "clothing_style": "home_street_casual_cardigan",
+        "clothing_color": "warm_olive_and_cream",
+        "role_visual_cue": "telehealth_home_patient",
+        "wardrobeRole": "home_street_patient",
+        "garmentLayers": ["casual_top", "open_cardigan"],
+        "fabricPalette": "olive_knit_and_cream_casual",
+        "materialFinish": "cotton_knit_matte",
+        "accessoryMarkers": [],
+        "fitProfile": "adult_standard_fit",
+        "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune",
+    }
+    man = overlay_manifest(
+        base_man,
+        actor_id="patient_luis_martinez_v1",
+        phenotype_overlay=phenotype,
+        extra_params={
+            "age": 58,
+            "body_profile": "adult_standard",
+            "pose": "standing_neutral_home_visit",
+            "seed": 1601,
+        },
+    )
+    shutil.copy2(base_obj, work_mesh)
+    write_json(work_man, man)
+    report = run_blender(
+        input_mesh=work_mesh,
+        input_manifest=work_man,
+        output_glb=out_glb,
+        case_id="telehealth_diabetes_health_literacy_v1",
+        actor_role="patient",
+    )
+    write_provenance(
+        output_glb=out_glb,
+        case_id="telehealth_diabetes_health_literacy_v1",
+        actor_id="patient_luis_martinez_v1",
+        actor_role="patient",
+        base_obj=str(base_obj.relative_to(ROOT)),
+        garment_layers=["casual_top", "open_cardigan"],
+        report_path=report,
+    )
+    print("[rebake] male street patient done", out_glb, out_glb.stat().st_size, "bytes")
+
+
 def rebake_peds_nurse() -> None:
     """Adult male base + scrubs → peds_nurse_kevin.glb."""
     base_obj = GEN / "peds_nurse_kevin.anny_base.obj"
@@ -527,6 +597,8 @@ def main() -> None:
         rebake_peds_parent()
     if "peds_nurse" in targets:
         rebake_peds_nurse()
+    if "male_street_patient" in targets:
+        rebake_male_street_patient()
     print("REBAKE_ROLE_WARDROBE_SUCCESS", targets)
 
 
