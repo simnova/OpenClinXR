@@ -321,6 +321,8 @@ async function waitForHumanoidsAndFrames(
   minFrames: number,
   timeoutMs: number,
 ): Promise<void> {
+  // #187: do NOT release after the first skinned mesh. Parent/nurse/family slots start loads in
+  // parallel; measuring at skinned>=1 leaves secondaries as 1266-tri primitives with empty loadedUrl.
   await page.waitForFunction(
     ({ minFrames: need }) => {
       const win = window as unknown as {
@@ -333,7 +335,7 @@ async function waitForHumanoidsAndFrames(
         };
         __openClinXrSceneAssetEvidence?: {
           loadedCount?: number;
-          assets?: Array<{ status?: string }>;
+          assets?: Array<{ status?: string; assetPath?: string }>;
         };
       };
       const frames = win.__openClinXrFrameStats?.framesObserved ?? 0;
@@ -345,8 +347,19 @@ async function waitForHumanoidsAndFrames(
         if (object.isSkinnedMesh) skinned += 1;
       });
       const assets = win.__openClinXrSceneAssetEvidence?.assets ?? [];
-      const loaded = assets.filter((a) => a.status === "loaded").length;
-      return skinned >= 1 && loaded >= 1;
+      const humanoidAssets = assets.filter((a) => {
+        const p = typeof a.assetPath === "string" ? a.assetPath : "";
+        return p.includes("/generated-humanoids/") || p.includes("/xr-assets/humanoids/");
+      });
+      // Loads must have been requested; every humanoid slot must leave pending.
+      if (humanoidAssets.length === 0) return false;
+      const allSettled = humanoidAssets.every(
+        (a) => a.status === "loaded" || a.status === "failed",
+      );
+      const anyLoaded = humanoidAssets.some((a) => a.status === "loaded");
+      // One skinned mesh per successfully loaded humanoid is ideal; require at least one
+      // and settlement of every requested humanoid path.
+      return allSettled && anyLoaded && skinned >= 1;
     },
     { minFrames },
     { timeout: timeoutMs },
