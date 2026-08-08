@@ -3495,3 +3495,56 @@ transferred — the honest answer is often that the data was already there.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10x. Authorising "your gate is wrong" removes pressure, it does not create it
+
+#208's brief said: *"If you conclude the GATE is wrong rather than the assets, say so and stop rather
+than tuning assets to satisfy it."* I wrote that worried it would create an incentive to find gate
+faults — a worker that can blame the instrument has an easy exit. Asked directly, the worker said the
+pressure runs the other way:
+
+> "**Helped as permission**, not as pressure... Pressure that existed was the opposite class: three
+> reds sharing one mesh id *look* like 'regressed assets.' Without the line I still would have
+> measured first, but with it I did not feel obligated to invent a shoulder geometry change to **look
+> busy**."
+
+That is the §6y shape again (a stated decision plus somewhere for disagreement to go costs nothing and
+buys a report slot), applied to the instrument rather than the design. The default gradient in a
+contract-driven pipeline points at *changing the product*, because that is what a green suite rewards.
+Saying the gate is a legitimate suspect is what makes "the gate is wrong" a reportable finding rather
+than a shirked slice.
+
+**Rule:** any brief whose RED might be a false positive says so explicitly, and says that concluding
+the gate is at fault closes the issue successfully. Then verify the resulting gate change did not get
+looser on the axis that matters — here the deltoid requirement was preserved on the outer shell, and
+the worker had considered and rejected the symmetric version that would have relaxed it.
+
+## 10y. A bare `exists:` on a grade artifact licenses the cheapest instrument that satisfies it
+
+`PROTO_BOARD_LOOP` already records that "capture" does not mean "render" unless the brief says so
+(#44 graded a floor-plan schematic). #208 shows the same hole one level down. My `done_when` said only
+
+    exists:.openclinxr/evidence/issue-208/garment-grade.png
+
+and I got an orthographic **vertex point cloud** — honest, 67 KB, genuinely useful for structure, and
+incapable of supporting the appearance verdict I then had to decline in the close. The worker was
+explicit about why:
+
+> "**My choice, not forced by tooling absence.** Brief: only `exists:…png` — no renderer, no
+> lit/structure pair, no per-cell checklist. Full `glb-grade` path exists and would have cost a cold
+> studio boot; I optimised for 'file exists + shapes visible.' **Silence licensed the cheap
+> instrument.**"
+
+And it named precisely what the cloud cannot show: material continuity, open-placket shadow, hem as a
+line rather than scatter, under vs outer colour, poke-through, paint vs shell.
+
+**Rule:** a `done_when` for a grade artifact names the RENDERER and the SUBJECT — "a lit three.js front
+of these four assets", or `glb-grade --glb <path>` — **or** states explicitly that a structural
+point-cloud sheet is sufficient for this contract. Both are fine; silence is not, because silence is
+resolved in favour of whatever is cheapest to produce.
+
+Note the honest tension: the cheap instrument was the right call for a *structural* claim, and a cold
+studio boot for every slice is real cost. The brief has to decide which claim it is buying.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
