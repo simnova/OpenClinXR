@@ -201,6 +201,67 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     ).toBeGreaterThan(1);
   }, 900_000);
 
+  it("wall-bound fixtures meet their wall at every width (#203)", async () => {
+    // #196 replaced absolute fixture positions with a FRACTION of room extents. That fixed constant
+    // positions and introduced a second defect: a fraction scales the OFFSET with the room, so the
+    // door-to-wall gap GROWS. Measured on the built shell after #196 landed:
+    //
+    //   width= 4m  halfWidth=2.00  door.x=1.23  gap_to_wall=0.77m
+    //   width= 7m  halfWidth=3.50  door.x=2.15  gap_to_wall=1.35m
+    //   width=10m  halfWidth=5.00  door.x=3.07  gap_to_wall=1.93m
+    //
+    // The #196 report answered `door_position_vs_wall: at_wall` while the gap was 1.93 m. Tracked
+    // and at-the-wall are different properties; only the first had landed. I caught it by measuring
+    // rather than by reading the checklist, which is why this contract exists.
+    //
+    // DECIDED (see the issue): DOOR_LEAF and WALL_BOARD are wall_anchor. The other five slots stay
+    // fraction — a chair 1.35 m from the wall in a 10 m room is in the wrong place for the
+    // conversation happening in the middle. LEARNER_START stays absolute.
+    //
+    // The inset is YOURS to choose and record; a door leaf has thickness so flush is probably wrong.
+    // What this asserts is that the gap DOES NOT GROW WITH THE ROOM.
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const rooms = report.ledger.filter((r) => r.subjectFamily === "room");
+    const widthVariants = rooms.filter((r) => r.params["sweep"] === "roomWidthMeters");
+    expect(widthVariants.length, "no width sweep recorded").toBeGreaterThanOrEqual(3);
+    expect(
+      new Set(widthVariants.map((r) => r.subjectId)).size,
+      "width variants span more than one environment — this comparison would pass for the wrong reason",
+    ).toBe(1);
+
+    type SlotPos = { slotId: string; x: number; y: number; z: number };
+    const WALL_BOUND = /door[_-]?leaf|wall[_-]?board/iu;
+
+    const gaps: { width: number; slotId: string; gap: number }[] = [];
+    for (const variant of widthVariants) {
+      const width = Number(variant.params["roomWidthMeters"]);
+      const halfWidth = width / 2;
+      const slots = (variant as { fixtureWorldPositions?: SlotPos[] }).fixtureWorldPositions ?? [];
+      for (const slot of slots) {
+        if (!WALL_BOUND.test(slot.slotId)) continue;
+        gaps.push({ width, slotId: slot.slotId, gap: halfWidth - Math.abs(slot.x) });
+      }
+    }
+    expect(gaps.length, "no wall-bound fixture found in any width variant").toBeGreaterThanOrEqual(3);
+
+    // The defect is the gap GROWING with the room. Any constant inset passes; 0.77 -> 1.93 does not.
+    const bySlot = new Map<string, number[]>();
+    for (const g of gaps) bySlot.set(g.slotId, [...(bySlot.get(g.slotId) ?? []), g.gap]);
+
+    const drifting: string[] = [];
+    for (const [slotId, values] of bySlot) {
+      const spread = Math.max(...values) - Math.min(...values);
+      if (spread > 0.15) {
+        drifting.push(`${slotId}: gap ${values.map((v) => v.toFixed(2)).join(" -> ")} (spread ${spread.toFixed(2)}m)`);
+      }
+    }
+    expect(drifting, "wall-bound fixtures whose distance from the wall changes with room width").toEqual([]);
+  }, 900_000);
+
   it("a parameter sweep produces measurably distinct geometry per variant", async () => {
     // The cheap green is calling each builder once and calling it a sweep. A sweep whose variants are
     // geometrically identical is one render repeated.
