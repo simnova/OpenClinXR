@@ -2918,3 +2918,70 @@ to a worker, state that you ran it from a cleared cache — otherwise they canno
 from a stale one, and they will pay for the difference.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9z. Give the SHAPE, not the story that produced it — a worker named my noise for the first time
+
+#178's retro is the first to split a brief into what earned its place and what was skimmed. The
+distinction is sharper than "too long":
+
+| earned its place | skimmed, low pull |
+|---|---|
+| the exact throw and the H/D swap | a long restatement of the #67 pedagogy |
+| "my first diagnosis was half wrong" + the hash pair | the peer round's *"too soft"* narrative |
+| the `ensurePreFix` SHAPE (absent → write; present → do not match; always → hard-fail) | "main has been red for unknown cycles" |
+| the cold-path trap at `:430` | — |
+| the named decisions and forbidden deletes | — |
+
+Its own summary: *"the shape did the work; the narrative was secondary"* and, of the urgency line,
+*"motivated urgency, zero implementation effect."*
+
+**Rule:** state the corrected design as a shape the worker can implement against. Do not narrate how
+you arrived at it. "A peer round told me X was too soft, and here is why they were right" costs a
+paragraph and changes nothing; the three-line shape changes everything.
+
+Keep the fence (§9i — "my first diagnosis was half wrong"), keep hard evidence like a hash pair, keep
+named traps. Drop pedagogy the worker can read off disk, and drop urgency framing entirely — it has no
+implementation effect and this project's briefs are read by something that does not need motivating.
+
+## 10a. A stated trap gets DESIGNED AGAINST, not reproduced — so a wrong trap builds a wrong fix
+
+Asked directly whether it had verified my cold-path claim or taken it, #178's worker was precise:
+
+> "**Mostly taken; premises checked; failure mode not A/B'd.** Verified: both GLBs same hash; live
+> measure upright; the code path at baseline still measured `ORIGINAL_CANDIDATE`. **Did not** delete
+> the treatment cache and re-run the pre-fix code to watch a PASS control appear. Your trap was treated
+> as correct given verified premises, not independently demonstrated as a before/after."
+
+That is a reasonable allocation of effort and it has a sharp consequence: **the fix is built against my
+description of the failure, not against the failure.** If I state a trap that does not exist, or state
+it slightly wrong, the design absorbs the error silently and the contract greens over a phantom.
+
+**Rule:** when a brief names a trap the worker cannot cheaply observe, either demonstrate it yourself
+first (delete the cache, watch it fire, paste the output) or say explicitly that it is **unverified and
+should be reproduced before designing against it**. The worker's own proposed fix is better than either:
+make the trap a **proof** — its wording, adopted —
+
+    run: <inspect> with TREATMENT_TABLE_PATH absent → baseline row
+         meshLongestAxis === "z" && meshH ≈ 0.436
+
+*"Prose 'do not re-measure ORIGINAL' did not bind the way an artifact plus an assertion would."*
+
+## 10b. A low turn count can mean the ORCHESTRATOR paid — tag the slice, do not score it
+
+#178 ran 17 turns, the smallest in a while, and it is not evidence about capacity. Its worker:
+
+> "**Brief carried the search cost.** Same product without that header is a **~30–45 turn** 'why red /
+> soft fix / rediscover collision / rediscover cold path' slice... Low turn count here is **not**
+> evidence of L0 capacity — it is **orchestrator-paid diagnosis + implementer-paid wiring**. For the
+> size experiment: tag this as **diagnosis-complete / implementation-only**, not as a small *problem*."
+
+§7w established that turns measure `scope + undone-diagnosis + environment friction`. This is the
+clean case where the middle term was driven to zero deliberately, and the number that came out looks
+like a small slice.
+
+**Rule for the escalation record:** every turn count is tagged with how much diagnosis the brief
+carried — `diagnosis-complete`, `cause-stated-not-traced`, or `cause-unknown`. A 17-turn
+diagnosis-complete slice and a 17-turn cause-unknown slice are not the same measurement and must never
+be averaged.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
