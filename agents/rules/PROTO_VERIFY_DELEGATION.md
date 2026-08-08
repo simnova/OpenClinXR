@@ -3095,3 +3095,54 @@ say which alternative forms it rules out — here, that `1-cos` gave 2.93/1.58/0
 because that half is what stops a worker exploring a dead geometry.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 10h. Ask the peer for ALTERNATIVES, not only for an attack — standing operator direction
+
+Operator, 2026-08-07:
+
+> "Before making any decisions going forward take grok's help, it gives you better perspective — always
+> ask it to help find alternatives to what you propose based on codebase, context, goal and project
+> direction."
+
+The existing peer-round rule (`PROTO_BOARD_LOOP`, "bring a CONCRETE proposal to attack") is
+**necessary and one-sided**. Attacking a proposal tests whether *this* plan is sound. It does not ask
+whether a different plan would be better, so a proposal can survive a hard attack and still be the
+wrong shape — which is exactly what happened with the reserved-palette metric: the round killed the
+threshold and I had to notice separately that silhouette and markers were a different axis.
+
+**Rule:** every peer round asks for two things — attack the proposal, **and name the alternatives**
+grounded in this codebase, its context, its goal and its direction. Rank them. Say plainly if the
+proposal is still the right move once the alternatives are on the table.
+
+The alternatives must be bounded by the project's real constraints or they are a wish list:
+self-hosted single instance, Apple Silicon without CUDA, WebXR three.js runtime, a Quest target whose
+180,000-triangle budget has never been validated on hardware, no AGPL or copyleft, no unapproved paid
+or cloud dependencies, and a blueprint-driven factory in which the case definition is supposed to drive
+the environment.
+
+**The tell that this rule was skipped:** a peer round that returns "your proposal is sound with these
+three corrections" and never mentions a different approach. That is a review, not a decision aid.
+
+## 10i. Ask for the MINIMAL configuration — the pipeline optimizes afterwards
+
+Operator, same message, on generating a room:
+
+> "optimize the prompt for the room to make it minimal and remember that it can be optimized further
+> in the pipeline"
+
+This is the §10-family lesson arriving at the input end. MADR 0050 says do not reject a generator's
+output on a threshold because optimization is a post-process. The same logic runs backwards: **do not
+ask a generator for a finished artifact.** Ask for the smallest thing that is usable, and let the
+pipeline add and refine.
+
+For a procedural room that means disabling every optional stage first — objects, windows, skirting,
+pillars, details — measuring what the bare shell costs, and only then deciding what is worth switching
+back on. A generator asked for a complete room returns something expensive and hard to attribute; a
+generator asked for walls returns something measurable.
+
+**Rule:** when configuring any generator, state the minimal invocation explicitly and record what each
+additional stage costs in the units that matter — for us, faces and wall-clock. "Everything on by
+default" is how a 2,528-face shell arrived attached to 11,362,518 faces of furniture and got rejected
+as a whole.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
