@@ -1,3 +1,60 @@
+# OPERATOR DIRECTIVES — READ BEFORE EVERY DISPATCH
+
+These are standing instructions from the human. They are at the TOP because everything below is
+append-only and 4,000 lines deep, and burying them there is how they stopped binding.
+
+**Answer these three in writing before dispatching anything. Not in your head.**
+
+1. **Which directive below does this slice serve?** If none, say so and justify the slice anyway.
+2. **Which directive does it violate?** "None" is an answer you must defend, not a default.
+3. **Am I choosing this because it is right, or because I already know the file and the fix?**
+   The measured failure mode is optimizing for *dispatchable certainty* over *factory capability*.
+
+| # | directive | date | verbatim |
+|---|---|---|---|
+| D1 | **Automation, not LLM toil** | 08-08 | "We're building a factory and need automation in it, **not a handful of LLMs toiling in non-deterministic ways building things in the factory**." Find and wire tools; do not have workers hand-author bespoke geometry code. |
+| D2 | **Procedural + harness only** | 08-08 | "Only procedurally generated humans, clothing, rooms and equipment at this time and all in test harnesses, put all other work on hold." |
+| D3 | **Isolate the subject** | 08-07 | "Use a special harness to test things in an isolated environment... testing in a full room environment gets lots of noise." Full-room capture proves assembly; it does NOT diagnose a subject. |
+| D4 | **Shrink what is under test** | 08-07 | "Keep looking for opportunities to shrink what is under test to minimum necessary to prove something out." |
+| D5 | **Research before inventing** | 08-06 | "Consult with grok whenever you hit a wall and use its deep research capabilities." The 2nd failed attempt at a predicate is the trigger, not the 4th. |
+| D6 | **Alternatives, not just attack** | 08-07 | "Always ask it to help find alternatives to what you propose based on codebase, context, goal and project direction." |
+| D7 | **Periodic honest review** | 08-08 | "Periodically summarize the last handful of iterations and ask for grok's input as a matter of your normal operating procedure... ask for an honest review." Cadence: every 5–8 landed slices. |
+| D8 | **Minimal generator config** | 08-07 | "Optimize the prompt for the room to make it minimal and remember that it can be optimized further in the pipeline." |
+
+## Why these stopped binding — diagnosed 2026-08-08 at operator challenge
+
+The human observed: *"each time I've coached you it seems like you understand but then immediately you
+do a 180 and go back to what feels comfortable."* That is accurate. The mechanism:
+
+- **The cron prompt fires every cycle; a directive fires once.** ~2,000 words of standing instruction
+  arrive each iteration saying LAND WORK, escalate the rung, report product impact. Coaching arrives
+  once and is never re-presented at slice-selection time. Repetition wins.
+- **I answered coaching with prose, knowing prose does not bind.** §10z and §11j record that a
+  contract beats a request *for workers*. I never applied it to myself.
+- **"Codify it" is the orchestrator's "contract green"** — it discharges the feeling of having
+  responded, produces an artifact that looks like learning, and costs one turn.
+- **A doctrine store with no read path** — the §6z class, which I documented five times about other
+  people's code and then built.
+
+## Hard limits on this file, effective now
+
+- **At most ONE new numbered rule per day**, or one that replaces three. 161 rules and 17 commits in
+  one day is accretion, not learning.
+- **New operator directives go in the table ABOVE, verbatim, not as a numbered section below.**
+- **A rule that is not grepped by a worker brief or enforced by a test is dead weight.** Prefer
+  changing `dispatch()`, the brief template, or a `done_when` over writing another section.
+
+## How the human will know this failed
+
+Not by my saying it is working. By these, which are checkable without me:
+
+- A dispatched slice whose brief cites no directive above.
+- More than one new numbered rule in a day.
+- A primary issue filed from an unlocated pixel grade instead of a measurement.
+- A worker asked to hand-author geometry where a tool exists (D1).
+
+---
+
 # Delegation Verification and Learning Protocol
 
 Assume amnesia. Everything below was learned by losing work on 2026-08-05 and would otherwise have
