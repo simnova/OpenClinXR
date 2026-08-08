@@ -390,6 +390,54 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     ).toBeLessThan(0.05);
   }, 900_000);
 
+  it("shared fixture constants do not place furniture inside furniture (#206)", async () => {
+    // #205 measured 122 fixture pairs across 14 environments. FIVE intersect. Two are correct — an
+    // overbed table is meant to be over the bed — and three are defects:
+    //
+    //   oncology_consult_room_v1       family_chair  x work_surface
+    //   pediatric_urgent_care_bay_v1   exam_surface  x family_chair
+    //   ob_triage_room_v1              stretcher     x work_surface
+    //
+    // MEASURED: each defective pair is co-declared in exactly ONE environment, and collides in
+    // 100% of its co-occurrences. So it is one instance each AND systemic in cause — the shared
+    // constants are simply too close for the objects they place:
+    //
+    //   WORK_SURFACE       x = 1.75      FAMILY_CHAIR  x = 0.95   -> 0.80 m apart
+    //   EXAM_WORK_SURFACE  x = 1.65      FAMILY_CHAIR  x = 0.95   -> 0.70 m apart
+    //
+    // Both objects are wider than the gap between their anchors, so ANY environment that declares
+    // both gets a collision. There is no second sample only because no other room declares both yet.
+    //
+    // THE ALLOW-LIST IS DECIDED, NOT DISCOVERED: overbed_surface x stretcher is permitted, because
+    // that is what an overbed table does. Everything else must be clear. An entry added to that list
+    // to make a count go to zero is the cheap green, and adding one requires a stated reason.
+    //
+    // NO PROXIMITY THRESHOLD. Overlap is objective; "too close" is a number nobody has chosen, and
+    // this lane has shipped three invented numbers already (0.31, 2.15, 1.35).
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const clearance = (report as {
+      fixtureClearance?: { environmentId: string; a: string; b: string; overlaps: boolean }[];
+    }).fixtureClearance;
+    expect(
+      clearance,
+      "the ledger does not expose fixtureClearance — #205 wrote the table to a file but the contract "
+      + "cannot read it, so a new collision would be invisible here",
+    ).toBeTruthy();
+
+    const ALLOWED = [["overbed_surface", "stretcher"]];
+    const isAllowed = (a: string, b: string) =>
+      ALLOWED.some(([x, y]) => (a === x && b === y) || (a === y && b === x));
+
+    const bad = clearance!
+      .filter((c) => c.overlaps && !isAllowed(c.a, c.b))
+      .map((c) => `${c.environmentId}: ${c.a} x ${c.b}`);
+    expect(bad, "furniture placed inside other furniture").toEqual([]);
+  }, 900_000);
+
   it("a parameter sweep produces measurably distinct geometry per variant", async () => {
     // The cheap green is calling each builder once and calling it a sweep. A sweep whose variants are
     // geometrically identical is one render repeated.
