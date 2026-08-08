@@ -22,6 +22,7 @@ import {
   type ColorRepresentation,
   type Object3D,
 } from "three";
+import { equipmentSuppressedByFixtureOwnership } from "./fixture-role-ownership.js";
 
 /** Real equipment GLBs under apps/ui-xr/public/xr-assets/medical-equipment/. */
 export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
@@ -123,6 +124,11 @@ export type PlanStationEquipmentInput = {
   scenarioId: string;
   equipment: ReadonlyArray<{ equipmentId: string }>;
   equipmentPlacements: Readonly<Record<string, Partial<EquipmentPlacement> | undefined>>;
+  /**
+   * #186 — role classes already owned by environment fixture slots.
+   * Equipment claiming an owned role is skipped (one mesh per role).
+   */
+  fixtureOwnedRoles?: ReadonlySet<string> | ReadonlyArray<string>;
 };
 
 /**
@@ -210,45 +216,61 @@ export function planStationEquipmentMounts(input: PlanStationEquipmentInput): Eq
     push("iv_stand_equipment");
   }
 
-  return ordered.map((equipmentId, index) => {
-    const placement = input.equipmentPlacements?.[equipmentId];
-    const fallbackPos = DEFAULT_POSITIONS[index % DEFAULT_POSITIONS.length] ?? DEFAULT_POSITIONS[0]!;
-    const gltfFile = REAL_EQUIPMENT_GLTF_BY_ID[equipmentId];
-    let source: EquipmentMountSource;
-    if (gltfFile) {
-      source = "gltf";
-    } else if (PARAMETRIC_KINDS.has(equipmentId)) {
-      source = "parametric";
-    } else {
-      source = "fallback";
-    }
-    // #179: post_op bed is the sole patient support (equipment path). Manifest ships it
-    // at the standing OFFSET (-2.05,-0.75). Runtime supine plant hard-centers on
-    // DEFAULT_STRETCHER_POSITION (-0.9,-0.1) — co-locate the deck under that plant.
-    // Rejected: fixture + equipment (double-bed #133); rejected: editing generated manifests.
-    const plantAlignedBed =
-      equipmentId === "post_op_bed_equipment"
-        ? { x: -0.9, y: 0, z: -0.1 }
-        : null;
-    const position = plantAlignedBed
-      ?? (placement?.position
-        ? { x: placement.position.x, y: placement.position.y, z: placement.position.z }
-        : { ...fallbackPos });
-    return {
-      equipmentId,
-      label: placement?.label ?? equipmentDisplayLabel(equipmentId),
-      position,
-      interactionCueIds: Array.isArray(placement?.interactionCueIds) && placement.interactionCueIds.length > 0
-        ? [...placement.interactionCueIds]
-        : [
-            `${equipmentId}:selectable_equipment_reference`,
-            `${equipmentId}:clinical_workflow_cue`,
-          ],
-      source,
-      ...(gltfFile ? { gltfFileName: gltfFile } : {}),
-      declared: declared.has(equipmentId),
-    };
-  });
+  const owned = input.fixtureOwnedRoles
+    ? input.fixtureOwnedRoles instanceof Set
+      ? input.fixtureOwnedRoles
+      : new Set(input.fixtureOwnedRoles)
+    : null;
+
+  return ordered
+    // #186: fixture owns support/seating/architecture — do not dual-mount equipment.
+    .filter((equipmentId) => {
+      if (!owned || owned.size === 0) return true;
+      return !equipmentSuppressedByFixtureOwnership(
+        equipmentId,
+        owned as Set<import("./fixture-role-ownership.js").FixtureRoleClass>,
+      );
+    })
+    .map((equipmentId, index) => {
+      const placement = input.equipmentPlacements?.[equipmentId];
+      const fallbackPos = DEFAULT_POSITIONS[index % DEFAULT_POSITIONS.length] ?? DEFAULT_POSITIONS[0]!;
+      const gltfFile = REAL_EQUIPMENT_GLTF_BY_ID[equipmentId];
+      let source: EquipmentMountSource;
+      if (gltfFile) {
+        source = "gltf";
+      } else if (PARAMETRIC_KINDS.has(equipmentId)) {
+        source = "parametric";
+      } else {
+        source = "fallback";
+      }
+      // #179: post_op bed is the sole patient support (equipment path). Manifest ships it
+      // at the standing OFFSET (-2.05,-0.75). Runtime supine plant hard-centers on
+      // DEFAULT_STRETCHER_POSITION (-0.9,-0.1) — co-locate the deck under that plant.
+      // Rejected: fixture + equipment (double-bed #133); rejected: editing generated manifests.
+      // #186: when fixture stretcher owns support_surface, this id is filtered above.
+      const plantAlignedBed =
+        equipmentId === "post_op_bed_equipment"
+          ? { x: -0.9, y: 0, z: -0.1 }
+          : null;
+      const position = plantAlignedBed
+        ?? (placement?.position
+          ? { x: placement.position.x, y: placement.position.y, z: placement.position.z }
+          : { ...fallbackPos });
+      return {
+        equipmentId,
+        label: placement?.label ?? equipmentDisplayLabel(equipmentId),
+        position,
+        interactionCueIds: Array.isArray(placement?.interactionCueIds) && placement.interactionCueIds.length > 0
+          ? [...placement.interactionCueIds]
+          : [
+              `${equipmentId}:selectable_equipment_reference`,
+              `${equipmentId}:clinical_workflow_cue`,
+            ],
+        source,
+        ...(gltfFile ? { gltfFileName: gltfFile } : {}),
+        declared: declared.has(equipmentId),
+      };
+    });
 }
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {

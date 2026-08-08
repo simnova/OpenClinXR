@@ -38,6 +38,7 @@ import {
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
+import { roomPropSuppressedByFixtureOwnership } from "./fixture-role-ownership.js";
 import { prepareLoadedEnvironmentShell } from "./station-stretcher.js";
 import {
   buildDeclaredEquipmentGeometry,
@@ -3451,7 +3452,15 @@ function createStationScene(): StationSceneRuntime {
   }
   scene.add(monitor);
 
-  for (const prop of createDetailedEdRoomProps(encounterRuntimeAssetBundle.sceneManifest.roomProps)) {
+  // #186 — roles owned by shell fixtures suppress dual roomProp / equipment meshes.
+  const fixtureOwnedRoles = Array.isArray(stationEnvironment.userData.fixtureOwnedRoles)
+    ? (stationEnvironment.userData.fixtureOwnedRoles as string[])
+    : [];
+
+  for (const prop of createDetailedEdRoomProps(
+    encounterRuntimeAssetBundle.sceneManifest.roomProps,
+    fixtureOwnedRoles,
+  )) {
     if (selectedScenarioRuntimeMismatch) {
       prop.visible = false;
       prop.userData.openClinXrDynamicScenePolicy = "hidden_because_selected_scenario_specific_3d_bundle_missing";
@@ -3474,6 +3483,7 @@ function createStationScene(): StationSceneRuntime {
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
     equipment: encounterRuntimeAssetBundle.equipment,
     equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
+    fixtureOwnedRoles,
   });
   const equipmentEvidenceItems: DeclaredEquipmentMountEvidence["items"] = [];
   for (const item of equipmentPlan) {
@@ -6052,27 +6062,35 @@ function createActorNameplate(label: string, accentColor: number): Mesh {
   return nameplate;
 }
 
-function createDetailedEdRoomProps(manifestProps: readonly EncounterRuntimeRoomProp[]): Group[] {
+function createDetailedEdRoomProps(
+  manifestProps: readonly EncounterRuntimeRoomProp[],
+  fixtureOwnedRoles: readonly string[] = [],
+): Group[] {
   const fallbackPositions = [
     { x: -2.15, y: 0.65, z: -1.02 },
     { x: 1.92, y: 0.82, z: -1.05 },
     { x: -1.55, y: 0.58, z: 0.96 },
     { x: 1.52, y: 0.58, z: 0.92 },
   ];
-  return manifestProps.filter((prop) => shouldRenderRoomPropInVisualReview(prop)).map((prop, propIndex) => {
-    const { color, accentColor } = roomPropColourNumbers(prop);
-    return roomProp(
-      prop.propId,
-      color,
-      accentColor,
-      hasVector3(prop.position)
-        ? prop.position
-        : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
-      hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
-      prop.label ?? prop.propId.replaceAll("-", " "),
-      Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
-    );
-  });
+  const owned = new Set(fixtureOwnedRoles);
+  return manifestProps
+    .filter((prop) => shouldRenderRoomPropInVisualReview(prop))
+    // #186: fixture owns seating/door/board/surface — roomProp is metadata-only for that role.
+    .filter((prop) => !roomPropSuppressedByFixtureOwnership(prop.propId, owned))
+    .map((prop, propIndex) => {
+      const { color, accentColor } = roomPropColourNumbers(prop);
+      return roomProp(
+        prop.propId,
+        color,
+        accentColor,
+        hasVector3(prop.position)
+          ? prop.position
+          : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
+        hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
+        prop.label ?? prop.propId.replaceAll("-", " "),
+        Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
+      );
+    });
 }
 
 function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number): void {

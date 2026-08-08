@@ -226,3 +226,47 @@ export const OFFSET_CHAIR: EnvironmentFixtureSlot = {
   purpose: "Patient seating",
   position: { x: -1.55, y: 0, z: -0.85 },
 };
+
+/**
+ * #186 shell architecture vocabulary — door / board / work surface.
+ * Shared across rooms (never psych-only). Positions keep clear of actor plants
+ * (-0.72, z≈-0.12) and known support decks (#169).
+ */
+export const DOOR_LEAF: EnvironmentFixtureSlot = {
+  slotId: "door_leaf",
+  purpose: "Solid door leaf at learner entry",
+  // Open front of shell is +Z; park leaf toward doorway corner, clear of plant.
+  position: { x: 2.15, y: 0, z: 1.05 },
+};
+
+export const WALL_BOARD: EnvironmentFixtureSlot = {
+  slotId: "wall_board",
+  purpose: "Wall-mounted clinical board",
+  position: { x: -2.25, y: 1.4, z: -1.05 },
+};
+
+export const WORK_SURFACE: EnvironmentFixtureSlot = {
+  slotId: "work_surface",
+  purpose: "Room work counter / desk",
+  position: { x: 1.75, y: 0, z: -0.85 },
+};
+
+/** Second seat for family / parent — builds via patient-chair path (`*_chair`). */
+export const FAMILY_CHAIR: EnvironmentFixtureSlot = {
+  slotId: "family_chair",
+  purpose: "Family or parent seating",
+  position: { x: 0.95, y: 0, z: -0.75 },
+};
+
+export const OVERBED_SURFACE: EnvironmentFixtureSlot = {
+  slotId: "overbed_surface",
+  purpose: "Overbed table surface beside bed",
+  position: { x: 0.15, y: 0, z: -0.35 },
+};
+
+/** Clinic exam bay surface (work-surface silhouette; role = work_surface, not second bed). */
+export const EXAM_WORK_SURFACE: EnvironmentFixtureSlot = {
+  slotId: "exam_surface",
+  purpose: "Exam work surface / counter",
+  position: { x: 1.65, y: 0, z: -0.55 },
+};

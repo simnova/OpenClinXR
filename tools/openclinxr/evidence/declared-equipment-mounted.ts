@@ -84,13 +84,35 @@ export async function listShippedScenarioManifestIds(): Promise<string[]> {
   return ids.sort();
 }
 
+/**
+ * #186 — union equipmentPlacements ∪ bundle.equipment ∪ roomProps that carry geometry.
+ * Empty equipmentPlacements alone was blind to stations that only declare bundle/roomProps.
+ */
 export async function readDeclaredEquipmentIds(scenarioId: string): Promise<string[]> {
   const manifestPath = path.join(generatedRoot, scenarioId, "scene-manifest.v1.json");
   if (!existsSync(manifestPath)) return [];
   const raw = JSON.parse(await readFile(manifestPath, "utf8")) as {
     equipmentPlacements?: Record<string, unknown>;
+    equipment?: Array<{ equipmentId?: string } | string>;
+    roomProps?: Array<{ propId?: string; semanticRole?: string }>;
   };
-  return Object.keys(raw.equipmentPlacements ?? {}).sort();
+  const ids = new Set<string>();
+  for (const id of Object.keys(raw.equipmentPlacements ?? {})) {
+    if (id) ids.add(id);
+  }
+  for (const row of raw.equipment ?? []) {
+    const id = typeof row === "string" ? row : row.equipmentId;
+    if (id) ids.add(id);
+  }
+  // roomProps with geometry (not pure metadata) surface as declared mount candidates.
+  for (const prop of raw.roomProps ?? []) {
+    const id = prop.propId;
+    if (!id) continue;
+    // Affordance/trace-only props without a geometry-bearing role stay out.
+    if (prop.semanticRole === "review_cue" || prop.semanticRole === "objective_cue") continue;
+    ids.add(id);
+  }
+  return [...ids].sort();
 }
 
 /**
