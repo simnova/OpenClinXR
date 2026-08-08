@@ -108,6 +108,16 @@ import { describe, expect, it } from "vitest";
  * FIND IT, before running a corrected version. Three of my proofs last cycle were defective and the
  * worker found them and did not tell me until the end. That is my defect to fix, but I can only fix
  * what I see.
+ *
+ * ## FIXED (#226)
+ *
+ * `body-param-cli` now orchestrates a fixed finish pipeline after `body_param_stage`:
+ * unconditional `embed_library_footwear.py` on every library GLB, then catalog stamp next to
+ * the tracked candidates (not under `.openclinxr/evidence/**`). `export_morph=True` on the
+ * footwear re-export so #221 morph targets survive. MakeClothes library catalog is re-stamped
+ * beside `makeclothes-hm08-scrub-shirt-library.glb` for clean-clone discovery (#215 narrow fix).
+ * Observed finishStepsRun: body_param_stage → embed_library_footwear → catalog_stamp.
+ * Planted REDs flip without assertion edits.
  */
 
 type FinishedFigure = {

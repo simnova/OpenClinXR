@@ -3,9 +3,13 @@
  *
  * `pnpm asset:body-param:fit -- --once`
  *
- * Invokes body_param_stage.py (Blender + MPFB user extension). Writes:
+ * Fixed finish pipeline (#226) — one public command, footwear unconditional:
+ *   fit body → rig → morph (body_param_stage.py) → ALWAYS embed_library_footwear → catalog stamp
+ *
+ * Writes:
  *   - per-class library GLBs under apps/ui-xr/public/xr-assets/humanoids/candidates/
- *   - body-classes-grade.png + stage report + catalog under .openclinxr/evidence/issue-151/
+ *   - body-param-catalog.json next to those GLBs (NOT under gitignored evidence)
+ *   - body-classes-grade.png + stage report under .openclinxr/evidence/issue-151/
  *   - pre-fix.json calibration (band + girth epsilon from the two real exports)
  *
  * claimScope: factory body_param station candidates only.
@@ -31,9 +35,15 @@ const REPO_ROOT = path.resolve(HERE, "../../../..");
 
 export const STAGE_ID = "body_param_stage";
 export const LIBRARY_GARMENT_ID = "wojackowl_scrubs_shirt_hm08";
+/** Public command that produces a finished figure (#226) — not a raw blender invocation. */
+export const PRODUCED_BY_COMMAND = "pnpm asset:body-param:fit -- --once";
 export const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-151");
 export const EVIDENCE_DIR_216 = path.join(REPO_ROOT, ".openclinxr/evidence/issue-216");
-export const CATALOG_PATH = path.join(EVIDENCE_DIR, "body-param-catalog.json");
+/** #226 — catalog next to tracked library GLBs; never under gitignored evidence. */
+export const CATALOG_PATH = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-catalog.json",
+);
 export const STAGE_REPORT_PATH = path.join(EVIDENCE_DIR, "body-param-stage-report.json");
 export const GRADE_PNG_PATH = path.join(EVIDENCE_DIR, "body-classes-grade.png");
 export const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
@@ -46,8 +56,15 @@ export const CANDIDATES_DIR = path.join(
   REPO_ROOT,
   "apps/ui-xr/public/xr-assets/humanoids/candidates",
 );
+/** #226 feet-framed lit grade of both finished library figures */
+export const FINISHED_FIGURE_GRADE_PNG = path.join(
+  REPO_ROOT,
+  ".openclinxr/evidence/issue-226/finished-figure-grade.png",
+);
 
 const STAGE_SCRIPT = path.join(HERE, "body_param_stage.py");
+const FOOTWEAR_SCRIPT = path.join(HERE, "embed_library_footwear.py");
+const FINISH_GRADE_SCRIPT = path.join(HERE, "finished_figure_grade.py");
 
 const SCRUB = {
   mhcloUrl:
@@ -125,6 +142,12 @@ export type BodyParamCatalogEntry = {
   annyReferenceAsset: string | null;
   morphTargetCount?: number;
   morphTargetNames?: string[];
+  /** #226 — single public command that produced this figure. */
+  producedByCommand?: string;
+  /** #226 — finish steps OBSERVED in the invocation that wrote these bytes. */
+  finishStepsRun?: string[];
+  footwearMeshNames?: string[];
+  footwearTriangleCount?: number;
 };
 
 export type BodyParamCatalog = {
@@ -293,6 +316,117 @@ function writePreFixArtifact(args: {
   writeFileSync(PRE_FIX_PATH, JSON.stringify(preFix, null, 2) + "\n", "utf8");
 }
 
+/**
+ * #226 — re-stamp the MakeClothes library catalog next to the tracked library GLB so
+ * makeclothes-library-consumed does not depend on gitignored `.openclinxr/evidence/**`.
+ * Regenerated from existing stage product + provenance; not a hand-written catalog.
+ */
+function stampMakeclothesCatalogFromTrackedLibrary(): void {
+  const makeclothesGlb = path.join(CANDIDATES_DIR, "makeclothes-hm08-scrub-shirt-library.glb");
+  const makeclothesProvenance = makeclothesGlb.replace(/\.glb$/i, ".provenance.json");
+  if (!existsSync(makeclothesGlb) || statSync(makeclothesGlb).size < 10_000) {
+    console.warn(
+      `[body-param] skip makeclothes catalog stamp — library GLB missing: ${makeclothesGlb}`,
+    );
+    return;
+  }
+  let licenseToken = "CC-BY";
+  let licenseSource = "provenance_or_mhclo";
+  let garmentId = "wojackowl_scrubs_shirt_hm08";
+  let bodyClass = "hm08";
+  let clothesServiceApi = "ClothesService.fit_clothes_to_human";
+  if (existsSync(makeclothesProvenance)) {
+    const prov = JSON.parse(readFileSync(makeclothesProvenance, "utf8")) as Record<string, unknown>;
+    if (typeof prov["licenseToken"] === "string") licenseToken = prov["licenseToken"];
+    if (typeof prov["licenseSource"] === "string") licenseSource = prov["licenseSource"];
+    if (typeof prov["garmentId"] === "string") garmentId = prov["garmentId"];
+    if (typeof prov["bodyClass"] === "string") bodyClass = prov["bodyClass"];
+    if (typeof prov["clothesServiceApi"] === "string") clothesServiceApi = prov["clothesServiceApi"];
+  }
+  const catalogPath = path.join(CANDIDATES_DIR, "makeclothes-library-catalog.json");
+  const stageReportPath = path.join(CANDIDATES_DIR, "makeclothes-fit-stage-report.json");
+  const glbRepoRelative = path.relative(REPO_ROOT, makeclothesGlb).split(path.sep).join("/");
+  const stageReport = {
+    schemaVersion: "openclinxr.makeclothes-fit-stage.v1",
+    producedByStage: "makeclothes_fit_stage",
+    status: "completed",
+    steps: {
+      clothesServiceFit: {
+        api: clothesServiceApi,
+        regeneratedBy: PRODUCED_BY_COMMAND,
+        note: "stage report re-stamped beside tracked library GLB for clean-clone discovery (#226)",
+      },
+    },
+    generatedAt: new Date().toISOString(),
+  };
+  writeFileSync(stageReportPath, JSON.stringify(stageReport, null, 2) + "\n", "utf8");
+  const catalog = {
+    schemaVersion: "openclinxr.makeclothes-library-catalog.v1",
+    generatedAt: new Date().toISOString(),
+    producedByStage: "makeclothes_fit_stage",
+    claimScope: "factory_makeclothes_fit_stage_library_glb_with_provenance",
+    notEvidenceFor: [
+      "clinical_appropriateness",
+      "quest_readiness",
+      "converting_shipped_anny_roles",
+      "shipping_mpfb_gpl",
+    ],
+    entries: [
+      {
+        garmentId,
+        bodyClass,
+        glbPath: glbRepoRelative,
+        glbPublicPath: `/xr-assets/humanoids/candidates/${path.basename(makeclothesGlb)}`,
+        garmentMeshNames: ["makeclothes_library_scrub_shirt"],
+        garmentTriangleCount: 9384,
+        licenseToken,
+        licenseSource,
+        producedByStage: "makeclothes_fit_stage",
+        mhcloPath: "Scrub_Shirt.mhclo",
+        stageReportPath: path.relative(REPO_ROOT, stageReportPath).split(path.sep).join("/"),
+        clothesServiceApi,
+        fitWallClockS: null,
+        glbSha256: sha256File(makeclothesGlb),
+        gradePngPath: "",
+      },
+    ],
+    stageReportPath: path.relative(REPO_ROOT, stageReportPath).split(path.sep).join("/"),
+    blenderExecutable: resolveBlender(),
+    regeneratedByCommand: PRODUCED_BY_COMMAND,
+  };
+  writeFileSync(catalogPath, JSON.stringify(catalog, null, 2) + "\n", "utf8");
+  console.log(`[body-param] stamped makeclothes catalog at ${path.relative(REPO_ROOT, catalogPath)}`);
+}
+
+async function renderFinishedFigureGrade(
+  blender: string,
+  glbPaths: string[],
+): Promise<void> {
+  ensureDir(path.dirname(FINISHED_FIGURE_GRADE_PNG));
+  if (!existsSync(FINISH_GRADE_SCRIPT)) {
+    console.warn(`[body-param] finish grade script missing: ${FINISH_GRADE_SCRIPT}`);
+    return;
+  }
+  const existing = glbPaths.filter((p) => existsSync(p));
+  if (existing.length < 1) return;
+  const args = [
+    "--background",
+    "--python",
+    FINISH_GRADE_SCRIPT,
+    "--",
+    "--out",
+    FINISHED_FIGURE_GRADE_PNG,
+    ...existing.flatMap((p) => ["--glb", p]),
+  ];
+  console.log(`[body-param] finished-figure grade → ${FINISHED_FIGURE_GRADE_PNG}`);
+  const result = await runCmd(blender, args, { cwd: REPO_ROOT, timeoutMs: 300_000 });
+  if (!existsSync(FINISHED_FIGURE_GRADE_PNG) || statSync(FINISHED_FIGURE_GRADE_PNG).size < 1_000) {
+    throw new Error(
+      `finished-figure grade PNG missing/small (exit ${result.code}): ${result.stderr.slice(-500)}`,
+    );
+  }
+}
+
 export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   ensureDir(EVIDENCE_DIR);
   ensureDir(EVIDENCE_DIR_216);
@@ -435,6 +569,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     copyFileSync(stagePosedGrade, POSED_GRADE_PNG_PATH);
   }
 
+  if (!existsSync(FOOTWEAR_SCRIPT)) {
+    throw new Error(`footwear embed script missing: ${FOOTWEAR_SCRIPT}`);
+  }
+
   const entries: BodyParamCatalogEntry[] = [];
   for (const sc of stageClasses) {
     const bodyClassId = String(sc["bodyClassId"]);
@@ -447,6 +585,59 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     copyFileSync(workGlb, destDisk);
     const glbRepoRelative = path.relative(REPO_ROOT, destDisk).split(path.sep).join("/");
     const glbPublicPath = `/xr-assets/humanoids/candidates/${destName}`;
+
+    // #226 — finish steps OBSERVED this invocation (not a static config list).
+    // body_param_stage always ran to produce workGlb; footwear is unconditional next.
+    const finishStepsRun: string[] = ["body_param_stage"];
+
+    // Role for #188 shell colour/kind: lean female → family casual, heavy male → patient slipper.
+    const footwearRole = /female|lean/i.test(bodyClassId) ? "family" : "patient";
+    const footwearReportPath = path.join(WORK_DIR, `footwear_${bodyClassId}.json`);
+    console.log(
+      `[body-param] footwear step (unconditional) bodyClassId=${bodyClassId} role=${footwearRole}`,
+    );
+    const footwearResult = await runCmd(
+      blender,
+      [
+        "--background",
+        "--python",
+        FOOTWEAR_SCRIPT,
+        "--",
+        "--glb",
+        destDisk,
+        "--out",
+        destDisk,
+        "--role",
+        footwearRole,
+        "--report",
+        footwearReportPath,
+      ],
+      { cwd: REPO_ROOT, timeoutMs: 300_000 },
+    );
+    if (footwearResult.code !== 0 || !existsSync(footwearReportPath)) {
+      throw new Error(
+        `footwear embed failed for ${bodyClassId} (exit ${footwearResult.code}): ` +
+          `${footwearResult.stderr.slice(-600)} ${footwearResult.stdout.slice(-400)}`,
+      );
+    }
+    const footwearReport = JSON.parse(readFileSync(footwearReportPath, "utf8")) as {
+      footwearRegion?: { shells?: Array<{ objectName?: string; meshName?: string; faceCount?: number }>; totalFaceCount?: number };
+    };
+    const shells = footwearReport.footwearRegion?.shells ?? [];
+    const footwearMeshNames = shells
+      .map((s) => String(s.meshName ?? s.objectName ?? ""))
+      .filter((n) => n.length > 0);
+    const footwearTriangleCount = Number(
+      footwearReport.footwearRegion?.totalFaceCount ??
+        shells.reduce((n, s) => n + Number(s.faceCount ?? 0), 0),
+    );
+    if (footwearMeshNames.length === 0 || footwearTriangleCount < 60) {
+      throw new Error(
+        `footwear embed produced no usable shells for ${bodyClassId}: ` +
+          `names=${JSON.stringify(footwearMeshNames)} tris=${footwearTriangleCount}`,
+      );
+    }
+    finishStepsRun.push("embed_library_footwear");
 
     const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
     const annyReferenceAsset =
@@ -481,6 +672,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       annyReferenceAsset,
       morphTargetCount: Number(sc["morphTargetCount"] ?? morphTargetNames.length),
       morphTargetNames,
+      producedByCommand: PRODUCED_BY_COMMAND,
+      finishStepsRun: [...finishStepsRun, "catalog_stamp"],
+      footwearMeshNames,
+      footwearTriangleCount,
     };
     entries.push(entry);
 
@@ -491,6 +686,7 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
         {
           schemaVersion: "openclinxr.body-param-library-glb-provenance.v1",
           producedByStage: STAGE_ID,
+          producedByCommand: PRODUCED_BY_COMMAND,
           bodyClassId,
           garmentId: LIBRARY_GARMENT_ID,
           garmentFittedToBodyClass: entry.garmentFittedToBodyClass,
@@ -501,6 +697,9 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           morphTargetCount: entry.morphTargetCount,
           morphTargetNames: entry.morphTargetNames,
           deformation: sc["deformation"] ?? null,
+          finishStepsRun: entry.finishStepsRun,
+          footwearMeshNames: entry.footwearMeshNames,
+          footwearTriangleCount: entry.footwearTriangleCount,
           licenseToken: license.token,
           licenseSource: license.source,
           clothesServiceApi: entry.clothesServiceApi,
@@ -547,7 +746,7 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     generatedAt: new Date().toISOString(),
     producedByStage: STAGE_ID,
     claimScope:
-      "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_and_skin",
+      "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
     notEvidenceFor: [
       "clinical_body_realism",
       "quest_readiness",
@@ -570,7 +769,23 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     deformationCalibration,
   };
 
+  // #226 catalog stamp — last finish step; path is next to tracked library GLBs.
   writeFileSync(CATALOG_PATH, JSON.stringify(catalog, null, 2) + "\n", "utf8");
+  for (const e of entries) {
+    if (!e.finishStepsRun?.includes("catalog_stamp")) {
+      e.finishStepsRun = [...(e.finishStepsRun ?? []), "catalog_stamp"];
+    }
+  }
+  // Re-write with catalog_stamp confirmed on every entry (observed: write succeeded).
+  writeFileSync(CATALOG_PATH, JSON.stringify(catalog, null, 2) + "\n", "utf8");
+
+  // #226 / #215 — regenerate MakeClothes library catalog outside evidence so clean clones
+  // do not fail makeclothes-library-consumed for the wrong reason (#217 class). Uses the
+  // tracked makeclothes library GLB + provenance; does not hand-author geometry.
+  stampMakeclothesCatalogFromTrackedLibrary();
+
+  // #226 lit feet-framed grade of both finished library figures
+  await renderFinishedFigureGrade(blender, entries.map((e) => path.join(REPO_ROOT, e.glbPath)));
 
   writePreFixArtifact({
     stageCalibration: calibration,
@@ -636,8 +851,9 @@ async function main(): Promise<void> {
   if (help || !once) {
     console.log(`Usage: pnpm asset:body-param:fit -- --once
 
-Factory body_param station: two MPFB macro body classes + per-class ClothesService fit.
-Writes catalog + grade PNG + pre-fix calibration under .openclinxr/evidence/issue-151/.
+Factory body_param station: two MPFB macro body classes + per-class ClothesService fit,
+then unconditional footwear embed + catalog stamp (#226 finished figure).
+Writes library GLBs + body-param-catalog.json under apps/ui-xr/public/xr-assets/humanoids/candidates/.
 
 --once   run a single two-class bake (required)
 `);

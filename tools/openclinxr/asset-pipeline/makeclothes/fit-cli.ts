@@ -6,8 +6,8 @@
  * Invokes ClothesService via tools/openclinxr/asset-pipeline/makeclothes/fit_stage.py
  * (Blender user-extension MPFB, not vendored). Writes:
  *   - library GLB under apps/ui-xr/public/xr-assets/humanoids/candidates/
- *   - catalog + stage report under .openclinxr/evidence/issue-215/
- *   - fitted-garment-grade.png under .openclinxr/evidence/issue-215/
+ *   - catalog + stage report next to that GLB (tracked candidates/ — clean clones keep them)
+ *   - fitted-garment-grade.png under .openclinxr/evidence/issue-215/ (grade only)
  *
  * Anti-cheat: this is a real stage, not a wrapper that copies the cagematch probe output.
  * Inspect (makeclothes-library-consumed.ts) may only trust entries this command stamps.
@@ -43,8 +43,15 @@ export const LIBRARY_GLB_DISK = path.join(
   LIBRARY_GLB_BASENAME,
 );
 export const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-215");
-export const CATALOG_PATH = path.join(EVIDENCE_DIR, "library-catalog.json");
-export const STAGE_REPORT_PATH = path.join(EVIDENCE_DIR, "fit-stage-report.json");
+/** #226 — catalog must NOT live under gitignored evidence (clean-clone / #217 class). */
+export const CATALOG_PATH = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-library-catalog.json",
+);
+export const STAGE_REPORT_PATH = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/makeclothes-fit-stage-report.json",
+);
 export const GRADE_PNG_PATH = path.join(EVIDENCE_DIR, "fitted-garment-grade.png");
 export const STAGING_DIR = path.join(EVIDENCE_DIR, "staging");
 
@@ -392,7 +399,7 @@ async function main(): Promise<void> {
     console.log(`Usage: pnpm asset:makeclothes:fit -- --once
 
 Factory clothing station: fit one CC-BY .mhclo onto hm08 via ClothesService and
-write a library GLB + catalog under .openclinxr/evidence/issue-215/.
+write a library GLB + catalog under apps/ui-xr/public/xr-assets/humanoids/candidates/.
 
 --once   run a single fit (required; no batch mode yet)
 `);

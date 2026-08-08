@@ -351,7 +351,9 @@ def export_glb(path: str) -> None:
         export_materials="EXPORT",
         export_skins=True,
         export_animations=False,
-        export_morph=False,
+        # #226: preserve #221 face morph targets when re-exporting after footwear embed.
+        # export_morph=False was erasing 32 morph targets on every footwear pass.
+        export_morph=True,
     )
 
 
