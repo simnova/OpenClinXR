@@ -2413,8 +2413,10 @@ export function buildRuntimeVisualEvidenceCaptureScaffold(
 
   // Visual string for player (makes the virtual env evident in scaffold data when running the app/player; usable for encounter experience).
   const virtualEnvForPlayer = caseDerivedVirtualEnvironment ? `virtual ${caseDerivedVirtualEnvironment.roomType} with ${caseDerivedVirtualEnvironment.props.length} props (runtime tech: ${caseDerivedVirtualEnvironment.techStack.runtime}; vetted: ${caseDerivedVirtualEnvironment.techStack.vetStatus})` : null;
-  // Small gltf handoff piece for case env (from tech vet: gltf as interchange for virtual env player will use; open source gltf-transform/draco in pipeline, blender/gltf authoring; case spec room/props + emotionTimeline cues -> materialization produces gltf with blendshapes/extras for provenance; player loads via three GLTFLoader in main.ts). Using real existing glb as stand-in so actual load success path (add to gltfEnvContainer, loadedFromFactoryCaseEnv flag) is exercised in the launched full webxr player experience for peds/ed (per user "launch using turborepo", "actual gltf asset load in launched", "test out the world"). Factory will later write real from envGltfManifest + authoringVet. Advances "actual gltf asset load in launched player" + factory-to-runtime verification.
-  const gltfAssetUrlForEnv = scenarioId === "peds_asthma_parent_anxiety_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : scenarioId === "ed_chest_pain_priority_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null;
+  // #189: never hand a humanoid/candidate GLB as "environment". The prior reom stand-in
+  // loaded as a fourth nude figure in peds asthma while cast garments were already present.
+  // Room shells come from buildStationEnvironment + case-derived props; factory room GLBs only.
+  const gltfAssetUrlForEnv: string | null = null;
 
   const attachmentCandidates = [
     ...buildRuntimeEvidenceAttachmentCandidates({ input, scenarioId, attachedAt }),
