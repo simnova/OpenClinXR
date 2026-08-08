@@ -82,8 +82,22 @@ async function measureOneAsset(
   assetPath: string,
 ): Promise<GarmentDerivation | null> {
   const document = await new NodeIO().read(absPath);
-  const garment = pickPrimaryGarment(document);
-  if (!garment) return null;
+  const shells = collectGarmentShells(document);
+  if (shells.length === 0) return null;
+
+  // Primary = largest non-under shell (outer silhouette). Under = any __under_ shell.
+  // Aggregation policy (#208): wardrobe-stack, not min/max of independent meshes.
+  // Open-front outers deliberately lack centerline anterior fabric; closed under-layers
+  // supply front enclosure (#103). Measuring only the largest mesh mis-labelled that as
+  // "lost #121 shoulder coverage" while deltoids/back/1-comp still held on the outer.
+  const nonUnder = shells.filter((s) => !s.isUnder);
+  const garment =
+    nonUnder.sort((a, b) => b.vertexCount - a.vertexCount)[0] ??
+    shells.sort((a, b) => b.vertexCount - a.vertexCount)[0]!;
+  const under =
+    shells
+      .filter((s) => s.isUnder)
+      .sort((a, b) => b.vertexCount - a.vertexCount)[0] ?? null;
 
   const body = collectBodyMesh(document, garment.meshName);
   const components = connectedComponents(garment.indices, garment.vertexCount);
@@ -92,9 +106,11 @@ async function measureOneAsset(
   // the covering surface is about the meaningful shell, not 4-vert export dust.
   const minMeaningful = Math.max(24, Math.floor(garment.vertexCount * 0.01));
   const meaningful = components.filter((c) => c.length >= minMeaningful);
-  const shoulderSpannedByOneComponent = shoulderSpanned(
+  const outerComps = meaningful.length > 0 ? meaningful : components;
+  const shoulderSpannedByOneComponent = shoulderSpannedWardrobe(
     garment.positions,
-    meaningful.length > 0 ? meaningful : components,
+    outerComps,
+    under,
     body,
   );
   const offsets = nearestBodyOffsets(garment.positions, body.positions);
@@ -130,16 +146,15 @@ type MeshGeom = {
   positions: Vec3[];
   indices: number[];
   vertexCount: number;
+  isUnder: boolean;
 };
 
-function pickPrimaryGarment(document: Document): MeshGeom | null {
-  let best: MeshGeom | null = null;
+function collectGarmentShells(document: Document): MeshGeom[] {
+  const shells: MeshGeom[] = [];
   for (const mesh of document.getRoot().listMeshes()) {
     const meshName = mesh.getName() || "";
     if (!GARMENT_MESH_RE.test(meshName)) continue;
     if (DECLARED_ANY_RE.test(meshName)) continue;
-    // Prefer outermost shells over __under_ layers for the primary measure.
-    if (/__under_/i.test(meshName) && best && !/__under_/i.test(best.meshName)) continue;
 
     for (const prim of mesh.listPrimitives()) {
       const posAttr = prim.getAttribute("POSITION");
@@ -154,16 +169,17 @@ function pickPrimaryGarment(document: Document): MeshGeom | null {
       } else {
         for (let i = 0; i < positions.length; i++) indices.push(i);
       }
-      const geom: MeshGeom = {
+      shells.push({
         meshName,
         positions,
         indices,
         vertexCount: positions.length,
-      };
-      if (!best || positions.length > best.positions.length) best = geom;
+        isUnder: /__under_/i.test(meshName),
+      });
+      break;
     }
   }
-  return best;
+  return shells;
 }
 
 function collectBodyMesh(
@@ -268,24 +284,36 @@ function connectedComponents(indices: number[], vertexCount: number): number[][]
   return [...buckets.values()].filter((comp) => comp.some((vi) => used.has(vi)));
 }
 
+type SpanFlags = {
+  oneComponent: boolean;
+  front: boolean;
+  back: boolean;
+  leftDeltoidTop: boolean;
+  rightDeltoidTop: boolean;
+};
+
 /**
- * True when the garment is ONE connected surface (exported shared indices) that reaches
- * front torso, both deltoid tops, and back.
- *
- * Pre-fix ring+tube+yoke cages export as ~10 disconnected components — presence of
- * front/back/side verts on the torso ring alone must NOT pass (that was the six-gate failure
- * class). Continuity of the covering surface is the point of #121 / §6t.
+ * Region flags for one shell: ONE connected component that reaches front torso,
+ * both deltoid tops, and back. Continuity of the covering surface is the point of
+ * #121 / §6t — not mere presence of nearby verts.
  */
-function shoulderSpanned(
+function spanFlags(
   positions: Vec3[],
   components: number[][],
   body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
-): boolean {
-  if (components.length !== 1 || positions.length === 0) return false;
+): SpanFlags {
+  const empty: SpanFlags = {
+    oneComponent: false,
+    front: false,
+    back: false,
+    leftDeltoidTop: false,
+    rightDeltoidTop: false,
+  };
+  if (components.length !== 1 || positions.length === 0) return empty;
   const comp = components[0]!;
   const height = Math.max(body.maxY - body.minY, 0.001);
   // Torso band for front/back (chest, not hem/collar only).
-  const yChestLo = body.minY + height * 0.50;
+  const yChestLo = body.minY + height * 0.5;
   const yChestHi = body.minY + height * 0.78;
   // Deltoid TOP: upper lateral — a torso ring's mid-height side verts do not qualify.
   const yDeltoidLo = body.minY + height * 0.78;
@@ -294,7 +322,7 @@ function shoulderSpanned(
 
   // Front/back from the garment's own Z range (body AABB cz is unreliable when depth is thin).
   const zs = comp.map((vi) => positions[vi]?.z).filter((z): z is number => z !== undefined);
-  if (zs.length < 8) return false;
+  if (zs.length < 8) return empty;
   const zMin = Math.min(...zs);
   const zMax = Math.max(...zs);
   const zSpan = Math.max(zMax - zMin, 0.001);
@@ -318,7 +346,46 @@ function shoulderSpanned(
       if (v.x < body.cx) rightDeltoidTop = true;
     }
   }
-  return front && back && leftDeltoidTop && rightDeltoidTop;
+  return {
+    oneComponent: true,
+    front,
+    back,
+    leftDeltoidTop,
+    rightDeltoidTop,
+  };
+}
+
+/**
+ * Wardrobe-stack shoulder span (#208 aggregation):
+ * - Closed / single shell: one component must itself carry front + back + both deltoids.
+ * - Open outer + closed under: outer must carry 1-comp + back + both deltoids; front may
+ *   come from the under-layer (open placket has no centerline anterior fabric by design).
+ *
+ * Rejected: min-across-meshes (outer always fails front alone); max-across-meshes (any
+ * closed under alone would pass even if outer lost deltoids); counting lateral front
+ * panels as "front" on the open shell without an under-layer (would green a bare open
+ * cardigan and undo #103).
+ */
+function shoulderSpannedWardrobe(
+  outerPositions: Vec3[],
+  outerComponents: number[][],
+  under: MeshGeom | null,
+  body: { minY: number; maxY: number; cx: number; cz: number; halfW: number },
+): boolean {
+  const outer = spanFlags(outerPositions, outerComponents, body);
+  if (!outer.oneComponent) return false;
+  if (!outer.back || !outer.leftDeltoidTop || !outer.rightDeltoidTop) return false;
+  if (outer.front) return true;
+  if (!under) return false;
+  const underComps = connectedComponents(under.indices, under.vertexCount);
+  const minMeaningful = Math.max(24, Math.floor(under.vertexCount * 0.01));
+  const meaningful = underComps.filter((c) => c.length >= minMeaningful);
+  const underFlags = spanFlags(
+    under.positions,
+    meaningful.length > 0 ? meaningful : underComps,
+    body,
+  );
+  return underFlags.oneComponent && underFlags.front;
 }
 
 /**
