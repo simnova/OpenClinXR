@@ -7,7 +7,7 @@ token_efficiency: high
 q_gates: [Q1, Q4, Q5]
 visibility: both
 strategic_group: orchestration-factory-v1
-last_measured: 2026-06-07
+last_measured: 2026-08-08
 parseable_sections: 6
 ---
 
@@ -15,7 +15,7 @@ parseable_sections: 6
 
 **Canonical state file** for the OpenClaw-style / OpenClaw-inspired agent workflow. This is the single source of truth for autonomy status, current priority, active work, backlog, and stable direction. Rehydrate from the first ~60-80 lines only; all transient WIP (file:line, subagent IDs, capture logs) belongs in dated per-slice checkpoints below and registered artifacts. Pair with `worker-backlog-and-validation-matrix.md` for ownership matrix. Required Per-Slice Record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice. See `docs/openclinxr/openclaw-runbook-2026-05-27.md` and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`. Post-slice: run `pnpm docs:drift-check`.
 
-Last updated: 2026-08-02
+Last updated: 2026-08-08
 
 ## Autonomy
 
@@ -23,312 +23,37 @@ Last updated: 2026-08-02
 
 ## Current Priority
 
-**Program phase: PRODUCT ACTIVE — realbind + pre-prod fence + prod-refine** — BOD 2026-08-02 autonomous close of `arena-physics-clinical-touch-realbind-v1` R1–R7. **MADR 0030 PROVEN** (local determinism, dual evidence). Named gate `runtimePromotionAllowed` **not flipped**. All clinical/Quest/scoring/production gates remain **false**. No further garment thrash.
+**Program phase: PROCEDURAL GENERATORS IN TEST HARNESSES.** Operator scope directive 2026-08-08, verbatim: *"Stop all other work, only procedurally generated humans, clothing, rooms and equipment at this time and all in test harnesses, put all other work on hold, not available to work on"*.
 
-**Locked objective (AD-6 — satisfied as PROVEN):** Physics-compliant patient body via real Rapier → factory physics_config.v1 → UI-XR bone bind with dual evidence. Closures achieved: **PROVEN** (not DISPROVEN-BY-KILL).
+**In scope:** the four procedural generators — humans, clothing, rooms, equipment — evaluated in **isolated test harnesses**, never by capturing the full runtime encounter. Two conditions on every slice: the deliverable is graded in a harness, and the subject is the **generator**, not its output. Patching a shipped asset without changing what produced it is out of scope even when the subject matches.
 
-**Active epic / slice:** `arena-physics-clinical-touch-realbind-v1` **completed** (cursor 7/7). Spec: `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md`. MADR: `docs/madr/0030-arena-physics-clinical-touch-realbind-proven.md`.
+**On hold:** ~40 board issues, explicitly not withdrawn — runtime defects, capture framing, Lane B (API/admin), review gates, licensing, all substrate. They resume when the operator lifts the restriction.
 
+**Measured state of the four generators (2026-08-08):**
 
+| generator | state |
+|---|---|
+| equipment | 37 declared ids; **19 resolve to a 56-triangle pole**, including `hospital_bed`, `stretcher`, `side_rails`, `12_lead_ecg_machine`. 18 parametric kinds collapse to ~8 triangle signatures. |
+| clothing | 7 hardcoded coefficients; cardigan hem `0.31` ships a **below-knee coat**; `arm_len` is shoulder→elbow only so **every garment is elbow-length by construction**. |
+| rooms | parametric fixtures landed (#186); fixture positions are hand-picked constants that **do not track room dimensions** (276 tris across every sweep). `roomProp()` is still a 1×1×1 box (`main.ts:6131`). |
+| humans | **frozen.** `import anny` fails; the two adult bases are one mesh at 0.955 scale (13,348 verts both). No body generation runs on this machine. |
+
+**Operator decisions recorded 2026-08-08 (#192):** hm08 basemesh ships as-is (#161 closed); CC-BY garments allowed conditional on a compliance surface that does not yet exist (#193); Anny package restore skipped.
+
+**Standing procedure:** a periodic orchestration review every 5–8 landed slices (`PROTO_VERIFY_DELEGATION.md` §10r). First one ran 2026-08-08 and its verdict is recorded below.
+
+**Live verdict from that review — act on it:** harness-first is the right *evaluation mode*, but **#194 and #195 landed no shipping geometry** and failed the operator's product rule as product cycles. Stop condition, adopted: *if the next two cycles are again camera-fixing, field-fixing or rule-codifying, the program is stalled.* Instrument work must now be **bundled with a product fix in the same dispatch**.
 
 ## Active Work
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| quest-portless-physics-power-through-v1 | execute+verify | **verify ok (Q5)** — HTTP portless Quest shell; multi-`&` adb launch fix; physics-clinical-touch shell on headset; enter-vr activation_missed; servers killed post-run |
-| arena-physics-clinical-touch-realbind-v1 | epic closed | **completed** R1–R7; MADR 0030 PROVEN local; gates false; OD-4 R7 deferred |
-| physics-realbind-prod-refine-v1 | execute+verify | **verify ok (Q1+Q5)** — residual <2mm; MADR 0031 baked/live split; portless capture; artifacts pkg; 231 physics / 72 arch |
-| physics-realbind-pre-prod-fence-v1 | execute+verify | **verify ok (Q5)** — arch fence + promotion-gates false + checklist; 70 arch / 227 physics / 96 ui-xr |
-| arena-physics-realbind-r1-rapier-wasm | execute+verify | **verify ok (Q5)** — RapierRealAdapter real WASM; engineId `rapier`; 161/161 tests; AD-1 |
-| arena-physics-realbind-r2-factory-physics-config | execute+verify | **verify ok (Q1)** — tools factory physics_config.v1 generator; 21+177 tests; AD-2 |
-| arena-physics-realbind-r3-ui-xr-bind | execute+verify | **verify ok (Q1)** — bone transforms on ed_anny; PNGs ~192kB; physicsTouch evidence; 195+95 tests |
-| arena-physics-realbind-r3-ui-xr-bind | execute+verify | **verify ok (Q1)** — UI-XR bone bind + 192kB PNGs; physicsTouch evidence |
-| arena-physics-realbind-r4-measured-metrics | execute+verify | **verify ok (Q5)** — measured metrics report; 221 tests; AD-4 |
-| arena-physics-realbind-r5-arena-app-cagematch | execute+verify | **verify ok (Q5)** — arena src + public/cagematch/2026-08-02 |
-| arena-physics-realbind-r6-successor-madr | execute+verify | **verify ok (Q5)** — MADR 0030 PROVEN; runtimePromotionAllowed named not flipped |
-| arena-physics-realbind-r7-quest-optional | execute+verify | **verify ok (Q5)** — OD-4 pre-declared deferral in operator-open-questions |
-| garment-sleeve-fit-parent-nurse-v1 | execute+verify | **verify ok (Q1+Q5)** — sleeve_fit_along_arms_v1 faceCount=380; short-sleeve cyan silhouette; UI-XR fronts ≥116kB |
-| parent-nurse-ui-xr-recapture-after-bind-fix-v1 | execute+verify | **verify ok (Q5)** — UI-XR recapture post bind+cyan-strict; fronts ≥110kB; garmentGeometry ready; role color limbs |
-| ui-admin-emission-autoload-cli-latest-v1 | execute+verify | **verify ok (Q4)** — auto-load CLI latest fixture on mount; SAMPLE fallback; 5/5 panel tests |
-| ui-admin-emission-live-artifact-load-v1 | execute+verify | **verify ok (Q4)** — Load CLI latest + file pick; fixtures/admin-replay-from-emission-latest.json; 15 panel/App tests |
-| garment-bind-pose-fix-parent-nurse-v1 | execute+verify | **verify ok (Q1)** — body local-Y garment embed; revision bind_pose_fix_v1; parent/nurse GLBs re-export 324f |
-| optimize-product-under-os-v1 | execute+verify | **verify ok (Q5)** — alignment+drift green; scorecard notes + G4 latest updated; verdict PROGRESS |
-| framing-polish-parent-nurse-garment-ui-xr-v1 | execute+verify | **verify ok (Q5)** — clean capture; hide XR controllers; cyan torso volume parent/nurse PNGs; 95 ui-xr tests |
-| peds-parent-nurse-real-garment-reorchestrate-v1 | execute+verify | **verify ok (Q1)** — parent+nurse realGarment 324f torso bind-pose; UI-XR cyan mid-torso not feet/pants; skeptic:visible; residual boxy sleeve-fit |
-| admin-ui-emission-bind-v1 | execute+verify | **verify ok (Q4)** — EmissionReplayBindPanel + App ReviewReplayWorkbench bind turnSource=runtime_emission_real_turns; pathScope IPL+ui-admin; 12 ui-admin tests; promote worktree |
-| ui-xr-parent-nurse-sleeve-deform-capture-v1 | execute+verify | **verify ok (Q5 tooling)** — capture CLI + patient-slot resolve + PNG≥100k; skeptic:invisible bare GLB residual → re-orchestrate Q1 |
-| ui-xr-parent-nurse-runtime-comparator-v1 | execute+verify | **verify ok (Q1)** — humanoidSourceComparator parent+nurse real garment; sleeveDeform/cyan/userData; 95 ui-xr tests |
-| peds-parent-nurse-garment-dual-capture-v1 | execute+verify | **verify ok (Q1+Q5)** — dual MV turntable front/three_quarter parent+nurse (~139kB each); no re-orchestrate |
-| admin-replay-real-turns-v1 | execute+verify | **verify ok (Q4)** — emission→admin replay projection (real turns not seeds); `pnpm encounter:admin-replay-from-emission` |
-| encounter-authoring-runtime-emission-v1 | execute+verify | **verify ok (Q4)** — runtime emission CLI real actor turns+traces→durableStore artifact; `pnpm encounter:runtime-emission` |
-| mongo-api-durableStore-actor-turn-v1 | execute+verify | **verify ok (Q4)** — MongoApiPersistenceSink.saveActorTurn → durable conversation turns; 39/39 data-mongodb |
-| wire-api-durableStore-consumer-v1 | execute+verify | **verify ok (Q4)** — ApiPersistenceSink→ScenarioRuntime durableStore + package hooks + CLI; actor-turn + review packet; 22+98 tests |
-| arena-physics-spec-review-execute-v1 | execute+verify | verify ok (Q5) — CEO+team Grok 4.5: SPEC_ALIGN yes; WASM/UI-XR/schema defer; open-Q defaults; residual ledger |
-| arena-physics-clinical-touch-v1 | epic closed | **completed** s1–s6 + s7 foreground_ready; MADR 0029; 144 tests; ledger claim-aligned |
-| arena-physics-s5-factory-physics-config | execute+verify | verify ok (Q1) — physics_config.v1 + habitus tables |
-| arena-physics-s4-winner-scenarios | execute+verify | verify ok (Q1) — passive-ROM/guarding/positioning + inspection |
-| arena-physics-s3-rapier-jolt-cagematch | execute+verify | verify ok (Q5) — three-way candidates C6 |
-| arena-physics-s2-havok-adapter | execute+verify | verify ok (Q1+Q5) — HavokCandidateAdapter + palpation C6 + metrics; WASM deferred |
-| arena-physics-s1-determinism-harness | execute+verify | verify ok (Q5) — physics-touch-contract C1–C7 + stub; 25/25 tests; cost ~$0.17 |
-| openclaw-pre-epic-kit-v1 | execute+verify | verify ok (Q5) — epic CLI + apply-header + pathScope README/docs + run-next epicContinuity; dry-run advance; epic completed |
-| readme-dev-workstation-v1 | execute+verify | verify ok — delegated scout+writer; README overview/prereqs/get-started; Task cost ~$0.41 (2 subagents) |
-| website-marketing-state-roadmap-v1 | execute+verify | verify ok — public site rewrite (now/roadmap/evidence); pages:validate green; cost ritual sample |
-| implementation-authoring-follow-on-v1 | execute+verify | **verify ok + PROGRESS** product-under-os-v1 (Q1+Q4) — durableStore + roundtrip CLI; isolation+promote+pathScope+token; scorecard PROGRESS |
-| warehouse-wiki-cruft-audit-v1 | execute+verify | verify ok (Q5) — wiki-style docs/_archive; freeze cruft-audit 17 files; multi-area manifests; 15 archive tests |
-| pmo-temporal-unattended-v1 | execute+verify | verify ok (Q5) — dual-stack pmo (roster 17); SessionStart --auto-run force hygiene; DOC-HYGIENE-CADENCE+RACI owner pmo; 115 agent-loop + hygiene tests |
-| docs-warehouse-v1 | execute+verify | verify ok (Q5) — DOC-WAREHOUSE ODS/cold; docs:archive freeze 11 revs; archivist role; authority reclass; 114+12 tests |
-| context-opt-wave-c | execute+verify | verify ok (Q5) — C-arch architect+composition hard law; C-worktree promote CLI; roster 15; 112/112 + 9 promote tests |
-| context-opt-thrash-evidence | evidence+verdict | verify ok (Q5) — thrash historical only; live A/B healthy; Wave C NO_GO |
-| context-opt-wave-b-tools | execute+verify | verify ok (Q5) — Wave B BOD: disallowedToolsForRole + image ban non-visual; preferredCli soft-warn; B3 KEEP CEO tools; 104/104 |
-| context-opt-wave-a-enforce | execute+verify | verify ok (Q5) — Wave A BOD: assertWriterIsolation hard on team-spawn; parentChecklist; PATH-SCOPE enforcement matrix; 97/97 |
-| context-opt-charter-agentsmd-v3 | execute+verify | verify ok (Q5) — dual-stack pathScope charter pointers; specialists agents_md:false; spawn ~2.1–2.3k; CEO write roots; 87/87 |
-| context-opt-grok45-v2 | execute+verify | verify ok (Q5) — slice-team PATH SCOPE bake + path constrain + isolation top-level; worktree merge; 87/87; Grok 4.5 team |
-| context-opt-higher-v1 | execute+verify | verify ok (Q5) — worktree isolation for writers; sole-author locks in verify; COMPOSITION-ROOTS SSOT; 81/81 agent-loop |
-| path-scope-policy-v1 | execute+verify | verify ok (Q5) — pathScope on 14 roles; spawn PATH SCOPE ~4k; Option2 handoff path audit hard gate in verifySliceBrief; 61/61 agent-loop tests |
-| encounter-authoring-loop | scout+execute+verify | verify ok (Q1+Q4) — 4-step plan delivered (durableStore wiring + encounter-session-bridge pkg + scenario-authoring-roundtrip CLI producing replay artifact + int test proof); persistence scaffold now targeted for runtime emission (UI-XR trace → Mongo durable → admin replay with real turns vs seeds); planning-lead handoff + physician/skeptic; long-running execution via resume_from on subagents (implementation-planning-lead + additional for steps); slice team closed (plan phase; implementation continuation in long-running subagent team) |
-| admin-packet-replay-surfaces-impl | scout+execute+verify | verify ok (Q4) — promotion gates wired into faculty review/replay workbench (FacultyReviewDecisionPanel PromotionGatesSection + local decide action consuming authored seeds + pipeline promotionStatus); skeptic-visible faculty workflow delta; slice team closed |
-| peds-parent-nurse-garment-asset | scout+execute+verify | verify ok (Q1+Q5) — real garments expanded to parent/nurse roles from phenotype.garmentLayers (0.28/0.42 factors, vivid, deformsWithBreathing, promotionStatus/realismGrade embedded); cagematch reports + handoffs updated; skeptic-visible in metadata/reports (recommend full capture for BOTH tester/sample); slice team closed |
-| new-peds-adaptive-sleeve-deform-evidence-v1 | scout+execute+verify | verify ok (Q1+Q5) — extended peds adaptive evidence to peds_anny_real_garment_patient with visible 3D deforming real garment sleeves (branch screenshots + body-motion in UI-XR sample; cagematch front/three/body_motion in tester; garmentGeometry/sleeveDeform surfaces, adaptive playback, promotion metadata in reports/rigging); multi-role (skeptic+xr+asset); slice team closed |
-| ed-seed-humanoid-case-def | scout+execute+verify | partial (Q1); real garment + promotion embedded for ED patient (ed_chest_pain_priority_v2) via orchestrate/automate + reports/rigging with 324f deforms, visible sleeves in cagematch pngs; UI-XR extended for ed_anny_real_garment_patient + sleeveDeform; but skeptic flagged invisible (evidence paths mixed peds/ED, no full dual visible in both tester/sample for ED, brief/header mismatch peds template vs ED real garment); work advanced ED seed but requires re-capture/expand per mandate; slice team closed with note |
-| ed-real-garment-phenotype-expansion | scout+execute+verify | verify ok (Q1+Q5) — ED adult/ed gown real garment from phenotype.garmentLayers (hospital_gown) in MV cagematch reports (ed_chest_pain_patient_real_garment_v1 candidate, 324f deformsWithBreathing, visibleDeformingSleeves, promotionStatus/runtime_candidate_not_realism_gate_pass + realismGrade B + notEvidenceFor + realGarmentRegionFromPhenotype); branched 23MB glb + rigging + provenance in cagematch/anny-real-garment/ed-real-garment-phenotype-expansion-2026-06-07/; UI-XR ed_anny_real_garment_patient first-class (gown|hospital.*gown regex, cyan/sleeveDeform/garmentGeometry/userData/promotion, ed bay framing); ed_real_garment_sleeve_deform pngs + body_motion + ui-xr-ed-seed-inspection (cyan/frustumCulled=false/openClinXrSleeveDeformEvidence exercised) in ed branches; multi-role (productivity-skeptic scout + asset-pipeline-lead + xr-systems-architect execute); sizable collaborative vertical per MANDATE_VISIBILITY + LEX_AGENTIC; skeptic re-assess visible (reports + code + ed-branch evidence; dual delta in MV candidate + UI-XR surfaces); brief done_when still peds-named (verify passed on peds evidence + skeptic:visible); slice team closed |
-| ed-gown-geo-reorchestrate | scout+execute+verify | verify ok (Q1+Q5) — re-orchestrated ED ed_chest_pain_priority_v2 with full phenotype.garmentLayers=['hospital_gown'] producing actual gown topology (416f/0.36/9x14/0.45 + deformsWithBreathing + hasVisibleVolume + visibleDeformingSleeves + realGarmentRegionFromPhenotype gown variant + promotion) + glb/rigging/provenance/cp to current/ + target; UI-XR ED glb to current/ + expanded main.ts (gown camera/traverse/regex/emissive/garmentGeometry/sleeveDeform/userData) + re-ran capture landing ed-gown-front + ui-sleeve-front (140k/139k) in target + inspection (ed_anny + ed bay + surfaces exercised); skeptic re-assess (post-execute + attached image [Image #1] site screencap confirming 'Latest Progress' + 'WebXR Sample Scene Evidence' with ED patient images + captions + inspection) visible (dual 3D deforming real gown volume/motion in BOTH MV cagematch (target + reports + current/ glb) AND UI-XR ed bay (current/ load + pngs in target + surfaces)); all prior invisible blockers resolved; 3 handoffs + exists/min-bytes + skeptic:visible per done_when; slice team closed |
-
-**Next dequeue:** continue-autonomy-run-next — Quest shell/portless+physics baked path evidenced; live engine + immersive still not prod; residual UIKitML soft-fail on Quest
-
-**OS scorecard:** `docs/agent-ops/product-under-os-scorecard-v1.json` — **VERDICT: PROGRESS** (G0–G5 pass) 
-
-**Next fix (GitHub Pages — multimodal audit 2026-06-07):** RESOLVED 2026-06-08. Inaccurate `docs/assets/ed-real-garment-webxr-front.png` + `three-quarter.png` (identical 26kB MV Studio "Report unavailable" + JSON parse errors, not UI-XR) replaced via re-capture + cp with 139kB/143kB real UI-XR captures from ed_anny_real_garment_patient + current hospital_gown glb + gown-aware runtime (main.ts traverse, cyan, sleeveDeform, garmentGeometry, ed bay). inspection.json also synced. pages:validate + sync-validate pass (wiring green). See 2026-06-08 github-pages-evidence-fix checkpoint + ed-gown-geo-reorchestrate for dual evidence. Hero remains valid. Website now accurately reflects Q1 ED real-garment runtime visuals (Q5 visibility).
-
-**Blockers:** none
-
-### 2026-08-04 — architecture-governance: file-size ratchet + scenario-runtime split (Atlantis pattern) COMPLETE
-
-Product path advanced: **Architecture↔feature separation is now enforced + demonstrated**, adopting the `atlantis-cameras-v2` pattern (Patrick-directed). Two commits:
-- `6935af1` — `architecture-rules/src/file-size-budgets.test.ts`: ArchUnit-style file-size fitness rule (zone budgets packages/openclinxr 500, apps 600) + brownfield `SIZE_FREEZE` ratchet grandfathering the 32 current offenders at exact line count (shrink-only; new files hard-capped; paid-down entries must be removed). In the pre-commit gate.
-- `585ea21` — split the 1162-line `scenario-runtime/src/index.ts` god-file into: `index.ts` (50-line barrel, public API unchanged) + `scenario-runtime.ts` (806, the ScenarioRuntime class) + `runtime-types.ts` (211, type SSOT) + feature/support modules `emotion-policy.ts` / `trace.ts` / `provider-support.ts`. Freeze entry moved from index.ts (removed — now 50) to scenario-runtime.ts (806) → net god-file mass down ~356 lines and index dropped out of the freeze entirely.
-
-Blueprint/factory tie: enabling/maintainability (large files exhaust bounded agent workers before they can edit — observed this session). Not a Q1/Q4 product surface; it's the forcing function that makes future arch/feature splits incremental. Does not weaken the 6 protected blueprint-factory files.
-
-Evidence: scenario-runtime tsgo exit 0 + 36 tests; downstream @openclinxr/api tsgo + 106 tests green; architecture-rules 74 tests; all pre-commit hooks green. Delegation: P1 (schema-scale) + finish worker (deepseek-v4-pro) ran downstream verification + freeze update + commit from a clean green handoff; I reviewed its one type change (`ScenarioRuntimeActorTurn.currentEmotion` → optional) and verified it's a JUSTIFIED fix of a pre-existing latent inconsistency (apps/api test omits the additive/back-compat field), not a hack.
-
-Known pre-existing (NOT caused by this slice; surfaced by the finish worker): `@openclinxr/test-harness` `station-simulation.test.ts` fails on a scenario-COUNT drift (expects `scenarioCount: 12`, fixtures now yield 14). The split touches zero fixtures. Recommend a small fixture-count truing slice (owner: scenario-fixtures).
-
-God-file paydown PROGRESS (Atlantis package/role decomposition; queue + role ownership = GitHub issue #11):
-FREEZE LIST: 51,183 -> 41,469 frozen lines (~9,700 lines of god-file mass moved into under-budget modules). 14 files split, 585ea21..0c39798, every public API preserved, package tests + downstream tsgo + arch-rules green on each.
-
-FULLY CLEARED the freeze (now all-modules-under-budget): agent-loop(1306), exam-assembly(715), capability-gateway/index(928), voice-gateway(742), multi-actor-state-spike(929), session-state(1606, incl. internal residual), shared-schemas/schemas(594), data-mongodb/repositories(1062), ui-admin/api-client(1876 -> 586 impl under budget).
-REDUCED to smaller residuals: scenario-runtime/index(1162->50 barrel; class 806 residual), scenario-bank(2690->107; maturity 822 residual), model-vetting(772->16 barrel; logic 534 residual), ui-admin api-client-types(1410 residual).
-
-CARVE TECHNIQUE (proven x14, see memory for full gotchas): mjs script slices by line-range from `git show HEAD:<file>`; emit types.ts + internal.ts (exportify helpers) + concern modules + thin barrel; OVER-IMPORT all type/helper names; tsgo-iterate; relocate a helper to break cycles; repoint coupled workspace-architecture.test.ts rules that readFileSync a moved provenance string (hit 3x: data-mongodb, session-state websocket, ui-admin api-client allowlist). Pre-commit runs arch-rules but NOT package tests — run those + downstream tsgo yourself.
-
-REMAINING (categorized):
-- INTERLEAVED (exported/internal alternate, cross-referencing helpers — need careful per-symbol manual carve, NOT range-carve): asset-registry/runtime-bundles(1638), capability-gateway/asset-generation-jobs(2107), asset-registry/index(2887), agent-loop/role-harness-policy(950), grok-tier-routing(607), slice-team(594), grok-repo-agent-spawn(551).
-- APP SURFACE (route/React wiring): apps/api/app.ts(3282), api-bootstrap(908), ui-admin/App.tsx(1631) + panels(682,679).
-- THE MONSTER (xr role, focused subsystem carve): apps/ui-xr/main.ts(10255), runtime-state.ts(3743), arena ui-xr-iwsdk-spike/main(1456), iwsdk-spike(2398).
-- RESIDUALS: scenario-runtime class(806), scenario-bank-maturity(822), api-client-types(1410), model-vetting/logic(534), candidate-capture(785), pipeline-candidate(581), measure(561), jolt(502).
-
-PRE-EXISTING (not paydown): scenarioBank 12→14 drift fails exam-assembly.test x3 + test-harness — needs domain decision (issue #11).
-
-### 2026-08-04 — case-authored-emotion-policy-v1 (Q1 authoring loop) COMPLETE
-
-Product path advanced: **An authored case now drives actor emotion — the blueprint→runtime loop for the emotion feature is closed.** `emotionPolicy` was promoted from a runtime UNTYPED duck-check to a first-class **authored, ajv-validated** field on `ScenarioSchema` (shared-schemas). scenario-runtime `resolveCaseEmotionPolicy` now reads the typed `scenario.emotionPolicy` and validates via `validateCaseEmotionPolicy` (dropping the `Record` cast), falling back to the default only when absent/invalid. So a case definition drives baseline + transition rules → EmotionEngine → emitted `emotion_transition` traces → durable actor-turn payload → review `emotionalTimeline`.
-
-Blueprint/factory tie: **Q1** (blueprint/case definition → generated runtime affect). Builds directly on conversation-emotion-engine-v1 (Q4). Not a scoring input; behavioral taxonomy fence intact.
-
-Touched files: `shared-schemas/src/schemas.ts` (EmotionEventKind/EmotionTransitionRule/CaseEmotionPolicy schemas + `emotionPolicy` on ScenarioSchema + Static type exports) + `validators.ts` (`validateCaseEmotionPolicy`); `scenario-runtime/src/index.ts` (typed+validated resolver) + `scenario-runtime.test.ts` (round-trip + drift-contract tests).
-
-Evidence: 32 (shared-schemas, +5) + 36 (scenario-runtime, +3) tests green; typecheck green; guards green. Commits efa4842 (P1) → a261e06 (P2) → 945d4b9 (review-hardening). Round-trip tests are non-vacuous — verified they'd FAIL under the old code: authored baseline `neutral` vs default `anxious`; invalid `{baseline:"furious",transitions:[]}` (which the OLD duck-check ACCEPTED) is now rejected by the ajv gate. Drift-contract test guards the shared-schemas↔engine `CaseEmotionPolicy` assignment.
-
-Delegation posture: OpenClaw board #10 (P1 deepseek-v4-pro worker landed clean; P2 worker hit max-turns on the 1000-line index.ts + `--cwd` did NOT isolate its edits — completed P2 directly). **Review-gate NOTE: independent grok skeptic failed twice (P2-adjacent max-turns, then killed with no output) → substituted a rigorous adversarial SELF-review** (fail-under-old-code verification + the one surfaced gap closed with the drift-contract test). Transparency: self-review, not independent. Lessons banked to session memory (`--cwd` doesn't isolate edits; large-file workers need >50 turns or in-house handling).
-
-Next queued slice (SCOPED this session — pick one; both are sizable full-stack verticals, good delegation fits):
-- (a) **Faculty emotion-arc replay view** (Q4 consumer). SCOPING FINDING: the emotion arc is NOT yet a pure UI edit — `emotionalTimeline`/`emotion_transition` payloads are deliberately NOT exposed through the review-replay GraphQL API (claim boundaries at `api-client.ts:1107-1172` say `summary_only ... no_private_payloads`; admin traceEvents are summary-only). So this vertical = expose `emotionalTimeline` as a SAFE behavioral SUMMARY through the GraphQL schema + resolver (`apps/api`) + admin client DTO (`api-client.ts` `AdminReviewPacketReplay`) + render in the review-replay workbench (`App.tsx` ~L322, alongside the existing traceEvents/safety rendering) + tests. CLAIM-SCOPE DECISION required: confirm a from→to→trigger emotion arc is a behavioral summary safe under `no_private_payloads` (keep the "not a clinical assessment / not score-use" fence). Right home is the review-REPLAY surface (`App.tsx` + `FacultyReviewDecisionPanel.tsx`), NOT `RuntimeSelectionReviewPacketPanel` (that panel is the fixture-backed model/voice SELECTOR handoff — wrong data source).
-- (b) add `emotionPolicy` to the **case-authoring** persistence + admin UI (`CaseAuthoringWorkbench.tsx`) so authors define affect through the authoring surface (Q1, extends 36ad258).
-Deferred non-blocker: dedupe `DEFAULT_EMOTION_POLICY` vs the fuller `anxiousParentPolicy` fixture (behavior-converging — needs a deliberate call).
-
-### 2026-08-04 — conversation-emotion-engine-v1 (Q4 + conversation tooling) COMPLETE
-
-Product path advanced: **Case-policy-driven actor emotion now flows end-to-end through the encounter runtime.** New `resolveEmotionTransition` (pure) + `EmotionEngine` (stateful) in `conversation-policy/src/emotion-engine.ts` reuse `InteractionEmotion` (pain/anxious/concerned/reassured/neutral); transitions are driven by `CaseEmotionPolicy` (from/triggeredBy rules, clampEmotion bounds) — not hardcoded, so a blueprint case defines its actor affect. scenario-runtime emits `emotion_transition` trace events + carries `currentEmotion` in the durable actor-turn payload (index.ts ~L545). review-workflow extracts `emotionalTimeline` from those traces into the review packet. Header comment fences it: "Pure behavioral taxonomy — not a clinical assessment or scoring input."
-
-Blueprint/factory tie: **Q4** (review/persistence/replay — emotional-state timeline is now a durable review surface) + first-class **conversation tooling** (emotion transitions per LEX_AGENTIC). Not a scoring input; no clinical/exam claim.
-
-Touched files: `conversation-policy/src/emotion-engine.ts` + `fixtures/emotion-policies.ts`; `scenario-runtime/src/index.ts` (emit + currentEmotion); `review-workflow/src/review-packet.ts` (emotionalTimeline extractor + exported `EmotionTransitionTraceShape` contract) + barrel + tests.
-
-Evidence: 45 (conversation-policy) + 33 (scenario-runtime) + 31 (review-workflow, incl. new cross-package composition test asserting review reads scenario-runtime's EXACT emit shape) tests green; guards green; commits 0e3ac0a → 34588ed → 13f9281. **Full OpenClaw loop + GitHub collaboration substrate**: board issue #9 (delegate → parallel deepseek-v4-pro workers → worker comments → skeptic review-gate). Skeptic APPROVED with 2 findings, both closed (dead-doc contract type → fixed+exported+tested; missing cross-package test → added). Board #9 closed with resolution.
-
-Token introspection: 3 deepseek-v4-pro execution workers (P1 engine, P2 runtime+review) + 1 skeptic review pass (cheap tier); Composer/Claude integration + skeptic-fix. resume_from not needed (clean one-shot handoffs).
-
-Next queued slice: surface the emotionalTimeline in an **admin/faculty replay view** (Q4 consumer) OR wire `CaseEmotionPolicy` into the authored case/scenario definition schema so authoring drives affect (Q1). See docs/UP-THE-STACK-QUEUE.md.
-
-### 2026-08-02 — quest-worn-immersive-iwsdk-v1 (Q5) verify ok
-
-Product path advanced: **Operator-worn Full VR on IWSDK sidecar**. CDP probe: xrStatus In Full VR, isPresenting true, ~10.5k immersive frames, ~85–90 FPS, hands installed. Manual harvest adapted for `iwsdk-sidecar` (frameStats path when draft globals absent). enterVrCompletion treats In Full VR / isPresenting. Evidence: quest-worn-immersive-probe-iwsdk + enter-vr-worn + manual harvest postmortem. Not production promotion. Blueprint/factory tie: Q5 headset verification. Next: optional re-harvest with fixed profile when operator available.
-
-### 2026-08-02 — quest-portless-physics-power-through-v1 (Q5) verify ok
-
-Product path advanced: **Quest USB smoke path hardened**. (1) IWSDK sidecar `dev:portless` HTTP (`https:false`, `hmr.overlay:false`) so Quest Browser loads without cert privacy wall. (2) `quest-cdp-smoke` multi-query URL adb launch fix (`buildQuestBrowserViewIntentArgs` remote-shell single-quote). (3) Physics-clinical-touch (baked Rapier bone deltas) multi-param URL launches without `--skip-launch`; shellLoaded true. (4) `--enter-vr` clicks Enter Full VR but immersive session not started (`activation_missed` — headset gesture/foreground still required). (5) CEO process: tracked portless PIDs, killed after smoke; ADB reverse/forward cleared. Blueprint/factory tie: Q5 headset verification of portless + opt-in capture fence; no gate flip. Evidence: `docs/openclinxr/quest-cdp-smoke-portless-http-2026-08-02.json` shellLoaded true; physics-ragdoll smoke shellLoaded true; enter-vr-iwsdk activation_missed; quest-cdp-smoke 28/28; iwsdk-spike 36; arch 72. Residual: UIKitML dynamic import soft-block; not live Rapier; not immersive. Next: worn-headset immersive harvest if operator available; do not flip runtimePromotionAllowed.
-
-### 2026-08-02 — physics-realbind-prod-refine-v1 (Q1+Q5) verify ok
-
-Product path advanced: **Parallel prod-refine** (worktrees + portless). (A) contactStability redefined as residual settle **1.051 mm** (<2 mm). (B) MADR 0031 baked vs live split + `@openclinxr/physics-touch-artifacts` (no Rapier). (C) Self-contained portless UI-XR physics capture script + prod-refine evidence. Split gates: bakedTransformsCaptureAllowed=true; liveEngineProductionAllowed=false; runtimePromotionAllowed=false. Blueprint/factory tie: Q1 factory metrics; Q5 dual evidence + arch fence. Evidence: physics 231/231; artifacts 6/6; arch 72/72; verify ok. Next: human BOD may accept baked-path production opt-in; live engine still blocked (headset/local C5).
-
-
-### 2026-08-02 — physics-realbind-pre-prod-fence-v1 (Q5) verify ok
-
-Product path advanced: **Pre-production readiness fence** (not production readiness). Architecture rules block prod apps from physics package/engine deps + path imports; `runtimePromotionAllowed=false` exported + tested; UI-XR opt-in capture only with fence const; checklist `docs/openclinxr/physics-realbind-pre-production-readiness-checklist-2026-08-02.md` (blockers: contactStability, headset, local C5, human gate). Blueprint/factory tie: Q5 verification of MADR 0030 non-promotion posture. Touched: architecture-rules workspace tests; physics-touch-contract promotion-gates; ui-xr main+static-assets; READMEs; checklist. Evidence: verify ok; arch 70/70; physics 227/227; ui-xr 96/96. Token: see finish. Next: continue-autonomy — BOD may flip gate only via successor decision after checklist blockers cleared.
-
-
-### 2026-08-02 — arena-physics-clinical-touch-realbind-v1 COMPLETE (Q1+Q5)
-
-Product path advanced: **Successor realbind epic closed autonomously** (R1–R7). Real Rapier WASM (D1); tools factory physics_config.v1 (D2); UI-XR bone bind + dual PNG evidence (D3); measured metrics (D4); arena cagematch tree (D5); MADR 0030 **PROVEN** local determinism; R7 headset pre-declared deferred (OD-4). Named human gate `runtimePromotionAllowed` not flipped. Blueprint/factory tie: Q1 phenotype→physics_config→UI-XR; Q5 dual evidence + MADR. Touched: packages/openclinxr/arena/physics-touch-contract/**; tools/openclinxr/factory/generated-physics-config-artifacts.*; apps/ui-xr/src/main.ts + physics-touch; apps/arena/physics-clinical-touch/**; docs/madr/0030-*; docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md; operator-open-questions. Evidence: physics-touch-contract 221/221; factory 21/21; ui-xr 95/95; PNGs ~192kB; cagematch report+registry; slice-verify ok R1–R7; epic status completed. Claim honesty: contactStability mm may exceed aspirational <2mm (recorded in MADR); notEvidenceFor retained; no clinical/Quest claims. Token introspection: multi-slice autonomous; see per-slice finish lines. Task cost: est ~$2+ across R1–R7 subagents. Next: continue-autonomy-run-next — product residual; no garment thrash; physics promotion only via human gate flip.
-
-
-
-
-### 2026-08-02 — arena-physics-realbind-r3-ui-xr-bind (Q1) verify ok
-
-Product path advanced: Offline Rapier→bone transform JSON drives UI-XR `ed_anny_real_garment_patient` skinned GLB compose with breathing/sleeveDeform; orange emissive + openClinXrPhysicsTouchEvidence; capture PNGs ~192kB under `.openclinxr/evidence/physics-clinical-touch/2026-08-02-uixr-bind/`. No rapier in ui-xr prod deps. Blueprint/factory tie: Q1 D3 UI-XR bind. Evidence: verify ok; skeptic:visible; 195 physics + 95 ui-xr tests. Next: R4 measured metrics.
-
-### 2026-08-02 — arena-physics-realbind-r2-factory-physics-config (Q1) verify ok
-
-Product path advanced: Landed `tools/openclinxr/factory/generated-physics-config-artifacts.ts` (SCHEMA/KIND/OUTPUT_DIR/provenance); reuses physics-touch-contract habitus tables; adapters consume PhysicsConfigV1 (anti-invention tests). OD-2 phenotype bodyMechanics at package factory types. Blueprint/factory tie: Q1 phenotype→physics_config.v1 factory path (D2). Evidence: factory 21/21; physics-touch-contract 177/177; verify ok. Token introspection: see slice finish. Next: arena-physics-realbind-r3-ui-xr-bind (Q1).
-
-### 2026-08-02 — arena-physics-realbind-r1-rapier-wasm (Q5) verify ok
-
-Product path advanced: Real **Rapier WASM** (`@dimforge/rapier3d-compat`) behind `PhysicsAdapter` as `RapierRealAdapter` with `engineId: "rapier"` (not `/-candidate$/`). `real-engine-loaded.test.ts` proves AD-1 + C6 via real `world.takeSnapshot()` / restore; body re-track after restore uses `isKinematic()`. Candidates remain labeled baselines. Blueprint/factory tie: Q5 factory verification of real-engine determinism contract (D1); unblocks R2 factory generator (D2). Touched: packages/openclinxr/arena/physics-touch-contract/{package.json,src/adapters/rapier-real.ts,src/__tests__/real-engine-loaded.test.ts,src/index.ts}. Evidence: verify ok; 161/161 package tests; slice-verify ok. Token introspection: aligned; tier: pro; ccusageΔ=73896; grok flash=12 pro=23 composer=87; subagents=114 subPeak=314570; ratio=2.79. Task cost: $1.03 est; subagents=4; subTokens=430541; models=deepseek-v4-pro:$0.67|grok-4.5:$0.36. Next: arena-physics-realbind-r2-factory-physics-config (Q1).
-
-### 2026-08-02 — BOD incorporate arena realbind epic (plan massage)
-
-Product path advanced: Incorporated Desktop draft `Xxxyyy-arena.md.md` into autonomous work effort as successor epic **`arena-physics-clinical-touch-realbind-v1`**. Landed marching brief at `docs/openclinxr/arena-physics-clinical-touch-realbind-2026-08-02.md` (ACTIVE; AD-1..AD-7 anti-descope; OD-1..5 frozen defaults). Epic brief `.openclinxr/epics/ACTIVE`; residual product lane was empty (no silent preemption of open Q4). Operator-open-questions physics defer rows superseded. Blueprint/factory tie: Q1 factory physics_config + UI-XR bind path; Q5 real-engine C6. Evidence: epic ACTIVE; authority current-reference. Token introspection: n/a (CEO coordination). Next: R1 (closed this day).
-
-### 2026-08-02 — garment-sleeve-fit-parent-nurse-v1 (Q1+Q5) verify ok
-
-Product path advanced: Fixed boxy mid-torso shell — torso radius from shoulder band (not full arm-span); sleeves extruded along upper_arm bone; faceCount 380; parent/nurse 21.5/23.1MB staged. UI-XR recapture shows short-sleeve cyan t-shirt silhouette. Blueprint/factory tie: Q1 phenotype garmentLayers → fitted sleeve volume. Touched: automate_blender.py apply_role_clothing; public GLBs+rigging; inventory; MV branch parent-nurse-sleeve-fit-2026-08-02. Evidence: verify ok; fronts ≥116kB; revision embed_real_garment_sleeve_fit_along_arms_v1; skeptic:visible (xr). Token introspection: aligned; tier: pro; ccusageΔ=0; grok flash=12 pro=20 composer=83; subagents=107 subPeak=314570; ratio=2.79. Task cost: $1.40 est; subagents=3; subTokens=233538; models=grok-4.5:$1.40. Next: continue-autonomy-run-next.
-
-
-### 2026-08-02 — parent-nurse-ui-xr-recapture-after-bind-fix-v1 (Q5) verify ok
-
-Product path advanced: Fresh UI-XR parent/nurse sleeveDeform capture after bind-pose + cyan-strict (99bd9c1). PNGs ≥110kB with garmentGeometry ready, role color limbs. Blueprint/factory tie: Q5 verification of Q1 garment path. Evidence: `.openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/*front*` parent 113k nurse 117k. Claim honesty: cyan mesh still boxy mid-torso (fit residual deferred). Token: compose residual. Next: continue-autonomy-run-next.
-
-
-
-### 2026-08-02 — ui-admin-emission-autoload-cli-latest-v1 (Q4) verify ok
-
-Product path advanced: **EmissionReplayBindPanel auto-loads** `/fixtures/admin-replay-from-emission-latest.json` on mount (CLI live artifact); source badge `cli_latest_fixture`; SAMPLE only when fetch/parse fails; manual Load CLI + file pick retained.
-Blueprint/factory tie: Q4 review/persistence/replay — faculty workbench shows runtime_emission_real_turns without click thrash.
-Touched files: apps/ui-admin/src/EmissionReplayBindPanel.tsx; EmissionReplayBindPanel.test.tsx.
-Evidence: vitest 5/5 EmissionReplayBindPanel; slice-verify ok; fixture exists.
-Token introspection: n/a (short Q4 integrate)
-Task cost: n/a
-Next queued slice: parent-nurse-ui-xr-recapture-after-bind-fix-v1 (Q5) or openclaw:run-next product.
-
-### 2026-08-02 — heartbeat-hygiene-v1 (Q5) verify ok
-
-Product path advanced: Pruned triple concurrent 15m heartbeats that re-executed closed slices; recreated 1×15m + 1×30m durable schedulers with skip-closed + tip-first rehydrate. Blueprint/factory tie: Q5 factory continuity without toil. Evidence: schedulers recreated; alignment+drift green; tip a82fcc8. Next: continue-autonomy-run-next.
-
-
-### 2026-08-02 — ui-admin-emission-live-artifact-load-v1 (Q4) verify ok
-
-Product path advanced: Faculty EmissionReplayBindPanel loads live CLI admin-replay-from-emission projection (not sample-only) via public fixture + file pick + source badge. Blueprint/factory tie: Q4 review/replay real turns from runtime emission path. Touched: EmissionReplayBindPanel.tsx/test, public/fixtures/admin-replay-from-emission-latest.json. Evidence: 15/15 vitest; verify ok. Token: compose. Next: continue-autonomy-run-next.
-
-
-
-### 2026-08-02 — garment-bind-pose-fix-parent-nurse-v1 (Q1) verify ok
-
-Product path advanced: **Parent/nurse real garment mesh bind offset fixed** — embed authored in body local-Y height (not world-Z) so garment sits on torso after Y-up GLB export; revision `embed_real_garment_body_local_y_height_bind_pose_fix_v1` faceCount=324 deformsWithBreathing; re-exported public GLBs + rigging; UI-XR dual capture.
-Blueprint/factory tie: Q1 phenotype.garmentLayers → correct bind-pose runtime clothing volume (closes residual from reorchestrate).
-Touched files: tools/openclinxr/asset-pipeline/anny/automate_blender.py; apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb(+rigging); peds_nurse_kevin.glb(+rigging).
-Evidence: revision bind_pose_fix_v1; ui-xr capture under garment-bind-pose-fix-parent-nurse-2026-08-02; slice-verify ok=true; 95 ui-xr tests.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=13 pro=18 composer=73; flashΔ=0 proΔ=0 composerΔ=0; subagents=96 subPeak=310490; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5|grok-4.5-build; ratio=2.79
-Task cost: garment bind-pose fix integrate
-Next queued slice: optimize/scorecard (Q5) or website-evidence.
-
-### 2026-08-02 — optimize-product-under-os-v1 (Q5) verify ok
-
-Product path advanced: Post-product optimize pulse — alignment + drift-check green; product-under-os scorecard G4 latest notes for Q4 emission bind + parent/nurse Q1/Q5 reorch/framing; verdict PROGRESS. Blueprint/factory tie: Q5 factory verification of OS under product load. Touched: docs/agent-ops/product-under-os-scorecard-v1.json, PROJECT_STATUS.md. Evidence: pnpm agent:alignment + docs:drift-check ok; tip 87454dc. Token introspection: compose. Next: heartbeat run-next / residual product if any.
-
-
-
-
-### 2026-08-02 — framing-polish-parent-nurse-garment-ui-xr-v1 (Q5) verify ok
-
-Product path advanced: **UI-XR parent/nurse real-garment framing polish** — closer/lower camera (framing_polish labels), hide teal whiteboard/UI chrome during clean/sleeve capture only; dual-role sleeveDeform re-capture fronts ≥118kB. No re-orchestrate.
-Blueprint/factory tie: Q5 verification of multi-role real-garment runtime visibility after Q1 reorchestrate residual.
-Touched files: apps/ui-xr/src/main.ts; static-assets.test.ts; tools/openclinxr/evidence capture CLIs; .openclinxr/evidence/framing-polish-parent-nurse-garment-ui-xr-2026-08-02/*.
-Evidence: parent front 118229B; nurse front 122014B; ui-xr 95/95; slice-verify ok=true; skeptic_verdict=visible.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=14 pro=18 composer=69; flashΔ=2 proΔ=0 composerΔ=0; subagents=93 subPeak=280403; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5|grok-4.5-build; ratio=2.79
-Task cost: $4.66 est; subagents=7; subTokens=817422; subUsd=$4.66; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$4.66|deepseek-v4-flash:$0.0083
-Next queued slice: optimize/scorecard (Q5) or matrix next Q1 vertical.
-
-### 2026-08-02 — peds-parent-nurse-real-garment-reorchestrate-v1 (Q1+Q5) verify ok
-
-Product path advanced: **Re-orchestrated parent + nurse phenotype.garmentLayers real garment topology** (casual_top/open_cardigan; scrub_top/scrub_pocket) via orchestrate_character presets → public GLBs + rigging reports with realGarmentRegionFromPhenotype (324f, sleeve 0.28/0.42, 7x12, deformsWithBreathing, weighted clavicle/upper_arm). Dual MV turntable fronts show **role-distinct colorways** (parent pink vs nurse teal) vs prior bare white mannequins; UI-XR capture + inspection garmentGeometry names openclinxr_real_garment_from_phenotype_*. Residual: separate garment mesh bind offset under feet in MV (follow-on bind-pose fix).
-Blueprint/factory tie: Q1 case phenotype.garmentLayers → generated real garment mesh + promotion metadata; Q5 dual MV/UI-XR verification.
-Touched files: apps/ui-xr/public/generated-humanoids/peds_anxious_parent.* + peds_nurse_kevin.* (glb/rigging/provenance/bundle); apps/arena/model-vetting-studio/public/cagematch/anny-real-garment/parent-nurse-reorchestrate-2026-08-02/; evidence peds-parent-nurse-reorchestrate-2026-08-02 + ui-xr sleeve captures; handoffs.
-Evidence: slice-verify ok=true; skeptic:visible; dual MV PNG ~112kB; UI-XR PNG ≥260kB; cyan pixel counts non-zero; realGarmentRegionFromPhenotype in reports.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=12 pro=18 composer=67; flashΔ=0 proΔ=0 composerΔ=0; subagents=89 subPeak=266261; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5; ratio=2.79
-Task cost: $0.26 est; subagents=1; subTokens=43518; subUsd=$0.26; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$0.26
-Next queued slice: garment-bind-pose-fix-parent-nurse-v1 (Q1 residual) or next Q4 product vertical.
-
-### 2026-08-02 — peds-parent-nurse-real-garment-reorchestrate-v1 (Q1) verify ok
-
-Product path advanced: Parent + nurse public humanoids re-embedded with phenotype.garmentLayers real garment topology (324-face sleeved mesh, deformsWithBreathing, clavicle/upper_arm weights) via Blender apply_role_clothing_material_regions on real-Anny bases; staged to apps/ui-xr/public/generated-humanoids. UI-XR re-capture shows cyan/pink sleeve fragments vs prior bare mannequin. Blueprint/factory tie: Q1 case phenotype.garmentLayers → generated actor clothing runtime. Touched: peds_anxious_parent.glb (21.5MB), peds_nurse_kevin.glb (23.1MB), rigging/provenance/bundle. Evidence: realGarmentRegionFromPhenotype faceCount=324; capture PNGs ~262kB; inventory under .openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-2026-08-02/. Claim honesty: torso may still be occluded by teal board in default framing; not website-beauty full wardrobe. Token introspection: tier3 execution + compose integrate. Next: optimize or framing polish.
-
-
-
-
-
-
-
-### 2026-08-02 — admin-ui-emission-bind-v1 (Q4) verify ok
-
-Product path advanced: **Faculty Review Replay workbench binds runtime-emission real turns** via `EmissionReplayBindPanel` (turnSource=runtime_emission_real_turns Tag, actorTurnRefs, timeline, claimBoundary admin_replay_from_runtime_emission_not_clinical_validity). Not seeds-only. Props align with mapEmissionToAdminReplayProps; fixture always visible on /reviews.
-Blueprint/factory tie: Q4 review/persistence/replay — admin UI consumes emission projection path (authoring-loop close of real-turns UI surface).
-Touched files: apps/ui-admin/src/EmissionReplayBindPanel.tsx(+test); App.tsx(+test); IPL pathScope apps/ui-admin/** already present; handoffs.
-Evidence: ui-admin EmissionReplayBindPanel + App tests 12/12; slice-verify ok=true; skeptic_verdict=visible.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=11 pro=18 composer=58; flashΔ=3 proΔ=3 composerΔ=0; subagents=79 subPeak=250414; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5; ratio=2.79
-Task cost: $4.65 est; subagents=14; subTokens=1052565; subUsd=$4.65; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$4.27|deepseek-v4-pro-anthropic:$0.35|deepseek-v4-flash:$0.03
-Next queued slice: peds-parent-nurse-real-garment-reorchestrate-v1 (Q1) or ui-admin-emission-live-artifact-load-v1 (Q4 residual).
-
-### 2026-08-02 — ui-xr-parent-nurse-sleeve-deform-capture-v1 (Q5) verify ok
-
-Product path advanced: **UI-XR parent+nurse real-garment sleeveDeform capture** (front/three_quarter/body_motion PNGs dual-role ≥250kB fronts). Capture CLI `--role both` via ui-xr-peds-adaptive-dialogue-capture; comparators from prior Q1 wire; no re-orchestrate. Inspection + skeptic visible.
-Blueprint/factory tie: Q5 verification of multi-role real-garment runtime consumers in UI-XR sample (parent/nurse beyond patient-only).
-Touched files: tools/openclinxr/evidence/ui-xr-peds-adaptive-dialogue-capture.ts; tools/openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-capture.ts (if present); .openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/*; handoffs.
-Evidence: parent/nurse front PNGs 255k–342k; nurse fronts ~301k; slice-verify ok=true; skeptic_verdict=visible.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=9 pro=15 composer=49; flashΔ=0 proΔ=1 composerΔ=0; subagents=65 subPeak=222699; grokModels=deepseek-v4-flash|deepseek-v4-pro|deepseek-v4-pro-anthropic|grok-4.5|grok-4.5-build; ratio=2.79
-**Task cost: $1.25 est; subagents=4; subTokens=243441; subUsd=$1.25; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$1.15|deepseek-v4-pro-anthropic:$0.09**
-Next queued slice: admin-ui-emission-bind-v1 (Q4).
-
-### 2026-08-02 — ui-xr-parent-nurse-runtime-comparator-v1 (Q1) verify ok
-
-Product path advanced: **UI-XR first-class parent/nurse real-garment comparators** (`peds_anny_real_garment_parent` / `peds_anny_real_garment_nurse`). Asset paths → generated-humanoids parent/nurse GLBs; garment traverse cyan/no-cull/userData sleeveDeform for family/nurse roles; camera framing labels; static-assets coverage. No re-orchestrate; dual MV capture left as prior evidence.
-Blueprint/factory tie: Q1 phenotype.garmentLayers multi-role cast → runtime materialization consumers in UI-XR sample (beyond patient-only).
-Touched files: apps/ui-xr/src/main.ts; apps/ui-xr/src/static-assets.test.ts; handoffs.
-Evidence: ui-xr 95/95; slice-verify ok=true; promote worktree isolation.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=8 pro=13 composer=42; flashΔ=2 proΔ=0 composerΔ=0; subagents=55 subPeak=187507; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5|grok-4.5-build; ratio=2.79
-Task cost: $0.54 est; subagents=2; subTokens=135622; subUsd=$0.54; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$0.53|deepseek-v4-flash:$0.0094
-Next queued slice: ui-xr-parent-nurse-sleeve-deform-capture-v1 (Q5).
-
-### 2026-08-02 — encounter-authoring-runtime-emission-v1 (Q4) verify ok
-
-Product path advanced: **Runtime emission of real actor turns + review packet + ledger traces into durable-store sink** with published replay-safe artifact (`openclinxr.encounter-runtime-emission.v1`). CLI `pnpm encounter:runtime-emission` uses `createScenarioRuntimeWithPersistenceHooks`; path startSession→startEncounter→generateActorResponse→submitNote→reviewPacketAndPersist; saveActorTurnCount≥1, saveReviewPacketCount≥1; claimBoundary not clinical/production.
-Blueprint/factory tie: Q4 review/persistence/replay — authoring-loop follow-on: live runtime emission (not seeds-only) into durable store for admin replay consumption.
-Touched files: tools/openclinxr/encounter-runtime-emission.ts(+test); package.json script encounter:runtime-emission; .openclinxr/encounter-publication/encounter-runtime-emission-latest.json; handoffs.
-Evidence: vitest emission 3/3; scenario-runtime 22/22; CLI ok; slice-verify ok=true.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=6 pro=13 composer=40; flashΔ=0 proΔ=0 composerΔ=0; subagents=51 subPeak=149865; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79
-Task cost: $0.00 est; subagents=0; subTokens=0; subUsd=$0.00; parentTokens=0; parentUsd=$0.00; models=none
-Next queued slice: admin-replay-real-turns-v1 (Q4).
-
-### 2026-08-02 — wire-api-durableStore-consumer-v1 (Q4) verify ok
-
-Product path advanced: **ApiPersistenceSink wired as ScenarioRuntime durableStore consumer**. Adapter `createScenarioRuntimeDurableStoreFromApiPersistence` + bootstrap `createDefaultScenarioRuntime({ durableStore })` so actor-response path invokes `saveActorTurn`; package exports `DurableStorePersistenceHooks` / `createDurableStoreFromPersistenceHooks` / `createScenarioRuntimeWithPersistenceHooks`; CLI consumer proof; memory sink records turns+packets. Claim: not clinical/production readiness.
-Blueprint/factory tie: Q4 review/persistence/replay — runtime actor turns + review packets flow into API persistence sink (not only GET review-packet).
-Touched files: packages/openclinxr/scenario-runtime/src/{index.ts,scenario-runtime.test.ts}; apps/api/src/{runtime-durable-store.ts,runtime-durable-store.test.ts,api-bootstrap.ts,api-bootstrap.test.ts,app.ts,index.ts}; tools/openclinxr/wire-api-durable-store-consumer.ts; .openclinxr/encounter-publication/wire-api-durable-store-consumer-latest.json; handoffs.
-Evidence: scenario-runtime 22/22; api 98/98; CLI ok saveActorTurnCount=1 saveReviewPacketCount=1; slice-verify ok=true; worktree isolation promote.
-Token introspection: aligned; tier: pro; ccusageΔ=0; ccusageModels=none; grok flash=6 pro=13 composer=35; flashΔ=1 proΔ=0 composerΔ=0; subagents=46 subPeak=144118; grokModels=deepseek-v4-flash|deepseek-v4-pro|grok-4.5; ratio=2.79
-Task cost: $0.88 est; subagents=3; subTokens=186895; subUsd=$0.88; parentTokens=0; parentUsd=$0.00; models=grok-4.5:$0.87|deepseek-v4-flash:$0.0084
-Next queued slice: peds-evidence-loop (Q1) or matrix next Q1 vertical.
+| issue-197 garment coefficient product fix | execute+verify | **in flight** — cardigan hem 0.31→0.42 (decided from the #195 sweep); sleeve segment decision; rebake affected humanoids |
+| issue-194 in-process sweep harness | closed | **landed** L4/47t — equipment + rooms, 1.52 s; 19 of 37 ids are a 56-tri pole |
+| issue-195 garment bake matrix | closed | **landed** L4/32t (~8 min Blender) — 3 coefficients × 5 values; hem and sleeve defects measured |
+| issue-186 shell fixture vocabulary | closed | **landed** L4/33t — all 15 environments declare door/board/work-surface |
+| issue-187 humanoid load settle | closed | **landed** L3/46t — loud-and-degrade; headline premise withdrawn |
+| **Next queued** | operationalized | **equipment support-surface silhouettes** — give `hospital_bed`, `stretcher`, `side_rails` distinct multi-mesh builders in the existing #194 harness; fallback count must drop; before/after sheet graded |
 
 ## Recent Completions (last 7 unique)
 
