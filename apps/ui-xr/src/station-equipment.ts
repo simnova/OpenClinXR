@@ -23,6 +23,21 @@ import {
   type Object3D,
 } from "three";
 import { equipmentSuppressedByFixtureOwnership } from "./fixture-role-ownership.js";
+import {
+  buildHospitalBedEquipment,
+  buildSideRailsEquipment,
+  buildStretcherEquipment,
+} from "./station-equipment-support-surfaces.js";
+
+export {
+  buildHospitalBedEquipment,
+  buildSideRailsEquipment,
+  buildStretcherEquipment,
+  HOSPITAL_BED_DECK_TOP_M,
+  HOSPITAL_BED_LENGTH_M,
+  STRETCHER_EQ_DECK_TOP_M,
+  STRETCHER_EQ_LENGTH_M,
+} from "./station-equipment-support-surfaces.js";
 
 /** Real equipment GLBs under apps/ui-xr/public/xr-assets/medical-equipment/. */
 export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
@@ -166,6 +181,10 @@ const PARAMETRIC_KINDS = new Set([
   "tissue_box_equipment",
   "post_op_bed_equipment",
   "abdominal_dressing_equipment",
+  // #198 support surfaces — distinct silhouettes (not exam-table clones).
+  "hospital_bed_equipment",
+  "stretcher_equipment",
+  "side_rails_equipment",
 ]);
 
 /** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */
@@ -505,6 +524,12 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     case "post_op_bed_equipment":
     case "pediatric_stretcher_equipment":
       return buildExamTableEquipment(equipmentId);
+    case "hospital_bed_equipment":
+      return buildHospitalBedEquipment(equipmentId);
+    case "stretcher_equipment":
+      return buildStretcherEquipment(equipmentId);
+    case "side_rails_equipment":
+      return buildSideRailsEquipment(equipmentId);
     case "blood_pressure_cuff_equipment":
       return buildBloodPressureCuffEquipment(equipmentId);
     case "abdominal_exam_zone_equipment":

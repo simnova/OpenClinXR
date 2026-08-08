@@ -1,8 +1,10 @@
 /**
- * #194 — in-process generator sweep harness for the two pure three.js builders.
+ * #194 / #198 — in-process generator sweep harness for the two pure three.js builders.
  *
- * Subjects (this slice only):
- *  - equipment: buildDeclaredEquipmentGeometry(id) for every declared equipment id
+ * Subjects:
+ *  - equipment: resolveEquipmentGeometry(id) — parametric builder OR real GLB when
+ *    REAL_EQUIPMENT_GLTF_BY_ID declares one (#198 path honesty; sync-only was a harness
+ *    artefact that over-reported 2 of 19 "fallbacks").
  *  - rooms: buildStationEnvironment({ environmentId, optional dimension overrides })
  *
  * NOT in this slice: Blender human bake / clothing (clothing is a parameter of the
@@ -21,10 +23,14 @@
  *    "param sweep" — confounds fixture lists with dimensions.
  *  - Fallback rows: explicit resolvedToFallback=true from userData.openClinXrEquipmentSource
  *    (REJECTED signature-only 3/56 — clearer, harder to game by renaming).
+ *  - #198 GLB path: load once into a module cache via GLTFLoader.parse(ArrayBuffer)
+ *    (REJECTED re-parse every inspect — 1.52 s runtime is a feature; cache keeps it).
+ *  - #198 support surfaces: separate builders in station-equipment-support-surfaces.ts
+ *    (REJECTED shared parameterised bed/stretcher — silhouette collapse risk).
  *
  * claimScope: geometry ledger + contact sheets for the two in-process generators.
  * notEvidenceFor: clinical validity, visual quality grade (orchestrator grades sheets),
- * Quest readiness, garment/body generation, fixing fallback equipment builders.
+ * Quest readiness, garment/body generation.
  */
 
 import { createHash } from "node:crypto";
@@ -37,16 +43,18 @@ import { chromium } from "playwright";
 import {
   Box3,
   Color,
+  Group,
   Mesh,
   Vector3,
-  type Group,
   type MeshStandardMaterial,
   type Object3D,
 } from "../../../apps/ui-xr/node_modules/three/build/three.module.js";
+import { GLTFLoader } from "../../../apps/ui-xr/node_modules/three/examples/jsm/loaders/GLTFLoader.js";
 import { ENVIRONMENT_SHELL_DESCRIPTORS } from "../../../packages/openclinxr/asset-registry/src/environment-descriptors.js";
 import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/index.js";
 import {
   buildDeclaredEquipmentGeometry,
+  buildGenericClinicalEquipmentFallback,
   countEquipmentGeometry,
   REAL_EQUIPMENT_GLTF_BY_ID,
 } from "../../../apps/ui-xr/src/station-equipment.js";
@@ -56,11 +64,29 @@ import { buildContactSheet } from "./isolated-subject-harness.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
 export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-194";
-export const PRE_FIX_PATH = path.join(ISSUE_EVIDENCE_DIR, "pre-fix.json");
+/** #198 product evidence (support-surface builders + honest path ledger). */
+export const ISSUE_198_EVIDENCE_DIR = ".openclinxr/evidence/issue-198";
+export const PRE_FIX_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
 export const ROOM_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-ledger.json");
 export const EQUIPMENT_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-sheet.png");
+export const EQUIPMENT_SHEET_AFTER_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "equipment-sheet-after.png");
 export const ROOM_SWEEP_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-sweep-sheet.png");
+
+const MEDICAL_EQUIPMENT_DIR = path.join(
+  REPO_ROOT,
+  "apps/ui-xr/public/xr-assets/medical-equipment",
+);
+
+/** GLB groups cached once per process — keeps ~1.5 s harness runtime. */
+const gltfGroupCache = new Map<string, Group>();
+
+/** Support surfaces whose pre-fix rows freeze the fallback silhouette (#198). */
+const SUPPORT_SURFACE_IDS = new Set([
+  "hospital_bed_equipment",
+  "stretcher_equipment",
+  "side_rails_equipment",
+]);
 
 const SWEEP_ENV = "ed_exam_bay_v1";
 const WIDTH_SWEEP = [4, 7, 10] as const;
@@ -68,17 +94,37 @@ const HEIGHT_SWEEP = [2.0, 2.65, 3.4] as const;
 /** Depth variants for fixture-track diagnosis + sheet; not a formal contract sweep (maxZ pinned). */
 const DEPTH_SWEEP = [2.5, 3.45, 5] as const;
 
+export type ResolvedSource = "gltf" | "parametric" | "fallback";
+
 export type LedgerRow = {
   subjectId: string;
   subjectFamily: "equipment" | "room";
   params: Record<string, number | string | boolean>;
   meshCount: number;
+  /** Alias of meshCount — formula field name from the instrument contract. */
+  partCount: number;
   triangles: number;
   partNames: string[];
   worldAabb: { min: [number, number, number]; max: [number, number, number] };
+  /**
+   * footprintExtent = worldAabb.max - worldAabb.min (per axis).
+   * Extent, not a single-sided max — max alone is pinned by extreme geometry (§10o).
+   */
+  footprintExtent: [number, number, number];
+  /**
+   * deckHeightM = max(Y) over meshes whose name matches deck/mattress/seat/top.
+   * null when no deck-like part exists (e.g. side rails, wall clock).
+   */
+  deckHeightM: number | null;
+  /**
+   * silhouetteKey = `${partCount}|${triangles}|${footprintExtent.map(v => v.toFixed(2))}`
+   */
+  silhouetteKey: string;
   distinctMaterialColors: number;
   connectedComponents: number;
   resolvedToFallback: boolean;
+  /** Path identity: which production path produced this geometry. */
+  resolvedSource: ResolvedSource;
   /** Fixture world positions (rooms only) — for track-vs-constant diagnosis. */
   fixtureWorldPositions?: Array<{ slotId: string; x: number; y: number; z: number }>;
 };
@@ -264,6 +310,113 @@ function worldAabb(root: Object3D): { min: [number, number, number]; max: [numbe
   };
 }
 
+/** footprintExtent = worldAabb.max − worldAabb.min (vector, not scalar). */
+function footprintExtentOf(
+  aabb: { min: [number, number, number]; max: [number, number, number] },
+): [number, number, number] {
+  return [
+    aabb.max[0]! - aabb.min[0]!,
+    aabb.max[1]! - aabb.min[1]!,
+    aabb.max[2]! - aabb.min[2]!,
+  ];
+}
+
+/**
+ * deckHeightM = max(Y) over the primitive whose name matches the deck/top part.
+ * Matches mattress_deck, mattress, deck, seat, top (case-insensitive).
+ */
+function deckHeightMOf(root: Object3D): number | null {
+  root.updateMatrixWorld(true);
+  let maxY = -Infinity;
+  let found = false;
+  root.traverse((obj: Object3D) => {
+    if (!(obj instanceof Mesh) || !obj.name) return;
+    const n = obj.name.toLowerCase();
+    if (!/(mattress|deck|seat|top)/u.test(n)) return;
+    if (/push_bar|headboard|footboard|rail|post|bar|leg|caster|wheel|column|cross/u.test(n)) {
+      // Prefer true deck surfaces; skip structural names that also match loosely.
+      if (!/(mattress|deck|seat)/u.test(n)) return;
+    }
+    const box = new Box3().setFromObject(obj);
+    if (Number.isFinite(box.max.y) && box.max.y > maxY) {
+      maxY = box.max.y;
+      found = true;
+    }
+  });
+  return found ? maxY : null;
+}
+
+/** silhouetteKey = partCount|triangles|footprintExtent.map(v => v.toFixed(2)) */
+export function computeSilhouetteKey(
+  partCount: number,
+  triangles: number,
+  extent: [number, number, number],
+): string {
+  return `${partCount}|${triangles}|${extent.map((v) => v.toFixed(2)).join(",")}`;
+}
+
+function sourceFromUserData(root: Object3D): ResolvedSource {
+  const raw = root.userData?.openClinXrEquipmentSource;
+  if (raw === "gltf" || raw === "parametric" || raw === "fallback") return raw;
+  return "fallback";
+}
+
+/**
+ * Load a real equipment GLB via GLTFLoader.parse (Node-safe ArrayBuffer path).
+ * Cached once per absolute path for the process lifetime.
+ */
+async function loadGltfEquipmentGroup(equipmentId: string, gltfFileName: string): Promise<Group> {
+  const abs = path.join(MEDICAL_EQUIPMENT_DIR, gltfFileName);
+  const cached = gltfGroupCache.get(abs);
+  if (cached) {
+    // Clone so matrix/userData mutations per measure do not poison the cache.
+    const clone = cached.clone(true) as Group;
+    clone.userData = { ...cached.userData };
+    return clone;
+  }
+  if (!existsSync(abs)) {
+    throw new Error(`declared GLB missing for ${equipmentId}: ${abs}`);
+  }
+  const buf = readFileSync(abs);
+  const arrayBuffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  const loader = new GLTFLoader();
+  const gltf = await new Promise<{ scene: Object3D }>((resolve, reject) => {
+    loader.parse(
+      arrayBuffer,
+      path.dirname(abs) + path.sep,
+      (result: { scene: Object3D }) => resolve(result),
+      (err: unknown) => reject(err instanceof Error ? err : new Error(String(err))),
+    );
+  });
+  const root = new Group();
+  root.name = `openclinxr.equipment.${equipmentId}`;
+  root.add(gltf.scene);
+  root.userData.openClinXrEquipmentId = equipmentId;
+  root.userData.openClinXrEquipmentSource = "gltf";
+  root.userData.openClinXrRuntimeEquipmentAssetId = equipmentId;
+  root.userData.openClinXrGltfFileName = gltfFileName;
+  root.userData.openClinXrAffordances = ["selectable_equipment_reference", "clinical_workflow_cue"];
+  gltfGroupCache.set(abs, root);
+  const clone = root.clone(true) as Group;
+  clone.userData = { ...root.userData };
+  return clone;
+}
+
+/**
+ * Production-honest equipment resolve: GLB when declared and present, else parametric builder.
+ * This is what planStationEquipmentMounts + the learner mount path intend.
+ */
+export async function resolveEquipmentGeometry(equipmentId: string): Promise<Group> {
+  const gltfFile = REAL_EQUIPMENT_GLTF_BY_ID[equipmentId];
+  if (gltfFile) {
+    const abs = path.join(MEDICAL_EQUIPMENT_DIR, gltfFile);
+    if (existsSync(abs)) {
+      return loadGltfEquipmentGroup(equipmentId, gltfFile);
+    }
+  }
+  return buildDeclaredEquipmentGeometry(equipmentId);
+}
+
 function measureGroup(
   root: Group,
   input: {
@@ -271,9 +424,13 @@ function measureGroup(
     subjectFamily: "equipment" | "room";
     params: Record<string, number | string | boolean>;
     resolvedToFallback: boolean;
+    resolvedSource?: ResolvedSource;
   },
 ): LedgerRow {
   const counts = countEquipmentGeometry(root);
+  const aabb = worldAabb(root);
+  const extent = footprintExtentOf(aabb);
+  const partCount = counts.meshCount;
   const fixtureWorldPositions: LedgerRow["fixtureWorldPositions"] = [];
   if (input.subjectFamily === "room") {
     for (const child of root.children) {
@@ -291,17 +448,25 @@ function measureGroup(
     }
     fixtureWorldPositions.sort((a, b) => a.slotId.localeCompare(b.slotId));
   }
+  const resolvedSource: ResolvedSource =
+    input.resolvedSource
+    ?? (input.subjectFamily === "equipment" ? sourceFromUserData(root) : "parametric");
   return {
     subjectId: input.subjectId,
     subjectFamily: input.subjectFamily,
     params: input.params,
     meshCount: counts.meshCount,
+    partCount,
     triangles: counts.triangleCount,
     partNames: collectPartNames(root),
-    worldAabb: worldAabb(root),
+    worldAabb: aabb,
+    footprintExtent: extent,
+    deckHeightM: input.subjectFamily === "equipment" ? deckHeightMOf(root) : null,
+    silhouetteKey: computeSilhouetteKey(partCount, counts.triangleCount, extent),
     distinctMaterialColors: collectDistinctColors(root),
     connectedComponents: countPositionMergedComponents(root),
     resolvedToFallback: input.resolvedToFallback,
+    resolvedSource,
     ...(fixtureWorldPositions.length > 0 ? { fixtureWorldPositions } : {}),
   };
 }
@@ -486,19 +651,43 @@ function writeJson(filePath: string, data: unknown): void {
   writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
-/** Write pre-fix.json from CURRENT builders (call before any product edit if missing). */
-export function writePreFixArtifact(): string {
+/**
+ * Write pre-fix.json for #198.
+ *
+ * Support-surface ids are measured with the GENERIC FALLBACK silhouette even after
+ * builders land — that freezes the before-column. All other ids use the honest
+ * resolve path (GLB when declared, else parametric).
+ */
+export async function writePreFixArtifact(): Promise<string> {
   const equipmentIds = listDeclaredEquipmentIds();
-  const equipment = equipmentIds.map((id) => {
-    const group = buildDeclaredEquipmentGeometry(id);
-    const counts = countEquipmentGeometry(group);
-    return {
+  const equipment: Array<Record<string, unknown>> = [];
+  for (const id of equipmentIds) {
+    let group: Group;
+    if (SUPPORT_SURFACE_IDS.has(id)) {
+      group = buildGenericClinicalEquipmentFallback(id);
+    } else {
+      group = await resolveEquipmentGeometry(id);
+    }
+    const row = measureGroup(group, {
+      subjectId: id,
+      subjectFamily: "equipment",
+      params: {},
+      resolvedToFallback: sourceFromUserData(group) === "fallback",
+      resolvedSource: sourceFromUserData(group),
+    });
+    equipment.push({
       equipmentId: id,
-      resolvedBuilder: String(group.userData.openClinXrEquipmentSource ?? "unknown"),
-      meshCount: counts.meshCount,
-      triangles: counts.triangleCount,
-    };
-  });
+      resolvedSource: row.resolvedSource,
+      resolvedBuilder: row.resolvedSource,
+      meshCount: row.meshCount,
+      partCount: row.partCount,
+      triangles: row.triangles,
+      footprintExtent: row.footprintExtent,
+      deckHeightM: row.deckHeightM,
+      silhouetteKey: row.silhouetteKey,
+      resolvedToFallback: row.resolvedToFallback,
+    });
+  }
   const environments = listEnvironmentIds().map((id) => {
     const group = buildStationEnvironment({ environmentId: id });
     const counts = countEquipmentGeometry(group);
@@ -513,19 +702,20 @@ export function writePreFixArtifact(): string {
       aabb,
     };
   });
+  const fallbackCount = equipment.filter((e) => e.resolvedToFallback === true).length;
   const payload = {
     schemaVersion: "openclinxr.generator-sweep.pre-fix.v1",
     measuredAt: new Date().toISOString(),
     mechanism:
-      "buildDeclaredEquipmentGeometry + buildStationEnvironment in-process; equipment from scenarioBank∪manifests∪bundles∪REAL_EQUIPMENT; envs from ENVIRONMENT_SHELL_DESCRIPTORS",
+      "resolveEquipmentGeometry (GLB when declared else parametric) + support surfaces frozen as fallback silhouette for before-column; envs from ENVIRONMENT_SHELL_DESCRIPTORS",
     ambientFailureClass:
-      "equipment: N ids resolve to buildGenericClinicalEquipmentFallback (3 meshes / 56 tris); rooms: fixture slot positions are descriptor constants not derived from room dimensions",
+      "equipment: support surfaces + remaining ids resolved to buildGenericClinicalEquipmentFallback (3 meshes / 56 tris grey pole); two GLB ids (ecg_cart, iv_stand) were previously over-reported as fallback by the sync-only harness; rooms: fixture slot positions are descriptor constants not derived from room dimensions",
     equipmentCount: equipment.length,
     environmentCount: environments.length,
-    fallbackCount: equipment.filter((e) => e.resolvedBuilder === "fallback").length,
+    fallbackCount,
     equipment,
     environments,
-    claimScope: "pre-fix enumeration of in-process generator outputs (#194)",
+    claimScope: "pre-fix enumeration of in-process generator outputs (#198)",
     notEvidenceFor: ["clinical_validity", "quest_readiness", "visual_quality_grade"],
   };
   const out = absEvidence(PRE_FIX_PATH);
@@ -590,28 +780,31 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   if (cachedReport) return cachedReport;
 
   if (!existsSync(absEvidence(PRE_FIX_PATH))) {
-    writePreFixArtifact();
+    await writePreFixArtifact();
   }
 
   const evidenceDir = absEvidence(ISSUE_EVIDENCE_DIR);
   mkdirSync(evidenceDir, { recursive: true });
+  const evidence198Dir = absEvidence(ISSUE_198_EVIDENCE_DIR);
+  mkdirSync(evidence198Dir, { recursive: true });
   const cellDir = path.join(evidenceDir, "cells");
   mkdirSync(cellDir, { recursive: true });
 
   const ledger: LedgerRow[] = [];
   const sweeps: GeneratorSweepReport["sweeps"] = [];
 
-  // --- Equipment: every declared id once ---
+  // --- Equipment: every declared id once (honest GLB | parametric | fallback) ---
   const equipmentIds = listDeclaredEquipmentIds();
   const equipmentCells: Array<{ imagePath: string; label: string }> = [];
   for (const id of equipmentIds) {
-    const group = buildDeclaredEquipmentGeometry(id);
-    const source = String(group.userData.openClinXrEquipmentSource ?? "");
+    const group = await resolveEquipmentGeometry(id);
+    const source = sourceFromUserData(group);
     const row = measureGroup(group, {
       subjectId: id,
       subjectFamily: "equipment",
       params: {},
       resolvedToFallback: source === "fallback",
+      resolvedSource: source,
     });
     ledger.push(row);
     const cellPath = path.join(cellDir, `eq_${id}.png`);
@@ -749,8 +942,11 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
           : "no";
 
   const eqSheetAbs = absEvidence(EQUIPMENT_SHEET_PATH);
+  const eqSheetAfterAbs = absEvidence(EQUIPMENT_SHEET_AFTER_PATH);
   const roomSheetAbs = absEvidence(ROOM_SWEEP_SHEET_PATH);
   await writeContactSheetFromCells(equipmentCells, eqSheetAbs, 5);
+  // #198 after sheet — same framing/cells as the primary equipment sheet.
+  writeFileSync(eqSheetAfterAbs, readFileSync(eqSheetAbs));
   // Room sheet: prefer sweep cells + a sample of envs (cap for readability)
   const roomSheetCells = [
     ...roomCells.filter((c) =>
@@ -790,15 +986,14 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   const report: GeneratorSweepReport = {
     ledger,
     sweeps,
-    contactSheetPaths: [EQUIPMENT_SHEET_PATH, ROOM_SWEEP_SHEET_PATH],
+    contactSheetPaths: [EQUIPMENT_SHEET_PATH, ROOM_SWEEP_SHEET_PATH, EQUIPMENT_SHEET_AFTER_PATH],
     claimScope:
-      "in-process sweep of buildDeclaredEquipmentGeometry + buildStationEnvironment; geometry ledger is the contract surface; sheets are for human grade only",
+      "in-process sweep of resolveEquipmentGeometry (GLB|parametric|fallback) + buildStationEnvironment; geometry ledger is the contract surface; sheets are for human grade only",
     notEvidenceFor: [
       "clinical_validity",
       "quest_readiness",
       "visual_quality_as_pass_fail",
       "garment_or_body_generation",
-      "fixing_fallback_equipment_builders",
     ],
     fixturesTrackRoomDimensions: fixturesTrack,
     renderPath: "other:software_orthographic",
@@ -827,14 +1022,14 @@ async function main(argv: readonly string[]): Promise<number> {
   const family = argv.includes("--family")
     ? argv[argv.indexOf("--family") + 1]
     : "all";
-  if (!existsSync(absEvidence(PRE_FIX_PATH))) {
-    writePreFixArtifact();
-    console.log(`wrote ${PRE_FIX_PATH}`);
-  }
   if (family === "pre-fix") {
-    writePreFixArtifact();
-    console.log(`wrote ${PRE_FIX_PATH}`);
+    const out = await writePreFixArtifact();
+    console.log(`wrote ${out}`);
     return 0;
+  }
+  if (!existsSync(absEvidence(PRE_FIX_PATH))) {
+    const out = await writePreFixArtifact();
+    console.log(`wrote ${out}`);
   }
   const report = await inspectGeneratorSweep();
   console.log(JSON.stringify(report.reportSummary, null, 2));
