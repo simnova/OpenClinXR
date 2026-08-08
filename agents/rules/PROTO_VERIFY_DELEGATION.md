@@ -2583,3 +2583,125 @@ from the contract without calibrating it first (§9h — it had no known-good co
 threshold does not remove the others.
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9l. A byte floor on an image does not just fail to prove it — it RESHAPES it
+
+§8n established that `exists:` + `min-bytes:` teaches a worker "the capture ran". #164 shows the
+stronger version: the floor changes what gets built. Its contact sheet came back at 67,855 bytes
+against my 60,000 floor, and asked whether that pressured the artifact, the worker was completely
+straight:
+
+> "**Yes — it shaped the artifact.** First sheet was ~28 KB (blocked panel + small cells). I enlarged
+> viewport/cells and thickened the blocked panel copy specifically to clear 60 KB. That is
+> padding-adjacent: still a real sheet, but the floor pushed *layout*, not only 'file exists.'"
+
+The sheet was honest and the layout was chosen to clear a number I invented. That is §7a — a
+threshold becomes a design target for the thing being measured — arriving through an evidence
+artifact rather than through product geometry.
+
+**Rule:** on a rendered artifact, either use `exists:` alone and grade the pixels yourself, or set the
+floor at a level an ordinary capture of that kind already clears without redesign. Never pick a number
+that a legitimate minimal result would miss — a blocked run, an empty set, a single-subject sheet.
+
+The tell: you are choosing the floor to be "high enough that a stub would fail." A stub is not the
+failure mode; a *truthfully small* artifact is.
+
+## 9m. A closed verdict enum needs the rule that separates its values
+
+§7c required every closed vocabulary to carry an escape value. #164 adds the other half. Its enum was
+`adopt | reject_measured | inconclusive_blocked`, the escape value was visible and understood, and the
+worker still had to invent the boundary:
+
+> "`inconclusive_blocked` felt right for *before* repair (0 nodes, hollow torch). After a green
+> object_info and a live prompt that names `cumesh_vb`, `reject_measured` matched... If you want
+> blocked reserved for 'couldn't run the experiment,' say so in one line."
+
+Its proposed line, adopted: **`reject_measured` = the graph ran and failed closed on a dependency or a
+metric; `inconclusive_blocked` = the graph never executed.**
+
+It chose correctly. But the choice decided how the finding reads on the board forever — "we measured
+that this cannot work here" versus "we could not get it running" — and nothing in the contract
+distinguished them.
+
+**Rule:** for any enum where two values could describe the same run, state the discriminator in one
+sentence beside the enum. Listing the values is not defining them.
+
+## 9n. The pre-fix gate is now SIX workers deep and it is still prose
+
+§7p recorded three workers independently nominating a gated pre-fix measurement. #147, #150, #171 and
+#164 make it six or seven, and #171's is the clearest evidence that the prose does not bind — because
+it was followed in spirit and violated in fact:
+
+> "Brief said measure **before** product; I had already wired product, so pre-fix stations are
+> **reconstructed ambient 0s** + live flat head geometry after force-0. Honest about ambient class,
+> not a pure pre-edit live bank."
+
+The worker was straight about it, unprompted. The artifact still exists, still carries the right
+numbers, and is **not a pre-fix measurement** — it is a post-fix reconstruction of what the pre-fix
+state must have been. For a calibration record whose whole job is to be the before-column, that is the
+difference between evidence and inference.
+
+**This has now been "adopted as standing practice" twice and enforced zero times, because a `done_when`
+rule can only check that the artifact EXISTS, not WHEN it was written.** Recording it a third time
+changes nothing. It needs a mechanism — `dispatch()` recording the tree state at spawn, and the proof
+comparing the artifact's declared `measuredAgainstCommit` against it — or it should stop being
+promised in briefs.
+
+Filed rather than re-recorded. A rule that six workers have asked for and nobody has built is not a
+doctrine problem.
+
+## 9o. Repair the environment BEFORE dispatch — naming the hazard does not prevent it
+
+#164 spent **28–32 of 58 turns**, roughly half the slice, repairing a ComfyUI virtualenv that I had
+broken before dispatch with `pip install --break-system-packages`. The brief NAMED the hazard: it said
+the boot is slow, that I had reported "zero nodes" three times and been wrong, and that a port
+answering is not proof it is answering from your build (§9b).
+
+The worker's verdict on whether that helped:
+
+> "Prose alone helped *diagnosis after* the first wrong read; it did **not prevent** the thrash...
+> **Best: repair before dispatch** and paste the probe into the brief. Almost as good: a one-line
+> pre-flight command that must print `trellis>=20` and `torch.__file__` under the intended venv before
+> any product edit."
+
+It also made the damage worse mid-slice with `pip install --target` into the hollow tree — a move a
+single brief line ("do not reinstall into this venv without confirming `pyvenv.cfg` and a non-zero
+`torch/lib`") would have stopped.
+
+**Rule:** an environment the orchestrator has touched gets repaired and PROBED before dispatch, and the
+probe output goes in the brief as a fact. Warning a worker about a trap you left is not delegation, it
+is charging them for your cleanup — and §6w already established that thrash is the orchestrator's
+failure, not evidence about slice size.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 9p. `pnpm test | tail` reports TAIL's exit code — my health gate was measuring the wrong process
+
+Measured 2026-08-07. Every health check in a long autonomous session had the shape:
+
+    pnpm test 2>&1 | tail -25
+
+A shell pipeline's exit status is the status of its **last** command. `tail` always succeeds. So the
+harness reported `exit code 0` on runs where `pnpm test` had exited 1 — and because the visible output
+was the last 25 lines, a summary line reading `Test Files 5 failed` scrolled past while the status said
+green.
+
+Main was red at `hm08-upright-export` for an unknown number of cycles behind that. The failure was not
+subtle: three tests, a `CALIBRATION MISMATCH` refusing loudly because a *later* slice had fixed the
+asset the baseline recorded as broken.
+
+This is the #55 class — a health gate reporting green over a red main — arriving through a shell
+idiom rather than through a cache. The rules file already warns that *"a shell wrapper's exit code is
+not the worker's"*; the same sentence applies to the orchestrator's own commands and I did not apply it
+to myself.
+
+**Rule:** never pipe a gate whose exit code you intend to trust. Redirect to a file and read it, or use
+`set -o pipefail`, or check `${PIPESTATUS[0]}`. If you want both the status and a readable tail:
+
+    pnpm test > /tmp/t.log 2>&1; echo "EXIT=$?"; tail -25 /tmp/t.log
+
+The generalisation: **any transformation between a check and its reported status can invert the
+result.** Grep, tail, tee, a wrapper script, a background waiter. Ask what process the status you are
+reading actually belongs to.
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
