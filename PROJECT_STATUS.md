@@ -29,14 +29,14 @@ Last updated: 2026-08-08
 
 **On hold:** ~40 board issues, explicitly not withdrawn — runtime defects, capture framing, Lane B (API/admin), review gates, licensing, all substrate. They resume when the operator lifts the restriction.
 
-**Measured state of the four generators (2026-08-08):**
+**THREE ACTIVE GENERATORS AND ONE FROZEN BASE CONSTRAINT** (reframed by orchestration review #2, 2026-08-08). Calling humans a peer generator is how body-adjacent thrash gets re-dispatched:
 
-| generator | state |
+| lane | status |
 |---|---|
-| equipment | 37 declared ids; **19 resolve to a 56-triangle pole**, including `hospital_bed`, `stretcher`, `side_rails`, `12_lead_ecg_machine`. 18 parametric kinds collapse to ~8 triangle signatures. |
-| clothing | 7 hardcoded coefficients; cardigan hem `0.31` ships a **below-knee coat**; `arm_len` is shoulder→elbow only so **every garment is elbow-length by construction**. |
-| rooms | parametric fixtures landed (#186); fixture positions are hand-picked constants that **do not track room dimensions** (276 tris across every sweep). `roomProp()` is still a 1×1×1 box (`main.ts:6131`). |
-| humans | **frozen.** `import anny` fails; the two adult bases are one mesh at 0.955 scale (13,348 verts both). No body generation runs on this machine. |
+| **equipment** | **distinctness DONE.** 37/37 ids have geometry, zero resolve to the fallback, no silhouette collisions. Residual is *kind-misreads* — the ECG machine reads as a white fridge cart, the wall O2 port as a traffic-light icon — which are family-shape bugs, **not** a fidelity programme. Photoreal instance is out of scope under a harness-only directive and needs real GLBs under provenance, not more procedural tuning. |
+| **rooms** | **active.** Fixture positions derive from room dimensions; door and board are wall-anchored with a constant gap. Residual: the gap is a different accident in every room — **0.35 m to 1.45 m across fourteen environments**, following `halfWidth − 2.15` from one shared constant (#204). |
+| **clothing** | **active only for non-forearm parameters.** Cardigan hem shipped at 0.42 and four humanoids rebaked. Sleeve *length* is closed as body-bound, not coefficient-bound — #197 proved the lever by moving it to its limit. |
+| **humans** | **FROZEN / measure-only.** `import anny` fails and the operator declined the restore (#192). The arm surface ends between `y_frac 0.54` and `0.50` — 1,146 vertices past 0.25 lateral at 0.54, **zero** at 0.50. No body-surface-derived garment can have a long sleeve because there is no forearm. Only #199's residual band measurement remains, and it authors no geometry. |
 
 **Operator decisions recorded 2026-08-08 (#192):** hm08 basemesh ships as-is (#161 closed); CC-BY garments allowed conditional on a compliance surface that does not yet exist (#193); Anny package restore skipped.
 
@@ -48,12 +48,14 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| issue-197 garment coefficient product fix | execute+verify | **in flight** — cardigan hem 0.31→0.42 (decided from the #195 sweep); sleeve segment decision; rebake affected humanoids |
-| issue-194 in-process sweep harness | closed | **landed** L4/47t — equipment + rooms, 1.52 s; 19 of 37 ids are a 56-tri pole |
-| issue-195 garment bake matrix | closed | **landed** L4/32t (~8 min Blender) — 3 coefficients × 5 values; hem and sleeve defects measured |
-| issue-186 shell fixture vocabulary | closed | **landed** L4/33t — all 15 environments declare door/board/work-surface |
-| issue-187 humanoid load settle | closed | **landed** L3/46t — loud-and-degrade; headline premise withdrawn |
-| **Next queued** | operationalized | **equipment support-surface silhouettes** — give `hospital_bed`, `stretcher`, `side_rails` distinct multi-mesh builders in the existing #194 harness; fallback count must drop; before/after sheet graded |
+| **Next queued** | operationalized | **#204** — one door inset for every room, picked from a rendered sweep. Shipped geometry **will** move (up to 1.1 m in the stroke bay); the slice must explicitly reverse #203's preserve-defaults counterweight. |
+| issue-203 wall-anchored fixtures | closed | **landed** L5/25t — door gap constant at every width (was 0.77→1.93) |
+| issue-196 fixture positions + gradeable framing | closed | **landed** L5/29t — positions derive from room plan; iso_exterior chosen from 3 candidates |
+| issue-202 equipment generator completion | closed | **landed** L5/27t — fallback 14→0, all 37 ids accounted |
+| issue-198 clinical support surfaces | closed | **landed** L4/22t — bed, stretcher, rails distinct; GLB path honest |
+| issue-197 garment coefficient product fix | closed | **landed** L4/32t — hem 0.31→0.42 shipped, 4 humanoids rebaked |
+
+**Orchestration review #2 verdict (2026-08-08):** stop condition **cleared for real** — five product landings, three at L5, shipping generators moved, *"not a technicality."* Root cause named for three of my errors: **predicate–subject mismatch** — the assertion is well-formed and the thing it is evaluated over is not the defect. Faces: population (#196's RED green while the defect lived), lifecycle (integrate's rebuild measured after the merge, when the range is empty), policy subject (#198 and #202 asserting opposite values of one ledger field). Mechanisms built rather than narrated: `ambient-fail-gate.ts` refuses a dispatch whose planted contract is already green on main, and an ordering test in `integrate.test.ts` fails if the rebuild capture moves back after the merge.
 
 ## Recent Completions (last 7 unique)
 

@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -199,5 +199,42 @@ describe("merge-report precedence is anchored to the landing commit", () => {
     const failing = report({ proofsOk: false });
     expect(usable(failing, LANDING)).toBe(true);
     expect(failing.proofsOk).toBe(false);
+  });
+});
+
+describe("the rebuild target list is captured before the merge (#203 retro)", () => {
+  it("packagesNeedingRebuild is called on a range that still contains the change", () => {
+    // 8144ca5 added a post-merge rebuild that NEVER FIRED: after `git merge` the head branch is an
+    // ancestor of base, so `git diff base...head` is empty and the detector returns []. Measured on
+    // the #203 land, which changed packages/openclinxr/asset-registry/src/**:
+    //
+    //   post-merge  main...wt/issue-203    -> []
+    //   pre-merge   main~1...wt/issue-203  -> ['@openclinxr/asset-registry']
+    //
+    // I probed the FUNCTION with a simulated pre-merge range and passed it, then wired the call in
+    // AFTER the commit. Unit-testing the helper could never catch that — the bug was always WHEN it
+    // ran. This test reads the source order, which is the only thing that binds it.
+    const source = readFileSync(
+      new URL("./integrate.ts", import.meta.url),
+      "utf8",
+    );
+    const captureAt = source.indexOf("packagesNeedingRebuild(input.repoRoot, input.base, input.head)");
+    const mergeAt = source.indexOf('execFileSync("git", ["merge"');
+    const rebuildAt = source.indexOf('execFileSync("pnpm", ["--filter", pkg, "build"]');
+
+    expect(captureAt, "packagesNeedingRebuild is never called in integrate()").toBeGreaterThan(-1);
+    expect(mergeAt, "no git merge in integrate()").toBeGreaterThan(-1);
+    expect(rebuildAt, "no rebuild step in integrate()").toBeGreaterThan(-1);
+
+    expect(
+      captureAt,
+      "rebuild targets are captured AFTER the merge — `base...head` is empty by then and the "
+      + "rebuild will silently never fire (this is the 8144ca5 bug)",
+    ).toBeLessThan(mergeAt);
+
+    expect(
+      rebuildAt,
+      "the rebuild runs before the merge — it must run after the commit so the sources are on the branch",
+    ).toBeGreaterThan(mergeAt);
   });
 });
