@@ -3293,22 +3293,20 @@ function createStationScene(): StationSceneRuntime {
     floor.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
   }
   // Case-env glTF handoff (factory caseDerivedVirtualEnvironment → player load).
+  // #85 + #189: NEVER load a humanoid/candidate GLB as "environment". The peds asthma
+  // handoff pointed at reom-local-authored-curved-clinical-top-candidate.glb and spawned a
+  // fourth nude figure (Reom/Tearline at origin) while the real parent cast was clothed at
+  // family slot x≈1.42 — the nude learner saw was that orphan, not a missing garment mesh.
   floor.userData.caseDerivedVirtualEnvGltfHandoff = {
-    // #85: never load a humanoid garment GLB as "environment" for ED — it spawned a 4th bare figure.
-    gltfAssetUrl: encounterRuntimeAssetBundle.scenarioId === "peds_asthma_parent_anxiety_v1" ? "/xr-assets/humanoids/candidates/reom-local-authored-curved-clinical-top-candidate.glb" : null,
-    policy: "gltf handoff for virtual env that runtime player will use (vetted three + gltf open source first, M1, no overclaim, blueprint drives from case); real asset stand-in so success onLoad executes in launched experience",
+    gltfAssetUrl: null,
+    policy: "gltf handoff reserved for factory-produced ROOM shells only; humanoid candidates are actors via loadGeneratedHumanoidIntoActorSlot, never environment",
     source: "factory case spec derivation + tech vet",
     producedManifestPath: (() => {
       const sid = encounterRuntimeAssetBundle.scenarioId;
       const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
       return room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
     })(),
-    producedGltfUrl: (() => {
-      const sid = encounterRuntimeAssetBundle.scenarioId;
-      const room = sid === "peds_asthma_parent_anxiety_v1" ? "peds_asthma_clinic_exam_room" : (sid === "ed_chest_pain_priority_v1" ? "ed_trauma_bay" : null);
-      const p = room ? `/tmp/openclinxr-produced-env-gltf-${room}.json` : null;
-      return p ? null : null;
-    })(),
+    producedGltfUrl: null as string | null,
   };
   scene.add(stationEnvironment);
   scene.userData.openClinXrStationEnvironment = {
