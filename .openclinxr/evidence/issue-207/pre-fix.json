@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "openclinxr.fixture-surface-distinct.v1",
+  "kind": "fixture_surface_distinct",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-08T12:53:47.785Z",
+  "claimScope": [
+    "fixture_layout_surface_geometry_identity",
+    "exam_overbed_work_surface_distinctness"
+  ],
+  "notEvidenceFor": [
+    "clinical_furniture_realism",
+    "quest_readiness",
+    "equipment_mount_planner_placement"
+  ],
+  "report": {
+    "surfaces": [
+      {
+        "slotId": "exam_surface",
+        "meshNames": [
+          "base",
+          "top",
+          "backsplash",
+          "drawer"
+        ],
+        "triangleCount": 48,
+        "sizeMeters": {
+          "x": 1.149999976158142,
+          "y": 1.0399999850988388,
+          "z": 0.5
+        },
+        "signature": "size=1.150x1.040x0.500|tris=48|meshes=backsplash,base,drawer,top",
+        "environmentId": "pediatric_urgent_care_bay_v1",
+        "position": {
+          "x": 1.65,
+          "y": 0,
+          "z": -0.55
+        },
+        "fixtureKind": "work_surface"
+      },
+      {
+        "slotId": "overbed_surface",
+        "meshNames": [
+          "column",
+          "base",
+          "top"
+        ],
+        "triangleCount": 64,
+        "sizeMeters": {
+          "x": 0.550000011920929,
+          "y": 0.9974999996274709,
+          "z": 0.3499999940395355
+        },
+        "signature": "size=0.550x0.997x0.350|tris=64|meshes=base,column,top",
+        "environmentId": "inpatient_ward_room_v1",
+        "position": {
+          "x": 0.15,
+          "y": 0,
+          "z": -0.35
+        },
+        "fixtureKind": "overbed_surface"
+      },
+      {
+        "slotId": "work_surface",
+        "meshNames": [
+          "base",
+          "top",
+          "backsplash",
+          "drawer"
+        ],
+        "triangleCount": 48,
+        "sizeMeters": {
+          "x": 1.149999976158142,
+          "y": 1.0399999850988388,
+          "z": 0.5000000000000001
+        },
+        "signature": "size=1.150x1.040x0.500|tris=48|meshes=backsplash,base,drawer,top",
+        "environmentId": "ob_triage_room_v1",
+        "position": {
+          "x": 1.75,
+          "y": 0,
+          "z": -0.85
+        },
+        "fixtureKind": "work_surface"
+      }
+    ],
+    "claimScope": [
+      "fixture_layout_surface_geometry_identity",
+      "exam_overbed_work_surface_distinctness"
+    ],
+    "notEvidenceFor": [
+      "clinical_furniture_realism",
+      "quest_readiness",
+      "equipment_mount_planner_placement"
+    ]
+  },
+  "ambientFailureClass": "exam_surface_shares_work_surface_signature longestXZ=1.150m (need exam-table ~1.85m, distinct builders)",
+  "treeStamp": {
+    "head": "2f7c1ceb485a8cee426be872df9b1244905230c3",
+    "fingerprint": "d01acd01b3611293dff315200221382badd0642fd64e3f7225be560331e16250",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}

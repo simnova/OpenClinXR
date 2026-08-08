@@ -155,7 +155,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
       // #183: was (1.1, 0, 0.4) — sits between clinical_team framing (0.64, 0.3) and family
       // framing (1.42, 0.04); nurse + spouse both measured ≥0.63 XZ inside the cart body.
       // Park on patient-side bay, clear of standing plants and the stretcher at (-0.9, −0.1).
-      { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: -2.15, y: 0, z: 0.55 } },
+      // #207: (-2.15, 0.55) grazed inclined stretcher AABB (maxX≈−1.92, maxZ≈0.39) by ~2 cm —
+      // push −X/+Z so fixture clearance stays clear without allow-listing the pair.
+      { slotId: "ecg_cart", purpose: "ECG cart parking", position: { x: -2.45, y: 0, z: 0.75 } },
       DOOR_LEAF,
       WALL_BOARD,
       { slotId: "learner_start", purpose: "Learner entry", position: { x: 0, y: 0, z: 1.4 } },

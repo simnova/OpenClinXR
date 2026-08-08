@@ -470,9 +470,18 @@ export const OVERBED_SURFACE: EnvironmentFixtureSlot = {
   position: { x: 0.15, y: 0, z: -0.35 },
 };
 
-/** Clinic exam bay surface (work-surface silhouette; role = work_surface, not second bed). */
+/**
+ * Clinic exam bay table (exam-table length, role = work_surface for ownership — not a second bed).
+ *
+ * #207: was x=1.65 with a 1.15 m desk silhouette. Real exam table is EXAM_TABLE_LENGTH_M=1.85 m
+ * on local Z (depth). Placed at (0.15, −0.9) so half-width ~0.35 clears:
+ *   - family_chair (−0.55) and patient plant (−0.72)
+ *   - family framing (1.42, 0.04) and clinical_team framing (1.45, 0.55) on +X
+ *   - door leaf at z≈+1 (Z-separated)
+ * Length-on-X at +X bay collides family framing; do not reintroduce without re-framing actors.
+ */
 export const EXAM_WORK_SURFACE: EnvironmentFixtureSlot = {
   slotId: "exam_surface",
-  purpose: "Exam work surface / counter",
-  position: { x: 1.65, y: 0, z: -0.55 },
+  purpose: "Exam table surface (clinic bay)",
+  position: { x: 0.15, y: 0, z: -0.9 },
 };
