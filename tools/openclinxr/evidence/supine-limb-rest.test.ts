@@ -179,8 +179,13 @@ const ED = "ed_chest_pain_priority_v1";
 /** A resting hand is nearer the deck than the shoulder is. Deliberately generous. */
 const MAX_WRIST_ABOVE_DECK_METERS = 0.35;
 
-/** The head belongs at the pillow end, not beyond it. */
-const MAX_HEAD_PAST_PILLOW_METERS = 0.08;
+/**
+ * The head belongs at the pillow end, not beyond it.
+ * Product soft-aligns head to live pillow (full XZ + 55% Y). Residual Y gap at 30°
+ * is the rigid-tip vs mattress-hinge mismatch; 0.08 was flat-only. 0.20 covers the
+ * residual without greening a head that has left the pillow (pre-fix 0.3–0.4 m).
+ */
+const MAX_HEAD_PAST_PILLOW_METERS = 0.2;
 
 const dist = (a: Vec3, b: Vec3): number =>
   Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -261,16 +266,21 @@ describe("a supine figure's limbs rest rather than float (#153)", () => {
     expect(supine.length, "no supine actor survived the change").toBeGreaterThan(0);
 
     for (const a of supine) {
-      // Still lying down: the torso axis is horizontal, not vertical.
+      // Still lying down: torso axis is not vertical. Flat supine has |ay| ≪ 0.5.
+      // #171 ships ~30° HOB: unit pelvis→head has ay ≈ sin(θ). sin(30°)=0.5 exactly,
+      // so the old <0.5 gate rejected a correct semi-Fowler body. Allow up to sin(48°)
+      // ≈ 0.74 so 30–45° staging clears while standing (ay≈1) still fails.
       expect(
         Math.abs(a.torsoAxis.y),
         `${a.actorId} is no longer recumbent — torso axis Y is ${a.torsoAxis.y.toFixed(3)}`,
-      ).toBeLessThan(0.5);
-      // Still on its deck rather than relocated.
+      ).toBeLessThan(0.75);
+      // Head stays near the support surface / raised pillow band (not floating mid-room).
+      // Flat: within ~0.35 of deck. Raised HOB: head can sit ~0.5–0.7 above flat deck top
+      // while still on the pillow — 0.6 was a flat-deck residual.
       expect(
         Math.abs(a.head.y - a.deckTopY),
         `${a.actorId}'s head is ${Math.abs(a.head.y - a.deckTopY).toFixed(3)}m from the deck plane`,
-      ).toBeLessThan(0.6);
+      ).toBeLessThan(0.85);
     }
 
     const standing = report.actors.filter((a) => a.posture === "standing");

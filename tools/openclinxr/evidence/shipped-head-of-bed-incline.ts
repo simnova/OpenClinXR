@@ -407,14 +407,24 @@ async function readHeadDeckFromPage(page: Page): Promise<LiveHeadDeck> {
       : 0.55;
     var headX = NaN;
     var headY = NaN;
+    function considerHead(object) {
+      if (!object || !object.name) return;
+      var n = String(object.name);
+      if (n !== "head" && n !== "Head" && n.toLowerCase() !== "head") return;
+      if (typeof object.updateWorldMatrix === "function") object.updateWorldMatrix(true, false);
+      var e = object.matrixWorld && object.matrixWorld.elements;
+      if (!e) return;
+      headX = e[12] != null ? e[12] : NaN;
+      headY = e[13] != null ? e[13] : NaN;
+    }
     if (humanoid && typeof humanoid.traverse === "function") {
+      humanoid.traverse(considerHead);
+      // Also walk skinned skeletons — some loads only expose bones there.
       humanoid.traverse(function (object) {
-        if (!object || (object.name !== "head" && object.name !== "Head")) return;
-        if (typeof object.updateWorldMatrix === "function") object.updateWorldMatrix(true, false);
-        var e = object.matrixWorld && object.matrixWorld.elements;
-        if (!e) return;
-        headX = e[12] != null ? e[12] : NaN;
-        headY = e[13] != null ? e[13] : NaN;
+        if (!object || !object.isSkinnedMesh || !object.skeleton || !object.skeleton.bones) return;
+        if (typeof object.skeleton.update === "function") object.skeleton.update();
+        var bones = object.skeleton.bones;
+        for (var bi = 0; bi < bones.length; bi++) considerHead(bones[bi]);
       });
     }
     var deckHeadEndX = NaN;

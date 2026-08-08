@@ -39,7 +39,7 @@ import {
   STRETCHER_LENGTH_METERS,
   buildPatientStretcher,
 } from "./station-stretcher.js";
-import { applyAndPlantSupineOnDeck } from "./supine-pose.js";
+import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
 
 export type IsolatedSubjectKind =
   | "furniture_builder"

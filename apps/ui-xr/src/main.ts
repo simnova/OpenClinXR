@@ -56,9 +56,10 @@ import {
 } from "./encounter-actor-framing.js";
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
+import { applySupinePose } from "./supine-pose.js";
 import {
-  applyAndPlantSupineOnDeck, applySupinePose, applySupinePoseHoldingIncline, holdSupinePlantFrame,
-} from "./supine-pose.js";
+  applyAndPlantSupineOnDeck, applySupinePoseHoldingIncline, holdSupinePlantFrame, reapplySupineHeadToStoredPillow,
+} from "./supine-deck-plant.js";
 import {
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
@@ -8180,6 +8181,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
         x: slot.baseX, y: slot.baseY, z: slot.baseZ,
         scaleX: slot.baseScaleX, scaleY: slot.baseScaleY, scaleZ: slot.baseScaleZ,
       }, breathing);
+      reapplySupineHeadToStoredPillow(slot.root); // #171 keep head on raised pillow after hold
     } else {
       slot.root.position.y = slot.baseY + breathing * 0.018;
       slot.root.position.x = emotionalSway + dialogueWeightShift;

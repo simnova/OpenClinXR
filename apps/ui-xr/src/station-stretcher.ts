@@ -286,6 +286,27 @@ export function findProceduralStretcherInSceneOf(node: Object3D): Object3D | nul
   return findProceduralStretcher(root);
 }
 
+/**
+ * Live world position of the procedural pillow mesh (rides the HOB back section).
+ * Prefer this over DEFAULT_STRETCHER_POSITION + flat local offset when the deck is inclined.
+ */
+export function readStretcherPillowWorld(stretcher: Object3D): { x: number; y: number; z: number } | null {
+  const candidates: Object3D[] = [];
+  stretcher.traverse((obj) => {
+    const name = (obj.name ?? "").toLowerCase();
+    if (name.includes("pillow")) candidates.push(obj);
+  });
+  const found =
+    candidates.find((o) => (o.name ?? "").toLowerCase().includes("stretcher"))
+    ?? candidates[0]
+    ?? null;
+  if (!found) return null;
+  found.updateWorldMatrix?.(true, false);
+  const e = found.matrixWorld?.elements;
+  if (!e) return null;
+  return { x: e[12] ?? 0, y: e[13] ?? 0, z: e[14] ?? 0 };
+}
+
 export function isStretcherSlotId(slotId: string): boolean {
   const id = slotId.toLowerCase();
   return (

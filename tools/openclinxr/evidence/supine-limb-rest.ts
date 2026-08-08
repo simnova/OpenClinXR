@@ -320,12 +320,15 @@ async function readLiveLimbRestFromPage(page: Page): Promise<{
       }
       const name = (obj.name || "").toLowerCase();
       // Prefer procedural stretcher pillow (…fixture-slot.stretcher.pillow), not HUD labels.
+      // Use live matrix Y — pillow rides the HOB back section (#159/#171). Forcing
+      // deckTopY+0.23 was a flat-deck assumption and made head-to-pillow distance
+      // jump by ~0.4 m whenever the deck raised.
       if (name.indexOf("pillow") >= 0 && name.indexOf("stretcher") >= 0) {
         if (typeof obj.updateWorldMatrix === "function") obj.updateWorldMatrix(true, false);
         else if (typeof obj.updateMatrixWorld === "function") obj.updateMatrixWorld(true);
         const e = obj.matrixWorld && obj.matrixWorld.elements;
         if (e) {
-          pillowWorld = { x: e[12], y: deckTopY + 0.23, z: e[14] };
+          pillowWorld = { x: e[12], y: e[13], z: e[14] };
         }
       }
     });
@@ -339,7 +342,7 @@ async function readLiveLimbRestFromPage(page: Page): Promise<{
     // Fallback: procedural pillow is at stretcher local (−length*0.38, 0) = (−0.836, 0).
     const pillowEnd = pillowWorld || {
       x: stretcherX - 0.836,
-      y: deckTopY + 0.23,
+      y: deckTopY + 0.04,
       z: stretcherZ
     };
 
