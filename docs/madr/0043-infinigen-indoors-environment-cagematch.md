@@ -419,3 +419,110 @@ CLAIM: a furniture-free Infinigen shell with trim disabled clears the 180k ceili
 preserves door apertures, and is a measurable room — but is not adopted for runtime use.
 
 NOT TESTED: single-room solve; decimation; `/tmp` re-home; glTF-native export; any ui-xr wiring.
+
+---
+
+## SINGLE-ROOM MEASURE 2026-08-08 (#234) — multi_room_still, Decision unchanged
+
+**`verdict: multi_room_still`** — `restrict_solving.solve_max_rooms=1` without
+`BlueprintSolidifier.enable_open=False` does NOT collapse the floorplan to a single room.
+The result is structurally identical to #229: 20 wall meshes across the full residential
+floorplan (balcony, bathroom, bedroom, closet, dining-room, kitchen, living-room + entrances).
+**0043's Decision above is unchanged** — Infinigen is still not adopted as an `environmentId`-driven
+source for the learner runtime.
+
+### Method
+
+- **`no_trim_single_room.gin`** created at install: includes `no_trim.gin` (#229's no_objects + trim
+  overrides) and adds:
+
+  ```
+  restrict_solving.solve_max_rooms=1
+  ```
+
+  This **deliberately omits** `BlueprintSolidifier.enable_open=False` — the known-slow path
+  in `singleroom.gin` that made the solve ~12+ minutes. The hypothesis was that
+  `solve_max_rooms=1` alone, without the solidifier flag, might restrict the floorplan at
+  reasonable speed.
+- Furniture disabled at config time (`no_objects.gin`).
+- Trim disabled at config time (doors, windows, skirting off).
+- Generate: seed 0, `--task coarse`, **40.5 s** wall clock (comparable to #229's 38 s).
+  **Not** the ~12+ minute singleroom.gin trap — the solidifier runs at normal speed.
+- 15-minute timeout cap; not hit.
+
+### Measured fields
+
+| Field | Single-room attempt (`no_trim_single_room.gin`) | #229 baseline (`no_trim.gin`) |
+| --- | ---: | ---: |
+| `wallCount` | **20** (multi-room floorplan) | 20 |
+| `rawTriangleCount` | **11,060** | 10,984 |
+| `meshCount` | 89 | 89 |
+| `materialCount` | 34 | 33 |
+| `textureCount` | **0** | 0 |
+| `exportBytes` | **9,003,616** (~9 MB) | 7,344,372 (~7 MB) |
+| `generationWallClockSeconds` | **40.5** | 38.2 |
+| structure | floor ✓, ceiling ✓, 20 walls, 8 door apertures ✓ | same |
+| `roomScope` | **multi_room** | multi_room |
+
+### What happened
+
+The gin config file was:
+
+```
+include "infinigen_examples/configs_indoor/disable/no_trim.gin"
+restrict_solving.solve_max_rooms=1
+```
+
+The generate ran in 40.5 s — the solidifier did not hit the `enable_open=False` slow path.
+But the output contains exactly the same 20 wall meshes as #229: `balcony_0/0.wall`,
+`bathroom_0/0.wall`, `bathroom_0/1.wall`, `bedroom_0/0.wall`, `bedroom_0/1.wall`,
+`closet_0/0.wall`, `closet_0/1.wall`, `dining-room_0/0.wall`, `kitchen_0/0.wall`,
+`living-room_0/0.wall` plus exterior meshes for each.
+
+`byCollection` shows 10 objects each in `unique_assets:room_ceiling`, `unique_assets:room_exterior`,
+`unique_assets:room_floor`, `unique_assets:room_wall`, `placeholders:room_meshes`, and
+`placeholders:room_shells` — the full residential floorplan.
+
+The triangle count is **76 tris higher** than #229 (11,060 vs 10,984) — within noise for the
+same floorplan, consistent with the `solve_max_rooms` flag having no effect on the output.
+
+### Why `solve_max_rooms=1` didn't work without `enable_open=False`
+
+`restrict_solving.solve_max_rooms` likely controls the solver's **search space** (how many
+rooms to attempt to solve) rather than the **composer's output** (how many rooms to build).
+Without `BlueprintSolidifier.enable_open=False`, the solidifier stage builds all resolved
+room shells regardless of the solver's max-room parameter. The `enable_open=False` flag in
+`singleroom.gin` may be the mechanism that gates the solidifier to only the first N rooms —
+which explains both why it works and why it is slow (~12+ min, because it changes the
+solidifier's algorithm from an open (wall-aperture) path to a closed path).
+
+### What this does **not** change
+
+- **Decision:** Infinigen is still NOT adopted as a `environmentId`-driven runtime source.
+- **No** wiring into `apps/ui-xr`.
+- **No** claim of Quest worn readiness or clinical validity.
+- **No** overturn of MADR 0043's Decision or reversal-trigger checklist.
+- The single-room path is a measured negative: `solve_max_rooms=1` alone is insufficient,
+  and `enable_open=False` + `solve_max_rooms=1` (as in `singleroom.gin`) is the only working
+  combination — but it is prohibitively slow (~12+ min).
+
+### Residual (NOT TESTED this slice)
+
+- `singleroom.gin` with `enable_open=False` — known ~12+ min, deferred by #229, confirmed as
+  the only working combination. A future slice could re-evaluate with a longer timeout.
+- Whether a single-room floorplan can be extracted from the existing multi-room output via
+  post-hoc mesh selection (take one `room_wall` + its floor/ceiling/exterior).
+- Durable re-home of the install off `/tmp`.
+- Decimation / meshopt LOD pipeline.
+
+**Evidence module:** `tools/openclinxr/evidence/infinigen-single-room-shell.ts` + planted
+contracts in `infinigen-single-room-shell.test.ts`. Artifacts under
+`.openclinxr/evidence/issue-234/`.
+
+CLAIM: `restrict_solving.solve_max_rooms=1` without `enable_open=False` does not produce a
+single room; the only single-room path (`singleroom.gin` with both flags) is prohibitively
+slow. The multi-room shell with trim disabled (#229) remains the measured state of this
+generator.
+
+NOT TESTED: singleroom.gin with enable_open=False (deferred, ~12+ min); post-hoc room
+extraction from multi-room output.
