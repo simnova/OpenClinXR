@@ -33,6 +33,15 @@ import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js
 
 export type BuildStationEnvironmentInput = {
   environmentId: string;
+  /**
+   * Optional dimension overrides for in-process generator sweeps (#194).
+   * When set, shell geometry uses these instead of the registry descriptor values.
+   * Fixture slot positions are still taken from the descriptor (hand-picked constants).
+   * Product callers leave these unset.
+   */
+  roomWidthMeters?: number;
+  roomDepthMeters?: number;
+  roomHeightMeters?: number;
 };
 
 /** Spawn anchor — never furniture (#133). */
@@ -110,14 +119,24 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   const resolved = resolveEnvironmentShellDescriptor(input.environmentId);
   const d = resolved.descriptor;
 
+  // #194 harness may override shell dimensions without mutating the registry descriptor.
+  const width = typeof input.roomWidthMeters === "number" ? input.roomWidthMeters : d.roomWidthMeters;
+  const depth = typeof input.roomDepthMeters === "number" ? input.roomDepthMeters : d.roomDepthMeters;
+  const height = typeof input.roomHeightMeters === "number" ? input.roomHeightMeters : d.roomHeightMeters;
+  const dimensionOverridesActive =
+    typeof input.roomWidthMeters === "number"
+    || typeof input.roomDepthMeters === "number"
+    || typeof input.roomHeightMeters === "number";
+
   const shell = new Group();
   shell.name = "openclinxr.station-environment-shell";
   shell.userData.environmentId = input.environmentId;
   shell.userData.environmentDescriptorId = d.environmentId;
   shell.userData.floorColor = d.floorColor;
-  shell.userData.roomDepthMeters = d.roomDepthMeters;
-  shell.userData.roomWidthMeters = d.roomWidthMeters;
-  shell.userData.roomHeightMeters = d.roomHeightMeters;
+  shell.userData.roomDepthMeters = depth;
+  shell.userData.roomWidthMeters = width;
+  shell.userData.roomHeightMeters = height;
+  shell.userData.dimensionOverridesActive = dimensionOverridesActive;
   shell.userData.wallColor = d.wallColor;
   shell.userData.wallTrimColor = d.wallTrimColor;
   shell.userData.fixtureSlots = d.fixtureSlots.map((slot) => ({ ...slot, position: { ...slot.position } }));
@@ -126,10 +145,6 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   shell.userData.openClinXrEnvironmentPolicy =
     "parametric_shell_from_shared_environment_descriptor_kitbash_slot";
   shell.userData.hasCeiling = true;
-
-  const width = d.roomWidthMeters;
-  const depth = d.roomDepthMeters;
-  const height = d.roomHeightMeters;
   // Place room so doorway (z≈0.9 exterior) opens into negative-Z encounter space.
   const floorZ = -(depth / 2) + 0.95;
 
