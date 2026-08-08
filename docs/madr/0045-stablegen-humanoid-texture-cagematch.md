@@ -176,3 +176,69 @@ scoping holds.
 Follow-on filed as #154, which pursues **TRELLIS.2 prop generation** rather than humanoid texturing,
 because that is where the MIT licence and a live product defect (#133, props rendered as scaled cubes)
 intersect.
+
+## Amendment 2026-08-08 — #231 Comfy-only multi-view texture bake (StableGen bypass)
+
+Operator direction 2026-08-08: prefer a **headless Comfy-only** multi-view depth/canny → RealVisXL →
+project/bake path that does **not** use StableGen's modal Blender operator. This amendment records
+that path's first measured run. The original Decision (do not adopt StableGen headless as factory
+authoring) is **unchanged**.
+
+### Verdict: `texture_baked`
+
+| Field | Value |
+| --- | --- |
+| factory_step | `clothing_generate` (surface via **ComfyUI + RealVisXL**, not MakeClothes) |
+| subject | `apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb` |
+| tools | ComfyUI 0.24.0, RealVisXL_V5.0_fp16, controlnet_depth_sdxl, Blender 5.1.1 EEVEE depth |
+| views | front / right / back / left — **4/4 success** |
+| textureResolution | 1024×1024 per view |
+| textureBytes | **5 005 994** (sum of four PNG outputs) |
+| generationWallClockSeconds | **192.6** |
+| seed | 231001 (per-view offset + index) |
+| evidence | `.openclinxr/evidence/issue-231/{before,after,comfy_*}.png`, `bake-measure.json` |
+| inspect | `tools/openclinxr/evidence/comfy-humanoid-texture-bake.ts` |
+
+### Pipeline (headless; no StableGen modal)
+
+1. Blender `--background` depth material override + beauty before still
+   (`tools/openclinxr/evidence/blender/render_humanoid_depth_views.py`).
+2. Copy depth PNGs into `~/ComfyUI/input/`.
+3. Comfy `/prompt` graph: CheckpointLoaderSimple → LoadImage → ControlNetLoader →
+   CLIPTextEncode ×2 → **ControlNetApplyAdvanced** (strength 0.75, VAE wired) → EmptyLatentImage →
+   KSampler (euler, 15 steps, cfg 6) → VAEDecode → SaveImage.
+4. Assemble 2×2 contact sheet `after.png` via PIL.
+
+### Pixel grade (orchestrator)
+
+- **before.png:** fixture-grade teal scrubs, flat single-colour fabric, low-poly humanoid, arms out
+  (T-pose-ish clinical idle). Same camera family as depth front.
+- **after.png (contact sheet):** photoreal teal/V-neck scrub fabric with folds, pockets, seams on all
+  four tiles. Diffusion clearly ran. Multi-view identity is **not** locked to the source mesh
+  (catalog-style figures; front reads female, side may add mask/cap, framing drifts). Depth guided
+  pose loosely; not a true mesh re-texture.
+- **Lettering / badges:** no institutional text observed on graded tiles (safety line held this run).
+
+### What this proves / does not prove
+
+| Proves | Does **not** prove |
+| --- | --- |
+| Headless Comfy ControlNet depth + RealVisXL runs on this Mac without StableGen | UV projection / bake onto the GLB mesh |
+| Multi-view stills + before/after from the same subject asset path | Seed reproducibility of identical pixels |
+| `factory_step: clothing_generate` surface via ComfyUI + RealVisXL is viable | Clinical appropriateness; learner-ready textured GLB |
+| StableGen headless close ≠ "diffusion texturing impossible" | Quest texture VRAM; phenotype→prompt automation |
+
+### Recommended next (not decided here)
+
+1. Project multi-view diffusion outputs onto UV islands (or a non-modal bake) so a textured GLB lands
+   under generated-humanoids — that is the missing half of "bake".
+2. Tighten depth control strength / pose prompt so multi-view identity matches the source silhouette.
+3. Licence **to be revisited** before any path that would distribute diffusion-derived assets under
+   product terms conflicting with GPL-3 adjacency (ComfyUI remains out-of-repo).
+
+**CLAIM (#231):** ComfyUI ControlNet depth + RealVisXL produced 4 textured multi-view stills from
+headless Blender depth renders of a shipped nurse humanoid in ~193 s without StableGen; verdict
+`texture_baked`.
+
+**NOT TESTED (#231):** UV survival / mesh bake; seed pixel identity; three.js/ui-xr load of a textured
+GLB; clinical or Quest readiness.

@@ -6,6 +6,13 @@ import { existsSync, statSync } from "node:fs";
  *
  * MADR 0045: StableGen modal operator hangs headless. Prefer Comfy depth→RealVisXL→project/bake.
  * Header IMMUTABLE — append ## FIXED (#231).
+ *
+ * ## FIXED (#231)
+ * inspectComfyHumanoidTextureBake → verdict texture_baked.
+ * ComfyUI 0.24.0 ControlNet depth + RealVisXL_V5.0_fp16 on Blender depth maps of
+ * peds_nurse_kevin.glb; 4/4 views; before/after stills; bake-measure.json.
+ * Wall-clock ~193s; textureBytes ~5.0 MB @ 1024²; seed 231001.
+ * Residual: no UV project/bake onto GLB mesh; multi-view identity drift.
  */
 
 type BakeMeasure = {
