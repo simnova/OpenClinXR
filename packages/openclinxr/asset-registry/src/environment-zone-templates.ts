@@ -171,7 +171,78 @@ export const GENERIC_CLINIC_ZONES: readonly EnvironmentZoneTemplate[] = [
  * Positions for stretchers/chairs on ambulatory rooms are offset from the standing
  * actor anchor (-0.72, z≈-0.12) so a floor-planted figure is not embedded in the deck.
  * ED bay keeps the historical stretcher position (supine patient on deck via #150).
+ *
+ * #196: authored positions below are absolute metres for each environment's *descriptor*
+ * dimensions. `resolveFixtureSlotPosition` scales non-learner slots when the shell is
+ * rebuilt at a different width/depth so doors track walls under generator sweeps.
+ * Derivation: **fraction** of room extents about the shell center (X scale by width
+ * ratio; Z offset from floor-center scaled by depth ratio). Y stays absolute.
+ * `learner_start` stays absolute — it is a person standing marker, not wall furniture.
  */
+
+/** Floor center Z matching station-environment shell placement (doorway opens +Z). */
+export function shellFloorCenterZ(roomDepthMeters: number): number {
+  return -(roomDepthMeters / 2) + 0.95;
+}
+
+export type RoomPlanDimensions = {
+  widthMeters: number;
+  depthMeters: number;
+  heightMeters?: number;
+};
+
+/**
+ * True when the slot is a person spawn / standing marker and must not track walls.
+ */
+export function isAbsoluteFixtureSlotId(slotId: string): boolean {
+  return /learner[_-]?start/iu.test(slotId);
+}
+
+/**
+ * Map an authored fixture position from `authoredFor` room plan into `room` plan.
+ * At identity (room === authoredFor) returns the authored coordinates unchanged.
+ *
+ * Strategy (recorded on #196 report): **fraction** — X scales with width; Z is
+ * relative to the shell floor center and scales with depth. Not margin, not wall_anchor:
+ * preserves relative layout of floor furniture while moving wall-side fixtures when
+ * the shell resizes. Y is not scaled (board height stays readable).
+ */
+export function resolveFixtureSlotPosition(
+  slot: Pick<EnvironmentFixtureSlot, "slotId" | "position">,
+  room: RoomPlanDimensions,
+  authoredFor: RoomPlanDimensions,
+): { x: number; y: number; z: number } {
+  const authored = slot.position;
+  if (isAbsoluteFixtureSlotId(slot.slotId)) {
+    return { x: authored.x, y: authored.y, z: authored.z };
+  }
+  const refW = Math.max(authoredFor.widthMeters, 1e-6);
+  const refD = Math.max(authoredFor.depthMeters, 1e-6);
+  const scaleX = room.widthMeters / refW;
+  const scaleZ = room.depthMeters / refD;
+  const authoredCenterZ = shellFloorCenterZ(authoredFor.depthMeters);
+  const roomCenterZ = shellFloorCenterZ(room.depthMeters);
+  const localZ = authored.z - authoredCenterZ;
+  return {
+    x: authored.x * scaleX,
+    y: authored.y,
+    z: localZ * scaleZ + roomCenterZ,
+  };
+}
+
+/** Resolve every fixture slot for a room plan; learner_start left absolute. */
+export function resolveFixtureSlotsForRoom(
+  slots: readonly EnvironmentFixtureSlot[],
+  room: RoomPlanDimensions,
+  authoredFor: RoomPlanDimensions,
+): EnvironmentFixtureSlot[] {
+  return slots.map((slot) => ({
+    ...slot,
+    position: resolveFixtureSlotPosition(slot, room, authoredFor),
+    ...(typeof slot.inclineDegrees === "number" ? { inclineDegrees: slot.inclineDegrees } : {}),
+  }));
+}
+
 export const LEARNER_START: EnvironmentFixtureSlot = {
   slotId: "learner_start",
   purpose: "Learner entry standing position",

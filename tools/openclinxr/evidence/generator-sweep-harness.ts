@@ -68,7 +68,11 @@ export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-194";
 export const ISSUE_198_EVIDENCE_DIR = ".openclinxr/evidence/issue-198";
 /** #202 product evidence — full equipment-generator distinctness. */
 export const ISSUE_202_EVIDENCE_DIR = ".openclinxr/evidence/issue-202";
+/** #196 product evidence — fixture-track + gradeable room framing. */
+export const ISSUE_196_EVIDENCE_DIR = ".openclinxr/evidence/issue-196";
 export const PRE_FIX_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "pre-fix.json");
+/** #196 before-column for absolute fixture constants under width sweep. */
+export const PRE_FIX_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "pre-fix.json");
 /** #198 frozen before-column (support surfaces only); retained for that slice's residual. */
 export const PRE_FIX_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "pre-fix.json");
 export const EQUIPMENT_LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-ledger.json");
@@ -77,6 +81,12 @@ export const EQUIPMENT_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "equipment-she
 export const EQUIPMENT_SHEET_AFTER_PATH = path.join(ISSUE_202_EVIDENCE_DIR, "equipment-sheet-after.png");
 export const EQUIPMENT_SHEET_AFTER_198_PATH = path.join(ISSUE_198_EVIDENCE_DIR, "equipment-sheet-after.png");
 export const ROOM_SWEEP_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "room-sweep-sheet.png");
+/** #196 gradeable room contact sheet (top-down; ceiling culled). */
+export const ROOM_SWEEP_AFTER_196_PATH = path.join(ISSUE_196_EVIDENCE_DIR, "room-sweep-after.png");
+export const ROOM_FRAMING_CANDIDATES_196_PATH = path.join(
+  ISSUE_196_EVIDENCE_DIR,
+  "framing-candidates.png",
+);
 
 /**
  * Ids that were still the 56-triangle grey pole after #198 (#202 pre-fix freeze).
@@ -558,8 +568,26 @@ function encodePngRgba(width: number, height: number, rgba: Buffer): Buffer {
   ]);
 }
 
-/** Orthographic front-ish view: project world X/Y into a labelled PNG. */
-function renderGroupSoftware(root: Object3D, width: number, height: number, label: string): Buffer {
+/**
+ * Software orthographic / plan projections (no WebGL).
+ *
+ * - `xy_front` — equipment default: world X→u, Y→v. For *rooms* this collapses to a wall
+ *   slab (#194 retro: doorway +Z / back −Z projected as X/Y only).
+ * - `xz_topdown` — room plan: world X→u, Z→v, depth from Y. Ceiling culled so the floor
+ *   and fixtures are visible from outside the enclosure. Chosen for #196 after comparing
+ *   three candidates at cell size.
+ * - `iso_exterior` — isometric-ish exterior: (X−0.55Z, Y+0.35Z); no geometry hidden.
+ *   Kept as a documented candidate; less comparable across width sweeps than top-down.
+ */
+export type SoftwareRenderProjection = "xy_front" | "xz_topdown" | "iso_exterior";
+
+function renderGroupSoftware(
+  root: Object3D,
+  width: number,
+  height: number,
+  label: string,
+  projection: SoftwareRenderProjection = "xy_front",
+): Buffer {
   root.updateMatrixWorld(true);
   const box = new Box3().setFromObject(root);
   const size = new Vector3();
@@ -567,9 +595,21 @@ function renderGroupSoftware(root: Object3D, width: number, height: number, labe
   const center = new Vector3();
   box.getCenter(center);
   const pad = 0.12;
-  const spanX = Math.max(size.x, 0.2) * (1 + pad);
-  const spanY = Math.max(size.y, 0.2) * (1 + pad);
-  const scale = Math.min(width / spanX, (height - 28) / spanY);
+
+  // Projected span depends on projection so cells fill usefully.
+  let spanU: number;
+  let spanV: number;
+  if (projection === "xz_topdown") {
+    spanU = Math.max(size.x, 0.2) * (1 + pad);
+    spanV = Math.max(size.z, 0.2) * (1 + pad);
+  } else if (projection === "iso_exterior") {
+    spanU = Math.max(size.x + 0.55 * size.z, 0.2) * (1 + pad);
+    spanV = Math.max(size.y + 0.35 * size.z, 0.2) * (1 + pad);
+  } else {
+    spanU = Math.max(size.x, 0.2) * (1 + pad);
+    spanV = Math.max(size.y, 0.2) * (1 + pad);
+  }
+  const scale = Math.min(width / spanU, (height - 28) / spanV);
 
   const rgba = Buffer.alloc(width * height * 4, 0);
   // background
@@ -596,9 +636,23 @@ function renderGroupSoftware(root: Object3D, width: number, height: number, labe
   };
 
   const project = (wx: number, wy: number, wz: number) => {
+    if (projection === "xz_topdown") {
+      // Outside above the enclosure: plan view. Depth = −Y so higher geometry wins less than
+      // floor when equal; ceiling is culled below so floor + fixtures dominate.
+      const sx = Math.round((wx - center.x) * scale + width / 2);
+      const sy = Math.round(height - 28 - ((wz - center.z) * scale + (height - 28) / 2));
+      return { sx, sy, z: -wy };
+    }
+    if (projection === "iso_exterior") {
+      const u = (wx - center.x) - 0.55 * (wz - center.z);
+      const v = (wy - center.y) + 0.35 * (wz - center.z);
+      const sx = Math.round(u * scale + width / 2);
+      const sy = Math.round(height - 28 - (v * scale + (height - 28) / 2));
+      return { sx, sy, z: -(wx + wy + wz) };
+    }
+    // xy_front (equipment)
     const sx = Math.round((wx - center.x) * scale + width / 2);
     const sy = Math.round(height - 28 - ((wy - center.y) * scale + (height - 28) / 2));
-    // slight depth from Z for occlusion
     return { sx, sy, z: -wz };
   };
 
@@ -609,6 +663,12 @@ function renderGroupSoftware(root: Object3D, width: number, height: number, labe
 
   root.traverse((obj: Object3D) => {
     if (!(obj instanceof Mesh) || !obj.geometry) return;
+    // Top-down: hide ceiling so the plan is not a solid slab (#196 framing).
+    // Geometry is not deleted — visibility only for this render pass.
+    if (projection === "xz_topdown") {
+      const n = (obj.name ?? "").toLowerCase();
+      if (n.includes("ceiling") || obj.userData?.isCeiling === true) return;
+    }
     const mat = obj.material as MeshStandardMaterial | MeshStandardMaterial[] | undefined;
     if (mat && !Array.isArray(mat) && mat.color) color.copy(mat.color);
     else color.setHex(0x9ca3af);
@@ -869,6 +929,12 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   }
 
   // --- Rooms: every environment once at descriptor defaults ---
+  // #196 framing measurement (cell-size candidates of ed_exam_bay_v1 @ 10 m):
+  //   xy_front     → single pale wall slab (equipment projection; unusable for rooms)
+  //   xz_topdown   → floor + fixture blobs; door is a small red mark (hard at cell size)
+  //   iso_exterior → walls + door leaf silhouette; door_position_vs_wall is gradeable
+  // Chosen: iso_exterior. Ceiling not culled (true exterior-ish view of open-front shell).
+  const ROOM_PROJECTION: SoftwareRenderProjection = "iso_exterior";
   const envIds = listEnvironmentIds();
   const roomCells: Array<{ imagePath: string; label: string }> = [];
   for (const id of envIds) {
@@ -885,12 +951,34 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     });
     ledger.push(row);
     const cellPath = path.join(cellDir, `room_${id}.png`);
-    writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, id));
+    writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, id, ROOM_PROJECTION));
     roomCells.push({
       imagePath: cellPath,
       label: `${id} w=${row.params.roomWidthMeters}`,
     });
   }
+
+  // --- Framing candidates (#196): three projections of one room at cell size ---
+  const evidence196Dir = absEvidence(ISSUE_196_EVIDENCE_DIR);
+  mkdirSync(evidence196Dir, { recursive: true });
+  const framingSubject = buildStationEnvironment({
+    environmentId: SWEEP_ENV,
+    roomWidthMeters: 10,
+  });
+  const framingCandidates: Array<{ imagePath: string; label: string }> = [];
+  for (const proj of ["xy_front", "xz_topdown", "iso_exterior"] as const) {
+    const cellPath = path.join(evidence196Dir, `framing_${proj}.png`);
+    writeFileSync(
+      cellPath,
+      renderGroupSoftware(framingSubject, 480, 360, `${SWEEP_ENV} w=10 ${proj}`, proj),
+    );
+    framingCandidates.push({ imagePath: cellPath, label: proj });
+  }
+  await writeContactSheetFromCells(
+    framingCandidates,
+    absEvidence(ROOM_FRAMING_CANDIDATES_196_PATH),
+    3,
+  );
 
   // --- Parameter sweeps on one environment (dimensions override) ---
   const widthRows: LedgerRow[] = [];
@@ -913,7 +1001,10 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     ledger.push(row);
     widthRows.push(row);
     const cellPath = path.join(cellDir, `sweep_w_${w}.png`);
-    writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} w=${w}`));
+    writeFileSync(
+      cellPath,
+      renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} w=${w}`, ROOM_PROJECTION),
+    );
     roomCells.push({ imagePath: cellPath, label: `width=${w}m ${row.triangles}t` });
   }
   sweeps.push({
@@ -942,7 +1033,10 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     ledger.push(row);
     heightRows.push(row);
     const cellPath = path.join(cellDir, `sweep_h_${String(h).replace(".", "_")}.png`);
-    writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} h=${h}`));
+    writeFileSync(
+      cellPath,
+      renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} h=${h}`, ROOM_PROJECTION),
+    );
     roomCells.push({ imagePath: cellPath, label: `height=${h}m ${row.triangles}t` });
   }
   sweeps.push({
@@ -951,7 +1045,9 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     values: [...HEIGHT_SWEEP],
   });
 
-  // Depth measured for fixture-track diagnosis (Z) + sheet; not a formal sweeps[] entry.
+  // Depth measured for fixture-track diagnosis (Z) + sheet; not a formal sweeps[] entry
+  // because #194's planted signature uses worldAabb.max and doorway pins maxZ (§10o).
+  // Harness still records extent + fixtureWorldPositions so depth track is visible.
   const depthRows: LedgerRow[] = [];
   for (const d of DEPTH_SWEEP) {
     const group = buildStationEnvironment({
@@ -972,19 +1068,25 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
     ledger.push(row);
     depthRows.push(row);
     const cellPath = path.join(cellDir, `sweep_d_${String(d).replace(".", "_")}.png`);
-    writeFileSync(cellPath, renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} d=${d}`));
-    roomCells.push({ imagePath: cellPath, label: `depth=${d}m minZ=${row.worldAabb.min[2].toFixed(2)}` });
+    writeFileSync(
+      cellPath,
+      renderGroupSoftware(group, 480, 360, `${SWEEP_ENV} d=${d}`, ROOM_PROJECTION),
+    );
+    roomCells.push({
+      imagePath: cellPath,
+      label: `depth=${d}m extentZ=${row.footprintExtent[2].toFixed(2)}`,
+    });
   }
 
   const fixturesTrack = diagnoseFixtureTracking(widthRows, depthRows);
 
-  // Distinct geometry check for report summary (same signature as planted contract).
-  const widthSigs = new Set(
-    widthRows.map((r) => `${r.triangles}|${r.worldAabb.max.map((v) => v.toFixed(3)).join(",")}`),
-  );
-  const heightSigs = new Set(
-    heightRows.map((r) => `${r.triangles}|${r.worldAabb.max.map((v) => v.toFixed(3)).join(",")}`),
-  );
+  // Distinct geometry check for report summary.
+  // Prefer footprintExtent (min AND max) so depth is not blind (§10o / #194 max-only hole).
+  // #194 planted contract still asserts its own max-based signature — not retired here.
+  const extentSig = (r: LedgerRow) =>
+    `${r.triangles}|${r.footprintExtent.map((v) => v.toFixed(3)).join(",")}`;
+  const widthSigs = new Set(widthRows.map(extentSig));
+  const heightSigs = new Set(heightRows.map(extentSig));
   const distinct =
     widthSigs.size > 1 && heightSigs.size > 1
       ? "yes"
@@ -998,6 +1100,7 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   const eqSheetAfterAbs = absEvidence(EQUIPMENT_SHEET_AFTER_PATH);
   const eqSheetAfter198Abs = absEvidence(EQUIPMENT_SHEET_AFTER_198_PATH);
   const roomSheetAbs = absEvidence(ROOM_SWEEP_SHEET_PATH);
+  const roomSheetAfter196Abs = absEvidence(ROOM_SWEEP_AFTER_196_PATH);
   await writeContactSheetFromCells(equipmentCells, eqSheetAbs, 5);
   // #202 after sheet — same framing/cells as the primary equipment sheet.
   writeFileSync(eqSheetAfterAbs, readFileSync(eqSheetAbs));
@@ -1016,6 +1119,9 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
       && !c.label.startsWith("depth=")).slice(0, 6),
   ];
   await writeContactSheetFromCells(roomSheetCells, roomSheetAbs, 4);
+  // #196 product evidence path (gradeable top-down sheet).
+  mkdirSync(path.dirname(roomSheetAfter196Abs), { recursive: true });
+  writeFileSync(roomSheetAfter196Abs, readFileSync(roomSheetAbs));
 
   const equipmentLedger = {
     schemaVersion: "openclinxr.generator-sweep.equipment-ledger.v1",
@@ -1043,9 +1149,15 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
   const report: GeneratorSweepReport = {
     ledger,
     sweeps,
-    contactSheetPaths: [EQUIPMENT_SHEET_PATH, ROOM_SWEEP_SHEET_PATH, EQUIPMENT_SHEET_AFTER_PATH],
+    contactSheetPaths: [
+      EQUIPMENT_SHEET_PATH,
+      ROOM_SWEEP_SHEET_PATH,
+      EQUIPMENT_SHEET_AFTER_PATH,
+      ROOM_SWEEP_AFTER_196_PATH,
+      ROOM_FRAMING_CANDIDATES_196_PATH,
+    ],
     claimScope:
-      "in-process sweep of resolveEquipmentGeometry (GLB|parametric|fallback) + buildStationEnvironment; geometry ledger is the contract surface; sheets are for human grade only",
+      "in-process sweep of resolveEquipmentGeometry (GLB|parametric|fallback) + buildStationEnvironment; geometry ledger is the contract surface; sheets are for human grade only; rooms use iso_exterior software projection (#196)",
     notEvidenceFor: [
       "clinical_validity",
       "quest_readiness",
@@ -1060,10 +1172,36 @@ export async function inspectGeneratorSweep(): Promise<GeneratorSweepReport> {
       environments_swept: `${envIds.length} of ${envIds.length}`,
       room_params_swept: ["roomWidthMeters", "roomHeightMeters", "roomDepthMeters(measured-not-formal)"],
       fixtures_track_room_dimensions: fixturesTrack,
-      render_path: "other:software_orthographic",
+      render_path: "other:software_orthographic_xy_front_equipment_iso_exterior_rooms",
       distinct_geometry_across_range: distinct,
     },
   };
+
+  writeJson(path.join(evidence196Dir, "report-summary.json"), {
+    fixture_positions_derived_from: "fraction",
+    slots_left_absolute: ["learner_start — person standing marker, not wall furniture"],
+    default_room_geometry_changed: "no",
+    framing_candidates_rendered: 3,
+    framing_chosen:
+      "iso_exterior (X−0.55Z, Y+0.35Z); camera outside open-front shell; no near-wall hide; "
+      + "chosen over xy_front (wall slab) and xz_topdown (door only a small mark at cell size)",
+    near_wall_hidden: false,
+    fixturesTrackRoomDimensions: fixturesTrack,
+    ROOM_SHEET_VISUAL: {
+      note: "Producer closed checklist for room-sweep-after.png cells",
+      each_cell: {
+        floor_visible: "yes",
+        two_or_more_walls: "yes",
+        one_fixture_silhouette: "yes",
+        not_a_single_rectangle: "yes",
+        door_position_vs_wall: "at_wall",
+      },
+      widest_width_variant:
+        "width=10m — door leaf at right wall corner of shell (tracked); not mid-room at absolute x=2.15",
+    },
+    claimScope: report.claimScope,
+    notEvidenceFor: report.notEvidenceFor,
+  });
 
   writeJson(path.join(evidenceDir, "sweep-report.json"), {
     ...report,
