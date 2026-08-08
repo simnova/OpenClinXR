@@ -93,6 +93,44 @@ worse: two processes writing one transcript.
 in the brief; if it arrives late, wait for the return and hand it back then. The only sanctioned
 resume targets are a dispatch that has RETURNED or one that was KILLED.
 
+## A self-calibrated epsilon must reference the INPUT, not a fraction of the OUTPUT
+
+§9s says compute the margin before accepting a widened threshold; §9h asks for a known-good column;
+§6f asks for the calibration snapshot. #151 satisfied all three in form and none in substance, and
+its own worker exposed it.
+
+I demanded an epsilon "calibrated from two real exports, not invented by me", and reported the result
+as *"a 2.9× margin, not a threshold fitted to clear an observation"*. The stage implemented it as:
+
+    eps = max(spread * 0.35, 0.01)          # body_param_stage.py:698
+
+**The 2.9× margin is exactly 1 / 0.35.** It is a property of the formula. If the treatment moves the
+metric at all, epsilon is 35% of that movement and the assertion passes by construction. The worker
+also disclosed that `pre-fix.json` was written AFTER the stage and copied the same epsilon — a
+post-hoc stamp, not the gated pre-edit measurement §7p has now been asked for by seven workers.
+
+**Rule:** a self-calibrated threshold is only meaningful if its reference is INDEPENDENT of the effect
+being measured. Three sound sources:
+
+| source | why it works |
+|---|---|
+| **ambient variation** among existing assets, measured BEFORE any edit | the treatment cannot move it |
+| **an external floor** (anatomy, a spec, a budget) | fixed by the domain |
+| **the INPUT of the causal chain**, not its output | the driver moves whether or not the mechanism works |
+
+The third is the strongest and is what #216 uses: its epsilon is half the median **bone-tip** motion,
+and bone tips move whether or not weights bind — so a skin with all-zero weights still fails. Compare
+with a circular version — "half the observed mesh deformation" — which would pass on any nonzero
+value.
+
+**The tell:** the epsilon's formula contains the same variable as the measurement. If you can cancel a
+term and get a constant ratio, you have written a tautology with units.
+
+**What survives:** #151's `max(…, 0.01)` floor is real, so the contract genuinely requires >1 cm of
+girth spread, and the measured 8.76 cm is a good result. Correct the REASONING publicly and keep the
+RESULT — do not withdraw a finding because its justification was weak (§10l: the scope of an
+overturning matters as much as the overturning).
+
 ## Why these stopped binding — diagnosed 2026-08-08 at operator challenge
 
 The human observed: *"each time I've coached you it seems like you understand but then immediately you
