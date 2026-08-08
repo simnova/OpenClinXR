@@ -222,12 +222,22 @@ export function planStationEquipmentMounts(input: PlanStationEquipmentInput): Eq
     } else {
       source = "fallback";
     }
+    // #179: post_op bed is the sole patient support (equipment path). Manifest ships it
+    // at the standing OFFSET (-2.05,-0.75). Runtime supine plant hard-centers on
+    // DEFAULT_STRETCHER_POSITION (-0.9,-0.1) — co-locate the deck under that plant.
+    // Rejected: fixture + equipment (double-bed #133); rejected: editing generated manifests.
+    const plantAlignedBed =
+      equipmentId === "post_op_bed_equipment"
+        ? { x: -0.9, y: 0, z: -0.1 }
+        : null;
+    const position = plantAlignedBed
+      ?? (placement?.position
+        ? { x: placement.position.x, y: placement.position.y, z: placement.position.z }
+        : { ...fallbackPos });
     return {
       equipmentId,
       label: placement?.label ?? equipmentDisplayLabel(equipmentId),
-      position: placement?.position
-        ? { x: placement.position.x, y: placement.position.y, z: placement.position.z }
-        : { ...fallbackPos },
+      position,
       interactionCueIds: Array.isArray(placement?.interactionCueIds) && placement.interactionCueIds.length > 0
         ? [...placement.interactionCueIds]
         : [
@@ -353,7 +363,18 @@ export function buildExamTableEquipment(equipmentId: string): Group {
   // Mattress top ≈ 0.55 m — not box.maxY (rail tip). Clearance detectors need the deck.
   root.userData.deckTopYMeters = 0.55;
   root.userData.seatHeightMeters = 0.55;
-  return tagEquipmentRoot(root, equipmentId, "parametric");
+  tagEquipmentRoot(root, equipmentId, "parametric");
+  // #179: post_op bed is the sole support for surgical_ward. Tag the same kind string
+  // findProceduralStretcher matches so applyAndPlantSupineOnDeck can live-query the deck
+  // without a second plant path or a fixture double-bed. Flat incline SSOT (0°).
+  // NOT applied to pediatric_stretcher / exam_table — those stations keep standing patients.
+  if (equipmentId === "post_op_bed_equipment") {
+    root.userData.openClinXrStretcherKind = "procedural_patient_stretcher";
+    root.userData.openClinXrStretcherInclineDegrees = 0;
+    root.userData.openClinXrInclineSource = "equipment_post_op_bed_flat_ssot";
+    root.userData.openClinXrPatientSupportSource = "equipment";
+  }
+  return root;
 }
 
 /** BP cuff: cuff band + gauge + bulb. */

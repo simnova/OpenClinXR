@@ -165,7 +165,11 @@ const TELEHEALTH = "telehealth_diabetes_health_literacy_v1";
 const MAX_PENETRATION_METERS = 0.05;
 
 describe("inpatient stations stage their patient on a bed (#179)", () => {
-  it.fails("all three inpatient patients are recumbent on a support surface", async () => {
+  it("all three inpatient patients are recumbent on a support surface", async () => {
+    // ## FIXED (#179)
+    // Posture: actor-posture INPATIENT_RECUMBENT_SCENARIO_MARKERS → supine for the three.
+    // Support: plant-aligned fixture stretcher (ward/stepdown); post_op_bed equipment
+    // repositioned + tagged procedural_patient_stretcher for plant (no double-bed).
     // The visible half. actor-posture.ts returns "standing" for everything that is not ED chest pain
     // or telehealth, so these three patients are on their feet beside beds that already exist.
     const mod = await load();
@@ -193,7 +197,9 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     expect(report.claimScope.toLowerCase()).toContain("staging");
   }, 900_000);
 
-  it.fails("every station still builds exactly one patient support surface", async () => {
+  it("every station still builds exactly one patient support surface", async () => {
+    // ## FIXED (#179)
+    // Postop stays on equipment path only — no fixture bed added to surgical_ward.
     // Postop's bed is EQUIPMENT, not a fixture. Adding a fixture bed without demoting it gives two
     // support surfaces and reds #133 — which is green today and must stay green. This is the half that
     // makes postop a different change from ward and stepdown.
@@ -218,7 +224,9 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     }
   }, 900_000);
 
-  it.fails("standing and seated stations are untouched (COUNTERWEIGHT)", async () => {
+  it("standing and seated stations are untouched (COUNTERWEIGHT)", async () => {
+    // ## FIXED (#179)
+    // Scenario-id markers only — ambulatory stations remain standing; telehealth seated.
     // The cheap way to satisfy contract (1) is to make everyone supine. Ambulatory patients in clinic
     // and urgent care belong on their feet, telehealth belongs in a chair, and ED already works.
     // Supine is a STAGING choice per station, never a default.

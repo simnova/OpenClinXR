@@ -73,6 +73,7 @@ import {
   LEARNER_START,
   ED_STRETCHER,
   OFFSET_STRETCHER,
+  PLANT_ALIGNED_STRETCHER,
   OFFSET_CHAIR,
 } from "./environment-zone-templates.js";
 
@@ -251,8 +252,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2834,
     keyLightIntensity: 2.2,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // Acute stepdown: bed present; monitors are equipment-only.
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    // #179: recumbent patient — plant-aligned stretcher proxy (not OFFSET beside standing plant).
+    // Monitors stay equipment-only. Flat incline (undeclared = 0 for #171 counterweight).
+    fixtureSlots: [PLANT_ALIGNED_STRETCHER, LEARNER_START],
   }),
   ob_triage_room_v1: shell({
     environmentId: "ob_triage_room_v1",
@@ -292,8 +294,9 @@ export const ENVIRONMENT_SHELL_DESCRIPTORS: Readonly<Record<string, EnvironmentS
     ambientHemisphereGround: 0x1e2830,
     keyLightIntensity: 2.1,
     zoneTemplates: GENERIC_CLINIC_ZONES,
-    // Ward bed via stretcher proxy (third "ward bed" builder deferred).
-    fixtureSlots: [OFFSET_STRETCHER, LEARNER_START],
+    // #179: ward bed via stretcher proxy under the recumbent plant (skin deferred —
+    // station-stretcher.ts owned by concurrent lane). Plant-aligned, flat incline.
+    fixtureSlots: [PLANT_ALIGNED_STRETCHER, LEARNER_START],
   }),
   primary_care_clinic_room_v1: shell({
     environmentId: "primary_care_clinic_room_v1",
