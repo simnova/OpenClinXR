@@ -213,3 +213,98 @@ the layout JSON, neither of which this cagematch evaluated. Tracked separately.
 **Provenance:** operator-directed consult, 2026-08-07, over the local `indoors-stable` checkout
 (1.14.0-dev) plus upstream docs. Claims above cite files in that checkout and the probe's own artifacts.
 The original measurements are unretracted — only the inferences drawn from them.
+
+---
+
+## EMPTY-SHELL MEASURE 2026-08-08 (#135) — Decision unchanged
+
+**`verdict: reject_measured`** for the furniture-free shell as a Quest/WebXR station shell.
+**0043's Decision above is unchanged** — Infinigen is still not adopted as an `environmentId`-driven
+source for the learner runtime. This section only closes the `unevaluated_promising` empty-shell row
+from the 2026-08-07 correction with numbers.
+
+### Method
+
+- Install resolved by `realpath`: `~/.openclinxr-tools/infinigen/source` →
+  `/private/tmp/ocxr77_tools/infinigen-indoors` (**under `/tmp` — not durable**).
+  Same trap as mesh2motion; `installIsUnderTmp: true`.
+- Gin present: `infinigen_examples/configs_indoor/disable/no_objects.gin`
+  (`solve_{large,medium,small}_enabled = False`).
+- Furniture disabled **at config time** (not post-hoc strip).
+- HelloRoom's documented `-g no_objects.gin overhead.gin` **crashes** on this 1.14.0-dev checkout:
+  `pose_cameras_enabled=False` → `run_stage` returns `None` → unpack `TypeError` at
+  `generate_indoors.py:262`. Working command:
+
+  ```bash
+  python -m infinigen_examples.generate_indoors --seed 0 --task coarse \
+    --output_folder ~/.openclinxr-tools/infinigen/outputs/empty_shell_no_objects \
+    -g no_objects.gin -p compose_indoors.terrain_enabled=False
+  ```
+
+  Wall clock: **~43.1 s** (`[MAIN TOTAL] finished in 0:00:43.129422`).
+- Export: Blender `export_scene.gltf` hop (Infinigen has no native glTF; same as 0043).
+- Evidence: `.openclinxr/evidence/issue-135/shell-measure.json`, `empty-shell.glb`,
+  `polycounts.txt`, `solve_state.json` (layout graph).
+
+### Measured fields (furniture-free multi-room floorplan)
+
+| Field | Empty shell (`no_objects.gin`) | Hand-made baseline | Full dining (0043) |
+| --- | ---: | ---: | ---: |
+| `triangleCount` | **203,136** | 204 / 84 | 15,476,539 |
+| `meshCount` | 118 | 17 / 7 | 159 |
+| `materialCount` | 88 | 17 / 7 | 176 |
+| `textureCount` | **0** (coarse stage) | 0 | 14 |
+| `exportBytes` | **11,363,496** (~11 MB) | n/a (runtime build) | ~1.09 GB |
+| `generationWallClockSeconds` | **43.1** | <1 | ~1378 |
+| structure | floor ✓, ceiling ✓, 20 wall meshes, doors ✓ | yes | yes |
+
+Calibration (from this export + Quest station frame, not invented thresholds):
+
+- `triangleCeiling` = **180,000** (`maxVisibleTriangles` per station)
+- `byteCeiling` = **209,715,200** (200 MB WebXR soft load cap, same order as #130)
+
+### Polycount breakout (`polycounts.txt`)
+
+| collection | faces |
+| --- | ---: |
+| `unique_assets:room_wall` | 1,950 |
+| `unique_assets:room_floor` | 424 |
+| `unique_assets:room_ceiling` | 320 |
+| `unique_assets:room_exterior` | 1,592 |
+| **architecture-only sum** | **~4,286** |
+| `unique_assets:windows` | **45,168** |
+| `unique_assets:doors` | **15,493** |
+| `skirting` | **25,122** |
+| total tris (blend measure) | **203,136** |
+
+So the correction's ~2.5k architectural core is real for wall/floor/ceiling mass, but
+`no_objects.gin` still emits **windows + doors + skirting** (not furniture solves). Those non-furniture
+taxes dominate and push the multi-room floorplan **~1.13× over** the 180k station budget.
+
+Bytes and textures are fine: **11 MB, zero textures** — the failure mode is geometry count on a
+whole-apartment shell, not a texture bomb.
+
+### Layout JSON
+
+`solve_state.json` (~67 KB) is present with room neighbour graph, tags, and relations — the
+"blueprint-adjacent layout graph" called out in the correction. Not consumed by the runtime in this
+slice (measure-only).
+
+### What this does **not** change
+
+- **Decision:** still `reject_measured` for adopting Infinigen as a direct environment source.
+- **No** wiring into `apps/ui-xr`.
+- **No** claim of Quest worn readiness or clinical validity.
+- Reversal trigger in the Decision section still requires: (1) glTF under 180k after LOD,
+  (2) ui-xr load, (3) `environmentId` / case blueprint drive, (4) MADR 0016 manifest.
+
+### Residual (NOT TESTED this slice)
+
+- Single-room restriction (`singleroom.gin` + `restrict_parent_rooms`) under `no_objects` —
+  may drop under 180k; not measured.
+- Disabling `room_windows` / `skirting_*` / `room_doors` stages for a pure wall/floor/ceiling shell.
+- Durable re-home of the install off `/tmp` (unlocked; not done — measured under `/private/tmp/...`).
+- Decimation / meshopt of this 11 MB shell toward hand-made budgets.
+
+**Evidence module:** `tools/openclinxr/evidence/infinigen-empty-shell.ts` + planted contracts in
+`infinigen-empty-shell.test.ts`.

@@ -89,6 +89,16 @@ import { describe, expect, it } from "vitest";
  *
  * Verdict is exactly one of `shell_viable` / `reject_measured` / `inconclusive_blocked`.
  * ALL THREE CLOSE THIS ISSUE SUCCESSFULLY. A negative measured result is a successful cagematch.
+ *
+ * ## FIXED (#135)
+ * Implemented `inspectInfinigenEmptyShell` in `infinigen-empty-shell.ts`.
+ * Generated furniture-free shell with `no_objects.gin` at config time (HelloRoom overhead.gin
+ * pair crashes on this checkout — pose_cameras NoneType; working path is no_objects alone).
+ * Measured: 203,136 tris / 11.4 MB / 0 textures / multi-room structure with floor+ceiling+walls+doors.
+ * Verdict `reject_measured`: tris exceed calibrated Quest station ceiling 180k; architecture-only
+ * ~4.3k faces but windows+doors+skirting dominate. Artifact:
+ * `.openclinxr/evidence/issue-135/shell-measure.json`. MADR 0043 Decision unchanged; empty-shell
+ * section appended 2026-08-08. No ui-xr wiring.
  */
 
 type ShellMeasure = {
