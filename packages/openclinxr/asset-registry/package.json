@@ -27,6 +27,10 @@
     "./actor-posture": {
       "types": "./dist/actor-posture.d.ts",
       "default": "./dist/actor-posture.js"
+    },
+    "./environment-zone-templates": {
+      "types": "./dist/environment-zone-templates.d.ts",
+      "default": "./dist/environment-zone-templates.js"
     }
   },
   "scripts": {

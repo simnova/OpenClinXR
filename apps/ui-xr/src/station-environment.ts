@@ -18,6 +18,8 @@
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
+// #196: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
+import { resolveFixtureSlotsForRoom } from "@openclinxr/asset-registry/environment-zone-templates";
 import {
   BoxGeometry,
   Group,
@@ -34,10 +36,11 @@ import { buildPatientStretcher, isStretcherSlotId } from "./station-stretcher.js
 export type BuildStationEnvironmentInput = {
   environmentId: string;
   /**
-   * Optional dimension overrides for in-process generator sweeps (#194).
+   * Optional dimension overrides for in-process generator sweeps (#194/#196).
    * When set, shell geometry uses these instead of the registry descriptor values.
-   * Fixture slot positions are still taken from the descriptor (hand-picked constants).
-   * Product callers leave these unset.
+   * Fixture slots authored for the descriptor dimensions are re-resolved so
+   * non-learner positions track width/depth (#196 fraction layout). Product
+   * callers leave these unset (identity resolve → same as authored).
    */
   roomWidthMeters?: number;
   roomDepthMeters?: number;
@@ -139,7 +142,23 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
   shell.userData.dimensionOverridesActive = dimensionOverridesActive;
   shell.userData.wallColor = d.wallColor;
   shell.userData.wallTrimColor = d.wallTrimColor;
-  shell.userData.fixtureSlots = d.fixtureSlots.map((slot) => ({ ...slot, position: { ...slot.position } }));
+  // #196: authored slot metres are relative to the descriptor plan; re-resolve so
+  // door/board/furniture track shell width/depth under harness overrides (and stay
+  // byte-identical at shipped dimensions — identity scale).
+  const resolvedSlots = resolveFixtureSlotsForRoom(
+    d.fixtureSlots,
+    { widthMeters: width, depthMeters: depth, heightMeters: height },
+    {
+      widthMeters: d.roomWidthMeters,
+      depthMeters: d.roomDepthMeters,
+      heightMeters: d.roomHeightMeters,
+    },
+  );
+  shell.userData.fixtureSlots = resolvedSlots.map((slot) => ({
+    ...slot,
+    position: { ...slot.position },
+  }));
+  shell.userData.fixtureLayoutDerivation = "fraction";
   shell.userData.environmentFallbackActive = resolved.environmentFallbackActive;
   shell.userData.environmentFallbackReason = resolved.environmentFallbackReason ?? "";
   shell.userData.openClinXrEnvironmentPolicy =
@@ -219,13 +238,14 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
 
   // Fixtures: architecture (door/board/surface) / stretcher / chair / layout;
   // learner_start stays a marker cube. #186 ownership roles stamped on each root.
+  // Positions come from resolveFixtureSlotsForRoom (tracks shell under #196).
   const ownedRoles = new Set<string>();
-  for (const slot of d.fixtureSlots) {
+  for (const slot of resolvedSlots) {
     ownedRoles.add(roleClassFromFixtureSlotId(slot.slotId));
   }
   shell.userData.fixtureOwnedRoles = [...ownedRoles];
 
-  for (const slot of d.fixtureSlots) {
+  for (const slot of resolvedSlots) {
     const arch = tryBuildArchitectureFixture({
       slotId: slot.slotId,
       purpose: slot.purpose,
