@@ -1157,11 +1157,11 @@ def render_posed_deformation_grade(
     """#216 — lit rest | posed side-by-side of one skinned body+garment.
 
     EEVEE so Principled Base Color is visible (Workbench ignores it — #215).
-    Rest on the left, driven-bone pose on the right.
+    Rest on the left, driven-bone pose on the right. Frame full figure + arms.
     """
     clear_scene()
     glb = class_result["glbPath"]
-    spacing = 1.35
+    spacing = 1.45
 
     def import_at_x(x_off: float, pose: bool) -> list[bpy.types.Object]:
         before = set(bpy.data.objects)
@@ -1169,7 +1169,9 @@ def render_posed_deformation_grade(
         created = [o for o in bpy.data.objects if o not in before]
         meshes = [o for o in created if o.type == "MESH"]
         arms = [o for o in created if o.type == "ARMATURE"]
-        for obj in created:
+        # Move only scene roots so armature children keep relative TRS
+        roots = [o for o in created if o.parent is None or o.parent not in created]
+        for obj in roots:
             obj.location.x += x_off
         for obj in meshes:
             _tag_mesh_materials(obj, class_result["bodyClassId"], 0)
@@ -1190,12 +1192,24 @@ def render_posed_deformation_grade(
     right = import_at_x(spacing * 0.5, pose=True)
     placed = left + right
     if placed:
-        zs = []
+        zs: list[float] = []
+        xs: list[float] = []
         for obj in placed:
             b = world_bounds(obj)
             zs.extend([b["min"][2], b["max"][2]])
-        mid_z = 0.5 * (min(zs) + max(zs)) if zs else 0.95
-        setup_camera_front(target_z=mid_z, distance=3.8, center_x=0.0)
+            xs.extend([b["min"][0], b["max"][0]])
+        zmin, zmax = min(zs), max(zs)
+        # Aim slightly above mid-height so arms/shoulders dominate the frame
+        mid_z = zmin + 0.58 * (zmax - zmin)
+        stature = max(zmax - zmin, 0.5)
+        dist = max(3.2, stature * 2.4)
+        setup_camera_front(target_z=mid_z, distance=dist, center_x=0.0)
+        # Slightly wider FOV so both full figures fit
+        if bpy.context.scene.camera and bpy.context.scene.camera.data:
+            try:
+                bpy.context.scene.camera.data.lens = 35.0
+            except Exception:
+                pass
     else:
         setup_camera_front()
     engine = render_png(grade_path, res_x=1400, res_y=780)
