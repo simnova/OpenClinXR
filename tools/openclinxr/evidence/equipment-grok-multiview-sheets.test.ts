@@ -7,6 +7,13 @@ import { join } from "node:path";
  *
  * Does NOT require TRELLIS backend. Produces image packs + manifest only.
  * Header IMMUTABLE — append ## FIXED (#232).
+ *
+ * ## FIXED (#232)
+ * - `inspectEquipmentGrokMultiviewSheets` lands in equipment-grok-multiview-sheets.ts.
+ * - Packs on disk: ecg-cart | wall-clock | bedside-monitor (4 views each: front,
+ *   three_quarter_left, three_quarter_right, side) under .openclinxr/evidence/issue-232/.
+ * - Images from harness image_gen (Grok Imagine); JPG→PNG; manifest lists paths/prompts.
+ * - claimScope / notEvidenceFor exclude clinical accuracy, TRELLIS success, Quest readiness.
  */
 
 type MvReport = {
