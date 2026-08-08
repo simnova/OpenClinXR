@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "openclinxr.shoe-candidates.v1",
+  "examinedAt": "2026-08-08T20:48:23.857Z",
+  "candidates": [
+    {
+      "garmentId": "combat_boots",
+      "sourceNote": "makehumancommunity combat_boots — http://www.makehumancommunity.org/sites/default/files/clothes/combat_boots/combatboots.mhclo returned 404",
+      "localMhcloPath": null,
+      "localObjPath": null,
+      "licenseToken": "license_not_found_in_mhclo_header",
+      "accepted": false,
+      "rejectionReason": "asset not present locally and remote URL unavailable — cannot invent a licence token without the .mhclo header"
+    },
+    {
+      "garmentId": "shoes01_asset_pack",
+      "sourceNote": "makehumancommunity asset_packs/shoes01.zip — tuxfamily download returned connection failure/404 on this host",
+      "localMhcloPath": null,
+      "localObjPath": null,
+      "licenseToken": "license_not_found_in_mhclo_header",
+      "accepted": false,
+      "rejectionReason": "asset not present locally and remote URL unavailable — cannot invent a licence token without the .mhclo header"
+    }
+  ],
+  "claimScope": "licence_search_for_makeclothes_shoe_mhclo",
+  "notEvidenceFor": [
+    "clinical_wardrobe_correctness",
+    "quest_readiness"
+  ]
+}

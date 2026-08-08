@@ -1,0 +1,112 @@
+{
+  "measuredAt": "2026-08-08T20:43:46.909Z",
+  "rows": [
+    {
+      "assetId": "body-param-adult_lean_female-library.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_casual_shoe_L_mesh",
+        "openclinxr_footwear_casual_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "body-param-adult_heavy_male-library.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_hospital_slipper_L_mesh",
+        "openclinxr_footwear_hospital_slipper_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "adult_male_street_casual.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_casual_shoe_L_mesh",
+        "openclinxr_footwear_casual_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "ed_chest_pain_adult_cast.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_hospital_slipper_L_mesh",
+        "openclinxr_footwear_hospital_slipper_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "ed_chest_pain_nurse_adult.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_clinical_shoe_L_mesh",
+        "openclinxr_footwear_clinical_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "ed_chest_pain_spouse_adult.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_casual_shoe_L_mesh",
+        "openclinxr_footwear_casual_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "peds_anxious_parent.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_casual_shoe_L_mesh",
+        "openclinxr_footwear_casual_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "peds_nurse_kevin.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_clinical_shoe_L_mesh",
+        "openclinxr_footwear_clinical_shoe_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    },
+    {
+      "assetId": "peds_patient_child.glb",
+      "footwearMeshNames": [
+        "openclinxr_footwear_hospital_slipper_L_mesh",
+        "openclinxr_footwear_hospital_slipper_R_mesh"
+      ],
+      "indexComponents": 2,
+      "positionMergedComponents": 2,
+      "sharesVertexPositionWithBody": false,
+      "triangleCount": 160
+    }
+  ],
+  "ambientFailureClass": "library_and_anny_footwear_are_detached_aabb_ellipsoids_no_shared_body_vertex_positions; gate_passes_free_floating_primitive",
+  "graphNote": "indexComponents = face-adjacency per footwear primitive (glTF index graph). positionMergedComponents = face-adjacency after merging verts at 5dp across footwear meshes of the asset. sharesVertexPositionWithBody = any footwear vert quant-key also appears on non-garment body mesh.",
+  "claimScope": "pre_fix_attachment_geometry_not_appearance",
+  "notEvidenceFor": [
+    "clinical_costume_realism",
+    "quest_readiness",
+    "reads_as_shoe_appearance"
+  ]
+}
