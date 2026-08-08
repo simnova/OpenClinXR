@@ -6,7 +6,7 @@
  */
 
 import { Alert, Button, Input, Space, Tag, Typography } from "antd";
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 import type {
   AdminScenario,
   AdminScenarioReviewDecision,
@@ -97,7 +97,9 @@ export function ScenarioReviewGatePanel({
   const [history, setHistory] = useState<AdminScenarioReviewDecision[] | null>(null);
   const [historyError, setHistoryError] = useState<string | null>(null);
 
-  const loadHistory = () => {
+  // Real deps only: fetch keys + the list function. Gate states are effect triggers below —
+  // they are not inputs to the request body.
+  const loadHistory = useCallback(() => {
     void listScenarioReviewDecisions({ scenarioId: scenario.scenarioId, version: scenario.version })
       .then((records) => {
         setHistory(records);
@@ -106,12 +108,18 @@ export function ScenarioReviewGatePanel({
       .catch((error: unknown) => {
         setHistoryError(error instanceof Error ? error.message : "Unable to load decision history");
       });
-  };
+  }, [listScenarioReviewDecisions, scenario.scenarioId, scenario.version]);
 
+  // Reload when identity/list fn changes (via loadHistory) OR any gate flips after a decision.
   useEffect(() => {
     loadHistory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reload when scenario identity/gates change
-  }, [scenario.scenarioId, scenario.version, scenario.review.clinical, scenario.review.psychometric, scenario.review.legal, scenario.review.simulationQa]);
+  }, [
+    loadHistory,
+    scenario.review.clinical,
+    scenario.review.psychometric,
+    scenario.review.legal,
+    scenario.review.simulationQa,
+  ]);
 
   const recordDecision = async (dimension: ScenarioReviewDimension) => {
     const rationale = form[dimension].rationale.trim();
