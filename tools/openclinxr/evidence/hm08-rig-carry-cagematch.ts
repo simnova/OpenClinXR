@@ -502,6 +502,9 @@ function runHm08ExportAttempt(
 ): Record<string, unknown> {
   const attemptReport = path.join(EVIDENCE_DIR, `hm08-export-attempt-${attempt}.json`);
   const blender = findBlender();
+  // #178: pass upright product flags EXPLICITLY. Stage defaults are also true after #156, but
+  // relying on defaults is how a "preserved" lying control under issue-134 got overwritten when
+  // this cagematch re-ran. Lying before-column lives in tracked seed + optional issue-156 control.
   const args = [
     "--background",
     "--python",
@@ -517,6 +520,10 @@ function runHm08ExportAttempt(
     String(attempt),
     "--weight-mode",
     weightMode,
+    "--export-yup",
+    "true",
+    "--force-z-up",
+    "true",
   ];
   const r = spawnSync(blender, args, {
     encoding: "utf8",
