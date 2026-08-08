@@ -210,6 +210,37 @@ export function parametricEquipmentKindCount(): number {
   return PARAMETRIC_KINDS.size;
 }
 
+/**
+ * #185 — true when `buildDeclaredEquipmentGeometry` has a dedicated case arm
+ * (not the generic cart fallback). Room-prop channel consults this before boxing.
+ */
+export function hasDeclaredEquipmentBuilderArm(equipmentId: string): boolean {
+  return resolveRoomPropBuilderEquipmentId(equipmentId) !== null;
+}
+
+/** Sorted dedicated builder arm ids (discoverable; do not hardcode in evidence). */
+export function listDeclaredEquipmentBuilderArms(): string[] {
+  return [...PARAMETRIC_KINDS].sort();
+}
+
+/**
+ * #185 — resolve a roomProp propId to a parametric builder arm, or null.
+ * Exact match first, then hyphen→underscore, then `_equipment` suffix.
+ * Manifest ids like `monitor` / `wall-clock` map to `monitor_equipment` /
+ * `wall_clock_equipment` without a second geometry SSOT.
+ */
+export function resolveRoomPropBuilderEquipmentId(propId: string): string | null {
+  if (!propId) return null;
+  if (PARAMETRIC_KINDS.has(propId)) return propId;
+  const normalized = propId.replace(/-/gu, "_");
+  if (PARAMETRIC_KINDS.has(normalized)) return normalized;
+  if (!normalized.endsWith("_equipment")) {
+    const withSuffix = `${normalized}_equipment`;
+    if (PARAMETRIC_KINDS.has(withSuffix)) return withSuffix;
+  }
+  return null;
+}
+
 export function isEdChestPainBayScenario(scenarioId: string): boolean {
   return scenarioId === "ed_chest_pain_priority_v1" || scenarioId === "ed_chest_pain_priority_v2";
 }

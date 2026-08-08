@@ -38,6 +38,7 @@ import {
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
+import { buildRoomPropGroup } from "./room-prop-geometry.js";
 import {
   roomPropSuppressedByFixtureOwnership,
   stampSuppressedDeclaredEquipmentOntoFixtures,
@@ -3458,9 +3459,21 @@ function createStationScene(): StationSceneRuntime {
     ? (stationEnvironment.userData.fixtureOwnedRoles as string[])
     : [];
 
+  // #140 / #185 — plan equipment BEFORE room props so the XOR exclusive-mount rule
+  // can skip builder-backed roomProps already claimed by the equipment channel.
+  runtimeEquipmentSlotsByAssetId.clear();
+  const equipmentPlan = planStationEquipmentMounts({
+    scenarioId: encounterRuntimeAssetBundle.scenarioId,
+    equipment: encounterRuntimeAssetBundle.equipment,
+    equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
+    fixtureOwnedRoles,
+  });
+  const exclusiveMountedEquipmentIds = new Set(equipmentPlan.map((item) => item.equipmentId));
+
   for (const prop of createDetailedEdRoomProps(
     encounterRuntimeAssetBundle.sceneManifest.roomProps,
     fixtureOwnedRoles,
+    exclusiveMountedEquipmentIds,
   )) {
     if (selectedScenarioRuntimeMismatch) {
       prop.visible = false;
@@ -3479,13 +3492,6 @@ function createStationScene(): StationSceneRuntime {
 
   // #140 — mount equipment declared by this station's scene manifest / bundle
   // (parametric multi-mesh for kinds without real GLBs; keep ED bay GLBs).
-  runtimeEquipmentSlotsByAssetId.clear();
-  const equipmentPlan = planStationEquipmentMounts({
-    scenarioId: encounterRuntimeAssetBundle.scenarioId,
-    equipment: encounterRuntimeAssetBundle.equipment,
-    equipmentPlacements: encounterRuntimeAssetBundle.sceneManifest.equipmentPlacements ?? {},
-    fixtureOwnedRoles,
-  });
   const equipmentEvidenceItems: DeclaredEquipmentMountEvidence["items"] = [];
   for (const item of equipmentPlan) {
     const slot =
@@ -6078,6 +6084,7 @@ function createActorNameplate(label: string, accentColor: number): Mesh {
 function createDetailedEdRoomProps(
   manifestProps: readonly EncounterRuntimeRoomProp[],
   fixtureOwnedRoles: readonly string[] = [],
+  exclusiveMountedEquipmentIds: ReadonlySet<string> = new Set(),
 ): Group[] {
   const fallbackPositions = [
     { x: -2.15, y: 0.65, z: -1.02 },
@@ -6086,24 +6093,27 @@ function createDetailedEdRoomProps(
     { x: 1.52, y: 0.58, z: 0.92 },
   ];
   const owned = new Set(fixtureOwnedRoles);
-  return manifestProps
-    .filter((prop) => shouldRenderRoomPropInVisualReview(prop))
+  const out: Group[] = [];
+  for (const [propIndex, prop] of manifestProps.entries()) {
+    if (!shouldRenderRoomPropInVisualReview(prop)) continue;
     // #186: fixture owns seating/door/board/surface — roomProp is metadata-only for that role.
-    .filter((prop) => !roomPropSuppressedByFixtureOwnership(prop.propId, owned))
-    .map((prop, propIndex) => {
-      const { color, accentColor } = roomPropColourNumbers(prop);
-      return roomProp(
-        prop.propId,
-        color,
-        accentColor,
-        hasVector3(prop.position)
-          ? prop.position
-          : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
-        hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
-        prop.label ?? prop.propId.replaceAll("-", " "),
-        Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
-      );
-    });
+    if (roomPropSuppressedByFixtureOwnership(prop.propId, owned)) continue;
+    const { color, accentColor } = roomPropColourNumbers(prop);
+    const built = roomProp(
+      prop.propId,
+      color,
+      accentColor,
+      hasVector3(prop.position)
+        ? prop.position
+        : fallbackPositions[propIndex % fallbackPositions.length] ?? { x: -2.15, y: 0.65, z: -1.02 },
+      hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 },
+      prop.label ?? prop.propId.replaceAll("-", " "),
+      Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
+      exclusiveMountedEquipmentIds,
+    );
+    if (built) out.push(built);
+  }
+  return out;
 }
 
 function updateEnvironmentRealismAnimations(deltaSeconds: number, nowMs: number): void {
@@ -6135,35 +6145,24 @@ function roomProp(
   scale: { x: number; y: number; z: number },
   label: string,
   affordanceCueIds: string[] = [`${propId}:visual_context`],
-): Group {
-  const group = new Group();
-  group.name = `${runtimeRoomPropObjectPrefix()}.${propId}`;
-  group.position.set(position.x, position.y, position.z);
-  group.userData.openClinXrBaseY = position.y;
-  environmentReactiveProps.set(propId, group);
-  const body = new Mesh(new BoxGeometry(1, 1, 1), new MeshStandardMaterial({ color, roughness: 0.7 }));
-  body.name = `${group.name}.body`;
-  body.scale.set(scale.x, scale.y, scale.z);
-  group.add(body);
-  addDetailedRoomPropVisuals(group, propId, label, scale, color, accentColor);
-  const marker = createAffordanceMarker(affordanceCueIds[0] ?? `${propId}:visual_context`, accentColor);
-  marker.position.set(0, scale.y + 0.08, 0);
-  group.add(marker);
-  const labelPlate = createActorNameplate(label, accentColor);
-  labelPlate.name = `${group.name}.label`;
-  labelPlate.position.set(0, scale.y + 0.18, 0);
-  labelPlate.scale.set(0.48, 0.48, 0.48);
-  group.add(labelPlate);
-  group.userData.openClinXrAffordances = ["room_context_cue", "clinical_environment_reference", "runtime_scene_manifest_prop"];
-  group.userData.openClinXrRuntimeSceneManifestAffordanceCueIds = affordanceCueIds;
-  group.userData.openClinXrDynamicEncounterAssetPolicy = "room_prop_rendered_from_active_encounter_scene_manifest_not_hardcoded_shared_world";
-  // #209: declared-equipment inspector unions roomProps into declared ids and measures
-  // openClinXrEquipmentId in the live scene. Tag the prop root so ekg-leads / monitor
-  // cards / psych soft-chair props count as mounted rather than "renders nothing".
-  group.userData.openClinXrEquipmentId = propId;
-  group.userData.openClinXrRuntimeEquipmentAssetId = propId;
-  group.userData.openClinXrEquipmentSource = "fallback";
-  group.userData.openClinXrRoomPropFulfillsDeclaredEquipment = true;
+  exclusiveMountedEquipmentIds: ReadonlySet<string> = new Set(),
+): Group | null {
+  // #185: builder-backed props use station-equipment-builders (ignore scale); XOR skips duals.
+  const group = buildRoomPropGroup({
+    propId,
+    color,
+    accentColor,
+    position,
+    scale,
+    label,
+    affordanceCueIds,
+    namePrefix: runtimeRoomPropObjectPrefix(),
+    exclusiveMountedEquipmentIds,
+    createAffordanceMarker,
+    createActorNameplate,
+    addFallbackDetailVisuals: addDetailedRoomPropVisuals,
+  });
+  if (group) environmentReactiveProps.set(propId, group);
   return group;
 }
 

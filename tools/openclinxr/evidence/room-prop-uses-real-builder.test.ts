@@ -105,6 +105,23 @@ import { describe, expect, it } from "vitest";
  * If a proof in the brief cannot pass as written, or passes trivially against the measured range, SAY
  * SO IN YOUR REPORT AT THE MOMENT YOU FIND IT, before running a corrected version. That is my defect,
  * not yours, and I need to see it.
+ *
+ * ## FIXED (#185)
+ *
+ * - `roomProp` consults `buildDeclaredEquipmentGeometry` via `buildRoomPropGroup`
+ *   (`apps/ui-xr/src/room-prop-geometry.ts`) when `resolveRoomPropBuilderEquipmentId(propId)` hits a
+ *   dedicated case arm (exact id, hyphen→underscore, or `_equipment` suffix). Manifest scale is
+ *   ignored for builder-backed props; markers/nameplates use the builder AABB; source tag is
+ *   `parametric`.
+ * - XOR: equipment plan is computed first; room props whose propId or resolved builder id is already
+ *   on the plan return null (no dual mount). Nested builder `openClinXrEquipmentId` is cleared so a
+ *   single root carries the identity.
+ * - Un-backed ids keep the unit-box fallback. Fixture-owned seating (e.g. psych soft-chair) still
+ *   fulfills via #209 aliases — inspect counts those roots.
+ * - Pre-fix measured ambient: 3× `monitor` builder-backed + unit-box/fallback; 0 duals. Shipped
+ *   bank has **no** roomProp whose propId is exactly one of the eight `*_equipment` ids (those live
+ *   on the equipment channel only) — alias resolution is what makes `monitor` / `wall-clock` hit
+ *   builders. Grade: ED bay framed on monitor wall (not doorway-only).
  */
 
 type PropRender = {
