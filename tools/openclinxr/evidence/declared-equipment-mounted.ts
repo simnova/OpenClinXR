@@ -105,11 +105,15 @@ export async function readDeclaredEquipmentIds(scenarioId: string): Promise<stri
     if (id) ids.add(id);
   }
   // roomProps with geometry (not pure metadata) surface as declared mount candidates.
+  const { classifyRoomProp } = await import("../../../apps/ui-xr/src/room-prop-classification.js");
   for (const prop of raw.roomProps ?? []) {
     const id = prop.propId;
     if (!id) continue;
     // Affordance/trace-only props without a geometry-bearing role stay out.
     if (prop.semanticRole === "review_cue" || prop.semanticRole === "objective_cue") continue;
+    // #223: cue/overlay vocabulary is not furniture equipment to mount.
+    const cls = classifyRoomProp(id, { semanticRole: prop.semanticRole ?? null });
+    if (cls.classification === "cue_or_overlay") continue;
     ids.add(id);
   }
   return [...ids].sort();

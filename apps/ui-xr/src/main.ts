@@ -50,6 +50,7 @@ import {
   collectDeclaredEquipmentEvidenceFromScene,
   countEquipmentGeometry,
   planStationEquipmentMounts,
+  stampRoomPropAliasesOnEquipmentRoot,
 } from "./station-equipment.js";
 import {
   describeRuntimeBundleScenarioMatch,
@@ -3514,6 +3515,9 @@ function createStationScene(): StationSceneRuntime {
     slot.userData.openClinXrRuntimeEquipmentPlacementCueIds = item.interactionCueIds;
     slot.userData.openClinXrDynamicEncounterEquipmentSlot = "manifest_declared_equipment_mount";
     slot.userData.openClinXrEquipmentDeclared = item.declared;
+    // #223: roomProp ids that alias to this builder (telehealth-tablet-stand → tablet_visit…)
+    // so declared-equipment inspectors match the prop declaration without dual geometry.
+    stampRoomPropAliasesOnEquipmentRoot(slot, item.equipmentId);
     slot.add(createActorNameplate(item.label, item.source === "gltf" ? 0x286b54 : 0x2563eb));
     scene.add(slot);
     if (item.source === "gltf" && item.gltfFileName) {
@@ -6110,6 +6114,7 @@ function createDetailedEdRoomProps(
       prop.label ?? prop.propId.replaceAll("-", " "),
       Array.isArray(prop.affordanceCueIds) ? prop.affordanceCueIds : [`${prop.propId}:visual_context`],
       exclusiveMountedEquipmentIds,
+      typeof prop.semanticRole === "string" ? prop.semanticRole : null,
     );
     if (built) out.push(built);
   }
@@ -6146,8 +6151,10 @@ function roomProp(
   label: string,
   affordanceCueIds: string[] = [`${propId}:visual_context`],
   exclusiveMountedEquipmentIds: ReadonlySet<string> = new Set(),
+  semanticRole: string | null = null,
 ): Group | null {
   // #185: builder-backed props use station-equipment-builders (ignore scale); XOR skips duals.
+  // #223: cue/overlay props keep affordance tags without a scaled unit-box body.
   const group = buildRoomPropGroup({
     propId,
     color,
@@ -6156,6 +6163,7 @@ function roomProp(
     scale,
     label,
     affordanceCueIds,
+    semanticRole,
     namePrefix: runtimeRoomPropObjectPrefix(),
     exclusiveMountedEquipmentIds,
     createAffordanceMarker,

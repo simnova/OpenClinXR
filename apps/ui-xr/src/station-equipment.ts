@@ -203,7 +203,37 @@ const PARAMETRIC_KINDS = new Set([
   "observation_station_equipment",
   "12_lead_ecg_machine_equipment",
   "abdominal_exam_light_equipment",
+  // #223 physical roomProp ids that need dedicated geometry (not unit-box fallback).
+  "safety_plan_whiteboard_equipment",
+  "ekg_leads_on_bed_equipment",
 ]);
+
+/**
+ * Manifest roomProp id → parametric builder arm when hyphen/suffix alone is insufficient.
+ * e.g. safe-room-soft-chair → safe_room_chair_equipment (not safe_room_soft_chair_equipment).
+ */
+const ROOM_PROP_BUILDER_ALIASES: Readonly<Record<string, string>> = {
+  "safe-room-soft-chair": "safe_room_chair_equipment",
+  safe_room_soft_chair: "safe_room_chair_equipment",
+  "telehealth-tablet-stand": "tablet_visit_equipment",
+  telehealth_tablet_stand: "tablet_visit_equipment",
+  "observer-station": "observation_station_equipment",
+  observer_station: "observation_station_equipment",
+  "safety-plan-whiteboard": "safety_plan_whiteboard_equipment",
+  safety_plan_whiteboard: "safety_plan_whiteboard_equipment",
+  "ekg-leads-on-bed": "ekg_leads_on_bed_equipment",
+  ekg_leads_on_bed: "ekg_leads_on_bed_equipment",
+  "chest-pain-monitor": "monitor_equipment",
+  chest_pain_monitor: "monitor_equipment",
+  "handoff-whiteboard": "safety_plan_whiteboard_equipment",
+  handoff_whiteboard: "safety_plan_whiteboard_equipment",
+  "parent-coaching-chair": "parent_chair_equipment",
+  parent_coaching_chair: "parent_chair_equipment",
+  "pediatric-pulse-ox-monitor": "pulse_oximeter_equipment",
+  pediatric_pulse_ox_monitor: "pulse_oximeter_equipment",
+  "pediatric-nebulizer-station": "nebulizer_mask_equipment",
+  pediatric_nebulizer_station: "nebulizer_mask_equipment",
+};
 
 /** Count of parametric equipment builders — counterweight for real-GLB assembly work (#168). */
 export function parametricEquipmentKindCount(): number {
@@ -232,6 +262,8 @@ export function listDeclaredEquipmentBuilderArms(): string[] {
 export function resolveRoomPropBuilderEquipmentId(propId: string): string | null {
   if (!propId) return null;
   if (PARAMETRIC_KINDS.has(propId)) return propId;
+  const alias = ROOM_PROP_BUILDER_ALIASES[propId] ?? ROOM_PROP_BUILDER_ALIASES[propId.replace(/-/gu, "_")];
+  if (alias && PARAMETRIC_KINDS.has(alias)) return alias;
   const normalized = propId.replace(/-/gu, "_");
   if (PARAMETRIC_KINDS.has(normalized)) return normalized;
   if (!normalized.endsWith("_equipment")) {
@@ -239,6 +271,39 @@ export function resolveRoomPropBuilderEquipmentId(propId: string): string | null
     if (PARAMETRIC_KINDS.has(withSuffix)) return withSuffix;
   }
   return null;
+}
+
+/**
+ * #223 — reverse map: builder equipment id → roomProp propIds that alias to it.
+ * Stamp these as openClinXrEquipmentIdAliases so #209 declared-equipment matching
+ * sees the roomProp declaration fulfilled when only the equipment channel mounts.
+ */
+export function roomPropIdsAliasedToEquipment(equipmentId: string): string[] {
+  if (!equipmentId) return [];
+  const out: string[] = [];
+  for (const [propId, arm] of Object.entries(ROOM_PROP_BUILDER_ALIASES)) {
+    if (arm === equipmentId && !out.includes(propId) && propId.includes("-")) {
+      // Prefer hyphenated manifest propIds over underscore duplicates.
+      out.push(propId);
+    }
+  }
+  return out;
+}
+
+/** Stamp reverse roomProp aliases onto an equipment root (no extra geometry). */
+export function stampRoomPropAliasesOnEquipmentRoot(
+  root: { userData: Record<string, unknown> },
+  equipmentId: string,
+): void {
+  const propIds = roomPropIdsAliasedToEquipment(equipmentId);
+  if (propIds.length === 0) return;
+  const aliases = Array.isArray(root.userData.openClinXrEquipmentIdAliases)
+    ? (root.userData.openClinXrEquipmentIdAliases as string[])
+    : [];
+  for (const propId of propIds) {
+    if (!aliases.includes(propId)) aliases.push(propId);
+  }
+  root.userData.openClinXrEquipmentIdAliases = aliases;
 }
 
 export function isEdChestPainBayScenario(scenarioId: string): boolean {
