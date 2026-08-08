@@ -4028,3 +4028,44 @@ which I then had to reset and re-run. Roughly a cycle. The fix is one prefix.
 
 
 After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
+
+## 11q. Clearing the evidence cache DESTROYS the `exists:` artifacts the same contract requires
+
+Two rules of mine are in direct conflict and I hit the collision twice before naming it.
+
+§9y says clear the evidence cache before any verification run you intend to act on, because a cached
+artifact produces false reds and false greens. §11a says use `git clean -fdx <path>` rather than
+`rm -rf`, because tracked artifacts must survive.
+
+Both are right. Together they delete **gitignored evidence the worker legitimately produced** — which
+is exactly what `exists:.openclinxr/evidence/<slice>/<artifact>` proofs are written against.
+
+First collision: I cleared a worktree's evidence and destroyed `actor-prop-after.png` before grading
+it, then had to regenerate the capture on main. Second collision, same slice: three clean runs during
+contract verification removed BOTH artifacts, `contract-verify-cli` exited 2, and `integrate` refused
+the land. The refusals were correct. The cause was me.
+
+**The asymmetry that matters:** a post-fix capture can be regenerated and is still honestly what it
+claims to be. A **pre-fix measurement cannot**. Re-measuring the current tree and writing it to
+`pre-fix.json` produces a fabricated before-column — the §7s class, a file asserting something about a
+tree state it no longer describes. Once destroyed, that artifact is either faithfully reconstructed
+from data someone still holds, or it is gone.
+
+**Rule:** never clear the evidence directory of a worktree whose contract carries `exists:` rules.
+To get an honest cleared-cache contract run, clear only the SUBDIRECTORY the contract's measurement
+caches into, never the slice's own artifact directory:
+
+    git clean -fdxq .openclinxr/evidence/<module-cache-dir>     # yes
+    git clean -fdxq .openclinxr/evidence                        # destroys issue-<n>/ deliverables
+
+Better still: run `contract-verify-cli --slice <id> --tree <worktree>` FIRST, while the artifacts
+exist, and do cache-cleared re-runs afterwards knowing the report is already written and anchored.
+
+**And when you do destroy one, say so to the worker in those words.** The handback for this asked for
+the capture to be regenerated freely and the pre-fix artifact to be reconstructed from session values
+with an explicit `reconstructionNote`, plus: *if you cannot reconstruct the rows faithfully, say so
+and stop — I would rather the land stay blocked than have a fabricated before-column.* An honest "I no
+longer have these values" has to be an acceptable answer, or the request is an invitation to invent.
+
+
+After editing this file: `pnpm agent:alignment && pnpm docs:drift-check`.
