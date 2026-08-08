@@ -996,10 +996,16 @@ describe("static browser assets", () => {
       expect(provenance.notEvidenceFor).toContain("quest_readiness");
     }
 
-    expect(mainSource).toContain("real_anny_local_forward_pass_plus_blender_procedural");
-    expect(mainSource).toContain("usesRealAnnyForwardPass: true");
-    expect(mainSource).toContain("realAnnyWeightsUsed: false");
-    expect(mainSource).toContain("procedural_clinical_idle_conversation_posture_fallback");
+    // #187: provenance helper extracted from main.ts (SIZE_FREEZE) — assert the SSOT module.
+    const provenanceSource = readFileSync(
+      new URL("./generated-humanoid-source-provenance.ts", import.meta.url),
+      "utf8",
+    );
+    expect(mainSource).toContain("generatedHumanoidSourceProvenance");
+    expect(provenanceSource).toContain("real_anny_local_forward_pass_plus_blender_procedural");
+    expect(provenanceSource).toContain("usesRealAnnyForwardPass: true");
+    expect(provenanceSource).toContain("realAnnyWeightsUsed: false");
+    expect(provenanceSource).toContain("procedural_clinical_idle_conversation_posture_fallback");
   });
 
   it("loads only the active scenario fixture subpath in the headset app", () => {
