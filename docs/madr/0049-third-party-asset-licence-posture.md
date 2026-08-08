@@ -246,3 +246,75 @@ disk and reusable.
 
 Evidence: `.openclinxr/evidence/issue-225/backend-measure.json`.
 Implementation: `tools/openclinxr/evidence/trellis-metal-backend-gate.ts`.
+
+## Update 2026-08-08 — #233 TRELLIS Metal mesh bake: `mesh_exported`
+
+**Verdict:** `mesh_exported` — the `trellis2-apple` pipeline completed a full
+image→shape→mesh→GLB export on Apple Silicon (M1 Max, 64 GB) using the Metal
+Toolchain (metalfe-32023.883). The three blockers from #225 are all resolved.
+
+### What was resolved
+
+| blocker (#225) | resolution |
+|---|---|
+| Metal Toolchain not installed | installed; `xcrun metal --version` returns metalfe-32023.883 |
+| Metal GPU packages fail to build | all four (`cumesh`, `flex_gemm`, `mtldiffrast`, `mtlbvh`) compile and import |
+| DINOv3 is a gated HF model | loaded from local weights at `~/ComfyUI/models/dinov3/` (config.json + model.safetensors) |
+
+### Additional blocker resolved
+
+| blocker | resolution |
+|---|---|
+| `o_voxel` C++ extension fails to build | installed in pure-Python fallback mode (C++ ext disabled; `flexible_dual_grid.py` uses Python hashmap) |
+| `briaai/RMBG-2.0` background removal is gated (401) | try/except in `create_mlx_pipeline` skips gracefully; `pipeline.rembg_model = None` — background removal is not required for shape generation |
+
+### Pipeline stages
+
+| stage | outcome | time |
+|---|---|---|
+| Metal toolchain probe | `xcrun metal` OK | — |
+| Metal GPU package import (×4) | all import | — |
+| Pipeline load (8 models, MLX) | runs | ~2.4 s |
+| DINOv3 (local weights) | runs | — |
+| BiRefNet background removal | skipped (gated model) | — |
+| Sparse structure sampling (12 steps) | runs | ~65 s |
+| Shape SLat 512 cascade (12 steps) | runs | ~72 s |
+| Shape SLat 1024 cascade (12 steps) | runs | ~680 s |
+| Texture SLat 1024 (12 steps) | runs | ~389 s |
+| Decode latent (o_voxel, pure Python) | runs | — |
+| GLB export (decimate + xatlas UV + MPS bake) | runs | ~137 s |
+| **Total wall clock** | | **~1411 s (~23.5 min)** |
+
+### Mesh metrics
+
+| metric | value |
+|---|---|
+| Raw faces (pre-decimation) | 16,422,634 |
+| Post-decimation faces | 991,750 |
+| GLB file size | 41,458,520 bytes (~39.5 MB) |
+| PBR textured | yes (base color + UV unwrap) |
+
+MADR 0050 says not to reject solely on raw > 60k. At 991,750 post-decimation,
+this is ~16× the 60k ceiling. Further decimation or pipeline optimization
+is needed before promotion into the equipment pipeline. The parametric ECG
+cart (#232) is 288 triangles and remains the correct baseline for
+medical-device accuracy.
+
+### What this means
+
+The TRELLIS.2 Metal path is **viable for equipment shape generation** on this
+machine. The licence posture holds: MIT model, MIT Metal packages, local
+DINOv3 with commercial-permitted terms, no attribution obligation on output,
+no cloud credential, no per-asset cost.
+
+**Does not change:** whether the output is usable for clinical-scenario
+equipment. TRELLIS-generated medical devices risk invented controls that
+look authoritative and are wrong. Thin elements (casters, IV poles, rails)
+remain where this model class fails. The parametric builders remain the
+correct path for accuracy; TRELLIS is a candidate for organic/irregular
+shapes that parametric builders cannot express.
+
+**This does not weaken** any prior licence findings.
+
+Evidence: `.openclinxr/evidence/issue-233/bake-measure.json`, `candidate.glb`.
+Implementation: `tools/openclinxr/evidence/trellis-metal-mesh-bake.ts`.
