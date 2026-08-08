@@ -2449,6 +2449,12 @@ def _build_body_surface_derived_garment(
         # Laplacian smooth in XZ only (keep y=bot_y) — damps staircase spikes / turn angles.
         # #208: 12 iters left child tshirt at 147° (planar notch near x=0). 28 iters + peak
         # turn clamp targets hemMaxTurnDegrees ≤ 100 and perimeter ratio ≤ 1.35.
+        #
+        # #188 regression (post bank rebake): scrub outer shells (scrub_pocket) exported with
+        # degree-3..6 junctions on the low boundary — cycle-walk peak clamp never ordered a
+        # clean ring, so nurse hems hit 180° / perimeter≈2.08 while open-front/gown (all
+        # degree-2) stayed green. Footwear is NOT selected by the hem metric; this is real
+        # product topology on the outer upper shell.
         if len(hem_unique) >= 4:
             adj: Dict[int, list] = {}
             for e in bm.edges:
@@ -2471,10 +2477,88 @@ def _build_body_surface_derived_garment(
                     v.co.x = 0.30 * float(v.co.x) + 0.70 * mx
                     v.co.z = 0.30 * float(v.co.z) + 0.70 * mz
                     v.co.y = bot_y
-            # Peak-turn clamp: walk the ordered hem cycle and pull verts with XZ turn > 85°
-            # toward the chord of their two neighbours (preserves loop; kills 147° notches).
-            if adj:
-                # Build ordered cycle from any hem vert of degree 2.
+
+            # Closed shells: angular low-pass on XZ radius. Independent of edge degree —
+            # scrub multi-layer hems are not pure degree-2 cycles, so edge-walk clamps miss.
+            # Open-front keeps edge-walk only (anterior gap is a legitimate open arc).
+            deg_hist = {}
+            for v in hem_unique:
+                d = len(adj.get(v.index) or [])
+                deg_hist[d] = deg_hist.get(d, 0) + 1
+            max_deg = max(deg_hist.keys()) if deg_hist else 0
+            if (not layer_is_open) and len(hem_unique) >= 8:
+                hcx = sum(float(v.co.x) for v in hem_unique) / float(len(hem_unique))
+                hcz = sum(float(v.co.z) for v in hem_unique) / float(len(hem_unique))
+                keyed: list = []
+                for v in hem_unique:
+                    dx = float(v.co.x) - hcx
+                    dz = float(v.co.z) - hcz
+                    ang = math.atan2(dz, dx)
+                    r = math.hypot(dx, dz)
+                    keyed.append([ang, r, v])
+                keyed.sort(key=lambda t: t[0])
+                n_k = len(keyed)
+                for _smooth in range(16):
+                    new_r = []
+                    for i in range(n_k):
+                        r0 = float(keyed[(i - 1) % n_k][1])
+                        r1 = float(keyed[i][1])
+                        r2 = float(keyed[(i + 1) % n_k][1])
+                        new_r.append(0.15 * r0 + 0.70 * r1 + 0.15 * r2)
+                    for i in range(n_k):
+                        ang = float(keyed[i][0])
+                        r = float(new_r[i])
+                        # Mild convex bias: pull extreme radii toward median of neighbours.
+                        keyed[i][1] = r
+                        v = keyed[i][2]
+                        v.co.x = hcx + r * math.cos(ang)
+                        v.co.z = hcz + r * math.sin(ang)
+                        v.co.y = bot_y
+                # Peak-turn clamp on ANGULAR order (not edge walk) — works with degree>2.
+                for _clamp in range(12):
+                    moved = False
+                    for i in range(n_k):
+                        a = keyed[(i - 1) % n_k][2]
+                        b = keyed[i][2]
+                        c = keyed[(i + 1) % n_k][2]
+                        d1x = float(b.co.x) - float(a.co.x)
+                        d1z = float(b.co.z) - float(a.co.z)
+                        d2x = float(c.co.x) - float(b.co.x)
+                        d2z = float(c.co.z) - float(b.co.z)
+                        l1 = (d1x * d1x + d1z * d1z) ** 0.5
+                        l2 = (d2x * d2x + d2z * d2z) ** 0.5
+                        if l1 < 1e-9 or l2 < 1e-9:
+                            continue
+                        cos = max(-1.0, min(1.0, (d1x * d2x + d1z * d2z) / (l1 * l2)))
+                        ang = math.acos(cos) * 180.0 / math.pi
+                        if ang <= 70.0:
+                            continue
+                        b.co.x = 0.20 * float(b.co.x) + 0.40 * (float(a.co.x) + float(c.co.x))
+                        b.co.z = 0.20 * float(b.co.z) + 0.40 * (float(a.co.z) + float(c.co.z))
+                        b.co.y = bot_y
+                        # Keep angular table radii coherent for next iter.
+                        keyed[i][1] = math.hypot(float(b.co.x) - hcx, float(b.co.z) - hcz)
+                        moved = True
+                    if not moved:
+                        break
+                # Collapse branched junctions: snap degree>2 verts onto nearest angular
+                # neighbour so remove_doubles can erase the T-junction that produces 180° folds.
+                if max_deg > 2:
+                    for i in range(n_k):
+                        v = keyed[i][2]
+                        if len(adj.get(v.index) or []) <= 2:
+                            continue
+                        a = keyed[(i - 1) % n_k][2]
+                        c = keyed[(i + 1) % n_k][2]
+                        v.co.x = 0.5 * (float(a.co.x) + float(c.co.x))
+                        v.co.z = 0.5 * (float(a.co.z) + float(c.co.z))
+                        v.co.y = bot_y
+                print(
+                    f"[blender] #124/#188 closed-hem angular smooth: "
+                    f"hem_verts={len(hem_unique)} max_boundary_deg={max_deg} deg_hist={deg_hist}"
+                )
+            elif adj:
+                # Open-front (and small hems): edge-walk peak clamp as in #208.
                 start_v = next((v for v in hem_unique if len(adj.get(v.index) or []) >= 1), None)
                 if start_v is not None:
                     ordered: list = []
@@ -2497,7 +2581,7 @@ def _build_body_surface_derived_garment(
                         if cur_i == start_v.index:
                             break
                     idx_to_vert = {v.index: v for v in hem_unique}
-                    for _clamp in range(8):
+                    for _clamp in range(12):
                         moved = False
                         n_ord = len(ordered)
                         if n_ord < 4:
@@ -2521,13 +2605,12 @@ def _build_body_surface_derived_garment(
                                 continue
                             cos = max(-1.0, min(1.0, (d1x * d2x + d1z * d2z) / (l1 * l2)))
                             ang = math.acos(cos) * 180.0 / math.pi
-                            if ang <= 85.0:
+                            if ang <= 70.0:
                                 continue
-                            # Pull toward midpoint of neighbours.
-                            v1.co.x = 0.25 * float(v1.co.x) + 0.375 * (
+                            v1.co.x = 0.20 * float(v1.co.x) + 0.40 * (
                                 float(v0.co.x) + float(v2.co.x)
                             )
-                            v1.co.z = 0.25 * float(v1.co.z) + 0.375 * (
+                            v1.co.z = 0.20 * float(v1.co.z) + 0.40 * (
                                 float(v0.co.z) + float(v2.co.z)
                             )
                             v1.co.y = bot_y
@@ -2535,9 +2618,227 @@ def _build_body_surface_derived_garment(
                         if not moved:
                             break
         if bm.verts:
-            bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=5e-4)
+            # Slightly larger weld after hem reshape collapses residual spike clusters
+            # without reintroducing solidify rims (#121).
+            bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=0.0012)
             bm.verts.ensure_lookup_table()
             bm.faces.ensure_lookup_table()
+
+        # Closed shells only: delete faces that lie entirely on the hem plane.
+        # Measured: scrub outer after #188 bank rebake has 15–24 disjoint boundary loops
+        # all at bot_y (swiss-cheese coplanar pockets from snap). Metric picks a tiny
+        # fold-back (180°). Removing coplanar hem-plane faces leaves one outer ring as
+        # the sole bottom boundary. Open-front keeps its anterior gap — skip.
+        if (not layer_is_open) and bm.faces:
+            bm.faces.ensure_lookup_table()
+            bm.verts.ensure_lookup_table()
+            y_eps = 0.012
+            planar_faces = []
+            for f in bm.faces:
+                ys = [float(v.co.y) for v in f.verts]
+                if all(abs(y - bot_y) <= y_eps for y in ys):
+                    planar_faces.append(f)
+            n_planar = len(planar_faces)
+            if planar_faces:
+                bmesh.ops.delete(bm, geom=planar_faces, context="FACES")
+                bm.verts.ensure_lookup_table()
+                bm.edges.ensure_lookup_table()
+                bm.faces.ensure_lookup_table()
+            # Drop loose verts left by deleted coplanar faces.
+            loose_p = [v for v in bm.verts if (not v.link_faces) and (not v.link_edges)]
+            if loose_p:
+                bmesh.ops.delete(bm, geom=loose_p, context="VERTS")
+                bm.verts.ensure_lookup_table()
+                bm.faces.ensure_lookup_table()
+            # Re-snap remaining bottom boundary to bot_y and weld.
+            hem_bound = []
+            for v in bm.verts:
+                if abs(float(v.co.y) - bot_y) > y_eps:
+                    continue
+                if any(e.is_boundary for e in v.link_edges):
+                    v.co.y = bot_y
+                    hem_bound.append(v)
+            if hem_bound:
+                bmesh.ops.remove_doubles(bm, verts=hem_bound, dist=0.006)
+                bm.verts.ensure_lookup_table()
+                bm.faces.ensure_lookup_table()
+            # Re-collect outer hem ring and angular-smooth AFTER planar delete.
+            # Pre-delete smooth cannot fix the ring that only appears once coplanar
+            # pockets are gone (measured: 180→169 still failed after delete alone).
+            hem_ring = []
+            for v in bm.verts:
+                if abs(float(v.co.y) - bot_y) > y_eps:
+                    continue
+                if any(e.is_boundary for e in v.link_edges):
+                    hem_ring.append(v)
+            if len(hem_ring) >= 8:
+                hcx = sum(float(v.co.x) for v in hem_ring) / float(len(hem_ring))
+                hcz = sum(float(v.co.z) for v in hem_ring) / float(len(hem_ring))
+                keyed2: list = []
+                for v in hem_ring:
+                    dx = float(v.co.x) - hcx
+                    dz = float(v.co.z) - hcz
+                    keyed2.append([math.atan2(dz, dx), math.hypot(dx, dz), v])
+                keyed2.sort(key=lambda t: t[0])
+                n2 = len(keyed2)
+                for _s in range(24):
+                    new_r = []
+                    for i in range(n2):
+                        r0 = float(keyed2[(i - 1) % n2][1])
+                        r1 = float(keyed2[i][1])
+                        r2 = float(keyed2[(i + 1) % n2][1])
+                        new_r.append(0.12 * r0 + 0.76 * r1 + 0.12 * r2)
+                    for i in range(n2):
+                        ang = float(keyed2[i][0])
+                        r = float(new_r[i])
+                        keyed2[i][1] = r
+                        v = keyed2[i][2]
+                        v.co.x = hcx + r * math.cos(ang)
+                        v.co.z = hcz + r * math.sin(ang)
+                        v.co.y = bot_y
+                for _c in range(16):
+                    moved = False
+                    for i in range(n2):
+                        a = keyed2[(i - 1) % n2][2]
+                        b = keyed2[i][2]
+                        c = keyed2[(i + 1) % n2][2]
+                        d1x = float(b.co.x) - float(a.co.x)
+                        d1z = float(b.co.z) - float(a.co.z)
+                        d2x = float(c.co.x) - float(b.co.x)
+                        d2z = float(c.co.z) - float(b.co.z)
+                        l1 = (d1x * d1x + d1z * d1z) ** 0.5
+                        l2 = (d2x * d2x + d2z * d2z) ** 0.5
+                        if l1 < 1e-9 or l2 < 1e-9:
+                            continue
+                        cos = max(-1.0, min(1.0, (d1x * d2x + d1z * d2z) / (l1 * l2)))
+                        ang = math.acos(cos) * 180.0 / math.pi
+                        if ang <= 55.0:
+                            continue
+                        b.co.x = 0.15 * float(b.co.x) + 0.425 * (
+                            float(a.co.x) + float(c.co.x)
+                        )
+                        b.co.z = 0.15 * float(b.co.z) + 0.425 * (
+                            float(a.co.z) + float(c.co.z)
+                        )
+                        b.co.y = bot_y
+                        keyed2[i][1] = math.hypot(
+                            float(b.co.x) - hcx, float(b.co.z) - hcz
+                        )
+                        moved = True
+                    if not moved:
+                        break
+                # Edge-walk collapse: mesh edges can still zigzag after angular re-position.
+                # Measured 179° spikes with sameAC=false (not reverse, sawtooth connectivity).
+                # Co-locate any boundary vert whose edge-walk turn > 80° onto its previous
+                # neighbour, then weld — shortens the serration out of the exported loop.
+                for _collapse in range(8):
+                    bm.edges.ensure_lookup_table()
+                    bm.verts.ensure_lookup_table()
+                    hadj: Dict[int, list] = {}
+                    hverts = []
+                    for e in bm.edges:
+                        if not e.is_boundary:
+                            continue
+                        y0 = float(e.verts[0].co.y)
+                        y1 = float(e.verts[1].co.y)
+                        if abs(y0 - bot_y) > y_eps or abs(y1 - bot_y) > y_eps:
+                            continue
+                        a, b = e.verts[0], e.verts[1]
+                        hadj.setdefault(a.index, []).append(b)
+                        hadj.setdefault(b.index, []).append(a)
+                        hverts.append(a)
+                        hverts.append(b)
+                    # unique
+                    seen_hv: set = set()
+                    huniq = []
+                    for v in hverts:
+                        if v.index not in seen_hv:
+                            seen_hv.add(v.index)
+                            huniq.append(v)
+                    if len(huniq) < 4:
+                        break
+                    start = next(
+                        (v for v in huniq if len(hadj.get(v.index) or []) == 2),
+                        huniq[0],
+                    )
+                    ordered_e: list = []
+                    prev_i = -1
+                    cur_i = start.index
+                    seen_e: set = set()
+                    while cur_i not in seen_e and len(ordered_e) < 500:
+                        seen_e.add(cur_i)
+                        ordered_e.append(cur_i)
+                        nbrs = hadj.get(cur_i) or []
+                        nxt = None
+                        for n in nbrs:
+                            if n.index != prev_i:
+                                nxt = n
+                                break
+                        if nxt is None:
+                            break
+                        prev_i = cur_i
+                        cur_i = nxt.index
+                        if cur_i == start.index:
+                            break
+                    idx_map = {v.index: v for v in huniq}
+                    n_o = len(ordered_e)
+                    collapsed = 0
+                    if n_o >= 4 and cur_i == start.index:
+                        for i in range(n_o):
+                            i0 = ordered_e[(i - 1) % n_o]
+                            i1 = ordered_e[i]
+                            i2 = ordered_e[(i + 1) % n_o]
+                            v0, v1, v2 = idx_map.get(i0), idx_map.get(i1), idx_map.get(i2)
+                            if v0 is None or v1 is None or v2 is None:
+                                continue
+                            d1x = float(v1.co.x) - float(v0.co.x)
+                            d1z = float(v1.co.z) - float(v0.co.z)
+                            d2x = float(v2.co.x) - float(v1.co.x)
+                            d2z = float(v2.co.z) - float(v1.co.z)
+                            l1 = (d1x * d1x + d1z * d1z) ** 0.5
+                            l2 = (d2x * d2x + d2z * d2z) ** 0.5
+                            if l1 < 1e-9 or l2 < 1e-9:
+                                # zero-length → co-locate
+                                v1.co.x = float(v0.co.x)
+                                v1.co.z = float(v0.co.z)
+                                v1.co.y = bot_y
+                                collapsed += 1
+                                continue
+                            cos = max(
+                                -1.0, min(1.0, (d1x * d2x + d1z * d2z) / (l1 * l2))
+                            )
+                            ang = math.acos(cos) * 180.0 / math.pi
+                            if ang <= 80.0:
+                                continue
+                            # Snap spike onto chord midpoint (stronger than laplace).
+                            v1.co.x = 0.5 * (float(v0.co.x) + float(v2.co.x))
+                            v1.co.z = 0.5 * (float(v0.co.z) + float(v2.co.z))
+                            v1.co.y = bot_y
+                            collapsed += 1
+                    if collapsed == 0:
+                        break
+                    bmesh.ops.remove_doubles(bm, verts=list(huniq), dist=0.005)
+                    bm.verts.ensure_lookup_table()
+                    bm.faces.ensure_lookup_table()
+                bmesh.ops.remove_doubles(bm, verts=[v for v in bm.verts if abs(float(v.co.y) - bot_y) <= y_eps], dist=0.004)
+                bm.verts.ensure_lookup_table()
+                bm.faces.ensure_lookup_table()
+            # Count remaining hem-plane boundary edges (should be one ring).
+            n_hem_be = 0
+            for e in bm.edges:
+                if not e.is_boundary:
+                    continue
+                if (
+                    abs(float(e.verts[0].co.y) - bot_y) <= y_eps
+                    and abs(float(e.verts[1].co.y) - bot_y) <= y_eps
+                ):
+                    n_hem_be += 1
+            print(
+                f"[blender] #124/#188 closed-hem planar-face delete: "
+                f"deleted_faces={n_planar} hem_boundary_edges={n_hem_be} "
+                f"hem_ring_verts={len(hem_ring)}"
+            )
+
         # Isolates only — do not delete edge-bridge verts (see above).
         loose_h = [v for v in bm.verts if (not v.link_faces) and (not v.link_edges)]
         if loose_h:
