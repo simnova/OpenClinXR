@@ -218,6 +218,8 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
         purpose: slot.purpose,
         position: slot.position,
         trimColor: d.wallTrimColor,
+        // Descriptor-driven HOB incline (#171) — slot carries position + angle together.
+        ...(typeof slot.inclineDegrees === "number" ? { inclineDegrees: slot.inclineDegrees } : {}),
       });
       shell.add(stretcher);
       continue;

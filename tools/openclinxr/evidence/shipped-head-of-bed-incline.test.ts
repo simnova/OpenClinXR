@@ -109,6 +109,14 @@ import { describe, expect, it } from "vitest";
  * SCOPE: the shipped ED chest-pain stretcher carries a staging incline and the mechanism is reachable
  * from a descriptor. Says NOTHING about clinical positioning correctness, about other stations, or
  * about the ward bed those stations are actually blocked behind.
+ *
+ * ## FIXED (#171)
+ * Descriptor fixture-slot `inclineDegrees: 30` on `ED_STRETCHER` → `station-environment` →
+ * `buildPatientStretcher`. Plant passes live stretcher into `applyAndPlantSupineOnDeck`.
+ * Per-frame uses `applySupinePoseHoldingIncline` so the tip survives the flat basis re-apply.
+ * Live SSOT: ED reads 30°; 13 other bank stations read 0. Head-to-deck recorded flat+raised
+ * (raised headInboard improved 0.17→0.30 m — not worse). Room capture regenerated 3× with FORCE_COLOR.
+ * claimScope: staging. Decisions: slot (not root); v2 inherits via shared env; pillow rides back.
  */
 
 const load = async () =>
@@ -151,7 +159,7 @@ const BAND_MIN = 30;
 const BAND_MAX = 45;
 
 describe("the shipped ED stretcher actually carries a staging incline (#171)", () => {
-  it.fails("the ED chest-pain deck is inclined in the running app", async () => {
+  it("the ED chest-pain deck is inclined in the running app", async () => {
     // The mechanism has worked since #159 and no caller has ever passed it a non-zero value. This is
     // the wiring, read back through the runtime's own SSOT rather than through the descriptor field.
     const mod = await load();
@@ -174,7 +182,7 @@ describe("the shipped ED stretcher actually carries a staging incline (#171)", (
     expect(report.claimScope.toLowerCase()).toContain("staging");
   }, 900_000);
 
-  it.fails("head-to-deck geometry is recorded at flat AND at the shipped angle", async () => {
+  it("head-to-deck geometry is recorded at flat AND at the shipped angle", async () => {
     // Inclining pivots exactly the region where the head sits, and the head may already be past the
     // deck end at flat. The cause of that is NOT known — this contract requires the measurement to
     // exist on both sides of the change so the next person argues from numbers instead of pixels.
@@ -210,7 +218,7 @@ describe("the shipped ED stretcher actually carries a staging incline (#171)", (
     ).toBeGreaterThanOrEqual(flat!.headInboardOfDeckEndMeters - 0.01);
   }, 900_000);
 
-  it.fails("every other station is still flat (COUNTERWEIGHT)", async () => {
+  it("every other station is still flat (COUNTERWEIGHT)", async () => {
     // The cheap way to satisfy contract (1) is to raise the DEFAULT, which would tip fourteen decks
     // nobody graded. Stations are enumerated from what ships, never listed — whenever a check names
     // its subjects, that list is what goes stale.

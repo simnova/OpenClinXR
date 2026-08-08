@@ -57,16 +57,14 @@ import {
 import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import {
-  applyAndPlantSupineOnDeck,
-  applySupinePose,
-  holdSupinePlantFrame,
+  applyAndPlantSupineOnDeck, applySupinePose, applySupinePoseHoldingIncline, holdSupinePlantFrame,
 } from "./supine-pose.js";
 import {
   applyGeneratedHumanoidClinicalIdlePosture,
   applyHumanoidJointRotationsByAlias,
 } from "./clinical-idle-posture.js";
 import { PATIENT_CHAIR_SEAT_HEIGHT_METERS } from "./station-chair.js";
-import { STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
+import { findProceduralStretcherInSceneOf, STRETCHER_DECK_TOP_METERS } from "./station-stretcher.js";
 import { createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance } from "./virtual-device-actor.js";
 import { initialDialogueTextForScenario } from "./initial-dialogue-text.js";
 import { stationContextForScenario } from "./station-context.js";
@@ -7534,9 +7532,11 @@ function registerGeneratedHumanoidAnimation(input: {
     input.humanoid.updateMatrixWorld(true);
   }
   if (isSupine) {
+    const deckStretcher = findProceduralStretcherInSceneOf(input.actorSlot);
     applyAndPlantSupineOnDeck(input.humanoid, {
       deckTopWorldY: STRETCHER_DECK_TOP_METERS,
       deckCenter: { x: input.actorSlot.position.x, z: input.actorSlot.position.z },
+      ...(deckStretcher ? { stretcher: deckStretcher } : {}),
     });
   }
   const activeRoleAnimationClipName = selectedRoleClips[0]?.name;
@@ -8152,7 +8152,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
       applyPosturePose(slot.root, "seated");
     }
     if (isSupineFrame) {
-      applySupinePose(slot.root);
+      applySupinePoseHoldingIncline(slot.root); // #171 re-tip after flat basis
     }
     const t = (nowMs + slot.phaseOffsetMs) / 1000;
     const breathing = Math.sin(t * 1.15);

@@ -279,6 +279,13 @@ export function findProceduralStretcher(root: Object3D): Object3D | null {
   return found;
 }
 
+/** Walk to scene root from any node, then find the procedural stretcher (#171 plant seam). */
+export function findProceduralStretcherInSceneOf(node: Object3D): Object3D | null {
+  let root: Object3D = node;
+  while (root.parent) root = root.parent;
+  return findProceduralStretcher(root);
+}
+
 export function isStretcherSlotId(slotId: string): boolean {
   const id = slotId.toLowerCase();
   return (
