@@ -161,6 +161,57 @@ describe("the in-process generators are swept in a harness (#194)", () => {
     }
   }, 900_000);
 
+  it("every equipment id is accounted for — own silhouette, named family, or GLB (#202)", async () => {
+    // #198 left FOURTEEN ids resolving to the identical 56-triangle grey pole, and five parametric
+    // ids colliding in pairs or triples: exam_table / post_op_bed / pediatric_stretcher all at 48
+    // triangles, iv_pump / fetal_monitor both at 84.
+    //
+    // THE CHEAP GREEN is fourteen unique builders. The #198 worker named it: "do NOT make all
+    // fourteen unique; that is the exam-table collapse again with more code." Families are the
+    // answer, so this contract requires every id to be ACCOUNTED FOR — own geometry, a NAMED family,
+    // or a GLB — and forbids members of one family sharing a silhouette with each other.
+    const mod = await load();
+    const inspect = mod["inspectGeneratorSweep"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const equipment = report.ledger.filter((r) => r.subjectFamily === "equipment");
+
+    // 1. Nothing is silently a pole. Every id declares how it resolved.
+    const unaccounted = equipment
+      .filter((r) => r.resolvedToFallback && !(r as { family?: string }).family)
+      .map((r) => r.subjectId);
+    expect(unaccounted, "ids still resolving to the generic fallback with no declared family").toEqual([]);
+
+    // 2. silhouetteKey uses an EXTENT per axis, never a single-sided max (§10o).
+    const keyOf = (r: typeof equipment[number]) =>
+      `${r.meshCount}|${r.triangles}|${[0, 1, 2]
+        .map((i) => (r.worldAabb.max[i]! - r.worldAabb.min[i]!).toFixed(2))
+        .join(",")}`;
+
+    const byKey = new Map<string, string[]>();
+    for (const row of equipment) {
+      const k = keyOf(row);
+      byKey.set(k, [...(byKey.get(k) ?? []), row.subjectId]);
+    }
+    const collisions = [...byKey.entries()]
+      .filter(([, ids]) => ids.length > 1)
+      .map(([k, ids]) => `${ids.join(" == ")} (${k})`);
+    expect(collisions, "distinct equipment ids sharing one silhouette").toEqual([]);
+
+    // 3. #198's support surfaces must not regress when post_op_bed and pediatric_stretcher route
+    //    to them. Routing means reuse, not redesign.
+    for (const id of ["hospital_bed_equipment", "stretcher_equipment", "side_rails_equipment"]) {
+      const row = equipment.find((r) => r.subjectId === id);
+      expect(row, `${id} vanished from the ledger`).toBeTruthy();
+      expect(row!.resolvedToFallback, `${id} regressed to the generic fallback`).toBe(false);
+    }
+
+    expect(report.contactSheetPaths.length, "no contact sheet for the orchestrator to grade")
+      .toBeGreaterThanOrEqual(2);
+    expect(report.notEvidenceFor.join(" ").toLowerCase()).toContain("clinical");
+  }, 900_000);
+
   it("the clinical support surfaces have their own silhouettes (#198)", async () => {
     // #194 measured 19 of 37 ids resolving to buildGenericClinicalEquipmentFallback — base box +
     // upright cylinder + tray box, 3 meshes, 56 triangles, an identical grey pole for all of them.
