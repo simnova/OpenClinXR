@@ -80,9 +80,9 @@
   ],
   "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
   "promotionGates": false,
-  "outputSha256": "b41215fd38fd52fa3e3537333ada15d56e2b069fbe33ef9201ccdc7bf2bc1141",
-  "outputBytes": 7668176,
-  "generatedAt": "2026-08-08T03:11:46.834783+00:00",
+  "outputSha256": "46848872d2cde2f1c926cbd14a20afe0b55e004c53fe06aa77a4ed0967420277",
+  "outputBytes": 8448216,
+  "generatedAt": "2026-08-08T05:46:41.580117+00:00",
   "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
   "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
   "garmentLayers": [

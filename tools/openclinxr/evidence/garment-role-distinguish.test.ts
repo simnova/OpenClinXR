@@ -53,7 +53,7 @@ import { describe, expect, it } from "vitest";
  *
  * Role topology switch in `apply_role_clothing_material_regions` (automate_blender.py):
  * - `open_cardigan` / open-front layers → C-shell torso with anterior gap (~0.95 rad around +Z),
- *   placket edge rows, long sleeve (0.92 arm-len), lower hem (~0.31 body height).
+ *   placket edge rows, long sleeve (0.92 of full shoulder→wrist chain), lower hem (~0.42 body height, #197).
  * - `scrub_top` → closed ring, short sleeve (0.42 arm-len), higher hem (~0.48 body height).
  * - Different topology paths → different vertex counts; colour alone is not the distinguisher.
  * - `garment-role-distinguish.ts`: NodeIO describe + differ refuses meshName/scale-only deltas.
@@ -132,12 +132,14 @@ describe("the declared garment changes the geometry (#46)", () => {
     expect(differ!(scrub, sameShellRenamed).distinguishable).toBe(false);
 
     // And a genuine difference must still read as one, or "never distinguishable" passes the above.
+    // #197: shipping cardigan hem is 0.42 (upper thigh). 0.31 was an illustrative #46 fixture
+    // value that became the product dimension by accident — do not re-introduce it here.
     const cardigan: GarmentFeatures = {
       meshName: "openclinxr_real_garment_cardigan_v1_mesh",
       vertexCount: 704,
       hasAnteriorOpening: true,
       sleeveLengthClass: "long",
-      hemHeightRatio: 0.31,
+      hemHeightRatio: 0.42,
     };
     expect(differ!(scrub, cardigan).distinguishable).toBe(true);
   });

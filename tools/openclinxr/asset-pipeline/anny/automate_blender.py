@@ -1819,8 +1819,10 @@ def _build_body_surface_derived_garment(
     body_depth: float,
     shoulder_L: tuple,
     elbow_L: tuple,
+    wrist_L: tuple,
     shoulder_R: tuple,
     elbow_R: tuple,
+    wrist_R: tuple,
 ) -> bpy.types.Object:
     """
     #121 authoring-class change: garment shell = body surface offset along outward normals.
@@ -1832,13 +1834,19 @@ def _build_body_surface_derived_garment(
     body-inside-garment silhouette. Continuity is inherited from the body mesh topology; neck and
     arm holes are cut from landmark Y / arm-axis distance, not hard-coded height fractions alone.
 
+    #197 sleeve chain: arm landmarks are shoulder→elbow→wrist (hand @ body-height 0.42, matching
+    the armature limb_at). `sleeve_along` is arc length along that polyline; fraction 1.0 is the
+    wrist, not the elbow. Pre-#197 the chain stopped at the elbow so every "long" sleeve saturated
+    at mid-forearm / elbow by construction.
+
     Decisions:
       - offset distance: base cloth_offset (layer-stacked by caller); +15% anterior chest, −20% underarm
-      - neck/arm cuts: neck_y landmark + distance-to-upper-arm segment (shoulder→elbow)
+      - neck/arm cuts: neck_y landmark + distance-to-arm polyline (shoulder→elbow→wrist)
       - hem (#124): rough drop well below bot_y, then bmesh bisect_plane at bot_y AFTER offset
         (rejected: height-threshold delete alone → staircase; solidify rim → export micro-islands)
       - body faces NOT hidden/deleted (#73 counterweight — garment covers without removing skin)
       - lower-body paint left untouched (caller owns that; shared waistline in caller)
+      - long sleeve (#197): cuff at wrist (ulnar-head / hand landmark); rejected elbow-only segment
     """
     import bmesh
     import math
@@ -1866,23 +1874,64 @@ def _build_body_surface_derived_garment(
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     bm.normal_update()
 
-    def _seg_dist(p: Vector, a: Vector, b: Vector) -> tuple:
-        ab = b - a
-        ab2 = ab.dot(ab) or 1e-9
-        t = max(0.0, min(1.0, (p - a).dot(ab) / ab2))
-        closest = a + ab * t
-        return (p - closest).length, t
+    def _polyline_length(pts: list) -> float:
+        total = 0.0
+        for i in range(len(pts) - 1):
+            total += (pts[i + 1] - pts[i]).length
+        return total or 0.25
+
+    def _point_on_polyline(pts: list, dist: float) -> Vector:
+        remaining = max(0.0, float(dist))
+        for i in range(len(pts) - 1):
+            seg = pts[i + 1] - pts[i]
+            seg_len = seg.length or 1e-9
+            if remaining <= seg_len:
+                return pts[i] + seg * (remaining / seg_len)
+            remaining -= seg_len
+        return pts[-1].copy()
+
+    def _poly_dist(p: Vector, pts: list) -> tuple:
+        """Nearest distance to polyline + cumulative arc-length fraction along the chain."""
+        total = _polyline_length(pts)
+        best_d = 1e9
+        best_cum = 0.0
+        cum = 0.0
+        for i in range(len(pts) - 1):
+            a = pts[i]
+            b = pts[i + 1]
+            ab = b - a
+            ab2 = ab.dot(ab) or 1e-9
+            t = max(0.0, min(1.0, (p - a).dot(ab) / ab2))
+            closest = a + ab * t
+            d = (p - closest).length
+            seg_len = ab.length
+            if d < best_d:
+                best_d = d
+                best_cum = (cum + t * seg_len) / total
+            cum += seg_len
+        return best_d, best_cum
 
     sL = Vector(shoulder_L)
     eL = Vector(elbow_L)
+    wL = Vector(wrist_L)
     sR = Vector(shoulder_R)
     eR = Vector(elbow_R)
-    arm_len_L = (eL - sL).length or 0.25
-    arm_len_R = (eR - sR).length or 0.25
+    wR = Vector(wrist_R)
+    chain_L = [sL, eL, wL]
+    chain_R = [sR, eR, wR]
+    arm_len_L = _polyline_length(chain_L)
+    arm_len_R = _polyline_length(chain_R)
+    # #197: sleeve_along is metres along the full chain; t=1.0 is the wrist.
     t_max_L = max(0.05, min(1.0, sleeve_along / arm_len_L))
     t_max_R = max(0.05, min(1.0, sleeve_along / arm_len_R))
-    cuff_L = sL + (eL - sL) * t_max_L
-    cuff_R = sR + (eR - sR) * t_max_R
+    cuff_L = _point_on_polyline(chain_L, sleeve_along)
+    cuff_R = _point_on_polyline(chain_R, sleeve_along)
+    print(
+        f"[blender] #197 sleeve chain L: upper={(eL - sL).length:.4f} "
+        f"forearm={(wL - eL).length:.4f} full={arm_len_L:.4f} "
+        f"sleeve_along={sleeve_along:.4f} t_max={t_max_L:.3f} "
+        f"cuff=({cuff_L.x:.3f},{cuff_L.y:.3f},{cuff_L.z:.3f})"
+    )
 
     neck_hole_r = max(body_width * 0.08, body_depth * 0.10, 0.035)
     sleeve_r_soft = max(sleeve_radius * 1.55, body_width * 0.22, 0.07)
@@ -1910,8 +1959,8 @@ def _build_body_surface_derived_garment(
         if y > neck_y + body_width * 0.03 and r_xz < neck_hole_r * 2.0:
             hard_delete.append(v)
             continue
-        dL, tL = _seg_dist(p, sL, eL)
-        dR, tR = _seg_dist(p, sR, eR)
+        dL, tL = _poly_dist(p, chain_L)
+        dR, tR = _poly_dist(p, chain_R)
         # #124: past-cuff cuts must stay on the TRUE sleeve (far lateral). Without the
         # lateral gate, short-sleeve scrub cuts punched a face-disconnection through the
         # mid-torso and face-flood dropped the whole hem island (minY≈1.04).
@@ -2242,8 +2291,8 @@ def _build_body_surface_derived_garment(
         p = v.co
         # Anterior boost (front of chest) vs underarm reduction.
         frontness = max(0.0, (float(p.z) - cz) / max(body_depth * 0.5, 0.001))
-        dL, _ = _seg_dist(p, sL, eL)
-        dR, _ = _seg_dist(p, sR, eR)
+        dL, _ = _poly_dist(p, chain_L)
+        dR, _ = _poly_dist(p, chain_R)
         underarm = 1.0 if min(dL, dR) < sleeve_radius * 0.55 else 0.0
         scale = 1.0 + 0.15 * min(frontness, 1.0) - 0.20 * underarm
         off = cloth_offset * max(0.55, scale)
@@ -2878,18 +2927,38 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 cz + body_depth * z_factor,
             )
 
+        # #197: full arm chain shoulder→elbow→wrist. Pre-#197 arm_len was shoulder→elbow only,
+        # so sleeve_along fraction 1.0 saturated at the elbow and no coefficient could author a
+        # long sleeve. Wrist uses the same body-height 0.42 as the armature hand landmark
+        # (limb_at(hand_off, 0.42)); x-factor 0.48 extends past the elbow at 0.34.
         shoulder_L = _arm_p(0.18, 0.74)
         elbow_L = _arm_p(0.34, 0.58)
+        wrist_L = _arm_p(0.48, 0.42)
         shoulder_R = _arm_p(-0.18, 0.74)
         elbow_R = _arm_p(-0.34, 0.58)
+        wrist_R = _arm_p(-0.48, 0.42)
+
+        def _seg_len(a: tuple, b: tuple) -> float:
+            return math.sqrt(
+                (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2 + (b[2] - a[2]) ** 2
+            ) or 0.0
+
+        upper_len = _seg_len(shoulder_L, elbow_L)
+        forearm_len = _seg_len(elbow_L, wrist_L)
+        # Full chain length — sleeve_along_fraction multiplies THIS, not upper alone.
+        arm_len = (upper_len + forearm_len) or 0.25
         arm_dir_L = (
             elbow_L[0] - shoulder_L[0],
             elbow_L[1] - shoulder_L[1],
             elbow_L[2] - shoulder_L[2],
         )
-        arm_len = math.sqrt(arm_dir_L[0] ** 2 + arm_dir_L[1] ** 2 + arm_dir_L[2] ** 2) or 0.25
-        arm_dir_Ln = (arm_dir_L[0] / arm_len, arm_dir_L[1] / arm_len, arm_dir_L[2] / arm_len)
+        _u = upper_len or 0.25
+        arm_dir_Ln = (arm_dir_L[0] / _u, arm_dir_L[1] / _u, arm_dir_L[2] / _u)
         arm_dir_Rn = (-arm_dir_Ln[0], arm_dir_Ln[1], arm_dir_Ln[2])
+        print(
+            f"[blender] #197 arm chain: upper={upper_len:.4f} forearm={forearm_len:.4f} "
+            f"full={arm_len:.4f} (sleeve fractions are of full chain; long=wrist)"
+        )
 
         # #76: body shoulder top from mesh (lateral upper half) — yoke must cover this.
         # Not a generator constant shared with the inspect band; measured from body verts.
@@ -3033,31 +3102,38 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
 
             if kind == "gown":
                 sleeve_rows, sleeve_cols = 10, 14
+                # 0.72 of full shoulder→wrist ≈ mid-forearm (was 0.72 of upper-only = near elbow).
                 sleeve_along = arm_len * 0.72
                 sleeve_r0 = max(body_depth * 0.22, r_base * 0.42)
                 # Long drape well below shared waist (still overlaps painted lower).
+                # Gown hem stays at 0.32 (#197): below-knee hospital gown is intentional.
                 bot_y = body_min_y + body_height * 0.32
                 r_base = torso_half_w * 1.14 * radius_stack
                 torso_rows, torso_cols = 11, 16
                 topology_class = "closed_gown_drape"
-                sleeve_cov = "torso+shoulder+upper_arm_along_bone_hospital_gown_sleeve"
+                sleeve_cov = "torso+shoulder+full_arm_along_bone_hospital_gown_sleeve"
                 slf = 0.72
             elif kind == "open_front":
                 sleeve_rows, sleeve_cols = 11, 12
+                # 0.92 of full chain ≈ near wrist (long sleeve). Counterweight pin stays 0.92.
                 sleeve_along = arm_len * 0.92
                 sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.042) * (0.96 + 0.04 * radial_rank)
-                # Hip-length cardigan; below shared waist so front opening does not bare midriff.
-                bot_y = body_min_y + body_height * 0.31
+                # #197: cardigan hem 0.42 (upper thigh). Rejected 0.31 (below-knee coat from the
+                # #46 illustrative hemHeightRatio fixture) and 0.36 (long cardigan, narrower reading).
+                # Gown stays 0.32 — move the cardigan away from the gown, not both.
+                bot_y = body_min_y + body_height * 0.42
                 r_base = torso_half_w * 1.10 * radius_stack
                 torso_rows, torso_cols = 11, 16
                 front_opening_rad = 0.95
                 torso_wrap = False
                 topology_class = "open_front_c_shell_anterior_gap"
-                sleeve_cov = "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve"
+                sleeve_cov = "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist"
                 slf = 0.92
             elif kind == "scrub":
                 sleeve_rows, sleeve_cols = 7, 10
-                sleeve_along = arm_len * 0.42
+                # #197: short sleeves stay on the upper-arm half of the full chain (~0.22 of full
+                # ≈ former 0.42 of upper-only). Not a counterweight pin — short-sleeve intent.
+                sleeve_along = arm_len * 0.22
                 sleeve_r0 = max(body_depth * 0.13, torso_half_w * 0.26, 0.040) * (0.96 + 0.04 * radial_rank)
                 # #124: meet painted lower at shared waist (was 0.48 fraction ABOVE paint top 0.46).
                 bot_y = bot_y_default
@@ -3065,26 +3141,26 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 torso_rows, torso_cols = 8, 12
                 topology_class = "closed_scrub_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve"
-                slf = 0.42
+                slf = 0.22
             elif kind == "scrub_pocket":
                 # Second upper layer for nurse: closed pocket-bearing shell outside scrub_top.
                 # Keep torso_cols >= 12 so mid-height angular step stays below open-front detector
                 # threshold (~0.55 rad) — 11 cols false-positive as anterior opening.
                 sleeve_rows, sleeve_cols = 6, 10
-                sleeve_along = arm_len * 0.38
+                sleeve_along = arm_len * 0.20
                 sleeve_r0 = max(body_depth * 0.12, torso_half_w * 0.24, 0.038) * radius_stack
                 bot_y = bot_y_default
                 r_base = torso_half_w * 1.08 * radius_stack
                 torso_rows, torso_cols = 7, 14
                 topology_class = "closed_scrub_pocket_shell"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer"
-                slf = 0.38
+                slf = 0.20
             elif kind == "closed_casual":
                 # Under-layer for open cardigan: closed front, smaller radius, covers chest/delts.
                 # Dense ring (>=16 cols) so mid-height angular step stays well below open-front
                 # detector (~0.55 rad); real-Anny proportions false-positived at 13 cols.
                 sleeve_rows, sleeve_cols = 9, 12
-                sleeve_along = arm_len * 0.55
+                sleeve_along = arm_len * 0.28
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
                 # Under-layer hem at shared waist (outer cardigan is longer).
                 bot_y = bot_y_default
@@ -3092,23 +3168,23 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 torso_rows, torso_cols = 9, 18
                 topology_class = "closed_casual_top_under_layer"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_casual_top_closed"
-                slf = 0.55
+                slf = 0.28
             elif kind == "tshirt":
                 sleeve_rows, sleeve_cols = 9, 12
-                sleeve_along = arm_len * 0.58
+                sleeve_along = arm_len * 0.30
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
                 bot_y = bot_y_default
                 topology_class = "closed_tshirt_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
-                slf = 0.58
+                slf = 0.30
             else:
                 sleeve_rows, sleeve_cols = 9, 12
-                sleeve_along = arm_len * 0.58
+                sleeve_along = arm_len * 0.30
                 sleeve_r0 = max(body_depth * 0.14, torso_half_w * 0.28, 0.045) * radius_stack
                 bot_y = bot_y_default
                 topology_class = "closed_default_ring"
                 sleeve_cov = "torso+shoulder+upper_arm_along_bone_short_sleeve"
-                slf = 0.58
+                slf = 0.30
 
             # #180a: colour = f(role, kind, fabricPalette) — not kind alone.
             gown_color = garment_shell_color(kind, role, phenotype)
@@ -3179,8 +3255,10 @@ def apply_role_clothing_material_regions(mesh_obj: bpy.types.Object, actor_role:
                 body_depth=body_depth,
                 shoulder_L=shoulder_L,
                 elbow_L=elbow_L,
+                wrist_L=wrist_L,
                 shoulder_R=shoulder_R,
                 elbow_R=elbow_R,
+                wrist_R=wrist_R,
             )
             gmesh = garment.data
             verts = list(gmesh.vertices)

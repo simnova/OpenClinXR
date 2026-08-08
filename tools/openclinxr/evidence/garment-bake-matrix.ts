@@ -41,20 +41,37 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
 
 export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-195";
+/** #197 decision + after-column (hem fix + sleeve chain). Reuses the same harness. */
+export const ISSUE_197_DIR = ".openclinxr/evidence/issue-197";
 export const PRE_FIX_PATH = path.join(ISSUE_EVIDENCE_DIR, "pre-fix.json");
+export const ISSUE_197_PRE_FIX_PATH = path.join(ISSUE_197_DIR, "pre-fix.json");
 export const LEDGER_PATH = path.join(ISSUE_EVIDENCE_DIR, "garment-ledger.json");
 export const HEM_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "hem-sweep-sheet.png");
 export const SLEEVE_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "sleeve-sweep-sheet.png");
 export const OPENING_SHEET_PATH = path.join(ISSUE_EVIDENCE_DIR, "opening-sweep-sheet.png");
+export const HEM_SWEEP_AFTER_PATH = path.join(ISSUE_197_DIR, "hem-sweep-after.png");
+export const SLEEVE_DIAGNOSIS_PATH = path.join(ISSUE_197_DIR, "sleeve-diagnosis.json");
 
 /** Fixed body — decision recorded in pre-fix + report. */
 export const BODY_BASE = "peds_nurse_kevin.anny_base.obj";
 export const GARMENT_LAYERS = ["open_cardigan"] as const;
 
-/** Exploratory ranges — not design targets. Include shipping values. */
+/**
+ * Exploratory ranges — not design targets. Include shipping values.
+ * #197: cardigan shipping bot_y is 0.42 (was 0.31). Sweep still includes 0.31 so before/after
+ * sit on one sheet.
+ */
 export const BOT_Y_SWEEP = [0.22, 0.28, 0.31, 0.36, 0.42] as const;
+/** Full shoulder→wrist chain; 1.0 must reach the wrist after the #197 segment extension. */
 export const SLEEVE_ALONG_SWEEP = [0.55, 0.72, 0.85, 0.92, 1.0] as const;
 export const FRONT_OPENING_SWEEP = [0.0, 0.35, 0.65, 0.95, 1.2] as const;
+
+/** Arm landmarks (body AABB fractions) — must match automate_blender.py #197 chain. */
+export const ARM_LANDMARKS = {
+  shoulder: { xFrac: 0.18, yFrac: 0.74 },
+  elbow: { xFrac: 0.34, yFrac: 0.58 },
+  wrist: { xFrac: 0.48, yFrac: 0.42 },
+} as const;
 
 const GARMENT_MESH_RE = /openclinxr_real_garment/i;
 const DECLARED_RE = /declared_upper_layers/i;
@@ -71,7 +88,21 @@ export type VariantRow = {
   triangles: number;
   worldAabb: { min: [number, number, number]; max: [number, number, number] };
   hemY: number;
+  /**
+   * LEGACY radial field kept for ledger continuity (#195). NOT distal progress along the arm —
+   * do not use for "long sleeve". Prefer cuffAlongBoneT / cuffArcLengthM.
+   */
   sleeveExtent: number;
+  /**
+   * #197: max along-bone t of outer-shell sleeve verts on shoulder→elbow→wrist polyline
+   * (0 at shoulder, 1 at wrist). Formula: project nearest garment sleeve vert onto the chain;
+   * t = cumArc / fullArmLen.
+   */
+  cuffAlongBoneT: number;
+  /** Arc length (m) from shoulder to measured cuff along the same polyline. */
+  cuffArcLengthM: number;
+  /** elbow | forearm | wrist — coarse band from cuffAlongBoneT. */
+  sleeveReaches: "elbow" | "forearm" | "wrist" | "upper_arm";
   connectedComponents: number;
   enclosesBody: boolean;
   glbPath: string;
@@ -131,7 +162,8 @@ function readShippedCoefficientsFromSource(): {
     "utf8",
   );
   const must = [
-    { name: "cardigan_bot_y_fraction", re: /bot_y = body_min_y \+ body_height \* (0\.31)/ },
+    // #197: cardigan hem pin is now 0.42 (was 0.31). Counterweight updated ONLY for this value.
+    { name: "cardigan_bot_y_fraction", re: /bot_y = body_min_y \+ body_height \* (0\.42)/ },
     { name: "gown_bot_y_fraction", re: /bot_y = body_min_y \+ body_height \* (0\.32)/ },
     { name: "cardigan_sleeve_along_fraction", re: /sleeve_along = arm_len \* (0\.92)/ },
     { name: "gown_sleeve_along_fraction", re: /sleeve_along = arm_len \* (0\.72)/ },
@@ -253,6 +285,7 @@ function countPositionMergedComponents(meshes: MeshStats[]): number {
 }
 
 function sleeveExtentOf(positions: Float32Array, aabb: { min: [number, number, number]; max: [number, number, number] }): number {
+  // LEGACY radial instrument (#195) — max √(dx²+dz²) above mid-Y. NOT along-arm. Kept for ledger.
   const midY = (aabb.min[1] + aabb.max[1]) / 2;
   const cx = (aabb.min[0] + aabb.max[0]) / 2;
   const cz = (aabb.min[2] + aabb.max[2]) / 2;
@@ -265,6 +298,112 @@ function sleeveExtentOf(positions: Float32Array, aabb: { min: [number, number, n
     maxR = Math.max(maxR, Math.hypot(dx, dz));
   }
   return maxR;
+}
+
+type Vec3 = [number, number, number];
+
+function armLandmarksFromBody(bodyAabb: {
+  min: [number, number, number];
+  max: [number, number, number];
+}): { shoulder: Vec3; elbow: Vec3; wrist: Vec3; fullLen: number; upperLen: number; forearmLen: number } {
+  const bw = Math.max(bodyAabb.max[0] - bodyAabb.min[0], 0.05);
+  const bh = Math.max(bodyAabb.max[1] - bodyAabb.min[1], 0.2);
+  const cx = (bodyAabb.min[0] + bodyAabb.max[0]) / 2;
+  const cz = (bodyAabb.min[2] + bodyAabb.max[2]) / 2;
+  const minY = bodyAabb.min[1];
+  const pt = (xFrac: number, yFrac: number): Vec3 => [
+    cx + bw * xFrac,
+    minY + bh * yFrac,
+    cz,
+  ];
+  const shoulder = pt(ARM_LANDMARKS.shoulder.xFrac, ARM_LANDMARKS.shoulder.yFrac);
+  const elbow = pt(ARM_LANDMARKS.elbow.xFrac, ARM_LANDMARKS.elbow.yFrac);
+  const wrist = pt(ARM_LANDMARKS.wrist.xFrac, ARM_LANDMARKS.wrist.yFrac);
+  const dist = (a: Vec3, b: Vec3) => Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+  const upperLen = dist(shoulder, elbow) || 0.25;
+  const forearmLen = dist(elbow, wrist) || 0.25;
+  return { shoulder, elbow, wrist, fullLen: upperLen + forearmLen, upperLen, forearmLen };
+}
+
+/**
+ * Project outer-shell sleeve verts onto shoulder→elbow→wrist polyline.
+ * cuffAlongBoneT = max cumArc / fullArmLen among lateral sleeve candidates.
+ * Formula (named, not free English):
+ *   for each garment vert with |x-cx| >= body_width*0.20 and y > elbow.y - 0.05:
+ *     project onto segments [shoulder,elbow] and [elbow,wrist];
+ *     cum = arc to closest; t = cum / fullLen;
+ *   cuffAlongBoneT = max t
+ */
+function cuffAlongBoneOf(
+  positions: Float32Array,
+  bodyAabb: { min: [number, number, number]; max: [number, number, number] },
+): {
+  cuffAlongBoneT: number;
+  cuffArcLengthM: number;
+  sleeveReaches: "elbow" | "forearm" | "wrist" | "upper_arm";
+  landmarks: ReturnType<typeof armLandmarksFromBody>;
+} {
+  const lm = armLandmarksFromBody(bodyAabb);
+  const bw = Math.max(bodyAabb.max[0] - bodyAabb.min[0], 0.05);
+  const cx = (bodyAabb.min[0] + bodyAabb.max[0]) / 2;
+  const trueSleeveLat = bw * 0.20;
+  const chain: Vec3[] = [lm.shoulder, lm.elbow, lm.wrist];
+
+  const project = (p: Vec3): { d: number; cum: number } => {
+    let bestD = Infinity;
+    let bestCum = 0;
+    let cum = 0;
+    for (let i = 0; i < chain.length - 1; i += 1) {
+      const a = chain[i]!;
+      const b = chain[i + 1]!;
+      const ab: Vec3 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+      const ab2 = ab[0] * ab[0] + ab[1] * ab[1] + ab[2] * ab[2] || 1e-9;
+      const t = Math.max(
+        0,
+        Math.min(1, ((p[0] - a[0]) * ab[0] + (p[1] - a[1]) * ab[1] + (p[2] - a[2]) * ab[2]) / ab2),
+      );
+      const cxp = a[0] + ab[0] * t;
+      const cyp = a[1] + ab[1] * t;
+      const czp = a[2] + ab[2] * t;
+      const d = Math.hypot(p[0] - cxp, p[1] - cyp, p[2] - czp);
+      const segLen = Math.sqrt(ab2);
+      if (d < bestD) {
+        bestD = d;
+        bestCum = cum + t * segLen;
+      }
+      cum += segLen;
+    }
+    return { d: bestD, cum: bestCum };
+  };
+
+  let maxCum = 0;
+  let nCandidates = 0;
+  for (let i = 0; i + 2 < positions.length; i += 3) {
+    const x = positions[i]!;
+    const y = positions[i + 1]!;
+    const z = positions[i + 2]!;
+    // Outer shell only: far-lateral true sleeve; skip torso shell near mid-line.
+    if (Math.abs(x - cx) < trueSleeveLat) continue;
+    if (y < lm.wrist[1] - 0.08) continue;
+    // Landmarks are authored on +X; fold right sleeve onto left by abs lateral.
+    const pFold: Vec3 = [cx + Math.abs(x - cx), y, z];
+    const { d, cum } = project(pFold);
+    if (d > 0.18) continue; // not near the arm chain
+    nCandidates += 1;
+    if (cum > maxCum) maxCum = cum;
+  }
+
+  const full = lm.fullLen || 0.25;
+  const t = nCandidates === 0 ? 0 : Math.min(1, maxCum / full);
+  const sleeveReaches: "elbow" | "forearm" | "wrist" | "upper_arm" =
+    t >= 0.90 ? "wrist" : t >= 0.55 ? "forearm" : t >= 0.40 ? "elbow" : "upper_arm";
+
+  return {
+    cuffAlongBoneT: t,
+    cuffArcLengthM: maxCum,
+    sleeveReaches,
+    landmarks: lm,
+  };
 }
 
 /**
@@ -300,6 +439,9 @@ export async function measureExportedGarmentGlb(glbPath: string): Promise<{
   worldAabb: { min: [number, number, number]; max: [number, number, number] };
   hemY: number;
   sleeveExtent: number;
+  cuffAlongBoneT: number;
+  cuffArcLengthM: number;
+  sleeveReaches: "elbow" | "forearm" | "wrist" | "upper_arm";
   connectedComponents: number;
   enclosesBody: boolean;
   garmentMeshes: MeshStats[];
@@ -353,11 +495,16 @@ export async function measureExportedGarmentGlb(glbPath: string): Promise<{
     };
   }
 
+  const cuff = cuffAlongBoneOf(gPos, bodyAabb);
+
   return {
     triangles: totalTris,
     worldAabb,
     hemY,
     sleeveExtent,
+    cuffAlongBoneT: cuff.cuffAlongBoneT,
+    cuffArcLengthM: cuff.cuffArcLengthM,
+    sleeveReaches: cuff.sleeveReaches,
     connectedComponents,
     enclosesBody: shellEnclosesBody(worldAabb, bodyAabb, totalTris),
     garmentMeshes: garments,
@@ -524,9 +671,15 @@ function bakeVariant(input: {
   value: number;
   overrides: Record<string, number>;
   outDir: string;
+  /** #197: invalidate #195 cache so hem/sleeve changes re-bake. */
+  force?: boolean;
 }): string {
   const glbPath = path.join(input.outDir, `${input.variantId}.glb`);
-  if (existsSync(glbPath) && existsSync(glbPath.replace(/\.glb$/, ".measure.json"))) {
+  if (
+    !input.force
+    && existsSync(glbPath)
+    && existsSync(glbPath.replace(/\.glb$/, ".measure.json"))
+  ) {
     // Cache hit from prior partial run
     return glbPath;
   }
@@ -615,7 +768,8 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     };
   });
 
-  const outDir = absEvidence(ISSUE_EVIDENCE_DIR, "variants");
+  // #197: force re-bake under a new variant dir so stale #195 cache cannot green a wrong hem.
+  const outDir = absEvidence(ISSUE_197_DIR, "variants");
   mkdirSync(outDir, { recursive: true });
 
   const sweeps: { param: string; values: number[] }[] = [
@@ -648,7 +802,7 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
   const variants: VariantRow[] = [];
 
   for (const job of jobs) {
-    const glbPath = bakeVariant({ ...job, outDir });
+    const glbPath = bakeVariant({ ...job, outDir, force: false });
     const measure = await measureExportedGarmentGlb(glbPath);
     const cellPath = path.join(outDir, `${job.variantId}_cell.png`);
     // Render body+garment for visual context
@@ -666,6 +820,9 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
       triangles: measure.triangles,
       hemY: measure.hemY,
       sleeveExtent: measure.sleeveExtent,
+      cuffAlongBoneT: measure.cuffAlongBoneT,
+      cuffArcLengthM: measure.cuffArcLengthM,
+      sleeveReaches: measure.sleeveReaches,
       connectedComponents: measure.connectedComponents,
       enclosesBody: measure.enclosesBody,
       worldAabb: measure.worldAabb,
@@ -680,6 +837,9 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
       worldAabb: measure.worldAabb,
       hemY: measure.hemY,
       sleeveExtent: measure.sleeveExtent,
+      cuffAlongBoneT: measure.cuffAlongBoneT,
+      cuffArcLengthM: measure.cuffArcLengthM,
+      sleeveReaches: measure.sleeveReaches,
       connectedComponents: measure.connectedComponents,
       enclosesBody: measure.enclosesBody,
       glbPath: path.relative(REPO_ROOT, glbPath),
@@ -687,13 +847,17 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     });
   }
 
-  // Geometry moved?
+  // Geometry moved? Prefer cuffAlongBoneT for sleeve sweep (radial sleeveExtent is wrong instrument).
   const movedParams: string[] = [];
   const stuckParams: string[] = [];
   for (const sweep of sweeps) {
     const rows = variants.filter((v) => v.param === sweep.param);
     const sig = new Set(
-      rows.map((v) => `${v.triangles}|${v.hemY.toFixed(4)}|${v.sleeveExtent.toFixed(4)}`),
+      rows.map((v) =>
+        sweep.param === "sleeve_along_fraction"
+          ? `${v.triangles}|${v.cuffAlongBoneT.toFixed(3)}|${v.cuffArcLengthM.toFixed(3)}`
+          : `${v.triangles}|${v.hemY.toFixed(4)}|${v.sleeveExtent.toFixed(4)}`,
+      ),
     );
     if (sig.size > 1) movedParams.push(sweep.param);
     else stuckParams.push(sweep.param);
@@ -722,7 +886,7 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     .filter((v) => v.param === "sleeve_along_fraction")
     .map((v) => ({
       imagePath: absEvidence(v.cellImagePath!),
-      label: `sleeve_along=${v.value} ext=${v.sleeveExtent.toFixed(3)} tris=${v.triangles}`,
+      label: `sleeve_along=${v.value} t=${v.cuffAlongBoneT.toFixed(2)} ${v.sleeveReaches} tris=${v.triangles}`,
     }));
   const openingCells = variants
     .filter((v) => v.param === "front_opening_rad")
@@ -734,15 +898,86 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
   const hemSheet = absEvidence(HEM_SHEET_PATH);
   const sleeveSheet = absEvidence(SLEEVE_SHEET_PATH);
   const openingSheet = absEvidence(OPENING_SHEET_PATH);
+  const hemAfter = absEvidence(HEM_SWEEP_AFTER_PATH);
   await writeContactSheetFromCells(hemCells, hemSheet, 3);
   await writeContactSheetFromCells(sleeveCells, sleeveSheet, 3);
   await writeContactSheetFromCells(openingCells, openingSheet, 3);
+  // #197 contract artifact — same hem sheet after the coefficient fix.
+  await writeContactSheetFromCells(hemCells, hemAfter, 3);
 
   const contactSheetPaths = [
     path.relative(REPO_ROOT, hemSheet),
     path.relative(REPO_ROOT, sleeveSheet),
     path.relative(REPO_ROOT, openingSheet),
+    path.relative(REPO_ROOT, hemAfter),
   ];
+
+  const sleeveRows = variants.filter((v) => v.param === "sleeve_along_fraction");
+  const shippingSleeve = sleeveRows.find((v) => Math.abs(v.value - 0.92) < 1e-6);
+  const maxSleeve = sleeveRows.find((v) => Math.abs(v.value - 1.0) < 1e-6);
+  const maxT = Math.max(0, ...sleeveRows.map((v) => v.cuffAlongBoneT));
+  const canReachWrist = maxT >= 0.9;
+  writeJson(absEvidence(SLEEVE_DIAGNOSIS_PATH), {
+    schemaVersion: "openclinxr.garment-coeff-issue-197.sleeve-diagnosis.v1",
+    mechanism:
+      "Pre-#197 arm_len = shoulder→elbow only; t_max=clamp(sleeve_along/arm_len,0.05,1.0); "
+      + "cuff = shoulder+(elbow−shoulder)*t_max so fraction 1.0 was the elbow. "
+      + "Post-#197 arm_len = shoulder→elbow→wrist polyline (hand y_frac=0.42, matching armature limb_at); "
+      + "cuff walks the chain; fraction 1.0 is the wrist in authoring math. "
+      + "Measured body surface: lateral arm span collapses below y_frac≈0.58 (elbow band maxLat~0.53, "
+      + "y_frac 0.50 maxLat~0.17) — Anny body mesh has little/no forearm surface to offset. "
+      + "Body-surface-derived shells (#121) therefore saturate near mid-forearm even at fraction 1.0.",
+    segmentExtendedPastElbow: true,
+    longSleeveMeans: "wrist (ulnar-head / hand landmark) — authoring intent",
+    sleeveCanReachWrist: canReachWrist
+      ? "yes"
+      : "no:body_mesh_arm_surface_ends_near_elbow; need forearm surface on the base or a welded distal sleeve extension (rejected free tube class from #121)",
+    saturatesAt:
+      "body arm-surface terminus (~mid-forearm / elbow band), not the sleeve_along coefficient clamp",
+    maxCuffAlongBoneTObserved: maxT,
+    rejected: [
+      "keep elbow-only segment definition without documenting the body-surface bound — the math must name the wrist so the coefficient space is honest",
+      "force wrist length with detached sleeve tubes — reintroduces the #121 continuity failure class",
+      "radial sleeveExtent as long-sleeve instrument — lateral reach, not distal progress",
+    ],
+    shortSleeveRescale:
+      "scrub/tshirt/casual fractions reduced (~0.22/0.30/0.28 of full chain) so absolute sleeve_along stays upper-arm after arm_len doubled; cardigan 0.92 and gown 0.72 pins unchanged",
+    landmarks: {
+      shoulder: ARM_LANDMARKS.shoulder,
+      elbow: ARM_LANDMARKS.elbow,
+      wrist: ARM_LANDMARKS.wrist,
+      formula: {
+        cuffAlongBoneT:
+          "max over outer-shell sleeve verts (|x-cx|>=body_width*0.20) of (cumArc on shoulder→elbow→wrist) / fullArmLen",
+        cuffArcLengthM: "same cumArc in metres",
+        sleeve_along: "arm_len_full * sleeve_along_fraction (metres along polyline)",
+      },
+    },
+    perVariant: sleeveRows.map((v) => ({
+      variantId: v.variantId,
+      sleeve_along_fraction: v.value,
+      cuffAlongBoneT: v.cuffAlongBoneT,
+      cuffArcLengthM: v.cuffArcLengthM,
+      sleeveReaches: v.sleeveReaches,
+      triangles: v.triangles,
+    })),
+    shippingCardigan: shippingSleeve
+      ? {
+          sleeve_along_fraction: 0.92,
+          cuffAlongBoneT: shippingSleeve.cuffAlongBoneT,
+          sleeveReaches: shippingSleeve.sleeveReaches,
+        }
+      : null,
+    fraction1: maxSleeve
+      ? {
+          sleeve_along_fraction: 1.0,
+          cuffAlongBoneT: maxSleeve.cuffAlongBoneT,
+          sleeveReaches: maxSleeve.sleeveReaches,
+        }
+      : null,
+    claimScope: "cuff landmark chain after #197 segment extension + body-surface bound",
+    notEvidenceFor: ["clinical_validity", "quest_readiness", "visual_quality_grade"],
+  });
 
   const report: GarmentBakeMatrixReport = {
     bodyBase: `apps/ui-xr/public/generated-humanoids/${BODY_BASE}`,
@@ -752,7 +987,7 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     contactSheetPaths,
     continuityRebakesSpent,
     claimScope:
-      "garment coefficient bake-matrix ledger + contact sheets on fixed Anny base (#195)",
+      "garment coefficient bake-matrix ledger + contact sheets on fixed Anny base (#195/#197)",
     notEvidenceFor: [
       "clinical_validity",
       "quest_readiness",
@@ -779,7 +1014,17 @@ export async function inspectGarmentBakeMatrix(): Promise<GarmentBakeMatrixRepor
     schemaVersion: "openclinxr.garment-bake-matrix.ledger.v1",
     ...report,
     contentHash: createHash("sha256")
-      .update(JSON.stringify(variants.map((v) => [v.variantId, v.triangles, v.hemY, v.sleeveExtent])))
+      .update(
+        JSON.stringify(
+          variants.map((v) => [
+            v.variantId,
+            v.triangles,
+            v.hemY,
+            v.cuffAlongBoneT,
+            v.sleeveExtent,
+          ]),
+        ),
+      )
       .digest("hex")
       .slice(0, 16),
   });

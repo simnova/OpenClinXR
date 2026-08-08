@@ -397,8 +397,8 @@
         "bodyShoulderTopY": 1.3403,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_casual_top_closed",
-        "sleeveLenFactor": 0.55,
-        "sleeveAlongArmM": 0.1719,
+        "sleeveLenFactor": 0.28,
+        "sleeveAlongArmM": 0.1721,
         "sleeveRows": 9,
         "sleeveCols": 12,
         "sleeveR0M": 0.0575,
@@ -485,23 +485,23 @@
         "layerIndex": 1,
         "layerToken": "open_cardigan",
         "layerKind": "open_front",
-        "faceCount": 2312,
-        "vertexCount": 2392,
+        "faceCount": 4471,
+        "vertexCount": 3767,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.022,
         "yokePeakY": 1.3853,
         "bodyShoulderTopY": 1.3403,
         "hasSleeveGeometry": true,
-        "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
+        "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
         "sleeveLenFactor": 0.92,
-        "sleeveAlongArmM": 0.2876,
+        "sleeveAlongArmM": 0.5656,
         "sleeveRows": 11,
         "sleeveCols": 12,
         "sleeveR0M": 0.0574,
         "sleeveRFactor": 0.232,
         "torsoRBaseM": 0.2477,
-        "meanRadiusM": 0.1853,
+        "meanRadiusM": 0.1787,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -528,24 +528,24 @@
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.442239,
-            0.5146,
+            -0.538723,
+            0.6972,
             -0.049789
           ],
           "max": [
-            0.442239,
+            0.538723,
             1.439995,
-            0.233199
+            0.421673
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.442239,
-            -0.233199,
-            0.5146
+            -0.538723,
+            -0.421672,
+            0.6972
           ],
           "max": [
-            0.442239,
+            0.538723,
             0.049789,
             1.439995
           ]
@@ -595,23 +595,23 @@
       "layerIndex": 1,
       "layerToken": "open_cardigan",
       "layerKind": "open_front",
-      "faceCount": 2312,
-      "vertexCount": 2392,
+      "faceCount": 4471,
+      "vertexCount": 3767,
       "hasShoulderYoke": false,
       "authoringClass": "body_surface_normal_offset",
       "clothOffsetM": 0.022,
       "yokePeakY": 1.3853,
       "bodyShoulderTopY": 1.3403,
       "hasSleeveGeometry": true,
-      "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
+      "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
       "sleeveLenFactor": 0.92,
-      "sleeveAlongArmM": 0.2876,
+      "sleeveAlongArmM": 0.5656,
       "sleeveRows": 11,
       "sleeveCols": 12,
       "sleeveR0M": 0.0574,
       "sleeveRFactor": 0.232,
       "torsoRBaseM": 0.2477,
-      "meanRadiusM": 0.1853,
+      "meanRadiusM": 0.1787,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -638,24 +638,24 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.442239,
-          0.5146,
+          -0.538723,
+          0.6972,
           -0.049789
         ],
         "max": [
-          0.442239,
+          0.538723,
           1.439995,
-          0.233199
+          0.421673
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.442239,
-          -0.233199,
-          0.5146
+          -0.538723,
+          -0.421672,
+          0.6972
         ],
         "max": [
-          0.442239,
+          0.538723,
           0.049789,
           1.439995
         ]
@@ -694,23 +694,23 @@
     "layerIndex": 1,
     "layerToken": "open_cardigan",
     "layerKind": "open_front",
-    "faceCount": 2312,
-    "vertexCount": 2392,
+    "faceCount": 4471,
+    "vertexCount": 3767,
     "hasShoulderYoke": false,
     "authoringClass": "body_surface_normal_offset",
     "clothOffsetM": 0.022,
     "yokePeakY": 1.3853,
     "bodyShoulderTopY": 1.3403,
     "hasSleeveGeometry": true,
-    "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_open_cardigan_long_sleeve",
+    "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
     "sleeveLenFactor": 0.92,
-    "sleeveAlongArmM": 0.2876,
+    "sleeveAlongArmM": 0.5656,
     "sleeveRows": 11,
     "sleeveCols": 12,
     "sleeveR0M": 0.0574,
     "sleeveRFactor": 0.232,
     "torsoRBaseM": 0.2477,
-    "meanRadiusM": 0.1853,
+    "meanRadiusM": 0.1787,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -737,24 +737,24 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.442239,
-        0.5146,
+        -0.538723,
+        0.6972,
         -0.049789
       ],
       "max": [
-        0.442239,
+        0.538723,
         1.439995,
-        0.233199
+        0.421673
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.442239,
-        -0.233199,
-        0.5146
+        -0.538723,
+        -0.421672,
+        0.6972
       ],
       "max": [
-        0.442239,
+        0.538723,
         0.049789,
         1.439995
       ]
@@ -867,7 +867,7 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-07T19:13:59.760692Z",
+    "generatedAt": "2026-08-08T05:45:37.725255Z",
     "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.2, \"anxious\": 0.75, \"bmi\": 24.0, \"brow_tension\": 0.4, \"build\": \"average_adult\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_street_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.22, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent\", \"skin_tone\": \"warm_light\", \"sleeveGeometryExpansion\": \"v2_street_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"parent_casual\"}"
   },
   "licenseExceptionRequired": false,
