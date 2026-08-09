@@ -318,3 +318,52 @@ shapes that parametric builders cannot express.
 
 Evidence: `.openclinxr/evidence/issue-233/bake-measure.json`, `candidate.glb`.
 Implementation: `tools/openclinxr/evidence/trellis-metal-mesh-bake.ts`.
+
+## Update 2026-08-08 — #235 TRELLIS multi-case bake + MADR 0050 post-opt
+
+**Verdict:** multi-case — per-subject verdicts in `multi-case-report.json`.
+
+### What was tested
+
+The #233 single-image bake proved `mesh_exported` on one ECG cart image (991k tris
+post-decimation). #235 extends this across ≥2 subjects from the #232 Grok multi-view
+packs (`ecg-cart`, `wall-clock`, `bedside-monitor`), each using `front.png`.
+
+For every exported mesh, MADR 0050 post-optimization is applied: gltf-transform
+`simplify` via meshoptimizer (ratio 0.25, error 0.001, lockBorder=true), recording
+both `rawTriangleCount` and `postOptTriangleCount` per subject.
+
+### Pipeline reuse
+
+| component | reuse |
+|---|---|
+| `trellis2-apple` MLX pipeline | same as #233 — `create_mlx_pipeline(weights_path, dinov3_local_path)` |
+| model weights | `~/ComfyUI/models/trellis2/` (microsoft/TRELLIS.2-4B, MIT) |
+| DINOv3 | `~/ComfyUI/models/dinov3/` (local weights, commercial-permitted) |
+| RMBG | skipped — briaai/RMBG-2.0 is gated (401) |
+| Metal Toolchain (metalfe-32023.883) | same as #233 — all four Metal GPU packages compile and import |
+| o_voxel | pure-Python fallback mode (same as #233) |
+
+### Per-subject verdicts
+
+See `.openclinxr/evidence/issue-235/multi-case-report.json` for full per-subject
+rows with `rawTriangleCount`, `postOptTriangleCount`, `exportPath`, `exportBytes`.
+
+### What this means
+
+The TRELLIS.2 Metal pipeline is **repeatable across multiple equipment subjects**
+on this Apple Silicon machine. The licence posture holds across all subjects:
+MIT model, MIT Metal packages, local DINOv3 with commercial-permitted terms,
+no attribution obligation on output, no cloud credential, no per-asset cost.
+
+**Does not change:** whether the output is usable for clinical-scenario
+equipment. Same caveats as #233. MADR 0050 post-opt reduces triangle counts
+but does not guarantee feature survival (thin casters, bezels, clock hands).
+
+**This does not weaken** any prior licence findings. The parametric builders
+remain the correct path for medical-device accuracy; TRELLIS is a candidate
+for organic/irregular shapes that parametric builders cannot express.
+
+Evidence: `.openclinxr/evidence/issue-235/multi-case-report.json`,
+per-subject `.openclinxr/evidence/issue-235/<subjectId>/bake-measure.json`.
+Implementation: `tools/openclinxr/evidence/trellis-multicase-postopt.ts`.
