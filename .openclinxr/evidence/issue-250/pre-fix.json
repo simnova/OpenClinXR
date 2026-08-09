@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "openclinxr.trellis-monitor-pre-fix.v1",
+  "measuredAgainstCommit": "0f12ddeb9eaf3cb60f62dfe887f50f64c2195518",
+  "measurementStage": "pre-edit",
+  "sourceGlb": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-239/bedside-monitor/bedside-monitor-r0.02.glb",
+  "subject": "bedside-monitor",
+  "currentState": {
+    "note": "best #239 global-simplify rung (ratio_0.02) — the monitor's current shipped-ladder state",
+    "triangleCount": 106025,
+    "vertices": 136548,
+    "aabb": {
+      "minX": -0.4999891221523285,
+      "minY": -0.40335777401924133,
+      "minZ": -0.49998894333839417,
+      "maxX": 0.4999880790710449,
+      "maxY": 0.4019922614097595,
+      "maxZ": 0.4999903440475464
+    }
+  },
+  "interiorExteriorSplit": {
+    "method": "z-buffer visibility classification: triangle classified EXTERIOR if it wins at least one pixel from any of N orthographic views on a Fibonacci sphere; classified INTERIOR otherwise (hidden from all views).",
+    "primary": {
+      "viewCount": 128,
+      "resolution": 1024,
+      "exteriorTris": 91150,
+      "interiorTris": 14875,
+      "interiorFraction": 0.1403
+    },
+    "sensitivity": {
+      "viewCounts": [
+        48,
+        64,
+        128,
+        256
+      ],
+      "interiorFractions": [
+        0.2152,
+        0.1935,
+        0.1403,
+        0.1019
+      ]
+    },
+    "topComponents": [
+      {
+        "tris": 80921,
+        "exteriorTris": 69522,
+        "interiorTris": 11399
+      },
+      {
+        "tris": 12687,
+        "exteriorTris": 10963,
+        "interiorTris": 1724
+      },
+      {
+        "tris": 1201,
+        "exteriorTris": 964,
+        "interiorTris": 237
+      },
+      {
+        "tris": 1064,
+        "exteriorTris": 847,
+        "interiorTris": 217
+      },
+      {
+        "tris": 998,
+        "exteriorTris": 911,
+        "interiorTris": 87
+      },
+      {
+        "tris": 785,
+        "exteriorTris": 731,
+        "interiorTris": 54
+      },
+      {
+        "tris": 349,
+        "exteriorTris": 276,
+        "interiorTris": 73
+      },
+      {
+        "tris": 303,
+        "exteriorTris": 286,
+        "interiorTris": 17
+      },
+      {
+        "tris": 280,
+        "exteriorTris": 251,
+        "interiorTris": 29
+      },
+      {
+        "tris": 222,
+        "exteriorTris": 204,
+        "interiorTris": 18
+      }
+    ]
+  },
+  "budget": {
+    "perAssetSoft": 60000,
+    "perStationHard": 180000,
+    "note": "constants in packages/openclinxr/asset-registry/src/index.ts:588 — NOT changed by this slice"
+  },
+  "claimScope": [
+    "triangle count and interior/exterior split of the bedside-monitor TRELLIS reconstruction at its current ladder state (r0.02)",
+    "interior = triangles not visible from any of N outside views (z-buffer rasterization, orthographic, 1024px)"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness",
+    "clinical accuracy",
+    "production adoption",
+    "visual quality — orchestrator grades renders"
+  ]
+}
