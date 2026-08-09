@@ -21,6 +21,7 @@ const generatedSceneAssetHashes = {
   // Six previously listed medical-equipment hashes certified absent files and were removed with PROVENANCE.md.
   "medical-equipment/ecg-cart-12-lead.glb": "5ffc60fe8238a4e1acfaed01f519e17d0861f5cc6ecdb5e138c30899eb20e8b6",
   "medical-equipment/iv-pole-with-pump.glb": "1a9a57932e2e0b8bd86c927527e8ea4fcb19fd3e74bf9ba33ec4490234ccfb04",
+  "medical-equipment/wall-clock-analog.glb": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
   "environment/ed-exam-bay-shell.glb": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
 } as const;

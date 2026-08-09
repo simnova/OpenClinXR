@@ -12,7 +12,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 - ignore-local-cache: 2112
 - keep-compatibility-input: 24
-- keep-current: 95
+- keep-current: 97
 - keep-evidence: 113
 - keep-template: 6
 
@@ -2263,6 +2263,8 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/public/xr-assets/humanoids/variants/pediatric-school-age-generated-human.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.provenance.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `.agent-factory/benchmark-gate-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/evidence-debt-report.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
 - `.agent-factory/godot-project-import-check.json` - keep-evidence; keep; Tracked agent-factory evidence output; preserve unless a focused evidence policy replaces it.
