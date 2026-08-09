@@ -172,6 +172,15 @@ type DispatchOptions = {
    * provisioned — whole-root copy is rejected on cost (see worktree-asset-provisioning.ts).
    */
   assetPaths?: readonly string[];
+  /**
+   * ISSUE #246: explicit orchestrator acknowledgment that the dispatch proofs are the INTENDED
+   * replacement for the stored brief's done_when. Without it, a dispatch whose proofs differ from
+   * the trusted brief is REFUSED (TrustedBriefDivergenceError). With it, the trusted brief's
+   * done_when is rewritten to the dispatch proofs so the merge-time contract-verify gate binds the
+   * corrected contract. This is the ONLY sanctioned way to change a trusted brief — an automatic
+   * overwrite would let an accidentally-weak proof set silently replace a strict contract.
+   */
+  refreshTrustedBrief?: boolean;
 };
 
 export type DispatchLedgerEntry = {
@@ -191,7 +200,7 @@ export type DispatchLedgerEntry = {
    */
   proofsOk?: boolean;
   proofs?: DoneWhenCheck[];
-  contractSource?: "brief" | "brief+dispatch" | "synthesized" | "none";
+  contractSource?: "brief" | "brief+dispatch" | "brief-refreshed" | "synthesized" | "none";
   contractReportPath?: string;
   /** Present when an unproofed dispatch was explicitly opted out of the tier gate. */
   contractReason?: string;
@@ -203,7 +212,7 @@ export type DispatchLedgerEntry = {
  * unresumable; a failed proof is still visible on the ledger + contract-verify JSON.
  */
 export class ContractProofsFailedError extends Error {
-  readonly name = "ContractProofsFailedError";
+  override readonly name = "ContractProofsFailedError";
   readonly checks: DoneWhenCheck[];
 
   constructor(sliceId: string, checks: DoneWhenCheck[]) {
@@ -216,7 +225,56 @@ export class ContractProofsFailedError extends Error {
   }
 }
 
-type TrustedBrief = {
+/**
+ * ISSUE #246 (2026-08-09, measured): a corrected issue body does not refresh the trusted brief,
+ * so the merge-time contract gate verifies against a superseded done_when.
+ *
+ * Sequence: first dispatch synthesizes `.openclinxr/slices/<id>/brief.json` from that moment's
+ * proofs (written once). The orchestrator then corrects the issue's `## done_when` and
+ * re-dispatches with the new proofs. `assembleDispatchContract` MERGES the new proofs with the
+ * stored ones, so dispatch evaluates the union — while `contract-verify-cli` reads ONLY the
+ * stored brief and evaluates the OLD rules. Measured on #241: dispatch evaluated 4 rules
+ * (including a superseded `exists:.openclinxr/evidence/issue-241/pre-fix.json`), the merge gate
+ * evaluated 2. `contract-verify` printed "RESULT: all tree proofs passed"; the rule count was the
+ * only tell.
+ *
+ * FIX CHOICE (implementer's, recorded per the issue): REFUSE by default, refresh on explicit
+ * opt-in. The stored brief is the anti-weakening plane — written once so a worker cannot change
+ * the contract it is graded against (workers cannot write the shared coordination root). An
+ * automatic overwrite would let any dispatch-time proof set replace a strict contract silently,
+ * including an accidentally-weak one. A refusal preserves that property and makes the divergence
+ * LOUD: the orchestrator must pass `refreshTrustedBrief: true` to acknowledge a deliberate
+ * correction, which rewrites the trusted done_when to the corrected set so the merge gate binds it.
+ */
+export class TrustedBriefDivergenceError extends Error {
+  override readonly name = "TrustedBriefDivergenceError";
+  readonly sliceId: string;
+  readonly storedTreeRules: readonly string[];
+  readonly dispatchTreeRules: readonly string[];
+
+  constructor(input: {
+    sliceId: string;
+    storedTreeRules: readonly string[];
+    dispatchTreeRules: readonly string[];
+  }) {
+    const { sliceId, storedTreeRules, dispatchTreeRules } = input;
+    super(
+      `Dispatch proofs for slice '${sliceId}' differ from the trusted brief's done_when, and the `
+      + `trusted brief is written once and is NOT auto-refreshed (anti-weakening: a worker must not `
+      + `be able to change the contract it is graded against). contract-verify-cli would verify the `
+      + `STORED rules (${storedTreeRules.length}) while dispatch would evaluate the new set `
+      + `(${dispatchTreeRules.length}) — the issue #246 divergence. `
+      + `If the issue's done_when was deliberately corrected, refresh the trusted brief explicitly: `
+      + `pass refreshTrustedBrief: true to dispatch() (orchestrator-only; rewrites the corrected `
+      + `done_when into the trusted plane so the merge-time gate verifies it).`,
+    );
+    this.sliceId = sliceId;
+    this.storedTreeRules = storedTreeRules;
+    this.dispatchTreeRules = dispatchTreeRules;
+  }
+}
+
+export type TrustedBrief = {
   id?: string;
   done_when?: string[];
   /**
@@ -230,7 +288,7 @@ type TrustedBrief = {
 
 export type AssembledContract = {
   treeProofs: string[];
-  contractSource: "brief" | "brief+dispatch" | "synthesized" | "none";
+  contractSource: "brief" | "brief+dispatch" | "brief-refreshed" | "synthesized" | "none";
   trustedSliceDir: string;
   brief: TrustedBrief | null;
   contractReason?: string;
@@ -265,6 +323,7 @@ export function assembleDispatchContract(input: {
   dispatchProofs?: string[];
   contract?: "none";
   contractReason?: string;
+  refreshTrustedBrief?: boolean;
 }): AssembledContract {
   const trustedDir = trustedSliceDir(input.repoRoot, input.sliceId);
   mkdirSync(trustedDir, { recursive: true });
@@ -304,6 +363,44 @@ export function assembleDispatchContract(input: {
       trustedSliceDir: trustedDir,
       brief,
     };
+  }
+
+  // ISSUE #246: a dispatch whose proofs differ from the stored brief's done_when must REFUSE or
+  // explicitly REFRESH — never silently merge, or the merge-time contract-verify gate keeps
+  // evaluating the superseded set while dispatch evaluates the union. Compare TREE rules as sets
+  // (order changes are not a divergence; rule set changes are).
+  if (brief && Array.isArray(input.dispatchProofs) && input.dispatchProofs.length > 0) {
+    const storedSorted = [...briefTree].sort();
+    const dispatchSorted = [...dispatchTree].sort();
+    const diverged =
+      storedSorted.length !== dispatchSorted.length
+      || storedSorted.some((rule, index) => rule !== dispatchSorted[index]);
+    if (diverged) {
+      if (!input.refreshTrustedBrief) {
+        throw new TrustedBriefDivergenceError({
+          sliceId: input.sliceId,
+          storedTreeRules: briefTree,
+          dispatchTreeRules: dispatchTree,
+        });
+      }
+      // Explicit orchestrator acknowledgment: the corrected done_when replaces the stored one, so
+      // contract-verify-cli binds the corrected set at merge time. This is the ONLY sanctioned
+      // way to change a trusted brief — an automatic overwrite would let an accidentally-weak
+      // proof set silently replace a strict contract.
+      brief = {
+        ...brief!,
+        done_when: [...input.dispatchProofs],
+        refreshed: true,
+        refreshedAt: new Date().toISOString(),
+      };
+      writeFileSync(join(trustedDir, "brief.json"), `${JSON.stringify(brief, null, 2)}\n`);
+      return {
+        treeProofs: dispatchTree,
+        contractSource: "brief-refreshed",
+        trustedSliceDir: trustedDir,
+        brief,
+      };
+    }
   }
 
   const treeProofs = [...briefTree, ...dispatchTree.filter((r) => !briefTree.includes(r))];
@@ -896,6 +993,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     dispatchProofs: options.proofs,
     contract: options.contract,
     contractReason: options.contractReason,
+    refreshTrustedBrief: options.refreshTrustedBrief,
   });
   assertWorktreeContractGate({
     worktreeBound: Boolean(options.worktree),

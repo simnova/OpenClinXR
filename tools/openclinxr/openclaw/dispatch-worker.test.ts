@@ -16,11 +16,13 @@ import {
   dispatch,
   isTextOnlyModel,
   latestSessionFor,
+  loadTrustedBrief,
   parseResult,
   readSessions,
   assertProofShape,
   recordSession,
   resolveWorkerWorktree,
+  TrustedBriefDivergenceError,
   WORKTREE_ROOT,
   buildWorktreeIsolationDenies,
 } from "./dispatch-worker.js";
@@ -269,6 +271,135 @@ describe("layer-3 assembleDispatchContract — trusted brief plane", () => {
     expect(assembled.contractSource).toBe("none");
     expect(assembled.contractReason).toBe("exploratory no-op");
     expect(assembled.treeProofs).toEqual([]);
+  });
+});
+
+/**
+ * PLANTED CONTRACTS (#246) — a corrected issue body does not refresh the trusted brief.
+ *
+ * MEASURED 2026-08-09 on #241: first dispatch synthesizes `.openclinxr/slices/<id>/brief.json`
+ * from that moment's proofs (2 rules, written once). The issue body is then corrected to 3 proofs.
+ * A re-dispatch MERGES the new proofs with the stored brief, so dispatch evaluates the union
+ * (4 rules, including a superseded `exists:.openclinxr/evidence/issue-241/pre-fix.json`) while
+ * `contract-verify-cli` — which reads ONLY the trusted brief — evaluates the STORED 2. The merge
+ * gate reported success; the rule count was the only tell.
+ *
+ * FIX CHOICE (implementer's, recorded per the issue): REFUSE by default, refresh on explicit
+ * opt-in. The stored brief is the anti-weakening plane; an automatic overwrite would let an
+ * accidentally-weak proof set silently replace a strict contract. A refusal preserves that
+ * property and makes the divergence LOUD; `refreshTrustedBrief: true` is the only sanctioned way
+ * to change a trusted brief, and it is what makes the merge gate bind the corrected contract.
+ */
+describe("issue #246 — a corrected done_when must refresh the trusted brief or REFUSE", () => {
+  function sliceWithStoredBrief(): { root: string; slice: string } {
+    const trusted = mkdtempSync(join(tmpdir(), "dispatch-246-"));
+    process.env["OPENCLINXR_COORDINATION_ROOT"] = trusted;
+    resetCoordinationRootCache();
+    const slice = "issue-246-corrected";
+    const trustedSlice = join(trusted, ".openclinxr", "slices", slice);
+    mkdirSync(trustedSlice, { recursive: true });
+    // The 01:42 state: the first dispatch synthesized the brief with the ORIGINAL 2-rule set.
+    writeFileSync(
+      join(trustedSlice, "brief.json"),
+      JSON.stringify({
+        schemaVersion: "openclinxr.slice-brief.v1",
+        id: slice,
+        goal: "test",
+        q_gate: "Q5",
+        autonomy: "worker",
+        roles: {},
+        done_when: [
+          "run:pnpm exec vitest run tools/openclinxr/openclaw/dispatch-worker.test.ts",
+          "exists:.openclinxr/evidence/issue-241/pre-fix.json",
+        ],
+        synthesized: true,
+      }),
+    );
+    return { root: trusted, slice };
+  }
+
+  const correctedProofs = [
+    "run:pnpm exec vitest run tools/openclinxr/openclaw/dispatch-worker.test.ts",
+    "exists:tools/openclinxr/openclaw/__fixtures__/streaming-json-sample.ndjson",
+    "min-bytes:tools/openclinxr/openclaw/__fixtures__/streaming-json-sample.ndjson:2000",
+  ];
+
+  it("REFUSES a dispatch whose proofs differ from the stored brief, without writing anything", () => {
+    const { root, slice } = sliceWithStoredBrief();
+    const briefPath = join(root, ".openclinxr", "slices", slice, "brief.json");
+    const before = readFileSync(briefPath, "utf8");
+
+    expect(() =>
+      assembleDispatchContract({
+        repoRoot: root,
+        sliceId: slice,
+        dispatchProofs: correctedProofs,
+      }),
+    ).toThrow(TrustedBriefDivergenceError);
+
+    // The trusted plane is untouched by the refusal — a refusal must cost nothing.
+    expect(readFileSync(briefPath, "utf8")).toBe(before);
+  });
+
+  it("names the divergence so the orchestrator knows the merge gate would verify stale rules", () => {
+    const { root, slice } = sliceWithStoredBrief();
+    let error: unknown;
+    try {
+      assembleDispatchContract({ repoRoot: root, sliceId: slice, dispatchProofs: correctedProofs });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeInstanceOf(TrustedBriefDivergenceError);
+    const err = error as TrustedBriefDivergenceError;
+    expect(err.storedTreeRules).toHaveLength(2);
+    expect(err.dispatchTreeRules).toHaveLength(3);
+    expect(err.message).toMatch(/refreshTrustedBrief: true/);
+    expect(err.message).toMatch(/anti-weakening/);
+  });
+
+  it("REFRESHES the trusted brief when the orchestrator explicitly passes refreshTrustedBrief", () => {
+    const { root, slice } = sliceWithStoredBrief();
+    const assembled = assembleDispatchContract({
+      repoRoot: root,
+      sliceId: slice,
+      dispatchProofs: correctedProofs,
+      refreshTrustedBrief: true,
+    });
+
+    expect(assembled.contractSource).toBe("brief-refreshed");
+    // Dispatch now evaluates exactly the corrected set — not the union with the superseded rules.
+    expect(assembled.treeProofs).toEqual(correctedProofs);
+
+    const stored = loadTrustedBrief(join(root, ".openclinxr", "slices", slice));
+    expect(stored?.done_when).toEqual(correctedProofs);
+    expect(stored?.["refreshed"]).toBe(true);
+    expect(stored?.["synthesized"]).toBe(true); // other brief fields survive the refresh
+  });
+
+  it("does not refuse when the dispatch proofs match the stored brief (no false positive)", () => {
+    const { root, slice } = sliceWithStoredBrief();
+    const matching = [
+      "run:pnpm exec vitest run tools/openclinxr/openclaw/dispatch-worker.test.ts",
+      "exists:.openclinxr/evidence/issue-241/pre-fix.json",
+    ];
+    const assembled = assembleDispatchContract({
+      repoRoot: root,
+      sliceId: slice,
+      dispatchProofs: matching,
+    });
+    expect(assembled.treeProofs).toEqual(matching);
+    expect(assembled.contractSource).toBe("brief+dispatch");
+  });
+
+  it("ignores rule ORDER in the divergence check — a reordered identical set is not a correction", () => {
+    const { root, slice } = sliceWithStoredBrief();
+    const reordered = [
+      "exists:.openclinxr/evidence/issue-241/pre-fix.json",
+      "run:pnpm exec vitest run tools/openclinxr/openclaw/dispatch-worker.test.ts",
+    ];
+    expect(() =>
+      assembleDispatchContract({ repoRoot: root, sliceId: slice, dispatchProofs: reordered }),
+    ).not.toThrow(TrustedBriefDivergenceError);
   });
 });
 
