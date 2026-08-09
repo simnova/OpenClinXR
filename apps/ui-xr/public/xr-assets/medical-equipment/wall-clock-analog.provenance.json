@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "openclinxr.medical-equipment-provenance.v1",
+  "derivationMode": "trellis_decimation_promote",
+  "scenarioId": null,
+  "assetId": "wall_clock_equipment",
+  "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb",
+  "sourceRecordPath": ".openclinxr/evidence/issue-239/ladder-report.json",
+  "generatorMode": "trellis_metal_image_to_mesh_via_trellis2_apple_then_decimation_ladder",
+  "sourceKind": "trellis_generated_derivative",
+  "usesRealTrellisForwardPass": true,
+  "backgroundRemovalUsed": false,
+  "textureMode": "trellis_baked_material",
+  "animationMode": "none_static_equipment",
+  "optimizationMode": "decimation_ladder_ratio_0.02",
+  "realismGrade": null,
+  "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "trellis_metal_image_to_shape_to_mesh_to_glb_v1",
+    "rawGlbPath": ".openclinxr/evidence/issue-239/inputs/wall-clock-raw.glb",
+    "rawTriangleCount": 929293,
+    "rawBytes": 35564248,
+    "rawGeneratedBy": "TRELLIS.2 Metal pipeline (pedronaugusto/trellis2-apple) on Apple Silicon, image-to-3D",
+    "ladderReportPath": ".openclinxr/evidence/issue-239/ladder-report.json",
+    "chosenRung": "wall-clock-r0.02.glb",
+    "chosenRungTriangleCount": 34507,
+    "chosenRungBytes": 4805284,
+    "derivationNote": "This promote copies the decimated r0.02 rung byte-identical (sha256 cefadd32...) from .openclinxr/evidence/issue-239/wall-clock/ into the tracked medical-equipment library; no re-bake, no re-decimation."
+  },
+  "licenseChain": {
+    "status": "verified_at_pipeline_setup_not_reverified_at_promote",
+    "tool": "microsoft/TRELLIS.2-4B via pedronaugusto/trellis2-apple fork",
+    "toolLicense": "MIT (Microsoft's, preserved through the fork)",
+    "licenseSource": "docs/madr/0049-third-party-asset-licence-posture.md + GitHub API + LICENSE",
+    "sourceRecordClaimsSupported": [
+      "TRELLIS.2-4B is MIT (HF API).",
+      "trellis2-apple preserves Microsoft's MIT through the fork (GitHub API + LICENSE).",
+      "Background removal (RMBG-2.0, CC BY-NC 4.0) was SKIPPED; the Mac pipeline path contains no background remover."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "mesh_regeneration_from_trellis_package",
+      "background_removal"
+    ],
+    "explicitUnknown": [
+      "Whether the generated GLB is a 'derivative work of the DINO Materials' (DINOv3 pretrain used inside shape generation, custom licence permitting commercial use) is a lawyer question recorded unanswered in MADR 0049; only the GLB is shipped, never model weights.",
+      "Input reference image provenance is not re-asserted at promote time; chain is raw GLB + ladder report + pipeline record."
+    ],
+    "notes": "Local Apple-Silicon TRELLIS generation only; no cloud/paid APIs. Do not treat this record as a full licence enumeration of every transitive dependency."
+  },
+  "derivativeLineage": {
+    "status": "trellis_decimation_promote_derivative",
+    "caseId": null,
+    "assetId": "wall_clock_equipment",
+    "reuseKey": "wall_clock_equipment:trellis_r0.02",
+    "rawGlb": ".openclinxr/evidence/issue-239/inputs/wall-clock-raw.glb",
+    "ladderPath": "trellis_decimation_ladder_via_issue_239",
+    "method": "copy_byte_identical_decimated_rung_to_tracked_library",
+    "promotedFrom": ".openclinxr/evidence/issue-239/wall-clock/wall-clock-r0.02.glb",
+    "publishedAs": "docs/assets/trellis-wall-clock.png (issue #243 public site evidence)"
+  },
+  "toolVersion": "openclinxr-trellis-promote-v1",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
+  ],
+  "sourceNotes": [
+    "Issue #235/#237: TRELLIS Metal image-to-shape-to-mesh-to-GLB pipeline completed on Apple Silicon (raw wall-clock 929,293 tris).",
+    "Issue #239: decimation ladder chose r0.02 (34,507 tris, 4,805,284 bytes) under the 60,000-triangle per-asset ceiling and under the 180,000-triangle station ceiling.",
+    "Issue #243: the r0.02 wall clock was graded and published on the public site (docs/assets/trellis-wall-clock.png).",
+    "Issue #244: promoted byte-identical into apps/ui-xr/public/xr-assets/medical-equipment/ and wired wall_clock_equipment to resolve source 'gltf'.",
+    "Static equipment; no rigging, no animation, no skinning."
+  ],
+  "claimScope": "local_tracked_equipment_glb_wiring_not_readiness",
+  "promotionGates": false,
+  "outputSha256": "cefadd32f3a115177cbe6a696159d798dca371ee5ad50111937ab9b8aa5624ce",
+  "outputBytes": 4805284,
+  "generatedAt": "2026-08-09T00:00:00.000Z",
+  "method": "copy_byte_identical_decimated_rung_to_tracked_library"
+}
