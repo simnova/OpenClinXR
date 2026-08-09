@@ -137,6 +137,13 @@ type MountedEquipment = {
   triangleCount: number;
   /** Meshes under the mounted root. A single scaled cube is 1. */
   meshCount: number;
+  /**
+   * #245 — geometry after waiting for every scene asset to resolve (re-sample).
+   * When set, the first sample was taken before the GLB finished loading (§10m);
+   * the post-load reading is the honest one.
+   */
+  triangleCountAfterLoad?: number;
+  meshCountAfterLoad?: number;
 };
 
 type StationEquipment = {
@@ -231,6 +238,10 @@ describe("a station renders the equipment it declares (#140)", () => {
     // Band: [source/10, source×10], derived from the measured control rows — the two
     // known-good GLBs mount 666t vs 288t and 522t vs 144t (2.3-3.6×), so an order of
     // magnitude covers both while still failing a 26-triangle placeholder.
+    // Reading: m.triangleCount is the SETTLED mounted state — the probe now waits for
+    // every medical-equipment asset to reach loaded/failed before its first sample
+    // (#253; before that fix the 8.4 MB monitor was still pending at the sample
+    // instant and read as the #245 signature 3m/26t even though the GLB attached).
     const mod = await load();
     const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -249,5 +260,40 @@ describe("a station renders the equipment it declares (#140)", () => {
       }
     }
     expect(offenders, `gltf equipment outside an order of magnitude of its source geometry:\n${offenders.join("\n")}`).toHaveLength(0);
+  }, 900_000);
+
+  it("bedside_monitor_equipment mounts with source gltf at ~60k triangles in EVERY declaring station (#253)", async () => {
+    // #253 — the bedside monitor (60,000 source tris) follows the #244 wall-clock wiring.
+    // Source alone is what let #245 through: resolution flipped to gltf while only the
+    // 26-triangle placeholder reached the scene. The count is the proof that matters.
+    // Band: [6000, 600000] — an order of magnitude of the 60,000-triangle promoted GLB,
+    // so a suppressed 2-mesh placeholder (24 tris) fails while the loaded GLB passes.
+    // The assertion covers EVERY station that declares bedside_monitor_equipment
+    // (enumerated from the shipped manifests, not a hardcoded list). ed_stroke_alert_handoff_v1
+    // and adult_abdominal_pain_v1 both declare it; a station whose GLB never attaches
+    // reports the placeholder (3m/26t) as its settled state and FAILS this assertion.
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const declaring = report.stations.filter((s) => s.declaredEquipmentIds.includes("bedside_monitor_equipment"));
+    expect(declaring.length, "no station declares bedside_monitor_equipment").toBeGreaterThan(0);
+
+    const failures: string[] = [];
+    for (const s of declaring) {
+      const m = s.mounted.find((row) => row.equipmentId === "bedside_monitor_equipment");
+      if (!m) {
+        failures.push(`${s.scenarioId}: no mounted row for bedside_monitor_equipment`);
+        continue;
+      }
+      if (m.source !== "gltf") {
+        failures.push(`${s.scenarioId}: source=${m.source}, expected gltf`);
+      }
+      if (m.triangleCount < 6000 || m.triangleCount > 600000) {
+        failures.push(`${s.scenarioId}: mounted ${m.triangleCount}t, expected within [6000, 600000] of a 60,000t source GLB`);
+      }
+    }
+    expect(failures, `bedside_monitor_equipment not rendering the real GLB:\n${failures.join("\n")}`).toHaveLength(0);
   }, 900_000);
 });

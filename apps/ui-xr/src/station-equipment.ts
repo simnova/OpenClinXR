@@ -53,9 +53,12 @@ export {
 export const REAL_EQUIPMENT_GLTF_BY_ID: Readonly<Record<string, string>> = {
   ecg_cart_equipment: "ecg-cart-12-lead.glb",
   iv_stand_equipment: "iv-pole-with-pump.glb",
-  // #244: TRELLIS-generated wall clock (34,507 tris) — the one equipment subject that
-  // clears the 60k per-asset ceiling; promoted byte-identical from issue-239 evidence.
+  // #244: TRELLIS-generated wall clock (34,507 tris) — the first equipment subject to
+  // clear the 60k per-asset ceiling; promoted byte-identical from issue-239 evidence.
   wall_clock_equipment: "wall-clock-analog.glb",
+  // #253: TRELLIS-generated bedside monitor (60,000 tris) — second equipment subject to
+  // clear the 60k per-asset ceiling; promoted byte-identical from issue-250 evidence.
+  bedside_monitor_equipment: "bedside-monitor-generated.glb",
 };
 
 export function countEquipmentGeometry(root: Object3D): { meshCount: number; triangleCount: number } {
@@ -169,7 +172,6 @@ const DEFAULT_POSITIONS: ReadonlyArray<{ x: number; y: number; z: number }> = [
 
 /** Kinds that get purpose-built multi-mesh geometry (parametric path). */
 const PARAMETRIC_KINDS = new Set([
-  "bedside_monitor_equipment",
   "fetal_monitor_equipment",
   "exam_table_equipment",
   "blood_pressure_cuff_equipment",

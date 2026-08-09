@@ -6,10 +6,10 @@
   "counts": {
     "keep-evidence": 113,
     "ignore-local-cache": 2112,
-    "keep-current": 107,
+    "keep-current": 109,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2371
+    "entries": 2373
   },
   "entries": [
     {
@@ -15673,6 +15673,20 @@
     },
     {
       "path": "apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.provenance.json",
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
