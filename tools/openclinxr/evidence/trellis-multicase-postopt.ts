@@ -10,7 +10,9 @@
  *  3. Records rawTriangleCount and postOptTriangleCount per subject
  *  4. Assigns per-subject verdicts using the contract vocabulary
  *
- * Header IMMUTABLE — append ## FIXED (#235).
+ * #237 added processIsolation field (fresh_subprocess per subject via child_process).
+ *
+ * Header IMMUTABLE — append ## FIXED (#235, #237).
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
@@ -39,6 +41,7 @@ export type SubjectRow = {
   displayName: string;
   verdict: SubjectVerdict;
   verdictReason: string;
+  processIsolation: "fresh_subprocess" | "same_process" | "unknown";
   rawTriangleCount: number | null;
   postOptTriangleCount: number | null;
   exportPath: string | null;
@@ -178,6 +181,8 @@ export async function inspectTrellisMulticasePostopt(): Promise<MultiCaseReport>
         displayName: b.displayName ?? b.subjectId,
         verdict: "blocked_build" as SubjectVerdict,
         verdictReason: b.verdictReason ?? "Python bake not yet executed or fewer than 2 subjects available",
+        processIsolation: ((b as unknown as Record<string,unknown>).processIsolation === "fresh_subprocess"
+          ? "fresh_subprocess" as const : "same_process" as const),
         rawTriangleCount: b.rawTriangleCount ?? null,
         postOptTriangleCount: null,
         exportPath: b.exportPath ?? null,
@@ -244,6 +249,8 @@ export async function inspectTrellisMulticasePostopt(): Promise<MultiCaseReport>
       verdict,
       verdictReason:
         bake.verdictReason ?? `Bake verdict: ${bake.verdict}, raw tris: ${rawTris}, post-opt: ${postOptTris}`,
+      processIsolation: ((bake as unknown as Record<string,unknown>).processIsolation === "fresh_subprocess"
+        ? "fresh_subprocess" as const : "same_process" as const),
       rawTriangleCount: rawTris,
       postOptTriangleCount: postOptTris,
       exportPath,
