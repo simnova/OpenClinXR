@@ -57,12 +57,13 @@ import {
   describeRuntimeBundleScenarioMatch,
   resolveEffectiveVerticalOffsetMeters,
 } from "./actor-floor-composition.js";
+import { createCaptureKeyLight, enableCaptureRendererShadowMap, isCaptureShadowPath, markActorCastShadow, markFloorReceiveShadow } from "./capture-shadow-map.js";
 import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,
 } from "./encounter-actor-framing.js";
-import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
+import { createPrimitiveActorMesh } from "./primitive-actor-mesh.js";
 import { applyPosturePose, plantSeatedPelvisOnSeat } from "./seated-pose.js";
 import { applySupinePose } from "./supine-pose.js";
 import {
@@ -93,7 +94,6 @@ import {
   CanvasTexture,
   Color,
   CylinderGeometry,
-  DirectionalLight,
   DoubleSide,
   Group,
   HemisphereLight,
@@ -3274,10 +3274,7 @@ function createStationScene(): StationSceneRuntime {
   ambient.name = iwsdkStationSceneObjects.ambientLight;
   scene.add(ambient);
 
-  const key = new DirectionalLight(0xffffff, 2.5);
-  key.name = iwsdkStationSceneObjects.keyLight;
-  key.position.set(3, 5, 4);
-  scene.add(key);
+  createCaptureKeyLight({ name: iwsdkStationSceneObjects.keyLight, scene, active: isCaptureShadowPath(selectedCaptureMode()) });
 
   addReusableExteriorPreEncounterRoom(scene, doorwayTheme);
 
@@ -3287,6 +3284,7 @@ function createStationScene(): StationSceneRuntime {
   const floor = (stationEnvironment.userData.floorMesh as Mesh | undefined)
     ?? new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial({ color: doorwayTheme.floorColor, roughness: 0.8 }));
   floor.name = iwsdkStationSceneObjects.floor;
+  if (isCaptureShadowPath(selectedCaptureMode())) { enableCaptureRendererShadowMap(renderer); markFloorReceiveShadow(floor); }
   floor.userData.openClinXrSceneNecessityPolicy = "dynamic_encounter_world_floor_from_environment_descriptor";
   floor.userData.openClinXrEncounterSpecificRuntimeTheme = "floor_color_derived_from_environmentId_descriptor";
   floor.userData.openClinXrPortalBoundaryPolicy = "belongs_to_dynamic_world_on_encounter_side_of_doorway";
@@ -7142,6 +7140,7 @@ function loadGeneratedHumanoidIntoActorSlot(
         }
       }
       actorSlot.add(humanoid);
+      if (isCaptureShadowPath(selectedCaptureMode())) markActorCastShadow(humanoid);
       if (isHumanoidMouthGazePoseReviewCaptureMode()) {
         // parent/nurse comparators center-frame patient primary (role GLB resolved onto patient slot)
         const primaryForMouthGaze = runtimePatientActorId();
