@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { chromium, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
+  computeMeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
   type MeasurementTreeStamp,
@@ -27,6 +28,7 @@ import {
   buildRoomCaptureUrl,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
+import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
 
 export const DECLARED_EQUIPMENT_EVIDENCE_DIR = ".openclinxr/evidence/issue-140";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -36,6 +38,28 @@ export type MountedEquipment = {
   source: "gltf" | "parametric" | "fallback" | "none";
   triangleCount: number;
   meshCount: number;
+  /**
+   * #245 — scene-asset-evidence status at the probe's sample instant.
+   * "unknown" when no matching evidence record exists (e.g. no assetPath match).
+   */
+  assetStatusAtSample?: "pending" | "loaded" | "failed" | "unknown";
+  /**
+   * #245 — true when the runtime kept the primitive fallback active for this asset
+   * (the "loaded but suppressed" branch); false when the GLB attached normally.
+   */
+  fallbackActiveAtSample?: boolean;
+  /**
+   * #245 — ms between GLTF load completion/failure and the probe's sample.
+   * Positive = sampled after the loader resolved; negative = sampled before;
+   * null = the asset never resolved; undefined = no evidence match.
+   */
+  sampledAtMsRelativeToLoad?: number | null;
+  /**
+   * #245 — geometry after waiting for every scene asset to resolve (re-sample).
+   * Distinguishes a sampling-instant defect (§10m) from a genuine mount failure.
+   */
+  triangleCountAfterLoad?: number;
+  meshCountAfterLoad?: number;
 };
 
 export type StationEquipment = {
@@ -54,6 +78,8 @@ type ArtifactPayload = {
   kind: "declared_equipment_mounting_live";
   label: string;
   generatedAt: string;
+  /** #245 — the commit the measurement was taken against (same value as treeStamp.head). */
+  measuredAgainstCommit: string;
   /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
   treeStamp: MeasurementTreeStamp;
   claimScope: string[];
@@ -191,11 +217,13 @@ export async function writeEquipmentMountDump(
 ): Promise<string> {
   const outputPath = input?.outputPath ?? preFixPath();
   await mkdir(path.dirname(outputPath), { recursive: true });
+  const stamp = computeMeasurementTreeStamp();
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.declared-equipment-mounted.v1" as const,
     kind: "declared_equipment_mounting_live" as const,
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
+    measuredAgainstCommit: stamp.head,
     claimScope: [
       "shipped_scene_manifest_equipmentPlacements",
       "live_scene_userData_openClinXrEquipmentId",
@@ -252,11 +280,62 @@ async function measureLiveEquipmentMounting(input: {
           const declaredEquipmentIds = await readDeclaredEquipmentIds(scenarioId);
           const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
+          // #245 — watch GLTF load resolution timing from the first available frame
+          // so "sampledAtMs relative to loader completion" is observable, not guessed.
+          await page.evaluate(`(() => {
+            const win = window;
+            if (win.__openClinXrEquipmentLoadWatch) return;
+            const watch = { startMs: performance.now(), byAsset: {} };
+            win.__openClinXrEquipmentLoadWatch = watch;
+            win.setInterval(function () {
+              const ev = win.__openClinXrSceneAssetEvidence;
+              if (!ev || !Array.isArray(ev.assets)) return;
+              for (let i = 0; i < ev.assets.length; i++) {
+                const a = ev.assets[i];
+                if (!watch.byAsset[a.assetId] && (a.status === "loaded" || a.status === "failed")) {
+                  watch.byAsset[a.assetId] = { resolvedAtMs: performance.now(), status: a.status };
+                }
+              }
+            }, 50);
+          })()`);
           await waitForStationShell(page, 180_000);
           await waitForEquipmentOrFrames(page, 120_000);
           // Allow GLTF loaders a beat (ED bay real assets).
           await page.waitForTimeout(1500);
-          const live = await readLiveEquipmentFromPage(page);
+          let live = await readLiveEquipmentFromPage(page);
+          decorateGltfLoadTiming(live);
+          // #245 — if any gltf-sourced equipment was still pending at the sample
+          // instant, wait for all scene assets to resolve, then re-sample. If the
+          // count grows to the source file's magnitude only after waiting, the
+          // probe was sampling before load completion (§10m class), not the mount.
+          const pendingGltfIds = live.mounted
+            .filter((m) => m.source === "gltf")
+            .filter((m) => m.assetStatusAtSample === "pending")
+            .map((m) => m.equipmentId);
+          if (pendingGltfIds.length > 0) {
+            try {
+              await page.waitForFunction(
+                `(() => {
+                  const ev = window.__openClinXrSceneAssetEvidence;
+                  return !ev || !Array.isArray(ev.assets) || ev.pendingCount === 0;
+                })()`,
+                undefined,
+                { timeout: 30_000 },
+              );
+            } catch {
+              // timeout — the asset never resolved; keep the pending sample as-is.
+            }
+            await page.waitForTimeout(300);
+            const liveAfter = await readLiveEquipmentFromPage(page);
+            decorateGltfLoadTiming(liveAfter);
+            for (const m of live.mounted) {
+              const after = liveAfter.mounted.find((o) => o.equipmentId === m.equipmentId);
+              if (after && after.triangleCount > m.triangleCount) {
+                m.triangleCountAfterLoad = after.triangleCount;
+                m.meshCountAfterLoad = after.meshCount;
+              }
+            }
+          }
           const sid = live.scenarioId || scenarioId;
           const mountedIds = new Set(live.mounted.map((m) => m.equipmentId));
           const undeclaredMountedIds = live.mounted
@@ -327,10 +406,20 @@ async function waitForEquipmentOrFrames(page: Page, timeoutMs: number): Promise<
 /**
  * String IIFE so tsx/esbuild cannot inject `__name` into the browser.
  * Prefers published evidence; falls back to scene userData tags.
+ * #245 — also returns the sample instant (performance.now), a trimmed snapshot of
+ * window.__openClinXrSceneAssetEvidence (per-asset status), and the load watch.
  */
 export async function readLiveEquipmentFromPage(page: Page): Promise<{
   scenarioId: string;
   mounted: MountedEquipment[];
+  sampleNowMs: number;
+  assetStates: Array<{
+    assetId: string;
+    status: string;
+    fallbackActive: boolean;
+    assetPath: string;
+  }>;
+  loadWatch: Record<string, { resolvedAtMs: number; status: string }>;
 }> {
   return page.evaluate(`(() => {
     const win = window;
@@ -437,8 +526,71 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
       });
     }
 
-    return { scenarioId: scenarioId, mounted: Object.keys(byId).map(function (k) { return byId[k]; }) };
-  })()`) as Promise<{ scenarioId: string; mounted: MountedEquipment[] }>;
+    const assetStates = [];
+    const evidence = win.__openClinXrSceneAssetEvidence;
+    if (evidence && Array.isArray(evidence.assets)) {
+      for (let i = 0; i < evidence.assets.length; i++) {
+        const a = evidence.assets[i];
+        assetStates.push({
+          assetId: a.assetId,
+          status: a.status,
+          fallbackActive: Boolean(a.fallbackActive),
+          assetPath: typeof a.assetPath === "string" ? a.assetPath : "",
+        });
+      }
+    }
+    const watch = win.__openClinXrEquipmentLoadWatch;
+    return {
+      scenarioId: scenarioId,
+      mounted: Object.keys(byId).map(function (k) { return byId[k]; }),
+      sampleNowMs: performance.now(),
+      assetStates: assetStates,
+      loadWatch: watch && watch.byAsset ? watch.byAsset : {},
+    };
+  })()`) as Promise<{
+    scenarioId: string;
+    mounted: MountedEquipment[];
+    sampleNowMs: number;
+    assetStates: Array<{ assetId: string; status: string; fallbackActive: boolean; assetPath: string }>;
+    loadWatch: Record<string, { resolvedAtMs: number; status: string }>;
+  }>;
+}
+
+/**
+ * #245 — decorate gltf-sourced mounted equipment with load status + timing from
+ * window.__openClinXrSceneAssetEvidence and the injected load watch. Matching is
+ * by assetPath suffix (the glb filename from REAL_EQUIPMENT_GLTF_BY_ID), so it is
+ * robust to bundle model assetIds that differ from the equipment id.
+ */
+function decorateGltfLoadTiming(live: {
+  sampleNowMs: number;
+  assetStates: Array<{ assetId: string; status: string; fallbackActive: boolean; assetPath: string }>;
+  loadWatch: Record<string, { resolvedAtMs: number; status: string }>;
+  mounted: MountedEquipment[];
+}): void {
+  for (const m of live.mounted) {
+    if (m.source !== "gltf") continue;
+    const fileName = REAL_EQUIPMENT_GLTF_BY_ID[m.equipmentId];
+    const state = fileName
+      ? live.assetStates.find((s) => s.assetPath.toLowerCase().includes(fileName.toLowerCase()))
+      : undefined;
+    m.assetStatusAtSample = (
+      state?.status === "pending" || state?.status === "loaded" || state?.status === "failed"
+        ? state.status
+        : "unknown"
+    );
+    m.fallbackActiveAtSample = state ? Boolean(state.fallbackActive) : undefined;
+    if (!state) continue;
+    const resolved = live.loadWatch[state.assetId];
+    if (state.status === "loaded" || state.status === "failed") {
+      m.sampledAtMsRelativeToLoad = resolved
+        ? Math.round(live.sampleNowMs - resolved.resolvedAtMs)
+        : 0;
+    } else {
+      // Still pending at the sample instant: sampled BEFORE load completion.
+      m.sampledAtMsRelativeToLoad = null;
+    }
+  }
 }
 
 // CLI: write pre-fix or remeasure
