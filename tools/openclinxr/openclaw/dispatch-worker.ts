@@ -52,6 +52,69 @@ const REQUIRED_ENV = { OPENCLINXR_WORKER: "1", GROK_SUBAGENTS: "1" } as const;
  */
 const FORBIDDEN_ENV = ["RUST_LOG", "GROK_DEBUG_FILE"] as const;
 
+/**
+ * ISSUE #242 (2026-08-09, measured not inferred): deepseek-* models are TEXT-ONLY. Every model id
+ * the grok CLI exposes that starts with `deepseek` (flash, pro, pro-anthropic, deepseek,
+ * pro-chat — all five probed against api.deepseek.com, plus via-moon which is a deepseek-backed
+ * bridge) rejects any `messages[].content` array containing an `image_url` block with a hard
+ * serde 400: "unknown variant `image_url`, expected `text`". The `Read` tool SUCCEEDS in loading
+ * a PNG into the transcript as an image_url block, and the NEXT API call — the turn after the
+ * read — is rejected wholesale: exit 1, no sessionId, no work, tokens already paid. Measured:
+ * 113,449 input tokens burned for zero turns of work.
+ *
+ * The fence (chosen option, recorded): DENY the Read tool on image/video extensions for
+ * text-only models, mechanically, in the dispatch path. Rejected alternatives:
+ *  - refuse at brief time when proofs mention images — over-broad: a text-only worker CAN produce
+ *    a PNG (captures are scripts); the producer/grader split ("the WORKER produces the artifact,
+ *    the ORCHESTRATOR grades it") is exactly what cheap-tier capture work should be. A proof scan
+ *    also misses the natural "look at what I just produced" read, which is the case that crashed.
+ *  - auto-route such briefs to a vision model — silently changes tiering/cost, and routing
+ *    judgment already lives in the spawn-spec path (requiresMultimodalReasoning -> grok-4-fast).
+ * The deny fires for EVERY text-only dispatch regardless of prompt/proof content, converting the
+ * fatal crash into a survivable "denied by a permission policy" read the worker can report past.
+ */
+const TEXT_ONLY_MODEL_PREFIXES = ["deepseek"] as const;
+
+/** Raster + video containers the Read tool can embed into the transcript as image_url. */
+const VISION_DENY_EXTENSIONS = [
+  ".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp",
+  ".avif", ".tiff", ".tif", ".ico", ".webm", ".mp4",
+] as const;
+
+/** True when a model id can be assumed text-only (vision would hard-crash the API call). */
+export function isTextOnlyModel(model: string): boolean {
+  const normalized = model.trim().toLowerCase();
+  return TEXT_ONLY_MODEL_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+/**
+ * Deny rules that stop a text-only worker from ever embedding an image into its transcript.
+ * One rule per extension: the grok CLI `--deny` grammar is `Tool(glob)` with glob patterns, and
+ * `Read(...)` is a documented rule kind. A leading double-star glob matches both relative and
+ * absolute paths.
+ */
+export function buildTextOnlyVisionDenies(): string[] {
+  return VISION_DENY_EXTENSIONS.map((ext) => `Read(**/*${ext})`);
+}
+
+/**
+ * Prompt block appended to text-only dispatches so a denied Read is understood, not puzzled over.
+ * The deny is the binding mechanism; this is comprehension only (prose does not bind — #242).
+ */
+export function buildTextOnlyVisionPromptAppendix(model: string): string {
+  return [
+    "",
+    "=== TEXT-ONLY MODEL (no vision) ===",
+    `You are running on ${model}, a text-only model. Reading an image or video file is DENIED for you `,
+    "by permission policy — this is enforced, not advisory: the Read tool embeds the file into the",
+    "transcript as an image_url block and the API rejects the whole request with a hard 400, killing",
+    "the dispatch. Do not try to Read images/screenshots/video. If the task requires looking at a",
+    "rendered artifact, say in your report exactly what you need to see and why; the orchestrator",
+    "grades captures.",
+    "=== END TEXT-ONLY MODEL ===",
+  ].join("\n");
+}
+
 /** Where session ids survive the orchestrator process that created them. */
 const LEDGER = ".openclinxr/openclaw/worker-sessions.jsonl";
 
@@ -880,8 +943,27 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     };
   }
 
+  // ISSUE #242: tell the worker it is text-only so a denied image Read is understood rather than
+  // puzzled over. The Read denies appended to argv below are the enforcement; this is worker
+  // comprehension only.
+  if (isTextOnlyModel(effective.model ?? "deepseek-v4-pro")) {
+    effective = {
+      ...effective,
+      prompt: `${effective.prompt}${buildTextOnlyVisionPromptAppendix(effective.model ?? "deepseek-v4-pro")}`,
+    };
+  }
+
   const argv = buildArgv(effective);
   if (worktreePath) argv.push(...buildWorktreeIsolationDenies(repoRoot).flatMap((rule) => ["--deny", rule]));
+  // ISSUE #242: a text-only model reading a PNG embeds an image_url block the API rejects with a
+  // hard 400 on the turn after the read (measured: 113,449 input tokens, exit 1, no sessionId).
+  // Deny the Read tool on image/video extensions mechanically, before spawn, for every text-only
+  // dispatch — regardless of what the prompt or proofs say. Denied reads are survivable; the 400
+  // is not. Must run even when the model is the implicit default (deepseek-v4-pro).
+  const effectiveModel = effective.model ?? "deepseek-v4-pro";
+  if (isTextOnlyModel(effectiveModel)) {
+    argv.push(...buildTextOnlyVisionDenies().flatMap((rule) => ["--deny", rule]));
+  }
   const binary = join(homedir(), ".grok/bin/grok");
   const mainDirtyBefore = worktreePath ? new Set(mainTreeDirtyPaths(repoRoot)) : undefined;
 

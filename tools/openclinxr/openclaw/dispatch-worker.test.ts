@@ -11,7 +11,10 @@ import {
   assertWorktreeContractGate,
   buildArgv,
   buildContractPromptAppendix,
+  buildTextOnlyVisionDenies,
+  buildTextOnlyVisionPromptAppendix,
   dispatch,
+  isTextOnlyModel,
   latestSessionFor,
   parseResult,
   readSessions,
@@ -628,5 +631,121 @@ describe("dispatch with a streaming-json child (issue #241)", () => {
     const lastResult = readFileSync(join(root, ".openclinxr/openclaw/worker-last-result.json"), "utf8");
     expect(lastResult).toContain("019f-dispatch-stream");
     expect(spawnMock).toHaveBeenCalled();
+  });
+});
+
+/**
+ * PLANTED CONTRACTS (#242) — a text-only model that Reads an image hard-crashes the dispatch.
+ *
+ * MEASURED 2026-08-09 (not inferred): dispatched deepseek-v4-flash and asked it to Read an
+ * existing capture PNG. The Read tool SUCCEEDS — it embeds the PNG into the transcript as an
+ * image_url content block — and the NEXT API call is rejected wholesale:
+ *
+ *   API error (status 400 Bad Request): invalid_request_error:
+ *   Failed to deserialize the JSON body into the target type:
+ *   messages[7]: unknown variant `image_url`, expected `text`
+ *
+ * Reproduced in this slice at the dispatch level (113,449 input tokens, exit 1, no sessionId,
+ * zero turns of work) and at the API level for ALL five deepseek ids the grok CLI exposes:
+ * deepseek-v4-flash, deepseek-v4-pro, deepseek-v4-pro-anthropic, deepseek, deepseek-pro-chat —
+ * every one returns the same serde 400. This resolves the issue's "Not determined" for pro.
+ *
+ * FENCE CHOICE (implementer's, recorded): deny the Read tool on image/video extensions for
+ * text-only models, mechanically, in dispatch(). NOT brief-time refusal on image proofs (a
+ * text-only worker can produce a PNG via scripts — that is the sanctioned producer/grader split;
+ * and the crash happens on reads the proofs never mention) and NOT auto-routing to a vision
+ * model (routing judgment lives in the spawn-spec path, grok-repo-agent-spawn.ts
+ * requiresMultimodalReasoning -> grok-4-fast). The deny fires for every text-only dispatch and
+ * converts the fatal 400 into a survivable "denied by a permission policy" read.
+ *
+ * These tests constrain the BEHAVIOUR: classification of text-only ids, one deny per extension,
+ * and the dispatch wiring (denies present for deepseek, absent for vision models).
+ */
+describe("issue #242 — text-only models cannot Read images (the 400 fence)", () => {
+  const textOnlyIds = [
+    "deepseek-v4-flash",
+    "deepseek-v4-pro",
+    "deepseek-v4-pro-anthropic",
+    "deepseek",
+    "deepseek-pro-chat",
+    "deepseek-via-moon",
+  ];
+  const visionIds = ["grok-4.5", "grok-4-multi-agent", "x-grok-3", "x-grok-4", "x-reasoning"];
+
+  it("classifies every deepseek model id the CLI exposes as text-only", () => {
+    for (const model of textOnlyIds) {
+      expect(isTextOnlyModel(model), `${model} must be text-only`).toBe(true);
+    }
+  });
+
+  it("leaves vision-capable models unfenced", () => {
+    for (const model of visionIds) {
+      expect(isTextOnlyModel(model), `${model} must be vision-capable`).toBe(false);
+    }
+  });
+
+  it("builds one Read deny per image/video extension, with the Tool(glob) grammar", () => {
+    const denies = buildTextOnlyVisionDenies();
+    expect(denies).toContain("Read(**/*.png)");
+    expect(denies).toContain("Read(**/*.jpg)");
+    expect(denies).toContain("Read(**/*.webm)");
+    // Every rule is a Read deny over a glob ending in a media extension (digits included: mp4).
+    for (const rule of denies) {
+      expect(rule).toMatch(/^Read\(\*\*\/(?:\*\.)+[a-z0-9]+\)$/);
+    }
+    expect(denies.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it("appends the Read denies to a text-only dispatch's argv before spawn", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-vision-fence-"));
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-fence", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "grade this capture",
+      model: "deepseek-v4-flash",
+      slice: "issue-242-text-only",
+      contract: "none",
+      contractReason: "issue-242 test: a text-only dispatch must carry the Read denies",
+    });
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    expect(argv).toContain("--deny");
+    expect(argv).toContain("Read(**/*.png)");
+    expect(argv).toContain("Read(**/*.webm)");
+  });
+
+  it("does not deny Read for a vision-capable model", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-vision-open-"));
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-open", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "grade this capture",
+      model: "grok-4.5",
+      slice: "issue-242-vision",
+      contract: "none",
+      contractReason: "issue-242 test: a vision-capable dispatch must NOT carry Read denies",
+    });
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    expect(argv.filter((a) => a.startsWith("Read("))).toEqual([]);
+  });
+
+  it("warns the text-only worker in the prompt why image Reads are denied", async () => {
+    const root = mkdtempSync(join(tmpdir(), "dispatch-vision-prompt-"));
+    spawnMock.mockReturnValue(
+      fakeChildWithOutput(JSON.stringify({ text: "done", sessionId: "019f-vision-prompt", num_turns: 1, stopReason: "end_turn" })),
+    );
+    await dispatch(root, {
+      prompt: "grade this capture",
+      model: "deepseek-v4-pro",
+      slice: "issue-242-prompt",
+      contract: "none",
+      contractReason: "issue-242 test: the text-only prompt appendix must reach the worker",
+    });
+    const argv = spawnMock.mock.calls.at(-1)![1] as string[];
+    const prompt = argv[1] as string;
+    expect(prompt).toContain("TEXT-ONLY MODEL");
+    expect(prompt).toContain("deepseek-v4-pro");
+    expect(prompt).toContain("400");
   });
 });
