@@ -760,18 +760,31 @@ export function latestSessionFor(repoRoot: string, slice: string): DispatchLedge
  * Corollary: verify the TREE, never the report field you assume exists.
  *
  * INCIDENT (#241, 2026-08-09): with `streaming: true`, `buildArgv` passes
- * `--output-format streaming-json`, which grok emits as NDJSON of agent-native ACP session-update
- * events — one JSON document per line, with sessionId NESTED at `params.sessionId` — NOT the
- * single JSON document that `--output-format json` produces (top-level `text`/`sessionId`/
- * `num_turns`/`stopReason`). `JSON.parse` of the whole stream throws, parseResult returned {},
- * and dispatch() threw "Dispatch produced no sessionId" AFTER the worker (issue-240) had
- * completed and committed its work (c1ea344e) — before recordSession and before the post-exit
- * proof re-run, so no contract report was written and integrate refused `contract-not-verified`,
- * forcing manual contract-verify-cli recovery. Measured on captured real output: the plain-json
- * shape parses and yields the sessionId; the streaming-json shape yields undefined. Fix: fall
- * back to a per-line NDJSON scan when whole-document parse fails, reading `params.sessionId`,
- * `params.update.stop_reason`, `params.update.usage.numTurns` (camelCase, on the
- * `turn_completed` event), and the concatenated `agent_message_chunk` text.
+ * `--output-format streaming-json`, which grok emits as NDJSON of FLAT ACP events — one JSON
+ * object per line discriminated by a TOP-LEVEL `type` field — NOT the single JSON document that
+ * `--output-format json` produces (top-level `text`/`sessionId`/`num_turns`/`stopReason`).
+ * `JSON.parse` of the whole stream throws, parseResult returned {}, and dispatch() threw
+ * "Dispatch produced no sessionId" AFTER the worker (issue-240) had completed and committed its
+ * work (c1ea344e) — before recordSession and before the post-exit proof re-run, so no contract
+ * report was written and integrate refused `contract-not-verified`, forcing manual
+ * contract-verify-cli recovery.
+ *
+ * First fix 9dd8122c added a fallback reading `params.sessionId`, `params.update.stop_reason`,
+ * `params.update.usage.numTurns` and `params.update.sessionUpdate === "agent_message_chunk"`.
+ * It matched NOTHING: no `params` wrapper exists in this harness's output — the fix returned {}
+ * by a longer route and issue #242 reproduced the same throw from a main containing it.
+ *
+ * MEASURED on captured real output (reproduced with
+ * `grok -p "Reply with exactly: PROBE" --model deepseek-v4-flash --output-format streaming-json
+ * --max-turns 2`; 6,989 bytes, 35 lines; tracked fixture
+ * tools/openclinxr/openclaw/__fixtures__/streaming-json-sample.ndjson):
+ *   - `{"type":"available_commands",...}` — tool list, ignore
+ *   - `{"type":"thought","data":...}`        — reasoning, ignore
+ *   - `{"type":"text","data":"..."}`         — assistant text chunks; concatenate `.data`
+ *   - `{"type":"usage","usage":{...}}`       — token usage, carries NO numTurns
+ *   - `{"type":"end","stopReason":"end_turn","sessionId":"...","num_turns":N,...}` — sessionId,
+ *     stopReason and num_turns are TOP LEVEL on the `end` event.
+ * The fallback reads exactly that measured shape. The plain-json branch above is unchanged.
  */
 export function parseResult(raw: string): { sessionId?: string; turns?: number; stopReason?: string; text?: string } {
   // --output-format json: a single JSON document with top-level fields.
@@ -798,7 +811,7 @@ export function parseResult(raw: string): { sessionId?: string; turns?: number; 
     // Not a single JSON document — fall through to the NDJSON scan.
   }
 
-  // --output-format streaming-json: NDJSON of ACP session-update events.
+  // --output-format streaming-json: NDJSON of FLAT ACP events with a top-level `type` field.
   let sessionId: string | undefined;
   let turns: number | undefined;
   let stopReason: string | undefined;
@@ -811,28 +824,25 @@ export function parseResult(raw: string): { sessionId?: string; turns?: number; 
     } catch {
       continue; // tolerate an unterminated final line from a chunk boundary
     }
-    const params = (event["params"] ?? {}) as Record<string, unknown>;
-    if (typeof params["sessionId"] === "string") {
-      sessionId = params["sessionId"] as string;
-    }
-    const update = (params["update"] ?? {}) as Record<string, unknown>;
-    if (typeof update["stop_reason"] === "string") {
-      stopReason = update["stop_reason"] as string;
-    }
-    // Measured on real streaming-json output: turn count is `usage.numTurns` (camelCase) on the
-    // turn_completed event. Keep the other spellings as defensive fallbacks.
-    const usage = (update["usage"] ?? {}) as Record<string, unknown>;
-    const turnsValue =
-      update["numTurns"] ?? update["num_turns"] ?? usage["numTurns"] ?? usage["num_turns"];
-    if (typeof turnsValue === "number") {
-      turns = turnsValue;
-    }
-    if (update["sessionUpdate"] === "agent_message_chunk") {
-      const content = (update["content"] ?? {}) as Record<string, unknown>;
-      if (typeof content["text"] === "string") {
-        textChunks.push(content["text"] as string);
+    if (event["type"] === "end") {
+      // Measured: sessionId, stopReason and num_turns ride the `end` event at TOP LEVEL.
+      if (typeof event["sessionId"] === "string") {
+        sessionId = event["sessionId"] as string;
+      }
+      if (typeof event["stopReason"] === "string") {
+        stopReason = event["stopReason"] as string;
+      }
+      const turnsValue = event["num_turns"] ?? event["turns"];
+      if (typeof turnsValue === "number") {
+        turns = turnsValue;
+      }
+    } else if (event["type"] === "text") {
+      // Measured: assistant text chunks carry the text in `.data` (concatenated across lines).
+      if (typeof event["data"] === "string") {
+        textChunks.push(event["data"] as string);
       }
     }
+    // `thought`, `available_commands` and `usage` carry nothing dispatch needs.
   }
   return {
     ...(sessionId !== undefined ? { sessionId } : {}),

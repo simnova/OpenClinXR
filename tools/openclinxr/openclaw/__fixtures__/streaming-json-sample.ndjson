@@ -1,0 +1,35 @@
+{"type":"available_commands","tools":["run_terminal_command","read_file","search_replace","list_dir","grep","kill_command_or_subagent","todo_write","get_command_or_subagent_output","spawn_subagent","scheduler_create","scheduler_delete","scheduler_list","monitor","search_tool","use_tool","workflow","enter_plan_mode","exit_plan_mode","ask_user_question","memory_search","memory_get","web_search","web_fetch","lsp","image_gen","image_edit","image_to_video","reference_to_video","write"],"commands":["compact","always-approve","flush","dream","memory","context","hooks-trust","hooks-list","hooks-add","hooks-remove","hooks-untrust","plugins","reload-plugins","session-info","feedback","deep-research","workflow","goal","loop","anny-asset-pipeline","antd","delegated-worker-contract","large-task-orchestration","openclinxr-openclaw","openclinxr-slice","per-job-temp","provider-boundary","regen-score-report","turborepo","worker-scoped-session","antd-design","architecture-explainer","architecture-imagine","check-work","code-review","create-skill","drawio-design","user:help","user:imagine","microsoft-foundry","finetuning","deploy-model","capacity","customize","preset","build-with-ai","create-workflow","design","execute-plan","implement","pr-babysit","resume-claude","resume-codex","resume-cursor","review","skill-design-principles","mongodb-atlas-stream-processing","mongodb-connection","mongodb-mcp-setup","mongodb-natural-language-querying","mongodb-query-optimizer","mongodb-schema-design","mongodb-search-and-ai"]}
+{"type":"available_commands","tools":["run_terminal_command","read_file","search_replace","list_dir","grep","kill_command_or_subagent","todo_write","get_command_or_subagent_output","spawn_subagent","scheduler_create","scheduler_delete","scheduler_list","monitor","search_tool","use_tool","workflow","enter_plan_mode","exit_plan_mode","ask_user_question","memory_search","memory_get","web_search","web_fetch","lsp","image_gen","image_edit","image_to_video","reference_to_video","write"],"commands":["compact","always-approve","flush","dream","memory","context","hooks-trust","hooks-list","hooks-add","hooks-remove","hooks-untrust","plugins","reload-plugins","session-info","feedback","deep-research","workflow","goal","loop","anny-asset-pipeline","antd","delegated-worker-contract","large-task-orchestration","openclinxr-openclaw","openclinxr-slice","per-job-temp","provider-boundary","regen-score-report","turborepo","worker-scoped-session","antd-design","architecture-explainer","architecture-imagine","check-work","code-review","create-skill","drawio-design","user:help","user:imagine","microsoft-foundry","finetuning","deploy-model","capacity","customize","preset","build-with-ai","create-workflow","design","execute-plan","implement","pr-babysit","resume-claude","resume-codex","resume-cursor","review","skill-design-principles","mongodb-atlas-stream-processing","mongodb-connection","mongodb-mcp-setup","mongodb-natural-language-querying","mongodb-query-optimizer","mongodb-schema-design","mongodb-search-and-ai"]}
+{"type":"thought","data":"The"}
+{"type":"thought","data":" user"}
+{"type":"thought","data":" asked"}
+{"type":"thought","data":" me"}
+{"type":"thought","data":" to"}
+{"type":"thought","data":" reply"}
+{"type":"thought","data":" with"}
+{"type":"thought","data":" exactly"}
+{"type":"thought","data":" \""}
+{"type":"thought","data":"PRO"}
+{"type":"thought","data":"BE"}
+{"type":"thought","data":"\"."}
+{"type":"thought","data":" This"}
+{"type":"thought","data":" is"}
+{"type":"thought","data":" a"}
+{"type":"thought","data":" simple"}
+{"type":"thought","data":" probe"}
+{"type":"thought","data":" request"}
+{"type":"thought","data":"."}
+{"type":"thought","data":" I"}
+{"type":"thought","data":" should"}
+{"type":"thought","data":" reply"}
+{"type":"thought","data":" exactly"}
+{"type":"thought","data":" with"}
+{"type":"thought","data":" \""}
+{"type":"thought","data":"PRO"}
+{"type":"thought","data":"BE"}
+{"type":"thought","data":"\"."}
+{"type":"text","data":"PRO"}
+{"type":"text","data":"BE"}
+{"type":"available_commands","tools":["run_terminal_command","read_file","search_replace","list_dir","grep","kill_command_or_subagent","todo_write","get_command_or_subagent_output","spawn_subagent","scheduler_create","scheduler_delete","scheduler_list","monitor","search_tool","use_tool","workflow","enter_plan_mode","exit_plan_mode","ask_user_question","memory_search","memory_get","web_search","web_fetch","lsp","image_gen","image_edit","image_to_video","reference_to_video","write","drawio__open_drawio_xml","drawio__open_drawio_csv","drawio__open_drawio_mermaid","drawio__list_pages","drawio__get_page","drawio__set_page","drawio__search_shapes","mongodb__aggregate-db","mongodb__aggregate","mongodb__collection-indexes","mongodb__collection-schema","mongodb__collection-storage-size","mongodb__connect","mongodb__count","mongodb__create-collection","mongodb__create-index","mongodb__db-stats","mongodb__delete-many","mongodb__disconnect","mongodb__drop-collection","mongodb__drop-database","mongodb__drop-index","mongodb__explain","mongodb__export","mongodb__find","mongodb__insert-many","mongodb__list-collections","mongodb__list-connections","mongodb__list-databases","mongodb__mongodb-logs","mongodb__rename-collection","mongodb__update-many","mongodb__list-knowledge-sources","mongodb__search-knowledge"],"commands":["compact","always-approve","flush","dream","memory","context","hooks-trust","hooks-list","hooks-add","hooks-remove","hooks-untrust","plugins","reload-plugins","session-info","feedback","deep-research","workflow","goal","loop","anny-asset-pipeline","antd","delegated-worker-contract","large-task-orchestration","openclinxr-openclaw","openclinxr-slice","per-job-temp","provider-boundary","regen-score-report","turborepo","worker-scoped-session","antd-design","architecture-explainer","architecture-imagine","check-work","code-review","create-skill","drawio-design","user:help","user:imagine","microsoft-foundry","finetuning","deploy-model","capacity","customize","preset","build-with-ai","create-workflow","design","execute-plan","implement","pr-babysit","resume-claude","resume-codex","resume-cursor","review","skill-design-principles","mongodb-atlas-stream-processing","mongodb-connection","mongodb-mcp-setup","mongodb-natural-language-querying","mongodb-query-optimizer","mongodb-schema-design","mongodb-search-and-ai"]}
+{"type":"usage","usage":{"input_tokens":112052,"output_tokens":31,"cache_read_input_tokens":768,"cache_creation_input_tokens":0,"reasoning_tokens":28}}
+{"type":"end","stopReason":"end_turn","sessionId":"019fe52f-194d-7dd1-8c3f-a041742bc4ed","requestId":"9482ef9f-6bef-4732-82ae-5e81d11583aa","usage":{"input_tokens":112052,"cache_read_input_tokens":768,"cache_creation_input_tokens":0,"output_tokens":31,"reasoning_tokens":28,"total_tokens":112851},"num_turns":1,"modelUsage":{"deepseek-v4-flash":{"inputTokens":112052,"outputTokens":31,"cacheReadInputTokens":768,"cacheCreationInputTokens":0,"modelCalls":1}}}

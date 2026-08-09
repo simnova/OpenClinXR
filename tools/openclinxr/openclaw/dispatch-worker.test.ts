@@ -573,14 +573,37 @@ describe("parseResult — plain json vs streaming-json NDJSON (issue #241)", () 
     expect(r.text).toBe("the final answer");
   });
 
-  it("extracts sessionId from NDJSON streaming-json events, where it is nested under params", () => {
-    // Shape measured from issue-240's session updates.jsonl: one ACP session-update event per
-    // line, sessionId at params.sessionId, stop_reason + numTurns on the turn_completed event.
+  it("extracts sessionId from the REAL captured streaming-json fixture (tracked, not hand-authored)", () => {
+    // The done_when requires the fixture to be a real captured stream committed to a tracked
+    // path — a hand-authored fixture would encode whatever shape was assumed and pass against
+    // itself, which is exactly how the first fix (9dd8122c, params.sessionId) fooled its own
+    // tests. This fixture is the byte-for-byte stdout of
+    //   grok -p "Reply with exactly: PROBE" --model deepseek-v4-flash \
+    //        --output-format streaming-json --max-turns 2
+    // (6,989 bytes, 35 lines; events discriminated by TOP-LEVEL `type`; sessionId /
+    // stopReason / num_turns ride the `end` event at top level — there is NO `params` wrapper).
+    const fixture = readFileSync(
+      new URL("./__fixtures__/streaming-json-sample.ndjson", import.meta.url),
+      "utf8",
+    );
+    const r = parseResult(fixture);
+    expect(r.sessionId).toBe("019fe52f-194d-7dd1-8c3f-a041742bc4ed");
+    expect(r.turns).toBe(1);
+    expect(r.stopReason).toBe("end_turn");
+    expect(r.text).toBe("PROBE");
+  });
+
+  it("extracts sessionId from NDJSON streaming-json events, where it rides the end event at top level", () => {
+    // Shape measured on real streaming-json output (see the fixture above): flat ACP events
+    // with a top-level `type`, sessionId/stopReason/num_turns on `end`, text in `data` of
+    // `text` events. This hand-built stream mirrors that shape for unit-level edge cases.
     const ndjson = [
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "user_message_chunk" } } }),
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "part one" } } } }),
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "part two" } } } }),
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn", usage: { numTurns: 34 } } } }),
+      JSON.stringify({ type: "available_commands", tools: ["read_file"] }),
+      JSON.stringify({ type: "thought", data: "thinking" }),
+      JSON.stringify({ type: "text", data: "part one" }),
+      JSON.stringify({ type: "text", data: "part two" }),
+      JSON.stringify({ type: "usage", usage: { input_tokens: 10 } }),
+      JSON.stringify({ type: "end", stopReason: "end_turn", sessionId: "019f-stream-0002", num_turns: 34 }),
     ].join("\n");
     const r = parseResult(ndjson);
     expect(r.sessionId).toBe("019f-stream-0002");
@@ -591,11 +614,12 @@ describe("parseResult — plain json vs streaming-json NDJSON (issue #241)", () 
 
   it("tolerates an unterminated final line from a chunk boundary", () => {
     const ndjson = [
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0003", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn" } } }),
-      '{"method":"session/update","params":{"sessionId":"019f-stream-0003","update":{',
+      JSON.stringify({ type: "end", stopReason: "end_turn", sessionId: "019f-stream-0003", num_turns: 4 }),
+      '{"type":"end","stopReason":"end_turn","sessionId":"019f-stream-0003",',
     ].join("\n");
     const r = parseResult(ndjson);
     expect(r.sessionId).toBe("019f-stream-0003");
+    expect(r.turns).toBe(4);
   });
 
   it("still collapses to {} on garbage output, preserving the fail-closed dispatch throw", () => {
@@ -609,10 +633,12 @@ describe("dispatch with a streaming-json child (issue #241)", () => {
     // Pre-fix this threw "Dispatch produced no sessionId" after the worker had finished: the
     // parse collapsed to {} and recordSession / the post-exit proof re-run were skipped.
     const root = mkdtempSync(join(tmpdir(), "dispatch-streaming-"));
+    // Flat ACP event shape measured on real streaming-json output (top-level `type`,
+    // sessionId/stopReason/num_turns on `end`, text in `data` of `text` events).
     const ndjson = [
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "user_message_chunk" } } }),
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "done" } } } }),
-      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn", usage: { numTurns: 3 } } } }),
+      JSON.stringify({ type: "thought", data: "reasoning" }),
+      JSON.stringify({ type: "text", data: "done" }),
+      JSON.stringify({ type: "end", stopReason: "end_turn", sessionId: "019f-dispatch-stream", num_turns: 3 }),
     ].join("\n");
     spawnMock.mockReturnValue(fakeChildWithOutput(ndjson));
 
