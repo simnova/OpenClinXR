@@ -24,3 +24,24 @@ describe("wall clock TRELLIS equipment wiring (#244)", () => {
     expect(item?.gltfFileName).toBe("wall-clock-analog.glb");
   });
 });
+
+describe("bedside monitor TRELLIS equipment wiring (#253)", () => {
+  it("declares bedside_monitor_equipment in the real equipment GLB library", () => {
+    expect(REAL_EQUIPMENT_GLTF_BY_ID.bedside_monitor_equipment).toBe("bedside-monitor-generated.glb");
+  });
+
+  it("resolves bedside_monitor_equipment with source gltf, not parametric", () => {
+    const plan = planStationEquipmentMounts({
+      scenarioId: "ed_stroke_alert_handoff_v1",
+      equipment: [{ equipmentId: "bedside_monitor_equipment" }],
+      equipmentPlacements: {
+        bedside_monitor_equipment: { position: { x: 0.95, y: 0, z: 0.98 } },
+      },
+    });
+
+    const item = plan.find((row) => row.equipmentId === "bedside_monitor_equipment");
+    expect(item).toBeDefined();
+    expect(item?.source).toBe("gltf");
+    expect(item?.gltfFileName).toBe("bedside-monitor-generated.glb");
+  });
+});
