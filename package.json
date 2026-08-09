@@ -211,6 +211,8 @@
     "factory:physics-config": "tsx tools/openclinxr/factory/generated-physics-config-artifacts.ts",
     "factory:trellis:bake": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts",
     "factory:trellis:bake:validate": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts --validate-latest",
+    "factory:trellis:postopt": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.ts",
+    "factory:trellis:postopt:validate": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.test.ts",
     "asset:character:anny-pipeline": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
     "asset:human-rigging:validate": "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts --validate-latest",
     "asset:human-rigging:variant-matrix": "tsx tools/openclinxr/factory/generated-human-rigging-variant-matrix.ts",
