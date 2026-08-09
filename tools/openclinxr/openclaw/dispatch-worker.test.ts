@@ -1,7 +1,9 @@
-import { appendFileSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { EventEmitter } from "node:events";
+import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { resetCoordinationRootCache } from "./coordination-root.js";
 import {
   assembleDispatchContract,
@@ -9,7 +11,9 @@ import {
   assertWorktreeContractGate,
   buildArgv,
   buildContractPromptAppendix,
+  dispatch,
   latestSessionFor,
+  parseResult,
   readSessions,
   assertProofShape,
   recordSession,
@@ -17,6 +21,33 @@ import {
   WORKTREE_ROOT,
   buildWorktreeIsolationDenies,
 } from "./dispatch-worker.js";
+
+// #241: the dispatch path spawns the grok binary; a streaming-json child emits NDJSON events and
+// must still yield a sessionId. Mock the spawn so no real worker is launched.
+vi.mock("node:child_process", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:child_process")>();
+  return {
+    ...actual,
+    spawn: vi.fn(),
+  };
+});
+
+const spawnMock = vi.mocked(spawn);
+
+/** A fake ChildProcess whose stdout emits the given bytes, then closes 0. */
+function fakeChildWithOutput(output: string, stderr = ""): ReturnType<typeof spawn> {
+  const stdout = new EventEmitter();
+  const stderrBus = new EventEmitter();
+  const child = new EventEmitter() as EventEmitter & { stdout: EventEmitter; stderr: EventEmitter };
+  child.stdout = stdout;
+  child.stderr = stderrBus;
+  setImmediate(() => {
+    stdout.emit("data", Buffer.from(output));
+    stderrBus.emit("data", Buffer.from(stderr));
+    child.emit("close", 0);
+  });
+  return child as unknown as ReturnType<typeof spawn>;
+}
 
 afterEach(() => {
   resetCoordinationRootCache();
@@ -515,5 +546,87 @@ describe("a prepared worktree can actually build (#54)", () => {
     const mod = await load();
     const prepare = mod["prepareWorktreeForWorker"] as Prepare;
     expect(() => prepare(worktreeFixture(true), { run: () => { /* a build that produces nothing */ } })).toThrow(/dist|build/i);
+  });
+});
+
+describe("parseResult — plain json vs streaming-json NDJSON (issue #241)", () => {
+  // Plain `--output-format json` emits ONE JSON document with top-level fields (measured from
+  // .openclinxr/openclaw/worker-last-result.json on the shared coordination root).
+  const plainJson = JSON.stringify({
+    text: "the final answer",
+    stopReason: "end_turn",
+    sessionId: "019f-plain-0001",
+    requestId: "req-1",
+    usage: {},
+    num_turns: 12,
+    modelUsage: {},
+  });
+
+  it("extracts sessionId from plain --output-format json", () => {
+    const r = parseResult(plainJson);
+    expect(r.sessionId).toBe("019f-plain-0001");
+    expect(r.turns).toBe(12);
+    expect(r.stopReason).toBe("end_turn");
+    expect(r.text).toBe("the final answer");
+  });
+
+  it("extracts sessionId from NDJSON streaming-json events, where it is nested under params", () => {
+    // Shape measured from issue-240's session updates.jsonl: one ACP session-update event per
+    // line, sessionId at params.sessionId, stop_reason + numTurns on the turn_completed event.
+    const ndjson = [
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "user_message_chunk" } } }),
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "part one" } } } }),
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "part two" } } } }),
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0002", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn", usage: { numTurns: 34 } } } }),
+    ].join("\n");
+    const r = parseResult(ndjson);
+    expect(r.sessionId).toBe("019f-stream-0002");
+    expect(r.turns).toBe(34);
+    expect(r.stopReason).toBe("end_turn");
+    expect(r.text).toBe("part onepart two");
+  });
+
+  it("tolerates an unterminated final line from a chunk boundary", () => {
+    const ndjson = [
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-stream-0003", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn" } } }),
+      '{"method":"session/update","params":{"sessionId":"019f-stream-0003","update":{',
+    ].join("\n");
+    const r = parseResult(ndjson);
+    expect(r.sessionId).toBe("019f-stream-0003");
+  });
+
+  it("still collapses to {} on garbage output, preserving the fail-closed dispatch throw", () => {
+    expect(parseResult("this is not json at all\n")).toEqual({});
+    expect(parseResult("")).toEqual({});
+  });
+});
+
+describe("dispatch with a streaming-json child (issue #241)", () => {
+  it("yields a sessionId when the child emits NDJSON events, so the contract report still lands", async () => {
+    // Pre-fix this threw "Dispatch produced no sessionId" after the worker had finished: the
+    // parse collapsed to {} and recordSession / the post-exit proof re-run were skipped.
+    const root = mkdtempSync(join(tmpdir(), "dispatch-streaming-"));
+    const ndjson = [
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "user_message_chunk" } } }),
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "agent_message_chunk", content: { type: "text", text: "done" } } } }),
+      JSON.stringify({ method: "session/update", params: { sessionId: "019f-dispatch-stream", update: { sessionUpdate: "turn_completed", stop_reason: "end_turn", usage: { numTurns: 3 } } } }),
+    ].join("\n");
+    spawnMock.mockReturnValue(fakeChildWithOutput(ndjson));
+
+    const entry = await dispatch(root, {
+      prompt: "do the thing",
+      streaming: true,
+      slice: "issue-241-streaming",
+      contract: "none",
+      contractReason: "issue-241 test: a streaming-json child must still yield a sessionId",
+    });
+
+    expect(entry.sessionId).toBe("019f-dispatch-stream");
+    expect(entry.turns).toBe(3);
+    expect(entry.stopReason).toBe("end_turn");
+    // The raw child output is persisted, so the orchestrator can resume the worker by id.
+    const lastResult = readFileSync(join(root, ".openclinxr/openclaw/worker-last-result.json"), "utf8");
+    expect(lastResult).toContain("019f-dispatch-stream");
+    expect(spawnMock).toHaveBeenCalled();
   });
 });
