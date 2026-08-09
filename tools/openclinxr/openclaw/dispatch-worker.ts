@@ -695,19 +695,88 @@ export function latestSessionFor(repoRoot: string, slice: string): DispatchLedge
  * `null` for every dispatch, which read as "the worker produced nothing" — while the worker had in
  * fact done the work and committed it. Three runs were misjudged before the tree was checked.
  * Corollary: verify the TREE, never the report field you assume exists.
+ *
+ * INCIDENT (#241, 2026-08-09): with `streaming: true`, `buildArgv` passes
+ * `--output-format streaming-json`, which grok emits as NDJSON of agent-native ACP session-update
+ * events — one JSON document per line, with sessionId NESTED at `params.sessionId` — NOT the
+ * single JSON document that `--output-format json` produces (top-level `text`/`sessionId`/
+ * `num_turns`/`stopReason`). `JSON.parse` of the whole stream throws, parseResult returned {},
+ * and dispatch() threw "Dispatch produced no sessionId" AFTER the worker (issue-240) had
+ * completed and committed its work (c1ea344e) — before recordSession and before the post-exit
+ * proof re-run, so no contract report was written and integrate refused `contract-not-verified`,
+ * forcing manual contract-verify-cli recovery. Measured on captured real output: the plain-json
+ * shape parses and yields the sessionId; the streaming-json shape yields undefined. Fix: fall
+ * back to a per-line NDJSON scan when whole-document parse fails, reading `params.sessionId`,
+ * `params.update.stop_reason`, `params.update.usage.numTurns` (camelCase, on the
+ * `turn_completed` event), and the concatenated `agent_message_chunk` text.
  */
-function parseResult(raw: string): { sessionId?: string; turns?: number; stopReason?: string; text?: string } {
+export function parseResult(raw: string): { sessionId?: string; turns?: number; stopReason?: string; text?: string } {
+  // --output-format json: a single JSON document with top-level fields.
   try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    return {
-      text: (parsed["text"] ?? parsed["result"]) as string | undefined,
-      sessionId: parsed["sessionId"] as string | undefined,
-      turns: parsed["num_turns"] as number | undefined,
-      stopReason: (parsed["stopReason"] ?? parsed["subtype"]) as string | undefined,
-    };
+    const parsed = JSON.parse(raw) as unknown;
+    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      const obj = parsed as Record<string, unknown>;
+      const hasPlainShape =
+        obj["sessionId"] !== undefined
+        || obj["text"] !== undefined
+        || obj["num_turns"] !== undefined
+        || obj["stopReason"] !== undefined
+        || obj["subtype"] !== undefined;
+      if (hasPlainShape) {
+        return {
+          text: (obj["text"] ?? obj["result"]) as string | undefined,
+          sessionId: obj["sessionId"] as string | undefined,
+          turns: obj["num_turns"] as number | undefined,
+          stopReason: (obj["stopReason"] ?? obj["subtype"]) as string | undefined,
+        };
+      }
+    }
   } catch {
-    return {};
+    // Not a single JSON document — fall through to the NDJSON scan.
   }
+
+  // --output-format streaming-json: NDJSON of ACP session-update events.
+  let sessionId: string | undefined;
+  let turns: number | undefined;
+  let stopReason: string | undefined;
+  const textChunks: string[] = [];
+  for (const line of raw.split("\n")) {
+    if (!line.trim()) continue;
+    let event: Record<string, unknown>;
+    try {
+      event = JSON.parse(line) as Record<string, unknown>;
+    } catch {
+      continue; // tolerate an unterminated final line from a chunk boundary
+    }
+    const params = (event["params"] ?? {}) as Record<string, unknown>;
+    if (typeof params["sessionId"] === "string") {
+      sessionId = params["sessionId"] as string;
+    }
+    const update = (params["update"] ?? {}) as Record<string, unknown>;
+    if (typeof update["stop_reason"] === "string") {
+      stopReason = update["stop_reason"] as string;
+    }
+    // Measured on real streaming-json output: turn count is `usage.numTurns` (camelCase) on the
+    // turn_completed event. Keep the other spellings as defensive fallbacks.
+    const usage = (update["usage"] ?? {}) as Record<string, unknown>;
+    const turnsValue =
+      update["numTurns"] ?? update["num_turns"] ?? usage["numTurns"] ?? usage["num_turns"];
+    if (typeof turnsValue === "number") {
+      turns = turnsValue;
+    }
+    if (update["sessionUpdate"] === "agent_message_chunk") {
+      const content = (update["content"] ?? {}) as Record<string, unknown>;
+      if (typeof content["text"] === "string") {
+        textChunks.push(content["text"] as string);
+      }
+    }
+  }
+  return {
+    ...(sessionId !== undefined ? { sessionId } : {}),
+    ...(turns !== undefined ? { turns } : {}),
+    ...(stopReason !== undefined ? { stopReason } : {}),
+    ...(textChunks.length > 0 ? { text: textChunks.join("") } : {}),
+  };
 }
 
 /** Re-evaluate tree proofs against the worktree using the trusted baselineDir. */
