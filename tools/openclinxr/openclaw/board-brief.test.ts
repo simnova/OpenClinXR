@@ -11,7 +11,8 @@ import { briefFromIssue } from "./board-brief.js";
  * board is not dispatchable, and saying so is the correct output.
  */
 
-const withProofs = `Fix the deferred strictness deltas.
+const withProofs = `## factory_step: body_param
+Fix the deferred strictness deltas.
 
 ## done_when
 - run:pnpm packages:typecheck:agent
@@ -28,7 +29,7 @@ describe("briefFromIssue", () => {
   it("refuses an issue whose done_when has only narrative rules", () => {
     // Narrative rules read the worker's own handoff — its account of itself.
     const result = briefFromIssue({
-      number: 1, title: "x", body: "## done_when\n- skeptic:visible\n",
+      number: 1, title: "x", body: "## factory_step: room_generate\n## done_when\n- skeptic:visible\n",
     });
     expect(result.dispatchable).toBe(false);
     expect(result.reason).toMatch(/tree/i);
@@ -36,7 +37,7 @@ describe("briefFromIssue", () => {
 
   it("refuses a done_when rule the evaluator cannot run", () => {
     const result = briefFromIssue({
-      number: 1, title: "x", body: "## done_when\n- prove it works\n",
+      number: 1, title: "x", body: "## factory_step: lip_sync\n## done_when\n- prove it works\n",
     });
     expect(result.dispatchable).toBe(false);
   });
@@ -66,6 +67,7 @@ describe("done_when extraction stops at the bullet list", () => {
   // that rejects correct input teaches people to write for the parser instead of for the reader.
   it("ignores prose that follows the bullets without a new heading", () => {
     const body = [
+      "## factory_step: equipment_generate",
       "## done_when",
       "",
       "- run:pnpm architecture",
@@ -79,8 +81,58 @@ describe("done_when extraction stops at the bullet list", () => {
   });
 
   it("still stops at a following heading", () => {
-    const body = "## done_when\n- run:true\n\n## notes\n- not a proof\n";
+    const body = "## factory_step: motion_retarget\n## done_when\n- run:true\n\n## notes\n- not a proof\n";
     const result = briefFromIssue({ number: 1, title: "x", body });
+    expect(result.dispatchable).toBe(true);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+  });
+});
+
+describe("factory_step gate (D9 dark factory)", () => {
+  it("refuses an issue with a done_when block but no factory_step line", () => {
+    const result = briefFromIssue({ number: 1, title: "x", body: "## done_when\n- run:true\n" });
+    expect(result.dispatchable).toBe(false);
+    expect(result.reason).toMatch(/factory_step/i);
+  });
+
+  it("refuses a factory_step value that is not a known station", () => {
+    const result = briefFromIssue({
+      number: 1, title: "x", body: "## factory_step: magic\n## done_when\n- run:true\n",
+    });
+    expect(result.dispatchable).toBe(false);
+    expect(result.reason).toMatch(/factory_step/i);
+  });
+
+  it("refuses factory_step: instrument with no unblocks line", () => {
+    const result = briefFromIssue({
+      number: 1, title: "x", body: "## factory_step: instrument\n## done_when\n- run:true\n",
+    });
+    expect(result.dispatchable).toBe(false);
+    expect(result.reason).toMatch(/unblocks/i);
+  });
+
+  it("refuses factory_step: instrument that unblocks instrument", () => {
+    const result = briefFromIssue({
+      number: 1, title: "x",
+      body: "## factory_step: instrument\nunblocks: instrument\n## done_when\n- run:true\n",
+    });
+    expect(result.dispatchable).toBe(false);
+    expect(result.reason).toMatch(/unblocks/i);
+  });
+
+  it("dispatches a valid factory_step with tree proofs", () => {
+    const result = briefFromIssue({
+      number: 1, title: "x", body: "## factory_step: room_generate\n## done_when\n- run:true\n",
+    });
+    expect(result.dispatchable).toBe(true);
+    if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
+  });
+
+  it("dispatches factory_step: instrument with a valid non-instrument unblocks", () => {
+    const result = briefFromIssue({
+      number: 1, title: "x",
+      body: "## factory_step: instrument\nunblocks: room_generate\n## done_when\n- run:true\n",
+    });
     expect(result.dispatchable).toBe(true);
     if (result.dispatchable) expect(result.proofs).toEqual(["run:true"]);
   });
