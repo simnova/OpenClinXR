@@ -48,12 +48,22 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| **Next queued** | operationalized | **#204** — one door inset for every room, picked from a rendered sweep. Shipped geometry **will** move (up to 1.1 m in the stroke bay); the slice must explicitly reverse #203's preserve-defaults counterweight. |
-| issue-203 wall-anchored fixtures | closed | **landed** L5/25t — door gap constant at every width (was 0.77→1.93) |
-| issue-196 fixture positions + gradeable framing | closed | **landed** L5/29t — positions derive from room plan; iso_exterior chosen from 3 candidates |
-| issue-202 equipment generator completion | closed | **landed** L5/27t — fallback 14→0, all 37 ids accounted |
-| issue-198 clinical support surfaces | closed | **landed** L4/22t — bed, stretcher, rails distinct; GLB path honest |
-| issue-197 garment coefficient product fix | closed | **landed** L4/32t — hem 0.31→0.42 shipped, 4 humanoids rebaked |
+| **issue-231** Comfy-only humanoid texture | **landed** | `texture_baked` — RealVisXL depth, 4 views, ~193s; no UV bake to GLB; 24t. |
+| **issue-232** Grok equipment multi-view packs | **landed** | 3 subjects × 4 views + manifest; TRELLIS inputs only. |
+| **issue-225** Metal TRELLIS backend gate | **landed** | `inconclusive_blocked` — Metal Toolchain missing. |
+| **issue-229** Infinigen trim override | **landed** | `shell_under_ceiling` — 10,984 tris. |
+| **issue-239** deeper TRELLIS post-opt ladder | **landed** | Clock 34.5k soft; monitor 106k / ECG 151k hard-only; 37t. |
+| **issue-238** factory TRELLIS bake CLI | **landed** | `pnpm factory:trellis:bake --subject`; 26t. |
+| **issue-237** TRELLIS Metal per-subject isolation | **landed** | wall-clock + monitor via fresh subprocess; 68t. |
+| **issue-235** TRELLIS multi-case + post-opt | **landed** | ECG postOpt; clock+monitor OOM before isolation. |
+| **issue-210** multi-shell garment contracts | **landed** | Outer shell policy via collectGarmentShells; 31t. |
+| **issue-236** Infinigen extract single room | **landed** | bedroom, 2 walls, 1580 tris. |
+| **issue-233** TRELLIS Metal mesh bake | **landed** | `mesh_exported` Metal; 70t. |
+| **issue-212** footwear foot-vertex | **landed** | Procedural shells attached; 27t. |
+| **issue-220** lower-body cargo pants | **landed** | CC0 MakeClothes lower garment. |
+| **issue-234** Infinigen single-room flag | **landed** | `multi_room_still` — flag alone insufficient. |
+| issue-204 one door inset all rooms | closed | **landed** — uniform inset. |
+| issue-135 empty shell measure | closed | intermediate `reject_measured` — not generator lock-out. |
 
 **Orchestration review #2 verdict (2026-08-08):** stop condition **cleared for real** — five product landings, three at L5, shipping generators moved, *"not a technicality."* Root cause named for three of my errors: **predicate–subject mismatch** — the assertion is well-formed and the thing it is evaluated over is not the defect. Faces: population (#196's RED green while the defect lived), lifecycle (integrate's rebuild measured after the merge, when the range is empty), policy subject (#198 and #202 asserting opposite values of one ledger field). Mechanisms built rather than narrated: `ambient-fail-gate.ts` refuses a dispatch whose planted contract is already green on main, and an ordering test in `integrate.test.ts` fails if the rebuild capture moves back after the merge.
 
