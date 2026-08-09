@@ -4,6 +4,16 @@
  * Reads openclinxr_real_garment* meshes via glTF-Transform NodeIO.
  * claimScope: role→garment topology differs (opening / sleeve class / hem).
  * notEvidenceFor: clinical costume realism, production readiness, MakeClothes bake-off.
+ *
+ * ## FIXED (#210) — multi-shell awareness
+ *
+ * describeGarmentGeometry now collects all garment shells via collectGarmentShells() and
+ * selects the OUTER (non-__under_) shell by policy for role distinguish comparisons.
+ * Pre-#210 it picked the largest shell by vertex array length, which could silently
+ * select an under-layer on a future asset. On the three current dual-layer assets
+ * (street_casual, spouse, anxious_parent) the outer is already the larger shell,
+ * so existing distinguish contracts retain the same shell — but the guarantee is now
+ * intentional rather than accidental.
  */
 
 import { existsSync } from "node:fs";
@@ -19,6 +29,7 @@ export type GarmentFeatures = {
 };
 
 const GARMENT_NAME_RE = /openclinxr_real_garment/i;
+const UNDER_RE = /__under_/i;
 
 /** Structural features that count toward distinguishability (not name/colour alone). */
 const STRUCTURAL_KEYS = ["hasAnteriorOpening", "sleeveLengthClass", "hemHeightRatio"] as const;
@@ -53,8 +64,50 @@ export function garmentsDistinguishable(
 
 type Vec3 = { x: number; y: number; z: number };
 
+type ShellGeom = {
+  meshName: string;
+  positions: ArrayLike<number>;
+  vertexCount: number;
+  isUnder: boolean;
+};
+
 /**
- * Describe the first real-garment mesh in a GLB, or null if none.
+ * Collect all garment shells from a GLB document. Pattern shared with
+ * garment-surface-derived.ts collectGarmentShells (#208).
+ */
+function collectGarmentShells(
+  root: ReturnType<Awaited<ReturnType<NodeIO["read"]>>["getRoot"]>,
+): ShellGeom[] {
+  const shells: ShellGeom[] = [];
+  for (const mesh of root.listMeshes()) {
+    const meshName = mesh.getName() || "";
+    if (!GARMENT_NAME_RE.test(meshName)) continue;
+    if (/declared_upper_layers/i.test(meshName)) continue;
+
+    for (const prim of mesh.listPrimitives()) {
+      const pos = prim.getAttribute("POSITION");
+      const arr = pos?.getArray();
+      if (!arr || arr.length < 9) continue;
+      shells.push({
+        meshName,
+        positions: arr,
+        vertexCount: Math.floor(arr.length / 3),
+        isUnder: UNDER_RE.test(meshName),
+      });
+      break;
+    }
+  }
+  return shells;
+}
+
+/**
+ * Describe the outer (non-__under_) garment shell for role distinguishability.
+ * On a dual-layer asset (open outer + closed under) the outer is the visible
+ * silhouette that a viewer sees and compares across roles.
+ *
+ * Selection policy (#210): prefer the largest non-under shell (outer). Fall back
+ * to the largest any shell if no outer exists (single-layer or under-only asset).
+ * This replaces the pre-#210 largest-vertex-count-by-accident selection.
  */
 export async function describeGarmentGeometry(input: {
   glbPath: string;
@@ -69,51 +122,23 @@ export async function describeGarmentGeometry(input: {
   const document = await new NodeIO().read(abs);
   const root = document.getRoot();
 
-  let best: {
-    meshName: string;
-    positions: ArrayLike<number>;
-  } | null = null;
+  // Collect all garment shells, then select the outer (non-under) shell by policy.
+  const shells = collectGarmentShells(root);
+  if (shells.length === 0) return null;
 
-  for (const mesh of root.listMeshes()) {
-    const meshName = mesh.getName() || "";
-    if (!GARMENT_NAME_RE.test(meshName)) continue;
-    for (const prim of mesh.listPrimitives()) {
-      const pos = prim.getAttribute("POSITION");
-      if (!pos) continue;
-      const arr = pos.getArray();
-      if (!arr || arr.length < 9) continue;
-      // Prefer the largest garment primitive if several exist.
-      if (!best || arr.length > best.positions.length) {
-        best = { meshName, positions: arr };
-      }
-    }
-  }
+  // Prefer the largest non-under shell (outer silhouette). On dual-layer assets
+  // this is the open cardigan, not the closed under-layer that a single-shell
+  // picker might return by accident.
+  const nonUnder = shells.filter((s) => !s.isUnder);
+  const selected =
+    nonUnder.sort((a, b) => b.vertexCount - a.vertexCount)[0] ??
+    shells.sort((a, b) => b.vertexCount - a.vertexCount)[0]!;
 
-  if (!best) {
-    // Fallback: some exporters rename mesh; scan nodes for userData-ish names.
-    for (const node of root.listNodes()) {
-      const n = node.getName() || "";
-      if (!GARMENT_NAME_RE.test(n)) continue;
-      const mesh = node.getMesh();
-      if (!mesh) continue;
-      for (const prim of mesh.listPrimitives()) {
-        const pos = prim.getAttribute("POSITION");
-        const arr = pos?.getArray();
-        if (!arr || arr.length < 9) continue;
-        if (!best || arr.length > best.positions.length) {
-          best = { meshName: mesh.getName() || n, positions: arr };
-        }
-      }
-    }
-  }
-
-  if (!best) return null;
-
-  const verts = positionsToVec3(best.positions);
+  const verts = positionsToVec3(selected.positions);
   const vertexCount = verts.length;
   if (vertexCount < 3) return null;
 
-  const body = collectBodyAabb(root, best.meshName);
+  const body = collectBodyAabb(root, selected.meshName);
   const gMinY = Math.min(...verts.map((v) => v.y));
   const gMaxY = Math.max(...verts.map((v) => v.y));
   const gMinX = Math.min(...verts.map((v) => v.x));
@@ -132,7 +157,7 @@ export async function describeGarmentGeometry(input: {
   const hasAnteriorOpening = detectAnteriorOpening(verts, gCx, gCz, gMinY, gMaxY);
 
   return {
-    meshName: best.meshName,
+    meshName: selected.meshName,
     vertexCount,
     hasAnteriorOpening,
     sleeveLengthClass,

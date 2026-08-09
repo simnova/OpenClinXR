@@ -8,6 +8,11 @@
  *
  * claimScope: role→asset content distinguishability + declared garment geometry presence.
  * notEvidenceFor: clinical costume realism, drape quality, production/quest readiness.
+ *
+ * Multi-shell aware since #96: garmentMeshNames returns ALL real-garment meshes
+ * (both outer and under layers on dual-layer assets). No single-shell migration
+ * needed (#210). realGarmentRegionFaceCount is driven by the rigging report's
+ * declared meshName, not by largest-vertex-count heuristics.
  */
 
 import { createHash } from "node:crypto";
