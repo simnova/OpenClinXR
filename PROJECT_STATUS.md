@@ -48,9 +48,17 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| **issue-250** ladder tried one instrument at four settings | dispatched | Interior strip + weld + per-part on the bedside monitor. Binary: under 60k → consume, no exception; over → MADR rests on a measured floor. |
+| **issue-249** capture renderer has no shadow mapping | dispatched | Grounded figures read as floating in every grade — `castShadow` appears nowhere. Capture path only; a moved `y0` means the product changed, not the instrument. |
+| **issue-247** actors float vs a passing contract | **landed** | **My pixel grade was wrong.** `y0Exact` (stride=1, every vertex) agrees with the contract to 4dp; foot-to-floor gap is 0.5–1.8 px. Contract stays. |
+| **issue-246** trusted brief never refreshes | **landed** | A corrected `done_when` was verified as the superseded one — dispatch evaluated the union (4 rules), merge gate evaluated 2. Now REFUSES on divergence; `refreshTrustedBrief` is the only sanctioned change. |
+| **issue-245** wall clock resolved but did not render | **landed** | 26t → **34,885t** live. A second hardcoded allowlist suppressed it back to a placeholder; allowlist now derived from `REAL_EQUIPMENT_GLTF_BY_ID`. |
+| **issue-244** TRELLIS proven and unconsumed | **landed** | `wall_clock_equipment` resolves to a generated GLB; bytes hash-identical to the graded asset; registry additive (95→97, zero pruning). |
+| **issue-248** site claim went stale | **landed** | "not yet wired to any `environmentId`" was false for the clock; footer + progress card corrected. Pushed, Pages deployed. |
+| **issue-243** publish TRELLIS equipment | **landed** | Three graded assets public; published files verified by sha256 against the graded renders. |
+| **issue-242** DeepSeek worker Reads a PNG → 400 | **landed** | Text-only tier hard-crashed the dispatch at 112k tokens; image Reads now fenced. |
+| **issue-241** dispatch throws `no sessionId` | **landed** | Two attempts. First fix targeted a `params.*` ACP shape this harness never emits; real shape is flat events with `sessionId` top-level on `type:"end"`. Dispatch now self-verifies. |
 | **issue-240** factory_step gate broke its own tests | **landed** | board-brief 7 tests (5 red) → 13 green; dispatch queue unblocked; first anchored pre-fix artifact. |
-| **issue-241** dispatch throws `no sessionId` | queued | Discards its own contract report while the worker's work is complete — manual `contract-verify-cli` recovery. |
-| **issue-242** DeepSeek worker Reads a PNG → 400 | queued | Text-only tier hard-crashes the dispatch; capture-grading briefs unroutable to the cheap tier. |
 | **issue-231** Comfy-only humanoid texture | **landed** | `texture_baked` — RealVisXL depth, 4 views, ~193s; no UV bake to GLB; 24t. |
 | **issue-232** Grok equipment multi-view packs | **landed** | 3 subjects × 4 views + manifest; TRELLIS inputs only. |
 | **issue-225** Metal TRELLIS backend gate | **landed** | `inconclusive_blocked` — Metal Toolchain missing. |
