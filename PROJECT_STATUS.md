@@ -48,6 +48,9 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
+| **issue-240** factory_step gate broke its own tests | **landed** | board-brief 7 tests (5 red) → 13 green; dispatch queue unblocked; first anchored pre-fix artifact. |
+| **issue-241** dispatch throws `no sessionId` | queued | Discards its own contract report while the worker's work is complete — manual `contract-verify-cli` recovery. |
+| **issue-242** DeepSeek worker Reads a PNG → 400 | queued | Text-only tier hard-crashes the dispatch; capture-grading briefs unroutable to the cheap tier. |
 | **issue-231** Comfy-only humanoid texture | **landed** | `texture_baked` — RealVisXL depth, 4 views, ~193s; no UV bake to GLB; 24t. |
 | **issue-232** Grok equipment multi-view packs | **landed** | 3 subjects × 4 views + manifest; TRELLIS inputs only. |
 | **issue-225** Metal TRELLIS backend gate | **landed** | `inconclusive_blocked` — Metal Toolchain missing. |
