@@ -50,6 +50,7 @@ import {
   collectDeclaredEquipmentEvidenceFromScene,
   countEquipmentGeometry,
   planStationEquipmentMounts,
+  REAL_EQUIPMENT_GLTF_BY_ID,
   stampRoomPropAliasesOnEquipmentRoot,
 } from "./station-equipment.js";
 import {
@@ -1269,9 +1270,9 @@ function shouldSuppressGeneratedEnvironmentShell(asset: EncounterRuntimeAsset): 
 }
 
 function shouldSuppressGeneratedEquipmentModel(_assetId: string, assetPath: string): boolean {
-  // Real library medical-equipment GLBs (ECG cart, IV pole) are shared across stations
-  // and must not be treated as scenario-mismatched placeholders (#140 counterweight).
-  if (/\/medical-equipment\/(ecg-cart-12-lead|iv-pole-with-pump)\.glb/iu.test(assetPath)) {
+  // Real library medical-equipment GLBs are shared clinical equipment, never scenario-mismatched placeholders (#140 counterweight; #245 wall clock).
+  if (Object.values(REAL_EQUIPMENT_GLTF_BY_ID).some((fileName) =>
+    assetPath.toLowerCase().includes(`/medical-equipment/${fileName.toLowerCase()}`))) {
     return false;
   }
   return isGeneratedPlaceholderSourceForDifferentScenario(assetPath);

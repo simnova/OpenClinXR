@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { NodeIO } from "@gltf-transform/core";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
 
 /**
  * PLANTED CONTRACTS (#140) — every station's shipped manifest declares the clinical equipment that
@@ -96,6 +100,35 @@ import { describe, expect, it } from "vitest";
 
 const load = async () => import("./declared-equipment-mounted.js") as Promise<Record<string, unknown>>;
 
+const EQUIPMENT_GLB_DIR = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../apps/ui-xr/public/xr-assets/medical-equipment",
+);
+
+/**
+ * Read the shipped GLB files the runtime actually loads and count their source
+ * triangles. The #245 band is derived from these measured files (the control
+ * rows), not from an invented number — ecg-cart-12-lead.glb = 288, iv-pole-with-
+ * pump.glb = 144, wall-clock-analog.glb = 34,507.
+ */
+async function measureSourceGltfTriangleCounts(): Promise<Record<string, number>> {
+  const io = new NodeIO();
+  const out: Record<string, number> = {};
+  for (const [equipmentId, fileName] of Object.entries(REAL_EQUIPMENT_GLTF_BY_ID)) {
+    const doc = await io.read(path.join(EQUIPMENT_GLB_DIR, fileName));
+    let tris = 0;
+    for (const mesh of doc.getRoot().listMeshes()) {
+      for (const prim of mesh.listPrimitives()) {
+        const idx = prim.getIndices();
+        const pos = prim.getAttribute("POSITION");
+        tris += idx ? Math.floor(idx.getCount() / 3) : pos ? Math.floor(pos.getCount() / 3) : 0;
+      }
+    }
+    out[equipmentId] = tris;
+  }
+  return out;
+}
+
 type MountedEquipment = {
   equipmentId: string;
   /** "gltf" when a real GLB loaded, "parametric" when a builder produced geometry, "none" when absent. */
@@ -188,5 +221,33 @@ describe("a station renders the equipment it declares (#140)", () => {
     for (const m of fromGltf) {
       expect(m.triangleCount, `${m.equipmentId} mounted with no geometry`).toBeGreaterThan(50);
     }
+  }, 900_000);
+
+  it("a gltf-sourced equipment mounts within an order of magnitude of its source file's count (#245)", async () => {
+    // #245 — the wall clock resolved as gltf but only the hidden placeholder reached
+    // the scene (26 triangles vs 34,507 in wall-clock-analog.glb). The suppression
+    // gate in main.ts allowlisted only the two original library GLBs, so the promoted
+    // real GLB was treated as a scenario-mismatched placeholder and never attached.
+    // Band: [source/10, source×10], derived from the measured control rows — the two
+    // known-good GLBs mount 666t vs 288t and 522t vs 144t (2.3-3.6×), so an order of
+    // magnitude covers both while still failing a 26-triangle placeholder.
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const sourceTriCount = await measureSourceGltfTriangleCounts();
+    const offenders: string[] = [];
+    for (const s of report.stations) {
+      for (const m of s.mounted) {
+        if (m.source !== "gltf") continue;
+        const sourceCount = sourceTriCount[m.equipmentId];
+        if (sourceCount === undefined) continue;
+        if (m.triangleCount < sourceCount / 10 || m.triangleCount > sourceCount * 10) {
+          offenders.push(`${s.scenarioId}/${m.equipmentId}: mounted ${m.triangleCount}t vs source ${sourceCount}t`);
+        }
+      }
+    }
+    expect(offenders, `gltf equipment outside an order of magnitude of its source geometry:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 });
