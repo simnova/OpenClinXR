@@ -1,0 +1,191 @@
+{
+  "schemaVersion": "openclinxr.trellis-monitor-decimation.v1",
+  "measuredAgainstCommit": "0f12ddeb9eaf3cb60f62dfe887f50f64c2195518",
+  "generatedAt": "2026-08-09T08:51:14.328Z",
+  "subject": "bedside-monitor",
+  "input": {
+    "path": "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-239/bedside-monitor/bedside-monitor-r0.02.glb",
+    "triangleCount": 106025,
+    "vertices": 136548,
+    "interiorSplit": {
+      "method": "z-buffer visibility classification: triangle classified EXTERIOR if it wins at least one pixel from any of N orthographic views on a Fibonacci sphere; INTERIOR otherwise (hidden from all views).",
+      "viewCount": 128,
+      "resolution": 1024,
+      "exteriorTris": 91150,
+      "interiorTris": 14875,
+      "interiorFraction": 0.1403,
+      "sensitivity": {
+        "viewCounts": [
+          48,
+          64,
+          128,
+          256
+        ],
+        "interiorFractions": [
+          0.2152,
+          0.1935,
+          0.1403,
+          0.1019
+        ]
+      }
+    }
+  },
+  "paths": [
+    {
+      "id": "strip_interior",
+      "method": "delete triangles classified interior (z-buffer visibility, 128 views, 1024px); MADR 0050 step 2",
+      "inputTris": 106025,
+      "outputTris": 91150,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/strip-interior.glb",
+      "under60000": false,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 1,
+      "silhouetteIoU": {
+        "x_plus": 1,
+        "y_plus": 1,
+        "z_plus": 1
+      },
+      "exteriorAreaRetained": 1,
+      "notes": [
+        "exterior geometry untouched by construction — only hidden triangles removed"
+      ]
+    },
+    {
+      "id": "strip_weld",
+      "method": "strip interior + position weld (tolerance 0.0005, spatial hash grid, 3×3×3 neighbours; MADR 0050 steps 2–3)",
+      "inputTris": 106025,
+      "outputTris": 90793,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/strip-weld.glb",
+      "under60000": false,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 0.9999,
+      "silhouetteIoU": {
+        "x_plus": 0.9999,
+        "y_plus": 1,
+        "z_plus": 1
+      },
+      "exteriorAreaRetained": 0.9999,
+      "notes": [
+        "weld merges vertex positions within epsilon; degenerate triangles dropped"
+      ]
+    },
+    {
+      "id": "strip_weld_simplify_per_part",
+      "method": "strip + weld + per-component meshopt simplify targeting 60000; ROIs = 529 connected components derived from geometry (single primitive has no mesh names); MADR 0050 steps 2–4",
+      "inputTris": 106025,
+      "outputTris": 60713,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/strip-weld-simplify-per-part.glb",
+      "under60000": false,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 0.9917,
+      "silhouetteIoU": {
+        "x_plus": 0.9917,
+        "y_plus": 1,
+        "z_plus": 0.9988
+      },
+      "exteriorAreaRetained": 0.9981,
+      "notes": [
+        "parts: 529; error scaled by part extent (0.005 large / 0.002 small)"
+      ]
+    },
+    {
+      "id": "global_simplify_retargeted",
+      "method": "meshopt simplify direct target 60,000 tris, error 0.005, NO lockBorder, NO ratio chaining — control showing the #239 ladder flattened on chain targets + lockBorder, not mesh irreducibility",
+      "inputTris": 106025,
+      "outputTris": 60000,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/global-simplify-retargeted.glb",
+      "under60000": true,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 0.9854,
+      "silhouetteIoU": {
+        "x_plus": 0.9854,
+        "y_plus": 1,
+        "z_plus": 0.9978
+      },
+      "exteriorAreaRetained": 0.9992,
+      "notes": [
+        "lockBorder=true stalls this open-shell mesh (67k boundary edges) near 106k; without it the same target reaches ~55k"
+      ]
+    },
+    {
+      "id": "simplify_sloppy",
+      "method": "meshopt simplifySloppy ratio 0.55 (benchmark-only — MADR 0050: sloppy merges nearby geometry and is never for the primary clinical silhouette)",
+      "inputTris": 106025,
+      "outputTris": 57671,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/simplify-sloppy.glb",
+      "under60000": true,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 0.9892,
+      "silhouetteIoU": {
+        "x_plus": 0.9892,
+        "y_plus": 1,
+        "z_plus": 0.9992
+      },
+      "exteriorAreaRetained": 1.0054,
+      "notes": [
+        "sloppy does not respect topology; it may merge a detail into the body — the IoU/area metrics decide whether that happened"
+      ]
+    },
+    {
+      "id": "blender_decimate_0_65",
+      "method": "Blender DECIMATE modifier ratio 0.65 via benchmarks/glb-optimization/blender_decimate_draco.py (benchmark-only — never applied to these assets before)",
+      "inputTris": 106025,
+      "outputTris": 68911,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/blender-decimate-0.65.glb",
+      "under60000": false,
+      "exteriorAltered": false,
+      "minSilhouetteIoU": 0.987,
+      "silhouetteIoU": {
+        "x_plus": 0.987,
+        "y_plus": 1,
+        "z_plus": 0.9979
+      },
+      "exteriorAreaRetained": 1.0031,
+      "notes": [
+        "planar decimation; benchmark context only"
+      ]
+    },
+    {
+      "id": "raw_strip_weld_simplify_per_part",
+      "method": "RAW TRELLIS export (985459 tris): strip interior (53041 tris hidden @1024px) → weld → per-component simplify targeting 60000; the designed MADR 0050 order on the generation output",
+      "inputTris": 985459,
+      "outputTris": 319424,
+      "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-250/.openclinxr/evidence/issue-250/outputs/raw-strip-weld-simplify-per-part.glb",
+      "under60000": false,
+      "exteriorAltered": true,
+      "minSilhouetteIoU": 0.9668,
+      "silhouetteIoU": {
+        "x_plus": 0.9668,
+        "y_plus": 0.9999,
+        "z_plus": 0.9967
+      },
+      "exteriorAreaRetained": 1.1213,
+      "notes": [
+        "raw interior split @1024px: 53041 interior tris; 932418 exterior",
+        "parts: 1006",
+        "metrics for this path measured at 256px on both input and output (the simplify output carries huge overlapping panels; 1024px classification costs ~40 min)"
+      ]
+    }
+  ],
+  "decision": {
+    "anyPathUnder60000WithExteriorPreserved": true,
+    "bestPath": "global_simplify_retargeted",
+    "conclusion": "consume_no_exception",
+    "note": "global_simplify_retargeted reaches 60000 tris (≤60000, the per-asset budget) with min silhouette IoU 0.9854 and exterior area retained 0.9992. global_simplify_retargeted=60000 tris; simplify_sloppy=57671 tris also preserve the exterior. The monitor fits the budget without a budget exception; a later slice consumes it into the equipment library. NOTE: simplify_sloppy is recorded as evidence but not recommended (sloppy is benchmark-only per MADR 0050)."
+  },
+  "softTarget": 60000,
+  "hardCeiling": 180000,
+  "claimScope": [
+    "MADR 0050 steps 2–4 decimation paths (interior strip, position weld, per-part simplify) plus simplifySloppy and Blender DECIMATE on the bedside monitor",
+    "exterior alteration judged by orthographic silhouette IoU (3 fixed views, 1024px) and exterior-classified surface-area retention at 128 views",
+    "triangle counts measured from the exported GLBs (NodeIO recount, not the simplifier's claim)",
+    "budget constants untouched (packages/openclinxr/asset-registry/src/index.ts:588)"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness from triangle counts alone",
+    "clinical accuracy or device equivalence claims",
+    "visual quality — the orchestrator grades any renders",
+    "production adoption — consumption is a separate later slice",
+    "exam equivalence or clinical validity"
+  ]
+}

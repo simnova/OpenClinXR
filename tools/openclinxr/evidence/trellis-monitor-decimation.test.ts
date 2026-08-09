@@ -15,6 +15,15 @@ import { existsSync, readFileSync } from "node:fs";
  * is a successful outcome per the issue. See decimation-report.json on disk.
  *
  * Header IMMUTABLE — append `## FIXED (#250)` below rather than rewriting it.
+ *
+ * ## FIXED (#252) — gitignored-evidence dependency (#217 class)
+ * The two artifacts this test reads (.openclinxr/evidence/issue-250/pre-fix.json and
+ * decimation-report.json) are now TRACKED (git add -f, 2026-08-09). .gitignore:9 still
+ * ignores .openclinxr/, so the tracking is explicit and the files survive on a clean
+ * clone; the assertions above are unchanged and honest. The ~300 MB outputs/*.glb stay
+ * untracked by design — this test never reads them (only the outputPath strings inside
+ * the report). If a future cleanup prunes these two records, the test will red on a
+ * clean checkout by construction, which is the correct failure mode (#217).
  */
 
 const PRE_FIX_PATH = ".openclinxr/evidence/issue-250/pre-fix.json";
