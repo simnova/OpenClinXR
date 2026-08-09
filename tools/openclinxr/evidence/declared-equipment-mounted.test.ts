@@ -238,13 +238,10 @@ describe("a station renders the equipment it declares (#140)", () => {
     // Band: [source/10, source×10], derived from the measured control rows — the two
     // known-good GLBs mount 666t vs 288t and 522t vs 144t (2.3-3.6×), so an order of
     // magnitude covers both while still failing a 26-triangle placeholder.
-    // Reading: use the post-load re-sample when the probe recorded one. The probe
-    // deliberately samples BEFORE load completion and then, for assets still pending,
-    // waits for resolution and re-samples into triangleCountAfterLoad — its documented
-    // §10m distinction. A count that grows to source magnitude after the wait is a
-    // sampling-instant reading (this slice: the 8.4 MB monitor is still pending when
-    // the wall clock has already settled), NOT a suppressed placeholder; a suppressed
-    // or failed GLB stays at the placeholder count in BOTH readings.
+    // Reading: m.triangleCount is the SETTLED mounted state — the probe now waits for
+    // every medical-equipment asset to reach loaded/failed before its first sample
+    // (#253; before that fix the 8.4 MB monitor was still pending at the sample
+    // instant and read as the #245 signature 3m/26t even though the GLB attached).
     const mod = await load();
     const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -257,24 +254,24 @@ describe("a station renders the equipment it declares (#140)", () => {
         if (m.source !== "gltf") continue;
         const sourceCount = sourceTriCount[m.equipmentId];
         if (sourceCount === undefined) continue;
-        const mountedCount = m.triangleCountAfterLoad ?? m.triangleCount;
-        if (mountedCount < sourceCount / 10 || mountedCount > sourceCount * 10) {
-          offenders.push(`${s.scenarioId}/${m.equipmentId}: mounted ${mountedCount}t vs source ${sourceCount}t`);
+        if (m.triangleCount < sourceCount / 10 || m.triangleCount > sourceCount * 10) {
+          offenders.push(`${s.scenarioId}/${m.equipmentId}: mounted ${m.triangleCount}t vs source ${sourceCount}t`);
         }
       }
     }
     expect(offenders, `gltf equipment outside an order of magnitude of its source geometry:\n${offenders.join("\n")}`).toHaveLength(0);
   }, 900_000);
 
-  it("bedside_monitor_equipment mounts with source gltf at ~60k triangles (#253)", async () => {
+  it("bedside_monitor_equipment mounts with source gltf at ~60k triangles in EVERY declaring station (#253)", async () => {
     // #253 — the bedside monitor (60,000 source tris) follows the #244 wall-clock wiring.
     // Source alone is what let #245 through: resolution flipped to gltf while only the
     // 26-triangle placeholder reached the scene. The count is the proof that matters.
     // Band: [6000, 600000] — an order of magnitude of the 60,000-triangle promoted GLB,
     // so a suppressed 2-mesh placeholder (24 tris) fails while the loaded GLB passes.
-    // Reading: triangleCountAfterLoad ?? triangleCount, same §10m rationale as #245 — the
-    // 8.4 MB monitor may still be pending at the probe's first sample (measured: stroke
-    // station samples at 26t pending, then re-samples at 60,378t once the loader resolves).
+    // The assertion covers EVERY station that declares bedside_monitor_equipment
+    // (enumerated from the shipped manifests, not a hardcoded list). ed_stroke_alert_handoff_v1
+    // and adult_abdominal_pain_v1 both declare it; a station whose GLB never attaches
+    // reports the placeholder (3m/26t) as its settled state and FAILS this assertion.
     const mod = await load();
     const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -293,9 +290,8 @@ describe("a station renders the equipment it declares (#140)", () => {
       if (m.source !== "gltf") {
         failures.push(`${s.scenarioId}: source=${m.source}, expected gltf`);
       }
-      const mountedCount = m.triangleCountAfterLoad ?? m.triangleCount;
-      if (mountedCount < 6000 || mountedCount > 600000) {
-        failures.push(`${s.scenarioId}: mounted ${mountedCount}t, expected within [6000, 600000] of a 60,000t source GLB`);
+      if (m.triangleCount < 6000 || m.triangleCount > 600000) {
+        failures.push(`${s.scenarioId}: mounted ${m.triangleCount}t, expected within [6000, 600000] of a 60,000t source GLB`);
       }
     }
     expect(failures, `bedside_monitor_equipment not rendering the real GLB:\n${failures.join("\n")}`).toHaveLength(0);

@@ -390,9 +390,27 @@ async function waitForEquipmentOrFrames(page: Page, timeoutMs: number): Promise<
         __openClinXrFrameStats?: { framesObserved?: number };
         __openClinXrDebugScene?: { traverse?: (cb: (o: unknown) => void) => void };
         __openClinXrDeclaredEquipmentMountEvidence?: { items?: unknown[] };
+        __openClinXrSceneAssetEvidence?: {
+          assets?: Array<{ status?: string; assetPath?: string }>;
+        };
       };
       const frames = win.__openClinXrFrameStats?.framesObserved ?? 0;
       if (frames < 6) return false;
+      // #253 — a medical-equipment GLB that is still "pending" at the first sample reads as
+      // the #245 placeholder signature (3m/26t) even though the GLB attaches a beat later
+      // (measured: the 8.4 MB bedside monitor resolves after the wall clock in ed_stroke).
+      // Sample only after every recorded medical-equipment asset reached loaded/failed, so
+      // the reported mounted state is the SETTLED state, not a pre-load race. Equipment
+      // assets are recorded synchronously at mount time (before first frames), so an empty
+      // equipment list after frames means the station mounts no real equipment GLB.
+      const ev = win.__openClinXrSceneAssetEvidence;
+      if (ev && Array.isArray(ev.assets)) {
+        const equipmentAssets = ev.assets.filter((a) =>
+          typeof a.assetPath === "string" && a.assetPath.includes("/xr-assets/medical-equipment/"));
+        if (equipmentAssets.length > 0) {
+          return equipmentAssets.every((a) => a.status === "loaded" || a.status === "failed");
+        }
+      }
       if (win.__openClinXrDeclaredEquipmentMountEvidence?.items) return true;
       const scene = win.__openClinXrDebugScene;
       if (!scene?.traverse) return false;
