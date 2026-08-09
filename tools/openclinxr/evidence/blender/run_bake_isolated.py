@@ -12,16 +12,88 @@ Usage:
       --output-dir /path/to/evidence/issue-237/wall-clock \
       --weights-path ~/ComfyUI/models/trellis2 \
       --dinov3-path ~/ComfyUI/models/dinov3
+
+Multi-view (#255): pass repeated --input-image (e.g. front + side + two three-quarters).
+  Each image is preprocessed and embedded; the N view embeddings are concatenated into
+  ONE cross-attention sequence (1, N*L, C) — mirroring the training-time
+  MultiImageConditionedMixin.encode_images — so the pipeline conditions on all views.
+  Views are unposed; no camera poses are passed.
 """
-import argparse, json, os, sys, time, traceback
+import argparse, json, os, sys, time, traceback, zlib
+
+
+def run_multiview(pipeline, images, num_samples, seed, preprocess_image=True,
+                  pipeline_type=None, max_num_tokens=49152):
+    """Mirror Trellis2ImageTo3DPipeline.run() but condition on N images.
+
+    The vendored run() wraps ONE image in a list and passes it to get_cond
+    (`self.get_cond([image], 512)`), which batch-stacks into (1, L, C). For N views
+    that would produce a batch of N, which the flow-model cross-attention cannot
+    consume with num_samples=1 (batch mismatch — see issue-255 pre-fix probe). The
+    training-time MultiImageConditionedMixin.encode_images instead FLATTENS the N
+    view embeddings along the sequence dim into (1, N*L, C). We mirror that here;
+    run() itself is not edited (vendored tree).
+    """
+    import torch
+
+    pipeline_type = pipeline_type or pipeline.default_pipeline_type
+    if preprocess_image:
+        images = [pipeline.preprocess_image(img) for img in images]
+    torch.manual_seed(seed)
+    cond_512 = pipeline.get_cond(images, 512)
+    cond_1024 = pipeline.get_cond(images, 1024) if pipeline_type != '512' else None
+    for c in (cond_512, cond_1024):
+        if c is None:
+            continue
+        c['cond'] = c['cond'].reshape(1, -1, c['cond'].shape[-1]).contiguous()
+        c['neg_cond'] = c['neg_cond'].reshape(1, -1, c['neg_cond'].shape[-1]).contiguous()
+
+    ss_res = {'512': 32, '1024': 64, '1024_cascade': 32, '1536_cascade': 32}[pipeline_type]
+    coords = pipeline.sample_sparse_structure(cond_512, ss_res, num_samples)
+
+    if pipeline_type == '512':
+        shape_slat = pipeline.sample_shape_slat(
+            cond_512, pipeline.models['shape_slat_flow_model_512'], coords)
+        tex_slat = pipeline.sample_tex_slat(
+            cond_512, pipeline.models['tex_slat_flow_model_512'], shape_slat)
+        res = 512
+    elif pipeline_type == '1024':
+        shape_slat = pipeline.sample_shape_slat(
+            cond_1024, pipeline.models['shape_slat_flow_model_1024'], coords)
+        tex_slat = pipeline.sample_tex_slat(
+            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat)
+        res = 1024
+    elif pipeline_type in ('1024_cascade', '1536_cascade'):
+        res_hi = 1024 if pipeline_type == '1024_cascade' else 1536
+        shape_slat, res = pipeline.sample_shape_slat_cascade(
+            cond_512, cond_1024,
+            pipeline.models['shape_slat_flow_model_512'],
+            pipeline.models['shape_slat_flow_model_1024'],
+            512, res_hi, coords,
+            max_num_tokens=max_num_tokens,
+        )
+        tex_slat = pipeline.sample_tex_slat(
+            cond_1024, pipeline.models['tex_slat_flow_model_1024'], shape_slat)
+    else:
+        raise ValueError(f"Invalid pipeline type: {pipeline_type}")
+
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    elif hasattr(torch, 'mps') and hasattr(torch.mps, 'empty_cache'):
+        torch.mps.empty_cache()
+
+    return pipeline.decode_latent(shape_slat, tex_slat, res)
 
 
 def main():
     parser = argparse.ArgumentParser(description="TRELLIS single-subject isolated bake")
     parser.add_argument("--subject-id", required=True, help="Subject identifier")
     parser.add_argument("--display-name", default=None, help="Human-readable name")
-    parser.add_argument("--input-image", required=True, help="Path to input PNG (front view)")
+    parser.add_argument("--input-image", required=True, action="append",
+                        help="Path to input PNG (repeat for multi-view, e.g. front/side/¾ views)")
     parser.add_argument("--output-dir", required=True, help="Directory for bake-measure.json + GLB export")
+    parser.add_argument("--seed", type=int, default=None,
+                        help="Explicit seed (default: deterministic derivation from subject id)")
     parser.add_argument("--weights-path", default=os.path.expanduser("~/ComfyUI/models/trellis2"))
     parser.add_argument("--dinov3-path", default=os.path.expanduser("~/ComfyUI/models/dinov3"))
     parser.add_argument("--trellis-root",
@@ -30,15 +102,21 @@ def main():
 
     os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
+    # Resolve all paths against the CALLER's cwd BEFORE chdir into the trellis root.
+    subject_id = args.subject_id
+    display_name = args.display_name or subject_id
+    input_paths = [os.path.abspath(p) for p in args.input_image]
+    output_dir = os.path.abspath(args.output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+
     trellis_root = args.trellis_root
     sys.path.insert(0, trellis_root)
     os.chdir(trellis_root)
 
-    subject_id = args.subject_id
-    display_name = args.display_name or subject_id
-    input_path = args.input_image
-    output_dir = os.path.abspath(args.output_dir)
-    os.makedirs(output_dir, exist_ok=True)
+    # Deterministic default seed: crc32 is stable across processes; the previous
+    # `hash(subject_id)` varied with PYTHONHASHSEED, so two fresh bakes never shared
+    # a seed (the same-seed A/B in #255 required fixing this).
+    seed = args.seed if args.seed is not None else 237_000 + zlib.crc32(subject_id.encode("utf-8")) % 1000
 
     t_start = time.time()
 
@@ -53,7 +131,10 @@ def main():
         "exportPath": None,
         "exportBytes": None,
         "texturedPbr": "no",
-        "inputImagePath": input_path,
+        "inputImagePath": input_paths[0],
+        "inputImagePaths": input_paths,
+        "viewCount": len(input_paths),
+        "seed": seed,
         "wallClockS": 0,
         "processIsolation": "fresh_subprocess",
         "claimScope": [
@@ -77,19 +158,21 @@ def main():
             json.dump(result, f, indent=2, default=str)
         print(f"[ISOLATED:{subject_id}] Wrote {out_path}", flush=True)
 
-    # Check input
-    if not os.path.exists(input_path):
-        result["verdict"] = "blocked_build"
-        result["verdictReason"] = f"Input image not found: {input_path}"
-        result["wallClockS"] = time.time() - t_start
-        write_result()
-        return 1
+    # Check inputs
+    for p in input_paths:
+        if not os.path.exists(p):
+            result["verdict"] = "blocked_build"
+            result["verdictReason"] = f"Input image not found: {p}"
+            result["wallClockS"] = time.time() - t_start
+            write_result()
+            return 1
 
-    # Load image
+    # Load images
     from PIL import Image
     try:
-        image = Image.open(input_path).convert("RGB")
-        print(f"[ISOLATED:{subject_id}] Input image: {image.size}", flush=True)
+        images = [Image.open(p).convert("RGB") for p in input_paths]
+        print(f"[ISOLATED:{subject_id}] Input images ({len(images)} views): "
+              f"{[im.size for im in images]}", flush=True)
     except Exception as e:
         result["verdict"] = "blocked_build"
         result["verdictReason"] = f"Failed to open input image: {e}"
@@ -122,17 +205,30 @@ def main():
 
     # Shape generation
     try:
-        print(f"[ISOLATED:{subject_id}] Running image→shape generation...", flush=True)
+        print(f"[ISOLATED:{subject_id}] Running image→shape generation "
+              f"({len(images)} view{'s' if len(images) > 1 else ''}, seed={seed})...", flush=True)
         t_shape = time.time()
-        outputs = pipeline.run(
-            image,
-            num_samples=1,
-            seed=237_000 + hash(subject_id) % 1000,
-            preprocess_image=True,
-        )
+        if len(images) == 1:
+            # Unchanged single-view path — identical to the pre-#255 behavior.
+            outputs = pipeline.run(
+                images[0],
+                num_samples=1,
+                seed=seed,
+                preprocess_image=True,
+            )
+        else:
+            # Multi-view (#255): sequence-concatenated cond, mirroring run() internals.
+            outputs = run_multiview(
+                pipeline,
+                images,
+                num_samples=1,
+                seed=seed,
+                preprocess_image=True,
+            )
         shape_time = time.time() - t_shape
         result["stages"]["shape_generation"] = "runs"
         result["stages"]["shape_generation_time_s"] = round(shape_time, 1)
+        result["stages"]["view_count"] = len(images)
         print(f"[ISOLATED:{subject_id}] Shape generation completed in {shape_time:.1f}s", flush=True)
 
         if not outputs or len(outputs) == 0:
