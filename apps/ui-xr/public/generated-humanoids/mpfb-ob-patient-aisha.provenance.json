@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_promoted_default_cast",
+  "scenarioId": "ob_headache_preeclampsia_triage_v1",
+  "actorId": "patient_aisha_khan_v1",
+  "actorRole": "patient",
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "sourceManifestPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+  "generatorMode": "mpfb2_makehuman_basemesh_materialized_locally_in_blender_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "not_graded",
+  "promotionStatus": "promoted_runtime_cast_not_realism_gate_pass",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Byte-identical promote of the 2026-05-27 MPFB comparator candidate to the tracked runtime cast path; no geometry, material, or rig changes. Candidate sha256 0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d."
+  },
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a runtime cast candidate for evidence only.",
+      "This promotion does NOT claim license approval for commercial/production use."
+    ],
+    "notes": "MPFB rail is first-class per operator direction D11; license review remains an open gate. The prior MPFB2 asset-license posture recorded in PROVENANCE.md applies unchanged."
+  },
+  "derivativeLineage": {
+    "status": "mpfb2_comparator_to_default_cast_promotion",
+    "caseId": "ob_headache_preeclampsia_triage_v1",
+    "actorId": "patient_aisha_khan_v1",
+    "actorRole": "patient",
+    "reuseKey": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1:mpfb2",
+    "baseAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
+    "promotionPath": "byte_identical_promote_from_candidates_to_generated-humanoids",
+    "method": "mpfb2_standard_rig_137_joints_36972_skinned_triangles"
+  },
+  "toolVersion": "openclinxr-mpfb2-promotion-v1",
+  "promptOrCaseParameterHash": "promotion_of_2026-05-27_comparator_candidate_no_regeneration",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "material_class_parity_with_anny_rail"
+  ],
+  "sourceNotes": [
+    "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
+    "Known hazard #222: MPFB and Anny rails render as different material classes in one room (0 textures / no hair mesh vs 1 texture / scalp mesh). Reported, not fixed in this slice.",
+    "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
+    "Byte-identical to the tracked candidates/ comparator (sha256 0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d)."
+  ],
+  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
+  "promotionGates": false,
+  "outputSha256": "0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d",
+  "outputBytes": 5016580,
+  "generatedAt": "2026-08-10T16:25:00.000+00:00",
+  "method": "byte_identical_promote_from_candidates_comparator"
+}

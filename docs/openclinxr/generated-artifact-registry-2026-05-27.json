@@ -4,12 +4,12 @@
   "protectedRule": "Do not delete protected policy, templates, provenance, source records, runtime assets, or current representative evidence through this registry.",
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "counts": {
-    "keep-evidence": 113,
+    "keep-evidence": 118,
     "ignore-local-cache": 2112,
-    "keep-current": 109,
+    "keep-current": 115,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2373
+    "entries": 2375
   },
   "entries": [
     {
@@ -15252,6 +15252,20 @@
       "rationale": "Runtime asset/provenance material; preserve for product and evidence continuity."
     },
     {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#263 first promoted MPFB2 humanoid runtime cast (OB triage patient Aisha Khan); byte-identical promote of the candidates/ comparator."
+    },
+    {
+      "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "#263 MPFB2 lineage provenance sidecar for the promoted OB patient cast; preserve for evidence continuity."
+    },
+    {
       "path": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
       "authority": "keep-current",
       "tracked": true,
@@ -15473,7 +15487,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "#151 body_param factory candidate \u2014 heavy male MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+      "rationale": "#151 body_param factory candidate — heavy male MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.provenance.json",
@@ -15487,7 +15501,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "#151 body_param factory candidate \u2014 lean female MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+      "rationale": "#151 body_param factory candidate — lean female MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.provenance.json",

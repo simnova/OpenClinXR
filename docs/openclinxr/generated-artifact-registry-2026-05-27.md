@@ -12,7 +12,7 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 
 - ignore-local-cache: 2112
 - keep-compatibility-input: 24
-- keep-current: 99
+- keep-current: 115
 - keep-evidence: 113
 - keep-template: 6
 
@@ -2207,6 +2207,8 @@ Do not delete protected policy, templates, provenance, source records, runtime a
 - `apps/ui-xr/dist/xr-assets/medical-equipment/parent_chair_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/medical-equipment/pediatric_stretcher_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/dist/xr-assets/medical-equipment/pulse_oximeter_equipment.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
+- `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb` - keep-current; keep; #263 first promoted MPFB2 humanoid runtime cast (OB triage patient Aisha Khan); byte-identical promote of the candidates/ comparator.
+- `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json` - keep-current; keep; #263 MPFB2 lineage provenance sidecar for the promoted OB patient cast; preserve for evidence continuity.
 - `apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/learner-runtime-bundle.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.
 - `apps/ui-xr/public/xr-assets/generated/clinic_abdominal_pain_interpreter_v1/scene-manifest.v1.json` - keep-current; keep; Runtime asset/provenance material; preserve for product and evidence continuity.

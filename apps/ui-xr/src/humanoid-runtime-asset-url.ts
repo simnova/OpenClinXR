@@ -35,6 +35,8 @@ const ED_SCENARIO_IDS = new Set([
 ]);
 
 const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+/** #263 — OB triage station whose patient is the first promoted MPFB2 cast. */
+const OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID = "ob_headache_preeclampsia_triage_v1";
 
 const ED_ADULT_CAST_GLB = "ed_chest_pain_adult_cast.glb";
 const ED_NURSE_GLB = "ed_chest_pain_nurse_adult.glb";
@@ -51,6 +53,12 @@ const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
  */
 export const LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH =
   "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
+/**
+ * #263 — first promoted MPFB2 cast: OB triage patient.
+ * Mirrors actor-casting MPFB_OB_PATIENT_AISHA_GLB.
+ */
+export const MPFB_OB_PATIENT_AISHA_RUNTIME_PATH =
+  "/generated-humanoids/mpfb-ob-patient-aisha.glb";
 
 const ADULT_POOL_GLBS = [
   ED_ADULT_CAST_GLB,
@@ -125,6 +133,17 @@ const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_maya_johnson_v1: `/generated-humanoids/${PEDS_CHILD_GLB}`,
   parent_tara_johnson_v1: `/generated-humanoids/${PEDS_PARENT_GLB}`,
   nurse_kevin_lee_v1: `/generated-humanoids/${PEDS_NURSE_GLB}`,
+};
+
+/**
+ * Runtime public paths for OB triage cast (#263, mirrors actor-casting table).
+ * patient = first promoted MPFB2 asset; nurse/partner keep the pre-promotion
+ * Anny pool assignments so within-scenario distinctness holds alongside MPFB.
+ */
+const OB_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
+  patient_aisha_khan_v1: MPFB_OB_PATIENT_AISHA_RUNTIME_PATH,
+  ob_nurse_williams_v1: `/generated-humanoids/${ED_NURSE_GLB}`,
+  partner_omar_khan_v1: `/generated-humanoids/${ED_SPOUSE_GLB}`,
 };
 
 function runtimePath(glbFile: string): string {
@@ -339,6 +358,19 @@ export function resolveHumanoidVariantOrCastPath(input: {
     if (role === "family" || role === "family_member" || role === "parent") {
       return PEDS_RUNTIME_CAST_BY_ACTOR.parent_tara_johnson_v1!;
     }
+  }
+
+  // #263: OB triage — patient is the promoted MPFB2 cast; nurse/partner keep pool.
+  if (input.scenarioId === OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID) {
+    const byActor = OB_RUNTIME_CAST_BY_ACTOR[input.actorId];
+    if (byActor) return byActor;
+    const role = input.role.toLowerCase();
+    if (role === "patient") return OB_RUNTIME_CAST_BY_ACTOR.patient_aisha_khan_v1!;
+    if (role === "nurse") return OB_RUNTIME_CAST_BY_ACTOR.ob_nurse_williams_v1!;
+    if (role === "family" || role === "family_member" || role === "spouse" || role === "parent") {
+      return OB_RUNTIME_CAST_BY_ACTOR.partner_omar_khan_v1!;
+    }
+    return OB_RUNTIME_CAST_BY_ACTOR.patient_aisha_khan_v1!;
   }
 
   // #102: all other shipped stations — pool assignment with bank siblings (or explicit).
