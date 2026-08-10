@@ -1,0 +1,71 @@
+{
+  "measurementKind": "geometry comparison \u2014 parametric source vs TRELLIS bake, same instrument (trimesh)",
+  "parametricGlb": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb",
+  "bakeGlb": ".openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb",
+  "constraints": {
+    "bakeIsObjectCenteredAndNormalized": true,
+    "absoluteExtentsNotComparable": true,
+    "comparisonOnDimensionlessShapeMetrics": true,
+    "orchestratorGradesRenders": true
+  },
+  "parametric": {
+    "vertexCount": 164,
+    "triangleCount": 100,
+    "surfaceArea": 0.0763,
+    "aabbExtent": [
+      0.12,
+      0.19,
+      0.085
+    ],
+    "aspectRatio": 1.5833,
+    "slimmestSliceFraction": 0.25,
+    "volume": 0.000727,
+    "convexHullVolume": 0.001199,
+    "volumeRatio": 0.606,
+    "isWatertight": false,
+    "boundaryEdgeCount": 0,
+    "yMin": -0.08,
+    "yMax": 0.11
+  },
+  "bake": {
+    "vertexCount": 770502,
+    "triangleCount": 997732,
+    "surfaceArea": 2.9385,
+    "aabbExtent": [
+      1.0,
+      0.3732,
+      1.0
+    ],
+    "aspectRatio": 0.3732,
+    "slimmestSliceFraction": 0.4618,
+    "volume": 0.017963,
+    "convexHullVolume": 0.135811,
+    "volumeRatio": 0.1323,
+    "isWatertight": false,
+    "boundaryEdgeCount": 0,
+    "yMin": -0.1857,
+    "yMax": 0.1875
+  },
+  "comparison": {
+    "aspectRatio_parametric": 1.5833,
+    "aspectRatio_bake": 0.3732,
+    "slimmestSliceFraction_parametric": 0.25,
+    "slimmestSliceFraction_bake": 0.4618,
+    "volumeRatio_parametric": 0.606,
+    "volumeRatio_bake": 0.1323,
+    "triangleCount_parametric": 100,
+    "triangleCount_bake": 997732,
+    "watertight_parametric": false,
+    "watertight_bake": false
+  },
+  "geometryReading": [
+    "bake lost the tall/thin silhouette (aspect 0.3732 vs parametric 1.5833)",
+    "thin-pole structure BLURRED (slimmest slice 0.4618 vs parametric 0.25; >1.0 = no sustained thin element)"
+  ],
+  "notEvidenceFor": [
+    "mesh quality suitable for exam use",
+    "production adoption into learner runtime",
+    "replacement of parametric equipment builders",
+    "clinical accuracy"
+  ]
+}

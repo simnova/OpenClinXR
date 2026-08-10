@@ -1,0 +1,156 @@
+{
+  "issue": "267",
+  "measurementKind": "upgrade comparison — parametric source vs TRELLIS single-view bake, same instrument (trimesh measure_parametric_vs_bake.py), geometry only",
+  "factoryStep": "equipment_generate",
+  "subject": "oxygen_wall_port_equipment",
+  "measuredAt": "2026-08-10",
+  "openQuestion": "Does TRELLIS UPGRADE a crude parametric asset? The wall O2 port is the recorded-crude subject (reads as a traffic-light icon) and the first wall-mounted equipment subject. Geometry metrics cannot answer the identity question — the orchestrator grades the renders. Numbers reported; NO verdict issued here.",
+  "method": "identical to #265 with ONE variable: the subject (iv_pole_equipment -> oxygen_wall_port_equipment). Same harness path (renderEquipmentReferencePack, subject-only, 5 square views), same bake path (pnpm factory:trellis:bake, fresh subprocess, single view, decimation_target 1M, texture 1024), same measurement script. Nothing else changed.",
+  "constraints": {
+    "singleViewBake": true,
+    "inputSource": "parametric_render_from_buildDeclaredEquipmentGeometry",
+    "subjectOnlyInput": true,
+    "noExternalImageSource": true,
+    "noTriangleCountVerdict": true,
+    "oneSubjectOnly": true,
+    "oneVariable": "the subject — bake settings, view count, harness, model unchanged",
+    "orchestratorGradesRenders": true,
+    "textOnlyWorkerOpenedNoPngOrGlb": true
+  },
+  "parametricSource": {
+    "equipmentId": "oxygen_wall_port_equipment",
+    "builder": "buildHandheldDeviceOnStand(equipmentId, 'o2_port') — wall plate (0.12x0.16x0.03), outlet cylinder, gauge disc. Origin-centered wall mount.",
+    "glbPath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb",
+    "tracked": true,
+    "trackedNote": "force-added — gitignored evidence has no land path (#250)",
+    "geometry": {
+      "meshCount": 3,
+      "vertexCount": 164,
+      "triangleCount": 100,
+      "surfaceArea": 0.0763,
+      "aabbExtent": [0.12, 0.19, 0.085],
+      "aspectRatio": 1.5833,
+      "slimmestSliceFraction": 0.25,
+      "volume": 0.000727,
+      "convexHullVolume": 0.001199,
+      "volumeRatio": 0.606,
+      "isWatertight": false,
+      "yMin": -0.08,
+      "yMax": 0.11
+    }
+  },
+  "pack": {
+    "packDir": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment",
+    "contactSheetPath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/contact-sheet.png",
+    "views": [
+      { "view": "front", "path": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/front.png", "frameCoverage": 0.0536, "groundPlanePresent": false },
+      { "view": "side", "path": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/side.png", "frameCoverage": 0.0255, "groundPlanePresent": false },
+      { "view": "three_quarter_left", "path": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/three_quarter_left.png", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "three_quarter_right", "path": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/three_quarter_right.png", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "back", "path": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/back.png", "frameCoverage": 0.0602, "groundPlanePresent": false }
+    ]
+  },
+  "bake": {
+    "command": "OPENCLINXR_TRELLIS_PACKS=<repo>/.openclinxr/evidence/issue-267/packs OPENCLINXR_TRELLIS_OUT=<repo>/.openclinxr/evidence/issue-267/bake pnpm factory:trellis:bake --subject o2-port",
+    "subjectId": "o2-port",
+    "verdict": "mesh_exported",
+    "verdictReason": "TRELLIS Metal image→shape→mesh→GLB pipeline completed (fresh subprocess). Mesh: 997732 tris, 38730052 bytes. Shape gen: 276.9s, Export: 1012.9s.",
+    "stages": {
+      "pipeline_load": "runs",
+      "pipeline_load_time_s": 3.4,
+      "shape_generation": "runs",
+      "shape_generation_time_s": 276.9,
+      "view_count": 1,
+      "glb_export": "runs",
+      "glb_export_time_s": 1012.9
+    },
+    "rawTriangleCount": 997732,
+    "exportBytes": 38730052,
+    "texturedPbr": "yes",
+    "viewCount": 1,
+    "inputImagePath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/front.png",
+    "inputImageIsSubjectOnly": true,
+    "seed": 237617,
+    "seedNote": "deterministic derivation from subject id (237000 + crc32(subjectId) % 1000) — #265's 237316 was the same derivation for 'iv-pole'; changing the subject changes the derived seed, no bake setting was touched",
+    "wallClockS": 1294.6,
+    "wallClockNote": "slower than #265's 329s; export 1012.9s vs #265 220.4s on a denser output mesh. Wall clock is confounded by concurrent local harness-test/typecheck load during parts of the bake — not a settings change.",
+    "exportPath": ".openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb",
+    "tracked": true,
+    "trackedNote": "force-added — gitignored evidence has no land path (#250)",
+    "backgroundRemoval": "skipped",
+    "backgroundRemovalNote": "BiRefNet is a gated HF repo (unauthenticated 401) — background removal skipped, same as prior bakes. Subject-only flat-background input makes the input a single subject by construction (#265)."
+  },
+  "geometryComparison": {
+    "measurementKind": "geometry comparison — parametric source vs TRELLIS bake, same instrument (trimesh, measure_parametric_vs_bake.py)",
+    "constraints": {
+      "bakeIsObjectCenteredAndNormalized": true,
+      "absoluteExtentsNotComparable": true,
+      "comparisonOnDimensionlessShapeMetrics": true,
+      "orchestratorGradesRenders": true
+    },
+    "parametric": {
+      "vertexCount": 164,
+      "triangleCount": 100,
+      "surfaceArea": 0.0763,
+      "aabbExtent": [0.12, 0.19, 0.085],
+      "aspectRatio": 1.5833,
+      "slimmestSliceFraction": 0.25,
+      "volume": 0.000727,
+      "convexHullVolume": 0.001199,
+      "volumeRatio": 0.606,
+      "isWatertight": false,
+      "yMin": -0.08,
+      "yMax": 0.11
+    },
+    "bake": {
+      "vertexCount": 770502,
+      "triangleCount": 997732,
+      "surfaceArea": 2.9385,
+      "aabbExtent": [1.0, 0.3732, 1.0],
+      "aspectRatio": 0.3732,
+      "slimmestSliceFraction": 0.4618,
+      "volume": 0.017963,
+      "convexHullVolume": 0.135811,
+      "volumeRatio": 0.1323,
+      "isWatertight": false,
+      "yMin": -0.1857,
+      "yMax": 0.1875
+    },
+    "comparison": {
+      "aspectRatio_parametric": 1.5833,
+      "aspectRatio_bake": 0.3732,
+      "slimmestSliceFraction_parametric": 0.25,
+      "slimmestSliceFraction_bake": 0.4618,
+      "volumeRatio_parametric": 0.606,
+      "volumeRatio_bake": 0.1323,
+      "triangleCount_parametric": 100,
+      "triangleCount_bake": 997732,
+      "watertight_parametric": false,
+      "watertight_bake": false
+    },
+    "geometryReading": [
+      "bake lost the tall/thin silhouette (aspect 0.3732 vs parametric 1.5833): the parametric source is a vertical plate (taller than wide); the normalized bake AABB is [1.0, 0.3732, 1.0] — WIDER than tall, a flat slab, not a vertical plate",
+      "thin-pole structure BLURRED (slimmest slice 0.4618 vs parametric 0.25)",
+      "CAVEAT (#265, same instrument): slimmestSliceFraction is saturated by per-TRIANGLE horizontal extent on a fine ~1M-tri mesh; it is not a silhouette measure on the bake side. The whole-mesh AABB aspect is not saturated and is the honest reading: 0.3732 (wide-flat) vs 1.5833 (tall)",
+      "triangle cost ~10,000x the source (997,732 vs 100 tris) — reported as data only, NOT a verdict (MADR 0050 + issue forbid selecting or rejecting by triangle count)"
+    ],
+    "notEvidenceFor": [
+      "mesh quality suitable for exam use",
+      "production adoption into learner runtime",
+      "replacement of parametric equipment builders",
+      "clinical accuracy or device equivalence"
+    ]
+  },
+  "renderNeededForGrading": {
+    "note": "TEXT-ONLY WORKER — I opened no PNG/GLB. The orchestrator grades: (1) the bake GLB .openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb (lit + structure render, e.g. glb-grade-capture) — does it read as an O2 port, or as a traffic-light / flattened slab?; (2) the pack contact sheet .openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/contact-sheet.png (the parametric input, subject-only); (3) the 5 pack views.",
+    "openQuestionForGrade": "traffic-light icon -> O2 port, or traffic-light icon -> flattened blob? The geometry reading (wide-flat normalized AABB) suggests the vertical plate identity was not preserved; the pixel grade decides whether the bake reads as a wall O2 port at all.",
+    "claimScope": "this comparison records geometry and render paths only; the upgrade verdict is the orchestrator's."
+  },
+  "notEvidenceFor": [
+    "replacement of parametric equipment builders",
+    "TRELLIS suitability for other asset classes",
+    "mesh quality suitable for exam use",
+    "Quest readiness",
+    "clinical accuracy or device equivalence"
+  ]
+}

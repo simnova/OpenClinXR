@@ -1,0 +1,42 @@
+{
+  "issue": "267",
+  "measurementKind": "pre-fix before-column — the parametric source geometry for oxygen_wall_port_equipment, recorded BEFORE any TRELLIS bake",
+  "factoryStep": "equipment_generate",
+  "subject": "oxygen_wall_port_equipment",
+  "measuredAt": "2026-08-10",
+  "measuredBeforeAnyBake": true,
+  "source": "apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry -> buildHandheldDeviceOnStand(equipmentId, 'o2_port') (parametric, deterministic, origin-centered wall mount)",
+  "method": "subject-only 5-view reference pack rendered via renderEquipmentReferencePack (one dev-server boot, one browser); the FRONT view exports the rendered root to parametric-source.glb (GLTFExporter). Measured with the SAME instrument the bake comparison uses (trimesh, tools/openclinxr/evidence/blender/measure_parametric_vs_bake.py load path).",
+  "evidence": {
+    "packDir": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment",
+    "parametricSourceGlbPath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb",
+    "views": [
+      { "view": "front", "frameCoverage": 0.0536, "groundPlanePresent": false },
+      { "view": "side", "frameCoverage": 0.0255, "groundPlanePresent": false },
+      { "view": "three_quarter_left", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "three_quarter_right", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "back", "frameCoverage": 0.0602, "groundPlanePresent": false }
+    ],
+    "subjectOnly": true,
+    "groundPlanePresent": false,
+    "parametricSourceGeometry": {
+      "meshCount": 3,
+      "vertexCount": 164,
+      "triangleCount": 100,
+      "surfaceArea": 0.0763,
+      "aabbExtent": [0.12, 0.19, 0.085],
+      "aspectRatio": 1.5833,
+      "yMin": -0.08,
+      "yMax": 0.11
+    }
+  },
+  "context": {
+    "knownMisread": "PROJECT_STATUS residual: the wall O2 port reads as a traffic-light icon — a family-shape misread (three stacked discs on a small plate). This slice tests whether a TRELLIS bake of the subject-only parametric render upgrades the identity.",
+    "contrastWith265": "#265's subject (iv_pole_equipment) is a cylinder + disc + hook that the parametric builder already renders well — little headroom. The wall port is the recorded-crude subject; it also exercises a wall-mounted placement class, the first non-floor-standing equipment subject."
+  },
+  "notEvidenceFor": [
+    "the bake itself",
+    "any mesh-quality claim",
+    "clinical accuracy or device equivalence"
+  ]
+}
