@@ -259,7 +259,15 @@ async function measureLiveDeclaredActors(input: {
           await waitForStationShell(page, 180_000);
           // Soft wait: frames advance even when zero humanoids (#211 empty-room class).
           await waitForFramesOrHumanoids(page, 8, 120_000);
-          await page.waitForTimeout(900);
+          // #259: sampling-instant race. waitForFramesOrHumanoids returns as soon as ONE
+          // skinned mesh exists anywhere in the scene; sibling GLBs (7–8 MB) may still be
+          // loading, so their actor roots report skinnedTriangleCount=0 at the probe's
+          // sample instant. Measured (issue-259 two-column): the same actor reports 0 tris
+          // one run and 34–39k the next, and every asset reaches loaded|failed shortly
+          // after. Wait for the settle signal before sampling; a failed asset counts as
+          // settled, so a genuinely-broken load is still reported, not masked.
+          await waitForSceneAssetsSettled(page, 60_000);
+          await page.waitForTimeout(500);
 
           const live = await readLiveActorPresenceFromPage(page);
           const sid = live.scenarioId || scenarioId;
@@ -370,6 +378,40 @@ async function measureLiveDeclaredActors(input: {
       } catch {
         // ignore
       }
+    }
+  }
+}
+
+/**
+ * #259: wait until every recorded scene asset reaches `loaded` or `failed`
+ * (pendingCount === 0) — the "after all assets report loaded-or-failed" settle
+ * condition from the two-column measurement. Bounded; on timeout we sample
+ * anyway so a stuck/pending asset still surfaces as a 0-triangle actor instead
+ * of hanging the suite. A `failed` asset is settled, so a genuinely-broken load
+ * is reported rather than masked.
+ */
+async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
+  const started = Date.now();
+  try {
+    await page.waitForFunction(
+      () => {
+        const win = window as unknown as {
+          __openClinXrSceneAssetEvidence?: {
+            pendingCount?: number;
+            assets?: unknown[];
+          };
+        };
+        const ev = win.__openClinXrSceneAssetEvidence;
+        if (!ev || !Array.isArray(ev.assets) || ev.assets.length === 0) return false;
+        return (ev.pendingCount ?? 0) === 0;
+      },
+      {},
+      { timeout: Math.min(timeoutMs, 60_000) },
+    );
+  } catch {
+    const remaining = timeoutMs - (Date.now() - started);
+    if (remaining > 0) {
+      await page.waitForTimeout(Math.min(remaining, 30_000));
     }
   }
 }
