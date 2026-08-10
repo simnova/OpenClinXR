@@ -4,7 +4,7 @@ import {
   planStationEquipmentMounts,
   REAL_EQUIPMENT_GLTF_BY_ID,
 } from "./station-equipment.js";
-import { BoxGeometry, Group, Mesh } from "three";
+import { Box3, BoxGeometry, Group, Mesh } from "three";
 
 describe("gltf equipment mount normalization (#258)", () => {
   it("grounds an object-centered GLB on a floor placement (base to floor, content above)", () => {
@@ -58,6 +58,72 @@ describe("gltf equipment mount normalization (#258)", () => {
     floorSlot.add(equipment);
     floorSlot.updateMatrixWorld(true);
     expect(box.matrixWorld.elements[13]).toBeCloseTo(0.4, 5);
+  });
+});
+
+describe("gltf equipment hybrid stand mount (#260)", () => {
+  it("keeps the parametric stand and rests the GLB body on it for a composite floor placement", () => {
+    // #260 — the parametric bedside-monitor composite emits base + pole + body;
+    // the GLB swap substitutes a single body mesh for the WHOLE id, dropping the
+    // pole and leaving the monitor on the floor. The hybrid keeps the parametric
+    // stand (MADR 0050 step 10) and mounts the body's base on the stand top.
+    const slot = new Group();
+    slot.position.set(0.95, 0, 0.98);
+    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+
+    const equipment = new Group();
+    const box = new Mesh(new BoxGeometry(1, 0.8, 1)); // object-centered: local y∈[-0.4, +0.4]
+    equipment.add(box);
+
+    normalizeGltfEquipmentMount(equipment, slot);
+    slot.add(equipment);
+    slot.updateMatrixWorld(true);
+
+    // The parametric stand (base + pole) is added to the slot with its base on the floor.
+    const standGroup = slot.children.find(
+      (child) => child.name === "openclinxr.equipment.bedside_monitor_equipment.stand",
+    );
+    expect(standGroup, "the parametric stand was not added to the mount slot").toBeDefined();
+    const standBounds = new Box3().setFromObject(standGroup!);
+    expect(standBounds.min.y).toBeCloseTo(0, 5); // base on the floor
+    const standTop = standBounds.max.y;
+    expect(standTop).toBeCloseTo(0.975, 3); // pole top (measured pre-fix)
+
+    // The GLB body rests its base on the stand top — NOT on the floor.
+    const bodyWorldMinY = box.matrixWorld.elements[13] - 0.4;
+    expect(bodyWorldMinY).toBeCloseTo(standTop, 3);
+    // The whole mount stays anchored at the floor (the #258 envelope contract
+    // requires the declared placement y=0 to lie inside the mount's world AABB).
+    const mountBounds = new Box3().setFromObject(slot);
+    expect(mountBounds.min.y).toBeCloseTo(0, 5);
+  });
+
+  it("leaves elevated placements origin-centered and ids without a stand grounded", () => {
+    // Elevated placement (wall-clock convention): origin-centered, no stand added.
+    const elevatedSlot = new Group();
+    elevatedSlot.position.set(-2.4, 1.55, -1.15);
+    elevatedSlot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+    const elevatedEquipment = new Group();
+    const elevatedBox = new Mesh(new BoxGeometry(1, 0.8, 1));
+    elevatedEquipment.add(elevatedBox);
+    normalizeGltfEquipmentMount(elevatedEquipment, elevatedSlot);
+    elevatedSlot.add(elevatedEquipment);
+    elevatedSlot.updateMatrixWorld(true);
+    expect(elevatedSlot.children.some((c) => c.name.endsWith(".stand"))).toBe(false);
+    expect(elevatedBox.matrixWorld.elements[13]).toBeCloseTo(1.55, 5);
+
+    // Floor placement of an id WITHOUT a stand (ECG cart): grounding unchanged.
+    const plainSlot = new Group();
+    plainSlot.position.set(0, 0, 0);
+    plainSlot.userData.openClinXrEquipmentId = "ecg_cart_equipment";
+    const plainEquipment = new Group();
+    const plainBox = new Mesh(new BoxGeometry(1, 0.8, 1));
+    plainEquipment.add(plainBox);
+    normalizeGltfEquipmentMount(plainEquipment, plainSlot);
+    plainSlot.add(plainEquipment);
+    plainSlot.updateMatrixWorld(true);
+    expect(plainSlot.children.some((c) => c.name.endsWith(".stand"))).toBe(false);
+    expect(plainBox.matrixWorld.elements[13]).toBeCloseTo(0.4, 5); // grounded, base at floor
   });
 });
 

@@ -3,6 +3,7 @@ import { NodeIO } from "@gltf-transform/core";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
+import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
 
 /**
  * PLANTED CONTRACTS (#140) — every station's shipped manifest declares the clinical equipment that
@@ -122,6 +123,46 @@ import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equip
  * the placement envelope") is the gate that would have caught this class.
  *
  * #258 FIXED 2026-08-10 — new placement-envelope contract added below.
+ */
+
+/* ════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#260) — the vertical envelope, not just the floor plane
+ *
+ * #258 grounded the object-centered bedside-monitor GLB on its floor placement,
+ * which fixed the half-buried case and left the monitor body AT FLOOR LEVEL —
+ * roughly waist height to the standing actors, occluding the nurse's legs. The
+ * parametric composite that GLB replaced emitted base + pole + body: the
+ * descriptor's floor placement (y=0) is base-on-floor, with the WORKING HEIGHT
+ * supplied by the composite's own stand geometry. Substituting a single GLB
+ * mesh for the whole composite silently dropped the stand (measured,
+ * issue-260/pre-fix.json):
+ *
+ *     bedside_monitor_equipment  parametric composite y∈[0, 1.19]  (4 meshes:
+ *                                base, pole, bezel, screen) — content top 1.19 m
+ *                                GLB path world y∈[0, 0.805] (1 mesh) — content
+ *                                top 0.805 m, the pole+base are GONE
+ *     wall_clock_equipment       parametric composite y∈[-0.18, +0.18]
+ *                                (origin-centered, no stand); GLB world
+ *                                y∈[1.085, 2.014] at placement y=1.55 — correct
+ *                                elevated mount, the CONTROL
+ *
+ * Fix: the mount path keeps the parametric STAND for composite ids (MADR 0050
+ * step 10 hybrid — a generated body with a parametric stand) and rests the GLB
+ * body's base on the stand top, so the monitor is at chest height again instead
+ * of the floor. The contract below ("lands within the vertical envelope its
+ * descriptor declares") is the gate that would have caught this class: for a
+ * gltf-sourced mount at a FLOOR placement whose id has a DEDICATED composite
+ * parametric builder, the mount's world AABB max-Y must reach the composite's
+ * content top at that placement, within WORKING_HEIGHT_SAG_M. The wall clock is
+ * elevated and exempt — it must keep passing unchanged.
+ *
+ * WORKING_HEIGHT_SAG_M = 0.25: the composite's content band (the bezel) is
+ * ~0.28 m tall; a body whose top is within 0.25 m of the composite's top still
+ * occupies the working-height band. The pre-fix floor-level body sat 0.385 m
+ * below the composite top — more than a full content band lower. Staging
+ * heuristic, not anatomy; residual named in NOT TESTED.
+ *
+ * #260 FIXED 2026-08-10 — vertical-envelope contract added below.
  */
 
 const load = async () => import("./declared-equipment-mounted.js") as Promise<Record<string, unknown>>;
@@ -388,5 +429,54 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(unmeasured, `gltf mounts with no live world AABB:\n${unmeasured.join("\n")}`).toHaveLength(0);
     expect(buried, `gltf equipment buried below the floor plane:\n${buried.join("\n")}`).toHaveLength(0);
     expect(offEnvelope, `gltf equipment outside its declared placement envelope:\n${offEnvelope.join("\n")}`).toHaveLength(0);
+  }, 900_000);
+
+  it("a gltf-sourced equipment mount lands within the vertical envelope its descriptor declares (#260)", async () => {
+    // #260 — the #258 contract above proves a gltf mount is not buried and sits
+    // within its declared placement's X/Y/Z box, but it is BLIND to the vertical
+    // position of the CONTENT. The bedside-monitor composite this GLB replaced
+    // emitted base + pole + body (local y∈[0, 1.19]): the descriptor's floor
+    // placement (y=0) is base-on-floor, with the working height supplied by the
+    // composite's own stand geometry. Substituting a single GLB mesh for the
+    // whole composite dropped the stand, so the monitor body (world y∈[0, 0.805])
+    // landed at the standing actors' leg height instead of chest height — while
+    // passing every #258 check.
+    //
+    // The vertical envelope a floor placement declares is the composite's
+    // content top at that placement. For a gltf-sourced mount whose id has a
+    // DEDICATED composite parametric builder, the mount's world AABB max-Y must
+    // reach it within WORKING_HEIGHT_SAG_M. The wall clock is the CONTROL: its
+    // placement (y=1.55) is ELEVATED, so it is exempt from this floor rule and
+    // keeps the #258 semantics — it must keep passing here.
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const FLOOR_TOLERANCE_M = 0.05;
+    const WORKING_HEIGHT_SAG_M = 0.25;
+    const sagging: string[] = [];
+    for (const s of report.stations) {
+      for (const m of s.mounted) {
+        if (m.source !== "gltf") continue;
+        if (!m.worldAabbMin || !m.worldAabbMax) continue;
+        const placement = s.declaredPlacements[m.equipmentId];
+        if (!placement) continue;
+        if (Math.abs(placement.y) >= FLOOR_TOLERANCE_M) continue; // elevated → #258 semantics
+        const composite = measureParametricComposite(m.equipmentId);
+        if (composite.source !== "parametric") continue; // fallback-only ids have no composite to preserve
+        if (composite.totalAabbMin.y < -FLOOR_TOLERANCE_M) continue; // origin-centered composite, not base-on-floor
+        const contentTop = placement.y + composite.totalAabbMax.y;
+        if (m.worldAabbMax.y < contentTop - WORKING_HEIGHT_SAG_M) {
+          sagging.push(
+            `${s.scenarioId}/${m.equipmentId}: world max-Y ${m.worldAabbMax.y.toFixed(3)}m below composite content top ${contentTop.toFixed(3)}m (sag ${(contentTop - m.worldAabbMax.y).toFixed(3)}m > ${WORKING_HEIGHT_SAG_M}m)`,
+          );
+        }
+      }
+    }
+    expect(
+      sagging,
+      `gltf floor mounts not reaching the composite's working height (the stand was dropped):\n${sagging.join("\n")}`,
+    ).toHaveLength(0);
   }, 900_000);
 });

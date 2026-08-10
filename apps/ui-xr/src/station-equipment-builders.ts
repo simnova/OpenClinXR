@@ -96,16 +96,56 @@ export function buildWallClockEquipment(equipmentId: string): Group {
   return tagEquipmentRoot(root, equipmentId, "parametric", "own_geometry");
 }
 
+/**
+ * Bedside monitor stand: base + pole (#260).
+ *
+ * Extracted from buildBedsideMonitorEquipment so the parametric STAND survives a
+ * GLB swap: REAL_EQUIPMENT_GLTF_BY_ID substitutes a single body mesh for the
+ * whole composite id, which would silently drop whatever else the builder emits.
+ * The stand is the part that stays parametric; the GLB body mounts onto it
+ * (MADR 0050 step 10 hybrid — a generated body with a parametric stand).
+ *
+ * Mesh names are the composite's original names
+ * (openclinxr.equipment.<id>.base / .pole) so geometry stays byte-identical to
+ * the pre-#260 composite; only the nesting under a `stand` Group changes.
+ */
+export function buildBedsideMonitorStand(equipmentId: string): Group {
+  const root = new Group();
+  root.name = `openclinxr.equipment.${equipmentId}.stand`;
+  const base = new Mesh(new BoxGeometry(0.28, 0.04, 0.22), mat(0x374151, 0.55, 0.2));
+  base.name = `openclinxr.equipment.${equipmentId}.base`;
+  base.position.set(0, 0.02, 0);
+  const pole = new Mesh(new CylinderGeometry(0.025, 0.03, 0.95, 10), mat(0x9ca3af, 0.4, 0.45));
+  pole.name = `openclinxr.equipment.${equipmentId}.pole`;
+  pole.position.set(0, 0.5, 0);
+  root.add(base, pole);
+  return root;
+}
+
+/**
+ * #260 — parametric stand support for a gltf-sourced composite id, or null.
+ *
+ * When REAL_EQUIPMENT_GLTF_BY_ID gives an id a GLB, the mount path replaces the
+ * whole parametric composite. For ids whose composite emits a floor stand (base
+ * + pole) under a body, this returns the stand so the GLB body mounts ON it
+ * instead of being grounded flat at floor level. Null for ids with no floor
+ * stand (the wall clock's composite is origin-centered with no stand — its
+ * elevated placement is the whole story).
+ */
+export function buildGltfEquipmentStandSupport(equipmentId: string): Group | null {
+  switch (equipmentId) {
+    case "bedside_monitor_equipment":
+      return buildBedsideMonitorStand(equipmentId);
+    default:
+      return null;
+  }
+}
+
 /** Bedside vitals monitor: base + pole + bezel + screen. */
 export function buildBedsideMonitorEquipment(equipmentId: string): Group {
   const root = new Group();
   root.name = `openclinxr.equipment.${equipmentId}`;
-  const base = new Mesh(new BoxGeometry(0.28, 0.04, 0.22), mat(0x374151, 0.55, 0.2));
-  base.name = `${root.name}.base`;
-  base.position.set(0, 0.02, 0);
-  const pole = new Mesh(new CylinderGeometry(0.025, 0.03, 0.95, 10), mat(0x9ca3af, 0.4, 0.45));
-  pole.name = `${root.name}.pole`;
-  pole.position.set(0, 0.5, 0);
+  const stand = buildBedsideMonitorStand(equipmentId);
   const bezel = new Mesh(
     new BoxGeometry(MONITOR_SCREEN_WIDTH_M, 0.28, 0.06),
     mat(0x111827, 0.5, 0.15),
@@ -118,7 +158,7 @@ export function buildBedsideMonitorEquipment(equipmentId: string): Group {
   );
   screen.name = `${root.name}.screen`;
   screen.position.set(0, 1.05, 0.035);
-  root.add(base, pole, bezel, screen);
+  root.add(stand, bezel, screen);
   return tagEquipmentRoot(root, equipmentId, "parametric", "monitor");
 }
 
