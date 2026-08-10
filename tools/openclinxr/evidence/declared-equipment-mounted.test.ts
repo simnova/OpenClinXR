@@ -4,6 +4,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
 import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
+import {
+  aspectToleranceFor,
+  measureGltfAssetLocalBounds,
+} from "./equipment-aspect-preservation.js";
 
 /**
  * PLANTED CONTRACTS (#140) — every station's shipped manifest declares the clinical equipment that
@@ -194,6 +198,31 @@ import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equi
  * #266 FIXED 2026-08-10 — footprint-envelope contract added below.
  */
 
+/* ════════════════════════════════════════════════════════════════════
+ * ## FIXED (#268) — uniform scale; the #266 fit squashed the aspect
+ *
+ * #266's per-axis fit scaled X and Z independently and left Y alone, which
+ * SQUASHED a generated GLB's aspect. Measured (issue-268/pre-fix.json, live
+ * scene + file):
+ *
+ *     bedside_monitor_equipment  source aspect 1.242 (1.00 × 0.805)
+ *                                → mounted 0.472 (0.38 × 0.81, Y untouched)
+ *                                → relative aspect deviation 0.62
+ *     wall_clock_equipment (CONTROL)  source 1.076 → mounted 1.076, dev 0
+ *     ecg_cart / iv_stand (ED bay)    dev 0 — untouched, node-transformed
+ *                                aspect preserved by the mount path
+ *
+ * A landscape monitor screen rendered portrait. Fix: the footprint fit now
+ * applies a SINGLE uniform factor on all three axes (the largest that keeps
+ * the mesh inside its declared envelope) — aspect is preserved, the asset gets
+ * smaller, never stretched. The contract below ("mounted aspect equals source
+ * aspect within a derived tolerance") is the gate that would have caught this
+ * class; its tolerance is derived from the pipeline's 1 mm rounding, validated
+ * by the control row (dev 0.000), not fitted to the observation.
+ *
+ * #268 FIXED 2026-08-10 — aspect-preservation contract added below.
+ */
+
 const load = async () => import("./declared-equipment-mounted.js") as Promise<Record<string, unknown>>;
 
 const EQUIPMENT_GLB_DIR = path.resolve(
@@ -243,6 +272,9 @@ type MountedEquipment = {
   /** #258 — live world-space AABB of the mounted root's visible geometry. */
   worldAabbMin?: { x: number; y: number; z: number };
   worldAabbMax?: { x: number; y: number; z: number };
+  /** #268 — live world-space AABB of the mounted root's GLB body only (parametric stand excluded). */
+  worldBodyAabbMin?: { x: number; y: number; z: number };
+  worldBodyAabbMax?: { x: number; y: number; z: number };
 };
 
 type StationEquipment = {
@@ -560,6 +592,66 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(
       oversized,
       `gltf equipment world extent outside its declared placement envelope (unit-normalized GLB not fitted):\n${oversized.join("\n")}`,
+    ).toHaveLength(0);
+  }, 900_000);
+
+  it("a gltf-sourced equipment mount preserves its source aspect ratio within a derived tolerance (#268)", async () => {
+    // #268 — #266 fitted the footprint per-axis (X and Z scaled independently,
+    // Y untouched), which SQUASHED the aspect: the landscape bedside monitor
+    // (source 1.00 × 0.81, aspect 1.23) rendered portrait (0.38 × 0.81, aspect
+    // 0.47). Measured pre-fix (issue-268/pre-fix.json):
+    //     bedside_monitor_equipment  source aspect 1.242 → mounted 0.472
+    //                                relative deviation 0.62
+    //     wall_clock_equipment (CONTROL)  source 1.076 → mounted 1.076, dev 0
+    // The fix scales UNIFORMLY — one factor on all three axes — so a mounted
+    // gltf's world aspect must match its source GLB's aspect.
+    //
+    // The tolerance is DERIVED, not fitted. Every AABB component in this path
+    // is rounded to 1 mm (round3), so the aspect W/H carries a worst-case
+    // relative error of 0.001/W + 0.001/H per side, both sides independent:
+    //     TOL = (0.001/Ws + 0.001/Hs) + (0.001/Wm + 0.001/Hm)
+    // The wall clock control validates the formula: it is mounted untouched and
+    // measures 0.000 deviation (pre-fix.json), an order of magnitude below its
+    // own bound (≈0.0042 at W=1.000, H=0.929). The pre-fix defect (0.62) is
+    // ~50× the tightest subject bound. A single number chosen from the control's
+    // size would be fitted to it and flaky for smaller subjects (rounding is
+    // absolute, so small correctly-fitted subjects have larger relative floors).
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const localBounds = await measureGltfAssetLocalBounds();
+    const offenders: string[] = [];
+    for (const s of report.stations) {
+      for (const m of s.mounted) {
+        if (m.source !== "gltf") continue;
+        // Body-only bounds (#268): the GLB body, excluding the parametric stand.
+        const bodyMin = m.worldBodyAabbMin ?? m.worldAabbMin;
+        const bodyMax = m.worldBodyAabbMax ?? m.worldAabbMax;
+        if (!bodyMin || !bodyMax) continue;
+        const local = localBounds[m.equipmentId];
+        if (!local) continue;
+        const sourceWidth = local.max.x - local.min.x;
+        const sourceHeight = local.max.y - local.min.y;
+        const mountedWidth = bodyMax.x - bodyMin.x;
+        const mountedHeight = bodyMax.y - bodyMin.y;
+        if (sourceHeight <= 0 || mountedHeight <= 0) continue;
+        const sourceAspect = sourceWidth / sourceHeight;
+        const mountedAspect = mountedWidth / mountedHeight;
+        const deviation = Math.abs(mountedAspect - sourceAspect) / sourceAspect;
+        const tolerance = aspectToleranceFor({ sourceWidth, sourceHeight, mountedWidth, mountedHeight });
+        if (deviation > tolerance) {
+          offenders.push(
+            `${s.scenarioId}/${m.equipmentId}: aspect ${mountedAspect.toFixed(3)} vs source ${sourceAspect.toFixed(3)} `
+              + `(dev ${deviation.toFixed(4)} > derived tol ${tolerance.toFixed(4)})`,
+          );
+        }
+      }
+    }
+    expect(
+      offenders,
+      `gltf equipment aspect squashed by the mount path (per-axis footprint fit):\n${offenders.join("\n")}`,
     ).toHaveLength(0);
   }, 900_000);
 });

@@ -345,6 +345,7 @@ function round3(v: number): number {
 /**
  * #266 — fit a unit-normalized gltf-sourced equipment's footprint to its declared
  * placement envelope.
+ * #268 — fit UNIFORMLY (single factor on all three axes), never per-axis.
  *
  * TRELLIS image-to-3D exports are unit-normalized: the bake pipeline spans the
  * mesh to ±0.5 on the dominant axes (bedside-monitor-generated.glb spans exactly
@@ -360,10 +361,17 @@ function round3(v: number): number {
  * fallback composite and are untouched. Elevated placements (the wall clock
  * control) keep origin-centered mount-height semantics and are untouched.
  *
- * Scale is per-axis and shrink-only (min(1, env/glb)) — a GLB already within its
- * envelope is left alone, and nothing is ever scaled up. Y is deliberately not
- * scaled: the vertical envelope is governed by the #258 grounding and #260 stand
- * contracts, and the horizontal footprint is the #266 defect class.
+ * #268 — the factor is UNIFORM: scale = min(1, envW/glbW, envD/glbD) applied to
+ * all three axes, the largest single factor that keeps the mesh inside its
+ * declared envelope. Per-axis scaling (the #266 original) squashed the aspect:
+ * a landscape monitor (source 1.00 × 0.81, aspect 1.23) rendered portrait
+ * (0.38 × 0.81, aspect 0.47) — measured in issue-268/pre-fix.json
+ * (relative aspect deviation 0.62). Uniform scaling preserves aspect; the
+ * asset gets smaller, never stretched, and never scaled up. The three fixes
+ * compose into one rule:
+ * a generated GLB is object-centered and unit-normalized, so mounting it
+ * requires translate (#258) + preserve-composite-stand (#260) + uniform
+ * fit-to-envelope (this). Every future generated equipment asset needs all three.
  */
 export function applyGltfEquipmentFootprintFit(equipment: Group, equipmentId: string): void {
   const composite = measureParametricComposite(equipmentId);
@@ -375,18 +383,21 @@ export function applyGltfEquipmentFootprintFit(equipment: Group, equipmentId: st
   const glbWidth = bounds.max.x - bounds.min.x;
   const glbDepth = bounds.max.z - bounds.min.z;
   if (glbWidth <= 0 || glbDepth <= 0) return;
-  const scaleX = Math.min(1, envelopeWidth / glbWidth);
-  const scaleZ = Math.min(1, envelopeDepth / glbDepth);
-  if (scaleX === 1 && scaleZ === 1) return;
-  equipment.scale.x = (equipment.scale.x ?? 1) * scaleX;
-  equipment.scale.z = (equipment.scale.z ?? 1) * scaleZ;
+  // #268 — a single factor on all three axes: the largest that keeps the mesh
+  // inside its declared envelope. Aspect is preserved; the asset gets smaller,
+  // never stretched (and never scaled up, matching the pre-#268 shrink-only rule).
+  const scale = Math.min(1, envelopeWidth / glbWidth, envelopeDepth / glbDepth);
+  if (scale === 1) return;
+  equipment.scale.x = (equipment.scale.x ?? 1) * scale;
+  equipment.scale.y = (equipment.scale.y ?? 1) * scale;
+  equipment.scale.z = (equipment.scale.z ?? 1) * scale;
   equipment.userData.openClinXrEquipmentFootprintFit = {
-    scaleX: round3(scaleX),
-    scaleZ: round3(scaleZ),
+    scale: round3(scale),
     envelopeWidthM: round3(envelopeWidth),
     envelopeDepthM: round3(envelopeDepth),
     glbWidthM: round3(glbWidth),
     glbDepthM: round3(glbDepth),
+    glbHeightM: round3(bounds.max.y - bounds.min.y),
   };
 }
 
@@ -407,7 +418,9 @@ export function applyGltfEquipmentFootprintFit(equipment: Group, equipmentId: st
  * #266 — footprint fit. A generated GLB is not only object-centered but
  * unit-normalized (spans ±0.5 on x/z), so a floor mount also needs SCALING to
  * its declared placement envelope — the parametric composite footprint — before
- * the translate/stand passes below run.
+ * the translate/stand passes below run. #268 — that scaling is UNIFORM (one
+ * factor on all three axes), so aspect is preserved; per-axis scaling squashed
+ * a landscape monitor into portrait.
  *
  * This is a general convention adapter, not a per-asset placement fudge: no
  * per-equipment constants beyond the stand builder and the composite footprint.
