@@ -18,6 +18,7 @@ import {
 } from "three";
 import { equipmentSuppressedByFixtureOwnership } from "./fixture-role-ownership.js";
 import {
+  buildGltfEquipmentStandSupport,
   type EquipmentMountSource,
 } from "./station-equipment-builders.js";
 
@@ -28,6 +29,7 @@ export {
   buildDeclaredEquipmentGeometry,
   buildGenericClinicalEquipmentFallback,
   buildGltfEquipmentPlaceholderSlot,
+  buildGltfEquipmentStandSupport,
   buildAbdominalDressingEquipment,
   buildAbdominalExamZoneEquipment,
   buildBedsideMonitorEquipment,
@@ -343,15 +345,35 @@ export const EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M = 0.05;
  * local min-Y puts the object's base on the floor instead of half-buried below it.
  * Elevated placements (Y>0) keep origin-centered mount-height semantics untouched.
  *
+ * #260 — hybrid mounts. When the id's parametric composite emits a FLOOR STAND
+ * (base + pole) under its body, grounding the body GLB at floor level would drop
+ * the stand (the composite's working height came from the stand, not the
+ * descriptor). For those ids the stand stays parametric and the GLB body mounts
+ * ON it (MADR 0050 step 10 hybrid) — the body's base rests on the stand top.
+ *
  * This is a general convention adapter, not a per-asset placement fudge: no
- * per-equipment constants, and it degrades to a no-op for already-grounded GLBs
- * (min-Y ≥ 0) and for elevated mounts. Wall clock (y=1.55) is unaffected.
+ * per-equipment constants beyond the stand builder itself. Wall clock (y=1.55,
+ * elevated, no stand) is unaffected.
  */
 export function normalizeGltfEquipmentMount(
   equipment: Group,
-  mountSlot: { position: { y: number } },
+  mountSlot: Group,
 ): Group {
-  if (Math.abs(mountSlot.position.y) >= EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M) return equipment;
+  const isFloor = Math.abs(mountSlot.position.y) < EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M;
+  const equipmentId =
+    typeof mountSlot.userData?.openClinXrEquipmentId === "string"
+      ? mountSlot.userData.openClinXrEquipmentId
+      : null;
+  const stand = equipmentId !== null && isFloor ? buildGltfEquipmentStandSupport(equipmentId) : null;
+  if (stand) {
+    // #260 hybrid: the parametric stand stays, the GLB body rests on its top.
+    const glbBounds = new Box3().setFromObject(equipment);
+    const standBounds = new Box3().setFromObject(stand);
+    equipment.position.y = standBounds.max.y - glbBounds.min.y;
+    mountSlot.add(stand);
+    return equipment;
+  }
+  if (!isFloor) return equipment;
   const bounds = new Box3().setFromObject(equipment);
   if (bounds.min.y < 0) {
     equipment.position.y -= bounds.min.y;
