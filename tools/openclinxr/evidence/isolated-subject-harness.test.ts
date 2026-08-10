@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 
 /**
  * PLANTED CONTRACTS (#163) — OPERATOR DIRECTION, 2026-08-07, and it changes how this project
@@ -347,6 +348,58 @@ describe("equipment reference packs from parametric renders (#262)", () => {
         `${v.view}: ground plane still present in subject-only render — the #265 input defect is not fixed`,
       ).toBe(false);
     }
+  }, 1_800_000);
+
+  it("pack views frame to the subject bounds, not a fixed distance (#270)", async () => {
+    // #270: pack renders framed the subject at ~5% of the image — the camera
+    // distance was `radius * 2.4` with a 0.4 m floor on radius, so a 12x19 cm
+    // wall plate rendered at ~5% coverage and TRELLIS was fed 95% empty
+    // background. The fix frames each pack view to the subject's projected
+    // bounds (PACK_FRAME_TARGET 0.8 of the square frame's dimension).
+    //
+    // The assertion floor is NOT invented — it is the measured PRE-FIX coverage
+    // of the control (iv_pole_equipment) recorded in
+    // .openclinxr/evidence/issue-270/pre-fix.json before any framing change
+    // (a threshold chosen to clear an observation would be fitted to it; this
+    // one is read from the before-column).
+    const mod = await load();
+    const renderPack = mod["renderEquipmentReferencePack"] as
+      | ((options?: Record<string, unknown>) => Promise<{
+          equipmentId: string;
+          views: Array<{ view: string; frameCoverage: number }>;
+        }>)
+      | undefined;
+    expect(renderPack, "renderEquipmentReferencePack disappeared").toBeTypeOf("function");
+
+    let preFixText: string;
+    try {
+      preFixText = readFileSync(".openclinxr/evidence/issue-270/pre-fix.json", "utf8");
+    } catch {
+      throw new Error(
+        "missing .openclinxr/evidence/issue-270/pre-fix.json — the measured before-column is required to derive the assertion floor",
+      );
+    }
+    const preFix = JSON.parse(preFixText) as {
+      subjects?: Record<string, { views?: Array<{ frameCoverage?: number }> }>;
+    };
+    const controlViews = preFix.subjects?.["iv_pole_equipment"]?.views;
+    expect(
+      controlViews,
+      "pre-fix.json must carry the measured control (iv_pole_equipment) views — the floor cannot be derived without them",
+    ).toBeTruthy();
+    expect(controlViews!.length, "the control must have measured views").toBeGreaterThan(0);
+    const floor = Math.max(...controlViews!.map((v) => v.frameCoverage ?? 0));
+
+    const run = await renderPack!({
+      equipmentId: "oxygen_wall_port_equipment",
+      outputRoot: ".openclinxr/evidence/issue-270",
+    });
+    const maxCoverage = Math.max(...run.views.map((v) => v.frameCoverage));
+    expect(
+      maxCoverage,
+      `wall port post-fix max view coverage ${(maxCoverage * 100).toFixed(1)}% must exceed the `
+        + `measured control floor ${(floor * 100).toFixed(1)}% (iv_pole pre-fix)`,
+    ).toBeGreaterThan(floor);
   }, 1_800_000);
 });
 

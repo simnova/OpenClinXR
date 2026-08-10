@@ -46,6 +46,8 @@ export type RenderedSubject = {
   subjectKind: string;
   imagePath: string;
   frameCoverage: number;
+  /** #270: larger projected AABB extent as a fraction of the square frame (pack views only). */
+  frameSpanFraction: number | null;
   roomGeometryPresent: boolean;
   hudPresent: boolean;
   extraActorIds: string[];
@@ -80,6 +82,7 @@ type PageEvidence = {
   usesProductRenderer?: boolean;
   label?: string;
   frameCoverage?: number;
+  frameSpanFraction?: number | null;
   groundPlanePresent?: boolean;
 };
 
@@ -217,6 +220,10 @@ async function captureSubject(input: {
     subjectKind: input.spec.subjectKind,
     imagePath: input.imagePath,
     frameCoverage,
+    frameSpanFraction:
+      typeof evidence.frameSpanFraction === "number" && Number.isFinite(evidence.frameSpanFraction)
+        ? evidence.frameSpanFraction
+        : null,
     roomGeometryPresent: evidence.roomGeometryPresent === true,
     hudPresent: evidence.hudPresent === true,
     extraActorIds: Array.isArray(evidence.extraActorIds) ? evidence.extraActorIds : [],
@@ -549,6 +556,138 @@ export async function renderEquipmentReferencePack(options?: {
   }
 }
 
+// ---------------------------------------------------------------------------
+// #270 — framing before/after report
+// ---------------------------------------------------------------------------
+
+/** #270 worst-case compact subject — the small wall plate the issue is about. */
+export const FRAMING_WORST_CASE_EQUIPMENT_ID = "oxygen_wall_port_equipment";
+/** #270 default report root. */
+export const FRAMING_EVIDENCE_ROOT = ".openclinxr/evidence/issue-270";
+
+export type EquipmentFramingReport = {
+  issue: "270";
+  measurementKind: string;
+  factoryStep: "equipment_generate";
+  measuredAt: string;
+  reportPath: string;
+  floor: {
+    derivation: string;
+    controlSubjectId: string;
+    /** max(frameCoverage) over the control's PRE-FIX views — measured, never invented. */
+    controlPreFixMaxCoverage: number;
+  };
+  assertion: {
+    subjectId: string;
+    rule: string;
+    postFixMaxCoverage: number;
+    passed: boolean;
+  };
+  subjects: Record<
+    string,
+    {
+      role: string;
+      views: Array<{
+        view: string;
+        frameCoverage: number;
+        frameSpanFraction: number | null;
+        groundPlanePresent: boolean;
+      }>;
+    }
+  >;
+  wallClockMs: number;
+  notEvidenceFor: string[];
+};
+
+/**
+ * #270 post-fix framing measurement: render both equipment subjects with the NEW
+ * bounds-framing, compare against the measured PRE-FIX before-column, and write
+ * `framing-report.json`. Fail-closed — the floor must come from the control's
+ * measured pre-fix coverage, never a number chosen after the fact.
+ */
+export async function writeEquipmentFramingReport(options?: {
+  cwd?: string;
+  outputRoot?: string;
+}): Promise<EquipmentFramingReport> {
+  const cwd = options?.cwd ?? process.cwd();
+  const outputRoot = options?.outputRoot ?? FRAMING_EVIDENCE_ROOT;
+  const preFixPath = path.join(cwd, outputRoot, "pre-fix.json");
+  const reportPath = path.join(cwd, outputRoot, "framing-report.json");
+
+  let preFix: {
+    subjects?: Record<string, { views?: Array<{ frameCoverage?: number }> }>;
+  };
+  try {
+    preFix = JSON.parse(await readFile(preFixPath, "utf8")) as typeof preFix;
+  } catch {
+    throw new Error(
+      `writeEquipmentFramingReport requires ${preFixPath} (the measured pre-fix before-column) — write it before generating the framing report`,
+    );
+  }
+  const controlViews = preFix.subjects?.[DEFAULT_PACK_EQUIPMENT_ID]?.views;
+  if (!controlViews || controlViews.length === 0) {
+    throw new Error(
+      `pre-fix.json has no measured views for the control ${DEFAULT_PACK_EQUIPMENT_ID} — the floor cannot be derived`,
+    );
+  }
+  const floor = Math.max(...controlViews.map((v) => v.frameCoverage ?? 0));
+
+  const t0 = Date.now();
+  const subjects: EquipmentFramingReport["subjects"] = {};
+  const subjectRows: Array<[string, string]> = [
+    [FRAMING_WORST_CASE_EQUIPMENT_ID, "worst-case small plate (12x19x8.5 cm wall O2 port)"],
+    [DEFAULT_PACK_EQUIPMENT_ID, "control (tall pole, iv_pole_equipment)"],
+  ];
+  for (const [equipmentId, role] of subjectRows) {
+    const run = await renderEquipmentReferencePack({ cwd, equipmentId, outputRoot });
+    subjects[equipmentId] = {
+      role,
+      views: run.views.map((v) => ({
+        view: v.view,
+        frameCoverage: v.frameCoverage,
+        frameSpanFraction: v.frameSpanFraction,
+        groundPlanePresent: v.groundPlanePresent,
+      })),
+    };
+  }
+
+  const worstCase = subjects[FRAMING_WORST_CASE_EQUIPMENT_ID];
+  const postFixMaxCoverage = Math.max(...worstCase.views.map((v) => v.frameCoverage));
+  const passed = postFixMaxCoverage > floor;
+
+  const report: EquipmentFramingReport = {
+    issue: "270",
+    measurementKind:
+      "post-fix framing measurement — frameCoverage per view for the same two subjects rendered with the #270 bounds-framing (PACK_FRAME_TARGET 0.8 of the square frame), compared against the pre-fix before-column",
+    factoryStep: "equipment_generate",
+    measuredAt: new Date().toISOString(),
+    reportPath: path.relative(cwd, reportPath).replaceAll("\\", "/"),
+    floor: {
+      derivation:
+        `max(frameCoverage) over the measured control (${DEFAULT_PACK_EQUIPMENT_ID}) PRE-FIX views from ${preFixPath} — a measurement, not an invented threshold`,
+      controlSubjectId: DEFAULT_PACK_EQUIPMENT_ID,
+      controlPreFixMaxCoverage: floor,
+    },
+    assertion: {
+      subjectId: FRAMING_WORST_CASE_EQUIPMENT_ID,
+      rule: `a rendered pack view of ${FRAMING_WORST_CASE_EQUIPMENT_ID} must have frameCoverage > the control's pre-fix max (${floor.toFixed(6)})`,
+      postFixMaxCoverage,
+      passed,
+    },
+    subjects,
+    wallClockMs: Date.now() - t0,
+    notEvidenceFor: [
+      "the bake comparison (explicitly out of scope for #270 — framing is one variable, the bake belongs to a later slice once framing and view count are settled)",
+      "any mesh-quality claim",
+      "clinical accuracy or device equivalence",
+    ],
+  };
+
+  await mkdir(path.dirname(reportPath), { recursive: true });
+  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  return report;
+}
+
 // CLI — only when this file is the entrypoint (never on import as a dependency).
 const isMain = Boolean(
   process.argv[1]
@@ -558,10 +697,34 @@ const isMain = Boolean(
 
 if (isMain) {
   const argv = process.argv.slice(2);
-  const packIdx = argv.indexOf("--pack");
-  if (packIdx >= 0) {
+  const flagValue = (name: string): string | undefined => {
+    const idx = argv.indexOf(name);
+    return idx >= 0 ? argv[idx + 1] : undefined;
+  };
+
+  if (argv.includes("--framing-report")) {
+    writeEquipmentFramingReport({ outputRoot: flagValue("--output-root") })
+      .then((report) => {
+        console.log(JSON.stringify({
+          reportPath: report.reportPath,
+          assertion: report.assertion,
+          subjects: Object.fromEntries(
+            Object.entries(report.subjects).map(([id, s]) => [id, {
+              role: s.role,
+              views: s.views.map((v) => ({ view: v.view, frameCoverage: v.frameCoverage })),
+            }]),
+          ),
+          wallClockMs: report.wallClockMs,
+        }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  } else if (argv.includes("--pack")) {
+    const packIdx = argv.indexOf("--pack");
     const equipmentId = argv[packIdx + 1] ?? DEFAULT_PACK_EQUIPMENT_ID;
-    renderEquipmentReferencePack({ equipmentId })
+    renderEquipmentReferencePack({ equipmentId, outputRoot: flagValue("--output-root") })
       .then((run) => {
         console.log(JSON.stringify({
           equipmentId: run.equipmentId,

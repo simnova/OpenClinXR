@@ -1,0 +1,96 @@
+{
+  "issue": "270",
+  "measurementKind": "post-fix framing measurement — frameCoverage per view for the same two subjects rendered with the #270 bounds-framing (PACK_FRAME_TARGET 0.8 of the square frame), compared against the pre-fix before-column",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10T19:11:40.968Z",
+  "reportPath": ".openclinxr/evidence/issue-270/framing-report.json",
+  "floor": {
+    "derivation": "max(frameCoverage) over the measured control (iv_pole_equipment) PRE-FIX views from /Users/patrick/.grok/worktrees/src-openclinxr/issue-270/.openclinxr/evidence/issue-270/pre-fix.json — a measurement, not an invented threshold",
+    "controlSubjectId": "iv_pole_equipment",
+    "controlPreFixMaxCoverage": 0.022698402404785156
+  },
+  "assertion": {
+    "subjectId": "oxygen_wall_port_equipment",
+    "rule": "a rendered pack view of oxygen_wall_port_equipment must have frameCoverage > the control's pre-fix max (0.022698)",
+    "postFixMaxCoverage": 0.3635873794555664,
+    "passed": true
+  },
+  "subjects": {
+    "oxygen_wall_port_equipment": {
+      "role": "worst-case small plate (12x19x8.5 cm wall O2 port)",
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.28181934356689453,
+          "frameSpanFraction": 0.799994415654434,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.14168262481689453,
+          "frameSpanFraction": 0.7999411198464234,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.23698139190673828,
+          "frameSpanFraction": 0.8000239455051463,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.23697471618652344,
+          "frameSpanFraction": 0.8000239455051463,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.3635873794555664,
+          "frameSpanFraction": 0.7999944156544337,
+          "groundPlanePresent": false
+        }
+      ]
+    },
+    "iv_pole_equipment": {
+      "role": "control (tall pole, iv_pole_equipment)",
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.031294822692871094,
+          "frameSpanFraction": 0.7999529069585449,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.029837608337402344,
+          "frameSpanFraction": 0.7999529069585449,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.028754234313964844,
+          "frameSpanFraction": 0.8000125400430365,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.028862953186035156,
+          "frameSpanFraction": 0.8000125400430365,
+          "groundPlanePresent": false
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.03116607666015625,
+          "frameSpanFraction": 0.7999529069585449,
+          "groundPlanePresent": false
+        }
+      ]
+    }
+  },
+  "wallClockMs": 5285,
+  "notEvidenceFor": [
+    "the bake comparison (explicitly out of scope for #270 — framing is one variable, the bake belongs to a later slice once framing and view count are settled)",
+    "any mesh-quality claim",
+    "clinical accuracy or device equivalence"
+  ]
+}

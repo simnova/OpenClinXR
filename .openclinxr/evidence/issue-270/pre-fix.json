@@ -1,0 +1,42 @@
+{
+  "issue": "270",
+  "measurementKind": "pre-fix framing before-column — frameCoverage per view for two equipment subjects, recorded with the PRE-FIX camera framing (radius * 2.4 with a 0.4 m radius floor) BEFORE any framing change",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10",
+  "measuredAgainstCommit": "da5b8d16328ba4dfc02ef65d1da6649d8e787f0c",
+  "instrument": "tools/openclinxr/evidence/isolated-subject-harness.ts renderEquipmentReferencePack (one portless dev-server boot, one browser, subject-only 5-view 1024x1024 square pack); frameCoverage = non-background pixel fraction read by apps/ui-xr/src/isolated-subject-lab.ts measureCanvasCoverage against clear color #18211d",
+  "subjects": {
+    "oxygen_wall_port_equipment": {
+      "role": "worst-case small plate (12x19x8.5 cm wall O2 port, #267)",
+      "source": "apps/ui-xr/src/station-equipment-builders.ts buildHandheldDeviceOnStand(equipmentId, 'o2_port')",
+      "views": [
+        { "view": "front", "frameCoverage": 0.053620338439941406, "groundPlanePresent": false },
+        { "view": "side", "frameCoverage": 0.025473594665527344, "groundPlanePresent": false },
+        { "view": "three_quarter_left", "frameCoverage": 0.049843788146972656, "groundPlanePresent": false },
+        { "view": "three_quarter_right", "frameCoverage": 0.049836158752441406, "groundPlanePresent": false },
+        { "view": "back", "frameCoverage": 0.06017112731933594, "groundPlanePresent": false }
+      ],
+      "subjectOnly": true,
+      "immutableTableMatch": "reproduces the issue's IMMUTABLE table (0.0536 / 0.0255 / 0.0498 / 0.0498 / 0.0600) to 3dp — framing code unchanged since #267"
+    },
+    "iv_pole_equipment": {
+      "role": "control (tall pole, the subject #265 'fared better' with)",
+      "source": "apps/ui-xr/src/station-equipment-families.ts buildIvPoleFamilyEquipment",
+      "views": [
+        { "view": "front", "frameCoverage": 0.022698402404785156, "groundPlanePresent": false },
+        { "view": "side", "frameCoverage": 0.021482467651367188, "groundPlanePresent": false },
+        { "view": "three_quarter_left", "frameCoverage": 0.02227783203125, "groundPlanePresent": false },
+        { "view": "three_quarter_right", "frameCoverage": 0.02232646942138672, "groundPlanePresent": false },
+        { "view": "back", "frameCoverage": 0.02260875701904297, "groundPlanePresent": false }
+      ],
+      "subjectOnly": true,
+      "contextNote": "The #262 pack report recorded ~0.395 for iv_pole — that measurement INCLUDED the lit neutral ground plane (6x6 m), which dominated the frame. In subject-only mode (#265+), the thin pole measures ~0.022 — lower than the wall plate. The issue's premise 'a tall pole fills a square frame more efficiently' came from the grounded #262 measurement and does not hold in subject-only mode; the framing defect hits BOTH subjects."
+    }
+  },
+  "floorDerivation": "floor = max(frameCoverage over the measured control iv_pole_equipment pre-fix views) = 0.022698402404785156. Not invented: it is the control's measured pre-fix coverage, taken before any framing change. Assertion (in framing-report.json + isolated-subject-harness.test.ts): the worst-case compact subject oxygen_wall_port_equipment, after framing, must have a rendered pack view whose frameCoverage exceeds this floor.",
+  "notEvidenceFor": [
+    "the bake comparison (explicitly out of scope for #270 — framing is one variable, bake comes later)",
+    "any mesh-quality claim",
+    "clinical accuracy or device equivalence"
+  ]
+}
