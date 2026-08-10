@@ -1,0 +1,263 @@
+{
+  "blueprintId": "step2cs-seed",
+  "measuredAt": "2026-08-10T21:07:34.987Z",
+  "scenarioCount": 14,
+  "shippedBankApprovedCount": 1,
+  "shippedBankStageZeroCount": 13,
+  "activationEligibleCount": 1,
+  "canStartLearnerExam": false,
+  "queueStationCount": 12,
+  "resolution": {
+    "scenarioSource": "api_queue",
+    "fallbackActive": false,
+    "bodySourceCounts": {
+      "bank_residual": 12
+    }
+  },
+  "scenarios": [
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "status": "approved",
+      "validationStage": "stage_1_expert_reviewed",
+      "reviewStates": {
+        "clinical": "approved",
+        "psychometric": "approved",
+        "legal": "approved",
+        "simulationQa": "approved"
+      },
+      "isActivationEligible": true,
+      "queueStatus": "activation_ready",
+      "queueBlockers": [],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "draft_blocked",
+      "queueBlockers": [
+        "scenario_not_approved"
+      ],
+      "bodySource": "bank_residual"
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "not_in_queue",
+      "queueBlockers": [],
+      "bodySource": null
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "status": "draft",
+      "validationStage": "stage_0_synthetic_draft",
+      "reviewStates": {
+        "clinical": "draft",
+        "psychometric": "draft",
+        "legal": "draft",
+        "simulationQa": "draft"
+      },
+      "isActivationEligible": false,
+      "queueStatus": "not_in_queue",
+      "queueBlockers": [],
+      "bodySource": null
+    }
+  ],
+  "claimScope": "all_14_shipped_scenarios_measured_through_real_api_routes_and_real_learner_resolver_before_any_edit",
+  "notEvidenceFor": [
+    "clinical_validity_of_approvals",
+    "psychometric_readiness",
+    "exam_equivalence",
+    "xr_scene",
+    "cast",
+    "garments",
+    "rooms",
+    "auto_promotion_of_shipped_bank",
+    "startable_full_12_station_exam"
+  ]
+}
