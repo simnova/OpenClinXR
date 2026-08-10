@@ -4,6 +4,7 @@
   "producedByCommand": "pnpm asset:body-param:fit -- --once",
   "bodyClassId": "adult_heavy_male",
   "garmentId": "wojackowl_scrubs_shirt_hm08",
+  "garmentKind": "library",
   "garmentFittedToBodyClass": "adult_heavy_male",
   "phenotype": {
     "weight": 0.88,
@@ -14,7 +15,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_adult_cast",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-279/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.10368792203770874,
     "girthScaleHorizontal": 1,
@@ -23,7 +24,7 @@
     "bodyStatureAfterScaleMeters": 1.7599999875798498,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.5864284019543089,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-279/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_adult_cast"
   },
   "morphTargetCount": 32,
@@ -97,7 +98,7 @@
   "lowerGarmentLicenseToken": "CC0",
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-279/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
   "glbSha256": "e96997210d0648b4bce2578a74810b4418a7a745ec32ac5645cd048b3bbcaa5b",
   "torsoGirthProxyMeters": 0.5864284020526069,

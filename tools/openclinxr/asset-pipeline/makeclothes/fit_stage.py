@@ -53,7 +53,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out-glb", required=True, help="Library GLB path (hm08 body + fitted garment)")
     p.add_argument("--out-grade-png", required=True)
     p.add_argument("--report", required=True)
-    p.add_argument("--garment-mesh-name", default="makeclothes_library_scrub_shirt")
+    p.add_argument(
+        "--garment-mesh-name",
+        default="makeclothes_library_scrub_shirt",
+        help="Mesh name for the fitted garment. DEFAULT IS THE FACTORY FALLBACK (#275) — "
+        "the caller (fit-cli.ts) supplies the authoritative value from "
+        "garment-selection-by-role.ts; this default only exists so a raw invocation "
+        "still produces a named garment.",
+    )
     p.add_argument("--body-mesh-name", default="hm08_basemesh_library")
     return p.parse_args(args)
 
