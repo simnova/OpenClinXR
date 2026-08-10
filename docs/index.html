@@ -55,8 +55,8 @@
         <div class="hero__panel" aria-label="At a glance">
           <figure class="hero__image">
             <img
-              src="assets/openclinxr-xr-evidence.png"
-              alt="OpenClinXR XR runtime evidence posture"
+              src="assets/station-two-generated.png"
+              alt="An ED stroke-alert station rendered in the browser: three clothed actors with contact shadows, a procedurally generated wall clock, and a generated bedside monitor on its parametric stand"
             >
           </figure>
           <div>
@@ -172,34 +172,22 @@
       <section id="see-it" class="band" aria-labelledby="see-title">
         <div class="section-heading">
           <p class="eyebrow">Evidence you can look at</p>
-          <h2 id="see-title">WebXR sample: ED patient, phenotype-driven gown.</h2>
+          <h2 id="see-title">Clothing: not yet good enough to show.</h2>
         </div>
         <p class="status-copy">
-          Captured from the UI-XR sample scene (ED chest-pain case, real-garment patient path).
-          These are runtime captures—not mockups. They show the factory path from case clothing layers into a live WebXR load.
+          This section used to carry two WebXR captions labelled “phenotype-driven gown”. The
+          captures underneath them showed a bare torso with a red patch, a deformed shoulder, and a
+          status bar reading <em>WebXR unavailable</em>. The caption asserted a capability the
+          picture disproved, so the pictures were removed on 2026-08-10 rather than recaptioned.
         </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
-          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-            <img
-              src="assets/ed-real-garment-webxr-front.png"
-              alt="UI-XR front: ED real garment patient"
-              style="width: 100%; display: block;"
-            >
-            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
-              Front — UI-XR sample scene
-            </figcaption>
-          </figure>
-          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
-            <img
-              src="assets/ed-real-garment-webxr-three-quarter.png"
-              alt="UI-XR three-quarter: ED real garment patient"
-              style="width: 100%; display: block;"
-            >
-            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
-              Three-quarter — same runtime load
-            </figcaption>
-          </figure>
-        </div>
+        <p class="status-copy">
+          Clothing on this project is real but partial: garments are fitted from a library and
+          driven by the case definition’s layers, and you can see them working on the actors in the
+          station above. What is not yet right is material class — one actor still renders
+          translucent, so a fresh capture would show a see-through figure. We would rather show
+          nothing here than show that and call it evidence. This section returns when a capture
+          supports the claim.
+        </p>
         <p class="evidence-note" style="margin-top: 16px;">
           Inspection packet:
           <a href="assets/ed-real-garment-webxr-inspection.json">ed-real-garment-webxr-inspection.json</a>.

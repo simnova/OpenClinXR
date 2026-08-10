@@ -1,4 +1,4 @@
-import { access, constants, readdir, readFile } from "node:fs/promises";
+import { access, constants, readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -12,9 +12,30 @@ const requiredSiteFiles = [
   "docs/styles.css",
   "docs/.nojekyll",
   "docs/CNAME",
-  "docs/assets/openclinxr-xr-evidence.png",
   "README.md",
 ];
+
+/**
+ * The hero image is the first thing a visitor sees, so the gate has to be about the PROPERTY
+ * ("the hero points at an image asset that is really on disk"), not about one filename.
+ *
+ * It used to be `indexHtml.includes('src="assets/openclinxr-xr-evidence.png"')`. That pinned a
+ * literal name while never opening the file, so it was green if the PNG were deleted and RED if
+ * a bad hero were replaced by a good one — which is what happened on 2026-08-10. The pinned image
+ * was a degraded-state capture: "WebXR unavailable", "Trace 0/10", "Full VR evidence blocked;
+ * 21 blockers", actors drawn as a capsule with a sphere head, three debug panels overlapping.
+ * It was also 1910x3706 in a `aspect-ratio: 16/10; object-fit: cover` slot, so visitors saw a
+ * cropped middle band of debug text. The gate was holding that in place.
+ *
+ * This does NOT grade the picture. No automated check can. The orchestrator reads the pixels
+ * (D12) before any image is published; this only refuses a hero that is missing, external, or
+ * a placeholder-sized stub.
+ */
+const heroImagePattern = /<figure class="hero__image">\s*<img\s+src="([^"]+)"/;
+
+/** A real render of a station is hundreds of KB. The 26 KB error screenshots this repo once
+ *  shipped as evidence sat far below this; a truthfully small artifact never appears here. */
+const MIN_HERO_IMAGE_BYTES = 40_000;
 const knownPagesSnapshotKeys = [
   "asset-production-evidence-ladder",
   "asset-production-artifact-evidence",
@@ -33,6 +54,25 @@ async function main(): Promise<void> {
     console.error(blocker);
   }
   process.exitCode = 1;
+}
+
+async function heroImageBlocker(indexHtml: string): Promise<string | undefined> {
+  const match = heroImagePattern.exec(indexHtml);
+  if (!match) return "pages_index_hero_image_missing";
+
+  const src = match[1];
+  if (/^https?:\/\//.test(src)) return `pages_index_hero_image_external:${src}`;
+
+  const onDisk = path.join("docs", src);
+  try {
+    const { size } = await stat(onDisk);
+    if (size < MIN_HERO_IMAGE_BYTES) {
+      return `pages_index_hero_image_stub:${src}:${size}b`;
+    }
+  } catch {
+    return `pages_index_hero_image_file_absent:${onDisk}`;
+  }
+  return undefined;
 }
 
 export async function validateGitHubPagesSite(): Promise<ValidationResult> {
@@ -60,7 +100,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
   blockers.push(...[
     indexHtml.includes("<title>OpenClinXR</title>") ? undefined : "pages_index_title_missing",
     indexHtml.includes('href="styles.css"') ? undefined : "pages_index_stylesheet_link_missing",
-    indexHtml.includes('src="assets/openclinxr-xr-evidence.png"') ? undefined : "pages_index_visual_asset_missing",
+    await heroImageBlocker(indexHtml),
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     indexHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
