@@ -210,6 +210,7 @@
     "asset:human-rigging:generate": "tsx tools/openclinxr/factory/generated-human-rigging-artifacts.ts",
     "factory:physics-config": "tsx tools/openclinxr/factory/generated-physics-config-artifacts.ts",
     "factory:trellis:bake": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts",
+    "factory:equipment:pack-batch": "tsx tools/openclinxr/evidence/equipment-pack-batch-cli.ts",
     "factory:trellis:bake:validate": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts --validate-latest",
     "factory:trellis:postopt": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.ts",
     "factory:trellis:postopt:validate": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.test.ts",

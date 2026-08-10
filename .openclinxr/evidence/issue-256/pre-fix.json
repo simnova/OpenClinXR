@@ -1,0 +1,85 @@
+{
+  "issue": "256",
+  "measurementKind": "pre-fix before-column — current pack / registry / baked / parametric counts from the tree, recorded BEFORE any reference-pack generation",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10T18:02:00Z",
+  "measuredAgainstCommit": "e9de15f7",
+  "counts": {
+    "referencePacksIssue232Dir": 3,
+    "referencePacksTreeWide": 5,
+    "registeredInKnownSubjects": 5,
+    "shippedBakedSubjects": 3,
+    "parametricEquipmentIds": 35
+  },
+  "detail": {
+    "referencePacksIssue232Dir": {
+      "path": ".openclinxr/evidence/issue-232",
+      "note": "wall-clock, bedside-monitor, ecg-cart (the #232 pack set). Present in THIS worktree because the issue-235 worktree's copies were provisioned in to satisfy the #232 contract test (gitignored evidence is absent in fresh worktrees by design). In the main tree this directory does not exist; the #232 bakes resolve front.png via the issue-235 worktree fallback in trellis-bake-cli.ts:75-86.",
+      "subjectIds": ["ecg-cart", "wall-clock", "bedside-monitor"]
+    },
+    "referencePacksTreeWide": {
+      "note": "pack dirs with 4+ subject-only views anywhere in .openclinxr/evidence: the 3 #232 packs plus iv_pole_equipment (#262, main-tree only) and oxygen_wall_port_equipment (#267, pre-#270 framing fix).",
+      "extraPacks": [
+        { "equipmentId": "iv_pole_equipment", "evidenceRoot": ".openclinxr/evidence/issue-262/packs", "views": ["front", "side", "three_quarter_left", "three_quarter_right", "back"] },
+        { "equipmentId": "oxygen_wall_port_equipment", "evidenceRoot": ".openclinxr/evidence/issue-267/packs", "views": ["front", "side", "three_quarter_left", "three_quarter_right", "back"], "note": "rendered pre-#270 framing fix (frameCoverage ~2.5-6%)" }
+      ]
+    },
+    "registeredInKnownSubjects": {
+      "file": "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts",
+      "subjectIds": ["wall-clock", "bedside-monitor", "ecg-cart", "iv-pole", "o2-port"],
+      "note": "Issue text measured 3 at :91,96,101 (filing-time tree). #262 (commit 4e887566) and #267 (commit 7c1db369) added iv-pole and o2-port. iv-pole and o2-port entries currently resolve to front.png paths that do NOT exist at the resolution path (issue-232 dir is gone; the issue-235 worktree fallback only holds the original 3) — the exact 'registry entry pointing at a missing image' trap this issue forbids adding. Producing packs for iv_pole_equipment and oxygen_wall_port_equipment in this slice makes those two entries resolvable via OPENCLINXR_TRELLIS_PACKS."
+    },
+    "shippedBakedSubjects": {
+      "note": "wall-clock, bedside-monitor, ecg-cart — per #232/#250 records (verified in issue text; not re-derived). issue-267 additionally ran an EXPERIMENTAL upgrade-comparison bake (issue-267/bake/o2-port/o2-port.glb) that is not a shipped subject.",
+      "subjectIds": ["wall-clock", "bedside-monitor", "ecg-cart"]
+    },
+    "parametricEquipmentIds": {
+      "file": "apps/ui-xr/src/station-equipment.ts",
+      "countSource": "PARAMETRIC_KINDS.size",
+      "ids": [
+        "fetal_monitor_equipment",
+        "exam_table_equipment",
+        "blood_pressure_cuff_equipment",
+        "abdominal_exam_zone_equipment",
+        "monitor_equipment",
+        "iv_pump_equipment",
+        "pulse_oximeter_equipment",
+        "nebulizer_mask_equipment",
+        "oxygen_wall_port_equipment",
+        "pediatric_stretcher_equipment",
+        "parent_chair_equipment",
+        "inhaler_spacer_equipment",
+        "chairs_equipment",
+        "tissue_box_equipment",
+        "post_op_bed_equipment",
+        "abdominal_dressing_equipment",
+        "hospital_bed_equipment",
+        "stretcher_equipment",
+        "side_rails_equipment",
+        "safe_room_chair_equipment",
+        "ehr_screen_equipment",
+        "lab_results_panel_equipment",
+        "tablet_visit_equipment",
+        "iv_pole_equipment",
+        "antipyretic_tray_equipment",
+        "hydration_supplies_equipment",
+        "digital_thermometer_equipment",
+        "glucometer_review_equipment",
+        "oxygen_nasal_cannula_equipment",
+        "surgical_consult_phone_equipment",
+        "observation_station_equipment",
+        "12_lead_ecg_machine_equipment",
+        "abdominal_exam_light_equipment",
+        "safety_plan_whiteboard_equipment",
+        "ekg_leads_on_bed_equipment"
+      ]
+    }
+  },
+  "generator": {
+    "name": "renderEquipmentReferencePack",
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts:454",
+    "note": "deterministic parametric renders (#262 + #270 framing fix); subject-only by default (#265); 5 views incl. back (#254). No Grok Imagine, no quota."
+  },
+  "method": "static tree reads (git ls-files / readdir / grep of PARAMETRIC_KINDS and KNOWN_SUBJECTS); no generation performed before this artifact was written.",
+  "notEvidenceFor": ["TRELLIS bake success", "clinical device accuracy", "Quest readiness"]
+}

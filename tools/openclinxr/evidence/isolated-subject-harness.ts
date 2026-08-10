@@ -20,7 +20,7 @@
  * notEvidenceFor: clinical incline choice as product ship, Quest readiness.
  */
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
 import {
@@ -432,6 +432,87 @@ export const DEFAULT_PACK_VIEWS: CaptureView[] = [
 ];
 
 /**
+ * Render ONE equipment id's reference pack against an ALREADY-BOOTED
+ * server/browser/page (#256 batch reuse). One id, N views, subject-only.
+ * Shared by the single-id entry (`renderEquipmentReferencePack`) and the
+ * batch entry (`renderEquipmentReferencePackBatch`) so batching is a loop
+ * over ids with a single dev-server boot — not 35 cold boots (#7b).
+ */
+async function renderEquipmentPackForId(input: {
+  cwd: string;
+  page: Page;
+  baseUrl: string;
+  equipmentId: string;
+  views: CaptureView[];
+  subjectOnly: boolean;
+  outRoot: string;
+}): Promise<EquipmentPackRun> {
+  const { cwd, page, baseUrl, equipmentId, views, subjectOnly, outRoot } = input;
+  const packDir = path.join(outRoot, "packs", equipmentId);
+  await mkdir(packDir, { recursive: true });
+
+  const t0 = Date.now();
+  const renderedViews: EquipmentPackView[] = [];
+  let parametricSourceGlbPath: string | null = null;
+
+  for (const view of views) {
+    const spec: SubjectSpec = {
+      subjectId: `${equipmentId}_${view}`,
+      subjectKind: "equipment_builder",
+      equipmentId,
+      view,
+      exportGlb: view === "front",
+      subjectOnly,
+      label: `${equipmentId} ${view}`,
+    };
+    const imagePath = path.join(packDir, `${view}.png`);
+    const rendered = await captureSubject({
+      page,
+      baseUrl,
+      spec,
+      imagePath,
+    });
+    const relImage = path.relative(cwd, rendered.imagePath).replaceAll("\\", "/");
+    renderedViews.push({ ...rendered, imagePath: relImage, view });
+
+    if (view === "front") {
+      const glbBase64 = await page.evaluate(
+        () => (window as unknown as { __openClinXrExportedGlbBase64?: string })
+          .__openClinXrExportedGlbBase64 ?? null,
+      );
+      if (glbBase64) {
+        const glbPath = path.join(packDir, "parametric-source.glb");
+        await writeFile(glbPath, Buffer.from(glbBase64, "base64"));
+        parametricSourceGlbPath = path.relative(cwd, glbPath).replaceAll("\\", "/");
+      }
+    }
+  }
+
+  const contactAbs = path.join(outRoot, "packs", equipmentId, "contact-sheet.png");
+  await buildContactSheet({
+    page,
+    cells: renderedViews.map((v) => ({
+      imagePath: path.join(cwd, v.imagePath),
+      label: v.view,
+    })),
+    outPath: contactAbs,
+    columns: 2,
+  });
+
+  return {
+    equipmentId,
+    views: renderedViews,
+    contactSheetPath: path.relative(cwd, contactAbs).replaceAll("\\", "/"),
+    packDir: path.relative(cwd, packDir).replaceAll("\\", "/"),
+    parametricSourceGlbPath,
+    devServerBoots: 1,
+    browserLaunches: 1,
+    wallClockMs: Date.now() - t0,
+    usesProductRenderer: true,
+  };
+}
+
+/**
  * Render one parametric equipment builder as a square reference pack (#262).
  *
  * ONE portless boot, ONE browser, N views. Views match the #232 pack shape
@@ -464,9 +545,7 @@ export async function renderEquipmentReferencePack(options?: {
   const views = options?.views ?? DEFAULT_PACK_VIEWS;
   const subjectOnly = options?.subjectOnly !== false;
   const outRoot = path.join(cwd, options?.outputRoot ?? EQUIPMENT_PACK_EVIDENCE_ROOT);
-  const packDir = path.join(outRoot, "packs", equipmentId);
   const reportRoot = path.join(outRoot, "pack-render-report.json");
-  await mkdir(packDir, { recursive: true });
 
   let server: PortlessDevServer | null = null;
   let browser: Browser | null = null;
@@ -489,64 +568,18 @@ export async function renderEquipmentReferencePack(options?: {
       deviceScaleFactor: 1,
     });
 
-    const renderedViews: EquipmentPackView[] = [];
-    let parametricSourceGlbPath: string | null = null;
-
-    for (const view of views) {
-      const spec: SubjectSpec = {
-        subjectId: `${equipmentId}_${view}`,
-        subjectKind: "equipment_builder",
-        equipmentId,
-        view,
-        exportGlb: view === "front",
-        subjectOnly,
-        label: `${equipmentId} ${view}`,
-      };
-      const imagePath = path.join(packDir, `${view}.png`);
-      const rendered = await captureSubject({
-        page,
-        baseUrl: server.url,
-        spec,
-        imagePath,
-      });
-      const relImage = path.relative(cwd, rendered.imagePath).replaceAll("\\", "/");
-      renderedViews.push({ ...rendered, imagePath: relImage, view });
-
-      if (view === "front") {
-        const glbBase64 = await page.evaluate(
-          () => (window as unknown as { __openClinXrExportedGlbBase64?: string })
-            .__openClinXrExportedGlbBase64 ?? null,
-        );
-        if (glbBase64) {
-          const glbPath = path.join(packDir, "parametric-source.glb");
-          await writeFile(glbPath, Buffer.from(glbBase64, "base64"));
-          parametricSourceGlbPath = path.relative(cwd, glbPath).replaceAll("\\", "/");
-        }
-      }
-    }
-
-    const contactAbs = path.join(outRoot, "packs", equipmentId, "contact-sheet.png");
-    await buildContactSheet({
+    const run = await renderEquipmentPackForId({
+      cwd,
       page,
-      cells: renderedViews.map((v) => ({
-        imagePath: path.join(cwd, v.imagePath),
-        label: v.view,
-      })),
-      outPath: contactAbs,
-      columns: 2,
-    });
-
-    const run: EquipmentPackRun = {
+      baseUrl: server.url,
       equipmentId,
-      views: renderedViews,
-      contactSheetPath: path.relative(cwd, contactAbs).replaceAll("\\", "/"),
-      packDir: path.relative(cwd, packDir).replaceAll("\\", "/"),
-      parametricSourceGlbPath,
-      devServerBoots: boots,
-      browserLaunches: browsers,
-      wallClockMs: Date.now() - t0,
-      usesProductRenderer: true,
-    };
+      views,
+      subjectOnly,
+      outRoot,
+    });
+    run.devServerBoots = boots;
+    run.browserLaunches = browsers;
+    run.wallClockMs = Date.now() - t0;
 
     await writeFile(reportRoot, `${JSON.stringify(run, null, 2)}\n`, "utf8");
     return run;
@@ -554,6 +587,272 @@ export async function renderEquipmentReferencePack(options?: {
     if (browser) await browser.close();
     if (server) server.proc.kill("SIGTERM");
   }
+}
+
+// ---------------------------------------------------------------------------
+// #256 — BATCH reference packs: ONE dev-server boot for N equipment ids
+// ---------------------------------------------------------------------------
+
+/** Per-view manifest entry (#256) — the deterministic render spec IS the "prompt". */
+export type EquipmentPackManifestView = {
+  view: CaptureView;
+  path: string;
+  bytes: number;
+  /** Deterministic render spec (subject spec) that produced this view — the "prompt" for a parametric generator. */
+  prompt: string;
+  frameCoverage: number;
+  frameSpanFraction: number | null;
+  roomGeometryPresent: boolean;
+  hudPresent: boolean;
+  groundPlanePresent: boolean;
+};
+
+export type EquipmentPackManifestSubject = {
+  equipmentId: string;
+  dir: string;
+  views: EquipmentPackManifestView[];
+  contactSheetPath: string | null;
+  parametricSourceGlbPath: string | null;
+};
+
+export type EquipmentPackManifest = {
+  schemaVersion: "openclinxr.equipment-reference-pack-batch.v1";
+  issue: "256";
+  factoryStep: "equipment_generate";
+  generatedAt: string;
+  generator: {
+    tool: "renderEquipmentReferencePackBatch";
+    file: "tools/openclinxr/evidence/isolated-subject-harness.ts";
+    deterministic: true;
+    llmInvolved: false;
+    views: CaptureView[];
+    subjectOnly: boolean;
+    viewportPx: number;
+    note: string;
+  };
+  summary: {
+    requested: number;
+    produced: number;
+    skipped: Array<{ equipmentId: string; reason: string }>;
+    devServerBoots: number;
+    browserLaunches: number;
+    wallClockMs: number;
+  };
+  claimScope: string[];
+  notEvidenceFor: string[];
+  subjects: EquipmentPackManifestSubject[];
+};
+
+export type EquipmentPackBatchRun = {
+  issue: "256";
+  factoryStep: "equipment_generate";
+  measuredAt: string;
+  equipmentIds: string[];
+  packs: EquipmentPackRun[];
+  skipped: Array<{ equipmentId: string; reason: string }>;
+  devServerBoots: number;
+  browserLaunches: number;
+  wallClockMs: number;
+  usesProductRenderer: boolean;
+  packManifestPath: string;
+  reportPath: string;
+};
+
+export const PACK_BATCH_CLAIM_SCOPE = [
+  "deterministic_parametric_multiview_reference_packs_for_35_parametric_equipment_ids",
+  "subject_only_5_view_packs_front_side_three_quarter_left_three_quarter_right_back",
+  "per_view_frame_coverage_and_isolation_flags_recorded",
+  "one_dev_server_boot_per_batch_not_per_id",
+  "factory_step_equipment_generate_input_material_only",
+] as const;
+
+export const PACK_BATCH_NOT_EVIDENCE_FOR = [
+  "TRELLIS bake success or mesh quality",
+  "clinical device accuracy or FDA/device-equivalence claims",
+  "Quest readiness or WebXR frame budget",
+  "production equipment adoption into the learner runtime",
+  "exam equivalence or clinical validity",
+] as const;
+
+async function buildPackManifest(input: {
+  cwd: string;
+  packs: EquipmentPackRun[];
+  skipped: Array<{ equipmentId: string; reason: string }>;
+  views: CaptureView[];
+  subjectOnly: boolean;
+  devServerBoots: number;
+  browserLaunches: number;
+  wallClockMs: number;
+}): Promise<EquipmentPackManifest> {
+  const { cwd, packs, skipped, views, subjectOnly, devServerBoots, browserLaunches, wallClockMs } = input;
+  const subjects: EquipmentPackManifestSubject[] = [];
+  for (const pack of packs) {
+    const subjectViews: EquipmentPackManifestView[] = [];
+    for (const v of pack.views) {
+      const abs = path.join(cwd, v.imagePath);
+      const bytes = (await stat(abs)).size;
+      subjectViews.push({
+        view: v.view,
+        path: v.imagePath,
+        bytes,
+        prompt:
+          `Deterministic parametric render of ${v.subjectId} (${v.view} view, 1024×1024, ` +
+          `subject-only=${subjectOnly}) via apps/ui-xr buildDeclaredEquipmentGeometry — no LLM.`,
+        frameCoverage: v.frameCoverage,
+        frameSpanFraction: v.frameSpanFraction,
+        roomGeometryPresent: v.roomGeometryPresent,
+        hudPresent: v.hudPresent,
+        groundPlanePresent: v.groundPlanePresent,
+      });
+    }
+    subjects.push({
+      equipmentId: pack.equipmentId,
+      dir: pack.packDir,
+      views: subjectViews,
+      contactSheetPath: pack.contactSheetPath,
+      parametricSourceGlbPath: pack.parametricSourceGlbPath,
+    });
+  }
+  return {
+    schemaVersion: "openclinxr.equipment-reference-pack-batch.v1",
+    issue: "256",
+    factoryStep: "equipment_generate",
+    generatedAt: new Date().toISOString(),
+    generator: {
+      tool: "renderEquipmentReferencePackBatch",
+      file: "tools/openclinxr/evidence/isolated-subject-harness.ts",
+      deterministic: true,
+      llmInvolved: false,
+      views,
+      subjectOnly,
+      viewportPx: PACK_VIEWPORT.width,
+      note:
+        "Deterministic parametric renders (#262) with #270 framing fix; subject-only (#265); " +
+        "5 views incl. back (#254). Replaces the Grok Imagine pack step — no quota, no LLM (D9).",
+    },
+    summary: {
+      requested: packs.length + skipped.length,
+      produced: packs.length,
+      skipped,
+      devServerBoots,
+      browserLaunches,
+      wallClockMs,
+    },
+    claimScope: [...PACK_BATCH_CLAIM_SCOPE],
+    notEvidenceFor: [...PACK_BATCH_NOT_EVIDENCE_FOR],
+    subjects,
+  };
+}
+
+/**
+ * Batch equipment reference packs (#256) — the PACK step for the 35 parametric
+ * equipment ids that still resolve parametric and have no input image.
+ *
+ * ONE portless dev-server boot + ONE browser for the whole batch; each id gets
+ * the same 5 subject-only views as the single-id entry. Packs land under
+ * `<outputRoot>/packs/<equipmentId>/` and the batch writes both a
+ * `pack-manifest.json` (per-id prompts/view labels/paths + per-view
+ * frameCoverage and isolation flags — the counterweight: a pack with empty
+ * background or leaked room geometry fails on its own numbers) and a
+ * `pack-batch-report.json` at `<outputRoot>`.
+ *
+ * Does NOT bake. Does NOT register subjects. Packs only.
+ */
+export async function renderEquipmentReferencePackBatch(options?: {
+  cwd?: string;
+  equipmentIds?: string[];
+  views?: CaptureView[];
+  outputRoot?: string;
+  /** Default true (#265) — subject-only renders. */
+  subjectOnly?: boolean;
+}): Promise<EquipmentPackBatchRun> {
+  const cwd = options?.cwd ?? process.cwd();
+  const ids = options?.equipmentIds ?? [DEFAULT_PACK_EQUIPMENT_ID];
+  const views = options?.views ?? DEFAULT_PACK_VIEWS;
+  const subjectOnly = options?.subjectOnly !== false;
+  const outRoot = path.join(cwd, options?.outputRoot ?? EQUIPMENT_PACK_EVIDENCE_ROOT);
+  const t0 = Date.now();
+
+  let server: PortlessDevServer | null = null;
+  let browser: Browser | null = null;
+  let boots = 0;
+  let browsers = 0;
+  const packs: EquipmentPackRun[] = [];
+  const skipped: Array<{ equipmentId: string; reason: string }> = [];
+
+  try {
+    boots += 1;
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      cwd,
+      readyTimeoutMs: 180_000,
+    });
+
+    browsers += 1;
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({
+      viewport: { ...PACK_VIEWPORT },
+      deviceScaleFactor: 1,
+    });
+
+    for (const equipmentId of ids) {
+      try {
+        packs.push(
+          await renderEquipmentPackForId({
+            cwd,
+            page,
+            baseUrl: server.url,
+            equipmentId,
+            views,
+            subjectOnly,
+            outRoot,
+          }),
+        );
+      } catch (err) {
+        skipped.push({
+          equipmentId,
+          reason: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  } finally {
+    if (browser) await browser.close();
+    if (server) server.proc.kill("SIGTERM");
+  }
+
+  const manifest = await buildPackManifest({
+    cwd,
+    packs,
+    skipped,
+    views,
+    subjectOnly,
+    devServerBoots: boots,
+    browserLaunches: browsers,
+    wallClockMs: Date.now() - t0,
+  });
+  const manifestPath = path.join(outRoot, "pack-manifest.json");
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+
+  const run: EquipmentPackBatchRun = {
+    issue: "256",
+    factoryStep: "equipment_generate",
+    measuredAt: manifest.generatedAt,
+    equipmentIds: ids,
+    packs,
+    skipped,
+    devServerBoots: boots,
+    browserLaunches: browsers,
+    wallClockMs: Date.now() - t0,
+    usesProductRenderer: true,
+    packManifestPath: path.relative(cwd, manifestPath).replaceAll("\\", "/"),
+    reportPath: path.relative(cwd, path.join(outRoot, "pack-batch-report.json")).replaceAll("\\", "/"),
+  };
+  await writeFile(
+    path.join(outRoot, "pack-batch-report.json"),
+    `${JSON.stringify(run, null, 2)}\n`,
+    "utf8",
+  );
+  return run;
 }
 
 // ---------------------------------------------------------------------------
