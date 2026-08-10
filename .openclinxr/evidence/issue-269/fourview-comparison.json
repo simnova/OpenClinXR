@@ -1,0 +1,223 @@
+{
+  "issue": "269",
+  "measurementKind": "three-artifact comparison — parametric source vs #267 single-view bake vs this 4-view bake, same instrument (trimesh, measure_parametric_vs_bake.py load path + measure_floor_presence.py)",
+  "factoryStep": "equipment_generate",
+  "subject": "oxygen_wall_port_equipment",
+  "measuredAt": "2026-08-10",
+  "openQuestion": "Does the 4-view bake recover the O2-port plate identity that the single-view bake (#267) lost? #267's negative was measured on ONE view (front.png only); the side/three-quarter views carry the plate depth + nub profile information the front view withholds. Geometry metrics cannot answer the identity question — the orchestrator grades the renders.",
+  "method": "ONE variable changed from #267: view count 1 → 4 (front + side + three_quarter_left + three_quarter_right), sequence-concat path proven in #255 (run_multiview in run_bake_isolated.py, conditioning on (1, 4*1029, 1024)). Same subject (oxygen_wall_port_equipment), same pack (byte-identical PNGs copied from the #267 worktree — NOT regenerated), same seed derivation (237000 + crc32('o2-port') % 1000 = 237617), same decimation target (1M), same texture size (1024).",
+  "constraints": {
+    "oneVariable": "view count 1 -> 4 — nothing else changed",
+    "inputSource": "parametric_render_from_buildDeclaredEquipmentGeometry",
+    "subjectOnlyInput": true,
+    "noExternalImageSource": true,
+    "noTriangleCountVerdict": true,
+    "orchestratorGradesRenders": true,
+    "textOnlyWorkerOpenedNoPngOrGlb": true
+  },
+  "parametricSource": {
+    "equipmentId": "oxygen_wall_port_equipment",
+    "builder": "buildHandheldDeviceOnStand(equipmentId, 'o2_port') — wall plate (0.12x0.16x0.03), outlet cylinder, gauge disc. Origin-centered wall mount.",
+    "glbPath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb",
+    "tracked": true,
+    "geometry": {
+      "vertexCount": 164,
+      "triangleCount": 100,
+      "surfaceArea": 0.0763,
+      "aabbExtent": [0.12, 0.19, 0.085],
+      "aspectRatio": 1.5833,
+      "slimmestSliceFraction": 0.25,
+      "volume": 0.000727,
+      "convexHullVolume": 0.001199,
+      "volumeRatio": 0.606,
+      "isWatertight": false,
+      "yMin": -0.08,
+      "yMax": 0.11
+    },
+    "floorPresence": {
+      "nearHorizontalFraction": 0.1551,
+      "bottomSlabFraction": 0.0472,
+      "reading": "no floor-like surface"
+    }
+  },
+  "pack": {
+    "packDir": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment",
+    "sourceNote": "PNGs copied byte-identical from issue-267 worktree — not regenerated. All 5 views groundPlanePresent: false (subject-only) per issue-267 pack-render-report.json.",
+    "viewsUsedForBake": [
+      { "view": "front", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/front.png", "frameCoverage": 0.0536, "groundPlanePresent": false },
+      { "view": "side", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/side.png", "frameCoverage": 0.0255, "groundPlanePresent": false },
+      { "view": "three_quarter_left", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_left.png", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "three_quarter_right", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_right.png", "frameCoverage": 0.0498, "groundPlanePresent": false }
+    ]
+  },
+  "singleViewBake_issue267": {
+    "bake": {
+      "command": "OPENCLINXR_TRELLIS_PACKS=<repo>/.openclinxr/evidence/issue-267/packs OPENCLINXR_TRELLIS_OUT=<repo>/.openclinxr/evidence/issue-267/bake pnpm factory:trellis:bake --subject o2-port",
+      "viewCount": 1,
+      "inputImagePath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/front.png",
+      "seed": 237617,
+      "rawTriangleCount": 997732,
+      "exportBytes": 38730052,
+      "exportPath": ".openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb",
+      "tracked": true,
+      "wallClockS": 1294.6
+    },
+    "geometry": {
+      "vertexCount": 770502,
+      "triangleCount": 997732,
+      "surfaceArea": 2.9385,
+      "aabbExtent": [1.0, 0.3732, 1.0],
+      "aspectRatio": 0.3732,
+      "slimmestSliceFraction": 0.4618,
+      "volume": 0.017963,
+      "convexHullVolume": 0.135811,
+      "volumeRatio": 0.1323,
+      "isWatertight": false,
+      "yMin": -0.1857,
+      "yMax": 0.1875
+    },
+    "floorPresence": {
+      "nearHorizontalFraction": 0.8837,
+      "bottomSlabFraction": 0.8728,
+      "bottomSlabWidthVsObjectWidth": 1.0,
+      "reading": "FLOOR-LIKE SURFACE — 87.3% of surface area near-horizontal in bottom 15% of height, spanning 100% of object width. The #267 floor reconstruction, mechanically confirmed."
+    }
+  },
+  "fourViewBake": {
+    "bake": {
+      "command": "PYTHONUNBUFFERED=1 PYTORCH_ENABLE_MPS_FALLBACK=1 ~/.openclinxr-tools/trellis2-apple/venv/bin/python3 tools/openclinxr/evidence/blender/run_bake_isolated.py --subject-id o2-port --input-image front.png --input-image side.png --input-image three_quarter_left.png --input-image three_quarter_right.png --output-dir .openclinxr/evidence/issue-269/bake/o2-port --trellis-root ~/.openclinxr-tools/trellis2-apple/src",
+      "subjectId": "o2-port",
+      "displayName": "wall oxygen port equipment (4-view B arm)",
+      "verdict": "mesh_exported",
+      "verdictReason": "TRELLIS Metal image→shape→mesh→GLB pipeline completed (fresh subprocess). Mesh: 925311 tris, 29685112 bytes. Shape gen: 216.5s, Export: 66.9s.",
+      "stages": {
+        "pipeline_load": "runs",
+        "pipeline_load_time_s": 2.9,
+        "shape_generation": "runs",
+        "shape_generation_time_s": 216.5,
+        "view_count": 4,
+        "glb_export": "runs",
+        "glb_export_time_s": 66.9
+      },
+      "rawTriangleCount": 925311,
+      "exportBytes": 29685112,
+      "texturedPbr": "yes",
+      "viewCount": 4,
+      "inputImagePath": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/front.png",
+      "inputImagePaths": [
+        ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/front.png",
+        ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/side.png",
+        ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_left.png",
+        ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_right.png"
+      ],
+      "seed": 237617,
+      "seedNote": "deterministic derivation from subject id (237000 + crc32('o2-port') % 1000) — identical to #267's single-view bake seed. Same seed, one variable (view count).",
+      "wallClockS": 287.4,
+      "wallClockNote": "NOT directly comparable to #267's 1294.6s: #267's bake ran under concurrent harness-test/typecheck load (its own report notes the confound), this bake ran with the machine otherwise idle. This is data only — duration is not a verdict criterion (D9).",
+      "exportPath": ".openclinxr/evidence/issue-269/bake/o2-port/o2-port.glb",
+      "tracked": true,
+      "trackedNote": "force-added — gitignored evidence has no land path (#250)",
+      "backgroundRemoval": "skipped",
+      "backgroundRemovalNote": "BiRefNet is a gated HF repo (unauthenticated 401) — background removal skipped, same as prior bakes. Subject-only flat-background input makes the input a single subject by construction (#265)."
+    },
+    "geometry": {
+      "vertexCount": 547060,
+      "triangleCount": 925311,
+      "surfaceArea": 0.4649,
+      "aabbExtent": [0.1819, 0.3655, 1.0],
+      "aspectRatio": 0.3655,
+      "slimmestSliceFraction": 0.3799,
+      "volume": 0.011328,
+      "convexHullVolume": 0.03306,
+      "volumeRatio": 0.3427,
+      "isWatertight": false,
+      "boundaryEdgeCount": 161367,
+      "yMin": -0.1834,
+      "yMax": 0.1822
+    },
+    "floorPresence": {
+      "nearHorizontalFraction": 0.113,
+      "bottomSlabFraction": 0.0564,
+      "bottomSlabArea": 0.026201,
+      "bottomSlabWidthVsObjectWidth": 0.1819,
+      "aabbExtent": [0.1819, 0.3655, 1.0],
+      "reading": "no floor-like surface: near-horizontal fraction 11.3%, bottom-slab fraction 5.6%"
+    },
+    "rearAxisSplits": {
+      "x": {
+        "axis": "x",
+        "nearProjectedArea": 0.0988,
+        "farProjectedArea": 0.0988,
+        "farAreaFraction": 0.5,
+        "nearVertexCount": 278037,
+        "farVertexCount": 269023,
+        "farVertexFraction": 0.4918,
+        "nearFillFraction": 0.2682,
+        "farFillFraction": 0.2682
+      },
+      "z": {
+        "axis": "z",
+        "nearProjectedArea": 0.0707,
+        "farProjectedArea": 0.085,
+        "farAreaFraction": 0.5458,
+        "nearVertexCount": 254708,
+        "farVertexCount": 292352,
+        "farVertexFraction": 0.5344,
+        "nearFillFraction": 0.9087,
+        "farFillFraction": 0.9794
+      }
+    }
+  },
+  "comparison": {
+    "viewCount_1": 1,
+    "viewCount_4": 4,
+    "seedBoth": 237617,
+    "oneVariable": "view count 1 -> 4; same subject, same byte-identical pack PNGs, same seed, same decimation target, same texture size, same sequence-concat path",
+    "aspectRatio_parametric": 1.5833,
+    "aspectRatio_singleViewBake": 0.3732,
+    "aspectRatio_fourViewBake": 0.3655,
+    "aabbExtent_singleViewBake": [1.0, 0.3732, 1.0],
+    "aabbExtent_fourViewBake": [0.1819, 0.3655, 1.0],
+    "floor_bottomSlabFraction_parametric": 0.0472,
+    "floor_bottomSlabFraction_singleViewBake": 0.8728,
+    "floor_bottomSlabFraction_fourViewBake": 0.0564,
+    "floor_bottomSlabWidthVsObject_singleViewBake": 1.0,
+    "floor_bottomSlabWidthVsObject_fourViewBake": 0.1819,
+    "volumeRatio_singleViewBake": 0.1323,
+    "volumeRatio_fourViewBake": 0.3427,
+    "boundaryEdges_singleViewBake": 492156,
+    "boundaryEdges_fourViewBake": 161367,
+    "surfaceArea_singleViewBake": 2.9385,
+    "surfaceArea_fourViewBake": 0.4649,
+    "triangleCount_singleViewBake": 997732,
+    "triangleCount_fourViewBake": 925311,
+    "reading": [
+      "FLOOR IS GONE in the 4-view bake: bottom-slab fraction 0.0564 (5.6%) vs 0.8728 (87.3%) single-view — the #267 floor reconstruction did NOT recur. The 4-view bake bottom-slab fraction (5.6%) is within 1pt of the parametric source's own (4.7%), which is the gauge/disc footprint geometry, not a floor.",
+      "AABB shape changed from [1.0, 0.3732, 1.0] (single-view: full-footprint flat slab) to [0.1819, 0.3655, 1.0] (4-view: thin in X, full depth in Z) — the flat full-width slab collapsed. Surface area dropped 6.3x (2.9385 -> 0.4649), consistent with the floor slab gone.",
+      "volumeRatio more than doubled (0.1323 -> 0.3427) and boundary edges dropped 3x (492156 -> 161367): the 4-view surface is more solid and less shredded.",
+      "CAVEAT (aspect ratio): both bakes read ~0.37 aspect (height / max(width,depth)) — the parametric source is 1.5833 (tall plate). The single-view aspect is saturated by the floor slab; the 4-view aspect is saturated by the depth axis (Z=1.0 normalized). Neither aspect ratio alone answers the identity question — the orchestrator grades the renders.",
+      "CAVEAT (rear axis splits): the 4-view z-axis farAreaFraction 0.5458 and fill fractions 0.91/0.98 are high because the object is now a THIN plate viewed along its depth (Z = normalized longest axis), NOT because the rear became fully informed — the pack has no back/top/bottom view and views carry no camera poses (#255 residual applies).",
+      "triangle counts 997732 -> 925311 (-7.3%) recorded as data only, NOT a verdict (MADR 0050:23 — optimization is a later pipeline stage)."
+    ],
+    "geometryReadingInstrument": [
+      "measure_parametric_vs_bake.py (trimesh, same instrument as #267)",
+      "measure_floor_presence.py (area-weighted near-horizontal fraction, bottom-15%-height slab fraction, slab width vs object width)",
+      "measure_rear_geometry.py (per-axis near/far projected area + orthographic fill, #255 instrument)"
+    ]
+  },
+  "renderNeededForGrading": {
+    "note": "TEXT-ONLY WORKER — I opened no PNG/GLB. The orchestrator grades: (1) a lit + structure render of the 4-view bake GLB .openclinxr/evidence/issue-269/bake/o2-port/o2-port.glb — does it read as a wall O2 port (plate with depth, protruding nub), and did the floor come back?; (2) the #267 single-view bake GLB .openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb (the negative being re-tested); (3) the parametric source .openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb; (4) the pack contact sheet for the input views.",
+    "packRenderLocations": {
+      "note": "Pack PNGs are gitignored (regenerable). The 4 views used for this bake are byte-identical copies of the #267 pack (verified: copied with cp from the issue-267 worktree, same 1024x1024 files). The #267 worktree pack remains on disk at: /Users/patrick/.grok/worktrees/src-openclinxr/issue-267/.openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/ (front/side/three_quarter_left/three_quarter_right/back.png + contact-sheet.png). groundPlanePresent: false for all 5 views (scene-recorded by #267's renderEquipmentReferencePack, pack-render-report.json).",
+      "issue267WorktreePackDir": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-267/.openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment"
+    },
+    "openQuestionForGrade": "Does 4-view conditioning recover plate depth/side-profile identity the 1-view bake lost? Side profile is where a wall plate lives. Compare against BOTH the parametric source and the #267 single-view bake."
+  },
+  "notEvidenceFor": [
+    "replacement of parametric equipment builders",
+    "TRELLIS suitability for other asset classes",
+    "mesh quality suitable for exam use",
+    "Quest readiness",
+    "clinical accuracy or device equivalence"
+  ]
+}

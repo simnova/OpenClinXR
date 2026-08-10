@@ -1,0 +1,82 @@
+{
+  "issue": "269",
+  "measurementKind": "pre-fix before-column — the parametric source AND the #267 single-view bake geometry + floor presence, recorded BEFORE the 4-view bake",
+  "factoryStep": "equipment_generate",
+  "subject": "oxygen_wall_port_equipment",
+  "measuredAt": "2026-08-10",
+  "measuredBeforeAnyBake": true,
+  "measuredBeforeThisBake": true,
+  "note": "The #267 single-view bake is itself a PRE-EXISTING artifact of this experiment (the before-column of the 1→4 view change), measured here with the same trimesh instrument as the incoming 4-view bake. No bake was run before this file was written.",
+  "source": "apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry -> buildHandheldDeviceOnStand(equipmentId, 'o2_port') (parametric, deterministic, origin-centered wall mount)",
+  "method": "subject-only 5-view reference pack rendered via renderEquipmentReferencePack (one dev-server boot, one browser); the FRONT view exports the rendered root to parametric-source.glb (GLTFExporter). Measured with the SAME instrument the bake comparison uses (trimesh, tools/openclinxr/evidence/blender/measure_parametric_vs_bake.py load path + measure_floor_presence.py for the floor).",
+  "evidence": {
+    "packDir": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment",
+    "packSourceNote": "pack PNGs copied byte-identical from the #267 worktree (issue-267/.openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment) — NOT regenerated. subject-only, groundPlanePresent: false for all 5 views per #267 pack-render-report.json.",
+    "parametricSourceGlbPath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/parametric-source.glb",
+    "viewsUsedForBake": [
+      { "view": "front", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/front.png", "frameCoverage": 0.0536, "groundPlanePresent": false },
+      { "view": "side", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/side.png", "frameCoverage": 0.0255, "groundPlanePresent": false },
+      { "view": "three_quarter_left", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_left.png", "frameCoverage": 0.0498, "groundPlanePresent": false },
+      { "view": "three_quarter_right", "path": ".openclinxr/evidence/issue-269/packs/oxygen_wall_port_equipment/three_quarter_right.png", "frameCoverage": 0.0498, "groundPlanePresent": false }
+    ],
+    "subjectOnly": true,
+    "groundPlanePresentInPackRenders": false,
+    "groundPlanePresentNote": "all 5 pack views groundPlanePresent: false, recorded from the scene by #267's renderEquipmentReferencePack run (issue-267 pack-render-report.json). The pack renders for this subject contain NO ground geometry.",
+    "parametricSourceGeometry": {
+      "meshCount": 3,
+      "vertexCount": 164,
+      "triangleCount": 100,
+      "surfaceArea": 0.0763,
+      "aabbExtent": [0.12, 0.19, 0.085],
+      "aspectRatio": 1.5833,
+      "yMin": -0.08,
+      "yMax": 0.11
+    },
+    "singleViewBake_issue267": {
+      "glbPath": ".openclinxr/evidence/issue-267/bake/o2-port/o2-port.glb",
+      "viewCount": 1,
+      "inputImagePath": ".openclinxr/evidence/issue-267/packs/oxygen_wall_port_equipment/front.png",
+      "seed": 237617,
+      "geometry": {
+        "vertexCount": 770502,
+        "triangleCount": 997732,
+        "surfaceArea": 2.9385,
+        "aabbExtent": [1.0, 0.3732, 1.0],
+        "aspectRatio": 0.3732,
+        "slimmestSliceFraction": 0.4618,
+        "volume": 0.017963,
+        "convexHullVolume": 0.135811,
+        "volumeRatio": 0.1323,
+        "isWatertight": false,
+        "yMin": -0.1857,
+        "yMax": 0.1875
+      }
+    },
+    "floorPresence": {
+      "method": "measure_floor_presence.py — area-weighted near-horizontal triangle fraction, bottom-15%-of-height slab fraction, slab width vs object horizontal extent (trimesh)",
+      "parametricSource": {
+        "nearHorizontalFraction": 0.1551,
+        "bottomSlabFraction": 0.0472,
+        "bottomSlabWidthVsObjectWidth": 1.0,
+        "reading": "no floor-like surface: near-horizontal fraction 15.5%, bottom-slab fraction 4.7%"
+      },
+      "singleViewBake_issue267": {
+        "nearHorizontalFraction": 0.8837,
+        "bottomSlabFraction": 0.8728,
+        "bottomSlabArea": 2.564877,
+        "bottomSlabWidthVsObjectWidth": 1.0,
+        "aabbExtent": [1.0, 0.3732, 1.0],
+        "reading": "FLOOR-LIKE SURFACE: 87.3% of surface area is near-horizontal in the bottom 15% of height, spanning 100% of the object's horizontal extent — the #267 floor reconstruction, mechanically confirmed"
+      }
+    }
+  },
+  "context": {
+    "openQuestion": "Does the 4-view bake (sequence-concat path, #255) recover the O2-port plate identity that the single-view bake (#267) lost? The #267 negative was measured on ONE view; the side/three-quarter views carry the plate depth information the front view withholds. Geometry metrics cannot answer the identity question — the orchestrator grades the renders.",
+    "oneVariable": "view count 1 → 4 (front + side + three_quarter_left + three_quarter_right). Same subject, same pack (byte-identical PNGs), same harness, same seed derivation (237000 + crc32(subjectId) % 1000 = 237617), same decimation target (1M), same texture size (1024), same run_bake_isolated.py sequence-concat path proven in #255."
+  },
+  "notEvidenceFor": [
+    "the 4-view bake itself (not yet run when this was written)",
+    "any mesh-quality claim",
+    "clinical accuracy or device equivalence"
+  ]
+}
