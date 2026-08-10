@@ -7,7 +7,7 @@ token_efficiency: high
 q_gates: [Q1, Q4, Q5]
 visibility: both
 strategic_group: orchestration-factory-v1
-last_measured: 2026-08-08
+last_measured: 2026-08-10
 parseable_sections: 6
 ---
 
@@ -94,13 +94,15 @@ Last updated: 2026-08-08
 
 ## Recent Completions (last 7 unique)
 
-- 2026-06-07: **scenario-bank-review-packet-v1** verify ok (Q4 scenario bank review packets for authored encounters; authoring/review/persistence/replay/admin UI batch closed across 6+ slices). Next: pivot to new sizable vertical per anti-toil + Strategic.
-- 2026-06-07: **full-encounter-authoring-v1** verify ok (Q1/Q4 full encounter authoring: authored scenarios/review packets/traces/actor turns/emotion timelines/replaySafe from case defs). Next: implementation-authoring-follow-on-v1.
-- 2026-06-07: **peds-real-garment-sleeve-evidence** verify ok (Q1+Q5 real garment sleeves from phenotype.garmentLayers, both tester + sample, 324f expanded 3D deforming sleeves + UI-XR pngs). Next: peds-evidence-loop.
-- 2026-06-07: **garment-apply-role-clothing-material-regions-expand-v1** verify ok (Q1 apply_role expand: automate_blender.py sleeve 0.27/0.35r/7r12c + vivid blue contrast from phenotype.garmentLayers). Next: peds-real-garment-sleeve-evidence.
-- 2026-06-07: **ed-seed-humanoid-case-def** verify ok (Q1 ED case ed_chest_pain_priority_v2 -> humanoid rigging seed/variants + cagematch). Next: new-ed-seed-humanoid-case-def-v1.
-- 2026-06-07: **new-peds-adaptive-sleeve-deform-evidence-v1** verify ok (Q1+Q5 new peds adaptive sleeve deform evidence: visible 3D deforming sleeves per mandate). Next: ed-seed-humanoid-case-def.
-- 2026-06-07: **peds-evidence-loop** verify ok (Q1/Q5 full peds adaptive evidence loop: sleeve deform + body motion evidence). Next: new-peds-adaptive-sleeve-deform-evidence-v1.
+Per-slice detail lives on the GitHub board (HOT plane). This block is the rehydration
+fast-path only: what landed, and what it changed about the factory's capability.
+
+- 2026-08-10: **#270 pack framing** (equipment_generate, Q5). Reference-pack renders framed the subject at ~5% of the image; now framed to projected bounds — worst-case small plate 5% → 14–36% coverage, isolation (D3) preserved. Graded on pixels, not bytes.
+- 2026-08-10: **#259 cluster B** (instrument, Q5). Four actors reported `skinnedTriangleCount=0` because the probe sampled mid-load; sampling after all assets settle makes them green. Instrument defect, not product — third instance of the sampling-instant class (§10m).
+- 2026-08-10: **#268 / #266 / #260 / #258 equipment mount chain** (equipment_generate, Q1). Generated GLBs are object-centered and unit-normalized; the chain now translates, preserves the composite parametric stand, and fits uniformly. **Two generated assets are consumed in live stations** — wall clock 34,885 t, bedside monitor 60,378 t.
+- 2026-08-10: **#263 first MPFB2 cast** (body_param, Q1). An MPFB2 humanoid (36,972 t, skinned, 32 face shape keys, 23-bone standard rig) is cast into a station for the first time. D11's rail split is now real, not planned.
+- 2026-08-10: **#269 / #267 TRELLIS multi-view** (equipment_generate, Q5). The single-view negative was **overturned** — it was measured on one view. Sequence-concat multi-view conditioning (`get_cond` takes a list) produces a floor-free result at 4 views.
+- 2026-08-10: **#261 wins published** (D12). Screenshots of live generated assets pushed to the site.
 
 ## Backlog (top)
 
