@@ -595,3 +595,72 @@ post-processing without re-generation, producing a 2-wall bedroom at ~1,146 tris
 ceiling, and door apertures intact.
 
 NOT TESTED: clinical room semantics; ui-xr placement; `/tmp` re-home; decimation; batch extraction.
+
+---
+
+## DIMENSION-CONTROL MEASURE 2026-08-10 (#271) — trigger 3 splits by axis, Decision unchanged
+
+Operator push-back, 2026-08-10, verbatim: *"the empty room can be described in a way that
+represents an empty room structure that would suffice for a clinical environment — push back and
+try again."*
+
+That is right about the framing, and it exposes an ambiguity in reversal trigger 3. The trigger
+asks that the generator be *"driven by `environmentId` / case blueprint fields"*, and the Decision
+called parameterisation a factory-killer because Infinigen takes seed + gin + **room semantics**
+(`DiningRoom`, `Bedroom`) rather than `ed_exam_bay_v1`.
+
+**That objection conflates two different questions.** A clinical shell is walls, floor, ceiling
+and a door aperture at given dimensions; clinical identity comes from the fixtures the parametric
+builders already place — the hybrid MADR 0050 step 10 sanctions and that #260 proved for equipment.
+So the question worth measuring is **geometry control**, not semantics. Every prior slice here
+(#77, #135, #229, #234, #236) measured `restrict_parent_rooms` and `solve_max_rooms`. **None
+measured dimensions.**
+
+### What was measured
+
+The install was first re-homed durably — `~/.openclinxr-tools/infinigen/{source,venv}` are now
+real directories rather than symlinks into a wiped `/tmp`, `infinigen 1.14.0-dev` and `bpy` import,
+and generation runs from the new path. That residual had been carried unfixed through three slices.
+
+| axis | verdict | evidence |
+|---|---|---|
+| ceiling height | **met_measured** | `wall_height` pinned 2.65 → shell 2.65 m; pinned 3.6 → shell 3.6 m; scene height identical across differing footprints |
+| footprint | **not_an_input_measured** | no absolute dimension input exists; area is a soft objective, not a target |
+| door placement | **not_an_input_measured** | — |
+| clinical semantics | not measured | room set stays residential |
+
+`RoomConstants` is `@gin.configurable` at
+`infinigen/core/constraints/constraint_language/constants.py:21`; `global_params` (`:50-57`)
+exposes `unit=0.5`, `segment_margin=1.4`, `wall_thickness=("uniform",0.2,0.3)`,
+`wall_height=("uniform",2.8,3.2)`. Room area appears only as a soft per-type objective in
+`infinigen_examples/constraints/home.py:354-372` (`r.area()/20`, `/40`, `/5`, `/8`).
+
+**The size objection is now definitively dead.** The furniture-free clinical shell measures
+**11,060 triangles across 96 meshes and 32 materials** — 6% of the 180k per-station ceiling, and
+below several hand-made parametric rooms. The original 15,476,539 was furniture, as this document's
+own 2026-08-07 correction already conceded. Note that per operator direction no generated output is
+gated on triangle count in any case; meshoptimizer runs later in the pipeline.
+
+### Why the Decision still stands
+
+Height alone does not satisfy trigger 3. A shell whose ceiling can be pinned but whose footprint
+and door placement cannot be specified is not "driven by `environmentId` / case blueprint fields" —
+a station needs a room of a given size with a door where the case says, and Infinigen will not take
+those as inputs. Hand-made parametric shells stay.
+
+**What would flip it:** an aspect-knob sweep showing footprint reachable within tolerance, or a
+post-process extract (#236) parameterised on a target footprint. Both are open.
+
+### Orchestrator correction
+
+An interim report in this cycle described "two default runs with an identical height" as evidence of
+dimension control in general. Both runs were in fact **pinned to 2.65**, and the result proves exact
+parameter→output correspondence on **one axis only**. The generalisation was wrong; the measurement
+was not. Recorded because the scope of an overturning matters as much as the overturning.
+
+CLAIM: Infinigen is durably re-homed off `/tmp`, and `wall_height` is an exact deterministic gin
+input producing a shell at the specified ceiling height at 11,060 architecture triangles.
+
+NOT TESTED: footprint targeting via aspect knobs; door placement control; clinical room semantics;
+`RoomConstants.room_type` gin binding (gin cannot parse Semantics enums into the un-annotated
+constructor param); survival of the re-homed install across an actual reboot.
