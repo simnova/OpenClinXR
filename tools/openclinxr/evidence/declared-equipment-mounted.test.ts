@@ -98,6 +98,32 @@ import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equip
  * of equipment is clinically correct for the scenario — that needs a clinician.
  */
 
+/* ════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#258) — placement was never verified; a triangle count is blind to WHERE
+ *
+ * The #253 contract above proves 60,000 source triangles reach the scene. It does not
+ * prove the mount lands where its descriptor says. #258 graded `ed_stroke_alert_handoff_v1`
+ * on main after #253: the generated bedside monitor rendered at FLOOR LEVEL, oversized and
+ * clipped by the bottom viewport edge, overlapping the family member's feet.
+ *
+ * Measured (issue-258/pre-fix.json, live scene + file):
+ *     bedside_monitor_equipment   placement (0.95, 0, 0.98)  asset-local y∈[-0.403, +0.402]
+ *         → world AABB y∈[-0.403, +0.402]: the object-centered TRELLIS GLB was dropped at
+ *         y=0, half-buried below the floor. The descriptor was authored against the
+ *         parametric builder's FLOOR-STANDING convention (base on floor, content above).
+ *     wall_clock_equipment        placement (-2.4, 1.55, -1.15)  asset-local y∈[-0.465, +0.464]
+ *         → world AABB y∈[1.085, 2.014]: correct — placement y=1.55 is the ELEVATED
+ *         mount-height convention where origin-centering is right (the control).
+ *
+ * Fix: the mount path now normalizes a gltf-sourced mount to the placement descriptor's
+ * convention — floor placements (|Y| < 0.05) ground the object by its measured local
+ * min-Y; elevated placements stay origin-centered (wall clock untouched). General
+ * convention adapter, not a per-asset placement fudge. The contract below ("lands within
+ * the placement envelope") is the gate that would have caught this class.
+ *
+ * #258 FIXED 2026-08-10 — new placement-envelope contract added below.
+ */
+
 const load = async () => import("./declared-equipment-mounted.js") as Promise<Record<string, unknown>>;
 
 const EQUIPMENT_GLB_DIR = path.resolve(
@@ -144,12 +170,17 @@ type MountedEquipment = {
    */
   triangleCountAfterLoad?: number;
   meshCountAfterLoad?: number;
+  /** #258 — live world-space AABB of the mounted root's visible geometry. */
+  worldAabbMin?: { x: number; y: number; z: number };
+  worldAabbMax?: { x: number; y: number; z: number };
 };
 
 type StationEquipment = {
   scenarioId: string;
   /** Equipment ids in the SHIPPED scene manifest for this station. */
   declaredEquipmentIds: string[];
+  /** #258 — declared placement positions from the shipped manifest's equipmentPlacements. */
+  declaredPlacements: Record<string, { x: number; y: number; z: number }>;
   mounted: MountedEquipment[];
   /** Ids mounted in the live scene that the manifest never declared. */
   undeclaredMountedIds: string[];
@@ -295,5 +326,67 @@ describe("a station renders the equipment it declares (#140)", () => {
       }
     }
     expect(failures, `bedside_monitor_equipment not rendering the real GLB:\n${failures.join("\n")}`).toHaveLength(0);
+  }, 900_000);
+
+  it("a gltf-sourced equipment mount lands within the placement envelope its descriptor declares (#258)", async () => {
+    // #258 — #253 proved the bedside monitor's 60,000 source triangles reach the scene
+    // in every declaring station but never verified WHERE they land (its own close:
+    // "NOT TESTED: pixel grade in-station"; the same residual was named at #244 and
+    // bit twice). The TRELLIS GLB is object-centered — asset-local bounds
+    // y∈[-0.403, +0.402] — while its placement descriptor declares y=0, the parametric
+    // builder's FLOOR-STANDING convention (base on the floor, content above origin).
+    // The mount dropped the origin-centered GLB at y=0, so the monitor sat half-buried
+    // below the floor plane, oversized in-frame and clipped by the viewport edge.
+    //
+    // The wall clock is the CONTROL: its placement y=1.55 is an ELEVATED mount-height
+    // convention (same parametric builders that stamp
+    // openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root"),
+    // where origin-centering is correct. It must keep passing here.
+    //
+    // Two halves:
+    //  - burial: no gltf mount's world AABB may extend below the floor plane. This is
+    //    the load-bearing check (pre-fix the monitor min-Y = -0.403; also the ED bay's
+    //    ecg-cart and iv-pole GLBs, which are object-centered at floor placements).
+    //  - envelope: when the manifest declares a placement for the id, the declared
+    //    position must lie within the mount's world AABB (the object is where its
+    //    descriptor says it is, within its own bulk).
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const FLOOR_TOLERANCE_M = 0.05;
+    const unmeasured: string[] = [];
+    const buried: string[] = [];
+    const offEnvelope: string[] = [];
+    for (const s of report.stations) {
+      for (const m of s.mounted) {
+        if (m.source !== "gltf") continue;
+        if (!m.worldAabbMin || !m.worldAabbMax) {
+          unmeasured.push(`${s.scenarioId}/${m.equipmentId}: no live world AABB`);
+          continue;
+        }
+        if (m.worldAabbMin.y < -FLOOR_TOLERANCE_M) {
+          buried.push(`${s.scenarioId}/${m.equipmentId}: world min-Y ${m.worldAabbMin.y.toFixed(3)}m below floor plane`);
+        }
+        const placement = s.declaredPlacements[m.equipmentId];
+        if (placement) {
+          const inX = placement.x >= m.worldAabbMin.x - FLOOR_TOLERANCE_M
+            && placement.x <= m.worldAabbMax.x + FLOOR_TOLERANCE_M;
+          const inZ = placement.z >= m.worldAabbMin.z - FLOOR_TOLERANCE_M
+            && placement.z <= m.worldAabbMax.z + FLOOR_TOLERANCE_M;
+          const inY = placement.y >= m.worldAabbMin.y - FLOOR_TOLERANCE_M
+            && placement.y <= m.worldAabbMax.y + FLOOR_TOLERANCE_M;
+          if (!inX || !inZ || !inY) {
+            offEnvelope.push(
+              `${s.scenarioId}/${m.equipmentId}: declared (${placement.x},${placement.y},${placement.z}) outside live world AABB`,
+            );
+          }
+        }
+      }
+    }
+    expect(unmeasured, `gltf mounts with no live world AABB:\n${unmeasured.join("\n")}`).toHaveLength(0);
+    expect(buried, `gltf equipment buried below the floor plane:\n${buried.join("\n")}`).toHaveLength(0);
+    expect(offEnvelope, `gltf equipment outside its declared placement envelope:\n${offEnvelope.join("\n")}`).toHaveLength(0);
   }, 900_000);
 });

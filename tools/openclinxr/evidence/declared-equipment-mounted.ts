@@ -15,6 +15,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { NodeIO } from "@gltf-transform/core";
 import { chromium, type Page } from "playwright";
 import { spawnPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
 import {
@@ -60,11 +61,28 @@ export type MountedEquipment = {
    */
   triangleCountAfterLoad?: number;
   meshCountAfterLoad?: number;
+  /**
+   * #258 — world-space AABB of the mounted root's VISIBLE geometry (hidden
+   * placeholder/nameplate/affordance meshes excluded). Triangle counts prove
+   * geometry reached the scene; these prove WHERE it landed. Consumed by the
+   * placement-envelope contract in declared-equipment-mounted.test.ts.
+   */
+  worldAabbMin?: { x: number; y: number; z: number };
+  worldAabbMax?: { x: number; y: number; z: number };
+  /** #258 — the mount node's world translation (the outermost tagged root). */
+  mountNodeWorldPosition?: { x: number; y: number; z: number };
 };
 
 export type StationEquipment = {
   scenarioId: string;
   declaredEquipmentIds: string[];
+  /**
+   * #258 — declared placement positions from the shipped manifest's
+   * equipmentPlacements (the descriptor the mount is supposed to land within).
+   * Empty for ids the station mounts without a declared placement (e.g. the
+   * hardcoded ED bay ECG cart / IV pole, which use DEFAULT_POSITIONS).
+   */
+  declaredPlacements: Record<string, { x: number; y: number; z: number }>;
   mounted: MountedEquipment[];
   undeclaredMountedIds: string[];
 };
@@ -82,6 +100,13 @@ type ArtifactPayload = {
   measuredAgainstCommit: string;
   /** #141 — refuse cache when HEAD or tracked worktree dirtiness moves. */
   treeStamp: MeasurementTreeStamp;
+  /**
+   * #258 — file-level local bounds of every shipped real-equipment GLB (from the
+   * tracked files, via gltf-transform). The calibration half of the placement
+   * table: world AABB (live) vs asset-local bounds (file) shows whether a bad
+   * mount is an origin/scale property of the asset or a mount-path defect.
+   */
+  assetLocalBounds?: Record<string, { min: number[]; max: number[] }>;
   claimScope: string[];
   notEvidenceFor: string[];
   report: DeclaredEquipmentMountingReport;
@@ -146,6 +171,33 @@ export async function readDeclaredEquipmentIds(scenarioId: string): Promise<stri
 }
 
 /**
+ * #258 — declared placement positions (equipmentPlacements[id].position) from the
+ * shipped scene manifest. The placement envelope a gltf-sourced mount must land
+ * within is authored against the parametric builders' conventions: floor kinds
+ * (y≈0) are base-on-floor; elevated kinds (y>0) are origin-centered mount-height.
+ */
+export async function readDeclaredEquipmentPlacements(scenarioId: string): Promise<
+  Record<string, { x: number; y: number; z: number }>
+> {
+  const manifestPath = path.join(generatedRoot, scenarioId, "scene-manifest.v1.json");
+  if (!existsSync(manifestPath)) return {};
+  const raw = JSON.parse(await readFile(manifestPath, "utf8")) as {
+    equipmentPlacements?: Record<
+      string,
+      { position?: { x?: number; y?: number; z?: number } } | undefined
+    >;
+  };
+  const out: Record<string, { x: number; y: number; z: number }> = {};
+  for (const [id, p] of Object.entries(raw.equipmentPlacements ?? {})) {
+    const pos = p?.position;
+    if (pos && typeof pos.x === "number" && typeof pos.y === "number" && typeof pos.z === "number") {
+      out[id] = { x: pos.x, y: pos.y, z: pos.z };
+    }
+  }
+  return out;
+}
+
+/**
  * Signature consumed by declared-equipment-mounted.test.ts planted contracts.
  * Measures once across the full shipped manifest bank (shared across vitest cases).
  */
@@ -156,6 +208,12 @@ export async function inspectDeclaredEquipmentMounting(input?: {
   scenarioIds?: string[];
   /** When true, write/overwrite pre-fix.json (must be done BEFORE product edits). */
   writePreFix?: boolean;
+  /**
+   * #258 — override the pre-fix artifact path (default
+   * .openclinxr/evidence/issue-140/pre-fix.json). The #258 contract reads
+   * .openclinxr/evidence/issue-258/pre-fix.json.
+   */
+  preFixOutputPath?: string;
 }): Promise<DeclaredEquipmentMountingReport> {
   if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
   if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
@@ -178,7 +236,7 @@ export async function inspectDeclaredEquipmentMounting(input?: {
 
     if (input?.writePreFix) {
       await writeEquipmentMountDump(report, {
-        outputPath: preFixPath(),
+        outputPath: input.preFixOutputPath ?? preFixPath(),
         label: input?.label ?? "pre-fix",
       });
     }
@@ -224,10 +282,13 @@ export async function writeEquipmentMountDump(
     label: input?.label ?? "measurement",
     generatedAt: new Date().toISOString(),
     measuredAgainstCommit: stamp.head,
+    assetLocalBounds: await measureAssetLocalBounds(),
     claimScope: [
       "shipped_scene_manifest_equipmentPlacements",
       "live_scene_userData_openClinXrEquipmentId",
       "mesh_and_triangle_counts_under_equipment_roots",
+      "world_space_aabb_and_mount_node_translation_of_live_mounted_equipment",
+      "asset_local_bounds_from_shipped_glb_files",
     ],
     notEvidenceFor: [
       "clinical_correctness_of_equipment",
@@ -235,12 +296,62 @@ export async function writeEquipmentMountDump(
       "environment_shell",
       "quest_readiness",
       "scoring_validity",
+      "asset_scale_or_origin_being_correct",
     ],
     report,
   }) satisfies ArtifactPayload;
   await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
   process.stdout.write(`declared-equipment-mounted: wrote ${outputPath}\n`);
   return outputPath;
+}
+
+/**
+ * #258 — file-level local AABB of every shipped real-equipment GLB, read from the
+ * tracked files with gltf-transform. Pairs with the live world AABB rows so a
+ * placement failure is attributable: origin/scale properties live in the asset,
+ * mount-path defects live in the runtime.
+ */
+async function measureAssetLocalBounds(): Promise<Record<string, { min: number[]; max: number[] }>> {
+  const io = new NodeIO();
+  const out: Record<string, { min: number[]; max: number[] }> = {};
+  const equipmentDir = path.join(repoRoot, "apps/ui-xr/public/xr-assets/medical-equipment");
+  for (const [equipmentId, fileName] of Object.entries(REAL_EQUIPMENT_GLTF_BY_ID)) {
+    try {
+      const doc = await io.read(path.join(equipmentDir, fileName));
+      let min = [Infinity, Infinity, Infinity];
+      let max = [-Infinity, -Infinity, -Infinity];
+      let found = false;
+      for (const mesh of doc.getRoot().listMeshes()) {
+        for (const prim of mesh.listPrimitives()) {
+          const pos = prim.getAttribute("POSITION");
+          if (!pos) continue;
+          const arr = pos.getArray();
+          if (!arr) continue;
+          for (let i = 0; i < pos.getCount(); i += 1) {
+            const x = arr[i * 3];
+            const y = arr[i * 3 + 1];
+            const z = arr[i * 3 + 2];
+            if (x < min[0]) min[0] = x;
+            if (y < min[1]) min[1] = y;
+            if (z < min[2]) min[2] = z;
+            if (x > max[0]) max[0] = x;
+            if (y > max[1]) max[1] = y;
+            if (z > max[2]) max[2] = z;
+            found = true;
+          }
+        }
+      }
+      if (found) {
+        out[equipmentId] = {
+          min: min.map((v) => Math.round(v * 1000) / 1000),
+          max: max.map((v) => Math.round(v * 1000) / 1000),
+        };
+      }
+    } catch {
+      // Asset absent in this tree — leave the row out rather than fail the dump.
+    }
+  }
+  return out;
 }
 
 async function measureLiveEquipmentMounting(input: {
@@ -278,6 +389,7 @@ async function measureLiveEquipmentMounting(input: {
         for (const scenarioId of scenarios) {
           process.stdout.write(`declared-equipment-mounted: goto ${scenarioId}\n`);
           const declaredEquipmentIds = await readDeclaredEquipmentIds(scenarioId);
+          const declaredPlacements = await readDeclaredEquipmentPlacements(scenarioId);
           const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
           // #245 — watch GLTF load resolution timing from the first available frame
@@ -356,6 +468,7 @@ async function measureLiveEquipmentMounting(input: {
           const row: StationEquipment = {
             scenarioId: sid,
             declaredEquipmentIds,
+            declaredPlacements,
             mounted,
             undeclaredMountedIds,
           };
@@ -501,6 +614,66 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
       return ids;
     }
 
+    // #258 — a mount is visible when neither it nor any ancestor is hidden (the
+    // GLB slot hides its placeholder/nameplate/affordance siblings after attach).
+    function isVisibleInTree(object) {
+      let o = object;
+      while (o) {
+        if (o.visible === false) return false;
+        o = o.parent;
+      }
+      return true;
+    }
+
+    // #258 — world AABB of the VISIBLE geometry under a mount root. Manual 4x4
+    // transform of each POSITION by matrixWorld (no THREE global on window).
+    function computeWorldBounds(object) {
+      try { object.updateWorldMatrix(true, true); } catch (e) {}
+      let min = [Infinity, Infinity, Infinity];
+      let max = [-Infinity, -Infinity, -Infinity];
+      let found = false;
+      object.traverse(function (o) {
+        if (!o || !o.isMesh || !o.geometry || !isVisibleInTree(o)) return;
+        const attr = o.geometry.attributes && o.geometry.attributes.position;
+        if (!attr || !attr.array || !attr.count) return;
+        const m = o.matrixWorld && o.matrixWorld.elements;
+        if (!m) return;
+        const count = attr.count;
+        // #258 — InterleavedBufferAttribute (stride 8: pos3+normal3+uv2) reads of the
+        // raw array mix position with normal components (measured: wall-clock GLB
+        // reported node ± 1.0 because unit normals were read as positions). Use the
+        // attribute API, which resolves the interleaved offset/stride the same way the
+        // runtime does. §6v: measure with the instrument the runtime uses.
+        for (let i = 0; i < count; i++) {
+          const x = attr.getX(i); const y = attr.getY(i); const z = attr.getZ(i);
+          const wx = m[0] * x + m[4] * y + m[8] * z + m[12];
+          const wy = m[1] * x + m[5] * y + m[9] * z + m[13];
+          const wz = m[2] * x + m[6] * y + m[10] * z + m[14];
+          if (wx < min[0]) min[0] = wx;
+          if (wy < min[1]) min[1] = wy;
+          if (wz < min[2]) min[2] = wz;
+          if (wx > max[0]) max[0] = wx;
+          if (wy > max[1]) max[1] = wy;
+          if (wz > max[2]) max[2] = wz;
+          found = true;
+        }
+      });
+      if (!found) return null;
+      const r3 = function (v) { return Math.round(v * 1000) / 1000; };
+      return {
+        min: { x: r3(min[0]), y: r3(min[1]), z: r3(min[2]) },
+        max: { x: r3(max[0]), y: r3(max[1]), z: r3(max[2]) },
+      };
+    }
+
+    function worldPositionOf(object) {
+      try { object.updateWorldMatrix(true, false); } catch (e) {}
+      const m = object.matrixWorld && object.matrixWorld.elements;
+      if (!m) return null;
+      const r3 = function (v) { return Math.round(v * 1000) / 1000; };
+      return { x: r3(m[12]), y: r3(m[13]), z: r3(m[14]) };
+    }
+
     const byId = {};
     if (scene && typeof scene.traverse === "function") {
       scene.traverse(function (object) {
@@ -520,6 +693,8 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
         }
         if (ancestorHas) return;
         const counts = countGeometry(object);
+        const bounds = computeWorldBounds(object);
+        const mountPosition = worldPositionOf(object);
         const ud = object.userData || {};
         let source = "fallback";
         if (ud.openClinXrEquipmentSource === "gltf" || ud.openClinXrEquipmentSource === "parametric"
@@ -538,6 +713,9 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
               source: source,
               triangleCount: counts.triangleCount,
               meshCount: counts.meshCount,
+              worldAabbMin: bounds ? bounds.min : undefined,
+              worldAabbMax: bounds ? bounds.max : undefined,
+              mountNodeWorldPosition: mountPosition,
             };
           }
         }
@@ -619,7 +797,16 @@ if (
 ) {
   const writePreFix = process.argv.includes("--write-pre-fix");
   const force = process.argv.includes("--force");
-  inspectDeclaredEquipmentMounting({ writePreFix, force, label: writePreFix ? "pre-fix" : "cli" })
+  const preFixIdx = process.argv.indexOf("--pre-fix-path");
+  const preFixOutputPath = preFixIdx >= 0 && process.argv[preFixIdx + 1]
+    ? process.argv[preFixIdx + 1]
+    : undefined;
+  inspectDeclaredEquipmentMounting({
+    writePreFix,
+    force,
+    label: writePreFix ? "pre-fix" : "cli",
+    preFixOutputPath,
+  })
     .then((report) => {
       process.stdout.write(`stations=${report.stations.length}\n`);
       process.exit(0);

@@ -11,6 +11,8 @@
  */
 
 import {
+  Box3,
+  Group,
   Mesh,
   type Object3D,
 } from "three";
@@ -321,6 +323,40 @@ export function equipmentDisplayLabel(equipmentId: string): string {
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
+}
+
+/**
+ * #258 — placements with |Y| below this are FLOOR placements: the object stands on
+ * the floor with its base at the placement Y (the parametric bedside monitor /
+ * exam table / fetal monitor convention). Placements at or above it are ELEVATED
+ * mounts where the placement Y is the mount height and origin-centered geometry is
+ * correct (wall clock, O2 wall port, inhaler — the builders stamp
+ * openClinXrEquipmentLocalYPolicy = "origin_centered_mount_height_from_placement_root").
+ */
+export const EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M = 0.05;
+
+/**
+ * #258 — normalize a freshly loaded equipment GLB to the placement descriptor's
+ * convention. TRELLIS image-to-3D exports are object-centered (geometry spans
+ * ±half-size around the origin), while floor placements (Y≈0) are authored against
+ * the parametric builders' base-on-floor convention. Grounding by the measured
+ * local min-Y puts the object's base on the floor instead of half-buried below it.
+ * Elevated placements (Y>0) keep origin-centered mount-height semantics untouched.
+ *
+ * This is a general convention adapter, not a per-asset placement fudge: no
+ * per-equipment constants, and it degrades to a no-op for already-grounded GLBs
+ * (min-Y ≥ 0) and for elevated mounts. Wall clock (y=1.55) is unaffected.
+ */
+export function normalizeGltfEquipmentMount(
+  equipment: Group,
+  mountSlot: { position: { y: number } },
+): Group {
+  if (Math.abs(mountSlot.position.y) >= EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M) return equipment;
+  const bounds = new Box3().setFromObject(equipment);
+  if (bounds.min.y < 0) {
+    equipment.position.y -= bounds.min.y;
+  }
+  return equipment;
 }
 
 /**
