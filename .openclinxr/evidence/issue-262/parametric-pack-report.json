@@ -1,0 +1,178 @@
+{
+  "issue": "262",
+  "measurementKind": "parametric-render reference pack (harness) + TRELLIS single-view bake + same-instrument geometry comparison",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10",
+  "constraints": {
+    "singleViewBake": true,
+    "inputSource": "parametric_render_from_buildDeclaredEquipmentGeometry",
+    "noExternalImageSource": true,
+    "noTriangleCountVerdict": true,
+    "oneSubjectOnly": true,
+    "orchestratorGradesRenders": true
+  },
+  "pack": {
+    "equipmentId": "iv_pole_equipment",
+    "source": "apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry (parametric, deterministic)",
+    "renderedBy": "tools/openclinxr/evidence/isolated-subject-harness.ts renderEquipmentReferencePack (one dev-server boot)",
+    "packDir": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment",
+    "views": [
+      {
+        "view": "front",
+        "subjectId": "iv_pole_equipment_front",
+        "path": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/front.png",
+        "bytes": 14750,
+        "frameCoverage": 0.3950834274291992
+      },
+      {
+        "view": "side",
+        "subjectId": "iv_pole_equipment_side",
+        "path": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/side.png",
+        "bytes": 20585,
+        "frameCoverage": 0.39379215240478516
+      },
+      {
+        "view": "three_quarter_left",
+        "subjectId": "iv_pole_equipment_three_quarter_left",
+        "path": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/three_quarter_left.png",
+        "bytes": 20987,
+        "frameCoverage": 0.3997678756713867
+      },
+      {
+        "view": "three_quarter_right",
+        "subjectId": "iv_pole_equipment_three_quarter_right",
+        "path": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/three_quarter_right.png",
+        "bytes": 16865,
+        "frameCoverage": 0.3998870849609375
+      },
+      {
+        "view": "back",
+        "subjectId": "iv_pole_equipment_back",
+        "path": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/back.png",
+        "bytes": 18882,
+        "frameCoverage": 0.39498138427734375
+      }
+    ],
+    "contactSheetPath": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/contact-sheet.png",
+    "parametricSourceGlbPath": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/parametric-source.glb",
+    "tracked": false,
+    "trackedNote": "gitignored by design (.openclinxr/); the pack is regenerable in seconds via the harness CLI --pack. pre-fix.json and parametric-pack-report.json are force-added (tracked)."
+  },
+  "bake": {
+    "command": "pnpm factory:trellis:bake --subject iv-pole",
+    "subjectId": "iv-pole",
+    "verdict": "mesh_exported",
+    "verdictReason": "TRELLIS Metal image→shape→mesh→GLB pipeline completed (fresh subprocess). Mesh: 996371 tris, 35140112 bytes. Shape gen: 420.0s, Export: 807.7s.",
+    "stages": {
+      "pipeline_load": "runs",
+      "pipeline_load_time_s": 2.9,
+      "shape_generation": "runs",
+      "shape_generation_time_s": 420,
+      "view_count": 1,
+      "glb_export": "runs",
+      "glb_export_time_s": 807.7
+    },
+    "rawTriangleCount": 996371,
+    "exportBytes": 35140112,
+    "texturedPbr": "yes",
+    "viewCount": 1,
+    "inputImagePaths": [
+      "/Users/patrick/.grok/worktrees/src-openclinxr/issue-262/.openclinxr/evidence/issue-262/packs/iv_pole_equipment/front.png"
+    ],
+    "seed": 237316,
+    "wallClockS": 1231.558053970337,
+    "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-262/.openclinxr/evidence/issue-262/bake/iv-pole/iv-pole.glb",
+    "tracked": false
+  },
+  "bakeRendersForGrading": {
+    "dir": ".openclinxr/evidence/glb-grade-capture/2026-08-10T15-10-00Z/assets/iv-pole",
+    "galleryPath": null,
+    "imageCount": null,
+    "tracked": false
+  },
+  "geometryComparison": {
+    "measurementKind": "geometry comparison — parametric source vs TRELLIS bake, same instrument (trimesh)",
+    "parametricGlb": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment/parametric-source.glb",
+    "bakeGlb": ".openclinxr/evidence/issue-262/bake/iv-pole/iv-pole.glb",
+    "constraints": {
+      "bakeIsObjectCenteredAndNormalized": true,
+      "absoluteExtentsNotComparable": true,
+      "comparisonOnDimensionlessShapeMetrics": true,
+      "orchestratorGradesRenders": true
+    },
+    "parametric": {
+      "vertexCount": 468,
+      "triangleCount": 284,
+      "surfaceArea": 0.6539,
+      "aabbExtent": [
+        0.48,
+        1.575,
+        0.48
+      ],
+      "aspectRatio": 3.2813,
+      "slimmestSliceFraction": 0.0567,
+      "volume": 0.008668,
+      "convexHullVolume": 0.131754,
+      "volumeRatio": 0.0658,
+      "isWatertight": false,
+      "boundaryEdgeCount": 0,
+      "yMin": 0,
+      "yMax": 1.575
+    },
+    "bake": {
+      "vertexCount": 647565,
+      "triangleCount": 996371,
+      "surfaceArea": 3.172,
+      "aabbExtent": [
+        1,
+        0.7701,
+        1
+      ],
+      "aspectRatio": 0.7701,
+      "slimmestSliceFraction": 0.4408,
+      "volume": 0.002323,
+      "convexHullVolume": 0.531566,
+      "volumeRatio": 0.0044,
+      "isWatertight": false,
+      "boundaryEdgeCount": 0,
+      "yMin": -0.3851,
+      "yMax": 0.385
+    },
+    "comparison": {
+      "aspectRatio_parametric": 3.2813,
+      "aspectRatio_bake": 0.7701,
+      "slimmestSliceFraction_parametric": 0.0567,
+      "slimmestSliceFraction_bake": 0.4408,
+      "volumeRatio_parametric": 0.0658,
+      "volumeRatio_bake": 0.0044,
+      "triangleCount_parametric": 284,
+      "triangleCount_bake": 996371,
+      "watertight_parametric": false,
+      "watertight_bake": false
+    },
+    "geometryReading": [
+      "bake lost the tall/thin silhouette (aspect 0.7701 vs parametric 3.2813)",
+      "thin-pole structure BLURRED (slimmest slice 0.4408 vs parametric 0.0567; >1.0 = no sustained thin element)"
+    ],
+    "notEvidenceFor": [
+      "mesh quality suitable for exam use",
+      "production adoption into learner runtime",
+      "replacement of parametric equipment builders",
+      "clinical accuracy"
+    ]
+  },
+  "verdict": "negative_reject_measured",
+  "verdictReason": "Judged on GEOMETRY (not triangle count — MADR 0050), the TRELLIS single-view bake is NOT better than the parametric source it was conditioned on. Aspect ratio 0.7701 (bake) vs 3.2813 (parametric): the bake is WIDER THAN TALL — the tall/thin IV-pole silhouette is lost. Slimmest vertical slice fraction 0.4408 vs 0.0567: the bake has no sustained thin element (the pole) — a >7x blur. Volume ratio 0.0044 vs 0.0658: the bake is a near-hollow shell (0.0044 of its convex hull filled). Triangle count recorded only: bake 996371 tris vs parametric 284 — NOT a selection criterion. Orchestrator grades the renders: bake lit/structure passes under .openclinxr/evidence/glb-grade-capture/2026-08-10T15-10-00Z/assets/iv-pole/ (front_lit, three_quarter_lit, front_structure, three_quarter_structure) vs the parametric pack renders under .openclinxr/evidence/issue-262/packs/iv_pole_equipment/ (front/side/three_quarter_left/three_quarter_right/back + contact-sheet). NEGATIVE RESULT — closes the parametric-render→TRELLIS equipment route for this evidence. The equipment lane's reference-pack sourcing genuinely depends on an operator decision about image sourcing.",
+  "decision": {
+    "outcome": "One subject decides: TRELLIS single-view conditioned on a parametric render does NOT upgrade the geometry — it destroys the defining thin-pole silhouette. The approach is rejected for equipment reference packs.",
+    "whatSurvives": "The harness capability is general: renderEquipmentReferencePack can produce a 5-view 1024x1024 pack for ANY of the 35 equipment ids in seconds, deterministically, quota-free. That is the reusable factory step; the TRELLIS upgrade leg is the part that failed.",
+    "whatTheOperatorDecides": "Equipment lane reference-pack sourcing: parametric renders are now the proven deterministic input for anything that consumes 2D reference images; generative image sourcing (Grok Imagine, or an approved alternative) is an operator licensing/provenance decision this slice deliberately did not make."
+  },
+  "notEvidenceFor": [
+    "replacement of parametric equipment builders",
+    "TRELLIS suitability for other asset classes (rooms, humanoids, or multi-view-with-camera-pose inputs)",
+    "mesh quality suitable for exam use",
+    "Quest readiness",
+    "clinical accuracy or device equivalence"
+  ]
+}

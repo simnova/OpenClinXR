@@ -27,6 +27,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
@@ -40,18 +41,34 @@ import {
   buildPatientStretcher,
 } from "./station-stretcher.js";
 import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
+import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
+
+/**
+ * Reference-pack capture views (#262). Mirrors the #232 pack view set
+ * (front/side/two three-quarters) plus a back view — #254 measured that the
+ * existing packs have no back view and the rear is where reconstruction fails.
+ */
+export type CaptureView =
+  | "front"
+  | "side"
+  | "three_quarter_left"
+  | "three_quarter_right"
+  | "back";
 
 export type IsolatedSubjectKind =
   | "furniture_builder"
   | "runtime_posture"
   | "posture_on_furniture"
-  | "glb";
+  | "glb"
+  | "equipment_builder";
 
 export type IsolatedSubjectSpec = {
   subjectId: string;
   subjectKind: IsolatedSubjectKind;
   /** furniture_builder name when kind needs it. */
   builder?: "patient_stretcher" | "patient_chair";
+  /** equipment_builder id (e.g. iv_pole_equipment) when kind needs it. */
+  equipmentId?: string;
   /** posture when kind needs it. */
   posture?: "supine";
   /** Repo-public path under ui-xr public/, e.g. generated-humanoids/ed_chest_pain_adult_cast.glb */
@@ -61,6 +78,10 @@ export type IsolatedSubjectSpec = {
    * Not a product ship angle — contact sheet grades 0/15/30/45.
    */
   inclineDegrees?: number;
+  /** Camera view for reference-pack renders (#262). Absent = legacy three-quarter framing. */
+  view?: CaptureView;
+  /** When true, serialize the rendered subject root to a GLB (base64 on window) — #262. */
+  exportGlb?: boolean;
   label?: string;
 };
 
@@ -91,11 +112,15 @@ declare global {
     __openClinXrIsolatedSubjectEvidence?: IsolatedSubjectEvidence;
     __openClinXrArticulatingHobMeasure?: ArticulatingHobMeasure;
     __openClinXrIsolatedSceneRoot?: Object3D;
+    __openClinXrExportedGlbBase64?: string;
   }
 }
 
-const WIDTH = 1280;
-const HEIGHT = 960;
+const WIDTH_LEGACY = 1280;
+const HEIGHT_LEGACY = 960;
+/** Reference-pack captures are square, matching the #232 pack shape (1024×1024). */
+const PACK_WIDTH = 1024;
+const PACK_HEIGHT = 1024;
 const BG = "#18211d";
 
 function parseSpec(): IsolatedSubjectSpec {
@@ -112,17 +137,24 @@ function parseSpec(): IsolatedSubjectSpec {
   const subjectId = params.get("subjectId") ?? "anonymous";
   const subjectKind = (params.get("subjectKind") ?? "furniture_builder") as IsolatedSubjectKind;
   const builder = (params.get("builder") as IsolatedSubjectSpec["builder"]) ?? undefined;
+  const equipmentId = params.get("equipmentId") ?? undefined;
   const posture = (params.get("posture") as IsolatedSubjectSpec["posture"]) ?? undefined;
   const bodyGlb = params.get("bodyGlb") ?? undefined;
   const inclineRaw = params.get("inclineDegrees");
   const inclineDegrees = inclineRaw != null && inclineRaw !== "" ? Number(inclineRaw) : undefined;
+  const viewRaw = params.get("view");
+  const view = (viewRaw as CaptureView | null) ?? undefined;
+  const exportGlbRaw = params.get("exportGlb");
   return {
     subjectId,
     subjectKind,
     ...(builder ? { builder } : {}),
+    ...(equipmentId ? { equipmentId } : {}),
     ...(posture ? { posture } : {}),
     ...(bodyGlb ? { bodyGlb } : {}),
     ...(inclineDegrees != null && Number.isFinite(inclineDegrees) ? { inclineDegrees } : {}),
+    ...(view ? { view } : {}),
+    ...(exportGlbRaw === "true" ? { exportGlb: true } : {}),
     label: params.get("label") ?? subjectId,
   };
 }
@@ -161,12 +193,27 @@ function measureCanvasCoverage(renderer: WebGLRenderer): number {
   return nonBg / (w * h);
 }
 
-function frameCamera(camera: PerspectiveCamera, bounds: Box3): void {
+/** Unit-ish camera direction per pack view: [dx, dz] on the XZ plane (front = +Z). */
+const VIEW_DIRECTIONS: Record<CaptureView, [number, number]> = {
+  front: [0, 1],
+  back: [0, -1],
+  side: [1, 0],
+  three_quarter_left: [0.7071, 0.7071],
+  three_quarter_right: [-0.7071, 0.7071],
+};
+
+function frameCamera(camera: PerspectiveCamera, bounds: Box3, view?: CaptureView): void {
   const center = bounds.getCenter(new Vector3());
   const size = bounds.getSize(new Vector3());
   const radius = Math.max(size.x, size.y, size.z, 0.4);
   const distance = radius * 2.4;
-  camera.position.set(center.x + distance * 0.55, center.y + radius * 0.35, center.z + distance * 0.85);
+  if (!view) {
+    // Legacy framing — unchanged for furniture/posture subjects.
+    camera.position.set(center.x + distance * 0.55, center.y + radius * 0.35, center.z + distance * 0.85);
+  } else {
+    const [dx, dz] = VIEW_DIRECTIONS[view];
+    camera.position.set(center.x + dx * distance, center.y + radius * 0.35, center.z + dz * distance);
+  }
   camera.lookAt(center.x, center.y + size.y * 0.05, center.z);
   camera.near = 0.01;
   camera.far = Math.max(50, distance * 4);
@@ -243,6 +290,12 @@ async function buildSubjectRoot(spec: IsolatedSubjectSpec): Promise<{
     }
     humanoid.updateMatrixWorld(true);
     container.add(humanoid);
+  } else if (spec.subjectKind === "equipment_builder") {
+    const equipmentId = spec.equipmentId;
+    if (!equipmentId) {
+      throw new Error("equipment_builder requires equipmentId");
+    }
+    container.add(buildDeclaredEquipmentGeometry(equipmentId));
   } else if (spec.subjectKind === "glb") {
     const bodyGlb = spec.bodyGlb ?? "generated-humanoids/ed_chest_pain_adult_cast.glb";
     container.add(await loadHumanoid(bodyGlb));
@@ -264,7 +317,10 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   mount.append(canvas);
 
   const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
-  renderer.setSize(WIDTH, HEIGHT, false);
+  const square = spec.view != null;
+  const width = square ? PACK_WIDTH : WIDTH_LEGACY;
+  const height = square ? PACK_HEIGHT : HEIGHT_LEGACY;
+  renderer.setSize(width, height, false);
   renderer.setClearColor(new Color(BG));
   renderer.setPixelRatio(1);
 
@@ -302,8 +358,8 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   }
   const size = bounds.getSize(new Vector3());
 
-  const camera = new PerspectiveCamera(35, WIDTH / HEIGHT, 0.01, 100);
-  frameCamera(camera, bounds);
+  const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
+  frameCamera(camera, bounds, spec.view);
 
   let framesAdvanced = 0;
   await new Promise<void>((resolve) => {
@@ -321,6 +377,35 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   const requestedDeg = spec.inclineDegrees ?? 0;
   window.__openClinXrArticulatingHobMeasure = measureArticulatingHob(root, requestedDeg, framesAdvanced);
+
+  if (spec.exportGlb === true) {
+    // Parametric-source serialization (#262): export the same root the harness
+    // rendered to a GLB so the bake output can be compared with the same
+    // instrument (glTF-vs-glTF), not a browser-side count vs a trimesh count.
+    const exporter = new GLTFExporter();
+    await new Promise<void>((resolve) => {
+      exporter.parse(
+        root,
+        (result) => {
+          if (result instanceof ArrayBuffer) {
+            const bytes = new Uint8Array(result);
+            let binary = "";
+            const CHUNK = 0x8000;
+            for (let i = 0; i < bytes.length; i += CHUNK) {
+              binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+            }
+            window.__openClinXrExportedGlbBase64 = btoa(binary);
+          }
+          resolve();
+        },
+        (error: unknown) => {
+          console.error("GLB export failed", error);
+          resolve();
+        },
+        { binary: true },
+      );
+    });
+  }
 
   const frameCoverageHint = Math.min(
     0.95,
