@@ -54,9 +54,22 @@ production path**. That converts every slice choice into one question:
 - **The success measure is throughput of CASES, not greenness of contracts.** "Take multiple cases,
   run them through, get a full experience at the end." A slice that improves one asset but leaves the
   pipeline LLM-dependent has not advanced the factory.
-- **"Proven and unconsumed" is the factory's characteristic defect.** MakeClothes fits garments today
-  and nothing consumes it. Mesh2Motion is "approved, preferred and unused" (#70). MADR 0044 adopted
-  hm08 and all seven humanoids are still Anny. **Wiring a proven component beats proving a new one.**
+- **"Proven and unconsumed" is the factory's characteristic defect.** Mesh2Motion is "approved,
+  preferred and unused" (#70). **Wiring a proven component beats proving a new one.**
+
+  **Two clauses of this bullet were measured false on 2026-08-10 and are corrected here rather than
+  appended to (§7q).** A live per-actor traversal of `ed_chest_pain_priority_v2` shows the spouse
+  loading `hm08_basemesh_adult_lean_female` with `makeclothes_library_scrub_shirt` (9,384 tris) and
+  `makeclothes_library_cargo_pants` (392 tris). So **MakeClothes IS consumed**, and **not all
+  humanoids are Anny** — hm08 reaches a learner today. Both claims would have sent a slice to build
+  a consumer that already exists.
+
+  What replaces them is a sharper defect, and it is worse than non-consumption: the consumer is
+  **wired but silently produces nothing usable**. 392 triangles of trousers over a 26,756-triangle
+  body cannot cover legs, and the bare skin below reads as a see-through figure in every capture of
+  that station. The scrub shirt from the same library on the same body is 9,384 tris and does cover,
+  so the library is not broken in general — the fit is failing for one garment and no gate noticed.
+  **Ask "does the wired component actually produce output that works", not only "is it wired".**
 - **A worker writing bespoke geometry code is the anti-pattern**, even when the output passes every
   contract — because the next case needs a human-equivalent to write it again.
 
