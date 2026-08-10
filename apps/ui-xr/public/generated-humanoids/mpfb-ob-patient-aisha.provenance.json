@@ -20,7 +20,7 @@
     "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Byte-identical promote of the 2026-05-27 MPFB comparator candidate to the tracked runtime cast path; no geometry, material, or rig changes. Candidate sha256 0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d."
+    "derivationNote": "Regenerated 2026-08-10 (#222): the candidate materializer now paints the proven bounds-derived scalp/hair material region (apply_mesh_native_scalp_hair_material_region from the Anny rail) onto the MPFB body instead of a hand-authored UV sphere. No texture or rig changes. Candidate sha256 80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -50,7 +50,7 @@
     "method": "mpfb2_standard_rig_137_joints_36972_skinned_triangles"
   },
   "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "promotion_of_2026-05-27_comparator_candidate_no_regeneration",
+  "promptOrCaseParameterHash": "regenerated_2026-08-10_scalp_hair_region_issue_222",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "production_asset_readiness",
@@ -58,19 +58,18 @@
     "learner_readiness",
     "clinical_validity",
     "scoring_validity",
-    "scene_placement_readiness",
-    "material_class_parity_with_anny_rail"
+    "scene_placement_readiness"
   ],
   "sourceNotes": [
     "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
-    "Known hazard #222: MPFB and Anny rails render as different material classes in one room (0 textures / no hair mesh vs 1 texture / scalp mesh). Reported, not fixed in this slice.",
+    "Issue #222: MPFB rail now paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
     "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Byte-identical to the tracked candidates/ comparator (sha256 0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d)."
+    "Byte-identical to the tracked candidates/ comparator (sha256 80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb)."
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d",
-  "outputBytes": 5016580,
-  "generatedAt": "2026-08-10T16:25:00.000+00:00",
+  "outputSha256": "80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb",
+  "outputBytes": 4994172,
+  "generatedAt": "2026-08-10T19:44:00.000+00:00",
   "method": "byte_identical_promote_from_candidates_comparator"
 }

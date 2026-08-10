@@ -3,9 +3,13 @@
 
 Fails closed if the PNG is near-uniform (the blank-grey failure class).
 Does not invent materials; uses imported glTF materials + key/fill lights.
+
+#222: parameterised so a single proven renderer serves both the issue-221 two-pair
+comparison (defaults) and the issue-222 single-pair known-good-vs-subject capture.
 """
 from __future__ import annotations
 
+import argparse
 import math
 import sys
 from pathlib import Path
@@ -35,6 +39,21 @@ PAIRS = [
 
 def clear_scene() -> None:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+
+
+def parse_args() -> argparse.Namespace:
+    # Blender consumes its own flags and passes script args after `--`; sys.argv still holds
+    # Blender's tokens, so slice at the first `--` (same pattern as the MPFB materializer).
+    argv = sys.argv
+    if "--" in argv:
+        argv = argv[argv.index("--") + 1 :]
+    parser = argparse.ArgumentParser(description="Grade render: lit EEVEE side-by-side Anny reference vs MPFB body.")
+    parser.add_argument("--out", default=str(OUT), help="Output PNG path (default: issue-221 path)")
+    parser.add_argument("--anny-glb", default=None, help="Anny reference GLB for a single pair (default: issue-221 pairs)")
+    parser.add_argument("--mpfb-glb", default=None, help="MPFB subject GLB for a single pair (default: issue-221 pairs)")
+    parser.add_argument("--anny-name", default="anny_reference")
+    parser.add_argument("--mpfb-name", default="mpfb_subject")
+    return parser.parse_args(argv)
 
 
 def choose_engine() -> str:
@@ -270,24 +289,34 @@ def assert_png_not_blank(
 
 
 def main() -> int:
+    args = parse_args()
+    out_path = Path(args.out)
     clear_scene()
     engine = choose_engine()
     if "WORKBENCH" in engine:
         print("WARN: falling back to WORKBENCH — materials may be washed out", file=sys.stderr)
 
-    # Place pairs along X: Anny | MPFB | gap | Anny | MPFB
-    offsets = [-3.0, -1.0, 1.0, 3.0]
+    if args.anny_glb and args.mpfb_glb:
+        # Single subject pair (e.g. issue-222: Anny known-good | MPFB promoted subject)
+        pairs = [(Path(args.anny_glb), Path(args.mpfb_glb), args.anny_name, args.mpfb_name)]
+        offsets = [-1.5, 1.5]
+        expected_meshes = 2
+    else:
+        pairs = PAIRS
+        offsets = [-3.0, -1.0, 1.0, 3.0]
+        expected_meshes = 4
+
     all_roots: list[bpy.types.Object] = []
     idx = 0
-    for anny_path, mpfb_path, anny_name, mpfb_name in PAIRS:
+    for anny_path, mpfb_path, anny_name, mpfb_name in pairs:
         all_roots.extend(import_glb(anny_path, anny_name, offsets[idx]))
         idx += 1
         all_roots.extend(import_glb(mpfb_path, mpfb_name, offsets[idx]))
         idx += 1
 
     mesh_count = sum(1 for o in bpy.data.objects if o.type == "MESH")
-    if mesh_count < 4:
-        raise RuntimeError(f"expected ≥4 meshes after import, got {mesh_count}")
+    if mesh_count < expected_meshes:
+        raise RuntimeError(f"expected ≥{expected_meshes} meshes after import, got {mesh_count}")
 
     frame = frame_camera(all_roots)
     print("FRAME", frame, "engine", engine)
@@ -299,20 +328,20 @@ def main() -> int:
         pass
     scene.render.resolution_x = 1600
     scene.render.resolution_y = 900
-    scene.render.filepath = str(OUT)
+    scene.render.filepath = str(out_path)
     scene.render.image_settings.file_format = "PNG"
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     bpy.ops.render.render(write_still=True)
-    if not OUT.is_file() or OUT.stat().st_size < 20_000:
-        raise RuntimeError(f"render did not write a usable PNG: {OUT}")
+    if not out_path.is_file() or out_path.stat().st_size < 20_000:
+        raise RuntimeError(f"render did not write a usable PNG: {out_path}")
 
-    pix = assert_png_not_blank(OUT)
+    pix = assert_png_not_blank(out_path)
     print(
         "OK",
         {
-            "path": str(OUT.relative_to(REPO)),
-            "bytes": OUT.stat().st_size,
+            "path": str(out_path.resolve().relative_to(REPO)),
+            "bytes": out_path.stat().st_size,
             "engine": engine,
             "pixels": pix,
             "frame": frame,

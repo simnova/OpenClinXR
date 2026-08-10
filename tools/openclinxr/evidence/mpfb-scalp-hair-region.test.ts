@@ -30,6 +30,19 @@
  * MPFB cases fail. A contract that is green on the known-good rail and red on the defect rail
  * cannot be vacuous, and it cannot be satisfied by weakening the predicate.
  */
+/**
+ * ## FIXED (#222)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` no longer hand-authors a UV sphere. It imports the
+ * proven `apply_mesh_native_scalp_hair_material_region` from the Anny rail
+ * (`tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201`) and paints the bounds-derived
+ * scalp region onto the MPFB body. MPFB's Blender-local orientation is Z-up with the face at +Y,
+ * while the function's Z-height branch expects the face at -Y, so the materializer feeds it a
+ * temporary 180-deg Z flip of the mesh data (rigid rotation; geometry/rig/shape keys untouched)
+ * and flips back after painting. Measured on the regenerated, re-promoted candidate: the body
+ * carries a second primitive `openclinxr_mesh_native_scalp_hair_surface` (2612 tris), no separate
+ * hair mesh remains, and the region passes both bounds below.
+ */
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -158,19 +171,19 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
   });
 
-  it.fails("MPFB rail carries no separate hand-authored hair mesh", async () => {
+  it("MPFB rail carries no separate hand-authored hair mesh", async () => {
     const subject = await readSubject(MPFB_SUBJECT);
     // Today: ["Sphere"] — a 960-triangle UV sphere from primitive_uv_sphere_add.
     expect(subject.separateHairMeshes).toEqual([]);
   });
 
-  it.fails("MPFB rail body mesh carries a scalp hair material region", async () => {
+  it("MPFB rail body mesh carries a scalp hair material region", async () => {
     const subject = await readSubject(MPFB_SUBJECT);
     // Today: prims=1 (skin only), scalpRegion=null.
     expect(subject.scalpRegion).not.toBeNull();
   });
 
-  it.fails("MPFB rail scalp region sits on the crown and stops behind the face", async () => {
+  it("MPFB rail scalp region sits on the crown and stops behind the face", async () => {
     const { scalpRegion } = await readSubject(MPFB_SUBJECT);
     expect(scalpRegion).not.toBeNull();
     expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);

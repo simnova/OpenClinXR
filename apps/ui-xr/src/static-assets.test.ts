@@ -14,7 +14,7 @@ const generatedSceneAssetHashes = {
   "humanoids/variants/ob-patient-aisha-generated-human.glb": "ad2ad124d56b1f5ccaa2f61a75d08cac865c57ae22b999744f5ce3459037f4f2",
   "humanoids/variants/ob-nurse-williams-generated-human.glb": "6f2261b1b0c83d5417d219b070ee0f704e008eec208b073a3e7586faac7b3c67",
   "humanoids/variants/ob-partner-omar-generated-human.glb": "06ee1ba01fc2d195babdff3d26d366c2028042f815a2bbc27e8ad3a5e6c34abc",
-  "humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb": "0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d",
+  "humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb": "80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb",
   "humanoids/candidates/charmorph-antonia-ob-patient-candidate.glb": "9bdb335c7e06b96ac4e0f64d59a36857e8a7449a6cc779e2c0f382ad83392b31",
   "humanoids/candidates/charmorph-reom-ob-patient-candidate.glb": "47640a2d45a9b5c0b3c5a93885c59870ca19bcb52eeb881017668166c612428b",
   // #168: ECG cart regenerated as an assembled object; only GLBs that exist on disk are hashed.
