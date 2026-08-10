@@ -49,6 +49,8 @@ export type RenderedSubject = {
   roomGeometryPresent: boolean;
   hudPresent: boolean;
   extraActorIds: string[];
+  /** True when the neutral ground plane was in the scene (#265 subject-only discriminator). */
+  groundPlanePresent: boolean;
 };
 
 export type VariantSweep = {
@@ -78,6 +80,7 @@ type PageEvidence = {
   usesProductRenderer?: boolean;
   label?: string;
   frameCoverage?: number;
+  groundPlanePresent?: boolean;
 };
 
 type SubjectSpec = {
@@ -98,6 +101,8 @@ type SubjectSpec = {
   view?: CaptureView;
   /** When true, the lab serializes the rendered subject to a GLB (base64). */
   exportGlb?: boolean;
+  /** When true, render without the neutral ground plane — flat background (#265). */
+  subjectOnly?: boolean;
   label?: string;
 };
 
@@ -215,6 +220,7 @@ async function captureSubject(input: {
     roomGeometryPresent: evidence.roomGeometryPresent === true,
     hudPresent: evidence.hudPresent === true,
     extraActorIds: Array.isArray(evidence.extraActorIds) ? evidence.extraActorIds : [],
+    groundPlanePresent: evidence.groundPlanePresent === true,
   };
 }
 
@@ -427,6 +433,15 @@ export const DEFAULT_PACK_VIEWS: CaptureView[] = [
  * exports the rendered root to a GLB (`parametric-source.glb`) so the bake output
  * can be compared against the parametric source with the same instrument.
  *
+ * ## FIXED (#265)
+ * The #262 pack renders showed the subject standing on a lit neutral ground plane
+ * (`isolated_neutral_ground`), and TRELLIS reconstructed that ground as geometry —
+ * every #262 metric read the floor slab, not a lost pole (verdict withdrawn after
+ * the orchestrator graded the pixels). Pack renders are now SUBJECT-ONLY by
+ * default: no ground plane, flat background, one variable. Pass `subjectOnly:
+ * false` for the legacy grounded shape. `groundPlanePresent` on each rendered view
+ * records, from the scene, whether the ground was in frame.
+ *
  * Does NOT run TRELLIS — it produces the input the bake consumes.
  */
 export async function renderEquipmentReferencePack(options?: {
@@ -434,10 +449,13 @@ export async function renderEquipmentReferencePack(options?: {
   equipmentId?: string;
   views?: CaptureView[];
   outputRoot?: string;
+  /** Default true (#265) — subject-only renders. Pass false for the legacy grounded pack. */
+  subjectOnly?: boolean;
 }): Promise<EquipmentPackRun> {
   const cwd = options?.cwd ?? process.cwd();
   const equipmentId = options?.equipmentId ?? DEFAULT_PACK_EQUIPMENT_ID;
   const views = options?.views ?? DEFAULT_PACK_VIEWS;
+  const subjectOnly = options?.subjectOnly !== false;
   const outRoot = path.join(cwd, options?.outputRoot ?? EQUIPMENT_PACK_EVIDENCE_ROOT);
   const packDir = path.join(outRoot, "packs", equipmentId);
   const reportRoot = path.join(outRoot, "pack-render-report.json");
@@ -474,6 +492,7 @@ export async function renderEquipmentReferencePack(options?: {
         equipmentId,
         view,
         exportGlb: view === "front",
+        subjectOnly,
         label: `${equipmentId} ${view}`,
       };
       const imagePath = path.join(packDir, `${view}.png`);

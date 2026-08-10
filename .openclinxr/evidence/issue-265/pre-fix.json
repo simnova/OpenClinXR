@@ -1,0 +1,39 @@
+{
+  "issue": "265",
+  "measurementKind": "pre-fix before-column for the input defect — the reference-pack render includes a ground plane",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10",
+  "measuredBeforeAnyEdit": true,
+  "inputDefect": "the pack renders show the subject standing on a lit ground plane; TRELLIS reconstructs the ground as geometry (#262 withdrawn verdict)",
+  "evidence": {
+    "codeInspection": {
+      "file": "apps/ui-xr/src/isolated-subject-lab.ts",
+      "lines": "339-349",
+      "finding": "renderIsolatedSubject() UNCONDITIONALLY adds a mesh named `isolated_neutral_ground` (PlaneGeometry 6x6 at y=0, lit MeshStandardMaterial #24302b, rotation.x=-PI/2) for EVERY subject kind including equipment_builder. There is no subject-only path in the lab or the harness.",
+      "groundPlanePresent": true,
+      "subjectOnlyModeExists": false
+    },
+    "renderEvidence": {
+      "note": "Current (pre-edit) pack re-rendered in this worktree via the harness CLI --pack iv_pole_equipment — one dev-server boot, one browser, 5 square 1024x1024 views. frameCoverage = non-background pixel fraction (ground plane + pole fill ~40% of the frame).",
+      "packDir": ".openclinxr/evidence/issue-262/packs/iv_pole_equipment",
+      "views": [
+        { "view": "front", "frameCoverage": 0.3950834274291992 },
+        { "view": "side", "frameCoverage": 0.39379215240478516 },
+        { "view": "three_quarter_left", "frameCoverage": 0.3997678756713867 },
+        { "view": "three_quarter_right", "frameCoverage": 0.3998870849609375 },
+        { "view": "back", "frameCoverage": 0.39498138427734375 }
+      ],
+      "matchesIssue262RecordedValues": true
+    },
+    "historicalCrossRef": {
+      "issue": "262",
+      "finding": "The withdrawn #262 verdict recorded a bake whose AABB is [1.0, 0.7701, 1.0] with aspect 0.7701 (wider than tall) and slimmest vertical slice 0.4408 — the signature of a large horizontal slab dominating the reconstruction. The orchestrator's pixel grade confirmed the pole IS present in the render and the ground plane was reconstructed as geometry. This is the consequence of the input defect, not a failed subject."
+    }
+  },
+  "verdict": "pre-fix confirmed: current pack renders include a ground plane — by construction (code) and by measurement (frameCoverage ~0.39-0.40, identical to #262). The bake input contains a lit ground plane under the pole.",
+  "notEvidenceFor": [
+    "the bake itself",
+    "any mesh-quality claim",
+    "clinical accuracy"
+  ]
+}

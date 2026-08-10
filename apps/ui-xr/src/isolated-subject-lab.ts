@@ -82,6 +82,13 @@ export type IsolatedSubjectSpec = {
   view?: CaptureView;
   /** When true, serialize the rendered subject root to a GLB (base64 on window) — #262. */
   exportGlb?: boolean;
+  /**
+   * When true, render the subject WITHOUT the neutral ground plane (#265) — flat
+   * background only, no ground geometry, no shadow catcher. The grounded render
+   * is the #262 input defect: TRELLIS reconstructed the lit ground plane as
+   * geometry instead of the pole. Absent/false = legacy grounded render.
+   */
+  subjectOnly?: boolean;
   label?: string;
 };
 
@@ -98,6 +105,8 @@ export type IsolatedSubjectEvidence = {
   frameCoverageHint: number;
   /** Non-clear pixel fraction of the capture canvas (subject + neutral ground). */
   frameCoverage: number;
+  /** True when the neutral ground plane is in the scene (#265 subject-only discriminator). */
+  groundPlanePresent: boolean;
   inclineDegrees: number | null;
   usesProductRenderer: true;
   productRenderer: "apps/ui-xr three.js WebGLRenderer + imported station builders / supine-pose";
@@ -145,6 +154,7 @@ function parseSpec(): IsolatedSubjectSpec {
   const viewRaw = params.get("view");
   const view = (viewRaw as CaptureView | null) ?? undefined;
   const exportGlbRaw = params.get("exportGlb");
+  const subjectOnlyRaw = params.get("subjectOnly");
   return {
     subjectId,
     subjectKind,
@@ -155,6 +165,7 @@ function parseSpec(): IsolatedSubjectSpec {
     ...(inclineDegrees != null && Number.isFinite(inclineDegrees) ? { inclineDegrees } : {}),
     ...(view ? { view } : {}),
     ...(exportGlbRaw === "true" ? { exportGlb: true } : {}),
+    ...(subjectOnlyRaw === "true" ? { subjectOnly: true } : {}),
     label: params.get("label") ?? subjectId,
   };
 }
@@ -334,24 +345,38 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   fill.position.set(-3.5, 2.8, -2.2);
   scene.add(fill);
 
-  const ground = new Mesh(
-    new PlaneGeometry(6, 6),
-    new MeshStandardMaterial({
-      color: 0x24302b,
-      roughness: 0.95,
-      metalness: 0.02,
-    }),
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = 0;
-  ground.name = "isolated_neutral_ground";
-  ground.userData.openClinXrNeutralGround = true;
-  scene.add(ground);
+  // #265: subject-only mode skips the neutral ground plane entirely. The grounded
+  // render is the #262 input defect — TRELLIS reconstructed the lit ground plane as
+  // geometry, which is what every #262 metric read as "pole lost". One variable:
+  // subject geometry only, flat background, nothing else changes.
+  if (spec.subjectOnly !== true) {
+    const ground = new Mesh(
+      new PlaneGeometry(6, 6),
+      new MeshStandardMaterial({
+        color: 0x24302b,
+        roughness: 0.95,
+        metalness: 0.02,
+      }),
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    ground.name = "isolated_neutral_ground";
+    ground.userData.openClinXrNeutralGround = true;
+    scene.add(ground);
+  }
 
   const { root, meshCount } = await buildSubjectRoot(spec);
   scene.add(root);
   window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
+
+  // Measured from the SCENE, not the spec flag — the evidence records what was
+  // actually rendered (#265 subject-only discriminator).
+  let groundPlanePresent = false;
+  scene.traverse((o) => {
+    if (o.name === "isolated_neutral_ground") groundPlanePresent = true;
+  });
+
   const bounds = computeMeshBounds(root);
   if (!Number.isFinite(bounds.min.x)) {
     throw new Error(`Subject ${spec.subjectId} produced empty mesh bounds`);
@@ -429,6 +454,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     },
     frameCoverageHint,
     frameCoverage,
+    groundPlanePresent,
     inclineDegrees: spec.inclineDegrees ?? null,
     usesProductRenderer: true,
     productRenderer: "apps/ui-xr three.js WebGLRenderer + imported station builders / supine-pose",

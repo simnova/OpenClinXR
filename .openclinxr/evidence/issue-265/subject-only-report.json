@@ -1,0 +1,173 @@
+{
+  "issue": "265",
+  "reRuns": "issue-262 with the ONE input defect corrected — the reference pack renders are now subject-only (no ground plane, no shadow catcher, no backdrop geometry, flat background)",
+  "measurementKind": "subject-only parametric-render pack + TRELLIS single-view bake + same-instrument geometry comparison — directly comparable to #262",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-10",
+  "constraints": {
+    "singleViewBake": true,
+    "inputSource": "parametric_render_from_buildDeclaredEquipmentGeometry",
+    "noExternalImageSource": true,
+    "noTriangleCountVerdict": true,
+    "oneSubjectOnly": true,
+    "oneVariable": "the ground plane in the pack renders — nothing else changed (same subject iv_pole_equipment, same 5 views, same single-view bake path, same seed 237316)",
+    "orchestratorGradesRenders": true
+  },
+  "inputFix": {
+    "defect": "#262 pack renders showed the pole standing on a lit neutral ground plane (isolated_neutral_ground, added unconditionally in the lab); TRELLIS reconstructed the ground as geometry — the withdrawn verdict read the floor slab, not a lost pole",
+    "change": "renderEquipmentReferencePack now renders SUBJECT-ONLY by default: no ground mesh in the scene, flat #18211d background, framing/lighting unchanged. The lab gained a scene-measured groundPlanePresent evidence field (subjectOnly:true -> false, subjectOnly:false -> true), asserted in isolated-subject-harness.test.ts.",
+    "groundPlanePresentAcrossViews": false,
+    "frameCoverageBefore": { "min": 0.3938, "max": 0.3999, "note": "ground + pole filled ~40% of frame (#262 and pre-fix re-render)" },
+    "frameCoverageAfter": { "min": 0.0215, "max": 0.0227, "note": "pole alone fills ~2% of frame" }
+  },
+  "pack": {
+    "equipmentId": "iv_pole_equipment",
+    "source": "apps/ui-xr/src/station-equipment-builders.ts buildDeclaredEquipmentGeometry (parametric, deterministic)",
+    "renderedBy": "tools/openclinxr/evidence/isolated-subject-harness.ts renderEquipmentReferencePack (one dev-server boot, one browser)",
+    "packDir": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment",
+    "views": [
+      { "view": "front", "path": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/front.png", "frameCoverage": 0.0227, "groundPlanePresent": false },
+      { "view": "side", "path": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/side.png", "frameCoverage": 0.0215, "groundPlanePresent": false },
+      { "view": "three_quarter_left", "path": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/three_quarter_left.png", "frameCoverage": 0.0223, "groundPlanePresent": false },
+      { "view": "three_quarter_right", "path": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/three_quarter_right.png", "frameCoverage": 0.0223, "groundPlanePresent": false },
+      { "view": "back", "path": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/back.png", "frameCoverage": 0.0226, "groundPlanePresent": false }
+    ],
+    "contactSheetPath": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/contact-sheet.png",
+    "parametricSourceGlbPath": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/parametric-source.glb",
+    "parametricSourceVerified": "468 verts / 284 tris / AABB [0.48, 1.575, 0.48] / aspect 3.2813 — byte-identical metrics to the #262 parametric source, so the two bakes are directly comparable",
+    "tracked": false,
+    "trackedNote": "gitignored by design; the pack is regenerable in seconds via the harness CLI --pack. pre-fix.json and subject-only-report.json are force-added (tracked)."
+  },
+  "bake": {
+    "command": "OPENCLINXR_TRELLIS_PACKS=<repo>/.openclinxr/evidence/issue-265/packs OPENCLINXR_TRELLIS_OUT=<repo>/.openclinxr/evidence/issue-265/bake pnpm factory:trellis:bake --subject iv-pole",
+    "subjectId": "iv-pole",
+    "verdict": "mesh_exported",
+    "verdictReason": "TRELLIS Metal image→shape→mesh→GLB pipeline completed (fresh subprocess). Mesh: 704572 tris, 25330936 bytes. Shape gen: 103.8s, Export: 220.4s.",
+    "stages": {
+      "pipeline_load": "runs",
+      "pipeline_load_time_s": 3.4,
+      "shape_generation": "runs",
+      "shape_generation_time_s": 103.8,
+      "view_count": 1,
+      "glb_export": "runs",
+      "glb_export_time_s": 220.4
+    },
+    "rawTriangleCount": 704572,
+    "exportBytes": 25330936,
+    "texturedPbr": "yes",
+    "viewCount": 1,
+    "inputImagePaths": [
+      "/Users/patrick/.grok/worktrees/src-openclinxr/issue-265/.openclinxr/evidence/issue-265/packs/iv_pole_equipment/front.png"
+    ],
+    "inputImageIsSubjectOnly": true,
+    "seed": 237316,
+    "sameSeedAsIssue262": true,
+    "wallClockS": 329.04,
+    "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-265/.openclinxr/evidence/issue-265/bake/iv-pole/iv-pole.glb",
+    "tracked": false
+  },
+  "geometryComparison": {
+    "measurementKind": "geometry comparison — parametric source vs TRELLIS bake, same instrument (trimesh, measure_parametric_vs_bake.py)",
+    "parametricGlb": ".openclinxr/evidence/issue-265/packs/iv_pole_equipment/parametric-source.glb",
+    "bakeGlb": ".openclinxr/evidence/issue-265/bake/iv-pole/iv-pole.glb",
+    "constraints": {
+      "bakeIsObjectCenteredAndNormalized": true,
+      "absoluteExtentsNotComparable": true,
+      "comparisonOnDimensionlessShapeMetrics": true,
+      "orchestratorGradesRenders": true
+    },
+    "parametric": {
+      "vertexCount": 468,
+      "triangleCount": 284,
+      "surfaceArea": 0.6539,
+      "aabbExtent": [0.48, 1.575, 0.48],
+      "aspectRatio": 3.2813,
+      "slimmestSliceFraction": 0.0567,
+      "volume": 0.008668,
+      "convexHullVolume": 0.131754,
+      "volumeRatio": 0.0658,
+      "isWatertight": false,
+      "yMin": 0,
+      "yMax": 1.575
+    },
+    "bake": {
+      "vertexCount": 485023,
+      "triangleCount": 704572,
+      "surfaceArea": 0.2859,
+      "aabbExtent": [0.2916, 1.0002, 0.2917],
+      "aspectRatio": 3.4285,
+      "slimmestSliceFraction": 0.6467,
+      "volume": 0.001495,
+      "convexHullVolume": 0.041807,
+      "volumeRatio": 0.0358,
+      "isWatertight": false,
+      "yMin": -0.5,
+      "yMax": 0.5002
+    },
+    "comparison": {
+      "aspectRatio_parametric": 3.2813,
+      "aspectRatio_bake": 3.4285,
+      "slimmestSliceFraction_parametric": 0.0567,
+      "slimmestSliceFraction_bake": 0.6467,
+      "volumeRatio_parametric": 0.0658,
+      "volumeRatio_bake": 0.0358,
+      "triangleCount_parametric": 284,
+      "triangleCount_bake": 704572,
+      "watertight_parametric": false,
+      "watertight_bake": false
+    },
+    "vsIssue262": {
+      "aspectRatio_262bake": 0.7701,
+      "aabbExtent_262bake": [1.0, 0.7701, 1.0],
+      "slimmestSliceFraction_262bake": 0.4408,
+      "volumeRatio_262bake": 0.0044,
+      "note": "The #262 bake (grounded input) was a flat wide slab — wider than tall. The #265 bake (subject-only input) is tall and thin."
+    },
+    "silhouetteProfile_vertexBased": {
+      "method": "max horizontal (XZ) radius per vertical slice over mesh vertices — the true silhouette; the instrument's slimmestSliceFraction measures per-TRIANGLE extent and is saturated by the fine tessellation of a ~700k-tri mesh, so it is not a silhouette measure on the bake side (§8q: name the space the metric is measured in)",
+      "bake": [
+        { "yRange": "-0.500..-0.417", "width": 0.2918, "label": "base disc / foot" },
+        { "yRange": "-0.417..+0.417", "width": 0.0265, "label": "thin vertical shaft (83% of height)" },
+        { "yRange": "+0.417..+0.500", "width": 0.1949, "label": "top hook / T-bar" }
+      ],
+      "parametric": {
+        "base": 0.48,
+        "shaftWidth": 0.05,
+        "topHook": 0.2807,
+        "shaftToBaseRatio": 0.1042
+      },
+      "bakeShaftToBaseRatio": 0.0908,
+      "reading": "The bake silhouette is a tall thin shaft with a wider base disc and a top hook — the IV-pole shape. Shaft/base ratio 0.0908 (bake) vs 0.1042 (parametric): the reconstructed shaft is if anything thinner relative to its base than the source."
+    },
+    "geometryReading": [
+      "FLOOR IS GONE: the #265 bake AABB is [0.2916, 1.0002, 0.2917] (tall, thin) vs the #262 bake [1.0, 0.7701, 1.0] (flat slab). No horizontal surface dominates the reconstruction.",
+      "bake stays tall (aspect 3.4285 vs parametric 3.2813)",
+      "pole silhouette preserved (vertex profile: 0.0265 shaft over 83% height, 0.29 base, 0.195 top hook)",
+      "CAVEAT: instrument slimmestSliceFraction reads 0.6467 (vs parametric 0.0567) — this metric measures the max per-TRIANGLE horizontal extent per slice and is saturated by the fine tessellation of the ~700k-tri bake mesh; it is NOT a silhouette measure on this mesh. The vertex-based silhouette above is the honest reading of pole thinness."
+    ],
+    "notEvidenceFor": [
+      "mesh quality suitable for exam use",
+      "production adoption into learner runtime",
+      "replacement of parametric equipment builders",
+      "clinical accuracy"
+    ]
+  },
+  "verdict": "positive_reconstructs_pole",
+  "verdictReason": "Judged on GEOMETRY (not triangle count — MADR 0050), with the ONE input variable corrected (subject-only pack renders), the TRELLIS single-view bake now reconstructs THE POLE, not the pole plus a floor. Aspect ratio 3.4285 (bake) vs 3.2813 (parametric): tall and thin, matching the source — versus #262's 0.7701 (wider than tall, the floor slab). AABB [0.2916, 1.0002, 0.2917] vs #262's [1.0, 0.7701, 1.0]. Vertex silhouette: thin shaft (0.0265 m over 83% of height) between a 0.29 m base disc and a 0.195 m top hook — the IV-pole shape. The floor is GONE from the reconstruction. Residual: the instrument's slimmestSliceFraction (0.6467) is saturated by per-triangle extent on the fine mesh and does not reflect the silhouette; the bake's shaft is marginally thicker in absolute terms than the source's (both normalized) but thinner relative to its base (0.0908 vs 0.1042). This is a POSITIVE result — the parametric-render route is NOT closed; subject-only packs are the working input for equipment reference packs.",
+  "decision": {
+    "outcome": "The parametric-render → TRELLIS equipment route is UNBLOCKED with subject-only pack input. The #262 negative verdict is withdrawn and superseded: the defect was in the input renders (lit ground plane), not in the subject or the bake.",
+    "whatSurvives": "renderEquipmentReferencePack renders subject-only by default (groundPlanePresent: false asserted in the harness suite, legacy grounded mode preserved via subjectOnly:false). The 5-view 1024x1024 pack for ANY equipment id remains deterministic, quota-free, one boot.",
+    "whatTheOperatorDecides": "Nothing blocking remains for this experiment. The orchestrator grades the renders (see renderNeededForGrading). Broader equipment-lane image sourcing (generative images, #256) remains an operator licensing/provenance decision — out of scope here."
+  },
+  "renderNeededForGrading": {
+    "note": "TEXT-ONLY WORKER — I opened no PNG/GLB. The orchestrator should grade: (1) a lit/structure render of .openclinxr/evidence/issue-265/bake/iv-pole/iv-pole.glb (glb-grade-capture), expecting a tall thin pole, base disc, top hook — not a floor; (2) the subject-only pack contact sheet at .openclinxr/evidence/issue-265/packs/iv_pole_equipment/contact-sheet.png (pole only, flat background, no ground).",
+    "expectation": "pole reads as a pole; no horizontal slab"
+  },
+  "notEvidenceFor": [
+    "replacement of parametric equipment builders",
+    "TRELLIS suitability for other asset classes (rooms, humanoids)",
+    "mesh quality suitable for exam use",
+    "Quest readiness",
+    "clinical accuracy or device equivalence"
+  ]
+}
