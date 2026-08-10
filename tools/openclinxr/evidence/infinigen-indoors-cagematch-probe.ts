@@ -229,10 +229,7 @@ function runCmd(
 }
 
 function resolvePython(): string {
-  const candidates = [
-    path.join(INFINIGEN_VENV, "bin/python"),
-    "/tmp/ocxr77_tools/infinigen-venv/bin/python",
-  ];
+  const candidates = [path.join(INFINIGEN_VENV, "bin/python")];
   for (const c of candidates) {
     if (existsSync(c)) return c;
   }
@@ -240,10 +237,7 @@ function resolvePython(): string {
 }
 
 function resolveBlend(): string | null {
-  const candidates = [
-    path.join(INFINIGEN_OUT, "scene.blend"),
-    "/tmp/ocxr77_tools/infinigen-outputs/dining_coarse/scene.blend",
-  ];
+  const candidates = [path.join(INFINIGEN_OUT, "scene.blend")];
   for (const c of candidates) {
     if (existsSync(c)) return c;
   }

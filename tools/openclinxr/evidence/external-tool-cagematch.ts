@@ -11,8 +11,8 @@
  *
  * Install locations (operator machine — remove when done):
  *   Mesh2Motion: /tmp/ocxr77_tools/mesh2motion-app  (rm -rf …)
- *   Infinigen:   /tmp/ocxr77_tools/infinigen-indoors + /tmp/ocxr77_tools/infinigen-venv
- *                (rm -rf both; source was git clone of indoors-stable)
+ *   Infinigen:   ~/.openclinxr-tools/infinigen/{source,venv}  (#271 re-home off /tmp — durable;
+ *                was /tmp/ocxr77_tools/infinigen-indoors + -venv, wiped on reboot; rm -rf both)
  *
  * LAND-PATH (gitignored under .openclinxr/ — copy after merge if needed):
  *   .openclinxr/evidence/external-tool-cagematch/latest/cagematch-report.json
@@ -36,6 +36,7 @@ import { performance } from "node:perf_hooks";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
+const HOME = process.env["HOME"] ?? "";
 
 const EVIDENCE_DIR = path.join(
   REPO_ROOT,
@@ -45,13 +46,17 @@ const REPORT_PATH = path.join(EVIDENCE_DIR, "cagematch-report.json");
 
 const MESH2MOTION_DIR =
   process.env.OPENCLINXR_MESH2MOTION_DIR ?? "/tmp/ocxr77_tools/mesh2motion-app";
+// #271: Infinigen re-homed off /tmp to a durable path (was /tmp/ocxr77_tools/infinigen-indoors + -venv,
+// wiped on reboot — #259 cluster A). `source`/`venv` are now REAL directories under ~/.openclinxr-tools.
 const INFINIGEN_DIR =
-  process.env.OPENCLINXR_INFINIGEN_DIR ?? "/tmp/ocxr77_tools/infinigen-indoors";
+  process.env.OPENCLINXR_INFINIGEN_DIR ??
+  path.join(HOME, ".openclinxr-tools/infinigen/source");
 const INFINIGEN_VENV =
-  process.env.OPENCLINXR_INFINIGEN_VENV ?? "/tmp/ocxr77_tools/infinigen-venv";
+  process.env.OPENCLINXR_INFINIGEN_VENV ??
+  path.join(HOME, ".openclinxr-tools/infinigen/venv");
 const INFINIGEN_OUT =
   process.env.OPENCLINXR_INFINIGEN_OUT ??
-  "/tmp/ocxr77_tools/infinigen-outputs/dining_coarse";
+  path.join(HOME, ".openclinxr-tools/infinigen/outputs/dining_coarse");
 
 const DEFAULT_HUMANOID = path.join(
   REPO_ROOT,
@@ -561,7 +566,7 @@ async function probeInfinigen(force: boolean): Promise<ToolEntry> {
     blendPath = findGeneratedScene(INFINIGEN_OUT).blendPath;
   } else {
     // Recover wall-clock from prior run log if present
-    const runLog = "/tmp/ocxr77_tools/infinigen-run.log";
+    const runLog = path.join(INFINIGEN_OUT, "..", "infinigen-run.log");
     if (existsSync(runLog)) {
       const text = readFileSync(runLog, "utf8");
       const start = /START\s+(\S+)/.exec(text)?.[1];
@@ -669,7 +674,7 @@ print("OBJ", ${JSON.stringify(objOut)})
       venv: INFINIGEN_VENV,
       method:
         "git clone --branch indoors-stable + python3.11 venv + INFINIGEN_MINIMAL_INSTALL=True pip install -e .",
-      removeWith: `rm -rf ${INFINIGEN_VENV} ${INFINIGEN_DIR} /tmp/ocxr77_tools/infinigen-outputs`,
+      removeWith: `rm -rf ${INFINIGEN_VENV} ${INFINIGEN_DIR}`,
       license: "BSD-3-Clause",
       python: "3.11",
       note: "CUDA not used (indoors; terrain optional). bpy 4.2 from pip on arm64.",
@@ -792,7 +797,7 @@ export async function runExternalToolCagematch(
         `rm -rf ${MESH2MOTION_DIR}`,
         `rm -rf ${INFINIGEN_VENV}`,
         `rm -rf ${INFINIGEN_DIR}`,
-        "rm -rf /tmp/ocxr77_tools/infinigen-outputs",
+        `rm -rf ${INFINIGEN_OUT}`,
       ],
     },
   };

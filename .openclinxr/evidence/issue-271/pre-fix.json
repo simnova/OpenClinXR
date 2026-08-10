@@ -1,0 +1,73 @@
+{
+  "slice": "issue-271",
+  "artifact": "pre-fix.json — the before-column",
+  "measuredAgainstCommit": "da5b8d16328ba4dfc02ef65d1da6649d8e787f0c",
+  "capturedAt": "2026-08-10T15:03:53Z",
+  "installState": {
+    "captureProvenance": "Captured by the issue-271 worker at 15:03:53 on 2026-08-10, BEFORE any repair or re-home was performed in this slice. The lstat/realpath reads below were taken while the /tmp symlinks were still in place. This is a faithful observation, not a reconstruction.",
+    "toolsRoot": "/Users/patrick/.openclinxr-tools/infinigen",
+    "source": {
+      "exists": true,
+      "is_symlink": true,
+      "target": "/tmp/ocxr77_tools/infinigen-indoors",
+      "target_resolved": "/private/tmp/ocxr77_tools/infinigen-indoors",
+      "target_exists": false,
+      "kind": "missing/broken"
+    },
+    "venv": {
+      "exists": true,
+      "is_symlink": true,
+      "target": "/tmp/ocxr77_tools/infinigen-venv",
+      "target_resolved": "/private/tmp/ocxr77_tools/infinigen-venv",
+      "target_exists": false,
+      "kind": "missing/broken"
+    },
+    "tmpRoot": "/tmp/ocxr77_tools",
+    "tmpRootExists": false,
+    "diagnosis": "source -> /tmp/ocxr77_tools/infinigen-indoors and venv -> /tmp/ocxr77_tools/infinigen-venv are dangling symlinks; /tmp/ocxr77_tools does not exist (purged on reboot). Infinigen cannot be run at all. This is cluster A of #259 (external-tool-cagematch reds on every fresh boot).",
+    "blockedProof": {
+      "sourceLinkDangling": true,
+      "venvLinkDangling": true,
+      "venvPythonExists": false,
+      "canRunInfinigen": false
+    },
+    "survives": {
+      "outputs": ["empty_shell_no_objects", "empty_shell_no_objects2", "no_trim_override", "no_trim_single_room"],
+      "exports": ["dining-room-seed0.glb"]
+    }
+  },
+  "defaultConfigShellMeasurements": {
+    "note": "Baseline runs measured from blends on disk at ~/.openclinxr-tools/infinigen/outputs/{clinical_bay,clinical_bay_control}/scene.blend using ~/.openclinxr-tools/infinigen/measure_shell.py (venv bpy 4.2.0). Both runs share wall_height=2.65 (the clinical_bay.gin probe pin; ed_exam_bay_v1 roomHeightMeters) and differ in footprint seeds/contours.",
+    "measurementInstrument": "~/.openclinxr-tools/infinigen/measure_shell.py (blend-side loop-triangle counts, world-matrix AABB, per-room prefix grouping)",
+    "clinical_bay": {
+      "ginConfig": "disable/clinical_bay.gin (no_trim.gin + RoomConstants.global_params.wall_height=2.65 + wall_thickness=('uniform',0.2,0.25) + aspect_ratio_range=(2.0,2.1))",
+      "generateCommand": "venv/bin/python -m infinigen_examples.generate_indoors --seed 0 --task coarse -g disable/clinical_bay.gin -p compose_indoors.terrain_enabled=False 'restrict_solving.restrict_parent_rooms=[\"DiningRoom\"]' BlueprintSolidifier.enable_open=False",
+      "sceneHeightMeters": 3.851,
+      "sceneFootprintXzMeters": [25.609, 18.0],
+      "roomShellHeightMeters": 2.65,
+      "architectureTriangleCount": 11060,
+      "roomCount": 7,
+      "structure": {"floor": true, "ceiling": true, "walls": 20, "doorAperture": true, "noFurniture": true}
+    },
+    "clinical_bay_control": {
+      "ginConfig": "disable/clinical_bay_control.gin (includes clinical_bay.gin, overrides aspect_ratio_range=(0.9,1.0))",
+      "generateCommand": "venv/bin/python -m infinigen_examples.generate_indoors --seed 0 --task coarse -g disable/clinical_bay_control.gin -p compose_indoors.terrain_enabled=False 'restrict_solving.restrict_parent_rooms=[\"DiningRoom\"]' BlueprintSolidifier.enable_open=False",
+      "sceneHeightMeters": 3.851,
+      "sceneFootprintXzMeters": [22.0, 18.522],
+      "roomShellHeightMeters": 2.65,
+      "architectureTriangleCount": 10432,
+      "roomCount": 7,
+      "structure": {"floor": true, "ceiling": true, "walls": 20, "doorAperture": true, "noFurniture": true}
+    },
+    "heightDeterminismControl": "clinical_bay and clinical_bay_control share the same wall_height parameter (2.65) but differ in footprint (25.61 x 18.00 vs 22.00 x 18.52, from aspect_ratio_range 2.0-2.1 vs 0.9-1.0) and interior room divisions. Both measure scene height 3.851 exactly (room shell height 2.65) — scene height is deterministic on the wall_height parameter, not on footprint/seed."
+  },
+  "claimScope": [
+    "pre-repair install state (dangling /tmp symlinks, absent venv) captured before any change",
+    "baseline furniture-free shell measurements at the probe's wall_height=2.65",
+    "height determinism control across two different footprints"
+  ],
+  "notEvidenceFor": [
+    "any post-repair behavior (that lives in dimension-control-report.json)",
+    "adoption of Infinigen; ui-xr wiring; clinical validity; Quest readiness"
+  ]
+}
