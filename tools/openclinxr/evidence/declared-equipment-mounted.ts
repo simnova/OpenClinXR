@@ -30,6 +30,7 @@ import {
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 import { REAL_EQUIPMENT_GLTF_BY_ID } from "../../../apps/ui-xr/src/station-equipment.js";
+import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equipment-composite-measure.js";
 
 export const DECLARED_EQUIPMENT_EVIDENCE_DIR = ".openclinxr/evidence/issue-140";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -107,6 +108,15 @@ type ArtifactPayload = {
    * mount is an origin/scale property of the asset or a mount-path defect.
    */
   assetLocalBounds?: Record<string, { min: number[]; max: number[] }>;
+  /**
+   * #266 — the declared placement envelope for each gltf-sourced equipment id:
+   * the parametric composite's total local AABB (the footprint the placement
+   * descriptor was authored against). null for ids without a DEDICATED
+   * parametric builder (e.g. the ED bay library GLBs, which have no composite
+   * envelope to fit). The world-extent contract pairs these rows with the live
+   * worldAabbMin/Max spans to catch unit-normalized GLBs that render oversized.
+   */
+  declaredPlacementEnvelope?: Record<string, { min: number[]; max: number[]; source: string } | null>;
   claimScope: string[];
   notEvidenceFor: string[];
   report: DeclaredEquipmentMountingReport;
@@ -283,12 +293,14 @@ export async function writeEquipmentMountDump(
     generatedAt: new Date().toISOString(),
     measuredAgainstCommit: stamp.head,
     assetLocalBounds: await measureAssetLocalBounds(),
+    declaredPlacementEnvelope: measureDeclaredPlacementEnvelopes(),
     claimScope: [
       "shipped_scene_manifest_equipmentPlacements",
       "live_scene_userData_openClinXrEquipmentId",
       "mesh_and_triangle_counts_under_equipment_roots",
       "world_space_aabb_and_mount_node_translation_of_live_mounted_equipment",
       "asset_local_bounds_from_shipped_glb_files",
+      "declared_placement_envelope_from_parametric_composite_builders",
     ],
     notEvidenceFor: [
       "clinical_correctness_of_equipment",
@@ -350,6 +362,34 @@ async function measureAssetLocalBounds(): Promise<Record<string, { min: number[]
     } catch {
       // Asset absent in this tree — leave the row out rather than fail the dump.
     }
+  }
+  return out;
+}
+
+/**
+ * #266 — the declared placement envelope per gltf-sourced equipment id: the
+ * parametric composite's total local AABB (the footprint the placement
+ * descriptor was authored against). null for ids without a DEDICATED parametric
+ * builder (ED bay library GLBs use the generic fallback and have no composite
+ * envelope to fit). The world-extent contract pairs these rows with the live
+ * worldAabbMin/Max spans.
+ */
+function measureDeclaredPlacementEnvelopes(): Record<
+  string,
+  { min: number[]; max: number[]; source: string } | null
+> {
+  const out: Record<string, { min: number[]; max: number[]; source: string } | null> = {};
+  for (const equipmentId of Object.keys(REAL_EQUIPMENT_GLTF_BY_ID)) {
+    const composite = measureParametricComposite(equipmentId);
+    if (composite.source !== "parametric") {
+      out[equipmentId] = null;
+      continue;
+    }
+    out[equipmentId] = {
+      min: [composite.totalAabbMin.x, composite.totalAabbMin.y, composite.totalAabbMin.z],
+      max: [composite.totalAabbMax.x, composite.totalAabbMax.y, composite.totalAabbMax.z],
+      source: composite.source,
+    };
   }
   return out;
 }

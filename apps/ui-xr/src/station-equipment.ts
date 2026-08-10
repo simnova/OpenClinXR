@@ -21,6 +21,7 @@ import {
   buildGltfEquipmentStandSupport,
   type EquipmentMountSource,
 } from "./station-equipment-builders.js";
+import { measureParametricComposite } from "./station-equipment-composite-measure.js";
 
 export type { EquipmentMountSource } from "./station-equipment-builders.js";
 export type { EquipmentFamily } from "./station-equipment-families.js";
@@ -337,6 +338,58 @@ export function equipmentDisplayLabel(equipmentId: string): string {
  */
 export const EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M = 0.05;
 
+function round3(v: number): number {
+  return Math.round(v * 1000) / 1000;
+}
+
+/**
+ * #266 — fit a unit-normalized gltf-sourced equipment's footprint to its declared
+ * placement envelope.
+ *
+ * TRELLIS image-to-3D exports are unit-normalized: the bake pipeline spans the
+ * mesh to ±0.5 on the dominant axes (bedside-monitor-generated.glb spans exactly
+ * ±0.5 on x/z → 1.00 m wide). The placement descriptor was authored against the
+ * parametric composite's footprint (the composite this GLB replaced: 0.38 m wide
+ * × 0.22 m deep), so a unit cube renders 2.6× too wide and occludes adjacent
+ * actors. #258 fixed the object-centered TRANSLATE (grounding) and never touched
+ * scale — this is the scale half of the same statement.
+ *
+ * The declared envelope = the id's parametric composite total AABB (x/z spans).
+ * Only ids with a DEDICATED parametric builder have one; the ED bay library GLBs
+ * (ecg cart / IV pole, deliberate Blender fixture sizes) resolve to the generic
+ * fallback composite and are untouched. Elevated placements (the wall clock
+ * control) keep origin-centered mount-height semantics and are untouched.
+ *
+ * Scale is per-axis and shrink-only (min(1, env/glb)) — a GLB already within its
+ * envelope is left alone, and nothing is ever scaled up. Y is deliberately not
+ * scaled: the vertical envelope is governed by the #258 grounding and #260 stand
+ * contracts, and the horizontal footprint is the #266 defect class.
+ */
+export function applyGltfEquipmentFootprintFit(equipment: Group, equipmentId: string): void {
+  const composite = measureParametricComposite(equipmentId);
+  if (composite.source !== "parametric") return;
+  const envelopeWidth = composite.totalAabbMax.x - composite.totalAabbMin.x;
+  const envelopeDepth = composite.totalAabbMax.z - composite.totalAabbMin.z;
+  if (envelopeWidth <= 0 || envelopeDepth <= 0) return;
+  const bounds = new Box3().setFromObject(equipment);
+  const glbWidth = bounds.max.x - bounds.min.x;
+  const glbDepth = bounds.max.z - bounds.min.z;
+  if (glbWidth <= 0 || glbDepth <= 0) return;
+  const scaleX = Math.min(1, envelopeWidth / glbWidth);
+  const scaleZ = Math.min(1, envelopeDepth / glbDepth);
+  if (scaleX === 1 && scaleZ === 1) return;
+  equipment.scale.x = (equipment.scale.x ?? 1) * scaleX;
+  equipment.scale.z = (equipment.scale.z ?? 1) * scaleZ;
+  equipment.userData.openClinXrEquipmentFootprintFit = {
+    scaleX: round3(scaleX),
+    scaleZ: round3(scaleZ),
+    envelopeWidthM: round3(envelopeWidth),
+    envelopeDepthM: round3(envelopeDepth),
+    glbWidthM: round3(glbWidth),
+    glbDepthM: round3(glbDepth),
+  };
+}
+
 /**
  * #258 — normalize a freshly loaded equipment GLB to the placement descriptor's
  * convention. TRELLIS image-to-3D exports are object-centered (geometry spans
@@ -351,9 +404,14 @@ export const EQUIPMENT_FLOOR_PLACEMENT_EPSILON_M = 0.05;
  * descriptor). For those ids the stand stays parametric and the GLB body mounts
  * ON it (MADR 0050 step 10 hybrid) — the body's base rests on the stand top.
  *
+ * #266 — footprint fit. A generated GLB is not only object-centered but
+ * unit-normalized (spans ±0.5 on x/z), so a floor mount also needs SCALING to
+ * its declared placement envelope — the parametric composite footprint — before
+ * the translate/stand passes below run.
+ *
  * This is a general convention adapter, not a per-asset placement fudge: no
- * per-equipment constants beyond the stand builder itself. Wall clock (y=1.55,
- * elevated, no stand) is unaffected.
+ * per-equipment constants beyond the stand builder and the composite footprint.
+ * Wall clock (y=1.55, elevated, no stand) is unaffected.
  */
 export function normalizeGltfEquipmentMount(
   equipment: Group,
@@ -364,6 +422,13 @@ export function normalizeGltfEquipmentMount(
     typeof mountSlot.userData?.openClinXrEquipmentId === "string"
       ? mountSlot.userData.openClinXrEquipmentId
       : null;
+  // #266 — fit a unit-normalized GLB's footprint to its declared placement
+  // envelope (floor placements only; the wall-clock control is elevated and
+  // keeps its origin-centered mount-height semantics). Applied BEFORE the
+  // stand/grounding passes so their Box3 measurements read the scaled bounds.
+  if (isFloor && equipmentId !== null) {
+    applyGltfEquipmentFootprintFit(equipment, equipmentId);
+  }
   const stand = equipmentId !== null && isFloor ? buildGltfEquipmentStandSupport(equipmentId) : null;
   if (stand) {
     // #260 hybrid: the parametric stand stays, the GLB body rests on its top.
