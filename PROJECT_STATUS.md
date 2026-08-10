@@ -107,6 +107,32 @@ fast-path only: what landed, and what it changed about the factory's capability.
 - 2026-08-10: **#271 Infinigen dimension control** (room_generate, lane C). Install durably re-homed off a wiped `/tmp` — a residual carried unfixed through #77/#229/#234. `wall_height` proven an **exact deterministic input** (2.65→2.65 m, 3.6→3.6 m); **footprint and door placement are measured negatives**. MADR 0043's trigger 3 splits by axis; Decision unchanged, hand-made shells stay. Furniture-free shell = 11,060 t / 96 meshes.
 - 2026-08-10: **#273 live-bake gate** (instrument → body_param, Q5). `pnpm test` in any worktree spawned 3-hour TRELLIS GPU bakes, because the only thing preventing one was a **gitignored** cache that never exists in a worktree. Now gated on `TRELLIS_LIVE_BAKE_OPT_IN`, wired at the spawn site, with an injected-stub counterweight proving the opt-in path still reaches the runner. Coverage kept, not deleted.
 - 2026-08-10: **site honesty pass** (D12). Three published captures disproved their own captions — the hero read "WebXR unavailable / 21 blockers" over capsule actors, and a "phenotype-driven gown" section sat over a bare torso. Replaced the hero, removed the false section, and fixed the gate that was **holding the bad hero in place** (it pinned a literal filename and never opened the file).
+- 2026-08-10: **clothing/body vertical, four slices that compose** (clothing_consume + body_param, Q1).
+  #272 landed a region-coverage gate (outward-normal raycast + adherence + closure) that grades the
+  shipped trouser `does_not_cover` at 71%; #277 consumed it by re-baking both hm08 classes, replacing
+  the 392-triangle sparse trouser with a body-derived cover shell at **0.9877 / 0.9899**; #279 wired
+  the Anny scalp-region function to the hm08 rail as its third consumer; #278 then cast the two
+  library bodies into the peds asthma nurse and parent slots, sex-matched. **Graded in pixels at each
+  step.** Net: two adult actors now have visibly different builds driven by body class, where six
+  adults previously shared two bases four vertices apart.
+- 2026-08-10: **#276 diagnosis — the Anny phenotype path exists and production never calls it.** Every
+  shipped Anny GLB records `generatorMode: blender_only_rebake_on_tracked_real_anny_base_obj_v1` with
+  `notRun: [anny_forward_pass, ...]`. Route 1 (run the forward pass) is blocked — `import anny` fails,
+  #192 declined the restore. Route 2 (cast hm08 bodies) was open and is what #278 did.
+- 2026-08-10: **#274 Mesh2Motion consumed** (motion_retarget). 66-joint rig loads and fits headlessly
+  after a Node/DOM shim; install re-homed off `/tmp`. Was "approved and unused" for weeks. Retargets
+  nothing yet.
+- 2026-08-10: **#256 equipment pack batch** (equipment_generate, D9). 3 → **38** ids with reference
+  packs, 175 views, **one** dev-server boot, 61 s, zero isolation leaks. Its blocker had been removed
+  hours earlier by #262/#270 and nobody had gone back to collect the result.
+- 2026-08-10: **#166 promotion path proven** (Q4). Four review decisions persist per hop, flip the
+  stage, flip eligibility and reach the learner as `api_authored`. Nothing was approved and no gate
+  was touched; both counterweights (partial approval, stale stage) still refuse.
+- 2026-08-10: **#282 corrected my own counterweight.** The scalp face-exclusion bound divided by the
+  body's front-most vertex — the hanging **arm** — so it failed a correctly-placed scalp on the heavy
+  male. Replaced by a direct face-band vertex count. **Disclosed weakness:** on a body whose torso
+  protrudes past its head, a whole-head cap is caught by neither the old bound nor the new one.
+
 
 **Two standing claims measured false and corrected in place (§7q), not appended:**
 MakeClothes IS consumed and hm08 DOES reach a learner — the spouse loads
