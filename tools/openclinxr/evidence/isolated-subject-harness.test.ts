@@ -287,5 +287,66 @@ describe("equipment reference packs from parametric renders (#262)", () => {
     ).toBeTruthy();
     expect(existsSync(run.parametricSourceGlbPath!)).toBe(true);
   }, 1_800_000);
+
+  it("subject-only pack mode removes the neutral ground plane (#265)", async () => {
+    // #265 re-runs the #262 experiment with ONE input defect corrected. #262's pack
+    // renders showed the pole standing on a lit neutral ground plane
+    // (`isolated_neutral_ground`, added unconditionally in the lab), and TRELLIS
+    // reconstructed that ground as geometry — the withdrawn verdict read the floor
+    // slab, not a lost pole. The pack render must therefore be SUBJECT-ONLY: no
+    // ground geometry, flat background, same subject/views/bake path.
+    //
+    // Two modes are asserted from the scene evidence (groundPlanePresent), never
+    // from the spec flag:
+    //   - subjectOnly:true  -> no ground in ANY view (the #265 fix)
+    //   - subjectOnly:false -> ground present (the #262 capability is preserved —
+    //                          the counterweight, not a regression)
+    const mod = await load();
+    const renderPack = mod["renderEquipmentReferencePack"] as
+      | ((options?: Record<string, unknown>) => Promise<{
+          equipmentId: string;
+          views: Array<{
+            view: string;
+            imagePath: string;
+            subjectKind: string;
+            groundPlanePresent: boolean;
+          }>;
+          devServerBoots: number;
+          browserLaunches: number;
+          usesProductRenderer: boolean;
+        }>)
+      | undefined;
+    expect(renderPack, "renderEquipmentReferencePack disappeared").toBeTypeOf("function");
+
+    // Legacy grounded mode first (writes to the same pack dir), so the final
+    // canonical state of .openclinxr/evidence/issue-265/packs is subject-only.
+    const grounded = await renderPack!({
+      subjectOnly: false,
+      outputRoot: ".openclinxr/evidence/issue-265",
+    });
+    expect(grounded.views.length).toBeGreaterThanOrEqual(4);
+    for (const v of grounded.views) {
+      expect(
+        v.groundPlanePresent,
+        `${v.view}: neutral ground missing in legacy grounded mode (#262 capability lost)`,
+      ).toBe(true);
+    }
+
+    const subjectOnly = await renderPack!({
+      subjectOnly: true,
+      outputRoot: ".openclinxr/evidence/issue-265",
+    });
+    expect(subjectOnly.equipmentId).toBe("iv_pole_equipment");
+    expect(subjectOnly.views.length).toBeGreaterThanOrEqual(4);
+    expect(subjectOnly.usesProductRenderer).toBe(true);
+    expect(subjectOnly.devServerBoots, "one dev-server boot per pack render").toBeLessThanOrEqual(2);
+    for (const v of subjectOnly.views) {
+      expect(v.subjectKind).toBe("equipment_builder");
+      expect(
+        v.groundPlanePresent,
+        `${v.view}: ground plane still present in subject-only render — the #265 input defect is not fixed`,
+      ).toBe(false);
+    }
+  }, 1_800_000);
 });
 
