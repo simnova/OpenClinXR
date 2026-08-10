@@ -15,6 +15,18 @@
 10→ * Header IMMUTABLE — append ## FIXED (#237).
  */
 
+/**
+ * ## FIXED (#273) — live TRELLIS bake is now opt-in.
+ *
+ * The bake cache lives under .openclinxr/evidence/ (gitignored), absent by design
+ * in every git worktree. The default suite (pnpm test:tools -> vitest run tools/)
+ * reaches this module, so any worker running a broad test command used to pay a
+ * multi-hour bake from scratch. trellisLiveBakeGate() now refuses a NEW bake unless
+ * TRELLIS_LIVE_BAKE_OPT_IN=1 (proven by trellis-live-bake-gate.test.ts via an
+ * injected runner — no spawn path); an existing usable bake-measure.json cache is
+ * still always used when present, and the opt-in path still reaches runBakeProcess.
+ */
+
 import { execFile } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -112,6 +124,41 @@ const SUBJECTS: Array<{
 ];
 
 // ---------------------------------------------------------------------------
+// #273 live-bake gate — the bake cache is gitignored, so a live bake must be opt-in
+// ---------------------------------------------------------------------------
+
+export const TRELLIS_LIVE_BAKE_OPT_IN_ENV = "TRELLIS_LIVE_BAKE_OPT_IN";
+
+export type TrellisLiveBakeDecision =
+  | "refuse_opt_in_required"
+  | "allow_live_bake"
+  | "use_cache";
+
+/**
+ * Pure decision table for #273.
+ *
+ *   { optIn:false, cachePresent:false } -> "refuse_opt_in_required"
+ *   { optIn:true,  cachePresent:false } -> "allow_live_bake"  // COUNTERWEIGHT
+ *   { optIn:false, cachePresent:true  } -> "use_cache"
+ *
+ * The middle row is the counterweight: the live bake must stay openable or this
+ * closes by deleting #237's coverage (the #40 mistake).
+ */
+export function trellisLiveBakeGate(input: {
+  optIn: boolean;
+  cachePresent: boolean;
+}): TrellisLiveBakeDecision {
+  if (input.cachePresent) return "use_cache";
+  if (input.optIn) return "allow_live_bake";
+  return "refuse_opt_in_required";
+}
+
+/** True when the caller explicitly opted into a live TRELLIS bake. */
+export function isTrellisLiveBakeOptedIn(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env[TRELLIS_LIVE_BAKE_OPT_IN_ENV] === "1";
+}
+
+// ---------------------------------------------------------------------------
 // GLB triangle counting
 // ---------------------------------------------------------------------------
 
@@ -177,35 +224,37 @@ interface BakeResult {
   notEvidenceFor?: string[];
 }
 
-function spawnPythonBake(subject: {
-  subjectId: string;
-  displayName: string;
-  inputImage: string;
-}): Promise<BakeResult> {
+/**
+ * A bake runner: given a subject, its output dir and the ambient env, produce a
+ * BakeResult. The production implementation is `runBakeProcess` (a fresh Python
+ * subprocess per subject — the #237 isolation guarantee). Tests inject a stub so
+ * the #273 wiring can be proven without any path that can spawn a real bake.
+ */
+type RunBake = (
+  subject: { subjectId: string; displayName: string; inputImage: string },
+  outputDir: string,
+  env: NodeJS.ProcessEnv,
+) => Promise<BakeResult>;
+
+interface SpawnPythonBakeDeps {
+  /** Injected bake runner (tests). Defaults to runBakeProcess (execFile). */
+  runBake?: RunBake;
+  /** Injected ambient env (tests). Defaults to process.env. */
+  env?: NodeJS.ProcessEnv;
+  /** Injected output dir (tests). Defaults to ISSUE_237_DIR/<subjectId>. */
+  outputDir?: string;
+}
+
+/**
+ * Production bake runner — the ONLY place a Python TRELLIS process is spawned.
+ * One fresh child_process per subject (the #237 isolation guarantee).
+ */
+function runBakeProcess(
+  subject: { subjectId: string; displayName: string; inputImage: string },
+  outputDir: string,
+  env: NodeJS.ProcessEnv,
+): Promise<BakeResult> {
   return new Promise((resolve, reject) => {
-    const outputDir = path.join(ISSUE_237_DIR, subject.subjectId);
-    mkdirSync(outputDir, { recursive: true });
-
-    // Check for existing bake-measure.json (idempotent — skip re-bake if already done)
-    const existingMeasure = path.join(outputDir, "bake-measure.json");
-    if (existsSync(existingMeasure)) {
-      try {
-        const raw = readFileSync(existingMeasure, "utf-8");
-        const existing = JSON.parse(raw) as BakeResult;
-        const verdict = existing.verdict;
-        if (verdict === "mesh_exported" || verdict === "runs_but_over_budget" || verdict === "blocked_build") {
-          console.log(`[ISOLATION] ${subject.subjectId}: existing bake found (verdict=${verdict}) — skipping re-bake`);
-          resolve(existing);
-          return;
-        }
-        // inconclusive_blocked — re-bake
-        console.log(`[ISOLATION] ${subject.subjectId}: existing bake is inconclusive — re-baking`);
-      } catch {
-        // corrupt — re-bake
-        console.log(`[ISOLATION] ${subject.subjectId}: existing bake-measure.json corrupt — re-baking`);
-      }
-    }
-
     const scriptPath = path.resolve(__dirname, "blender/run_bake_isolated.py");
 
     const args = [
@@ -230,7 +279,7 @@ function spawnPythonBake(subject: {
       {
         cwd: TRELLIS_ROOT,
         env: {
-          ...process.env,
+          ...env,
           PYTHONUNBUFFERED: "1",
           PYTORCH_ENABLE_MPS_FALLBACK: "1",
         },
@@ -284,6 +333,70 @@ function spawnPythonBake(subject: {
       resolve(blocked);
     });
   });
+}
+
+/**
+ * Per-subject bake entry. #273: the bake cache lives under .openclinxr/evidence/
+ * (gitignored), so it is absent by design in every git worktree; without a gate,
+ * any worker running a broad test command paid a multi-hour TRELLIS bake from
+ * scratch. A NEW bake is refused unless TRELLIS_LIVE_BAKE_OPT_IN=1, while the
+ * #237 live-bake path stays reachable (the counterweight). An existing usable
+ * bake-measure.json is always used (idempotent) — the gate only decides whether
+ * a NEW bake may start.
+ */
+export function spawnPythonBake(
+  subject: { subjectId: string; displayName: string; inputImage: string },
+  deps: SpawnPythonBakeDeps = {},
+): Promise<BakeResult> {
+  const outputDir = deps.outputDir ?? path.join(ISSUE_237_DIR, subject.subjectId);
+  const env = deps.env ?? process.env;
+  mkdirSync(outputDir, { recursive: true });
+
+  // Existing usable bake-measure.json → use cache (skip re-bake).
+  const existingMeasure = path.join(outputDir, "bake-measure.json");
+  if (existsSync(existingMeasure)) {
+    try {
+      const raw = readFileSync(existingMeasure, "utf-8");
+      const existing = JSON.parse(raw) as BakeResult;
+      const verdict = existing.verdict;
+      if (verdict === "mesh_exported" || verdict === "runs_but_over_budget" || verdict === "blocked_build") {
+        console.log(`[ISOLATION] ${subject.subjectId}: existing bake found (verdict=${verdict}) — skipping re-bake`);
+        return Promise.resolve(existing);
+      }
+      // inconclusive_blocked — falls through to the gate (may re-bake on opt-in)
+      console.log(`[ISOLATION] ${subject.subjectId}: existing bake is inconclusive — re-baking`);
+    } catch {
+      // corrupt — falls through to the gate
+      console.log(`[ISOLATION] ${subject.subjectId}: existing bake-measure.json corrupt — re-baking`);
+    }
+  }
+
+  // #273: a live bake (new Python process) requires explicit opt-in. No usable
+  // cache exists here — a usable one returned above — so the gate's cachePresent
+  // input is false at this point and the gate decides refuse vs allow.
+  const decision = trellisLiveBakeGate({
+    optIn: isTrellisLiveBakeOptedIn(env),
+    cachePresent: false,
+  });
+
+  if (decision === "refuse_opt_in_required") {
+    // Deliberately NOT persisted to bake-measure.json: an opt-in re-run must
+    // still be able to bake this subject rather than read a stale "refused" cache.
+    const refused: BakeResult = {
+      subjectId: subject.subjectId,
+      verdict: "blocked_build",
+      verdictReason:
+        `Live TRELLIS bake refused: set ${TRELLIS_LIVE_BAKE_OPT_IN_ENV}=1 to opt in ` +
+        `(no cached bake-measure.json in this tree)`,
+      processIsolation: "fresh_subprocess",
+      stages: {},
+    };
+    console.log(`[ISOLATION] ${subject.subjectId}: live bake refused — ${TRELLIS_LIVE_BAKE_OPT_IN_ENV}=1 required`);
+    return Promise.resolve(refused);
+  }
+
+  // decision === "allow_live_bake"
+  return (deps.runBake ?? runBakeProcess)(subject, outputDir, env);
 }
 
 // ---------------------------------------------------------------------------
