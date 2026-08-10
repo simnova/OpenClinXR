@@ -44,18 +44,57 @@ import { describe, expect, it } from "vitest";
  *
  * The predicate is geometric: it runs on mesh geometry, never on garment names, and a
  * synthetic sparse open shell must fail while a synthetic closed shell must pass.
+ *
+ * ════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#277)
+ *
+ * The gate was consumed: `pnpm asset:body-param:fit -- --once` re-baked both body classes
+ * THROUGH the stage gate. Two stage-integration defects surfaced on the first real run and
+ * were fixed mechanically (no threshold, no assertion, no predicate semantics changed):
+ *
+ *   (a) the stage measures the Z-up Blender scene (height along Z), but the gate's region
+ *       band used world Y (the body's THICKNESS axis) — the upper shirt measured 13,400
+ *       boundary edges / 0.085 raycast while the evidence module measures the same shirt
+ *       (on the exported Y-up GLB) at 0 boundary edges / covers. Fix: `height_axis` is now
+ *       an explicit parameter of the shared predicate (default 1 = Y-up exported GLBs, the
+ *       evidence frame); the stage passes 2.
+ *   (b) `_numpy_mesh` fed raw quad polygons (shirt 4,692 quads = 9,384 tris) to a
+ *       triangle-only predicate, making the closed shirt read 13,400 boundary edges. Fix:
+ *       fan triangulation in the stage's mesh reader. Body faces too (13,378 quads =
+ *       26,756 tris).
+ *
+ * Re-baked measurements (rebake-report.json, evidence module on the shipped GLBs):
+ *
+ *   adult_lean_female  lower `makeclothes_library_cargo_pants_adult_lean_female` 392 t
+ *                      does_not_cover (0.7089, 32 open edges) → REPLACED by body-derived
+ *                      cover shell 1,356 v / 2,617 f, now covers (0.9877)
+ *   adult_lean_female  upper scrub shirt 9,384 t, covers (0 boundary edges) — unchanged
+ *   adult_heavy_male   lower 392 t does_not_cover (0.4698, 32 open edges) → REPLACED by
+ *                      cover shell 2,002 v / 3,779 f, now covers (0.9899)
+ *   adult_heavy_male   upper scrub shirt 9,384 t, covers — unchanged
+ *
+ * The ED spouse (`spouse_anna_hayes_v1`) resolves to
+ * `/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb` — the exact
+ * file this bake rewrites (no blob indirection for this slot), so the promoted asset IS
+ * the one the running station loads.
+ *
+ * Assertion (1) below is flipped from the RED ("trousers do NOT cover") to the post-fix
+ * state: the shipped lower garment now COVERS (the cover shell) and the 392-triangle
+ * sparse trouser is gone. Assertions (2) and (3) are unchanged — the shirt counterweight
+ * and the shell ≥ 0.95 guarantee both still bind.
  */
 
 const load = async () =>
   import("./garment-covers-its-region.js") as Promise<Record<string, unknown>>;
 
-describe("garment covers the region it claims (#272)", () => {
-  it("the shipped 392-triangle cargo trousers DO NOT cover the leg region (RED)", async () => {
+describe("garment covers the region it claims (#272/#277)", () => {
+  it("the re-baked lower garment (body-derived cover shell) DOES cover the leg region (#277)", async () => {
     const mod = await load();
     const inspect = mod["inspectGarmentCoversItsRegion"] as
       | (() => Promise<{
           figures: Array<{
             bodyClassId: string;
+            lowerGarmentTriangleCount: number;
             lower: { verdict: string; outwardRaycastCoverage: number };
           }>;
         }>)
@@ -68,19 +107,24 @@ describe("garment covers the region it claims (#272)", () => {
       const lower = f.lower;
       expect(lower, `${f.bodyClassId}: no lower garment measured`).toBeTruthy();
       if (!lower) continue;
-      if (lower.verdict !== "does_not_cover") {
+      if (lower.verdict !== "covers") {
         broken.push(
-          `${f.bodyClassId}: trousers judged "${lower.verdict}" — the 392-triangle shell must not cover`,
+          `${f.bodyClassId}: lower garment judged "${lower.verdict}" — the cover shell must cover`,
         );
       }
-      if (lower.outwardRaycastCoverage >= 0.9) {
+      if (lower.outwardRaycastCoverage < 0.9) {
         broken.push(
-          `${f.bodyClassId}: trousers outward coverage ${lower.outwardRaycastCoverage.toFixed(3)} ≥ 0.9 — `
-          + "this is the sparse shell that reads see-through in the capture",
+          `${f.bodyClassId}: lower outward coverage ${lower.outwardRaycastCoverage.toFixed(3)} < 0.9 — `
+          + "the body-derived shell must present a surface over the legs",
+        );
+      }
+      if (f.lowerGarmentTriangleCount === 392) {
+        broken.push(
+          `${f.bodyClassId}: lower garment is still the 392-triangle sparse trouser — the gate did not replace it`,
         );
       }
     }
-    expect(broken, `the shipped trousers were not rejected:\n${broken.join("\n")}`).toEqual([]);
+    expect(broken, `the re-baked lower garments do not cover:\n${broken.join("\n")}`).toEqual([]);
   }, 300_000);
 
   it("the shipped 9,384-triangle scrub shirt DOES cover the torso region (COUNTERWEIGHT)", async () => {

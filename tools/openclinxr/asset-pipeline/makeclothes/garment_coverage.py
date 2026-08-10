@@ -216,10 +216,17 @@ def outward_raycast_coverage(
     *,
     tol: float = RAY_TOLERANCE_M,
     max_rays: int = 2048,
+    height_axis: int = 1,
 ) -> tuple[float, int, int]:
     """Fraction of the body region's outward rays that hit the garment within `tol`.
 
-    Returns (coverage_fraction, region_face_count, sampled_face_count)."""
+    Returns (coverage_fraction, region_face_count, sampled_face_count).
+
+    `height_axis` is the axis the region band runs along. Exported GLBs are Y-up
+    (height along Y, index 1 — the default, used by the evidence module), while the
+    factory stage measures the Z-up Blender scene (height along Z, index 2). The band
+    values passed in must be in the caller's frame; this parameter keeps the predicate
+    frame-consistent (issue-277, measured on the first gate run)."""
     v = _as_np(body_verts)
     f = np.asarray(body_faces, dtype=np.int64)
     gv = _as_np(garment_verts)
@@ -227,7 +234,7 @@ def outward_raycast_coverage(
 
     tri_verts = v[f]
     cents = tri_verts.mean(axis=1)
-    sel = (cents[:, 1] > band_lo) & (cents[:, 1] < band_hi)
+    sel = (cents[:, height_axis] > band_lo) & (cents[:, height_axis] < band_hi)
     idx = np.where(sel)[0]
     region_count = int(sel.sum())
     if len(idx) == 0:
@@ -295,15 +302,19 @@ def coverage_report(
     coverage_threshold: float = COVERAGE_THRESHOLD,
     max_rays: int = 2048,
     garment_label: str = "",
+    height_axis: int = 1,
 ) -> dict:
     """Verdict for "does this garment cover the body region it claims".
+
+    `height_axis` — see outward_raycast_coverage. Default 1 (Y-up exported GLBs, the
+    evidence module's frame); the factory stage passes 2 for its Z-up scene.
 
     A garment covers when it either (a) is a closed shell (no position-merged open edges)
     that adheres to the body, or (b) overlies at least `coverage_threshold` of the region's
     outward surface. The sparse 392-triangle trouser fails both (open shell, 74% coverage);
     the dense closed scrub shirt passes on (a)."""
     coverage, region_count, sampled = outward_raycast_coverage(
-        body_verts, body_faces, garment_verts, garment_faces, band_lo, band_hi, tol=tol, max_rays=max_rays
+        body_verts, body_faces, garment_verts, garment_faces, band_lo, band_hi, tol=tol, max_rays=max_rays, height_axis=height_axis
     )
     boundary = boundary_edge_count(garment_verts, garment_faces)
     adherence = adherence_fraction(garment_verts, body_verts)
@@ -342,13 +353,17 @@ def build_cover_shell(
     *,
     standoff: float = CLOTH_STANDOFF_M,
     label: str = "procedural_lower_cover_shell",
+    height_axis: int = 1,
 ) -> dict:
     """Deterministic fallback garment: the body's own region surface, offset outward.
 
     The shell is the body surface the garment claims, displaced by `standoff` along the
     body's outward vertex normals. It covers the region by construction — the rays that
     sample the region's outward surface hit the offset shell at ~standoff. This is what
-    the factory ships when a library fit cannot cover (D2: procedural clothing, no LLM)."""
+    the factory ships when a library fit cannot cover (D2: procedural clothing, no LLM).
+
+    `height_axis` — see outward_raycast_coverage (1 = Y-up exported GLBs; the factory
+    stage passes 2 for its Z-up scene)."""
     v = _as_np(body_verts)
     f = np.asarray(body_faces, dtype=np.int64)
     # The GLB/OBJ exports split every face (per-face vertex duplication), so build the
@@ -357,7 +372,7 @@ def build_cover_shell(
     v, f = weld_by_position(v, f)
     tri_verts = v[f]
     cents = tri_verts.mean(axis=1)
-    sel = (cents[:, 1] > band_lo) & (cents[:, 1] < band_hi)
+    sel = (cents[:, height_axis] > band_lo) & (cents[:, height_axis] < band_hi)
     fidx = np.where(sel)[0]
     if len(fidx) == 0:
         raise ValueError("build_cover_shell: empty region band")

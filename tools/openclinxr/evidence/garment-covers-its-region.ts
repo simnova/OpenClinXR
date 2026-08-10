@@ -48,6 +48,26 @@ export const CLOTH_STANDOFF_M = 0.015;
 /** Leg-band ankle floor: shoes/feet begin below this (body-min-Y + ankle offset). */
 export const ANKLE_OFFSET_M = 0.10;
 
+/**
+ * Garment-name classification by underscore/snake-case tokens. The original bare
+ * /cloth/ arm matched the "makeCLOTHes_…" prefix of EVERY library garment mesh, so
+ * upperGarmentMeshName reported the trousers' name while the measured geometry stayed
+ * correct (the classification else-if chain caught cargo pants as `lower` first).
+ * Token sets dodge both substring accidents: no boundary between "library_cargo",
+ * and no "cloth" token in "makeclothes".
+ */
+function garmentNameTokens(name: string): string[] {
+  return name.toLowerCase().split(/[^a-z0-9]+/u).filter(Boolean);
+}
+function isLowerGarmentName(name: string): boolean {
+  const t = garmentNameTokens(name);
+  return t.some((tok) => tok.includes("pant") || tok.includes("trouser"));
+}
+function isUpperGarmentName(name: string): boolean {
+  const t = garmentNameTokens(name);
+  return t.some((tok) => tok === "scrub" || tok === "scrubs" || tok.includes("shirt") || tok === "garment" || tok === "gown");
+}
+
 export type CoverageRow = {
   garmentLabel: string;
   regionBandY: [number, number];
@@ -245,10 +265,10 @@ async function loadFigureMeshes(
     if (/basemesh/i.test(name)) {
       meshNames.push(name);
       if (!body) body = meshData(mesh);
-    } else if (/cargo_pants|trouser|pant/i.test(name)) {
+    } else if (isLowerGarmentName(name)) {
       meshNames.push(name);
       if (!lower) lower = meshData(mesh);
-    } else if (/scrub|shirt|garment|cloth/i.test(name)) {
+    } else if (isUpperGarmentName(name)) {
       meshNames.push(name);
       if (!upper) upper = meshData(mesh);
     }
@@ -277,9 +297,9 @@ export async function inspectGarmentCoversItsRegion(): Promise<Report> {
     const row: FigureCoverage = {
       bodyClassId,
       glbPath: path.join("apps/ui-xr/public/xr-assets/humanoids/candidates", glbName),
-      lowerGarmentMeshName: meshNames.find((n) => /cargo_pants|trouser|pant/i.test(n)) ?? null,
+      lowerGarmentMeshName: meshNames.find((n) => isLowerGarmentName(n)) ?? null,
       lowerGarmentTriangleCount: lower?.triangles ?? 0,
-      upperGarmentMeshName: meshNames.find((n) => /scrub|shirt|garment|cloth/i.test(n)) ?? null,
+      upperGarmentMeshName: meshNames.find((n) => isUpperGarmentName(n)) ?? null,
       upperGarmentTriangleCount: upper?.triangles ?? 0,
       lower: null,
       upper: null,
