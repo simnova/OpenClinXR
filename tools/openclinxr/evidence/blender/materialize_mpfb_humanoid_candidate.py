@@ -1,7 +1,9 @@
 import argparse
+import math
 import pathlib
 
 import bpy
+from mathutils import Matrix
 
 
 def make_material(name, color):
@@ -35,13 +37,31 @@ def main():
     human.data.materials.clear()
     human.data.materials.append(make_material("mpfb_skin_warm_ob_patient", (0.68, 0.53, 0.44, 1.0)))
 
-    hair_material = make_material("mpfb_patient_hair_dark", (0.035, 0.026, 0.018, 1.0))
+    # #222: wire the proven bounds-derived scalp/hair material region from the Anny rail
+    # (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201) instead of hand-authoring
+    # a UV sphere (D1: "do not have workers hand-author bespoke geometry"). The function is not
+    # topology-bound: it derives the region from mesh bounds, auto-detects the dominant height
+    # axis, and excludes the front mid-face band (#73). MPFB's Blender-local orientation is
+    # Z-up with the face at +Y, but the function's Z-height branch expects the face at -Y; we
+    # feed it a temporary 180-deg Z flip of the mesh data (rigid rotation, no topology change),
+    # let it paint polygon material indices, then flip back. The geometry, rig, and shape keys
+    # are never modified.
+    import sys as _sys
 
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, location=(0.0, -0.035, 1.69), scale=(0.112, 0.088, 0.055))
-    hair = bpy.context.object
-    hair.name = "anny_surface_hair_dark_mpfb_ob_patient"
-    hair.data.materials.append(hair_material)
-    hair.parent = human
+    _anny_dir = pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/anny"
+    if str(_anny_dir) not in _sys.path:
+        _sys.path.insert(0, str(_anny_dir))
+    from automate_blender import apply_mesh_native_scalp_hair_material_region  # noqa: E402
+
+    _z_flip = Matrix.Rotation(math.pi, 4, "Z")
+    human.data.transform(_z_flip)
+    try:
+        scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
+            human, {"hair_color": "black", "hair_density": 0.65}
+        )
+    finally:
+        human.data.transform(_z_flip)
+    print(f"SCALP_HAIR_REGION {scalp_hair_region}")
 
     bpy.ops.object.select_all(action="DESELECT")
     bpy.context.view_layer.objects.active = human
