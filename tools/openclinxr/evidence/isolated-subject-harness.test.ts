@@ -244,3 +244,48 @@ describe("a subject can be rendered in isolation, in variants (#163)", () => {
     ).toBeGreaterThan(1);
   }, 1_800_000);
 });
+
+describe("equipment reference packs from parametric renders (#262)", () => {
+  it("renders the iv-pole builder as square views and exports the parametric source GLB", async () => {
+    // #262 — reference packs must come from PARAMETRIC RENDERS, not a generative
+    // image model: deterministic, quota-free, one fewer LLM in the factory (D9).
+    // The harness renders the SAME builder stations use (buildDeclaredEquipmentGeometry).
+    const { existsSync } = await import("node:fs");
+    const mod = await load();
+    const renderPack = mod["renderEquipmentReferencePack"] as
+      | ((options?: Record<string, unknown>) => Promise<{
+          equipmentId: string;
+          views: Array<{ view: string; imagePath: string; subjectKind: string }>;
+          contactSheetPath: string;
+          parametricSourceGlbPath: string | null;
+          devServerBoots: number;
+          browserLaunches: number;
+          usesProductRenderer: boolean;
+        }>)
+      | undefined;
+    expect(renderPack, "renderEquipmentReferencePack disappeared").toBeTypeOf("function");
+
+    const run = await renderPack!({});
+    expect(run.equipmentId).toBe("iv_pole_equipment");
+    // The issue requires four viewpoints (front, side, two three-quarters); we render five.
+    expect(run.views.length).toBeGreaterThanOrEqual(4);
+    expect(run.devServerBoots, "the pack must render in ONE dev-server boot").toBeLessThanOrEqual(2);
+    expect(run.usesProductRenderer).toBe(true);
+
+    const viewNames = run.views.map((v) => v.view);
+    for (const required of ["front", "side", "three_quarter_left", "three_quarter_right"]) {
+      expect(viewNames, `missing required view ${required}`).toContain(required);
+      const view = run.views.find((v) => v.view === required)!;
+      expect(view.subjectKind).toBe("equipment_builder");
+      expect(existsSync(view.imagePath), `${required} render missing on disk`).toBe(true);
+    }
+
+    expect(existsSync(run.contactSheetPath), "no contact sheet on disk").toBe(true);
+    expect(
+      run.parametricSourceGlbPath,
+      "the parametric source GLB was not exported — needed for the bake geometry comparison",
+    ).toBeTruthy();
+    expect(existsSync(run.parametricSourceGlbPath!)).toBe(true);
+  }, 1_800_000);
+});
+

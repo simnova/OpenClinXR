@@ -30,6 +30,16 @@ import {
 
 export const DEFAULT_EVIDENCE_ROOT = ".openclinxr/evidence/isolated-subject-harness";
 export const ISSUE_EVIDENCE_ROOT = ".openclinxr/evidence/issue-163";
+/** #262 equipment reference packs — same evidence root as the pack report + pre-fix. */
+export const EQUIPMENT_PACK_EVIDENCE_ROOT = ".openclinxr/evidence/issue-262";
+
+/** Reference-pack capture views (#262) — mirrors the #232 pack view set + back. */
+export type CaptureView =
+  | "front"
+  | "side"
+  | "three_quarter_left"
+  | "three_quarter_right"
+  | "back";
 
 export type RenderedSubject = {
   subjectId: string;
@@ -72,13 +82,27 @@ type PageEvidence = {
 
 type SubjectSpec = {
   subjectId: string;
-  subjectKind: "furniture_builder" | "runtime_posture" | "posture_on_furniture" | "glb";
+  subjectKind:
+    | "furniture_builder"
+    | "runtime_posture"
+    | "posture_on_furniture"
+    | "glb"
+    | "equipment_builder";
   builder?: "patient_stretcher" | "patient_chair";
+  /** equipment_builder id (e.g. iv_pole_equipment) — #262. */
+  equipmentId?: string;
   posture?: "supine";
   bodyGlb?: string;
   inclineDegrees?: number;
+  /** Camera view for reference-pack renders (#262). Absent = legacy framing. */
+  view?: CaptureView;
+  /** When true, the lab serializes the rendered subject to a GLB (base64). */
+  exportGlb?: boolean;
   label?: string;
 };
+
+/** Square capture size matching the #232 pack shape. */
+const PACK_VIEWPORT = { width: 1024, height: 1024 } as const;
 
 const DEFAULT_BODY = "generated-humanoids/ed_chest_pain_adult_cast.glb";
 const VIEWPORT = { width: 1280, height: 960 } as const;
@@ -152,6 +176,12 @@ async function captureSubject(input: {
   imagePath: string;
 }): Promise<RenderedSubject> {
   const url = subjectUrl(input.baseUrl, input.spec);
+  // Pack captures are square (#232 shape); legacy subjects keep the 1280×960 frame.
+  if (input.spec.view) {
+    await input.page.setViewportSize({ width: PACK_VIEWPORT.width, height: PACK_VIEWPORT.height });
+  } else {
+    await input.page.setViewportSize({ width: VIEWPORT.width, height: VIEWPORT.height });
+  }
   await input.page.goto(url, { waitUntil: "domcontentloaded", timeout: 120_000 });
   const handle = await input.page.waitForFunction(
     () => {
@@ -358,6 +388,148 @@ export async function inspectIsolatedSubjectHarness(): Promise<HarnessRun> {
   return runIsolatedSubjectHarness();
 }
 
+// ---------------------------------------------------------------------------
+// #262 — equipment reference packs from PARAMETRIC RENDERS
+// ---------------------------------------------------------------------------
+
+export type EquipmentPackView = RenderedSubject & { view: CaptureView };
+
+export type EquipmentPackRun = {
+  equipmentId: string;
+  views: EquipmentPackView[];
+  contactSheetPath: string;
+  /** Repo-relative dir holding the square per-view PNGs (+ parametric-source.glb). */
+  packDir: string;
+  /** Repo-relative path of the exported parametric source GLB (front view export). */
+  parametricSourceGlbPath: string | null;
+  devServerBoots: number;
+  browserLaunches: number;
+  wallClockMs: number;
+  usesProductRenderer: boolean;
+};
+
+/** #262 default pack subjects. */
+export const DEFAULT_PACK_EQUIPMENT_ID = "iv_pole_equipment";
+export const DEFAULT_PACK_VIEWS: CaptureView[] = [
+  "front",
+  "side",
+  "three_quarter_left",
+  "three_quarter_right",
+  "back",
+];
+
+/**
+ * Render one parametric equipment builder as a square reference pack (#262).
+ *
+ * ONE portless boot, ONE browser, N views. Views match the #232 pack shape
+ * (front/side/two three-quarters, 1024×1024) plus a back view (#254: the rear is
+ * where reconstruction fails, and existing packs lack it). The front capture also
+ * exports the rendered root to a GLB (`parametric-source.glb`) so the bake output
+ * can be compared against the parametric source with the same instrument.
+ *
+ * Does NOT run TRELLIS — it produces the input the bake consumes.
+ */
+export async function renderEquipmentReferencePack(options?: {
+  cwd?: string;
+  equipmentId?: string;
+  views?: CaptureView[];
+  outputRoot?: string;
+}): Promise<EquipmentPackRun> {
+  const cwd = options?.cwd ?? process.cwd();
+  const equipmentId = options?.equipmentId ?? DEFAULT_PACK_EQUIPMENT_ID;
+  const views = options?.views ?? DEFAULT_PACK_VIEWS;
+  const outRoot = path.join(cwd, options?.outputRoot ?? EQUIPMENT_PACK_EVIDENCE_ROOT);
+  const packDir = path.join(outRoot, "packs", equipmentId);
+  const reportRoot = path.join(outRoot, "pack-render-report.json");
+  await mkdir(packDir, { recursive: true });
+
+  let server: PortlessDevServer | null = null;
+  let browser: Browser | null = null;
+  let boots = 0;
+  let browsers = 0;
+
+  const t0 = Date.now();
+  try {
+    boots += 1;
+    server = await spawnPortlessDevServer({
+      filter: "@openclinxr/ui-xr",
+      cwd,
+      readyTimeoutMs: 180_000,
+    });
+
+    browsers += 1;
+    browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage({
+      viewport: { ...PACK_VIEWPORT },
+      deviceScaleFactor: 1,
+    });
+
+    const renderedViews: EquipmentPackView[] = [];
+    let parametricSourceGlbPath: string | null = null;
+
+    for (const view of views) {
+      const spec: SubjectSpec = {
+        subjectId: `${equipmentId}_${view}`,
+        subjectKind: "equipment_builder",
+        equipmentId,
+        view,
+        exportGlb: view === "front",
+        label: `${equipmentId} ${view}`,
+      };
+      const imagePath = path.join(packDir, `${view}.png`);
+      const rendered = await captureSubject({
+        page,
+        baseUrl: server.url,
+        spec,
+        imagePath,
+      });
+      const relImage = path.relative(cwd, rendered.imagePath).replaceAll("\\", "/");
+      renderedViews.push({ ...rendered, imagePath: relImage, view });
+
+      if (view === "front") {
+        const glbBase64 = await page.evaluate(
+          () => (window as unknown as { __openClinXrExportedGlbBase64?: string })
+            .__openClinXrExportedGlbBase64 ?? null,
+        );
+        if (glbBase64) {
+          const glbPath = path.join(packDir, "parametric-source.glb");
+          await writeFile(glbPath, Buffer.from(glbBase64, "base64"));
+          parametricSourceGlbPath = path.relative(cwd, glbPath).replaceAll("\\", "/");
+        }
+      }
+    }
+
+    const contactAbs = path.join(outRoot, "packs", equipmentId, "contact-sheet.png");
+    await buildContactSheet({
+      page,
+      cells: renderedViews.map((v) => ({
+        imagePath: path.join(cwd, v.imagePath),
+        label: v.view,
+      })),
+      outPath: contactAbs,
+      columns: 2,
+    });
+
+    const run: EquipmentPackRun = {
+      equipmentId,
+      views: renderedViews,
+      contactSheetPath: path.relative(cwd, contactAbs).replaceAll("\\", "/"),
+      packDir: path.relative(cwd, packDir).replaceAll("\\", "/"),
+      parametricSourceGlbPath,
+      devServerBoots: boots,
+      browserLaunches: browsers,
+      wallClockMs: Date.now() - t0,
+      usesProductRenderer: true,
+    };
+
+    await writeFile(reportRoot, `${JSON.stringify(run, null, 2)}\n`, "utf8");
+    return run;
+  } finally {
+    if (browser) await browser.close();
+    if (server) server.proc.kill("SIGTERM");
+  }
+}
+
 // CLI — only when this file is the entrypoint (never on import as a dependency).
 const isMain = Boolean(
   process.argv[1]
@@ -366,21 +538,45 @@ const isMain = Boolean(
 );
 
 if (isMain) {
-  runIsolatedSubjectHarness({ force: true })
-    .then((run) => {
-      console.log(JSON.stringify({
-        subjects: run.subjects.length,
-        sweeps: run.sweeps.length,
-        devServerBoots: run.devServerBoots,
-        browserLaunches: run.browserLaunches,
-        wallClockMs: run.wallClockMs,
-        usesProductRenderer: run.usesProductRenderer,
-        contactSheet: run.sweeps[0]?.contactSheetPath,
-        kinds: [...new Set(run.subjects.map((s) => s.subjectKind))],
-      }, null, 2));
-    })
-    .catch((err) => {
-      console.error(err);
-      process.exitCode = 1;
-    });
+  const argv = process.argv.slice(2);
+  const packIdx = argv.indexOf("--pack");
+  if (packIdx >= 0) {
+    const equipmentId = argv[packIdx + 1] ?? DEFAULT_PACK_EQUIPMENT_ID;
+    renderEquipmentReferencePack({ equipmentId })
+      .then((run) => {
+        console.log(JSON.stringify({
+          equipmentId: run.equipmentId,
+          views: run.views.map((v) => ({ view: v.view, imagePath: v.imagePath })),
+          contactSheetPath: run.contactSheetPath,
+          packDir: run.packDir,
+          parametricSourceGlbPath: run.parametricSourceGlbPath,
+          devServerBoots: run.devServerBoots,
+          browserLaunches: run.browserLaunches,
+          wallClockMs: run.wallClockMs,
+          usesProductRenderer: run.usesProductRenderer,
+        }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  } else {
+    runIsolatedSubjectHarness({ force: true })
+      .then((run) => {
+        console.log(JSON.stringify({
+          subjects: run.subjects.length,
+          sweeps: run.sweeps.length,
+          devServerBoots: run.devServerBoots,
+          browserLaunches: run.browserLaunches,
+          wallClockMs: run.wallClockMs,
+          usesProductRenderer: run.usesProductRenderer,
+          contactSheet: run.sweeps[0]?.contactSheetPath,
+          kinds: [...new Set(run.subjects.map((s) => s.subjectKind))],
+        }, null, 2));
+      })
+      .catch((err) => {
+        console.error(err);
+        process.exitCode = 1;
+      });
+  }
 }

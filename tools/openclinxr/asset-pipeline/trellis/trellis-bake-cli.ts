@@ -102,6 +102,11 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
     displayName: "12-lead ECG cart",
     frontImageRel: "ecg-cart/front.png",
   },
+  {
+    subjectId: "iv-pole",
+    displayName: "IV pole equipment",
+    frontImageRel: "iv_pole_equipment/front.png",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -157,7 +162,7 @@ USAGE
   pnpm factory:trellis:bake:validate                    Alias for --validate-latest
 
 SUBJECTS
-  wall-clock, bedside-monitor, ecg-cart  (from #232 multi-view packs)
+  wall-clock, bedside-monitor, ecg-cart, iv-pole  (#232 packs + #262 parametric-render pack)
 
 ISOLATION
   Each subject runs in a fresh OS subprocess via run_bake_isolated.py (#237).
@@ -270,7 +275,10 @@ function liveBake(subjectId: string): void {
     {
       encoding: "utf8",
       cwd: REPO_ROOT,
-      timeout: 600_000, // 10 min
+      // #255 measured a 1-view bake at 1371.9s wall clock (shape gen 1231.6s +
+      // export 137.2s). The prior 600s cap killed every real bake; 3.6Ms (1h)
+      // leaves headroom while still failing fast on a wedged GPU process.
+      timeout: 3_600_000,
       env: {
         ...process.env,
         PYTHONUNBUFFERED: "1",
