@@ -117,3 +117,120 @@ describe("a standing actor does not occupy a prop (#183)", () => {
     ).toEqual([]);
   }, 900_000);
 });
+
+type EquipmentActorInspect = (input?: {
+  scenarioIds?: string[];
+  writePreFix?: boolean;
+  label?: string;
+}) => Promise<{
+  stations: {
+    scenarioId: string;
+    environmentId: string;
+    camera: { found: boolean; position: [number, number, number] | null; framing: string };
+    equipment: Array<{ equipmentId: string; source: string; standPresent: boolean; worldAabb: unknown }>;
+    actors: Array<{ actorId: string; role: string; posture: string; worldAabb: unknown }>;
+    pairs: Array<{ equipmentId: string; actorId: string; worldIntersects: boolean; screenOverlapFraction: number; occlusionDirection: string; verdict: string }>;
+    worldOverlapPairs: string[];
+    screenOnlyPairs: string[];
+  }[];
+}>;
+
+const loadEquipmentActor = () =>
+  import("./actor-prop-intersection.js") as Promise<Record<string, unknown>>;
+
+/**
+ * #281 — the bedside monitor's preserved stand is correct equipment with an
+ * unexamined placement. The brief's operationalization: SEPARATE world-space
+ * overlap (placement bug: equipment standing inside a person) from screen-space
+ * overlap only (camera/framing artifact). Both outcomes close the issue.
+ *
+ * MEASURED 2026-08-10 (pre-fix.json): world AABBs are DISJOINT for all
+ * equipment×actor pairs in ed_stroke_alert_handoff_v1. The monitor projects
+ * over the son (equipment_in_front) and the nurse (interleaved) at the default
+ * scene-overview camera, but nothing stands inside anyone → framing, not
+ * placement. The tests below pin the placement fact + the #260 stand
+ * counterweight + measurement integrity, and leave the camera framing as
+ * documented, not asserted-away.
+ */
+describe("equipment placement vs actors — world vs screen (#281)", () => {
+  it("writes the pre-fix measurement and finds no world-space placement bug in the ED stroke station", async () => {
+    const mod = await loadEquipmentActor();
+    const inspect = mod["inspectEquipmentActorOverlap"] as EquipmentActorInspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!({
+      scenarioIds: ["ed_stroke_alert_handoff_v1"],
+      writePreFix: true,
+      label: "pre-fix",
+    });
+
+    expect(report.stations).toHaveLength(1);
+    const station = report.stations[0]!;
+    expect(station.scenarioId).toBe("ed_stroke_alert_handoff_v1");
+    expect(station.camera.found, "the default capture camera was not found in the scene graph")
+      .toBe(true);
+    expect(station.camera.position, "the camera position must be recorded for reproducibility")
+      .not.toBeNull();
+
+    // Placement bug guard: no equipment assembly AABB intersects any actor AABB.
+    // If a future slice pushes the monitor (or its stand) into an actor, this reds.
+    expect(
+      station.worldOverlapPairs,
+      `equipment assemblies standing inside actors:\n${station.worldOverlapPairs.join("\n")}`,
+    ).toEqual([]);
+  }, 900_000);
+
+  it("keeps the bedside monitor's parametric stand and grounded assembly (COUNTERWEIGHT #260/#266/#268)", async () => {
+    const mod = await loadEquipmentActor();
+    const inspect = mod["inspectEquipmentActorOverlap"] as EquipmentActorInspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!({ scenarioIds: ["ed_stroke_alert_handoff_v1"] });
+    const station = report.stations[0]!;
+    const monitor = station.equipment.find((e) => e.equipmentId === "bedside_monitor_equipment");
+    expect(monitor, "the bedside monitor assembly is not in the live scene").toBeDefined();
+    expect(monitor!.standPresent, "#260: the parametric stand must survive the GLB mount").toBe(true);
+
+    const box = monitor!.worldAabb as { minY: number; maxY: number; minX: number; maxX: number };
+    expect(Number.isFinite(box.minY) && Number.isFinite(box.maxY)).toBe(true);
+    expect(box.minY, "a floor-mounted monitor assembly must rest on the floor (y≈0)").toBeCloseTo(0, 1);
+    expect(box.maxY - box.minY, "the assembly collapsed to zero height").toBeGreaterThan(0.5);
+  }, 900_000);
+
+  it("measures a non-vacuous cross product and records the camera-space observation", async () => {
+    const mod = await loadEquipmentActor();
+    const inspect = mod["inspectEquipmentActorOverlap"] as EquipmentActorInspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!({ scenarioIds: ["ed_stroke_alert_handoff_v1"] });
+    const station = report.stations[0]!;
+
+    // Full equipment × actor cross product: 2 assemblies × 3 actors = 6 rows.
+    expect(station.equipment.length).toBeGreaterThanOrEqual(2);
+    expect(station.actors.length).toBe(3);
+    expect(station.pairs).toHaveLength(station.equipment.length * station.actors.length);
+
+    // Every actor measured a non-degenerate world AABB (a failed humanoid load
+    // would produce a missing or zero-extent row and red here).
+    for (const actor of station.actors) {
+      const b = actor.worldAabb as { minX: number; maxX: number; minY: number; maxY: number };
+      expect(b.maxX - b.minX, `${actor.actorId} AABB collapsed on X`).toBeGreaterThan(0.1);
+      expect(b.maxY - b.minY, `${actor.actorId} AABB collapsed on Y`).toBeGreaterThan(1.0);
+    }
+
+    // The camera-space observation is RECORDED, not asserted away: the monitor
+    // screen box overlaps the son with equipment_in_front depth ordering. That
+    // is the framing artifact the issue describes; the verdict is in the data.
+    const monitorVsSon = station.pairs.find(
+      (p) => p.equipmentId === "bedside_monitor_equipment" && p.actorId === "son_eric_brooks_v1",
+    );
+    expect(monitorVsSon, "the monitor×son pair is missing from the cross product").toBeDefined();
+    expect(monitorVsSon!.verdict).toBe("screen_only");
+    expect(monitorVsSon!.screenOverlapFraction).toBeGreaterThan(0);
+    expect(monitorVsSon!.occlusionDirection).toBe("equipment_in_front");
+    expect(
+      station.screenOnlyPairs.some((s) => s.includes("bedside_monitor_equipment")),
+      "the monitor's screen-space overlap must appear in the summary",
+    ).toBe(true);
+  }, 900_000);
+});

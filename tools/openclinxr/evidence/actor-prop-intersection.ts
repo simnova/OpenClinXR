@@ -45,6 +45,21 @@ export const PROP_INTERSECTION_EVIDENCE_DIR = ".openclinxr/evidence/issue-183";
 export const PRE_FIX_NAME = "pre-fix.json";
 export const AFTER_PNG_NAME = "actor-prop-after.png";
 
+/**
+ * #281 — equipment-assembly vs actor overlap (world AABB + screen space).
+ *
+ * Separate harness functions from #183's actor×prop cross-product (this file
+ * already boots the scene, so the #281 measurement extends it rather than
+ * adding a 35th independent browser boot — #284).
+ *
+ * Two questions, deliberately kept apart (issue #281 operationalization):
+ *  - world-space overlap: equipment assembly AABB ∩ actor AABB ≠ ∅ → PLACEMENT bug
+ *  - screen-space overlap only: disjoint in world, but the default capture
+ *    camera lines them up → CAMERA/FRAMING artifact
+ */
+export const EQUIPMENT_ACTOR_EVIDENCE_DIR = ".openclinxr/evidence/issue-281";
+export const EQUIPMENT_ACTOR_PRE_FIX_NAME = "pre-fix.json";
+
 /** Re-export so contracts and CLI share one number with #169. */
 export { INSIDE_OVERLAP_FRACTION_THRESHOLD };
 
@@ -639,6 +654,610 @@ export async function readLivePropIntersectionFromPage(page: Page): Promise<Live
   })()`) as Promise<LiveStation>;
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// #281 — equipment assembly vs actor overlap (world + screen space)
+// ────────────────────────────────────────────────────────────────────────────
+
+export type Aabb3 = {
+  minX: number;
+  minY: number;
+  minZ: number;
+  maxX: number;
+  maxY: number;
+  maxZ: number;
+};
+
+/** NDC-space bounding box (-1..1), plus view-space depth range (metres in front of the camera). */
+export type ScreenBox = {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+  depthMin: number;
+  depthMax: number;
+};
+
+export type EquipmentActorOverlapRow = {
+  scenarioId: string;
+  equipmentId: string;
+  equipmentSource: string;
+  standPresent: boolean;
+  equipmentWorldAabb: Aabb3;
+  actorId: string;
+  actorRole: string;
+  actorPosture: string;
+  actorWorldAabb: Aabb3;
+  /** True when the two world AABBs intersect in all three axes — a placement bug. */
+  worldIntersects: boolean;
+  /** NDC boxes at the default capture camera (null when the object is fully behind it). */
+  equipmentScreenAabb: ScreenBox | null;
+  actorScreenAabb: ScreenBox | null;
+  /** Overlap of the two NDC boxes as a fraction of the smaller box's area. */
+  screenOverlapFraction: number;
+  /** Overlap area in viewport pixels. */
+  screenOverlapPx: number;
+  /** Depth ordering of the equipment vs the actor along the camera view. */
+  occlusionDirection: "equipment_in_front" | "actor_in_front" | "interleaved" | "none";
+  /**
+   * world_overlap | screen_only | clear.
+   * world_overlap → placement bug; screen_only → camera/framing artifact.
+   */
+  verdict: "world_overlap" | "screen_only" | "clear";
+};
+
+export type EquipmentActorOverlapStation = {
+  scenarioId: string;
+  environmentId: string;
+  captureMode: string;
+  camera: {
+    found: boolean;
+    position: [number, number, number] | null;
+    fov: number | null;
+    aspect: number | null;
+    framing: string;
+  };
+  viewport: { width: number; height: number };
+  equipment: Array<{
+    equipmentId: string;
+    source: string;
+    standPresent: boolean;
+    worldAabb: Aabb3;
+    screenAabb: ScreenBox | null;
+  }>;
+  actors: Array<{
+    actorId: string;
+    role: string;
+    posture: string;
+    worldAabb: Aabb3;
+    screenAabb: ScreenBox | null;
+  }>;
+  /** Full equipment × actor cross product. */
+  pairs: EquipmentActorOverlapRow[];
+  worldOverlapPairs: string[];
+  screenOnlyPairs: string[];
+};
+
+export type EquipmentActorOverlapReport = {
+  stations: EquipmentActorOverlapStation[];
+};
+
+type EquipmentActorArtifactPayload = {
+  schemaVersion: "openclinxr.equipment-actor-overlap.v1";
+  kind: "equipment_actor_overlap_live";
+  label: string;
+  generatedAt: string;
+  treeStamp: MeasurementTreeStamp;
+  claimScope: string[];
+  notEvidenceFor: string[];
+  report: EquipmentActorOverlapReport;
+};
+
+function equipmentActorPreFixPath(): string {
+  return path.join(EQUIPMENT_ACTOR_EVIDENCE_DIR, EQUIPMENT_ACTOR_PRE_FIX_NAME);
+}
+
+let cachedEquipmentActorReport: EquipmentActorOverlapReport | null = null;
+let equipmentActorMeasureInFlight: Promise<EquipmentActorOverlapReport> | null = null;
+
+/**
+ * #281 — measure world + screen-space overlap between each equipment assembly
+ * and each actor, for the given scenarios (default: ed_stroke_alert_handoff_v1).
+ *
+ * Extends this module's existing server+browser boot (§6k) — no third harness.
+ */
+export async function inspectEquipmentActorOverlap(input?: {
+  baseUrl?: string;
+  force?: boolean;
+  label?: string;
+  scenarioIds?: string[];
+  writePreFix?: boolean;
+}): Promise<EquipmentActorOverlapReport> {
+  // writePreFix must re-measure (same rule as inspectActorPropIntersection #183):
+  // a pre-fix artifact is a BEFORE-column and may not be served from a cache.
+  if (!input?.force && !input?.writePreFix && cachedEquipmentActorReport) {
+    return cachedEquipmentActorReport;
+  }
+  if (!input?.force && equipmentActorMeasureInFlight) return equipmentActorMeasureInFlight;
+
+  equipmentActorMeasureInFlight = (async () => {
+    const report = await measureLiveEquipmentActorOverlap({
+      baseUrl: input?.baseUrl,
+      scenarioIds: input?.scenarioIds,
+    });
+    if (input?.writePreFix) {
+      await writeEquipmentActorPreFix(report, {
+        label: input?.label ?? "pre-fix",
+      });
+    }
+    cachedEquipmentActorReport = report;
+    return report;
+  })();
+
+  try {
+    return await equipmentActorMeasureInFlight;
+  } finally {
+    equipmentActorMeasureInFlight = null;
+  }
+}
+
+export async function writeEquipmentActorPreFix(
+  report: EquipmentActorOverlapReport,
+  input?: { outputPath?: string; label?: string },
+): Promise<string> {
+  const outputPath = input?.outputPath ?? equipmentActorPreFixPath();
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  const payload = withTreeStamp({
+    schemaVersion: "openclinxr.equipment-actor-overlap.v1" as const,
+    kind: "equipment_actor_overlap_live" as const,
+    label: input?.label ?? "measurement",
+    generatedAt: new Date().toISOString(),
+    claimScope: [
+      "equipment_assembly_world_aabb_vs_actor_world_aabb",
+      "equipment_vs_actor_screen_space_overlap_at_default_capture_camera",
+      "separation_of_world_space_placement_bug_from_camera_framing_artifact",
+      "stand_presence_counterweight_for_issue_260",
+    ],
+    notEvidenceFor: [
+      "clinical_staging",
+      "quest_readiness",
+      "furniture_art_realism",
+      "learner_camera_parity_outside_capture_modes",
+      "exam_equivalence",
+    ],
+    report,
+  }) satisfies EquipmentActorArtifactPayload;
+  await writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+  process.stdout.write(`equipment-actor-overlap: wrote ${outputPath}\n`);
+  return outputPath;
+}
+
+async function measureLiveEquipmentActorOverlap(input: {
+  baseUrl?: string;
+  scenarioIds?: string[];
+}): Promise<EquipmentActorOverlapReport> {
+  const scenarios =
+    input.scenarioIds && input.scenarioIds.length > 0
+      ? input.scenarioIds
+      : ["ed_stroke_alert_handoff_v1"];
+
+  let server: PortlessDevServer | undefined;
+  let ownedServer = false;
+  try {
+    const baseUrl =
+      input.baseUrl
+      ?? (await (async () => {
+        ownedServer = true;
+        server = await spawnPortlessDevServer({
+          filter: "@openclinxr/ui-xr",
+          readyTimeoutMs: 180_000,
+        });
+        return server.url;
+      })());
+
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+      try {
+        const stations: EquipmentActorOverlapStation[] = [];
+        for (const scenarioId of scenarios) {
+          process.stdout.write(`equipment-actor-overlap: goto ${scenarioId}\n`);
+          const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
+          await page.goto(url, { waitUntil: "load", timeout: 180_000 });
+          await waitForStationShell(page, 180_000);
+          await waitForFrames(page, 8, 120_000);
+          // #281: sample after EVERY recorded asset settles to loaded|failed —
+          // never at register time (#259).
+          await waitForRecordedAssetsSettled(page, 180_000);
+          await page.waitForTimeout(900);
+          const live = await readEquipmentActorOverlapFromPage(page);
+          stations.push(live);
+          process.stdout.write(
+            `  ${live.scenarioId} env=${live.environmentId} equipment=${live.equipment.length} `
+            + `actors=${live.actors.length} pairs=${live.pairs.length} `
+            + `worldOverlap=${live.worldOverlapPairs.length} screenOnly=${live.screenOnlyPairs.length}\n`,
+          );
+          for (const row of live.pairs) {
+            if (row.verdict === "clear") continue;
+            process.stdout.write(
+              `    ${row.verdict.toUpperCase()} ${row.equipmentId} vs ${row.actorId} `
+              + `world=${row.worldIntersects} screenF=${(row.screenOverlapFraction * 100).toFixed(1)}% `
+              + `px=${Math.round(row.screenOverlapPx)} dir=${row.occlusionDirection}\n`,
+            );
+          }
+        }
+        return { stations };
+      } finally {
+        await page.close().catch(() => undefined);
+      }
+    } finally {
+      await browser.close().catch(() => undefined);
+    }
+  } finally {
+    if (ownedServer && server) {
+      try {
+        server.proc.kill("SIGTERM");
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
+
+/**
+ * Wait until __openClinXrSceneAssetEvidence reports every recorded asset at
+ * loaded|failed (pendingCount === 0). #281: sampling before assets settle
+ * produced false readings (#259).
+ */
+async function waitForRecordedAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const evidence = (window as unknown as {
+        __openClinXrSceneAssetEvidence?: {
+          pendingCount?: number;
+          loadedCount?: number;
+          failedCount?: number;
+        };
+      }).__openClinXrSceneAssetEvidence;
+      if (!evidence || (evidence.loadedCount ?? 0) === 0) return false;
+      return (evidence.pendingCount ?? 0) === 0;
+    },
+    undefined,
+    { timeout: timeoutMs },
+  ).catch(() => undefined);
+  await page.waitForTimeout(300);
+}
+
+type LiveEquipmentActorStation = EquipmentActorOverlapStation;
+
+/**
+ * Read per-equipment-assembly and per-actor world AABBs plus their screen-space
+ * boxes at the default capture camera. String IIFE (no TS-only syntax).
+ */
+export async function readEquipmentActorOverlapFromPage(
+  page: Page,
+): Promise<LiveEquipmentActorStation> {
+  return page.evaluate(`(() => {
+    const win = window;
+    const scene = win.__openClinXrDebugScene;
+    const params = new URLSearchParams(window.location.search);
+    const scenarioId = params.get("openclinxrScenarioId") || params.get("scenarioId") || "";
+
+    function round3(v) {
+      return Math.round(v * 1000) / 1000;
+    }
+
+    function worldBox(obj) {
+      if (!obj || typeof obj.updateWorldMatrix !== "function") return null;
+      obj.updateWorldMatrix(true, true);
+      let minX = Infinity, minY = Infinity, minZ = Infinity;
+      let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+      let any = false;
+      obj.traverse(function (child) {
+        if (!child || !child.isMesh || !child.geometry) return;
+        if (child.visible === false) return;
+        if (child.geometry.computeBoundingBox) child.geometry.computeBoundingBox();
+        const bb = child.geometry.boundingBox;
+        if (!bb) return;
+        child.updateWorldMatrix(true, false);
+        const m = child.matrixWorld.elements;
+        const xs = [bb.min.x, bb.max.x];
+        const ys = [bb.min.y, bb.max.y];
+        const zs = [bb.min.z, bb.max.z];
+        for (let ix = 0; ix < 2; ix++) {
+          for (let iy = 0; iy < 2; iy++) {
+            for (let iz = 0; iz < 2; iz++) {
+              const x = xs[ix], y = ys[iy], z = zs[iz];
+              const wx = m[0]*x + m[4]*y + m[8]*z + m[12];
+              const wy = m[1]*x + m[5]*y + m[9]*z + m[13];
+              const wz = m[2]*x + m[6]*y + m[10]*z + m[14];
+              minX = Math.min(minX, wx); minY = Math.min(minY, wy); minZ = Math.min(minZ, wz);
+              maxX = Math.max(maxX, wx); maxY = Math.max(maxY, wy); maxZ = Math.max(maxZ, wz);
+              any = true;
+            }
+          }
+        }
+      });
+      if (!any) return null;
+      return { minX: minX, minY: minY, minZ: minZ, maxX: maxX, maxY: maxY, maxZ: maxZ };
+    }
+
+    // ---- camera (default capture camera: the scene's perspective camera) ----
+    let camera = null;
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (camera) return;
+        if (o && o.isPerspectiveCamera) camera = o;
+      });
+    }
+
+    const canvas = document.querySelector("canvas");
+    const cw = canvas && canvas.clientWidth ? canvas.clientWidth : win.innerWidth;
+    const ch = canvas && canvas.clientHeight ? canvas.clientHeight : win.innerHeight;
+
+    let view = null, proj = null;
+    let camPos = null;
+    let cameraInfo = { found: false, position: null, fov: null, aspect: null, framing: "" };
+    if (camera) {
+      camera.aspect = cw / Math.max(ch, 1);
+      camera.updateProjectionMatrix();
+      camera.updateMatrixWorld(true);
+      view = camera.matrixWorldInverse.elements;
+      proj = camera.projectionMatrix.elements;
+      const mw = camera.matrixWorld.elements;
+      camPos = [mw[12], mw[13], mw[14]];
+      cameraInfo = {
+        found: true,
+        position: [round3(mw[12]), round3(mw[13]), round3(mw[14])],
+        fov: typeof camera.fov === "number" ? camera.fov : null,
+        aspect: Math.round(camera.aspect * 1000) / 1000,
+        framing: (camera.userData && typeof camera.userData.openClinXrCameraFraming === "string")
+          ? camera.userData.openClinXrCameraFraming
+          : "",
+      };
+    }
+
+    function projectPoint(p) {
+      const vx = view[0]*p[0] + view[4]*p[1] + view[8]*p[2] + view[12];
+      const vy = view[1]*p[0] + view[5]*p[1] + view[9]*p[2] + view[13];
+      const vz = view[2]*p[0] + view[6]*p[1] + view[10]*p[2] + view[14];
+      const vw = view[3]*p[0] + view[7]*p[1] + view[11]*p[2] + view[15];
+      const cx = proj[0]*vx + proj[4]*vy + proj[8]*vz + proj[12]*vw;
+      const cy = proj[1]*vx + proj[5]*vy + proj[9]*vz + proj[13]*vw;
+      const cz = proj[2]*vx + proj[6]*vy + proj[10]*vz + proj[14]*vw;
+      const cwp = proj[3]*vx + proj[7]*vy + proj[11]*vz + proj[15]*vw;
+      if (!(cwp > 1e-9)) return null;
+      return { x: cx / cwp, y: cy / cwp, z: cz / cwp, eyeZ: -vz };
+    }
+
+    function screenBox(b) {
+      const xs = [b.minX, b.maxX];
+      const ys = [b.minY, b.maxY];
+      const zs = [b.minZ, b.maxZ];
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      let depthMin = Infinity, depthMax = -Infinity;
+      let n = 0;
+      for (let ix = 0; ix < 2; ix++) {
+        for (let iy = 0; iy < 2; iy++) {
+          for (let iz = 0; iz < 2; iz++) {
+            const p = projectPoint([xs[ix], ys[iy], zs[iz]]);
+            if (!p) continue;
+            n++;
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+            if (p.eyeZ < depthMin) depthMin = p.eyeZ;
+            if (p.eyeZ > depthMax) depthMax = p.eyeZ;
+          }
+        }
+      }
+      if (n === 0) return null;
+      return { minX: minX, maxX: maxX, minY: minY, maxY: maxY, depthMin: depthMin, depthMax: depthMax };
+    }
+
+    function boxArea(b) {
+      return Math.max(0, b.maxX - b.minX) * Math.max(0, b.maxY - b.minY);
+    }
+
+    function boxOverlap(a, b) {
+      const minX = Math.max(a.minX, b.minX);
+      const maxX = Math.min(a.maxX, b.maxX);
+      const minY = Math.max(a.minY, b.minY);
+      const maxY = Math.min(a.maxY, b.maxY);
+      if (maxX <= minX || maxY <= minY) return null;
+      return { minX: minX, maxX: maxX, minY: minY, maxY: maxY };
+    }
+
+    function overlapFraction(a, b) {
+      const o = boxOverlap(a, b);
+      if (!o) return 0;
+      const smaller = Math.min(boxArea(a), boxArea(b));
+      if (smaller <= 1e-12) return 0;
+      return boxArea(o) / smaller;
+    }
+
+    function worldIntersects(a, b) {
+      return a.minX <= b.maxX && a.maxX >= b.minX
+        && a.minY <= b.maxY && a.maxY >= b.minY
+        && a.minZ <= b.maxZ && a.maxZ >= b.minZ;
+    }
+
+    function hasStand(root) {
+      let found = false;
+      if (typeof root.traverse === "function") {
+        root.traverse(function (o) {
+          if (o && typeof o.name === "string" && o.name.indexOf(".stand") >= 0) found = true;
+        });
+      }
+      return found;
+    }
+
+    function outermostTagged(tag) {
+      const roots = [];
+      if (!scene || typeof scene.traverse !== "function") return roots;
+      scene.traverse(function (object) {
+        if (!object || !object.userData) return;
+        const id = object.userData[tag];
+        if (typeof id !== "string" || !id) return;
+        let ancestorHas = false;
+        let p = object.parent;
+        let depth = 0;
+        while (p && depth < 16) {
+          if (p.userData && typeof p.userData[tag] === "string" && p.userData[tag]) {
+            ancestorHas = true; break;
+          }
+          p = p.parent; depth++;
+        }
+        if (ancestorHas) return;
+        roots.push(object);
+      });
+      return roots;
+    }
+
+    // ---- equipment assemblies ----
+    const equipment = [];
+    const eqById = {};
+    const eqRoots = outermostTagged("openClinXrEquipmentId");
+    for (let i = 0; i < eqRoots.length; i++) {
+      const root = eqRoots[i];
+      const id = String(root.userData.openClinXrEquipmentId);
+      const box = worldBox(root);
+      if (!box) continue;
+      const vol = Math.max(0, box.maxX-box.minX) * Math.max(0, box.maxY-box.minY) * Math.max(0, box.maxZ-box.minZ);
+      const prev = eqById[id];
+      if (prev && prev.volume >= vol) continue;
+      eqById[id] = {
+        equipmentId: id,
+        source: typeof root.userData.openClinXrEquipmentSource === "string"
+          ? root.userData.openClinXrEquipmentSource
+          : (typeof root.userData.openClinXrEquipmentDeclared === "boolean" ? "declared" : "unknown"),
+        standPresent: hasStand(root),
+        worldAabb: box,
+        volume: vol,
+        root: root,
+      };
+    }
+    for (const id in eqById) {
+      const e = eqById[id];
+      equipment.push({
+        equipmentId: e.equipmentId,
+        source: e.source,
+        standPresent: e.standPresent,
+        worldAabb: e.worldAabb,
+        screenAabb: view ? screenBox(e.worldAabb) : null,
+      });
+    }
+    equipment.sort(function (a, b) { return a.equipmentId.localeCompare(b.equipmentId); });
+
+    // ---- actors ----
+    const actors = [];
+    const actorRoots = outermostTagged("openClinXrActorId");
+    for (let i = 0; i < actorRoots.length; i++) {
+      const root = actorRoots[i];
+      const id = String(root.userData.openClinXrActorId);
+      const box = worldBox(root);
+      if (!box) continue;
+      actors.push({
+        actorId: id,
+        role: typeof root.userData.openClinXrSlotKind === "string"
+          ? root.userData.openClinXrSlotKind
+          : String(root.userData.openClinXrActorRole || "unknown"),
+        posture: String(root.userData.openClinXrActorPosture || "standing").toLowerCase(),
+        worldAabb: box,
+        screenAabb: view ? screenBox(box) : null,
+      });
+    }
+    actors.sort(function (a, b) { return a.actorId.localeCompare(b.actorId); });
+
+    // ---- pairs ----
+    const pairs = [];
+    for (let ei = 0; ei < equipment.length; ei++) {
+      const eq = equipment[ei];
+      for (let ai = 0; ai < actors.length; ai++) {
+        const actor = actors[ai];
+        const wi = worldIntersects(eq.worldAabb, actor.worldAabb);
+        const frac = eq.screenAabb && actor.screenAabb
+          ? overlapFraction(eq.screenAabb, actor.screenAabb)
+          : 0;
+        const overlapBox = eq.screenAabb && actor.screenAabb
+          ? boxOverlap(eq.screenAabb, actor.screenAabb)
+          : null;
+        const px = overlapBox
+          ? boxArea(overlapBox) * (cw / 2) * (ch / 2)
+          : 0;
+        let occlusionDirection = "none";
+        if (eq.screenAabb && actor.screenAabb && frac > 0) {
+          if (eq.screenAabb.depthMax < actor.screenAabb.depthMin) occlusionDirection = "equipment_in_front";
+          else if (actor.screenAabb.depthMax < eq.screenAabb.depthMin) occlusionDirection = "actor_in_front";
+          else occlusionDirection = "interleaved";
+        }
+        // screen_only = the EQUIPMENT is at least partly between the camera and
+        // the actor. An actor_in_front pair is the actor occluding the equipment
+        // (normal depth ordering, e.g. a wall clock behind a patient) — not the
+        // #281 subject.
+        let verdict = "clear";
+        if (wi) verdict = "world_overlap";
+        else if (frac > 0 && occlusionDirection !== "actor_in_front") verdict = "screen_only";
+        pairs.push({
+          scenarioId: scenarioId,
+          equipmentId: eq.equipmentId,
+          equipmentSource: eq.source,
+          standPresent: eq.standPresent,
+          equipmentWorldAabb: eq.worldAabb,
+          actorId: actor.actorId,
+          actorRole: actor.role,
+          actorPosture: actor.posture,
+          actorWorldAabb: actor.worldAabb,
+          worldIntersects: wi,
+          equipmentScreenAabb: eq.screenAabb,
+          actorScreenAabb: actor.screenAabb,
+          screenOverlapFraction: frac,
+          screenOverlapPx: px,
+          occlusionDirection: occlusionDirection,
+          verdict: verdict,
+        });
+      }
+    }
+
+    let environmentId = "";
+    if (scene && scene.userData && scene.userData.openClinXrStationEnvironment
+      && typeof scene.userData.openClinXrStationEnvironment.environmentId === "string") {
+      environmentId = scene.userData.openClinXrStationEnvironment.environmentId;
+    }
+    if (scene && typeof scene.traverse === "function") {
+      scene.traverse(function (o) {
+        if (!o || environmentId) return;
+        if (o.name === "openclinxr.station-environment-shell" && o.userData
+          && typeof o.userData.environmentId === "string") {
+          environmentId = o.userData.environmentId;
+        }
+      });
+    }
+
+    const worldOverlapPairs = [];
+    const screenOnlyPairs = [];
+    for (let i = 0; i < pairs.length; i++) {
+      if (pairs[i].verdict === "world_overlap") worldOverlapPairs.push(
+        pairs[i].equipmentId + " vs " + pairs[i].actorId);
+      else if (pairs[i].verdict === "screen_only") screenOnlyPairs.push(
+        pairs[i].equipmentId + " vs " + pairs[i].actorId + " f=" + (pairs[i].screenOverlapFraction * 100).toFixed(1) + "%");
+    }
+
+    return {
+      scenarioId: scenarioId,
+      environmentId: environmentId,
+      captureMode: "scene-overview",
+      camera: cameraInfo,
+      viewport: { width: cw, height: ch },
+      equipment: equipment,
+      actors: actors,
+      pairs: pairs,
+      worldOverlapPairs: worldOverlapPairs,
+      screenOnlyPairs: screenOnlyPairs,
+    };
+  })()`) as Promise<LiveEquipmentActorStation>;
+}
+
 /**
  * Lit room capture of one station — same path as #211 psych-station-after.png.
  */
@@ -698,6 +1317,21 @@ export async function captureActorPropAfterPng(input?: {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  const equipmentActorWritePreFix = args.includes("--equipment-actor-write-pre-fix");
+  if (equipmentActorWritePreFix) {
+    const report = await inspectEquipmentActorOverlap({
+      writePreFix: true,
+      force: args.includes("--force"),
+      label: "pre-fix",
+    });
+    process.stdout.write(
+      `equipment-actor-overlap: ${report.stations.length} stations `
+      + `(worldOverlap=${report.stations[0]?.worldOverlapPairs.length ?? 0} `
+      + `screenOnly=${report.stations[0]?.screenOnlyPairs.length ?? 0})\n`,
+    );
+    return;
+  }
+
   const writePreFix = args.includes("--write-pre-fix");
   const force = args.includes("--force");
   const captureAfter = args.includes("--capture-after");

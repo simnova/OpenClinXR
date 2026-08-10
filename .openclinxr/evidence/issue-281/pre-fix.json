@@ -1,0 +1,440 @@
+{
+  "schemaVersion": "openclinxr.equipment-actor-overlap.v1",
+  "kind": "equipment_actor_overlap_live",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-10T23:29:56.108Z",
+  "claimScope": [
+    "equipment_assembly_world_aabb_vs_actor_world_aabb",
+    "equipment_vs_actor_screen_space_overlap_at_default_capture_camera",
+    "separation_of_world_space_placement_bug_from_camera_framing_artifact",
+    "stand_presence_counterweight_for_issue_260"
+  ],
+  "notEvidenceFor": [
+    "clinical_staging",
+    "quest_readiness",
+    "furniture_art_realism",
+    "learner_camera_parity_outside_capture_modes",
+    "exam_equivalence"
+  ],
+  "report": {
+    "stations": [
+      {
+        "scenarioId": "ed_stroke_alert_handoff_v1",
+        "environmentId": "ed_stroke_bay_v1",
+        "captureMode": "scene-overview",
+        "camera": {
+          "found": true,
+          "position": [
+            0.18,
+            1.32,
+            3.73
+          ],
+          "fov": 60,
+          "aspect": 1.133,
+          "framing": "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus"
+        },
+        "viewport": {
+          "width": 1020,
+          "height": 900
+        },
+        "equipment": [
+          {
+            "equipmentId": "bedside_monitor_equipment",
+            "source": "gltf",
+            "standPresent": true,
+            "worldAabb": {
+              "minX": 0.8099999994039535,
+              "minY": 4.470348362317633e-10,
+              "minZ": 0.8700000005960464,
+              "maxX": 1.0900000005960464,
+              "maxY": 1.1521806717089111,
+              "maxZ": 1.090000154081198
+            },
+            "screenAabb": {
+              "minX": 0.3838005443598106,
+              "maxX": 0.5881122963991723,
+              "minY": -0.7350925312646985,
+              "maxY": 0.01464425121912553,
+              "depthMin": 2.610819574400444,
+              "depthMax": 2.9180548215668503
+            }
+          },
+          {
+            "equipmentId": "wall_clock_equipment",
+            "source": "gltf",
+            "standPresent": false,
+            "worldAabb": {
+              "minX": -2.899994248151779,
+              "minY": 1.08527170419693,
+              "minZ": -1.180655413866043,
+              "maxX": -1.8999991059303283,
+              "maxY": 2.0139880061149595,
+              "maxZ": -1.1186971306800841
+            },
+            "screenAabb": {
+              "minX": -0.9056922310263829,
+              "maxX": -0.5826881049513798,
+              "minY": 0.03448276144952009,
+              "maxY": 0.3649850020825665,
+              "depthMin": 4.8625240590370975,
+              "depthMax": 5.023020294547612
+            }
+          }
+        ],
+        "actors": [
+          {
+            "actorId": "patient_samuel_brooks_v1",
+            "role": "primary_patient",
+            "posture": "standing",
+            "worldAabb": {
+              "minX": -1.509742035960795,
+              "minY": -0.05071224110994097,
+              "minZ": -0.24423908581390597,
+              "maxX": -0.38747800014277084,
+              "maxY": 1.7234511213348065,
+              "maxZ": 0.6545207198776407
+            },
+            "screenAabb": {
+              "minX": -0.7777465525469189,
+              "maxX": -0.15886725489242015,
+              "minY": -0.631205051835913,
+              "maxY": 0.34613167506581094,
+              "depthMin": 3.0596551721220115,
+              "depthMax": 4.115988135406581
+            }
+          },
+          {
+            "actorId": "son_eric_brooks_v1",
+            "role": "family_or_observer",
+            "posture": "standing",
+            "worldAabb": {
+              "minX": 0.8761305211031905,
+              "minY": -0.03243195909742315,
+              "minZ": -0.18904305125098508,
+              "maxX": 1.9415619730666047,
+              "maxY": 1.6064333829505149,
+              "maxZ": 0.5233890001192963
+            },
+            "screenAabb": {
+              "minX": 0.32195109895203156,
+              "maxX": 0.9206455575454495,
+              "minY": -0.6107735657876423,
+              "maxY": 0.2768788089314424,
+              "depthMin": 3.114431426249592,
+              "depthMax": 3.973800849666829
+            }
+          },
+          {
+            "actorId": "stroke_nurse_chen_v1",
+            "role": "clinical_team",
+            "posture": "standing",
+            "worldAabb": {
+              "minX": 0.04423243592328707,
+              "minY": -0.04208441826961491,
+              "minZ": 0.043292178710107376,
+              "maxX": 1.1665433478282465,
+              "maxY": 1.8241055293103814,
+              "maxZ": 0.8424461329823212
+            },
+            "screenAabb": {
+              "minX": -0.016868380819307777,
+              "maxX": 0.5929884434887305,
+              "minY": -0.6882908405879099,
+              "maxY": 0.4287066548633669,
+              "depthMin": 2.80952187193995,
+              "depthMax": 3.772756519590224
+            }
+          }
+        ],
+        "pairs": [
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "bedside_monitor_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": true,
+            "equipmentWorldAabb": {
+              "minX": 0.8099999994039535,
+              "minY": 4.470348362317633e-10,
+              "minZ": 0.8700000005960464,
+              "maxX": 1.0900000005960464,
+              "maxY": 1.1521806717089111,
+              "maxZ": 1.090000154081198
+            },
+            "actorId": "patient_samuel_brooks_v1",
+            "actorRole": "primary_patient",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": -1.509742035960795,
+              "minY": -0.05071224110994097,
+              "minZ": -0.24423908581390597,
+              "maxX": -0.38747800014277084,
+              "maxY": 1.7234511213348065,
+              "maxZ": 0.6545207198776407
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": 0.3838005443598106,
+              "maxX": 0.5881122963991723,
+              "minY": -0.7350925312646985,
+              "maxY": 0.01464425121912553,
+              "depthMin": 2.610819574400444,
+              "depthMax": 2.9180548215668503
+            },
+            "actorScreenAabb": {
+              "minX": -0.7777465525469189,
+              "maxX": -0.15886725489242015,
+              "minY": -0.631205051835913,
+              "maxY": 0.34613167506581094,
+              "depthMin": 3.0596551721220115,
+              "depthMax": 4.115988135406581
+            },
+            "screenOverlapFraction": 0,
+            "screenOverlapPx": 0,
+            "occlusionDirection": "none",
+            "verdict": "clear"
+          },
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "bedside_monitor_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": true,
+            "equipmentWorldAabb": {
+              "minX": 0.8099999994039535,
+              "minY": 4.470348362317633e-10,
+              "minZ": 0.8700000005960464,
+              "maxX": 1.0900000005960464,
+              "maxY": 1.1521806717089111,
+              "maxZ": 1.090000154081198
+            },
+            "actorId": "son_eric_brooks_v1",
+            "actorRole": "family_or_observer",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": 0.8761305211031905,
+              "minY": -0.03243195909742315,
+              "minZ": -0.18904305125098508,
+              "maxX": 1.9415619730666047,
+              "maxY": 1.6064333829505149,
+              "maxZ": 0.5233890001192963
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": 0.3838005443598106,
+              "maxX": 0.5881122963991723,
+              "minY": -0.7350925312646985,
+              "maxY": 0.01464425121912553,
+              "depthMin": 2.610819574400444,
+              "depthMax": 2.9180548215668503
+            },
+            "actorScreenAabb": {
+              "minX": 0.32195109895203156,
+              "maxX": 0.9206455575454495,
+              "minY": -0.6107735657876423,
+              "maxY": 0.2768788089314424,
+              "depthMin": 3.114431426249592,
+              "depthMax": 3.973800849666829
+            },
+            "screenOverlapFraction": 0.8341831848436241,
+            "screenOverlapPx": 29325.558183361052,
+            "occlusionDirection": "equipment_in_front",
+            "verdict": "screen_only"
+          },
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "bedside_monitor_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": true,
+            "equipmentWorldAabb": {
+              "minX": 0.8099999994039535,
+              "minY": 4.470348362317633e-10,
+              "minZ": 0.8700000005960464,
+              "maxX": 1.0900000005960464,
+              "maxY": 1.1521806717089111,
+              "maxZ": 1.090000154081198
+            },
+            "actorId": "stroke_nurse_chen_v1",
+            "actorRole": "clinical_team",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": 0.04423243592328707,
+              "minY": -0.04208441826961491,
+              "minZ": 0.043292178710107376,
+              "maxX": 1.1665433478282465,
+              "maxY": 1.8241055293103814,
+              "maxZ": 0.8424461329823212
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": 0.3838005443598106,
+              "maxX": 0.5881122963991723,
+              "minY": -0.7350925312646985,
+              "maxY": 0.01464425121912553,
+              "depthMin": 2.610819574400444,
+              "depthMax": 2.9180548215668503
+            },
+            "actorScreenAabb": {
+              "minX": -0.016868380819307777,
+              "maxX": 0.5929884434887305,
+              "minY": -0.6882908405879099,
+              "maxY": 0.4287066548633669,
+              "depthMin": 2.80952187193995,
+              "depthMax": 3.772756519590224
+            },
+            "screenOverlapFraction": 0.9375758375869754,
+            "screenOverlapPx": 32960.308090631814,
+            "occlusionDirection": "interleaved",
+            "verdict": "screen_only"
+          },
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "wall_clock_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": false,
+            "equipmentWorldAabb": {
+              "minX": -2.899994248151779,
+              "minY": 1.08527170419693,
+              "minZ": -1.180655413866043,
+              "maxX": -1.8999991059303283,
+              "maxY": 2.0139880061149595,
+              "maxZ": -1.1186971306800841
+            },
+            "actorId": "patient_samuel_brooks_v1",
+            "actorRole": "primary_patient",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": -1.509742035960795,
+              "minY": -0.05071224110994097,
+              "minZ": -0.24423908581390597,
+              "maxX": -0.38747800014277084,
+              "maxY": 1.7234511213348065,
+              "maxZ": 0.6545207198776407
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": -0.9056922310263829,
+              "maxX": -0.5826881049513798,
+              "minY": 0.03448276144952009,
+              "maxY": 0.3649850020825665,
+              "depthMin": 4.8625240590370975,
+              "depthMax": 5.023020294547612
+            },
+            "actorScreenAabb": {
+              "minX": -0.7777465525469189,
+              "maxX": -0.15886725489242015,
+              "minY": -0.631205051835913,
+              "maxY": 0.34613167506581094,
+              "depthMin": 3.0596551721220115,
+              "depthMax": 4.115988135406581
+            },
+            "screenOverlapFraction": 0.5694399107750409,
+            "screenOverlapPx": 13951.24837886848,
+            "occlusionDirection": "actor_in_front",
+            "verdict": "clear"
+          },
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "wall_clock_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": false,
+            "equipmentWorldAabb": {
+              "minX": -2.899994248151779,
+              "minY": 1.08527170419693,
+              "minZ": -1.180655413866043,
+              "maxX": -1.8999991059303283,
+              "maxY": 2.0139880061149595,
+              "maxZ": -1.1186971306800841
+            },
+            "actorId": "son_eric_brooks_v1",
+            "actorRole": "family_or_observer",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": 0.8761305211031905,
+              "minY": -0.03243195909742315,
+              "minZ": -0.18904305125098508,
+              "maxX": 1.9415619730666047,
+              "maxY": 1.6064333829505149,
+              "maxZ": 0.5233890001192963
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": -0.9056922310263829,
+              "maxX": -0.5826881049513798,
+              "minY": 0.03448276144952009,
+              "maxY": 0.3649850020825665,
+              "depthMin": 4.8625240590370975,
+              "depthMax": 5.023020294547612
+            },
+            "actorScreenAabb": {
+              "minX": 0.32195109895203156,
+              "maxX": 0.9206455575454495,
+              "minY": -0.6107735657876423,
+              "maxY": 0.2768788089314424,
+              "depthMin": 3.114431426249592,
+              "depthMax": 3.973800849666829
+            },
+            "screenOverlapFraction": 0,
+            "screenOverlapPx": 0,
+            "occlusionDirection": "none",
+            "verdict": "clear"
+          },
+          {
+            "scenarioId": "ed_stroke_alert_handoff_v1",
+            "equipmentId": "wall_clock_equipment",
+            "equipmentSource": "gltf",
+            "standPresent": false,
+            "equipmentWorldAabb": {
+              "minX": -2.899994248151779,
+              "minY": 1.08527170419693,
+              "minZ": -1.180655413866043,
+              "maxX": -1.8999991059303283,
+              "maxY": 2.0139880061149595,
+              "maxZ": -1.1186971306800841
+            },
+            "actorId": "stroke_nurse_chen_v1",
+            "actorRole": "clinical_team",
+            "actorPosture": "standing",
+            "actorWorldAabb": {
+              "minX": 0.04423243592328707,
+              "minY": -0.04208441826961491,
+              "minZ": 0.043292178710107376,
+              "maxX": 1.1665433478282465,
+              "maxY": 1.8241055293103814,
+              "maxZ": 0.8424461329823212
+            },
+            "worldIntersects": false,
+            "equipmentScreenAabb": {
+              "minX": -0.9056922310263829,
+              "maxX": -0.5826881049513798,
+              "minY": 0.03448276144952009,
+              "maxY": 0.3649850020825665,
+              "depthMin": 4.8625240590370975,
+              "depthMax": 5.023020294547612
+            },
+            "actorScreenAabb": {
+              "minX": -0.016868380819307777,
+              "maxX": 0.5929884434887305,
+              "minY": -0.6882908405879099,
+              "maxY": 0.4287066548633669,
+              "depthMin": 2.80952187193995,
+              "depthMax": 3.772756519590224
+            },
+            "screenOverlapFraction": 0,
+            "screenOverlapPx": 0,
+            "occlusionDirection": "none",
+            "verdict": "clear"
+          }
+        ],
+        "worldOverlapPairs": [],
+        "screenOnlyPairs": [
+          "bedside_monitor_equipment vs son_eric_brooks_v1 f=83.4%",
+          "bedside_monitor_equipment vs stroke_nurse_chen_v1 f=93.8%"
+        ]
+      }
+    ]
+  },
+  "treeStamp": {
+    "head": "f2467929ffb98c95259a8d894c3c44ac1d287288",
+    "fingerprint": "be345d49420e4ac88a8f1627b5b0dd4a5f63dd2a7d1cec798f677ada3a620283",
+    "algorithm": "git-head+status+diff-sha256"
+  }
+}
