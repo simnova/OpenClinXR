@@ -72,7 +72,13 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help='JSON list of {bodyClassId, weight, gender, age?, muscle?} (0..1 macros)',
     )
-    p.add_argument("--garment-mesh-name-prefix", default="makeclothes_library_scrub_shirt")
+    p.add_argument(
+        "--garment-mesh-name-prefix",
+        default="makeclothes_library_scrub_shirt",
+        help="Mesh name prefix for the upper garment. DEFAULT IS THE FACTORY FALLBACK "
+        "(#275); the per-class `garment` spec on --body-classes-json overrides it so the "
+        "case definition drives the choice.",
+    )
     p.add_argument("--body-mesh-name-prefix", default="hm08_basemesh")
     # #220 — optional second garment (lower body). Both fits run while macros are LIVE.
     p.add_argument(
@@ -1138,6 +1144,13 @@ def build_one_body_class(
 
     #221: per-class `annyObj` on the body_class dict overrides the CLI default so male/female
     references stay aligned (age/size/gender via Anny-as-reference → MPFB match).
+
+    #275: per-class `garment` on the body_class dict drives the UPPER garment from the
+    CASE DEFINITION. `kind=library` fits the given .mhclo (the scrub shirt today); the
+    CLI falls back to that for any role without a case-definition garment. `kind=cover_shell`
+    builds the deterministic body-derived cover shell (#277's factory fallback mechanism)
+    over the torso band — used when the case definition selects a garment the .mhclo
+    library cannot provide (civilian/family layers). The stage default is the fallback.
     """
     from bl_ext.user_default.mpfb.services.targetservice import TargetService
 
@@ -1153,6 +1166,25 @@ def build_one_body_class(
         "height": float(body_class.get("height", 0.5)),
         "proportions": float(body_class.get("proportions", 0.5)),
     }
+
+    # ── #275 per-class upper garment selection (case definition → garment) ────────
+    # The CLI resolves the garment from the cast role; this stage only executes it.
+    # `library` = fit the given .mhclo via ClothesService (fallback: scrub shirt).
+    # `cover_shell` = deterministic body-derived shell over the torso band (no .mhclo
+    # invented — a garment id pointing at a missing .mhclo is the #256 trap).
+    garment_spec = body_class.get("garment") or {}
+    garment_kind = str(garment_spec.get("kind") or "library")
+    if garment_kind not in ("library", "cover_shell"):
+        raise ValueError(
+            f"body class {body_class_id}: garment.kind '{garment_kind}' — library or cover_shell only"
+        )
+    use_mhclo = str(garment_spec.get("mhcloPath") or mhclo_path)
+    use_garment_obj = str(garment_spec.get("objPath") or garment_obj_path)
+    use_garment_prefix = str(garment_spec.get("meshNamePrefix") or garment_prefix)
+    garment_band = (
+        float(garment_spec.get("bandLowFraction") or 0.53),
+        float(garment_spec.get("bandHighFraction") or 0.85),
+    )
 
     clear_scene()
     enable_mpfb()
@@ -1170,16 +1202,24 @@ def build_one_body_class(
 
     # Fit while macros are LIVE shape keys — ClothesService builds a from-mix key.
     # #220: fit UPPER then LOWER before baking macros so both mhclo maps read phenotype shape.
-    garment_mesh_name = f"{garment_prefix}_{body_class_id}"
-    garment, fit_s = _fit_one_garment(
-        mhclo_path=mhclo_path,
-        garment_obj_path=garment_obj_path,
-        garment_mesh_name=garment_mesh_name,
-        basemesh=basemesh,
-        color=GARMENT_COLORS[class_index % 2],
-        ClothesService=ClothesService,
-        Mhclo=Mhclo,
-    )
+    garment_mesh_name = f"{use_garment_prefix}_{body_class_id}"
+    garment: bpy.types.Object | None = None
+    fit_s = 0.0
+    if garment_kind == "library":
+        garment, fit_s = _fit_one_garment(
+            mhclo_path=use_mhclo,
+            garment_obj_path=use_garment_obj,
+            garment_mesh_name=garment_mesh_name,
+            basemesh=basemesh,
+            color=GARMENT_COLORS[class_index % 2],
+            ClothesService=ClothesService,
+            Mhclo=Mhclo,
+        )
+    else:
+        # cover_shell: built from the FINAL body surface at the coverage gate, after
+        # macro bake + helper strip + Anny align. Nothing is fitted here.
+        print(f"[body_param] {body_class_id}: upper garment = deterministic cover shell "
+              f"(case-driven, no .mhclo) band={garment_band[0]:.2f}..{garment_band[1]:.2f}")
 
     lower_garment: bpy.types.Object | None = None
     lower_mesh_name: str | None = None
@@ -1224,9 +1264,7 @@ def build_one_body_class(
         child.matrix_world = mw_g
         apply_object_transforms(child)
 
-    outfit: list[bpy.types.Object] = [garment]
-    if lower_garment is not None:
-        outfit.append(lower_garment)
+    outfit: list[bpy.types.Object] = [g for g in [garment, lower_garment] if g is not None]
 
     # Stature + girth align to Anny (0044 path) while garments are still parented
     align_info: dict = {"skipped": True}
@@ -1260,12 +1298,13 @@ def build_one_body_class(
 
     girth_post = torso_girth_proxy(basemesh)
     body_bounds = world_bounds(basemesh)
-    garment_bounds = world_bounds(garment)
+    garment_bounds = world_bounds(garment) if garment is not None else None
 
     basemesh.name = body_mesh_name
     basemesh.data.name = body_mesh_name
-    garment.name = garment_mesh_name
-    garment.data.name = garment_mesh_name
+    if garment is not None:
+        garment.name = garment_mesh_name
+        garment.data.name = garment_mesh_name
     if lower_garment is not None and lower_mesh_name:
         lower_garment.name = lower_mesh_name
         lower_garment.data.name = lower_mesh_name
@@ -1314,6 +1353,51 @@ def build_one_body_class(
         bpy.context.scene.collection.objects.link(obj)
         return obj
 
+    # ── #275: materialize a case-selected cover-shell upper from the FINAL body ──
+    # The body at this point is final (macros baked, helpers stripped, Anny-aligned,
+    # Z-up). The cover shell is the body's own torso surface offset outward — covers by
+    # construction, no .mhclo invented (a garment id pointing at a missing .mhclo is the
+    # #256 trap). It reads as a fitted top (the only non-scrub upper the library can
+    # produce deterministically; D2: procedural clothing, no LLM).
+    if garment is None:
+        if garment_kind != "cover_shell":
+            raise RuntimeError(f"body class {body_class_id}: no upper garment materialized")
+        bz = body_bounds
+        zmin = float(bz["min"][2])
+        body_h = float(bz["size"][2])
+        band_lo = zmin + garment_band[0] * body_h
+        band_hi = zmin + garment_band[1] * body_h
+        shell = _gc.build_cover_shell(
+            body_verts,
+            body_faces,
+            band_lo,
+            band_hi,
+            standoff=_gc.CLOTH_STANDOFF_M,
+            label=f"{use_garment_prefix}_{body_class_id}",
+            height_axis=2,
+        )
+        shell_obj = _mesh_from_numpy(
+            garment_mesh_name,
+            np.asarray(shell["position"]).reshape(-1, 3),
+            np.asarray(shell["indices"]).reshape(-1, 3),
+        )
+        shell_obj.data.materials.clear()
+        shell_obj.data.materials.append(
+            make_material(f"mat_{shell_obj.name}", GARMENT_COLORS[class_index % 2])
+        )
+        shell_obj.name = garment_mesh_name
+        shell_obj.data.name = garment_mesh_name
+        garment = shell_obj
+        garment_bounds = world_bounds(garment)
+        coverage_gate["note"] = (
+            "case-selected upper garment has no .mhclo in the library; "
+            "deterministic body-derived cover shell materialized (#275)"
+        )
+    # After the block above the upper garment always exists (fitted, or shell built,
+    # or the code above raised). The assertion is for static checkers, not a runtime gate.
+    assert garment is not None
+    garment_bounds = world_bounds(garment)
+
     # Upper garment: torso band = its own extent (the shirt is dense/closed and passes
     # on closure; the coverage number is recorded, not tuned). Band axis is Z: the stage
     # scene is Z-up (height along Z) at gate time — the evidence module reads the exported
@@ -1334,9 +1418,11 @@ def build_one_body_class(
         # genuinely degenerate. Refuse loudly rather than ship a bare torso.
         raise RuntimeError(f"upper garment failed the issue-272 coverage gate: {upper_rep}")
     # Accepted upper: push to a clean standoff so it stops z-fighting with the skin.
-    ugv_off = _gc.cloth_offset(ugv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
-    for i, v in enumerate(garment.data.vertices):
-        v.co = tuple(float(x) for x in ugv_off[i])
+    # Cover shells are built at the standoff already — skip the second offset.
+    if garment_kind != "cover_shell":
+        ugv_off = _gc.cloth_offset(ugv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
+        for i, v in enumerate(garment.data.vertices):
+            v.co = tuple(float(x) for x in ugv_off[i])
     coverage_gate["upper"] = upper_rep
 
     if lower_garment is not None:
@@ -1380,8 +1466,10 @@ def build_one_body_class(
             lower_rep["fallbackVertexCount"] = shell["vertexCount"]
             lower_rep["fallbackFaceCount"] = shell["faceCount"]
             coverage_gate["note"] = (
-                "library lower fit did not cover its region; replaced with body-derived cover shell"
-            )
+                coverage_gate["note"] + "; "
+                if coverage_gate.get("note")
+                else ""
+            ) + "library lower fit did not cover its region; replaced with body-derived cover shell"
         else:
             lgv_off = _gc.cloth_offset(lgv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
             for i, v in enumerate(lower_garment.data.vertices):
@@ -1477,6 +1565,11 @@ def build_one_body_class(
         "bodyBounds": body_bounds,
         "garmentMeshName": garment_mesh_name,
         "garmentFittedToBodyClass": body_class_id,
+        "garmentId": str(garment_spec.get("garmentId") or ""),
+        "garmentKind": garment_kind,
+        "garmentMhcloPath": use_mhclo if garment_kind == "library" else None,
+        "garmentBandLowFraction": None if garment_kind == "library" else garment_band[0],
+        "garmentBandHighFraction": None if garment_kind == "library" else garment_band[1],
         "garmentBounds": garment_bounds,
         "garmentVertexCount": len(garment.data.vertices),
         "garmentPolygonCount": len(garment.data.polygons),

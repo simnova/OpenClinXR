@@ -36,12 +36,27 @@ import {
   readMhcloLicense,
   type ExaminedLowerGarment,
 } from "./fit-cli.js";
+import {
+  HM08_UPPER_GARMENT_FALLBACK_ID,
+  HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
+  hm08BodyClassCastRoles,
+  resolveHm08UpperGarment,
+} from "./garment-selection-by-role.js";
+import {
+  listShippedCastScenarioIds,
+  resolveScenarioActorCast,
+} from "../../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
 
 export const STAGE_ID = "body_param_stage";
-export const LIBRARY_GARMENT_ID = "wojackowl_scrubs_shirt_hm08";
+/**
+ * #275 — the scrub shirt is the FACTORY FALLBACK upper garment, not the only one.
+ * The case definition (cast role → Anny case-actor preset garmentLayers) drives the
+ * per-class garment; this is the default when the case supplies none.
+ */
+export const LIBRARY_GARMENT_ID = HM08_UPPER_GARMENT_FALLBACK_ID;
 /** #220 — lower garment id when a licence-clean .mhclo is fitted into the finish pipeline. */
 export { LIBRARY_LOWER_GARMENT_ID, LIBRARY_LOWER_MESH_PREFIX };
 /** Public command that produces a finished figure (#226) — not a raw blender invocation. */
@@ -144,6 +159,8 @@ export type BodyParamCatalogEntry = {
   heightMeters: number;
   torsoGirthProxyMeters: number;
   garmentMeshName: string;
+  /** #275 — "library" (.mhclo fitted) or "cover_shell" (deterministic body-derived). */
+  garmentKind: "library" | "cover_shell";
   garmentFittedToBodyClass: string;
   garmentTriangleCount: number;
   licenseToken: string;
@@ -399,7 +416,7 @@ function stampMakeclothesCatalogFromTrackedLibrary(): void {
         bodyClass,
         glbPath: glbRepoRelative,
         glbPublicPath: `/xr-assets/humanoids/candidates/${path.basename(makeclothesGlb)}`,
-        garmentMeshNames: ["makeclothes_library_scrub_shirt"],
+        garmentMeshNames: [HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX],
         garmentTriangleCount: 9384,
         licenseToken,
         licenseSource,
@@ -536,7 +553,50 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
   }
 
   const bodyClassesPath = path.join(WORK_DIR, "body-classes.json");
-  writeFileSync(bodyClassesPath, JSON.stringify(BODY_CLASSES, null, 2) + "\n", "utf8");
+  // #275 — the case definition drives the per-class upper garment. Each body class
+  // gets a `garment` spec resolved from its cast role (actor-casting SSOT) through the
+  // Anny case-actor presets; the scrub shirt is the fallback for any role without one.
+  const castRolesByClass = hm08BodyClassCastRoles({
+    scenarios: listShippedCastScenarioIds(),
+    resolveCast: (scenarioId) => resolveScenarioActorCast(scenarioId),
+  });
+  const bodyClassesWithGarments = BODY_CLASSES.map((bc) => {
+    const roles = castRolesByClass[bc.bodyClassId] ?? [];
+    const primaryRole = roles[0]?.role ?? "";
+    const resolved = resolveHm08UpperGarment(primaryRole);
+    const garment: {
+      garmentId: string;
+      kind: "library" | "cover_shell";
+      meshNamePrefix: string;
+      mhcloPath?: string;
+      objPath?: string;
+      bandLowFraction?: number | null;
+      bandHighFraction?: number | null;
+    } = {
+      garmentId: resolved.garmentId,
+      kind: resolved.kind,
+      meshNamePrefix: resolved.meshNamePrefix,
+    };
+    if (resolved.kind === "library") {
+      garment.mhcloPath = mhcloPath;
+      garment.objPath = objPath;
+    } else {
+      garment.bandLowFraction = resolved.bandLowFraction;
+      garment.bandHighFraction = resolved.bandHighFraction;
+    }
+    return {
+      ...bc,
+      garment,
+      garmentRole: primaryRole,
+      garmentLayers: resolved.garmentLayers,
+      garmentSourceField: resolved.sourceField,
+    };
+  });
+  writeFileSync(
+    bodyClassesPath,
+    JSON.stringify(bodyClassesWithGarments, null, 2) + "\n",
+    "utf8",
+  );
 
   const mhBaseObj =
     process.env.OPENCLINXR_MPFB_BASE_OBJ ??
@@ -731,7 +791,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       : [];
     const entry: BodyParamCatalogEntry = {
       bodyClassId,
-      garmentId: LIBRARY_GARMENT_ID,
+      // #275 — the per-class garment the stage actually fitted/materialized (case-driven,
+      // falling back to the scrub shirt). Never the bare default when the stage resolved
+      // a role garment.
+      garmentId: String(sc["garmentId"] ?? LIBRARY_GARMENT_ID),
       bodyClass: bodyClassId,
       glbPath: glbRepoRelative,
       glbPublicPath,
@@ -739,7 +802,12 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       bodyVertexCount: Number(sc["bodyVertexCount"] ?? 0),
       heightMeters: Number(sc["heightMeters"] ?? 0),
       torsoGirthProxyMeters: Number(sc["torsoGirthProxyMeters"] ?? 0),
-      garmentMeshName: String(sc["garmentMeshName"] ?? `makeclothes_library_scrub_shirt_${bodyClassId}`),
+      garmentMeshName: String(
+        sc["garmentMeshName"] ?? `${HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX}_${bodyClassId}`,
+      ),
+      garmentKind: (String(sc["garmentKind"] ?? "library") === "cover_shell"
+        ? "cover_shell"
+        : "library"),
       garmentFittedToBodyClass: String(sc["garmentFittedToBodyClass"] ?? bodyClassId),
       garmentTriangleCount: Number(sc["garmentTriangleEstimate"] ?? 0),
       licenseToken: license.token,
@@ -775,7 +843,8 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           producedByStage: STAGE_ID,
           producedByCommand: PRODUCED_BY_COMMAND,
           bodyClassId,
-          garmentId: LIBRARY_GARMENT_ID,
+          garmentId: entry.garmentId,
+          garmentKind: entry.garmentKind,
           garmentFittedToBodyClass: entry.garmentFittedToBodyClass,
           phenotype: entry.phenotype,
           annyReferenceAsset: entry.annyReferenceAsset,

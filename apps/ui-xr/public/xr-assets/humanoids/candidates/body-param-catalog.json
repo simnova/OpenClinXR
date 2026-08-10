@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-10T21:59:02.119Z",
+  "generatedAt": "2026-08-10T23:01:38.070Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -13,7 +13,7 @@
   "entries": [
     {
       "bodyClassId": "adult_lean_female",
-      "garmentId": "wojackowl_scrubs_shirt_hm08",
+      "garmentId": "openclinxr_hm08_upper_cover_shell",
       "bodyClass": "adult_lean_female",
       "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
       "glbPublicPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
@@ -21,11 +21,12 @@
       "bodyVertexCount": 13380,
       "heightMeters": 1.7599999904632568,
       "torsoGirthProxyMeters": 0.4988371839992518,
-      "garmentMeshName": "makeclothes_library_scrub_shirt_adult_lean_female",
+      "garmentMeshName": "makeclothes_library_civilian_shirt_adult_lean_female",
+      "garmentKind": "cover_shell",
       "garmentFittedToBodyClass": "adult_lean_female",
-      "garmentTriangleCount": 9384,
+      "garmentTriangleCount": 11524,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-279/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -36,8 +37,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0133,
-      "glbSha256": "0324ed4ec1c1ea0de193b0d0fdc90e078b49e2fc28d46d0f31e36e72d824554f",
+      "fitWallClockS": 0,
+      "glbSha256": "e2baf4cd0608fd15807c11833bd906f1d987f31e1f25f8fa909ee2d5361eed77",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -89,7 +90,7 @@
       "footwearTriangleCount": 184,
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
-      "lowerGarmentTriangleCount": 2617,
+      "lowerGarmentTriangleCount": 2536,
       "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     },
@@ -104,10 +105,11 @@
       "heightMeters": 1.7599999904632568,
       "torsoGirthProxyMeters": 0.5864284020526069,
       "garmentMeshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+      "garmentKind": "library",
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-279/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -118,7 +120,7 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0134,
+      "fitWallClockS": 0.0131,
       "glbSha256": "e96997210d0648b4bce2578a74810b4418a7a745ec32ac5645cd048b3bbcaa5b",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
@@ -202,7 +204,7 @@
       0.44098
     ],
     "perClassGarmentDeformationMeters": [
-      0.164,
+      0.66483,
       0.15416
     ]
   }

@@ -28,6 +28,8 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+// #275 — single source of truth for the factory's FALLBACK upper garment identity.
+import { HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX } from "./garment-selection-by-role.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../../..");
@@ -428,6 +430,10 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
     tmpGrade,
     "--report",
     STAGE_REPORT_PATH,
+    // #275 — authoritative mesh name from the shared selection module; the Python
+    // argparse default is only a raw-invocation fallback.
+    "--garment-mesh-name",
+    HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
   ];
   if (existsSync(ANNY_REFERENCE_OBJ)) {
     blenderArgs.push("--anny-obj", ANNY_REFERENCE_OBJ);
@@ -471,9 +477,17 @@ export async function runMakeclothesFitOnce(): Promise<LibraryCatalog> {
   copyFileSync(tmpGlb, LIBRARY_GLB_DISK);
   copyFileSync(tmpGrade, GRADE_PNG_PATH);
 
+  // #275 — the scrub shirt is the factory FALLBACK upper garment, not a hardcoded
+  // exclusive. This single-library station IS the fallback library (a library GLB,
+  // not a case-driven per-class fit); the case-driven selection lives in the
+  // body-param rail. The default is sourced from the shared constant.
   const garmentMeshNames = Array.isArray(stage["garmentMeshNames"])
     ? (stage["garmentMeshNames"] as string[])
-    : [String(fitStep["garmentMeshName"] ?? "makeclothes_library_scrub_shirt")];
+    : [
+        String(
+          fitStep["garmentMeshName"] ?? HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
+        ),
+      ];
   const garmentTriangleCount =
     typeof fitStep["garmentTriangleEstimate"] === "number"
       ? (fitStep["garmentTriangleEstimate"] as number)
