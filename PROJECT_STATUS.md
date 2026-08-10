@@ -48,7 +48,15 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| **issue-265** subject-only pack re-run | dispatched | #262's `reject` withdrawn — the bake reconstructed the FLOOR, not a failed pole. One variable: render the pack with no ground plane. Decides whether the equipment lane can bypass the Grok-credit block. |
+| **issue-271** Infinigen re-home + dimension control | dispatched | Install is a dangling symlink into a wiped `/tmp`; venv gone — Infinigen cannot run. Then the question MADR 0043 never asked: can it emit a shell at SPECIFIED dimensions? It measured semantics and count, never geometry. |
+| **issue-270** pack renders frame subject at ~5% | dispatched | TRELLIS is fed ~95% empty background. Framing, not contamination — `groundPlanePresent: false`. Last uncorrected input variable. |
+| **issue-269** 4-view O2 port | **landed** | **Overturns #267.** Floor 87.3% → 5.6%; plate, both discs and the nub recovered. Multi-view is the difference. Still framed at 5%, so this is a floor not a ceiling. |
+| **issue-267** does TRELLIS upgrade a crude asset | **landed, verdict WITHDRAWN** | Concluded "makes it worse" on **one** view. #269 disproved it. Third confident negative today resting on a defective input. |
+| **issue-268** per-axis fit squashed aspect | **landed** | Uniform fit. **Completes the equipment mount chain**: translate (#258) + preserve stand (#260) + uniform fit (#268), after resolve-vs-render (#245). All four would have hit every one of the 35 remaining ids. |
+| **issue-263 / #264** first MPFB2 humanoid | **landed** | Cast and rendering at 36,972 skinned tris in the OB station. My "2× too tall" grade was **wrong** — asset is 1.722 m vs the Anny nurse's 1.762 m; the apparent size is per-slot framing (0.5 / 0.46). Real defect is #222: untextured, disc hair. |
+| **issue-259** red-test triage | dispatched | 14 red → 11 genuine + 2 stale-cache false reds, 4 clusters. Cluster B (meshes never reach the scene) dispatched. |
+| **issue-257** stranded worktrees | **landed** | Both **discard** — byte-identical to main, issues closed days ago. **Zero** genuinely stranded work across ~70 worktrees. My premise was wrong. |
+| **issue-265** subject-only pack re-run | **landed** | Floor contamination eliminated for the IV pole; route proven viable. Value left open, then answered by #267/#269. |
 | **issue-264** MPFB2 patient renders ~2× too tall | dispatched | Scale only; textures/hair are #222 and stay out. First measurement uses `anny-reference-mpfb-match.ts` (#221, D11) — written, never run against a promoted asset. |
 | **issue-263** first MPFB2 humanoid cast | **landed** | `patient_aisha_khan_v1` renders at 36,972 skinned tris in the OB station. **Not adoptable** — ~2× height, untextured, disc hair. My brief was broken twice and refused correct work. |
 | **issue-262** parametric packs, not Grok Imagine | **landed, verdict CORRECTED** | Harness renders `equipment_builder` subjects (2-builder limit gone) and produced a clean 5-view pack incl. `back`. Its `reject` was withdrawn on my pixel grade. |
