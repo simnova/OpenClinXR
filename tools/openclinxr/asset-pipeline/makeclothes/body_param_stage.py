@@ -1398,8 +1398,10 @@ def build_one_body_class(
     assert garment is not None
     garment_bounds = world_bounds(garment)
 
-    # Upper garment: torso band = its own extent (the shirt is dense/closed and passes
-    # on closure; the coverage number is recorded, not tuned). Band axis is Z: the stage
+    # Upper garment: torso band = its own extent, laterally bounded by the garment's
+    # own silhouette (issue-283: the arms hang through any torso band and are not part
+    # of a shirt's claim — a closed shell once read 14-35% coverage for exactly that
+    # reason, and now reads its honest claim ~0.93-1.00). Band axis is Z: the stage
     # scene is Z-up (height along Z) at gate time — the evidence module reads the exported
     # Y-up GLB and uses Y for the same physical band (issue-277, measured).
     ugv, ugf = _numpy_mesh(garment)

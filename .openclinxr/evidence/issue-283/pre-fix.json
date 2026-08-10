@@ -1,0 +1,115 @@
+{
+  "schema": "openclinxr.issue-283.pre-fix.v1",
+  "writtenBeforeAnyPredicateEdit": true,
+  "date": "2026-08-10",
+  "summary": {
+    "headline": "The upper region band is too large: it includes the arms, which no shirt without sleeves claims. Against the corrected region (the garment's own per-slice lateral footprint within its vertical extent), both shipped upper garments cover honestly at >= 0.90. Per the issue decision tree this is the 'band is too large' branch: fix the band, leave covers = adheres and (closure_ok or coverage_ok) alone.",
+    "decision": "band_is_too_large",
+    "predicateChange": "none",
+    "regionChange": "exclude body faces outside the garment's per-slice lateral footprint from the region the coverage raycast samples"
+  },
+  "measuredFacts": {
+    "issueNumbersWereAgainstOldGLBs": {
+      "note": "The issue's 0.1429/0.2153 figures came from rebake-report.json against the post-#277 scrub shirts. The current shipped GLBs have evolved: #275 gave the female body a case-driven cover-shell civilian shirt. Current measurements below are against the current GLBs.",
+      "adult_lean_female_upper_now": "makeclothes_library_civilian_shirt (11524 tris, 108 open boundary edges, coverage 0.9974)",
+      "adult_heavy_male_upper_now": "makeclothes_library_scrub_shirt (9384 tris, 0 open boundary edges, coverage 0.3500)"
+    },
+    "regionBandDefinition": {
+      "current": "body faces whose centroid height is in [garment.minHeight + 0.02, garment.maxHeight - 0.02]",
+      "verticalExtent": "derived from the garment's own vertical bounds",
+      "lateralBound": "NONE today — every body face in the vertical band is in the region, including the arms"
+    },
+    "whichBodyPartsFallInsideTheBand": {
+      "adult_lean_female": {
+        "bandY": [0.933, 1.485],
+        "bodyHeightMeters": 1.760,
+        "regionFaceCount": 11467,
+        "armFaces": "the arms hang through the band; they are within the civilian shirt's lateral footprint (shirt |x|max 0.508 > body |x|max 0.493), so the shirt encloses them",
+        "areaFractionOfRegionThatIsArmsOrBeyondShirt": 0.0
+      },
+      "adult_heavy_male": {
+        "bandY": [0.982, 1.499],
+        "bodyHeightMeters": 1.760,
+        "regionFaceCount": 9482,
+        "armAreaFractionOfRegion": 0.171,
+        "armFaceFractionOfRegion": 0.539,
+        "shirtPerSliceLateralFootprint": {
+          "topOfBand": 0.181,
+          "midBand": 0.165,
+          "waist": 0.333,
+          "hem": 0.168,
+          "note": "the shirt is a narrow tube — max |x| 0.333 vs body chest/shoulder half-width up to 0.58; it wraps the central torso cylinder only"
+        }
+      }
+    },
+    "coveragePerRegion": {
+      "adult_lean_female_upper": {
+        "fullBand": 0.9974,
+        "globalFootprint_lateralXmaxExclusion": 0.9974,
+        "perSliceFootprint": 0.9974,
+        "boundaryEdges": 108,
+        "adherence": 1.0,
+        "verdictToday": "covers (outward_surface_present — coverage clause, NOT closure)",
+        "clauseCarryingVerdict": "coverage_ok"
+      },
+      "adult_heavy_male_upper": {
+        "fullBand": 0.3500,
+        "globalFootprint_lateralXmaxExclusion": 0.8655,
+        "perSliceFootprint": 0.9266,
+        "boundaryEdges": 0,
+        "adherence": 1.0,
+        "verdictToday": "covers (closed_shell_adherent — closure clause alone carries it)",
+        "clauseCarryingVerdictToday": "closure_ok ONLY",
+        "clauseCarryingVerdictAfterBandFix": "coverage_ok (0.9266 >= 0.90) — closure no longer carries the verdict"
+      },
+      "torsoProperExcludingArms_inclShoulders": {
+        "adult_heavy_male": {
+          "faceWeighted": 0.7608,
+          "areaWeighted": 0.8226,
+          "note": "even excluding the arms, the scrub shirt does not reach the shoulder caps (its top footprint is 0.181 vs a shoulder half-width of 0.58). This is a garment-fit residual: the shirt is a narrow torso tube, not a full-shoulder scrub. It is a garment-quality/fit residual, which the coverage gate's claimScope explicitly does not claim (notEvidenceFor: garment quality/aesthetics). The coverage gate's job is 'does the garment present a surface over the body region it claims'; the claim is the garment's footprint."
+        }
+      }
+    },
+    "whichBodyFacesAreCovered": {
+      "adult_heavy_male_2dMap_areaWeighted_rowsYbins_colsAbsXbins": [
+        "y[0.98,1.11] x[0,0.15]=0.97 x[0.15,0.29]=1.00 x[0.29,0.44]=0.00 x[0.44,0.59]=0.00",
+        "y[1.11,1.24] x[0,0.15]=1.00 x[0.15,0.29]=0.97 x[0.29,0.44]=0.00 x[0.44,0.59]=0.00",
+        "y[1.24,1.37] x[0,0.15]=1.00 x[0.15,0.29]=0.88 x[0.29,0.44]=0.06 x[0.44,0.59]=---",
+        "y[1.37,1.50] x[0,0.15]=0.83 x[0.15,0.29]=1.00 x[0.29,0.44]=--- x[0.44,0.59]=---"
+      ],
+      "interpretation": "the uncovered faces are exactly the lateral extremes (arms) and the shoulder caps beyond the garment's footprint — surfaces no torso-tube garment claims. The central torso (within the garment's per-slice footprint) is covered at 0.83-1.00 per bin, 0.9266 overall."
+    },
+    "counterweightBaseline": {
+      "femaleLowerCoverShell": {"triangles": 2536, "coverage": 0.9873, "verdict": "covers", "boundaryEdges": 100, "band": [0.100, 0.913], "note": "evidence-module band (ankle .. upper hem)"},
+      "maleLowerCoverShell": {"triangles": 3779, "coverage": 0.9890, "verdict": "covers", "boundaryEdges": 215, "band": [0.100, 0.962], "note": "evidence-module band (ankle .. upper hem); a probe earlier reported 0.707 against the wrong band top (0.993) — the passing test measures the correct band"},
+      "syntheticSparseShell_601tris": {"verdict": "does_not_cover", "coverage": 0.0072, "boundaryEdges": 1703, "note": "every-6th-triangle body shell — the sparse-shell class is still refused"},
+      "note392Trouser": "the 392-triangle sparse trouser is no longer in the shipped GLBs (replaced by cover shells in #277); its class (sparse open shell) is refused by the predicate, verified synthetically above"
+    },
+    "clauseCarryingVerdictPerBody_today": {
+      "female_upper": "coverage_ok (0.9974)",
+      "male_upper": "closure_ok ONLY (boundary == 0) — the 0.35 coverage would otherwise fail",
+      "female_lower": "coverage_ok (0.9661)",
+      "male_lower": "coverage_ok (>= 0.90 per the passing test)"
+    }
+  },
+  "evidenceFiles": {
+    "meshDumps": ".openclinxr/evidence/issue-283/meshes/adult_lean_female.json, adult_heavy_male.json",
+    "dumpScript": "tools/openclinxr/evidence/issue-283-dump-meshes.ts (reusable; same mesh classification as garment-covers-its-region.ts)",
+    "note": "per-slice cross-section and coverage probes were scratch tools used to produce this file; not retained in the repo"
+  },
+  "postFixVerification": {
+    "predicateCode": "tools/openclinxr/asset-pipeline/makeclothes/garment_coverage.py — region now laterally bounded by the garment's per-slice footprint (_lateral_footprint); covers = adheres and (closure_ok or coverage_ok) UNCHANGED",
+    "remeasuredAfterChange": {
+      "adult_lean_female_upper": {"coverage": 0.9974, "regionFaceCount": 11467, "verdict": "covers"},
+      "adult_heavy_male_upper": {"coverage": 0.9266, "regionFaceCount": 3596, "verdict": "covers", "note": "coverage clause ALONE now passes (0.9266 >= 0.90); closure no longer carries the verdict"},
+      "adult_lean_female_lower": {"coverage": 0.9873, "verdict": "covers"},
+      "adult_heavy_male_lower": {"coverage": 0.9890, "verdict": "covers"}
+    },
+    "counterweights": {
+      "lowerCoverShellGe0_9": "PASS — 0.9873 / 0.9890",
+      "sparseShellClassRefused": "PASS — synthetic 601-tris sparse shell refused (does_not_cover, 1703 open edges)",
+      "noBareTorso": "PASS — no upper garment fails; the stage never raises on these bodies"
+    },
+    "testRun": "pnpm exec vitest run tools/openclinxr/evidence/garment-covers-its-region.test.ts — 3 passed (3)"
+  }
+}
