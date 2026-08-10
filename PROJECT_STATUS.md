@@ -148,9 +148,24 @@ residential sampler with no clinical station addressing, independent of its 86x 
 4. **Deterministic asset selection over authored geometry (Q1/Q5) — ACTIVE.** #131 measured the
    alternative: MPFB2 fits a CC-BY Scrub Shirt from the community Medical Scrubs Kit onto hm08 in
    **12.6 ms** at 9,384 triangles. Our own garment is ~2,000 lines of parametric Blender python, eight
-   planted contracts and five slices, still grading `improved_not_natural`. The gate is #134 — whether
-   hm08 topology can carry our rig, weights and painted regions. MPFB2 is GPL-3, **deferred by operator
-   decision, not resolved**; StableGen likewise (#132).
+   planted contracts and five slices, still grading `improved_not_natural`.
+
+   **Superseded 2026-08-10 by operator directive D11:** MPFB is no longer deferred — it is
+   **first-class alongside Anny, split by job** (MPFB for standard rig, face shape keys and MakeHuman
+   wardrobe; Anny for case-driven phenotype binding). #263 cast an MPFB2 humanoid into a station and
+   #222 gave it the Anny rail's scalp-hair region, so the split is real rather than planned.
+   **The MPFB2 GPL-3 question is NOT resolved by D11** and is recorded in
+   `operator-open-questions.md` — an authoring-time Blender addon is not the same as shipped code,
+   but that distinction is the operator's to make, not mine.
+
+5. **Consume the instruments before building more (2026-08-10).** The periodic orchestration review
+   found 1 of 6 recent landings changed anything a learner sees; the other five were instruments or
+   environment repair. Several are now proven and under-consumed: hm08 produces phenotype-distinct
+   bodies (#151, 8.76 cm girth spread) while **six of eight shipped humanoids remain one Anny body**
+   four vertices apart (#276); Mesh2Motion's 66-joint rig loads headlessly (#274) and retargets
+   nothing; MakeClothes is wired but emitted a 392-triangle trouser that cannot cover a leg (#272).
+   The next verticals should make an existing station **produce something a learner sees**, not add a
+   new instrument. An instrument is justified only when it names the product slice it unblocks.
 
 **Human gate (optional future):** flip `runtimePromotionAllowed` only after BOD review of MADR 0030 + dual evidence — not autonomous.
 

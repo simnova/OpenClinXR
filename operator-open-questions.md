@@ -2,6 +2,32 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
+## 2026-08-10 MPFB2 is GPL-3 and D11 makes it first-class — licence posture unresolved (non-blocking)
+
+**Recommended default if silent: keep using MPFB2 at authoring time only, and treat its output
+assets as ours, while NOT shipping or linking any MPFB2 code.** That is what the pipeline does
+today and nothing has to change for it to continue.
+
+**The tension, stated plainly.** Project constraints say no AGPL/copyleft dependencies. The
+Strategy section has recorded MPFB2 as GPL-3 and "deferred by operator decision" since #131.
+Operator directive D11 (2026-08-08) then made MPFB **first-class alongside Anny, split by job**,
+and two slices have since landed on it: #263 cast an MPFB2 humanoid into a station, #222 gave it
+the Anny rail's scalp-hair region. So the rail is in use while the licence note still says
+deferred.
+
+**Why I think the default is defensible but will not decide it.** MPFB2 runs as a Blender addon
+during asset generation; no MPFB2 code is imported by `apps/**` or `packages/**` and none is
+shipped to a learner. The generated GLBs derive from MakeHuman-lineage basemesh and CC-BY
+wardrobe assets, whose own licences are tracked separately in the provenance chain
+(`licenseToken`, `licenseSource`). Whether GPL-3 reaches through a Blender addon to the geometry
+it emits is a legal judgement, not a technical one, and it is not mine to make.
+
+**What would change if the answer is "no":** the hm08 body rail, the MakeClothes wardrobe path,
+#272, #275 and #276 all rest on it. That is most of the current clothing and body-generation
+direction, so an answer either way is worth having before more slices land on the rail.
+
+**Nothing is blocked today.** Recording it so the decision is explicit rather than accumulated.
+
 ## 2026-08-03 BVH→Anny locomotion retarget hardening (non-blocking)
 
 Context: `tools/openclinxr/asset-pipeline/anny/apply_bvh_to_anny_full.py` hardened with fail-loud diagnostics + gates (`asset:bvh-retarget:smoke` / `:lab-smoke`). Three open product questions:
