@@ -1,0 +1,643 @@
+{
+  "schemaVersion": "openclinxr.issue-278.pre-fix.v1",
+  "issue": 278,
+  "measuredAt": "2026-08-10T22:25:17.992Z",
+  "claimScope": "per-adult-slot body signature of the resolved cast, measured live from shipped GLBs, before any cast edit",
+  "notEvidenceFor": [
+    "clinical realism",
+    "garment quality",
+    "quest readiness"
+  ],
+  "adultSlots": [
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "nurse_priya_nair_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "partner_diego_vasquez_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "adult_abdominal_pain_v1",
+      "actorId": "patient_elena_vasquez_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "actorId": "father_carlos_morales_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "clinic_abdominal_pain_interpreter_v1",
+      "actorId": "patient_lucia_morales_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "adult_male_street_casual.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "nurse_maria_alvarez_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "female",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "patient_robert_hayes_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "male",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actorId": "spouse_anna_hayes_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "sexCue": "female",
+      "signature": {
+        "largestMeshName": "hm08_basemesh_adult_lean_female",
+        "triangles": 26756,
+        "vertices": 53696,
+        "heightMeters": 1.7599998998555009,
+        "bodySha256": "c99b9223108d184d95182052293686758b194ca4bb0a254724e2386d26229751",
+        "bodyClassKey": "53696|26756|1.76"
+      }
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "actorId": "patient_samuel_brooks_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "actorId": "son_eric_brooks_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "ed_stroke_alert_handoff_v1",
+      "actorId": "stroke_nurse_chen_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "actorId": "ob_nurse_williams_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "female",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "actorId": "partner_omar_khan_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "male",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "ob_headache_preeclampsia_triage_v1",
+      "actorId": "patient_aisha_khan_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "sexCue": "female",
+      "signature": {
+        "largestMeshName": "mpfb_ob_patient_aisha_body",
+        "triangles": 36972,
+        "vertices": 22030,
+        "heightMeters": 1.6945505142211914,
+        "bodySha256": "b0ddd6bb50f9853d3b176e702b45dba536f0dacc653152ea08f23e2af3ce444e",
+        "bodyClassKey": "22030|36972|1.69"
+      }
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "patient_david_miller_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "adult_male_street_casual.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "oncology_bad_news_family_v1",
+      "actorId": "sister_rachel_miller_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "sexCue": "male",
+      "signature": {
+        "largestMeshName": "peds_nurse_kevin.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "sexCue": "female",
+      "signature": {
+        "largestMeshName": "peds_anxious_parent.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "nurse_aisha_brooks_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "peds_fever_v1",
+      "actorId": "parent_mei_chen_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "actorId": "floor_nurse_bennett_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "actorId": "patient_priya_shah_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "postop_fever_consult_pressure_v1",
+      "actorId": "surgery_resident_kim_v1",
+      "role": "consultant",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "peds_nurse_kevin.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "actorId": "medical_assistant_jones_v1",
+      "role": "medical_assistant",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "primary_care_dyslipidemia_joint_pain_v1",
+      "actorId": "patient_mario_guzman_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "adult_male_street_casual.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "behavioral_health_nurse_owens_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "partner_sam_reed_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "psych_suicidal_ideation_safety_v1",
+      "actorId": "patient_jordan_reed_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "actorId": "patient_helen_carter_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "actorId": "respiratory_therapist_ng_v1",
+      "role": "respiratory_therapist",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "stepdown_sepsis_nurse_escalation_v1",
+      "actorId": "stepdown_nurse_rivera_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "peds_nurse_kevin.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "daughter_elena_martinez_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "telehealth_diabetes_health_literacy_v1",
+      "actorId": "patient_luis_martinez_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "adult_male_street_casual.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "daughter_lena_ellis_v1",
+      "role": "family",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      }
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "patient_margaret_ellis_v1",
+      "role": "patient",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "senior_resident_ward_v1",
+      "role": "physician",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    },
+    {
+      "scenarioId": "ward_delirium_med_rec_v1",
+      "actorId": "ward_nurse_patel_v1",
+      "role": "nurse",
+      "resolvedAssetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "sexCue": "unknown",
+      "signature": {
+        "largestMeshName": "peds_nurse_kevin.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      }
+    }
+  ],
+  "signatureGroups": [
+    {
+      "bodyClassKey": "13876|26692|1.76",
+      "assets": [
+        "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.glb",
+        "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.glb",
+        "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.glb",
+        "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb"
+      ],
+      "actors": [
+        "nurse_priya_nair_v1",
+        "patient_elena_vasquez_v1",
+        "patient_lucia_morales_v1",
+        "nurse_maria_alvarez_v1",
+        "patient_robert_hayes_v1",
+        "patient_samuel_brooks_v1",
+        "stroke_nurse_chen_v1",
+        "ob_nurse_williams_v1",
+        "patient_david_miller_v1",
+        "nurse_kevin_lee_v1",
+        "nurse_aisha_brooks_v1",
+        "floor_nurse_bennett_v1",
+        "patient_priya_shah_v1",
+        "surgery_resident_kim_v1",
+        "medical_assistant_jones_v1",
+        "patient_mario_guzman_v1",
+        "behavioral_health_nurse_owens_v1",
+        "patient_jordan_reed_v1",
+        "patient_helen_carter_v1",
+        "respiratory_therapist_ng_v1",
+        "stepdown_nurse_rivera_v1",
+        "patient_luis_martinez_v1",
+        "patient_margaret_ellis_v1",
+        "senior_resident_ward_v1",
+        "ward_nurse_patel_v1"
+      ]
+    },
+    {
+      "bodyClassKey": "13872|26692|1.66",
+      "assets": [
+        "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.glb",
+        "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb"
+      ],
+      "actors": [
+        "partner_diego_vasquez_v1",
+        "father_carlos_morales_v1",
+        "son_eric_brooks_v1",
+        "partner_omar_khan_v1",
+        "sister_rachel_miller_v1",
+        "parent_tara_johnson_v1",
+        "parent_mei_chen_v1",
+        "partner_sam_reed_v1",
+        "daughter_elena_martinez_v1",
+        "daughter_lena_ellis_v1"
+      ]
+    },
+    {
+      "bodyClassKey": "53696|26756|1.76",
+      "assets": [
+        "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb"
+      ],
+      "actors": [
+        "spouse_anna_hayes_v1"
+      ]
+    },
+    {
+      "bodyClassKey": "22030|36972|1.69",
+      "assets": [
+        "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb"
+      ],
+      "actors": [
+        "patient_aisha_khan_v1"
+      ]
+    }
+  ]
+}

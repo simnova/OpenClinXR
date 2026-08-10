@@ -25,8 +25,13 @@ export type CastEntry = {
   resolvedAssetPath: string;
   /** Read from the asset's own geometry — the world-Y extent of its skinned mesh. */
   assetStatureMeters: number;
-  /** Read from the asset's recorded provenance, not from the casting code. */
-  assetProvenanceScenarioId: string;
+  /**
+   * Read from the asset's recorded provenance, not from the casting code.
+   * Null when the asset carries no scenarioId — factory library candidates
+   * (e.g. the body-param hm08 library GLBs under candidates/, #218/#278) are
+   * not generated for any scenario, so there is no generation claim to check.
+   */
+  assetProvenanceScenarioId: string | null;
 };
 
 export type ScenarioCastingReport = {
@@ -66,14 +71,18 @@ async function measureAssetStatureMeters(assetPath: string): Promise<number> {
   return Math.max(hy, hz);
 }
 
-async function readProvenanceScenarioId(provenanceManifestPath: string): Promise<string> {
+async function readProvenanceScenarioId(provenanceManifestPath: string): Promise<string | null> {
   const abs = path.isAbsolute(provenanceManifestPath)
     ? provenanceManifestPath
     : path.join(repoRoot, provenanceManifestPath);
   const raw = await readFile(abs, "utf8");
   const json = JSON.parse(raw) as { scenarioId?: unknown };
+  // Factory library candidates (body-param hm08 library GLBs, #218/#278) record no scenarioId —
+  // they are not generated for any scenario. Null, not a throw: the #85 contract asks "no actor
+  // is played by an asset generated for a DIFFERENT scenario", and a library body is not generated
+  // for any scenario at all. Mirrors cast-identity-all-stations.ts which returns null here.
   if (typeof json.scenarioId !== "string" || json.scenarioId.length === 0) {
-    throw new Error(`provenance missing scenarioId: ${provenanceManifestPath}`);
+    return null;
   }
   return json.scenarioId;
 }

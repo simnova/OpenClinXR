@@ -7386,19 +7386,20 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
           ? "nurse"
           : "anxious_parent";
       const asset = pedsHandoff.assets.find((a) => a.actorRole === targetRole);
-      if (asset?.runtimeAssetPath || asset?.assetPath) {
-        return asset.runtimeAssetPath || asset.assetPath;
-      }
+      const handoffPath = asset?.runtimeAssetPath || asset?.assetPath;
+      // #278: cast SSOT is authoritative for re-cast roles — handoff routes only when it agrees.
+      if (handoffPath && handoffPath === resolveHumanoidVariantOrCastPath({ scenarioId, actorId, role, fallbackPath })) return handoffPath;
     }
     // deterministic fallback (used when no worker-fed handoff metadata in bundle)
     if (actorId === runtimePatientActorId() || role === 'patient') {
       return '/generated-humanoids/peds_patient_child.glb';
     }
     if (actorId === runtimeFamilyActorId() || role === 'parent' || role === 'family') {
-      return '/generated-humanoids/peds_anxious_parent.glb';
+      return '/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb'; // #278 hm08 lean-female library
     }
     if (actorId === runtimeClinicalTeamActorId() || role === 'nurse') {
-      return '/generated-humanoids/peds_nurse_kevin.glb';
+      // #278 (route 2 from #276): peds nurse casts to the hm08 heavy-male library body.
+      return '/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb';
     }
   }
 

@@ -224,8 +224,14 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     const others = report.actors.filter((a) => !a.actorId.includes("patient"));
     expect(others.length, "the pediatric encounter has no non-patient actors").toBeGreaterThan(0);
     for (const actor of others) {
+      // #278: parent/nurse re-cast onto the hm08 library bodies — they now wear MakeClothes
+      // library garments (makeclothes_library_*), the other rail's real garment meshes.
+      // The counterweight intent (nobody got undressed) holds when either rail dresses them.
       const real = actor.garmentMeshNames.filter(
-        (n) => n.includes("openclinxr_real_garment_") && !n.includes("declared_upper_layers"),
+        (n) =>
+          (n.includes("openclinxr_real_garment_")
+            || /makeclothes_library_.*(scrub|shirt|pant|trouser|gown)/i.test(n))
+          && !n.includes("declared_upper_layers"),
       );
       expect(real.length, `${actor.actorId} lost its garment shells`).toBeGreaterThan(0);
     }

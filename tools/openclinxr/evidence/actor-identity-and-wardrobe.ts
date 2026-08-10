@@ -43,6 +43,17 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../
 
 const REAL_GARMENT_RE = /openclinxr_real_garment_/i;
 const DECLARED_MARKER_RE = /declared_upper_layers/i;
+/**
+ * MakeClothes library garments on the body-param hm08 bodies (#218/#278). Name tokens mirror the
+ * garment-covers-its-region.ts classifier (scrub/shirt upper; pant/trouser lower; gown). These are
+ * real fitted garment meshes on a different rail — the dressed counterweight must see them too.
+ */
+const LIBRARY_GARMENT_RE = /makeclothes_library_/i;
+const LIBRARY_GARMENT_TOKEN_RE = /scrub|shirt|pant|trouser|gown/i;
+
+function isLibraryGarmentName(name: string): boolean {
+  return LIBRARY_GARMENT_RE.test(name) && LIBRARY_GARMENT_TOKEN_RE.test(name);
+}
 
 function absFromRepo(relOrAbs: string): string {
   return path.isAbsolute(relOrAbs) ? relOrAbs : path.join(repoRoot, relOrAbs);
@@ -82,7 +93,7 @@ async function inspectGlbMeshes(glbPath: string): Promise<{
       tris += primitiveTriangleCount(prim);
     }
     meshTriByName.set(name, (meshTriByName.get(name) ?? 0) + tris);
-    if (REAL_GARMENT_RE.test(name)) {
+    if (REAL_GARMENT_RE.test(name) || isLibraryGarmentName(name)) {
       garmentMeshNames.push(name);
       garmentTriangleCounts.push(tris);
     }
@@ -91,7 +102,7 @@ async function inspectGlbMeshes(glbPath: string): Promise<{
   // Also scan node names that carry garment tags when mesh names are blank/renamed.
   for (const node of root.listNodes()) {
     const n = node.getName() || "";
-    if (!REAL_GARMENT_RE.test(n)) continue;
+    if (!REAL_GARMENT_RE.test(n) && !isLibraryGarmentName(n)) continue;
     if (garmentMeshNames.includes(n)) continue;
     const mesh = node.getMesh();
     if (!mesh) continue;
