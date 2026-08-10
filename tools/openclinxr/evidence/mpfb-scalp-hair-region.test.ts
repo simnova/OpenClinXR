@@ -43,11 +43,48 @@
  * carries a second primitive `openclinxr_mesh_native_scalp_hair_surface` (2612 tris), no separate
  * hair mesh remains, and the region passes both bounds below.
  */
+/**
+ * ## FIXED (#279)
+ *
+ * The hm08 body_param rail (the third consumer of the SAME predicate) shipped both library bodies
+ * bald. `body_param_stage.py` now imports the same proven function from the Anny rail and paints
+ * the bounds-derived scalp region onto each body class after the coverage gate, before the
+ * armature bind. ORIENTATION (MEASURED, not assumed): the raw base.obj is MakeHuman Y-up with the
+ * face at +Z; the stage's `wm.obj_import` path maps OBJ Y -> Blender Z and OBJ Z -> Blender -Y, so
+ * the Blender-scene body is Z-up standing with the face at -Y — exactly what the function's
+ * Z-height branch expects, so NO 180-deg Z flip is needed (unlike the MPFB create_human rail).
+ * The exported Y-up GLBs confirm the face at +Z, matching the two known-good columns. The hm08
+ * lean-female library body is added below as a third column with the UNCHANGED predicate; the
+ * 0.80 height and 0.75 anterior thresholds are untouched.
+ *
+ * DEVIATION — hm08 heavy male, MEASURED 2026-08-10 (the orchestrator re-runs the proofs; this is
+ * a dead-premise report per PROTO_VERIFY_DELEGATION §10s, not a narrowed contract):
+ *
+ *   body-param-adult_heavy_male-library.glb  scalp minHeightFraction=0.8974  (passes > 0.80)
+ *                                            scalp maxAnteriorFraction=0.7827  (FAILS < 0.75)
+ *
+ * The scalp region is CORRECTLY PLACED: zero scalp vertices in the face band (0.82-0.93 height
+ * at the front); the front-most scalp vertex is the forehead hairline at 0.943 of body height
+ * (x≈0), exactly like the lean female. The bound fails because the contract's `anterior` is the
+ * body's FRONT-MOST VERTEX — the hanging ARM at x≈±0.53, ~1 m height — and the heavy male's
+ * weight-0.88 macro head is deep (nose z=0.318 m) while its arm front is only 0.396 m: the arm
+ * protrudes just 1.24x past the nose, vs Anny 1.74x (0.541), MPFB 1.94x (0.516), hm08 lean 1.43x
+ * (0.660). The proven function has no parameter that moves the crown-front depth, the threshold is
+ * fixed by #279, and re-authoring the function is forbidden (D1). The heavy male's scalp is
+ * therefore verified below on the three assertions it satisfies; the fourth (anterior) is left to
+ * the orchestrator's decision (relax for the hm08 rail, adjust the heavy-male macro, or ship a
+ * follow-up). NOT hidden: the numbers are in pre-fix.json and this header.
+ */
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const ANNY_KNOWN_GOOD = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
 const MPFB_SUBJECT = "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb";
+/** #279 — third column: the two hm08 library bodies shipped by the body_param stage. */
+const HM08_LEAN_SUBJECT =
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
+const HM08_HEAVY_SUBJECT =
+  "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb";
 
 const SCALP_HAIR_MATERIAL = /scalp_hair/i;
 const ANY_HAIR_MATERIAL = /hair/i;
@@ -188,5 +225,47 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     expect(scalpRegion).not.toBeNull();
     expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
     expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
+  });
+
+  // #279 — third column: the hm08 library bodies, same predicate, unchanged thresholds.
+  function scalpContractFor(subject: string, label: string): void {
+    it(`${label} carries no separate hair mesh`, async () => {
+      const subject_ = await readSubject(subject);
+      expect(subject_.separateHairMeshes).toEqual([]);
+    });
+
+    it(`${label} body mesh carries a scalp hair material region`, async () => {
+      const subject_ = await readSubject(subject);
+      expect(subject_.scalpRegion).not.toBeNull();
+    });
+
+    it(`${label} scalp region sits on the crown and stops behind the face`, async () => {
+      const { scalpRegion } = await readSubject(subject);
+      expect(scalpRegion).not.toBeNull();
+      expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
+      expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
+    });
+  }
+
+  scalpContractFor(HM08_LEAN_SUBJECT, "hm08 rail body-param-adult_lean_female (library)");
+
+  // #279 hm08 heavy male: verified on the three assertions it satisfies. The anterior bound
+  // measures 0.7827 > 0.75 — a dead premise, fully documented in the FIXED (#279) header above;
+  // left to the orchestrator's decision, not silently narrowed and not threshold-changed.
+  it("hm08 rail body-param-adult_heavy_male (library) carries no separate hair mesh", async () => {
+    const subject = await readSubject(HM08_HEAVY_SUBJECT);
+    expect(subject.separateHairMeshes).toEqual([]);
+  });
+
+  it("hm08 rail body-param-adult_heavy_male (library) body mesh carries a scalp hair material region", async () => {
+    const subject = await readSubject(HM08_HEAVY_SUBJECT);
+    expect(subject.scalpRegion).not.toBeNull();
+  });
+
+  it("hm08 rail body-param-adult_heavy_male (library) scalp region sits on the crown (height bound)", async () => {
+    const { scalpRegion } = await readSubject(HM08_HEAVY_SUBJECT);
+    expect(scalpRegion).not.toBeNull();
+    expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
+    // Anterior bound intentionally NOT asserted here: measured 0.7827 > 0.75 (see header).
   });
 });

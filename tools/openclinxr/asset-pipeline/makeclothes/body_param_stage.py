@@ -572,6 +572,35 @@ def transfer_weights_body_to_garment(
     return status
 
 
+def apply_scalp_hair_material_region(basemesh: bpy.types.Object) -> dict:
+    """#279 — paint the proven bounds-derived scalp/hair material region on the hm08 body.
+
+    Imports `apply_mesh_native_scalp_hair_material_region` from the Anny rail
+    (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201), the same proven
+    function #222 wired for MPFB — wire it, do not re-author it (D1). The region is
+    derived from mesh BOUNDS and auto-detects the dominant height axis, so it transfers
+    to hm08 topology unchanged (no vertex indices).
+
+    ORIENTATION (MEASURED, issue-279 — determined, not assumed): the raw base.obj is
+    MakeHuman Y-up with the face at +Z; the stage's import path (`wm.obj_import`,
+    force_z=False) maps OBJ Y -> Blender Z and OBJ Z -> Blender -Y, so the Blender-scene
+    body is Z-up standing with the face at **-Y** — exactly what the function's Z-height
+    branch expects. The exported GLB (export_yup=True maps Blender -Y -> GLB +Z) confirms
+    face-at-+Z end-to-end, matching the two known-good rails. NO 180-deg Z flip is needed
+    (unlike the MPFB create_human rail, which faces +Y — #222's cross-rail lesson).
+
+    Paints polygon material indices only; geometry, rig, and shape keys are untouched.
+    """
+    anny_dir = Path(__file__).resolve().parents[2] / "asset-pipeline" / "anny"
+    if str(anny_dir) not in sys.path:
+        sys.path.insert(0, str(anny_dir))
+    from automate_blender import apply_mesh_native_scalp_hair_material_region  # noqa: E402
+
+    return apply_mesh_native_scalp_hair_material_region(
+        basemesh, {"hair_color": "black", "hair_density": 0.65}
+    )
+
+
 def bind_meshes_to_canonical_armature(
     basemesh: bpy.types.Object,
     garment: bpy.types.Object,
@@ -1360,6 +1389,14 @@ def build_one_body_class(
         coverage_gate["lower"] = lower_rep
     bpy.context.view_layer.update()
 
+    # #279 — wire the proven bounds-derived scalp/hair material region (Anny rail) onto
+    # the hm08 body. Both hm08 library bodies shipped bald (zero scalp/hair materials);
+    # the region function was wired to Anny natively and MPFB via #222 but never to this
+    # rail. Runs AFTER the coverage gate so the region is measured on the final
+    # (aligned, helper-stripped, Z-up standing, face at -Y) body and BEFORE the armature
+    # bind so skinning never touches the material indices.
+    scalp_hair_region = apply_scalp_hair_material_region(basemesh)
+
     # #216/#220 — bind body + upper (+ lower) to canonical armature
     extra = [lower_garment] if lower_garment is not None else None
     rig_info = bind_meshes_to_canonical_armature(
@@ -1455,6 +1492,7 @@ def build_one_body_class(
         "morphExport": True,
         "producedByStage": STAGE_ID,
         "coverageGate": coverage_gate,
+        "scalpHairRegion": scalp_hair_region,
         **lower_info,
     }
 
