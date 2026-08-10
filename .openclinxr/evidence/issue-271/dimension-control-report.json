@@ -1,0 +1,147 @@
+{
+  "slice": "issue-271",
+  "artifact": "dimension-control-report.json — Lane C cagematch decision-with-evidence",
+  "measuredAgainstCommit": "da5b8d16328ba4dfc02ef65d1da6649d8e787f0c",
+  "question": "MADR 0043 reversal trigger 3 asks whether Infinigen Indoors can be 'driven by environmentId / case blueprint fields'. The concrete, untested sub-question: can it emit an empty shell whose footprint, height and door placement are SPECIFIED as inputs?",
+  "verdict": {
+    "heightControl": "met_measured",
+    "footprintControl": "not_an_input_measured",
+    "doorPlacementControl": "not_an_input_measured",
+    "clinicalSemantics": "not_measured_this_slice",
+    "adoption": "not_recommended"
+  },
+  "measuredAt": "2026-08-10T15:20:00Z",
+  "install": {
+    "durablePath": "/Users/patrick/.openclinxr-tools/infinigen",
+    "source": {
+      "path": "/Users/patrick/.openclinxr-tools/infinigen/source",
+      "kind": "real_directory",
+      "underTmp": false,
+      "checkout": "princeton-vl/infinigen indoors-stable tag -> b11700eb (release_v1.14.0), __version__ 1.14.0-dev",
+      "submodulesInitialized": ["infinigen/infinigen_gpl", "infinigen/OcMesher"],
+      "installPatch": "infinigen/terrain/__init__.py restored to pre-2024-08-28 upstream state ('from .core import Terrain, hidden_in_viewport'); upstream emptied it for a circular-import fix that does not trigger on the generate_indoors entry path (generate_indoors.py:48 imports Terrain)."
+    },
+    "venv": {
+      "path": "/Users/patrick/.openclinxr-tools/infinigen/venv",
+      "kind": "real_directory",
+      "underTmp": false,
+      "python": "/Users/patrick/.openclinxr-tools/infinigen/venv/bin/python (3.11.8)",
+      "packages": "infinigen-1.14.0.dev0 (editable) + bpy-4.2.0 (pinned by pyproject.toml)",
+      "installMethod": "python3.11 -m venv + INFINIGEN_MINIMAL_INSTALL=True INFINIGEN_INSTALL_TERRAIN=False pip install -e . (same recipe as the prior /tmp/ocxr77_tools install)"
+    },
+    "preFixState": "dangling symlinks to /tmp/ocxr77_tools/* (purged on reboot); see pre-fix.json.",
+    "provenWorking": "three generates completed from the durable path (35-38s each, task coarse); venv bpy 4.2.0 opened/measured/exported all blends."
+  },
+  "runs": [
+    {
+      "runId": "clinical_bay",
+      "seed": 0,
+      "ginConfig": "disable/clinical_bay.gin (no_trim.gin = no_objects + doors/windows/skirting off; RoomConstants.global_params.wall_height=2.65; wall_thickness=('uniform',0.2,0.25); aspect_ratio_range=(2.0,2.1))",
+      "wallHeightParameterMeters": 2.65,
+      "sceneHeightMeters": 3.851,
+      "roomShellHeightMeters": 2.65,
+      "sceneFootprintXzMeters": [25.609, 18.0],
+      "architectureTriangleCount": 11060,
+      "roomCount": 7,
+      "wallCount": 20,
+      "doorApertures": 10,
+      "furnitureFree": true,
+      "measuredBy": "orchestrator summary (sceneHeight/footprint/tris) + issue-271 worker blend measure (shell height, structure)"
+    },
+    {
+      "runId": "clinical_bay_control",
+      "seed": 0,
+      "ginConfig": "disable/clinical_bay_control.gin (includes clinical_bay.gin; aspect_ratio_range=(0.9,1.0))",
+      "wallHeightParameterMeters": 2.65,
+      "sceneHeightMeters": 3.851,
+      "roomShellHeightMeters": 2.65,
+      "sceneFootprintXzMeters": [22.0, 18.522],
+      "architectureTriangleCount": 10432,
+      "roomCount": 7,
+      "wallCount": 20,
+      "doorApertures": 10,
+      "furnitureFree": true,
+      "measuredBy": "orchestrator summary + issue-271 worker blend measure",
+      "controlRole": "determinism control — same wall_height parameter, different footprint contour (aspect 0.9-1.0 vs 2.0-2.1); scene height identical (3.851) and room shell height identical (2.65)."
+    },
+    {
+      "runId": "dimctl_h36",
+      "seed": 4271,
+      "ginConfig": "-g fast_solve singleroom (NOT furniture-free) with -p RoomConstants.global_params.wall_height=3.6",
+      "wallHeightParameterMeters": 3.6,
+      "sceneHeightMeters": 4.391,
+      "roomShellHeightMeters": 3.6,
+      "sceneFootprintXzMeters": [13.53, 21.93],
+      "architectureTriangleCount": null,
+      "triangleCountNote": "7,050,241 tris measured but this run used fast_solve+singleroom WITHOUT the no_trim furniture-free override, so the count is furniture-inclusive and is NOT an architecture number. Do not report it as architecture.",
+      "roomCount": 5,
+      "wallCount": 12,
+      "doorApertures": 5,
+      "furnitureFree": false,
+      "treatmentRole": "height treatment — pinning wall_height=3.6 moved the room shell height to exactly 3.6 and the scene height to 4.391."
+    }
+  ],
+  "axisVerdicts": {
+    "heightIsControllable": {
+      "verdict": "MET — height is a hard, exact, deterministic gin input.",
+      "evidence": [
+        "RoomConstants.global_params.wall_height is @gin.configurable (infinigen/core/constraints/constraint_language/constants.py:50-56) and is consumed by the solidifier as the room shell height (infinigen/core/constraints/example_solver/room/solidifier.py:295-299) and the solver's dimension tuple (infinigen/core/constraints/example_solver/room/floor_plan.py:147-151).",
+        "wall_height=2.65 -> measured room shell height exactly 2.65 m in BOTH baseline runs (clinical_bay, clinical_bay_control) despite different footprints/seeds.",
+        "wall_height=3.6 -> measured room shell height exactly 3.6 m (dimctl_h36).",
+        "Determinism control: two runs with the same wall_height but different footprints (25.61x18.00 vs 22.00x18.52) measure identical scene height 3.851 — the height does not vary with seed/contour noise."
+      ]
+    },
+    "footprintTargeting": {
+      "verdict": "NOT MET as an input — absolute footprint (width x depth) cannot be specified; it is DERIVED from soft per-room-type area objectives.",
+      "evidence": [
+        "infinigen/core/constraints/example_solver/room/graph.py:273-289 (suggest_dimensions): footprint = sqrt(area*aspect) x sqrt(area/aspect), where area = SUM(typical_areas[room_type]) * slackness (graph.py:276-281).",
+        "typical_areas are DERIVED by evaluating each room type against the constraint graph at sizes 1.5-25 m (graph.py:296-344) — not read from any input.",
+        "Per-room area TARGETS are hardcoded soft objectives in infinigen_examples/constraints/home.py:354-382 (e.g. (r.area()/20).log().hinge(0,0.4).pow(2) for DiningRoom; /40 for Bedroom/LivingRoom; /5 for Closet).",
+        "The only footprint SHAPE knob, RoomConstants.aspect_ratio_range (constants.py:26-27, consumed at graph.py:282-289), is damped: (0.9,1.0) -> house 22.0x18.52 (aspect 1.19); (2.0,2.1) -> house 25.61x18.00 (aspect 1.42). It moves the whole-floorplan contour, not a target bay of 7.0x3.45.",
+        "restrict_solving.restrict_parent_rooms=['DiningRoom'] does NOT collapse the room set (7 rooms emitted) — it restricts object-solving domains only (infinigen_examples/util/generate_indoors_util.py:216-221, 233-236)."
+      ]
+    },
+    "doorPlacement": {
+      "verdict": "NOT MET as an input — door aperture POSITION is random; door WIDTH/HEIGHT are constants derived from RoomConstants (and door_params is not gin-exposed).",
+      "evidence": [
+        "Door cutters are placed at a uniform random fraction along shared interior edges (infinigen/core/constraints/example_solver/room/solidifier.py:549 y = uniform(min+m, max-m)) and along the longest exterior edge for the entrance (solidifier.py:565 lam = uniform(m/len, 1-m/len)).",
+        "door_params (door_width_ratio, door_size) LACK the @gin.configurable decorator (constants.py:67-77); gin rejects 'RoomConstants.door_params.door_size' with 'No configurable matching'.",
+        "Measured door apertures: 0.898 m wide x 2.185 m tall (defaults sampled), positions random."
+      ]
+    },
+    "clinicalSemantics": {
+      "verdict": "NOT MEASURED THIS SLICE — the room set remains residential (balcony/bathroom/bedroom/closet/dining-room/kitchen/living-room). MADR 0043's Decision already records that there is no clinical-station vocabulary; this slice measured dimensions, not semantics."
+    }
+  },
+  "ginParametersWithFileLine": {
+    "RoomConstants (class)": "infinigen/core/constraints/constraint_language/constants.py:21-27 (@gin.configurable; constructor takes n_stories, room_type, aspect_ratio_range, fixed_contour)",
+    "RoomConstants.global_params.unit": "constants.py:54 (default 0.5; quantizes all dimensions via unit_cast constants.py:113-116)",
+    "RoomConstants.global_params.segment_margin": "constants.py:55 (default 1.4; min shared-edge length for a door, solidifier.py:442; door width base)",
+    "RoomConstants.global_params.wall_thickness": "constants.py:55 (default ('uniform',0.2,0.3); wall slab thickness)",
+    "RoomConstants.global_params.wall_height": "constants.py:56 (default ('uniform',2.8,3.2); THE ceiling-height input — proven controllable)",
+    "RoomConstants.aspect_ratio_range": "constants.py:26-27 (default (0.7,1.0); whole-floorplan contour aspect)",
+    "RoomConstants.door_params.*": "constants.py:67-77 (NOT gin-configurable — no decorator)",
+    "RoomConstants.room_type": "constants.py:23,26-27 (graph vocabulary; not exercised — gin cannot parse Semantics enums into the un-annotated param)",
+    "BlueprintSolidifier.enable_open": "infinigen/core/constraints/example_solver/room/solidifier.py:181-186 (interior connector gate)",
+    "restrict_solving.restrict_parent_rooms": "infinigen_examples/util/generate_indoors_util.py:202,216-221 (object-solving restriction, NOT room-graph)",
+    "restrict_solving.solve_max_rooms": "infinigen_examples/util/generate_indoors_util.py:206,220 (documented 'only place objects in at most this many rooms')",
+    "home_room_constraints area targets": "infinigen_examples/constraints/home.py:354-382 (hardcoded soft area objectives per room type)"
+  },
+  "cliUsageNote": "generate_indoors.py's -p option uses nargs='+': REPEATED -p FLAGS REPLACE RATHER THAN APPEND — only the last -p value survives. All overrides must be passed under ONE -p: '-p A=1 \"B=[\\\"x\\\"]\" C=2'. The existing probe scripts already do this (infinigen-indoors-cagematch-probe.ts); two early attempts in this slice re-discovered it (a lone surviving override silently skipped terrain_enabled and crashed on missing terrain libs).",
+  "conclusion": "Lane C cagematch, decision-with-evidence: the HEIGHT axis of reversal trigger 3 is MET and measured (wall_height is an exact, deterministic, gin-configurable input: 2.65 -> 2.65 m shell, 3.6 -> 3.6 m shell, identical scene height across differing footprints). The FOOTPRINT axis is a measured negative: absolute width x depth is not an input — it is derived from hardcoded soft area objectives (home.py:354-382 via graph.py:273-289), and the aspect knob is damped. The DOOR-PLACEMENT axis is a measured negative: positions are uniform-random (solidifier.py:549/565). MADR 0043's Decision therefore stands unchanged: Infinigen remains not adopted as an environmentId-driven runtime source; hand-made parametric shells stay. The 'parameterisable' objection from MADR 0043 is now closed on measurement rather than inference — the blocker is not room semantics but the ABSENCE of absolute dimension inputs in the solver, and the height half of parameterisation IS available.",
+  "claimScope": [
+    "durable re-home of the Infinigen install + venv off /tmp (real directories under ~/.openclinxr-tools, proven working from the new path)",
+    "height as an exact deterministic gin input (2.65/2.65/3.6 -> shell heights 2.65/2.65/3.6; scene heights 3.851/3.851/4.391)",
+    "footprint and door placement NOT expressible as inputs (source file:line evidence)",
+    "enumerated gin parameters with file:line from the actual indoors-stable checkout",
+    "MADR 0043 Decision unchanged; no adoption; no ui-xr wiring; no triangle-count selection"
+  ],
+  "notEvidenceFor": [
+    "adoption of Infinigen as an environmentId-driven runtime source (Decision stands)",
+    "clinical room semantics or a clinical-station vocabulary (residential floorplan only)",
+    "Quest worn readiness or clinical validity",
+    "any ui-xr wiring or learner-facing environment selection",
+    "architecture triangle counts for dimctl_h36 (furniture-inclusive run — not an architecture number)",
+    "footprint targeting as a closed negative at finer granularity (the aspect knob's damped response was observed, not exhaustively swept)"
+  ]
+}
