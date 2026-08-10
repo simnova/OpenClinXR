@@ -165,6 +165,35 @@ import { measureParametricComposite } from "../../../apps/ui-xr/src/station-equi
  * #260 FIXED 2026-08-10 — vertical-envelope contract added below.
  */
 
+/* ════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#266) — the footprint envelope, the scale half of #258
+ *
+ * #258 grounded the object-centered monitor GLB (translate only). The same
+ * GLBs are also UNIT-NORMALIZED by the bake pipeline — bedside-monitor-
+ * generated.glb spans exactly ±0.5 on x/z (1.00 m wide) — and nothing
+ * rescaled them to the footprint the placement descriptor was authored
+ * against (the parametric composite it replaced: 0.38 × 1.19 × 0.22).
+ * Measured (issue-266/pre-fix.json, live scene + file):
+ *
+ *     bedside_monitor_equipment  composite envelope x/z 0.38 × 0.22
+ *                                GLB local bounds x/z   1.00 × 1.00
+ *                                → world x∈[0.45,1.45] z∈[0.48,1.48]
+ *     → renders 2.6× the width of the object it replaced and occludes two
+ *       actors in ed_stroke_alert_handoff_v1 (wall clock control: elevated,
+ *       correctly mounted, must stay unchanged).
+ *
+ * Fix: the mount path now fits a gltf-sourced FLOOR mount's footprint to its
+ * declared placement envelope — the id's parametric composite total AABB —
+ * by scaling the GLB per-axis (shrink-only) before the #258 grounding and
+ * #260 stand passes run. General convention adapter, not a per-asset fudge:
+ * no per-equipment constants beyond the composite footprint. Elevated mounts
+ * (wall clock) and ids without a dedicated composite (ED bay library GLBs)
+ * are untouched. The contract below ("world extent within the declared
+ * envelope") is the gate that would have caught this class.
+ *
+ * #266 FIXED 2026-08-10 — footprint-envelope contract added below.
+ */
+
 const load = async () => import("./declared-equipment-mounted.js") as Promise<Record<string, unknown>>;
 
 const EQUIPMENT_GLB_DIR = path.resolve(
@@ -477,6 +506,60 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(
       sagging,
       `gltf floor mounts not reaching the composite's working height (the stand was dropped):\n${sagging.join("\n")}`,
+    ).toHaveLength(0);
+  }, 900_000);
+
+  it("a gltf-sourced equipment mount's world extent falls within its declared placement envelope (#266)", async () => {
+    // #266 — a generated equipment GLB is unit-normalized by the bake pipeline
+    // (bedside-monitor-generated.glb spans exactly ±0.5 on x/z → 1.00 m wide)
+    // and nothing in the mount path rescaled it to the footprint the placement
+    // descriptor was authored against. Measured pre-fix (issue-266/pre-fix.json):
+    //     bedside_monitor_equipment  composite 0.38 × 1.19 × 0.22
+    //                               GLB local 1.00 × 0.805 × 1.00
+    //                               → world   x∈[0.45,1.45] z∈[0.48,1.48]
+    //     → renders 2.6× the width of the object it replaced and occludes two
+    //       actors in ed_stroke_alert_handoff_v1. #258 fixed the object-centered
+    //       TRANSLATE (grounding); this contract is the SCALE half — a gltf
+    //       floor mount must fit within its declared footprint envelope.
+    //
+    // The wall clock is the CONTROL: its placement (y=1.55) is ELEVATED — an
+    // elevated wall mount has no floor footprint to fit, and its 1.00 m world
+    // width is the accepted pre-existing mount (it must keep passing unchanged).
+    // ED bay library GLBs (ecg cart / IV pole) have no dedicated composite
+    // envelope (they resolve to the generic fallback) and are exempt.
+    const mod = await load();
+    const inspect = mod["inspectDeclaredEquipmentMounting"] as Inspect | undefined;
+    expect(inspect).toBeTypeOf("function");
+
+    const report = await inspect!();
+    const FLOOR_TOLERANCE_M = 0.05;
+    const FIT_TOLERANCE_M = 0.05;
+    const oversized: string[] = [];
+    for (const s of report.stations) {
+      for (const m of s.mounted) {
+        if (m.source !== "gltf") continue;
+        if (!m.worldAabbMin || !m.worldAabbMax) continue;
+        const placement = s.declaredPlacements[m.equipmentId];
+        if (!placement) continue;
+        if (Math.abs(placement.y) >= FLOOR_TOLERANCE_M) continue; // elevated → control
+        const composite = measureParametricComposite(m.equipmentId);
+        if (composite.source !== "parametric") continue; // no composite envelope to fit
+        if (composite.totalAabbMin.y < -FLOOR_TOLERANCE_M) continue; // origin-centered composite, no floor footprint
+        const envelopeWidth = composite.totalAabbMax.x - composite.totalAabbMin.x;
+        const envelopeDepth = composite.totalAabbMax.z - composite.totalAabbMin.z;
+        const worldWidth = m.worldAabbMax.x - m.worldAabbMin.x;
+        const worldDepth = m.worldAabbMax.z - m.worldAabbMin.z;
+        if (worldWidth > envelopeWidth + FIT_TOLERANCE_M || worldDepth > envelopeDepth + FIT_TOLERANCE_M) {
+          oversized.push(
+            `${s.scenarioId}/${m.equipmentId}: world ${worldWidth.toFixed(3)}×${worldDepth.toFixed(3)}m `
+              + `vs declared envelope ${envelopeWidth.toFixed(3)}×${envelopeDepth.toFixed(3)}m`,
+          );
+        }
+      }
+    }
+    expect(
+      oversized,
+      `gltf equipment world extent outside its declared placement envelope (unit-normalized GLB not fitted):\n${oversized.join("\n")}`,
     ).toHaveLength(0);
   }, 900_000);
 });

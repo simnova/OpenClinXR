@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyGltfEquipmentFootprintFit,
   normalizeGltfEquipmentMount,
   planStationEquipmentMounts,
   REAL_EQUIPMENT_GLTF_BY_ID,
@@ -124,6 +125,104 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
     plainSlot.updateMatrixWorld(true);
     expect(plainSlot.children.some((c) => c.name.endsWith(".stand"))).toBe(false);
     expect(plainBox.matrixWorld.elements[13]).toBeCloseTo(0.4, 5); // grounded, base at floor
+  });
+});
+
+describe("gltf equipment footprint fit (#266)", () => {
+  it("fits a unit-normalized floor GLB's footprint to its declared composite envelope", () => {
+    // #266 — the bake pipeline unit-normalizes generated GLBs to ±0.5 on x/z
+    // (bedside-monitor-generated.glb spans 1.00 m wide), while the placement
+    // descriptor was authored against the parametric composite it replaced
+    // (0.38 m wide × 0.22 m deep). A floor mount must scale to fit.
+    const slot = new Group();
+    slot.position.set(0.95, 0, 0.98);
+    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+
+    const equipment = new Group();
+    const box = new Mesh(new BoxGeometry(1, 0.8, 1)); // unit-normalized x/z span 1.0
+    equipment.add(box);
+
+    normalizeGltfEquipmentMount(equipment, slot);
+    slot.add(equipment);
+    slot.updateMatrixWorld(true);
+
+    // Composite envelope x/z spans (measured): 0.38 × 0.22.
+    expect(box.matrixWorld.elements[0]).toBeCloseTo(0.38, 3);
+    expect(box.matrixWorld.elements[10]).toBeCloseTo(0.22, 3);
+    // Y scale untouched: the vertical envelope is the #258/#260 contracts' job.
+    expect(box.matrixWorld.elements[5]).toBeCloseTo(1, 3);
+    // The hybrid stand is still added and the body still rests on its top.
+    const standGroup = slot.children.find(
+      (child) => child.name === "openclinxr.equipment.bedside_monitor_equipment.stand",
+    );
+    expect(standGroup).toBeDefined();
+    const mountBounds = new Box3().setFromObject(slot);
+    expect(mountBounds.min.y).toBeCloseTo(0, 5);
+  });
+
+  it("leaves the elevated wall-clock control untouched (no footprint to fit)", () => {
+    const slot = new Group();
+    slot.position.set(-2.4, 1.55, -1.15);
+    slot.userData.openClinXrEquipmentId = "wall_clock_equipment";
+
+    const equipment = new Group();
+    const box = new Mesh(new BoxGeometry(1, 0.8, 1));
+    equipment.add(box);
+
+    normalizeGltfEquipmentMount(equipment, slot);
+    slot.add(equipment);
+    slot.updateMatrixWorld(true);
+
+    expect(box.matrixWorld.elements[0]).toBeCloseTo(1, 5);
+    expect(box.matrixWorld.elements[10]).toBeCloseTo(1, 5);
+    expect(box.matrixWorld.elements[13]).toBeCloseTo(1.55, 5); // origin-centered mount height
+  });
+
+  it("leaves ids without a dedicated composite envelope untouched (ED bay library GLBs)", () => {
+    const slot = new Group();
+    slot.position.set(0, 0, 0);
+    slot.userData.openClinXrEquipmentId = "ecg_cart_equipment";
+
+    const equipment = new Group();
+    const box = new Mesh(new BoxGeometry(1, 0.8, 1));
+    equipment.add(box);
+
+    normalizeGltfEquipmentMount(equipment, slot);
+    slot.add(equipment);
+    slot.updateMatrixWorld(true);
+
+    expect(box.matrixWorld.elements[0]).toBeCloseTo(1, 5);
+    expect(box.matrixWorld.elements[10]).toBeCloseTo(1, 5);
+    expect(box.matrixWorld.elements[13]).toBeCloseTo(0.4, 5); // grounded only (#258)
+  });
+
+  it("never scales a GLB up and never scales an already-fitted footprint", () => {
+    // A GLB already within its envelope must be left alone (shrink-only fit).
+    const slot = new Group();
+    slot.position.set(0.95, 0, 0.98);
+    slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
+
+    const equipment = new Group();
+    const box = new Mesh(new BoxGeometry(0.2, 0.8, 0.1)); // already within 0.38×0.22
+    equipment.add(box);
+
+    normalizeGltfEquipmentMount(equipment, slot);
+    slot.add(equipment);
+    slot.updateMatrixWorld(true);
+
+    // Node scale untouched (1) — nothing was scaled up.
+    expect(box.matrixWorld.elements[0]).toBeCloseTo(1, 5);
+    expect(box.matrixWorld.elements[10]).toBeCloseTo(1, 5);
+    const worldSpan = new Box3().setFromObject(slot);
+    expect(worldSpan.max.x - worldSpan.min.x).toBeLessThanOrEqual(0.38 + 1e-4);
+
+    // Direct call on an already-fitted GLB is a no-op.
+    const direct = new Group();
+    const directBox = new Mesh(new BoxGeometry(0.3, 0.8, 0.2));
+    direct.add(directBox);
+    applyGltfEquipmentFootprintFit(direct, "bedside_monitor_equipment");
+    expect(directBox.matrixWorld.elements[0]).toBeCloseTo(1, 5);
+    expect(directBox.matrixWorld.elements[10]).toBeCloseTo(1, 5);
   });
 });
 
