@@ -1,0 +1,716 @@
+{
+  "generatedAt": "2026-08-10T23:08:04.828Z",
+  "method": "static import-graph scan of tools/**/*.test.ts; value imports only; call detection after stripping comments and string literals",
+  "primitives": [
+    "spawnPortlessDevServer (lib/portless-server.ts — boots a Vite dev server)",
+    "chromium.launch (playwright — boots a headless Chrome shell)"
+  ],
+  "totalTestFiles": 261,
+  "browserBootingTestFiles": 34,
+  "excludedAmongBrowserBooting": 0,
+  "minBrowsersPerSuiteRun": 34,
+  "minServersPerSuiteRun": 32,
+  "staticUpperBoundBrowsers": 80,
+  "staticUpperBoundServers": 75,
+  "rows": [
+    {
+      "testFile": "tools/openclinxr/evidence/actor-floor-contact-all-stations.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-floor-contact-all-stations.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-floor-contact-all-stations.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/actor-furniture-clearance.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-furniture-clearance.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-furniture-clearance.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/actor-garment-presence-in-scene.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-garment-presence-in-scene.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-garment-presence-in-scene.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/actor-placement-ssot.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-placement-ssot.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-placement-ssot.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/actor-prop-intersection.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-prop-intersection.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-prop-intersection.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
+        "tools/openclinxr/evidence/actor-furniture-clearance.ts"
+      ],
+      "closureServerCallSites": 4,
+      "closureBrowserCallSites": 4,
+      "invokedPathServerCallSites": 2,
+      "invokedPathBrowserCallSites": 2
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/actor-slot-assignment.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 22,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/actor-slot-assignment.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/actor-slot-assignment.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/arm-abduction-ceiling.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/arm-abduction-ceiling.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/arm-abduction-ceiling.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/articulating-head-of-bed.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 4,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/articulating-head-of-bed.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/articulating-head-of-bed.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
+      ],
+      "closureServerCallSites": 4,
+      "closureBrowserCallSites": 4,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/cue-props-are-not-furniture.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/cue-props-are-not-furniture.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/cue-props-are-not-furniture.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/declared-actors-rendered.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 22,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/declared-actors-rendered.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/declared-actors-rendered.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/declared-equipment-mounted.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 13,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/declared-equipment-mounted.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/declared-equipment-mounted.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/fixture-surface-distinct.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 17,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/fixture-surface-distinct.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/fixture-surface-distinct.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/garment-bake-matrix.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 4,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/garment-bake-matrix.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/garment-bake-matrix.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
+      ],
+      "closureServerCallSites": 3,
+      "closureBrowserCallSites": 4,
+      "invokedPathServerCallSites": 0,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/generated-scene-mode-predicate.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/generated-scene-mode-predicate.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/generated-scene-mode-predicate.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/generator-sweep-harness.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 39,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/generator-sweep-harness.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/generator-sweep-harness.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
+      ],
+      "closureServerCallSites": 3,
+      "closureBrowserCallSites": 4,
+      "invokedPathServerCallSites": 0,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/generic-cue-prop-removal.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/generic-cue-prop-removal.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/generic-cue-prop-removal.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/idle-arm-hang.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/idle-arm-hang.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/idle-arm-hang.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/inpatient-supine-staging.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 24,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/inpatient-supine-staging.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/inpatient-supine-staging.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/isolated-subject-harness.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 4,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/isolated-subject-harness.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
+      ],
+      "closureServerCallSites": 4,
+      "closureBrowserCallSites": 4,
+      "invokedPathServerCallSites": 4,
+      "invokedPathBrowserCallSites": 4
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/library-figure-finish-parity.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/library-figure-finish-parity.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/library-figure-finish-parity.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/library-humanoid-staged.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/library-humanoid-staged.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/library-humanoid-staged.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/model-vetting-glb-grade-capture.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": false,
+      "ownsBrowser": true,
+      "closureSize": 9,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts"
+      ],
+      "closureServerCallSites": 0,
+      "closureBrowserCallSites": 1,
+      "invokedPathServerCallSites": 0,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/per-station-actor-integrity.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/per-station-actor-integrity.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/per-station-actor-integrity.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": false,
+      "ownsBrowser": true,
+      "closureSize": 10,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/review-glb-optimization-visual-cagematch.ts"
+      ],
+      "closureServerCallSites": 0,
+      "closureBrowserCallSites": 1,
+      "invokedPathServerCallSites": 0,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/room-prop-uses-real-builder.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/room-prop-uses-real-builder.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/room-prop-uses-real-builder.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/seated-contact-and-flexion.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/seated-contact-and-flexion.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/seated-contact-and-flexion.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/seated-hands-rest.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/seated-hands-rest.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/seated-hands-rest.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 3,
+      "closureBrowserCallSites": 3,
+      "invokedPathServerCallSites": 2,
+      "invokedPathBrowserCallSites": 2
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/seated-posture-survives-mixer.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 4,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/seated-posture-survives-mixer.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/seated-posture-survives-mixer.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/shipped-head-of-bed-incline.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 23,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/shipped-head-of-bed-incline.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/shipped-head-of-bed-incline.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/station-room-not-empty.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/station-room-not-empty.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/station-room-not-empty.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/supine-limb-rest.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 5,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/supine-limb-rest.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/supine-limb-rest.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/supine-patient-on-deck.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 6,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/supine-patient-on-deck.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/supine-patient-on-deck.ts",
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 2,
+      "closureBrowserCallSites": 2,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/trellis-equipment-cagematch.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 4,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/trellis-equipment-cagematch.ts",
+        "tools/openclinxr/evidence/isolated-subject-harness.ts"
+      ],
+      "closureServerCallSites": 5,
+      "closureBrowserCallSites": 6,
+      "invokedPathServerCallSites": 2,
+      "invokedPathBrowserCallSites": 3
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/ui-xr-environment-room-capture.test.ts",
+      "excludedFromTestTools": false,
+      "acquisitionMode": "own",
+      "ownsServer": true,
+      "ownsBrowser": true,
+      "closureSize": 3,
+      "directLaunchers": [
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "launcherModules": [
+        "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts"
+      ],
+      "closureServerCallSites": 1,
+      "closureBrowserCallSites": 1,
+      "invokedPathServerCallSites": 1,
+      "invokedPathBrowserCallSites": 1
+    }
+  ],
+  "testToolsExclusions": [
+    {
+      "testFile": "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts",
+      "reason": "voice-simulation SPIKE (unproven lane-C class); builds external-provider voice simulation plans"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/check-github-pages-site.test.ts",
+      "reason": "validates the LIVE GitHub Pages site — network-dependent"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts",
+      "reason": "IWSDK sidecar MCP tooling inventory — execs the IWSDK toolchain"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts",
+      "reason": "IWSDK workspace posture report — execs the IWSDK toolchain"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts",
+      "reason": "model-vetting runtime evidence class — asserts on docs snapshots of hardware/headset-gated evidence"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts",
+      "reason": "model-vetting capture manifest — asserts on gitignored cagematch artifacts absent in worktrees"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts",
+      "reason": "model-vetting runtime hook bindings evidence — docs-snapshot assertions"
+    },
+    {
+      "testFile": "tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts",
+      "reason": "model-vetting runtime mapping evidence — docs-snapshot assertions"
+    },
+    {
+      "testFile": "tools/openclinxr/factory/encounter-asset-generation-queue.test.ts",
+      "reason": "factory asset-generation QUEUE — orchestrates character/animation/environment generation and asset-bake (the #273 class)"
+    },
+    {
+      "testFile": "tools/openclinxr/factory/encounter-publication-payloads.test.ts",
+      "reason": "heavy factory publication-payload path"
+    },
+    {
+      "testFile": "tools/openclinxr/factory/encounter-runtime-selection-review-packet.test.ts",
+      "reason": "runtime selection review packet — exercises persistTurnsToMongo (MongoDB persistence)"
+    },
+    {
+      "testFile": "tools/openclinxr/factory/publish-generated-learner-runtime-bundle.test.ts",
+      "reason": "publishes a generated learner runtime bundle — heavy build/package path"
+    },
+    {
+      "testFile": "tools/openclinxr/openclaw/agentic-hook-runner.test.ts",
+      "reason": "runs the real agentic hook stack — expensive/recursive"
+    }
+  ]
+}
