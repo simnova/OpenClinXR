@@ -48,7 +48,13 @@ Last updated: 2026-08-08
 
 | Slice | Phase | Status |
 |-------|-------|--------|
-| **issue-250** ladder tried one instrument at four settings | dispatched | Interior strip + weld + per-part on the bedside monitor. Binary: under 60k → consume, no exception; over → MADR rests on a measured floor. |
+| **issue-265** subject-only pack re-run | dispatched | #262's `reject` withdrawn — the bake reconstructed the FLOOR, not a failed pole. One variable: render the pack with no ground plane. Decides whether the equipment lane can bypass the Grok-credit block. |
+| **issue-264** MPFB2 patient renders ~2× too tall | dispatched | Scale only; textures/hair are #222 and stay out. First measurement uses `anny-reference-mpfb-match.ts` (#221, D11) — written, never run against a promoted asset. |
+| **issue-263** first MPFB2 humanoid cast | **landed** | `patient_aisha_khan_v1` renders at 36,972 skinned tris in the OB station. **Not adoptable** — ~2× height, untextured, disc hair. My brief was broken twice and refused correct work. |
+| **issue-262** parametric packs, not Grok Imagine | **landed, verdict CORRECTED** | Harness renders `equipment_builder` subjects (2-builder limit gone) and produced a clean 5-view pack incl. `back`. Its `reject` was withdrawn on my pixel grade. |
+| **issue-260** GLB swap dropped the monitor's stand | dispatched | Parametric built monitor+pole; the GLB is monitor only. Structural trap in front of all 35 remaining ids. |
+| **issue-259** red-test triage | queued | 14 red → **11 genuine, 2 stale-cache false reds**, clustered into 4 root causes. Cluster B (meshes never reach the scene) is the first slice. |
+| **issue-250** ladder tried one instrument at four settings | **landed** | `consume_no_exception` — the monitor decimates to exactly 60,000 tris with the exterior preserved. No MADR needed; the peer's 40%-interior hypothesis was falsified (real: ~14%). |
 | **issue-249** capture renderer has no shadow mapping | dispatched | Grounded figures read as floating in every grade — `castShadow` appears nowhere. Capture path only; a moved `y0` means the product changed, not the instrument. |
 | **issue-247** actors float vs a passing contract | **landed** | **My pixel grade was wrong.** `y0Exact` (stride=1, every vertex) agrees with the contract to 4dp; foot-to-floor gap is 0.5–1.8 px. Contract stays. |
 | **issue-246** trusted brief never refreshes | **landed** | A corrected `done_when` was verified as the superseded one — dispatch evaluated the union (4 rules), merge gate evaluated 2. Now REFUSES on divergence; `refreshTrustedBrief` is the only sanctioned change. |
