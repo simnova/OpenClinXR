@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "openclinxr.issue-282.pre-fix.v1",
+  "measuredAt": "2026-08-10T22:35:00Z",
+  "measuredOnTree": "wt/issue-282 @ 6b4da6ce (post-#279 merge)",
+  "issue": 282,
+  "factoryStep": "instrument",
+  "unblocks": "body_param",
+  "defect": {
+    "headline": "SCALP_MAX_ANTERIOR_FRACTION = 0.75 (scalp.maxZ / body.maxZ) divides by the body's front-most vertex, which on every shipped figure is the hanging ARM, not the nose. The heavy-male hm08 body (deep weight-0.88 head, arms hanging close) measures 0.783 and fails a correctly-placed scalp.",
+    "measured": "NodeIO @gltf-transform over the four shipped GLBs; body bounds over all primitives of the largest mesh (same as mpfb-scalp-hair-region.test.ts readSubject).",
+    "oldAnteriorFractions": {
+      "peds_nurse_kevin": 0.5409,
+      "mpfb-ob-patient-aisha": 0.5161,
+      "hm08_adult_lean_female": 0.6598,
+      "hm08_adult_heavy_male": 0.7827
+    }
+  },
+  "replacement": {
+    "name": "direct face-exclusion band",
+    "predicate": "no scalp VERTEX inside the front mid-face band: heightFraction in [0.82, 0.93] of body height AND z >= centerZ + 0.18 * bodyDepth, where centerZ/depth come from the WHOLE body mesh and z is the GLB anterior axis (face at +Z on all four rails).",
+    "provenance": "Band height range 0.82-0.93 and front fraction 0.18 are the Anny function's own face-band constants (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4261-4273, Z-height branch face_front_d = center_d - depth_d*0.18). The 0.80 height bound is unchanged.",
+    "whyThisBand": "The function's Y-depth (Z-height) branch treats only the FRONT 32% of body depth as face-front. Measured: the front-HALF band (z >= centerZ) falsely refuses the correctly-placed MPFB and hm08 scalps (their side/temple scalp legitimately occupies z >= centerZ at 0.885-0.93 height: MPFB 1746 vertices, hm08 lean 82, hm08 heavy 1140). The front-32% band passes all four scalps at zero band vertices.",
+    "faceBandReferences": {
+      "peds_nurse_kevin": { "centerZ": 0.1934, "depth": 0.4437, "frontZ": 0.2733, "headFrontInBand": 0.2387, "scalpMaxZInBand": 0.1943 },
+      "mpfb-ob-patient-aisha": { "centerZ": 0.1077, "depth": 0.4360, "frontZ": 0.1861, "headFrontInBand": 0.1681, "scalpMaxZInBand": 0.1681 },
+      "hm08_adult_lean_female": { "centerZ": 0.1934, "depth": 0.3885, "frontZ": 0.2633, "headFrontInBand": 0.2719, "scalpMaxZInBand": 0.2107 },
+      "hm08_adult_heavy_male": { "centerZ": 0.1934, "depth": 0.4049, "frontZ": 0.2663, "headFrontInBand": 0.3184, "scalpMaxZInBand": 0.2058 }
+    },
+    "headRelativeBandsRejected": {
+      "why": "A band referenced to the head front (z >= max body z at face-band heights - margin) was measured and rejected: it cannot pass all four bodies AND refuse the skin decoy with any single margin. The MPFB scalp's forehead boundary reaches the head front at face-band heights (66 face-centres within 0.005 m of headFrontInBand), so margin >= 0.005 falsely refuses it, while margin 0 refuses nothing. Body-depth-relative bands were the only family that separates the four scalps from the decoys.",
+      "mpfbScalpFrontFaceCentresAtMargins": { "M0.0": 0, "M0.005": 66, "M0.01": 238, "M0.02": 626 },
+      "annySkinFaceCentresAtMargins": { "M0.0": 0, "M0.005": 88, "M0.01": 274, "M0.02": 1012 }
+    }
+  },
+  "destructiveProbe": {
+    "note": "Issue-282 contract: on peds_nurse_kevin.anny_base, only the real scalp primitive may PASS the full predicate (unchanged 0.80 height bound + the face band); skin, arm clothing and lower clothing must all still be REFUSED. oldVerdict/newVerdict are the FULL-predicate verdicts (the same application the test makes of a scalp candidate).",
+    "reference": "frontZ = 0.2733 on peds_nurse_kevin (centerZ 0.1934, depth 0.4437)",
+    "primitives": [
+      {
+        "primitive": "anny_generated_pbr (skin)",
+        "oldAnteriorFraction": 1.0000,
+        "newFaceBandVertexCount": 0,
+        "newFaceBandFaceCentreCount": 0,
+        "oldVerdict": "REFUSED (height 0.000 < 0.80; anterior 1.000 >= 0.75)",
+        "newVerdict": "REFUSED (height 0.000 < 0.80)",
+        "note": "Skin's face region sits behind the body's front-32% threshold on Anny (arm/hand protrudes to z=0.415; head front 0.239), so the face band alone passes it; the unchanged height bound refuses it. Same combined verdict as the old predicate."
+      },
+      {
+        "primitive": "openclinxr_role_mesh_clothing_nurse_arm",
+        "oldAnteriorFraction": 0.9741,
+        "newFaceBandVertexCount": 0,
+        "newFaceBandFaceCentreCount": 0,
+        "oldVerdict": "REFUSED (height 0.570 < 0.80; anterior 0.974 >= 0.75)",
+        "newVerdict": "REFUSED (height 0.570 < 0.80)",
+        "note": "The arm's forward protrusion is the HAND at ~0.57-0.80 height, below the face band; its shoulder/upper-arm region in the band hangs behind the nose. The old anterior bound caught the hand for the wrong reason (the same arm-posture coupling this issue removes). Refused by the unchanged height bound under both predicates."
+      },
+      {
+        "primitive": "openclinxr_role_mesh_clothing_nurse_lower",
+        "oldAnteriorFraction": 0.4461,
+        "newFaceBandVertexCount": 0,
+        "newFaceBandFaceCentreCount": 0,
+        "oldVerdict": "REFUSED (height 0.080 < 0.80)",
+        "newVerdict": "REFUSED (height 0.080 < 0.80)",
+        "note": "Always refused by the height bound only, under both predicates (the old anterior bound passed it at 0.446)."
+      },
+      {
+        "primitive": "openclinxr_mesh_native_scalp_hair_surface",
+        "oldAnteriorFraction": 0.5409,
+        "newFaceBandVertexCount": 0,
+        "newFaceBandFaceCentreCount": 0,
+        "oldVerdict": "PASS",
+        "newVerdict": "PASS"
+      }
+    ],
+    "standaloneBoundHonesty": "The new face-band bound ALONE refuses none of the Anny decoys (0 band vertices each — the arm/lower are outside any face region; the Anny skin face is behind the front-32% threshold). It earns its keep as the face-exclusion counterweight only in combination with the unchanged 0.80 height bound, exactly as the old predicate's refusal of the LOWER decoy always relied on the height bound. The decoy set's combined verdicts are identical under both predicates."
+  },
+  "bodies": {
+    "peds_nurse_kevin": {
+      "glb": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "minHeightFraction": 0.8974,
+      "oldAnteriorFraction": 0.5409,
+      "oldVerdict": "PASS",
+      "newFaceBandVertexCount": 0,
+      "newVerdict": "PASS"
+    },
+    "mpfb-ob-patient-aisha": {
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "minHeightFraction": 0.8855,
+      "oldAnteriorFraction": 0.5161,
+      "oldVerdict": "PASS",
+      "newFaceBandVertexCount": 0,
+      "newVerdict": "PASS",
+      "note": "OB patient: the belly is the body's front-most vertex (z=0.326), so its head (front 0.168) sits behind the front-32% threshold. The band passes the scalp; a whole-head cap on this rail is missed by BOTH the old ratio (cap ratio 0.52 < 0.75) and the new band — no regression."
+    },
+    "hm08_adult_lean_female": {
+      "glb": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "minHeightFraction": 0.8964,
+      "oldAnteriorFraction": 0.6598,
+      "oldVerdict": "PASS",
+      "newFaceBandVertexCount": 0,
+      "newVerdict": "PASS",
+      "note": "Head front 0.272 IS inside the front-32% band (threshold 0.263), so the band catches a whole-head cap here — the old ratio passed one (0.70 < 0.75). New band strictly better on this rail."
+    },
+    "hm08_adult_heavy_male": {
+      "glb": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "minHeightFraction": 0.8974,
+      "oldAnteriorFraction": 0.7827,
+      "oldVerdict": "REFUSED (>= 0.75) — the defect",
+      "newFaceBandVertexCount": 0,
+      "newVerdict": "PASS",
+      "note": "Zero scalp vertices in the face band; front-most scalp vertex is the forehead hairline at 0.943 of body height (x~0). The old bound failed only because its denominator is the hanging arm (arm front z=0.396 vs nose 0.318; arm protrudes just 1.24x past the nose)."
+    }
+  },
+  "capFailureClassComparison": {
+    "question": "Does the replacement still catch a 'cap painted over the whole head' (the cheap re-implementation) wherever the old bound did?",
+    "result": "NOT WEAKER ANYWHERE. New band catches the cap on BOTH hm08 bodies (head front inside the front-32% band); the old ratio caught it only on the heavy male (0.80 > 0.75) and passed it on lean hm08 (0.70), Anny (0.58) and MPFB (0.52). On Anny/MPFB both predicates miss a tight head-only cap because the arm/belly is the body front-most vertex — that blindness is pre-existing and unchanged."
+  },
+  "counterweightBaseline": {
+    "garment-covers-its-region.test.ts": "untouched by this slice (predicate-only change, no asset regeneration)",
+    "mpfb-scalp-hair-region.test.ts": "current 11/11 PASS on this tree (pre-change) — the heavy-male anterior assertion is the only deviation, documented in the #279 header"
+  },
+  "claimScope": "pre-fix measurement + predicate-design evidence for issue-282 face-exclusion counterweight replacement; measured against the four shipped GLBs as they exist on main @ 6b4da6ce",
+  "notEvidenceFor": [
+    "hair_groom_or_production_realism",
+    "clinical_body_realism",
+    "quest_readiness",
+    "b_plus_visual_realism_gate"
+  ],
+  "notTested": [
+    "a future body with a low hairline AND a head inside the front-32% band would be false-refused by the vertex-based band (MPFB's low hairline passes only because its head is behind the threshold)",
+    "a whole-head cap on Anny/MPFB rails remains invisible to BOTH the old and new predicates (pre-existing, unchanged)",
+    "no asset regeneration performed; this is a predicate change only"
+  ]
+}

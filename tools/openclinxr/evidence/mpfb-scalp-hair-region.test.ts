@@ -75,7 +75,22 @@
  * the orchestrator's decision (relax for the hm08 rail, adjust the heavy-male macro, or ship a
  * follow-up). NOT hidden: the numbers are in pre-fix.json and this header.
  */
-import { NodeIO } from "@gltf-transform/core";
+/**
+ * ## FIXED (#282)
+ *
+ * The 0.75 anterior bound (scalp.maxZ / body.maxZ) is REPLACED by a direct face-exclusion band,
+ * not relaxed and not exempted per rail. The old ratio's denominator was the body's front-most
+ * vertex — the hanging ARM on every shipped figure — so it moved with arm posture and body build
+ * (heavy male 0.783 vs nose-relative correctness). The replacement asserts NO scalp vertex falls
+ * inside the front mid-face band: heightFraction in [0.82, 0.93] of body height AND
+ * z >= centerZ + 0.18 * bodyDepth (the Anny function's own face-band constants, Z-height branch:
+ * automate_blender.py:4261-4273). Measured on the four shipped bodies: every scalp has ZERO band
+ * vertices (heavy male included, previously 0.783 REFUSED); the unchanged 0.80 height bound still
+ * refuses the three Anny decoy primitives under the full predicate (skin/arm/lower), and a
+ * destructive-probe test below pins that counterweight. The 0.75 constant is removed; the 0.80
+ * height bound and the 0.82/0.93 band range are untouched. Full measurements: pre-fix.json.
+ */
+import { Accessor, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 const ANNY_KNOWN_GOOD = "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb";
@@ -97,20 +112,56 @@ const ANY_HAIR_MATERIAL = /hair/i;
 const SCALP_MIN_HEIGHT_FRACTION = 0.8;
 
 /**
- * A scalp must stop behind the face. Expressed against the body's own anterior extent so it is
- * scale- and rail-independent. Anny measures 0.225/0.415 = 0.542 and clears with margin; a naive
- * "paint a cap over the whole head" reaches the face plane (~1.0) and fails. This is the
- * counterweight: it refuses the cheap re-implementation, not just the absence of a region.
+ * A scalp must stop behind the face. Face-exclusion band, measured DIRECTLY (issue-282 replaces
+ * the 0.75 anterior RATIO, whose denominator was the hanging arm). A scalp vertex is inside the
+ * front mid-face band when its height fraction lies in [0.82, 0.93] AND its anterior (z) is at or
+ * beyond the body's front-32% depth line. Both constants are the Anny function's own face band
+ * (`apply_mesh_native_scalp_hair_material_region`, automate_blender.py:4261-4273): the height
+ * range is face_band_lo/hi and the depth line is the Z-height branch's
+ * `face_front_d = center_d - depth_d * 0.18`. A naive "paint a cap over the whole head" reaches
+ * the face band and fails; every correctly-placed shipped scalp has ZERO vertices in it.
  */
-const SCALP_MAX_ANTERIOR_FRACTION = 0.75;
+const SCALP_FACE_BAND_HEIGHT_LO = 0.82;
+const SCALP_FACE_BAND_HEIGHT_HI = 0.93;
+const SCALP_FACE_FRONT_DEPTH_FRACTION = 0.18;
 
 type Region = {
   triangles: number;
   minHeightFraction: number;
   maxHeightFraction: number;
   centroidHeightFraction: number;
+  /** Diagnostic only, not asserted: scalp.maxZ / body.maxZ (the #279-era proxy, issue-282 replaced it). */
   maxAnteriorFraction: number;
+  /** The direct face-exclusion counterweight: number of scalp vertices inside the front mid-face band. */
+  faceBandVertexCount: number;
 };
+
+/**
+ * Number of vertices inside the front mid-face band:
+ * heightFraction in [0.82, 0.93] of body height AND z >= frontZ (the body's front-32% depth line).
+ * GLB Y-up, face at +Z on every shipped rail (verified in #279 orientation determination).
+ */
+function faceBandVertexCountFor(
+  position: Accessor,
+  bodyMin: number[],
+  height: number,
+  frontZ: number,
+): number {
+  let count = 0;
+  for (let i = 0; i < position.getCount(); i += 1) {
+    const v = [0, 0, 0];
+    position.getElement(i, v);
+    const heightFraction = (v[1] - bodyMin[1]) / height;
+    if (
+      heightFraction >= SCALP_FACE_BAND_HEIGHT_LO &&
+      heightFraction <= SCALP_FACE_BAND_HEIGHT_HI &&
+      v[2] >= frontZ
+    ) {
+      count += 1;
+    }
+  }
+  return count;
+}
 
 type Subject = {
   /** Meshes that are NOT the body but carry a hair material — the hand-authored-hair failure. */
@@ -156,6 +207,9 @@ async function readSubject(path: string): Promise<Subject> {
   }
   const height = Math.max(bodyMax[1] - bodyMin[1], 1e-6);
   const anterior = Math.max(Math.abs(bodyMax[2]), 1e-6);
+  // Front mid-face band depth line: the body's front-32% of depth (function's Z-height branch).
+  const depth = Math.max(bodyMax[2] - bodyMin[2], 1e-6);
+  const faceBandFrontZ = (bodyMin[2] + bodyMax[2]) / 2 + SCALP_FACE_FRONT_DEPTH_FRACTION * depth;
 
   const scalpPrimitive = primitives.find((prim) =>
     SCALP_HAIR_MATERIAL.test(prim.getMaterial()?.getName() ?? ""),
@@ -183,6 +237,7 @@ async function readSubject(path: string): Promise<Subject> {
       maxHeightFraction: (maxY - bodyMin[1]) / height,
       centroidHeightFraction: (sumY / position.getCount() - bodyMin[1]) / height,
       maxAnteriorFraction: maxZ / anterior,
+      faceBandVertexCount: faceBandVertexCountFor(position, bodyMin, height, faceBandFrontZ),
     };
   }
 
@@ -205,7 +260,7 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     const { scalpRegion } = await readSubject(ANNY_KNOWN_GOOD);
     expect(scalpRegion).not.toBeNull();
     expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
-    expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
+    expect(scalpRegion!.faceBandVertexCount).toBe(0);
   });
 
   it("MPFB rail carries no separate hand-authored hair mesh", async () => {
@@ -224,7 +279,7 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
     const { scalpRegion } = await readSubject(MPFB_SUBJECT);
     expect(scalpRegion).not.toBeNull();
     expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
-    expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
+    expect(scalpRegion!.faceBandVertexCount).toBe(0);
   });
 
   // #279 — third column: the hm08 library bodies, same predicate, unchanged thresholds.
@@ -243,29 +298,73 @@ describe("#222 scalp hair is a material region on the body, never a separate aut
       const { scalpRegion } = await readSubject(subject);
       expect(scalpRegion).not.toBeNull();
       expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
-      expect(scalpRegion!.maxAnteriorFraction).toBeLessThan(SCALP_MAX_ANTERIOR_FRACTION);
+      expect(scalpRegion!.faceBandVertexCount).toBe(0);
     });
   }
 
   scalpContractFor(HM08_LEAN_SUBJECT, "hm08 rail body-param-adult_lean_female (library)");
 
-  // #279 hm08 heavy male: verified on the three assertions it satisfies. The anterior bound
-  // measures 0.7827 > 0.75 — a dead premise, fully documented in the FIXED (#279) header above;
-  // left to the orchestrator's decision, not silently narrowed and not threshold-changed.
-  it("hm08 rail body-param-adult_heavy_male (library) carries no separate hair mesh", async () => {
-    const subject = await readSubject(HM08_HEAVY_SUBJECT);
-    expect(subject.separateHairMeshes).toEqual([]);
-  });
+  // #282: the heavy male now runs the SAME three assertions as every other column. Its scalp is
+  // correctly placed (zero face-band vertices) and the direct face-exclusion bound no longer
+  // divides by the hanging arm, so the previous 0.7827 anterior dead-premise is resolved.
+  scalpContractFor(HM08_HEAVY_SUBJECT, "hm08 rail body-param-adult_heavy_male (library)");
 
-  it("hm08 rail body-param-adult_heavy_male (library) body mesh carries a scalp hair material region", async () => {
-    const subject = await readSubject(HM08_HEAVY_SUBJECT);
-    expect(subject.scalpRegion).not.toBeNull();
-  });
+  // Destructive probe (issue-282 counterweight): applying the full predicate — unchanged 0.80
+  // height bound AND zero face-band vertices — to every primitive of peds_nurse_kevin.anny_base,
+  // only the real scalp primitive may pass. The old 0.75 ratio refused these same three decoys;
+  // the replacement must refuse them too, or it is weaker than what it replaces.
+  it("Anny decoy probe: only the scalp primitive passes the full predicate (height + face band)", async () => {
+    const document = await new NodeIO().read(ANNY_KNOWN_GOOD);
+    const meshes = document.getRoot().listMeshes();
+    const triangleCount = (mesh: (typeof meshes)[number]): number =>
+      mesh.listPrimitives().reduce((total, prim) => total + (prim.getIndices()?.getCount() ?? 0) / 3, 0);
+    const body = [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
+    if (!body) throw new Error(`${ANNY_KNOWN_GOOD}: no meshes`);
 
-  it("hm08 rail body-param-adult_heavy_male (library) scalp region sits on the crown (height bound)", async () => {
-    const { scalpRegion } = await readSubject(HM08_HEAVY_SUBJECT);
-    expect(scalpRegion).not.toBeNull();
-    expect(scalpRegion!.minHeightFraction).toBeGreaterThan(SCALP_MIN_HEIGHT_FRACTION);
-    // Anterior bound intentionally NOT asserted here: measured 0.7827 > 0.75 (see header).
+    const primitives = body.listPrimitives();
+    let bodyMin = [Infinity, Infinity, Infinity];
+    let bodyMax = [-Infinity, -Infinity, -Infinity];
+    for (const prim of primitives) {
+      const position = prim.getAttribute("POSITION");
+      if (!position) continue;
+      for (let i = 0; i < position.getCount(); i += 1) {
+        const v = [0, 0, 0];
+        position.getElement(i, v);
+        for (let axis = 0; axis < 3; axis += 1) {
+          bodyMin[axis] = Math.min(bodyMin[axis], v[axis]);
+          bodyMax[axis] = Math.max(bodyMax[axis], v[axis]);
+        }
+      }
+    }
+    const height = Math.max(bodyMax[1] - bodyMin[1], 1e-6);
+    const depth = Math.max(bodyMax[2] - bodyMin[2], 1e-6);
+    const faceBandFrontZ = (bodyMin[2] + bodyMax[2]) / 2 + SCALP_FACE_FRONT_DEPTH_FRACTION * depth;
+
+    const verdicts = primitives
+      .filter((prim) => prim.getAttribute("POSITION"))
+      .map((prim) => {
+        const position = prim.getAttribute("POSITION")!;
+        let minY = Infinity;
+        for (let i = 0; i < position.getCount(); i += 1) {
+          const v = [0, 0, 0];
+          position.getElement(i, v);
+          minY = Math.min(minY, v[1]);
+        }
+        const minHeightFraction = (minY - bodyMin[1]) / height;
+        const faceBandVertexCount = faceBandVertexCountFor(position, bodyMin, height, faceBandFrontZ);
+        const passes = minHeightFraction > SCALP_MIN_HEIGHT_FRACTION && faceBandVertexCount === 0;
+        return {
+          material: prim.getMaterial()?.getName() ?? "<none>",
+          isScalpHair: SCALP_HAIR_MATERIAL.test(prim.getMaterial()?.getName() ?? ""),
+          minHeightFraction,
+          faceBandVertexCount,
+          passes,
+        };
+      });
+
+    const passing = verdicts.filter((v) => v.passes);
+    expect(passing).toHaveLength(1);
+    expect(passing[0]!.isScalpHair).toBe(true);
+    expect(passing[0]!.material).toMatch(/scalp_hair/i);
   });
 });
