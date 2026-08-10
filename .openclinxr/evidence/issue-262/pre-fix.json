@@ -1,0 +1,78 @@
+{
+  "issue": "262",
+  "measurementKind": "pre-fix coverage before-column — which builders the isolated-subject harness exposes vs which equipment ids exist",
+  "measuredAgainstCommit": "ebc3302f",
+  "measuredAt": "2026-08-10",
+  "harnessSurface": {
+    "file": "tools/openclinxr/evidence/isolated-subject-harness.ts",
+    "subjectKind": [
+      "furniture_builder",
+      "runtime_posture",
+      "posture_on_furniture",
+      "glb"
+    ],
+    "builder": ["patient_stretcher", "patient_chair"],
+    "equipmentId": null,
+    "view": null,
+    "equipmentBuilderExposed": false,
+    "exposedBuilderCount": 2
+  },
+  "labPage": {
+    "file": "apps/ui-xr/src/isolated-subject-lab.ts",
+    "subjectKind": [
+      "furniture_builder",
+      "runtime_posture",
+      "posture_on_furniture",
+      "glb"
+    ],
+    "buildFurnitureHandles": ["patient_stretcher", "patient_chair"],
+    "equipmentBuilderHandled": false
+  },
+  "trellisBakeStation": {
+    "file": "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts",
+    "knownSubjects": ["wall-clock", "bedside-monitor", "ecg-cart"],
+    "execFileSyncTimeoutMs": 600000,
+    "measuredSingleViewBakeWallClockS_reference_255": 1371.9
+  },
+  "equipmentIds": [
+    "12_lead_ecg_machine_equipment",
+    "abdominal_dressing_equipment",
+    "abdominal_exam_light_equipment",
+    "abdominal_exam_zone_equipment",
+    "antipyretic_tray_equipment",
+    "blood_pressure_cuff_equipment",
+    "chairs_equipment",
+    "digital_thermometer_equipment",
+    "ehr_screen_equipment",
+    "ekg_leads_on_bed_equipment",
+    "exam_table_equipment",
+    "fetal_monitor_equipment",
+    "glucometer_review_equipment",
+    "hospital_bed_equipment",
+    "hydration_supplies_equipment",
+    "inhaler_spacer_equipment",
+    "iv_pole_equipment",
+    "iv_pump_equipment",
+    "lab_results_panel_equipment",
+    "monitor_equipment",
+    "nebulizer_mask_equipment",
+    "observation_station_equipment",
+    "oxygen_nasal_cannula_equipment",
+    "oxygen_wall_port_equipment",
+    "parent_chair_equipment",
+    "pediatric_stretcher_equipment",
+    "post_op_bed_equipment",
+    "pulse_oximeter_equipment",
+    "safe_room_chair_equipment",
+    "safety_plan_whiteboard_equipment",
+    "side_rails_equipment",
+    "stretcher_equipment",
+    "surgical_consult_phone_equipment",
+    "tablet_visit_equipment",
+    "tissue_box_equipment"
+  ],
+  "equipmentIdCount": 35,
+  "selectedSubject": "iv_pole_equipment",
+  "selectedHasDedicatedBuilderArm": true,
+  "verdict": "before_column"
+}
