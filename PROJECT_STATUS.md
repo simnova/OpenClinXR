@@ -119,7 +119,7 @@ reads as a see-through figure in every capture of that station.
 
 | Area | Next slice | Template | Role lead |
 |------|------------|----------|-----------|
-| GitHub Pages | **Done 2026-08-10.** Hero swapped, false garment section removed, `pages:validate` now checks the property (hero resolves to a real on-disk asset) instead of pinning a filename. Remaining: restore a clothing section once a capture supports the claim — blocked on #272. | — | productivity-skeptic / xr-systems-architect |
+| GitHub Pages | **Partly done 2026-08-10.** Hero swapped, false garment section removed, `pages:validate` now checks the property (hero resolves to a real on-disk asset) instead of pinning a filename. **Two verified follow-ups, both needing a capture and therefore a free lane:** (a) the hero PNG was published 10:33 and three equipment fixes landed after it — #260 13:09 preserve the composite stand, #266 13:32 fit footprints to declared envelopes, #268 14:01 uniform not per-axis scale — so it predates its own subject and understates the current runtime; (b) restore a clothing section once a graded capture supports the claim — #277 fixed the legs, #279 is closing the hm08 scalp-hair gap. | — | productivity-skeptic / xr-systems-architect |
 | UI-XR evidence | `peds-evidence-loop` | peds-evidence-loop | xr-systems-architect |
 | Asset factory | ED seed humanoid from case def | — | asset-pipeline-lead |
 | Encounter authoring | Scenario bank review packet loop | — | implementation-planning-lead |
