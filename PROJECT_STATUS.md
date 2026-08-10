@@ -184,6 +184,37 @@ residential sampler with no clinical station addressing, independent of its 86x 
    `operator-open-questions.md` — an authoring-time Blender addon is not the same as shipped code,
    but that distinction is the operator's to make, not mine.
 
+6. **Orchestration review 2026-08-10 19:55 — adopted, with two of its premises corrected.**
+
+   **Root cause it named, which I had not:** the recurring proxy-metric failure (closure instead of
+   coverage; arm-depth ratio instead of face intrusion; coverage instead of poke-through) is not
+   metric incompetence. It is that I design an instrument from *reasoning about what it should
+   measure* rather than *running it against a population and reading what it actually measured*.
+   `scalp.maxZ / body.maxZ` would never have reached a contract if it had been printed against real
+   assets once — the denominator would have shown the arm.
+
+   **ADOPTED — the one removal:** *do not write a numeric threshold into a contract until the metric
+   has been run against the full asset population and the table published.* Where no table exists,
+   the contract carries the predicate plus a `done_when` requiring the population table as a
+   gated pre-fix artifact; the threshold is then set **from the table**, not from my head.
+
+   **ADOPTED — split, do not delegate.** The orchestrator owns the *predicate* ("the garment covers
+   the body") — that is the irreducible job and cannot be delegated. The worker owns the
+   *instrument*: the measurement, a population table, and an explicit statement of what the
+   instrument cannot see. I grade the threshold from their evidence.
+
+   **Its verdict on direction:** the vertical-slice shape is right and was applied to the wrong
+   subject — instruments verify generators; the dark factory needs generators. The next vertical
+   should **produce a generated scene, not a verified measurement**: one case definition going
+   phenotype -> body -> garment -> rig -> place -> render with no LLM-authored code in the loop,
+   with every station that still needs one becoming a named, sized gap.
+
+   **Two of its factual premises were stale and are corrected here (it read this file, not the
+   tree):** "0 MPFB2 runtime actors" is false — `humanoid-runtime-asset-url.ts:152` resolves
+   `patient_aisha_khan_v1` to the MPFB asset, cast by #263 and measured live at 36,972 skinned
+   triangles. "3 of 36 parametric equipment ids" predates #256, which landed **35 reference packs**
+   the same day. The remaining equipment gap is packs -> bakes, not packs.
+
 5. **Consume the instruments before building more (2026-08-10).** The periodic orchestration review
    found 1 of 6 recent landings changed anything a learner sees; the other five were instruments or
    environment repair. Several are now proven and under-consumed: hm08 produces phenotype-distinct
