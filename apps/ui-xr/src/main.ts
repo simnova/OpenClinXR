@@ -49,6 +49,7 @@ import {
   buildGltfEquipmentPlaceholderSlot,
   collectDeclaredEquipmentEvidenceFromScene,
   countEquipmentGeometry,
+  normalizeGltfEquipmentMount,
   planStationEquipmentMounts,
   REAL_EQUIPMENT_GLTF_BY_ID,
   stampRoomPropAliasesOnEquipmentRoot,
@@ -9480,7 +9481,7 @@ function loadGeneratedEquipmentIntoSceneSlot(
       for (const child of primitiveFallbackChildren) {
         child.visible = false;
       }
-      sceneSlot.add(equipment);
+      sceneSlot.add(normalizeGltfEquipmentMount(equipment, sceneSlot));
       sceneSlot.userData.openClinXrEquipmentSource = "gltf";
       if (window.__openClinXrEnvironmentStateEvidence) {
         applyRuntimeEquipmentTraceVisuals(window.__openClinXrEnvironmentStateEvidence);
