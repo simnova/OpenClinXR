@@ -107,6 +107,11 @@ const KNOWN_SUBJECTS: SubjectEntry[] = [
     displayName: "IV pole equipment",
     frontImageRel: "iv_pole_equipment/front.png",
   },
+  {
+    subjectId: "o2-port",
+    displayName: "wall oxygen port equipment",
+    frontImageRel: "oxygen_wall_port_equipment/front.png",
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -162,7 +167,7 @@ USAGE
   pnpm factory:trellis:bake:validate                    Alias for --validate-latest
 
 SUBJECTS
-  wall-clock, bedside-monitor, ecg-cart, iv-pole  (#232 packs + #262 parametric-render pack)
+  wall-clock, bedside-monitor, ecg-cart, iv-pole, o2-port  (#232 packs + #262/#267 parametric-render packs)
 
 ISOLATION
   Each subject runs in a fresh OS subprocess via run_bake_isolated.py (#237).
