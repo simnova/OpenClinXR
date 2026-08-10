@@ -66,10 +66,20 @@ export type MountedEquipment = {
    * #258 — world-space AABB of the mounted root's VISIBLE geometry (hidden
    * placeholder/nameplate/affordance meshes excluded). Triangle counts prove
    * geometry reached the scene; these prove WHERE it landed. Consumed by the
-   * placement-envelope contract in declared-equipment-mounted.test.ts.
+   * placement-envelope contract in declared-equipment-mounted.test.ts. This is
+   * the UNION of the mount and any parametric stand (the stand is what reaches
+   * the floor plane the #258 placement contract checks).
    */
   worldAabbMin?: { x: number; y: number; z: number };
   worldAabbMax?: { x: number; y: number; z: number };
+  /**
+   * #268 — live world-space AABB of the mounted root's GLB BODY only, EXCLUDING
+   * the parametric stand (a ".stand"-named group under the slot). The aspect
+   * contract asserts on this extent; for ids without a stand it equals
+   * worldAabbMin/Max.
+   */
+  worldBodyAabbMin?: { x: number; y: number; z: number };
+  worldBodyAabbMax?: { x: number; y: number; z: number };
   /** #258 — the mount node's world translation (the outermost tagged root). */
   mountNodeWorldPosition?: { x: number; y: number; z: number };
 };
@@ -667,13 +677,30 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
 
     // #258 — world AABB of the VISIBLE geometry under a mount root. Manual 4x4
     // transform of each POSITION by matrixWorld (no THREE global on window).
-    function computeWorldBounds(object) {
+    // #268 — a SECOND pass excludes the parametric STAND (a ".stand"-named
+    // group under the slot, e.g. openclinxr.equipment.bedside_monitor_equipment.
+    // stand): the aspect contract asserts on the gltf BODY, and the stand is
+    // separate parametric geometry that would otherwise widen the bounds and
+    // mask the body's aspect (measured: union width 0.28 from the stand base
+    // vs body 0.22 post-fix). worldAabbMin/Max stays the UNION (the #258
+    // placement-envelope contract needs the stand to reach the floor plane);
+    // worldBodyAabbMin/Max is the body-only extent for the #268 aspect contract.
+    function hasStandAncestor(object) {
+      let p = object.parent;
+      while (p) {
+        if (typeof p.name === "string" && p.name.endsWith(".stand")) return true;
+        p = p.parent;
+      }
+      return false;
+    }
+    function computeWorldBounds(object, skipStand) {
       try { object.updateWorldMatrix(true, true); } catch (e) {}
       let min = [Infinity, Infinity, Infinity];
       let max = [-Infinity, -Infinity, -Infinity];
       let found = false;
       object.traverse(function (o) {
         if (!o || !o.isMesh || !o.geometry || !isVisibleInTree(o)) return;
+        if (skipStand && hasStandAncestor(o)) return;
         const attr = o.geometry.attributes && o.geometry.attributes.position;
         if (!attr || !attr.array || !attr.count) return;
         const m = o.matrixWorld && o.matrixWorld.elements;
@@ -733,7 +760,8 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
         }
         if (ancestorHas) return;
         const counts = countGeometry(object);
-        const bounds = computeWorldBounds(object);
+        const bounds = computeWorldBounds(object, false);
+        const bodyBounds = computeWorldBounds(object, true);
         const mountPosition = worldPositionOf(object);
         const ud = object.userData || {};
         let source = "fallback";
@@ -755,6 +783,8 @@ export async function readLiveEquipmentFromPage(page: Page): Promise<{
               meshCount: counts.meshCount,
               worldAabbMin: bounds ? bounds.min : undefined,
               worldAabbMax: bounds ? bounds.max : undefined,
+              worldBodyAabbMin: bodyBounds ? bodyBounds.min : undefined,
+              worldBodyAabbMax: bodyBounds ? bodyBounds.max : undefined,
               mountNodeWorldPosition: mountPosition,
             };
           }

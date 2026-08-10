@@ -90,8 +90,11 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
     const standTop = standBounds.max.y;
     expect(standTop).toBeCloseTo(0.975, 3); // pole top (measured pre-fix)
 
-    // The GLB body rests its base on the stand top — NOT on the floor.
-    const bodyWorldMinY = box.matrixWorld.elements[13] - 0.4;
+    // The GLB body rests its base on the stand top — NOT on the floor. The
+    // #268 uniform fit scales Y too (0.22), so the box's world half-height is
+    // 0.4 × scaleY, and min-Y = centerY − scaled half-height = stand top.
+    const scaledHalfHeight = 0.4 * box.matrixWorld.elements[5];
+    const bodyWorldMinY = box.matrixWorld.elements[13] - scaledHalfHeight;
     expect(bodyWorldMinY).toBeCloseTo(standTop, 3);
     // The whole mount stays anchored at the floor (the #258 envelope contract
     // requires the declared placement y=0 to lie inside the mount's world AABB).
@@ -128,12 +131,17 @@ describe("gltf equipment hybrid stand mount (#260)", () => {
   });
 });
 
-describe("gltf equipment footprint fit (#266)", () => {
-  it("fits a unit-normalized floor GLB's footprint to its declared composite envelope", () => {
+describe("gltf equipment footprint fit (#266 / #268)", () => {
+  it("fits a unit-normalized floor GLB's footprint to its declared composite envelope, UNIFORMLY", () => {
     // #266 — the bake pipeline unit-normalizes generated GLBs to ±0.5 on x/z
     // (bedside-monitor-generated.glb spans 1.00 m wide), while the placement
     // descriptor was authored against the parametric composite it replaced
     // (0.38 m wide × 0.22 m deep). A floor mount must scale to fit.
+    // #268 — the factor is a SINGLE value on all three axes (the largest that
+    // keeps the mesh inside the envelope), so aspect is preserved. Per-axis
+    // scaling squashed the landscape monitor (source 1.00×0.81) into portrait
+    // (0.38×0.81) — issue-268/pre-fix.json measured a 0.828 relative aspect
+    // deviation. Uniform fit: 0.22 on every axis, aspect 1.25 before and after.
     const slot = new Group();
     slot.position.set(0.95, 0, 0.98);
     slot.userData.openClinXrEquipmentId = "bedside_monitor_equipment";
@@ -146,11 +154,22 @@ describe("gltf equipment footprint fit (#266)", () => {
     slot.add(equipment);
     slot.updateMatrixWorld(true);
 
-    // Composite envelope x/z spans (measured): 0.38 × 0.22.
-    expect(box.matrixWorld.elements[0]).toBeCloseTo(0.38, 3);
-    expect(box.matrixWorld.elements[10]).toBeCloseTo(0.22, 3);
-    // Y scale untouched: the vertical envelope is the #258/#260 contracts' job.
-    expect(box.matrixWorld.elements[5]).toBeCloseTo(1, 3);
+    // Composite envelope x/z spans (measured): 0.38 × 0.22 → uniform 0.22.
+    const UNIFORM = 0.22;
+    expect(box.matrixWorld.elements[0]).toBeCloseTo(UNIFORM, 3);
+    expect(box.matrixWorld.elements[5]).toBeCloseTo(UNIFORM, 3);
+    expect(box.matrixWorld.elements[10]).toBeCloseTo(UNIFORM, 3);
+    // Aspect preserved: world W/H equals source W/H (1.0/0.8). The world
+    // extent is geometry width × scaleX over geometry height × scaleY.
+    const worldW = 1.0 * box.matrixWorld.elements[0];
+    const worldH = 0.8 * box.matrixWorld.elements[5];
+    expect(worldW / worldH).toBeCloseTo(1.0 / 0.8, 5);
+    // The #268 fit userData records a single scale factor, not per-axis ones.
+    const fit = equipment.userData.openClinXrEquipmentFootprintFit as
+      { scale?: number; scaleX?: number; scaleZ?: number };
+    expect(fit.scale).toBeCloseTo(UNIFORM, 3);
+    expect(fit.scaleX).toBeUndefined();
+    expect(fit.scaleZ).toBeUndefined();
     // The hybrid stand is still added and the body still rests on its top.
     const standGroup = slot.children.find(
       (child) => child.name === "openclinxr.equipment.bedside_monitor_equipment.stand",

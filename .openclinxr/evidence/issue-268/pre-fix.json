@@ -1,0 +1,154 @@
+{
+  "schemaVersion": "openclinxr.equipment-aspect-preservation.v1",
+  "kind": "equipment_aspect_preservation",
+  "label": "pre-fix",
+  "generatedAt": "2026-08-10T17:56:32.920Z",
+  "rows": [
+    {
+      "equipmentId": "ecg_cart_equipment",
+      "localMin": {
+        "x": -0.235,
+        "y": 0,
+        "z": -0.175
+      },
+      "localMax": {
+        "x": 0.26,
+        "y": 0.79,
+        "z": 0.23
+      },
+      "sourceAspect": 0.627,
+      "envelope": null,
+      "mountedMin": {
+        "x": -1.785,
+        "y": 0.055,
+        "z": -1.025
+      },
+      "mountedMax": {
+        "x": -1.29,
+        "y": 0.845,
+        "z": -0.62
+      },
+      "mountedAspect": 0.627,
+      "relativeAspectDeviation": 0,
+      "control": false
+    },
+    {
+      "equipmentId": "iv_stand_equipment",
+      "localMin": {
+        "x": -0.32,
+        "y": 0.042,
+        "z": -0.32
+      },
+      "localMax": {
+        "x": 0.32,
+        "y": 1.892,
+        "z": 0.32
+      },
+      "sourceAspect": 0.346,
+      "envelope": null,
+      "mountedMin": {
+        "x": -2.47,
+        "y": 0.097,
+        "z": 0.23
+      },
+      "mountedMax": {
+        "x": -1.83,
+        "y": 1.947,
+        "z": 0.87
+      },
+      "mountedAspect": 0.346,
+      "relativeAspectDeviation": 0,
+      "control": false
+    },
+    {
+      "equipmentId": "wall_clock_equipment",
+      "localMin": {
+        "x": -0.5,
+        "y": -0.465,
+        "z": -0.031
+      },
+      "localMax": {
+        "x": 0.5,
+        "y": 0.464,
+        "z": 0.031
+      },
+      "sourceAspect": 1.076,
+      "envelope": {
+        "min": {
+          "x": -0.18,
+          "y": -0.18,
+          "z": -0.025
+        },
+        "max": {
+          "x": 0.18,
+          "y": 0.18,
+          "z": 0.041
+        }
+      },
+      "mountedMin": {
+        "x": -2.9,
+        "y": 1.085,
+        "z": -1.181
+      },
+      "mountedMax": {
+        "x": -1.9,
+        "y": 2.014,
+        "z": -1.119
+      },
+      "mountedAspect": 1.076,
+      "relativeAspectDeviation": 0,
+      "control": true
+    },
+    {
+      "equipmentId": "bedside_monitor_equipment",
+      "localMin": {
+        "x": -0.5,
+        "y": -0.403,
+        "z": -0.5
+      },
+      "localMax": {
+        "x": 0.5,
+        "y": 0.402,
+        "z": 0.5
+      },
+      "sourceAspect": 1.242,
+      "envelope": {
+        "min": {
+          "x": -0.19,
+          "y": 0,
+          "z": -0.11
+        },
+        "max": {
+          "x": 0.19,
+          "y": 1.19,
+          "z": 0.11
+        }
+      },
+      "mountedMin": {
+        "x": -1.74,
+        "y": 0.975,
+        "z": -0.96
+      },
+      "mountedMax": {
+        "x": -1.36,
+        "y": 1.78,
+        "z": -0.74
+      },
+      "mountedAspect": 0.472,
+      "relativeAspectDeviation": 0.62,
+      "control": false
+    }
+  ],
+  "claimScope": [
+    "gltf_file_local_aabb",
+    "live_scene_mounted_world_aabb",
+    "parametric_composite_envelope",
+    "aspect_ratio_width_over_height"
+  ],
+  "notEvidenceFor": [
+    "clinical_correctness_of_equipment",
+    "quest_readiness",
+    "pixel_grading",
+    "occlusion_free_scene"
+  ]
+}
