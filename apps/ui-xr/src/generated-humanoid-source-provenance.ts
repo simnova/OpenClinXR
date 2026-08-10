@@ -43,6 +43,27 @@ export function generatedHumanoidSourceProvenance(
       provenanceManifestPath: assetPath.replace(/\.glb$/u, ".provenance.json"),
     };
   }
+  // #263: promoted MPFB2 cast under generated-humanoids/ (OB triage patient).
+  if (assetPath.startsWith("/generated-humanoids/mpfb-") && assetPath.endsWith(".glb")) {
+    return {
+      generatorMode: "candidate" as const,
+      sourceKind: "source_comparator_candidate" as const,
+      usesRealAnnyForwardPass: false,
+      realAnnyWeightsUsed: false,
+      textureMode: "procedural_fallback" as const,
+      animationMode: "procedural_clinical_idle_conversation_posture_fallback" as const,
+      realismGrade: "not_graded" as const,
+      provenanceManifestPath: assetPath.replace(/\.glb$/u, ".provenance.json"),
+      notEvidenceFor: [
+        "b_plus_visual_realism_gate",
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity",
+        "scoring_validity",
+        "material_class_parity_with_anny_rail",
+      ],
+    };
+  }
   if (assetPath.includes("/cagematch/anny-mpfb2-eye-rig/")) {
     return {
       ...realAnnyCandidate,

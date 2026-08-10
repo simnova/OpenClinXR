@@ -34,6 +34,8 @@ export const ADULT_STATURE_FLOOR_METERS = 1.5;
 
 export const ED_CHEST_PAIN_SCENARIO_ID = "ed_chest_pain_priority_v1";
 export const PEDS_ASTHMA_SCENARIO_ID = "peds_asthma_parent_anxiety_v1";
+/** #263 — the OB triage station whose patient is the first promoted MPFB2 cast. */
+export const OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID = "ob_headache_preeclampsia_triage_v1";
 
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 const RUNTIME_GENERATED = "/generated-humanoids";
@@ -64,6 +66,13 @@ export const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
  * Rejected adult_heavy_male for this slot (male body class on female actor id).
  */
 export const LIBRARY_ADULT_LEAN_FEMALE_GLB = "body-param-adult_lean_female-library.glb";
+/**
+ * #263 — first promoted MPFB2 humanoid cast (OB triage patient Aisha Khan).
+ * Byte-identical promote of the tracked candidates/ comparator to the runtime
+ * cast path generated-humanoids/. MPFB rail is first-class per D11 (standard
+ * rig, face shape keys, MakeHuman wardrobe); the humans freeze was Anny-only.
+ */
+export const MPFB_OB_PATIENT_AISHA_GLB = "mpfb-ob-patient-aisha.glb";
 
 /** Adult pool only — never includes the child mesh. Order is role-preference default. */
 const ADULT_POOL_GLBS = [
@@ -361,6 +370,33 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         role: "nurse",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
         glbFile: PEDS_NURSE_GLB,
+      }),
+    ];
+  }
+
+  // #263: OB triage patient is the first promoted MPFB2 cast. Nurse and partner
+  // keep the exact pool assignments this station had before the promotion
+  // (nurse → ed_chest_pain_nurse_adult, family → ed_chest_pain_spouse_adult)
+  // so within-scenario content-hash distinctness holds alongside the MPFB body.
+  if (scenarioId === OB_HEADACHE_PREECLAMPSIA_SCENARIO_ID) {
+    return [
+      castEntry({
+        actorId: "patient_aisha_khan_v1",
+        role: "patient",
+        scenarioId,
+        glbFile: MPFB_OB_PATIENT_AISHA_GLB,
+      }),
+      castEntry({
+        actorId: "ob_nurse_williams_v1",
+        role: "nurse",
+        scenarioId,
+        glbFile: ED_NURSE_GLB,
+      }),
+      castEntry({
+        actorId: "partner_omar_khan_v1",
+        role: "family",
+        scenarioId,
+        glbFile: ED_SPOUSE_GLB,
       }),
     ];
   }

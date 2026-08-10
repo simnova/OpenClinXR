@@ -37,6 +37,14 @@
 - Runtime use: only through the explicit `humanoidSourceComparator=mpfb_ob_patient` comparison query flag for OB screenshot evaluation; not promoted as default runtime asset.
 - Claim boundary: comparator evidence only; not AAA humanoid realism, production readiness, Quest readiness, clinical validity, or scoring validity.
 
+## 2026-08-10 MPFB2 promoted to default cast (#263)
+
+- **CORRECTED PREMISE:** the entry above said "not promoted as default runtime asset" — that was true for the Anny rail's freeze, which never applied to MPFB. The MPFB rail is first-class per operator direction D11 (standard rig, face shape keys, MakeHuman wardrobe).
+- Promoted byte-identical copy of the candidate to `generated-humanoids/mpfb-ob-patient-aisha.glb` (SHA-256 `0bf0988dd8e18bb89dcec25a70072504575cae378ba3f9444c548f20daef8d3d`, 5,016,580 bytes) and wired the OB triage patient (`patient_aisha_khan_v1` in `ob_headache_preeclampsia_triage_v1`) as the first MPFB cast.
+- Provenance sidecar: `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json` (MPFB2 lineage, license not reverified, promotion gates false).
+- Known hazard #222: the MPFB and Anny rails render as different material classes in one room (0 textures / no hair vs 1 texture / scalp mesh). Reported; orchestrator grades the render and decides whether the mismatch blocks adoption.
+- Claim boundary: first MPFB2 cast promotion, not AAA humanoid realism, production readiness, Quest readiness, clinical validity, or scoring validity.
+
 ## 2026-05-27 CharMorph Antonia local comparator
 
 - Added non-promoted comparison candidate `candidates/charmorph-antonia-ob-patient-candidate.glb`.
