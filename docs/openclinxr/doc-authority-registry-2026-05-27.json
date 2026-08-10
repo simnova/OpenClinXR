@@ -11,7 +11,8 @@
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 36
+    "decision-record": 36,
+    "total": 427
   },
   "entries": [
     {
@@ -2995,6 +2996,15 @@
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
       "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md",
+      "authority": "reference",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction.",
+      "title": "TRELLIS multi-view Grok packs operator spec",
+      "summary": "Operator spec for multi-view Grok Imagine packs and factory:trellis:bake multi-image wiring."
     }
   ]
 }

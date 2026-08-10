@@ -9,16 +9,27 @@ Use the smallest model that can complete the delegated task without lowering rev
 | Tier | OpenAI default | Grok harness | Codex Desktop | Reasoning | Use |
 | --- | --- | --- | --- | --- | --- |
 | `fast_bounded` | `gpt-5.4-mini` | `deepseek-v4-flash` | `gpt-5.4-mini` | `low` | Read-only scouting, narrow gap checks, quick sidecar review, and nonblocking context collection. |
-| `standard_execution` | `gpt-5.4` | `deepseek-v4-pro` | `gpt-5.4` | `medium` | Bounded implementation or documentation slices with clear ownership and ordinary integration risk. |
-| `expert_review` | `gpt-5.4` | `deepseek-v4-pro` | `gpt-5.4` | `high` | Clinical, legal, psychometric, security, architecture, or QA review that needs specialist depth. |
+| `standard_execution` | `gpt-5.4` | `deepseek-v4-flash` | `gpt-5.4` | `medium` | Bounded implementation or documentation slices with clear ownership and ordinary integration risk. |
+| `expert_review` | `gpt-5.4` | `deepseek-v4-flash` (escalate `deepseek-v4-pro` if UNABLE) | `gpt-5.4` | `high` | Clinical, legal, psychometric, security, architecture, or QA review that needs specialist depth. |
 | `frontier_thinking` | `gpt-5.5` | `grok-build` | `gpt-5.5` | `high` or `xhigh` | Cross-domain adversarial review, leadership preflight, and final synthesis. Reserve `xhigh` for hard thinking, not routine execution. |
+
+## DeepSeek V4 flash-first (amended 2026-08-10)
+
+Measured public line (DeepSeek official + third-party agent benches, late Jul 2026):
+
+- **V4-Flash-0731** re-post-train (architecture/size same as Flash-preview) **outperformed V4-Pro-Preview** on Terminal Bench 2.1 (**82.7 vs 72.1**) and other agentic coding benches, at roughly **$0.14 / $0.28 per 1M** input/output (cache-hit input much lower).
+- Pro remains available as an **escalation** when flash emits `UNABLE:` on domain-depth work (clinical wording, long legal synthesis), not the default for Grok general-purpose.
+- **Both flash and pro are text-only** in this harness — they reject `image_url` multimodal content. Vision / Imagine / pixel grade stays on Grok models (`grok-4.5`, `image_gen`).
+
+Repo defaults after this amendment: Grok `standard_execution` and `expert_review` tiers use **`deepseek-v4-flash`**. Keep USER `~/.grok/config.toml` `[subagents.models]` aligned (`general-purpose = "deepseek-v4-flash"`; `plan` may stay pro-anthropic if preferred for sequencing).
 
 ## Harness Notes
 
 ### Grok
 
-- Prefer direct DeepSeek (`deepseek-v4-flash` for scouts, `deepseek-v4-pro` for implementation/review) when the API key/env is available.
-- Use `grok-build` for frontier leadership/adversarial synthesis.
+- Prefer direct DeepSeek **`deepseek-v4-flash` first** for scouts **and** bounded implementation/review when the API key/env is available.
+- Escalate to `deepseek-v4-pro` only on explicit UNABLE / domain-depth failure — do not default every write worker to Pro for cost reasons.
+- Use `grok-build` for frontier leadership/adversarial synthesis; use Grok multimodal for images.
 - Do **not** route Grok subagents through Moonbridge when direct DeepSeek is available.
 
 ### Codex Desktop

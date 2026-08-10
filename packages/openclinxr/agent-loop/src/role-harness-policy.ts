@@ -162,14 +162,14 @@ const tierDefaults: Record<
   standard_execution: {
     taskType: "implementation_worker",
     openai: { model: "gpt-5.4", reasoningEffort: "medium" },
-    grok: { model: "deepseek-v4-pro", reasoningEffort: "medium" },
+    grok: { model: "deepseek-v4-flash", reasoningEffort: "medium" },
     codex: { model: "gpt-5.4", reasoningEffort: "medium" },
     moonbridgeAssistOnCodex: false,
   },
   expert_review: {
     taskType: "specialist_review",
     openai: { model: "gpt-5.4", reasoningEffort: "high" },
-    grok: { model: "deepseek-v4-pro", reasoningEffort: "high" },
+    grok: { model: "deepseek-v4-flash", reasoningEffort: "high" },
     codex: { model: "gpt-5.4", reasoningEffort: "high" },
     moonbridgeAssistOnCodex: true,
   },

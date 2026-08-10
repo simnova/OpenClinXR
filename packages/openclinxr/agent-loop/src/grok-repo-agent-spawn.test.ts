@@ -26,14 +26,14 @@ describe("grok repo agent spawn", () => {
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-only");
   });
 
-  it("maps asset-pipeline-lead to general-purpose pro", () => {
+  it("maps asset-pipeline-lead to general-purpose flash (2026-08-10 flash-first)", () => {
     const spec = buildGrokRepoAgentSpawnSpec({
       roleId: "asset-pipeline-lead",
       roleDir: "agents/core/asset-pipeline-lead",
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-pro");
+    expect(spec.model).toBe("deepseek-v4-flash");
     expect(spec.spawnSubagentCall?.capability_mode).toBe("read-write");
   });
 
@@ -106,7 +106,7 @@ describe("grok repo agent spawn", () => {
       group: "core",
     });
     expect(spec.grokSubagentType).toBe("general-purpose");
-    expect(spec.model).toBe("deepseek-v4-pro");
+    expect(spec.model).toBe("deepseek-v4-flash");
     expect(spec.isolation).toBe("worktree");
     expect(spec.safeguards.some((s) => s.includes("general-purpose"))).toBe(true);
     expect(spec.spawnPrompt).toContain("COMPOSITION-ROOTS");

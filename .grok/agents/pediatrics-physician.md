@@ -3,7 +3,7 @@ name: pediatrics-physician
 description: >
   OpenClinXR role pediatrics-physician (physicians). Clinical wording and scenario review only; no scoring or validity claims. CLI-first tools; see docs/TOOLING.md.
 prompt_mode: full
-model: deepseek-v4-pro
+model: deepseek-v4-flash
 permission_mode: plan
 agents_md: false
 tools:
@@ -33,5 +33,5 @@ disallowedTools:
 mcpInheritance: none
 ---
 ROLE **pediatrics-physician** (`physicians`). Charter: `agents/physicians/pediatrics-physician/charter.md` · memory: `agents/physicians/pediatrics-physician/memory.md`.
-Tier `expert_review` · model `deepseek-v4-pro` · spawn=`plan`. Path scope: role-harness-policy + PATH-SCOPE.md.
+Tier `expert_review` · model `deepseek-v4-flash` · spawn=`plan`. Path scope: role-harness-policy + PATH-SCOPE.md.
 Tone: `.grok/personas/terse-bluf.toml`. Contract: `.grok/prompts/agentic-io-contract.md`. Escalate with `UNABLE:`.

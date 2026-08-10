@@ -51,11 +51,47 @@ describe("factory TRELLIS bake CLI (#238)", () => {
     const plan = JSON.parse(dry.includes("{") ? dry.slice(dry.indexOf("{")) : dry) as {
       processIsolation?: string;
       subjectId?: string;
+      viewCount?: number;
+      inputImagePaths?: string[];
+      conditioning?: string;
     };
     expect(plan.subjectId).toBe("wall-clock");
     expect(String(plan.processIsolation || dry).toLowerCase()).toMatch(
       /fresh_subprocess|subprocess|isolated/,
     );
+    // Multi-view plan fields (2026-08-10): always present; viewCount ≥ 0
+    expect(typeof plan.viewCount).toBe("number");
+    expect(Array.isArray(plan.inputImagePaths)).toBe(true);
+    expect(["single-view", "multi-view", "no-images"]).toContain(plan.conditioning);
+  }, 120_000);
+
+  it("dry-run multi-view pack resolves viewCount ≥ 2 when four pack files exist", () => {
+    // Fixture under tools (tracked) so CI/worktrees without gitignored issue-232 packs still prove multi-view resolution
+    const fixtureRoot = join(ROOT, "tools/openclinxr/asset-pipeline/trellis/fixtures/multi-view-pack");
+    const dry = execFileSync(
+      "pnpm",
+      [
+        "exec",
+        "tsx",
+        "tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts",
+        "--subject",
+        "ecg-cart",
+        "--dry-run",
+      ],
+      {
+        encoding: "utf8",
+        cwd: ROOT,
+        env: { ...process.env, OPENCLINXR_TRELLIS_PACKS: fixtureRoot },
+      },
+    );
+    const plan = JSON.parse(dry.includes("{") ? dry.slice(dry.indexOf("{")) : dry) as {
+      viewCount?: number;
+      conditioning?: string;
+      inputImagePaths?: string[];
+    };
+    expect(plan.viewCount).toBeGreaterThanOrEqual(2);
+    expect(plan.conditioning).toBe("multi-view");
+    expect((plan.inputImagePaths ?? []).length).toBe(plan.viewCount);
   }, 120_000);
 
   it("validate-latest reads a bake report without GPU (COUNTERWEIGHT)", () => {

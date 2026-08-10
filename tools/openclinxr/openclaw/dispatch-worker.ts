@@ -543,7 +543,8 @@ export function assertProofShape(proofs: readonly string[]): void {
 export function buildArgv(options: DispatchOptions): string[] {
   const argv = ["-p", options.prompt];
   if (options.resume) argv.push("--resume", options.resume);
-  argv.push("--model", options.model ?? "deepseek-v4-pro");
+  // 2026-08-10 flash-first default (V4-Flash-0731 agentic bench lead); override with options.model
+  argv.push("--model", options.model ?? "deepseek-v4-flash");
   argv.push("--always-approve");
   // streaming-json emits a usage event per turn — the only way to see a stall while the worker is
   // still alive. Plain json yields aggregates only, i.e. you learn about the death afterwards.
@@ -1054,10 +1055,10 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // ISSUE #242: tell the worker it is text-only so a denied image Read is understood rather than
   // puzzled over. The Read denies appended to argv below are the enforcement; this is worker
   // comprehension only.
-  if (isTextOnlyModel(effective.model ?? "deepseek-v4-pro")) {
+  if (isTextOnlyModel(effective.model ?? "deepseek-v4-flash")) {
     effective = {
       ...effective,
-      prompt: `${effective.prompt}${buildTextOnlyVisionPromptAppendix(effective.model ?? "deepseek-v4-pro")}`,
+      prompt: `${effective.prompt}${buildTextOnlyVisionPromptAppendix(effective.model ?? "deepseek-v4-flash")}`,
     };
   }
 
@@ -1067,8 +1068,8 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
   // hard 400 on the turn after the read (measured: 113,449 input tokens, exit 1, no sessionId).
   // Deny the Read tool on image/video extensions mechanically, before spawn, for every text-only
   // dispatch — regardless of what the prompt or proofs say. Denied reads are survivable; the 400
-  // is not. Must run even when the model is the implicit default (deepseek-v4-pro).
-  const effectiveModel = effective.model ?? "deepseek-v4-pro";
+  // is not. Must run even when the model is the implicit default (deepseek-v4-flash).
+  const effectiveModel = effective.model ?? "deepseek-v4-flash";
   if (isTextOnlyModel(effectiveModel)) {
     argv.push(...buildTextOnlyVisionDenies().flatMap((rule) => ["--deny", rule]));
   }
@@ -1105,7 +1106,7 @@ export async function dispatch(repoRoot: string, options: DispatchOptions): Prom
     sessionId: parsed.sessionId,
     ...(options.slice ? { slice: options.slice } : {}),
     ...(options.role ? { role: options.role } : {}),
-    model: options.model ?? "deepseek-v4-pro",
+    model: options.model ?? "deepseek-v4-flash",
     ...(parsed.turns !== undefined ? { turns: parsed.turns } : {}),
     ...(parsed.stopReason ? { stopReason: parsed.stopReason } : {}),
     ...(options.resume ? { resumedFrom: options.resume } : {}),

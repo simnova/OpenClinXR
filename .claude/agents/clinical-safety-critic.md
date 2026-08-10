@@ -12,11 +12,11 @@ OpenClaw-style file-backed workflow (not an external OpenClaw runtime). Target: 
 
 ## Grok spawn spec (from role-harness-policy)
 
-- clinical-safety-critic: spawn_subagent plan (read-only) model=deepseek-v4-pro — expert_review
+- clinical-safety-critic: spawn_subagent plan (read-only) model=deepseek-v4-flash — expert_review
 - CLI: `pnpm grok:agent:spawn-spec -- --role clinical-safety-critic`
 - subagent_type: `plan`
 - capability_mode: `read-only`
-- model: `deepseek-v4-pro` (expert_review)
+- model: `deepseek-v4-flash` (expert_review)
 
 Build full spawn prompts at runtime via spawn-spec — do not embed fat seeds here.
 

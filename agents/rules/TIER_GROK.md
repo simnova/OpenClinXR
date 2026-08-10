@@ -17,7 +17,7 @@ Corrective notes only; **does not weaken** Q1/Q4/Q5 or the 6 protected blueprint
 | Claim | Proven status | Operational consequence |
 | --- | --- | --- |
 | `spawn_subagent` in headless `-p` | **WORKS** but **nondeterministic** (sometimes 3/3, sometimes 0) | Measure per invocation; detect spawns via streaming-json `tool_call` events — **not** `modelUsage` alone (false-negatives) |
-| Child model routing | **USER** `~/.grok/config.toml` `[subagents.models]` binds (e.g. `general-purpose = "deepseek-v4-pro"`) | **Project** `.grok/config.toml` does **not** merge `[subagents.models]` (only mcp/plugins/permission merge). Set cost routing in **user** config. Explicit spawn-time `model` overrides config. |
+| Child model routing | **USER** `~/.grok/config.toml` `[subagents.models]` binds (e.g. `general-purpose = "deepseek-v4-flash"` after 2026-08-10 flash-first) | **Project** `.grok/config.toml` does **not** merge `[subagents.models]` (only mcp/plugins/permission merge). Set cost routing in **user** config. Explicit spawn-time `model` overrides config. |
 | `capability_mode=read-only` | **DISPROVEN** as security boundary (child still wrote files) | Use structural gates: agent `disallowedTools` / CLI deny, `--cwd` isolation, `[permission] deny`, orchestrator intended-files review |
 | Project / worktree **Stop** (and other lifecycle) hooks in `-p` | **DO NOT FIRE** | Verify-before-ship via **task contract** + **orchestrator post-verify** — never depend on Stop hooks in headless workers |
 | Agent def frontmatter `tools` / `disallowedTools` | **BINDS** in `-p` | Keep structural fields; essay bodies are soft-bind token cost (trim) |
@@ -33,10 +33,12 @@ See: `agentic-eval/docs/CONFIDENCE.md`, `docs/findings/{personas,agent-defs,hook
 | --- | --- | --- | --- |
 | 0 | none (local) | `local_repo_agent_consult` | Zero-cost charter/memory consult |
 | 1 | `deepseek-v4-flash` | `spawn_subagent` **explore** (read-only) | Scout / coordinator consult |
-| 2 | `deepseek-v4-pro` | `spawn_subagent` **plan** (read-only) | Bounded analysis / sequencing |
-| 3 | `deepseek-v4-pro` | `spawn_subagent` **general-purpose** (read-write) | Disjoint bounded execution |
+| 2 | `deepseek-v4-flash` (or `deepseek-v4-pro` plan override) | `spawn_subagent` **plan** (read-only) | Bounded analysis / sequencing |
+| 3 | `deepseek-v4-flash` | `spawn_subagent` **general-purpose** (read-write) | Disjoint bounded execution (2026-08-10 flash-first) |
 | 4 | `grok-composer-*` | Composer main thread | Integration, lease, state files |
 | 5 | `grok-build` | Composer / frontier | Protected-claim or ambiguous synthesis |
+
+**Flash-first (2026-08-10):** V4-Flash-0731 re-post-train beats V4-Pro-Preview on Terminal Bench 2.1 (82.7 vs 72.1) at lower $/token. Default general-purpose to flash; escalate flash → pro → grok-build only on `UNABLE:`. Multimodal remains Grok-only (DeepSeek text-only).
 
 ## Critical surface rule
 

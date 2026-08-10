@@ -193,6 +193,17 @@ residential sampler with no clinical station addressing, independent of its 86x 
    The next verticals should make an existing station **produce something a learner sees**, not add a
    new instrument. An instrument is justified only when it names the product slice it unblocks.
 
+   **Measured 2026-08-10 19:26, ten landings later: 5 of the last 11 landings are learner-visible**
+   (#222 hair, #277 covered legs, #279 hm08 scalp, #278 distinct adult builds, #275 role-driven
+   garments), against **1 of 6** when this item was written. The remaining six are one enabling slice
+   (#256, 3 -> 38 equipment packs), two diagnoses (#276, #166), two instrument corrections (#282,
+   #284) and one tool consumption (#274). The change came from building a single vertical —
+   gate -> consume -> rail parity -> cast -> selection — rather than picking whichever defect had a
+   known file. **Next orchestration review (§10r) is queued for when that vertical closes**, so it
+   has a finished thing to assess rather than a mid-chain snapshot; my own errors to hand it are the
+   14%-coverage disjunction I approved in #272 and the anterior-ratio counterweight I designed wrong
+   in #279, both caught by workers rather than by me.
+
 **Human gate (optional future):** flip `runtimePromotionAllowed` only after BOD review of MADR 0030 + dual evidence — not autonomous.
 
 ## Per-Slice Checkpoints

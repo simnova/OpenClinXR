@@ -9,10 +9,16 @@
  * Each invocation spawns a **fresh OS subprocess** per subject — no shared
  * torch MPS context across subjects (the isolation guarantee from #237).
  *
+ * Multi-view (#255 + operator pack spec 2026-08-10): subject registry lists
+ * all pack views; liveBake/dry-run pass every existing PNG as repeated
+ * `--input-image`. run_bake_isolated.py concatenates embeddings when N>1.
+ * front.png remains first (canonical). Missing views are skipped; only-front
+ * packs stay single-view compatible.
+ *
  * --dry-run    prints JSON plan (no GPU)
  * --validate-latest  reads last bake report without re-baking (COUNTERWEIGHT)
  *
- * Header IMMUTABLE — append ## FIXED (#238).
+ * Header IMMUTABLE — append ## FIXED (#238). Multi-view append 2026-08-10.
  */
 
 import { execFileSync } from "node:child_process";
@@ -55,14 +61,25 @@ const RUN_BAKE_SCRIPT = path.join(
 );
 
 // ---------------------------------------------------------------------------
-// Subject registry — maps subject ids to input images
+// Subject registry — maps subject ids to multi-view pack paths
 // ---------------------------------------------------------------------------
+
+/** Preferred 4-view pack filenames (front first = canonical). */
+const STANDARD_VIEW_NAMES = [
+  "front.png",
+  "side.png",
+  "three_quarter_left.png",
+  "three_quarter_right.png",
+] as const;
 
 interface SubjectEntry {
   subjectId: string;
   displayName: string;
-  /** Relative path under the packs directory (or absolute fallback). */
-  frontImageRel: string;
+  /**
+   * Relative paths under the packs root. front.png must be first (canonical).
+   * liveBake/dry-run pass every path that exists; missing views are skipped.
+   */
+  viewRels: string[];
 }
 
 /**
@@ -86,31 +103,46 @@ function resolvePackPath(rel: string): string {
   );
 }
 
+/** Build standard 4-view rels for a pack folder name. */
+function packViewRels(folder: string): string[] {
+  return STANDARD_VIEW_NAMES.map((name) => `${folder}/${name}`);
+}
+
+/**
+ * Resolve existing pack images for a subject (absolute paths, front-first order).
+ * Filters out missing files so incomplete packs degrade to single-view.
+ */
+function resolveExistingViewPaths(entry: SubjectEntry): string[] {
+  return entry.viewRels
+    .map((rel) => resolvePackPath(rel))
+    .filter((p) => existsSync(p));
+}
+
 const KNOWN_SUBJECTS: SubjectEntry[] = [
   {
     subjectId: "wall-clock",
     displayName: "wall clinical / exam-room analog clock",
-    frontImageRel: "wall-clock/front.png",
+    viewRels: packViewRels("wall-clock"),
   },
   {
     subjectId: "bedside-monitor",
     displayName: "multi-parameter bedside monitor",
-    frontImageRel: "bedside-monitor/front.png",
+    viewRels: packViewRels("bedside-monitor"),
   },
   {
     subjectId: "ecg-cart",
     displayName: "12-lead ECG cart",
-    frontImageRel: "ecg-cart/front.png",
+    viewRels: packViewRels("ecg-cart"),
   },
   {
     subjectId: "iv-pole",
     displayName: "IV pole equipment",
-    frontImageRel: "iv_pole_equipment/front.png",
+    viewRels: packViewRels("iv_pole_equipment"),
   },
   {
     subjectId: "o2-port",
     displayName: "wall oxygen port equipment",
-    frontImageRel: "oxygen_wall_port_equipment/front.png",
+    viewRels: packViewRels("oxygen_wall_port_equipment"),
   },
 ];
 
@@ -122,7 +154,12 @@ interface DryRunPlan {
   subjectId: string;
   displayName: string;
   processIsolation: "fresh_subprocess";
-  inputImagePath: string;
+  /** Canonical front (first resolved view), for backward-compatible consumers. */
+  inputImagePath: string | null;
+  /** All resolved pack views (front first). Empty if no images on disk. */
+  inputImagePaths: string[];
+  viewCount: number;
+  conditioning: "single-view" | "multi-view" | "no-images";
   outputDir: string;
   venvPython: string;
   trellisRoot: string;
@@ -168,6 +205,12 @@ USAGE
 
 SUBJECTS
   wall-clock, bedside-monitor, ecg-cart, iv-pole, o2-port  (#232 packs + #262/#267 parametric-render packs)
+
+MULTI-VIEW
+  Pack layout under OPENCLINXR_TRELLIS_PACKS (default .openclinxr/evidence/issue-232/<subject>/):
+    front.png, side.png, three_quarter_left.png, three_quarter_right.png
+  All existing views are passed as repeated --input-image to run_bake_isolated.py.
+  N>1 → multi-view conditioning (sequence-concat embeddings, #255). Only front → single-view.
 
 ISOLATION
   Each subject runs in a fresh OS subprocess via run_bake_isolated.py (#237).
@@ -228,14 +271,19 @@ function dryRunPlan(subjectId: string): string {
     process.exit(2);
   }
 
-  const inputImagePath = resolvePackPath(entry.frontImageRel);
+  const inputImagePaths = resolveExistingViewPaths(entry);
+  const viewCount = inputImagePaths.length;
   const outputDir = path.join(trellisOutRoot(), subjectId);
 
   const plan: DryRunPlan = {
     subjectId: entry.subjectId,
     displayName: entry.displayName,
     processIsolation: "fresh_subprocess",
-    inputImagePath,
+    inputImagePath: inputImagePaths[0] ?? null,
+    inputImagePaths,
+    viewCount,
+    conditioning:
+      viewCount === 0 ? "no-images" : viewCount === 1 ? "single-view" : "multi-view",
     outputDir,
     venvPython: VENV_PYTHON,
     trellisRoot: TRELLIS_ROOT,
@@ -258,40 +306,64 @@ function liveBake(subjectId: string): void {
     process.exit(2);
   }
 
-  const inputImagePath = resolvePackPath(entry.frontImageRel);
+  const inputImagePaths = resolveExistingViewPaths(entry);
+  if (inputImagePaths.length === 0) {
+    process.stderr.write(
+      `No input images found for subject ${subjectId}. Expected pack under OPENCLINXR_TRELLIS_PACKS or .openclinxr/evidence/issue-232/${subjectId}/ with front.png (+ optional side / three_quarter_*).\n`,
+    );
+    process.exit(2);
+  }
+
+  if (inputImagePaths.length === 1) {
+    process.stdout.write(
+      `[factory:trellis:bake] ${subjectId}: only 1 view found — single-view bake\n`,
+    );
+  } else {
+    process.stdout.write(
+      `[factory:trellis:bake] ${subjectId}: ${inputImagePaths.length} views → multi-view conditioning\n`,
+    );
+  }
+
   const outputDir = path.join(trellisOutRoot(), subjectId);
   mkdirSync(outputDir, { recursive: true });
 
-  process.stdout.write(`[factory:trellis:bake] Starting ${subjectId} (fresh subprocess, isolation mode)...\n`);
+  process.stdout.write(
+    `[factory:trellis:bake] Starting ${subjectId} (fresh subprocess, isolation mode)...\n`,
+  );
+
+  const argv: string[] = [
+    RUN_BAKE_SCRIPT,
+    "--subject-id",
+    subjectId,
+    "--display-name",
+    entry.displayName,
+    "--output-dir",
+    outputDir,
+    "--weights-path",
+    WEIGHTS_PATH,
+    "--dinov3-path",
+    DINOV3_PATH,
+    "--trellis-root",
+    TRELLIS_ROOT,
+  ];
+  for (const img of inputImagePaths) {
+    argv.push("--input-image", img);
+  }
 
   const t0 = Date.now();
-  const result = execFileSync(
-    VENV_PYTHON,
-    [
-      RUN_BAKE_SCRIPT,
-      "--subject-id", subjectId,
-      "--display-name", entry.displayName,
-      "--input-image", inputImagePath,
-      "--output-dir", outputDir,
-      "--weights-path", WEIGHTS_PATH,
-      "--dinov3-path", DINOV3_PATH,
-      "--trellis-root", TRELLIS_ROOT,
-    ],
-    {
-      encoding: "utf8",
-      cwd: REPO_ROOT,
-      // #255 measured a 1-view bake at 1371.9s wall clock (shape gen 1231.6s +
-      // export 137.2s). The prior 600s cap killed every real bake; 3.6Ms (1h)
-      // leaves headroom while still failing fast on a wedged GPU process.
-      timeout: 3_600_000,
-      env: {
-        ...process.env,
-        PYTHONUNBUFFERED: "1",
-        PYTORCH_ENABLE_MPS_FALLBACK: "1",
-      },
-      maxBuffer: 10 * 1024 * 1024,
+  const result = execFileSync(VENV_PYTHON, argv, {
+    encoding: "utf8",
+    cwd: REPO_ROOT,
+    // #255 measured a 1-view bake at 1371.9s wall clock (shape gen 1231.6s +
+    // export 137.2s). Multi-view may run longer; 3.6Ms (1h) still fails fast on wedged GPU.
+    timeout: 3_600_000,
+    env: {
+      ...process.env,
+      PYTHONUNBUFFERED: "1",
+      PYTORCH_ENABLE_MPS_FALLBACK: "1",
     },
-  );
+    maxBuffer: 10 * 1024 * 1024,
+  });
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
 
   process.stdout.write(result);

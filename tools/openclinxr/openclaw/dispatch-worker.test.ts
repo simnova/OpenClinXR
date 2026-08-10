@@ -80,8 +80,8 @@ describe("dispatch-worker argv", () => {
     expect(buildArgv({ prompt: "x" })).toContain("json");
   });
 
-  it("defaults to the cheap model — frontier is opt-in per task", () => {
-    expect(buildArgv({ prompt: "x" })).toContain("deepseek-v4-pro");
+  it("defaults to flash-first model — frontier / pro are opt-in per task", () => {
+    expect(buildArgv({ prompt: "x" })).toContain("deepseek-v4-flash");
     expect(buildArgv({ prompt: "x", model: "grok-4.5" })).toContain("grok-4.5");
   });
 });
