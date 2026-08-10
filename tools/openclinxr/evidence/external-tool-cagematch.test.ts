@@ -87,6 +87,38 @@ import { describe, expect, it } from "vitest";
  *   /tmp/ocxr77_tools/infinigen-indoors /tmp/ocxr77_tools/infinigen-outputs
  */
 
+/**
+ * ## FIXED (#274) — Mesh2Motion probe dies on one Node/DOM line in three's GLTFLoader
+ *
+ * Re-measured on this machine (2026-08-10), worktree issue-274:
+ *
+ * The blocker was never the tool. The durable install exists and the rig loads; the probe died in
+ * three 0.185.0's GLTFLoader texture path because Node lacks browser globals:
+ *
+ *   ReferenceError: self is not defined
+ *     at GLTFParser.loadImageSource (GLTFLoader.js:3301)  const URL = self.URL || self.webkitURL;
+ *
+ * The rig (static/rigs/rig-human.glb) has no textures; the Anny humanoid being fitted ships one
+ * bufferView-embedded PNG (openclinxr_skin_micro_normal, 214738 bytes), so the failure surfaces on
+ * the fit, not on the rig load. The full path needs three shims, not one: self (self.URL),
+ * URL.createObjectURL/revokeObjectURL (Node's URL lacks them; the texture is a bufferView → blob
+ * → objectURL), and document.createElementNS (three falls back to TextureLoader/ImageLoader in
+ * Node because createImageBitmap is undefined, and ImageLoader builds an <img> element).
+ *
+ * Fix, scoped to the inline probe script only (the Infinigen probe is a separate bpy process and is
+ * untouched): shim those three surfaces; the img element is an EventTarget that fires 'load' when
+ * src is set. Texture pixels are NOT decoded — the probe is structural (claimScope unchanged).
+ * Verified: probe now completes with 66 joints (matches an independent @gltf-transform NodeIO parse
+ * of the same rig — same set, same count) and writes the report.
+ *
+ * Re-home (same shape as #271 for Infinigen): default install path is now
+ * ~/.openclinxr-tools/mesh2motion-app (was /tmp/ocxr77_tools/mesh2motion-app, which does not
+ * survive reboot — the failure class that wiped Infinigen and cost #271 a full dispatch).
+ * OPENCLINXR_MESH2MOTION_DIR remains the override.
+ *
+ * Remove installs: rm -rf ~/.openclinxr-tools/mesh2motion-app  (the /tmp path above no longer exists)
+ */
+
 const load = async () =>
   import("./external-tool-cagematch.js") as Promise<Record<string, unknown>>;
 

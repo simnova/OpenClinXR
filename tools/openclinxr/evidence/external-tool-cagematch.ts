@@ -10,7 +10,8 @@
  * animation quality after retarget, adoption into shipping pipeline.
  *
  * Install locations (operator machine — remove when done):
- *   Mesh2Motion: /tmp/ocxr77_tools/mesh2motion-app  (rm -rf …)
+ *   Mesh2Motion: ~/.openclinxr-tools/mesh2motion-app  (#274 re-home off /tmp — durable;
+ *                was /tmp/ocxr77_tools/mesh2motion-app, wiped on reboot; rm -rf)
  *   Infinigen:   ~/.openclinxr-tools/infinigen/{source,venv}  (#271 re-home off /tmp — durable;
  *                was /tmp/ocxr77_tools/infinigen-indoors + -venv, wiped on reboot; rm -rf both)
  *
@@ -45,7 +46,10 @@ const EVIDENCE_DIR = path.join(
 const REPORT_PATH = path.join(EVIDENCE_DIR, "cagematch-report.json");
 
 const MESH2MOTION_DIR =
-  process.env.OPENCLINXR_MESH2MOTION_DIR ?? "/tmp/ocxr77_tools/mesh2motion-app";
+  process.env.OPENCLINXR_MESH2MOTION_DIR ??
+  path.join(HOME, ".openclinxr-tools/mesh2motion-app");
+// #274: Mesh2Motion re-homed off /tmp to a durable path (was /tmp/ocxr77_tools/mesh2motion-app,
+// wiped on reboot — same failure class as #259/#271 Infinigen). Env var remains the override.
 // #271: Infinigen re-homed off /tmp to a durable path (was /tmp/ocxr77_tools/infinigen-indoors + -venv,
 // wiped on reboot — #259 cluster A). `source`/`venv` are now REAL directories under ~/.openclinxr-tools.
 const INFINIGEN_DIR =
@@ -239,6 +243,35 @@ import { join } from 'path';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+// #274: three's GLTFLoader texture path assumes a browser, but this runs in Node. The humanoid
+// GLB ships a bufferView-embedded PNG, so loadImageSource takes self.URL (line 3301), then
+// URL.createObjectURL(blob), then ImageLoader -> document.createElementNS('img'). Node lacks all
+// three. Shim the minimal surface the load path touches. Scoped to THIS probe script only — no
+// other loader in this file is affected (the Infinigen probe is a separate bpy process). Texture
+// pixels are NOT decoded; the structural probe never reads them (claimScope: structural only).
+globalThis.self = globalThis;
+if (typeof globalThis.URL.createObjectURL !== 'function') {
+  const _blobUrls = new Map();
+  globalThis.URL.createObjectURL = (blob) => { const url = 'blob:node/' + _blobUrls.size; _blobUrls.set(url, blob); return url; };
+  globalThis.URL.revokeObjectURL = (url) => { _blobUrls.delete(url); };
+}
+if (typeof globalThis.document === 'undefined') {
+  globalThis.document = {
+    createElementNS: () => {
+      const el = new EventTarget();
+      el.complete = false;
+      el.setAttribute = () => {};
+      el.removeAttribute = () => {};
+      let src;
+      Object.defineProperty(el, 'src', {
+        get: () => src,
+        set: (v) => { src = v; el.complete = true; setTimeout(() => el.dispatchEvent(new Event('load')), 0); },
+      });
+      return el;
+    },
+  };
+}
+
 const outDir = ${JSON.stringify(EVIDENCE_DIR)};
 const humanoidPath = ${JSON.stringify(humanoidGlb)};
 const rigPath = ${JSON.stringify(rigPath)};
@@ -303,6 +336,7 @@ const report = {
     method: 'git clone https://github.com/Mesh2Motion/mesh2motion-app.git + npm install',
     removeWith: 'rm -rf ' + mesh2Dir,
     license: 'MIT (code) / CC0 (art assets)',
+    note: 'Node/DOM shim applied for GLTFLoader texture path (self, URL.createObjectURL, document.createElementNS). Texture pixels not decoded — structural comparison only.',
   },
   input: { kind: 'mesh (GLB)', path: humanoidPath, note: 'Mesh2Motion accepts GLB/GLTF mesh, not image.' },
   skeleton: { boneCount: jointNames.length, jointNames, source: 'static/rigs/rig-human.glb' },

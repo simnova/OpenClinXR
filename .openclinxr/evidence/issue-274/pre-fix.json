@@ -1,0 +1,60 @@
+{
+  "slice": "issue-274",
+  "purpose": "pre-fix measurement for #274: Mesh2Motion probe dies on one Node/DOM line in three's GLTFLoader. Records install state, independent rig parse, and the exact probe failure — all measured BEFORE any product edit.",
+  "measuredAt": "2026-08-10",
+  "measuredWithCommit": "b99fc74e",
+  "install": {
+    "mesh2motionDir": "/Users/patrick/.openclinxr-tools/mesh2motion-app",
+    "exists": true,
+    "isGitClone": true,
+    "nodeModulesInstalled": true,
+    "threeVersion": "0.185.0",
+    "rigPath": "/Users/patrick/.openclinxr-tools/mesh2motion-app/static/rigs/rig-human.glb",
+    "rigBytes": 21184,
+    "defaultPathInCode": "/tmp/ocxr77_tools/mesh2motion-app (still the /tmp default — the durable ~/.openclinxr-tools path is not the default yet)"
+  },
+  "rigIndependentParse": {
+    "parser": "@gltf-transform/core NodeIO (independent of three.js)",
+    "jointCount": 66,
+    "jointNames": [
+      "root", "pelvis", "spine_01", "spine_02", "spine_03", "neck_01", "head", "head_leaf",
+      "clavicle_l", "upperarm_l", "lowerarm_l", "hand_l",
+      "index_01_l", "index_02_l", "index_03_l", "index_04_leaf_l",
+      "middle_01_l", "middle_02_l", "middle_03_l", "middle_04_leaf_l",
+      "pinky_01_l", "pinky_02_l", "pinky_03_l", "pinky_04_leaf_l",
+      "ring_01_l", "ring_02_l", "ring_03_l", "ring_04_leaf_l",
+      "thumb_01_l", "thumb_02_l", "thumb_03_l", "thumb_04_leaf_l",
+      "clavicle_r", "upperarm_r", "lowerarm_r", "hand_r",
+      "index_01_r", "index_02_r", "index_03_r", "index_04_leaf_r",
+      "middle_01_r", "middle_02_r", "middle_03_r", "middle_04_leaf_r",
+      "pinky_01_r", "pinky_02_r", "pinky_03_r", "pinky_04_leaf_r",
+      "ring_01_r", "ring_02_r", "ring_03_r", "ring_04_leaf_r",
+      "thumb_01_r", "thumb_02_r", "thumb_03_r", "thumb_04_leaf_r",
+      "thigh_l", "calf_l", "foot_l", "ball_l", "ball_leaf_l",
+      "thigh_r", "calf_r", "foot_r", "ball_r", "ball_leaf_r"
+    ],
+    "rigTextureCount": 0,
+    "note": "rig has no textures; the failure surfaces on the humanoid fit because the Anny bodies ship 1 bufferView-embedded PNG each (peds_patient_child.glb: openclinxr_skin_micro_normal, 214738 bytes, image/png, bufferView, not URI)."
+  },
+  "probeFailure": {
+    "command": "node --input-type=module --eval <probe script> with cwd = mesh2motionDir",
+    "exactError": "ReferenceError: self is not defined",
+    "stack": [
+      "at GLTFParser.loadImageSource (node_modules/three/examples/jsm/loaders/GLTFLoader.js:3301:15)",
+      "    const URL = self.URL || self.webkitURL;",
+      "at GLTFParser.loadTextureImage (GLTFLoader.js:3250:24)",
+      "at GLTFParser.loadTexture (GLTFLoader.js:3229:15)",
+      "at GLTFParser.assignTexture (GLTFLoader.js:3390:15)",
+      "at GLTFParser.loadMaterial (GLTFLoader.js:3639:25)"
+    ],
+    "reproducedOn": "2026-08-10, node v24.18.1, three 0.185.0 in the durable install",
+    "analysis": "three r185 in Node picks TextureLoader (typeof createImageBitmap === 'undefined'), whose ImageLoader calls createElementNS('img') via document — so self alone is not sufficient; the load path additionally needs URL.createObjectURL/revokeObjectURL (Node's URL lacks them; the humanoid texture is bufferView-embedded so blob->objectURL is taken) and a minimal document shim. Validated in a scratch repro (no product edit): shimming self + URL.createObjectURL + document.createElementNS returning an EventTarget img that fires 'load' lets the full probe complete with 66 bones and writes the probe report.",
+    "claimScope": "structural comparison only; texture pixels are not decoded (no rendering claim)",
+    "notEvidenceFor": ["animation quality after retarget", "production readiness", "quest readiness", "adoption into shipping pipeline"]
+  },
+  "cachedBlockedVerdict": {
+    "path": ".openclinxr/evidence/external-tool-cagematch/latest/mesh2motion-probe.json",
+    "presentInWorktree": false,
+    "note": "absent by design in this worktree (gitignored); the known trap (probe returns prior status:blocked before checking the install path) did not apply on this run."
+  }
+}
