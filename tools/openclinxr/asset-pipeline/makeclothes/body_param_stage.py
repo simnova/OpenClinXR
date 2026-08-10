@@ -1251,14 +1251,27 @@ def build_one_body_class(
     # construction), and accepted garments get a uniform outward cloth standoff so they
     # sit OUTSIDE the skin. Nothing here touches triangle counts (D9 / meshoptimizer).
     coverage_gate: dict = {"enabled": True, "upper": None, "lower": None, "note": ""}
-    body_verts = np.array([v.co for v in basemesh.data.vertices], dtype=float)
-    body_faces = np.array([p.vertices for p in basemesh.data.polygons], dtype=np.int64)
 
     def _numpy_mesh(obj: bpy.types.Object):
-        return (
-            np.array([v.co for v in obj.data.vertices], dtype=float),
-            np.array([p.vertices for p in obj.data.polygons], dtype=np.int64),
-        )
+        # Triangulate polygons: OBJ imports and the MPFB basemesh are quad/n-gon
+        # meshes (scrub shirt 4,692 quads = 9,384 tris; basemesh 13,378 quads =
+        # 26,756 tris), while the coverage predicate assumes triangle faces.
+        # Feeding raw polygons made the closed shirt read 13,400 boundary edges
+        # and garbled the raycast (issue-277, measured on the first gate run).
+        verts = np.array([v.co for v in obj.data.vertices], dtype=float)
+        faces: list[tuple[int, int, int]] = []
+        for p in obj.data.polygons:
+            iv = list(p.vertices)
+            if len(iv) == 3:
+                faces.append((int(iv[0]), int(iv[1]), int(iv[2])))
+            else:
+                # fan triangulation from vertex 0; preserves edge sharing so a
+                # closed quad shell still welds to 0 boundary edges.
+                for i in range(1, len(iv) - 1):
+                    faces.append((int(iv[0]), int(iv[i]), int(iv[i + 1])))
+        return verts, np.array(faces, dtype=np.int64)
+
+    body_verts, body_faces = _numpy_mesh(basemesh)
 
     def _mesh_from_numpy(name: str, verts, faces) -> bpy.types.Object:
         mesh = bpy.data.meshes.new(f"{name}_mesh")
@@ -1273,16 +1286,19 @@ def build_one_body_class(
         return obj
 
     # Upper garment: torso band = its own extent (the shirt is dense/closed and passes
-    # on closure; the coverage number is recorded, not tuned).
+    # on closure; the coverage number is recorded, not tuned). Band axis is Z: the stage
+    # scene is Z-up (height along Z) at gate time — the evidence module reads the exported
+    # Y-up GLB and uses Y for the same physical band (issue-277, measured).
     ugv, ugf = _numpy_mesh(garment)
     upper_rep = _gc.coverage_report(
         body_verts,
         body_faces,
         ugv,
         ugf,
-        float(garment_bounds["min"][1]) + 0.02,
-        float(garment_bounds["max"][1]) - 0.02,
+        float(garment_bounds["min"][2]) + 0.02,
+        float(garment_bounds["max"][2]) - 0.02,
         garment_label="upper",
+        height_axis=2,
     )
     if upper_rep["verdict"] == "does_not_cover":
         # A dense library upper garment passes on closure; firing here means the fit is
@@ -1296,16 +1312,17 @@ def build_one_body_class(
 
     if lower_garment is not None:
         lgv, lgf = _numpy_mesh(lower_garment)
-        hem_y = float(garment_bounds["min"][1])  # upper garment hem
-        ankle_y = float(body_bounds["min"][1]) + 0.10  # shoes/feet begin below
+        hem_z = float(garment_bounds["min"][2])  # upper garment hem (Z-up stage frame)
+        ankle_z = float(body_bounds["min"][2]) + 0.10  # shoes/feet begin below
         lower_rep = _gc.coverage_report(
             body_verts,
             body_faces,
             lgv,
             lgf,
-            ankle_y,
-            hem_y,
+            ankle_z,
+            hem_z,
             garment_label="lower",
+            height_axis=2,
         )
         if lower_rep["verdict"] == "does_not_cover":
             # Sparse/open library fit (issue-272: 392-tri cargo trouser). Replace with
@@ -1314,10 +1331,11 @@ def build_one_body_class(
             shell = _gc.build_cover_shell(
                 body_verts,
                 body_faces,
-                ankle_y,
-                hem_y,
+                ankle_z,
+                hem_z,
                 standoff=_gc.CLOTH_STANDOFF_M,
                 label=f"{lower_garment_prefix}_fallback_{body_class_id}",
+                height_axis=2,
             )
             fallback_obj = _mesh_from_numpy(
                 lower_mesh_name or f"{lower_garment_prefix}_fallback_{body_class_id}",
