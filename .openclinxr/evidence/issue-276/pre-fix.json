@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
+  "issue": 276,
+  "measuredAt": "2026-08-10T21:25:31.667Z",
+  "scanRoot": "apps/ui-xr/public/generated-humanoids",
+  "assets": [
+    {
+      "file": "adult_male_street_casual.glb",
+      "largestMeshName": "adult_male_street_casual.anny_base",
+      "triangles": 26692,
+      "vertices": 13876,
+      "heightMeters": 1.7599999904632568,
+      "bodySha256": "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+      "bodyClassKey": "13876|26692|1.76"
+    },
+    {
+      "file": "ed_chest_pain_adult_cast.glb",
+      "largestMeshName": "ed_chest_pain_adult_cast.anny_base",
+      "triangles": 26692,
+      "vertices": 13876,
+      "heightMeters": 1.7599999904632568,
+      "bodySha256": "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+      "bodyClassKey": "13876|26692|1.76"
+    },
+    {
+      "file": "ed_chest_pain_nurse_adult.glb",
+      "largestMeshName": "ed_chest_pain_nurse_adult.anny_base",
+      "triangles": 26692,
+      "vertices": 13876,
+      "heightMeters": 1.7599999904632568,
+      "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+      "bodyClassKey": "13876|26692|1.76"
+    },
+    {
+      "file": "ed_chest_pain_spouse_adult.glb",
+      "largestMeshName": "ed_chest_pain_spouse_adult.anny_base",
+      "triangles": 26692,
+      "vertices": 13872,
+      "heightMeters": 1.659999966621399,
+      "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+      "bodyClassKey": "13872|26692|1.66"
+    },
+    {
+      "file": "mpfb-ob-patient-aisha.glb",
+      "largestMeshName": "mpfb_ob_patient_aisha_body",
+      "triangles": 36972,
+      "vertices": 22030,
+      "heightMeters": 1.6945505142211914,
+      "bodySha256": "b0ddd6bb50f9853d3b176e702b45dba536f0dacc653152ea08f23e2af3ce444e",
+      "bodyClassKey": "22030|36972|1.69"
+    },
+    {
+      "file": "peds_anxious_parent.glb",
+      "largestMeshName": "peds_anxious_parent.anny_base",
+      "triangles": 26692,
+      "vertices": 13872,
+      "heightMeters": 1.659999966621399,
+      "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+      "bodyClassKey": "13872|26692|1.66"
+    },
+    {
+      "file": "peds_nurse_kevin.glb",
+      "largestMeshName": "peds_nurse_kevin.anny_base",
+      "triangles": 26692,
+      "vertices": 13876,
+      "heightMeters": 1.7599999904632568,
+      "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+      "bodyClassKey": "13876|26692|1.76"
+    },
+    {
+      "file": "peds_patient_child.glb",
+      "largestMeshName": "peds_patient_child.anny_base",
+      "triangles": 27420,
+      "vertices": 14268,
+      "heightMeters": 1.25,
+      "bodySha256": "589646d70739d2a84f3d87a501fdd9a98152b34ed1a3c6c84040920ca2fc611a",
+      "bodyClassKey": "14268|27420|1.25"
+    }
+  ],
+  "groups": [
+    {
+      "bodyClassKey": "13876|26692|1.76",
+      "triangles": 26692,
+      "vertices": 13876,
+      "heightMeters": 1.7599999904632568,
+      "distinctSha256": [
+        "d403c8d9eaad9a56b0414b42e8605a628652300a5ea90e27cbf6eb5f45fae64d",
+        "ab115a29fefa552879ddd4b248e0c3073a599120202166a8c5242f7dc1a5ce56",
+        "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3"
+      ],
+      "assets": [
+        "adult_male_street_casual.glb",
+        "ed_chest_pain_adult_cast.glb",
+        "ed_chest_pain_nurse_adult.glb",
+        "peds_nurse_kevin.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "13872|26692|1.66",
+      "triangles": 26692,
+      "vertices": 13872,
+      "heightMeters": 1.659999966621399,
+      "distinctSha256": [
+        "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e"
+      ],
+      "assets": [
+        "ed_chest_pain_spouse_adult.glb",
+        "peds_anxious_parent.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "14268|27420|1.25",
+      "triangles": 27420,
+      "vertices": 14268,
+      "heightMeters": 1.25,
+      "distinctSha256": [
+        "589646d70739d2a84f3d87a501fdd9a98152b34ed1a3c6c84040920ca2fc611a"
+      ],
+      "assets": [
+        "peds_patient_child.glb"
+      ]
+    },
+    {
+      "bodyClassKey": "22030|36972|1.69",
+      "triangles": 36972,
+      "vertices": 22030,
+      "heightMeters": 1.6945505142211914,
+      "distinctSha256": [
+        "b0ddd6bb50f9853d3b176e702b45dba536f0dacc653152ea08f23e2af3ce444e"
+      ],
+      "assets": [
+        "mpfb-ob-patient-aisha.glb"
+      ]
+    }
+  ],
+  "diagnosisCase": "c",
+  "claimScope": "per-asset body signature of shipped generated-humanoids, recomputed live",
+  "notEvidenceFor": [
+    "clinical realism",
+    "garment quality",
+    "quest readiness",
+    "whether a future re-run of the Anny model would differ"
+  ]
+}

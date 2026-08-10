@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "openclinxr.rail-diagnosis.v1",
+  "issue": 276,
+  "measuredAt": "2026-08-10T21:25:31.666Z",
+  "diagnosis": {
+    "case": "c",
+    "label": "The Anny rail HAS a phenotype→geometry path (generate_mesh.py::build_real_anny_body runs the real Anny model with phenotype_kwargs), but casting points the six adult actors at prebuilt GLBs that were produced from ONE of TWO tracked base bodies — every shipped Anny GLB is a blender-only re-bake (provenance generatorMode blender_only_rebake_on_tracked_real_anny_base_obj_v1, notRun includes anny_forward_pass) that copies a base OBJ per actor and never re-runs the forward pass.",
+    "oneLine": "It is case (c): the path exists, and the production/casting pipeline points six adult actors at prebuilt assets built from one (two) prebuilt body — per-actor phenotype never reaches a vertex."
+  },
+  "evidenceFor": [
+    "gltf NodeIO: 4 assets share 26,692 t / 13,876 v / H=1.76m (adult_male_street_casual, ed_chest_pain_adult_cast, ed_chest_pain_nurse_adult, peds_nurse_kevin); 2 assets share 26,692 t / 13,872 v / H=1.66m (ed_chest_pain_spouse_adult, peds_anxious_parent); child 27,420 t / 14,268 v / H=1.25m; MPFB 36,972 t / 22,030 v.",
+    "order-invariant body signatures: ed_chest_pain_nurse_adult.glb == peds_nurse_kevin.glb byte-identical geometry; ed_chest_pain_spouse_adult.glb == peds_anxious_parent.glb byte-identical; intra-group-A positions differ by ~7 µm mean (garment-offset noise), max ~1 cm.",
+    "base OBJs: peds_nurse_kevin.anny_base.obj / ed_chest_pain_adult_cast.anny_base.obj / adult_male_street_casual.anny_base.obj / peds_nurse_kevin.anny_base.obj copies are byte-identical (sha256 fa13b6a5…); peds_anxious_parent.anny_base.obj == ed_chest_pain_spouse_adult.anny_base.obj (a9a01129…).",
+    "every shipped Anny GLB provenance records generatorMode blender_only_rebake_on_tracked_real_anny_base_obj_v1 and licenseChain.notRun = [anny_forward_pass, orchestrate_character, licence_text_reenumeration, mesh_regeneration_from_anny_package].",
+    "tools/openclinxr/asset-pipeline/anny/rebake_role_wardrobe_blender_only.py hardcodes the role→base map: ED patient/ED nurse/male street → peds_nurse_kevin.anny_base.obj; ED spouse/peds parent → peds_anxious_parent.anny_base.obj; child → peds_patient_child.anny_base.obj. Header: 'Does NOT call generate_mesh / anny'.",
+    "runtime casting (apps/ui-xr/src/humanoid-runtime-asset-url.ts + packages/openclinxr/asset-registry/src/actor-casting.ts) maps the six adult actors to those six prebuilt GLB files; within-scenario distinctness is by filename only — four of the six files are one body (class 13876v/1.76m), the other two a second body (class 13872v/1.66m)."
+  ],
+  "excludes": {
+    "a": {
+      "ruledOutBy": "The Anny rail has a phenotype→geometry path in code: generate_mesh.py::build_real_anny_body (line ~303) calls anny.create_fullbody_model(...) and passes phenotype_kwargs (gender/age/height/weight/muscle/proportions) into the model. It is not a stub-only rail.",
+      "evidence": [
+        "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:303 build_real_anny_body → normalized_anny_phenotype(params, model.phenotype_labels, ...) → model(pose_parameters, phenotype_kwargs, local_changes_kwargs).",
+        "The two distinct adult base OBJs (source_height 1.6728 vs 1.7000 in the anny_forward_pass manifest block) prove a forward pass with different phenotype inputs DID produce different geometry when it ran."
+      ]
+    },
+    "b": {
+      "ruledOutBy": "The forward pass is NOT invoked in the production of the shipped assets — every provenance records notRun: [anny_forward_pass, orchestrate_character, mesh_regeneration_from_anny_package], and the rebake script explicitly does not call generate_mesh/anny. (b) requires 'invoked and produces no delta'; neither half holds. Whether the model WOULD produce a delta if re-run today is not testable in this slice — `import anny` currently fails (module dir present, import ModuleNotFoundError; operator declined restore #192) — so that remains NOT TESTED.",
+      "evidence": [
+        "apps/ui-xr/public/generated-humanoids/*.provenance.json generatorMode=blender_only_rebake_on_tracked_real_anny_base_obj_v1, licenseChain.notRun lists anny_forward_pass for all six Anny GLBs.",
+        "tools/openclinxr/asset-pipeline/anny/rebake_role_wardrobe_blender_only.py: 'Does NOT call generate_mesh / anny (absent → silent ~0.8 MB stubs).'",
+        "python3 -c 'import anny' → ModuleNotFoundError: No module named 'anny' (2026-08-10, this worktree)."
+      ]
+    },
+    "d": {
+      "ruledOutBy": "hm08 bodies ARE castable into a station today: the ED spouse resolves to the hm08 body-param MakeClothes library GLB (LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH = /xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb) in both the runtime table and the actor-casting SSOT (#272 consumption). It is under-consumed (one actor), not unable to be cast.",
+      "evidence": [
+        "apps/ui-xr/src/humanoid-runtime-asset-url.ts ED_RUNTIME_CAST_BY_ACTOR.spouse_anna_hayes_v1 = LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH.",
+        "packages/openclinxr/asset-registry/src/actor-casting.ts:349 'stage ONE library body via ordinary cast resolution (spouse only)'."
+      ]
+    }
+  },
+  "counterweight": "Do not make bodies differ by uniform scaling of one mesh — a uniform scale changes every dimension and passes a naive vertex-signature check while producing the same person at two sizes. Independent variation (e.g. girth spread at fixed height, the way #151's body_param stage measured 8.76 cm) is required, and garments must be re-fitted per body class since they are fitted to a specific basemesh state.",
+  "obviousFixIfAny": "Two deterministic paths exist and are unblocked: (1) run generate_mesh.py's real Anny forward pass per-actor phenotype to produce per-actor base OBJs, then rebake wardrobes — blocked today because `import anny` fails (#192 declined the restore); or (2) extend the cast to the proven hm08 body_param bodies (body-param-adult_lean_female-library.glb / adult_heavy_male, which differ by a measured 8.76 cm girth spread) for the adult roles currently sharing one body, the way #272 staged one library body on the ED spouse. Both are separate slices; this slice only diagnoses.",
+  "notRun": [
+    "anny_forward_pass",
+    "orchestrate_character",
+    "mesh_regeneration_from_anny_package"
+  ],
+  "claimScope": "rail attribution of shipped generated-humanoids body signatures on 2026-08-10.",
+  "notEvidenceFor": [
+    "whether the Anny model produces a vertex delta if re-run today (import anny fails; not run)",
+    "clinical realism or garment quality",
+    "Quest readiness",
+    "anny licence posture"
+  ]
+}
