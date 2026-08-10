@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "openclinxr.issue-273.pre-fix.v1",
+  "issue": "273",
+  "factoryStep": "instrument",
+  "unblocks": ["body_param"],
+  "measuredAt": "2026-08-10T20:21:52Z",
+  "measuredAgainstCommit": "9b7e0fad402020896f42cb31f66e9ce08a6a586e",
+  "measurementMethod": [
+    "source reading of tools/openclinxr/evidence/trellis-metal-subject-isolation.{ts,test.ts}",
+    "static read of package.json scripts, vitest.config.ts, turbo.json, .gitignore",
+    "pnpm exec vitest list tools/openclinxr/evidence/trellis-metal-subject-isolation.test.ts (collects tests without executing them)",
+    "disk checks of .openclinxr/evidence/issue-237 across main and every worktree",
+    "scripted per-file scan: extracted the 13 --exclude paths from package.json //#test:tools, then for each file checked excludedToday and env-guard presence (process.env reads, and separately gate-like env var names)",
+    "NO test execution, NO bake, NO spawn was performed to produce this artifact — the hazard is that a naive RED spawns a 3-hour bake"
+  ],
+  "defectConfirmed": true,
+  "premiseDeviation": "The issue text claims 'On main, where the cache exists, it returns fast.' MEASURED FALSE: main (/Volumes/files/src/openclinxr) has NO .openclinxr/evidence/issue-237 cache. The only existing bake cache on this machine is inside the issue-237 worktree (wall-clock/bake-measure.json + bedside-monitor/bake-measure.json, both verdict mesh_exported, plus isolation-report.json). The defect is real and WIDER than described: the default suite reaches the live-bake spawn path in every tree except the issue-237 worktree. The core premise (default suite + gitignored cache -> re-bake from scratch) is confirmed.",
+  "ambientFailureClass": "gitignored-cache-dependent live bake. .openclinxr/ is gitignored (.gitignore:9), so the bake cache under .openclinxr/evidence/issue-237/ is absent by design in every git worktree. spawnPythonBake() checks existsSync(bake-measure.json) at trellis-metal-subject-isolation.ts:191; absent cache falls through to execFile(VENV_PYTHON, run_bake_isolated.py, ...) at :228 with a 60-min-per-subject timeout (3_600_000, :237). The test file runs two it() blocks with 10_800_000 ms (3h) timeouts calling inspectTrellisMetalSubjectIsolation(). Measured bake cost for one subject (wall-clock cache record): shape gen 254.1s + export 1557.1s, 929293 tris, 35,564,248 bytes raw.",
+  "reach": {
+    "pnpm test (root)": {
+      "definition": "pnpm //#test:tools && pnpm packages:test",
+      "reachesTrellisTest": true,
+      "detail": "//#test:tools (package.json:76) = vitest run tools/ with 13 explicit --exclude entries, NONE matching any trellis test. vitest.config.ts include is ['**/*.test.ts'] with no excludes. trellis-metal-subject-isolation.test.ts is under tools/ and is collected (verified with vitest list)."
+    },
+    "pnpm test:tools": {
+      "definition": "pnpm //#test:tools",
+      "reachesTrellisTest": true,
+      "detail": "same vitest run tools/ invocation as above"
+    },
+    "pnpm verify": {
+      "definition": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm test:integration && security gates",
+      "reachesTrellisTest": true,
+      "detail": "includes pnpm test -> //#test:tools"
+    },
+    "pnpm packages:test": {
+      "definition": "turbo run test --filter '@openclinxr/*' --filter '@cellix/*'",
+      "reachesTrellisTest": false,
+      "detail": "tools/ is NOT a turbo workspace package (no tools/openclinxr/package.json), so the turbo test task never walks tools/ tests. Reach is via the root //#test:tools task only."
+    },
+    "targeted vitest run": {
+      "definition": "pnpm exec vitest run tools/openclinxr/evidence/<file>",
+      "reachesTrellisTest": "only when trellis-metal-subject-isolation.test.ts is the named file"
+    }
+  },
+  "perFileTable": {
+    "measuredFrom": "package.json //#test:tools (13 --exclude paths, none TRELLIS) + per-file process.env scan at commit 9b7e0fad",
+    "excluded13KnownGoodColumn": [
+      {"file": "tools/openclinxr/evidence/blueprint-voice-simulation-spike.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/check-github-pages-site.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/iwsdk-evidence-contract-check.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/iwsdk-workspace-posture-check.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/model-vetting-actor-player-runtime-evidence.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/model-vetting-capture-manifest.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/model-vetting-runtime-hook-bindings.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/evidence/model-vetting-runtime-mapping-evidence.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/factory/encounter-asset-generation-queue.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/factory/encounter-publication-payloads.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/factory/encounter-runtime-selection-review-packet.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/factory/publish-generated-learner-runtime-bundle.test.ts", "excludedToday": true, "envGuardPresent": false},
+      {"file": "tools/openclinxr/openclaw/agentic-hook-runner.test.ts", "excludedToday": true, "envGuardPresent": false}
+    ],
+    "trellisFamily": [
+      {"file": "trellis-bake-cli.test.ts", "excludedToday": false, "envGuardPresent": false, "note": "only execs --help/--dry-run/--validate-latest (no GPU)"},
+      {"file": "trellis-deeper-postopt.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "none"},
+      {"file": "trellis-equipment-cagematch.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "OPENCLINXR_COMFY_URL,HOME (path/config reads, NOT bake gates)"},
+      {"file": "trellis-metal-backend-gate.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "none"},
+      {"file": "trellis-metal-mesh-bake.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "none"},
+      {"file": "trellis-metal-subject-isolation.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "HOME only (path config; NO bake gate pre-fix)"},
+      {"file": "trellis-monitor-decimation.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "spawnSync (240s timeout) + execFileSync(git) present; no env gate"},
+      {"file": "trellis-multicase-postopt.test.ts", "excludedToday": false, "envGuardPresent": false, "moduleEnv": "none"}
+    ],
+    "summary": "All 8 pre-existing TRELLIS family test files are INCLUDED in //#test:tools today (0 excluded). NONE has any gate-like env guard pre-fix — the only process.env reads in the family are HOME path config (trellis-metal-subject-isolation.ts, trellis-equipment-cagematch.ts) and OPENCLINXR_COMFY_URL. The 13 known-good excludes all carry no env guard either; they are kept out by the exclude list itself."
+  },
+  "cost": {
+    "main": {
+      "cachePresent": false,
+      "costOfRunningTrellisTest": "LIVE BAKE — up to 2 subjects x 60-min execFile timeout each; measured one subject ~30 min (254s shape + 1557s export); worst case ~2 hours wall-clock at ~600% CPU",
+      "note": "Contradicts the issue's assumption that main returns fast. On the day of measurement, main has no cache."
+    },
+    "freshWorktree": {
+      "cachePresent": false,
+      "costOfRunningTrellisTest": "LIVE BAKE — identical to main; this is the worker-visible failure (#222 worker observed PID 37127 at 586.3% CPU for 10:20 on wall-clock; machine load 32.33)"
+    },
+    "issue237Worktree": {
+      "cachePresent": true,
+      "costOfRunningTrellisTest": "FAST — on-disk bake-measure.json (mesh_exported) short-circuits per subject; module-level `cached` (ts:293) short-circuits repeat calls within a process"
+    }
+  },
+  "inputsPresent": {
+    "issue235InputPack": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-235/.openclinxr/evidence/issue-232/ PRESENT (wall-clock, bedside-monitor, ecg-cart dirs + manifest.json)",
+    "consequence": "subjects are NOT skipped for missing input in the default path (the input-missing branch at ts:306 does not fire) — the spawn branch is reached"
+  },
+  "callers": {
+    "inspectTrellisMetalSubjectIsolation": ["only trellis-metal-subject-isolation.test.ts (grep across repo, no other callers)"],
+    "spawnPythonBake": ["only via inspectTrellisMetalSubjectIsolation (not exported before this slice)"]
+  },
+  "longTimeoutBreadth": {
+    "issueClaim": "83 test files under tools/ carry timeouts >= 10 minutes and none is excluded",
+    "measuredApprox": "48 files contain a timeout literal >= 600_000 ms (grep over tools/**/*.test.ts, approximate; a timeout is a ceiling not a cost — most are dev-server captures that finish in seconds)",
+    "note": "I did not re-derive each of the 83 rows; that remains the issue author's grep. Only the spawning subset matters for cost, and only trellis-metal-subject-isolation is in scope here."
+  },
+  "decisionInput": "Fix = gate the live bake behind an explicit opt-in env var (TRELLIS_LIVE_BAKE_OPT_IN=1), keep report-reading assertions ungated, keep the counterweight (opt-in still reaches the bake), prove the wiring with an injected runner so no test path can spawn."
+}
