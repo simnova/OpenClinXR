@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "openclinxr.stranded-worktree-decisions.v1",
+  "issue": 257,
+  "generatedAt": "2026-08-10T00:00:00.000Z",
+  "decisions": [
+    {
+      "worktree": "issue-100",
+      "decision": "discard",
+      "reason": "The stranded work duplicates work already landed on main. Issue #100 is CLOSED/COMPLETED (2026-08-07) and was closed by e92562f8 'fix(#100): authored room-prop colours reach materials', which is on main. All three untracked new files (room-prop-materials.ts, runtime-room-prop-color.ts, room-prop-colour-fidelity.ts) plus the test are byte-identical to the versions on main (diff -q verified). main.ts on main carries the same semantic change (roomPropColourNumbers at main.ts:6105). Landing this branch would re-introduce a 440-commit-stale main.ts and duplicate already-committed files. Per the issue's own rule, a stranded branch duplicating landed work is worse than nothing.",
+      "evidence": [
+        "gh issue view 100 -> state CLOSED, stateReason COMPLETED, closedAt 2026-08-07T07:54:26Z",
+        "git log main --grep '#100' -> e92562f8 fix(#100)",
+        "diff -q worktree-file <(git show main:<file>) -> IDENTICAL for all 3 new files + test",
+        "git show main:apps/ui-xr/src/main.ts | grep roomPropColourNumbers -> import at :40, call at :6105"
+      ],
+      "closingCommitOnMain": "e92562f8",
+      "action": "none — leave worktree untouched; do not commit, do not git add -A"
+    },
+    {
+      "worktree": "issue-59",
+      "decision": "discard",
+      "reason": "The feature already landed on main and the stranded files are generated verification artifacts, not product source. Issue #59 is CLOSED/COMPLETED (2026-08-06) and its head commit e7964ed1 'feat(evidence): GLB-first grade capture with independent geometry self-check (#59)' is an ancestor of main. The only uncommitted product-class files are apps/arena/model-vetting-studio/public/glb-grade-staging/ — 8 generated outputs (7 humanoid GLBs + grade-report.json, 68 MB) produced minutes before the issue closed. That path is gitignored on current main (.gitignore:26, comment citing the #59 staging pattern), added by 101a79de after this worktree was cut; the stale worktree lacks the ignore line, which is why the files surface as untracked there. Committing them would add ~68 MB of generated GLBs against an explicit ignore rule. The remaining uncommitted files in the worktree are the known doc-hygiene churn (#99) and protected-registry edits (#95) classes, which are never to be blanket-added.",
+      "evidence": [
+        "gh issue view 59 -> state CLOSED, stateReason COMPLETED, closedAt 2026-08-06T18:52:29Z",
+        "git merge-base --is-ancestor e7964ed1 main -> YES (landed)",
+        ".gitignore:24-26 -> glb-grade-staging/ ignored on main; worktree .gitignore lacks the line",
+        "grade-report.json -> schemaVersion openclinxr.model-vetting-report.v1, claimScope isolated_model_vetting_metadata_structural_and_lab_contract_only",
+        "git ls-files apps/arena/model-vetting-studio/public/glb-grade-staging/ -> empty (none tracked)"
+      ],
+      "closingCommitOnMain": "e7964ed1",
+      "action": "none — leave worktree untouched; do not commit, do not git add -A"
+    }
+  ],
+  "summary": "Both stranded worktrees discard. Zero product change required by this slice. No land path is taken; no branch is merged; no file is staged in either stale worktree. The worktrees themselves are left as found (a stale worktree is harmless once its work is known to have landed).",
+  "notTested": [
+    "Whether any earlier stale worktree contains the same stranded files in different form (survey limited to the two worktrees named in the issue)",
+    "Whether issue-59's glb-grade-staging outputs differ from regenerable equivalents on main (not relevant — generated artifacts are excluded from version control by .gitignore)"
+  ]
+}

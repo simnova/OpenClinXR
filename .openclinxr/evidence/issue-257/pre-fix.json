@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "openclinxr.stranded-worktree-survey.v1",
+  "issue": 257,
+  "generatedAt": "2026-08-10T00:00:00.000Z",
+  "surveyScope": "worktrees holding uncommitted product files that are neither doc-hygiene churn (#99) nor protected-registry edits (#95)",
+  "method": "per worktree: git rev-parse HEAD, git log -1, git status --porcelain, git diff vs main for the uncommitted files; gh issue view for open/closed state",
+  "mainHeadAtSurvey": "bb477b03",
+  "worktrees": [
+    {
+      "worktree": "issue-100",
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-100",
+      "branch": "wt/issue-100",
+      "headCommit": "eb7577ab",
+      "headSubject": "test(#100): plant REDs — authored room-prop colours must reach materials",
+      "commitsMainAhead": 440,
+      "issue": {
+        "number": 100,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-08-07T07:54:26Z",
+        "title": "Every generated room prop colour is discarded — 76 of 78 hex values carry a # that parseInt rejects"
+      },
+      "uncommittedFiles": [
+        { "path": "apps/ui-xr/src/main.ts", "status": "modified" },
+        { "path": "packages/openclinxr/asset-registry/src/index.ts", "status": "modified" },
+        { "path": "packages/openclinxr/asset-registry/src/runtime-bundles.ts", "status": "modified" },
+        { "path": "tools/openclinxr/evidence/room-prop-colour-fidelity.test.ts", "status": "modified" },
+        { "path": "apps/ui-xr/src/room-prop-materials.ts", "status": "untracked" },
+        { "path": "packages/openclinxr/asset-registry/src/runtime-room-prop-color.ts", "status": "untracked" },
+        { "path": "tools/openclinxr/evidence/room-prop-colour-fidelity.ts", "status": "untracked" }
+      ],
+      "notes": [
+        "Head commit is a planted-contract stage ('plant REDs'); the uncommitted working tree is the implementation that makes those REDs go green.",
+        "All three untracked new files plus the test are byte-identical to the versions on main (diff -q against git show main:<path>).",
+        "main.ts on main contains the same semantic fix: `const { color, accentColor } = roomPropColourNumbers(prop);` at main.ts:6105 and the same import at line 40.",
+        "The implementing fix landed on main as e92562f8 'fix(#100): authored room-prop colours reach materials'."
+      ]
+    },
+    {
+      "worktree": "issue-59",
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-59",
+      "branch": "wt/issue-59",
+      "headCommit": "e7964ed1",
+      "headSubject": "feat(evidence): GLB-first grade capture with independent geometry self-check (#59)",
+      "commitsMainAhead": 526,
+      "issue": {
+        "number": 59,
+        "state": "CLOSED",
+        "stateReason": "COMPLETED",
+        "closedAt": "2026-08-06T18:52:29Z",
+        "title": "Vision grading has no trustworthy renderer — #58 landed unverified visually"
+      },
+      "uncommittedFiles": [
+        { "path": "PROJECT_STATUS.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/README.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/agent-ops/2026-08-02-temporal-review-grok-tokens.md -> docs/_archive/agent-ops/2026-08/2026-08-02-temporal-review-grok-tokens.md", "status": "renamed", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/agent-ops/2026-08/ARCHIVE-MANIFEST.json", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/wiki/index.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/wiki/topics/agent-factory-iterations.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/wiki/topics/agent-ops-revisions.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/wiki/topics/coordination-ledgers.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md", "status": "modified", "class": "doc-hygiene-churn-#99" },
+        { "path": "docs/openclinxr/doc-authority-registry-2026-05-27.json", "status": "modified", "class": "protected-registry-#95" },
+        { "path": "docs/openclinxr/doc-authority-registry-2026-05-27.md", "status": "modified", "class": "protected-registry-#95" },
+        { "path": "docs/agent-ops/2026-08-02-temporal-review-grok-tokens.md", "status": "untracked", "class": "doc-hygiene-churn-#99" },
+        { "path": "apps/arena/model-vetting-studio/public/glb-grade-staging/", "status": "untracked", "class": "product-or-generated" }
+      ],
+      "glbGradeStaging": {
+        "path": "apps/arena/model-vetting-studio/public/glb-grade-staging/2026-08-06T18-46-26Z/",
+        "fileCount": 8,
+        "sizeBytes": 71303168,
+        "contents": [
+          "grade-report.json",
+          "peds_nurse_kevin.glb",
+          "ed_chest_pain_patient_real_garment.glb",
+          "peds_patient_child_mpfb2_eye.glb",
+          "peds_anxious_parent.glb",
+          "peds_patient_child_real_garment.glb",
+          "peds_patient_child.glb",
+          "peds_patient_child_garment_hint_v1.glb"
+        ],
+        "trackedInWorktree": false,
+        "gitignoredOnMain": true,
+        "gitignoreLine": "apps/arena/model-vetting-studio/public/glb-grade-staging/ (.gitignore:26, comment at 24 cites the #59 staging pattern)",
+        "gitignoreLineAddedBy": "101a79de (after this worktree was cut — the worktree's own .gitignore has no such line, which is why the dir surfaces as untracked here)"
+      },
+      "notes": [
+        "Head commit e7964ed1 is an ancestor of main (`git merge-base --is-ancestor e7964ed1 main` -> YES) — the feature landed.",
+        "The untracked glb-grade-staging/ directory holds generated capture outputs from running the landed feature (7 humanoid GLBs + grade-report.json, 68 MB total), timestamped 2026-08-06T18:46:26Z, minutes before the issue closed.",
+        "grade-report.json declares schemaVersion openclinxr.model-vetting-report.v1 and claimScope 'isolated_model_vetting_metadata_structural_and_lab_contract_only' — a generated artifact, not product source.",
+        "The issue table counted '3 files' for issue-59; measured here as 8 files in the staging dir plus the known #99/#95 churn. The count discrepancy does not change the decision."
+      ]
+    }
+  ]
+}
