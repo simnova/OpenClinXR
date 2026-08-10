@@ -1,0 +1,262 @@
+{
+  "subject": "ecg-cart",
+  "measurementKind": "A/B bake 1 view vs 4 views \u2014 rear geometry focus",
+  "constraints": {
+    "viewsUnposed": true,
+    "noCameraPosesPassed": true,
+    "packHasNoBackTopBottomView": true,
+    "rearStaysUnderInformedEvenAt4Views": true,
+    "orchestratorGradesRenders": true
+  },
+  "bake1view": {
+    "bake": {
+      "subjectId": "ecg-cart",
+      "displayName": "12-lead ECG cart (1-view A arm)",
+      "verdict": "mesh_exported",
+      "verdictReason": "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline completed (fresh subprocess). Mesh: 994943 tris, 40089412 bytes. Shape gen: 1231.6s, Export: 137.2s.",
+      "stages": {
+        "pipeline_load": "runs",
+        "pipeline_load_time_s": 2.4,
+        "shape_generation": "runs",
+        "shape_generation_time_s": 1231.6,
+        "view_count": 1,
+        "glb_export": "runs",
+        "glb_export_time_s": 137.2
+      },
+      "rawTriangleCount": 994943,
+      "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-255/bake-1view/ecg-cart.glb",
+      "exportBytes": 40089412,
+      "texturedPbr": "yes",
+      "inputImagePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png",
+      "inputImagePaths": [
+        "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png"
+      ],
+      "viewCount": 1,
+      "seed": 237255,
+      "wallClockS": 1371.8915231227875,
+      "processIsolation": "fresh_subprocess",
+      "claimScope": [
+        "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline on Apple Silicon",
+        "MIT model + MIT Metal packages + local DINOv3 (commercial-permitted)",
+        "single-subject isolated bake \u2014 fresh OS process per subject (#237)",
+        "per-subject raw triangle count recorded for MADR 0050 post-opt"
+      ],
+      "notEvidenceFor": [
+        "Quest 3 readiness",
+        "clinical accuracy or device equivalence",
+        "production adoption into learner runtime",
+        "mesh quality suitable for exam use",
+        "replacement of parametric equipment builders"
+      ]
+    },
+    "geometry": {
+      "vertexCount": 768239,
+      "triangleCount": 994943,
+      "surfaceArea": 5.3137,
+      "volume": -0.035,
+      "convexHullVolume": 0.3581,
+      "volumeRatio": -0.0978,
+      "isWatertight": false,
+      "boundaryEdgeCount": 470269,
+      "aabbMin": [
+        -0.4938,
+        -0.4308,
+        -0.5
+      ],
+      "aabbMax": [
+        0.4938,
+        0.4313,
+        0.5
+      ],
+      "aabbExtent": [
+        0.9876,
+        0.8621,
+        1.0
+      ],
+      "axisSplits": {
+        "x": {
+          "axis": "x",
+          "midpoint": -2.7894973754882812e-05,
+          "nearProjectedArea": 0.9725,
+          "farProjectedArea": 0.7406,
+          "farAreaFraction": 0.4323,
+          "nearVertexCount": 420064,
+          "farVertexCount": 348175,
+          "farVertexFraction": 0.4532,
+          "nearFillFraction": 0.3596,
+          "farFillFraction": 0.348
+        },
+        "z": {
+          "axis": "z",
+          "midpoint": -4.26173210144043e-06,
+          "nearProjectedArea": 0.4568,
+          "farProjectedArea": 0.7618,
+          "farAreaFraction": 0.6251,
+          "nearVertexCount": 406604,
+          "farVertexCount": 361635,
+          "farVertexFraction": 0.4707,
+          "nearFillFraction": 0.4137,
+          "farFillFraction": 0.349
+        }
+      }
+    }
+  },
+  "bake4view": {
+    "bake": {
+      "subjectId": "ecg-cart",
+      "displayName": "12-lead ECG cart (4-view B arm)",
+      "verdict": "mesh_exported",
+      "verdictReason": "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline completed (fresh subprocess). Mesh: 957639 tris, 40407392 bytes. Shape gen: 2098.3s, Export: 147.1s.",
+      "stages": {
+        "pipeline_load": "runs",
+        "pipeline_load_time_s": 3.4,
+        "shape_generation": "runs",
+        "shape_generation_time_s": 2098.3,
+        "view_count": 4,
+        "glb_export": "runs",
+        "glb_export_time_s": 147.1
+      },
+      "rawTriangleCount": 957639,
+      "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-255/bake-4view/ecg-cart.glb",
+      "exportBytes": 40407392,
+      "texturedPbr": "yes",
+      "inputImagePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png",
+      "inputImagePaths": [
+        "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/side.png",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/three_quarter_left.png",
+        "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/three_quarter_right.png"
+      ],
+      "viewCount": 4,
+      "seed": 237255,
+      "wallClockS": 2250.235901117325,
+      "processIsolation": "fresh_subprocess",
+      "claimScope": [
+        "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline on Apple Silicon",
+        "MIT model + MIT Metal packages + local DINOv3 (commercial-permitted)",
+        "single-subject isolated bake \u2014 fresh OS process per subject (#237)",
+        "per-subject raw triangle count recorded for MADR 0050 post-opt"
+      ],
+      "notEvidenceFor": [
+        "Quest 3 readiness",
+        "clinical accuracy or device equivalence",
+        "production adoption into learner runtime",
+        "mesh quality suitable for exam use",
+        "replacement of parametric equipment builders"
+      ]
+    },
+    "geometry": {
+      "vertexCount": 801727,
+      "triangleCount": 957639,
+      "surfaceArea": 7.8218,
+      "volume": 0.0527,
+      "convexHullVolume": 0.5227,
+      "volumeRatio": 0.1008,
+      "isWatertight": false,
+      "boundaryEdgeCount": 547259,
+      "aabbMin": [
+        -0.4879,
+        -0.4997,
+        -0.4877
+      ],
+      "aabbMax": [
+        0.4878,
+        0.5001,
+        0.4877
+      ],
+      "aabbExtent": [
+        0.9757,
+        0.9998,
+        0.9754
+      ],
+      "axisSplits": {
+        "x": {
+          "axis": "x",
+          "midpoint": -3.7282705307006836e-05,
+          "nearProjectedArea": 1.395,
+          "farProjectedArea": 0.9952,
+          "farAreaFraction": 0.4164,
+          "nearVertexCount": 435138,
+          "farVertexCount": 366589,
+          "farVertexFraction": 0.4572,
+          "nearFillFraction": 0.3388,
+          "farFillFraction": 0.3585
+        },
+        "z": {
+          "axis": "z",
+          "midpoint": 1.4394521713256836e-05,
+          "nearProjectedArea": 0.8383,
+          "farProjectedArea": 0.7877,
+          "farAreaFraction": 0.4844,
+          "nearVertexCount": 443143,
+          "farVertexCount": 358584,
+          "farVertexFraction": 0.4473,
+          "nearFillFraction": 0.4263,
+          "farFillFraction": 0.4422
+        }
+      }
+    }
+  },
+  "comparison": {
+    "triangleCount_1view": 994943,
+    "triangleCount_4view": 957639,
+    "triangleDeltaPct": -3.7,
+    "volumeRatio_1view": -0.0978,
+    "volumeRatio_4view": 0.1008,
+    "watertight_1view": false,
+    "watertight_4view": false,
+    "boundaryEdges_1view": 470269,
+    "boundaryEdges_4view": 547259
+  },
+  "verdict": "rear_improved_measured",
+  "verdictReason": "The 4-view bake's rear geometry is materially better on the measured axes. The strong Z-axis front/back asymmetry of the 1-view bake (far side carrying 62.5% of projected area) collapsed to near-balance (48.4%); far-side orthographic fill rose on both horizontal axes (Z 0.349->0.442, X 0.348->0.359); signed volume flipped from negative (-0.035, inverted/degenerate winding) to positive (+0.053). Surface area +47%. Triangle count FELL 3.7% (994943 -> 957639) — recorded only, not a judgment metric (MADR 0050:23); the rear improvement is not a triangle-count artifact.",
+  "analysis": {
+    "judgedOn": "rear geometry, NOT triangle count (MADR 0050:23 — optimization is a later pipeline stage)",
+    "zAxisFrontBackBalance": {
+      "farAreaFraction_1view": 0.6251,
+      "farAreaFraction_4view": 0.4844,
+      "delta": -0.1407,
+      "reading": "The strongly asymmetric axis in the 1-view bake (one end carrying 62.5% of projected area) collapsed to near-balance in the 4-view bake."
+    },
+    "farSideFill": {
+      "z_farFillFraction_1view": 0.349,
+      "z_farFillFraction_4view": 0.4422,
+      "z_delta": 0.0932,
+      "x_farFillFraction_1view": 0.348,
+      "x_farFillFraction_4view": 0.3585,
+      "x_delta": 0.0105,
+      "reading": "The under-informed far side gained filled surface on BOTH horizontal axes; the near side stayed flat (Z 0.4137->0.4263), so the near/far fill gap closed."
+    },
+    "windingAndSolidity": {
+      "volume_1view": -0.035,
+      "volume_4view": 0.0527,
+      "volumeRatio_1view": -0.0978,
+      "volumeRatio_4view": 0.1008,
+      "reading": "Signed volume flipped negative->positive: the 1-view surface has inverted/degenerate winding; the 4-view surface winds consistently and fills 10.1% of its convex hull."
+    },
+    "surfaceAndCounts": {
+      "surfaceArea_1view_m2": 5.3137,
+      "surfaceArea_4view_m2": 7.8218,
+      "surfaceAreaDeltaPct": 47.2,
+      "vertexCount_1view": 768239,
+      "vertexCount_4view": 801727,
+      "triangleCount_1view": 994943,
+      "triangleCount_4view": 957639,
+      "triangleDeltaPct": -3.7,
+      "reading": "More realized surface with FEWER triangles: the 4-view bake spends its budget better. Triangle count recorded for MADR 0050 post-opt only."
+    },
+    "watertightness": {
+      "isWatertight_1view": false,
+      "isWatertight_4view": false,
+      "boundaryEdges_1view": 470269,
+      "boundaryEdges_4view": 547259,
+      "reading": "Neither bake is watertight (expected for image->3D surfaces). The 4-view has more open boundary edges; not the rear-geometry criterion."
+    },
+    "residuals": {
+      "packHasNoBackTopBottomView": true,
+      "viewsUnposed": true,
+      "noCameraPosesPassed": true,
+      "reading": "Even at 4 views the pack has no back/top/bottom view and views carry no camera poses, so the rear stays relatively under-informed in absolute terms. These are GEOMETRY measures; the orchestrator grades the rendered pixels (this tier is text-only and opened no PNG/GLB)."
+    }
+  }
+}
