@@ -1,0 +1,43 @@
+{
+  "subjectId": "ecg-cart",
+  "displayName": "12-lead ECG cart (4-view B arm)",
+  "verdict": "mesh_exported",
+  "verdictReason": "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline completed (fresh subprocess). Mesh: 957639 tris, 40407392 bytes. Shape gen: 2098.3s, Export: 147.1s.",
+  "stages": {
+    "pipeline_load": "runs",
+    "pipeline_load_time_s": 3.4,
+    "shape_generation": "runs",
+    "shape_generation_time_s": 2098.3,
+    "view_count": 4,
+    "glb_export": "runs",
+    "glb_export_time_s": 147.1
+  },
+  "rawTriangleCount": 957639,
+  "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-255/bake-4view/ecg-cart.glb",
+  "exportBytes": 40407392,
+  "texturedPbr": "yes",
+  "inputImagePath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png",
+  "inputImagePaths": [
+    "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/front.png",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/side.png",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/three_quarter_left.png",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart/three_quarter_right.png"
+  ],
+  "viewCount": 4,
+  "seed": 237255,
+  "wallClockS": 2250.235901117325,
+  "processIsolation": "fresh_subprocess",
+  "claimScope": [
+    "TRELLIS Metal image\u2192shape\u2192mesh\u2192GLB pipeline on Apple Silicon",
+    "MIT model + MIT Metal packages + local DINOv3 (commercial-permitted)",
+    "single-subject isolated bake \u2014 fresh OS process per subject (#237)",
+    "per-subject raw triangle count recorded for MADR 0050 post-opt"
+  ],
+  "notEvidenceFor": [
+    "Quest 3 readiness",
+    "clinical accuracy or device equivalence",
+    "production adoption into learner runtime",
+    "mesh quality suitable for exam use",
+    "replacement of parametric equipment builders"
+  ]
+}

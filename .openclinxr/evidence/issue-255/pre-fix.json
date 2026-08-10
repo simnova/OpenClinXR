@@ -1,0 +1,90 @@
+{
+  "subject": "ecg-cart",
+  "measurementKind": "pre-fix cond tensor comparison (1 view vs 4 views)",
+  "measuredAgainstCommit": "17347247c91c36c8cdc1896234983e878a457bba",
+  "worktreeHead": "9f25d8950cada598e3695361aeea24270554d6a3",
+  "vendoredTrellisRoot": "/Users/patrick/.openclinxr-tools/trellis2-apple/src",
+  "inputDir": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-255/.openclinxr/evidence/issue-232/ecg-cart",
+  "viewOrder": [
+    "front",
+    "side",
+    "three_quarter_left",
+    "three_quarter_right"
+  ],
+  "verdict": "cond_differs",
+  "cond": {
+    "oneView": {
+      "shape": [
+        1,
+        1029,
+        1024
+      ],
+      "dtype": "torch.float32",
+      "norm": 1026.37353515625,
+      "absMax": 29.33492088317871
+    },
+    "fourView": {
+      "shape": [
+        4,
+        1029,
+        1024
+      ],
+      "dtype": "torch.float32",
+      "norm": 2051.193603515625,
+      "absMax": 29.335805892944336
+    },
+    "identical": false,
+    "firstRowAbsMaxDiff_sameImage": 0.0,
+    "firstRowAbsMaxDiff_side": 3.772067,
+    "firstRowAbsMaxDiff_threeQuarterLeft": 3.783461,
+    "firstRowAbsMaxDiff_threeQuarterRight": 3.49729,
+    "fourViewRowNorms": [
+      1026.374,
+      1026.371,
+      1026.377,
+      1026.376
+    ],
+    "tokensPerImage": 1029,
+    "condChannels": 1024
+  },
+  "flowForwardProbe": {
+    "batch4AsIs": {
+      "outcome": "throws",
+      "errorType": "ValueError",
+      "error": "[reshape] Cannot reshape array of size 12644352 into shape (1,1029,2,12,128)."
+    },
+    "sequenceConcat": {
+      "outcome": "runs",
+      "outputShape": [
+        1,
+        8,
+        16,
+        16,
+        16
+      ],
+      "condShape": [
+        1,
+        4116,
+        1024
+      ]
+    },
+    "singleViewBaseline": {
+      "outcome": "runs",
+      "outputShape": [
+        1,
+        8,
+        16,
+        16,
+        16
+      ],
+      "condShape": [
+        1,
+        1029,
+        1024
+      ]
+    }
+  },
+  "pipelineLoadTimeS": 3.7,
+  "verdictReason": "4-view cond tensor DIFFERS from 1-view cond tensor. The encoding genuinely carries the extra views. Whether the weights make use of them is the A/B bake question.",
+  "wallClockS": 12.4
+}
