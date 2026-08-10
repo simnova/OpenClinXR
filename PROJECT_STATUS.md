@@ -103,12 +103,23 @@ fast-path only: what landed, and what it changed about the factory's capability.
 - 2026-08-10: **#263 first MPFB2 cast** (body_param, Q1). An MPFB2 humanoid (36,972 t, skinned, 32 face shape keys, 23-bone standard rig) is cast into a station for the first time. D11's rail split is now real, not planned.
 - 2026-08-10: **#269 / #267 TRELLIS multi-view** (equipment_generate, Q5). The single-view negative was **overturned** — it was measured on one view. Sequence-concat multi-view conditioning (`get_cond` takes a list) produces a floor-free result at 4 views.
 - 2026-08-10: **#261 wins published** (D12). Screenshots of live generated assets pushed to the site.
+- 2026-08-10: **#222 MPFB hair from the Anny rail** (body_param, Q1/D1). The MPFB rail wore a hand-authored 960-tri UV sphere; it now paints the Anny rail's bounds-derived `apply_mesh_native_scalp_hair_material_region`. Contract 2 pass + 3 expected-fail → 5/5, same predicate over both rails. Cross-rail catch: MPFB is Z-up with the face at **+Y** while the function's Z-branch expects −Y, so the materializer applies a temporary 180° Z flip. Rails now agree within 0.025 on the face-exclusion bound.
+- 2026-08-10: **#271 Infinigen dimension control** (room_generate, lane C). Install durably re-homed off a wiped `/tmp` — a residual carried unfixed through #77/#229/#234. `wall_height` proven an **exact deterministic input** (2.65→2.65 m, 3.6→3.6 m); **footprint and door placement are measured negatives**. MADR 0043's trigger 3 splits by axis; Decision unchanged, hand-made shells stay. Furniture-free shell = 11,060 t / 96 meshes.
+- 2026-08-10: **#273 live-bake gate** (instrument → body_param, Q5). `pnpm test` in any worktree spawned 3-hour TRELLIS GPU bakes, because the only thing preventing one was a **gitignored** cache that never exists in a worktree. Now gated on `TRELLIS_LIVE_BAKE_OPT_IN`, wired at the spawn site, with an injected-stub counterweight proving the opt-in path still reaches the runner. Coverage kept, not deleted.
+- 2026-08-10: **site honesty pass** (D12). Three published captures disproved their own captions — the hero read "WebXR unavailable / 21 blockers" over capsule actors, and a "phenotype-driven gown" section sat over a bare torso. Replaced the hero, removed the false section, and fixed the gate that was **holding the bad hero in place** (it pinned a literal filename and never opened the file).
+
+**Two standing claims measured false and corrected in place (§7q), not appended:**
+MakeClothes IS consumed and hm08 DOES reach a learner — the spouse loads
+`hm08_basemesh_adult_lean_female` with `makeclothes_library_scrub_shirt` (9,384 t) and
+`cargo_pants` (392 t). The real defect is worse than non-consumption: **the consumer is wired and
+silently emits nothing usable** — 392 triangles cannot cover legs, and the bare skin below is what
+reads as a see-through figure in every capture of that station.
 
 ## Backlog (top)
 
 | Area | Next slice | Template | Role lead |
 |------|------------|----------|-----------|
-| GitHub Pages | Fix sample-scene evidence images on developers.simnova.com/OpenClinXR (swap wrong MV Studio error pngs for real UI-XR gown captures; see **Next fix** above) | — | productivity-skeptic / xr-systems-architect |
+| GitHub Pages | **Done 2026-08-10.** Hero swapped, false garment section removed, `pages:validate` now checks the property (hero resolves to a real on-disk asset) instead of pinning a filename. Remaining: restore a clothing section once a capture supports the claim — blocked on #272. | — | productivity-skeptic / xr-systems-architect |
 | UI-XR evidence | `peds-evidence-loop` | peds-evidence-loop | xr-systems-architect |
 | Asset factory | ED seed humanoid from case def | — | asset-pipeline-lead |
 | Encounter authoring | Scenario bank review packet loop | — | implementation-planning-lead |
