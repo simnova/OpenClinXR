@@ -28,7 +28,15 @@ import traceback
 from pathlib import Path
 
 import bpy
+import numpy as np
 from mathutils import Vector
+
+# issue-272 — garment region coverage gate (clothing_consume). Same module the
+# evidence test drives; pure numpy, runs in Blender's bundled python.
+_MAKECLOTHES_DIR = str(Path(__file__).resolve().parent)
+if _MAKECLOTHES_DIR not in sys.path:
+    sys.path.insert(0, _MAKECLOTHES_DIR)
+import garment_coverage as _gc  # noqa: E402
 
 
 STAGE_ID = "body_param_stage"
@@ -1233,6 +1241,107 @@ def build_one_body_class(
         lower_garment.name = lower_mesh_name
         lower_garment.data.name = lower_mesh_name
 
+    # ── issue-272 garment region coverage gate (clothing_consume) ────────────────
+    # Library fits place garments coincident with the skin (measured median ≈ 0.7 mm,
+    # half the surface behind the body surface → the translucent/z-fighting patch), and a
+    # sparse library asset cannot cover the region it claims (the 392-triangle cargo
+    # trouser: 71% leg coverage, 32 open edges — the "see-through legs"). Every fitted
+    # garment is measured against the body region it claims; a garment that does not
+    # cover is replaced by a deterministic body-derived cover shell (covers by
+    # construction), and accepted garments get a uniform outward cloth standoff so they
+    # sit OUTSIDE the skin. Nothing here touches triangle counts (D9 / meshoptimizer).
+    coverage_gate: dict = {"enabled": True, "upper": None, "lower": None, "note": ""}
+    body_verts = np.array([v.co for v in basemesh.data.vertices], dtype=float)
+    body_faces = np.array([p.vertices for p in basemesh.data.polygons], dtype=np.int64)
+
+    def _numpy_mesh(obj: bpy.types.Object):
+        return (
+            np.array([v.co for v in obj.data.vertices], dtype=float),
+            np.array([p.vertices for p in obj.data.polygons], dtype=np.int64),
+        )
+
+    def _mesh_from_numpy(name: str, verts, faces) -> bpy.types.Object:
+        mesh = bpy.data.meshes.new(f"{name}_mesh")
+        mesh.from_pydata(
+            [tuple(float(x) for x in v) for v in verts],
+            [],
+            [tuple(int(x) for x in f) for f in faces],
+        )
+        mesh.update()
+        obj = bpy.data.objects.new(name, mesh)
+        bpy.context.scene.collection.objects.link(obj)
+        return obj
+
+    # Upper garment: torso band = its own extent (the shirt is dense/closed and passes
+    # on closure; the coverage number is recorded, not tuned).
+    ugv, ugf = _numpy_mesh(garment)
+    upper_rep = _gc.coverage_report(
+        body_verts,
+        body_faces,
+        ugv,
+        ugf,
+        float(garment_bounds["min"][1]) + 0.02,
+        float(garment_bounds["max"][1]) - 0.02,
+        garment_label="upper",
+    )
+    if upper_rep["verdict"] == "does_not_cover":
+        # A dense library upper garment passes on closure; firing here means the fit is
+        # genuinely degenerate. Refuse loudly rather than ship a bare torso.
+        raise RuntimeError(f"upper garment failed the issue-272 coverage gate: {upper_rep}")
+    # Accepted upper: push to a clean standoff so it stops z-fighting with the skin.
+    ugv_off = _gc.cloth_offset(ugv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
+    for i, v in enumerate(garment.data.vertices):
+        v.co = tuple(float(x) for x in ugv_off[i])
+    coverage_gate["upper"] = upper_rep
+
+    if lower_garment is not None:
+        lgv, lgf = _numpy_mesh(lower_garment)
+        hem_y = float(garment_bounds["min"][1])  # upper garment hem
+        ankle_y = float(body_bounds["min"][1]) + 0.10  # shoes/feet begin below
+        lower_rep = _gc.coverage_report(
+            body_verts,
+            body_faces,
+            lgv,
+            lgf,
+            ankle_y,
+            hem_y,
+            garment_label="lower",
+        )
+        if lower_rep["verdict"] == "does_not_cover":
+            # Sparse/open library fit (issue-272: 392-tri cargo trouser). Replace with
+            # the body-derived cover shell: the body's own leg surface offset outward —
+            # covers the region by construction (D2: procedural clothing, no LLM).
+            shell = _gc.build_cover_shell(
+                body_verts,
+                body_faces,
+                ankle_y,
+                hem_y,
+                standoff=_gc.CLOTH_STANDOFF_M,
+                label=f"{lower_garment_prefix}_fallback_{body_class_id}",
+            )
+            fallback_obj = _mesh_from_numpy(
+                lower_mesh_name or f"{lower_garment_prefix}_fallback_{body_class_id}",
+                np.asarray(shell["position"]).reshape(-1, 3),
+                np.asarray(shell["indices"]).reshape(-1, 3),
+            )
+            fallback_obj.data.materials.append(
+                make_material(f"mat_{fallback_obj.name}", LOWER_GARMENT_COLORS[class_index % 2])
+            )
+            lower_garment = fallback_obj
+            lower_mesh_name = fallback_obj.name
+            lower_rep["fallback"] = "body_derived_cover_shell"
+            lower_rep["fallbackVertexCount"] = shell["vertexCount"]
+            lower_rep["fallbackFaceCount"] = shell["faceCount"]
+            coverage_gate["note"] = (
+                "library lower fit did not cover its region; replaced with body-derived cover shell"
+            )
+        else:
+            lgv_off = _gc.cloth_offset(lgv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
+            for i, v in enumerate(lower_garment.data.vertices):
+                v.co = tuple(float(x) for x in lgv_off[i])
+        coverage_gate["lower"] = lower_rep
+    bpy.context.view_layer.update()
+
     # #216/#220 — bind body + upper (+ lower) to canonical armature
     extra = [lower_garment] if lower_garment is not None else None
     rig_info = bind_meshes_to_canonical_armature(
@@ -1327,6 +1436,7 @@ def build_one_body_class(
         "skinExport": True,
         "morphExport": True,
         "producedByStage": STAGE_ID,
+        "coverageGate": coverage_gate,
         **lower_info,
     }
 
