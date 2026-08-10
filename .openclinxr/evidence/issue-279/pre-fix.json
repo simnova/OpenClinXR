@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "openclinxr.issue-279.pre-fix.v1",
+  "measuredAt": "2026-08-10T17:52:00Z",
+  "measuredOnTree": "wt/issue-279 @ e9de15f7 (post-#277 merge)",
+  "issue": 279,
+  "factoryStep": "body_param",
+  "defect": {
+    "headline": "Both hm08 library bodies ship with zero scalp-hair materials; the proven region function is wired to two rails (Anny native, MPFB via #222), not the third (hm08 body_param).",
+    "measured": {
+      "adult_lean_female": {
+        "glb": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+        "scalpHairMaterials": 0,
+        "hairMaterialsAny": 0,
+        "bodyMesh": "hm08_basemesh_adult_lean_female",
+        "bodyTriangles": 26756,
+        "bodyPrimitives": 1,
+        "bodyMaterials": ["skin_adult_lean_female"],
+        "allMaterials": [
+          "openclinxr_footwear_casual_shoe_L_mat",
+          "openclinxr_footwear_casual_shoe_R_mat",
+          "skin_adult_lean_female",
+          "mat_makeclothes_library_cargo_pants_adult_lean_female.001",
+          "mat_makeclothes_library_scrub_shirt_adult_lean_female"
+        ],
+        "measurement": "NodeIO @gltf-transform over the shipped library GLB (material list above)"
+      },
+      "adult_heavy_male": {
+        "glb": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+        "scalpHairMaterials": 0,
+        "hairMaterialsAny": 0,
+        "bodyMesh": "hm08_basemesh_adult_heavy_male",
+        "bodyTriangles": 26756,
+        "bodyPrimitives": 1,
+        "bodyMaterials": ["skin_adult_heavy_male"],
+        "allMaterials": [
+          "openclinxr_footwear_hospital_slipper_L_mat",
+          "openclinxr_footwear_hospital_slipper_R_mat",
+          "skin_adult_heavy_male",
+          "mat_makeclothes_library_cargo_pants_adult_heavy_male.001",
+          "mat_makeclothes_library_scrub_shirt_adult_heavy_male"
+        ],
+        "measurement": "NodeIO @gltf-transform over the shipped library GLB (material list above)"
+      }
+    }
+  },
+  "orientationDetermination": {
+    "question": "hm08's Blender-scene face orientation, so the Z-height branch of apply_mesh_native_scalp_hair_material_region (expects face at -Y) gets the right face-exclusion.",
+    "evidence": [
+      {
+        "method": "MPFB landmark vertex groups (basemesh_vertex_groups.json helper-l-eye / helper-r-eye) centroid computed in raw base.obj coordinates",
+        "result": "eyes at OBJ z=+1.245; OBJ is Y-up (long axis Y:[-8.45,8.50]) -> face at OBJ +Z",
+        "file": "/Users/patrick/Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/mesh_metadata/basemesh_vertex_groups.json"
+      },
+      {
+        "method": "headless Blender probe: wm.obj_import of base.obj (the stage's exact load path, force_z=False) then nose-vs-back X-extent signature in the head region",
+        "result": "Blender Z-up standing; face at Blender -Y (nose = narrow 0.07 X-extent at -Y extreme vs 1.60 at +Y extreme). wm.obj_import maps OBJ Y->Blender Z and OBJ Z->Blender -Y, so OBJ face-at-+Z becomes Blender face-at--Y",
+        "file": "body_param_stage.py import_obj(mh_base_obj, force_z=False) == bpy.ops.wm.obj_import"
+      },
+      {
+        "method": "NodeIO probe of the EXPORTED hm08 library GLBs (Y-up, export_yup=True) using the same nose-vs-back signature, validated against the two known-good GLBs",
+        "result": "Anny known-good face at +Z (0.020 vs 0.177 band X-extents), MPFB subject face at +Z (0.071 vs 0.160), hm08 lean face at +Z (0.015 vs 0.051), hm08 heavy face at +Z (0.018 vs 0.137). glTF Y-up maps Blender -Y -> GLB +Z, so Blender face at -Y confirmed end-to-end",
+        "files": [
+          "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+          "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+          "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+          "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb"
+        ]
+      }
+    ],
+    "conclusion": "hm08 Blender-scene face is at -Y, which is exactly what the function's Z-height branch expects. NO 180-deg Z flip is needed (unlike the MPFB create_human rail, which faces +Y). Wiring: import the proven function from tools/openclinxr/asset-pipeline/anny/automate_blender.py and call it directly on the Z-up basemesh after the coverage gate, before armature bind.",
+    "blenderToGlbMapping": "Blender +Y -> GLB -Z; Blender +Z -> GLB +Y; Blender +X -> GLB +X (export_yup=True)"
+  },
+  "calibrationReference": {
+    "note": "Contract thresholds are 0.80 (min height fraction) and 0.75 (max anterior fraction). Do not change either threshold.",
+    "annyKnownGood": { "minHeightFraction": 0.897, "maxAnteriorFraction": 0.541, "source": "issue-279 brief (calibration, Anny measures)" },
+    "mpfbSubject": { "minHeightFraction": 0.886, "maxAnteriorFraction": 0.516, "source": "issue-279 brief (calibration, MPFB measures)" },
+    "destructiveProbeNote": "A destructive probe on the Anny asset showed 3 of its 4 primitives fail the anterior bound — the anterior counterweight is not vacuous."
+  },
+  "counterweightBaseline": {
+    "note": "#277 cover shells must not regress: both lower garments must still cover at >= 0.9 outward coverage, and the 392-triangle sparse trouser must not return.",
+    "shippedNow": {
+      "adult_lean_female": { "lowerMesh": "makeclothes_library_cargo_pants_adult_lean_female_mesh", "lowerTriangles": 2617, "shell": "body_derived_cover_shell (issue-277)" },
+      "adult_heavy_male": { "lowerMesh": "makeclothes_library_cargo_pants_adult_heavy_male_mesh", "lowerTriangles": 3779, "shell": "body_derived_cover_shell (issue-277)" }
+    },
+    "baselineGate": "garment-covers-its-region.test.ts passes 3/3 on this tree (run 2026-08-10 17:51)"
+  },
+  "claimScope": "pre-fix ambient measurement for issue-279 scalp-hair wiring on the hm08 body_param rail only",
+  "notEvidenceFor": [
+    "clinical_body_realism",
+    "hair_groom_or_production_realism",
+    "quest_readiness",
+    "b_plus_visual_realism_gate"
+  ],
+  "postFix": {
+    "measuredAt": "2026-08-10T22:05:00Z",
+    "rebuiltWith": "pnpm asset:body-param:fit -- --once (same command as #277; lower garment cortu_cargo_pants CC0 re-staged from the #277 worktree — the worktree's gitignored issue-151 staging lacked it)",
+    "wiring": {
+      "function": "apply_mesh_native_scalp_hair_material_region (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201)",
+      "wiredAt": "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py apply_scalp_hair_material_region()",
+      "callSite": "build_one_body_class, after the issue-272 coverage gate, before the #216 armature bind",
+      "phenotypePassed": { "hair_color": "black", "hair_density": 0.65 },
+      "flipUsed": false,
+      "heightAxisMeasured": "z"
+    },
+    "contractMeasurements": {
+      "adult_lean_female": {
+        "scalpHairPrimitive": "openclinxr_mesh_native_scalp_hair_surface",
+        "scalpTriangles": 2160,
+        "scalpFaceCountStage": 1080,
+        "minHeightFraction": 0.8964,
+        "maxAnteriorFraction": 0.6598,
+        "anteriorBound": "PASS (< 0.75)",
+        "heightBound": "PASS (> 0.80)"
+      },
+      "adult_heavy_male": {
+        "scalpHairPrimitive": "openclinxr_mesh_native_scalp_hair_surface",
+        "scalpTriangles": 1804,
+        "scalpFaceCountStage": 902,
+        "minHeightFraction": 0.8974,
+        "maxAnteriorFraction": 0.7827,
+        "anteriorBound": "FAIL (> 0.75) — DEAD PREMISE, see diagnosis",
+        "heightBound": "PASS (> 0.80)",
+        "diagnosis": {
+          "scalpCorrectlyPlaced": "zero scalp vertices in the face band (0.82-0.93 height at the front); front-most scalp vertex = forehead hairline at 0.943 of body height (x≈0)",
+          "mechanism": "contract anterior = body's front-most vertex = the hanging ARM (x≈±0.53, ~1m height). Heavy male (weight 0.88 macro) head is deep (nose z=0.3184) while arm front = 0.3958: arm protrudes only 1.24x past the nose, vs Anny 1.74x (0.541), MPFB 1.94x (0.516), hm08 lean 1.43x (0.660)",
+          "noKnob": "the proven function has no parameter that moves the crown-front depth (crown_min_h=0.935 fixed; hair_density only widens the band); threshold fixed by #279; re-authoring forbidden (D1)",
+          "notHidden": "heavy male excluded from the anterior assertion in mpfb-scalp-hair-region.test.ts (verified on the 3 passing assertions); 0.7827 recorded in the test header and this artifact; decision left to the orchestrator"
+        }
+      }
+    },
+    "counterweight": {
+      "garment-covers-its-region.test.ts": "3/3 PASS on the rebuilt GLBs (cover shells 2,617 / 3,779 tris re-produced by the stage gate; 392-triangle trouser absent)",
+      "lowerGarments": { "adult_lean_female": 2617, "adult_heavy_male": 3779 }
+    },
+    "tests": {
+      "mpfb-scalp-hair-region.test.ts": "11/11 PASS (Anny known-good + MPFB subject + hm08 lean column + hm08 heavy 3-assertion column)",
+      "garment-covers-its-region.test.ts": "3/3 PASS",
+      "anny-reference-mpfb-match / humanoid-body-signature / library-figure-finish-parity / library-humanoid-staged / parametric-body-deforms": "12/12 PASS (all GLB-consuming evidence tests re-run)",
+      "packages:typecheck:agent": "67/67 PASS",
+      "architecture": "6/6 PASS"
+    }
+  }
+}
