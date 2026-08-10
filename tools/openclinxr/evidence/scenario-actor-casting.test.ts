@@ -140,8 +140,8 @@ type CastEntry = {
   resolvedAssetPath: string;
   /** Read from the asset's own geometry — the world-Y extent of its skinned mesh. */
   assetStatureMeters: number;
-  /** Read from the asset's recorded provenance, not from the casting code. */
-  assetProvenanceScenarioId: string;
+  /** Read from the asset's recorded provenance; null for factory library candidates (#218/#278). */
+  assetProvenanceScenarioId: string | null;
 };
 type Inspect = (input: { scenarioId: string }) => Promise<{ actors: CastEntry[] }>;
 
@@ -181,10 +181,17 @@ describe("a scenario's declared roles resolve to age-appropriate assets (#85)", 
 
     const report = await inspect!({ scenarioId: ED });
     for (const actor of report.actors) {
+      // Factory library candidates (body-param hm08 library GLBs under candidates/, #218/#278)
+      // carry no scenarioId — they are not generated for any scenario, so null is the honest
+      // value (the same semantics cast-identity-all-stations.ts uses). Every other ED row must
+      // still name the ED scenario in its provenance.
+      const isLibraryCandidate = actor.resolvedAssetPath.includes("candidates/");
       expect(
-        actor.assetProvenanceScenarioId,
+        isLibraryCandidate
+          ? actor.assetProvenanceScenarioId === null
+          : actor.assetProvenanceScenarioId === ED,
         `${actor.actorId} is played by an asset generated for ${actor.assetProvenanceScenarioId}`,
-      ).toBe(ED);
+      ).toBe(true);
     }
   }, 300_000);
 

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "openclinxr.issue-278.cast-report.v1",
+  "issue": 278,
+  "measuredAt": "2026-08-10T22:30:10.086Z",
+  "claimScope": "per re-cast actor: body signature changed vs pre-fix, and garment coverage / scalp region / footwear survive on the library body (all measured from shipped GLBs)",
+  "notEvidenceFor": [
+    "clinical realism or clinical wardrobe suitability of the library garment",
+    "garment aesthetics",
+    "quest readiness",
+    "sex from names (no structured sex field exists)"
+  ],
+  "reCastActors": [
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "sexCue": "male",
+      "beforeAssetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
+      "afterAssetPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "signatureChanged": true,
+      "beforeSignature": {
+        "largestMeshName": "peds_nurse_kevin.anny_base",
+        "triangles": 26692,
+        "vertices": 13876,
+        "heightMeters": 1.7599999904632568,
+        "bodySha256": "3e1fed7097e52c442016e940fdc8ca49052b5e4fce8eadfe680d13b2ad2092b3",
+        "bodyClassKey": "13876|26692|1.76"
+      },
+      "afterSignature": {
+        "largestMeshName": "hm08_basemesh_adult_heavy_male",
+        "triangles": 26756,
+        "vertices": 53666,
+        "heightMeters": 1.7599999528291193,
+        "bodySha256": "1a6059ee7ff4e419fb942ab7afa5f20d15446bc22f9590d4e97a1b82884eab06",
+        "bodyClassKey": "53666|26756|1.76"
+      },
+      "notUniformScale": {
+        "heightSameMeters": true,
+        "topologyCountsDiffer": true
+      },
+      "coverage": {
+        "lower": {
+          "garmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male_mesh",
+          "triangleCount": 3779,
+          "verdict": "covers"
+        },
+        "upper": {
+          "garmentMeshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+          "triangleCount": 9384,
+          "verdict": "covers"
+        }
+      },
+      "scalpRegion": {
+        "present": true,
+        "minHeightFraction": 0.897382608827847,
+        "maxAnteriorFraction": 0.7827350299166767
+      },
+      "footwearMeshNames": [
+        "openclinxr_footwear_hospital_slipper_L_mesh",
+        "openclinxr_footwear_hospital_slipper_R_mesh"
+      ]
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "role": "family",
+      "sexCue": "female",
+      "beforeAssetPath": "apps/ui-xr/public/generated-humanoids/peds_anxious_parent.glb",
+      "afterAssetPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "signatureChanged": true,
+      "beforeSignature": {
+        "largestMeshName": "peds_anxious_parent.anny_base",
+        "triangles": 26692,
+        "vertices": 13872,
+        "heightMeters": 1.659999966621399,
+        "bodySha256": "ecc069d005d4fab57ca381ac32f3fbc92596a30a84c172be721770a70e1d549e",
+        "bodyClassKey": "13872|26692|1.66"
+      },
+      "afterSignature": {
+        "largestMeshName": "hm08_basemesh_adult_lean_female",
+        "triangles": 26756,
+        "vertices": 53696,
+        "heightMeters": 1.7599998998555009,
+        "bodySha256": "c99b9223108d184d95182052293686758b194ca4bb0a254724e2386d26229751",
+        "bodyClassKey": "53696|26756|1.76"
+      },
+      "notUniformScale": {
+        "heightSameMeters": false,
+        "topologyCountsDiffer": true
+      },
+      "coverage": {
+        "lower": {
+          "garmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female_mesh",
+          "triangleCount": 2617,
+          "verdict": "covers"
+        },
+        "upper": {
+          "garmentMeshName": "makeclothes_library_scrub_shirt_adult_lean_female",
+          "triangleCount": 9384,
+          "verdict": "covers"
+        }
+      },
+      "scalpRegion": {
+        "present": true,
+        "minHeightFraction": 0.8963855825335012,
+        "maxAnteriorFraction": 0.6598318086318677
+      },
+      "footwearMeshNames": [
+        "openclinxr_footwear_casual_shoe_L_mesh",
+        "openclinxr_footwear_casual_shoe_R_mesh"
+      ]
+    }
+  ],
+  "libraryBodyEvidence": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "heightMeters": 1.7599999904632568,
+      "torsoGirthProxyMeters": 0.4988371839992518
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "heightMeters": 1.7599999904632568,
+      "torsoGirthProxyMeters": 0.5864284020526069
+    }
+  ],
+  "coverageBaseline": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "lowerVerdict": "covers",
+      "upperVerdict": "covers"
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "lowerVerdict": "covers",
+      "upperVerdict": "covers"
+    }
+  ]
+}

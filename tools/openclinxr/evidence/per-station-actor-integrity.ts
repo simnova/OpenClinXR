@@ -54,6 +54,12 @@ export const PRE_FIX_NAME = "pre-fix.json";
 
 /** Garment region as #103 / regenerated cast files tag it — not legacy anny_surface_scrub names. */
 const REAL_GARMENT_RE = /openclinxr_real_garment_/i;
+/**
+ * #278 — MakeClothes library garments on the hm08 body_param bodies (the other rail's real
+ * garment meshes, tokens mirror garment-covers-its-region.ts). The live probe must see a
+ * re-cast library body as dressed, not as a garment-less figure.
+ */
+const LIBRARY_GARMENT_RE = /makeclothes_library_(scrub|shirt|pant|trouser|gown)/i;
 
 let cachedReport: PerStationActorIntegrityReport | null = null;
 let measureInFlight: Promise<PerStationActorIntegrityReport> | null = null;
@@ -233,6 +239,7 @@ async function readLiveActorIntegrityFromPage(page: Page): Promise<Array<{
           if (object.isMesh || object.isSkinnedMesh) {
             liveTris += triangleCount(object);
             if (REAL_GARMENT_RE.test(n)) hasGarment = true;
+            if (LIBRARY_GARMENT_RE.test(n)) hasGarment = true;
             if (object.userData && object.userData.openClinXrRealGarmentRegion) hasGarment = true;
             const h = meshWorldHeight(object);
             if (h !== null && h > height) height = h;
@@ -307,7 +314,8 @@ async function readLiveActorIntegrityFromPage(page: Page): Promise<Array<{
     }
 
     return out;
-  })()`.replace("REAL_GARMENT_RE", "/openclinxr_real_garment_/i")) as Promise<Array<{
+  })()`.replace("REAL_GARMENT_RE", "/openclinxr_real_garment_/i")
+    .replace("LIBRARY_GARMENT_RE", "/makeclothes_library_(scrub|shirt|pant|trouser|gown)/i")) as Promise<Array<{
     actorId: string;
     loadedUrl: string;
     liveTriangleCount: number;
@@ -495,7 +503,7 @@ export async function writeIntegrityDump(
     generatedAt: new Date().toISOString(),
     claimScope: [
       "live_mesh_matches_cast_resolved_source",
-      "live_garment_region_openclinxr_real_garment",
+      "live_garment_region_openclinxr_real_garment_or_makeclothes_library",
       "stations_enumerated_from_scenario_bank",
     ],
     notEvidenceFor: [

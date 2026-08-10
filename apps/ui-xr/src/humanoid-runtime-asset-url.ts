@@ -54,6 +54,12 @@ const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
 export const LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH =
   "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb";
 /**
+ * #278 — the second hm08 library body class, staged on the peds nurse (male).
+ * Mirrors actor-casting LIBRARY_ADULT_HEAVY_MALE_GLB.
+ */
+export const LIBRARY_ADULT_HEAVY_MALE_RUNTIME_PATH =
+  "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb";
+/**
  * #263 — first promoted MPFB2 cast: OB triage patient.
  * Mirrors actor-casting MPFB_OB_PATIENT_AISHA_GLB.
  */
@@ -131,8 +137,10 @@ const ED_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
 /** Runtime public paths for peds asthma cast (mirrors actor-casting table). */
 const PEDS_RUNTIME_CAST_BY_ACTOR: Record<string, string> = {
   patient_maya_johnson_v1: `/generated-humanoids/${PEDS_CHILD_GLB}`,
-  parent_tara_johnson_v1: `/generated-humanoids/${PEDS_PARENT_GLB}`,
-  nurse_kevin_lee_v1: `/generated-humanoids/${PEDS_NURSE_GLB}`,
+  // #278 (route 2 from #276): parent → hm08 lean-female library, nurse → hm08 heavy-male
+  // library, mirroring the actor-casting SSOT table for peds_asthma_parent_anxiety_v1.
+  parent_tara_johnson_v1: LIBRARY_ADULT_LEAN_FEMALE_RUNTIME_PATH,
+  nurse_kevin_lee_v1: LIBRARY_ADULT_HEAVY_MALE_RUNTIME_PATH,
 };
 
 /**

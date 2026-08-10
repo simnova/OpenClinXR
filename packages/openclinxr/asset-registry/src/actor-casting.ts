@@ -67,6 +67,13 @@ export const ADULT_MALE_STREET_CASUAL_GLB = "adult_male_street_casual.glb";
  */
 export const LIBRARY_ADULT_LEAN_FEMALE_GLB = "body-param-adult_lean_female-library.glb";
 /**
+ * #278 — the second proven hm08 library body class (route 2 from #276).
+ * adult_heavy_male: male body class (weight 0.88 macro), 8.76 cm girth spread vs lean female
+ * at the same 1.76 m stature (#151). Same per-class fitted garment/scalp/footwear as lean female
+ * (#277/#279). Body class must match the actor's declared sex — see the PEDS table below.
+ */
+export const LIBRARY_ADULT_HEAVY_MALE_GLB = "body-param-adult_heavy_male-library.glb";
+/**
  * #263 — first promoted MPFB2 humanoid cast (OB triage patient Aisha Khan).
  * Byte-identical promote of the tracked candidates/ comparator to the runtime
  * cast path generated-humanoids/. MPFB rail is first-class per D11 (standard
@@ -359,17 +366,24 @@ export function resolveScenarioActorCast(scenarioId: string): ScenarioActorCast[
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
         glbFile: PEDS_CHILD_GLB,
       }),
-      castEntry({
+      // #278 (route 2 from #276): cast the two hm08 library bodies into the peds adult slots
+      // where the body class matches the actor's declared sex. Parent (female) → lean female
+      // library; nurse (male) → heavy male library. Both library bodies are fully dressed
+      // (per-class fitted scrub shirt + cargo pants, #277 coverage gate), carry the bounds-derived
+      // scalp region (#279) and embedded footwear. Child patient, ED patient (Anny gown, #160)
+      // and the rest of the adult pool stay on the shared Anny base — partial is the honest
+      // outcome with two library classes and six adult pool GLBs.
+      libraryCastEntry({
         actorId: "parent_tara_johnson_v1",
         role: "family",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
-        glbFile: PEDS_PARENT_GLB,
+        glbFile: LIBRARY_ADULT_LEAN_FEMALE_GLB,
       }),
-      castEntry({
+      libraryCastEntry({
         actorId: "nurse_kevin_lee_v1",
         role: "nurse",
         scenarioId: PEDS_ASTHMA_SCENARIO_ID,
-        glbFile: PEDS_NURSE_GLB,
+        glbFile: LIBRARY_ADULT_HEAVY_MALE_GLB,
       }),
     ];
   }
