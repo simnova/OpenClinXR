@@ -18,6 +18,12 @@
  * notEvidenceFor: garment quality/aesthetics, clinical wardrobe, Quest readiness,
  * cloth physics, animation deformation (a sparse shell may cover statically and tear
  * under motion; the stage fallback replaces it regardless when below threshold).
+ *
+ * issue-283: the region a garment claims is bounded laterally by the garment's own
+ * silhouette (`garment_coverage.py` `_lateral_footprint`). The arms hang through every
+ * torso band and are not part of a shirt's claim; before this fix a closed shell read
+ * 14-35% coverage because the region included them. Coverage is reported against the
+ * corrected claim region.
  */
 
 import { execFile } from "node:child_process";

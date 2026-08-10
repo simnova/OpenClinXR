@@ -82,6 +82,43 @@ import { describe, expect, it } from "vitest";
  * state: the shipped lower garment now COVERS (the cover shell) and the 392-triangle
  * sparse trouser is gone. Assertions (2) and (3) are unchanged — the shirt counterweight
  * and the shell ≥ 0.95 guarantee both still bind.
+ *
+ * ════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#283)
+ *
+ * The coverage predicate let CLOSURE ALONE carry the verdict: a 14%-covering shirt
+ * (issue headline, measured against the then-shipped scrub shirt) was graded `covers`
+ * because `covers = adheres and (closure_ok or coverage_ok)` and the shirt was a closed
+ * shell. Measured on the CURRENT shipped GLBs the same disjunction grades the heavy-male
+ * scrub shirt `covers` at 0.3500 raycast coverage with 0 open boundary edges.
+ *
+ * THE BAND WAS THE PROBLEM, NOT THE DISJUNCTION. The region band was only bounded in
+ * height (the garment's own vertical extent); every body face in that band was in the
+ * region, including the ARMS — which hang through any torso band and which no shirt
+ * without sleeves claims. The arms are 0%-covered, ~17% of the region's area and ~54%
+ * of its faces (small-face over-count in the face-weighted sample), so they depressed
+ * the number an order of magnitude.
+ *
+ * Fixed in `garment_coverage.py`: the region a garment claims is now laterally bounded
+ * by the garment's own per-slice silhouette (`_lateral_footprint`). Re-measured on the
+ * shipped GLBs, the coverage clause ALONE now passes for every current upper garment —
+ * closure no longer carries any of them:
+ *
+ *   adult_lean_female upper (civilian cover shell, #275)  0.9974  (was 0.9974)
+ *   adult_heavy_male  upper (scrub shirt)                 0.9266  (was 0.3500)
+ *
+ * The disjunction `covers = adheres and (closure_ok or coverage_ok)` is UNCHANGED
+ * (issue-283 decision tree: band was too large → leave the predicate). The counterweights
+ * hold: lower cover shells still pass ≥ 0.90, the sparse-shell class (the 392-triangle
+ * trouser's class) is still refused, and no upper garment fails so the stage never ships
+ * a bare torso.
+ *
+ * Known residual, deliberately not fixed here: a genuinely too-small closed tube can
+ * still pass on closure over its own (narrow) claim, and the male scrub shirt does not
+ * reach the shoulder caps (torso-proper coverage excluding arms ≈ 0.76-0.82, area 0.82).
+ * That is a garment-fit/quality residual — the gate's claimScope explicitly does not
+ * claim garment quality/aesthetics — and the orchestrator's pixel grade is the check for
+ * it, not this predicate.
  */
 
 const load = async () =>

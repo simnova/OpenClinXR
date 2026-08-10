@@ -206,6 +206,34 @@ def _ray_tri_hits(origins, dirs, tri_verts, max_t: float) -> np.ndarray:
     return best
 
 
+def _lateral_footprint(
+    garment_verts,
+    band_lo: float,
+    band_hi: float,
+    *,
+    height_axis: int = 1,
+    lateral_axis: int = 0,
+    n_slices: int = 24,
+) -> np.ndarray:
+    """Per-slice lateral half-extent of the garment over the band.
+
+    issue-283: the body region a garment CLAIMS is bounded laterally by the
+    garment's own silhouette — a torso garment claims the body surface it wraps,
+    not the arms that hang through its vertical extent. This returns, for each
+    height slice of the band, the garment's max |lateral| in that slice (falling
+    back to the garment's global max for empty slices)."""
+    gv = _as_np(garment_verts)
+    foot = np.zeros(n_slices)
+    if band_hi <= band_lo or len(gv) == 0:
+        return foot
+    fallback = float(np.abs(gv[:, lateral_axis]).max())
+    edges = np.linspace(band_lo, band_hi, n_slices + 1)
+    for k in range(n_slices):
+        m = (gv[:, height_axis] >= edges[k]) & (gv[:, height_axis] < edges[k + 1])
+        foot[k] = float(np.abs(gv[m, lateral_axis]).max()) if m.sum() else fallback
+    return foot
+
+
 def outward_raycast_coverage(
     body_verts,
     body_faces,
@@ -217,16 +245,25 @@ def outward_raycast_coverage(
     tol: float = RAY_TOLERANCE_M,
     max_rays: int = 2048,
     height_axis: int = 1,
+    lateral_axis: int = 0,
 ) -> tuple[float, int, int]:
     """Fraction of the body region's outward rays that hit the garment within `tol`.
 
     Returns (coverage_fraction, region_face_count, sampled_face_count).
 
+    The region is the body surface the garment CLAIMS: the faces whose centroid
+    height is inside the band AND whose centroid lateral coordinate is inside the
+    garment's own per-slice lateral footprint (issue-283). Without the lateral
+    bound the region includes the arms, which hang through every torso band and
+    which no shirt without sleeves claims — a closed shell then read 14-35%
+    coverage while its true claim covers >= 0.9.
+
     `height_axis` is the axis the region band runs along. Exported GLBs are Y-up
     (height along Y, index 1 — the default, used by the evidence module), while the
     factory stage measures the Z-up Blender scene (height along Z, index 2). The band
     values passed in must be in the caller's frame; this parameter keeps the predicate
-    frame-consistent (issue-277, measured on the first gate run)."""
+    frame-consistent (issue-277, measured on the first gate run). The lateral axis is
+    X (index 0) in both frames — the body is symmetric about the X=0 plane."""
     v = _as_np(body_verts)
     f = np.asarray(body_faces, dtype=np.int64)
     gv = _as_np(garment_verts)
@@ -235,6 +272,15 @@ def outward_raycast_coverage(
     tri_verts = v[f]
     cents = tri_verts.mean(axis=1)
     sel = (cents[:, height_axis] > band_lo) & (cents[:, height_axis] < band_hi)
+    if sel.any() and band_hi > band_lo:
+        footprint = _lateral_footprint(gv, band_lo, band_hi, height_axis=height_axis, lateral_axis=lateral_axis)
+        lat = np.abs(cents[:, lateral_axis])
+        slice_k = np.clip(
+            ((cents[:, height_axis] - band_lo) / (band_hi - band_lo) * len(footprint)).astype(np.int64),
+            0,
+            len(footprint) - 1,
+        )
+        sel = sel & (lat <= footprint[slice_k])
     idx = np.where(sel)[0]
     region_count = int(sel.sum())
     if len(idx) == 0:
@@ -303,18 +349,27 @@ def coverage_report(
     max_rays: int = 2048,
     garment_label: str = "",
     height_axis: int = 1,
+    lateral_axis: int = 0,
 ) -> dict:
     """Verdict for "does this garment cover the body region it claims".
 
     `height_axis` — see outward_raycast_coverage. Default 1 (Y-up exported GLBs, the
     evidence module's frame); the factory stage passes 2 for its Z-up scene.
+    `lateral_axis` — the body's bilateral symmetry axis (X in both frames).
+
+    The region is the body surface the garment claims: the band's vertical extent
+    intersected with the garment's own per-slice lateral footprint (issue-283).
+    This excludes the arms — which hang through any torso band and which a shirt
+    without sleeves does not claim — from the region a closed shell would otherwise
+    be credited for.
 
     A garment covers when it either (a) is a closed shell (no position-merged open edges)
     that adheres to the body, or (b) overlies at least `coverage_threshold` of the region's
-    outward surface. The sparse 392-triangle trouser fails both (open shell, 74% coverage);
-    the dense closed scrub shirt passes on (a)."""
+    outward surface. The sparse 392-triangle trouser fails both (open shell, low coverage);
+    the dense closed scrub shirt passes on (a) and, against the corrected region, also on
+    (b) (measured 0.927 for the heavy-male scrub shirt on the shipped GLB, issue-283)."""
     coverage, region_count, sampled = outward_raycast_coverage(
-        body_verts, body_faces, garment_verts, garment_faces, band_lo, band_hi, tol=tol, max_rays=max_rays, height_axis=height_axis
+        body_verts, body_faces, garment_verts, garment_faces, band_lo, band_hi, tol=tol, max_rays=max_rays, height_axis=height_axis, lateral_axis=lateral_axis
     )
     boundary = boundary_edge_count(garment_verts, garment_faces)
     adherence = adherence_fraction(garment_verts, body_verts)
