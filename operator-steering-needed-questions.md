@@ -97,3 +97,37 @@ record it was missing. Every row carries a replacement posture, per the operator
 
 **DEFAULT IF SILENT:** no acquisition. Hair stays a painted region, and I will evaluate the
 CharMorph / MB-Lab procedural hair engines as a lane C cagematch instead, since that needs no approval.
+
+## 2026-08-11 — the paediatric patient's authored height is unreachable (BLOCKS full cast regeneration)
+
+**RESEARCH BASIS (measured, #302).** `patient_maya_johnson_v1` authors `height_cm: 125` at `age: 0.09`
+(8 years). The production rail creates the model with `extrapolate_phenotypes=False`, which clamps the
+height macro at 1.000. At that ceiling she measures **115.7 cm — 9.3 cm short**, so the generator now
+**refuses loudly** rather than silently shipping a short body. The three adults solve exactly (0.00 cm).
+
+This does **not** block anything today: her shipped reference `peds_patient_child` is the **only one of
+the seven that is already unique and correctly sized** (125.0 cm). It blocks regenerating her, and
+therefore blocks ever regenerating the full cast from phenotype.
+
+**RECOMMENDATION.** Author her at **age 10–11** rather than 8, keeping 125 cm. 125 cm is short for an
+8-year-old anyway (roughly 3rd percentile) and comfortably ordinary for 10–11, so this makes the case
+*more* plausible rather than bending it to fit the tool. It is the only option of the three that costs
+nothing in fidelity.
+
+**ALTERNATIVES, both worse:**
+- *Author her shorter* (~116 cm at age 8). Fits the tool, but 116 cm at 8 is roughly 1st percentile —
+  we would be encoding an unusually small child for a tooling reason, into a case a learner is assessed
+  on.
+- *Enable `extrapolate_phenotypes=True` on the production rail.* Reaches 125 cm at macro ≈1.16, but
+  measured cost: the BMI-45 extrapolated body carried large self-intersecting fold artifacts that a lean
+  body from the identical export path did not. Extrapolation leaves Anny's trained distribution, which
+  is the whole reason Anny is the phenotype oracle.
+
+**APPROVAL STRING:** `approve: re-author patient_maya_johnson_v1 age to 10`
+
+**DEFAULT IF SILENT:** no change. The child keeps her existing correct reference, adult regeneration
+proceeds without her (#303), and "regenerate the full cast from phenotype" stays blocked on this one
+decision.
+
+**NOT MINE TO DECIDE:** her age is clinical content a learner is assessed against — a paediatric fever
+or asthma presentation reads differently at 8 than at 11 (§8d, #293).
