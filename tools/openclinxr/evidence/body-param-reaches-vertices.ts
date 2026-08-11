@@ -21,6 +21,7 @@ import {
   type BodyParamCatalog,
   type BodyParamCatalogEntry,
 } from "../asset-pipeline/makeclothes/body-param-cli.js";
+import { resolveHumanoidBodyMesh } from "../../../packages/openclinxr/asset-registry/src/humanoid-body-mesh.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -67,7 +68,7 @@ function isBodyMeshName(name: string): boolean {
 
 function isGarmentMeshName(name: string): boolean {
   if (/openclinxr_real_garment_/i.test(name)) return false;
-  return /makeclothes|mhclo|scrub|garment|cloth/i.test(name);
+  return /makeclothes|mhclo|scrub|garment|cloth|shoe|footwear|boot/i.test(name);
 }
 
 /**
@@ -90,53 +91,56 @@ export function measureTorsoGirthFromDoc(
   const garmentNames: string[] = [];
   const bodyPositions: number[][] = [];
 
-  for (const mesh of doc.getRoot().listMeshes()) {
-    const name = mesh.getName() || "";
-    const garment = isGarmentMeshName(name);
-    const body = isBodyMeshName(name) || (!garment && !/hair|eye|helper/i.test(name));
-    if (garment) garmentNames.push(name);
-    if (!body || garment) continue;
-    bodyNames.push(name);
+  const meshes = doc.getRoot().listMeshes();
+  const collectPositions = (mesh: (typeof meshes)[number], out: number[][]): void => {
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
       const arr = pos.getArray();
       if (!arr) continue;
       for (let i = 0; i + 2 < arr.length; i += 3) {
-        bodyPositions.push([Number(arr[i]), Number(arr[i + 1]), Number(arr[i + 2])]);
+        out.push([Number(arr[i]), Number(arr[i + 1]), Number(arr[i + 2])]);
       }
     }
+  };
+
+  // #331: identify the body by WHAT IT IS — the morph-carrying mesh — not by
+  // being biggest. #324's fitted footwear (28,800 tris) outgrew the basemesh
+  // (26,756) and a size-based pick measured a shoe. The name filter alone also
+  // failed: `openclinxr_footwear_*` matches neither body nor garment regexes,
+  // so it passed the old `!garment` body check and fed shoe vertices into the
+  // girth band. `resolveHumanoidBodyMesh` is the shared identity predicate.
+  const candidates = meshes.map((mesh) => {
+    const name = mesh.getName() || "";
+    let triangleCount = 0;
+    let morphTargetCount = 0;
+    let skinned = false;
+    for (const prim of mesh.listPrimitives()) {
+      triangleCount += (prim.getIndices()?.getCount() ?? 0) / 3;
+      morphTargetCount = Math.max(morphTargetCount, prim.listTargets().length);
+      if (prim.getAttribute("JOINTS_0")) skinned = true;
+    }
+    return { name, triangleCount, morphTargetCount, skinned, mesh };
+  });
+  for (const c of candidates) {
+    if (isGarmentMeshName(c.name)) garmentNames.push(c.name);
   }
 
-  // Fallback: largest mesh by vertex count as body if name filter missed
-  if (bodyPositions.length < 500) {
-    bodyNames.length = 0;
-    bodyPositions.length = 0;
-    let bestCount = 0;
-    let bestName = "";
-    let bestPos: number[][] = [];
-    for (const mesh of doc.getRoot().listMeshes()) {
-      const name = mesh.getName() || "";
-      if (isGarmentMeshName(name)) continue;
-      const pts: number[][] = [];
-      for (const prim of mesh.listPrimitives()) {
-        const pos = prim.getAttribute("POSITION");
-        if (!pos) continue;
-        const arr = pos.getArray();
-        if (!arr) continue;
-        for (let i = 0; i + 2 < arr.length; i += 3) {
-          pts.push([Number(arr[i]), Number(arr[i + 1]), Number(arr[i + 2])]);
-        }
-      }
-      if (pts.length > bestCount) {
-        bestCount = pts.length;
-        bestName = name;
-        bestPos = pts;
-      }
-    }
-    if (bestPos.length > 0) {
-      bodyNames.push(bestName);
-      bodyPositions.push(...bestPos);
+  const bodyMesh = resolveHumanoidBodyMesh(candidates);
+  if (bodyMesh) {
+    bodyNames.push(bodyMesh.name);
+    collectPositions(bodyMesh.mesh, bodyPositions);
+  } else {
+    // No morph-carrying mesh (a rail without morph targets): fall back to the
+    // name-based body classification. DELIBERATELY no size fallback — the
+    // "largest mesh by vertex count as body" guess is the defect this slice
+    // removes (#331).
+    for (const c of candidates) {
+      const garment = isGarmentMeshName(c.name);
+      const body = isBodyMeshName(c.name) || (!garment && !/hair|eye|helper/i.test(c.name));
+      if (!body || garment) continue;
+      bodyNames.push(c.name);
+      collectPositions(c.mesh, bodyPositions);
     }
   }
 

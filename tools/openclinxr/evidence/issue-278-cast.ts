@@ -21,6 +21,15 @@
  *             readiness, sex from names (actor records carry NO structured sex/gender field — only
  *             displayName, per the #102 finding); the uniform-scale check here is a proxy (height
  *             preserved + vertex/triangle counts differ), not a full anti-scale proof.
+ *
+ * #331 (2026-08-11): both body picks in this module (`signatureOfGlb` and `scalpRegionOfGlb`)
+ * now resolve the body by IDENTITY — the morph-carrying mesh — via
+ * `resolveHumanoidBodyMesh` (packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts),
+ * not as the largest mesh. #324's fitted footwear (28,800 tris) outgrew the basemesh
+ * (26,756) on the library rails, so a size-based pick measured a shoe. The tracked
+ * pre-fix.json / cast-report.json artifacts are historical (a pre-edit snapshot — NOT
+ * regenerated here, per §7s); the `largestMeshName` field name is kept for artifact
+ * compatibility and now carries the identity-resolved body name.
  */
 
 import { createHash } from "node:crypto";
@@ -33,6 +42,7 @@ import {
   resolveScenarioActorCast,
   type ScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { resolveHumanoidBodyMesh } from "../../../packages/openclinxr/asset-registry/src/humanoid-body-mesh.js";
 import { inspectGarmentCoversItsRegion } from "./garment-covers-its-region.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -60,11 +70,12 @@ const SEX_CUE_BY_ACTOR_ID: Record<string, "female" | "male"> = {
 };
 
 export type BodySignature = {
+  /** The identity-resolved body mesh name (#331) — pre-#331 this field was the largest mesh. */
   largestMeshName: string;
   triangles: number;
   vertices: number;
   heightMeters: number;
-  /** Order-invariant sha256 of the largest mesh's positions (5dp, sorted) — same key as #276. */
+  /** Order-invariant sha256 of the body mesh's positions (5dp, sorted) — same key as #276. */
   bodySha256: string;
   /** topology|stature class key — deliberately includes height, so a uniform scale yields a new class. */
   bodyClassKey: string;
@@ -92,33 +103,38 @@ function canonSig(positions: ArrayLike<number>): string {
 }
 
 export function signatureOfGlb(doc: Awaited<ReturnType<NodeIO["read"]>>): BodySignature {
-  let largestName = "";
-  let largestCount = 0;
-  let triangles = 0;
-  let vertices = 0;
-  for (const mesh of doc.getRoot().listMeshes()) {
+  const meshes = doc.getRoot().listMeshes();
+  const candidates = meshes.map((mesh) => {
     const name = mesh.getName() || "(unnamed)";
     let v = 0;
     let t = 0;
+    let morphs = 0;
+    let skinned = false;
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       const idx = prim.getIndices();
       if (pos) v += pos.getCount();
       if (idx) t += idx.getCount() / 3;
+      morphs = Math.max(morphs, prim.listTargets().length);
+      if (prim.getAttribute("JOINTS_0")) skinned = true;
     }
-    if (v > largestCount) {
-      largestCount = v;
-      largestName = name;
-      triangles = t;
-      vertices = v;
-    }
-  }
+    return { name, triangleCount: t, morphTargetCount: morphs, skinned, vertices: v, triangles: t, mesh };
+  });
+
+  // #331: the body is identified by what it is (the morph-carrying mesh), not by
+  // being biggest — #324's fitted footwear outgrew the basemesh and a size-based
+  // pick recorded a shoe as the body signature on the library rails. Largest-mesh
+  // fallback only for morph-less assets.
+  const resolved = resolveHumanoidBodyMesh(candidates);
+  const body = resolved
+    ?? [...candidates].sort((a, b) => b.vertices - a.vertices)[0]
+    ?? { name: "", triangleCount: 0, morphTargetCount: 0, skinned: false, vertices: 0, triangles: 0, mesh: null };
+
   let minY = Infinity;
   let maxY = -Infinity;
   let sha = "";
-  for (const mesh of doc.getRoot().listMeshes()) {
-    if ((mesh.getName() || "") !== largestName) continue;
-    for (const prim of mesh.listPrimitives()) {
+  if (body.mesh) {
+    for (const prim of body.mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
       const arr = pos.getArray();
@@ -133,12 +149,12 @@ export function signatureOfGlb(doc: Awaited<ReturnType<NodeIO["read"]>>): BodySi
   }
   const heightMeters = maxY > minY ? maxY - minY : 0;
   return {
-    largestMeshName: largestName,
-    triangles,
-    vertices,
+    largestMeshName: body.name,
+    triangles: body.triangles,
+    vertices: body.vertices,
     heightMeters,
     bodySha256: sha,
-    bodyClassKey: `${vertices}|${triangles}|${Math.round(heightMeters * 100) / 100}`,
+    bodyClassKey: `${body.vertices}|${body.triangles}|${Math.round(heightMeters * 100) / 100}`,
   };
 }
 
@@ -211,7 +227,21 @@ export async function scalpRegionOfGlb(doc: Awaited<ReturnType<NodeIO["read"]>>)
   const meshes = doc.getRoot().listMeshes();
   const triangleCount = (mesh: (typeof meshes)[number]): number =>
     mesh.listPrimitives().reduce((total, prim) => total + (prim.getIndices()?.getCount() ?? 0) / 3, 0);
-  const body = [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
+  // #331: the body is the identity-resolved mesh (morph-carrying), not the largest —
+  // #324's footwear (28,800 tris) exceeds the basemesh (26,756) on the library rails.
+  const candidates = meshes.map((mesh) => ({
+    name: mesh.getName() || "(unnamed)",
+    triangleCount: triangleCount(mesh),
+    morphTargetCount: Math.max(
+      0,
+      ...mesh.listPrimitives().map((p) => p.listTargets().length),
+    ),
+    skinned: mesh.listPrimitives().some((p) => Boolean(p.getAttribute("JOINTS_0"))),
+  }));
+  const resolvedName = resolveHumanoidBodyMesh(candidates)?.name;
+  const body = resolvedName
+    ? meshes.find((m) => m.getName() === resolvedName)
+    : [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
   if (!body) return { present: false, minHeightFraction: null, maxAnteriorFraction: null };
 
   let bodyMin = [Infinity, Infinity, Infinity];

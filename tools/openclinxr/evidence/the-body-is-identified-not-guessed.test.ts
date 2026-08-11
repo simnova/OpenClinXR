@@ -65,6 +65,17 @@ import { describe, expect, it } from "vitest";
  * `changed:` rather than by this contract. Nothing here claims the scalp-hair assertions themselves
  * are correct once they are pointed at the right mesh — that is a separate question and may surface
  * a real product defect that the shoe has been masking.
+ *
+ * ## FIXED (#331)
+ *
+ * 2026-08-11: `packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts` landed
+ * `resolveHumanoidBodyMesh(meshes)` — identity by morph-target presence first (the body is the
+ * only morph-carrying mesh on the library lean_female / heavy_male / MPFB aisha rails, 32/32/40
+ * targets), with the fullest morph stack and then the largest among identity-qualified carriers as
+ * the tiebreak for the Anny rail, where garments clone the body's 25 morph targets (the pattern
+ * `face-morph-census.ts:18` blesses). A mesh set with no morph-carrying mesh returns null — no
+ * guess. The three REDs above flipped to green on the live rails and both synthetic counterweights;
+ * their `it.fails` markers are flipped to `it`.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -134,7 +145,7 @@ async function meshesOf(rel: string): Promise<MeshLike[]> {
 const rails = await Promise.all(RAILS.map(async (r) => ({ ...r, meshes: await meshesOf(r.glb) })));
 
 describe("the body mesh is identified by what it is, not by being biggest", () => {
-  it.fails("(1) RED: every shipped rail resolves to its real body mesh", async () => {
+  it("(1) RED: every shipped rail resolves to its real body mesh", async () => {
     const resolve = await loadResolver();
     expect(resolve, "asset-registry must export resolveHumanoidBodyMesh").not.toBeNull();
 
@@ -146,7 +157,7 @@ describe("the body mesh is identified by what it is, not by being biggest", () =
     expect(wrong, "rails resolving to the wrong mesh").toEqual([]);
   });
 
-  it.fails("(2) RED COUNTERWEIGHT: resolution is SIZE-BLIND — the body may be the smallest mesh", async () => {
+  it("(2) RED COUNTERWEIGHT: resolution is SIZE-BLIND — the body may be the smallest mesh", async () => {
     const resolve = await loadResolver();
     expect(resolve).not.toBeNull();
 
@@ -167,7 +178,7 @@ describe("the body mesh is identified by what it is, not by being biggest", () =
     expect(resolve!(leanFemale.meshes)?.name).toBe(leanFemale.body);
   });
 
-  it.fails("(3) RED COUNTERWEIGHT: resolution is NAME-BLIND — a garment-name denylist is refused", async () => {
+  it("(3) RED COUNTERWEIGHT: resolution is NAME-BLIND — a garment-name denylist is refused", async () => {
     const resolve = await loadResolver();
     expect(resolve).not.toBeNull();
 

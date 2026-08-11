@@ -15,6 +15,14 @@
  * claimScope: body-signature identity + rail attribution of shipped generated-humanoids.
  * notEvidenceFor: clinical realism, garment quality, Quest readiness, Anny licence posture,
  *                 whether the Anny model would produce a delta IF re-run today.
+ *
+ * #331 (2026-08-11): the body is now resolved by IDENTITY — the morph-carrying mesh — via
+ * `resolveHumanoidBodyMesh` (packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts),
+ * not by being the largest mesh. #324's fitted footwear outgrew the basemesh on the library
+ * rails, so the old largest-by-vertex pick recorded a shoe as the body signature and every
+ * identity-derived field (sha, height, class key) silently described a shoe. SIZE IS NOT
+ * IDENTITY. The field records the resolved body; the largest-mesh fallback survives only for
+ * morph-less assets.
  */
 
 import { createHash } from "node:crypto";
@@ -22,6 +30,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
+import { resolveHumanoidBodyMesh } from "../../../packages/openclinxr/asset-registry/src/humanoid-body-mesh.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -38,12 +47,13 @@ export type DiagnosisCase = (typeof DIAGNOSIS_CASES)[number];
 
 export type BodyAssetSignature = {
   file: string;
-  largestMeshName: string;
+  /** The body mesh, resolved by identity (the morph-carrying mesh) — #331. Not "the largest mesh". */
+  bodyMeshName: string;
   triangles: number;
   vertices: number;
-  /** Height of the largest mesh in metres (maxY - minY over POSITION). */
+  /** Height of the body mesh in metres (maxY - minY over POSITION). */
   heightMeters: number;
-  /** Order-invariant sha256 of the largest mesh's positions (5dp, sorted). */
+  /** Order-invariant sha256 of the body mesh's positions (5dp, sorted). */
   bodySha256: string;
   /**
    * Body-class key = topology + stature (vertices|triangles|height rounded to 1 cm).
@@ -110,40 +120,46 @@ function canonSig(positions: ArrayLike<number>): string {
   return createHash("sha256").update(pts.join("|")).digest("hex");
 }
 
-function largestMeshOf(doc: Awaited<ReturnType<NodeIO["read"]>>): {
+function bodyMeshOf(doc: Awaited<ReturnType<NodeIO["read"]>>): {
   name: string;
   triangles: number;
   vertices: number;
   heightMeters: number;
   sha: string;
 } {
-  let largestName = "";
-  let largestCount = 0;
-  let triangles = 0;
-  let vertices = 0;
-  for (const mesh of doc.getRoot().listMeshes()) {
+  const meshes = doc.getRoot().listMeshes();
+  const candidates = meshes.map((mesh) => {
     const name = mesh.getName() || "(unnamed)";
     let v = 0;
     let t = 0;
+    let morphs = 0;
+    let skinned = false;
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       const idx = prim.getIndices();
       if (pos) v += pos.getCount();
       if (idx) t += idx.getCount() / 3;
+      morphs = Math.max(morphs, prim.listTargets().length);
+      if (prim.getAttribute("JOINTS_0")) skinned = true;
     }
-    if (v > largestCount) {
-      largestCount = v;
-      largestName = name;
-      triangles = t;
-      vertices = v;
-    }
-  }
+    return { name, triangleCount: t, morphTargetCount: morphs, skinned, vertices: v, triangles: t, mesh };
+  });
+
+  // #331: the body is identified by what it is (the morph-carrying mesh), not
+  // by being biggest. #324's fitted footwear (28,800 tris) outgrew the basemesh
+  // (26,756) on the library rails, so the old largest-by-vertex pick silently
+  // recorded a shoe as the body signature. The largest-mesh fallback survives
+  // only for morph-less assets, where no identity signal exists.
+  const resolved = resolveHumanoidBodyMesh(candidates);
+  const body = resolved
+    ?? [...candidates].sort((a, b) => b.vertices - a.vertices)[0]
+    ?? { name: "", triangleCount: 0, morphTargetCount: 0, skinned: false, vertices: 0, triangles: 0, mesh: null };
+
   let minY = Infinity;
   let maxY = -Infinity;
   let sha = "";
-  for (const mesh of doc.getRoot().listMeshes()) {
-    if ((mesh.getName() || "") !== largestName) continue;
-    for (const prim of mesh.listPrimitives()) {
+  if (body.mesh) {
+    for (const prim of body.mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
       const arr = pos.getArray();
@@ -159,9 +175,9 @@ function largestMeshOf(doc: Awaited<ReturnType<NodeIO["read"]>>): {
     }
   }
   return {
-    name: largestName,
-    triangles,
-    vertices,
+    name: body.name,
+    triangles: body.triangles,
+    vertices: body.vertices,
     heightMeters: maxY > minY ? maxY - minY : 0,
     sha,
   };
@@ -179,15 +195,15 @@ export async function scanShippedHumanoidBodies(): Promise<{
   const assets: BodyAssetSignature[] = [];
   for (const file of files) {
     const doc = await io.read(path.join(GENERATED_HUMANOIDS_DIR, file));
-    const largest = largestMeshOf(doc);
+    const body = bodyMeshOf(doc);
     assets.push({
       file,
-      largestMeshName: largest.name,
-      triangles: largest.triangles,
-      vertices: largest.vertices,
-      heightMeters: largest.heightMeters,
-      bodySha256: largest.sha,
-      bodyClassKey: `${largest.vertices}|${largest.triangles}|${Math.round(largest.heightMeters * 100) / 100}`,
+      bodyMeshName: body.name,
+      triangles: body.triangles,
+      vertices: body.vertices,
+      heightMeters: body.heightMeters,
+      bodySha256: body.sha,
+      bodyClassKey: `${body.vertices}|${body.triangles}|${Math.round(body.heightMeters * 100) / 100}`,
     });
   }
   const byKey = new Map<string, BodySignatureGroup>();
