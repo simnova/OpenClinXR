@@ -83,6 +83,7 @@
   },
   "finishStepsRun": [
     "body_param_stage",
+    "fit_lower_garment_outfit",
     "embed_library_footwear",
     "catalog_stamp"
   ],
@@ -91,15 +92,15 @@
     "openclinxr_footwear_hospital_slipper_R_mesh"
   ],
   "footwearTriangleCount": 184,
-  "lowerGarmentId": null,
-  "lowerGarmentMeshName": null,
-  "lowerGarmentTriangleCount": 0,
-  "lowerGarmentLicenseToken": null,
+  "lowerGarmentId": "cortu_cargo_pants_hm08",
+  "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
+  "lowerGarmentTriangleCount": 3767,
+  "lowerGarmentLicenseToken": "CC0",
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
   "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "2f673006bd7e0f97b51cc01a08ee6f6367f23e842f93a0d038f1f65bcbcbb32d",
+  "glbSha256": "f8c82459cdafac166240ce007a333e5977eb981b42232c22e8541026062c812b",
   "torsoGirthProxyMeters": 0.5655706135361036,
   "heightMeters": 1.6974011659622192,
   "notEvidenceFor": [

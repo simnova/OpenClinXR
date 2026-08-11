@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T11:43:23.937Z",
+  "generatedAt": "2026-08-11T12:41:30.144Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -38,7 +38,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0,
-      "glbSha256": "24d9ae1b9c6f28efa1b7c99e6423a17544bbef5a1af8be1648859b5e020dfc53",
+      "glbSha256": "149aca58b07fd67caa899e9510888a54f52a142b7e52b1012b425e28014e4fac",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -79,6 +79,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -87,10 +88,10 @@
         "openclinxr_footwear_casual_shoe_R_mesh"
       ],
       "footwearTriangleCount": 184,
-      "lowerGarmentId": null,
-      "lowerGarmentMeshName": null,
-      "lowerGarmentTriangleCount": 0,
-      "lowerGarmentLicenseToken": null,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
+      "lowerGarmentTriangleCount": 2530,
+      "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     },
     {
@@ -119,8 +120,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0132,
-      "glbSha256": "2f673006bd7e0f97b51cc01a08ee6f6367f23e842f93a0d038f1f65bcbcbb32d",
+      "fitWallClockS": 0.0135,
+      "glbSha256": "f8c82459cdafac166240ce007a333e5977eb981b42232c22e8541026062c812b",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -161,6 +162,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -169,10 +171,10 @@
         "openclinxr_footwear_hospital_slipper_R_mesh"
       ],
       "footwearTriangleCount": 184,
-      "lowerGarmentId": null,
-      "lowerGarmentMeshName": null,
-      "lowerGarmentTriangleCount": 0,
-      "lowerGarmentLicenseToken": null,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
+      "lowerGarmentTriangleCount": 3767,
+      "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     }
   ],
