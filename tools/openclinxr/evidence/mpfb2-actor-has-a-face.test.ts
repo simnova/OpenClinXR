@@ -107,6 +107,34 @@ import { describe, expect, it } from "vitest";
  * small mesh that genuinely IS a mouth or teeth could legitimately move 100% of itself, so applying
  * it everywhere would be wrong (D4). Nothing here claims Aisha's face is well modelled — only that
  * she has one.
+ *
+ * ## FIXED (#317)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` replaced `bpy.ops.mpfb.load_face_shape_keys()` (the MPFB
+ * UI operator — reads `FACEOPS_PROPERTIES` from the panel, finds nothing in a headless run, warns,
+ * returns `FINISHED`) with the proven `TargetService.load_target` path:
+ * `body_param_stage.load_mpfb_face_shape_keys(human)` (body_param_stage.py:1206), which walks the
+ * MPFB extension target tree and loads 32 FACS targets (13 mouth, 6 eye, 8 eyebrow, 4 nose, 1 neck)
+ * at weight 0.0. The `it.fails` markers on (1) and (2) were flipped to `it`.
+ *
+ * A SECOND DEFECT SURFACED BY THE CENSUS and fixed in the same generator: the #222 scalp-region
+ * Z-flip was wrong. Its comment assumed MPFB `create_human` faces +Y; measured, the nose tip is at
+ * y=-0.168 (face at -Y) — exactly what `apply_mesh_native_scalp_hair_material_region`'s Z-height
+ * branch expects. The flip pushed the face to +Y, the face-band exclusion never fired
+ * (`skippedFaceFrontFaceCount: 0`), and the scalp paint covered the eyes/brows. On export the
+ * eye/brow/neck/nose-compression deltas were stranded on the scalp-material primitive, so the
+ * largest-morph-carrying-primitive selector read them as empty (15 empty face targets) even though
+ * the file carried them. Removing the flip yields a crown-only scalp and all 32 FACS targets
+ * non-empty and localised on the body primitive.
+ *
+ * Measured after the fix (largest morph-carrying primitive):
+ *
+ *   rail                      | verts  | face | empty | whole-body | usable mouth | verdict
+ *   --------------------------|--------|------|-------|------------|--------------|--------
+ *   mpfb-ob-patient-aisha     | 20,052 |  31  |   0   |     0      |      13      | GOOD
+ *
+ * The census artifact (`.openclinxr/evidence/face-morph-census/face-morph-census.json`, written by
+ * `tools/openclinxr/evidence/face-morph-census.ts`) covers all ten runtime rails for #316.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -200,7 +228,7 @@ function requireMeasured(): void {
 }
 
 describe("the MPFB2 actor a learner meets has a face, loaded from real MPFB targets", () => {
-  it.fails(
+  it(
     `(1) RED: aisha carries >= ${MIN_USABLE_MOUTH_TARGETS} mouth targets that displace vertices AND stay localised`,
     () => {
       requireMeasured();
@@ -211,7 +239,7 @@ describe("the MPFB2 actor a learner meets has a face, loaded from real MPFB targ
     },
   );
 
-  it.fails(
+  it(
     "(2) RED: a face-morph census over every runtime humanoid is written to disk, so #316 can size its harm from data",
     () => {
       expect(existsSync(CENSUS), `census artifact at ${CENSUS}`).toBe(true);

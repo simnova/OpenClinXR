@@ -20,7 +20,7 @@
     "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Regenerated 2026-08-10 (#222): the candidate materializer now paints the proven bounds-derived scalp/hair material region (apply_mesh_native_scalp_hair_material_region from the Anny rail) onto the MPFB body instead of a hand-authored UV sphere. No texture or rig changes. Candidate sha256 80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb."
+    "derivationNote": "Regenerated 2026-08-11 (#317): the candidate materializer replaced the MPFB UI operator (bpy.ops.mpfb.load_face_shape_keys — reads panel state, does nothing headless) with the proven TargetService.load_target path (body_param_stage.load_mpfb_face_shape_keys) and corrected the #222 scalp-region Z-flip (create_human faces -Y, not +Y). The body now ships 42 morph targets (10 macro-detail + 32 MPFB FACS: 13 mouth, 6 eye, 8 eyebrow, 4 nose, 1 neck), all 32 FACS targets non-empty and localised. Candidate sha256 e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -50,7 +50,7 @@
     "method": "mpfb2_standard_rig_137_joints_36972_skinned_triangles"
   },
   "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "regenerated_2026-08-10_scalp_hair_region_issue_222",
+  "promptOrCaseParameterHash": "regenerated_2026-08-11_face_targets_issue_317",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "production_asset_readiness",
@@ -62,14 +62,15 @@
   ],
   "sourceNotes": [
     "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
-    "Issue #222: MPFB rail now paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
+    "Issue #222: MPFB rail paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
+    "Issue #317: face targets now load through the proven TargetService path (body_param_stage.load_mpfb_face_shape_keys) instead of the MPFB UI operator, which read panel state and shipped zero face morphs. The #222 scalp-region Z-flip was also corrected: create_human faces -Y (measured), so the flip pushed the face to +Y, the face-band exclusion never fired, and the scalp paint covered the eyes/brows.",
     "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Byte-identical to the tracked candidates/ comparator (sha256 80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb)."
+    "Byte-identical to the tracked candidates/ comparator (sha256 e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e)."
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "80a35ed7bcec84623032b0592881bf459c3b73d63e81df067d4a5e384e83fbbb",
-  "outputBytes": 4994172,
-  "generatedAt": "2026-08-10T19:44:00.000+00:00",
+  "outputSha256": "e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e",
+  "outputBytes": 7591608,
+  "generatedAt": "2026-08-11T12:54:00.000+00:00",
   "method": "byte_identical_promote_from_candidates_comparator"
 }
