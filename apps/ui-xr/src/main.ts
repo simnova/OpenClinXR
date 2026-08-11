@@ -120,6 +120,7 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
+import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -6636,247 +6637,6 @@ function handleClinicalTouch(
  * :y_up_capture_evidence static clone). NEVER cyan-tag anny_base multi-prim role clothing
  * slots (parent_top/nurse_top/lower/soft_trim) — those produce a giant pants blob while torso stays bare.
  */
-function applyRealGarmentEvidenceSurfaces(
-  root: Group,
-  comparator: string,
-): Mesh | null {
-  // Strict: separate real garment only (mesh or node name after GLTFLoader overwrite).
-  const realGarmentNameRe = /openclinxr_real_garment|real_garment_from_phenotype/i;
-  // Explicit reject: anny_base role clothing multi-prim material slots (top/lower/soft_trim).
-  const roleClothingMaterialRe =
-    /role_mesh_clothing|clothing_(parent|nurse)_(top|lower|soft_trim)|openclinxr_role_mesh_clothing/i;
-  const bodyNameRe = /body|skin|torso|head|face|eye|teeth|hair|scalp|lash|brow|mouth|tongue|ear|hand|finger|nail|foot|toe/i;
-  const sleeveDeformEvidence =
-    comparator === "peds_anny_real_garment_patient"
-      ? "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
-      : comparator === "peds_anny_real_garment_parent"
-        ? "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;parent_cardigan_casual_top;peds_anny_real_garment_parent"
-        : comparator === "peds_anny_real_garment_nurse"
-          ? "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;peds_asthma_parent_anxiety_v1;nurse_scrub;peds_anny_real_garment_nurse"
-          : "skinned_garment_sleeves_from_phenotype_garmentLayers;weights_clavicle_upper_arm_chest;deforms_on_body_motion_breath;ed-gown-geo-reorchestrate;hospital_gown";
-
-  const hasRoleClothingMaterial = (object: Mesh): boolean => {
-    const mats = Array.isArray(object.material) ? object.material : object.material ? [object.material] : [];
-    return mats.some((m) => roleClothingMaterialRe.test(String((m as { name?: string }).name ?? "")));
-  };
-
-  const isSeparateRealGarmentMesh = (object: Mesh): boolean => {
-    const nm = object.name || "";
-    if (!realGarmentNameRe.test(nm)) return false;
-    // Never treat role clothing multi-prim slots as the real garment even if names collide.
-    if (hasRoleClothingMaterial(object)) return false;
-    return true;
-  };
-
-  /**
-   * Spawn a static cyan bind-shape evidence mesh on the humanoid root so capture shows
-   * torso/sleeve volume (not skinned collapse into a lower-body pants blob).
-   * Rotates only when bind-shape is still Z-up / floor-plane; bind-fixed Y-up garments keep axes.
-   */
-  const spawnStaticRealGarmentEvidence = (object: Mesh, host: Group): Mesh | null => {
-    const nm = object.name || "";
-    if (!realGarmentNameRe.test(nm)) return null;
-    if (object.userData.openClinXrGarmentYUpOrientApplied) {
-      const existingName = `${nm}:y_up_capture_evidence`;
-      const existing = host.getObjectByName(existingName);
-      return existing instanceof Mesh ? existing : null;
-    }
-    const geom = object.geometry as {
-      boundingBox?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } } | null;
-      computeBoundingBox?: () => void;
-      computeVertexNormals?: () => void;
-      computeBoundingSphere?: () => void;
-      attributes?: { position?: { count: number; getX: (i: number) => number; getY: (i: number) => number; getZ: (i: number) => number; setXYZ: (i: number, x: number, y: number, z: number) => void; needsUpdate?: boolean } };
-      clone?: () => typeof geom;
-    } | undefined;
-    if (!geom) return null;
-    if (typeof geom.computeBoundingBox === "function") geom.computeBoundingBox();
-    const bb = geom.boundingBox;
-    if (!bb) return null;
-    const ySpan = Math.abs(bb.max.y - bb.min.y);
-    const zSpan = Math.abs(bb.max.z - bb.min.z);
-    const yCenter = (bb.max.y + bb.min.y) / 2;
-    // Z-up / floor-plane heuristic: thin in Y, tall in Z, center near origin
-    const needsZUpBake = zSpan > ySpan * 2 && yCenter < 0.35 && zSpan > 0.4;
-    // Parent/nurse sleeve-deform capture always detaches to static bind-shape so skinning cannot
-    // collapse the separate upper garment into a giant lower-body cyan pants blob.
-    const forceStaticDetach =
-      comparator === "peds_anny_real_garment_parent" || comparator === "peds_anny_real_garment_nurse";
-    if (!needsZUpBake && !forceStaticDetach) return null;
-
-    const working = typeof geom.clone === "function" ? geom.clone()! : geom;
-    const pos = working.attributes?.position;
-    if (!pos || typeof pos.count !== "number") return null;
-    if (needsZUpBake) {
-      for (let i = 0; i < pos.count; i += 1) {
-        const x = pos.getX(i);
-        const y = pos.getY(i);
-        const z = pos.getZ(i);
-        // rotate -90° about X: (x,y,z) -> (x, z, -y)
-        pos.setXYZ(i, x, z, -y);
-      }
-      pos.needsUpdate = true;
-      if (typeof working.computeVertexNormals === "function") working.computeVertexNormals();
-      if (typeof working.computeBoundingBox === "function") working.computeBoundingBox();
-      if (typeof working.computeBoundingSphere === "function") working.computeBoundingSphere();
-    } else if (typeof working.computeBoundingBox === "function") {
-      working.computeBoundingBox();
-    }
-
-    const cyanMat = new MeshStandardMaterial({
-      color: new Color(0x00ffcc),
-      emissive: new Color(0x00ffcc),
-      emissiveIntensity: 1.1,
-      roughness: 0.55,
-      metalness: 0.05,
-      side: DoubleSide,
-    });
-    const evidenceName = `${nm}:y_up_capture_evidence`;
-    const existing = host.getObjectByName(evidenceName);
-    if (existing instanceof Mesh) {
-      object.visible = false;
-      object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
-      object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
-      return existing;
-    }
-    const evidence = new Mesh(working as never, cyanMat);
-    evidence.name = evidenceName;
-    evidence.frustumCulled = false;
-    evidence.renderOrder = 3;
-    evidence.visible = true;
-    if (typeof working.computeBoundingBox === "function") working.computeBoundingBox();
-    const ebb = working.boundingBox;
-    if (ebb && needsZUpBake) {
-      // Z-up bake can leave oversize cube-like volume — fit to adult torso.
-      const height = Math.abs(ebb.max.y - ebb.min.y);
-      const width = Math.abs(ebb.max.x - ebb.min.x);
-      const s = Math.min(1, 0.55 / Math.max(width, 0.01), 0.75 / Math.max(height, 0.01));
-      if (s < 0.99) {
-        evidence.scale.setScalar(s);
-      }
-      const yMid = ((ebb.max.y + ebb.min.y) / 2) * (s < 0.99 ? s : 1);
-      evidence.position.set(0, 1.22 - yMid, 0.08);
-    } else if (ebb) {
-      // Bind-fixed Y-up garment already sits on torso; keep bind-shape world placement (no re-lift).
-      evidence.position.set(0, 0, 0);
-    } else {
-      evidence.position.set(0, 0.35, 0.08);
-    }
-    evidence.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
-    evidence.userData.openClinXrGarmentEvidenceSurface = needsZUpBake
-      ? "phenotype_embedded_sleeve_torso_y_up_oriented"
-      : "phenotype_embedded_sleeve_torso_static_bind_shape_for_capture";
-    evidence.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
-    evidence.userData.openClinXrGarmentYUpOrientApplied = needsZUpBake
-      ? "baked_neg_x_90_static_reparent_for_sleeve_deform_capture"
-      : "static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake";
-    evidence.userData.openClinXrGarmentSkinDetachedForCapture =
-      "phenotype_garment_static_evidence_mesh_on_humanoid_root_for_capture_noticeability";
-    host.add(evidence);
-
-    object.visible = false;
-    object.frustumCulled = true;
-    object.userData.openClinXrGarmentYUpOrientApplied = "skinned_original_hidden_after_static_y_up_evidence_spawn";
-    object.userData.openClinXrComparatorVisibilityPolicy = "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence";
-    object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
-    if (object.parent) {
-      object.parent.remove(object);
-    }
-    return evidence;
-  };
-
-  const applyCyanMaterial = (raw: unknown): unknown => {
-    if (!raw || typeof raw !== "object") return raw;
-    const src = raw as {
-      clone?: () => Record<string, unknown>;
-      emissive?: Color;
-      emissiveIntensity?: number;
-      color?: Color;
-      map?: unknown;
-      needsUpdate?: boolean;
-    };
-    const mat = typeof src.clone === "function" ? src.clone()! : src;
-    if (mat.emissive) {
-      mat.emissive = new Color(0x00ffcc);
-      mat.emissiveIntensity = 1.15;
-    }
-    if (mat.color) {
-      mat.color = new Color(0x00ffcc);
-    }
-    if ("map" in mat) {
-      mat.map = null;
-    }
-    mat.needsUpdate = true;
-    return mat;
-  };
-
-  const tagGarment = (object: Mesh): Mesh => {
-    // Do not resurrect skinned originals already superseded by static evidence (second pass)
-    if (object.userData?.openClinXrComparatorVisibilityPolicy === "hidden_misoriented_skinned_phenotype_garment_superseded_by_y_up_evidence") {
-      object.visible = false;
-      object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
-      return object;
-    }
-    object.visible = true;
-    object.frustumCulled = false;
-    object.renderOrder = 2;
-    object.userData.openClinXrExposedSeparateGeometry = "real_garment_mesh_from_phenotype_garmentLayers";
-    object.userData.openClinXrGarmentEvidenceSurface = "phenotype_embedded_sleeve_torso";
-    object.userData.openClinXrSleeveDeformEvidence = sleeveDeformEvidence;
-    const staticEvidence = spawnStaticRealGarmentEvidence(object, root);
-    if (staticEvidence) {
-      return staticEvidence;
-    }
-    if (Array.isArray(object.material)) {
-      object.material = object.material.map((m) => applyCyanMaterial(m)) as typeof object.material;
-    } else if (object.material) {
-      object.material = applyCyanMaterial(object.material) as typeof object.material;
-    }
-    return object;
-  };
-
-  let firstTagged: Mesh | null = null;
-
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) return;
-    // Skip already-spawned static evidence so we do not double-tag
-    if (object.userData?.openClinXrGarmentYUpOrientApplied === "baked_neg_x_90_static_reparent_for_sleeve_deform_capture"
-      || object.userData?.openClinXrGarmentYUpOrientApplied === "static_bind_shape_reparent_for_sleeve_deform_capture_no_axis_bake") {
-      if (!firstTagged) firstTagged = object;
-      return;
-    }
-    const nm = object.name || "";
-    if (isSeparateRealGarmentMesh(object)) {
-      const tagged = tagGarment(object);
-      if (!firstTagged) firstTagged = tagged;
-      return;
-    }
-    // Explicitly leave role clothing multi-prim slots alone (no cyan / no sleeveDeform tags)
-    if (hasRoleClothingMaterial(object)) {
-      object.userData.openClinXrRoleClothingSlot =
-        "anny_base_role_clothing_material_not_real_garment_evidence_surface";
-      return;
-    }
-    if (bodyNameRe.test(nm.toLowerCase())) {
-      object.visible = true;
-      object.userData.openClinXrBodyEvidenceSurface = true;
-    }
-  });
-
-  // Prefer a live static evidence mesh on root if spawn happened after firstTagged was set to hidden original
-  const evidenceOnRoot = root.children.find(
-    (c): c is Mesh =>
-      c instanceof Mesh
-      && realGarmentNameRe.test(c.name || "")
-      && Boolean(c.userData?.openClinXrGarmentSkinDetachedForCapture),
-  );
-  if (evidenceOnRoot) {
-    firstTagged = evidenceOnRoot;
-  }
-
-  return firstTagged;
-}
-
 function loadGeneratedHumanoidIntoActorSlot(
   actorSlot: Group,
   options: {
@@ -6943,6 +6703,7 @@ function loadGeneratedHumanoidIntoActorSlot(
           slotKind,
         });
       humanoid.userData.openClinXrActorId = options.actorId;
+      humanoid.userData.openClinXrAssetPath = actorSpecificAssetPath;
       actorSlot.userData.openClinXrActorPosture = posture;
       actorSlot.userData.openClinXrActorId = options.actorId;
       // #219: body-param library figures need flipped upper_arm Z hang (hm08 rest sense ≠ Anny).
@@ -7015,22 +6776,12 @@ function loadGeneratedHumanoidIntoActorSlot(
           && isRealGarmentSleeveDeformCapture()
           && options.actorId === runtimePatientActorId()
         ) {
-          const garmentSource =
-            humanoidSourceComparator === "ed_anny_real_garment_patient"
-              ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
-              : humanoidSourceComparator === "peds_anny_real_garment_parent"
-                ? "/generated-humanoids/peds_anxious_parent.glb"
-                : humanoidSourceComparator === "peds_anny_real_garment_nurse"
-                  ? "/generated-humanoids/peds_nurse_kevin.glb"
-                  : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
-          const sleeveDeformCue =
-            humanoidSourceComparator === "peds_anny_real_garment_patient"
-              ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
-              : humanoidSourceComparator === "peds_anny_real_garment_parent"
-                ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;parent_cardigan_casual_top;peds_anny_real_garment_parent"
-                : humanoidSourceComparator === "peds_anny_real_garment_nurse"
-                  ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;nurse_scrub;peds_anny_real_garment_nurse"
-                  : "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;ed-gown-geo-reorchestrate;hospital_gown";
+          // #314: derive source/cue from the ACTUAL loaded asset (actorSpecificAssetPath)
+          // rather than the comparator — the parent/nurse comparators cast the patient
+          // primary to the child (peds_patient_child.glb), so a comparator-keyed cue
+          // would label the child's exam tshirt with the parent cardigan's provenance.
+          const garmentSource = actorSpecificAssetPath;
+          const sleeveDeformCue = sleeveDeformCueForAssetPath(actorSpecificAssetPath, humanoidSourceComparator);
           const existingMouth = window.__openClinXrMouthGazePoseComparatorEvidence;
           window.__openClinXrMouthGazePoseComparatorEvidence = {
             source: "window.__openClinXrMouthGazePoseComparatorEvidence",
@@ -7367,17 +7118,24 @@ function runtimeHumanoidVariantAssetPath(actorId: string, fallbackPath: string):
       return "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
     }
     // ui-xr-parent-nurse-runtime-comparator-v1: parent/nurse real-garment on patient primary (camera center) AND role slot; no re-orchestrate
-    if (
-      humanoidSourceComparator === "peds_anny_real_garment_parent"
-      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeFamilyActorId() || role === "parent" || role === "family")
-    ) {
-      return "/generated-humanoids/peds_anxious_parent.glb";
+    // #314: patient (child) and family/parent are DIFFERENT actors — the patient must
+    // never resolve to the parent GLB. Split the cast: patient → child, family → parent.
+    if (humanoidSourceComparator === "peds_anny_real_garment_parent") {
+      if (actorId === runtimePatientActorId() || role === "patient") {
+        return "/generated-humanoids/peds_patient_child.glb";
+      }
+      if (actorId === runtimeFamilyActorId() || role === "parent" || role === "family") {
+        return "/generated-humanoids/peds_anxious_parent.glb";
+      }
     }
-    if (
-      humanoidSourceComparator === "peds_anny_real_garment_nurse"
-      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeClinicalTeamActorId() || role === "nurse")
-    ) {
-      return "/generated-humanoids/peds_nurse_kevin.glb";
+    // #314: same split for the nurse comparator — patient → child, clinical team → nurse.
+    if (humanoidSourceComparator === "peds_anny_real_garment_nurse") {
+      if (actorId === runtimePatientActorId() || role === "patient") {
+        return "/generated-humanoids/peds_patient_child.glb";
+      }
+      if (actorId === runtimeClinicalTeamActorId() || role === "nurse") {
+        return "/generated-humanoids/peds_nurse_kevin.glb";
+      }
     }
     const pedsHandoff = (encounterRuntimeAssetBundle as LearnerRuntimeAssetBundle & { pedsHumanoidMaterializationHandoff?: PedsHumanoidMaterializationHandoff }).pedsHumanoidMaterializationHandoff;
     if (pedsHandoff?.assets?.length) {
@@ -8640,22 +8398,20 @@ function recordMouthGazePoseComparatorEvidence(
   if (comparator === "peds_anny_real_garment_patient" || comparator === "ed_anny_real_garment_patient" || comparator === "peds_anny_real_garment_parent" || comparator === "peds_anny_real_garment_nurse") {
     const tagged = applyRealGarmentEvidenceSurfaces(slot.root, comparator);
     if (tagged) {
+      // #314: derive source/cue from the ACTUAL loaded asset (set at compose) so the
+      // parent/nurse comparators do not label the child primary's tshirt as the cardigan.
+      const loadedAssetPath =
+        typeof slot.root.userData.openClinXrAssetPath === "string" ? slot.root.userData.openClinXrAssetPath : "";
       const garmentSource =
-        comparator === "ed_anny_real_garment_patient"
+        loadedAssetPath
+        || (comparator === "ed_anny_real_garment_patient"
           ? "/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb"
           : comparator === "peds_anny_real_garment_parent"
             ? "/generated-humanoids/peds_anxious_parent.glb"
             : comparator === "peds_anny_real_garment_nurse"
               ? "/generated-humanoids/peds_nurse_kevin.glb"
-              : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb";
-      const sleeveDeformCue =
-        comparator === "peds_anny_real_garment_patient"
-          ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
-          : comparator === "peds_anny_real_garment_parent"
-            ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;parent_cardigan_casual_top;peds_anny_real_garment_parent"
-            : comparator === "peds_anny_real_garment_nurse"
-              ? "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;nurse_scrub;peds_anny_real_garment_nurse"
-              : "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;ed-gown-geo-reorchestrate;hospital_gown";
+              : "/cagematch/anny-real-garment/current/peds_patient_child_real_garment.glb");
+      const sleeveDeformCue = sleeveDeformCueForAssetPath(loadedAssetPath, comparator);
       garmentGeometry = {
         name: tagged.name || "real_garment_mesh",
         visible: tagged.visible,

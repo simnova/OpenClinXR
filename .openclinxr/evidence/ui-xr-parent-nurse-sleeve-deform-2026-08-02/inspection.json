@@ -1,0 +1,392 @@
+{
+  "schemaVersion": "openclinxr.ui-xr-parent-nurse-sleeve-deform-capture.v1",
+  "generatedAt": "2026-08-11T15:19:41.726Z",
+  "claimScope": "ui_xr_parent_nurse_real_garment_sleeve_deform_runtime_evidence_Q5_no_clinical_no_quest",
+  "baseUrl": "http://127.0.0.1:5178/?openclinxrScenarioId=peds_asthma_parent_anxiety_v1&openclinxrPortalStart=encounter&openclinxrAcceleratedExam=1&humanoidSourceComparator=peds_anny_real_garment_parent&runtimeAssetBundleId=peds_asthma_parent_anxiety_v1%3Alearner-runtime-bundle%3Av1&humanoidSourceCleanCapture=1&capture=mouth-gaze-pose-body-motion-garment-sleeve-deform-source-clean",
+  "captureModeDriven": "mouth-gaze-pose-body-motion-garment-sleeve-deform",
+  "parent": {
+    "comparator": "peds_anny_real_garment_parent",
+    "frontPath": ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/parent_real_garment_sleeve_front_2026-08-02.png",
+    "frontSizeBytes": 73324,
+    "threeQuarterPath": ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/parent_real_garment_sleeve_three_quarter_2026-08-02.png",
+    "threeQuarterSizeBytes": 73919,
+    "sleeveDeformEvidence": "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient",
+    "garmentGeometry": {
+      "name": "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt:y_up_capture_evidence",
+      "visible": true,
+      "source": "/generated-humanoids/peds_patient_child.glb",
+      "hasVisibleVolume": true,
+      "hasSeamFoldHints": true,
+      "sleeveDeform": "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
+    },
+    "sceneAssets": {
+      "source": "window.__openClinXrSceneAssetEvidence",
+      "generatedAtMs": 2238,
+      "expectedAssetCount": 4,
+      "loadedCount": 3,
+      "failedCount": 1,
+      "pendingCount": 0,
+      "fallbackActiveCount": 0,
+      "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+      "visualFidelityCueIds": [
+        "generated_humanoid_front_fidelity_badge",
+        "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+        "room_prop_label_occlusion_reduced",
+        "generated_humanoid_generator_native_front_orientation_preserved",
+        "humanoid_interaction_target_decluttered",
+        "generated_humanoid_facial_features_unobscured",
+        "visible_runtime_mouth_eye_expression_cues"
+      ],
+      "interactionCollisionEvidence": {
+        "proxyCueCount": 3,
+        "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+        "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+        "notEvidenceFor": [
+          "production_physics_readiness",
+          "validated_ragdoll_biomechanics",
+          "learner_readiness"
+        ]
+      },
+      "assets": [
+        {
+          "assetId": "nurse_kevin_lee_character",
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+          "sceneObjectName": "nurse_kevin_lee_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "nurse_kevin_lee_character:dialogue_target",
+            "nurse_kevin_lee_character:clinical_observation_target",
+            "nurse_kevin_lee_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "nurse_kevin_lee_character:phoneme_viseme_dialogue_cue",
+            "nurse_kevin_lee_character:dialogue_gaze_target_cue",
+            "nurse_kevin_lee_character:dialogue_eye_focus_target_cue",
+            "nurse_kevin_lee_character:scenario_emotion_expression_cue",
+            "nurse_kevin_lee_character:visible_runtime_mouth_shape_cue",
+            "nurse_kevin_lee_character:visible_runtime_eye_focus_cue",
+            "nurse_kevin_lee_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "nurse_kevin_lee_character:face_lip_eye_rig_contract_cue",
+            "nurse_kevin_lee_character:ragdoll_collision_proxy_cue",
+            "nurse_kevin_lee_character:physician_interaction_target_cue"
+          ],
+          "animationPlayback": "procedural_dialogue_expression_gaze_fallback",
+          "roleAnimationClipNames": [
+            "openclinxr_role_nurse_clinical_check_reassure"
+          ],
+          "activeRoleAnimationClipName": null,
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "gaze_probe_clip_missing"
+        },
+        {
+          "assetId": "parent_tara_johnson_character",
+          "assetPath": "/generated-humanoids/peds_anxious_parent.glb",
+          "sceneObjectName": "parent_tara_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "parent_tara_johnson_character:dialogue_target",
+            "parent_tara_johnson_character:clinical_observation_target",
+            "parent_tara_johnson_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "parent_tara_johnson_character:phoneme_viseme_dialogue_cue",
+            "parent_tara_johnson_character:dialogue_gaze_target_cue",
+            "parent_tara_johnson_character:dialogue_eye_focus_target_cue",
+            "parent_tara_johnson_character:scenario_emotion_expression_cue",
+            "parent_tara_johnson_character:visible_runtime_mouth_shape_cue",
+            "parent_tara_johnson_character:visible_runtime_eye_focus_cue",
+            "parent_tara_johnson_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "parent_tara_johnson_character:face_lip_eye_rig_contract_cue",
+            "parent_tara_johnson_character:ragdoll_collision_proxy_cue",
+            "parent_tara_johnson_character:physician_interaction_target_cue",
+            "parent_tara_johnson_character:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "source_comparator_fixed_pose_sampled",
+          "roleAnimationClipNames": [
+            "openclinxr_role_parent_anxious_fidget_guard"
+          ],
+          "activeRoleAnimationClipName": "openclinxr_role_parent_anxious_fidget_guard",
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "not_applicable",
+          "humanoidSourceProvenance": {
+            "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+            "sourceKind": "real_anny_candidate_unverified",
+            "usesRealAnnyForwardPass": true,
+            "realAnnyWeightsUsed": false,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+            "realismGrade": "B",
+            "notEvidenceFor": [
+              "b_plus_visual_realism_gate",
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ],
+            "provenanceManifestPath": "/generated-humanoids/peds_anxious_parent.provenance.json"
+          }
+        },
+        {
+          "assetId": "patient_maya_johnson_character",
+          "assetPath": "/generated-humanoids/peds_patient_child.glb",
+          "sceneObjectName": "patient_maya_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "patient_maya_johnson_character:dialogue_target",
+            "patient_maya_johnson_character:clinical_observation_target",
+            "patient_maya_johnson_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "patient_maya_johnson_character:phoneme_viseme_dialogue_cue",
+            "patient_maya_johnson_character:dialogue_gaze_target_cue",
+            "patient_maya_johnson_character:dialogue_eye_focus_target_cue",
+            "patient_maya_johnson_character:scenario_emotion_expression_cue",
+            "patient_maya_johnson_character:visible_runtime_mouth_shape_cue",
+            "patient_maya_johnson_character:visible_runtime_eye_focus_cue",
+            "patient_maya_johnson_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "patient_maya_johnson_character:face_lip_eye_rig_contract_cue",
+            "patient_maya_johnson_character:ragdoll_collision_proxy_cue",
+            "patient_maya_johnson_character:physician_interaction_target_cue",
+            "patient_maya_johnson_character:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "source_comparator_fixed_pose_sampled",
+          "roleAnimationClipNames": [
+            "openclinxr_role_patient_asthma_breathing_effort",
+            "openclinxr_role_patient_guard_withdraw_rlq"
+          ],
+          "activeRoleAnimationClipName": "openclinxr_role_patient_asthma_breathing_effort",
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "not_applicable",
+          "humanoidSourceProvenance": {
+            "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+            "sourceKind": "real_anny_candidate_unverified",
+            "usesRealAnnyForwardPass": true,
+            "realAnnyWeightsUsed": false,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+            "realismGrade": "B",
+            "notEvidenceFor": [
+              "b_plus_visual_realism_gate",
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ],
+            "provenanceManifestPath": "/generated-humanoids/peds_patient_child.provenance.json"
+          }
+        },
+        {
+          "assetId": "pediatric_urgent_care_bay_environment",
+          "assetPath": "/xr-assets/environment/pediatric_urgent_care_bay_environment.glb",
+          "sceneObjectName": "pediatric_urgent_care_bay_environment",
+          "status": "failed",
+          "fallbackActive": false
+        }
+      ],
+      "productionAssetReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity"
+      ]
+    }
+  },
+  "nurse": {
+    "comparator": "peds_anny_real_garment_nurse",
+    "frontPath": ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/nurse_real_garment_sleeve_front_2026-08-02.png",
+    "frontSizeBytes": 73134,
+    "threeQuarterPath": ".openclinxr/evidence/ui-xr-parent-nurse-sleeve-deform-2026-08-02/nurse_real_garment_sleeve_three_quarter_2026-08-02.png",
+    "threeQuarterSizeBytes": 74358,
+    "sleeveDeformEvidence": "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient",
+    "garmentGeometry": {
+      "name": "openclinxr_real_garment_from_phenotype_short_sleeve_exam_tshirt:y_up_capture_evidence",
+      "visible": true,
+      "source": "/generated-humanoids/peds_patient_child.glb",
+      "hasVisibleVolume": true,
+      "hasSeamFoldHints": true,
+      "sleeveDeform": "skinned_from_phenotype;separate_sleeve_geo;deform_with_body;peds_asthma_parent_anxiety_v1;short_sleeve_exam_tshirt;peds_anny_real_garment_patient"
+    },
+    "sceneAssets": {
+      "source": "window.__openClinXrSceneAssetEvidence",
+      "generatedAtMs": 2097,
+      "expectedAssetCount": 4,
+      "loadedCount": 3,
+      "failedCount": 1,
+      "pendingCount": 0,
+      "fallbackActiveCount": 0,
+      "cameraFramingCue": "humanoid_camera_framing_decluttered_three_actor_environment_review",
+      "visualFidelityCueIds": [
+        "generated_humanoid_front_fidelity_badge",
+        "generated_humanoid_face_hair_eyes_scrubs_shoes_cue",
+        "room_prop_label_occlusion_reduced",
+        "generated_humanoid_generator_native_front_orientation_preserved",
+        "humanoid_interaction_target_decluttered",
+        "generated_humanoid_facial_features_unobscured",
+        "visible_runtime_mouth_eye_expression_cues"
+      ],
+      "interactionCollisionEvidence": {
+        "proxyCueCount": 3,
+        "physicsProbeMode": "runtime_proxy_cues_with_offline_rapier_gate",
+        "latestProbeReportPath": "docs/openclinxr/humanoid-collision-probe-active-viseme-2026-05-23.json",
+        "notEvidenceFor": [
+          "production_physics_readiness",
+          "validated_ragdoll_biomechanics",
+          "learner_readiness"
+        ]
+      },
+      "assets": [
+        {
+          "assetId": "nurse_kevin_lee_character",
+          "assetPath": "/generated-humanoids/peds_nurse_kevin.glb",
+          "sceneObjectName": "nurse_kevin_lee_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "nurse_kevin_lee_character:dialogue_target",
+            "nurse_kevin_lee_character:clinical_observation_target",
+            "nurse_kevin_lee_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "nurse_kevin_lee_character:phoneme_viseme_dialogue_cue",
+            "nurse_kevin_lee_character:dialogue_gaze_target_cue",
+            "nurse_kevin_lee_character:dialogue_eye_focus_target_cue",
+            "nurse_kevin_lee_character:scenario_emotion_expression_cue",
+            "nurse_kevin_lee_character:visible_runtime_mouth_shape_cue",
+            "nurse_kevin_lee_character:visible_runtime_eye_focus_cue",
+            "nurse_kevin_lee_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "nurse_kevin_lee_character:face_lip_eye_rig_contract_cue",
+            "nurse_kevin_lee_character:ragdoll_collision_proxy_cue",
+            "nurse_kevin_lee_character:physician_interaction_target_cue",
+            "nurse_kevin_lee_character:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "source_comparator_fixed_pose_sampled",
+          "roleAnimationClipNames": [
+            "openclinxr_role_nurse_clinical_check_reassure"
+          ],
+          "activeRoleAnimationClipName": "openclinxr_role_nurse_clinical_check_reassure",
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "not_applicable",
+          "humanoidSourceProvenance": {
+            "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+            "sourceKind": "real_anny_candidate_unverified",
+            "usesRealAnnyForwardPass": true,
+            "realAnnyWeightsUsed": false,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+            "realismGrade": "B",
+            "notEvidenceFor": [
+              "b_plus_visual_realism_gate",
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ],
+            "provenanceManifestPath": "/generated-humanoids/peds_nurse_kevin.provenance.json"
+          }
+        },
+        {
+          "assetId": "parent_tara_johnson_character",
+          "assetPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+          "sceneObjectName": "parent_tara_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "parent_tara_johnson_character:dialogue_target",
+            "parent_tara_johnson_character:clinical_observation_target",
+            "parent_tara_johnson_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "parent_tara_johnson_character:phoneme_viseme_dialogue_cue",
+            "parent_tara_johnson_character:dialogue_gaze_target_cue",
+            "parent_tara_johnson_character:dialogue_eye_focus_target_cue",
+            "parent_tara_johnson_character:scenario_emotion_expression_cue",
+            "parent_tara_johnson_character:visible_runtime_mouth_shape_cue",
+            "parent_tara_johnson_character:visible_runtime_eye_focus_cue",
+            "parent_tara_johnson_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "parent_tara_johnson_character:face_lip_eye_rig_contract_cue",
+            "parent_tara_johnson_character:ragdoll_collision_proxy_cue",
+            "parent_tara_johnson_character:physician_interaction_target_cue"
+          ],
+          "animationPlayback": "procedural_dialogue_expression_gaze_fallback",
+          "roleAnimationClipNames": [
+            "openclinxr_role_parent_anxious_fidget_guard"
+          ],
+          "activeRoleAnimationClipName": null,
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "gaze_probe_clip_missing"
+        },
+        {
+          "assetId": "patient_maya_johnson_character",
+          "assetPath": "/generated-humanoids/peds_patient_child.glb",
+          "sceneObjectName": "patient_maya_johnson_character",
+          "status": "loaded",
+          "fallbackActive": false,
+          "affordanceCueIds": [
+            "patient_maya_johnson_character:dialogue_target",
+            "patient_maya_johnson_character:clinical_observation_target",
+            "patient_maya_johnson_character:generated_humanoid_hair_clothing_eye_detail_cue",
+            "patient_maya_johnson_character:phoneme_viseme_dialogue_cue",
+            "patient_maya_johnson_character:dialogue_gaze_target_cue",
+            "patient_maya_johnson_character:dialogue_eye_focus_target_cue",
+            "patient_maya_johnson_character:scenario_emotion_expression_cue",
+            "patient_maya_johnson_character:visible_runtime_mouth_shape_cue",
+            "patient_maya_johnson_character:visible_runtime_eye_focus_cue",
+            "patient_maya_johnson_character:visible_runtime_eyebrow_jaw_cheek_cue",
+            "patient_maya_johnson_character:face_lip_eye_rig_contract_cue",
+            "patient_maya_johnson_character:ragdoll_collision_proxy_cue",
+            "patient_maya_johnson_character:physician_interaction_target_cue",
+            "patient_maya_johnson_character:authored_clinical_idle_pose_clip_cue"
+          ],
+          "animationPlayback": "source_comparator_fixed_pose_sampled",
+          "roleAnimationClipNames": [
+            "openclinxr_role_patient_asthma_breathing_effort",
+            "openclinxr_role_patient_guard_withdraw_rlq"
+          ],
+          "activeRoleAnimationClipName": "openclinxr_role_patient_asthma_breathing_effort",
+          "gazeProbeAnimationClipNames": [],
+          "activeGazeProbeAnimationClipName": null,
+          "gazeProbePlayback": "not_applicable",
+          "humanoidSourceProvenance": {
+            "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
+            "sourceKind": "real_anny_candidate_unverified",
+            "usesRealAnnyForwardPass": true,
+            "realAnnyWeightsUsed": false,
+            "textureMode": "procedural_fallback",
+            "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+            "realismGrade": "B",
+            "notEvidenceFor": [
+              "b_plus_visual_realism_gate",
+              "production_asset_readiness",
+              "quest_readiness",
+              "clinical_validity",
+              "scoring_validity"
+            ],
+            "provenanceManifestPath": "/generated-humanoids/peds_patient_child.provenance.json"
+          }
+        },
+        {
+          "assetId": "pediatric_urgent_care_bay_environment",
+          "assetPath": "/xr-assets/environment/pediatric_urgent_care_bay_environment.glb",
+          "sceneObjectName": "pediatric_urgent_care_bay_environment",
+          "status": "failed",
+          "fallbackActive": false
+        }
+      ],
+      "productionAssetReadinessClaimed": false,
+      "notEvidenceFor": [
+        "production_asset_readiness",
+        "quest_readiness",
+        "clinical_validity"
+      ]
+    }
+  },
+  "claimBoundary": "not_clinical_not_quest_not_production_skeptic_visible_sleeve_deform_runtime_evidence_only",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "validated_adaptive_branching",
+    "b_plus_visual_realism_gate",
+    "website_publication",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness"
+  ]
+}
