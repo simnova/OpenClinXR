@@ -71,6 +71,25 @@ import { describe, expect, it } from "vitest";
  * cover the hand, and are permissively licensed. Garment weight transfer
  * (`transfer_weights_body_to_garment`) reads the body's groups and will be affected by any rig change
  * — that interaction is unmeasured here.
+ *
+ * ## FIXED (#307)
+ *
+ * `body_param_stage.py` now creates the library bodies with MPFB's shipped mixamo_unity rig
+ * (`HumanService.add_builtin_rig` → `rig.mixamoro_unity.json`, 64 bones) and the matching CC0 weight
+ * map (`weights.mixamoro_unity.json`), applied on the raw MakeHuman topology BEFORE the macro bake
+ * (bake_targets mangles the joint markers that drive MPFB's rig-position strategies) and before the
+ * helper strip (the shipped weights index the full 19,158-vertex topology). The armature is given the
+ * mesh's obj_import +90°-about-X object rotation so the bones land inside the Z-up body (measured at
+ * bind: head bone at z=1.55 on a 1.73 m body, driven-bone deformation band now holds 525 body verts).
+ *
+ * Measured after the flip (weight mass fractions, `mixamorig:LeftHand` + finger chain):
+ *   library adult_lean_female: hand+fingers 13.7%, forearm 7.1%, upper 4.0% — monotonic ordering
+ *   library adult_heavy_male:   hand+fingers 9.0%,  forearm 2.2%, upper 4.8% — monotonic ordering
+ *   mpfb2_aisha (known-good column): unchanged.
+ *
+ * The two `it.fails` markers were flipped to `it`; all three contracts pass. The `pose-bone-resolver`
+ * gained a `mixamorig:` alias map so the runtime pose consumers (clinical idle, supine/seated/hob)
+ * keep addressing the 14 landmarks on the new rig.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -188,14 +207,14 @@ const measured = await Promise.all(
 );
 
 describe("a library body's hand can be moved by its own rig", () => {
-  it.fails("(1) RED: the hand region carries a real share of the skin weight on every shipped body", () => {
+  it("(1) RED: the hand region carries a real share of the skin weight on every shipped body", () => {
     const starved = measured
       .filter((m) => m.hand.mass < MIN_HAND_MASS_FRACTION)
       .map((m) => `${m.id}: hand mass ${(m.hand.mass * 100).toFixed(2)}%`);
     expect(starved, "bodies whose hand bones own no skin").toEqual([]);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: upper arm -> forearm -> hand centroids are monotonically distal — dumping the whole limb on the hand bone is refused",
     () => {
       const broken: string[] = [];
