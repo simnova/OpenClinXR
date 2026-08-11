@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "openclinxr.body-param-stature-pre-fix.v1",
+  "issue": 304,
+  "measuredAt": "2026-08-11T09:40:57.101Z",
+  "instrument": "shipped GLB body-mesh Y extent via @gltf-transform NodeIO (same as planted contract) + provenance sidecar + sha256 of resolved anny reference OBJ",
+  "source": "shipped_outputs_of_current_body_param_stage_code_no_product_edit_yet",
+  "currentStageCommit": "6bef366d",
+  "rows": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "phenotype": {
+        "weight": 0.18,
+        "gender": 0
+      },
+      "preAlignmentStatureMakeHumanUnits": 17.324525833129883,
+      "shippedStatureMeters": 1.7599998998555009,
+      "recordedUniformScale": 0.10159008043632978,
+      "recordedBodyStatureAfterScaleMeters": 1.7599999928606471,
+      "annyReferenceAsset": "ed_chest_pain_nurse_adult",
+      "annyReferenceObjPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-287/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+      "annyReferenceObjSha256": "46a6ca8fa5521272e1093639828238202e997c67fc9549777b3e7aeac89eb705"
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "phenotype": {
+        "weight": 0.88,
+        "gender": 1
+      },
+      "preAlignmentStatureMakeHumanUnits": 16.974011421203613,
+      "shippedStatureMeters": 1.7599999528291193,
+      "recordedUniformScale": 0.10368792203770874,
+      "recordedBodyStatureAfterScaleMeters": 1.7599999875798498,
+      "annyReferenceAsset": "ed_chest_pain_adult_cast",
+      "annyReferenceObjPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-287/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+      "annyReferenceObjSha256": "46a6ca8fa5521272e1093639828238202e997c67fc9549777b3e7aeac89eb705"
+    }
+  ]
+}
