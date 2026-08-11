@@ -12,7 +12,7 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 36,
-    "total": 428
+    "total": 429
   },
   "entries": [
     {
@@ -2425,6 +2425,13 @@
     },
     {
       "path": "docs/madr/0050-generative-asset-optimization-pipeline.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0051-anny-reference-mpfb-match-protocol.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
