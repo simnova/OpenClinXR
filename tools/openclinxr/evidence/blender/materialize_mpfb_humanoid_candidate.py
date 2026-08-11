@@ -93,6 +93,33 @@ def main():
             f"a bake that ships without usable mouth morphs must fail loudly"
         )
 
+    # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
+    # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
+    # helper geometry — 36,972 tris, exactly MADR 0052's "with helpers" figure — and Aisha
+    # has shipped with those shells since #263 (graded 2026-08-11: a floor-length robe and a
+    # hood with flat quads across the face, hiding the correct body beneath). 
+    # ExportService.bake_modifiers_remove_helpers (exportservice.py:79, remove_helpers=True)
+    # is the MPFB-shipped strip; the documented result is 26,756 tris / 13,380 verts (MADR
+    # 0052 cross-check). ORDER IS LOAD-BEARING: the face targets must load on the FULL base
+    # topology above — deleting helper verts re-maps shape-key blocks, and a target loaded
+    # after the strip would mis-index (body_param_stage.py #221 A2). The FACS keys loaded
+    # above survive on body-surface verts; Blender updates their key blocks when the helper
+    # verts are deleted.
+    verts_before_strip = len(human.data.vertices)
+    tris_before_strip = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
+    from bl_ext.user_default.mpfb.services.exportservice import ExportService  # noqa: E402
+
+    ExportService.bake_modifiers_remove_helpers(
+        human, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True
+    )
+    bpy.context.view_layer.update()
+    verts_after_strip = len(human.data.vertices)
+    tris_after_strip = sum(max(len(p.vertices) - 2, 0) for p in human.data.polygons)
+    print(
+        f"HELPER_STRIP verts {verts_before_strip} -> {verts_after_strip}; "
+        f"tris {tris_before_strip} -> {tris_after_strip}"
+    )
+
     armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
     if armature is None:
         raise RuntimeError("MPFB standard rig was not created")

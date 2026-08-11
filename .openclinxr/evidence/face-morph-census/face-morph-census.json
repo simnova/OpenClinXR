@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.face-morph-census.v1",
-  "generatedAt": "2026-08-11T17:07:18.780Z",
+  "generatedAt": "2026-08-11T17:37:39.642Z",
   "selector": "largest primitive that carries morph targets; face clauses exclude $md-* macro-detail body dials",
   "usableDefinition": "displaces at least one vertex AND displaces fewer than half of the body's vertices (per rail bodyVerts)",
   "rails": [
@@ -347,7 +347,7 @@
     {
       "railId": "mpfb_ob_patient_aisha",
       "assetPath": "/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "bodyVerts": 20052,
+      "bodyVerts": 13025,
       "targetCount": 42,
       "faceTargets": 31,
       "usableMouth": 13,
@@ -355,7 +355,7 @@
         "mouth-compression",
         "mouth-corner-puller",
         "mouth-depression-retraction",
-        "mouth-depression",
+        "mouth-depression-retraction.001",
         "mouth-elevation",
         "mouth-eversion",
         "mouth-open",
@@ -368,7 +368,7 @@
       ],
       "emptyFaceTargets": [],
       "wholeBodyFaceTargets": [],
-      "sha256": "e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e"
+      "sha256": "91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f"
     },
     {
       "railId": "body_param_adult_lean_female_library",
