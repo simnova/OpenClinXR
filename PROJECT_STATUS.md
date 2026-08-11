@@ -168,6 +168,27 @@ MakeClothes IS consumed and hm08 DOES reach a learner — the spouse loads
 silently emits nothing usable** — 392 triangles cannot cover legs, and the bare skin below is what
 reads as a see-through figure in every capture of that station.
 
+## Concurrent-session scope boundary (2026-08-10 21:15, measured)
+
+A second session is committing to this checkout directly. Evidence: `1fe9657f` at 19:29
+("multi-view pack wiring for factory bake CLI", 56 files, harness-agent regeneration), issue-232
+pack manifests regenerated at 19:40 and again 20:27 with `generator.tool: image_gen, harness: grok`
+(image_gen is 403 for this session), and an untracked `tools/openclinxr/asset-pipeline/trellis/vr-postopt-ladder.ts`.
+
+**They own the TRELLIS / equipment-bake lane right now.** `KNOWN_SUBJECTS` went 3 -> 5 (`iv-pole`,
+`o2-port` added by them) while 35 packs exist and 6 real GLBs are consumed. The
+"batch the remaining equipment bakes" slice is therefore **not queued by this session** despite being
+the highest-ROI item on paper — it would collide.
+
+**This session's lane:** the clothing/body rail (hm08 + MakeClothes + Anny scalp region), the
+dark-factory chain and throughput, and the OpenClaw contract layer. Three consequences of the overlap
+have already been paid: an uncommitted `PROJECT_STATUS.md` edit swept into their commit, a
+`role-harness-policy.ts` write-during-read that red the architecture gate mid-integrate, and a
+pre-existing red inherited by #280 from their in-flight manifest migration.
+
+**Not a complaint and nothing is blocked** — recorded so slice selection accounts for it rather than
+rediscovering it each cycle.
+
 ## Backlog (top)
 
 | Area | Next slice | Template | Role lead |
