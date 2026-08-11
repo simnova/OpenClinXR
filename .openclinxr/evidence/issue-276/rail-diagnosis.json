@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.rail-diagnosis.v1",
   "issue": 276,
-  "measuredAt": "2026-08-11T17:37:38.609Z",
+  "measuredAt": "2026-08-11T20:09:27.157Z",
   "diagnosis": {
     "case": "c",
     "label": "The Anny rail HAS a phenotype→geometry path (generate_mesh.py::build_real_anny_body runs the real Anny model with phenotype_kwargs), but casting still points THREE of six adult actors at prebuilt GLBs produced from ONE tracked base body — those provenance records remain blender-only re-bakes (generatorMode blender_only_rebake_on_tracked_real_anny_base_obj_v1, notRun includes anny_forward_pass) that copy a base OBJ per actor and never re-run the forward pass. The peds parent and peds nurse were re-orchestrated from their own phenotypes on 2026-08-11 (#303): anny 0.6.0 is installed, so that path now takes the real forward pass and produced bodies distinct from every other actor's.",
