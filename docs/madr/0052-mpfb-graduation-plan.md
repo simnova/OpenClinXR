@@ -30,7 +30,45 @@ advancement**.
 | Hair | **Absent on every rail.** MPFB's hair path is asset-based (`is_hair_asset_installed`); zero hair assets on this machine. |
 | Runtime | 1 real MPFB actor (OB patient Aisha). 22 case fixture files. |
 
-**The measured Jacobian** — `∂landmark/∂macro`, metres per unit macro, at all-macros-0.5:
+## Girth solving — SUPERSEDED 2026-08-11: use the shipped measure targets, not a macro Jacobian
+
+**What was going to be hand-rolled:** a coupled Newton/finite-difference solve over the six macros,
+using the Jacobian below, to hit chest/waist/hip together.
+
+**Do not build that.** MPFB2 ships **40 `measure-*.target.gz` files** (`data/targets/torso/` and
+`arms/ feet/ hands/ legs/ neck/`) — waist, bust, hips, underbust circumference, plus limb girths. They
+are invisible in the UI (`data/targets/target.json`'s `"measure"` section is an empty stub and
+`ui/new_human/randomize/characterbuilder.py:185` filters it out) but load fine via
+`TargetService.load_target(obj, full_path, weight=…, name=…)`.
+
+**Measured 2026-08-11, one target at a time on a fresh default body**, girths through the repo's own
+landmark instrument, artifact at `.openclinxr/evidence/measure-target-probe/orthogonality.json`:
+
+| target @ weight 1.0 | ΔChest cm | ΔWaist cm | ΔHip cm | selectivity |
+|---|---:|---:|---:|---:|
+| `measure-waist-circ-incr` | 0.10 | **9.73** | 0.00 | **98×** |
+| `measure-bust-circ-incr` | **16.82** | 0.87 | 0.00 | **19×** |
+| `measure-hips-circ-incr` | 0.00 | 0.00 | **16.02** | **8890×** |
+
+Baseline chest 0.8978 / waist 0.7225 / hip 0.9674 m.
+
+**Consequence for P1.** The macros are strongly COUPLED — `weight` moves waist +0.0944 and hip +0.0917,
+a selectivity of ~1.03× — while these targets are 19–8890× selective with 10–17 cm of range each. So the
+solver is **independent 1-D bisection per girth**, not a coupled multivariate solve: set stature and
+build from macros first, then bisect each girth on its own target. Cheaper, more stable, and it
+converges per-girth instead of trading chest error against waist error.
+
+**NOT TESTED, and each is a real gap:** only the `+incr` direction, only at weight 1.0, only on the
+DEFAULT macro operating point. The `-decr` targets, intermediate weights, linearity across the weight
+range, and whether selectivity holds on a heavily-macro'd body are all unmeasured. The bust target's
+0.87 cm leak into waist is small but not zero, so bisect waist AFTER chest if both are targeted.
+
+**Licence caution.** MakeHuman's `0_modeling_a_measurement.py` `Ruler` class is the only prior art for
+converting these to cm, and it is **AGPL-resident — do not vendor it or its vertex-index chains.** The
+repo's own landmark instrument already measures girth and is what the table above used.
+
+**The measured Jacobian** — `∂landmark/∂macro`, metres per unit macro, at all-macros-0.5 — retained
+because it still governs stature and build, which the measure targets do not touch:
 
 | macro | stature | shoulder | chest | waist | hip |
 |---|---:|---:|---:|---:|---:|
@@ -130,10 +168,19 @@ the preceding capture. Advancement takes the next unstarted phase item.
 
 **CORRECTED 2026-08-11 after verifying the MPFB API. Two of the three preconditions were self-inflicted.**
 
-**Enter through `HumanService.create_human(feet_on_ground=True, macro_detail_dict=…)`.** Measured: it
-returns **13,380 verts / 13,378 polys with minZ = 0.0000** — already body-only and already grounded.
-`ExportService.bake_modifiers_remove_helpers()` on that object is a **no-op**: identical counts, identical
-bounds.
+**Enter through `HumanService.create_human(feet_on_ground=True, macro_detail_dict=…)`.**
+
+**CORRECTED AGAIN 2026-08-11 05:45 — the "no-op" claim below is WITHDRAWN, measured false.** A live
+probe (`.openclinxr/evidence/measure-target-probe/`) shows `create_human(feet_on_ground=True)` returns
+**19,158 verts** — helper-included — and `ExportService.bake_modifiers_remove_helpers(obj,
+remove_helpers=True)` takes it to **13,380**. So the call is **required, not redundant**. The 13,380
+figure quoted below is what you get *after* that call, not what `create_human` natively produces.
+Grounding via `feet_on_ground=True` is still real and still not a separate step.
+
+*Withdrawn: "create_human returns 13,380 already body-only; bake_modifiers_remove_helpers is a no-op:
+identical counts, identical bounds." Measured 19,158 → 13,380. The earlier reading was taken from the
+EVALUATED mesh (`evaluated_get(depsgraph).to_mesh()` reports 13,380 while `obj.data.vertices` reports
+19,158) — two instruments answering different questions, and the wrong one was recorded.*
 
 So of the three preconditions previously recorded here:
 
