@@ -15,7 +15,7 @@ parseable_sections: 6
 
 **Canonical state file** for the OpenClaw-style / OpenClaw-inspired agent workflow. This is the single source of truth for autonomy status, current priority, active work, backlog, and stable direction. Rehydrate from the first ~60-80 lines only; all transient WIP (file:line, subagent IDs, capture logs) belongs in dated per-slice checkpoints below and registered artifacts. Pair with `worker-backlog-and-validation-matrix.md` for ownership matrix. Required Per-Slice Record fields: Product path advanced, Blueprint/factory tie, Touched files, Evidence, Token introspection, Next queued slice. See `docs/openclinxr/openclaw-runbook-2026-05-27.md` and `docs/openclinxr/openclaw-tool-adapters-2026-05-27.md`. Post-slice: run `pnpm docs:drift-check`.
 
-Last updated: 2026-08-08
+Last updated: 2026-08-11
 
 ## Autonomy
 
@@ -36,7 +36,7 @@ Last updated: 2026-08-08
 | **equipment** | **generation is the bottleneck, not the allowlist.** 2 generated assets consumed and rendering live: wall clock 34,885t (#244/#245), bedside monitor 60,378t (#253). 3 equipment GLBs exist in total; **36 parametric ids remain**; 12 TRELLIS subjects registered, 3 ever baked. Each remaining id needs a reference pack → Metal bake → optimize → promote. Batch, not serial. Multi-view conditioning proven reachable (#255). |
 | **rooms** | **#204 LANDED 2026-08-08 — the door-gap residual described here for two days was already fixed.** A peer review read this stale row and graded rooms as unfixed; the header is the rehydration fast-path and a stale row misleads every agent that reads it, including me. Next rooms residual: not currently measured. |
 | **clothing** | **active only for non-forearm parameters.** Cardigan hem shipped at 0.42 and four humanoids rebaked. Sleeve *length* is closed as body-bound, not coefficient-bound — #197 proved the lever by moving it to its limit. |
-| **humans** | **The freeze applies to the ANNY rail ONLY — MPFB is unblocked and was never frozen.** Corrected 2026-08-10 after the operator asked why no MPFB2 humanoids appear in scenes. Measured: MPFB is installed in Blender 5.1, 6 MPFB assets exist (all in `cagematch/` and `candidates/`, **0** in `generated-humanoids/`), 7 repo tooling files exist including `anny-reference-mpfb-match.ts` (#221 — D11's "Anny-as-reference → MPFB body match", which reads shipped Anny **GLBs**, not the blocked `import anny` package), and **0 runtime actors resolve to an MPFB asset**. Per D11 MPFB is a first-class rail — standard rig, face shape keys, MakeHuman wardrobe — not an Anny fallback. Promotion is #263. Known hazard: #222 records the two rails rendering as different material classes in one room (0 textures / no hair vs 1 texture / scalp mesh). Anny rail remains genuinely blocked: `import anny` fails, operator declined the restore (#192). The arm surface ends between `y_frac 0.54` and `0.50` — 1,146 vertices past 0.25 lateral at 0.54, **zero** at 0.50. No body-surface-derived garment can have a long sleeve because there is no forearm. Only #199's residual band measurement remains, and it authors no geometry. |
+| **humans** | **The freeze applies to the ANNY rail ONLY — MPFB is unblocked and was never frozen.** Corrected 2026-08-10 after the operator asked why no MPFB2 humanoids appear in scenes. Measured: MPFB is installed in Blender 5.1, 6 MPFB assets exist (all in `cagematch/` and `candidates/`, **0** in `generated-humanoids/`), 7 repo tooling files exist including `anny-reference-mpfb-match.ts` (#221 — D11's "Anny-as-reference → MPFB body match", which reads shipped Anny **GLBs**, not the blocked `import anny` package), and **0 runtime actors resolve to an MPFB asset**. Per D11 MPFB is a first-class rail — standard rig, face shape keys, MakeHuman wardrobe — not an Anny fallback. Promotion is #263. Known hazard: #222 records the two rails rendering as different material classes in one room (0 textures / no hair vs 1 texture / scalp mesh). **CORRECTED 2026-08-11 — three claims in this row were overturned by measurement.** (a) `import anny` **works**: anny 0.6.0 is installed, so the "genuinely blocked" line is withdrawn and the hardcoded role→base map it justified has expired (#305). (b) **1 runtime actor now resolves to MPFB** — `patient_aisha_khan_v1` → `mpfb-ob-patient-aisha.glb`, not 0. (c) **#199's no-forearm claim is rail-specific, not universal**: the Anny body's `forearm.L/R` carry **0.00% weight mass** (joints present, no vertex references them), the hm08 library rig carries **5.99%** (weighted, never dominant), and MPFB2's 137-bone rig carries a full `upperarm01/02 → lowerarm01/02 → wrist → finger` chain. So #199 closes by migration, not by re-rigging Anny. Measured state of the MPFB rail today: pose bones resolve on all three rails (#306 landed); library-body hands carry **0.00%** skin weight with 20,216 vertices collapsed onto `upper_armL` (#307 in flight); the runtime's `openclinxr_*` morph keys are absent on every MPFB-topology body so all viseme driving silently no-ops (#308 in flight); Anny's own morph targets are **constant-vector stubs** (sd exactly 0, one direction) while the library's 32 MPFB FACS morphs are genuinely graded (#224). |
 
 **Operator decisions recorded 2026-08-08 (#192):** hm08 basemesh ships as-is (#161 closed); CC-BY garments allowed conditional on a compliance surface that does not yet exist (#193); Anny package restore skipped.
 
@@ -342,6 +342,50 @@ residential sampler with no clinical station addressing, independent of its 86x 
 ## Per-Slice Checkpoints
 
 (Transient WIP details — file:line, subagent IDs, capture logs — recorded here per slice. Rehydration reads only the header above + targeted grep on this section. Worker-backlog matrix at `docs/openclinxr/worker-backlog-and-validation-matrix.md` for ownership. Archive old blocks: `pnpm openclaw:checkpoint:archive -- --keep 7`.)
+
+### 2026-08-11 mpfb-graduation-rig-and-face-resolution (Q1 + Q5)
+
+Product path advanced: the MPFB rail went from "one actor, unposable, mute" toward a rail the runtime
+can actually drive. **#304 landed** (`bf8ea4df`) — `align_body_to_reference` no longer scales each body
+onto a shared reference stature; the 3.51 cm macro-produced spread now survives (lean 1.760000 -> 1.732453,
+heavy 1.760000 -> 1.697401, both `uniformScale` 0.1). **#306 landed** (`92f78249`, 68 turns) — the shipped
+MPFB2 actor resolved **1 of 14** runtime pose bones (only `head`); `resolvePoseBone` in
+`@openclinxr/asset-registry` now resolves 14/14 on all three rails, wired into six consumers including
+`hob-extremity-flex.ts`, a consumer the brief had missed.
+
+Blueprint/factory tie: Q1 (case-driven phenotype must reach a vertex and a bone) + Q5 (each slice
+carries a planted contract with a probed counterweight). D1 throughout — every fix wires a shipped tool
+rather than hand-authoring.
+
+Touched files: `body_param_stage.py`, `packages/openclinxr/asset-registry/src/pose-bone-resolver.ts`,
+`apps/ui-xr/src/{clinical-idle-posture,supine-pose,seated-pose,hob-extremity-flex,pose-bone-runtime}.ts`,
+`physics-touch/apply-physics-bone-transforms.ts`, four planted contracts under
+`tools/openclinxr/evidence/`, `docs/madr/0052-mpfb-graduation-plan.md`.
+
+Evidence: `.openclinxr/evidence/measure-target-probe/orthogonality.json` (MPFB's 40 shipped
+`measure-*.target.gz` are near-orthogonal girth dials — 19x to 8890x selective, 10-17 cm range, so P1's
+solver is per-girth bisection, NOT the coupled Jacobian this MADR planned);
+`.openclinxr/evidence/wardrobe-baseline/pre-307.json` (poke-through before the #307 re-bake: up to
+47.21% of sampled body vertices interpenetrate a garment reporting verdict `covers`);
+`.openclinxr/evidence/glb-grade-capture/2026-08-11T10-27-29Z/` (lit + structure, orchestrator-graded).
+
+Risk remaining: three defects are measured and NOT fixed. Library-body hands carry **0.00%** skin weight
+with 20,216 vertices collapsed onto `upper_armL` while MPFB ships a **CC0** `weights.mixamo_unity.json`
+(592 vertex entries for `LeftHand` alone) that nothing consumes (#307, in flight). Every MPFB-topology
+body lacks the `openclinxr_*` morph keys the runtime drives, so viseme output silently no-ops (#308, in
+flight). Anny's own morph targets are **constant-vector stubs** — identical magnitude, one direction —
+so that rail is not the fallback it appears to be (#224). Body-class macros remain twelve hand-authored
+literals and the girth solve has no valid target until #303/#293 supply distinct references (#305).
+`pnpm typecheck` is red at 6,282 errors across 221 files with nothing gating on it (#309).
+
+Instrument note, four killed this session and worth not re-deriving: dominant-vertex counting is blind
+to secondary weights; geometric nearest-neighbour picks `oris02` for `head`; cross-rail joint position
+conflates rig with pose; and morph "coherence" alone cannot separate a stub from a jaw-drop — magnitude
+spread and direction count can. A gradedness counterweight was written, measured vacuous (32/32 library
+morphs graded), and replaced with anatomical ordering.
+
+Next queued slice: harvest #307 and #308, then MADR 0052's runtime-wiring tick, which stayed blocked all
+of 07:00 because promoting more actors to MPFB ships more unposable figures until #306/#307 are both in.
 
 ### 2026-08-07 three-lane-cagematch-wave (Q5 + lane C)
 
