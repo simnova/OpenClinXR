@@ -90,6 +90,17 @@ import { describe, expect, it } from "vitest";
  * deforms rather than translates; it does not say it looks like a mouth opening. Nothing here claims
  * the FACS morphs are anatomically correct, nor that a viseme timeline plays correctly once they are
  * reachable.
+ *
+ * ## FIXED (#308)
+ *
+ * `packages/openclinxr/asset-registry/src/morph-target-resolver.ts` now exports
+ * `resolveMorphTarget(canonicalName, availableNames)` — identity-first, then the MPFB FACS alias map
+ * (`openclinxr_mouth_open` → `mouth-open`, `openclinxr_brow_concern` → `eyebrows-left-inner-up`),
+ * both verified present on the two library bodies. Wired (required, not optional): `applyVisemeWeights`
+ * (`viseme-morph-apply.ts`) resolves every requested name through the resolver before the dictionary
+ * lookup, and the `main.ts` morph cue goes through the same resolution via `resolveMorphIndex`.
+ * The `it.fails` markers on (1) and (2) were flipped to `it`; all three contracts pass on both
+ * library bodies, and the Anny-rail net (3) stays green.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -213,7 +224,7 @@ async function loadResolver(): Promise<
 }
 
 describe("the runtime can reach a real mouth morph on the MPFB-topology bodies", () => {
-  it.fails(
+  it(
     "(1) RED: mouth AND brow both resolve to DISTINCT targets present on both library bodies",
     async () => {
       const resolveMorphTarget = await loadResolver();
@@ -234,7 +245,7 @@ describe("the runtime can reach a real mouth morph on the MPFB-topology bodies",
     },
   );
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: the resolved brow morph sits ABOVE the resolved mouth morph, and neither is a constant-offset stub",
     async () => {
       const resolveMorphTarget = await loadResolver();

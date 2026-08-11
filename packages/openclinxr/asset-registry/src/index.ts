@@ -9,6 +9,7 @@ export * from "./runtime-asset-review.js";
 export * from "./runtime-bundles.js";
 export * from "./runtime-room-prop-color.js";
 export * from "./pose-bone-resolver.js";
+export * from "./morph-target-resolver.js";
 export * from "./actor-posture.js";
 export {
   ENVIRONMENT_SHELL_DESCRIPTORS,
