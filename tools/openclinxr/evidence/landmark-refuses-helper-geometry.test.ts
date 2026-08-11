@@ -80,6 +80,33 @@ import { parseObj } from "./anny-mpfb-landmark-compare.js";
  * is untouched. Whether 13,380 is stable across MPFB versions is still unmeasured and this contract
  * deliberately no longer depends on it. Nothing here strips anything: stripping stays in the generator,
  * where `bake_modifiers_remove_helpers` already lives.
+ *
+ * ## FIXED (#301)
+ *
+ * The detector landed in tools/openclinxr/evidence/anny-mpfb-landmark-compare.ts as the named export
+ * `detectMakeHumanHelperGeometry(objText)` next to `parseObj` (one copy of the rule for every landmark
+ * caller). Detection is by OBJ GROUP NAME — `g helper-*` (clothes/hair fitting shells) and `g joint-*`
+ * — never by vertex count; the 13,380 cross-check stays a cross-check. The report names the offending
+ * groups rather than only counting them.
+ *
+ * The landmark entry point now REFUSES: `extractLandmarks` throws with the offending group names when
+ * `detectMakeHumanHelperGeometry` reports helper geometry, before any landmark is computed. Stripping
+ * is deliberately not implemented here — it belongs to the generator (MPFB's
+ * `ExportService.bake_modifiers_remove_helpers`, MADR 0052) — so a caller that passes a raw base gets
+ * a loud error instead of a plausible-but-wrong measurement.
+ *
+ * Clause outcomes on this tree:
+ *   (1) RED  — the 4-line `g helper-tights` fixture is flagged; `helperGroups` names `helper-tights`.
+ *   (2) NET  — all seven tracked Anny references measure with `hasHelperGeometry: false` (zero groups).
+ *   (3) RED  — the same 12-vertex fixture is flagged: a count threshold cannot see it, a group-name
+ *              detector can.
+ *   (4) NET  — `g body` / `g body_lower` are ordinary OBJ groups and are NOT flagged (Blender-exported
+ *              OBJs declare `g <object-name>` lines routinely).
+ *
+ * Test-body note: the (2) filter's type predicate `r is { id: string; text: string }` was not
+ * assignable to its `as const` parameter type (TS2677) and produced two TS2345 follow-ons — present at
+ * the planted commit, invisible to the esbuild vitest run. Fixed to `r is (typeof r) & { text: string }`
+ * (assignable, same narrowing). No assertion in the planted contract was weakened or reworded.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -160,7 +187,7 @@ function referenceObj(id: string): string | null {
 }
 
 describe("the landmark instrument can tell a body from a body wearing MakeHuman helper shells", () => {
-  it.fails("(1) RED: a mesh declaring a MakeHuman helper group is reported as helper-bearing", async () => {
+  it("(1) RED: a mesh declaring a MakeHuman helper group is reported as helper-bearing", async () => {
     const detect = await loadDetector();
     expect(detect, "anny-mpfb-landmark-compare must export detectMakeHumanHelperGeometry").not.toBeNull();
     const report = detect!(HELPER_BEARING_OBJ);
@@ -171,7 +198,7 @@ describe("the landmark instrument can tell a body from a body wearing MakeHuman 
   it("(2) NET known-good: no tracked Anny reference is flagged — refusing everything is refused", async () => {
     const detect = await loadDetector();
     const present = TRACKED_REFERENCES.map((id) => ({ id, text: referenceObj(id) })).filter(
-      (r): r is { id: string; text: string } => r.text !== null,
+      (r): r is (typeof r) & { text: string } => r.text !== null,
     );
     // These are tracked (#297), so absence is an environment defect, not a gitignore one.
     expect(present.length, "tracked Anny references found on disk").toBeGreaterThanOrEqual(6);
@@ -187,7 +214,7 @@ describe("the landmark instrument can tell a body from a body wearing MakeHuman 
     expect(flagged, "tracked references wrongly flagged as helper-bearing").toEqual([]);
   });
 
-  it.fails(
+  it(
     "(3) RED COUNTERWEIGHT: detection is by GROUP NAME, not vertex count — a 12-vertex helper mesh is still flagged",
     async () => {
       const detect = await loadDetector();
