@@ -124,7 +124,7 @@ import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
-import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes } from "./viseme-runtime-wire.js";
+import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, resolveMorphIndex } from "./viseme-runtime-wire.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
@@ -8927,9 +8927,9 @@ function applyHumanoidMorphTargetCue(
     if (!(object instanceof Mesh) || !object.morphTargetDictionary || !object.morphTargetInfluences) {
       return;
     }
-    const mouthOpenIndex = object.morphTargetDictionary.openclinxr_mouth_open;
-    const browConcernIndex = object.morphTargetDictionary.openclinxr_brow_concern;
-    const cheekTensionIndex = object.morphTargetDictionary.openclinxr_cheek_tension;
+    const mouthOpenIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_mouth_open");
+    const browConcernIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_brow_concern");
+    const cheekTensionIndex = resolveMorphIndex(object.morphTargetDictionary, "openclinxr_cheek_tension");
     if (typeof mouthOpenIndex === "number") {
       object.morphTargetInfluences[mouthOpenIndex] = Math.min(0.95, Math.max(0, openness + expressionWeights.mouthOpen * 0.18));
       applied++;

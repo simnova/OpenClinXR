@@ -7,10 +7,12 @@
  * resolves phonemes to real viseme target *names*; this is the missing downstream that can
  * apply those weights onto the correct morph indices.
  *
+ * #308 wiring: every requested name is resolved through `resolveMorphTarget` first —
+ * identity-first (the Anny rail carries the canonical names), then the MPFB FACS alias map
+ * for the library bodies, which carry `mouth-open` / `eyebrows-*-inner-up` instead of the
+ * `openclinxr_*` / `viseme_*` spellings the runtime asks for. A miss stays a silent skip.
+ *
  * Decisions recorded here (not locked by the brief):
- * - **Not wired into `main.ts` this slice.** The live path still feeds a scalar weight with no
- *   viseme name (`applyGeneratedDriveViseme(root, weight)`). Connecting needs a follow-on that
- *   passes named weights from `driveVisemeTimeline` frames; main.ts is size-frozen at 10240.
  * - **Only write requested names.** Do not zero non-active viseme targets — callers that want
  *   exclusive activation (e.g. `driveVisemeTimeline`) already emit full maps with zeros.
  * - **Missing dictionary names are skipped** (partial GLBs / optional targets). No throw, no
@@ -19,10 +21,24 @@
  * claimScope: mouth morph application only. notEvidenceFor anatomy / body proportions.
  */
 
+import { resolveMorphTarget } from "@openclinxr/asset-registry";
+
 export type MorphTargetLike = {
   morphTargetDictionary: Record<string, number>;
   morphTargetInfluences: number[];
 };
+
+/**
+ * Resolve a canonical runtime morph name to a dictionary index on a given body, or undefined.
+ * The single choke-point for morph-name resolution in the ui-xr runtime (#308).
+ */
+export function resolveMorphIndex(
+  dict: Record<string, number>,
+  canonicalName: string,
+): number | undefined {
+  const resolved = resolveMorphTarget(canonicalName, new Set(Object.keys(dict)));
+  return resolved === null ? undefined : dict[resolved];
+}
 
 /**
  * Write each named weight to the morph index its name maps to in `morphTargetDictionary`.
@@ -37,9 +53,14 @@ export function applyVisemeWeights(
   if (!dict || !influences || influences.length === 0) {
     return;
   }
+  const availableNames = new Set(Object.keys(dict));
 
   for (const [name, weight] of Object.entries(weights)) {
-    const index = dict[name];
+    const resolved = resolveMorphTarget(name, availableNames);
+    if (resolved === null) {
+      continue;
+    }
+    const index = dict[resolved];
     if (typeof index !== "number" || !Number.isInteger(index)) {
       continue;
     }

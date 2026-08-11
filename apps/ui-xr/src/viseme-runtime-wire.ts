@@ -17,7 +17,11 @@ import {
   type PhonemeCue,
   type VisemeFrame,
 } from "./viseme-timeline-drive.js";
-import { applyVisemeWeights, type MorphTargetLike } from "./viseme-morph-apply.js";
+import {
+  applyVisemeWeights,
+  type MorphTargetLike,
+} from "./viseme-morph-apply.js";
+export { resolveMorphIndex } from "./viseme-morph-apply.js";
 
 /** Dialogue / gen-drive tokens → ARKit-style phoneme labels resolveVisemeTarget understands. */
 const DIALOGUE_PHONEME_TO_ARKIT: Readonly<Record<string, string>> = {
