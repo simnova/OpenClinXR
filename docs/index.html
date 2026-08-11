@@ -317,6 +317,68 @@
         </p>
       </section>
 
+      <section id="rig" class="band band--evidence" aria-labelledby="rig-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="rig-title">These hands could not bend this morning.</h2>
+        </div>
+        <p class="status-copy">
+          The two library bodies were bound to a hand-rolled bounding-box armature with Blender's
+          automatic weights. Measured, that put <strong>0.00%</strong> of the skin weight on
+          <code>hand.L/R</code> and collapsed <strong>20,216 vertices onto a single upper-arm
+          bone</strong> — an arm that moved as one rigid piece from shoulder to fingertip. The fingers
+          were in the mesh. Nothing could move them.
+        </p>
+        <p class="status-copy">
+          They now ride MPFB's 64-bone <code>mixamo_unity</code> rig with its shipped
+          <strong>CC0</strong> weight map — <code>mixamorig:LeftHand</code> alone carries 592 vertex
+          entries, with full finger chains. Both files shipped with MPFB and neither was being used.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/mpfb-rig-posed-heavy-male-2026-08-11.png"
+              alt="Supine isolated render of the heavy-male library body in green scrubs, hands resting together on the abdomen with individually posed fingers, knees slightly flexed"
+              style="width: 100%; display: block;"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              hm08 heavy-male body · recumbent posture lab · hands folded on the abdomen, fingers posed individually.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/mpfb-rig-posed-lean-female-2026-08-11.png"
+              alt="Supine isolated render of the lean-female library body in a blue top and teal trousers, hands together on the abdomen with posed fingers"
+              style="width: 100%; display: block;"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              hm08 lean-female body · same lab, same rig · the arms fold across the body rather than swinging as one piece.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>Why supine, and why that is the better evidence.</strong> A standing rest pose looks
+          identical before and after a skeleton change — it would prove nothing. These are recumbent
+          renders from the isolated posture harness, and the folded arms and separated fingers are
+          shapes the previous rig could not produce at all.
+        </p>
+        <p class="status-copy">
+          <strong>What these are not.</strong> Isolated lab renders, not in-station frames: no room, no
+          other actors, no clinical context. Framing is computed from the subject's bounding box by the
+          harness, not authored — which is the point, because the authored per-mode cameras in the full
+          scene are a separate and still-open defect. Two attempts at hand-tuning those camera
+          positions today were measured and reverted, one of them producing a 7.4&nbsp;KB blank frame.
+        </p>
+        <p class="status-copy">
+          Defects still visible and unfixed: the sawtooth seam where the top meets the trousers, and
+          low-polygon faceting across the limbs. Neither is claimed as solved.
+        </p>
+      </section>
+
       <section id="dark-factory" class="band band--factory" aria-labelledby="dark-factory-title">
         <div class="section-heading">
           <p class="eyebrow">Dark software factory · shaping up</p>
