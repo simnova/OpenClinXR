@@ -244,16 +244,22 @@ export type LowerGarmentCandidateRecord = {
 export const LOWER_GARMENT_CANDIDATES: LowerGarmentCandidateRecord[] = [
   {
     garmentId: "cortu_cargo_pants",
+    // #310 — source acquired from the makehumancommunity pants01 CC0 pack (author Cortu
+    // Johnstone) and cached under the tracked provider cache. Cached as `cargo_pants.mhclo`
+    // (the asset's internal name; the pack's original filename is `cortu_cargo_pants.mhclo`).
+    // Ledger row: `makehuman-pants01` (2026-08-11).
     sourceUrl:
-      "makehumancommunity pants pack / Cortu Johnstone cargo_pants (local staging: .openclinxr/evidence/issue-151/staging/cortu_cargo_pants.mhclo)",
-    localMhcloRel: ".openclinxr/evidence/issue-151/staging/cortu_cargo_pants.mhclo",
-    localObjRel: ".openclinxr/evidence/issue-151/staging/cargo_pants.obj",
+      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; cortu_cargo_pants by Cortu Johnstone; cached: .openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/)",
+    localMhcloRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.mhclo",
+    localObjRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/cargo_pants.obj",
     selectionNote: "full-length cargo pants; clinical/scrub-adjacent silhouette preferred",
   },
   {
     garmentId: "cortu_jeans_shorts",
     sourceUrl:
-      "makehumancommunity pants pack / Cortu Johnstone jeans_shorts (not staged — network 404 on asset_packs/pants01 path)",
+      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; cortu_jeans_shorts by Cortu Johnstone; pack acquired 2026-08-11, shorts not cached)",
     localMhcloRel: "",
     localObjRel: "",
     selectionNote: "shorts (above-knee) — rejected when cargo pants available",
@@ -261,7 +267,7 @@ export const LOWER_GARMENT_CANDIDATES: LowerGarmentCandidateRecord[] = [
   {
     garmentId: "toigo_wool_pants",
     sourceUrl:
-      "makehumancommunity pants pack / toigo wool pants (not staged — network 404 on asset_packs/pants01 path)",
+      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; toigo_wool_pants by MargaretToigo; pack acquired 2026-08-11, wool pants not cached)",
     localMhcloRel: "",
     localObjRel: "",
     selectionNote: "wool texture not clinical/scrub style",
@@ -269,7 +275,7 @@ export const LOWER_GARMENT_CANDIDATES: LowerGarmentCandidateRecord[] = [
   {
     garmentId: "toigo_harem_pants",
     sourceUrl:
-      "makehumancommunity pants pack / toigo harem pants (not staged — network 404 on asset_packs/pants01 path)",
+      "https://static.makehumancommunity.org/assets/assetpacks/pants01.html (CC0 pack; toigo_harem_pants by MargaretToigo; pack acquired 2026-08-11, harem pants not cached)",
     localMhcloRel: "",
     localObjRel: "",
     selectionNote: "harem style not clinical",
