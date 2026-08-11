@@ -140,7 +140,14 @@ fast-path only: what landed, and what it changed about the factory's capability.
   **`frontierCounts: { case_to_actor_params: 13, rigging: 1 }`.** The geometry stations are not the limit;
   the case→actor preset table covering 2 of 15 cases is. It asserted no pass rate and stated the bound on
   its own numbers (preset-gated vs fixture-gated stations) unprompted.
-  **Root cause measured (#291, in flight):** `CASE_ACTOR_PRESETS` carries age, build, height_cm, skin_tone,
+  **CORRECTION 2026-08-10 (#293):** this entry read the 13 as an engineering bottleneck the preset
+  table caused. Measured after #291 landed: no blocked case reuses an already-authored actor (every
+  one declares unique actor ids), and the cases do not contain the facts a phenotype needs —
+  `peds_fever_v1`, the closest candidate, never states the patient's age anywhere. **The frontier is
+  an authoring gap, not an engineering gap; no pipeline slice moves it.** #291 is what makes authoring
+  possible and safe (schema home, refuse gate, byte-identical migration); it was never going to move
+  the count.
+  **Root cause measured (#291, since landed):** `CASE_ACTOR_PRESETS` carries age, build, height_cm, skin_tone,
   brow_tension and the rest; a shipped scenario fixture carries `actorId, role, model, animationClips,
   gazeProfile` and **no phenotype at all**. The preset table *is* the case definition for phenotype, and it
   lives in a Python dict inside the asset pipeline. Adding 13 more entries there is the D9 anti-pattern;
