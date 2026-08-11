@@ -1,9 +1,7 @@
 import argparse
-import math
 import pathlib
 
 import bpy
-from mathutils import Matrix
 
 
 def make_material(name, color):
@@ -41,11 +39,13 @@ def main():
     # (tools/openclinxr/asset-pipeline/anny/automate_blender.py:4201) instead of hand-authoring
     # a UV sphere (D1: "do not have workers hand-author bespoke geometry"). The function is not
     # topology-bound: it derives the region from mesh bounds, auto-detects the dominant height
-    # axis, and excludes the front mid-face band (#73). MPFB's Blender-local orientation is
-    # Z-up with the face at +Y, but the function's Z-height branch expects the face at -Y; we
-    # feed it a temporary 180-deg Z flip of the mesh data (rigid rotation, no topology change),
-    # let it paint polygon material indices, then flip back. The geometry, rig, and shape keys
-    # are never modified.
+    # axis, and excludes the front mid-face band (#73). MPFB create_human is Blender-local
+    # Z-up with the face at -Y (measured 2026-08-11: nose tip at y=-0.168, head positive
+    # extreme at +0.054) — exactly what the function's Z-height branch expects, so NO Z-flip is
+    # applied. A 180-deg Z flip (the pre-#317 assumption that create_human faces +Y) pushes the
+    # face to +Y, the face-band exclusion never fires (skippedFaceFrontFaceCount=0), and the
+    # scalp paint covers the eyes/brows — which strands their morph-target deltas on the scalp
+    # primitive at export and made #317's face census read them as empty.
     import sys as _sys
 
     _anny_dir = pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/anny"
@@ -53,21 +53,45 @@ def main():
         _sys.path.insert(0, str(_anny_dir))
     from automate_blender import apply_mesh_native_scalp_hair_material_region  # noqa: E402
 
-    _z_flip = Matrix.Rotation(math.pi, 4, "Z")
-    human.data.transform(_z_flip)
-    try:
-        scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
-            human, {"hair_color": "black", "hair_density": 0.65}
-        )
-    finally:
-        human.data.transform(_z_flip)
+    scalp_hair_region = apply_mesh_native_scalp_hair_material_region(
+        human, {"hair_color": "black", "hair_density": 0.65}
+    )
     print(f"SCALP_HAIR_REGION {scalp_hair_region}")
 
     bpy.ops.object.select_all(action="DESELECT")
     bpy.context.view_layer.objects.active = human
     human.select_set(True)
     bpy.ops.mpfb.add_standard_rig()
-    bpy.ops.mpfb.load_face_shape_keys()
+
+    # #317: replace the MPFB UI operator with the proven TargetService path.
+    # bpy.ops.mpfb.load_face_shape_keys() reads FACEOPS_PROPERTIES from the panel, finds nothing
+    # in a headless run, warns, and returns FINISHED — the bake looked green while Aisha shipped
+    # with ZERO face targets (D1: wire the proven tool, do not hand-author morph geometry).
+    # body_param_stage.load_mpfb_face_shape_keys walks the MPFB extension target tree and calls
+    # TargetService.filename_to_shapekey_name + TargetService.load_target directly — the path
+    # that gave the two hm08 library bodies their 27 face targets and 13 working mouth shapes.
+    import sys as _sys2
+
+    _makeclothes_dir = (
+        pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/makeclothes"
+    )
+    if str(_makeclothes_dir) not in _sys2.path:
+        _sys2.path.insert(0, str(_makeclothes_dir))
+    from body_param_stage import load_mpfb_face_shape_keys  # noqa: E402
+
+    face_status = load_mpfb_face_shape_keys(human)
+    print(f"FACE_TARGETS {face_status}")
+    if face_status.get("error") or (face_status.get("loaded") or 0) < 8:
+        raise RuntimeError(f"face target load failed: {face_status}")
+    mouth_named = [n for n in (face_status.get("names") or []) if any(
+        k in n for k in ("mouth", "lip", "jaw")
+    )]
+    print(f"FACE_TARGETS_MOUTH_NAMED {len(mouth_named)} {mouth_named}")
+    if len(mouth_named) < 8:
+        raise RuntimeError(
+            f"fewer than 8 mouth-named face targets loaded ({len(mouth_named)}); "
+            f"a bake that ships without usable mouth morphs must fail loudly"
+        )
 
     armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
     if armature is None:
