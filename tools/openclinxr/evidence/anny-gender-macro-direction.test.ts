@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -53,9 +55,36 @@ import { describe, expect, it } from "vitest";
  * same inversion exists in `automate_blender.py` or the body-param rail, which use their own mappings;
  * and whether 0.5 is the right value for a role with no stated sex, which is a case-authoring question
  * and deliberately not decided by this contract.
+ *
+ * ## FIXED (#299)
+ *
+ * `generate_mesh.py:307` now maps the authored presentation onto Anny's own axis:
+ *
+ *     values["gender"] = 0.85 if "female" in gender_presentation
+ *                        else 0.15 if "male" in gender_presentation
+ *                        else 0.5
+ *
+ * Direction fixed — female (0.85) now maps HIGHER than male (0.15). Compression fixed — the pair spans
+ * 0.70 of the axis instead of 0.17, and the measured stature delta at age=muscle=height=weight=0.5 is
+ * |1.5857 − 1.6679| = 0.0822 m, above the 0.0589 m floor with 1.4× margin. The role special-casing
+ * (nurse → 0.08, parent → female) is removed: every authored preset in `orchestrate_character.py` and
+ * `rebake_role_wardrobe_blender_only.py` carries an explicit `gender_presentation` marker
+ * (`adult_female_parent`, `adult_male_nurse`, `adult_male`, `child`), so no shipped asset changes
+ * meaning; a role with no stated sex now gets the neutral 0.5.
+ *
+ * PROOF-FIX (was "cannot pass as written"): the original `ANNY_DIR` hardcoded the main checkout
+ * (`/Volumes/files/src/openclinxr/...`), so re-running this test inside a worker worktree — which is
+ * exactly what the contract proof does — kept exercising MAIN's stale mapping and could never turn
+ * green from a worktree edit. It is now resolved relative to this test file (`../../..`), the same
+ * correction #294 made for the identical defect. All numbers in the measured table above are untouched.
  */
 
-const ANNY_DIR = "/Volumes/files/src/openclinxr/tools/openclinxr/asset-pipeline/anny";
+const HERE = resolve(fileURLToPath(import.meta.url), "..");
+const REPO_ROOT = resolve(HERE, "../../..");
+
+// Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
+// the main checkout (see ## FIXED (#299) below — same defect #294 fixed).
+const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 
 /** Half of Anny's measured full-axis stature dimorphism (0.1177 m). External to the mapping. */
 const MIN_SEPARATION_M = 0.0589;
@@ -100,11 +129,11 @@ print("JSON" + json.dumps(res))
 const measured = measure();
 
 describe("the Anny rail's gender mapping matches Anny's own axis", () => {
-  it.fails("(1) RED: a female presentation maps HIGHER than male on Anny's axis, where 1 = female", () => {
+  it("(1) RED: a female presentation maps HIGHER than male on Anny's axis, where 1 = female", () => {
     expect(measured.female.gender).toBeGreaterThan(measured.male.gender);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: female and male bodies differ by at least half Anny's achievable stature dimorphism — swapping the constants does not satisfy this",
     () => {
       expect(Math.abs(measured.female.stature - measured.male.stature)).toBeGreaterThanOrEqual(MIN_SEPARATION_M);
