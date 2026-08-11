@@ -20,7 +20,7 @@
     "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Regenerated 2026-08-11 (#317): the candidate materializer replaced the MPFB UI operator (bpy.ops.mpfb.load_face_shape_keys — reads panel state, does nothing headless) with the proven TargetService.load_target path (body_param_stage.load_mpfb_face_shape_keys) and corrected the #222 scalp-region Z-flip (create_human faces -Y, not +Y). The body now ships 42 morph targets (10 macro-detail + 32 MPFB FACS: 13 mouth, 6 eye, 8 eyebrow, 4 nose, 1 neck), all 32 FACS targets non-empty and localised. Candidate sha256 e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e."
+    "derivationNote": "Regenerated 2026-08-11 (#318): the candidate materializer now strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (exportservice.py:79, remove_helpers=True), called AFTER the face targets load so the morph keys stay indexed to the full base topology. Bake census printed HELPER_STRIP verts 19158 -> 13380; tris 36972 -> 26756, both endpoints exactly the MADR 0052 documented pair. The 32 FACS targets (13 mouth, 6 eye, 8 eyebrow, 4 nose, 1 neck) survive intact and remain non-empty and localised on the body primitive. Candidate sha256 91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -47,10 +47,10 @@
     "reuseKey": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1:mpfb2",
     "baseAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
     "promotionPath": "byte_identical_promote_from_candidates_to_generated-humanoids",
-    "method": "mpfb2_standard_rig_137_joints_36972_skinned_triangles"
+    "method": "mpfb2_standard_rig_137_joints_26756_skinned_triangles_helpers_stripped"
   },
   "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "regenerated_2026-08-11_face_targets_issue_317",
+  "promptOrCaseParameterHash": "regenerated_2026-08-11_helper_strip_issue_318",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "production_asset_readiness",
@@ -64,13 +64,14 @@
     "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
     "Issue #222: MPFB rail paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
     "Issue #317: face targets now load through the proven TargetService path (body_param_stage.load_mpfb_face_shape_keys) instead of the MPFB UI operator, which read panel state and shipped zero face morphs. The #222 scalp-region Z-flip was also corrected: create_human faces -Y (measured), so the flip pushed the face to +Y, the face-band exclusion never fired, and the scalp paint covered the eyes/brows.",
+    "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3, untouched.",
     "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Byte-identical to the tracked candidates/ comparator (sha256 e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e)."
+    "Byte-identical to the tracked candidates/ comparator (sha256 91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f)."
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e",
-  "outputBytes": 7591608,
-  "generatedAt": "2026-08-11T12:54:00.000+00:00",
+  "outputSha256": "91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f",
+  "outputBytes": 5108388,
+  "generatedAt": "2026-08-11T13:37:00.000+00:00",
   "method": "byte_identical_promote_from_candidates_comparator"
 }

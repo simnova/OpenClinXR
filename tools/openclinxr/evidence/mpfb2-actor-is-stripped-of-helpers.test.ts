@@ -79,6 +79,24 @@ import { describe, expect, it } from "vitest";
  * appropriate staging for an OB triage patient is a wardrobe question (P3), not this one. Whether the
  * 13 mouth targets then read as expression is untested and unrelated. No claim is made that 26,756 is
  * stable across MPFB versions.
+ *
+ * ## FIXED (#318)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now calls the MPFB-shipped
+ * `ExportService.bake_modifiers_remove_helpers(basemesh, remove_helpers=True)` (exportservice.py:79)
+ * AFTER the face targets load (load order is load-bearing — face keys must load on the full base
+ * topology, body_param_stage #221 A2). The bake's own census printed
+ * `HELPER_STRIP verts 19158 -> 13380; tris 36972 -> 26756` — both endpoints exactly the MADR 0052
+ * documented pair. Measured from the shipped GLB after the fix (NodeIO):
+ *
+ *   mpfb-ob-patient-aisha.glb   14,762 verts   26,756 tris   2 primitives   137 joints
+ *   usable mouth targets: mouth-compression, mouth-corner-puller, mouth-depression-retraction,
+ *   mouth-elevation, mouth-eversion, mouth-open, mouth-parling, mouth-part-later, mouth-protusion,
+ *   mouth-pursing, mouth-retraction, mouth-upward-retraction  (13, unchanged from #317)
+ *
+ * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on the stripped asset.
+ * The post-strip figure is an unclothed body — wardrobe staging for an OB triage patient is MADR
+ * 0052 P3, untouched here.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -140,7 +158,7 @@ function requireMeasured(): void {
 }
 
 describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fitting shells", () => {
-  it.fails(
+  it(
     `(1) RED: total triangles <= ${MAX_TRIANGLES} — the helper shells are stripped`,
     () => {
       requireMeasured();

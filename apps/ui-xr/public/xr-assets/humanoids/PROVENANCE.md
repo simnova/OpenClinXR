@@ -42,7 +42,7 @@
 ## 2026-08-10 MPFB2 promoted to default cast (#263)
 
 - **CORRECTED PREMISE:** the entry above said "not promoted as default runtime asset" — that was true for the Anny rail's freeze, which never applied to MPFB. The MPFB rail is first-class per operator direction D11 (standard rig, face shape keys, MakeHuman wardrobe).
-- Promoted byte-identical copy of the candidate to `generated-humanoids/mpfb-ob-patient-aisha.glb` (SHA-256 `e6a2c02330561b57dcd08837a8b4752f901fb9fa1320ef9c56feb75cf8cd2e1e`, 7,591,608 bytes after the #317 face-target regeneration; re-promoted byte-identical on 2026-08-11) and wired the OB triage patient (`patient_aisha_khan_v1` in `ob_headache_preeclampsia_triage_v1`) as the first MPFB cast.
+- Promoted byte-identical copy of the candidate to `generated-humanoids/mpfb-ob-patient-aisha.glb` (SHA-256 `91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f`, 5,108,388 bytes after the #318 helper-shell strip; re-promoted byte-identical on 2026-08-11) and wired the OB triage patient (`patient_aisha_khan_v1` in `ob_headache_preeclampsia_triage_v1`) as the first MPFB cast.
 - Provenance sidecar: `apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json` (MPFB2 lineage, license not reverified, promotion gates false).
 - Known hazard #222: **FIXED 2026-08-10** — the MPFB rail no longer wears a separate hand-authored UV sphere; it paints the same bounds-derived scalp hair material region the Anny rail uses (`openclinxr_mesh_native_scalp_hair_surface`, 5,224 tris exported). The texture gap (0 textures vs 1 normal map) remains out of scope by peer decision.
 - Claim boundary: first MPFB2 cast promotion, not AAA humanoid realism, production readiness, Quest readiness, clinical validity, or scoring validity.
