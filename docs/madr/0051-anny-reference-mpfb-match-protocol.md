@@ -48,6 +48,16 @@ Measured 2026-08-11 by rendering both ends: `gender=0.0` gives a flat-chested, b
 the measurements look reasonable at both ends, so this is only visible in the pixels. A subject
 generated at `gender=1.0` and labelled "man" is wrong — that error was made and corrected here.
 
+**MPFB runs the OTHER way, confirmed the same day (#299).** Grading both MPFB extremes stripped to body
+geometry: `gender=0.0` reads female (narrow shoulders and hips, small breast forms), `gender=1.0` reads
+male (+3.4 cm shoulder span, +12.9 cm chest, shoulder/hip 0.626 vs 0.605). So MakeHuman's convention
+holds — **0 = female, 1 = male** — and `BODY_CLASSES` labelling `gender: 0.0` as `adult_lean_female` is
+correct.
+
+**Therefore the two rails run OPPOSITE and every phenotype carried across must flip gender.** Note that
+stature is a MISLEADING proxy here: MPFB `gender=0.0` measures 3.2 cm *taller* than `1.0`, which points
+the wrong way. Use shoulder span, chest girth, or shoulder-to-hip ratio.
+
 ### 1. State the human as a case-definition phenotype, not a prompt
 
 The request — *man, mid-40s, BMI 45* — is authored on the scenario fixture actor record as
