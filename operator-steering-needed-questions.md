@@ -56,3 +56,28 @@ The prior "no safe next" stop note was superseded by Patrick's explicit request 
 
 - Capture non-blocking operator suggestions in [operator-suggestion-backlog.md](operator-suggestion-backlog.md); do not treat backlog items as approval, blockers, or immediate scope unless they are promoted through a verified slice or explicit proposal.
 - Newly approved local hand mesh and UIKitML work remain implementation- and evidence-gated; they are not current operator blockers unless a verification step fails or a later slice needs broader production scope.
+
+## 2026-08-10 — MPFB hair assets: acquire a pack, or stay procedural? (BLOCKED, needs approval)
+
+**RESEARCH BASIS (measured 2026-08-10, issue #296).** MPFB 2 is installed as a Blender 5.1 extension
+and bundles targets, rigs, poses, textures — and **0 `.mhclo`, 0 `.mhmat`**. Its `mh_user_data` root
+holds only `config` and `logs`. The repo cache has **6 `.mhclo`, all shirts**. Hair today is a painted
+material region (`openclinxr_mesh_native_scalp_hair_surface`) on every rail including MPFB, which is
+why hair grades as torn fragments. MPFB's hair path is **asset-based, not procedural** —
+`haireditorservices.py` exposes `is_hair_asset_installed()` / `get_hair_blend_path()` and wants a hair
+`.blend`. So there is no code-only route to MPFB hair.
+
+**RECOMMENDATION.** Approve acquiring a **CC0 / CC-BY MakeHuman-compatible hair asset pack** into the
+existing provider cache (`.openclinxr-local/provider-cache/`), same pattern as `makehuman-shirts01`,
+with licence recorded in provenance. This is the smallest step that turns painted scalp into real hair
+geometry, and it reuses a proven tool rather than authoring hair (D1).
+
+**ALTERNATIVE if you would rather not add assets:** CharMorph and MB-Lab are both already cached and
+both ship hair *engines* (`hair.py`, `hairengine.py`) that may be procedural — which would satisfy D2
+without acquiring anything. They were found, not evaluated. Say the word and the evaluation becomes a
+cagematch slice instead.
+
+**APPROVAL STRING:** `approve: acquire CC0/CC-BY MakeHuman hair pack into provider-cache`
+
+**DEFAULT IF SILENT:** no acquisition. Hair stays a painted region, and I will evaluate the
+CharMorph / MB-Lab procedural hair engines as a lane C cagematch instead, since that needs no approval.
