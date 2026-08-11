@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "openclinxr.wardrobe-poke-baseline.v1",
+  "measuredAtCommit": "279c4075b1b9a673b99e35c9dcbc40d0ab534b29",
+  "instrument": "inspectGarmentCoversItsRegion (garment-covers-its-region.ts -> garment_coverage.py), the same predicate the factory stage imports",
+  "why": "MADR 0052 07:00 tick asks for poke-through MEASURED. #307 is in flight and will re-bake these exact bodies with a different rig, so this is the before-column.",
+  "claimScope": "coverage of the body region a garment claims, on shipped library GLBs",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "garment_quality_or_aesthetics",
+    "quest_readiness",
+    "learner_readiness",
+    "cloth_physics_or_deformation"
+  ],
+  "rows": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "half": "lower",
+      "garmentMesh": "makeclothes_library_cargo_pants_adult_lean_female_mesh",
+      "verdict": "covers",
+      "outwardRaycastCoverage": 0.9857,
+      "pokeCount": 335,
+      "pokeFraction": 0.041917,
+      "worstClearanceMeters": -0.00883,
+      "hiddenFaceCount": 290,
+      "pokingFaceCount": 183
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "half": "upper",
+      "garmentMesh": "makeclothes_library_civilian_shirt_adult_lean_female",
+      "verdict": "covers",
+      "outwardRaycastCoverage": 0.9984,
+      "pokeCount": 16469,
+      "pokeFraction": 0.472108,
+      "worstClearanceMeters": -0.012553,
+      "hiddenFaceCount": 7033,
+      "pokingFaceCount": 6419
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "half": "lower",
+      "garmentMesh": "makeclothes_library_cargo_pants_adult_heavy_male_mesh",
+      "verdict": "covers",
+      "outwardRaycastCoverage": 0.9935,
+      "pokeCount": 7010,
+      "pokeFraction": 0.432076,
+      "worstClearanceMeters": -0.023778,
+      "hiddenFaceCount": 2901,
+      "pokingFaceCount": 2653
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "half": "upper",
+      "garmentMesh": "makeclothes_library_scrub_shirt_adult_heavy_male",
+      "verdict": "covers",
+      "outwardRaycastCoverage": 0.9214,
+      "pokeCount": 2740,
+      "pokeFraction": 0.236554,
+      "worstClearanceMeters": -0.04776,
+      "hiddenFaceCount": 2017,
+      "pokingFaceCount": 1550
+    }
+  ]
+}
