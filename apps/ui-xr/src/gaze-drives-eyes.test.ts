@@ -64,6 +64,18 @@ import { describe, expect, it } from "vitest";
  * contract's business.
  */
 
+/**
+ * ## FIXED (#311)
+ *
+ * `apps/ui-xr/src/gaze-drives-eyes.ts` now exports `applyGazeToHumanoid(root, gaze)`: it resolves
+ * `eyeL`/`eyeR` on whatever rig the root carries via `@openclinxr/asset-registry`'s
+ * `resolvePoseBone` (identity-first, #306 conventions; three.js strips dots so the graph shows
+ * `eyeL`/`eyeR` on all three rails) and rotates those bones on Y. `main.ts` no longer writes
+ * `slot.root.rotation.y` for gaze — the actor root stays put and the eyes (which every rail ships
+ * and skins) are what turn. The pre-#311 `gaze * 0.7` yaw scale is kept so the look-away is
+ * comparable. The REDs below are flipped to live assertions; the fixture check is unchanged.
+ */
+
 /** three.js `PropertyBinding.sanitizeNodeName` strips dots at load, so the scene graph sees `eyeL`. */
 const EYE_BONE_NAMES = ["eyeL", "eyeR"] as const;
 
@@ -111,7 +123,7 @@ async function loadGazeApplier(): Promise<((root: Group, gaze: number) => void) 
 const GAZE = 0.6;
 
 describe("a gaze drive moves the eyes, not the whole actor", () => {
-  it.fails("(1) RED: applying gaze rotates both eye bones", async () => {
+  it("(1) RED flipped: applying gaze rotates both eye bones", async () => {
     const applyGazeToHumanoid = await loadGazeApplier();
     expect(applyGazeToHumanoid, "apps/ui-xr/src must export applyGazeToHumanoid").not.toBeNull();
 
@@ -125,8 +137,8 @@ describe("a gaze drive moves the eyes, not the whole actor", () => {
     expect(unmoved, "eye bones left unrotated by a nonzero gaze").toEqual([]);
   });
 
-  it.fails(
-    "(2) RED COUNTERWEIGHT: applying gaze leaves the actor ROOT unrotated — spinning the body and adding eyes on top is refused",
+  it(
+    "(2) RED counterweight flipped: applying gaze leaves the actor ROOT unrotated — spinning the body and adding eyes on top is refused",
     async () => {
       const applyGazeToHumanoid = await loadGazeApplier();
       expect(applyGazeToHumanoid, "apps/ui-xr/src must export applyGazeToHumanoid").not.toBeNull();
