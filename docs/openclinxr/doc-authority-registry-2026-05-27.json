@@ -3033,6 +3033,20 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "agents/rules/PROTO_CURIOUS_RESEARCHER.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": ".cursor/rules/PROTO_CURIOUS_RESEARCHER.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "medium",
+      "action": "use-as-current",
+      "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
     }
   ]
 }
