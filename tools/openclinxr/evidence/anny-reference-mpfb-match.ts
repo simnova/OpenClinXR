@@ -51,6 +51,8 @@ export type MatchedBody = {
   annyHeightMeters: number;
   torsoGirthMeters: number;
   annyTorsoGirthMeters: number;
+  /** #304 — the macros' stature converted to metres (provenance `bodyStatureBeforeScaleMeters` × `uniformScale`). */
+  preAlignmentStatureMeters: number;
   morphTargetCount: number;
   morphTargetNames: string[];
   producedByStage: string;
@@ -242,23 +244,34 @@ function resolveAnnyGlb(annyReferenceAsset: string | null): string | null {
 }
 
 /**
+ * #304 — read the macros' own stature from the per-class provenance sidecar. The reference
+ * alignment no longer matches the body to the Anny reference (the two reference OBJs are
+ * byte-identical duplicates, #303), so `bodyStatureBeforeScaleMeters × uniformScale` is what
+ * the macros produced, in metres.
+ */
+function readAlignFromProvenance(glbAbs: string): {
+  bodyStatureBeforeScaleMeters?: number;
+  uniformScale?: number;
+} {
+  const provPath = glbAbs.replace(/\.glb$/i, ".provenance.json");
+  if (!existsSync(provPath)) return {};
+  try {
+    const prov = JSON.parse(readFileSync(provPath, "utf8")) as {
+      annyStatureAlign?: { bodyStatureBeforeScaleMeters?: number; uniformScale?: number };
+    };
+    return prov.annyStatureAlign ?? {};
+  } catch {
+    return {};
+  }
+}
+
+/**
  * Inspect MPFB library bodies against their Anny references + morph vocabulary.
  */
 export async function inspectAnnyReferenceMpfbMatch(): Promise<InspectReport> {
   const io = new NodeIO();
   const catalog = loadCatalog();
   const viseme = readVisemeVocabularyFromSource();
-
-  // Tolerance derived from MADR 0044 measured mean vertex deviation (not invented).
-  // Height: 1× mean (stature is the 0044 match target). Girth: 2.5× mean — radial torso
-  // proxy residual after stature-only match; phenotype macros keep class girth separation
-  // (#151) so we do not force both classes onto the same Anny girth.
-  const tolerance = {
-    heightMeters: MADR_0044_MEAN_VERTEX_DEVIATION_METERS,
-    girthMeters: MADR_0044_MEAN_VERTEX_DEVIATION_METERS * 2.5,
-    source:
-      "MADR_0044_measured_meanVertexDeviationMeters_0.0229_height_1x_girth_2.5x_radial_proxy_after_stature_match",
-  };
 
   type Row = {
     bodyClassId: string;
@@ -311,6 +324,13 @@ export async function inspectAnnyReferenceMpfbMatch(): Promise<InspectReport> {
       annyGirth = am.torsoGirthMeters;
     }
 
+    const align = readAlignFromProvenance(row.glbAbs);
+    const preAlignmentStatureMeters =
+      typeof align.bodyStatureBeforeScaleMeters === "number"
+      && typeof align.uniformScale === "number"
+        ? align.bodyStatureBeforeScaleMeters * align.uniformScale
+        : NaN;
+
     matched.push({
       bodyClassId: row.bodyClassId,
       glbPath: row.glbRel,
@@ -319,11 +339,35 @@ export async function inspectAnnyReferenceMpfbMatch(): Promise<InspectReport> {
       annyHeightMeters: annyHeight,
       torsoGirthMeters: bodyMetrics.torsoGirthMeters,
       annyTorsoGirthMeters: annyGirth,
+      preAlignmentStatureMeters,
       morphTargetCount: morphTargetNames.length,
       morphTargetNames,
       producedByStage: row.producedByStage,
     });
   }
+
+  // #304 — the height "match" is re-scoped. The two library Anny reference OBJs are
+  // byte-identical duplicates (#303), so a per-class stature match to them is impossible
+  // by construction and forcing it erased the macro-produced spread. What the macros must
+  // produce is a DIFFERENTIATED stature that survives the placement-only alignment; the
+  // height floor is therefore HALF THE MACRO-PRODUCED SPREAD, derived from the recorded
+  // pre-alignment statures (the INPUT of the causal chain — PROTO_VERIFY_DELEGATION §9s),
+  // in metres. Girth stays 0044-derived (2.5× mean vertex deviation) and is still checked
+  // per body — girth was never forced (`girthScaleHorizontal: 1.0`) and its residual is
+  // unchanged by #304.
+  const macroStatures = matched
+    .map((m) => m.preAlignmentStatureMeters)
+    .filter((v) => Number.isFinite(v)) as number[];
+  const macroSpreadMeters = macroStatures.length >= 2
+    ? Math.abs(macroStatures[0]! - macroStatures[1]!)
+    : NaN;
+  const tolerance = {
+    heightMeters: Number.isFinite(macroSpreadMeters) ? macroSpreadMeters / 2 : NaN,
+    girthMeters: MADR_0044_MEAN_VERTEX_DEVIATION_METERS * 2.5,
+    source:
+      "MADR_0044_measured_meanVertexDeviationMeters_0.0229_girth_2.5x_radial_proxy; "
+      + "#304: height floor = half the macro-produced stature spread (Anny reference duplicated, #303)",
+  };
 
   // Morph-name verdict: intersects if any exported name meets a runtime viseme; else
   // disjoint_measured when ≥20 names are listed as evidence.
