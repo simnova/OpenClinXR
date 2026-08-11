@@ -825,6 +825,7 @@ def build_cover_shell(
     standoff: float = CLOTH_STANDOFF_M,
     label: str = "procedural_lower_cover_shell",
     height_axis: int = 1,
+    exclude_faces=None,
 ) -> dict:
     """Deterministic fallback garment: the body's own region surface, offset outward.
 
@@ -834,7 +835,12 @@ def build_cover_shell(
     the factory ships when a library fit cannot cover (D2: procedural clothing, no LLM).
 
     `height_axis` — see outward_raycast_coverage (1 = Y-up exported GLBs; the factory
-    stage passes 2 for its Z-up scene)."""
+    stage passes 2 for its Z-up scene). `exclude_faces` — optional per-face boolean
+    mask (aligned with `body_faces`, order preserved through the position weld): faces
+    to leave out of the shell. The stage passes the arm/forearm/hand-dominant body
+    faces so a torso top claims the torso, not the hanging arms down to the hands
+    (#295: the "blue mitten" was the band selection wrapping the arms and hands).
+    """
     v = _as_np(body_verts)
     f = np.asarray(body_faces, dtype=np.int64)
     # The GLB/OBJ exports split every face (per-face vertex duplication), so build the
@@ -844,6 +850,8 @@ def build_cover_shell(
     tri_verts = v[f]
     cents = tri_verts.mean(axis=1)
     sel = (cents[:, height_axis] > band_lo) & (cents[:, height_axis] < band_hi)
+    if exclude_faces is not None:
+        sel = sel & ~np.asarray(exclude_faces, dtype=bool)
     fidx = np.where(sel)[0]
     if len(fidx) == 0:
         raise ValueError("build_cover_shell: empty region band")

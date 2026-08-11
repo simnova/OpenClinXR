@@ -22,6 +22,7 @@ import argparse
 import importlib.util
 import json
 import math
+import re
 import sys
 import time
 import traceback
@@ -703,6 +704,147 @@ def apply_body_hide_material_region(
         "appliedPolygonCount": applied,
         "alpha": 0.0,
     }
+
+
+# #295 — hand/finger joint names across the mixamo_unity rig. Same vocabulary as the
+# evidence contract `garment-shells-stop-at-the-wrist.test.ts` HAND_JOINT regex
+# (`hand|wrist|finger|thumb`); the mixamo_unity rig has no `wrist` bone, so `hand`
+# carries the wrist region.
+_HAND_BONE_RE = re.compile(r"hand|finger|thumb", re.IGNORECASE)
+# #295 — the arm chain (arm/forearm/hand/fingers, NOT the shoulder). The cover-shell
+# band selection includes the hanging arms down to the hands; a torso top does not
+# claim them, so the shell is built from torso + shoulder faces only.
+_LIMB_BONE_RE = re.compile(r"arm|forearm|hand|finger|thumb", re.IGNORECASE)
+
+
+def _bone_dominant_vertex_indices(
+    obj: bpy.types.Object,
+    armature: bpy.types.Object,
+    bone_re,
+) -> set[int]:
+    """Vertex indices of `obj` whose dominant bone matches `bone_re`.
+
+    #295 — the garment's OWN vertex-to-bone attribution is the derived sleeve terminus
+    (D1: never authored per-body coordinates). Dominant = the bone-named vertex group
+    with the highest weight, matching how the evidence contract attributes exported
+    JOINTS_0/WEIGHTS_0. Non-bone groups (MPFB helper/joint markers) are ignored.
+    """
+    bone_names = {b.name for b in armature.data.bones}
+    matched = {n for n in bone_names if bone_re.search(n)}
+    if not matched:
+        return set()
+    group_names = {g.index: g.name for g in obj.vertex_groups}
+    out: set[int] = set()
+    for v in obj.data.vertices:
+        best_name = None
+        best_w = 0.0
+        for ge in v.groups:
+            name = group_names.get(ge.group)
+            if name in bone_names and ge.weight > best_w:
+                best_w = ge.weight
+                best_name = name
+        if best_name in matched:
+            out.add(v.index)
+    return out
+
+
+def _hand_dominant_vertex_indices(
+    obj: bpy.types.Object,
+    armature: bpy.types.Object,
+) -> set[int]:
+    """Vertex indices of `obj` whose dominant bone is a hand/finger joint.
+
+    See `_bone_dominant_vertex_indices` — this is the hand-only vocabulary the
+    evidence contract attributes exported JOINTS_0/WEIGHTS_0 with.
+    """
+    return _bone_dominant_vertex_indices(obj, armature, _HAND_BONE_RE)
+
+
+def trim_garment_hand_region(
+    garment: bpy.types.Object | None,
+    armature: bpy.types.Object,
+    *,
+    slot: str = "",
+) -> dict:
+    """#295 — terminate a garment at the wrist by its own vertex-to-bone attribution.
+
+    The fitted .mhclo shell AND the body-derived cover shell both place garment
+    geometry over the hand (measured 2026-08-11: 17,345 hand-dominant verts on the
+    lean-female upper shell — the "blue mitten" #295 graded from the pixels). This
+    deletes every garment vertex whose dominant bone is a hand/finger joint, so the
+    shell stops exactly where the hand bones' influence ends. The coverage gate and
+    the body-hide mask below then see the trimmed garment, so a bare hand is neither
+    covered by cloth nor discarded by the mask — both sides of the #295 surface.
+
+    MUST run after the garment's vertex groups carry the bind weights
+    (`transfer_weights_body_to_garment`). Deleting vertices removes their faces;
+    Blender reindexes the remaining vertex groups. Geometry only — rig, shape keys
+    and materials are untouched.
+    """
+    if garment is None:
+        return {"slot": slot, "enabled": True, "removedVertices": 0, "note": "no garment"}
+    hand_verts = _hand_dominant_vertex_indices(garment, armature)
+    if not hand_verts:
+        return {
+            "slot": slot,
+            "enabled": True,
+            "removedVertices": 0,
+            "note": "no hand-dominant garment vertices",
+        }
+    import bmesh
+
+    mesh = garment.data
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bm.verts.ensure_lookup_table()
+    # bmesh verts are created in mesh order, so v.index == mesh vertex index here.
+    to_delete = [v for v in bm.verts if v.index in hand_verts]
+    removed = len(to_delete)
+    if to_delete:
+        bmesh.ops.delete(bm, geom=to_delete, context="VERTS")
+        bm.to_mesh(mesh)
+    bm.free()
+    mesh.update()
+    return {
+        "slot": slot,
+        "enabled": True,
+        "removedVertices": removed,
+        "handDominantVertices": len(hand_verts),
+        "note": "hand-dominant garment vertices deleted (garment terminates at the wrist)",
+    }
+
+
+def scope_hide_mask_away_from_hands(
+    basemesh: bpy.types.Object,
+    tri_mask,
+    armature: bpy.types.Object,
+) -> tuple[np.ndarray, int]:
+    """#295 — never discard a bare hand: scope the body-hide mask to the covered region.
+
+    Zero the per-triangle hide mask for body faces whose vertices are dominated by a
+    hand/finger joint. The garments now terminate at the wrist
+    (`trim_garment_hand_region`), so a hand under the mask is a BARE hand being
+    removed by alpha-MASK — the "stump" half of the mitten (deleting the sleeve while
+    the body underneath stays discarded). Derived from the body's own vertex-to-bone
+    attribution (the shipped CC0 mixamo_unity weights), never authored coordinates.
+
+    `tri_mask` is aligned to the fan-triangulated `_numpy_mesh` body faces, exactly as
+    `apply_body_hide_material_region` consumes it (polygon fan order).
+    """
+    hand_verts = _hand_dominant_vertex_indices(basemesh, armature)
+    mask = np.asarray(tri_mask, dtype=bool).copy()
+    if not hand_verts or not mask.any():
+        return mask, 0
+    excluded = 0
+    tri_i = 0
+    for poly in basemesh.data.polygons:
+        n_tri = max(len(poly.vertices) - 2, 1)
+        if any(vi in hand_verts for vi in poly.vertices):
+            if mask[tri_i : tri_i + n_tri].any():
+                excluded += 1
+            mask[tri_i : tri_i + n_tri] = False
+        tri_i += n_tri
+    return mask, excluded
 
 
 def create_mpfb_mixamo_rig(basemesh: bpy.types.Object) -> dict:
@@ -1639,12 +1781,19 @@ def build_one_body_class(
         bpy.context.scene.collection.objects.link(obj)
         return obj
 
-    # ── #275: materialize a case-selected cover-shell upper from the FINAL body ──
-    # The body at this point is final (macros baked, helpers stripped, Anny-aligned,
-    # Z-up). The cover shell is the body's own torso surface offset outward — covers by
-    # construction, no .mhclo invented (a garment id pointing at a missing .mhclo is the
-    # #256 trap). It reads as a fitted top (the only non-scrub upper the library can
-    # produce deterministically; D2: procedural clothing, no LLM).
+    # #295 — garments do not claim the hands: exclude arm/forearm/hand-dominant body
+    # faces from every cover shell the stage materializes. The band selection alone
+    # wraps the A-pose hands, which hang at the same height as the torso and legs
+    # (measured: 3,450 hand-dominant verts in the heavy-male lower fallback — the
+    # "blue mitten" #295 graded from the pixels). Derived from the body's own
+    # vertex-to-bone attribution (D1), never authored per-body coordinates.
+    shell_limb_exclude = None
+    if garment_kind == "cover_shell" or lower_garment is not None:
+        limb_verts = _bone_dominant_vertex_indices(basemesh, armature, _LIMB_BONE_RE)
+        shell_limb_exclude = np.array(
+            [any(int(vi) in limb_verts for vi in f) for f in body_faces],
+            dtype=bool,
+        )
     if garment is None:
         if garment_kind != "cover_shell":
             raise RuntimeError(f"body class {body_class_id}: no upper garment materialized")
@@ -1661,6 +1810,7 @@ def build_one_body_class(
             standoff=_gc.CLOTH_STANDOFF_M,
             label=f"{use_garment_prefix}_{body_class_id}",
             height_axis=2,
+            exclude_faces=shell_limb_exclude,
         )
         shell_obj = _mesh_from_numpy(
             garment_mesh_name,
@@ -1682,6 +1832,32 @@ def build_one_body_class(
     # After the block above the upper garment always exists (fitted, or shell built,
     # or the code above raised). The assertion is for static checkers, not a runtime gate.
     assert garment is not None
+
+    # ── #295: terminate every garment at the wrist ───────────────────────────────
+    # Both the fitted .mhclo shell and the body-derived cover shell place garment
+    # geometry over the hand (measured 2026-08-11: 17,345 hand-dominant upper-shell
+    # verts on the lean-female body, and 3,450 on the heavy-male cargo pants — the
+    # "blue mitten" #295 graded from the pixels). The garment's weights do not exist
+    # until the bind, so run the SAME weight projection the bind will run, classify
+    # each garment vertex by its dominant bone, and delete the hand-dominated ones.
+    # The shell then terminates exactly where the hand bones' influence ends — derived
+    # from the garment's own vertex-to-bone attribution (D1), not authored per-body
+    # coordinates. The coverage gate and the hide mask below then measure the trimmed
+    # garment; the later bind recomputes weights on the trimmed mesh (the projection is
+    # position-based, so the remaining verts keep their non-hand classification).
+    hand_trim: dict = {"enabled": True, "upper": None, "lower": None}
+    if garment is not None:
+        hand_trim["upper"] = {
+            **transfer_weights_body_to_garment(basemesh, garment, armature),
+            "trim": trim_garment_hand_region(garment, armature, slot="upper"),
+        }
+    if lower_garment is not None:
+        hand_trim["lower"] = {
+            **transfer_weights_body_to_garment(basemesh, lower_garment, armature),
+            "trim": trim_garment_hand_region(lower_garment, armature, slot="lower"),
+        }
+    bpy.context.view_layer.update()
+
     garment_bounds = world_bounds(garment)
 
     # Upper garment: torso band = its own extent, laterally bounded by the garment's
@@ -1739,6 +1915,7 @@ def build_one_body_class(
                 standoff=_gc.CLOTH_STANDOFF_M,
                 label=f"{lower_garment_prefix}_fallback_{body_class_id}",
                 height_axis=2,
+                exclude_faces=shell_limb_exclude,
             )
             fallback_obj = _mesh_from_numpy(
                 lower_mesh_name or f"{lower_garment_prefix}_fallback_{body_class_id}",
@@ -1806,13 +1983,22 @@ def build_one_body_class(
                 "enabled": True,
                 "note": "no poking body faces — nothing to hide",
             }
+        # #295 — scope the mask to the covered region. The garments now terminate at
+        # the wrist (trim_garment_hand_region), so a body face whose vertices are
+        # dominated by a hand/finger joint is a BARE hand; leaving it under the
+        # alpha-MASK would discard it and show a stump where the sleeve was. Derived
+        # from the body's own CC0 weight attribution (never authored coordinates).
+        hide_mask, hand_faces_unhidden = scope_hide_mask_away_from_hands(
+            basemesh, hide_mask, armature
+        )
         applied = apply_body_hide_material_region(basemesh, hide_mask, slot=slot)
         return {
             **mask_info,
             "slot": slot,
             "enabled": True,
             "applied": applied,
-            "note": "body faces under the garment hidden (alpha mask)",
+            "handFacesUnhidden": hand_faces_unhidden,
+            "note": "body faces under the garment hidden (alpha mask), hands excluded",
         }
 
     body_hide: dict = {"enabled": True, "upper": None, "lower": None}
@@ -1937,6 +2123,8 @@ def build_one_body_class(
         "producedByStage": STAGE_ID,
         "coverageGate": coverage_gate,
         "scalpHairRegion": scalp_hair_region,
+        # #295 — per-garment hand-region trim counts (0 removed = no hand geometry).
+        "garmentHandTrim": hand_trim,
         **lower_info,
     }
 

@@ -146,6 +146,19 @@ import { describe, expect, it } from "vitest";
  * refusal are untouched (counterweights). The stage consumes the mask at bake time; the
  * last two tests prove the mask covers every poking face on the shipped GLBs, so a
  * re-bake through the stage removes the visible defect without regenerating here.
+ *
+ * ## FIXED (#295)
+ *
+ * The lean-female upper is now a TORSO cover shell (arm/forearm/hand-dominant body
+ * faces excluded from `build_cover_shell`'s band — the #295 "blue mitten" was the
+ * #275 band selection wrapping the A-pose arms and hands). Its coincident surface
+ * shrank, so the female upper's poking-face count dropped from 16,577 (#285 measurement)
+ * to **858** on the re-baked GLB. The mask contract here is unchanged and still binds:
+ * the re-baked upper hides all 858 poking faces and stays inside the claim region.
+ * The `> 1000` "the headline case must actually do something" floor was calibrated on
+ * the old full-arm shell; it is reset to `> 500`, still a 1.7× margin under the measured
+ * 858 and still far above a vacuous pass — the hip/waist-crease coincident-surface
+ * problem the mask exists for is real on the shipped bytes.
  */
 
 type FigureCoverageShape = {
@@ -304,7 +317,7 @@ describe("garment covers the region it claims (#272/#277)", () => {
     // the headline case must actually do something on the real shipped asset
     const female = report.figures.find((f: { bodyClassId?: string }) => f.bodyClassId === "adult_lean_female");
     expect(female, "female body missing from report").toBeTruthy();
-    expect(female!.upperHide!.pokingFaceCount).toBeGreaterThan(1000);
+    expect(female!.upperHide!.pokingFaceCount).toBeGreaterThan(500);
     expect(female!.upperHide!.hiddenFaceCount).toBeGreaterThanOrEqual(female!.upperHide!.pokingFaceCount);
     expect(broken, `the body-hide mask contract broke:\n${broken.join("\n")}`).toEqual([]);
   }, 600_000);
