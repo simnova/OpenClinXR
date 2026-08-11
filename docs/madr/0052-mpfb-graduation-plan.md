@@ -26,7 +26,7 @@ advancement**.
 | Measurement | **Done.** Landmark instrument agrees with `anny.Anthropometry` within 0.83 cm (lean) / 0.45 cm (BMI 45); translation-invariant as of #300. |
 | Wardrobe | **Partial.** `ClothesService.fit_clothes_to_human` is wired; cache holds **3 `.mhclo`, all shirts**. MPFB's own library ships **0**. |
 | Eyes | `add_mpfb2_eye_rig.py` exists. Unverified at runtime. |
-| Visemes | **Absent.** The 10 morph targets are MakeHuman body macros (`$md-$as-$fe-$yn`, cup size, muscle/weight), not phonemes. |
+| Visemes | **CORRECTED 2026-08-11 — my "absent" claim was wrong.** The 10 *morph targets on the exported GLB* are body macros, but the MPFB install ships **102 expression unit targets** and **110 mouth/lip targets** (`mouth-upperlip-middle-up`, `mouth-scale-horiz-incr`, …). Zero files match `visem`/`phonem`, so **face action units ship and visemes must be COMPOSED from them** — FACS-style. Materially better than absent; not ready-made. |
 | Hair | **Absent on every rail.** MPFB's hair path is asset-based (`is_hair_asset_installed`); zero hair assets on this machine. |
 | Runtime | 1 real MPFB actor (OB patient Aisha). 22 case fixture files. |
 
@@ -53,7 +53,13 @@ presentation FIRST and the girth solve runs after.
   learner loads MPFB bodies.
 - **P3 Wardrobe.** `.mhclo` fitted onto MPFB-matched bodies. Lower-body coverage is the real gap.
 - **P4 Face.** Eyes verified live, then viseme shape keys — the reason D11 names MPFB for lip-sync.
-- **P5 Motion.** Retarget onto the 137-bone rig (Mesh2Motion is approved and unused, #70).
+- **P5 Motion.** Retarget onto the chosen rig. **#70's premise is FALSE and is withdrawn here:**
+  Mesh2Motion is a **browser web app** — no CLI, DOM-coupled, its retarget tool is manual drag-and-drop —
+  so it cannot run headless and was never a viable motion path, only an unused one. Salvage: its ~150
+  clips are CC0 and export as GLB. The real path is **`retarget_bvh`** (Diffeomorphic, ex-MakeWalk),
+  which is headless-capable (`setSilentMode(True)`) and ships bone maps that match MPFB rigs exactly.
+  **`retarget_bvh` is GPL-2.0-or-later: build-time tooling only**, same posture as MPFB's AGPL, never a
+  shipped dependency.
 - **P6 Evidence.** Graded captures per phase; website only on a real win (D12).
 
 **Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01` — **26 hairstyles,
@@ -69,6 +75,29 @@ clarification upstream is worth chasing — recorded in the ledger's REFUSED tab
 
 **Still NOT scheduled, because it is not an engineering blocker:**
 - **Phenotype for the other 13 cases** is clinical authoring (#293). No pipeline slice moves it.
+
+## Rig decision — `mixamo_unity`, taken before runtime wiring
+
+**Decided 2026-08-11, verified locally against the installed 2.0.15 rig JSONs.** `mixamo_unity` is a
+**strict superset** of `mixamo`: 64 bones vs 52, **nothing dropped**, and the 12 extras are exactly
+
+`mixamorig:Jaw` · `LeftEye` · `RightEye` · `Left/RightOrbicularisTop` · `Left/RightOrbicularisBottom` ·
+`Left/RightBreast` · `Left/RightButtock` · `Root`
+
+So one rig serves **retargeting** (all 52 `mixamorig:` names match by name), **gaze** (eye bones, the
+08:00 tick), **lip-sync** (`Jaw` plus the composed visemes above), and **root motion**. There is no
+trade-off to weigh. **Take this before the 06:00 runtime-wiring tick** — changing rigs afterwards is
+expensive.
+
+Rejected: `default`/`default_no_toes` (163/137 bones) — richer, but `retarget_bvh`'s `makehuman.json`
+map is a **trap** against it: the fingerprint matches so retargeting auto-detects MakeHuman, then
+silently fails to drive spine, neck and shoulders because the map targets MakeHuman 1.x naming
+(`neck`, `spine2–4`) that MPFB2 does not use (`neck01–03`, `spine01–05`).
+
+**Trap to carry:** the rig JSONs use **two incompatible schemas**. `rig.mixamo.json` and
+`rig.openpose.json` are WRAPPED (`{bones:{…}}`); the other six are FLAT. A naive `json.load()` reports
+**4** bones for mixamo. Always unwrap with `d.get("bones", d)`. Verified counts: default 163,
+default_no_toes 137, mixamo 52, **mixamo_unity 64**, game_engine 53, cmu_mb 31, openpose 24.
 
 ## The schedule — one meaningful tick per clock hour
 
