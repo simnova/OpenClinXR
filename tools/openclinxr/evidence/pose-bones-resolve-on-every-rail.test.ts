@@ -207,10 +207,29 @@ describe("every runtime pose landmark resolves on every shipped humanoid rail", 
     expect(missing, "MPFB2 distal/facial chain lost").toEqual([]);
     expect(aisha.names.size, "MPFB2 joint count").toBeGreaterThanOrEqual(100);
 
-    // and the two working rails must keep resolving by their own names
+    // issue-307: the two library rails now ride the MPFB mixamo_unity rig (64 bones +
+    // shipped CC0 weights) instead of the AABB 23-bone armature, so they carry
+    // `mixamorig:` names — the 14 landmarks resolve through the alias map (asserted by
+    // (1) and (2)). The net for the library rails is that the chain a learner's pose
+    // code addresses AND the finger chain that #307 exists to give them are present.
+    const MIXAMORIG_MUST_KEEP = [
+      "mixamorig:Hips",
+      "mixamorig:Spine1",
+      "mixamorig:Spine2",
+      "mixamorig:Neck",
+      "mixamorig:Head",
+      "mixamorig:LeftShoulder",
+      "mixamorig:LeftArm",
+      "mixamorig:LeftForeArm",
+      "mixamorig:LeftHand",
+      "mixamorig:LeftUpLeg",
+      "mixamorig:LeftLeg",
+      "mixamorig:LeftHandIndex1",
+      "mixamorig:LeftHandThumb1",
+    ];
     for (const rig of rigs.filter((r) => r.id !== "mpfb2_aisha")) {
-      const absent = POSE_LANDMARKS.filter((l) => !rig.names.has(l));
-      expect(absent, `${rig.id}: 23-bone rail lost a landmark`).toEqual([]);
+      const lost = MIXAMORIG_MUST_KEEP.filter((b) => !rig.names.has(b));
+      expect(lost, `${rig.id}: mixamo_unity chain/fingers lost`).toEqual([]);
     }
   });
 });
