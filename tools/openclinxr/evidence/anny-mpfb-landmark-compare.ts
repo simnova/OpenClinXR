@@ -127,6 +127,47 @@ export function parseObj(text: string): { positions: V3[]; faces: number[][] } {
 }
 
 /**
+ * #301: detect MakeHuman clothes/hair fitting shells BY GROUP NAME.
+ *
+ * A raw MPFB base carries MakeHuman helper geometry — clothes and hair fitting
+ * shells — and the landmark instrument measured the shells instead of the body
+ * (same subject: 19,158 verts → shoulder span 0.5578 m vs 13,380 verts →
+ * 0.6159 m with helpers stripped; 5.8 mm narrow and plausible, so waist and hip
+ * coinciding on that subject read as a good measurement). Helper geometry in this
+ * format is NAMED, not positional: `data/3dobjs/base.obj` declares 172 groups —
+ * `g body`, `g helper-tights`, and 170 `g joint-*` — so the failure class is "the
+ * mesh declares MakeHuman helper groups".
+ *
+ * Detection is deliberately BY GROUP NAME and NOT by vertex count: the 13,380
+ * figure is a cross-check (MADR 0052), never a procedure, and a count threshold
+ * cannot see a small helper-bearing mesh (a twelve-vertex fixture defeats it by
+ * construction). `g body` / `g body_lower` are ordinary OBJ groups and must NOT
+ * be flagged — Blender-exported OBJs declare `g <object-name>` lines routinely.
+ *
+ * Stripping belongs to the GENERATOR (MPFB's
+ * `ExportService.bake_modifiers_remove_helpers`); this detector exists so the
+ * INSTRUMENT can refuse a wrong surface. See `extractLandmarks` for the refusal.
+ */
+export type HelperGeometryReport = {
+  hasHelperGeometry: boolean;
+  helperGroups: string[];
+};
+
+/** MakeHuman helper group names are `helper-*` (clothes/hair shells) or `joint-*`. */
+const MAKEHUMAN_HELPER_GROUP = /^g\s+((?:helper|joint)-[^\s]+)/;
+
+export function detectMakeHumanHelperGeometry(objText: string): HelperGeometryReport {
+  const helperGroups: string[] = [];
+  for (const line of objText.split("\n")) {
+    const t = line.trim();
+    if (!t.startsWith("g ")) continue;
+    const m = MAKEHUMAN_HELPER_GROUP.exec(t);
+    if (m && !helperGroups.includes(m[1]!)) helperGroups.push(m[1]!);
+  }
+  return { hasHelperGeometry: helperGroups.length > 0, helperGroups };
+}
+
+/**
  * Read the source-topology record from the adjacent provenance / manifest files.
  * The fields live at different paths across the two schemas:
  *   .provenance.json   → sourceOriginChain.sourceTopologyMode, licenseChain.baseTopologyMode
@@ -480,6 +521,21 @@ export type LandmarkSet = {
  *    documented anthropometric fallback fraction is used and labelled in `methods`.
  */
 export function extractLandmarks(meshId: string, objText: string): LandmarkSet {
+  // #301: refuse a MakeHuman-helper-bearing mesh rather than measure it. A
+  // measurement taken on the clothes/hair fitting shells is a wrong surface that
+  // reads as a plausible body (5.8 mm narrow shoulder on the measured subject) —
+  // worse than no measurement. Stripping belongs to the generator (MPFB's
+  // ExportService.bake_modifiers_remove_helpers, MADR 0052); the instrument's job
+  // is to TELL. Every tracked Anny reference carries zero groups, so this cannot
+  // fire on anything the pipeline ships today.
+  const helper = detectMakeHumanHelperGeometry(objText);
+  if (helper.hasHelperGeometry) {
+    throw new Error(
+      `#301: ${meshId} declares MakeHuman helper geometry (${helper.helperGroups.join(", ")}) — ` +
+        `the landmark instrument would measure the clothes/hair fitting shells, not the body. ` +
+        `Strip helpers in the generator (ExportService.bake_modifiers_remove_helpers) and pass the body.`,
+    );
+  }
   const { positions, faces } = parseObj(objText);
   const { stature, bands } = buildBandProfile(positions, faces);
   const inWindow = (b: BandProfile, w: readonly [number, number]) =>
