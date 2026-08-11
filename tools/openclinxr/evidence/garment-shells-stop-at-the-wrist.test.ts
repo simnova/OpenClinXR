@@ -84,6 +84,35 @@ import { describe, expect, it } from "vitest";
  * mechanism — measured, 382 skin vertices against 66 hidden in the Y[0.88,0.96] band — and is
  * deliberately out of scope here (D4). The Anny rail's zero-weight hands are #307's class and are not
  * asserted on. Nothing here claims the garment fit is good, only that it stops at the wrist.
+ *
+ * ## FIXED (#295)
+ *
+ * `body_param_stage.py` now terminates every garment at the wrist in three derived steps (D1 —
+ * nothing authored per-body, all from the body's/garment's own vertex-to-bone attribution):
+ *
+ *   (a) the cover shells the stage materializes are built from torso/shoulder (or leg) faces only —
+ *       arm/forearm/hand-dominant body faces are excluded from `build_cover_shell`'s band selection
+ *       (`exclude_faces`). The #275 band selection wrapped the A-pose hands, which hang at the same
+ *       height as the torso and legs — that was the "blue mitten".
+ *   (b) every garment gets the SAME weight projection the bind runs, then its hand-dominant vertices
+ *       are deleted (`trim_garment_hand_region`) — a fitted sleeve that runs over the hand (measured
+ *       at 17,345 hand-dominant verts on the lean-female upper) now stops where the hand bones'
+ *       influence ends. The coverage gate and the hide mask measure the TRIMMED garment.
+ *   (c) the body-hide mask is scoped away from hand-dominant body faces
+ *       (`scope_hide_mask_away_from_hands`) — deleting the sleeve while the body underneath stays
+ *       discarded was the "stump" half of the defect.
+ *
+ * Re-baked through `pnpm asset:body-param:fit -- --once` (2026-08-11), measured on the shipped GLBs:
+ *
+ *   rail                          | hand verts: skin | garment | hidden | reading
+ *   ------------------------------|------------------|---------|--------|-------------------------
+ *   body-param-adult_lean_female  |          12,802 |       0 |      0 | hands are skin
+ *   body-param-adult_heavy_male   |          12,808 |       0 |      0 | hands are skin
+ *   mpfb-ob-patient-aisha         |           3,978 |       0 |      0 | unchanged (reference)
+ *   peds_patient_child (Anny)     |               0 |       0 |      0 | #307 class, not asserted
+ *   peds_anxious_parent (Anny)    |               0 |       0 |      0 | #307 class, not asserted
+ *
+ * The two `it.fails` markers were flipped to `it`; all four clauses pass on the re-baked bytes.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -177,7 +206,7 @@ function requireMeasured(): void {
 }
 
 describe("a garment shell stops at the wrist, and the hide mask does not hide a bare hand", () => {
-  it.fails("(1) RED: no hand-dominant vertex belongs to a GARMENT material", () => {
+  it("(1) no hand-dominant vertex belongs to a GARMENT material", () => {
     requireMeasured();
     const mittens = clothed
       .filter((c) => c.garment > 0)
@@ -185,7 +214,7 @@ describe("a garment shell stops at the wrist, and the hide mask does not hide a 
     expect(mittens, "rails whose sleeve continues over the hand").toEqual([]);
   });
 
-  it.fails("(2) RED: no hand-dominant vertex belongs to the HIDDEN body mask", () => {
+  it("(2) no hand-dominant vertex belongs to the HIDDEN body mask", () => {
     requireMeasured();
     const blacked = clothed
       .filter((c) => c.hidden > 0)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T12:41:30.144Z",
+  "generatedAt": "2026-08-11T17:25:08.045Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -24,9 +24,9 @@
       "garmentMeshName": "makeclothes_library_civilian_shirt_adult_lean_female",
       "garmentKind": "cover_shell",
       "garmentFittedToBodyClass": "adult_lean_female",
-      "garmentTriangleCount": 11524,
+      "garmentTriangleCount": 2924,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-295/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -38,7 +38,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0,
-      "glbSha256": "149aca58b07fd67caa899e9510888a54f52a142b7e52b1012b425e28014e4fac",
+      "glbSha256": "59f10769fc65b7694b9cd099905fbf50a8d30ee37f0135f227fc7d6400539bee",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -109,7 +109,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-295/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -120,8 +120,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0135,
-      "glbSha256": "f8c82459cdafac166240ce007a333e5977eb981b42232c22e8541026062c812b",
+      "fitWallClockS": 0.0128,
+      "glbSha256": "f0b15db9f8858efc90aaaf8e2171507718a695ba725b86b00c7c35bc5096f211",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -173,7 +173,7 @@
       "footwearTriangleCount": 184,
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
-      "lowerGarmentTriangleCount": 3767,
+      "lowerGarmentTriangleCount": 2617,
       "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     }
@@ -204,7 +204,7 @@
       0.31467
     ],
     "perClassGarmentDeformationMeters": [
-      0.57213,
+      0.12713,
       0.24319
     ]
   }
