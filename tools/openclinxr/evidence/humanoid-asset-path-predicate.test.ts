@@ -61,6 +61,18 @@ import { describe, expect, it } from "vitest";
  * loading. The other 56 modules referencing the folder are not touched — this contract covers the
  * predicate one capture uses, deliberately (D4). Nothing here claims the paths themselves are well
  * chosen.
+ *
+ * ## FIXED (#313)
+ *
+ * `packages/openclinxr/asset-registry/src/humanoid-asset-path.ts` now exports
+ * `isRuntimeHumanoidAssetPath(assetPath)` — a self-contained predicate that recognises the runtime
+ * humanoid asset families (`/generated-humanoids/`, `/xr-assets/humanoids/` including the promoted
+ * library bodies under `candidates/`, and `/cagematch/`) and rejects the environment and equipment
+ * siblings. `ui-xr-parent-nurse-sleeve-deform-capture.ts` injects the predicate's source into the
+ * page (`window.__openClinXrIsRuntimeHumanoidAssetPath`) and the wait now counts humanoids by
+ * identity, so the two hm08 library bodies satisfy `length >= 2` and the capture no longer expires.
+ * The other 56 folder-check call sites are intentionally NOT migrated (D4); the predicate is the
+ * single place they can converge on.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -105,7 +117,7 @@ async function loadPredicate(): Promise<((assetPath: string) => boolean) | null>
 const humanoidPaths = runtimeHumanoidPaths();
 
 describe("a runtime humanoid is recognised by what it is, not the folder it sits in", () => {
-  it.fails("(1) RED: every humanoid path the runtime resolves is recognised as a humanoid", async () => {
+  it("(1) RED: every humanoid path the runtime resolves is recognised as a humanoid", async () => {
     const isRuntimeHumanoidAssetPath = await loadPredicate();
     expect(
       isRuntimeHumanoidAssetPath,

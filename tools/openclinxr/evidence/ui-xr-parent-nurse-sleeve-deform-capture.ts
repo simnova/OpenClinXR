@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { chromium, type Page } from "playwright";
+import { isRuntimeHumanoidAssetPath } from "../../../packages/openclinxr/asset-registry/src/humanoid-asset-path.js";
 
 type CliOptions = {
   port: number;
@@ -59,12 +60,20 @@ async function captureComparator(
   console.log(`[parent-nurse-capture] loading ${run.label}: ${url}`);
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
+  // #313: the shared predicate's source is injected (self-contained) so the wait below recognises
+  // runtime humanoids by asset identity — the library bodies under xr-assets/humanoids/candidates/
+  // no longer match a generated-humanoids/ folder check, which timed this capture out at 180s.
+  await page.addScriptTag({
+    content: `window.__openClinXrIsRuntimeHumanoidAssetPath = ${isRuntimeHumanoidAssetPath.toString()};`,
+  });
+
   // Wait for the real-garment humanoid to load (peds_asthma scenario has parent + nurse actors)
   await page.waitForFunction(
     (expectedGlb: string) => {
       const scene = (window as any).__openClinXrSceneAssetEvidence;
+      const isHumanoid = (window as any).__openClinXrIsRuntimeHumanoidAssetPath;
       const humanoids = scene?.assets?.filter((a: any) =>
-        a.assetPath?.includes("generated-humanoids/") || a.assetPath?.includes(expectedGlb),
+        isHumanoid(a.assetPath) || a.assetPath?.includes(expectedGlb),
       ) ?? [];
       return Boolean(
         humanoids.length >= 2
