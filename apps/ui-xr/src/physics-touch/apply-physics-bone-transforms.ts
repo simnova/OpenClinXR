@@ -18,6 +18,8 @@ import {
   type Vector3,
 } from "three";
 import physicsBoneTransformsArtifact from "./ed-palpation-bone-transforms.json" with { type: "json" };
+import { collectJointNames, sanitiseBoneName } from "../pose-bone-runtime.js";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
 
 export type PhysicsBoneTransformSlot = {
   actorId: string;
@@ -62,11 +64,34 @@ export function applyPhysicsBoneTransforms(input: {
 
   if (!patientSlot._physicsBoneMap) {
     const map = new Map<string, Object3D>();
+    // #306: the artifact addresses canonical Anny bone names (`upper_arm.L`, `spine`, `chest`).
+    // Resolve each against the bones actually on the patient's rig so an MPFB2 patient
+    // (`upperarm01.L` / `spine03`) is not silently skipped by the precomputed deltas.
+    const jointNames = collectJointNames(patientSlot.root);
+    const resolvedByArtifact = new Map<string, string>();
+    for (const name of artifact.bones) {
+      const resolved = resolvePoseBone(sanitiseBoneName(name), jointNames);
+      if (resolved !== null) resolvedByArtifact.set(name, resolved);
+    }
+    const bySanitised = new Map<string, Object3D>();
+    const consider = (obj: Object3D) => {
+      const sanitised = sanitiseBoneName(obj.name);
+      if (!sanitised || bySanitised.has(sanitised)) return;
+      bySanitised.set(sanitised, obj);
+    };
+    patientSlot.root.traverse(consider);
     patientSlot.root.traverse((obj) => {
-      if (artifact.bones.includes(obj.name)) {
-        map.set(obj.name, obj);
-      }
+      const skinned = obj as Object3D & {
+        isSkinnedMesh?: boolean;
+        skeleton?: { bones: Object3D[] };
+      };
+      if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
+      for (const bone of skinned.skeleton.bones) consider(bone);
     });
+    for (const [artifactName, resolved] of resolvedByArtifact) {
+      const obj = bySanitised.get(resolved);
+      if (obj) map.set(artifactName, obj);
+    }
     patientSlot._physicsBoneMap = map;
   }
 

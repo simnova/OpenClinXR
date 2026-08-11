@@ -20,7 +20,9 @@ import {
   STANDING_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
+  resolvePoseBone,
 } from "@openclinxr/asset-registry";
+import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 /** Degrees → radians helper. */
 const d2r = (deg: number) => (deg * Math.PI) / 180;
@@ -111,10 +113,15 @@ export function plantSeatedPelvisOnSeat(
   const readPelvisWorldY = (): number | null => {
     humanoidRoot.updateMatrixWorld?.(true);
     let pelvisY: number | null = null;
+    // #306: MPFB2 rigs name the pelvis `pelvis.L/R` and carry no `pelvis` — the landmark resolves
+    // to `root` on that rig, so match the resolved name as well as the canonical spellings.
+    const resolvedPelvis = resolvePoseBone("pelvis", collectJointNames(humanoidRoot));
     humanoidRoot.traverse((object) => {
       if (pelvisY !== null) return;
       const name = (object.name ?? "").toLowerCase();
-      if (name !== "pelvis" && name !== "hips") return;
+      const sanitised = sanitiseBoneName(object.name ?? "");
+      const isResolvedPelvis = resolvedPelvis !== null && sanitised === resolvedPelvis;
+      if (name !== "pelvis" && name !== "hips" && !isResolvedPelvis) return;
       const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
         || (object as Object3D & { type?: string }).type === "Bone";
       if (!isBone) return;
@@ -217,9 +224,13 @@ export function applyPosturePose(
     if (!bonesTouched.includes(object.name)) bonesTouched.push(object.name);
   };
 
+  // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
+  // upperarm01.L / upperleg01.L etc.) so seated pose applies instead of silently skipping.
+  const resolvedEulers = resolveRotationMap(SEATED_BONE_EULERS, collectJointNames(humanoidRoot));
+
   // Scene-graph bones (isBone nodes) — match dotted (file) and undotted (runtime) names.
   humanoidRoot.traverse((object) => {
-    const rotation = SEATED_BONE_EULERS.get(object.name);
+    const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
     if (!rotation) return;
     applyEuler(object, rotation);
   });
@@ -232,7 +243,7 @@ export function applyPosturePose(
     };
     if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
     for (const bone of skinned.skeleton.bones) {
-      const rotation = SEATED_BONE_EULERS.get(bone.name);
+      const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
       if (!rotation) continue;
       applyEuler(bone, rotation);
     }

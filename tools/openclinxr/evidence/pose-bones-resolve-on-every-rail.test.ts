@@ -67,6 +67,22 @@ import { describe, expect, it } from "vitest";
  * mapping picks the anatomically right joint in the right chain; it does not prove skin weights make
  * that joint useful (the 23-bone rails weight `hand.L/R` at 0.00% mass — see #199). Nothing here is
  * rendered or posed. Nothing here claims the 23-bone rails' own poses are correct.
+ *
+ * ## FIXED (#306)
+ *
+ * `packages/openclinxr/asset-registry/src/pose-bone-resolver.ts` now exports
+ * `resolvePoseBone(landmark, jointNames)` — identity-first for the canonical 23-bone rails, then an
+ * honest alias map for the MPFB2 rig (upper_armL→upperarm01L, forearmL→lowerarm01L, handL→wristL,
+ * thighL→upperleg01L, shinL→lowerleg01L, spine→spine03, neck→neck01, head→head, pelvis→root,
+ * chest→spine01), all verified against the shipped hierarchy. All 14 landmarks resolve to DISTINCT
+ * joints on all three rails and the 10 ancestry pairs hold (measured by this test after the flip).
+ *
+ * Wired into the six runtime pose consumers so Aisha is posed instead of silently skipped:
+ * `clinical-idle-posture.ts` (hang maps + `applyHumanoidJointRotationsByAlias`, which covers the
+ * `main.ts` role maps), `supine-pose.ts` (euler map + neck tagging), `seated-pose.ts` (euler map +
+ * pelvis read), `hob-extremity-flex.ts` (`findSupineBone`), and
+ * `physics-touch/apply-physics-bone-transforms.ts` (artifact bone map). The `it.fails` markers on
+ * (1) and (2) were flipped to `it`; all three contracts pass.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -148,7 +164,7 @@ async function loadResolver(): Promise<
 const rigs = await Promise.all(RAILS.map((r) => readRig(r.id, r.glb)));
 
 describe("every runtime pose landmark resolves on every shipped humanoid rail", () => {
-  it.fails(
+  it(
     "(1) RED: each of the 14 landmarks resolves to a DISTINCT joint that exists on that rig",
     async () => {
       const resolvePoseBone = await loadResolver();
@@ -166,7 +182,7 @@ describe("every runtime pose landmark resolves on every shipped humanoid rail", 
     },
   );
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: resolved bones satisfy anatomical ancestry — pose-free and rig-free, so nearest-joint and head-for-everything are rejected",
     async () => {
       const resolvePoseBone = await loadResolver();

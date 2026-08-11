@@ -7,16 +7,25 @@
  * notEvidenceFor: clinical lying pose, multi-joint bed fidelity.
  */
 
-import { type Object3D } from "three";
+import { resolvePoseBone } from "@openclinxr/asset-registry";
+import type { Object3D } from "three";
 import { measureSeatClearanceMeters } from "./hob-contact-metrics.js";
+import { collectJointNames, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 /** Bone names: GLB has dots; three.js may sanitize to undotted. Match both. */
 export function findSupineBone(humanoidRoot: Object3D, ...names: string[]): Object3D | null {
+  // #306: the shin/thigh landmarks resolve to `lowerleg01L` / `upperleg01L` on MPFB2 rigs, so
+  // add the resolved names to the wanted set instead of only the canonical/dotted spellings.
   const want = new Set(names);
+  const jointNames = collectJointNames(humanoidRoot);
+  for (const name of names) {
+    const resolved = resolvePoseBone(sanitiseBoneName(name), jointNames);
+    if (resolved !== null) want.add(resolved);
+  }
   let found: Object3D | null = null;
   const consider = (object: Object3D) => {
     if (found) return;
-    if (!want.has(object.name)) return;
+    if (!want.has(object.name) && !want.has(sanitiseBoneName(object.name))) return;
     const isBone = (object as Object3D & { isBone?: boolean }).isBone === true
       || (object as Object3D & { type?: string }).type === "Bone";
     if (!isBone) return;
