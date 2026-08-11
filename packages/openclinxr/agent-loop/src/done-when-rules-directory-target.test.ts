@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { evaluateDoneWhenRule, writeBaselineHashes } from "./done-when-rules.ts";
+import { evaluateDoneWhenRule, writeBaselineHashes } from "./done-when-rules.js";
 
 /**
  * A `changed:` rule whose target is a DIRECTORY crashes the dispatch instead of being handled or
