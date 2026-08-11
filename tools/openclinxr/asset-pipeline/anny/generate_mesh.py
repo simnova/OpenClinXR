@@ -32,6 +32,36 @@ import contextlib
 import io
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+# issue-294 sufficiency gate: a phenotype that is merely PRESENT is not enough — at
+# least one field that actually drives body geometry must be authored. Cosmetic and
+# affect fields (flush, hair_color, eye_color, skin_tone, anxious, brow_tension,
+# age_wrinkle, clothing_*, garmentLayers, ...) do not make a body distinguishable and
+# must not satisfy the gate alone. The set is the fields build_source_body /
+# normalized_anny_phenotype / automate_blender read to vary geometry; see #294 NOT
+# TESTED: whether these six are the RIGHT set is a generator question, not a clinical
+# claim.
+PHENOTYPE_BODY_SHAPE_FIELDS = (
+    "age",
+    "height_cm",
+    "build",
+    "bmi",
+    "body_profile",
+    "gender_presentation",
+)
+
+
+def phenotype_is_sufficient(phenotype: Any) -> bool:
+    """True when the authored phenotype carries at least one body-geometry-driving field.
+
+    Presence is the criterion: an author who wrote `phenotype: {flush: 0.1}` has not
+    described a body and must be refused, while an author who wrote `age: 8` has.
+    Cosmetic/affect fields must not satisfy this on their own. Shared by
+    generate_mesh.py and orchestrate_character.py (one predicate, not two).
+    """
+    if not isinstance(phenotype, dict):
+        return False
+    return any(field in phenotype for field in PHENOTYPE_BODY_SHAPE_FIELDS)
+
 
 def parse_params(params_arg: str) -> Dict[str, Any]:
     try:
@@ -396,16 +426,18 @@ def build_source_body(params: Dict[str, Any]) -> Dict[str, Any]:
         mesh = build_simple_uv_body(params)
         mesh["fallback_reason"] = "force_stub_mesh_param"
         return mesh
-    # issue-291 refuse gate: a missing phenotype that silently yields a generic
-    # adult is how six humanoids became one body (#276). Refuse before any
-    # fallback, so even the broken-real-Anny path cannot quietly default.
+    # issue-291/294 refuse gate: a missing OR insufficient phenotype that silently
+    # yields a generic adult is how six humanoids became one body (#276). Refuse
+    # before any fallback, so even the broken-real-Anny path cannot quietly default.
     phenotype = params.get("phenotype")
-    if not isinstance(phenotype, dict) or len(phenotype) == 0:
+    if not phenotype_is_sufficient(phenotype):
         raise SystemExit(
-            "REFUSE (issue-291): params carry no phenotype — a missing phenotype that silently "
-            "yields a generic adult is how six humanoids became one body (#276). Author phenotype "
-            "on the scenario fixture actor record and let orchestrate_character.py resolve it, "
-            "or pass an explicit non-empty phenotype dict (force_stub_mesh is the escape hatch)."
+            "REFUSE (issue-294): params carry no phenotype field that drives body geometry "
+            "(expected at least one of " + ", ".join(PHENOTYPE_BODY_SHAPE_FIELDS) + "). "
+            "Cosmetic/affect fields (flush, hair_color, ...) do not make a body distinguishable "
+            "and still yield a generic adult (#276). Author a body-shape field on the scenario "
+            "fixture actor record and let orchestrate_character.py resolve it, or pass an "
+            "explicit phenotype dict with a body-shape field (force_stub_mesh is the escape hatch)."
         )
     try:
         return build_real_anny_body(params)
