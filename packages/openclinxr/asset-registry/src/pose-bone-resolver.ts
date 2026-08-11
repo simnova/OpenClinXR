@@ -59,7 +59,12 @@ export const MPFB2_RIG_BONE_NAMES: Readonly<Record<string, string>> = {
  * `weights.mixamoro_unity.json`), so the canonical landmarks resolve to `mixamorig:`
  * names. Colons are preserved — three.js strips dots only. Verified against the shipped
  * hierarchy: `LeftArm > LeftForeArm > LeftHand`, `LeftUpLeg > LeftLeg`,
- * `Spine1 > Spine2 > Neck > Head`, `Hips > LeftUpLeg/RightUpLeg`.
+ * `Spine1 > Spine2 > Neck > Head`, `Hips > LeftUpLeg/RightUpLeg`,
+ * `Head > LeftEye/RightEye` (the eyes are direct children of `Head` on both library bodies).
+ *
+ * The `eyeL`/`eyeR` aliases close the #312 seam: #311's gaze applier resolves `eyeL`/`eyeR`
+ * through this resolver, and #307's rig rename left the eyes the one landmark the mixamorig
+ * map did not cover — a silent gaze miss on the two bodies a learner actually loads.
  */
 export const MIXAMORIG_RIG_BONE_NAMES: Readonly<Record<string, string>> = {
   upper_armL: "mixamorig:LeftArm",
@@ -77,6 +82,8 @@ export const MIXAMORIG_RIG_BONE_NAMES: Readonly<Record<string, string>> = {
   head: "mixamorig:Head",
   pelvis: "mixamorig:Hips",
   chest: "mixamorig:Spine2",
+  eyeL: "mixamorig:LeftEye",
+  eyeR: "mixamorig:RightEye",
 };
 
 /**

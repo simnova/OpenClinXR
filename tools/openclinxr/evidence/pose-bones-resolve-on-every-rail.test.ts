@@ -83,6 +83,17 @@ import { describe, expect, it } from "vitest";
  * pelvis read), `hob-extremity-flex.ts` (`findSupineBone`), and
  * `physics-touch/apply-physics-bone-transforms.ts` (artifact bone map). The `it.fails` markers on
  * (1) and (2) were flipped to `it`; all three contracts pass.
+ *
+ * ## FIXED (#312)
+ *
+ * The landmark list is extended with `eyeL`/`eyeR` (16 total; the 14 pose landmarks are unchanged)
+ * and the ancestry pairs `head > eyeL`, `head > eyeR` are added, so this contract now refuses the
+ * #307-class seam: a rig rename that breaks the gaze drive on a shipped body goes red here, not
+ * silently. Measured 2026-08-11 before extending: `head` is an ancestor of both eyes on all three
+ * rails (Anny and library direct, Aisha via `special05L/R`), so the added pairs are genuine
+ * constraints, not vacuous ones. The mixamorig map now covers the eyes (`eyeL` →
+ * `mixamorig:LeftEye`, `eyeR` → `mixamorig:RightEye`, direct children of `mixamorig:Head` on the
+ * shipped library bodies); the MPFB2 and Anny rails resolve the eyes by identity as before.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -92,6 +103,10 @@ const REPO_ROOT = pathResolve(HERE, "../../..");
 const POSE_LANDMARKS = [
   "upper_armL", "upper_armR", "forearmL", "forearmR", "handL", "handR",
   "thighL", "thighR", "shinL", "shinR", "spine", "neck", "head", "pelvis",
+  // #312: the eyes are runtime-addressed too — `gaze-drives-eyes.ts` resolves `eyeL`/`eyeR`
+  // through the same `resolvePoseBone`, and #307's rig rename broke them on the library rails.
+  // Including them here makes the "every landmark on every rail" net refuse that seam class.
+  "eyeL", "eyeR",
 ] as const;
 
 /** Anatomical ancestry every rig must satisfy. Topological — invariant to pose and rig scale. */
@@ -101,6 +116,10 @@ const ANCESTRY: ReadonlyArray<readonly [string, string]> = [
   ["thighL", "shinL"], ["thighR", "shinR"],
   ["spine", "neck"], ["neck", "head"],
   ["pelvis", "thighL"], ["pelvis", "thighR"],
+  // #312: an eye landmark that resolves off the head chain is a mis-resolution, not a gaze.
+  // Measured 2026-08-11: `head` is an ancestor of both eyes on all three rails (Anny direct
+  // parent, library direct child of `mixamorig:Head`, Aisha via `special05L/R`).
+  ["head", "eyeL"], ["head", "eyeR"],
 ];
 
 /** What the MPFB2 rig must still carry — D11 names MPFB for exactly these. */
