@@ -13,6 +13,14 @@
  *
  * No Blender, no dev server, no render: the reader and the stub body stage are
  * pure Python and run in-process.
+ *
+ * ## FIXED (#302)
+ *
+ * The #302 height-macro solve makes the child (`patient_maya_johnson_v1`, authored 125 cm) refuse
+ * in `build_source_body` — 125 cm is outside Anny's reachable height band for that phenotype. The
+ * byte-identical-OBJ test now handles both outcomes: the two reachable adults still prove
+ * preset == fixture byte-for-byte, and the child proves the two paths REFUSE identically (same
+ * SystemExit), so the migration property (fixture path == legacy preset path) holds either way.
  */
 
 import { execFile } from "node:child_process";
@@ -66,32 +74,53 @@ print(json.dumps(out))
     }
   });
 
-  it("generate_mesh produces a byte-identical OBJ from fixture params vs preset params", async () => {
+  it("generate_mesh produces a byte-identical OBJ from fixture params vs preset params (or refuses identically)", async () => {
     const stdout = await runPython(`
 import sys, json, hashlib
 sys.path.insert(0, ${JSON.stringify(ANNY_PATH)})
 import generate_mesh as gm
 from orchestrate_character import CASE_ACTOR_PRESETS, params_from_case_definition
 
-def obj_sha(params):
-    mesh = gm.build_source_body(params)
-    return hashlib.sha256(json.dumps(mesh["vertices"], sort_keys=True).encode()).hexdigest()
+def outcome(params):
+    try:
+        mesh = gm.build_source_body(params)
+        return {"refused": False, "sha": hashlib.sha256(json.dumps(mesh["vertices"], sort_keys=True).encode()).hexdigest(), "message": None}
+    except SystemExit as exc:
+        return {"refused": True, "sha": None, "message": str(exc)[:60]}
 
 actors = ${JSON.stringify(MIGRATED_ACTORS)}
 out = {}
 for actor in actors:
     preset = dict(CASE_ACTOR_PRESETS[f"peds_asthma_parent_anxiety_v1:{actor}"]["params"])
     fixture, role, output_name = params_from_case_definition("peds_asthma_parent_anxiety_v1", actor)
-    out[actor] = {
-        "preset_obj_sha256": obj_sha(preset),
-        "fixture_obj_sha256": obj_sha(fixture),
-    }
+    out[actor] = {"preset": outcome(preset), "fixture": outcome(fixture)}
 print(json.dumps(out))
 `);
-    const parsed = JSON.parse(stdout) as Record<string, { preset_obj_sha256: string; fixture_obj_sha256: string }>;
+    // The anny warp-skinning module prints load lines to STDOUT (observed on the
+    // original generator too, after the 2026-08-10 23:32 anny reinstall), so the
+    // JSON payload is found by line, never by whole-stdout parse.
+    const jsonLine = stdout.split("\n").find((l) => l.trim().startsWith("{"));
+    expect(jsonLine, `no JSON payload in python output:\n${stdout.slice(0, 200)}`).toBeDefined();
+    const parsed = JSON.parse(jsonLine!) as Record<
+      string,
+      { preset: { refused: boolean; sha: string | null; message: string | null }; fixture: { refused: boolean; sha: string | null; message: string | null } }
+    >;
     for (const actor of MIGRATED_ACTORS) {
-      expect(parsed[actor]?.preset_obj_sha256).toBe(parsed[actor]?.fixture_obj_sha256);
-      expect(parsed[actor]?.preset_obj_sha256).toMatch(/^[0-9a-f]{64}$/u);
+      const preset = parsed[actor]?.preset;
+      const fixture = parsed[actor]?.fixture;
+      expect(preset, `no preset outcome for ${actor}`).toBeDefined();
+      expect(fixture, `no fixture outcome for ${actor}`).toBeDefined();
+      // The migration property holds on BOTH outcomes: fixture path and legacy
+      // preset path behave identically — byte-identical OBJ when a body is
+      // produced, and the SAME refusal when one is refused (#302: the child's
+      // 125 cm is outside Anny's reachable height band, so she refuses).
+      expect(preset!.refused, `${actor}: preset vs fixture refused flag`).toBe(fixture!.refused);
+      if (preset!.refused) {
+        expect(preset!.message, `${actor}: preset vs fixture refusal message`).toBe(fixture!.message);
+      } else {
+        expect(preset!.sha).toBe(fixture!.sha);
+        expect(preset!.sha).toMatch(/^[0-9a-f]{64}$/u);
+      }
     }
   });
 

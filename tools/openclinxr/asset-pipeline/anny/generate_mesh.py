@@ -293,11 +293,95 @@ def build_simple_uv_body(params: Dict[str, Any]) -> Dict[str, Any]:
     return mesh
 
 
+# ---------------------------------------------------------------------------
+# issue-302: the height macro is SOLVED against the model, not hand-fitted.
+#
+# The old mapping `values["height"] = max(0.08, min(0.95, (height_cm - 85.0) / 115.0))`
+# is wrong by up to 47 cm, and NO formula in height_cm alone can be right: Anny's
+# stature is a function of height AND age AND gender. Bisecting the macro against
+# `anny.Anthropometry` (the model's own measurement of the body it just produced)
+# gives 166 cm -> 0.7320, 176 cm -> 0.8635, 178 cm -> 0.5093 — a TALLER target
+# takes a LOWER macro. The solve asks the tool instead of hand-authoring against
+# it (same D1 lesson as bake_modifiers_remove_helpers / create_human(feet_on_ground=True)).
+#
+# The reachable band is the trained macro space [0, 1]. Production creates the
+# model with extrapolate_phenotypes=False (the default), so a macro above 1.0
+# silently clamps and cannot reach a taller target — the child (125 cm authored,
+# ceiling ~115.7 cm at macro 1.0) is genuinely unreachable and REFUSES loudly
+# rather than shipping a short body as if it were the authored height.
+# ---------------------------------------------------------------------------
+
+_HEIGHT_SOLVE_STATE: Optional[Tuple[Any, Any]] = None  # (model, Anthropometry), created once
+
+
+def _height_solve_state() -> Tuple[Any, Any]:
+    """Lazily create and cache the (model, Anthropometry) pair used to bisect the
+    height macro. Same config the height contract measures against, so a macro the
+    solver finds is measured identically by the contract's own model instance."""
+    global _HEIGHT_SOLVE_STATE
+    if _HEIGHT_SOLVE_STATE is None:
+        import anny
+        with contextlib.redirect_stdout(io.StringIO()):
+            model = anny.create_fullbody_model(triangulate_faces=True, extrapolate_phenotypes=True)
+        _HEIGHT_SOLVE_STATE = (model, anny.Anthropometry(model))
+    return _HEIGHT_SOLVE_STATE
+
+
+def _stature_cm_for(values: Dict[str, float], height_macro: float) -> float:
+    """Measure the model's stature in cm for `values` with the height macro overridden."""
+    model, anthropometry = _height_solve_state()
+    kw = {label: float(values[label]) for label in model.phenotype_labels if label in values}
+    kw["height"] = height_macro
+    import torch
+    with torch.no_grad():
+        out = model.forward(phenotype_kwargs=kw)
+    return float(anthropometry.height(out["rest_vertices"])) * 100.0
+
+
+def _solve_height_macro(values: Dict[str, float], height_cm: float) -> float:
+    """Bisect the Anny height macro so the model measures the authored stature.
+
+    `values` carries every other mapped phenotype label (gender/age/weight/muscle/
+    proportions already resolved); only `height` is varied. A target outside the
+    reachable [0, 1] macro band refuses loudly (SystemExit), never a silent short body.
+    """
+    lo, hi = 0.0, 1.0
+    ceiling_cm = _stature_cm_for(values, hi)
+    if height_cm > ceiling_cm:
+        floor_cm = _stature_cm_for(values, lo)
+        raise SystemExit(
+            "REFUSE (issue-302): authored height_cm "
+            f"{height_cm:g} cm is outside the reachable band "
+            f"[{floor_cm:.1f}, {ceiling_cm:.1f}] cm on Anny's height macro (0..1) "
+            "for this age/gender/build. The solve refuses loudly instead of silently "
+            "shipping a short body. Author a reachable height_cm (#293) or accept the "
+            "closest achievable stature."
+        )
+    floor_cm = _stature_cm_for(values, lo)
+    if height_cm < floor_cm:
+        raise SystemExit(
+            "REFUSE (issue-302): authored height_cm "
+            f"{height_cm:g} cm is below the reachable band "
+            f"[{floor_cm:.1f}, {ceiling_cm:.1f}] cm on Anny's height macro (0..1) "
+            "for this age/gender/build. The solve refuses loudly instead of silently "
+            "shipping a tall body. Author a reachable height_cm (#293) or accept the "
+            "closest achievable stature."
+        )
+    for _ in range(25):
+        mid = (lo + hi) / 2.0
+        if _stature_cm_for(values, mid) < height_cm:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
 def normalized_anny_phenotype(params: Dict[str, Any], labels: Sequence[str], dtype: Any, device: Any) -> Dict[str, Any]:
     phenotype = params.get("phenotype", {})
     role = str(params.get("actor_role") or params.get("actorRole") or "").lower()
     age_years = float(params.get("age", phenotype.get("age", 30)))
     height_cm = float(phenotype.get("height_cm", 170))
+    height_cm_authored = "height_cm" in phenotype
     bmi = float(phenotype.get("bmi", 23.0))
     build = str(phenotype.get("build", "")).lower()
     gender_presentation = str(phenotype.get("gender_presentation", role)).lower()
@@ -318,8 +402,6 @@ def normalized_anny_phenotype(params: Dict[str, Any], labels: Sequence[str], dty
             values["gender"] = 0.5
     if "age" in values:
         values["age"] = max(0.02, min(0.98, age_years / 90.0))
-    if "height" in values:
-        values["height"] = max(0.08, min(0.95, (height_cm - 85.0) / 115.0))
     if "weight" in values:
         values["weight"] = max(0.08, min(0.95, (bmi - 13.5) / 23.0))
     if "muscle" in values:
@@ -336,6 +418,18 @@ def normalized_anny_phenotype(params: Dict[str, Any], labels: Sequence[str], dty
         values["asian"] = float(phenotype.get("asian", 0.22))
     if "caucasian" in values:
         values["caucasian"] = float(phenotype.get("caucasian", 0.60))
+    if "height" in values:
+        if height_cm_authored:
+            # Solved against the model's own anthropometry last, because the stature a
+            # given height macro produces depends on the other mapped labels (age/gender/
+            # weight/muscle/proportions) that were just resolved above (#302).
+            values["height"] = _solve_height_macro(values, height_cm)
+        else:
+            # Unspecified height: no authored target exists to miss, so the legacy
+            # formula stays as the neutral default rather than solving toward a
+            # fabricated 170 cm (which is unreachable for e.g. a child and would
+            # wrongly refuse an otherwise-valid {age: 8} body — #294 contract (3)).
+            values["height"] = max(0.08, min(0.95, (height_cm - 85.0) / 115.0))
 
     import torch
     return {label: torch.tensor([values[label]], dtype=dtype, device=device) for label in labels}
