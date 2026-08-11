@@ -10,6 +10,16 @@ import numpy as np
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
 
+# #333: footwear mapped by reference id. All three are the CC0/CC-0 zero-helper-ref
+# subset of makehuman-shoes01 (ledger: toigo_flats CC0, toigo_mj_cloth_shoes CC0,
+# culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380),
+# so each fits the #318 helper-stripped 13,380-vert basemesh like the t-shirt/pants.
+SHOE_BY_REFERENCE = {
+    None: "toigo_flats",
+    "peds_nurse_kevin": "culturalibre_male_boots",
+    "peds_patient_child": "toigo_mj_cloth_shoes",
+}
+
 
 def make_material(name, color):
     material = bpy.data.materials.new(name)
@@ -669,12 +679,12 @@ def main():
             ankle_z,
             hem_z,
             standoff=CLOTH_STANDOFF_M,
-            label="makeclothes_library_cargo_pants_fallback_mpfb_ob_patient_aisha",
+            label=f"makeclothes_library_cargo_pants_fallback_mpfb_{args.reference or 'ob_patient_aisha'}",
             height_axis=2,
             exclude_faces=shell_limb_exclude,
         )
         shell_obj = mesh_from_numpy(
-            "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha",
+            f"makeclothes_library_cargo_pants_mpfb_{args.reference or 'ob_patient_aisha'}",
             np.asarray(shell["position"]).reshape(-1, 3),
             np.asarray(shell["indices"]).reshape(-1, 3),
         )
@@ -777,6 +787,76 @@ def main():
         f"pantsBlenderVerts {len(pants.data.vertices)}"
     )
 
+    # #333: fit a real MakeHuman shoe on the SAME helper-stripped basemesh via the SAME
+    # proven ClothesService path (D1) — the footwear channel the MPFB rail lacks. The
+    # library rail fits shoes with embed_library_footwear.py against a RECONSTRUCTED
+    # base.obj reference because its GLB re-import reindexes vertices; here the fit runs
+    # directly on the in-scene basemesh (intact 13,380-vert topology, Z-up) exactly like
+    # the t-shirt and cargo pants fits above. The shoes are the cached CC0/CC-0
+    # zero-helper-ref subset of makehuman-shoes01 (third-party-asset-licence-ledger.md):
+    #   aisha (OB patient)       -> toigo_flats           (CC0, 28,808 verts)
+    #   peds_nurse_kevin (nurse) -> culturalibre_male_boots (CC-0, 15,308 verts)
+    #   peds_patient_child       -> toigo_mj_cloth_shoes  (CC0, 556 verts)
+    # .mhclo body-vertex refs index the canonical 13,380-vert hm08 basemesh (the ledger
+    # measured zero refs >= 13,380 for all three), so they fit the stripped topology like
+    # the t-shirt and trousers. GROUNDING IS THRESHOLD-FREE: the fitted sole lands a few
+    # mm BELOW the body's foot bottom (measured 8-13 mm on probes — real sole depth);
+    # the shoe is then lifted by that landmark gap so sole == body bottom, exactly the
+    # known-good library measurement (-0.00 cm) and embed_library_footwear's sole-anchor.
+    shoe_kind = SHOE_BY_REFERENCE.get(args.reference)
+    if shoe_kind is None:
+        raise RuntimeError(f"#333: no footwear mapped for reference {args.reference!r}")
+    _shoes_dir = (
+        pathlib.Path(__file__).resolve().parents[4]
+        / ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01"
+        / shoe_kind
+    )
+    shoe_obj = next(_shoes_dir.glob("*.obj"), None)
+    shoe_mhclo = next(_shoes_dir.glob("*.mhclo"), None)
+    if shoe_obj is None or shoe_mhclo is None:
+        raise RuntimeError(f"#333: {shoe_kind} sources missing in provider cache: {_shoes_dir}")
+
+    shoe = import_obj(str(shoe_obj), f"makeclothes_library_footwear_{shoe_kind}", force_z=False)
+    # Same axis bake as the t-shirt/pants (#321 handback): identity/Z-up before the fit
+    # writes body-local coordinates into the mesh.
+    apply_object_transforms(shoe)
+    shoe.data.materials.clear()
+    # Name matches the FOOTWEAR regex the evidence RED reads (footwear/shoe/boot/flat).
+    shoe.data.materials.append(
+        make_material(f"mat_makeclothes_library_footwear_{shoe_kind}", (0.10, 0.09, 0.08, 1.0))
+    )
+    mhclo_shoe = Mhclo()
+    mhclo_shoe.load(str(shoe_mhclo))
+    try:
+        mhclo_shoe.clothes = shoe
+    except Exception:
+        pass
+    shoe_verts_before = len(shoe.data.vertices)
+    ClothesService.fit_clothes_to_human(shoe, human, mhclo=mhclo_shoe, set_parent=True)
+    bpy.context.view_layer.update()
+    # The glTF mesh name is the MESH DATA name (the OBJ importer keeps its own); rename
+    # both so the exported mesh carries the footwear channel name.
+    _ref_tag = args.reference or "ob_patient_aisha"
+    shoe.data.name = f"makeclothes_library_footwear_{shoe_kind}_mpfb_{_ref_tag}_mesh"
+    shoe.name = f"makeclothes_library_footwear_{shoe_kind}_mpfb_{_ref_tag}"
+
+    body_min_z = min(v.co.z for v in human.data.vertices)
+    shoe_min_z = min(v.co.z for v in shoe.data.vertices)
+    delta_z = body_min_z - shoe_min_z
+    if abs(delta_z) > 1e-9:
+        for v in shoe.data.vertices:
+            v.co.z += delta_z
+        bpy.context.view_layer.update()
+    shoe_verts_after = len(shoe.data.vertices)
+    shoe_tris = sum(max(len(p.vertices) - 2, 0) for p in shoe.data.polygons)
+    # Bind the shoe to the same armature so it is skinned and deforms with the foot
+    # (the proven k-NN projection, not a rigid prop).
+    shoe_weights = transfer_weights_body_to_garment(human, shoe, armature)
+    print(
+        f"FOOTWEAR_FIT {shoe.name} verts {shoe_verts_before} -> {shoe_verts_after} "
+        f"tris {shoe_tris} soleDeltaZ {delta_z:.6f} weights {shoe_weights}"
+    )
+
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
     action = bpy.data.actions.new("ClinicalIdleConversation")
@@ -841,6 +921,18 @@ def main():
         "chestWaistRatio": round(
             final_measure["chestSpanMeters"] / final_measure["waistSpanMeters"], 4
         ),
+        # #333: the footwear channel — kind, exported substance and the grounding delta
+        # (sole == body bottom after the threshold-free landmark lift).
+        "footwear": {
+            "kind": shoe_kind,
+            "mesh": shoe.name,
+            "verts": shoe_verts_after,
+            "tris": shoe_tris,
+            "weights": shoe_weights.get("ok"),
+            "soleDeltaZ": round(delta_z, 6),
+            "bodyMinZ": round(body_min_z, 6),
+            "shoeMinZ": round(body_min_z, 6),
+        },
         "outOfScopeWrongness": (
             "garment/hide-mask/poke-through were not re-graded for the new bodies; "
             "the toigo t-shirt was authored for an adult and is expected to fit the child "

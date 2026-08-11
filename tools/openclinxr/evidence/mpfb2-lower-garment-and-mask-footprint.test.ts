@@ -135,6 +135,8 @@ const LIBRARY = "xr-assets/humanoids/candidates/body-param-adult_lean_female-lib
 const UPPER = /shirt|top|tshirt|toigo/i;
 const LOWER = /pants|trouser|cargo/i;
 const HIDDEN = /hidden/i;
+/** #333: footwear is a wardrobe channel, not body — the library rail already ships it. */
+const FOOTWEAR = /footwear|shoe|boot|flat/i;
 /** Signed-clearance epsilon is 5 mm; 2 mm of bounds slack allows float + fan-triangulation edges. */
 const MAX_OVERREACH_M = 0.002;
 
@@ -171,6 +173,7 @@ async function railOf(id: string, rel: string): Promise<Rail> {
       if (HIDDEN.test(name)) masks.push(box);
       else if (LOWER.test(name)) lower = box;
       else if (UPPER.test(name)) upper = box;
+      else if (FOOTWEAR.test(name)) continue; // #333: footwear is not body (nor a mask the garments hide under)
       else body += pos.getCount();
     }
   }
