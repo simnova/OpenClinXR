@@ -268,6 +268,12 @@ export function buildBandProfile(
   const bands: BandProfile[] = [];
 
   for (let y = ymin + bandH; y < ymax - bandH / 2; y += step) {
+    // #300: band fraction is mesh-relative, never absolute Y. A rigid vertical
+    // translation cannot change a circumference, so band windows must not either.
+    // (y - ymin) / stature is invariant under translation by construction; y /
+    // stature made a pelvis-centred mesh (minY = -0.8557) read all-zero girths and
+    // a +0.85 m shift read a plausible-but-wrong waist (0.30755 vs 0.73472).
+    const frac = (y - ymin) / stature;
     const lo = y - bandH / 2;
     const hi = y + bandH / 2;
     const band: Array<{ x: number; z: number; i: number }> = [];
@@ -341,9 +347,10 @@ export function buildBandProfile(
     // hang between the wrist ~0.52 H and the shoulder junction ~0.74 H) with |cx|
     // clearly outside the torso count. The legs (frac < 0.45) must not pollute this:
     // at leg heights the "torso cluster" is one leg, so the OTHER leg would otherwise
-    // pass the lateral test.
+    // pass the lateral test. Frac is mesh-relative (#300) — absolute y/stature would
+    // admit leg clusters on any mesh whose feet are not at y=0.
     const armClusters: ArmCluster[] = [];
-    if (y / stature >= 0.5) {
+    if (frac >= 0.5) {
       for (const [root, idxs] of compMap) {
         if (root === torsoRoot) continue;
         const cxs = idxs.map((i) => band[i]!.x);
@@ -356,7 +363,7 @@ export function buildBandProfile(
 
     bands.push({
       y,
-      frac: y / stature,
+      frac,
       torsoWidth,
       torsoDepth,
       torsoPerimeter,
