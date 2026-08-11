@@ -37,6 +37,12 @@ import {
   type ExaminedLowerGarment,
 } from "./fit-cli.js";
 import {
+  classifyHairStyle,
+  HAIR_HELPER_STRIP_THRESHOLD,
+  HAIR_PACK_DIR,
+  readHairLicenceLine,
+} from "./hair-licence-classify.js";
+import {
   HM08_UPPER_GARMENT_FALLBACK_ID,
   HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
   HM08_TOIGO_T_SHIRT_ID,
@@ -96,6 +102,7 @@ export const FINISHED_FIGURE_GRADE_PNG = path.join(
 
 const STAGE_SCRIPT = path.join(HERE, "body_param_stage.py");
 const FOOTWEAR_SCRIPT = path.join(HERE, "embed_library_footwear.py");
+const HAIR_SCRIPT = path.join(HERE, "embed_library_hair.py");
 const FINISH_GRADE_SCRIPT = path.join(HERE, "finished_figure_grade.py");
 
 const SCRUB = {
@@ -217,6 +224,14 @@ export type BodyParamCatalogEntry = {
   footwearShoeId?: string;
   footwearLicenseToken?: string;
   footwearLicenseSource?: string;
+  /** #330 — the fitted CC0/CC-BY hair id + licence recorded from the hair's OWN .mhclo header. */
+  hairStyleId?: string | null;
+  hairMeshNames?: string[];
+  hairTriangleCount?: number;
+  hairLicenseToken?: string | null;
+  hairLicenseSource?: string | null;
+  /** #330 — why a body class has no hair (recorded skip — bald is today's shipped state). */
+  hairSkippedReason?: string | null;
   /** #220 — lower garment mesh when outfit fit ran. */
   lowerGarmentId?: string | null;
   lowerGarmentMeshName?: string | null;
@@ -548,6 +563,89 @@ export function resolveFootwearCandidate(
     );
   }
   return { ...cand, licenseToken: license.token, licenseSource: license.source };
+}
+
+/**
+ * #330 — per-body-class CC0/CC-BY MakeClothes hair, staged from the tracked provider
+ * cache (`makehuman-hair01` pack, `.mhclo` headers read per style by the hair licence
+ * classifier). Selection is on CLINICAL PLAUSIBILITY. The ONLY licence-clean,
+ * topology-fit styles are feminine (the six toigo bobs, culturalibre_hair_06, plus the
+ * two CC-BY styles) — there is NO masculine style in the usable subset, so the
+ * heavy-male class is a RECORDED SKIP (bald is today's shipped state; a feminine bob
+ * on a male patient would be a visible regression, not an upgrade). The skip is
+ * recorded in the catalog, never silent.
+ */
+export type HairCandidate = {
+  style: string;
+  mhcloRel: string;
+  objRel: string;
+  selectionNote: string;
+};
+
+export const HAIR_BY_CLASS: Record<string, HairCandidate> = {
+  adult_lean_female: {
+    style: "toigo_blunt_bob_with_bangs",
+    mhcloRel:
+      ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+    objRel:
+      ".openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_blunt_bob_with_bangs/bob_blunt_bangs.obj",
+    selectionNote:
+      "CC0 bob with bangs (author MargaretToigo, zero helper refs) — plausible hair for a female family/patient figure at a clinical station",
+  },
+};
+
+/** Body classes with no licence-clean, topology-fit, clinically-plausible hair. */
+export const HAIR_SKIP_REASONS: Record<string, string> = {
+  adult_heavy_male:
+    "no clinically-plausible style in the usable makehuman-hair01 subset — all licence-clean " +
+    "zero-helper styles are feminine bobs/long hair; bald is today's shipped state (a feminine " +
+    "bob on a male patient would regress realism). Recorded, not silent.",
+};
+
+/**
+ * #330 find-or-stop: every class with a declared hair candidate needs a licence-clean
+ * staged source whose OWN `.mhclo` header is permitted AND whose helper-vertex refs
+ * are zero. A class WITHOUT a candidate returns null + a recorded reason (bald is not
+ * a regression — it is today's shipped state).
+ */
+export function resolveHairCandidate(
+  bodyClassId: string,
+  repoRoot: string = REPO_ROOT,
+): { candidate: HairCandidate | null; licenseToken?: string; licenseSource?: string; skipReason?: string } {
+  const cand = HAIR_BY_CLASS[bodyClassId];
+  if (!cand) {
+    return {
+      candidate: null,
+      skipReason: HAIR_SKIP_REASONS[bodyClassId] ?? `no hair candidate declared for ${bodyClassId}`,
+    };
+  }
+  const mhcloAbs = path.join(repoRoot, cand.mhcloRel);
+  const objAbs = path.join(repoRoot, cand.objRel);
+  if (
+    !existsSync(mhcloAbs) || !existsSync(objAbs) ||
+    statSync(mhcloAbs).size < 50 || statSync(objAbs).size < 50
+  ) {
+    throw new Error(
+      `[body-param] #330 find-or-stop: hair sources missing from the provider cache ` +
+        `(${cand.mhcloRel}, ${cand.objRel}) — stage the makehuman-hair01 pack and re-run.`,
+    );
+  }
+  // Licence gate: classify from the style's OWN .mhclo header — never invented.
+  const classification = classifyHairStyle(cand.style, mhcloAbs);
+  if (!classification.usable) {
+    throw new Error(
+      `[body-param] #330 find-or-stop: hair ${cand.style} is NOT usable per its own .mhclo ` +
+        `header: licence=${classification.licence ?? "(none)"} helpers=${classification.helperVertexRefs} ` +
+        `reason=${classification.refusedReason}`,
+    );
+  }
+  const { raw } = readHairLicenceLine(mhcloAbs);
+  return {
+    candidate: cand,
+    licenseToken: raw ?? classification.licenceFamily,
+    licenseSource: `mhclo_header:${path.basename(mhcloAbs)}; license=${raw ?? ""}; style=${cand.style}; ` +
+      `helperRefs=0(<${HAIR_HELPER_STRIP_THRESHOLD}); pack=${HAIR_PACK_DIR}`,
+  };
 }
 
 async function renderFinishedFigureGrade(
@@ -1009,6 +1107,101 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     }
     finishStepsRun.push("embed_library_footwear");
 
+    // #330 — the fitted CC0/CC-BY MakeClothes hair, licence-gated per style from the
+    // style's OWN .mhclo header. A class with no licence-clean, topology-fit,
+    // clinically-plausible candidate is a RECORDED SKIP (bald is today's shipped
+    // state; a feminine bob on the male patient would regress realism, not upgrade).
+    const hairResolved = resolveHairCandidate(bodyClassId);
+    let hairMeshNames: string[] = [];
+    let hairTriangleCount = 0;
+    let hairStyleId: string | null = null;
+    let hairLicenseToken: string | null = null;
+    let hairLicenseSource: string | null = null;
+    let hairSkippedReason: string | null = null;
+    if (hairResolved.candidate) {
+      const hairCand = hairResolved.candidate;
+      if (!existsSync(HAIR_SCRIPT)) {
+        throw new Error(`hair embed script missing: ${HAIR_SCRIPT}`);
+      }
+      const hairReportPath = path.join(WORK_DIR, `hair_${bodyClassId}.json`);
+      console.log(
+        `[body-param] hair step (unconditional) bodyClassId=${bodyClassId} ` +
+          `style=${hairCand.style} license=${hairResolved.licenseToken}`,
+      );
+      const hairResult = await runCmd(
+        blender,
+        [
+          "--background",
+          "--python",
+          HAIR_SCRIPT,
+          "--",
+          "--glb",
+          destDisk,
+          "--out",
+          destDisk,
+          "--role",
+          footwearRole,
+          "--report",
+          hairReportPath,
+          "--mh-base-obj",
+          mhBaseObj,
+          "--phenotype-json",
+          JSON.stringify(footwearPhenotype),
+          "--hair-mhclo",
+          path.join(REPO_ROOT, hairCand.mhcloRel),
+          "--hair-obj",
+          path.join(REPO_ROOT, hairCand.objRel),
+          "--hair-style",
+          hairCand.style,
+          "--body-class",
+          bodyClassId,
+          "--hair-license-token",
+          hairResolved.licenseToken ?? "",
+          "--hair-license-source",
+          hairResolved.licenseSource ?? "",
+        ],
+        { cwd: REPO_ROOT, timeoutMs: 600_000 },
+      );
+      if (hairResult.code !== 0 || !existsSync(hairReportPath)) {
+        throw new Error(
+          `hair embed failed for ${bodyClassId} (exit ${hairResult.code}): ` +
+            `${hairResult.stderr.slice(-600)} ${hairResult.stdout.slice(-400)}`,
+        );
+      }
+      const hairReport = JSON.parse(readFileSync(hairReportPath, "utf8")) as {
+        hairRegion?: {
+          meshName?: string;
+          faceCount?: number;
+          style?: string;
+          licenseToken?: string;
+          licenseSource?: string;
+          weightedBone?: string;
+        };
+      };
+      const hairMeta = hairReport.hairRegion;
+      hairMeshNames = hairMeta?.meshName ? [String(hairMeta.meshName)] : [];
+      hairTriangleCount = Number(hairMeta?.faceCount ?? 0);
+      hairStyleId = String(hairMeta?.style ?? hairCand.style);
+      hairLicenseToken = String(hairMeta?.licenseToken ?? "");
+      hairLicenseSource = String(hairMeta?.licenseSource ?? "");
+      if (hairMeshNames.length === 0 || hairTriangleCount < 60) {
+        throw new Error(
+          `hair embed produced no usable mesh for ${bodyClassId}: ` +
+            `names=${JSON.stringify(hairMeshNames)} tris=${hairTriangleCount}`,
+        );
+      }
+      if (!/^CC/i.test(hairLicenseToken) || !hairLicenseSource) {
+        throw new Error(
+          `hair embed for ${bodyClassId} has no licence from a .mhclo header: ` +
+            `token=${hairLicenseToken || "(absent)"}`,
+        );
+      }
+      finishStepsRun.push("embed_library_hair");
+    } else {
+      hairSkippedReason = hairResolved.skipReason ?? "no hair candidate declared";
+      finishStepsRun.push("embed_library_hair:recorded_skip");
+    }
+
     const phenotype = (sc["phenotype"] as Record<string, number | string>) ?? {};
     const annyReferenceAsset =
       typeof sc["annyReferenceAsset"] === "string" && sc["annyReferenceAsset"]
@@ -1060,6 +1253,12 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       footwearShoeId,
       footwearLicenseToken,
       footwearLicenseSource,
+      hairStyleId,
+      hairMeshNames,
+      hairTriangleCount,
+      hairLicenseToken,
+      hairLicenseSource,
+      hairSkippedReason,
       lowerGarmentId: lowerMeshFromStage ? LIBRARY_LOWER_GARMENT_ID : null,
       lowerGarmentMeshName: lowerMeshFromStage,
       lowerGarmentTriangleCount: lowerTrisFromStage,
@@ -1093,6 +1292,12 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           footwearShoeId: entry.footwearShoeId,
           footwearLicenseToken: entry.footwearLicenseToken,
           footwearLicenseSource: entry.footwearLicenseSource,
+          hairStyleId: entry.hairStyleId,
+          hairMeshNames: entry.hairMeshNames,
+          hairTriangleCount: entry.hairTriangleCount,
+          hairLicenseToken: entry.hairLicenseToken,
+          hairLicenseSource: entry.hairLicenseSource,
+          hairSkippedReason: entry.hairSkippedReason,
           lowerGarmentId: entry.lowerGarmentId,
           lowerGarmentMeshName: entry.lowerGarmentMeshName,
           lowerGarmentTriangleCount: entry.lowerGarmentTriangleCount,

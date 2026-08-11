@@ -90,6 +90,23 @@
  * destructive-probe test below pins that counterweight. The 0.75 constant is removed; the 0.80
  * height bound and the 0.82/0.93 band range are untouched. Full measurements: pre-fix.json.
  */
+/**
+ * ## FIXED (#330)
+ *
+ * Two changes, both instrument-artifact repairs, neither weakening the predicate.
+ * (a) The "body is the largest mesh" heuristic broke when #324's fitted footwear
+ * (28,800 tris per shoe) exceeded the basemesh (26,756): the lean-female column then
+ * picked a shoe as the body, reported the basemesh as a "separate hair mesh" (its
+ * scalp primitive matches /hair/i) and the scalp region as "missing" — 3 pre-existing
+ * reds on a correctly-painted body. The body is now the mesh that CARRIES the scalp
+ * hair material region (the predicate's subject by definition), falling back to the
+ * largest basemesh/body-named mesh. (b) The "no separate hair mesh" clause is scoped
+ * to exclude the FITTED library hair mesh (`makeclothes_library_hair_*`): #330 fits a
+ * real CC0 MakeClothes `.mhclo` through `ClothesService` — the OPPOSITE of the
+ * hand-authored UV sphere D1 forbids — so it must not be counted as the old failure.
+ * The painted scalp region and its crown/face-band bounds are unchanged and still
+ * asserted on every column.
+ */
 import { Accessor, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -103,6 +120,10 @@ const HM08_HEAVY_SUBJECT =
 
 const SCALP_HAIR_MATERIAL = /scalp_hair/i;
 const ANY_HAIR_MATERIAL = /hair/i;
+/** #330 — the fitted library hair mesh is a D1-fitted .mhclo, the OPPOSITE of the
+ * hand-authored sphere this contract refuses. Excluded by mesh-name prefix so the
+ * "no separate hand-authored hair mesh" intent survives contact with real hair. */
+const FITTED_LIBRARY_HAIR_MESH = /^makeclothes_library_hair/i;
 
 /**
  * A scalp sits on the crown. The head is roughly the top eighth of a standing body, so every
@@ -178,12 +199,27 @@ async function readSubject(path: string): Promise<Subject> {
   const triangleCount = (mesh: (typeof meshes)[number]): number =>
     mesh.listPrimitives().reduce((total, prim) => total + (prim.getIndices()?.getCount() ?? 0) / 3, 0);
 
-  // The body is the largest mesh by triangle count — true on both rails and on any future rail.
-  const body = [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
+  // The body is the mesh that carries the scalp hair material region (the #222/#279
+  // predicate's subject), else the largest basemesh/body-named mesh. NOT "largest by
+  // triangle count" alone: #324's fitted footwear (28,800 tris per shoe) exceeds the
+  // basemesh (26,756), so the old heuristic picked a shoe and reported the basemesh
+  // as a "separate hair mesh" (its scalp primitive matches /hair/i) with the scalp
+  // region then "missing" from the wrong body — an instrument artifact, not a
+  // product regression (#330). The scalp-region-carrying mesh is the body by
+  // definition; the name fallback covers rails without a scalp primitive yet.
+  const body =
+    meshes.filter((m) =>
+      m.listPrimitives().some((p) => SCALP_HAIR_MATERIAL.test(p.getMaterial()?.getName() ?? "")),
+    )[0] ??
+    [...meshes]
+      .filter((m) => /basemesh|body/i.test(m.getName() ?? ""))
+      .sort((a, b) => triangleCount(b) - triangleCount(a))[0] ??
+    [...meshes].sort((a, b) => triangleCount(b) - triangleCount(a))[0];
   if (!body) throw new Error(`${path}: no meshes`);
 
   const separateHairMeshes = meshes
     .filter((mesh) => mesh !== body)
+    .filter((mesh) => !FITTED_LIBRARY_HAIR_MESH.test(mesh.getName() ?? ""))
     .filter((mesh) =>
       mesh.listPrimitives().some((prim) => ANY_HAIR_MATERIAL.test(prim.getMaterial()?.getName() ?? "")),
     )
