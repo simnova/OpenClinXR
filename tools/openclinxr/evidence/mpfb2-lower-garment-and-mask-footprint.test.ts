@@ -89,6 +89,40 @@ import { describe, expect, it } from "vitest";
  * honest next instrument if the slivers survive. Fit quality, drape, hem and waistband raggedness are all
  * unasserted; the library rail's trouser waistband is separately measured at 92.4 mm span and unbounded
  * by anything. Whether a t-shirt and cargo trousers suit an OB triage patient is a P3 staging judgement.
+ *
+ * ## FIXED (#326)
+ *
+ * `body_param_stage.py` now clips every body-hide mask to the garment's footprint in the SHARED
+ * mask path (`clip_hide_mask_to_garment_footprint`, called from `_hide_under_garment`), and the
+ * MPFB2 materializer (`materialize_mpfb_humanoid_candidate.py`) imports the same clip for both its
+ * upper and lower channels (D1 — no second hider). The mask is built from a signed-clearance test
+ * (< HIDE_EPSILON_M against the garment surface) that admits body faces just outside the garment
+ * SILHOUETTE; the clip zeroes every masked polygon with a vertex outside the garment's world AABB
+ * + 1.5 mm slack (below the contract's 2 mm allowance, leaving float room). It is polygon-level,
+ * not triangle-level, because `apply_body_hide_material_region` hides whole polygons — a
+ * triangle-level clip left a 5.6 mm residual from polygon corners (measured on the first pass).
+ * The MPFB2 patient also gets a lower garment for the first time: the CC0 `cortu_cargo_pants`
+ * fitted via the SAME `ClothesService.fit_clothes_to_human` the library rail uses, and (because
+ * the raw fit is the sparse 392-triangle trouser) the SAME lower coverage gate — `coverage_report`
+ * over the leg band, replaced by the body-derived cover shell (`build_cover_shell`) when the fit
+ * does not cover, with the limb faces excluded (#295). Bundling the two causes is what this issue
+ * was filed for: shipping the trousers alone would have hidden the shared over-reach defect.
+ *
+ * Re-baked through the materializer + `pnpm asset:body-param:fit -- --once` (2026-08-11). Measured
+ * on the shipped bytes (NodeIO, the same attribution this file drives):
+ *
+ *   rail          | lower      | masks (verts)              | worst over-reach
+ *   --------------|------------|----------------------------|-----------------
+ *   aisha (MPFB2) | 8,290      | hidden_upper 1,539 + lower 196 | **0.8 mm**
+ *   lean_female   | 8,565      | hidden_upper 4,568 + lower 648 | **1.0 mm**
+ *   heavy_male    | 7,797      | hidden_upper 4,518 + lower 912 | **0.6 mm**
+ *
+ * Aisha's upper mask Y range [0.968, 1.419] now sits inside the t-shirt's [0.969, 1.420] (+1.5 mm
+ * slack); her hidden fraction is 1,735/15,378 = 11.3% (library rail 10.1% — the counterweight band),
+ * and the #323 regression net (mask present, hands spared, fraction < 60%, garment survives) and the
+ * #322 net (library garments real + licenced) both stay green on the re-baked bytes. The lower
+ * garment's 8,290 exported verts are the cover shell (1,440 unique — the glTF export splits the
+ * flat-shaded shell per face, exactly as the library rail's 8,565-vert shell ships).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -178,13 +212,13 @@ function requireMeasured(): void {
 }
 
 describe("the MPFB2 patient is clothed below the waist, and the mask matches the cloth", () => {
-  it.fails("(1) RED CAUSE A: aisha carries a fitted lower garment", () => {
+  it("(1) RED CAUSE A: aisha carries a fitted lower garment", () => {
     requireMeasured();
     expect(aisha.lower, "aisha lower garment primitive").not.toBeNull();
     expect(aisha.lower?.verts ?? 0, "aisha lower garment verts").toBeGreaterThanOrEqual(2000);
   });
 
-  it.fails(
+  it(
     `(2) RED CAUSE B: no mask extends more than ${MAX_OVERREACH_M * 1000}mm beyond the garments it hides under`,
     () => {
       requireMeasured();
@@ -193,7 +227,7 @@ describe("the MPFB2 patient is clothed below the waist, and the mask matches the
     },
   );
 
-  it.fails(
+  it(
     "(3) RED: the library rail's masks stay inside its garments too — the over-reach is shared code",
     () => {
       requireMeasured();
