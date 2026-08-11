@@ -73,6 +73,25 @@ import { describe, expect, it } from "vitest";
  * - Measured after the fix: `{flush: 0.1}` REFUSES; `{flush, hair_color, eye_color}` REFUSES;
  *   `{age: 8}` still produces the body; the three authored peds actors still produce byte-identical
  *   bodies (contract (4) hashes unchanged); `{}` still refuses.
+ *
+ * ## FIXED (#302)
+ *
+ * The #302 height-macro solve changes contract (4)'s known-good baseline, and the change is the fix:
+ * `normalized_anny_phenotype` now bisects the height macro against `anny.Anthropometry` instead of
+ * the hand-fitted linear formula, so the two reachable adults produce different (correct) bodies and
+ * the child refuses. Measured 2026-08-11: `patient_maya_johnson_v1` (125 cm) REFUSES — outside Anny's
+ * reachable height band [~57, ~115.7] cm — and `parent_tara_johnson_v1` / `nurse_kevin_lee_v1`
+ * produce bodies with the hashes now pinned in contract (4). The refusal channel is the same
+ * `SystemExit` this contract already maps; nothing about the insufficiency gate changed.
+ *
+ * The solve applies ONLY to an AUTHORED `height_cm`. When `height_cm` is absent (contract (3)'s
+ * `{age: 8}`), the legacy formula remains the unspecified-height default — there is no authored
+ * target to miss, and solving toward a fabricated 170 cm would wrongly refuse an 8-year-old.
+ *
+ * Contract (3)'s `{age: 8}` body-hash pin was recalibrated for environment drift, not for this fix:
+ * anny 0.6.0 was re-installed at 23:32 on 2026-08-10, ~1 hour AFTER the pin was measured (22:37),
+ * which moved the float-level body hash. Verified: the ORIGINAL pre-fix generator produces the same
+ * recalibrated hash `d1cd6be66a2b0a59` in this environment, so the old pin was already stale.
  */
 
 // Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
@@ -99,23 +118,24 @@ print(json.dumps({"refused": False, "hash": hashlib.sha256(repr(body).encode()).
   return JSON.parse(out.trim().split("\n").pop()!) as Outcome;
 }
 
-function authoredPhenotypes(): Array<{ hash: string; phenotype: Record<string, unknown> }> {
+function authoredPhenotypes(): Array<{ actorId: string; phenotype: Record<string, unknown> }> {
   const script = `
 import json
 exp = json.load(open("packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json"))
 def walk(o):
     if isinstance(o, dict):
-        if isinstance(o.get("phenotype"), dict): yield o["phenotype"]
-        for v in o.values(): yield from walk(v)
+        for k, v in o.items():
+            if isinstance(v, dict) and isinstance(v.get("phenotype"), dict):
+                yield k, v["phenotype"]
+            else:
+                yield from walk(v)
     elif isinstance(o, list):
         for v in o: yield from walk(v)
 print(json.dumps(list(walk(exp))))
 `;
   const out = execFileSync("python3", ["-c", script], { cwd: REPO_ROOT, encoding: "utf8" });
-  const phenotypes = JSON.parse(out.trim().split("\n").pop()!) as Array<Record<string, unknown>>;
-  // Measured today; these must not move.
-  const expected = ["e9915a6cfca539b0", "54e2501941645d92", "f2e2222d67675dc6"];
-  return phenotypes.map((phenotype, index) => ({ hash: expected[index]!, phenotype }));
+  const entries = JSON.parse(out.trim().split("\n").pop()!) as Array<[string, Record<string, unknown>]>;
+  return entries.map(([actorId, phenotype]) => ({ actorId, phenotype }));
 }
 
 const COSMETIC_ONLY = { flush: 0.1, hair_color: "light_brown", eye_color: "hazel" };
@@ -137,19 +157,38 @@ describe("the phenotype gate refuses an insufficient phenotype, not merely an ab
     () => {
       const outcome = buildOutcome(JSON.stringify({ age: 8 }));
       expect(outcome.refused).toBe(false);
-      expect(outcome.hash).toBe("ea0eb25db57bb949");
+      // Hash recalibrated 2026-08-11: anny 0.6.0 was re-installed at 23:32 on 08-10,
+      // after this pin was measured at 22:37 (see ## FIXED (#302)), moving the
+      // float-level body hash from ea0eb25db57bb949 to d1cd6be66a2b0a59. The old
+      // pin does not reproduce on the ORIGINAL generator in this environment either.
+      expect(outcome.hash).toBe("d1cd6be66a2b0a59");
     },
   );
 
   it(
-    "(4) KNOWN-GOOD: the three authored peds actors keep producing the same bodies, byte for byte",
+    "(4) KNOWN-GOOD: the reachable authored peds actors keep producing the same bodies; the child now refuses (#302)",
     () => {
       const authored = authoredPhenotypes();
       expect(authored.length).toBe(3);
-      for (const { hash, phenotype } of authored) {
+      // Measured 2026-08-11 after the #302 height-macro solve (see ## FIXED (#302)
+      // above): the child (125 cm) is outside Anny's reachable height band and now
+      // refuses loudly; the two reachable adults produce bodies whose hashes changed
+      // because the height macro is now solved against the model's own anthropometry.
+      const expected = new Map<string, { hash?: string; refused?: boolean }>([
+        ["patient_maya_johnson_v1", { refused: true }],
+        ["parent_tara_johnson_v1", { hash: "b203a3a97db29d06" }],
+        ["nurse_kevin_lee_v1", { hash: "6e926cada2b87565" }],
+      ]);
+      for (const { actorId, phenotype } of authored) {
+        const expectation = expected.get(actorId);
+        expect(expectation, `unexpected authored actor ${actorId}`).toBeDefined();
         const outcome = buildOutcome(JSON.stringify(phenotype));
-        expect(outcome.refused, `authored phenotype refused: ${JSON.stringify(phenotype).slice(0, 90)}`).toBe(false);
-        expect(outcome.hash).toBe(hash);
+        if (expectation!.refused) {
+          expect(outcome.refused, `${actorId}: expected refusal (#302), got a body`).toBe(true);
+        } else {
+          expect(outcome.refused, `${actorId} refused`).toBe(false);
+          expect(outcome.hash, `${actorId} body hash moved`).toBe(expectation!.hash);
+        }
       }
     },
   );

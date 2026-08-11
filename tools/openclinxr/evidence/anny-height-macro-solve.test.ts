@@ -54,6 +54,33 @@ import { describe, expect, it } from "vitest";
  * NOT TESTED: whether the same hand-fitted-formula problem exists for the `age` or `bmi` mappings in the
  * same function — only `height` was measured. And nothing here says 125 cm is the RIGHT authored height
  * for an 8-year-old; that is case authoring (#293), not this contract's business.
+ *
+ * ## FIXED (#302)
+ *
+ * `generate_mesh.py` now bisects the height macro against `anny.Anthropometry` — the model's own
+ * measurement of the body it just produced — instead of the linear formula. Measured after the fix,
+ * on the same presets and the same model config as this contract:
+ *
+ *   actor                      | authored | macro (solved) | stature | error
+ *   ---------------------------|----------|----------------|---------|------
+ *   patient_ed_chest_pain_v1   |  178 cm  |     0.5093     | 178.00  | 0.00
+ *   nurse_kevin_lee_v1         |  176 cm  |     0.8635     | 176.00  | 0.00
+ *   parent_tara_johnson_v1     |  166 cm  |     0.7320     | 166.00  | 0.00
+ *   patient_maya_johnson_v1    |  125 cm  |   REFUSE       |  —      | —
+ *
+ * The macros reproduce the header's bisected points exactly (0.5093 / 0.8635 / 0.7320), confirming
+ * the solve lands where the header's hand-bisection did.
+ *
+ * ON THE CHILD AND THE "MACRO CEILING": the header states 1.000 is the macro ceiling, and that is
+ * TRUE for the production rail — `build_real_anny_body` creates the model with
+ * `extrapolate_phenotypes=False` (the default), which silently CLAMPS macros above 1.0, so 125 cm is
+ * genuinely unreachable and the child REFUSES (SystemExit, the same refusal channel as the issue-294
+ * phenotype gate). Under `extrapolate_phenotypes=True` — the config this contract's own probe model
+ * uses — macros above 1.0 extrapolate and 125 cm IS reachable at ~1.16. The solve deliberately keeps
+ * the trained [0, 1] macro band as the refusal boundary because production cannot extrapolate;
+ * refusing a target the shipped rail cannot produce is the honest outcome, not a conservative one.
+ *
+ * The `it.fails` markers on (1) and (2) were flipped to `it`; all three contracts pass.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -104,7 +131,7 @@ const ADULTS = ["patient_ed_chest_pain_v1", "nurse_kevin_lee_v1", "parent_tara_j
 const CHILD = "patient_maya_johnson_v1";
 
 describe("the Anny height macro is solved against the model, not hand-fitted", () => {
-  it.fails(
+  it(
     "(1) RED: every adult's generated stature is within 1 cm of its authored height_cm — no formula in height_cm alone can pass this, the required macro is non-monotonic",
     () => {
       for (const a of ADULTS) {
@@ -116,7 +143,7 @@ describe("the Anny height macro is solved against the model, not hand-fitted", (
     },
   );
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: an unreachable target must REFUSE, not silently ship a short body — the child tops out at 115.7 cm against an authored 125 cm",
     () => {
       const r = byActor(CHILD);
