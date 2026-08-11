@@ -205,6 +205,126 @@ CASE_ACTOR_PRESETS = {
     **{f"ed_chest_pain_priority_v2:{actor_id}": preset for actor_id, preset in ED_CHEST_PAIN_PRESETS.items()},
 }
 
+# ---------------------------------------------------------------------------
+# issue-291: case-definition phenotype reader
+#
+# The encounter specification (scenario fixture actor record) is the home for
+# authored clinical/cosmetic phenotype. The legacy CASE_ACTOR_PRESETS Python
+# dict above remains as the fallback for pre-migration cases (e.g.
+# ed_chest_pain_priority_v2) and as the known-good baseline for the migrated
+# peds case. Resolution order for --case-actor-preset:
+#   1. fixture export entry (case-definition phenotype) if present,
+#   2. CASE_ACTOR_PRESETS entry if present (legacy path),
+#   3. REFUSE (SystemExit) — never silently default to a generic adult (#276).
+# ---------------------------------------------------------------------------
+REPO_ROOT = HERE.parent.parent.parent.parent  # tools/openclinxr/asset-pipeline/anny -> repo root
+
+DEFAULT_ACTOR_PHENOTYPE_JSON = str(
+    REPO_ROOT / "packages" / "openclinxr" / "scenario-fixtures" / "generated" / "actor-phenotype.v1.json"
+)
+
+# Keys the fixture authors at the top of the phenotype object that the generator
+# treats as top-level params (not part of the inner `phenotype` dict).
+GENERATOR_TOP_LEVEL_PHENOTYPE_KEYS = ("age", "body_profile", "pose")
+
+# Pipeline-only phenotype fields the case definition deliberately does NOT
+# author. Per-actor values preserve the legacy preset dicts exactly (including
+# which actors carry anny_topology) so a migrated case stays byte-identical.
+PIPELINE_PHENOTYPE_DEFAULTS: Dict[str, Dict[str, Any]] = {
+    "patient_maya_johnson_v1": {
+        "anny_topology": "default",
+        "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
+    },
+    "parent_tara_johnson_v1": {
+        "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
+    },
+    "nurse_kevin_lee_v1": {
+        "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
+    },
+    "patient_ed_chest_pain_v1": {
+        "anny_topology": "default",
+        "sleeveGeometryExpansion": "v2_gown_sleeves_0.35_len_r0.38_9r14c_rippled_folds_vivid_gown_blue",
+    },
+}
+# Scalar phenotype fields the generator treats as floats (float() at use in
+# generate_mesh.py). JSON round-trips authored whole floats (24.0) as ints (24),
+# so the reader restores the float representation for byte-identical params.
+FLOAT_SEED_PHENOTYPE_KEYS = ("bmi",)
+PIPELINE_ACTOR_SEED_DEFAULTS: Dict[str, int] = {
+    "patient_maya_johnson_v1": 1001,
+    "parent_tara_johnson_v1": 1002,
+    "nurse_kevin_lee_v1": 1003,
+    "patient_ed_chest_pain_v1": 2001,
+}
+PIPELINE_OUTPUT_NAME_DEFAULTS: Dict[str, str] = {
+    "patient_maya_johnson_v1": "peds_patient_child.glb",
+    "parent_tara_johnson_v1": "peds_anxious_parent.glb",
+    "nurse_kevin_lee_v1": "peds_nurse_kevin.glb",
+    "patient_ed_chest_pain_v1": "ed_chest_pain_patient_adult.glb",
+}
+
+
+def load_actor_phenotype_export(path: Optional[str] = None) -> Dict[str, Any]:
+    """Load the committed case-definition phenotype export (scenario fixtures).
+    Empty dict when the export is absent, so the legacy preset path is unaffected."""
+    export_path = path or os.environ.get("OPENCLINXR_ACTOR_PHENOTYPE_JSON") or DEFAULT_ACTOR_PHENOTYPE_JSON
+    if not os.path.exists(export_path):
+        return {}
+    try:
+        with open(export_path, "r") as f:
+            value = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    entries = value.get("entries") if isinstance(value, dict) else None
+    return entries if isinstance(entries, dict) else {}
+
+
+def pipeline_seed_for(actor_id: str) -> int:
+    if actor_id in PIPELINE_ACTOR_SEED_DEFAULTS:
+        return PIPELINE_ACTOR_SEED_DEFAULTS[actor_id]
+    return int(hashlib.sha256(actor_id.encode("utf-8")).hexdigest()[:8], 16) % 100000
+
+
+def pipeline_output_name_for(actor_id: str, case_id: str) -> str:
+    if actor_id in PIPELINE_OUTPUT_NAME_DEFAULTS:
+        return PIPELINE_OUTPUT_NAME_DEFAULTS[actor_id]
+    return f"{case_id}:{actor_id}.glb"
+
+
+def params_from_case_definition(case_id: str, actor_id: str) -> Optional[Tuple[Dict[str, Any], str, str]]:
+    """Resolve generator params from the case-definition phenotype export.
+
+    Returns (params, actor_role, output_name) when the case definition authors a
+    phenotype for this actor; None when it does not (caller falls back to the
+    legacy preset or refuses). The produced params are byte-identical to the
+    legacy preset params for the migrated case, because every authored field is
+    carried verbatim and pipeline-only fields are re-applied from the maps above.
+    """
+    entries = load_actor_phenotype_export()
+    case_entries = entries.get(case_id)
+    if not isinstance(case_entries, dict):
+        return None
+    entry = case_entries.get(actor_id)
+    if not isinstance(entry, dict):
+        return None
+    authored = entry.get("phenotype")
+    if not isinstance(authored, dict) or len(authored) == 0:
+        return None
+    inner = {k: v for k, v in authored.items() if k not in GENERATOR_TOP_LEVEL_PHENOTYPE_KEYS}
+    for key in FLOAT_SEED_PHENOTYPE_KEYS:
+        if isinstance(inner.get(key), int):
+            inner[key] = float(inner[key])
+    inner.update(PIPELINE_PHENOTYPE_DEFAULTS.get(actor_id, {}))
+    params: Dict[str, Any] = {
+        "age": authored.get("age"),
+        "body_profile": authored.get("body_profile"),
+        "pose": authored.get("pose"),
+        "seed": pipeline_seed_for(actor_id),
+        "phenotype": inner,
+    }
+    actor_role = str(entry.get("role") or "patient")
+    return params, actor_role, pipeline_output_name_for(actor_id, case_id)
+
 
 def run_cmd(cmd: list[str], cwd: Optional[str] = None, timeout: Optional[int] = None) -> None:
     print(f"[orchestrate] $ {' '.join(cmd)}")
@@ -398,6 +518,17 @@ def apply_mpfb2_eye_rig(output_glb: str) -> str:
 def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
+    # issue-291 refuse gate: a case-driven generation with no phenotype must
+    # refuse, not silently yield a generic adult (#276). generate_mesh.py also
+    # enforces the same gate; this fails earlier with the case context.
+    authored_phenotype = params.get("phenotype")
+    if not isinstance(authored_phenotype, dict) or len(authored_phenotype) == 0:
+        raise SystemExit(
+            f"REFUSE (issue-291): no phenotype in params for case '{case_id}' actor role '{actor_role}'. "
+            f"A missing phenotype that quietly yields a generic adult is how six humanoids became one "
+            f"body (#276). Author phenotype on the scenario fixture actor record and regenerate the "
+            f"actor-phenotype export, or pass an explicit non-empty phenotype dict."
+        )
     output_path = Path(output_glb)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     obj = output_path.with_suffix(".anny_base.obj")
@@ -457,9 +588,31 @@ def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: 
 
 def resolve_generation_inputs(args: argparse.Namespace) -> Tuple[Dict[str, Any], str, str, str]:
     if args.case_actor_preset:
+        # Preset ids are "<case_id>:<actor_id>". The case-definition phenotype
+        # export takes precedence when it authors this actor (issue-291); the
+        # legacy Python dict remains the fallback for pre-migration cases.
+        case_part, actor_part = (args.case_actor_preset.split(":", 1) + [None])[:2]
+        fixture = params_from_case_definition(case_part, actor_part) if case_part and actor_part else None
+        if fixture is not None:
+            params, fixture_role, output_name = fixture
+            params = dict(params)
+            params["actor_id"] = actor_part
+            case_id = args.case_id or case_part
+            actor_role = args.actor_role or fixture_role
+            if args.output_glb:
+                output_glb = args.output_glb
+            else:
+                output_dir = args.output_dir or ".openclinxr/asset-production/anny/peds_asthma_parent_anxiety_v1"
+                output_glb = str(Path(output_dir) / output_name)
+            return params, case_id, actor_role, output_glb
         preset = CASE_ACTOR_PRESETS.get(args.case_actor_preset)
         if not preset:
-            raise SystemExit(f"Unknown --case-actor-preset '{args.case_actor_preset}'. Use --list-presets.")
+            raise SystemExit(
+                f"REFUSE (issue-291): unknown --case-actor-preset '{args.case_actor_preset}'. The case "
+                f"definition carries no phenotype for this actor and no legacy preset exists. Author "
+                f"phenotype on the scenario fixture actor record (packages/openclinxr/scenario-fixtures) "
+                f"and regenerate the export; the factory will not silently generate a generic adult (#276)."
+            )
         params = dict(preset["params"])
         params["actor_id"] = preset["actor_id"]
         case_id = args.case_id or preset["case_id"]

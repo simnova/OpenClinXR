@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "openclinxr.issue-291.migration-comparison.v1",
+  "generatedAt": "2026-08-11T01:53:54.552263+00:00",
+  "case": "peds_asthma_parent_anxiety_v1",
+  "claim": "The case-definition reader path produces byte-identical params and a byte-identical generated body OBJ compared with the legacy CASE_ACTOR_PRESETS path for all three migrated actors.",
+  "method": "params_from_case_definition() (fixture export) vs CASE_ACTOR_PRESETS dict; both fed to generate_mesh.build_source_body(); SHA-256 over the serialized params and over the vertex arrays.",
+  "actors": [
+    {
+      "actor_id": "patient_maya_johnson_v1",
+      "role": "patient",
+      "output_name": "peds_patient_child.glb",
+      "params_identical": true,
+      "preset_params_sha256": "34c5ed5f1a5abbb5c5f70d79e04fee325cb8ca38093c95a4b766d1d869995480",
+      "fixture_params_sha256": "34c5ed5f1a5abbb5c5f70d79e04fee325cb8ca38093c95a4b766d1d869995480",
+      "preset_body_obj_sha256": "08b9b2f558ea4ee0087fff3258637bf9526301de1655dd9192fd639fbd74d252",
+      "fixture_body_obj_sha256": "08b9b2f558ea4ee0087fff3258637bf9526301de1655dd9192fd639fbd74d252",
+      "vertex_count": 1161,
+      "height_scale_note": "height_scale derives from height_cm and age only (no seed), so identical params imply identical height"
+    },
+    {
+      "actor_id": "parent_tara_johnson_v1",
+      "role": "family",
+      "output_name": "peds_anxious_parent.glb",
+      "params_identical": true,
+      "preset_params_sha256": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c",
+      "fixture_params_sha256": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c",
+      "preset_body_obj_sha256": "2b13d39cfdd13a418fb9dcab78b5d2bf1c6e33c2993bfbf4d6ec9701f6885007",
+      "fixture_body_obj_sha256": "2b13d39cfdd13a418fb9dcab78b5d2bf1c6e33c2993bfbf4d6ec9701f6885007",
+      "vertex_count": 1161,
+      "height_scale_note": "height_scale derives from height_cm and age only (no seed), so identical params imply identical height"
+    },
+    {
+      "actor_id": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "output_name": "peds_nurse_kevin.glb",
+      "params_identical": true,
+      "preset_params_sha256": "2fb5f3e5f60a19247ef53f6c445603f42d52495b2a805bd2be3d5f6909ef8aa3",
+      "fixture_params_sha256": "2fb5f3e5f60a19247ef53f6c445603f42d52495b2a805bd2be3d5f6909ef8aa3",
+      "preset_body_obj_sha256": "d11ccf6f02912ea7d1a2dcb05f0eac52f8dcb473994d8956878c4bbafff067da",
+      "fixture_body_obj_sha256": "d11ccf6f02912ea7d1a2dcb05f0eac52f8dcb473994d8956878c4bbafff067da",
+      "vertex_count": 1161,
+      "height_scale_note": "height_scale derives from height_cm and age only (no seed), so identical params imply identical height"
+    }
+  ],
+  "chain_regression": "dark-factory peds chain classifications before and after are identical (case_to_actor_params/body/clothing/room/equipment/staging/render deterministic; rigging error with the SAME parent_tara_johnson_v1 Blender failure, 2 of 3 actors complete)",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "learner_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "b_plus_visual_realism_gate",
+    "real_anny_model_output"
+  ]
+}

@@ -12,6 +12,7 @@ import {
   TouchResponseSchema,
   BodyMechanicsSchema,
   ActorCardSchema,
+  ActorPhenotypeSchema,
   EventScheduleEntrySchema,
   ExamBlueprintTimingSchema,
   ExamStationSlotSchema,
@@ -50,6 +51,7 @@ import {
 } from "./runtime-schemas.js";
 
 export type ActorCard = Static<typeof ActorCardSchema>;
+export type ActorPhenotype = Static<typeof ActorPhenotypeSchema>;
 export type CommunicationProfile = Static<typeof CommunicationProfileSchema>;
 export type ComplianceRegion = Static<typeof ComplianceRegionSchema>;
 export type InteractionEmotion = Static<typeof InteractionEmotionSchema>;

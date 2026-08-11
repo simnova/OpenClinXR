@@ -313,8 +313,8 @@ async function runCaseToActorParams(
     const available = await caseIdsWithPresets();
     return {
       row: makeRow("case_to_actor_params", "not_run", [], [
-        `CASE_ACTOR_PRESETS (orchestrate_character.py:203) has no entry for ${caseId}; the data-driven preset map only covers ${available.join(", ")}.`,
-        "The case definition itself carries no phenotype.garmentLayers in the scenario bank (#275 verified: zero phenotype fields), so no case->actor params exist to materialize for this case.",
+        `Neither the case definition (scenario fixture phenotype export, issue-291) nor CASE_ACTOR_PRESETS (orchestrate_character.py:203) carries a phenotype for ${caseId}; the data-driven maps only cover ${available.join(", ")}.`,
+        "issue-291 gave the case definition a phenotype home; cases that do not author one are refused by the generator (REFUSE, no generic-adult default #276), so no case->actor params exist to materialize for this case.",
       ]),
     };
   }
@@ -341,7 +341,7 @@ async function runCaseToActorParams(
     caseId,
     resolvedActorCount: Object.keys(presets).length,
     actorIds: Object.values(presets).map((p) => p.actor_id),
-    notes: ["Resolved presets in-process from CASE_ACTOR_PRESETS; garmentLayers reaches phenotype as authored data per preset."],
+    notes: ["Resolved presets in-process from CASE_ACTOR_PRESETS (legacy dict). For the migrated peds case, orchestrate_character.py now prefers the case-definition phenotype export (issue-291), which reproduces these params byte-identically (verified by tools/openclinxr/evidence/actor-phenotype-reader.test.ts)."],
   }, null, 2)}\n`, "utf8");
   return {
     row: makeRow("case_to_actor_params", "deterministic", [
@@ -363,7 +363,7 @@ async function runBodyStage(
   if (Object.keys(presets).length === 0) {
     return {
       row: makeRow("body", "not_run", [], [
-        `No case-actor preset for ${caseId}; generate_mesh.py build_source_body requires preset params (age/body_profile/phenotype) that do not exist for this case.`,
+        `No case-actor preset and no case-definition phenotype for ${caseId}; generate_mesh.py build_source_body requires authored phenotype (age/body_profile/phenotype) that does not exist for this case (issue-291: the generator REFUSES rather than defaulting to a generic adult).`,
       ]),
     };
   }
