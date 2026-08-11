@@ -57,6 +57,25 @@ import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
  * at vertex 13,380 (19,158 -> 13,380 verts, 36,972 -> 26,756 faces, byte-matching the shipped library
  * GLBs). That needs the MPFB extension installed to fixture honestly and is deliberately left out
  * rather than faked with a synthetic shell (§6x). Also untested: rotation invariance.
+ *
+ * ## FIXED (#300)
+ *
+ * `buildBandProfile` now derives every band fraction from the mesh's own bounding box —
+ * `frac = (y - ymin) / stature` — instead of absolute Y. A rigid translation changes neither
+ * `(y - ymin)` nor `stature`, so every band window (waist [0.61, 0.65], hipFrom 0.44, neck,
+ * ankle, elbow, the shoulder band, and the `frac >= 0.5` arm-cluster gate) is invariant by
+ * construction. The planted header's rows were re-measured against the same tracked reference:
+ *
+ *   dy      | shoulder | waist    | hip
+ *   --------|----------|----------|--------
+ *    0      |  0.55082 |  0.73472 |  0.92623   <- unchanged (net 3)
+ *   -0.85   |  0.55082 |  0.73472 |  0.92623   <- was all zeros
+ *   +0.85   |  0.55082 |  0.73472 |  0.92623   <- was waist 0.30755 / hip 0.49301
+ *   +5.00   |  0.55082 |  0.73472 |  0.92623   <- was all zeros
+ *
+ * The reference OBJ sits at minY = 0, so the normalized fraction is byte-identical to the old
+ * `y / stature` at dy = 0 — nets (3) and (4) hold by construction, and the destructive-probe
+ * "ground only when minY < 0" is refused because contract (2) now passes.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -94,11 +113,11 @@ function expectMatchesTruth(dy: number): void {
 }
 
 describe("landmark girths are invariant under rigid vertical translation", () => {
-  it.fails("(1) RED: shifting the mesh DOWN by 0.85 m must not change any girth (today: all zeros)", () => {
+  it("(1) RED: shifting the mesh DOWN by 0.85 m must not change any girth (today: all zeros)", () => {
     expectMatchesTruth(-0.85);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: shifting UP by 0.85 m must not change any girth — grounding only when minY<0 does not satisfy this (today: waist 0.30755 vs 0.73472, plausible and wrong)",
     () => {
       expectMatchesTruth(0.85);
