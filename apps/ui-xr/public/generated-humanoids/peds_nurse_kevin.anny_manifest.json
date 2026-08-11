@@ -7,10 +7,10 @@
   "real_anny_weights_used": false,
   "fallback_active": false,
   "input_params": {
-    "age": 34,
+    "age": 29,
     "body_profile": "adult_clinical_team",
     "pose": "standing_clinical_ready",
-    "seed": 1103,
+    "seed": 1003,
     "phenotype": {
       "skin_tone": "medium_warm",
       "hair_color": "black",
@@ -27,25 +27,24 @@
       "clothing_style": "teal_clinical_scrubs_with_name_badge",
       "clothing_color": "teal_scrubs",
       "role_visual_cue": "clinical_nurse",
-      "wardrobeRole": "peds_nurse_scrubs",
+      "wardrobeRole": "pediatric_nurse_scrubs",
       "garmentLayers": [
         "scrub_top",
         "scrub_pocket"
       ],
-      "fabricPalette": "teal_scrubs_peds_shift",
+      "fabricPalette": "teal_scrubs_and_white_badge",
       "materialFinish": "poly_cotton_slight_sheen",
       "accessoryMarkers": [
         "name_badge",
         "scrub_pocket"
       ],
       "fitProfile": "adult_clinical_team_fit",
-      "anny_topology": "default",
-      "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune"
+      "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
     },
     "actor_id": "nurse_kevin_lee_v1"
   },
   "output": {
-    "obj_path": "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
     "vertex_count": 13348,
     "face_count": 13346,
     "has_uvs": true,
@@ -54,16 +53,16 @@
   },
   "anny_forward_pass": {
     "kind": "real_anny_forward_pass",
-    "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
+    "package_path": "/Users/patrick/.local/share/mise/installs/python/3.13.14/lib/python3.13/site-packages/anny",
     "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
     "topology": "default-noeyes-notongue",
     "topologyIncludesEyes": false,
     "topologyIncludesTongue": false,
     "source_vertex_count": 13348,
     "source_face_count": 13346,
-    "source_height": 1.6728533506393433,
+    "source_height": 1.7583909034729004,
     "target_height": 1.76,
-    "scale": 1.0520946138687832,
+    "scale": 1.000915096025532,
     "external_network_used": false,
     "model_download_used": false,
     "noncommercial_download_used": false
@@ -95,7 +94,8 @@
       "name_badge",
       "scrub_pocket"
     ],
-    "fitProfile": "adult_clinical_team_fit"
+    "fitProfile": "adult_clinical_team_fit",
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
   },
   "material_hints": {
     "skin": "medium_warm",
@@ -129,6 +129,5 @@
     "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
     "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
     "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
-  ],
-  "reuse_note": "blender_only_rebake_on_tracked_anny_base_obj_issue_96_94_no_anny_forward_pass"
+  ]
 }

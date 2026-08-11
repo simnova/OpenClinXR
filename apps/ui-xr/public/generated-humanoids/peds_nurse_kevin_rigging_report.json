@@ -186,52 +186,52 @@
     "unweightedVertexCount": 0,
     "weightedVertexCount": 13348,
     "weightedVertexCountsByBone": {
-      "pelvis": 532,
-      "spine": 1094,
-      "chest": 5527,
-      "neck": 5814,
-      "head": 4491,
-      "eye.L": 1441,
-      "eye.R": 535,
-      "clavicle.L": 550,
-      "upper_arm.L": 1821,
+      "pelvis": 535,
+      "spine": 1091,
+      "chest": 5526,
+      "neck": 5855,
+      "head": 4503,
+      "eye.L": 1495,
+      "eye.R": 556,
+      "clavicle.L": 561,
+      "upper_arm.L": 1809,
       "forearm.L": 0,
       "hand.L": 0,
       "index_finger_base.L": 0,
-      "clavicle.R": 550,
-      "upper_arm.R": 1821,
+      "clavicle.R": 561,
+      "upper_arm.R": 1809,
       "forearm.R": 0,
       "hand.R": 0,
       "index_finger_base.R": 0,
-      "thigh.L": 236,
-      "shin.L": 1399,
+      "thigh.L": 229,
+      "shin.L": 1392,
       "foot.L": 1163,
-      "thigh.R": 236,
-      "shin.R": 1399,
+      "thigh.R": 229,
+      "shin.R": 1392,
       "foot.R": 1163
     },
     "dominantVertexCountsByBone": {
-      "pelvis": 532,
-      "spine": 562,
-      "chest": 1323,
+      "pelvis": 535,
+      "spine": 556,
+      "chest": 1352,
       "neck": 0,
-      "head": 4491,
+      "head": 4503,
       "eye.L": 0,
       "eye.R": 0,
       "clavicle.L": 0,
-      "upper_arm.L": 1821,
+      "upper_arm.L": 1809,
       "forearm.L": 0,
       "hand.L": 0,
       "index_finger_base.L": 0,
       "clavicle.R": 0,
-      "upper_arm.R": 1821,
+      "upper_arm.R": 1809,
       "forearm.R": 0,
       "hand.R": 0,
       "index_finger_base.R": 0,
-      "thigh.L": 236,
+      "thigh.L": 229,
       "shin.L": 1163,
       "foot.L": 0,
-      "thigh.R": 236,
+      "thigh.R": 229,
       "shin.R": 1163,
       "foot.R": 0
     },
@@ -239,8 +239,8 @@
       {
         "leftBone": "upper_arm.L",
         "rightBone": "upper_arm.R",
-        "leftDominantVertexCount": 1821,
-        "rightDominantVertexCount": 1821,
+        "leftDominantVertexCount": 1809,
+        "rightDominantVertexCount": 1809,
         "dominantCountDeltaRatio": 0.0
       },
       {
@@ -260,8 +260,8 @@
       {
         "leftBone": "thigh.L",
         "rightBone": "thigh.R",
-        "leftDominantVertexCount": 236,
-        "rightDominantVertexCount": 236,
+        "leftDominantVertexCount": 229,
+        "rightDominantVertexCount": 229,
         "dominantCountDeltaRatio": 0.0
       },
       {
@@ -279,11 +279,11 @@
         "dominantCountDeltaRatio": 0.0
       }
     ],
-    "shoulderTorsoArmBleedVertexCount": 3642,
+    "shoulderTorsoArmBleedVertexCount": 3618,
     "pelvisSpineChestSplitVertexCounts": {
-      "pelvis": 532,
-      "spine": 1094,
-      "chest": 5527
+      "pelvis": 535,
+      "spine": 1091,
+      "chest": 5526
     },
     "poseProbe": {
       "actorRole": "nurse",
@@ -306,7 +306,7 @@
       "method": "identity_object_export_yup_false_y_height_self_standing",
       "exportYup": false,
       "ySpan": 1.5576,
-      "zSpan": 0.017748,
+      "zSpan": 0.017792,
       "claimScope": "export_bind_pose_identity_root_upright_mesh_and_joints_not_production_rig_quality",
       "notEvidenceFor": [
         "production_asset_readiness",
@@ -364,11 +364,11 @@
     "trimMaterialName": null,
     "armMaterialName": "openclinxr_role_mesh_clothing_nurse_arm",
     "topFaceCount": 0,
-    "lowerFaceCount": 1080,
+    "lowerFaceCount": 1072,
     "trimFaceCount": 0,
-    "armFaceCount": 1412,
+    "armFaceCount": 1420,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 1398,
+    "skippedTorsoPaintFaceCount": 1370,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -386,23 +386,23 @@
         "layerIndex": 0,
         "layerToken": "scrub_top",
         "layerKind": "scrub",
-        "faceCount": 1989,
-        "vertexCount": 2006,
+        "faceCount": 1991,
+        "vertexCount": 2007,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.01,
-        "yokePeakY": 1.4536,
-        "bodyShoulderTopY": 1.4086,
+        "yokePeakY": 1.4617,
+        "bodyShoulderTopY": 1.4167,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_short_sleeve",
         "sleeveLenFactor": 0.22,
-        "sleeveAlongArmM": 0.1429,
+        "sleeveAlongArmM": 0.1428,
         "sleeveRows": 7,
         "sleeveCols": 10,
-        "sleeveR0M": 0.0576,
+        "sleeveR0M": 0.0577,
         "sleeveRFactor": 0.258,
-        "torsoRBaseM": 0.2232,
-        "meanRadiusM": 0.1554,
+        "torsoRBaseM": 0.2237,
+        "meanRadiusM": 0.1562,
         "radiusStackScale": 0.93,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -429,26 +429,26 @@
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.347127,
+            -0.352706,
             0.845,
-            -0.038423
+            -0.038216
           ],
           "max": [
-            0.347127,
-            1.516325,
-            0.212144
+            0.352706,
+            1.515969,
+            0.215583
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.347127,
-            -0.212144,
+            -0.352706,
+            -0.215583,
             0.845
           ],
           "max": [
-            0.347127,
-            0.038423,
-            1.516325
+            0.352706,
+            0.038216,
+            1.515969
           ]
         },
         "bodyLocalHeightRange": [
@@ -483,23 +483,23 @@
         "layerIndex": 1,
         "layerToken": "scrub_pocket",
         "layerKind": "scrub_pocket",
-        "faceCount": 1974,
-        "vertexCount": 1976,
+        "faceCount": 1975,
+        "vertexCount": 1974,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.022,
-        "yokePeakY": 1.4536,
-        "bodyShoulderTopY": 1.4086,
+        "yokePeakY": 1.4617,
+        "bodyShoulderTopY": 1.4167,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
         "sleeveLenFactor": 0.2,
-        "sleeveAlongArmM": 0.1299,
+        "sleeveAlongArmM": 0.1298,
         "sleeveRows": 6,
         "sleeveCols": 10,
-        "sleeveR0M": 0.0565,
+        "sleeveR0M": 0.0566,
         "sleeveRFactor": 0.222,
-        "torsoRBaseM": 0.2542,
-        "meanRadiusM": 0.1614,
+        "torsoRBaseM": 0.2548,
+        "meanRadiusM": 0.163,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -526,26 +526,26 @@
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.346436,
+            -0.352932,
             0.845,
-            -0.050396
+            -0.050182
           ],
           "max": [
-            0.346436,
-            1.524201,
-            0.224209
+            0.352932,
+            1.522779,
+            0.227673
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.346436,
-            -0.224209,
+            -0.352932,
+            -0.227673,
             0.845
           ],
           "max": [
-            0.346436,
-            0.050396,
-            1.524201
+            0.352932,
+            0.050182,
+            1.522779
           ]
         },
         "bodyLocalHeightRange": [
@@ -580,9 +580,9 @@
     "declaredUpperGarmentLayerCount": 2,
     "armClothingColourSource": "outermost_real_garment_mesh_exact_match",
     "armClothingColour": [
-      0.06,
-      0.36,
-      0.44,
+      0.04,
+      0.42,
+      0.48,
       1.0
     ],
     "realGarmentRegion": {
@@ -593,23 +593,23 @@
       "layerIndex": 1,
       "layerToken": "scrub_pocket",
       "layerKind": "scrub_pocket",
-      "faceCount": 1974,
-      "vertexCount": 1976,
+      "faceCount": 1975,
+      "vertexCount": 1974,
       "hasShoulderYoke": false,
       "authoringClass": "body_surface_normal_offset",
       "clothOffsetM": 0.022,
-      "yokePeakY": 1.4536,
-      "bodyShoulderTopY": 1.4086,
+      "yokePeakY": 1.4617,
+      "bodyShoulderTopY": 1.4167,
       "hasSleeveGeometry": true,
       "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
       "sleeveLenFactor": 0.2,
-      "sleeveAlongArmM": 0.1299,
+      "sleeveAlongArmM": 0.1298,
       "sleeveRows": 6,
       "sleeveCols": 10,
-      "sleeveR0M": 0.0565,
+      "sleeveR0M": 0.0566,
       "sleeveRFactor": 0.222,
-      "torsoRBaseM": 0.2542,
-      "meanRadiusM": 0.1614,
+      "torsoRBaseM": 0.2548,
+      "meanRadiusM": 0.163,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -636,26 +636,26 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.346436,
+          -0.352932,
           0.845,
-          -0.050396
+          -0.050182
         ],
         "max": [
-          0.346436,
-          1.524201,
-          0.224209
+          0.352932,
+          1.522779,
+          0.227673
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.346436,
-          -0.224209,
+          -0.352932,
+          -0.227673,
           0.845
         ],
         "max": [
-          0.346436,
-          0.050396,
-          1.524201
+          0.352932,
+          0.050182,
+          1.522779
         ]
       },
       "bodyLocalHeightRange": [
@@ -698,8 +698,8 @@
             "foot.L"
           ],
           "minY": -0.002,
-          "maxY": 0.186603,
-          "footVertCount": 1105
+          "maxY": 0.186493,
+          "footVertCount": 1112
         },
         {
           "side": "R",
@@ -712,8 +712,8 @@
             "foot.R"
           ],
           "minY": -0.002,
-          "maxY": 0.186603,
-          "footVertCount": 1105
+          "maxY": 0.186493,
+          "footVertCount": 1112
         }
       ],
       "totalFaceCount": 96,
@@ -740,23 +740,23 @@
     "layerIndex": 1,
     "layerToken": "scrub_pocket",
     "layerKind": "scrub_pocket",
-    "faceCount": 1974,
-    "vertexCount": 1976,
+    "faceCount": 1975,
+    "vertexCount": 1974,
     "hasShoulderYoke": false,
     "authoringClass": "body_surface_normal_offset",
     "clothOffsetM": 0.022,
-    "yokePeakY": 1.4536,
-    "bodyShoulderTopY": 1.4086,
+    "yokePeakY": 1.4617,
+    "bodyShoulderTopY": 1.4167,
     "hasSleeveGeometry": true,
     "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_scrub_pocket_layer",
     "sleeveLenFactor": 0.2,
-    "sleeveAlongArmM": 0.1299,
+    "sleeveAlongArmM": 0.1298,
     "sleeveRows": 6,
     "sleeveCols": 10,
-    "sleeveR0M": 0.0565,
+    "sleeveR0M": 0.0566,
     "sleeveRFactor": 0.222,
-    "torsoRBaseM": 0.2542,
-    "meanRadiusM": 0.1614,
+    "torsoRBaseM": 0.2548,
+    "meanRadiusM": 0.163,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -783,26 +783,26 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.346436,
+        -0.352932,
         0.845,
-        -0.050396
+        -0.050182
       ],
       "max": [
-        0.346436,
-        1.524201,
-        0.224209
+        0.352932,
+        1.522779,
+        0.227673
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.346436,
-        -0.224209,
+        -0.352932,
+        -0.227673,
         0.845
       ],
       "max": [
-        0.346436,
-        0.050396,
-        1.524201
+        0.352932,
+        0.050182,
+        1.522779
       ]
     },
     "bodyLocalHeightRange": [
@@ -834,8 +834,8 @@
     "hairRegionRevision": "v3_local_y_up_no_face_band_hair_issue_73",
     "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
     "hairColor": "black",
-    "scalpFaceCount": 1740,
-    "crownFaceCount": 596,
+    "scalpFaceCount": 1758,
+    "crownFaceCount": 652,
     "skippedFaceFrontFaceCount": 0,
     "heightAxis": "y",
     "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
@@ -876,12 +876,12 @@
     ]
   },
   "wardrobeTags": {
-    "wardrobeRole": "peds_nurse_scrubs",
+    "wardrobeRole": "pediatric_nurse_scrubs",
     "garmentLayers": [
       "scrub_top",
       "scrub_pocket"
     ],
-    "fabricPalette": "teal_scrubs_peds_shift",
+    "fabricPalette": "teal_scrubs_and_white_badge",
     "materialFinish": "poly_cotton_slight_sheen",
     "fitProfile": "adult_clinical_team_fit",
     "claimScope": "case_driven_role_marker_metadata_not_production_wardrobe"
@@ -916,8 +916,8 @@
   },
   "provenance": {
     "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=nurse)",
-    "generatedAt": "2026-08-08T11:24:43.084424Z",
-    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anny_topology\": \"default\", \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_peds_shift\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_scrubs_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"peds_nurse_scrubs\"}"
+    "generatedAt": "2026-08-11T08:15:40.913992Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [\"name_badge\", \"scrub_pocket\"], \"age_wrinkle\": 0.1, \"anxious\": 0.18, \"bmi\": 23.0, \"brow_tension\": 0.12, \"build\": \"average_clinical_team\", \"clothing_color\": \"teal_scrubs\", \"clothing_style\": \"teal_clinical_scrubs_with_name_badge\", \"eye_color\": \"brown\", \"fabricPalette\": \"teal_scrubs_and_white_badge\", \"fitProfile\": \"adult_clinical_team_fit\", \"flush\": 0.02, \"garmentLayers\": [\"scrub_top\", \"scrub_pocket\"], \"gender_presentation\": \"adult_male_nurse\", \"hair_color\": \"black\", \"hair_density\": 0.58, \"height_cm\": 176, \"materialFinish\": \"poly_cotton_slight_sheen\", \"role_visual_cue\": \"clinical_nurse\", \"skin_tone\": \"medium_warm\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue\", \"wardrobeRole\": \"pediatric_nurse_scrubs\"}"
   },
   "licenseExceptionRequired": false,
   "realismGrade": "B",
@@ -937,20 +937,19 @@
     "clothing_style": "teal_clinical_scrubs_with_name_badge",
     "clothing_color": "teal_scrubs",
     "role_visual_cue": "clinical_nurse",
-    "wardrobeRole": "peds_nurse_scrubs",
+    "wardrobeRole": "pediatric_nurse_scrubs",
     "garmentLayers": [
       "scrub_top",
       "scrub_pocket"
     ],
-    "fabricPalette": "teal_scrubs_peds_shift",
+    "fabricPalette": "teal_scrubs_and_white_badge",
     "materialFinish": "poly_cotton_slight_sheen",
     "accessoryMarkers": [
       "name_badge",
       "scrub_pocket"
     ],
     "fitProfile": "adult_clinical_team_fit",
-    "anny_topology": "default",
-    "sleeveGeometryExpansion": "v2_scrubs_from_preset_factory_no_hand_tune"
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
   },
   "sourceProvenance": {
     "generatorMode": "anny_compatible_stub_plus_blender_procedural",
