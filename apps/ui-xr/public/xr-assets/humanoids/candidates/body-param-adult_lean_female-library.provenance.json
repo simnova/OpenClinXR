@@ -15,7 +15,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_nurse_adult",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-287/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.10159008043632978,
     "girthScaleHorizontal": 1,
@@ -24,7 +24,7 @@
     "bodyStatureAfterScaleMeters": 1.7599999928606471,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.49883718314508413,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-287/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_nurse_adult"
   },
   "morphTargetCount": 32,
@@ -98,9 +98,9 @@
   "lowerGarmentLicenseToken": "CC0",
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-275/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-287/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "e2baf4cd0608fd15807c11833bd906f1d987f31e1f25f8fa909ee2d5361eed77",
+  "glbSha256": "7bc32c0ba1a87c4dc5dadfe4dc388c6ead121968baa40aa0fbd23465e1e99f61",
   "torsoGirthProxyMeters": 0.4988371839992518,
   "heightMeters": 1.7599999904632568,
   "notEvidenceFor": [
