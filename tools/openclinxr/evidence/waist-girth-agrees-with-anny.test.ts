@@ -49,6 +49,46 @@ import { extractLandmarks } from "./anny-mpfb-landmark-compare.ts";
  * validated against a human. If the two disagree it is possible in principle that Anny is wrong; the
  * error growing with size makes the mesh side the likelier suspect, and that is a judgement, not a
  * measurement.
+ *
+ * ## FIXED (#298)
+ *
+ * The mesh instrument now agrees with anny's native anthropometry on both bodies (measured 2026-08-10,
+ * written to waist-two-instrument-comparison.json):
+ *
+ *   body   | landmark | mesh instrument | anny native | delta      | band
+ *   -------|----------|-----------------|-------------|------------|------
+ *   lean   | waist    |          0.7893 |      0.7976 | -0.0083    | PASS (-0.83 cm)
+ *   BMI 45 | waist    |          1.3947 |      1.3992 | -0.0045    | PASS (-0.45 cm)
+ *
+ * Stature stayed exact on both (8.5e-8 m), so the fix moved only the waist. The two
+ * mesh/native ratios are now 0.9896 (lean) and 0.9968 (BMI 45) — the planted 0.9445 / 0.6973 pair
+ * (constant-scale-refused) is gone.
+ *
+ * TWO DEFECTS WERE FIXED, and both were shape-dependent, as the planted header demanded:
+ *
+ * 1. Torso/limb separation by MESH-SURFACE connectivity instead of lateral XZ clustering.
+ *    On the BMI-45 body the abdomen pushes the arms out until the horizontal gap to the torso closes
+ *    (~0.40 m from the axis), so the 5 cm XZ clustering radius fused arm and belly into one cluster at
+ *    the waist height and the "torso" perimeter silently dropped the belly; at 0.56 H the deep waist
+ *    indent split the belly from the back (gap 4 cm < radius in z, but > 5 cm in 2D) and the instrument
+ *    measured a 43-vertex back sliver (0.9756 m). The OBJ faces separate the arms/legs as surface tubes
+ *    at trunk height, so neither failure is possible: anny-mpfb-landmark-compare.ts buildBandProfile now
+ *    unions band vertices by face adjacency (XZ clustering remains the no-faces fallback).
+ * 2. Waist band anchored to anny's own waist ring. anny.Anthropometry.waist_circumference runs through a
+ *    fixed base-mesh vertex ring at ~0.617-0.639 H on adult bodies (measured: ring mean 0.622 lean,
+ *    0.626 BMI-45). The old "narrowest between chest and hip" search landed at 0.66 H on the lean body
+ *    (a genuinely narrower slice — 0.7533 — than anny's ring) and at a degenerate 0.56 H on BMI-45.
+ *    BAND_WINDOWS.waist is now [0.61, 0.65], which picks the 0.64 H band on both bodies. This is a
+ *    definition change, recorded in methods.waistHeight.
+ *
+ * THE COUNTERWEIGHT STILL HOLDS (net 4): on the tracked adult_male_street_casual the waist band at
+ * 0.64 H has waistGirthWidthMeters = 0.279 (< 0.5, < shoulder span) while the naive all-vertices slab
+ * at the same band is 0.950 — the arms are excluded by surface connectivity, not by moving the band.
+ *
+ * NOT TESTED (unchanged from the header, plus): MPFB geometry, female bodies, children (the child's
+ * tracked reference narrowest is at 0.58 H, so the anchored waist window reads it at 0.62 H — a
+ * self-consistent definition change, not an anny-native comparison), and chest/hip girth, which were
+ * not cross-checked against anny and may carry a similar definitional offset.
  */
 
 const OUT_DIR = "/Volumes/files/src/openclinxr/.openclinxr/evidence/issue-298";
@@ -100,12 +140,12 @@ function meshWaist(tag: string): { waist: number; stature: number } {
 }
 
 describe("the mesh waist girth agrees with anny's own anthropometry", () => {
-  it.fails("(1) RED: lean body waist girth is within 2 cm of anny native", () => {
+  it("(1) RED: lean body waist girth is within 2 cm of anny native", () => {
     const g = generated.get("lean")!;
     expect(Math.abs(meshWaist("lean").waist - g.waist)).toBeLessThanOrEqual(BAND_M);
   });
 
-  it.fails("(2) RED: BMI-45 body waist girth is within 2 cm of anny native — no constant scale can satisfy this AND (1)", () => {
+  it("(2) RED: BMI-45 body waist girth is within 2 cm of anny native — no constant scale can satisfy this AND (1)", () => {
     const g = generated.get("bmi45")!;
     expect(Math.abs(meshWaist("bmi45").waist - g.waist)).toBeLessThanOrEqual(BAND_M);
   });

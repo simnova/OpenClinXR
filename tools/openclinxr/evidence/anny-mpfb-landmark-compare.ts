@@ -3,8 +3,15 @@
  *
  * Extracts the MADR 0051 §4 landmark set (stature, shoulder span, chest / waist /
  * hip girth, limb segment lengths, head height) from a mesh in metres, with girths
- * measured TORSO-ONLY (arm geometry excluded by lateral clustering, never a
- * hardcoded x cutoff), and emits:
+ * measured TORSO-ONLY. Arms are excluded by MESH-SURFACE connectivity (the OBJ
+ * faces: at trunk height the arms are separate surface tubes, so they never fuse
+ * with the torso even when an obese abdomen pushes them against it in XZ — the
+ * #298 defect), falling back to lateral XZ clustering when no faces are present.
+ * The waist is measured at the natural-waist height where
+ * anny.Anthropometry.waist_circumference's own ring sits (~0.62-0.64 H on adult
+ * bodies), NOT at "narrowest between chest and hip" — the MADR's original wording
+ * stops being the waist when the abdomen is the widest part of the body (a BMI-45
+ * anny body measured 0.42 m short under it). Emits:
  *   - one landmark artifact per reference mesh
  *   - a comparison artifact with per-landmark deltas + the MADR 0051 §5 bands
  *     (with stated source) and the measured margin per row.
@@ -59,8 +66,18 @@ export const COMPARISON_ARTIFACT_PATH = nodePath.join(
  * below waist).
  */
 export const BAND_WINDOWS = {
-  /** waist search: narrowest torso slice between chest and hip */
-  waist: [0.52, 0.72] as const,
+  /**
+   * waist search: the natural-waist band, ANCHORED to anny's own waist ring.
+   * anny.Anthropometry.waist_circumference runs through a fixed base-mesh vertex
+   * ring that sits at ~0.617-0.639 H on adult bodies (measured 2026-08-10: mean
+   * 0.622 lean / 0.626 BMI-45), so the mesh instrument must measure there too.
+   * "Narrowest between chest and hip" stops being the waist when the abdomen is
+   * the widest part of the body — on a BMI-45 anny body it picks a degenerate
+   * slice (the belly/back split apart at the waist) and reads 0.42 m short. The
+   * window is therefore the anny waist-ring height; the narrowest torso-only slice
+   * within it is chosen (0.64 H on the step grid for every body measured).
+   */
+  waist: [0.61, 0.65] as const,
   /** hip search: widest torso slice below the waist, down to the crotch */
   hipFrom: 0.44,
   /** neck search: narrowest torso slice below the head */
@@ -205,12 +222,22 @@ function convexHullPerimeter(pts: Array<[number, number]>): number {
 }
 
 /**
- * Build the band profile for a mesh. For each horizontal band: lateral clustering
- * (union-find by horizontal distance, radius CLUSTER_RADIUS_METERS) separates the
- * hanging/abducted arms from the torso; the torso cluster is the one containing the
- * band vertex nearest the body centre axis (median x over all vertices).
+ * Build the band profile for a mesh. For each horizontal band, the band's vertices
+ * are separated into components by MESH-SURFACE connectivity (union-find over the
+ * OBJ faces restricted to the band) — the arms and legs are separate surface tubes
+ * below the armpit/crotch, so they never fuse with the torso even when they touch
+ * it in XZ. This is the #298 fix: on an obese body the abdomen pushes the arms out
+ * until the horizontal gap to the torso closes, and the old lateral XZ clustering
+ * (radius CLUSTER_RADIUS_METERS) merged arm and belly into one cluster at the waist
+ * height — the "torso" perimeter then silently dropped the belly and read 0.42 m
+ * short. When no faces are supplied, the XZ clustering is the fallback.
+ * The torso component is the one containing the band vertex nearest the body centre
+ * axis (median x over all vertices).
  */
-export function buildBandProfile(positions: V3[]): {
+export function buildBandProfile(
+  positions: V3[],
+  faces?: number[][],
+): {
   stature: number;
   centerX: number;
   bands: BandProfile[];
@@ -222,6 +249,20 @@ export function buildBandProfile(positions: V3[]): {
   const xs = positions.map((p) => p[0]).sort((a, b) => a - b);
   const centerX = xs[Math.floor(xs.length / 2)]!;
 
+  // Surface adjacency from the OBJ faces, built once. O(faces) per band afterwards.
+  const adjacency: number[][] = [];
+  if (faces && faces.length > 0) {
+    for (let i = 0; i < positions.length; i++) adjacency.push([]);
+    for (const f of faces) {
+      for (let e = 0; e < 3; e++) {
+        const a = f[e]!;
+        const b = f[(e + 1) % 3]!;
+        adjacency[a]!.push(b);
+        adjacency[b]!.push(a);
+      }
+    }
+  }
+
   const bandH = stature * BAND_THICKNESS_FRACTION;
   const step = stature * BAND_STEP_FRACTION;
   const bands: BandProfile[] = [];
@@ -229,9 +270,10 @@ export function buildBandProfile(positions: V3[]): {
   for (let y = ymin + bandH; y < ymax - bandH / 2; y += step) {
     const lo = y - bandH / 2;
     const hi = y + bandH / 2;
-    const band: Array<{ x: number; z: number }> = [];
-    for (const p of positions) {
-      if (p[1] >= lo && p[1] <= hi) band.push({ x: p[0], z: p[2] });
+    const band: Array<{ x: number; z: number; i: number }> = [];
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i]!;
+      if (p[1] >= lo && p[1] <= hi) band.push({ x: p[0], z: p[2], i });
     }
     if (band.length < 4) continue;
 
@@ -243,12 +285,29 @@ export function buildBandProfile(positions: V3[]): {
       const rb = find(b);
       if (ra !== rb) parent[ra] = rb;
     };
-    for (let a = 0; a < band.length; a++) {
-      for (let b = a + 1; b < band.length; b++) {
-        const dx = band[a]!.x - band[b]!.x;
-        const dz = band[a]!.z - band[b]!.z;
-        if (dx * dx + dz * dz < CLUSTER_RADIUS_METERS * CLUSTER_RADIUS_METERS)
-          union(a, b);
+    if (adjacency.length > 0) {
+      // Mesh-surface connectivity: union every band vertex with its face-neighbours
+      // that are also in the band. The arms/legs stay separate below the
+      // armpit/crotch, so the torso cluster is exactly the trunk even where the
+      // limbs touch it in XZ.
+      const slotOf = new Map<number, number>();
+      for (let i = 0; i < band.length; i++) slotOf.set(band[i]!.i, i);
+      for (let i = 0; i < band.length; i++) {
+        for (const nb of adjacency[band[i]!.i]!) {
+          const j = slotOf.get(nb);
+          if (j !== undefined && j > i) union(i, j);
+        }
+      }
+    } else {
+      // Fallback (no faces): lateral clustering by horizontal distance
+      // (radius CLUSTER_RADIUS_METERS).
+      for (let a = 0; a < band.length; a++) {
+        for (let b = a + 1; b < band.length; b++) {
+          const dx = band[a]!.x - band[b]!.x;
+          const dz = band[a]!.z - band[b]!.z;
+          if (dx * dx + dz * dz < CLUSTER_RADIUS_METERS * CLUSTER_RADIUS_METERS)
+            union(a, b);
+        }
       }
     }
     const compMap = new Map<number, number[]>();
@@ -278,7 +337,7 @@ export function buildBandProfile(positions: V3[]): {
       torso.map((i) => [band[i]!.x, band[i]!.z] as [number, number]),
     );
 
-    // Non-torso clusters: arms. Only those in the upper body (frac >= 0.5 — the arms
+    // Non-torso components: arms. Only those in the upper body (frac >= 0.5 — the arms
     // hang between the wrist ~0.52 H and the shoulder junction ~0.74 H) with |cx|
     // clearly outside the torso count. The legs (frac < 0.45) must not pollute this:
     // at leg heights the "torso cluster" is one leg, so the OTHER leg would otherwise
@@ -400,18 +459,22 @@ export type LandmarkSet = {
  *
  * Unlocked decisions (named, as the brief requires):
  *  - girth: convex-hull perimeter of the torso-only horizontal slice (the MADR's own
- *    wording for chest), with arms excluded by lateral clustering.
+ *    wording for chest), with arms excluded by MESH-SURFACE connectivity (the OBJ
+ *    faces); lateral XZ clustering is the no-faces fallback.
  *  - T-pose normalization: measured POSE-INVARIANTLY — the reference OBJ has no rig to
  *    pose, so girths exclude the arms regardless of abduction and limb lengths are
  *    measured along their own axis (legs are vertical in the standing reference; arm
  *    lengths use the centroid-path arc length, not the vertical drop).
+ *  - waist height: anchored to anny.Anthropometry.waist_circumference's own ring
+ *    (~0.617-0.639 H on adult bodies, measured 2026-08-10), not "narrowest between
+ *    chest and hip" — see BAND_WINDOWS.waist for the measured reason.
  *  - limbs: from the MESH, not a rig (the reference OBJ carries none). Segment splits
  *    use a limb width minimum where one is a real local minimum; otherwise the
  *    documented anthropometric fallback fraction is used and labelled in `methods`.
  */
 export function extractLandmarks(meshId: string, objText: string): LandmarkSet {
-  const { positions } = parseObj(objText);
-  const { stature, bands } = buildBandProfile(positions);
+  const { positions, faces } = parseObj(objText);
+  const { stature, bands } = buildBandProfile(positions, faces);
   const inWindow = (b: BandProfile, w: readonly [number, number]) =>
     b.frac >= w[0] && b.frac <= w[1];
 
@@ -616,7 +679,9 @@ export function extractLandmarks(meshId: string, objText: string): LandmarkSet {
 
   const methods: Record<string, string> = {
     girth:
-      "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+      "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_mesh_surface_connectivity_fallback_lateral_xz_clustering",
+    waistHeight:
+      "band_anchored_to_anny_waist_ring_height_window_0.61-0.65_of_stature_measured_2026-08-10_ring_mean_0.622_lean_0.626_bmi45",
     tpose:
       "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
     limbs: "from_mesh_not_rig_reference_obj_has_no_rig",
