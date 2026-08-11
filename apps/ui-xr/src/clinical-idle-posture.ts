@@ -21,6 +21,7 @@
  */
 
 import type { Object3D } from "three";
+import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 export type EulerPartial = { x?: number; y?: number; z?: number; absolute?: boolean };
 
@@ -155,8 +156,13 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     ? LIBRARY_CLINICAL_IDLE_ARM_HANG
     : CLINICAL_IDLE_ARM_HANG;
 
+  // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
+  // upperarm01.L / wrist.L etc.); falls back to legacy alias matching for exotic rigs.
+  const resolvedHangMap = resolveRotationMap(hangMap, collectJointNames(humanoid));
+
   const tryApply = (object: Object3D) => {
-    const rotation = resolveIdleRotation(object.name, hangMap);
+    const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
+      ?? resolveIdleRotation(object.name, hangMap);
     if (!rotation) return;
     applyBoneEuler(object, rotation);
     object.userData.openClinXrClinicalIdlePosture = "relaxed_arms_scenario_conversation_pose";
@@ -204,7 +210,16 @@ export function applyHumanoidJointRotationsByAlias(
   rotations: Map<string, EulerPartial>,
   poseId: string,
 ): void {
+  // #306: resolve canonical landmarks to the bones actually on this rig first — on MPFB2
+  // `upper_armL` becomes `upperarm01L`, without which the alias includes below silently miss.
+  const resolvedRotations = resolveRotationMap(rotations, collectJointNames(humanoid));
   humanoid.traverse((object) => {
+    const resolved = resolvedRotations.get(sanitiseBoneName(object.name));
+    if (resolved) {
+      applyBoneEuler(object, { ...resolved, absolute: resolved.absolute ?? true });
+      object.userData.openClinXrRoleSpecificPose = poseId;
+      return;
+    }
     const normalizedName = normalizeBoneToken(object.name);
     for (const [jointId, aliases] of ARM_JOINT_ALIASES) {
       if (!aliases.some((alias) => normalizedName.includes(alias))) {

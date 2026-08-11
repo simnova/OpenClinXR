@@ -15,7 +15,9 @@ import {
   SUPINE_CLIP_NAME,
   type ActorPosture,
   clipBindingForPosture,
+  resolvePoseBone,
 } from "@openclinxr/asset-registry";
+import { collectJointNames, resolveRotationMap, sanitiseBoneName } from "./pose-bone-runtime.js";
 
 const d2r = (deg: number) => (deg * Math.PI) / 180;
 
@@ -115,8 +117,12 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
 
   const bonesTouched: string[] = [];
 
+  // #306: resolve canonical landmarks against the bones actually on this rig so MPFB2 actors
+  // (upperarm01.L / upperleg01.L / spine03 ...) get posed instead of silently skipped.
+  const resolvedEulers = resolveRotationMap(SUPINE_BONE_EULERS, collectJointNames(humanoidRoot));
+
   humanoidRoot.traverse((object) => {
-    const rotation = SUPINE_BONE_EULERS.get(object.name);
+    const rotation = resolvedEulers.get(sanitiseBoneName(object.name));
     if (!rotation) return;
     applyEuler(object, rotation, bonesTouched);
   });
@@ -128,7 +134,7 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
     };
     if (!skinned.isSkinnedMesh || !skinned.skeleton?.bones) return;
     for (const bone of skinned.skeleton.bones) {
-      const rotation = SUPINE_BONE_EULERS.get(bone.name);
+      const rotation = resolvedEulers.get(sanitiseBoneName(bone.name));
       if (!rotation) continue;
       applyEuler(bone, rotation, bonesTouched);
     }
@@ -137,11 +143,14 @@ export function applySupinePose(humanoidRoot: Object3D): ApplySupinePoseResult {
 
   humanoidRoot.userData.openClinXrSupinePoseBones = bonesTouched;
   // Staging marker for #153 contracts: neck last written by the supine map.
-  humanoidRoot.userData.openClinXrNeckPoseSource = bonesTouched.includes("neck")
+  // #306: the neck landmark may resolve to `neck01` on the MPFB2 rig, so compare resolved names.
+  const resolvedNeck = resolvePoseBone("neck", collectJointNames(humanoidRoot));
+  humanoidRoot.userData.openClinXrNeckPoseSource = resolvedNeck !== null && bonesTouched.includes(resolvedNeck)
     ? "supine_map"
     : "supine_map_missing_neck";
   humanoidRoot.traverse((object) => {
-    if (object.name === "neck" || object.name === "Neck") {
+    if (object.name === "neck" || object.name === "Neck"
+      || (resolvedNeck !== null && sanitiseBoneName(object.name) === resolvedNeck)) {
       object.userData.openClinXrNeckPoseSource = "supine_map";
       object.userData.openClinXrSupinePose = SUPINE_CLIP_NAME;
     }
