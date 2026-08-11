@@ -607,6 +607,64 @@ def apply_scalp_hair_material_region(basemesh: bpy.types.Object) -> dict:
     )
 
 
+def apply_body_hide_material_region(
+    basemesh: bpy.types.Object,
+    tri_mask,
+    *,
+    slot: str = "",
+) -> dict:
+    """issue-285 — body-part hiding: paint an invisible material on the poking faces.
+
+    The §6s research answer for "the body renders in front of / z-fights the garment":
+    hide the body under the garment (alpha mask) rather than push the garment out.
+    A body-derived cover shell offset along vertex normals self-intersects at the
+    concave hip/waist crease, and NO outward offset fixes a concave fold (measured —
+    see garment_coverage.body_hide_mask). The mask is per-TRIANGLE from
+    `body_hide_mask` (the same fan-triangulated `_numpy_mesh` frame the coverage gate
+    uses); this maps it to the mesh's polygons (fan order) and assigns an alpha-0
+    material so the hidden faces never render. Geometry is untouched — the coverage
+    gate and the sparse-trouser refusal are unaffected (counterweight).
+
+    Paints polygon material indices only; geometry, rig, and shape keys are untouched.
+    """
+    hidden_mat = bpy.data.materials.new(f"openclinxr_hidden_{slot}_{basemesh.name}")
+    hidden_mat.use_nodes = True
+    prin = hidden_mat.node_tree.nodes.get("Principled BSDF")
+    if prin is None:
+        prin = hidden_mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+    prin.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 0.0)
+    prin.inputs["Alpha"].default_value = 0.0
+    try:
+        hidden_mat.blend_method = "BLEND"
+    except Exception:
+        pass
+    hidden_mat.diffuse_color = (0.0, 0.0, 0.0, 0.0)
+    try:
+        hidden_mat.viewport_display.color = (0.0, 0.0, 0.0)
+    except Exception:
+        pass
+    hidden_index = len(basemesh.data.materials)
+    basemesh.data.materials.append(hidden_mat)
+
+    mask = np.asarray(tri_mask, dtype=bool)
+    applied = 0
+    tri_i = 0
+    for poly in basemesh.data.polygons:
+        iv = list(poly.vertices)
+        n_tri = max(len(iv) - 2, 1)
+        if bool(mask[tri_i : tri_i + n_tri].any()):
+            poly.material_index = hidden_index
+            applied += 1
+        tri_i += n_tri
+    return {
+        "slot": slot,
+        "hiddenMaterialName": hidden_mat.name,
+        "hiddenMaterialIndex": hidden_index,
+        "appliedPolygonCount": applied,
+        "alpha": 0.0,
+    }
+
+
 def bind_meshes_to_canonical_armature(
     basemesh: bpy.types.Object,
     garment: bpy.types.Object,
@@ -1477,6 +1535,57 @@ def build_one_body_class(
             for i, v in enumerate(lower_garment.data.vertices):
                 v.co = tuple(float(x) for x in lgv_off[i])
         coverage_gate["lower"] = lower_rep
+    bpy.context.view_layer.update()
+
+    # ── issue-285: body-part hiding (the §6s research answer) ──────────────────
+    # The body-derived cover shell offset along vertex normals self-intersects at the
+    # concave hip/waist crease — the body surface renders in front of / z-fights the
+    # shell there ("skin through the blue shell at the flanks", measured: 34.5% of the
+    # female upper claim region is within 3 mm of the shell surface, and the fitted
+    # scrub shirt carries the same coincidence). NO outward offset fixes a concave
+    # fold; the industry answer is to HIDE the body under the garment (alpha mask).
+    # Every accepted garment paints the body faces that poke it (signed clearance <
+    # HIDE_EPSILON_M, same pure-numpy predicate the evidence test drives) with an
+    # invisible material. Deterministic, no balloon (#121), and the geometry is
+    # untouched — the coverage gate and the sparse-trouser refusal are unchanged
+    # (counterweight). The evidence test proves the mask covers the pokes on the
+    # shipped GLBs without re-running this bake.
+    def _hide_under_garment(garment_obj: bpy.types.Object | None, slot: str) -> dict:
+        if garment_obj is None:
+            return {"slot": slot, "enabled": True, "hiddenFaceCount": 0, "note": "no garment"}
+        hgv, hgf = _numpy_mesh(garment_obj)
+        hb = world_bounds(garment_obj)
+        mask_info = _gc.body_hide_mask(
+            body_verts,
+            body_faces,
+            hgv,
+            hgf,
+            float(hb["min"][2]),
+            float(hb["max"][2]),
+            hide_epsilon_m=_gc.HIDE_EPSILON_M,
+            height_axis=2,
+        )
+        if mask_info["hiddenFaceCount"] == 0:
+            return {
+                **mask_info,
+                "slot": slot,
+                "enabled": True,
+                "note": "no poking body faces — nothing to hide",
+            }
+        applied = apply_body_hide_material_region(basemesh, mask_info["hideMask"], slot=slot)
+        return {
+            **mask_info,
+            "slot": slot,
+            "enabled": True,
+            "applied": applied,
+            "note": "body faces under the garment hidden (alpha mask)",
+        }
+
+    body_hide: dict = {"enabled": True, "upper": None, "lower": None}
+    body_hide["upper"] = _hide_under_garment(garment, "upper")
+    if lower_garment is not None:
+        body_hide["lower"] = _hide_under_garment(lower_garment, "lower")
+    coverage_gate["bodyHide"] = body_hide
     bpy.context.view_layer.update()
 
     # #279 — wire the proven bounds-derived scalp/hair material region (Anny rail) onto

@@ -119,25 +119,78 @@ import { describe, expect, it } from "vitest";
  * That is a garment-fit/quality residual — the gate's claimScope explicitly does not
  * claim garment quality/aesthetics — and the orchestrator's pixel grade is the check for
  * it, not this predicate.
+ *
+ * ════════════════════════════════════════════════════════════════════════════════════════════
+ * ## FIXED (#285)
+ *
+ * Coverage answered "is there garment surface out along this normal" — and a 0.9974-
+ * coverage shell still rendered with skin through it, because coverage cannot answer
+ * "is the garment OUTSIDE the body at this point". Measured on the shipped GLBs with a
+ * signed-clearance predicate (nearest garment surface distance signed by the BODY's
+ * outward normal — winding-free; garment normals are degenerate on export, measured):
+ *
+ *   adult_lean_female  upper civilian cover shell  0.9974 coverage | 16,577 poking samples
+ *                     / 34,884 (worst −1.3 cm), 12,088 truly coincident (< 2 mm) at the
+ *                     concave hip/waist crease — the flanks / hem / neck of the pixel read
+ *   adult_lean_female  lower cover shell           0.9873          | 364 pokes
+ *   adult_heavy_male   upper scrub shirt           0.9266          | 2,601 pokes
+ *   adult_heavy_male   lower cover shell           0.9890          | 7,053 pokes
+ *
+ * The mechanism: the body-derived cover shell is the region surface offset along
+ * area-weighted vertex normals, and NO outward offset of a concave/undercut surface
+ * (the hip/waist crease) avoids self-intersection — increasing the offset balloons
+ * (#121). The fix is the §6s research answer: HIDE the body under the garment
+ * (`garment_coverage.body_hide_mask` → `body_param_stage.apply_body_hide_material_region`
+ * paints an alpha-0 material on every body face whose signed clearance < HIDE_EPSILON_M).
+ * Deterministic, no balloon, and the geometry / coverage predicate / sparse-trouser
+ * refusal are untouched (counterweights). The stage consumes the mask at bake time; the
+ * last two tests prove the mask covers every poking face on the shipped GLBs, so a
+ * re-bake through the stage removes the visible defect without regenerating here.
  */
+
+type FigureCoverageShape = {
+  bodyClassId: string;
+  lowerGarmentTriangleCount: number;
+  lower?: { verdict: string; outwardRaycastCoverage: number } | null;
+  upper?: { verdict: string } | null;
+  lowerSigned?: { pokeCount: number; worstClearanceMeters: number | null } | null;
+  upperSigned?: { pokeCount: number; worstClearanceMeters: number | null } | null;
+  lowerHide?: { hiddenFaceCount: number; pokingFaceCount: number; regionFaceCount: number } | null;
+  upperHide?: { hiddenFaceCount: number; pokingFaceCount: number; regionFaceCount: number } | null;
+};
+type LocalReport = {
+  figures: FigureCoverageShape[];
+  coverShell: { coverage: { verdict: string; outwardRaycastCoverage: number } } | null;
+};
 
 const load = async () =>
   import("./garment-covers-its-region.js") as Promise<Record<string, unknown>>;
 
+/**
+ * issue-285: the full inspect now also runs the signed-clearance and body-hide-mask
+ * predicates per garment (~4 heavy python subprocesses per body). Cache the report so
+ * all five tests below share ONE inspect pass instead of five.
+ */
+let reportPromise: Promise<LocalReport> | null = null;
+async function getReport(): Promise<LocalReport> {
+  if (!reportPromise) {
+    reportPromise = (async () => {
+      const mod = await load();
+      const inspect = mod["inspectGarmentCoversItsRegion"] as
+        | ((...args: unknown[]) => Promise<LocalReport>)
+        | undefined;
+      if (typeof inspect !== "function") {
+        throw new Error("inspectGarmentCoversItsRegion missing from module");
+      }
+      return inspect();
+    })();
+  }
+  return reportPromise;
+}
+
 describe("garment covers the region it claims (#272/#277)", () => {
   it("the re-baked lower garment (body-derived cover shell) DOES cover the leg region (#277)", async () => {
-    const mod = await load();
-    const inspect = mod["inspectGarmentCoversItsRegion"] as
-      | (() => Promise<{
-          figures: Array<{
-            bodyClassId: string;
-            lowerGarmentTriangleCount: number;
-            lower: { verdict: string; outwardRaycastCoverage: number };
-          }>;
-        }>)
-      | undefined;
-    expect(inspect).toBeTypeOf("function");
-    const report = await inspect!();
+    const report = await getReport();
     expect(report.figures.length).toBeGreaterThanOrEqual(2);
     const broken: string[] = [];
     for (const f of report.figures) {
@@ -165,11 +218,7 @@ describe("garment covers the region it claims (#272/#277)", () => {
   }, 300_000);
 
   it("the shipped 9,384-triangle scrub shirt DOES cover the torso region (COUNTERWEIGHT)", async () => {
-    const mod = await load();
-    const inspect = mod["inspectGarmentCoversItsRegion"] as
-      | (() => Promise<{ figures: Array<{ bodyClassId: string; upper: { verdict: string } }> }>)
-      | undefined;
-    const report = await inspect!();
+    const report = await getReport();
     const broken: string[] = [];
     for (const f of report.figures) {
       const upper = f.upper;
@@ -186,14 +235,77 @@ describe("garment covers the region it claims (#272/#277)", () => {
   }, 300_000);
 
   it("the deterministic body-derived cover shell covers the leg region ≥ 0.95 (THE GUARANTEE)", async () => {
-    const mod = await load();
-    const inspect = mod["inspectGarmentCoversItsRegion"] as
-      | (() => Promise<{ coverShell: { coverage: { verdict: string; outwardRaycastCoverage: number } } | null }>)
-      | undefined;
-    const report = await inspect!();
+    const report = await getReport();
     expect(report.coverShell, "no cover-shell measured — the stage fallback must be buildable").toBeTruthy();
     const shell = report.coverShell!;
     expect(shell.coverage.verdict).toBe("covers");
     expect(shell.coverage.outwardRaycastCoverage).toBeGreaterThanOrEqual(0.95);
   }, 300_000);
+
+  it("signed clearance sees the poke-through that coverage cannot (issue-285 RED)", async () => {
+    // The 0.9974-coverage female upper shell still lets the body render in front of
+    // it at the concave hip/waist crease (the flanks / hem / neck the pixels show).
+    // Coverage answers "is there garment surface along this normal"; signed clearance
+    // answers "is the garment OUTSIDE the body at this point". The RED: every shipped
+    // body has non-zero poking samples (count, not fraction — one poking vertex is
+    // visible). This stays red after the body-part-hiding fix, because hiding does not
+    // remove geometry; the fix's contract is asserted by the mask test below.
+    const report = await getReport();
+    const broken: string[] = [];
+    for (const f of report.figures) {
+      for (const slot of ["upperSigned", "lowerSigned"] as const) {
+        const sc = f[slot];
+        if (!sc) continue;
+        if (sc.pokeCount <= 0) {
+          broken.push(
+            `${f.bodyClassId} ${slot}: pokeCount=${sc.pokeCount} — the instrument found no `
+            + "poking body vertex, which would make the issue's pixel read a dead premise",
+          );
+        }
+        if (sc.worstClearanceMeters === null || sc.worstClearanceMeters >= 0) {
+          broken.push(
+            `${f.bodyClassId} ${slot}: worst clearance ${sc.worstClearanceMeters} is not negative — `
+            + "no body surface renders in front of the garment",
+          );
+        }
+      }
+    }
+    expect(broken, `signed clearance found no pokes:\n${broken.join("\n")}`).toEqual([]);
+  }, 600_000);
+
+  it("the body-hide mask covers every poking face and nothing outside the region (issue-285 fix contract)", async () => {
+    // The factory fix (body_param_stage.apply_body_hide_material_region) consumes the
+    // deterministic body_hide_mask from garment_coverage.py: body faces whose signed
+    // clearance to an accepted garment is < HIDE_EPSILON_M are painted with an
+    // alpha-0 material (body-part hiding — the §6s research answer; no balloon, #121).
+    // The mask must cover EVERY face the poke predicate flags (pokingFaceCount) and be
+    // a subset of the garment's claim region. The stage wires this mask into the bake;
+    // this test proves the mask itself on the shipped GLBs.
+    const report = await getReport();
+    const broken: string[] = [];
+    for (const f of report.figures) {
+      for (const slot of ["upperHide", "lowerHide"] as const) {
+        const hm = f[slot];
+        if (!hm) continue;
+        if (hm.hiddenFaceCount < hm.pokingFaceCount) {
+          broken.push(
+            `${f.bodyClassId} ${slot}: hide mask covers ${hm.hiddenFaceCount} faces but `
+            + `${hm.pokingFaceCount} poke — every poking face must be hidden`,
+          );
+        }
+        if (hm.hiddenFaceCount > hm.regionFaceCount) {
+          broken.push(
+            `${f.bodyClassId} ${slot}: hide mask hides ${hm.hiddenFaceCount} faces but the region `
+            + `has only ${hm.regionFaceCount} — the mask must not extend past the garment's claim`,
+          );
+        }
+      }
+    }
+    // the headline case must actually do something on the real shipped asset
+    const female = report.figures.find((f: { bodyClassId?: string }) => f.bodyClassId === "adult_lean_female");
+    expect(female, "female body missing from report").toBeTruthy();
+    expect(female!.upperHide!.pokingFaceCount).toBeGreaterThan(1000);
+    expect(female!.upperHide!.hiddenFaceCount).toBeGreaterThanOrEqual(female!.upperHide!.pokingFaceCount);
+    expect(broken, `the body-hide mask contract broke:\n${broken.join("\n")}`).toEqual([]);
+  }, 600_000);
 });

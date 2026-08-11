@@ -1,0 +1,343 @@
+{
+  "schemaVersion": "openclinxr.issue-285.pre-fix.v1",
+  "measuredAt": "2026-08-11T00:22:47.868Z",
+  "ambientFailureClass": "body-vertex poke-through / z-fighting of accepted garments on the shipped body-param library GLBs; coverage measures 'garment surface along the outward normal' and cannot see 'garment OUTSIDE the body at this point' (issue #285, the §6e gap)",
+  "mechanism": "The body-derived cover shell is the body's region surface offset along area-weighted vertex normals; at the concave hip/waist crease the offset surface self-intersects (measured: 34.5% of the female upper claim region within 3 mm of the shell surface at the flanks / hem / upper chest — the exact pixels that show skin through). The fitted scrub shirt carries the same coincidence (57% of its pokes are within 2 mm). No outward offset fixes a concave fold; the factory fix is body-part hiding (alpha mask), which has no balloon failure mode (#121).",
+  "claimScope": "pre_fix_measurement_not_a_product_fix; per-shipped-body signed clearance of the body region to the existing garment surface",
+  "notEvidenceFor": [
+    "clinical_validity",
+    "garment_aesthetics",
+    "quest_readiness",
+    "learner_readiness"
+  ],
+  "figures": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "garments": [
+        {
+          "slot": "lower",
+          "meshName": "makeclothes_library_cargo_pants_adult_lean_female_mesh",
+          "triangleCount": 2536,
+          "coverage": {
+            "outwardRaycastCoverage": 0.9873,
+            "verdict": "covers",
+            "regionBandY": [
+              0.10000009060775597,
+              0.9134070873260498
+            ]
+          },
+          "signedClearance": {
+            "regionBandY": [
+              0.08948531001806259,
+              0.9367514848709106
+            ],
+            "sampledVertexCount": 7986,
+            "pokeCount": 364,
+            "pokeFraction": 0.04558,
+            "distinctPokingVertexCount": 493,
+            "worstClearanceMeters": -0.009508,
+            "noGarmentNearbyCount": 0,
+            "histogram": [
+              {
+                "bucket": "<-0.02",
+                "count": 0
+              },
+              {
+                "bucket": "[-0.02,-0.005)",
+                "count": 24
+              },
+              {
+                "bucket": "[-0.005,-0.002)",
+                "count": 35
+              },
+              {
+                "bucket": "[-0.002,-0.0005)",
+                "count": 92
+              },
+              {
+                "bucket": "[-0.0005,0)",
+                "count": 89
+              },
+              {
+                "bucket": "[0,0.002)",
+                "count": 124
+              },
+              {
+                "bucket": "[0.002,0.005)",
+                "count": 198
+              },
+              {
+                "bucket": "[0.005,0.015)",
+                "count": 7390
+              },
+              {
+                "bucket": "[0.015,0.03)",
+                "count": 34
+              },
+              {
+                "bucket": "[0.03,0.06)",
+                "count": 0
+              },
+              {
+                "bucket": ">=0.06",
+                "count": 0
+              }
+            ],
+            "pokeEpsilonMeters": 0.002,
+            "coverageNumber": 0.9873
+          },
+          "hideMask": {
+            "garmentLabel": "adult_lean_female-lower",
+            "regionFaceCount": 2662,
+            "hiddenFaceCount": 344,
+            "pokingFaceCount": 225
+          }
+        },
+        {
+          "slot": "upper",
+          "meshName": "makeclothes_library_civilian_shirt_adult_lean_female",
+          "triangleCount": 11524,
+          "coverage": {
+            "outwardRaycastCoverage": 0.9974,
+            "verdict": "covers",
+            "regionBandY": [
+              0.9334070873260498,
+              1.4851096677780151
+            ]
+          },
+          "signedClearance": {
+            "regionBandY": [
+              0.9134070873260498,
+              1.5051096677780151
+            ],
+            "sampledVertexCount": 34884,
+            "pokeCount": 16577,
+            "pokeFraction": 0.475204,
+            "distinctPokingVertexCount": 13403,
+            "worstClearanceMeters": -0.01305,
+            "noGarmentNearbyCount": 0,
+            "histogram": [
+              {
+                "bucket": "<-0.02",
+                "count": 0
+              },
+              {
+                "bucket": "[-0.02,-0.005)",
+                "count": 300
+              },
+              {
+                "bucket": "[-0.005,-0.002)",
+                "count": 958
+              },
+              {
+                "bucket": "[-0.002,-0.0005)",
+                "count": 2433
+              },
+              {
+                "bucket": "[-0.0005,0)",
+                "count": 5211
+              },
+              {
+                "bucket": "[0,0.002)",
+                "count": 7675
+              },
+              {
+                "bucket": "[0.002,0.005)",
+                "count": 1990
+              },
+              {
+                "bucket": "[0.005,0.015)",
+                "count": 16250
+              },
+              {
+                "bucket": "[0.015,0.03)",
+                "count": 67
+              },
+              {
+                "bucket": "[0.03,0.06)",
+                "count": 0
+              },
+              {
+                "bucket": ">=0.06",
+                "count": 0
+              }
+            ],
+            "pokeEpsilonMeters": 0.002,
+            "coverageNumber": 0.9974
+          },
+          "hideMask": {
+            "garmentLabel": "adult_lean_female-upper",
+            "regionFaceCount": 11628,
+            "hiddenFaceCount": 7106,
+            "pokingFaceCount": 6557
+          }
+        }
+      ]
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "garments": [
+        {
+          "slot": "lower",
+          "meshName": "makeclothes_library_cargo_pants_adult_heavy_male_mesh",
+          "triangleCount": 3779,
+          "coverage": {
+            "outwardRaycastCoverage": 0.989,
+            "verdict": "covers",
+            "regionBandY": [
+              0.10000003763413759,
+              0.9618564248085022
+            ]
+          },
+          "signedClearance": {
+            "regionBandY": [
+              0.09479790180921555,
+              0.993003249168396
+            ],
+            "sampledVertexCount": 16194,
+            "pokeCount": 7053,
+            "pokeFraction": 0.435532,
+            "distinctPokingVertexCount": 5484,
+            "worstClearanceMeters": -0.024175,
+            "noGarmentNearbyCount": 0,
+            "histogram": [
+              {
+                "bucket": "<-0.02",
+                "count": 12
+              },
+              {
+                "bucket": "[-0.02,-0.005)",
+                "count": 602
+              },
+              {
+                "bucket": "[-0.005,-0.002)",
+                "count": 842
+              },
+              {
+                "bucket": "[-0.002,-0.0005)",
+                "count": 995
+              },
+              {
+                "bucket": "[-0.0005,0)",
+                "count": 1663
+              },
+              {
+                "bucket": "[0,0.002)",
+                "count": 2939
+              },
+              {
+                "bucket": "[0.002,0.005)",
+                "count": 832
+              },
+              {
+                "bucket": "[0.005,0.015)",
+                "count": 8168
+              },
+              {
+                "bucket": "[0.015,0.03)",
+                "count": 141
+              },
+              {
+                "bucket": "[0.03,0.06)",
+                "count": 0
+              },
+              {
+                "bucket": ">=0.06",
+                "count": 0
+              }
+            ],
+            "pokeEpsilonMeters": 0.002,
+            "coverageNumber": 0.989
+          },
+          "hideMask": {
+            "garmentLabel": "adult_heavy_male-lower",
+            "regionFaceCount": 5398,
+            "hiddenFaceCount": 2958,
+            "pokingFaceCount": 2675
+          }
+        },
+        {
+          "slot": "upper",
+          "meshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+          "triangleCount": 9384,
+          "coverage": {
+            "outwardRaycastCoverage": 0.9266,
+            "verdict": "covers",
+            "regionBandY": [
+              0.9818564248085022,
+              1.4986731815338135
+            ]
+          },
+          "signedClearance": {
+            "regionBandY": [
+              0.9618564248085022,
+              1.5186731815338135
+            ],
+            "sampledVertexCount": 11601,
+            "pokeCount": 2601,
+            "pokeFraction": 0.224205,
+            "distinctPokingVertexCount": 3133,
+            "worstClearanceMeters": -0.047682,
+            "noGarmentNearbyCount": 0,
+            "histogram": [
+              {
+                "bucket": "<-0.02",
+                "count": 17
+              },
+              {
+                "bucket": "[-0.02,-0.005)",
+                "count": 116
+              },
+              {
+                "bucket": "[-0.005,-0.002)",
+                "count": 193
+              },
+              {
+                "bucket": "[-0.002,-0.0005)",
+                "count": 432
+              },
+              {
+                "bucket": "[-0.0005,0)",
+                "count": 456
+              },
+              {
+                "bucket": "[0,0.002)",
+                "count": 1387
+              },
+              {
+                "bucket": "[0.002,0.005)",
+                "count": 1018
+              },
+              {
+                "bucket": "[0.005,0.015)",
+                "count": 7807
+              },
+              {
+                "bucket": "[0.015,0.03)",
+                "count": 105
+              },
+              {
+                "bucket": "[0.03,0.06)",
+                "count": 70
+              },
+              {
+                "bucket": ">=0.06",
+                "count": 0
+              }
+            ],
+            "pokeEpsilonMeters": 0.002,
+            "coverageNumber": 0.9266
+          },
+          "hideMask": {
+            "garmentLabel": "adult_heavy_male-upper",
+            "regionFaceCount": 3867,
+            "hiddenFaceCount": 1942,
+            "pokingFaceCount": 1469
+          }
+        }
+      ]
+    }
+  ]
+}
