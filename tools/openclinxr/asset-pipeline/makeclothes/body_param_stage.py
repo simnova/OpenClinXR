@@ -1514,6 +1514,113 @@ def _fit_one_garment(
     return garment, fit_s
 
 
+# ── issue-320: the upper garment's hem must MEET the lower garment's waistband ────
+# The #295-grade ragged band of bare skin at the waist is a GAP BETWEEN TWO GARMENT
+# EDGES, not poke-through — no face pokes through anything, and the coverage gate is
+# structurally blind to it (§6t: gates that measure proximity/extremes miss defects
+# that live in continuity). The hem terminus is DERIVED from the lower garment's own
+# waistband rim (D1), never an authored per-body coordinate (`1.55`-style constants
+# are the #316 class). Constants mirror the evidence contract
+# (`garments-meet-at-the-waist.test.ts`) so the factory and the gate measure the same
+# edges at the same resolution.
+WAIST_OVERLAP_MARGIN_M = 0.005  # positive overlap target: "several millimetres" (#320)
+WAIST_RIM_FRACTION = 0.12  # same rim band the evidence contract measures
+WAIST_BUCKETS = 36
+
+
+def _waistband_rim_per_bucket(obj: bpy.types.Object, *, height_axis: int = 2) -> np.ndarray:
+    """Highest vertex per angular bucket in an object's TOP rim band (Z-up stage frame).
+
+    Mirrors the evidence contract's lower-garment edge: the waistband is the highest
+    vertex of the lower garment's top rim band at each angle around the vertical axis.
+    Returns a per-bucket array in metres; buckets with no rim vertices stay -inf. The
+    angle convention matches the exported Y-up GLB the contract reads EXACTLY: the
+    export maps stage (x, y, z) to glTF (x, z, -y) (export_yup=True), so the contract's
+    atan2(glb_z, glb_x) is atan2(-stage_y, stage_x). Negating stage Y here makes a
+    factory bucket the same angular bucket the evidence test measures, so the
+    per-bucket guarantee is exact rather than a reflected approximation.
+    """
+    v = np.array([tuple(vc.co) for vc in obj.data.vertices], dtype=float)
+    h = v[:, height_axis]
+    hi = float(h.max())
+    lo = float(h.min())
+    band_lo = hi - (hi - lo) * WAIST_RIM_FRACTION
+    sel = h >= band_lo
+    angles = np.arctan2(-v[sel, 1], v[sel, 0])
+    buckets = (
+        np.floor(((angles + np.pi) / (2 * np.pi)) * WAIST_BUCKETS) % WAIST_BUCKETS
+    ).astype(np.int64)
+    per = np.full(WAIST_BUCKETS, -np.inf)
+    np.maximum.at(per, buckets, h[sel])
+    return per
+
+
+def fit_upper_hem_to_waistband(
+    garment: bpy.types.Object,
+    lower_garment: bpy.types.Object,
+    *,
+    height_axis: int = 2,
+) -> dict:
+    """issue-320 — push the upper garment's hem down to the lower waistband.
+
+    Runs AFTER the lower coverage gate so `lower_garment` is the geometry that SHIPS
+    (a sparse library fit is replaced by the body-derived cover shell in that gate;
+    measuring before it reads a mesh that never reaches the export). The upper
+    garment's bottom rim band is pushed down per angular bucket until the bucket's
+    lowest vertex clears the lower garment's highest waistband vertex by
+    WAIST_OVERLAP_MARGIN_M. The terminus is DERIVED from the lower garment's own
+    waistband rim (D1). The push tapers to zero at the top of the rim band so the band
+    stays welded to the garment above (no torn seam); a garment that already meets
+    (deficit = 0) is untouched — the known-good scrub column is a small improvement to
+    ~5 mm of overlap, never a regression.
+    """
+    waist = _waistband_rim_per_bucket(lower_garment, height_axis=height_axis)
+    gv = np.array([tuple(vc.co) for vc in garment.data.vertices], dtype=float)
+    h = gv[:, height_axis]
+    g_lo, g_hi = float(h.min()), float(h.max())
+    band_hi = g_lo + (g_hi - g_lo) * WAIST_RIM_FRACTION
+    sel = h <= band_hi
+    if not sel.any():
+        return {"enabled": True, "pushedVertexCount": 0, "note": "no hem rim band"}
+    # Same reflected angle convention as _waistband_rim_per_bucket (and the contract):
+    # atan2(-stage_y, stage_x) — see the helper's docstring.
+    angles = np.arctan2(-gv[sel, 1], gv[sel, 0])
+    buckets = (
+        np.floor(((angles + np.pi) / (2 * np.pi)) * WAIST_BUCKETS) % WAIST_BUCKETS
+    ).astype(np.int64)
+    hem = np.full(WAIST_BUCKETS, np.inf)
+    np.minimum.at(hem, buckets, h[sel])
+    deficit = np.where(
+        np.isfinite(waist) & np.isfinite(hem),
+        np.maximum(0.0, hem - (waist - WAIST_OVERLAP_MARGIN_M)),
+        0.0,
+    )
+    max_deficit = float(deficit.max()) if deficit.size else 0.0
+    if max_deficit <= 1e-6:
+        return {
+            "enabled": True,
+            "pushedVertexCount": 0,
+            "maxDeficitMeters": 0.0,
+            "note": "hem already meets waistband at every measured angle",
+        }
+    span = np.where(np.isfinite(hem), band_hi - hem, 1.0)
+    taper = np.clip((band_hi - h[sel]) / np.maximum(span[buckets], 1e-9), 0.0, 1.0)
+    push = deficit[buckets] * taper
+    idx = np.where(sel)[0]
+    moved = 0
+    for k, p in enumerate(push):
+        if p > 1e-6:
+            garment.data.vertices[int(idx[k])].co[height_axis] = float(h[sel][k] - p)
+            moved += 1
+    return {
+        "enabled": True,
+        "pushedVertexCount": moved,
+        "maxDeficitMeters": round(max_deficit, 5),
+        "marginMeters": WAIST_OVERLAP_MARGIN_M,
+        "note": "hem pushed down to the lower garment waistband rim (issue-320, derived)",
+    }
+
+
 def build_one_body_class(
     *,
     body_class: dict,
@@ -1747,6 +1854,9 @@ def build_one_body_class(
     # construction), and accepted garments get a uniform outward cloth standoff so they
     # sit OUTSIDE the skin. Nothing here touches triangle counts (D9 / meshoptimizer).
     coverage_gate: dict = {"enabled": True, "upper": None, "lower": None, "note": ""}
+    # issue-320 — how the upper garment's hem meets the lower garment's waistband.
+    # Populated by the cover-shell band derivation and/or the fitted-hem push below.
+    coverage_gate["waistMeet"] = {"enabled": True, "upper": None}
 
     def _numpy_mesh(obj: bpy.types.Object):
         # Triangulate polygons: OBJ imports and the MPFB basemesh are quad/n-gon
@@ -1942,6 +2052,27 @@ def build_one_body_class(
         coverage_gate["lower"] = lower_rep
     bpy.context.view_layer.update()
 
+    # ── issue-320: the upper garment's hem must MEET the lower garment's waistband ─
+    # The #295-grade ragged band of bare skin at the waist is a GAP BETWEEN TWO GARMENT
+    # EDGES, not poke-through — no face pokes through anything, and the coverage gate
+    # is structurally blind to it (§6t). Runs HERE, after the lower coverage gate, so
+    # `lower_garment` is the geometry that SHIPS (a sparse library fit is replaced by
+    # the body-derived cover shell in the gate above; measuring before it reads a
+    # mesh that never reaches the export). The upper hem's bottom rim band is pushed
+    # down per angular bucket until the bucket's lowest vertex clears the lower
+    # garment's highest waistband vertex by WAIST_OVERLAP_MARGIN_M. The terminus is
+    # DERIVED from the lower garment's own waistband rim (D1) — never an authored
+    # per-body coordinate. A garment that already meets is a no-op; the known-good
+    # scrub column lands ~5 mm of overlap instead of +0.1 mm (the issue names
+    # "several millimetres" as the robust target).
+    if lower_garment is not None and garment is not None:
+        coverage_gate["waistMeet"]["upper"] = fit_upper_hem_to_waistband(garment, lower_garment)
+    elif coverage_gate["waistMeet"].get("upper") is None:
+        coverage_gate["waistMeet"]["upper"] = {
+            "skipped": True,
+            "note": "no lower garment — nothing to meet",
+        }
+
     # ── issue-285: body-part hiding (the §6s research answer) ──────────────────
     # The body-derived cover shell offset along vertex normals self-intersects at the
     # concave hip/waist crease — the body surface renders in front of / z-fights the
@@ -2122,6 +2253,9 @@ def build_one_body_class(
         "morphExport": True,
         "producedByStage": STAGE_ID,
         "coverageGate": coverage_gate,
+        # issue-320 — how the upper hem met the lower waistband (band derivation for
+        # cover shells, per-bucket push for fitted .mhclo garments).
+        "waistMeet": coverage_gate.get("waistMeet"),
         "scalpHairRegion": scalp_hair_region,
         # #295 — per-garment hand-region trim counts (0 removed = no hand geometry).
         "garmentHandTrim": hand_trim,

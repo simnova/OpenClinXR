@@ -72,6 +72,30 @@ import { describe, expect, it } from "vitest";
  * show skin through a fold. Only the two library rails are measured; the Anny rail's garments are
  * painted regions, not shells, and have no hem to compare. The footwear poke-through from the same #295
  * grade is untouched.
+ *
+ * ## FIXED (#320)
+ *
+ * `body_param_stage.py` now pushes the upper garment's hem down to the lower garment's waistband rim,
+ * per angular bucket, AFTER the coverage gate — so `lower_garment` is the geometry that SHIPS (a sparse
+ * library fit is replaced by the body-derived cover shell inside that gate; measuring before it reads a
+ * mesh that never reaches the export). The terminus is DERIVED from the lower garment's own waistband rim
+ * (D1): for every bucket the upper hem's lowest rim vertex is pushed to at least the lower waistband's
+ * highest rim vertex minus a 5 mm margin, with a taper that is zero at the top of the rim band so the
+ * band stays welded to the garment. The stage angle convention mirrors the contract exactly (the Y-up
+ * export maps stage (x,y,z) to glTF (x,z,-y), so `atan2(-stage_y, stage_x)` is the contract's
+ * `atan2(glb_z, glb_x)`). A garment that already meets is a no-op; the known-good scrub column improved
+ * from +0.1 mm to +5.0 mm of overlap (the issue names "several millimetres" as the robust target).
+ *
+ * Re-baked through `pnpm asset:body-param:fit -- --once` (2026-08-11), measured on the shipped GLBs:
+ *
+ *   rail                          | upper garment    | min overlap | median | gapped buckets
+ *   ------------------------------|------------------|-------------|--------|----------------
+ *   body-param-adult_lean_female  | civilian_shirt   |  **+5.0 mm**|+5.0 mm | **0 / 22**
+ *   body-param-adult_heavy_male   | scrub_shirt      |  **+5.0 mm**|+5.7 mm | **0 / 16**
+ *
+ * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on the re-baked bytes. The
+ * same marginality disclosure from the header still applies: a green here means "no visible gap", not
+ * "a well-tailored waist" — the ragged ~30 mm span of both edges is deliberately not bounded.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -154,7 +178,7 @@ function requireMeasured(fit: WaistFit): void {
 const mm = (m: number): string => `${(m * 1000).toFixed(1)}mm`;
 
 describe("the upper and lower garments meet at the waist", () => {
-  it.fails("(1) RED: no angular bucket has a gap between hem and waistband", () => {
+  it("(1) RED→GREEN: no angular bucket has a gap between hem and waistband", () => {
     requireMeasured(female);
     const worst = Math.min(...female.overlaps);
     expect(
