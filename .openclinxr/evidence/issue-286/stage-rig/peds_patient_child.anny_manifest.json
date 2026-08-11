@@ -1,0 +1,115 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+  "source_kind": "anny_compatible_stub_mesh",
+  "generator_mode": "stub",
+  "uses_real_anny_forward_pass": false,
+  "real_anny_weights_used": false,
+  "fallback_active": true,
+  "fallback_reason": "ModuleNotFoundError: No module named 'anny'",
+  "input_params": {
+    "age": 8,
+    "body_profile": "pediatric_school_age",
+    "pose": "standing_neutral_work_of_breathing",
+    "seed": 1001,
+    "phenotype": {
+      "skin_tone": "warm_light_child",
+      "hair_color": "light_brown",
+      "eye_color": "hazel",
+      "anny_topology": "default",
+      "gender_presentation": "child",
+      "height_cm": 125,
+      "build": "slender_asthma",
+      "hair_density": 0.55,
+      "brow_tension": 0.18,
+      "anxious": 0.42,
+      "flush": 0.05,
+      "age_wrinkle": 0.04,
+      "bmi": 16.5,
+      "clothing_style": "pediatric_soft_blue_exam_tshirt",
+      "clothing_color": "soft_blue",
+      "role_visual_cue": "pediatric_patient",
+      "wardrobeRole": "patient_casual_child",
+      "garmentLayers": [
+        "short_sleeve_exam_tshirt"
+      ],
+      "fabricPalette": "soft_blue_and_warm_white",
+      "materialFinish": "cotton_matte",
+      "accessoryMarkers": [],
+      "fitProfile": "pediatric_slim_fit",
+      "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
+    },
+    "actor_id": "patient_maya_johnson_v1"
+  },
+  "output": {
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-286/.openclinxr/evidence/issue-286/stage-rig/peds_patient_child.anny_base.obj",
+    "vertex_count": 1161,
+    "face_count": 1872,
+    "has_uvs": true,
+    "source_topology_mode": "smooth_uv_parametric_stub_v2_not_real_anny",
+    "uv_coverage_note": "smooth local UV ellipsoid/capsule unwrap for head/torso/limbs; production Anny produces production unwraps"
+  },
+  "anny_forward_pass": null,
+  "phenotype_summary": {
+    "skin_tone": "warm_light_child",
+    "hair_color": "light_brown",
+    "eye_color": "hazel",
+    "anny_topology": "default",
+    "gender_presentation": "child",
+    "height_cm": 125,
+    "build": "slender_asthma",
+    "hair_density": 0.55,
+    "brow_tension": 0.18,
+    "anxious": 0.42,
+    "flush": 0.05,
+    "age_wrinkle": 0.04,
+    "bmi": 16.5,
+    "clothing_style": "pediatric_soft_blue_exam_tshirt",
+    "clothing_color": "soft_blue",
+    "role_visual_cue": "pediatric_patient",
+    "wardrobeRole": "patient_casual_child",
+    "garmentLayers": [
+      "short_sleeve_exam_tshirt"
+    ],
+    "fabricPalette": "soft_blue_and_warm_white",
+    "materialFinish": "cotton_matte",
+    "accessoryMarkers": [],
+    "fitProfile": "pediatric_slim_fit",
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
+  },
+  "material_hints": {
+    "skin": "warm_light_child",
+    "hair": "light_brown",
+    "torso_width": 0.8404022471840498,
+    "shoulder_width": 0.3529689438173009,
+    "hip_width": 0.23531262921153395,
+    "limb_width": 0.043,
+    "seed_unit": 0.5100561796012465,
+    "sourceTopologyMode": "smooth_uv_parametric_stub_v2_not_real_anny",
+    "role": {
+      "wardrobeRole": "patient_casual_child",
+      "garmentLayers": [
+        "short_sleeve_exam_tshirt"
+      ],
+      "fabricPalette": "soft_blue_and_warm_white",
+      "materialFinish": "cotton_matte",
+      "accessoryMarkers": [],
+      "fitProfile": "pediatric_slim_fit",
+      "clothing_style": "pediatric_soft_blue_exam_tshirt",
+      "clothing_color": "soft_blue",
+      "role_visual_cue": "pediatric_patient",
+      "claim_scope": "procedural_role_distinction_marker_not_production_costume"
+    }
+  },
+  "not_evidence_for": [
+    "real_anny_model_output",
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "This is a deterministic stub so the rest of the pipeline (Blender rigging + texturing) can be exercised without the real Anny package path.",
+    "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
+    "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
+  ]
+}

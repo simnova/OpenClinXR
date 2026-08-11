@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-staging-placement.v1",
+  "station": "staging_placement",
+  "implementation": "packages/openclinxr/asset-registry/src/actor-placement.ts:24 generatedActorPlacement (deterministic scene-manifest placement)",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "rows": [
+    {
+      "actorId": "patient_maya_johnson_v1",
+      "role": "patient",
+      "placement": {
+        "slotKind": "primary_patient",
+        "position": {
+          "x": -0.8,
+          "y": 0.95,
+          "z": 0.3
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Patient",
+        "posture": "standing"
+      }
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "role": "parent",
+      "placement": {
+        "slotKind": "family_or_observer",
+        "position": {
+          "x": 0,
+          "y": 0.95,
+          "z": 0.75
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Parent",
+        "posture": "standing"
+      }
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "role": "nurse",
+      "placement": {
+        "slotKind": "clinical_team",
+        "position": {
+          "x": 0.8,
+          "y": 0.95,
+          "z": 0.3
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "verticalOffsetMeters": -0.95,
+        "labelPrefix": "Nurse",
+        "posture": "standing"
+      }
+    }
+  ]
+}

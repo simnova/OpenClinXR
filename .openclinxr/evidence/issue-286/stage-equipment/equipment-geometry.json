@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-equipment.v1",
+  "station": "equipment",
+  "implementation": "apps/ui-xr/src/station-equipment-builders.ts:417 buildDeclaredEquipmentGeometry (parametric)",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "rows": [
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "status": "ran",
+      "meshCount": 5,
+      "meshNames": [
+        "openclinxr.equipment.pulse_oximeter_equipment",
+        "openclinxr.equipment.pulse_oximeter_equipment.base",
+        "openclinxr.equipment.pulse_oximeter_equipment.stand",
+        "openclinxr.equipment.pulse_oximeter_equipment.body",
+        "openclinxr.equipment.pulse_oximeter_equipment.finger_clip"
+      ],
+      "userData": {
+        "openClinXrEquipmentId": "pulse_oximeter_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "pulse_oximeter_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "handheld_device"
+      }
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "status": "ran",
+      "meshCount": 5,
+      "meshNames": [
+        "openclinxr.equipment.nebulizer_mask_equipment",
+        "openclinxr.equipment.nebulizer_mask_equipment.base",
+        "openclinxr.equipment.nebulizer_mask_equipment.stand",
+        "openclinxr.equipment.nebulizer_mask_equipment.nebulizer_cup",
+        "openclinxr.equipment.nebulizer_mask_equipment.mask"
+      ],
+      "userData": {
+        "openClinXrEquipmentId": "nebulizer_mask_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "nebulizer_mask_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "handheld_device"
+      }
+    },
+    {
+      "equipmentId": "oxygen_wall_port_equipment",
+      "status": "ran",
+      "meshCount": 4,
+      "meshNames": [
+        "openclinxr.equipment.oxygen_wall_port_equipment",
+        "openclinxr.equipment.oxygen_wall_port_equipment.wall_plate",
+        "openclinxr.equipment.oxygen_wall_port_equipment.outlet",
+        "openclinxr.equipment.oxygen_wall_port_equipment.gauge"
+      ],
+      "userData": {
+        "openClinXrEquipmentLocalYPolicy": "origin_centered_mount_height_from_placement_root",
+        "openClinXrEquipmentId": "oxygen_wall_port_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "oxygen_wall_port_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "handheld_device"
+      }
+    },
+    {
+      "equipmentId": "pediatric_stretcher_equipment",
+      "status": "ran",
+      "meshCount": 11,
+      "meshNames": [
+        "openclinxr.equipment.pediatric_stretcher_equipment",
+        "openclinxr.equipment.pediatric_stretcher_equipment.caster_0",
+        "openclinxr.equipment.pediatric_stretcher_equipment.caster_1",
+        "openclinxr.equipment.pediatric_stretcher_equipment.caster_2",
+        "openclinxr.equipment.pediatric_stretcher_equipment.caster_3",
+        "openclinxr.equipment.pediatric_stretcher_equipment.frame",
+        "openclinxr.equipment.pediatric_stretcher_equipment.mattress_deck",
+        "openclinxr.equipment.pediatric_stretcher_equipment.rail_left"
+      ],
+      "userData": {
+        "deckTopYMeters": 0.62,
+        "seatHeightMeters": 0.62,
+        "openClinXrEquipmentId": "pediatric_stretcher_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "pediatric_stretcher_equipment",
+        "openClinXrEquipmentFamily": "stretcher",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ]
+      }
+    },
+    {
+      "equipmentId": "parent_chair_equipment",
+      "status": "ran",
+      "meshCount": 6,
+      "meshNames": [
+        "openclinxr.equipment.parent_chair_equipment",
+        "openclinxr.equipment.parent_chair_equipment.seat",
+        "openclinxr.equipment.parent_chair_equipment.back",
+        "openclinxr.equipment.parent_chair_equipment.legs",
+        "openclinxr.equipment.parent_chair_equipment.arm_l",
+        "openclinxr.equipment.parent_chair_equipment.arm_r"
+      ],
+      "userData": {
+        "seatHeightMeters": 0.45,
+        "deckTopYMeters": 0.45,
+        "openClinXrEquipmentId": "parent_chair_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "parent_chair_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "chair"
+      }
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "status": "ran",
+      "meshCount": 5,
+      "meshNames": [
+        "openclinxr.equipment.inhaler_spacer_equipment",
+        "openclinxr.equipment.inhaler_spacer_equipment.base",
+        "openclinxr.equipment.inhaler_spacer_equipment.stand",
+        "openclinxr.equipment.inhaler_spacer_equipment.canister",
+        "openclinxr.equipment.inhaler_spacer_equipment.spacer"
+      ],
+      "userData": {
+        "openClinXrEquipmentId": "inhaler_spacer_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "inhaler_spacer_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "handheld_device"
+      }
+    },
+    {
+      "equipmentId": "wall_clock_equipment",
+      "status": "ran",
+      "meshCount": 5,
+      "meshNames": [
+        "openclinxr.equipment.wall_clock_equipment",
+        "openclinxr.equipment.wall_clock_equipment.housing",
+        "openclinxr.equipment.wall_clock_equipment.face",
+        "openclinxr.equipment.wall_clock_equipment.hour_hand",
+        "openclinxr.equipment.wall_clock_equipment.minute_hand"
+      ],
+      "userData": {
+        "openClinXrEquipmentLocalYPolicy": "origin_centered_mount_height_from_placement_root",
+        "openClinXrEquipmentId": "wall_clock_equipment",
+        "openClinXrEquipmentSource": "parametric",
+        "openClinXrRuntimeEquipmentAssetId": "wall_clock_equipment",
+        "openClinXrAffordances": [
+          "selectable_equipment_reference",
+          "clinical_workflow_cue"
+        ],
+        "openClinXrEquipmentFamily": "own_geometry"
+      }
+    }
+  ]
+}

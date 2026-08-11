@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-room.v1",
+  "station": "room",
+  "implementation": "apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment (parametric)",
+  "environmentId": "pediatric_urgent_care_bay_v1",
+  "shellName": "openclinxr.station-environment-shell",
+  "shellUserData": {
+    "environmentId": "pediatric_urgent_care_bay_v1",
+    "environmentDescriptorId": "pediatric_urgent_care_bay_v1",
+    "floorColor": 6321018,
+    "roomDepthMeters": 2.95,
+    "roomWidthMeters": 5.4,
+    "roomHeightMeters": 2.5,
+    "dimensionOverridesActive": false,
+    "wallColor": 15661567,
+    "wallTrimColor": 959977,
+    "fixtureSlots": [
+      {
+        "slotId": "exam_surface",
+        "purpose": "Exam table surface (clinic bay)",
+        "position": {
+          "x": 0.15,
+          "y": 0,
+          "z": -0.9
+        }
+      },
+      {
+        "slotId": "family_chair",
+        "purpose": "Family or parent seating",
+        "position": {
+          "x": -0.55,
+          "y": 0,
+          "z": -0.75
+        }
+      },
+      {
+        "slotId": "door_leaf",
+        "purpose": "Solid door leaf at learner entry",
+        "position": {
+          "x": 2.2,
+          "y": 0,
+          "z": 1.05
+        },
+        "placementRule": "wall_anchor",
+        "wall": "+x",
+        "wallInsetMeters": 0.5
+      },
+      {
+        "slotId": "wall_board",
+        "purpose": "Wall-mounted clinical board",
+        "position": {
+          "x": -2.62,
+          "y": 1.4,
+          "z": -1.05
+        },
+        "placementRule": "wall_anchor",
+        "wall": "-x",
+        "wallInsetMeters": 0.08
+      },
+      {
+        "slotId": "learner_start",
+        "purpose": "Learner entry standing position",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 1.4
+        }
+      }
+    ],
+    "fixtureLayoutDerivation": "per_slot:wall_anchor|fraction|absolute",
+    "environmentFallbackActive": false,
+    "environmentFallbackReason": "",
+    "openClinXrEnvironmentPolicy": "parametric_shell_from_shared_environment_descriptor_kitbash_slot",
+    "hasCeiling": true,
+    "floorMesh": {
+      "metadata": {
+        "version": 4.7,
+        "type": "Object",
+        "generator": "Object3D.toJSON"
+      },
+      "geometries": [
+        {
+          "uuid": "b48acf2e-23be-4996-9a19-a555d5b37b29",
+          "type": "BoxGeometry",
+          "width": 5.4,
+          "height": 0.08,
+          "depth": 2.95,
+          "widthSegments": 1,
+          "heightSegments": 1,
+          "depthSegments": 1
+        }
+      ],
+      "materials": [
+        {
+          "uuid": "6bfc1749-67fb-4dd4-b7b4-57e162db0784",
+          "type": "MeshStandardMaterial",
+          "color": 6321018,
+          "roughness": 0.8,
+          "metalness": 0,
+          "emissive": 0,
+          "envMapRotation": [
+            0,
+            0,
+            0,
+            "XYZ"
+          ],
+          "envMapIntensity": 1,
+          "blendColor": 0
+        }
+      ],
+      "object": {
+        "uuid": "989137a9-92fe-4164-a574-61de8b8468fc",
+        "type": "Mesh",
+        "name": "openclinxr.station-environment.floor",
+        "userData": {
+          "openClinXrSceneNecessityPolicy": "dynamic_encounter_world_floor_from_environment_descriptor",
+          "environmentId": "pediatric_urgent_care_bay_v1"
+        },
+        "layers": 1,
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "geometry": "b48acf2e-23be-4996-9a19-a555d5b37b29",
+        "material": "6bfc1749-67fb-4dd4-b7b4-57e162db0784"
+      }
+    },
+    "ceilingMesh": {
+      "metadata": {
+        "version": 4.7,
+        "type": "Object",
+        "generator": "Object3D.toJSON"
+      },
+      "geometries": [
+        {
+          "uuid": "9599e0c7-c6d9-4508-b17e-65979d1ff551",
+          "type": "BoxGeometry",
+          "width": 5.4,
+          "height": 0.06,
+          "depth": 2.95,
+          "widthSegments": 1,
+          "heightSegments": 1,
+          "depthSegments": 1
+        }
+      ],
+      "materials": [
+        {
+          "uuid": "e2d4d456-6c63-4374-842e-1620f0c2d92c",
+          "type": "MeshStandardMaterial",
+          "color": 15661567,
+          "roughness": 0.92,
+          "metalness": 0,
+          "emissive": 15661567,
+          "emissiveIntensity": 0.06,
+          "envMapRotation": [
+            0,
+            0,
+            0,
+            "XYZ"
+          ],
+          "envMapIntensity": 1,
+          "blendColor": 0
+        }
+      ],
+      "object": {
+        "uuid": "f813d83a-1122-4663-b70e-db22bf3f05a1",
+        "type": "Mesh",
+        "name": "openclinxr.station-environment.ceiling",
+        "userData": {
+          "openClinXrDynamicScenePolicy": "environmentId_driven_room_ceiling_closes_open_top",
+          "isCeiling": true
+        },
+        "layers": 1,
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "geometry": "9599e0c7-c6d9-4508-b17e-65979d1ff551",
+        "material": "e2d4d456-6c63-4374-842e-1620f0c2d92c"
+      }
+    },
+    "fixtureOwnedRoles": [
+      "work_surface",
+      "seating",
+      "door",
+      "wall_board"
+    ]
+  },
+  "childCount": 11,
+  "children": [
+    {
+      "name": "openclinxr.station-environment.floor",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.back-wall",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.left-wall",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.right-wall",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.ceiling",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.wall-trim",
+      "type": "Mesh",
+      "childCount": 0
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.exam_surface",
+      "type": "Group",
+      "childCount": 6
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.family_chair",
+      "type": "Group",
+      "childCount": 6
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.door_leaf",
+      "type": "Group",
+      "childCount": 5
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.wall_board",
+      "type": "Group",
+      "childCount": 4
+    },
+    {
+      "name": "openclinxr.station-environment.fixture-slot.learner_start",
+      "type": "Mesh",
+      "childCount": 0
+    }
+  ]
+}

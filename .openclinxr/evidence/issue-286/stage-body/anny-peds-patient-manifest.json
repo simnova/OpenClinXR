@@ -1,0 +1,78 @@
+{
+  "schema_version": "openclinxr.anny-source-manifest.v1",
+  "generator": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+  "source_kind": "anny_compatible_stub_mesh",
+  "generator_mode": "stub",
+  "uses_real_anny_forward_pass": false,
+  "real_anny_weights_used": false,
+  "fallback_active": true,
+  "fallback_reason": "ModuleNotFoundError: No module named 'anny'",
+  "input_params": {
+    "age": 8,
+    "body_profile": "pediatric_school_age",
+    "pose": "standing_neutral_work_of_breathing",
+    "seed": 1001,
+    "phenotype": {
+      "skin_tone": "warm_light_child",
+      "hair_color": "light_brown",
+      "eye_color": "hazel",
+      "gender_presentation": "child",
+      "height_cm": 125,
+      "build": "slender_asthma",
+      "bmi": 16.5
+    }
+  },
+  "output": {
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-286/.openclinxr/evidence/issue-286/stage-body/anny-peds-patient.obj",
+    "vertex_count": 1161,
+    "face_count": 1872,
+    "has_uvs": true,
+    "source_topology_mode": "smooth_uv_parametric_stub_v2_not_real_anny",
+    "uv_coverage_note": "smooth local UV ellipsoid/capsule unwrap for head/torso/limbs; production Anny produces production unwraps"
+  },
+  "anny_forward_pass": null,
+  "phenotype_summary": {
+    "skin_tone": "warm_light_child",
+    "hair_color": "light_brown",
+    "eye_color": "hazel",
+    "gender_presentation": "child",
+    "height_cm": 125,
+    "build": "slender_asthma",
+    "bmi": 16.5
+  },
+  "material_hints": {
+    "skin": "warm_light_child",
+    "hair": "light_brown",
+    "torso_width": 0.8492521166403899,
+    "shoulder_width": 0.35668588898896375,
+    "hip_width": 0.23779059265930919,
+    "limb_width": 0.043,
+    "seed_unit": 0.7313029160097481,
+    "sourceTopologyMode": "smooth_uv_parametric_stub_v2_not_real_anny",
+    "role": {
+      "wardrobeRole": "pediatric_patient",
+      "garmentLayers": [
+        "pediatric_patient_local_fixture_clothing"
+      ],
+      "fabricPalette": "role_distinction_neutral",
+      "materialFinish": "matte_local_fixture_cloth",
+      "accessoryMarkers": [],
+      "fitProfile": "case_actor_basic_fit",
+      "clothing_style": "pediatric_patient_local_fixture_clothing",
+      "clothing_color": "role_distinction_neutral",
+      "role_visual_cue": "pediatric_patient",
+      "claim_scope": "procedural_role_distinction_marker_not_production_costume"
+    }
+  },
+  "not_evidence_for": [
+    "real_anny_model_output",
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness"
+  ],
+  "notes": [
+    "This is a deterministic stub so the rest of the pipeline (Blender rigging + texturing) can be exercised without the real Anny package path.",
+    "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
+    "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
+  ]
+}
