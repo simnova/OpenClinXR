@@ -260,6 +260,7 @@ describe("static browser assets", () => {
     const mainSource = [
       readFileSync(new URL("./main.ts", import.meta.url), "utf8"),
       readFileSync(new URL("./clinical-idle-posture.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("./real-garment-evidence-surfaces.ts", import.meta.url), "utf8"),
     ].join("\n");
     const runtimeStateSource = readFileSync(new URL("./runtime-state.ts", import.meta.url), "utf8");
 
@@ -318,13 +319,17 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("/cagematch/anny-real-garment/current/ed_chest_pain_patient_real_garment.glb");
     expect(mainSource).toContain("/generated-humanoids/peds_anxious_parent.glb");
     expect(mainSource).toContain("/generated-humanoids/peds_nurse_kevin.glb");
-    // parent/nurse comparators resolve role GLB onto patient primary slot (camera-centered) + role slot
+    // #314: parent/nurse comparators cast patient → child and role → role GLB (split cast —
+    // patient must never resolve to the parent/nurse asset).
     expect(mainSource).toContain(
-      'humanoidSourceComparator === "peds_anny_real_garment_parent"\n      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeFamilyActorId() || role === "parent" || role === "family")',
+      'humanoidSourceComparator === "peds_anny_real_garment_parent"',
     );
+    expect(mainSource).toContain('return "/generated-humanoids/peds_patient_child.glb"');
+    expect(mainSource).toContain('return "/generated-humanoids/peds_anxious_parent.glb"');
     expect(mainSource).toContain(
-      'humanoidSourceComparator === "peds_anny_real_garment_nurse"\n      && (actorId === runtimePatientActorId() || role === "patient" || actorId === runtimeClinicalTeamActorId() || role === "nurse")',
+      'humanoidSourceComparator === "peds_anny_real_garment_nurse"',
     );
+    expect(mainSource).toContain('return "/generated-humanoids/peds_nurse_kevin.glb"');
     expect(mainSource).toContain("applyRealGarmentEvidenceSurfaces");
     // cyan evidence restricted to separate real garment meshes only — never anny_base role clothing slots
     expect(mainSource).toContain("openclinxr_real_garment|real_garment_from_phenotype");
