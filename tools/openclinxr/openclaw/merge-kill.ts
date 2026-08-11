@@ -23,12 +23,15 @@
  *   hook-bypass-in-history   — --no-verify / OPENCLAW_SKIP_HOOKS in the branch history
  *   proof-file-gutted        — run: proof target lost assertion density (warn; hard to
  *                              distinguish gutting from legitimate refactors)
+ *   gitignored-proof-target  — exists:/min-bytes: proof reads a gitignored target the branch
+ *                              does not land (#217; clean clones cannot fail it for the right
+ *                              reason, and force-add or the brief opt-out is the remediation)
  */
 
 import { execFileSync } from "node:child_process";
 import { classifyDiff } from "./diff-class-policy.js";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join } from "node:path";
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -62,6 +65,15 @@ export type MergeKillInput = {
     proofs: { rule: string; passed: boolean; detail: string }[];
   } | null;
   classifyForbidden?: ForbiddenPathClassifier;
+  /**
+   * #217 opt-out: `exists:` / `min-bytes:` proof targets that are DELIBERATELY gitignored and
+   * machine-local (capture trees, provider caches — a 639 MB capture directory must never be
+   * force-added to satisfy a gate). Supplied by `integrate` from the trusted brief's
+   * `gitignoredProofTargetsAllowed`. A target listed here is never refused by the
+   * `gitignored-proof-target` criterion, which makes "this artifact is deliberately untracked"
+   * a stated decision rather than an accident.
+   */
+  allowedGitignoredProofTargets?: string[];
 };
 
 export type MergeKillReport = {
@@ -615,6 +627,168 @@ function checkProofFileGutted(
   ];
 }
 
+// ── Gitignored proof-target check (#217) ────────────────────────────────────
+
+/**
+ * Parse an `exists:` / `min-bytes:` proof rule into its target path, or null when the rule
+ * is not one of those kinds or has no usable target.
+ *
+ * - `exists:<target>`       → everything after the prefix.
+ * - `min-bytes:<target>:<N>` → everything between the first and last colon, so a target that
+ *   itself contains a colon (legal on POSIX/macOS paths) survives the split.
+ */
+export function extractProofTarget(rule: string): string | null {
+  if (rule.startsWith("exists:")) {
+    const target = rule.slice("exists:".length).trim();
+    return target || null;
+  }
+  if (rule.startsWith("min-bytes:")) {
+    const rest = rule.slice("min-bytes:".length);
+    const lastColon = rest.lastIndexOf(":");
+    if (lastColon <= 0) return null;
+    const target = rest.slice(0, lastColon).trim();
+    return target || null;
+  }
+  return null;
+}
+
+/** Glob → anchored RegExp, matching the evaluator's own globMatch semantics. */
+function globToRegExp(pattern: string): RegExp {
+  const escaped = pattern
+    .split("*")
+    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
+    .join(".*");
+  return new RegExp(`^${escaped}$`);
+}
+
+/**
+ * Deepest static directory prefix of a (possibly glob) target, for git probe commands.
+ *
+ * `git check-ignore` and `git ls-tree` need a concrete path; the glob itself is matched in
+ * JS afterwards. `.openclinxr/evidence/issue-256/packs/*.png` → `.openclinxr/evidence/issue-256/packs/`.
+ */
+function staticProbePath(target: string): string {
+  const star = target.indexOf("*");
+  if (star === -1) return target;
+  const head = target.slice(0, star);
+  const lastSlash = head.lastIndexOf("/");
+  return lastSlash === -1 ? "" : head.slice(0, lastSlash + 1);
+}
+
+export type GitignoredProofTargetEval = {
+  target: string;
+  gitignored: boolean;
+  tracked: boolean;
+  wouldRefuse: boolean;
+};
+
+/**
+ * Is a proof target the #217 class — a file the proof reads that a CLEAN CLONE will not have?
+ *
+ * gitignored:  matches a .gitignore rule (`git check-ignore` exits 0). A force-added file is
+ *              NOT reported as ignored, so tracked files never count as gitignored here.
+ * tracked:     present in the POST-MERGE tree — i.e. tracked in `base` (main carries it through
+ *              the merge) OR in `head` (this branch force-adds it, so the merge diff carries it).
+ * wouldRefuse: gitignored && !tracked — the proof is green only where a machine-local file
+ *              happens to exist, which is exactly the #215 shape: the tracked library GLB was
+ *              present the whole time; only the catalog that described it was missing.
+ */
+export function evaluateGitignoredProofTarget(
+  repoRoot: string,
+  target: string,
+  base: string,
+  head: string,
+): GitignoredProofTargetEval {
+  // Absolute paths are not repo-relative proof targets; nothing to refuse.
+  if (isAbsolute(target)) {
+    return { target, gitignored: false, tracked: true, wouldRefuse: false };
+  }
+
+  const probe = staticProbePath(target);
+  // A root-level glob (`*.json`) has no static directory to probe — treat as not-ignored;
+  // gitignore rules that ignore files at the repo root cannot be evaluated per-target here.
+  if (probe === "") {
+    return { target, gitignored: false, tracked: true, wouldRefuse: false };
+  }
+
+  const ignored = gitOk(repoRoot, ["check-ignore", "-q", "--", probe]) !== null;
+
+  // Absent ls-tree output means "not tracked in that ref". A null (command failure) is treated
+  // as tracked to avoid double-faulting — the diff already threw on an unresolvable ref before
+  // this check ever runs.
+  const isTrackedIn = (ref: string): boolean => {
+    if (probe === target && !target.includes("*")) {
+      const raw = gitOk(repoRoot, ["ls-tree", "-r", "--name-only", ref, "--", probe]);
+      return raw === null || raw.trim() !== "";
+    }
+    if (target.includes("*")) {
+      const dir = probe || ".";
+      const raw = gitOk(repoRoot, ["ls-tree", "-r", "--name-only", ref, "--", dir]);
+      if (raw === null) return true;
+      return raw
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .some((line) => globToRegExp(target).test(line));
+    }
+    return true;
+  };
+
+  const tracked = isTrackedIn(base) || isTrackedIn(head);
+  return { target, gitignored: ignored, tracked, wouldRefuse: ignored && !tracked };
+}
+
+/**
+ * #217 / #64 class: a contract proof whose target is gitignored and absent from the merge diff
+ * cannot fail for the right reason on a clean clone — it fails for a missing file instead, and
+ * the failure message points at the product rather than the environment.
+ *
+ * Only `exists:` / `min-bytes:` rules are inspected — their whole meaning is that a file is
+ * present. `run:` and `changed:` rules must never be refused here.
+ */
+export function checkGitignoredProofTarget(
+  repoRoot: string,
+  base: string,
+  head: string,
+  contract: MergeKillInput["contract"],
+  allowed: string[],
+): KillFinding[] {
+  if (!contract?.proofs?.length) return [];
+  const allowedSet = new Set(allowed ?? []);
+  const evidence: KillFinding["evidence"] = [];
+
+  for (const proof of contract.proofs) {
+    if (!proof.rule.startsWith("exists:") && !proof.rule.startsWith("min-bytes:")) continue;
+    const target = extractProofTarget(proof.rule);
+    if (!target) continue;
+    if (allowedSet.has(target)) continue;
+    const evaluation = evaluateGitignoredProofTarget(repoRoot, target, base, head);
+    if (!evaluation.wouldRefuse) continue;
+    evidence.push({
+      file: target,
+      excerpt:
+        `gitignored and tracked in neither base nor ${head} — a clean clone will not have it, `
+        + `yet proof "${proof.rule}" reads it. Force-add the target or name it in the brief's `
+        + `gitignoredProofTargetsAllowed before landing.`,
+    });
+  }
+
+  if (evidence.length === 0) return [];
+  return [
+    {
+      id: "gitignored-proof-target",
+      severity: "kill",
+      title: "Proof reads a gitignored target the branch does not land",
+      evidence,
+      reason:
+        "Incident class #217/#64: a proof under a gitignored path has no reproducibility. The "
+        + "proof is green only where a machine-local file happens to exist, and fails on a clean "
+        + "clone for the wrong reason. Remediation is one line (force-add), or the deliberate-"
+        + "untracked opt-out in the brief.",
+    },
+  ];
+}
+
 // ── Orchestrator ─────────────────────────────────────────────────────────────
 
 export function runMergeKill(input: MergeKillInput): MergeKillReport {
@@ -639,6 +813,15 @@ export function runMergeKill(input: MergeKillInput): MergeKillReport {
   findings.push(...checkContractNotVerified(contract));
   findings.push(...checkHookBypassInHistory(repoRoot, base, head));
   findings.push(...checkProofFileGutted(repoRoot, base, head, entries, contract));
+  findings.push(
+    ...checkGitignoredProofTarget(
+      repoRoot,
+      base,
+      head,
+      contract,
+      input.allowedGitignoredProofTargets ?? [],
+    ),
+  );
 
   const killed = findings.some((f) => f.severity === "kill");
 
@@ -723,6 +906,7 @@ export function formatMergeKillReport(r: MergeKillReport): string {
     "contract-not-verified",
     "hook-bypass-in-history",
     "proof-file-gutted",
+    "gitignored-proof-target",
   ];
   for (const id of evaluatedIds) {
     const finding = r.findings.find((f) => f.id === id);

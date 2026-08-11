@@ -282,6 +282,13 @@ export type TrustedBrief = {
    * worker worktree by {@link prepareWorktreeForWorker} → provisionWorktreeAssets.
    */
   assetPaths?: string[];
+  /**
+   * #217 opt-out: `exists:` / `min-bytes:` proof targets that are DELIBERATELY gitignored and
+   * machine-local (capture trees, provider caches). merge-kill refuses a gitignored, untracked
+   * proof target at integrate UNLESS it is listed here — so "this artifact is deliberately
+   * untracked and the proof is machine-local" becomes a stated decision, not an accident.
+   */
+  gitignoredProofTargetsAllowed?: string[];
   synthesized?: boolean;
   [key: string]: unknown;
 };
