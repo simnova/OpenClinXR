@@ -128,11 +128,35 @@ the preceding capture. Advancement takes the next unstarted phase item.
 
 ## Preconditions any MPFB measurement must satisfy
 
-Learned the expensive way (#300, #301). A mesh handed to the landmark instrument must be:
-1. **Y-up** — glTF convention; Anny and Blender are Z-up, and the conversion has been missed three times.
-2. **Grounded**, feet at y=0 — bands were absolute-Y before #300; still the safer input.
-3. **Helper-stripped** at vertex **13,380** — 19,158 → 13,380 verts, 36,972 → 26,756 faces, byte-matching
-   the shipped library GLBs. Un-stripped, the clothes-helper shell narrows shoulder span by 5.8 mm.
+**CORRECTED 2026-08-11 after verifying the MPFB API. Two of the three preconditions were self-inflicted.**
+
+**Enter through `HumanService.create_human(feet_on_ground=True, macro_detail_dict=…)`.** Measured: it
+returns **13,380 verts / 13,378 polys with minZ = 0.0000** — already body-only and already grounded.
+`ExportService.bake_modifiers_remove_helpers()` on that object is a **no-op**: identical counts, identical
+bounds.
+
+So of the three preconditions previously recorded here:
+
+1. **Y-up — still required.** glTF's convention; Anny and Blender are Z-up and the conversion has been
+   missed three times in one session. This one is real.
+2. **Grounding — no longer a step.** `feet_on_ground=True` does it at creation. Post-hoc shifting was
+   redundant.
+3. **Helper stripping at vertex 13,380 — was solving a self-inflicted problem.** `create_human` never
+   *adds* helper geometry; the 19,158-vertex mesh being stripped came from importing raw
+   `data/3dobjs/base.obj` directly, which is the wrong entry point. The hand-rolled constant was a
+   workaround for damage caused by bypassing the API. **`bake_modifiers_remove_helpers(remove_helpers=True)`
+   remains the correct call where helpers genuinely exist** (a human built through the asset/proxy path),
+   but it is not a substitute for entering correctly.
+
+The 13,380 figure survives as a **cross-check, not a procedure**: it is what `create_human` natively
+produces and what the shipped library GLBs contain, so a body-only mesh of another size is a signal
+something is wrong.
+
+**The generalisable lesson, third instance today:** `bake_modifiers_remove_helpers`, then
+`create_human(feet_on_ground=True)`, then bisecting height against `anny.Anthropometry` instead of a
+hand-fitted formula (#302). Each time, hand-authoring produced a workaround for a problem the documented
+entry point does not have. Reach for the API before reaching for a constant — this is exactly what
+`agents/rules/PROTO_CURIOUS_RESEARCHER.md` exists to catch.
 
 ## What this does not claim
 
