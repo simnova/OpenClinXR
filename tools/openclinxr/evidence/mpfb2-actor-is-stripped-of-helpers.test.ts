@@ -97,6 +97,17 @@ import { describe, expect, it } from "vitest";
  * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on the stripped asset.
  * The post-strip figure is an unclothed body — wardrobe staging for an OB triage patient is MADR
  * 0052 P3, untouched here.
+ *
+ * ## SCOPED (#321) — measurement, not bound
+ *
+ * #321 fits a real MakeHuman garment (toigo t-shirt via ClothesService) onto the stripped body, and
+ * the garment test's own counterweight (3) governs TOTAL triangles at 40,000 (`MAX_BODY_TRIS +
+ * 12_000` — the orchestrator wrote it knowing a garment adds tris; no garment with >= 500 verts
+ * fits under the 1,244-tris headroom left by the 28,000 bound). Clause (1) below therefore measures
+ * BODY triangles only: it excludes primitives whose material names a garment, so the net keeps its
+ * exact discriminator — with-helpers body (36,972) still fails, stripped body (26,756) still passes —
+ * while the fitted garment's triangles are asserted by mpfb2-actor-wears-a-fitted-garment.test.ts
+ * counterweight (3). The bound itself is unchanged.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -105,6 +116,8 @@ const AISHA = `${REPO_ROOT}/apps/ui-xr/public/generated-humanoids/mpfb-ob-patien
 
 /** MADR 0052: helper-stripped is 26,756 tris. Headroom for scalp / material-region variation. */
 const MAX_TRIANGLES = 28_000;
+/** Same material vocabulary the garment RED reads — body-strip measurement excludes garments (#321). */
+const GARMENT_MATERIAL = /garment|clothing|shirt|pants|trouser|tshirt|scrub|gown|makeclothes/i;
 const MOUTH_NAME = /mouth|lip|jaw|viseme/i;
 const MOVED_EPSILON_M = 1e-5;
 const MIN_USABLE_MOUTH_TARGETS = 13;
@@ -114,7 +127,7 @@ const io = new NodeIO();
 const doc = await io.read(AISHA);
 
 let totalVerts = 0;
-let totalTris = 0;
+let bodyTris = 0;
 let primitives = 0;
 let bodyVerts = 0;
 let usableMouth: string[] = [];
@@ -127,7 +140,11 @@ for (const mesh of doc.getRoot().listMeshes()) {
     primitives += 1;
     totalVerts += pos.getCount();
     const indices = prim.getIndices();
-    totalTris += indices ? indices.getCount() / 3 : pos.getCount() / 3;
+    const primTris = indices ? indices.getCount() / 3 : pos.getCount() / 3;
+    // #321: a fitted garment is separate geometry; the strip question is about the BODY.
+    if (!GARMENT_MATERIAL.test(prim.getMaterial()?.getName() ?? "")) {
+      bodyTris += primTris;
+    }
 
     if (prim.listTargets().length === 0 || pos.getCount() <= bodyVerts) continue;
     bodyVerts = pos.getCount();
@@ -159,12 +176,12 @@ function requireMeasured(): void {
 
 describe("the shipped MPFB2 actor is a body, not a body wearing MakeHuman fitting shells", () => {
   it(
-    `(1) RED: total triangles <= ${MAX_TRIANGLES} — the helper shells are stripped`,
+    `(1) RED: body triangles <= ${MAX_TRIANGLES} — the helper shells are stripped`,
     () => {
       requireMeasured();
       expect(
-        totalTris,
-        `aisha total triangles (36,972 = base.obj with helpers; 26,756 = documented stripped)`,
+        bodyTris,
+        `aisha BODY triangles (36,972 = base.obj with helpers; 26,756 = documented stripped; garment tris excluded per #321)`,
       ).toBeLessThanOrEqual(MAX_TRIANGLES);
     },
   );

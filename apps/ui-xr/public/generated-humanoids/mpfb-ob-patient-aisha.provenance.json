@@ -20,7 +20,7 @@
     "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Regenerated 2026-08-11 (#318): the candidate materializer now strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (exportservice.py:79, remove_helpers=True), called AFTER the face targets load so the morph keys stay indexed to the full base topology. Bake census printed HELPER_STRIP verts 19158 -> 13380; tris 36972 -> 26756, both endpoints exactly the MADR 0052 documented pair. The 32 FACS targets (13 mouth, 6 eye, 8 eyebrow, 4 nose, 1 neck) survive intact and remain non-empty and localised on the body primitive. Candidate sha256 91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f."
+    "derivationNote": "Regenerated 2026-08-11 (#321): the candidate materializer fits a real MakeHuman garment on the #318 helper-stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (the same code body_param_stage.py uses for the hm08 library rail; D1). The CC0 toigo_basic_tucked_t-shirt is fitted AFTER the strip because .mhclo vertex refs index the canonical 13,380-vert hm08 topology (toigo max ref 11,017 < 13,380); the polo (3,648 refs into helper verts) is refused. HELPER_STRIP census unchanged (verts 19158 -> 13380; tris 36972 -> 26756); garment adds 2,700 tris (29,456 total) and is bound to the standard rig via k-NN body-group projection. The 13 usable mouth targets and 137-joint rig survive. Garment choice: least-wrong for an OB triage patient — a hospital gown is not in the cached library and a scrub shirt is staff wear. Candidate sha256 af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -47,10 +47,10 @@
     "reuseKey": "ob_headache_preeclampsia_triage_v1:patient_aisha_khan_v1:mpfb2",
     "baseAsset": "apps/ui-xr/public/xr-assets/humanoids/candidates/mpfb-ob-patient-aisha-rigged-candidate.glb",
     "promotionPath": "byte_identical_promote_from_candidates_to_generated-humanoids",
-    "method": "mpfb2_standard_rig_137_joints_26756_skinned_triangles_helpers_stripped"
+    "method": "mpfb2_standard_rig_137_joints_26756_body_tris_plus_2700_fitted_garment_tris"
   },
   "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "regenerated_2026-08-11_helper_strip_issue_318",
+  "promptOrCaseParameterHash": "regenerated_2026-08-11_fitted_toigo_tshirt_issue_321",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "production_asset_readiness",
@@ -64,14 +64,15 @@
     "Issue #263: first MPFB2 humanoid promoted into a station cast (OB triage patient Aisha Khan).",
     "Issue #222: MPFB rail paints the proven bounds-derived scalp hair region (Anny automate_blender apply_mesh_native_scalp_hair_material_region) instead of the hand-authored UV sphere; no separate hair mesh remains. Textures remain out of scope by peer decision.",
     "Issue #317: face targets now load through the proven TargetService path (body_param_stage.load_mpfb_face_shape_keys) instead of the MPFB UI operator, which read panel state and shipped zero face morphs. The #222 scalp-region Z-flip was also corrected: create_human faces -Y (measured), so the flip pushed the face to +Y, the face-band exclusion never fired, and the scalp paint covered the eyes/brows.",
-    "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3, untouched.",
+    "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3.",
+    "Issue #321: the candidate materializer fits the CC0 toigo_basic_tucked_t-shirt onto the stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (body_param_stage.py uses the same service for the hm08 library rail). The fit runs after the strip because .mhclo vertex refs index the 13,380-vert hm08 topology; the polo (helper-vert refs) is refused rather than fitted against absent indices. Garment material mat_makeclothes_library_toigo_t_shirt; garment 2,700 tris / 5,400 exported verts, skinned to the standard rig. Total 29,456 tris; 13 usable mouth targets and 137 joints unchanged. Garment choice is the least-wrong OB triage option: a hospital gown is not in the cached library and a scrub shirt is staff wear.",
     "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Byte-identical to the tracked candidates/ comparator (sha256 91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f)."
+    "Byte-identical to the tracked candidates/ comparator (sha256 af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9)."
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "91b462c7581a3c74b61188d63fe9e802713fc52c2cb73c5bce0e06971c64ee8f",
-  "outputBytes": 5108388,
-  "generatedAt": "2026-08-11T13:37:00.000+00:00",
+  "outputSha256": "af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9",
+  "outputBytes": 5406792,
+  "generatedAt": "2026-08-11T14:50:00.000+00:00",
   "method": "byte_identical_promote_from_candidates_comparator"
 }
