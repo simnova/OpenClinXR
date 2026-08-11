@@ -97,6 +97,37 @@ import { describe, expect, it } from "vitest";
  * Clinical staging note: a hospital gown is the ideal OB triage garment and is not in the cached
  * library; the basic t-shirt (street clothes) is the least-wrong fittable option. Flagged in the
  * issue close, not asserted here.
+ *
+ * ## FIXED AGAIN (#321 handback — placement)
+ *
+ * The orchestrator graded the pixels: the first fix's garment was LYING ON THE FLOOR. Measured on
+ * the shipped bytes, Y and Z were swapped — garment Z 0.97-1.42 was exactly the torso HEIGHT while
+ * its Y sat at floor level [-0.16, 0.08]. The mechanism: MPFB's body loader
+ * (`ObjectService.load_wavefront_file`, objectservice.py:753-761) bakes the OBJ import's axis
+ * rotation into mesh data with `transform_apply(rotation=True)`, so the `create_human()` body is
+ * Z-up with an identity object transform — but `import_obj(..., force_z=False)` leaves the garment
+ * with the importer's 90-degree X rotation ON THE OBJECT. `ClothesService.fit_clothes_to_human`
+ * writes BODY-LOCAL coordinates into the garment mesh, so a rotated garment object renders those
+ * coords rotated — the §6t class: present (clause 1 passed) and attached to nothing.
+ *
+ * Fix: the generator now bakes the garment's object transform into mesh data with the proven
+ * `body_param_stage.apply_object_transforms` helper immediately after import (the same bake the
+ * body's loader performs), BEFORE the fit — so garment-local == body-local == world Z-up. The
+ * imported garment keeps its MakeHuman-native vertex positions for the fit's mhclo mapping, and the
+ * baked object transform is identity, matching the body.
+ *
+ * Clause (5) is the placement guard: it reads the garment Y range, the body Y range, and derives
+ * the torso band from the skin's INVERSE BIND MATRICES (hip/pelvis world-Y is bandLo,
+ * clavicle/upperarm world-Y is bandHi) — not a literal — and requires the garment to overlap that
+ * band. Measured after the fix:
+ *
+ *   primitive              Y range              band from IBM (world Y)
+ *   ----------------------|---------------------|--------------------------
+ *   garment (toigo)       [ 0.97, 1.42]         bandLo pelvis 0.874
+ *   body    (13025 verts) [ 0.00, 1.56]         bandHi clavicle 1.342
+ *   overlap: garment minY 0.97 < bandHi 1.342 AND garment maxY 1.42 > bandLo 0.874  PASS
+ *
+ * On the pre-fix bytes the clause fails: garment Y [-0.16, 0.08], maxY 0.08 < bandLo 0.874.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -127,6 +158,16 @@ type Shape = {
   garmentVerts: number;
   totalTris: number;
   usableMouth: number;
+};
+
+/** Y-up glTF bounds of garment vs body + rig torso band, for the placement clause (#321 handback). */
+type Placement = {
+  garmentMinY: number;
+  garmentMaxY: number;
+  bodyMinY: number;
+  bodyMaxY: number;
+  bandLo: number;
+  bandHi: number;
 };
 
 const io = new NodeIO();
@@ -174,7 +215,93 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
   return { id, garmentPrims, garmentVerts, totalTris, usableMouth };
 }
 
+/** Invert a column-major 4x4 (the skin's inverse bind matrix) → the joint's bind world position. */
+function invert4(m: Float32Array, o: number): number[] {
+  const a = [
+    m[o], m[o + 4], m[o + 8], m[o + 12],
+    m[o + 1], m[o + 5], m[o + 9], m[o + 13],
+    m[o + 2], m[o + 6], m[o + 10], m[o + 14],
+    m[o + 3], m[o + 7], m[o + 11], m[o + 15],
+  ];
+  // augmented RHS: 4x4 IDENTITY (not zeros — gauss-jordan against zero yields zero)
+  const inv = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  for (let c = 0; c < 4; c += 1) {
+    let p = c;
+    for (let r = c + 1; r < 4; r += 1) if (Math.abs(a[r * 4 + c]) > Math.abs(a[p * 4 + c])) p = r;
+    for (let k = 0; k < 4; k += 1) {
+      let t = a[c * 4 + k]; a[c * 4 + k] = a[p * 4 + k]; a[p * 4 + k] = t;
+      t = inv[c * 4 + k]; inv[c * 4 + k] = inv[p * 4 + k]; inv[p * 4 + k] = t;
+    }
+    const d = a[c * 4 + c];
+    for (let k = 0; k < 4; k += 1) { a[c * 4 + k] /= d; inv[c * 4 + k] /= d; }
+    for (let r = 0; r < 4; r += 1) {
+      if (r === c) continue;
+      const f = a[r * 4 + c];
+      if (f === 0) continue;
+      for (let k = 0; k < 4; k += 1) { a[r * 4 + k] -= f * a[c * 4 + k]; inv[r * 4 + k] -= f * inv[c * 4 + k]; }
+    }
+  }
+  // row-major → column-major
+  const out: number[] = [];
+  for (let r = 0; r < 4; r += 1) for (let c = 0; c < 4; c += 1) out[c * 4 + r] = inv[r * 4 + c];
+  return out;
+}
+
+/** Y-up world height of a joint from the skin's inverse bind matrices (bind pose). */
+function bindJointWorldY(ibm: ArrayLike<number>, jointIndex: number): number {
+  const w = invert4(new Float32Array(Array.from(ibm)), jointIndex * 16);
+  return w[13];
+}
+
+async function placementOf(rel: string): Promise<Placement> {
+  const doc = await io.read(`${PUBLIC}/${rel}`);
+  let garmentMinY = Infinity;
+  let garmentMaxY = -Infinity;
+  let bodyMinY = Infinity;
+  let bodyMaxY = -Infinity;
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const pos = prim.getAttribute("POSITION");
+      if (!pos) continue;
+      const arr = pos.getArray();
+      if (!arr) continue;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      for (let i = 0; i < pos.getCount(); i += 1) {
+        const y = Number(arr[i * 3 + 1]);
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+      if (GARMENT_MATERIAL.test(prim.getMaterial()?.getName() ?? "")) {
+        garmentMinY = Math.min(garmentMinY, minY);
+        garmentMaxY = Math.max(garmentMaxY, maxY);
+      } else {
+        bodyMinY = Math.min(bodyMinY, minY);
+        bodyMaxY = Math.max(bodyMaxY, maxY);
+      }
+    }
+  }
+  // Torso band from the rig, not a literal: hip (pelvis) to shoulder (clavicle/upperarm).
+  const skin = doc.getRoot().listSkins()[0];
+  const ibm = skin?.getInverseBindMatrices()?.getArray();
+  if (!skin || !ibm) {
+    throw new Error(`placement clause needs a skin on ${rel}`);
+  }
+  let bandLo = -Infinity;
+  let bandHi = Infinity;
+  skin.listJoints().forEach((joint, i) => {
+    const name = joint.getName() ?? "";
+    if (/pelvis|hip/i.test(name)) bandLo = Math.max(bandLo, bindJointWorldY(ibm, i));
+    if (/clavicle|upperarm/i.test(name)) bandHi = Math.min(bandHi, bindJointWorldY(ibm, i));
+  });
+  if (!Number.isFinite(bandLo) || !Number.isFinite(bandHi)) {
+    throw new Error(`placement clause could not derive torso band from ${rel} joints`);
+  }
+  return { garmentMinY, garmentMaxY, bodyMinY, bodyMaxY, bandLo, bandHi };
+}
+
 const aisha = await shapeOf("mpfb2_aisha", AISHA);
+const aishaPlacement = await placementOf(AISHA);
 const library = await Promise.all(LIBRARY.map((rel, i) => shapeOf(`library_${i}`, rel)));
 
 /** An unmeasured asset must FAIL every clause, never pass vacuously (§7t). */
@@ -212,4 +339,28 @@ describe("the MPFB2 actor wears a fitted MakeHuman garment", () => {
     requireMeasured();
     expect(aisha.usableMouth, "aisha usable mouth targets").toBeGreaterThanOrEqual(MIN_USABLE_MOUTH_TARGETS);
   });
+
+  it(
+    "(5) PLACEMENT: the garment sits on the body — its Y range overlaps the rig torso band (hip to clavicle/upperarm), not the floor",
+    () => {
+      // Derived from the skin's inverse bind matrices, not a literal: hip (pelvis) is bandLo,
+      // clavicle/upperarm is bandHi. The garment must span across that band (minY below bandHi
+      // AND maxY above bandLo), so a floor-level garment (maxY < bandLo) fails.
+      expect(
+        aishaPlacement.garmentMaxY,
+        `garment maxY ${aishaPlacement.garmentMaxY.toFixed(3)} must be above hip bandLo ${aishaPlacement.bandLo.toFixed(3)} — garment lying on the floor (#321 handback)`,
+      ).toBeGreaterThan(aishaPlacement.bandLo);
+      expect(
+        aishaPlacement.garmentMinY,
+        `garment minY ${aishaPlacement.garmentMinY.toFixed(3)} must be below shoulder bandHi ${aishaPlacement.bandHi.toFixed(3)} — garment must reach the torso`,
+      ).toBeLessThan(aishaPlacement.bandHi);
+      // The garment must sit on the body, not a metre away from it in any axis.
+      expect(aishaPlacement.garmentMaxY, "garment maxY within body height").toBeLessThanOrEqual(
+        aishaPlacement.bodyMaxY + 0.05,
+      );
+      expect(aishaPlacement.garmentMinY, "garment minY above body feet").toBeGreaterThanOrEqual(
+        aishaPlacement.bodyMinY - 0.05,
+      );
+    },
+  );
 });
