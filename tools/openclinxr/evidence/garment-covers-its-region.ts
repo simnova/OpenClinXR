@@ -86,6 +86,37 @@ export type CoverageRow = {
   reason: string;
 };
 
+/**
+ * issue-285 signed-clearance row: the poke-through measure coverage cannot see.
+ * See garment_coverage.signed_clearance_report for the sign convention (BODY normal,
+ * nearest-surface distance — winding-free). `pokeCount` counts body-vertex samples
+ * whose signed clearance to the garment is < poke_epsilon_m (negative = renders in
+ * front of the garment; sub-epsilon = coincident / z-fight).
+ */
+export type SignedClearanceRow = {
+  garmentLabel: string;
+  regionBandY: [number, number];
+  regionFaceCount: number;
+  sampledVertexCount: number;
+  pokeCount: number;
+  pokeFraction: number;
+  distinctPokingVertexCount: number;
+  worstClearanceMeters: number | null;
+  noGarmentNearbyCount: number;
+  histogram: Array<{ bucket: string; count: number }>;
+  pokeEpsilonMeters: number;
+  maxSearchMeters: number;
+  coverageNumber: number | null;
+};
+
+/** issue-285 body-part-hiding row: the deterministic hide mask (see body_hide_mask). */
+export type HideMaskRow = {
+  garmentLabel: string;
+  regionFaceCount: number;
+  hiddenFaceCount: number;
+  pokingFaceCount: number;
+};
+
 export type FigureCoverage = {
   bodyClassId: string;
   glbPath: string;
@@ -95,6 +126,10 @@ export type FigureCoverage = {
   upperGarmentTriangleCount: number;
   lower: CoverageRow | null;
   upper: CoverageRow | null;
+  lowerSigned: SignedClearanceRow | null;
+  upperSigned: SignedClearanceRow | null;
+  lowerHide: HideMaskRow | null;
+  upperHide: HideMaskRow | null;
 };
 
 export type Report = {
@@ -253,6 +288,92 @@ async function runCoverShell(args: {
   };
 }
 
+async function runSignedClearance(args: {
+  body: MeshGeometry;
+  garment: MeshGeometry;
+  bandLo: number;
+  bandHi: number;
+  label: string;
+  tmpDir: string;
+  coverageNumber?: number | null;
+}): Promise<SignedClearanceRow> {
+  const bodyPath = path.join(args.tmpDir, `sc-body-${args.label}.json`);
+  const garmentPath = path.join(args.tmpDir, `sc-garment-${args.label}.json`);
+  const outPath = path.join(args.tmpDir, `sc-report-${args.label}.json`);
+  await Promise.all([
+    writeFile(bodyPath, JSON.stringify(args.body)),
+    writeFile(garmentPath, JSON.stringify(args.garment)),
+  ]);
+  await runPython(
+    [
+      COVERAGE_MODULE,
+      "--mode",
+      "signed-clearance",
+      "--body",
+      bodyPath,
+      "--garment",
+      garmentPath,
+      "--band-lo",
+      String(args.bandLo),
+      "--band-hi",
+      String(args.bandHi),
+      "--label",
+      args.label,
+      "--out",
+      outPath,
+    ],
+    `signed-clearance-${args.label}`,
+  );
+  const raw = JSON.parse(await readFile(outPath, "utf8")) as SignedClearanceRow;
+  raw.garmentLabel = args.label;
+  raw.coverageNumber = args.coverageNumber ?? null;
+  return raw;
+}
+
+async function runHideMask(args: {
+  body: MeshGeometry;
+  garment: MeshGeometry;
+  bandLo: number;
+  bandHi: number;
+  label: string;
+  tmpDir: string;
+}): Promise<HideMaskRow> {
+  const bodyPath = path.join(args.tmpDir, `hide-body-${args.label}.json`);
+  const garmentPath = path.join(args.tmpDir, `hide-garment-${args.label}.json`);
+  const outPath = path.join(args.tmpDir, `hide-report-${args.label}.json`);
+  await Promise.all([
+    writeFile(bodyPath, JSON.stringify(args.body)),
+    writeFile(garmentPath, JSON.stringify(args.garment)),
+  ]);
+  await runPython(
+    [
+      COVERAGE_MODULE,
+      "--mode",
+      "body-hide-mask",
+      "--body",
+      bodyPath,
+      "--garment",
+      garmentPath,
+      "--band-lo",
+      String(args.bandLo),
+      "--band-hi",
+      String(args.bandHi),
+      "--label",
+      args.label,
+      "--out",
+      outPath,
+    ],
+    `body-hide-mask-${args.label}`,
+  );
+  const raw = JSON.parse(await readFile(outPath, "utf8")) as HideMaskRow & { hiddenFaceIndices?: number[] };
+  return {
+    garmentLabel: args.label,
+    regionFaceCount: Number(raw.regionFaceCount ?? 0),
+    hiddenFaceCount: Number(raw.hiddenFaceCount ?? 0),
+    pokingFaceCount: Number(raw.pokingFaceCount ?? 0),
+  };
+}
+
 async function loadFigureMeshes(
   io: NodeIO,
   glbName: string,
@@ -309,6 +430,10 @@ export async function inspectGarmentCoversItsRegion(): Promise<Report> {
       upperGarmentTriangleCount: upper?.triangles ?? 0,
       lower: null,
       upper: null,
+      lowerSigned: null,
+      upperSigned: null,
+      lowerHide: null,
+      upperHide: null,
     };
 
     if (lower) {
@@ -320,6 +445,27 @@ export async function inspectGarmentCoversItsRegion(): Promise<Report> {
         label: `${bodyClassId}-lower`,
         tmpDir,
       });
+      // issue-285: signed clearance over the garment's FULL extent (the coverage band
+      // trims 2 cm top/bottom, which would hide the hem pokes this issue is about),
+      // with the coverage number alongside for comparison.
+      const lb = bounds(lower.position);
+      row.lowerSigned = await runSignedClearance({
+        body,
+        garment: lower,
+        bandLo: lb.min[1],
+        bandHi: lb.max[1],
+        label: `${bodyClassId}-lower`,
+        tmpDir,
+        coverageNumber: row.lower.outwardRaycastCoverage,
+      });
+      row.lowerHide = await runHideMask({
+        body,
+        garment: lower,
+        bandLo: lb.min[1],
+        bandHi: lb.max[1],
+        label: `${bodyClassId}-lower`,
+        tmpDir,
+      });
     }
     if (upper) {
       const u = bounds(upper.position);
@@ -328,6 +474,23 @@ export async function inspectGarmentCoversItsRegion(): Promise<Report> {
         garment: upper,
         bandLo: u.min[1] + 0.02,
         bandHi: u.max[1] - 0.02,
+        label: `${bodyClassId}-upper`,
+        tmpDir,
+      });
+      row.upperSigned = await runSignedClearance({
+        body,
+        garment: upper,
+        bandLo: u.min[1],
+        bandHi: u.max[1],
+        label: `${bodyClassId}-upper`,
+        tmpDir,
+        coverageNumber: row.upper.outwardRaycastCoverage,
+      });
+      row.upperHide = await runHideMask({
+        body,
+        garment: upper,
+        bandLo: u.min[1],
+        bandHi: u.max[1],
         label: `${bodyClassId}-upper`,
         tmpDir,
       });
