@@ -304,7 +304,18 @@ def normalized_anny_phenotype(params: Dict[str, Any], labels: Sequence[str], dty
 
     values = {label: 0.5 for label in labels}
     if "gender" in values:
-        values["gender"] = 0.18 if ("female" in gender_presentation or role == "parent") else 0.08 if role == "nurse" else 0.35
+        # Anny's gender axis runs 0 = MALE, 1 = FEMALE (measured, #299). The authored presentation
+        # maps to the near poles (0.85 / 0.15) so female/male bodies span ~70% of Anny's achievable
+        # dimorphism instead of the old 28% (0.18 / 0.35 was inverted AND compressed). A role with no
+        # stated sex stays neutral (0.5); the old role special-casing (nurse -> 0.08 regardless of
+        # stated sex) is dropped because every authored preset carries an explicit
+        # gender_presentation marker — reading it alone is the correct source of truth.
+        if "female" in gender_presentation:
+            values["gender"] = 0.85
+        elif "male" in gender_presentation:
+            values["gender"] = 0.15
+        else:
+            values["gender"] = 0.5
     if "age" in values:
         values["age"] = max(0.02, min(0.98, age_years / 90.0))
     if "height" in values:
