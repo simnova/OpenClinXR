@@ -41,6 +41,13 @@ Adopt the following protocol whenever a case needs a body that is both **anthrop
 asset"; the protocol is the bridge, and its output is reusable so the second case is cheaper than the
 first.
 
+### 0. Anny's gender axis is 0 = MALE, 1 = FEMALE — inverted from the MakeHuman convention
+
+Measured 2026-08-11 by rendering both ends: `gender=0.0` gives a flat-chested, broader-shouldered
+1.898 m male; `gender=1.0` gives a 1.780 m female with breasts. The parameter names give no hint and
+the measurements look reasonable at both ends, so this is only visible in the pixels. A subject
+generated at `gender=1.0` and labelled "man" is wrong — that error was made and corrected here.
+
 ### 1. State the human as a case-definition phenotype, not a prompt
 
 The request — *man, mid-40s, BMI 45* — is authored on the scenario fixture actor record as
@@ -54,11 +61,22 @@ Drive the Anny rail from that phenotype. **Export the reference mesh, and record
 it** — the real Anny forward pass or the parametric stub. These are not interchangeable and the
 distinction must be in the artifact (see BLOCKER below).
 
-### 3. Normalize both bodies to T-pose *before* measuring
+### 3. Put both bodies in the SAME pose before measuring — Anny's native A-pose is the baseline
 
-The operator asked for T-pose images. Extend it to the measurement: girths and spans are
-pose-dependent, so a waist circumference measured on a hanging-arm body is not comparable to one
-measured in T-pose. Same pose, same up-axis, same scale, or the comparison is meaningless.
+**Operator steer, 2026-08-11:** *"if it makes sense use the A pose anny generates for comparison to the
+MakeHuman output — don't have to be that literal with my suggestion."* So the requirement is **pose
+parity, not T-pose specifically**: girths and spans are pose-dependent, and a waist measured on a
+hanging-arm body is not comparable to one measured with arms out. Same pose, same up-axis, same scale,
+or the comparison is meaningless. Anny's native rest is A-pose (arm span 1.092 m against 1.780 m
+stature, ratio 0.61), so that is the default baseline and MPFB is posed to match.
+
+**T-pose is available and proven if ever preferred.** MPFB ships `data/poses/default_fk/t-pose.json`,
+whose `bone_rotations` are MakeHuman-named; **16 of 16 of its bones exist in Anny's rig with none
+missing**. Converting those eulers to the 4×4 local-bone transforms `Anny.forward(pose_parameters=…)`
+expects produced arm span 1.750 m against stature 1.785 m — **ratio 0.98**, a correct T-pose, with no
+hand-authored eulers. That bone-name compatibility is itself the strongest evidence yet for the shared
+MakeHuman lineage behind D11, and it means posing either rail to match the other is cheap and
+deterministic.
 
 ### 4. Measure landmarks, do not eyeball
 
@@ -85,8 +103,16 @@ A tolerance computed as a fraction of the measured difference passes by construc
 from the request or from anthropometry:
 
 - **stature** — ±1 cm of the phenotype's `height_cm`. Fixed by the input.
-- **BMI** — ±1.0 BMI unit of the requested value, computed from measured stature and an estimated
-  volume, not from a girth the match is tuning.
+- **BMI** — ±1.0 BMI unit of the requested value. Use `anny.Anthropometry.bmi`, which is native and
+  computed from the model's own volume, not from a girth the match is tuning.
+
+**Operator steer, 2026-08-11:** *"you can also re-adjust BMI to something that ANNY supports — the
+spirit of the request is judging whether or not MPFB output aligns to ANNY for same phenotype details
+and is as accurate as ANNY."* So the target BMI is **not** fixed at 45. Prefer a value inside Anny's
+trained range (`weight ≤ 1.0`, roughly BMI 18–22 at adult stature). Reaching BMI 45 required
+`extrapolate_phenotypes=True` and `weight=5.07`, about 5× the trained maximum, and the resulting body
+carries large self-intersecting fold artifacts that a lean body from the identical export path does not
+— measured by rendering both. Extrapolated bodies are a poor yardstick for a rail-alignment question.
 - **girths** — ±2 cm, the ordinary between-observer tolerance for a tape measurement on a live subject.
   An external floor, not a fitted one.
 
