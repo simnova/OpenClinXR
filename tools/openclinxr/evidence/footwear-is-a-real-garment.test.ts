@@ -116,6 +116,37 @@ import { describe, expect, it } from "vitest";
  * licence ledger gained a `makehuman-shoes01` row (CC0 per the shoes' own `.mhclo` headers). Residual
  * poke-through is expected and unasserted — the body under the shoe is not hidden on this channel
  * (`notEvidenceFor` in the stage report); #323 is the sibling slice for hiding, on the MPFB2 rail.
+ *
+ * ## PLACEMENT FIX (grader handback, 2026-08-11) — clause (5)
+ *
+ * The orchestrator graded the pixels and the shoes were UNDER the feet, not on them: measured on the
+ * shipped GLB the female shoe spanned Z [0.155, 0.388] while the foot-joint extent spans [0.103, 0.299]
+ * — a uniform ~45-52 mm forward offset, the heel behind the shoe entirely. Same failure class as #321
+ * (a correctly fitted garment landed in the wrong frame), but the object transform was NOT the cause:
+ * the measure-first artifact in the stage report records the shoe halves at identity TRS and the
+ * armature world at identity (the #321 check), so the offset was in the PLACEMENT ANCHOR. The first
+ * bake aligned the shoe's foot-band MEAN to the body's foot-band MEAN, and the body band's mean is
+ * biased toward the toe by the ankle/instep verts it contains (measured: body band mean y = −0.278 vs
+ * the foot-joint heel at −0.090). `embed_library_footwear.py` now aligns HEEL-TO-HEEL — the shoe's
+ * rearmost vertex (max Blender Y) is placed at the foot-joint-dominant body verts' rearmost vertex —
+ * so the shoe's Z range CONTAINS the foot's Z range rather than merely overlapping it. Sole (min Z)
+ * and X-centre alignment are unchanged. The Y shortfall (shoe rises 0.055 m vs foot 0.117 m) is
+ * CORRECT for a low-cut flat — the vamp covers the forefoot and never reaches the ankle — and was
+ * deliberately not changed.
+ *
+ * Re-baked through `pnpm asset:body-param:fit -- --once` (2026-08-11). Measured on the shipped bytes,
+ * foot-joint-dominant body verts (glTF Z, metres):
+ *
+ *   rail                          | shoe Z range      | foot-joint Z range | contains | heel/toe margin
+ *   ------------------------------|-------------------|--------------------|----------|-----------------
+ *   body-param-adult_lean_female  | [0.090, 0.323]    | [0.103, 0.299]     | yes      | +13 mm / +24 mm
+ *   body-param-adult_heavy_male   | [0.000, 0.315]    | [0.016, 0.222]     | yes      | +15 mm / +93 mm
+ *
+ * Clause (5) fails on the pre-fix bytes (female shoe [0.155, 0.388] does not contain [0.103, 0.299])
+ * and passes on these bytes; the two REDs from the original header stay flipped. The toe tips of the
+ * FULL foot region (~0.323-0.350 m, toe-bone dominated rather than foot-bone) remain beyond the shoe's
+ * toe — the flat is ~14 mm short of the full foot — which the foot-joint-dominant bar deliberately does
+ * not claim to fix; report it as residual poke-through.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -150,6 +181,65 @@ async function footwearOf(id: string): Promise<Foot> {
 
 const feet = await Promise.all(RAILS.map((r) => footwearOf(r)));
 
+// #324 placement clause — the shoe's Z (forward-back, glTF frame) range must CONTAIN
+// the foot's Z range, derived from foot-joint-dominant body vertices (the same
+// vocabulary the header's #295 measurement uses). The grader handback found the first
+// bake's shoes 52-65 mm FORWARD of the foot's heel: shoe [0.155, 0.388] vs foot
+// [0.103, 0.299] on the female — the heel sat behind the shoe entirely.
+type FootExtent = { id: string; footZ: [number, number]; shoeZ: [number, number] };
+const FOOT_JOINT = /foot/i;
+
+async function footVsShoeExtent(id: string): Promise<FootExtent> {
+  const doc = await io.read(`${CANDIDATES}/${id}.glb`);
+  const skin = doc.getRoot().listSkins()[0];
+  if (!skin) throw new Error(`${id}: no skin`);
+  const footJoints = new Set(
+    skin
+      .listJoints()
+      .map((j, i) => ({ i, n: j.getName() }))
+      .filter((j) => FOOT_JOINT.test(j.n))
+      .map((j) => j.i),
+  );
+  let footMinZ = Infinity;
+  let footMaxZ = -Infinity;
+  let shoeMinZ = Infinity;
+  let shoeMaxZ = -Infinity;
+  const el: [number, number, number] = [0, 0, 0];
+  const je: [number, number, number, number] = [0, 0, 0, 0];
+  const we: [number, number, number, number] = [0, 0, 0, 0];
+  for (const mesh of doc.getRoot().listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const mat = prim.getMaterial()?.getName() ?? "";
+      const isShoe = FOOTWEAR_MATERIAL.test(mat);
+      const pos = prim.getAttribute("POSITION");
+      if (!pos) continue;
+      const joints = prim.getAttribute("JOINTS_0");
+      const weights = prim.getAttribute("WEIGHTS_0");
+      for (let i = 0; i < pos.getCount(); i += 1) {
+        const [, , z] = pos.getElement(i, el);
+        if (isShoe) {
+          if (z < shoeMinZ) shoeMinZ = z;
+          if (z > shoeMaxZ) shoeMaxZ = z;
+          continue;
+        }
+        if (!joints || !weights) continue;
+        joints.getElement(i, je);
+        weights.getElement(i, we);
+        let dom = -1;
+        let best = 0;
+        for (let k = 0; k < 4; k += 1) if (we[k]! > best) { best = we[k]!; dom = je[k]!; }
+        if (dom >= 0 && footJoints.has(dom)) {
+          if (z < footMinZ) footMinZ = z;
+          if (z > footMaxZ) footMaxZ = z;
+        }
+      }
+    }
+  }
+  return { id, footZ: [footMinZ, footMaxZ], shoeZ: [shoeMinZ, shoeMaxZ] };
+}
+
+const footExtents = await Promise.all(RAILS.map((r) => footVsShoeExtent(r)));
+
 type Entry = { bodyClassId?: string; [k: string]: unknown };
 const entries = (JSON.parse(
   await import("node:fs").then((fs) => fs.readFileSync(CATALOG, "utf8")),
@@ -159,6 +249,10 @@ const entries = (JSON.parse(
 function requireMeasured(): void {
   expect(feet.length, "rails measured").toBe(RAILS.length);
   for (const f of feet) expect(f.prims, `${f.id}: footwear primitives present`).toBeGreaterThanOrEqual(2);
+  for (const fx of footExtents) {
+    expect(Number.isFinite(fx.footZ[0]), `${fx.id}: foot-joint verts found`).toBe(true);
+    expect(Number.isFinite(fx.shoeZ[0]), `${fx.id}: shoe verts found`).toBe(true);
+  }
   expect(entries.length, "catalog entries").toBeGreaterThanOrEqual(2);
 }
 
@@ -198,5 +292,27 @@ describe("footwear is a fitted library garment, not an 86-vertex blob", () => {
     for (const shoe of ["toigo_flats", "toigo_mj_cloth_shoes"]) {
       expect(existsSync(`${dir}/${shoe}/${shoe}.mhclo`), `${shoe}.mhclo staged`).toBe(true);
     }
+  });
+
+  it("(5) PLACEMENT: the shoe's Z range CONTAINS the foot's Z range on both rails", () => {
+    // #324 grader handback: the first bake's shoes sat UNDER the feet — the female
+    // shoe spanned Z [0.155, 0.388] while the foot-joint extent spans [0.103, 0.299],
+    // so the heel sat behind the shoe entirely. Vertex COUNT and licence PROVENANCE
+    // (clauses 1-2) say nothing about where the shoe is; this clause bounds the
+    // PLACEMENT. Foot extent is derived from foot-joint-dominant body vertices (the
+    // header's own vocabulary), never a literal coordinate.
+    requireMeasured();
+    const bad: string[] = [];
+    for (const fx of footExtents) {
+      const contains = fx.shoeZ[0] <= fx.footZ[0] && fx.shoeZ[1] >= fx.footZ[1];
+      if (!contains) {
+        bad.push(
+          `${fx.id}: shoe Z [${fx.shoeZ[0].toFixed(3)}, ${fx.shoeZ[1].toFixed(3)}] does not ` +
+            `contain foot-joint Z [${fx.footZ[0].toFixed(3)}, ${fx.footZ[1].toFixed(3)}] ` +
+            `— the shoe is ${((fx.footZ[0] - fx.shoeZ[0]) * 1000).toFixed(0)}mm short of the heel`,
+        );
+      }
+    }
+    expect(bad, "shoes sitting under the feet instead of on them").toEqual([]);
   });
 });
