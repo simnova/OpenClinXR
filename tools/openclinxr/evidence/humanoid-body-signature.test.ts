@@ -50,6 +50,16 @@ import { describe, expect, it } from "vitest";
  * re-anchored to 4. pre-fix.json and rail-diagnosis.json were regenerated from the live scan.
  * The remaining three duplicated adults (adult_male_street_casual, ed_chest_pain_adult_cast,
  * ed_chest_pain_nurse_adult) still have no preset to generate from — #293's authoring gap.
+ *
+ * ## FIXED (#331)
+ *
+ * 2026-08-11: the body is now resolved by IDENTITY (the morph-carrying mesh, via
+ * `resolveHumanoidBodyMesh` in packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts),
+ * not as the largest mesh. #324's fitted footwear outgrew the basemesh on the library rails, so
+ * a largest-by-vertex pick silently recorded a shoe as the body signature. The recorded field is
+ * renamed `largestMeshName` -> `bodyMeshName`; pre-fix.json and rail-diagnosis.json were
+ * regenerated with the same measured values (on every shipped GLB today the identity-resolved
+ * body IS the largest mesh, so no count or class key changed).
  */
 
 import {
@@ -90,9 +100,9 @@ describe("humanoid body signature (#276)", () => {
       if (recorded.vertices !== live.vertices) {
         mismatches.push(`${live.file}: vertices ${recorded.vertices} != live ${live.vertices}`);
       }
-      if (recorded.largestMeshName !== live.largestMeshName) {
+      if (recorded.bodyMeshName !== live.bodyMeshName) {
         mismatches.push(
-          `${live.file}: largestMeshName "${recorded.largestMeshName}" != live "${live.largestMeshName}"`,
+          `${live.file}: bodyMeshName "${recorded.bodyMeshName}" != live "${live.bodyMeshName}"`,
         );
       }
       if (recorded.bodySha256 !== live.bodySha256) {
