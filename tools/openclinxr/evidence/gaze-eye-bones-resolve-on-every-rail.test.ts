@@ -51,6 +51,15 @@ import { resolvePoseBone } from "../../../packages/openclinxr/asset-registry/src
  * rigs only. Whether the resolved bone visibly moves an eyeball is a separate question — and on the
  * Anny rail the answer is probably no: its eye bones carry weight but **zero** eye-dominant vertices
  * (#296). Nothing here claims a gaze looks like a person looking somewhere.
+ *
+ * ## FIXED (#312)
+ *
+ * `MIXAMORIG_RIG_BONE_NAMES` in `packages/openclinxr/asset-registry/src/pose-bone-resolver.ts` now
+ * covers the eyes (`eyeL` → `mixamorig:LeftEye`, `eyeR` → `mixamorig:RightEye`; both are direct
+ * children of `mixamorig:Head` on the shipped library bodies, verified against the GLBs). The two
+ * `it.fails` markers were flipped to `it`; (1) and (2) now pass on all four rails, and the MPFB2 /
+ * Anny rails still resolve the eyes by identity. The `pose-bones-resolve-on-every-rail` net was
+ * extended in the same slice so a future eye-bone rename goes red there too (see its FIXED block).
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -97,7 +106,7 @@ const rigs = await Promise.all(
 );
 
 describe("a gaze drive can reach the eye bones on every shipped rail", () => {
-  it.fails("(1) RED: both eye landmarks resolve to a joint present on every shipped humanoid", () => {
+  it("(1) RED: both eye landmarks resolve to a joint present on every shipped humanoid", () => {
     const misses: string[] = [];
     for (const rig of rigs) {
       for (const landmark of EYE_LANDMARKS) {
@@ -110,7 +119,7 @@ describe("a gaze drive can reach the eye bones on every shipped rail", () => {
     expect(misses, "rails where a gaze drive cannot reach an eye bone").toEqual([]);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: the two eyes resolve to DISTINCT joints — aliasing both to one bone is refused",
     () => {
       const collapsed: string[] = [];
