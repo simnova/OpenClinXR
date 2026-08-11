@@ -140,6 +140,16 @@ Two honest consequences:
    is a BMI-45 mid-forties man. The protocol can be *exercised and its tuning table started* against
    those, which is worth doing, but the specific requested subject needs Anny installed.
 
+   **Verified 2026-08-10, not assumed:** every one of those seven provenance records carries
+   `real_anny_mpfb2_forward_pass_v1` and `real_anny_base_obj_v1` — they are genuine Anny forward-pass
+   output from when the package was available, not `smooth_uv_parametric_stub_v2_not_real_anny`. So the
+   fallback is sound: the protocol's measurement half, and the first rows of the tuning table, can be
+   produced today against real Anny geometry. (They are also marked `real_anny_candidate_unverified`,
+   which is a downstream gate on promotion, not a doubt about the source.)
+
+   **Also measured:** `torch` is absent and there is no pipeline venv, so restoring Anny means
+   installing torch plus the Apache-2.0 Anny package — a substantial environment change, not a flag.
+
 Any artifact produced under this protocol must record `annyPath: real_anny_forward_pass | parametric_stub`.
 A match against a stub is not evidence for this MADR's claim.
 
