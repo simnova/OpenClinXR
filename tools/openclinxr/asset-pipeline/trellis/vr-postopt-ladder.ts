@@ -1,7 +1,12 @@
 #!/usr/bin/env tsx
 /**
- * VR-oriented post-opt ladder after multi-view TRELLIS bake.
- * Extends #239 ratios with further rungs targeting ~15k–40k clinical prop faces.
+ * VR-oriented post-opt ladder after multi-view TRELLIS bake (chain-ratio baseline).
+ * Prefer factory:trellis:optimize (iterate-optimize.ts) for production champions —
+ * high-error direct targets + quality-preserving band selection.
+ *
+ * Bands (skill trellis-vr-equipment-optimize, Quest 3 research 2026-08-11):
+ *   prop share ≤40k · preferred ≤80k · acceptable ≤120k · skeleton hard ≤180k
+ * Chain ladders often plateau ~59k on hard-surface packs (still under preferred).
  * No GPU re-bake.
  *
  * Usage:
@@ -17,8 +22,12 @@ import { simplify } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 
 const RATIOS = [0.1, 0.05, 0.03, 0.02, 0.015, 0.01, 0.0075, 0.005];
-const SOFT = 40_000; // VR soft for single prop (doc 15–40k)
+/** Multi-prop share pressure (not Quest 3 device limit). */
+const SOFT = 40_000;
+/** Early partial station / few props. */
 const HARD = 180_000;
+/** Preferred single-prop stop (documented; chain may land ~59k under this). */
+const PROP_PREFERRED = 80_000;
 
 function parseArgs(argv: string[]) {
   let input = "";
@@ -139,20 +148,28 @@ async function main() {
     source = dest;
   }
 
-  const bestSoft = [...rungs]
-    .reverse()
-    .find((r) => (r.triangleCount as number) <= SOFT && r.featureSurvival !== "collapsed");
-  const bestHard = [...rungs]
-    .reverse()
-    .find((r) => (r.triangleCount as number) <= HARD && r.featureSurvival !== "collapsed");
+  // Prefer denser rungs under preferred (anti-hyperopt); chain often lands ~59k.
+  const ok = rungs.filter((r) => r.featureSurvival !== "collapsed");
+  const bestPreferred = [...ok]
+    .filter((r) => (r.triangleCount as number) <= PROP_PREFERRED)
+    .sort((a, b) => (b.triangleCount as number) - (a.triangleCount as number))[0];
+  const bestSoft = [...ok]
+    .filter((r) => (r.triangleCount as number) <= SOFT)
+    .sort((a, b) => (b.triangleCount as number) - (a.triangleCount as number))[0];
+  const bestHard = [...ok]
+    .filter((r) => (r.triangleCount as number) <= HARD)
+    .sort((a, b) => (b.triangleCount as number) - (a.triangleCount as number))[0];
 
   const report = {
     subjectId: "ecg-cart",
-    softTarget: SOFT,
-    hardCeiling: HARD,
-    note: "VR ladder: chain simplify ratios for Quest-oriented single-prop budget (~15–40k soft)",
+    propShare: SOFT,
+    propPreferred: PROP_PREFERRED,
+    hardSkeleton: HARD,
+    note: "Chain-ratio baseline ladder. Prefer factory:trellis:optimize for champions. Preferred ≤80k; share ≤40k; skeleton hard ≤180k. Quest 3 scene class ~1.3–1.8M (Meta native).",
     rungs,
-    bestUnderSoftTarget: Boolean(bestSoft),
+    bestUnderPropPreferred: Boolean(bestPreferred),
+    bestPreferred: bestPreferred ?? null,
+    bestUnderShare: Boolean(bestSoft),
     bestSoft: bestSoft ?? null,
     bestUnderHardCeiling: Boolean(bestHard),
     bestHard: bestHard ?? null,
@@ -160,7 +177,17 @@ async function main() {
     notEvidenceFor: ["Quest 3 worn readiness", "clinical accuracy", "learner runtime adoption"],
   };
   writeFileSync(path.join(out, "vr-ladder-report.json"), JSON.stringify(report, null, 2) + "\n");
-  console.log(JSON.stringify({ bestSoft, bestHard: bestHard?.triangleCount }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        bestPreferred: bestPreferred?.triangleCount,
+        bestShare: bestSoft?.triangleCount,
+        bestHard: bestHard?.triangleCount,
+      },
+      null,
+      2,
+    ),
+  );
 }
 
 main().catch((e) => {

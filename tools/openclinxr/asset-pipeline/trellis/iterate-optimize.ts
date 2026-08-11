@@ -5,7 +5,11 @@
  *
  * Iter 1: direct high-error target ratios from RAW (breaks chain-ratio plateau)
  * Iter 2: weld then same targets
- * Iter 3: best-of so far → optional re-target if over soft + quantize stats
+ * Iter 3: quality-preserving champion + quantize; retarget share only if over preferred
+ *
+ * Budget policy (Quest 3 research 2026-08-11): Meta native Q3 scene ~1.3–1.8M tris.
+ * Prop preferred ≤80k is default good-enough; ≤40k is multi-prop share pressure only.
+ * Do not hyperoptimize to lowest tris — prefer highest survival-ok count under preferred.
  *
  * Usage:
  *   pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts \
@@ -19,9 +23,18 @@ import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { simplify, weld, quantize } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 
-const SOFT = 40_000;
-const STATION_SOFT = 60_000;
+/** Multi-prop share pressure — not Quest 3 device limit. */
+const PROP_SHARE = 40_000;
+/** Default good-enough single static prop after grade. */
+const PROP_PREFERRED = 80_000;
+/** Acceptable when few props / grade prefers density. */
+const PROP_ACCEPTABLE = 120_000;
+/** Early partial station / few props — not full multi-actor envelope. */
 const HARD = 180_000;
+/** Station-share ladder target (legacy language #239/#250). */
+const STATION_SOFT = 60_000;
+/** Optional stretch only — never champion default. */
+const STRETCH = 25_000;
 /** High error so meshopt actually approaches the ratio (default error stops early → plateau). */
 const FORCE_ERROR = 1.0;
 const WELD_TOL = 1e-4;
@@ -38,6 +51,22 @@ type Rung = {
   featureSurvival: "ok" | "collapsed";
   path: string;
 };
+
+/** Prefer quality: highest tris still under band (anti-hyperopt). */
+function pickMaxUnder(rungs: Rung[], maxTris: number): Rung | undefined {
+  return rungs
+    .filter((r) => r.triangleCount <= maxTris)
+    .sort((a, b) => b.triangleCount - a.triangleCount)[0];
+}
+
+function pickChampion(survivors: Rung[]): Rung | undefined {
+  return (
+    pickMaxUnder(survivors, PROP_PREFERRED) ??
+    pickMaxUnder(survivors, PROP_ACCEPTABLE) ??
+    pickMaxUnder(survivors, HARD) ??
+    survivors.sort((a, b) => a.triangleCount - b.triangleCount)[0]
+  );
+}
 
 function parseArgs(argv: string[]) {
   let input = "";
@@ -166,9 +195,11 @@ async function main() {
 
   const targets = [
     { name: "hard180k", tris: HARD },
+    { name: "acceptable120k", tris: PROP_ACCEPTABLE },
+    { name: "preferred80k", tris: PROP_PREFERRED },
     { name: "station60k", tris: STATION_SOFT },
-    { name: "soft40k", tris: SOFT },
-    { name: "soft25k", tris: 25_000 },
+    { name: "share40k", tris: PROP_SHARE },
+    { name: "stretch25k", tris: STRETCH },
   ];
 
   // ── Iter 1: direct high-error targets from RAW ───────────────────────────
@@ -195,19 +226,10 @@ async function main() {
     console.log(`    → ${rung.triangleCount} tris survival=${rung.featureSurvival}`);
   }
 
-  // ── Iter 3: pick best under soft/hard, quantize, optional second pass ───
-  console.log("=== ITER 3: best survivor + quantize / re-target soft ===");
+  // ── Iter 3: quality-preserving seed + quantize; share retarget only if needed ──
+  console.log("=== ITER 3: quality-preserving champion seed + quantize ===");
   const ok = rungs.filter((r) => r.featureSurvival === "ok" && r.iter > 0);
-  const bestSoft = ok
-    .filter((r) => r.triangleCount <= SOFT)
-    .sort((a, b) => a.triangleCount - b.triangleCount)[0];
-  const bestStation = ok
-    .filter((r) => r.triangleCount <= STATION_SOFT)
-    .sort((a, b) => a.triangleCount - b.triangleCount)[0];
-  const bestHard = ok
-    .filter((r) => r.triangleCount <= HARD)
-    .sort((a, b) => a.triangleCount - b.triangleCount)[0];
-  const seed = bestSoft ?? bestStation ?? bestHard ?? ok.sort((a, b) => a.triangleCount - b.triangleCount)[0];
+  const seed = pickChampion(ok);
 
   if (!seed) {
     console.error("No surviving rungs");
@@ -232,21 +254,18 @@ async function main() {
   );
   console.log(`  quantize from ${seed.technique} → ${rungs[rungs.length - 1].triangleCount} tris`);
 
-  if (seed.triangleCount > SOFT) {
-    const ratio = Math.min(1, Math.max(0.001, SOFT / seed.triangleCount));
-    const dest = path.join(out, "iter3-retarget-soft40k.glb");
+  // Retarget to prop share only when still over preferred (multi-prop pressure path).
+  if (seed.triangleCount > PROP_PREFERRED) {
+    const ratio = Math.min(1, Math.max(0.001, PROP_SHARE / seed.triangleCount));
+    const dest = path.join(out, "iter3-retarget-share40k.glb");
     await writeSimplified(seed.path, dest, { ratio, weldFirst: true });
-    const rung = await measureRung(3, "retarget_soft40k_from_best", SOFT, ratio, dest, rawVol);
+    const rung = await measureRung(3, "retarget_share40k_from_best", PROP_SHARE, ratio, dest, rawVol);
     rungs.push(rung);
-    console.log(`  retarget soft40k → ${rung.triangleCount} tris survival=${rung.featureSurvival}`);
+    console.log(`  retarget share40k → ${rung.triangleCount} tris survival=${rung.featureSurvival}`);
   }
 
   const survivors = rungs.filter((r) => r.featureSurvival === "ok");
-  const champion =
-    survivors.filter((r) => r.triangleCount <= SOFT).sort((a, b) => a.triangleCount - b.triangleCount)[0] ??
-    survivors.filter((r) => r.triangleCount <= STATION_SOFT).sort((a, b) => a.triangleCount - b.triangleCount)[0] ??
-    survivors.filter((r) => r.triangleCount <= HARD).sort((a, b) => a.triangleCount - b.triangleCount)[0] ??
-    survivors.sort((a, b) => a.triangleCount - b.triangleCount)[0];
+  const champion = pickChampion(survivors);
 
   if (champion) {
     const champPath = path.join(out, "champion.glb");
@@ -256,25 +275,37 @@ async function main() {
 
   const report = {
     skill: "trellis-vr-equipment-optimize",
-    technique: "3-iter high-error direct targets + weld + quantize/retarget",
+    technique: "3-iter high-error direct targets + weld + quantize; quality-preserving champion",
     measuredAt: new Date().toISOString(),
     input,
     rawTriangleCount: rawTris,
-    budgets: { soft: SOFT, stationSoft: STATION_SOFT, hard: HARD },
+    budgets: {
+      propShare: PROP_SHARE,
+      propPreferred: PROP_PREFERRED,
+      propAcceptable: PROP_ACCEPTABLE,
+      stationSoft: STATION_SOFT,
+      hardSkeleton: HARD,
+      stretchOptional: STRETCH,
+      note:
+        "Quest 3 native scene ~1.3–1.8M tris (Meta). Prefer ≤80k prop with grade; ≤40k is share pressure only. Not worn-headset evidence.",
+    },
     rungs,
     champion: champion
       ? {
           technique: champion.technique,
           triangleCount: champion.triangleCount,
           path: champion.path,
-          underSoft: champion.triangleCount <= SOFT,
+          underPropShare: champion.triangleCount <= PROP_SHARE,
           underStationSoft: champion.triangleCount <= STATION_SOFT,
+          underPropPreferred: champion.triangleCount <= PROP_PREFERRED,
+          underPropAcceptable: champion.triangleCount <= PROP_ACCEPTABLE,
           underHard: champion.triangleCount <= HARD,
         }
       : null,
     claimScope: [
       "meshopt high-error direct targets from TRELLIS raw",
       "weld before simplify",
+      "quality-preserving champion under prop preferred (80k)",
       "not evidence for Quest worn readiness",
     ],
     notEvidenceFor: [
@@ -284,7 +315,7 @@ async function main() {
       "learner runtime adoption",
     ],
     provenVsChainLadder: {
-      note: "Chain ratios with default error plateaued ~186k on photoreal and ~59k on hard-surface; direct high-error targets force lower counts when topology allows",
+      note: "Chain ratios with default error plateaued ~186k on photoreal and ~59k on hard-surface; direct high-error targets force lower counts when topology allows. Do not force stretch25k when preferred band grades.",
     },
   };
 
