@@ -40,6 +40,27 @@ import { buildContactSheet } from "./isolated-subject-harness.js";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
 
+/**
+ * Garment bakes are OPT-IN. Each `matrix-variant` spawns a headless Blender for one coefficient
+ * variant, and the harness sweeps a matrix of them — minutes of CPU per variant, hours per sweep.
+ *
+ * MEASURED 2026-08-11: a broad `vitest` run over `tools/openclinxr/evidence` started this sweep as a
+ * side effect and drove machine load to 60 on an M1 Max. It kept respawning a fresh Blender per
+ * variant after the dispatching worker was killed, because the orphaned vitest runner owned the loop.
+ * A worker whose contract touched two files showed eight modified and hours of Blender it never
+ * intended to run.
+ *
+ * So the bake refuses unless explicitly asked for. This is a COST gate, not a correctness gate — the
+ * sweep is real work and still runs on demand:
+ *
+ *     OPENCLINXR_RUN_GARMENT_BAKES=1 pnpm exec vitest run tools/openclinxr/evidence/garment-bake-matrix.test.ts
+ */
+export const GARMENT_BAKES_ENV = "OPENCLINXR_RUN_GARMENT_BAKES";
+
+export function garmentBakesEnabled(): boolean {
+  return process.env[GARMENT_BAKES_ENV] === "1";
+}
+
 export const ISSUE_EVIDENCE_DIR = ".openclinxr/evidence/issue-195";
 /** #197 decision + after-column (hem fix + sleeve chain). Reuses the same harness. */
 export const ISSUE_197_DIR = ".openclinxr/evidence/issue-197";
@@ -842,6 +863,14 @@ function bakeVariant(input: {
     layers.join(","),
     JSON.stringify(input.overrides),
   );
+  if (!garmentBakesEnabled()) {
+    throw new Error(
+      `Refusing to bake garment variant "${input.variantId}": each variant spawns a headless Blender `
+      + `and the matrix sweeps many of them. Set ${GARMENT_BAKES_ENV}=1 to run bakes deliberately. `
+      + `This guard exists because a broad vitest sweep started the matrix as a side effect and drove `
+      + `machine load to 60 (2026-08-11).`,
+    );
+  }
   const result = spawnSync("python3", args, {
     cwd: REPO_ROOT,
     encoding: "utf8",

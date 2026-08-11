@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { garmentBakesEnabled, GARMENT_BAKES_ENV } from "./garment-bake-matrix.ts";
+
 /**
  * PLANTED CONTRACTS (#195). Three REDs. All three flip.
  *
@@ -127,7 +129,11 @@ type Report = {
 
 type Inspect = () => Promise<Report>;
 
-describe("the garment parameter space is swept in a bake harness (#195)", () => {
+// Opt-in: this suite spawns a headless Blender per coefficient variant. Skipped on a broad sweep so
+// it cannot hijack the machine; run deliberately with OPENCLINXR_RUN_GARMENT_BAKES=1.
+describe.skipIf(!garmentBakesEnabled())(
+  `the garment parameter space is swept in a bake harness (#195) [set ${GARMENT_BAKES_ENV}=1 to run]`,
+  () => {
   it("a garment parameter sweep bakes real variants and records a ledger", async () => {
     const mod = await load();
     const inspect = mod["inspectGarmentBakeMatrix"] as Inspect | undefined;
@@ -259,4 +265,5 @@ describe("the garment parameter space is swept in a bake harness (#195)", () => 
       .toBeGreaterThanOrEqual(2);
     expect(report.notEvidenceFor.join(" ").toLowerCase()).toContain("clinical");
   }, 3_600_000);
-});
+  },
+);
