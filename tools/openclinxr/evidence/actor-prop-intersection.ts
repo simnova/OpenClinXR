@@ -1292,6 +1292,10 @@ export async function captureActorPropAfterPng(input?: {
         const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
         await page.goto(url, { waitUntil: "load", timeout: 180_000 });
         await waitForStationShell(page, 180_000);
+        // #287 — sample after EVERY recorded asset reaches loaded|failed, never at
+        // register time (#259): a screenshot taken while humanoids are still pending
+        // grades the fallback primitives, not the re-baked figure.
+        await waitForRecordedAssetsSettled(page, 180_000);
         await waitForFrames(page, 8, 120_000);
         await page.waitForTimeout(1200);
         await mkdir(path.dirname(outputPath), { recursive: true });

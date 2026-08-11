@@ -1565,6 +1565,12 @@ def build_one_body_class(
             hide_epsilon_m=_gc.HIDE_EPSILON_M,
             height_axis=2,
         )
+        # issue-287 — the per-face mask is consumed by apply_body_hide_material_region
+        # below and must NOT ride into the stage report: it is a numpy bool array and
+        # json.dumps raises "Object of type ndarray is not JSON serializable" (the #285
+        # bake report serialization defect that made the re-bake fail at the last step).
+        # Report the counts only; the mask itself lives in the exported GLB's materials.
+        hide_mask = mask_info.pop("hideMask")
         if mask_info["hiddenFaceCount"] == 0:
             return {
                 **mask_info,
@@ -1572,7 +1578,7 @@ def build_one_body_class(
                 "enabled": True,
                 "note": "no poking body faces — nothing to hide",
             }
-        applied = apply_body_hide_material_region(basemesh, mask_info["hideMask"], slot=slot)
+        applied = apply_body_hide_material_region(basemesh, hide_mask, slot=slot)
         return {
             **mask_info,
             "slot": slot,
