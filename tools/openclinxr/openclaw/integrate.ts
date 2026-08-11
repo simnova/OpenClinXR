@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
-import { readSessions } from "./dispatch-worker.js";
+import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
 import { stagedTreeHash, writeGateReport } from "./integrate-gate.js";
 import { runMergeKill, type MergeKillReport } from "./merge-kill.js";
 
@@ -243,6 +243,21 @@ export function packagesNeedingRebuild(repoRoot: string, base: string, head: str
   return [...names].sort();
 }
 
+/**
+ * #217 opt-out list from the TRUSTED brief, never from a worker's report.
+ *
+ * The brief lives in the shared coordination root, which workers cannot write. A target listed
+ * in `gitignoredProofTargetsAllowed` is a stated decision that the artifact is deliberately
+ * untracked and the proof is machine-local; anything else under a gitignored path that the
+ * branch does not land is refused by merge-kill's `gitignored-proof-target` criterion.
+ */
+export function allowedGitignoredProofTargets(repoRoot: string, slice: string): string[] {
+  const brief = loadTrustedBrief(trustedSliceDir(repoRoot, slice));
+  return Array.isArray(brief?.gitignoredProofTargetsAllowed)
+    ? brief!.gitignoredProofTargetsAllowed!
+    : [];
+}
+
 export function integrate(input: IntegrateInput): IntegrateResult {
   // Operator mistake must be named as such BEFORE merge-kill can reframe it as forgery (#84).
   assertIntegrateHeadUsable(input.head);
@@ -253,6 +268,10 @@ export function integrate(input: IntegrateInput): IntegrateResult {
     base: input.base,
     head: input.head,
     ...(input.contract !== undefined ? { contract: input.contract } : {}),
+    // #217 opt-out: the trusted brief may state that a gitignored proof target is deliberately
+    // machine-local (capture trees, provider caches). merge-kill refuses such a target unless
+    // it is listed here — so the decision is explicit, never an accident.
+    allowedGitignoredProofTargets: allowedGitignoredProofTargets(input.repoRoot, input.slice),
   });
 
   if (killReport.killed) {
