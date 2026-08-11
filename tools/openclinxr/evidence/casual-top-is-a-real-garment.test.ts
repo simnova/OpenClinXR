@@ -83,6 +83,36 @@ import { describe, expect, it } from "vitest";
  * it is fitted. The hem raggedness #320 left open (23.7 mm span) is not bounded here and a fitted garment
  * may or may not improve it. Whether a tucked t-shirt suits a parent or spouse in a clinical station is a
  * staging judgement (P3) and mine to grade.
+ *
+ * ## FIXED (#322)
+ *
+ * `garment-selection-by-role.ts` routes `casual_top` / `tshirt` / `exam_tshirt` /
+ * `short_sleeve_exam_tshirt` to `toigo_basic_tucked_t-shirt_hm08` (CC0 MakeClothes top, author MRT,
+ * zero helper refs, sleeved), and `body-param-cli.ts` stages its `.mhclo` + `.obj` from the tracked
+ * provider cache (`makehuman-shirts01` pack) and records the licence from the t-shirt's OWN header.
+ * `open_cardigan` / `hospital_gown` still route to the deterministic cover shell (clause (4)).
+ *
+ * The re-bake surfaced a factory defect the gate had been hiding from itself: the raw MakeClothes fit
+ * is coincident with the skin ("median ≈ 0.7 mm; half the surface behind the body surface" — the
+ * `cloth_offset` docstring), so outward rays from the body miss every OPEN fitted garment. Measured
+ * with the shared `garment_coverage` module on the fitted toigo: coverage 0.47 raw vs **0.97** at the
+ * 1.5 cm shipping standoff; the closed scrub passes the raw fit at 0.47 by closure alone. The evidence
+ * module (`garment-covers-its-region`) measures the shipped GLB — which IS offset — so the gate was
+ * refusing honest open-shell garments while closed ones skated by. `body_param_stage.py` now offsets
+ * fitted garments to their shipping standoff BEFORE the coverage gate (threshold/tolerance unchanged;
+ * cover shells are already built at standoff and skip it).
+ *
+ * Re-baked through `pnpm asset:body-param:fit -- --once` (2026-08-11). Measured on the shipped bytes:
+ *
+ *   body-class              | garmentId                         | garmentKind | licence  | coverage | boundary
+ *   ------------------------|-----------------------------------|-------------|----------|----------|---------
+ *   adult_lean_female       | toigo_basic_tucked_t-shirt_hm08   | library     | CC0      | 0.9721   | 1
+ *   adult_heavy_male        | wojackowl_scrubs_shirt_hm08       | library     | CC-BY    | 0.9259   | 0
+ *
+ * The two `it.fails` markers were flipped to `it`; all five clauses pass on the re-baked bytes, and
+ * the two regression nets (`garments-meet-at-the-waist`, `garment-shells-stop-at-the-wrist`) stay
+ * green. The licence ledger rows for `makehuman-shirts01` (CC0 per the `.mhclo` headers, not CC-BY)
+ * and the in-use CC-BY source (`makehuman-community-scrub-shirt`, not shirts01) were corrected.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -148,7 +178,7 @@ function requireMeasured(): void {
 }
 
 describe("the casual upper garment is a real MakeClothes garment, not a hand-coded shell", () => {
-  it.fails("(1) RED: every shipped upper garment is a fitted library garment, not a cover shell", () => {
+  it("(1) RED→GREEN: every shipped upper garment is a fitted library garment, not a cover shell", () => {
     requireMeasured();
     const shells = entries
       .filter((e) => e.garmentKind !== "library")
@@ -156,7 +186,7 @@ describe("the casual upper garment is a real MakeClothes garment, not a hand-cod
     expect(shells, "bodies still wearing a procedural cover shell").toEqual([]);
   });
 
-  it.fails("(2) RED: the recorded licence source names the garment actually used", () => {
+  it("(2) RED→GREEN: the recorded licence source names the garment actually used", () => {
     requireMeasured();
     const mismatched: string[] = [];
     for (const e of entries) {

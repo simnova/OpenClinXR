@@ -90,6 +90,10 @@ import { describe, expect, it } from "vitest";
  * is now classified via the test's own PROCEDURAL_GENERATORS mechanism (generator body_param_stage.py),
  * and counterweight (2) counts procedural uppers so the "still dressed" guard is unchanged. Test (1)
  * now asserts the three REAL library garments (cargo pants x2, scrub shirt) resolve to cached sources.
+ * #322 (2026-08-11) replaced the shell on the family/casual rail with the fitted CC0
+ * `toigo_basic_tucked_t-shirt`, so the shipped lean-female upper is now a real library garment; the
+ * procedural classification entry survives for hospital_gown / open_cardigan shells, which still
+ * have no `.mhclo` in any cached pack.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -109,11 +113,14 @@ const PROCEDURAL_GENERATORS: ReadonlyArray<{ meshPrefix: string; generator: stri
     meshPrefix: "openclinxr_footwear_",
     generator: "tools/openclinxr/asset-pipeline/makeclothes/embed_library_footwear.py",
   },
-  // #310: the family/civilian upper (`makeclothes_library_civilian_shirt_*` on the lean-female
-  // body) is a DETERMINISTIC cover shell built from the body surface by the stage script
-  // (#275/#277) — the same procedural class as footwear, never fitted from a third-party .mhclo.
-  // Its `makeclothes_library_` prefix is a #275 naming artifact; the prefix check must run before
-  // the library check so the contract measures fitted library garments, not in-repo shells.
+  // #310/#322: `makeclothes_library_civilian_shirt_*` is a DETERMINISTIC cover shell built from
+  // the body surface by the stage script (#275/#277) — the same procedural class as footwear,
+  // never fitted from a third-party .mhclo. #322 routed the family/casual layers to the fitted
+  // CC0 `toigo_basic_tucked_t-shirt`, so neither shipped library body carries the shell today;
+  // the entry stays because the mechanism survives for hospital_gown / open_cardigan, which
+  // still have no .mhclo in any cached pack. Its `makeclothes_library_` prefix is a #275 naming
+  // artifact; the prefix check must run before the library check so the contract measures fitted
+  // library garments, not in-repo shells.
   {
     meshPrefix: "makeclothes_library_civilian_shirt_",
     generator: "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py",
