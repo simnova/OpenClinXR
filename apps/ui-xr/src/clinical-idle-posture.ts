@@ -84,6 +84,27 @@ const LIBRARY_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
   ["hand.R", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
 ]);
 
+/**
+ * issue-307 — the library rail now rides the MPFB mixamo_unity rig (64 bones, shipped CC0
+ * weights). The mixamo bone axes differ from the AABB 23-bone armature's: the swing axis
+ * is local X, not Z — the #219 z-flip lifts the arm to the shoulder (measured in the
+ * exact three.js parent-frame convention on the exported GLB: hand at 0.55 m lateral,
+ * ABOVE the shoulder). These eulers were calibrated against the exported GLB with a
+ * chain-walk that replicates `applyBoneEuler` (rotation replaces the rest quaternion in
+ * the parent frame): LeftArm (1.4, 0.55, −0.3) lands the hand bone at 0.34 m lateral,
+ * 0.42 m below the shoulder — inside the #219 finish-parity band (0.22–0.46 m), same as
+ * the Anny median. Right side mirrored (−y, +z).
+ */
+const MIXAMO_CLINICAL_IDLE_ARM_HANG = new Map<string, EulerPartial>([
+  ["upper_armL", { x: 1.4, y: 0.55, z: -0.3, absolute: true }],
+  ["forearmL", { x: 0, y: 0.6, z: 0, absolute: true }],
+  ["handL", { x: 0.04, y: 0.06, z: -0.06, absolute: true }],
+  ["upper_armR", { x: 1.4, y: -0.55, z: 0.3, absolute: true }],
+  ["forearmR", { x: 0, y: -0.6, z: 0, absolute: true }],
+  ["handR", { x: 0.04, y: -0.06, z: 0.06, absolute: true }],
+  ["head", { x: -0.04, absolute: true }],
+]);
+
 /** Alias tokens for bones that may arrive under Mixamo / alternate naming. */
 const ARM_JOINT_ALIASES = new Map<string, string[]>([
   ["upper_armL", ["upper_arml", "upperarm_l", "leftarm", "left_arm", "leftupperarm", "left_upper_arm", "mixamorigleftarm"]],
@@ -152,13 +173,17 @@ function resolveIdleRotation(
  */
 export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): void {
   const bonesTouched: string[] = [];
+  const jointNames = collectJointNames(humanoid);
+  // issue-307: the library rail now carries the mixamo_unity rig — the mixamo arm bones
+  // swing on local X (calibrated eulers), not local Z like the AABB 23-bone armature.
+  const isMixamoRig = [...jointNames].some((n) => n.startsWith("mixamorig:"));
   const hangMap = isLibraryHumanoidRail(humanoid)
-    ? LIBRARY_CLINICAL_IDLE_ARM_HANG
+    ? (isMixamoRig ? MIXAMO_CLINICAL_IDLE_ARM_HANG : LIBRARY_CLINICAL_IDLE_ARM_HANG)
     : CLINICAL_IDLE_ARM_HANG;
 
   // #306: resolve canonical landmarks against the bones actually on this rig (MPFB2 names
   // upperarm01.L / wrist.L etc.); falls back to legacy alias matching for exotic rigs.
-  const resolvedHangMap = resolveRotationMap(hangMap, collectJointNames(humanoid));
+  const resolvedHangMap = resolveRotationMap(hangMap, jointNames);
 
   const tryApply = (object: Object3D) => {
     const rotation = resolvedHangMap.get(sanitiseBoneName(object.name))
@@ -194,10 +219,16 @@ export function applyGeneratedHumanoidClinicalIdlePosture(humanoid: Object3D): v
     ...(hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG
       ? ["library_hm08_upper_arm_z_sense_flip_cue"]
       : []),
+    ...(hangMap === MIXAMO_CLINICAL_IDLE_ARM_HANG
+      ? ["library_mixamorig_upper_arm_swing_axis_cue"]
+      : []),
   ];
   humanoid.userData.openClinXrClinicalIdleBonesTouched = bonesTouched;
   if (hangMap === LIBRARY_CLINICAL_IDLE_ARM_HANG) {
     humanoid.userData.openClinXrClinicalIdleHangMap = "library_hm08_z_flip";
+  }
+  if (hangMap === MIXAMO_CLINICAL_IDLE_ARM_HANG) {
+    humanoid.userData.openClinXrClinicalIdleHangMap = "library_mixamorig_swing";
   }
 }
 

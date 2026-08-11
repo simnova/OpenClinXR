@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T09:43:23.089Z",
+  "generatedAt": "2026-08-11T12:41:30.144Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -26,7 +26,7 @@
       "garmentFittedToBodyClass": "adult_lean_female",
       "garmentTriangleCount": 11524,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -38,7 +38,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0,
-      "glbSha256": "f64f99b432f3c3334b6a625ef9b332a531d10f01f112dbd53fd04b2deb85a685",
+      "glbSha256": "149aca58b07fd67caa899e9510888a54f52a142b7e52b1012b425e28014e4fac",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -109,7 +109,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -121,7 +121,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0.0135,
-      "glbSha256": "8d70f856fd1c197c6472cd96b6b6b30c2d556e1a094f2c97a6366b69828ede42",
+      "glbSha256": "f8c82459cdafac166240ce007a333e5977eb981b42232c22e8541026062c812b",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -195,17 +195,17 @@
   "gradeRenderEngine": "BLENDER_EEVEE",
   "posedDeformationGradePng": ".openclinxr/evidence/issue-216/posed-deformation-grade.png",
   "deformationCalibration": {
-    "drivenBone": "upper_arm.L",
+    "drivenBone": "mixamorig:LeftArm",
     "rotationDegrees": 55,
-    "deformationEpsilonMeters": 0.15307,
+    "deformationEpsilonMeters": 0.1051,
     "source": "calibrated_half_median_bone_tip_motion_this_export",
     "perClassBodyDeformationMeters": [
-      0.35619,
-      0.42529
+      0.32169,
+      0.31467
     ],
     "perClassGarmentDeformationMeters": [
-      0.65479,
-      0.14731
+      0.57213,
+      0.24319
     ]
   }
 }
