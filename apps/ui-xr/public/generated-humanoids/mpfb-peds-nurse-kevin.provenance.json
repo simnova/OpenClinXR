@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
+  "derivationMode": "mpfb2_macro_from_anny_reference",
+  "scenarioId": null,
+  "actorId": null,
+  "actorRole": null,
+  "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
+  "generatorMode": "mpfb2_humanservice_create_human_with_macro_dict_from_tracked_anny_reference_v1",
+  "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
+  "usesRealAnnyForwardPass": false,
+  "realAnnyWeightsUsed": false,
+  "textureMode": "procedural_fallback",
+  "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
+  "optimizationMode": "unoptimized_post_blender_glb",
+  "realismGrade": "not_graded",
+  "promotionStatus": "cagematch_comparator_not_runtime_cast",
+  "sourceOriginChain": {
+    "sourceTopologyMode": "mpfb2_standard_basemesh_with_standard_rig_v1",
+    "annyReference": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj (tracked)",
+    "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
+    "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "derivationNote": "Issue #328: the MPFB2 materializer now derives its macro dict from the tracked Anny reference instead of baking the default human. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. #317 face keys (32 targets / 13 mouth), #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris), #321 toigo t-shirt fit (2,700 tris, k-NN weighted to the standard rig) and #323 body-part hiding all ran unchanged. Measured (largest non-garment/non-hidden primitive): stature 1.6528 m, chest 0.9484, waist 1.1056, chest:waist ratio 0.8578."
+  },
+  "licenseChain": {
+    "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
+    "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
+    "sourceRecordClaimsSupported": [
+      "MPFB2 2.0.15 from Blender Extensions; MPFB is licensed AGPLv3 with a separate license for generated content; MakeHuman basemesh content posture recorded in the Anny source manifest (sources/anny-github-2026.json)."
+    ],
+    "notRun": [
+      "licence_text_reenumeration",
+      "makehuman_license_review",
+      "production_asset_readiness"
+    ],
+    "explicitUnknown": [
+      "MPFB/MakeHuman generated-content licensing has not been formally reviewed for production promotion; this asset is a cagematch comparator for evidence only."
+    ]
+  },
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness",
+    "madr_0051_s5_landmark_match_within_bands"
+  ],
+  "sourceNotes": [
+    "Issue #328 first slice of the transition off Anny-only assets: Anny is the REFERENCE, MPFB2 is the generated body.",
+    "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
+    "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here."
+  ],
+  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
+  "promotionGates": false,
+  "generatedAt": "2026-08-11T17:44:00.000+00:00"
+}

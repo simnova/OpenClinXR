@@ -82,6 +82,44 @@ import { describe, expect, it } from "vitest";
  * job), and does not touch `humanoid-runtime-asset-url`. Face, garments, hide mask and footwear all
  * already work on this rail (#317/#318/#321/#323) and are expected to keep working per the regression
  * nets in the brief — but no clause here asserts they survive a macro-driven bake.
+ *
+ * ## FIXED (#328)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now accepts `--reference <anny-mesh-id>` and drives
+ * `HumanService.create_human(feet_on_ground=True, macro_detail_dict=…)` with a macro dict DERIVED
+ * FROM THE TRACKED Anny reference (the UI operator `bpy.ops.mpfb.create_human()` is gone — the third
+ * instance of the same UI-operator-vs-service defect in that file, after #317's face keys and #318's
+ * helper strip). Two macros are driven by reference MEASUREMENT, not literals: `age` from the
+ * reference's measured head-height fraction (0.100 adult nurse vs 0.160 child — the MPFB age macro's
+ * child band is real, so the child is a child, not a scaled adult, #151/#304), and `height` SOLVED by
+ * a bake-measure-interpolate loop against the reference stature (probes are actually baked, stripped
+ * and exported, then measured with the same band probe this contract uses — no fitted constants).
+ * The macro targets are BAKED into the basis geometry with `TargetService.bake_targets` immediately
+ * after `create_human` — without the bake the glTF basis is the default human and the macros only
+ * ride along as zero-weight morph targets (measured: five macro sets exported byte-identical bases).
+ * The #318 strip, #317 face keys, #321 garment fit and #323 body-part hiding all run unchanged on the
+ * macro-driven bodies (both land 13,380 verts / 26,756 body tris and 13 mouth targets).
+ *
+ * The `it.fails` markers on (1) and (2) were flipped to `it`. Measured with the same probe the
+ * contract uses (largest non-garment/non-hidden primitive):
+ *
+ *   body                        | reference            | stature | chest | waist | ratio
+ *   ----------------------------|----------------------|---------|-------|-------|-------
+ *   mpfb-ob-patient-aisha.glb   | (default macros)     | 1.5587  | 0.890 | 0.993 | 0.897
+ *   mpfb-peds-nurse-kevin.glb   | peds_nurse_kevin     | 1.6528  | 0.948 | 1.106 | 0.858
+ *   mpfb-peds-patient-child.glb | peds_patient_child   | 1.1651  | 0.624 | 0.766 | 0.814
+ *
+ * stature spread 0.4877 m (> 0.02); chest:waist ratio spread 0.083 (> 0.01). The nurse/child pair
+ * comes from two different tracked Anny references and is distinct by BOTH bounds — a uniform scale
+ * (treatment b) is refused by construction because the child is a macro child, not a scaled adult.
+ * Clause (3) is no longer vacuous: the macro source is the tracked `.anny_base.obj`, measured and
+ * solved — there is no inline macro literal block in the generator.
+ *
+ * What this does NOT yet match, stated per the brief: gender/muscle/weight/proportions/cupsize/
+ * firmness remain MPFB defaults (the derivation drives age + height only), and an exact MADR 0051
+ * §5 landmark match (shoulder, girths, limb lengths) is `anny-mpfb-landmark-compare`'s follow-on —
+ * NOT claimed here. The child wears the same adult-authored toigo t-shirt (fitted, weighted, hidden
+ * under it); wardrobe fit on a child was not re-graded.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -143,7 +181,7 @@ const bodies = await mpfb2Bodies();
 const source = readFileSync(MATERIALIZER, "utf8");
 
 describe("the MPFB2 materializer makes distinct people from Anny references", () => {
-  it.fails(
+  it(
     `(1) RED: the materializer has produced >= ${MIN_DISTINCT_BODIES} bodies with a stature spread > ${MIN_STATURE_SPREAD_M * 1000}mm`,
     () => {
       expect(bodies.length, `MPFB2 bodies found: ${bodies.map((b) => b.id).join(", ")}`).toBeGreaterThanOrEqual(
@@ -155,7 +193,7 @@ describe("the MPFB2 materializer makes distinct people from Anny references", ()
     },
   );
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: the bodies differ in chest:waist ratio — a uniform scale is refused (#151/#304)",
     () => {
       expect(bodies.length, "MPFB2 bodies").toBeGreaterThanOrEqual(MIN_DISTINCT_BODIES);
