@@ -85,6 +85,37 @@ import { describe, expect, it } from "vitest";
  * this channel (the hide mask covers upper and lower only), and #323 is the sibling slice for hiding on
  * the MPFB2 rail. Whether the chosen shoe suits a clinical station is a P3 staging judgement and mine to
  * grade.
+ *
+ * ## FIXED (#324)
+ *
+ * `embed_library_footwear.py` no longer generates procedural shells. It fits a staged CC0 MakeClothes
+ * `.mhclo` shoe through the SAME `ClothesService.fit_clothes_to_human` the upper (#322) and lower (#220)
+ * channels use (D1), then splits the two-feet mesh into L/R halves weighted to `mixamorig:LeftFoot` /
+ * `mixamorig:RightFoot`. `body-param-cli.ts` selects the shoe per body class on clinical plausibility
+ * (lean female → `toigo_flats`, heavy male → `culturalibre_male_boots`), records the licence read from
+ * the shoe's OWN `.mhclo` header (`# license CC0` / `# license CC-0`), and stamps `footwearShoeId` /
+ * `footwearLicenseToken` / `footwearLicenseSource` into the catalog.
+ *
+ * Two measured traps the fit had to clear. (a) The shipped GLB body re-imports with broken vertex
+ * indexing (53,672 verts vs 13,380 — the material-split primitives merge on re-import), so the fit runs
+ * against a reconstructed `base.obj` reference with the body class's phenotype macros re-applied as
+ * live shape keys, then places the shoe onto the GLB body by foot landmarks. (b) `wm.obj_import` keeps
+ * the MakeHuman OBJ Y-up, so the `.mhclo` offset scales land wrong on a raw reference — the reference is
+ * rotated Z-up (sole at z=0) BEFORE the fit; on the first bake this inflated the flats to 24.9 cm and
+ * the boots to 27.9 cm, after the fix the flats rise 5.5 cm and the boots 40.2 cm above the sole.
+ *
+ * Re-baked through `pnpm asset:body-param:fit -- --once` (2026-08-11). Measured on the shipped bytes:
+ *
+ *   rail                          | shoe                 | prims | footwear verts | licence | shoe rise
+ *   ------------------------------|----------------------|-------|----------------|---------|----------
+ *   body-param-adult_lean_female  | toigo_flats (CC0)    |   2   | 30,594         | CC0     | 0.055 m
+ *   body-param-adult_heavy_male   | male_boots (CC-0)    |   2   | 15,628         | CC-0    | 0.402 m
+ *
+ * The two `it.fails` markers were flipped to `it`; all four clauses pass on the re-baked bytes, and the
+ * two regression nets (`casual-top-is-a-real-garment`, `garments-meet-at-the-waist`) stay green. The
+ * licence ledger gained a `makehuman-shoes01` row (CC0 per the shoes' own `.mhclo` headers). Residual
+ * poke-through is expected and unasserted — the body under the shoe is not hidden on this channel
+ * (`notEvidenceFor` in the stage report); #323 is the sibling slice for hiding, on the MPFB2 rail.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -132,7 +163,7 @@ function requireMeasured(): void {
 }
 
 describe("footwear is a fitted library garment, not an 86-vertex blob", () => {
-  it.fails(`(1) RED: each rail's footwear carries >= ${MIN_FOOTWEAR_VERTS} vertices`, () => {
+  it(`(1) RED→GREEN: each rail's footwear carries >= ${MIN_FOOTWEAR_VERTS} vertices`, () => {
     requireMeasured();
     const thin = feet
       .filter((f) => f.verts < MIN_FOOTWEAR_VERTS)
@@ -140,7 +171,7 @@ describe("footwear is a fitted library garment, not an 86-vertex blob", () => {
     expect(thin, "rails whose footwear is too coarse to follow a foot").toEqual([]);
   });
 
-  it.fails("(2) RED: the shipped footwear records a licence token from a .mhclo header", () => {
+  it("(2) RED→GREEN: the shipped footwear records a licence token from a .mhclo header", () => {
     requireMeasured();
     const missing: string[] = [];
     for (const e of entries) {

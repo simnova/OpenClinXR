@@ -1,24 +1,48 @@
 #!/usr/bin/env python3
-"""#219/#212 — embed footwear shells into body-param library GLBs.
+"""#324 — embed a fitted CC0 MakeClothes shoe into body-param library GLBs.
 
-#212: derive shells from **foot vertex landmarks** (longitudinal slices of the foot
-cluster), not free-floating AABB ellipsoids with point caps. Include attachment
-anchors that share quantized vertex positions with the body foot region so a
-detached free ellipsoid fails the attachment predicate.
+#219/#212/#295: the procedural footwear shells were 86 vertices per shoe over
+~4,280 foot vertices — a resolution defect, not a fit defect (#324, measured on the
+shipped bytes: 2 prims / 172 verts per rail). This stage replaces the procedural
+shell with a real MakeClothes `.mhclo` shoe fitted through the SAME
+`ClothesService.fit_clothes_to_human` the upper (#322 toigo t-shirt) and lower
+(#220 cargo pants) channels use (D1 — wire the proven path, do not write a second
+fitter).
 
-Still reuses the #188 role/color + foot-bone weighting path (D1: no second
-unrelated shoe system). MakeClothes .mhclo shoes were searched; none staged with
-a licence-clean header on this host — procedural path is the factory finish.
+Why the fit runs against a reconstructed reference rather than the shipped GLB
+body: the GLB body is re-imported from a material-split glTF export, so its vertex
+indexing does not match the `.mhclo` body-vertex references (measured: the re-import
+merges the skin/hidden/scalp primitives into 53,672 verts vs 13,380 in the source
+basemesh — a fit by index would read the wrong vertices). The reference is the same
+MPFB `base.obj` the body_param stage consumes, with the body class's phenotype
+macros re-applied as live shape keys — the fit reads the from-mix shape exactly as
+the stage does. The fitted shoe is then placed onto the GLB body by foot landmarks
+(scale 0.1 dm->m + sole/x-y anchor translation) and baked into world space.
+
+The licence is recorded from the shoe's OWN `.mhclo` header (passed in by the CLI,
+which reads it with `readMhcloLicense`). A generated shell has no header to cite;
+subdividing the old blob would produce a smoother shell with no provenance — clause
+(2) of the contract refuses that (#322's catalog bug: CC-BY attributed to a
+procedural shell).
 
 Usage:
   blender --background --python embed_library_footwear.py -- \\
     --glb apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb \\
+    --out  <same> \\
     --role family \\
-    --out apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb
+    --mh-base-obj <MPFB data/3dobjs/base.obj> \\
+    --phenotype-json '{"weight":0.18,"gender":0.0,"age":0.5,"muscle":0.45,"height":0.5,"proportions":0.5}' \\
+    --shoe-mhclo <provider-cache/.../toigo_flats.mhclo> \\
+    --shoe-obj <provider-cache/.../flats.obj> \\
+    --shoe-kind flats \\
+    --shoe-license-token CC0 \\
+    --shoe-license-source 'mhclo_header:...; license=CC0' \\
+    --report <path.json>
 
-claimScope: procedural footwear on library body-param GLBs, weighted to foot.L/R.
+claimScope: fitted library footwear on body-param library GLBs, weighted to foot.L/R,
+  licence recorded from the shoe's own .mhclo header.
 notEvidenceFor: lower-body garment channel, clinical costume realism, production readiness,
-  quest readiness.
+  quest readiness, hiding the body under the shoe (the hide mask covers upper/lower only).
 """
 
 from __future__ import annotations
@@ -27,17 +51,26 @@ import argparse
 import json
 import math
 import sys
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Vector
+
+# MPFB base units are decimetres; the shipped GLBs are in metres. The stage uses the
+# same 0.1 conversion (MH_UNITS_TO_METRES in body_param_stage.py).
+MH_UNITS_TO_METRES = 0.1
+# Helper vertices start at index 13,380 on the hm08 basemesh (19,158 verts total).
+# The staged CC0 shoes reference only body-surface verts (< 13,380), so they fit the
+# helper-stripped body. The reference foot anchor must use the body-surface verts too.
+BODY_SURFACE_VERT_COUNT = 13380
 
 
 def parse_args() -> argparse.Namespace:
     argv = sys.argv
     args = argv[argv.index("--") + 1 :] if "--" in argv else []
-    p = argparse.ArgumentParser(description="#219/#212 embed foot-vertex footwear into library GLB")
+    p = argparse.ArgumentParser(description="#324 embed fitted library footwear into library GLB")
     p.add_argument("--glb", required=True, help="Input library GLB path")
     p.add_argument("--out", required=True, help="Output GLB path (may overwrite input)")
     p.add_argument(
@@ -46,19 +79,51 @@ def parse_args() -> argparse.Namespace:
         help="Actor role for footwear kind/color (family→casual_shoe, nurse→clinical, …)",
     )
     p.add_argument("--report", default="", help="Optional JSON report path")
+    # -- #324 -- the fitted shoe source + licence (the CLI reads the licence from the
+    # shoe's OWN .mhclo header and passes the token/source in — never invented here).
+    p.add_argument("--mh-base-obj", required=True, help="MPFB data/3dobjs/base.obj (hm08)")
+    p.add_argument(
+        "--phenotype-json",
+        required=True,
+        help='Body-class phenotype for the fit reference macros, e.g. {"weight":0.88,...}',
+    )
+    p.add_argument("--shoe-mhclo", required=True, help="Staged shoe .mhclo (provider cache)")
+    p.add_argument("--shoe-obj", required=True, help="Staged shoe .obj companion")
+    p.add_argument("--shoe-kind", required=True, help="Shoe kind used in mesh/material names")
+    p.add_argument("--shoe-license-token", default="", help="Licence token from the shoe .mhclo header")
+    p.add_argument(
+        "--shoe-license-source",
+        default="",
+        help="Licence source string (mhclo_header:...; license=...) from readMhcloLicense",
+    )
     return p.parse_args(args)
 
 
 def clear_scene() -> None:
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete(use_global=False)
-    for block in (bpy.data.meshes, bpy.data.materials, bpy.data.armatures, bpy.data.images):
-        for b in list(block):
-            block.remove(b)
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+
+
+def enable_mpfb() -> bool:
+    try:
+        bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
+        return "bl_ext.user_default.mpfb" in bpy.context.preferences.addons
+    except Exception:
+        return False
 
 
 def import_glb(path: str) -> None:
     bpy.ops.import_scene.gltf(filepath=path)
+
+
+def import_obj(path: str, name: str) -> bpy.types.Object:
+    before = set(bpy.data.objects)
+    bpy.ops.wm.obj_import(filepath=path)
+    created = [o for o in bpy.data.objects if o not in before and o.type == "MESH"]
+    if not created:
+        raise RuntimeError(f"OBJ import produced no mesh: {path}")
+    obj = created[0]
+    obj.name = name
+    return obj
 
 
 def find_body_and_armature() -> Tuple[bpy.types.Object, Optional[bpy.types.Object]]:
@@ -96,372 +161,234 @@ def create_material(name: str, color: Tuple[float, float, float, float]) -> bpy.
     bsdf.inputs["Roughness"].default_value = 0.55
     links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
     mat.diffuse_color = color
+    try:
+        mat.viewport_display.color = color[:3]
+    except Exception:
+        pass
     return mat
 
 
-def world_verts(obj: bpy.types.Object) -> List[Vector]:
-    mw = obj.matrix_world
-    return [mw @ v.co for v in obj.data.vertices]
-
-
-def footwear_kind_and_color(actor_role: str) -> Tuple[str, Tuple[float, float, float, float]]:
+def footwear_color(actor_role: str) -> Tuple[float, float, float, float]:
     role = (actor_role or "").lower()
     if "nurse" in role or "clinical" in role:
-        return "clinical_shoe", (0.08, 0.09, 0.10, 1.0)
+        return (0.08, 0.09, 0.10, 1.0)
     if "patient" in role and "family" not in role and "spouse" not in role:
-        return "hospital_slipper", (0.18, 0.42, 0.78, 1.0)
+        return (0.18, 0.42, 0.78, 1.0)
     if any(k in role for k in ("parent", "family", "guardian", "spouse")):
-        return "casual_shoe", (0.12, 0.08, 0.05, 1.0)
-    return "casual_shoe", (0.10, 0.09, 0.08, 1.0)
+        return (0.12, 0.08, 0.05, 1.0)
+    return (0.10, 0.09, 0.08, 1.0)
 
 
-def _percentile(sorted_vals: List[float], p: float) -> float:
-    if not sorted_vals:
-        return 0.0
-    if len(sorted_vals) == 1:
-        return sorted_vals[0]
-    i = max(0, min(len(sorted_vals) - 1, int(round(p * (len(sorted_vals) - 1)))))
-    return sorted_vals[i]
+def foot_anchor(
+    obj: bpy.types.Object,
+    band: float,
+    max_index: Optional[int] = None,
+) -> Tuple[Vector, int]:
+    """Sole (min Z) + X/Y centre of the foot region of `obj`.
 
-
-def _slice_landmarks(pts: List[Vector], n_long: int) -> List[Dict[str, float]]:
-    """Longitudinal foot slices along Y (forward on Z-up library glTF).
-
-    Each slice records the actual foot cluster centroid and extents so the shell
-    follows foot topology rather than a single AABB ellipse.
+    Band is a Z height above the sole. `max_index` restricts to body-surface verts
+    (index < 13,380) so helper geometry that extends below the foot cannot drag the
+    sole anchor (measured: the base.obj helpers reach ~0.09 dm below the foot sole).
     """
-    ys = sorted(p.y for p in pts)
-    y_lo = ys[0]
-    y_hi = ys[-1]
-    span = max(y_hi - y_lo, 0.02)
-    slices: List[Dict[str, float]] = []
-    for i in range(n_long):
-        t0 = i / float(n_long)
-        t1 = (i + 1) / float(n_long)
-        # Overlap bins slightly so heel/toe tips are not empty.
-        y_a = y_lo + (t0 - 0.02) * span
-        y_b = y_lo + (t1 + 0.02) * span
-        bin_pts = [p for p in pts if y_a <= p.y <= y_b]
-        if len(bin_pts) < 3:
-            # Fall back to nearest verts by Y.
-            mid_y = y_lo + (t0 + t1) * 0.5 * span
-            ranked = sorted(pts, key=lambda p: abs(p.y - mid_y))
-            bin_pts = ranked[: max(6, min(24, len(pts)))]
-        xs = sorted(p.x for p in bin_pts)
-        zs = sorted(p.z for p in bin_pts)
-        ys_b = sorted(p.y for p in bin_pts)
-        cx = sum(p.x for p in bin_pts) / len(bin_pts)
-        cy = sum(p.y for p in bin_pts) / len(bin_pts)
-        cz = sum(p.z for p in bin_pts) / len(bin_pts)
-        # Half-widths from percentiles (robust to outliers) not pure min/max alone.
-        hx = max((_percentile(xs, 0.95) - _percentile(xs, 0.05)) * 0.5, 0.012)
-        hz_top = max(_percentile(zs, 0.95) - cz, 0.008)
-        hz_bot = max(cz - _percentile(zs, 0.05), 0.006)
-        slices.append(
-            {
-                "t": (t0 + t1) * 0.5,
-                "cx": cx,
-                "cy": cy,
-                "cz": cz,
-                "hx": hx,
-                "hz_top": hz_top,
-                "hz_bot": hz_bot,
-                "y_lo": ys_b[0],
-                "y_hi": ys_b[-1],
-                "z_min": zs[0],
-                "z_max": zs[-1],
-            }
-        )
-    return slices
+    verts = list(obj.data.vertices)
+    if max_index is not None:
+        verts = [v for v in verts if v.index < max_index]
+    if not verts:
+        raise RuntimeError("foot_anchor: no vertices")
+    zmin = min(v.co.z for v in verts)
+    sel = [v for v in verts if v.co.z <= zmin + band]
+    if not sel:
+        sel = verts
+    cx = sum(v.co.x for v in sel) / len(sel)
+    cy = sum(v.co.y for v in sel) / len(sel)
+    return Vector((cx, cy, zmin)), len(sel)
 
 
-def embed_footwear_z_up(
-    mesh_obj: bpy.types.Object,
-    actor_role: str,
-    arm_obj: Optional[bpy.types.Object],
-) -> Dict[str, Any]:
-    """#212 foot-vertex landmark shoe for Z-up library glTF imports.
+def apply_phenotype_macros(reference: bpy.types.Object, phenotype: dict) -> None:
+    """#324 — re-apply the body class's phenotype macros to the fit reference.
 
-    Differences vs #188/#219 AABB ellipsoid:
-    - Longitudinal rings follow per-slice foot centroids (not one AABB center).
-    - Cross-section width/height from foot-slice percentiles.
-    - Explicit flat sole plane (sole_plane feature).
-    - Heel counter ring (vertical back) and elongated toe box (not point caps).
-    - Attachment anchors: body foot verts copied into the shoe mesh so shared
-      positions exist in the exported glTF (detached free ellipsoid fails this).
+    Mirrors `apply_macros` in body_param_stage.py exactly (same TargetService path,
+    macros as LIVE shape keys) so the shoe fit reads the same from-mix foot shape the
+    stage's upper/lower fits read. The GLB body carries these macros baked, so the
+    fitted shoe matches the shipped foot rather than the neutral basemesh.
     """
-    kind, shoe_color = footwear_kind_and_color(actor_role)
-    wpts = world_verts(mesh_obj)
-    if len(wpts) < 32:
-        raise RuntimeError("#212 footwear: body mesh has too few verts")
+    from bl_ext.user_default.mpfb.services.targetservice import TargetService
+    from bl_ext.user_default.mpfb.entities.objectproperties import HumanObjectProperties
 
-    inv = mesh_obj.matrix_world.inverted()
-    local = [inv @ p for p in wpts]
-    zs = [p.z for p in local]
-    body_min_z = min(zs)
-    body_max_z = max(zs)
-    body_height = max(body_max_z - body_min_z, 0.001)
-    foot_cut = body_min_z + body_height * 0.08
+    macro = TargetService.get_default_macro_info_dict()
+    for key in ("gender", "age", "muscle", "weight", "proportions", "height", "cupsize", "firmness"):
+        if key in phenotype:
+            macro[key] = float(phenotype[key])
+    if isinstance(phenotype.get("race"), dict):
+        macro["race"].update({k: float(v) for k, v in phenotype["race"].items()})
 
-    left_pts: List[Vector] = []
-    right_pts: List[Vector] = []
-    for p in local:
-        if p.z > foot_cut:
-            continue
-        if p.x >= 0.0:
-            left_pts.append(p.copy())
-        else:
-            right_pts.append(p.copy())
-    if len(left_pts) < 8 or len(right_pts) < 8:
-        raise RuntimeError(
-            f"#212 footwear: insufficient foot verts L={len(left_pts)} R={len(right_pts)}"
-        )
+    for key in macro:
+        if key != "race":
+            HumanObjectProperties.set_value(key, macro[key], entity_reference=reference)
+    for key, val in macro["race"].items():
+        HumanObjectProperties.set_value(key, val, entity_reference=reference)
 
-    shells: List[Dict[str, Any]] = []
+    TargetService.reapply_macro_details(reference, remove_zero_weight_targets=False)
+    bpy.context.view_layer.update()
 
-    def _build_one(side: str, pts: List[Vector]) -> Dict[str, Any]:
-        n_long = 7
-        n_circ = 10
-        slices = _slice_landmarks(pts, n_long)
 
-        sole_drop = 0.005
-        z0 = body_min_z - sole_drop  # shared sole plane for both feet of this body
-        pad_lat = 0.007
-        pad_y_heel = 0.010
-        pad_y_toe = 0.014
-        if kind == "hospital_slipper":
-            top_extra = 0.010
-            height_mul = 0.72
-        else:
-            top_extra = 0.016
-            height_mul = 1.0
+def apply_object_transforms(obj: bpy.types.Object) -> None:
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    bpy.context.view_layer.update()
 
-        # Heel is lower-Y, toe is higher-Y on this axis convention.
-        y_heel = min(p.y for p in pts) - pad_y_heel
-        y_toe = max(p.y for p in pts) + pad_y_toe
 
-        verts: List[Tuple[float, float, float]] = []
-        # Ring vertices: for each longitudinal station, an elliptical cross-section
-        # centered on the foot slice, with FLAT sole (bottom verts clamped to z0).
-        for i, sl in enumerate(slices):
-            t = i / float(n_long - 1)
-            # Emphasize heel counter (t≈0) and toe box (t≈1) vs midfoot blob.
-            heel_boost = max(0.0, 1.0 - t * 3.0)  # strong at heel
-            toe_taper = 0.55 + 0.45 * math.sin(min(1.0, t) * math.pi)  # narrow tip
-            if t > 0.75:
-                toe_taper *= 0.72 + 0.28 * (1.0 - (t - 0.75) / 0.25)
-            width_scale = (0.95 + 0.18 * heel_boost) * toe_taper
-            # Vamp height from foot slice top + kind pad; sole is flat.
-            z_top = sl["z_max"] + top_extra * height_mul
-            z_top = min(z_top, body_min_z + body_height * 0.12)
-            if z_top <= z0 + 0.02:
-                z_top = z0 + 0.04
-            # Longitudinal placement: blend slice cy toward explicit heel/toe ends.
-            if i == 0:
-                y = y_heel + (sl["cy"] - y_heel) * 0.35
-            elif i == n_long - 1:
-                y = y_toe - (y_toe - sl["cy"]) * 0.25
-            else:
-                y = sl["cy"]
-            cx = sl["cx"]
-            hx = sl["hx"] + pad_lat
-            for j in range(n_circ):
-                ang = (j / n_circ) * 2.0 * math.pi
-                # ang=0 → +X; ang=π/2 → +Z (up). Flatten bottom half to sole plane.
-                cos_a = math.cos(ang)
-                sin_a = math.sin(ang)
-                x = cx + hx * width_scale * cos_a
-                if sin_a >= 0.0:
-                    # upper half: vamp
-                    z = z0 + (z_top - z0) * (0.35 + 0.65 * sin_a)
-                else:
-                    # lower half: sole plane with tiny arch rise at mid-sides
-                    z = z0 + 0.0015 * max(0.0, -sin_a - 0.3)
-                # Heel counter: push back ring slightly lower-Y and taller.
-                if i == 0 and sin_a > 0.2:
-                    z = min(z + 0.006 * heel_boost, body_min_z + body_height * 0.12)
-                verts.append((x, y, z))
+def force_z_up_standing(obj: bpy.types.Object) -> None:
+    """Make the reference basemesh Z-up standing with its sole at z=0.
 
-        faces: List[Tuple[int, ...]] = []
-        for i in range(n_long - 1):
-            for j in range(n_circ):
-                a = i * n_circ + j
-                b = i * n_circ + ((j + 1) % n_circ)
-                c = (i + 1) * n_circ + ((j + 1) % n_circ)
-                d = (i + 1) * n_circ + j
-                faces.append((a, b, c, d))
+    Mirrors `force_z_up_standing` in fit_stage.py. `wm.obj_import` keeps the MakeHuman
+    OBJ Y-up (height along Blender Y — measured: base.obj vert 791/881 land at
+    z=0.85/0.70, y=6.16/8.49, not the other way round). Garment fits are
+    body-vertex-driven and barely notice, but the SHOE's height comes from the `.mhclo`
+    offset scales, which assume a Z-up body — fitting a Y-up reference inflated the
+    fitted shoe ~4.4x (measured on #324's first bake). Rotating the reference first
+    makes the fit's x_size/y_size/z_size land at ~1.0 (verified: 1.058 for the flats).
+    """
+    apply_object_transforms(obj)
+    b = {a: (min(getattr(v.co, a) for v in obj.data.vertices), max(getattr(v.co, a) for v in obj.data.vertices)) for a in "xyz"}
+    size = [b[a][1] - b[a][0] for a in "xyz"]
+    axis = max(range(3), key=lambda i: size[i])
+    if axis == 1:
+        obj.rotation_euler[0] = math.radians(90.0)
+    elif axis == 0:
+        obj.rotation_euler[1] = math.radians(-90.0)
+    bpy.context.view_layer.update()
+    apply_object_transforms(obj)
+    b2 = {a: (min(getattr(v.co, a) for v in obj.data.vertices), max(getattr(v.co, a) for v in obj.data.vertices)) for a in "xyz"}
+    if abs(b2["z"][0]) > abs(b2["z"][1]) and b2["z"][0] < -0.1:
+        obj.rotation_euler[0] = math.radians(180.0)
+        bpy.context.view_layer.update()
+        apply_object_transforms(obj)
+    obj.location.z -= min(v.co.z for v in obj.data.vertices)
+    bpy.context.view_layer.update()
+    apply_object_transforms(obj)
 
-        # Heel wall (closed counter) — a small inset panel, not a point cap.
-        heel_ring = list(range(0, n_circ))
-        heel_center = len(verts)
-        heel_cx = slices[0]["cx"]
-        heel_cz = (z0 + slices[0]["z_max"]) * 0.5
-        verts.append((heel_cx, y_heel - 0.004, heel_cz))
-        for j in range(n_circ):
-            a = heel_ring[j]
-            b = heel_ring[(j + 1) % n_circ]
-            faces.append((heel_center, b, a))
 
-        # Toe box — elongated tip ring (3 verts) so toe_defined is a volume not a point.
-        toe_tip = len(verts)
-        last = n_long - 1
-        toe_cx = slices[-1]["cx"]
-        toe_z = z0 + (slices[-1]["z_max"] - z0) * 0.35
-        # Three tip verts: medial, center, lateral — defines a toe wedge.
-        tip_span = max(slices[-1]["hx"] * 0.35, 0.008)
-        verts.append((toe_cx - tip_span, y_toe, toe_z))  # medial
-        verts.append((toe_cx, y_toe + 0.006, toe_z * 0.9 + z0 * 0.1))  # center tip
-        verts.append((toe_cx + tip_span, y_toe, toe_z))  # lateral
-        # Fan from last ring to tip triangle.
-        for j in range(n_circ):
-            a = last * n_circ + j
-            b = last * n_circ + ((j + 1) % n_circ)
-            # Map ring to nearest tip verts by angle.
-            ang = (j / n_circ) * 2.0 * math.pi
-            if math.cos(ang) < -0.2:
-                tip_a, tip_b = toe_tip, toe_tip + 1
-            elif math.cos(ang) > 0.2:
-                tip_a, tip_b = toe_tip + 1, toe_tip + 2
-            else:
-                tip_a = tip_b = toe_tip + 1
-            if tip_a == tip_b:
-                faces.append((a, b, tip_a))
-            else:
-                faces.append((a, b, tip_b, tip_a) if tip_a != tip_b else (a, b, tip_a))
+def build_fit_reference(mh_base_obj: str, phenotype: dict) -> bpy.types.Object:
+    """hm08 basemesh with the class macros applied — the fit target (intact vertex order).
 
-        # Attachment anchors: copy real body foot verts into the shoe mesh.
-        # These share quantized positions with the body so a free ellipsoid fails.
-        # Prefer heel-most, toe-most, and lateral extremes.
-        ranked_heel = sorted(pts, key=lambda p: p.y)[:4]
-        ranked_toe = sorted(pts, key=lambda p: -p.y)[:4]
-        ranked_lat = sorted(pts, key=lambda p: -abs(p.x - slices[3]["cx"] if len(slices) > 3 else 0.0))[:4]
-        anchors = ranked_heel + ranked_toe + ranked_lat
-        anchor_start = len(verts)
-        for p in anchors:
-            # Slight outward offset on X so we do not z-fight skin, but ALSO include
-            # exact body positions for the attachment predicate.
-            verts.append((p.x, p.y, p.z))  # exact body foot position
-        # Degenerate-safe: connect each exact anchor to nearest sole ring vert as a fan
-        # so they are part of the exported mesh connectivity (not loose points).
-        # glTF exporters may drop isolated verts; attach with tiny triangles to sole.
-        sole_indices = [i * n_circ + (n_circ // 2 + n_circ // 4) % n_circ for i in range(n_long)]
-        for k, _p in enumerate(anchors):
-            ai = anchor_start + k
-            s0 = sole_indices[min(k % n_long, len(sole_indices) - 1)]
-            s1 = sole_indices[min((k + 1) % n_long, len(sole_indices) - 1)]
-            if s0 != s1:
-                faces.append((ai, s0, s1))
-            else:
-                s2 = (s0 + 1) % (n_long * n_circ)
-                faces.append((ai, s0, s2))
+    Imported via `wm.obj_import` (intact OBJ vertex order), then rotated Z-up so the
+    `.mhclo` offset scales (which assume a Z-up body) land at ~1.0, then macros applied
+    as live shape keys. The macros must run AFTER the rotation bake so the fit reads the
+    macro shape in the same frame the offsets expect.
+    """
+    from bl_ext.user_default.mpfb.entities.objectproperties import GeneralObjectProperties
 
-        mesh_name = f"openclinxr_footwear_{kind}_{side}_mesh"
-        obj_name = f"openclinxr_footwear_{kind}_{side}"
-        for old in list(bpy.data.objects):
-            if old.name.startswith(obj_name):
-                bpy.data.objects.remove(old, do_unlink=True)
-        mesh = bpy.data.meshes.new(mesh_name)
-        mesh.from_pydata(verts, [], faces)
-        mesh.update()
-        shoe = bpy.data.objects.new(obj_name, mesh)
-        bpy.context.collection.objects.link(shoe)
-        mat = create_material(f"openclinxr_footwear_{kind}_{side}_mat", shoe_color)
-        shoe.data.materials.append(mat)
-        for poly in shoe.data.polygons:
-            poly.use_smooth = True
+    ref = import_obj(mh_base_obj, "openclinxr_footwear_fit_reference")
+    force_z_up_standing(ref)
+    GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=ref)
+    apply_phenotype_macros(ref, phenotype)
+    return ref
 
-        bone_name = f"foot.{side}"
-        weighted_bones: List[str] = []
-        if arm_obj is not None:
-            arm_mod = shoe.modifiers.new("openclinxr_footwear_armature", "ARMATURE")
-            arm_mod.object = arm_obj
-            arm_mod.use_vertex_groups = True
-            bone_names = [b.name for b in arm_obj.data.bones]
-            # issue-307: the library rail now rides the MPFB mixamo_unity rig, so the
-            # foot bones are mixamorig:LeftFoot/RightFoot (colons kept in group names —
-            # they must match the bone names exactly for the armature modifier).
-            mixamo_name = f"mixamorig:{'Left' if side == 'L' else 'Right'}Foot"
-            if bone_name in bone_names:
-                vg = shoe.vertex_groups.new(name=bone_name)
-                vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
-                weighted_bones = [bone_name]
-            elif mixamo_name in bone_names:
-                vg = shoe.vertex_groups.new(name=mixamo_name)
-                vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
-                weighted_bones = [mixamo_name]
-            else:
-                alt = f"foot{side}"
-                if alt in bone_names:
-                    vg = shoe.vertex_groups.new(name=alt)
-                    vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
-                    weighted_bones = [alt]
-                else:
-                    raise RuntimeError(f"#212 footwear: armature missing bone {bone_name}")
-        shoe.parent = mesh_obj
-        shoe.matrix_parent_inverse = Matrix.Identity(4)
-        shoe.location = (0.0, 0.0, 0.0)
-        shoe.rotation_euler = (0.0, 0.0, 0.0)
-        shoe.scale = (1.0, 1.0, 1.0)
-        shoe["openClinXrFootwear"] = kind
-        shoe["openClinXrFootwearSide"] = side
-        shoe["openClinXrFootwearRevision"] = "issue_212_foot_vertex_landmark_shell_v1"
-        shoe["openClinXrFootwearDerivation"] = "foot_vertex_slices_not_aabb_ellipsoid"
-        shoe["openClinXrFootwearToeDefined"] = True
-        shoe["openClinXrFootwearHeelDefined"] = True
-        shoe["openClinXrFootwearSolePlane"] = True
 
-        face_count = len(faces)
-        zs_shoe = [v.co.z for v in shoe.data.vertices]
-        ys_shoe = [v.co.y for v in shoe.data.vertices]
-        meta = {
-            "side": side,
-            "kind": kind,
-            "objectName": shoe.name,
-            "meshName": mesh_name,
-            "faceCount": face_count,
-            "vertexCount": len(shoe.data.vertices),
-            "weightedBones": weighted_bones,
-            "minZ": round(min(zs_shoe), 6),
-            "maxZ": round(max(zs_shoe), 6),
-            "minY": round(min(ys_shoe), 6),
-            "maxY": round(max(ys_shoe), 6),
-            "footVertCount": len(pts),
-            "attachmentAnchorCount": len(anchors),
-            "derivation": "foot_vertex_slices_not_aabb_ellipsoid",
-            "shapeFeatures": {
-                "toe_defined": True,
-                "heel_defined": True,
-                "sole_plane": True,
-            },
-        }
-        print(
-            f"[blender] #212 library footwear {side} kind={kind} faces={face_count} "
-            f"z=[{meta['minZ']},{meta['maxZ']}] anchors={len(anchors)} bone={bone_name}"
-        )
-        return meta
+def fit_shoe(
+    shoe_mhclo: str,
+    shoe_obj: str,
+    reference: bpy.types.Object,
+    mesh_name: str,
+) -> Tuple[bpy.types.Object, float]:
+    """#324 — the SAME ClothesService.fit_clothes_to_human path the upper/lower channels use."""
+    from bl_ext.user_default.mpfb.services.clothesservice import ClothesService
+    from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo
 
-    shells.append(_build_one("L", left_pts))
-    shells.append(_build_one("R", right_pts))
-    total_faces = sum(s["faceCount"] for s in shells)
+    shoe = import_obj(shoe_obj, mesh_name)
+    mhclo = Mhclo()
+    mhclo.load(shoe_mhclo)
+    try:
+        mhclo.clothes = shoe
+    except Exception:
+        pass
+    t_fit = time.perf_counter()
+    ClothesService.fit_clothes_to_human(shoe, reference, mhclo=mhclo, set_parent=False)
+    fit_s = time.perf_counter() - t_fit
+    bpy.context.view_layer.update()
+    return shoe, fit_s
+
+
+def place_shoe_on_body(shoe: bpy.types.Object, body: bpy.types.Object, reference: bpy.types.Object) -> dict:
+    """Scale the fitted shoe from MH units into the GLB body frame and translate by foot anchors.
+
+    The fit placed the shoe in the reference basemesh's local frame (dm, feet at the
+    reference sole). The GLB body is in metres with feet planted at z=0. The transfer
+    is scale 0.1 + a sole/x-y anchor translation computed from the actual foot
+    geometry of both meshes — never authored coordinates (D1).
+    """
+    ref_foot, ref_n = foot_anchor(reference, band=1.2, max_index=BODY_SURFACE_VERT_COUNT)
+    body_foot, body_n = foot_anchor(body, band=0.11)
+
+    for v in shoe.data.vertices:
+        v.co *= MH_UNITS_TO_METRES
+    bpy.context.view_layer.update()
+
+    shoe_foot, shoe_n = foot_anchor(shoe, band=0.06)
+    delta = body_foot - shoe_foot
+    for v in shoe.data.vertices:
+        v.co += delta
+    bpy.context.view_layer.update()
+
     return {
-        "mode": "parametric_foot_vertex_landmark_shell_v1_library_z_up",
-        "revision": "issue_212_foot_vertex_landmark_not_aabb_blob",
-        "kind": kind,
-        "shells": shells,
-        "totalFaceCount": total_faces,
-        "bodyHeight": round(body_height, 6),
-        "bodyMinZ": round(body_min_z, 6),
-        "bodyMaxZ": round(body_max_z, 6),
-        "role": (actor_role or "").lower(),
-        "makeclothesShoeSearch": "none_licence_clean_staged_on_host",
-        "claimScope": "procedural_footwear_on_library_body_param_glb",
-        "notEvidenceFor": [
-            "lower_body_garment_channel",
-            "clinical_costume_realism",
-            "production_asset_readiness",
-            "quest_readiness",
-        ],
+        "referenceFootAnchorDm": [round(x, 5) for x in ref_foot],
+        "referenceFootVertexCount": ref_n,
+        "bodyFootAnchorM": [round(x, 5) for x in body_foot],
+        "bodyFootVertexCount": body_n,
+        "shoeFootAnchorM": [round(x, 5) for x in shoe_foot],
+        "placementDeltaM": [round(x, 6) for x in delta],
     }
+
+
+def split_shoe_halves(shoe: bpy.types.Object, kind: str) -> Dict[str, bpy.types.Object]:
+    """Split the two-feet fitted shoe mesh into L (X>=0) and R (X<0) halves.
+
+    The MakeClothes shoe `.mhclo` covers BOTH feet as one mesh; the contract needs
+    two footwear primitives (one per rail). Left/right shoe islands do not share
+    faces across X=0 (measured), so a bmesh vertex delete splits them cleanly.
+    """
+    import bmesh
+
+    halves: Dict[str, bpy.types.Object] = {}
+    for side, keep in (("L", lambda x: x >= 0.0), ("R", lambda x: x < 0.0)):
+        bm = bmesh.new()
+        bm.from_mesh(shoe.data)
+        bm.verts.ensure_lookup_table()
+        to_delete = [v for v in bm.verts if not keep(v.co.x)]
+        bmesh.ops.delete(bm, geom=to_delete, context="VERTS")
+        mesh = bpy.data.meshes.new(f"openclinxr_footwear_{kind}_{side}_mesh")
+        bm.to_mesh(mesh)
+        bm.free()
+        mesh.update()
+        obj = bpy.data.objects.new(f"openclinxr_footwear_{kind}_{side}", mesh)
+        bpy.context.collection.objects.link(obj)
+        for poly in obj.data.polygons:
+            poly.use_smooth = True
+        halves[side] = obj
+    return halves
+
+
+def weight_half_to_foot(obj: bpy.types.Object, arm: bpy.types.Object, side: str) -> str:
+    """Weight one half 100% to its foot bone + armature modifier (same as the old shell)."""
+    bone_names = [b.name for b in arm.data.bones]
+    mixamo_name = f"mixamorig:{'Left' if side == 'L' else 'Right'}Foot"
+    candidates = [mixamo_name, f"foot.{side}", f"foot{side}"]
+    bone = next((b for b in candidates if b in bone_names), None)
+    if bone is None:
+        raise RuntimeError(f"#324 footwear: armature missing foot bone for side {side}")
+    vg = obj.vertex_groups.new(name=bone)
+    vg.add(list(range(len(obj.data.vertices))), 1.0, "REPLACE")
+    mod = obj.modifiers.new("openclinxr_footwear_armature", "ARMATURE")
+    mod.object = arm
+    mod.use_vertex_groups = True
+    mod.use_bone_envelopes = False
+    # Skinned meshes export cleanly as children of the armature.
+    obj.parent = arm
+    obj.matrix_parent_inverse = arm.matrix_world.inverted()
+    return bone
 
 
 def export_glb(path: str) -> None:
@@ -490,10 +417,15 @@ def main() -> None:
     if not glb.is_file():
         raise SystemExit(f"missing glb: {glb}")
 
+    if not enable_mpfb():
+        raise SystemExit("#324 footwear: MPFB addon failed to load — ClothesService unavailable")
+
     clear_scene()
     import_glb(str(glb))
     body, arm = find_body_and_armature()
-    print(f"[blender] #212 body={body.name} arm={arm.name if arm else None} role={args.role}")
+    print(f"[blender] #324 body={body.name} arm={arm.name if arm else None} role={args.role}")
+    if arm is None:
+        raise RuntimeError("#324 footwear: no armature in GLB")
 
     # Strip any prior footwear shells so re-bake is idempotent.
     for obj in list(bpy.data.objects):
@@ -501,10 +433,83 @@ def main() -> None:
         if obj.type == "MESH" and ("footwear" in n or "shoe" in n or "slipper" in n):
             bpy.data.objects.remove(obj, do_unlink=True)
 
-    meta = embed_footwear_z_up(body, actor_role=args.role, arm_obj=arm)
+    try:
+        phenotype = json.loads(args.phenotype_json)
+    except Exception as exc:
+        raise SystemExit(f"#324 footwear: bad --phenotype-json: {exc}") from exc
+
+    # Fit the shoe to a macro-applied base.obj reference (intact vertex order), then
+    # place it onto the shipped GLB body by foot landmarks. Do NOT try to fit the GLB
+    # body directly — the glTF round-trip reindexes vertices (measured: 53,672 vs
+    # 13,380), and the .mhclo maps by index.
+    reference = build_fit_reference(args.mh_base_obj, phenotype)
+    mesh_name = f"makeclothes_library_footwear_{args.shoe_kind}"
+    shoe, fit_s = fit_shoe(args.shoe_mhclo, args.shoe_obj, reference, mesh_name)
+    placement = place_shoe_on_body(shoe, body, reference)
+    bpy.data.objects.remove(reference, do_unlink=True)
+
+    halves = split_shoe_halves(shoe, args.shoe_kind)
+    shoe_color = footwear_color(args.role)
+    shells: List[Dict[str, Any]] = []
+    total_faces = 0
+    for side, obj in halves.items():
+        mat = create_material(f"openclinxr_footwear_{args.shoe_kind}_{side}_mat", shoe_color)
+        obj.data.materials.append(mat)
+        bone = weight_half_to_foot(obj, arm, side)
+        zs = [v.co.z for v in obj.data.vertices]
+        ys = [v.co.y for v in obj.data.vertices]
+        meta = {
+            "side": side,
+            "objectName": obj.name,
+            "meshName": obj.data.name,
+            "faceCount": len(obj.data.polygons),
+            "vertexCount": len(obj.data.vertices),
+            "weightedBones": [bone],
+            "minZ": round(min(zs), 6),
+            "maxZ": round(max(zs), 6),
+            "minY": round(min(ys), 6),
+            "maxY": round(max(ys), 6),
+        }
+        total_faces += meta["faceCount"]
+        shells.append(meta)
+        print(
+            f"[blender] #324 footwear {side} kind={args.shoe_kind} faces={meta['faceCount']} "
+            f"verts={meta['vertexCount']} z=[{meta['minZ']},{meta['maxZ']}] bone={bone}"
+        )
+    bpy.data.objects.remove(shoe, do_unlink=True)
+
+    body_bounds = {a: (min(getattr(v.co, a) for v in body.data.vertices), max(getattr(v.co, a) for v in body.data.vertices)) for a in "xyz"}
+    meta_out = {
+        "mode": "makeclothes_library_fit_via_clothesservice_v1",
+        "revision": "issue_324_fitted_cc0_mhclo_not_procedural_blob",
+        "shoeId": f"{args.shoe_kind}_hm08",
+        "kind": args.shoe_kind,
+        "licenseToken": args.shoe_license_token,
+        "licenseSource": args.shoe_license_source,
+        "clothesServiceApi": "ClothesService.fit_clothes_to_human",
+        "fitWallClockS": round(fit_s, 4),
+        "fittedAgainst": "mpfb_base_obj_with_body_class_phenotype_macros",
+        "placement": placement,
+        "shells": shells,
+        "totalFaceCount": total_faces,
+        "bodyHeight": round(body_bounds["z"][1] - body_bounds["z"][0], 6),
+        "bodyMinZ": round(body_bounds["z"][0], 6),
+        "bodyMaxZ": round(body_bounds["z"][1], 6),
+        "role": (args.role or "").lower(),
+        "makeclothesShoeSearch": "makehuman-shoes01_cc0_subset_zero_helper_refs",
+        "claimScope": "fitted_library_footwear_on_library_body_param_glb_with_mhclo_header_licence",
+        "notEvidenceFor": [
+            "lower_body_garment_channel",
+            "clinical_costume_realism",
+            "production_asset_readiness",
+            "quest_readiness",
+            "body_under_shoe_hidden",
+        ],
+    }
+
     out.parent.mkdir(parents=True, exist_ok=True)
     export_glb(str(out))
-    print(f"[blender] #212 wrote {out} totalFaces={meta['totalFaceCount']}")
+    print(f"[blender] #324 wrote {out} totalFaces={total_faces}")
 
     if args.report:
         report_path = Path(args.report)
@@ -516,13 +521,13 @@ def main() -> None:
                     "input": str(glb),
                     "output": str(out),
                     "role": args.role,
-                    "footwearRegion": meta,
+                    "footwearRegion": meta_out,
                 },
                 indent=2,
             )
             + "\n"
         )
-        print(f"[blender] #212 report {report_path}")
+        print(f"[blender] #324 report {report_path}")
 
 
 if __name__ == "__main__":

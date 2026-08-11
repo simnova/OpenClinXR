@@ -213,6 +213,10 @@ export type BodyParamCatalogEntry = {
   finishStepsRun?: string[];
   footwearMeshNames?: string[];
   footwearTriangleCount?: number;
+  /** #324 — the fitted CC0 shoe id + licence recorded from the shoe's OWN .mhclo header. */
+  footwearShoeId?: string;
+  footwearLicenseToken?: string;
+  footwearLicenseSource?: string;
   /** #220 — lower garment mesh when outfit fit ran. */
   lowerGarmentId?: string | null;
   lowerGarmentMeshName?: string | null;
@@ -467,6 +471,83 @@ function stampMakeclothesCatalogFromTrackedLibrary(): void {
   };
   writeFileSync(catalogPath, JSON.stringify(catalog, null, 2) + "\n", "utf8");
   console.log(`[body-param] stamped makeclothes catalog at ${path.relative(REPO_ROOT, catalogPath)}`);
+}
+
+/**
+ * #324 — per-body-class CC0 MakeClothes footwear, staged from the tracked provider
+ * cache (`makehuman-shoes01` pack, `.mhclo` headers read per shoe). Selection is on
+ * CLINICAL PLAUSIBILITY (the operator directive — triangle count is never a gate;
+ * meshoptimizer runs later). The lean-female family role gets plain flats; the
+ * heavy-male actor gets the male boots (masculine street shoe for a patient arriving
+ * dressed). Helper-bearing shoes (ballet flats, stilettos, ankle boots) cannot fit
+ * the helper-stripped basemesh (#318) and are deliberately absent.
+ */
+export type FootwearCandidate = {
+  shoeId: string;
+  kind: string;
+  mhcloRel: string;
+  objRel: string;
+  selectionNote: string;
+};
+
+export const FOOTWEAR_BY_CLASS: Record<string, FootwearCandidate> = {
+  adult_lean_female: {
+    shoeId: "toigo_flats_hm08",
+    kind: "flats",
+    mhcloRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
+    objRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/flats.obj",
+    selectionNote:
+      "plain CC0 flats (author MRT) — unisex low-profile shoe suited to a family visitor at a clinical station",
+  },
+  adult_heavy_male: {
+    shoeId: "culturalibre_male_boots_hm08",
+    kind: "male_boots",
+    mhcloRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
+    objRel:
+      ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/male_boots.obj",
+    selectionNote:
+      "CC-0 male boots (author culturalibre, original Roachburn) — masculine street boot for the heavier male actor",
+  },
+};
+
+/**
+ * #324 find-or-stop: every shipped footwear mesh needs a licence-clean staged source.
+ * A body class with no permitted shoe refuses the bake — a bare-footed figure is the
+ * #295 regression, not a skip.
+ */
+export function resolveFootwearCandidate(
+  bodyClassId: string,
+  repoRoot: string = REPO_ROOT,
+): FootwearCandidate & { licenseToken: string; licenseSource: string } {
+  const cand = FOOTWEAR_BY_CLASS[bodyClassId];
+  if (!cand) {
+    throw new Error(
+      `[body-param] #324 find-or-stop: no footwear candidate for body class ${bodyClassId} — ` +
+        `add a CC0/CC-BY staged shoe to FOOTWEAR_BY_CLASS`,
+    );
+  }
+  const mhcloAbs = path.join(repoRoot, cand.mhcloRel);
+  const objAbs = path.join(repoRoot, cand.objRel);
+  if (
+    !existsSync(mhcloAbs) || !existsSync(objAbs) ||
+    statSync(mhcloAbs).size < 50 || statSync(objAbs).size < 50
+  ) {
+    throw new Error(
+      `[body-param] #324 find-or-stop: shoe sources missing from the tracked provider cache ` +
+        `(${cand.mhcloRel}, ${cand.objRel}) — stage the makehuman-shoes01 CC0 subset and re-run.`,
+    );
+  }
+  const license = readMhcloLicense(mhcloAbs);
+  if (!isPermittedGarmentLicense(license.token)) {
+    throw new Error(
+      `[body-param] #324 footwear ${cand.shoeId} licence not permitted from its own .mhclo header: ` +
+        `token=${license.token} source=${license.source}`,
+    );
+  }
+  return { ...cand, licenseToken: license.token, licenseSource: license.source };
 }
 
 async function renderFinishedFigureGrade(
@@ -838,11 +919,17 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       finishStepsRun.push("fit_lower_garment_outfit");
     }
 
-    // Role for #188 shell colour/kind: lean female → family casual, heavy male → patient slipper.
+    // Role for footwear colour: lean female → family casual, heavy male → patient.
     const footwearRole = /female|lean/i.test(bodyClassId) ? "family" : "patient";
+    // #324 — the fitted CC0 MakeClothes shoe for this body class (licence read from its
+    // OWN .mhclo header by resolveFootwearCandidate). Clinical-plausibility selection.
+    const footwearCandidate = resolveFootwearCandidate(bodyClassId);
+    const footwearPhenotype =
+      (sc["phenotype"] as Record<string, number | string> | undefined) ?? {};
     const footwearReportPath = path.join(WORK_DIR, `footwear_${bodyClassId}.json`);
     console.log(
-      `[body-param] footwear step (unconditional) bodyClassId=${bodyClassId} role=${footwearRole}`,
+      `[body-param] footwear step (unconditional) bodyClassId=${bodyClassId} role=${footwearRole} ` +
+        `shoe=${footwearCandidate.shoeId} license=${footwearCandidate.licenseToken}`,
     );
     const footwearResult = await runCmd(
       blender,
@@ -859,8 +946,22 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
         footwearRole,
         "--report",
         footwearReportPath,
+        "--mh-base-obj",
+        mhBaseObj,
+        "--phenotype-json",
+        JSON.stringify(footwearPhenotype),
+        "--shoe-mhclo",
+        path.join(REPO_ROOT, footwearCandidate.mhcloRel),
+        "--shoe-obj",
+        path.join(REPO_ROOT, footwearCandidate.objRel),
+        "--shoe-kind",
+        footwearCandidate.kind,
+        "--shoe-license-token",
+        footwearCandidate.licenseToken,
+        "--shoe-license-source",
+        footwearCandidate.licenseSource,
       ],
-      { cwd: REPO_ROOT, timeoutMs: 300_000 },
+      { cwd: REPO_ROOT, timeoutMs: 600_000 },
     );
     if (footwearResult.code !== 0 || !existsSync(footwearReportPath)) {
       throw new Error(
@@ -869,7 +970,13 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       );
     }
     const footwearReport = JSON.parse(readFileSync(footwearReportPath, "utf8")) as {
-      footwearRegion?: { shells?: Array<{ objectName?: string; meshName?: string; faceCount?: number }>; totalFaceCount?: number };
+      footwearRegion?: {
+        shells?: Array<{ objectName?: string; meshName?: string; faceCount?: number }>;
+        totalFaceCount?: number;
+        shoeId?: string;
+        licenseToken?: string;
+        licenseSource?: string;
+      };
     };
     const shells = footwearReport.footwearRegion?.shells ?? [];
     const footwearMeshNames = shells
@@ -879,10 +986,25 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       footwearReport.footwearRegion?.totalFaceCount ??
         shells.reduce((n, s) => n + Number(s.faceCount ?? 0), 0),
     );
+    // #324 — the shipped footwear must record a licence token from a real .mhclo header.
+    // A procedural/subdivided shell has no header to cite and is refused here (clause 2).
+    const footwearLicenseToken = String(
+      footwearReport.footwearRegion?.licenseToken ?? "",
+    );
+    const footwearLicenseSource = String(
+      footwearReport.footwearRegion?.licenseSource ?? "",
+    );
+    const footwearShoeId = String(footwearReport.footwearRegion?.shoeId ?? "");
     if (footwearMeshNames.length === 0 || footwearTriangleCount < 60) {
       throw new Error(
         `footwear embed produced no usable shells for ${bodyClassId}: ` +
           `names=${JSON.stringify(footwearMeshNames)} tris=${footwearTriangleCount}`,
+      );
+    }
+    if (!/^CC/i.test(footwearLicenseToken) || !footwearLicenseSource) {
+      throw new Error(
+        `footwear embed for ${bodyClassId} has no licence from a .mhclo header: ` +
+          `token=${footwearLicenseToken || "(absent)"}`,
       );
     }
     finishStepsRun.push("embed_library_footwear");
@@ -935,6 +1057,9 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       finishStepsRun: [...finishStepsRun, "catalog_stamp"],
       footwearMeshNames,
       footwearTriangleCount,
+      footwearShoeId,
+      footwearLicenseToken,
+      footwearLicenseSource,
       lowerGarmentId: lowerMeshFromStage ? LIBRARY_LOWER_GARMENT_ID : null,
       lowerGarmentMeshName: lowerMeshFromStage,
       lowerGarmentTriangleCount: lowerTrisFromStage,
@@ -965,6 +1090,9 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
           finishStepsRun: entry.finishStepsRun,
           footwearMeshNames: entry.footwearMeshNames,
           footwearTriangleCount: entry.footwearTriangleCount,
+          footwearShoeId: entry.footwearShoeId,
+          footwearLicenseToken: entry.footwearLicenseToken,
+          footwearLicenseSource: entry.footwearLicenseSource,
           lowerGarmentId: entry.lowerGarmentId,
           lowerGarmentMeshName: entry.lowerGarmentMeshName,
           lowerGarmentTriangleCount: entry.lowerGarmentTriangleCount,
