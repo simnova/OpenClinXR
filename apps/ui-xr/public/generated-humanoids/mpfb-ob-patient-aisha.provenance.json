@@ -20,7 +20,7 @@
     "materializedFrom": "candidates/mpfb-ob-patient-aisha-rigged-candidate.glb (tracked comparator candidate, byte-identical promote)",
     "sourceRecordPath": ".openclinxr-local/provider-cache/mpfb/",
     "generator": "tools/openclinxr/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Regenerated 2026-08-11 (#321): the candidate materializer fits a real MakeHuman garment on the #318 helper-stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (the same code body_param_stage.py uses for the hm08 library rail; D1). The CC0 toigo_basic_tucked_t-shirt is fitted AFTER the strip because .mhclo vertex refs index the canonical 13,380-vert hm08 topology (toigo max ref 11,017 < 13,380); the polo (3,648 refs into helper verts) is refused. HELPER_STRIP census unchanged (verts 19158 -> 13380; tris 36972 -> 26756); garment adds 2,700 tris (29,456 total) and is bound to the standard rig via k-NN body-group projection. The 13 usable mouth targets and 137-joint rig survive. Garment choice: least-wrong for an OB triage patient — a hospital gown is not in the cached library and a scrub shirt is staff wear. Candidate sha256 af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9."
+    "derivationNote": "Regenerated 2026-08-11 (#321): the candidate materializer fits a real MakeHuman garment on the #318 helper-stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (the same code body_param_stage.py uses for the hm08 library rail; D1). The CC0 toigo_basic_tucked_t-shirt is fitted AFTER the strip because .mhclo vertex refs index the canonical 13,380-vert hm08 topology (toigo max ref 11,017 < 13,380); the polo (3,648 refs into helper verts) is refused. HELPER_STRIP census unchanged (verts 19158 -> 13380; tris 36972 -> 26756); garment adds 2,700 tris (29,456 total) and is bound to the standard rig via k-NN body-group projection (spine01-04/upperarm01/neck01 dominant). #321 handback fix: the garment object transform is baked to identity with apply_object_transforms immediately after import (the same bake MPFB's body loader performs), because the OBJ importer's 90-degree X rotation rendered the fitted body-local coords onto the floor. Measured post-fix garment Y [0.97, 1.42] overlaps the rig torso band (pelvis 0.874 to clavicle 1.342, from the skin's inverse bind matrices). The 13 usable mouth targets and 137-joint rig survive. Garment choice: least-wrong for an OB triage patient — a hospital gown is not in the cached library and a scrub shirt is staff wear. Candidate sha256 3db127303027d0e89e155eb637e8efe6fb1cad84efaf4b36f5fdd0bfe9975635."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_promotion",
@@ -67,12 +67,12 @@
     "Issue #318: the candidate materializer strips MakeHuman's clothes and hair FITTING SHELLS with the MPFB-shipped ExportService.bake_modifiers_remove_helpers (remove_helpers=True), called after the face-target load so morph keys stay indexed to the full base topology. The shipped GLB drops from 36,972 to 26,756 tris (13,380 verts in Blender, MADR 0052 documented pair); the 32 FACS targets and 137-joint rig survive. The post-strip figure is an unclothed body; OB triage wardrobe staging is MADR 0052 P3.",
     "Issue #321: the candidate materializer fits the CC0 toigo_basic_tucked_t-shirt onto the stripped basemesh via the PROVEN ClothesService.fit_clothes_to_human path (body_param_stage.py uses the same service for the hm08 library rail). The fit runs after the strip because .mhclo vertex refs index the 13,380-vert hm08 topology; the polo (helper-vert refs) is refused rather than fitted against absent indices. Garment material mat_makeclothes_library_toigo_t_shirt; garment 2,700 tris / 5,400 exported verts, skinned to the standard rig. Total 29,456 tris; 13 usable mouth targets and 137 joints unchanged. Garment choice is the least-wrong OB triage option: a hospital gown is not in the cached library and a scrub shirt is staff wear.",
     "Not a realism gate pass; orchestrator grades the render and decides whether the material-class mismatch blocks adoption.",
-    "Byte-identical to the tracked candidates/ comparator (sha256 af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9)."
+    "Byte-identical to the tracked candidates/ comparator (sha256 3db127303027d0e89e155eb637e8efe6fb1cad84efaf4b36f5fdd0bfe9975635)."
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "af58873b156382a17fae7b8f68004657026d5b05deac2b8683fcb57892b8cee9",
+  "outputSha256": "3db127303027d0e89e155eb637e8efe6fb1cad84efaf4b36f5fdd0bfe9975635",
   "outputBytes": 5406792,
-  "generatedAt": "2026-08-11T14:50:00.000+00:00",
+  "generatedAt": "2026-08-11T15:30:00.000+00:00",
   "method": "byte_identical_promote_from_candidates_comparator"
 }

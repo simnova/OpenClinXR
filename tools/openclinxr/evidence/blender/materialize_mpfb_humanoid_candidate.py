@@ -142,7 +142,7 @@ def main():
     _stage_dir = pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_stage_dir) not in _sys3.path:
         _sys3.path.insert(0, str(_stage_dir))
-    from body_param_stage import import_obj, transfer_weights_body_to_garment  # noqa: E402
+    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment  # noqa: E402
 
     _garment_dir = (
         pathlib.Path(__file__).resolve().parents[4]
@@ -157,6 +157,13 @@ def main():
     from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
 
     garment = import_obj(str(garment_obj), "makeclothes_library_toigo_t_shirt", force_z=False)
+    # #321 handback: bake the OBJ importer's axis rotation into mesh data so the garment object is
+    # identity/Z-up — the SAME bake MPFB's body loader performs on the basemesh
+    # (`ObjectService.load_wavefront_file`, transform_apply(rotation=True)). The fit writes BODY-LOCAL
+    # coordinates into the garment mesh; a garment object carrying the importer's 90-degree X rotation
+    # renders those coords rotated (measured: garment on the floor with Y/Z swapped). apply_object_transforms
+    # is the proven helper body_param_stage uses; this is a bake, not a hand-written matrix.
+    apply_object_transforms(garment)
     garment.data.materials.clear()
     # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
     garment.data.materials.append(
