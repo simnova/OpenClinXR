@@ -76,6 +76,27 @@ import { describe, expect, it } from "vitest";
  * is asserted here. Whether the polo is correctly refused is stated in the header as a requirement on
  * the fix and is NOT machine-checked by this contract: no clause fires if a worker simply never attempts
  * it. Clinical appropriateness of the chosen garment is a staging question (P3), not this one.
+ *
+ * ## FIXED (#321)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now fits the CC0 `toigo_basic_tucked_t-shirt` onto the
+ * helper-stripped basemesh via the PROVEN `ClothesService.fit_clothes_to_human` path
+ * (body_param_stage.py uses it for the hm08 library rail; exportservice/ClothesService are the
+ * MPFB-shipped fitters). The fit runs AFTER the #318 helper strip because .mhclo vertex refs index
+ * the canonical 13,380-vert hm08 basemesh topology — toigo max ref 11,017 < 13,380. The polo
+ * (max ref 18,181, 3,648 refs into helper verts) is REFUSED: fitting it would require reverting the
+ * strip. The garment is bound to the standard rig with the proven k-NN body-group projection so it
+ * deforms with the body. Measured from the shipped GLB after the fix (NodeIO):
+ *
+ *   mpfb-ob-patient-aisha.glb   20,162 verts   29,456 total tris   3 primitives   137 joints
+ *   garment: mat_makeclothes_library_toigo_t_shirt, 5,400 verts / 2,700 tris, JOINTS_0 skinned
+ *   body: 26,756 tris (strip preserved, HELPER_STRIP 19158 -> 13380 verts / 36972 -> 26756 tris)
+ *   usable mouth targets: 13 (unchanged from #317/#318)
+ *
+ * The `it.fails` marker on (1) was flipped to `it`; all four clauses pass on the clothed asset.
+ * Clinical staging note: a hospital gown is the ideal OB triage garment and is not in the cached
+ * library; the basic t-shirt (street clothes) is the least-wrong fittable option. Flagged in the
+ * issue close, not asserted here.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -163,7 +184,7 @@ function requireMeasured(): void {
 }
 
 describe("the MPFB2 actor wears a fitted MakeHuman garment", () => {
-  it.fails("(1) RED: aisha carries at least one fitted garment primitive with real geometry", () => {
+  it("(1) RED: aisha carries at least one fitted garment primitive with real geometry", () => {
     requireMeasured();
     expect(
       aisha.garmentPrims,

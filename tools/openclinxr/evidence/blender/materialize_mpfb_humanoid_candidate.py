@@ -124,6 +124,63 @@ def main():
     if armature is None:
         raise RuntimeError("MPFB standard rig was not created")
     armature.name = "mpfb_ob_patient_aisha_standard_rig"
+
+    # #321: fit a real MakeHuman garment on the helper-stripped basemesh via the
+    # PROVEN ClothesService path (D1) — the same code body_param_stage.py uses for
+    # the hm08 library rail. Do not hand-author garment geometry and do not write a
+    # new fitter. ORDER IS LOAD-BEARING: the fit runs AFTER the #318 helper strip
+    # because .mhclo vertex refs index the canonical 13,380-vert hm08 basemesh
+    # topology — exactly what the strip leaves. The toigo basic tucked t-shirt is
+    # CC0 (mhclo header) and references only body verts (max ref 11,017 < 13,380);
+    # the polo references 3,648 helper verts and CANNOT fit a stripped basemesh —
+    # it is refused loudly, not fitted against absent indices (clause 3).
+    # CLINICAL CHOICE: the least-wrong garment for an OB triage patient. A hospital
+    # gown is not in the cached library and a scrub shirt is staff wear; a patient
+    # presenting in street clothes (a basic t-shirt) is plausible triage staging.
+    import sys as _sys3
+
+    _stage_dir = pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/makeclothes"
+    if str(_stage_dir) not in _sys3.path:
+        _sys3.path.insert(0, str(_stage_dir))
+    from body_param_stage import import_obj, transfer_weights_body_to_garment  # noqa: E402
+
+    _garment_dir = (
+        pathlib.Path(__file__).resolve().parents[4]
+        / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt"
+    )
+    garment_obj = _garment_dir / "t_shirt_basic_tucked.obj"
+    garment_mhclo = _garment_dir / "toigo_basic_tucked_t-shirt.mhclo"
+    if not garment_obj.is_file() or not garment_mhclo.is_file():
+        raise RuntimeError(f"toigo t-shirt sources missing in provider cache: {_garment_dir}")
+
+    from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo  # noqa: E402
+    from bl_ext.user_default.mpfb.services.clothesservice import ClothesService  # noqa: E402
+
+    garment = import_obj(str(garment_obj), "makeclothes_library_toigo_t_shirt", force_z=False)
+    garment.data.materials.clear()
+    # Name matches the GARMENT_MATERIAL regex the evidence RED reads (makeclothes/shirt).
+    garment.data.materials.append(
+        make_material("mat_makeclothes_library_toigo_t_shirt", (0.30, 0.45, 0.62, 1.0))
+    )
+    mhclo = Mhclo()
+    mhclo.load(str(garment_mhclo))
+    try:
+        mhclo.clothes = garment
+    except Exception:
+        pass
+    garment_verts_before = len(garment.data.vertices)
+    ClothesService.fit_clothes_to_human(garment, human, mhclo=mhclo, set_parent=True)
+    bpy.context.view_layer.update()
+    garment_verts_after = len(garment.data.vertices)
+    garment_tris = sum(max(len(p.vertices) - 2, 0) for p in garment.data.polygons)
+    # Bind the garment to the same armature so it deforms with the body (the proven
+    # weight projection body_param_stage runs for the hm08 rail; not a rigid shell).
+    weights = transfer_weights_body_to_garment(human, garment, armature)
+    print(
+        f"GARMENT_FIT {garment.name} verts {garment_verts_before} -> {garment_verts_after} "
+        f"tris {garment_tris} weights {weights}"
+    )
+
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
     action = bpy.data.actions.new("ClinicalIdleConversation")
