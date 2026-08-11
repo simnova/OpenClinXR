@@ -227,9 +227,14 @@ describe("every runtime pose landmark resolves on every shipped humanoid rail", 
       "mixamorig:LeftHandIndex1",
       "mixamorig:LeftHandThumb1",
     ];
-    for (const rig of rigs.filter((r) => r.id !== "mpfb2_aisha")) {
+    for (const rig of rigs.filter((r) => r.id.startsWith("library"))) {
       const lost = MIXAMORIG_MUST_KEEP.filter((b) => !rig.names.has(b));
       expect(lost, `${rig.id}: mixamo_unity chain/fingers lost`).toEqual([]);
+    }
+    // and the Anny rail keeps the canonical 23-bone landmark names it has always carried
+    for (const rig of rigs.filter((r) => r.id === "anny_parent")) {
+      const absent = POSE_LANDMARKS.filter((l) => !rig.names.has(l));
+      expect(absent, `${rig.id}: 23-bone rail lost a landmark`).toEqual([]);
     }
   });
 });

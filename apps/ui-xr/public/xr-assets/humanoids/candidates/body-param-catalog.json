@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T11:22:01.933Z",
+  "generatedAt": "2026-08-11T11:43:23.937Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -19,8 +19,8 @@
       "glbPublicPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
       "bodyMeshName": "hm08_basemesh_adult_lean_female",
       "bodyVertexCount": 13380,
-      "heightMeters": 1.732452806616294,
-      "torsoGirthProxyMeters": 0.4910294032928611,
+      "heightMeters": 1.732452630996704,
+      "torsoGirthProxyMeters": 0.49102943279025085,
       "garmentMeshName": "makeclothes_library_civilian_shirt_adult_lean_female",
       "garmentKind": "cover_shell",
       "garmentFittedToBodyClass": "adult_lean_female",
@@ -38,7 +38,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0,
-      "glbSha256": "89dfc172cc5a11a1463c111b6b82d3558b12655177b9e5870bfaa038efb50f18",
+      "glbSha256": "24d9ae1b9c6f28efa1b7c99e6423a17544bbef5a1af8be1648859b5e020dfc53",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -102,7 +102,7 @@
       "bodyMeshName": "hm08_basemesh_adult_heavy_male",
       "bodyVertexCount": 13380,
       "heightMeters": 1.6974011659622192,
-      "torsoGirthProxyMeters": 0.5655706142870527,
+      "torsoGirthProxyMeters": 0.5655706135361036,
       "garmentMeshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
       "garmentKind": "library",
       "garmentFittedToBodyClass": "adult_heavy_male",
@@ -119,8 +119,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0138,
-      "glbSha256": "ea92085099ef0e986df7ccd65a7211860fd23cd4c4fa0f6d2f6cfaaa53ac46b3",
+      "fitWallClockS": 0.0132,
+      "glbSha256": "2f673006bd7e0f97b51cc01a08ee6f6367f23e842f93a0d038f1f65bcbcbb32d",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -195,15 +195,15 @@
   "deformationCalibration": {
     "drivenBone": "mixamorig:LeftArm",
     "rotationDegrees": 55,
-    "deformationEpsilonMeters": 0.11031,
+    "deformationEpsilonMeters": 0.1051,
     "source": "calibrated_half_median_bone_tip_motion_this_export",
     "perClassBodyDeformationMeters": [
-      0,
-      0
+      0.32169,
+      0.31467
     ],
     "perClassGarmentDeformationMeters": [
-      0,
-      0
+      0.57213,
+      0.24319
     ]
   }
 }

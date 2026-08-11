@@ -761,13 +761,25 @@ def create_mpfb_mixamo_rig(basemesh: bpy.types.Object) -> dict:
         if arm is None:
             raise RuntimeError(f"add_builtin_rig returned None for rig {MPFB_RIG_NAME}")
         # add_builtin_rig parents the mesh to the armature and moves the mesh to local
-        # (0,0,0). Unparent preserving world so the pipeline's unparented-mesh
-        # invariant holds; the armature object stays linked in the scene.
+        # (0,0,0) — the mesh KEEPS its obj_import object rotation (+90° about X: local
+        # MakeHuman Y-up frame -> world Z-up standing). Unparent preserving world so the
+        # pipeline's unparented-mesh invariant holds.
         mw = basemesh.matrix_world.copy()
         basemesh.parent = None
         basemesh.matrix_world = mw
-        apply_object_transforms(basemesh)
+
+        # issue-307 frame fix: MPFB placed the bones from the mesh's LOCAL coords (the
+        # MakeHuman Y-up frame), but the mesh's WORLD is Z-up (obj_import object
+        # rotation). Left at identity, the armature's bones come out rotated ~90° about
+        # X relative to the skinned body — measured at bind: the head bone at the chest
+        # (y=0.609, z=0.834 on a 1.59 m body) and a zero-vertex deformation band. Give
+        # the armature the SAME object rotation the mesh carries and bake it into the
+        # bones, so the rig sits inside the body. The mesh itself stays UNBAKED (local
+        # Y-up) here — the garment fit + macro bake below read the same local frame the
+        # .mhclo vertex maps expect.
+        arm.matrix_world = mw.copy()
         bpy.context.view_layer.update()
+        apply_object_transforms(arm)
 
         # Drop the armature modifier add_builtin_rig added. The fit + macro bake run
         # AFTER this point with the macros as LIVE shape keys, and an active armature
