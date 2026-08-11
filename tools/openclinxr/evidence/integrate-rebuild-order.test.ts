@@ -48,6 +48,16 @@ import { packagesNeedingRebuild } from "../openclaw/integrate.ts";
  * NOT TESTED: whether every build-emitting package's manifest declares its real build inputs. A
  * dependency that exists only as a deep import and not in package.json is invisible to this ordering
  * and to the fix. That residual is the reason this contract asserts on edges it can SEE.
+ *
+ * ## FIXED (#292)
+ *
+ * `integrate.ts` now exports `orderPackagesForRebuild(names, repoRoot)` — a pure topological sort
+ * over declared `workspace:*` dependencies restricted to the changed set — and
+ * `packagesNeedingRebuild` delegates its ordering to it. The measured #291 pair now orders
+ * dependency-first (`shared-schemas` before `scenario-fixtures`), the
+ * `asset-registry`-before-`scenario-runtime` counterweight holds (no alphabetical direction
+ * satisfies both), and the known-good unconstrained set is preserved exactly once. A dependency
+ * cycle among the changed set throws rather than falling back to alphabetical order.
  */
 
 const REPO_ROOT = "/Volumes/files/src/openclinxr";
@@ -87,7 +97,7 @@ function indexOfOrFail(order: string[], name: string): number {
 }
 
 describe("integrate rebuilds changed packages in dependency order", () => {
-  it.fails(
+  it(
     "(1) puts @openclinxr/shared-schemas before its consumer @openclinxr/scenario-fixtures — the measured #291 land",
     () => {
       const order = packagesNeedingRebuild(REPO_ROOT, MERGE_BASE_REF, MERGE_HEAD_REF);
@@ -108,7 +118,7 @@ describe("integrate rebuilds changed packages in dependency order", () => {
     },
   );
 
-  it.fails(
+  it(
     "(2) COUNTERWEIGHT: puts @openclinxr/asset-registry before @openclinxr/scenario-runtime — refuses a reversed alphabetical sort",
     async () => {
       // asset-registry < scenario-runtime alphabetically, so DESCENDING order breaks this pair while
@@ -127,7 +137,7 @@ describe("integrate rebuilds changed packages in dependency order", () => {
     },
   );
 
-  it.fails(
+  it(
     "(3) KNOWN-GOOD: an unconstrained set keeps every package exactly once — a topological sort must not drop or invent",
     async () => {
       const input = ["@openclinxr/shared-schemas", "@openclinxr/asset-registry"];
