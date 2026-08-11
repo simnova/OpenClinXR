@@ -33,10 +33,14 @@ Additional:
 ```text
 1) VR hard-surface multi-view Grok packs (not photoreal)
 2) pnpm factory:trellis:bake --subject <id>   # multi-view when 4 files exist
-3) Proven optimize iterations (see scripts/iterate-optimize.ts)
-4) glb-grade lit + structure; three_quarter often better than front for carts
-5) Record raw + best tris + paths in evidence/
+3) pnpm factory:trellis:optimize --input raw.glb --out <dir>   # high-error targets → champion
+4) pnpm factory:trellis:pack --input champion.glb --out champion-meshopt.glb --compress
+5) glb-grade lit + structure; three_quarter often better than front for carts
+6) Record raw + best tris + paths in evidence/
 ```
+
+**meshoptimizer (zeux):** already the post-opt engine (`MeshoptSimplifier` + optional **gltfpack** delivery).  
+`factory:trellis:pack` wraps `gltfpack` for GPU-friendly quantize/cache + `-cc` compression. Do not use `-sa -se 1` (can zero the mesh).
 
 ### Pack layout
 
@@ -109,7 +113,8 @@ pnpm asset:model-vetting:glb-grade --glb <raw.glb> --glb <best.glb>
 - `tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts` — multi-view factory bake
 - `tools/openclinxr/evidence/blender/run_bake_isolated.py` — isolated Metal + multi-view cond
 - `tools/openclinxr/asset-pipeline/trellis/vr-postopt-ladder.ts` — chain ladder (baseline)
-- `tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts` — **proven 3-iter technique**
+- `tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts` — **proven 3-iter technique** (`factory:trellis:optimize`)
+- `tools/openclinxr/asset-pipeline/trellis/trellis-pack-cli.ts` — **gltfpack delivery** (`factory:trellis:pack`)
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` — pack operator spec
 - `tools/openclinxr/evidence/trellis-monitor-decimation.ts` — exterior strip / deeper instruments (#250)
 - Evidence examples: `.openclinxr/evidence/trellis-bake/` (photoreal), `trellis-bake-vr-hard/` (hard-surface)

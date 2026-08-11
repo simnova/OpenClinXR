@@ -371,7 +371,8 @@
     "asset:model-vetting:glb-grade:validate": "tsx tools/openclinxr/evidence/model-vetting-glb-grade-capture.ts --validate-latest",
     "asset:makeclothes:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/fit-cli.ts",
     "asset:body-param:fit": "tsx tools/openclinxr/asset-pipeline/makeclothes/body-param-cli.ts",
-    "factory:trellis:optimize": "tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts"
+    "factory:trellis:optimize": "tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
+    "factory:trellis:pack": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-pack-cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
