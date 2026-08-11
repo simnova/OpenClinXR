@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "openclinxr.dark-factory-multi-case.pre-fix.v1",
+  "generatedAt": "2026-08-11T01:22:45.104Z",
+  "population": [
+    "adult_abdominal_pain_v1",
+    "clinic_abdominal_pain_interpreter_v1",
+    "ed_chest_pain_priority_v1",
+    "ed_chest_pain_priority_v2",
+    "ed_stroke_alert_handoff_v1",
+    "ob_headache_preeclampsia_triage_v1",
+    "oncology_bad_news_family_v1",
+    "peds_asthma_parent_anxiety_v1",
+    "peds_fever_v1",
+    "postop_fever_consult_pressure_v1",
+    "primary_care_dyslipidemia_joint_pain_v1",
+    "psych_suicidal_ideation_safety_v1",
+    "stepdown_sepsis_nurse_escalation_v1",
+    "telehealth_diabetes_health_literacy_v1",
+    "ward_delirium_med_rec_v1"
+  ],
+  "populationSource": "apps/ui-xr/public/xr-assets/generated/*/learner-runtime-bundle.v1.json (shipped station bundles)",
+  "coveredBy286": [
+    "peds_asthma_parent_anxiety_v1"
+  ],
+  "notes": [
+    "#286 ran exactly one case (peds_asthma_parent_anxiety_v1) and ended in a live render; its per-stage runner scripts were never landed (git ls-files shows JSON/OBJ/PNG outputs and no .ts under .openclinxr/evidence/issue-286/).",
+    "This run chains the same adopted stations (#286-recorded implementations) over the whole shipped case population; no numeric target is asserted here — the roll-up reports what happened per case per station.",
+    "case_to_actor_params/body/rigging sustain only cases with a CASE_ACTOR_PRESETS entry; room/equipment/placement/render are expected to sustain the full population."
+  ]
+}
