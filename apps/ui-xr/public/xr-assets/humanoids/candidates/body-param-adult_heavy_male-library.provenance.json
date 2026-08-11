@@ -103,7 +103,7 @@
   "licenseToken": "CC-BY",
   "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-324/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "06fffefb2a24b3cbc1fd77280487725965e978534720755097f7e4913afa1138",
+  "glbSha256": "d3b308a9e4a9a59eca349d3abf3fce8d3ea1b5cb7b01e6a5951d31668d4a3731",
   "torsoGirthProxyMeters": 0.5655706135361036,
   "heightMeters": 1.6974011659622192,
   "notEvidenceFor": [

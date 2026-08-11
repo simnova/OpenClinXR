@@ -61,10 +61,6 @@ from mathutils import Vector
 # MPFB base units are decimetres; the shipped GLBs are in metres. The stage uses the
 # same 0.1 conversion (MH_UNITS_TO_METRES in body_param_stage.py).
 MH_UNITS_TO_METRES = 0.1
-# Helper vertices start at index 13,380 on the hm08 basemesh (19,158 verts total).
-# The staged CC0 shoes reference only body-surface verts (< 13,380), so they fit the
-# helper-stripped body. The reference foot anchor must use the body-surface verts too.
-BODY_SURFACE_VERT_COUNT = 13380
 
 
 def parse_args() -> argparse.Namespace:
@@ -179,31 +175,6 @@ def footwear_color(actor_role: str) -> Tuple[float, float, float, float]:
     return (0.10, 0.09, 0.08, 1.0)
 
 
-def foot_anchor(
-    obj: bpy.types.Object,
-    band: float,
-    max_index: Optional[int] = None,
-) -> Tuple[Vector, int]:
-    """Sole (min Z) + X/Y centre of the foot region of `obj`.
-
-    Band is a Z height above the sole. `max_index` restricts to body-surface verts
-    (index < 13,380) so helper geometry that extends below the foot cannot drag the
-    sole anchor (measured: the base.obj helpers reach ~0.09 dm below the foot sole).
-    """
-    verts = list(obj.data.vertices)
-    if max_index is not None:
-        verts = [v for v in verts if v.index < max_index]
-    if not verts:
-        raise RuntimeError("foot_anchor: no vertices")
-    zmin = min(v.co.z for v in verts)
-    sel = [v for v in verts if v.co.z <= zmin + band]
-    if not sel:
-        sel = verts
-    cx = sum(v.co.x for v in sel) / len(sel)
-    cy = sum(v.co.y for v in sel) / len(sel)
-    return Vector((cx, cy, zmin)), len(sel)
-
-
 def apply_phenotype_macros(reference: bpy.types.Object, phenotype: dict) -> None:
     """#324 — re-apply the body class's phenotype macros to the fit reference.
 
@@ -312,34 +283,140 @@ def fit_shoe(
     return shoe, fit_s
 
 
-def place_shoe_on_body(shoe: bpy.types.Object, body: bpy.types.Object, reference: bpy.types.Object) -> dict:
-    """Scale the fitted shoe from MH units into the GLB body frame and translate by foot anchors.
+def foot_joint_dominant_verts(
+    obj: bpy.types.Object,
+    arm: bpy.types.Object,
+) -> List[bpy.types.MeshVertex]:
+    """Body vertices whose dominant bone is a foot bone (#324 placement anchor).
 
-    The fit placed the shoe in the reference basemesh's local frame (dm, feet at the
-    reference sole). The GLB body is in metres with feet planted at z=0. The transfer
-    is scale 0.1 + a sole/x-y anchor translation computed from the actual foot
-    geometry of both meshes — never authored coordinates (D1).
+    Same vocabulary the evidence contract `footwear-is-a-real-garment` uses for the
+    foot extent: dominant = the bone-named vertex group with the highest weight
+    (the mixamo_unity rig's `mixamorig:LeftFoot` / `mixamorig:RightFoot`). The
+    exported GLB reindexes vertices on material-split primitives, so the bake-time
+    anchor is computed from the imported vertex groups, not glTF indices.
     """
-    ref_foot, ref_n = foot_anchor(reference, band=1.2, max_index=BODY_SURFACE_VERT_COUNT)
-    body_foot, body_n = foot_anchor(body, band=0.11)
+    bone_names = {b.name for b in arm.data.bones}
+    foot_bones = {n for n in bone_names if "foot" in n.lower() and "toe" not in n.lower()}
+    if not foot_bones:
+        raise RuntimeError("#324 footwear: no foot bones on the armature")
+    group_names = {g.index: g.name for g in obj.vertex_groups}
+    out: List[bpy.types.MeshVertex] = []
+    for v in obj.data.vertices:
+        best_w = 0.0
+        best_name = None
+        for ge in v.groups:
+            name = group_names.get(ge.group)
+            if name in foot_bones and ge.weight > best_w:
+                best_w = ge.weight
+                best_name = name
+        if best_name is not None:
+            out.append(v)
+    if len(out) < 100:
+        raise RuntimeError(f"#324 footwear: too few foot-joint-dominant body verts ({len(out)})")
+    return out
+
+
+def place_shoe_on_body(
+    shoe: bpy.types.Object,
+    body: bpy.types.Object,
+    arm: bpy.types.Object,
+) -> dict:
+    """Scale the fitted shoe from MH units into the GLB body frame and translate by landmarks.
+
+    The fit placed the shoe in the reference basemesh's local frame (dm, Z-up, sole
+    near z=0). The GLB body is in metres with feet planted at z=0. The transfer is
+    scale 0.1 + a translation derived from ANATOMICAL LANDMARKS of the shipped body —
+    never authored coordinates (D1).
+
+    #324 fix (grader handback): the first bake aligned the shoe's foot-band MEAN to the
+    body's foot-band MEAN, and the body band's mean is biased toward the toe by the
+    ankle/instep verts it contains — the shoe's heel landed ~52-65 mm FORWARD of the
+    foot's heel (measured on the shipped GLB: shoe Z [0.155,0.388] vs foot-joint
+    [0.103,0.299], both rails). Alignment is now HEEL-TO-HEEL: the shoe's rearmost
+    point (max Blender Y) is placed at the foot-joint-dominant body verts' rearmost
+    point, so the shoe's Z range CONTAINS the foot's Z range instead of merely
+    overlapping it. Sole (min Z) and X-centre alignment are unchanged.
+    """
+    foot_verts = foot_joint_dominant_verts(body, arm)
+    body_heel_y = max(v.co.y for v in foot_verts)
+    body_sole_z = min(v.co.z for v in foot_verts)
+    body_cx = sum(v.co.x for v in foot_verts) / len(foot_verts)
 
     for v in shoe.data.vertices:
         v.co *= MH_UNITS_TO_METRES
     bpy.context.view_layer.update()
 
-    shoe_foot, shoe_n = foot_anchor(shoe, band=0.06)
-    delta = body_foot - shoe_foot
+    shoe_heel_y = max(v.co.y for v in shoe.data.vertices)
+    shoe_sole_z = min(v.co.z for v in shoe.data.vertices)
+    shoe_cx = sum(v.co.x for v in shoe.data.vertices) / len(shoe.data.vertices)
+
+    delta = Vector((body_cx - shoe_cx, body_heel_y - shoe_heel_y, body_sole_z - shoe_sole_z))
     for v in shoe.data.vertices:
         v.co += delta
     bpy.context.view_layer.update()
 
     return {
-        "referenceFootAnchorDm": [round(x, 5) for x in ref_foot],
-        "referenceFootVertexCount": ref_n,
-        "bodyFootAnchorM": [round(x, 5) for x in body_foot],
-        "bodyFootVertexCount": body_n,
-        "shoeFootAnchorM": [round(x, 5) for x in shoe_foot],
-        "placementDeltaM": [round(x, 6) for x in delta],
+        "anchor": "foot_joint_dominant_heel_to_heel",
+        "bodyFootJointVertexCount": len(foot_verts),
+        "bodyHeelY": round(body_heel_y, 5),
+        "bodySoleZ": round(body_sole_z, 5),
+        "bodyCentreX": round(body_cx, 5),
+        "shoeHeelY": round(shoe_heel_y, 5),
+        "shoeSoleZ": round(shoe_sole_z, 5),
+        "shoeCentreX": round(shoe_cx, 5),
+        "placementDeltaM": [round(delta.x, 6), round(delta.y, 6), round(delta.z, 6)],
+    }
+
+
+def placement_diagnostics(
+    shoe_halves: Dict[str, bpy.types.Object],
+    arm: bpy.types.Object,
+) -> dict:
+    """#324 measure-first artifact: shoe object transforms + foot bone world positions.
+
+    The #321 failure class is an object transform that is not baked before export. The
+    shoe halves are created at identity and their vertices carry the world position, so
+    this records that fact at split time (post-placement, pre-export): each half's
+    object TRS and the armature's world matrix and foot-bone world head/tail. If the
+    shoe's local and world coords ever disagree, this block is the answer.
+    """
+    arm_world = arm.matrix_world
+    bones = {}
+    for side, bone_name in (("L", "mixamorig:LeftFoot"), ("R", "mixamorig:RightFoot")):
+        eb = arm.data.bones.get(bone_name)
+        if eb is not None:
+            h = arm_world @ eb.head_local
+            t = arm_world @ eb.tail_local
+            bones[bone_name] = {
+                "headWorld": [round(h.x, 5), round(h.y, 5), round(h.z, 5)],
+                "tailWorld": [round(t.x, 5), round(t.y, 5), round(t.z, 5)],
+            }
+    return {
+        "armatureWorld": {
+            "translation": [round(x, 6) for x in arm_world.to_translation()],
+            "rotation": [round(x, 6) for x in arm_world.to_euler()],
+            "scale": [round(x, 6) for x in arm_world.to_scale()],
+        },
+        "footBonesWorld": bones,
+        "shoeHalves": {
+            side: {
+                "objectTransform": {
+                    "location": [round(x, 6) for x in obj.location],
+                    "rotationEuler": [round(x, 6) for x in obj.rotation_euler],
+                    "scale": [round(x, 6) for x in obj.scale],
+                },
+                "parent": obj.parent.name if obj.parent else None,
+                "worldBBox": {
+                    "min": [round(min(v.co.x for v in obj.data.vertices), 5),
+                            round(min(v.co.y for v in obj.data.vertices), 5),
+                            round(min(v.co.z for v in obj.data.vertices), 5)],
+                    "max": [round(max(v.co.x for v in obj.data.vertices), 5),
+                            round(max(v.co.y for v in obj.data.vertices), 5),
+                            round(max(v.co.z for v in obj.data.vertices), 5)],
+                },
+            }
+            for side, obj in shoe_halves.items()
+        },
     }
 
 
@@ -445,7 +522,7 @@ def main() -> None:
     reference = build_fit_reference(args.mh_base_obj, phenotype)
     mesh_name = f"makeclothes_library_footwear_{args.shoe_kind}"
     shoe, fit_s = fit_shoe(args.shoe_mhclo, args.shoe_obj, reference, mesh_name)
-    placement = place_shoe_on_body(shoe, body, reference)
+    placement = place_shoe_on_body(shoe, body, arm)
     bpy.data.objects.remove(reference, do_unlink=True)
 
     halves = split_shoe_halves(shoe, args.shoe_kind)
@@ -490,6 +567,10 @@ def main() -> None:
         "fitWallClockS": round(fit_s, 4),
         "fittedAgainst": "mpfb_base_obj_with_body_class_phenotype_macros",
         "placement": placement,
+        # #324 measure-first artifact: the shoe object transforms + foot bone world
+        # positions at split time (post-placement, pre-export). If the shoe's local and
+        # world coords ever disagree, this block is the answer (the #321 failure class).
+        "placementDiagnostics": placement_diagnostics(halves, arm),
         "shells": shells,
         "totalFaceCount": total_faces,
         "bodyHeight": round(body_bounds["z"][1] - body_bounds["z"][0], 6),
