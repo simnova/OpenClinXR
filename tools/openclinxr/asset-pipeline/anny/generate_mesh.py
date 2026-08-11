@@ -396,6 +396,17 @@ def build_source_body(params: Dict[str, Any]) -> Dict[str, Any]:
         mesh = build_simple_uv_body(params)
         mesh["fallback_reason"] = "force_stub_mesh_param"
         return mesh
+    # issue-291 refuse gate: a missing phenotype that silently yields a generic
+    # adult is how six humanoids became one body (#276). Refuse before any
+    # fallback, so even the broken-real-Anny path cannot quietly default.
+    phenotype = params.get("phenotype")
+    if not isinstance(phenotype, dict) or len(phenotype) == 0:
+        raise SystemExit(
+            "REFUSE (issue-291): params carry no phenotype — a missing phenotype that silently "
+            "yields a generic adult is how six humanoids became one body (#276). Author phenotype "
+            "on the scenario fixture actor record and let orchestrate_character.py resolve it, "
+            "or pass an explicit non-empty phenotype dict (force_stub_mesh is the escape hatch)."
+        )
     try:
         return build_real_anny_body(params)
     except Exception as exc:

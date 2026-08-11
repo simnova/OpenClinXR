@@ -1,0 +1,515 @@
+{
+  "schemaVersion": "openclinxr.phenotype-field-inventory.v1",
+  "generatedAt": "2026-08-11T01:50:16.685223+00:00",
+  "issue": 291,
+  "title": "Phenotype lives in a Python dict in the asset pipeline, not in the case definition",
+  "method": "Full field inventory extracted programmatically from CASE_ACTOR_PRESETS (tools/openclinxr/asset-pipeline/anny/orchestrate_character.py); classification is the orchestrator/worker judgement per issue-291; migration proof runs both the legacy preset path and the new case-definition reader path through generate_mesh.py and compares.",
+  "preset_entries_inventoried": [
+    "ed_chest_pain_priority_v2:patient_ed_chest_pain_v1",
+    "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1",
+    "peds_asthma_parent_anxiety_v1:parent_tara_johnson_v1",
+    "peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1"
+  ],
+  "case_definition_home": "packages/openclinxr/scenario-fixtures/src/pediatric-asthma.ts actor records -> packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json (committed export, drift-guarded)",
+  "reader_implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py params_from_case_definition() (fixture export takes precedence over the legacy Python dict)",
+  "refuse_gate": "generate() and generate_mesh.build_source_body() REFUSE a case/params with no phenotype (SystemExit) instead of silently defaulting to a generic adult (#276); force_stub_mesh is the documented escape hatch",
+  "field_table": [
+    {
+      "field": "age",
+      "types": [
+        "int"
+      ],
+      "sample_values": [
+        52,
+        29,
+        34,
+        8
+      ],
+      "carried_by_actors": [
+        "nurse_kevin_lee_v1",
+        "parent_tara_johnson_v1",
+        "patient_ed_chest_pain_v1",
+        "patient_maya_johnson_v1"
+      ],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record",
+      "note": "Authored inside the fixture phenotype object; the reader hoists these to generator top-level params."
+    },
+    {
+      "field": "body_profile",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "adult_standard",
+        "adult_clinical_team",
+        "adult_standard_parent",
+        "pediatric_school_age"
+      ],
+      "carried_by_actors": [
+        "nurse_kevin_lee_v1",
+        "parent_tara_johnson_v1",
+        "patient_ed_chest_pain_v1",
+        "patient_maya_johnson_v1"
+      ],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record",
+      "note": "Authored inside the fixture phenotype object; the reader hoists these to generator top-level params."
+    },
+    {
+      "field": "phenotype",
+      "types": [
+        "dict"
+      ],
+      "sample_values": [],
+      "carried_by_actors": [
+        "nurse_kevin_lee_v1",
+        "parent_tara_johnson_v1",
+        "patient_ed_chest_pain_v1",
+        "patient_maya_johnson_v1"
+      ],
+      "classification": "container",
+      "proposed_home": "reconstructed_by_reader_from_fixture_actor_phenotype",
+      "note": "The generator params `phenotype` dict is the container of the authored phenotype fields; the reader rebuilds it from the scenario-fixture actor record (issue-291)."
+    },
+    {
+      "field": "phenotype.accessoryMarkers",
+      "types": [
+        "list"
+      ],
+      "sample_values": [
+        [],
+        [
+          "name_badge",
+          "scrub_pocket"
+        ],
+        [],
+        []
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.age_wrinkle",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        0.18,
+        0.1,
+        0.22,
+        0.04
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.anny_topology",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "default",
+        "default"
+      ],
+      "carried_by_actors": [],
+      "classification": "pipeline",
+      "proposed_home": "stays_in_generator"
+    },
+    {
+      "field": "phenotype.anxious",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        0.65,
+        0.18,
+        0.82,
+        0.42
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.bmi",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        26.0,
+        23.0,
+        24.0,
+        16.5
+      ],
+      "carried_by_actors": [],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.brow_tension",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        0.55,
+        0.12,
+        0.36,
+        0.18
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.build",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "average_adult",
+        "average_clinical_team",
+        "average_parent",
+        "slender_asthma"
+      ],
+      "carried_by_actors": [],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.clothing_color",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "soft_blue",
+        "teal_scrubs",
+        "muted_rose",
+        "soft_blue"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.clothing_style",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "clinical_exam_tshirt_chest_pain",
+        "teal_clinical_scrubs_with_name_badge",
+        "muted_rose_guardian_cardigan",
+        "pediatric_soft_blue_exam_tshirt"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.eye_color",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "brown",
+        "brown",
+        "brown",
+        "hazel"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.fabricPalette",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "hospital_gown_blue_pattern",
+        "teal_scrubs_and_white_badge",
+        "muted_rose_and_neutral",
+        "soft_blue_and_warm_white"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.fitProfile",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "adult_standard_fit",
+        "adult_clinical_team_fit",
+        "adult_parent_average_fit",
+        "pediatric_slim_fit"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.flush",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        0.15,
+        0.02,
+        0.28,
+        0.05
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.garmentLayers",
+      "types": [
+        "list"
+      ],
+      "sample_values": [
+        [
+          "hospital_gown"
+        ],
+        [
+          "scrub_top",
+          "scrub_pocket"
+        ],
+        [
+          "casual_top",
+          "open_cardigan"
+        ],
+        [
+          "short_sleeve_exam_tshirt"
+        ]
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.gender_presentation",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "adult_male",
+        "adult_male_nurse",
+        "adult_female_parent",
+        "child"
+      ],
+      "carried_by_actors": [],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.hair_color",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "brown",
+        "black",
+        "dark_brown",
+        "light_brown"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.hair_density",
+      "types": [
+        "float"
+      ],
+      "sample_values": [
+        0.65,
+        0.58,
+        0.72,
+        0.55
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.height_cm",
+      "types": [
+        "int"
+      ],
+      "sample_values": [
+        178,
+        176,
+        166,
+        125
+      ],
+      "carried_by_actors": [],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.materialFinish",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "cotton_slight_sheen",
+        "poly_cotton_slight_sheen",
+        "cotton_knit_matte",
+        "cotton_matte"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.role_visual_cue",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "ed_chest_pain_patient",
+        "clinical_nurse",
+        "anxious_parent_guardian",
+        "pediatric_patient"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.skin_tone",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "warm_medium",
+        "medium_warm",
+        "warm_light",
+        "warm_light_child"
+      ],
+      "carried_by_actors": [],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "phenotype.sleeveGeometryExpansion",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "v2_gown_sleeves_0.35_len_r0.38_9r14c_rippled_folds_vivid_gown_blue",
+        "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
+        "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue",
+        "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
+      ],
+      "carried_by_actors": [],
+      "classification": "pipeline",
+      "proposed_home": "stays_in_generator"
+    },
+    {
+      "field": "phenotype.wardrobeRole",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "ed_patient_exam",
+        "pediatric_nurse_scrubs",
+        "anxious_parent_casual",
+        "patient_casual_child"
+      ],
+      "carried_by_actors": [],
+      "classification": "cosmetic",
+      "proposed_home": "scenario_fixture_actor_record"
+    },
+    {
+      "field": "pose",
+      "types": [
+        "str"
+      ],
+      "sample_values": [
+        "standing_neutral_chest_pain_priority",
+        "standing_clinical_ready",
+        "standing_anxious_guardian",
+        "standing_neutral_work_of_breathing"
+      ],
+      "carried_by_actors": [
+        "nurse_kevin_lee_v1",
+        "parent_tara_johnson_v1",
+        "patient_ed_chest_pain_v1",
+        "patient_maya_johnson_v1"
+      ],
+      "classification": "clinical",
+      "proposed_home": "scenario_fixture_actor_record",
+      "note": "Authored inside the fixture phenotype object; the reader hoists these to generator top-level params."
+    },
+    {
+      "field": "seed",
+      "types": [
+        "int"
+      ],
+      "sample_values": [
+        2001,
+        1003,
+        1002,
+        1001
+      ],
+      "carried_by_actors": [
+        "nurse_kevin_lee_v1",
+        "parent_tara_johnson_v1",
+        "patient_ed_chest_pain_v1",
+        "patient_maya_johnson_v1"
+      ],
+      "classification": "pipeline",
+      "proposed_home": "stays_in_generator"
+    }
+  ],
+  "migration_proof": {
+    "case": "peds_asthma_parent_anxiety_v1",
+    "actors": {
+      "patient_maya_johnson_v1": {
+        "params_identical": true,
+        "preset_params_hash": "34c5ed5f1a5abbb5c5f70d79e04fee325cb8ca38093c95a4b766d1d869995480",
+        "fixture_params_hash": "34c5ed5f1a5abbb5c5f70d79e04fee325cb8ca38093c95a4b766d1d869995480",
+        "preset_obj_sha256": "08b9b2f558ea4ee0087fff3258637bf9526301de1655dd9192fd639fbd74d252",
+        "fixture_obj_sha256": "08b9b2f558ea4ee0087fff3258637bf9526301de1655dd9192fd639fbd74d252",
+        "output_name": "peds_patient_child.glb",
+        "role": "patient"
+      },
+      "parent_tara_johnson_v1": {
+        "params_identical": true,
+        "preset_params_hash": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c",
+        "fixture_params_hash": "b94b4543f6becb1e3c0e06a954d83e0603dcbfc782738b6be87bef9f367d2b7c",
+        "preset_obj_sha256": "2b13d39cfdd13a418fb9dcab78b5d2bf1c6e33c2993bfbf4d6ec9701f6885007",
+        "fixture_obj_sha256": "2b13d39cfdd13a418fb9dcab78b5d2bf1c6e33c2993bfbf4d6ec9701f6885007",
+        "output_name": "peds_anxious_parent.glb",
+        "role": "family"
+      },
+      "nurse_kevin_lee_v1": {
+        "params_identical": true,
+        "preset_params_hash": "2fb5f3e5f60a19247ef53f6c445603f42d52495b2a805bd2be3d5f6909ef8aa3",
+        "fixture_params_hash": "2fb5f3e5f60a19247ef53f6c445603f42d52495b2a805bd2be3d5f6909ef8aa3",
+        "preset_obj_sha256": "d11ccf6f02912ea7d1a2dcb05f0eac52f8dcb473994d8956878c4bbafff067da",
+        "fixture_obj_sha256": "d11ccf6f02912ea7d1a2dcb05f0eac52f8dcb473994d8956878c4bbafff067da",
+        "output_name": "peds_nurse_kevin.glb",
+        "role": "nurse"
+      }
+    },
+    "counterweight_statement": "byte-identical params and byte-identical OBJ (same vertex count, height, girth spread by construction) between the legacy preset path and the case-definition reader path, verified for all three peds actors; dark-factory peds chain classifications identical before/after (rigging error preserved: parent_tara_johnson_v1 Blender failure)."
+  },
+  "notEvidenceFor": [
+    "clinical_validity",
+    "scoring_validity",
+    "learner_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "b_plus_visual_realism_gate",
+    "real_anny_model_output"
+  ]
+}
