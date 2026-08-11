@@ -203,6 +203,25 @@
           <h2 id="trellis-equipment-title">Clinical equipment, generated from a single reference image.</h2>
         </div>
         <p class="status-copy">
+          <strong>The input half, added 2026-08-10.</strong> Before anything is reconstructed, the factory
+          renders reference views of the object from its own parametric builder. On 2026-08-10 that step
+          went from 3 subjects to <strong>38</strong>: 35 clinical objects, five views each, 175 renders in a
+          single 61-second pass with one browser and one dev server. Every view is measured for isolation —
+          no room geometry, no HUD, no ground plane — and every one passed.
+        </p>
+        <figure style="margin: 20px 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/equipment-parametric-source-montage.png"
+            alt="Six procedurally generated clinical objects rendered on a plain background: a whiteboard, two chairs, an ECG machine, a wall oxygen port and a tissue box."
+            style="width: 100%; display: block;"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Six of the 35, three-quarter view. These are the <em>parametric source</em> — low-poly, untextured,
+            deterministic. They are not the finished asset; they are the reference input the reconstruction
+            step above consumes. Shown so the two halves of the pipeline can be compared honestly.
+          </figcaption>
+        </figure>
+        <p class="status-copy">
           Each of these began as one reference image and was reconstructed to a textured mesh by TRELLIS running on Apple Silicon Metal — no hand-modelling, no per-asset artist pass. Rendered here in isolation from the shipped GLB, lit and wireframe, at the triangle budget each survives.
         </p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
