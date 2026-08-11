@@ -39,6 +39,7 @@ import {
 import {
   HM08_UPPER_GARMENT_FALLBACK_ID,
   HM08_UPPER_GARMENT_FALLBACK_MESH_PREFIX,
+  HM08_TOIGO_T_SHIRT_ID,
   hm08BodyClassCastRoles,
   resolveHm08UpperGarment,
 } from "./garment-selection-by-role.js";
@@ -102,6 +103,37 @@ const SCRUB = {
     "http://www.makehumancommunity.org/sites/default/files/clothes/8124/601141795/Scrub_Shirt.mhclo",
   objUrl:
     "http://www.makehumancommunity.org/sites/default/files/clothes/8124/966709161/Scrub_Shirt.obj",
+};
+
+/**
+ * #322 — the CC0 MakeClothes casual top that replaces the hand-coded cover shell on
+ * the `casual_top`/`tshirt` layer family. Sourced from the tracked provider cache
+ * (makehuman-shirts01 pack; `.mhclo` header: `# license CC0`, author MRT, basemesh hm08,
+ * zero helper-vertex refs — verified before this slice). Staged next to the scrub so
+ * the Blender stage fits it via the SAME `ClothesService.fit_clothes_to_human`.
+ * The `.obj` keeps its pack filename (`t_shirt_basic_tucked.obj`) because the `.mhclo`
+ * references it via `obj_file` in the same directory.
+ */
+const TOIGO_T_SHIRT = {
+  garmentId: HM08_TOIGO_T_SHIRT_ID,
+  mhcloRel:
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/toigo_basic_tucked_t-shirt.mhclo",
+  objRel:
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+};
+
+/**
+ * #322 — honest provenance for the deterministic cover shell. The shell is generated
+ * in-repo by `body_param_stage.py build_cover_shell` from the body surface (the CC0
+ * MakeHuman hm08 basemesh); it is NOT fitted from any third-party `.mhclo`, so it must
+ * never be recorded with another garment's licence header. `basemesh=hm08` is included
+ * so the record is auditable against the garment id it belongs to.
+ */
+const COVER_SHELL_LICENSE = {
+  token: "CC0",
+  source:
+    "procedural:body_param_stage.py build_cover_shell from the CC0 hm08 body surface; " +
+    "basemesh=hm08; no third-party .mhclo fitted",
 };
 
 /**
@@ -524,6 +556,37 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     );
   }
 
+  // #322 — stage the CC0 MakeClothes casual top next to the scrub. Both upper garments
+  // are fitted via the same ClothesService.fit_clothes_to_human; which one a body class
+  // uses is decided by the case definition below. The cached pair is force-added
+  // (gitignored path) so a clean clone can re-bake without the network (#310 pattern).
+  const toigoMhcloPath = path.join(STAGING_DIR, "toigo_basic_tucked_t-shirt.mhclo");
+  const toigoObjPath = path.join(STAGING_DIR, "t_shirt_basic_tucked.obj");
+  const cachedToigoMhclo = path.join(REPO_ROOT, TOIGO_T_SHIRT.mhcloRel);
+  const cachedToigoObj = path.join(REPO_ROOT, TOIGO_T_SHIRT.objRel);
+  if (
+    !existsSync(cachedToigoMhclo)
+    || !existsSync(cachedToigoObj)
+    || statSync(cachedToigoMhclo).size < 50
+    || statSync(cachedToigoObj).size < 50
+  ) {
+    throw new Error(
+      `[body-param] #322 find-or-stop: toigo_basic_tucked_t-shirt sources missing from the ` +
+        `tracked provider cache (${TOIGO_T_SHIRT.mhcloRel}, ${TOIGO_T_SHIRT.objRel}). ` +
+        `Stage the makehuman-shirts01 CC0 pack under .openclinxr-local/provider-cache/garments/sources/ ` +
+        `and re-run — a family figure with a bare torso is a #73 regression, not a skip.`,
+    );
+  }
+  copyFileSync(cachedToigoMhclo, toigoMhcloPath);
+  copyFileSync(cachedToigoObj, toigoObjPath);
+  const toigoLicense = readMhcloLicense(toigoMhcloPath);
+  if (!isPermittedGarmentLicense(toigoLicense.token)) {
+    throw new Error(
+      `[body-param] #322 toigo licence not permitted from its own .mhclo header: ` +
+        `token=${toigoLicense.token} source=${toigoLicense.source}`,
+    );
+  }
+
   // #220 find-or-stop — examine lower candidates (licence from .mhclo header only).
   ensureDir(EVIDENCE_DIR_220);
   const lowerExamined = examineLowerGarmentCandidates(REPO_ROOT);
@@ -593,14 +656,32 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       objPath?: string;
       bandLowFraction?: number | null;
       bandHighFraction?: number | null;
+      /** Licence of the garment THIS class actually wears, from its OWN source. */
+      licenseToken: string;
+      licenseSource: string;
     } = {
       garmentId: resolved.garmentId,
       kind: resolved.kind,
       meshNamePrefix: resolved.meshNamePrefix,
+      // Cover shells have no .mhclo — record honest procedural provenance (derived
+      // from the CC0 hm08 body surface), never another garment's header (#322 clause 2).
+      licenseToken: COVER_SHELL_LICENSE.token,
+      licenseSource: COVER_SHELL_LICENSE.source,
     };
     if (resolved.kind === "library") {
-      garment.mhcloPath = mhcloPath;
-      garment.objPath = objPath;
+      // #322 — which fitted .mhclo a body class uses is named by the resolved garment
+      // id. Each garment's licence record is read from ITS OWN staged .mhclo header.
+      if (resolved.garmentId === HM08_TOIGO_T_SHIRT_ID) {
+        garment.mhcloPath = toigoMhcloPath;
+        garment.objPath = toigoObjPath;
+        garment.licenseToken = toigoLicense.token;
+        garment.licenseSource = toigoLicense.source;
+      } else {
+        garment.mhcloPath = mhcloPath;
+        garment.objPath = objPath;
+        garment.licenseToken = license.token;
+        garment.licenseSource = license.source;
+      }
     } else {
       garment.bandLowFraction = resolved.bandLowFraction;
       garment.bandHighFraction = resolved.bandHighFraction;
@@ -613,6 +694,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
       garmentSourceField: resolved.sourceField,
     };
   });
+  const upperGarmentByClass = new Map<string, (typeof bodyClassesWithGarments)[number]["garment"]>();
+  for (const bc of bodyClassesWithGarments) {
+    upperGarmentByClass.set(bc.bodyClassId, bc.garment);
+  }
   writeFileSync(
     bodyClassesPath,
     JSON.stringify(bodyClassesWithGarments, null, 2) + "\n",
@@ -831,8 +916,11 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
         : "library"),
       garmentFittedToBodyClass: String(sc["garmentFittedToBodyClass"] ?? bodyClassId),
       garmentTriangleCount: Number(sc["garmentTriangleEstimate"] ?? 0),
-      licenseToken: license.token,
-      licenseSource: license.source,
+      // #322 — the licence record names the garment THIS class actually wears, read
+      // from that garment's OWN .mhclo header (or honest procedural provenance for a
+      // cover shell). Never another garment's header.
+      licenseToken: upperGarmentByClass.get(bodyClassId)?.licenseToken ?? license.token,
+      licenseSource: upperGarmentByClass.get(bodyClassId)?.licenseSource ?? license.source,
       producedByStage: STAGE_ID,
       phenotype,
       clothesServiceApi: "ClothesService.fit_clothes_to_human",

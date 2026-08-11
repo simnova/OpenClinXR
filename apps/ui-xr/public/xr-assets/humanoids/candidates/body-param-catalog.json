@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T18:41:01.443Z",
+  "generatedAt": "2026-08-11T19:26:28.253Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -13,7 +13,7 @@
   "entries": [
     {
       "bodyClassId": "adult_lean_female",
-      "garmentId": "openclinxr_hm08_upper_cover_shell",
+      "garmentId": "toigo_basic_tucked_t-shirt_hm08",
       "bodyClass": "adult_lean_female",
       "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
       "glbPublicPath": "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
@@ -21,12 +21,12 @@
       "bodyVertexCount": 13380,
       "heightMeters": 1.732452630996704,
       "torsoGirthProxyMeters": 0.49102943279025085,
-      "garmentMeshName": "makeclothes_library_civilian_shirt_adult_lean_female",
-      "garmentKind": "cover_shell",
+      "garmentMeshName": "makeclothes_library_toigo_basic_tucked_t_shirt_adult_lean_female",
+      "garmentKind": "library",
       "garmentFittedToBodyClass": "adult_lean_female",
-      "garmentTriangleCount": 2924,
-      "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "garmentTriangleCount": 2700,
+      "licenseToken": "CC0",
+      "licenseSource": "mhclo_header:toigo_basic_tucked_t-shirt.mhclo; license=CC0; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/toigo_basic_tucked_t-shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -37,8 +37,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0,
-      "glbSha256": "c24f5153dc9ef8df79725f89fdc5f18b03fac222bb825ac93402c844666ce476",
+      "fitWallClockS": 0.0041,
+      "glbSha256": "6dbefecd1dc107ac530b1507afcc83659eabb6ea6e9302aed255aa5af2f54a74",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -90,7 +90,7 @@
       "footwearTriangleCount": 184,
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
-      "lowerGarmentTriangleCount": 2530,
+      "lowerGarmentTriangleCount": 2855,
       "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     },
@@ -109,7 +109,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -120,8 +120,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0132,
-      "glbSha256": "af39b437bbdfbfec0c3d6e7ee4426430667769ce8fdbcb8cb8a50d1440ca4965",
+      "fitWallClockS": 0.0152,
+      "glbSha256": "3c9829bc0a3d7c3308e601b38ad896c5ee84717ac8d5318b7b414641ef20a901",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -173,7 +173,7 @@
       "footwearTriangleCount": 184,
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
-      "lowerGarmentTriangleCount": 2617,
+      "lowerGarmentTriangleCount": 2599,
       "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     }
@@ -204,7 +204,7 @@
       0.31467
     ],
     "perClassGarmentDeformationMeters": [
-      0.12713,
+      0.28365,
       0.24319
     ]
   }

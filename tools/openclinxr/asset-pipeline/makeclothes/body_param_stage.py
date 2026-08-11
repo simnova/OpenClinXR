@@ -1968,6 +1968,23 @@ def build_one_body_class(
         }
     bpy.context.view_layer.update()
 
+    # ── issue-322: fitted garments are measured at their SHIPPING position ─────────
+    # The raw MakeClothes fit is coincident with the skin — the cloth_offset docstring
+    # records "median ≈ 0.7 mm; half the surface behind the body surface" — so outward
+    # rays from the body surface miss every OPEN fitted garment. Measured on the fitted
+    # toigo_basic_tucked_t-shirt via the shared garment_coverage module: coverage 0.47
+    # on the raw fit vs 0.97 at the 1.5 cm shipping standoff, while the closed scrub
+    # passes the raw fit by closure alone (0.47 too). The evidence module measures the
+    # shipped GLB, which IS offset; the gate must measure the same geometry or it
+    # refuses honest open-shell garments. Cover shells are already built at the standoff
+    # and skip this.
+    if garment_kind != "cover_shell":
+        ugv_pre, _ = _numpy_mesh(garment)
+        ugv_off = _gc.cloth_offset(ugv_pre, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
+        for i, v in enumerate(garment.data.vertices):
+            v.co = tuple(float(x) for x in ugv_off[i])
+        bpy.context.view_layer.update()
+
     garment_bounds = world_bounds(garment)
 
     # Upper garment: torso band = its own extent, laterally bounded by the garment's
@@ -1991,12 +2008,8 @@ def build_one_body_class(
         # A dense library upper garment passes on closure; firing here means the fit is
         # genuinely degenerate. Refuse loudly rather than ship a bare torso.
         raise RuntimeError(f"upper garment failed the issue-272 coverage gate: {upper_rep}")
-    # Accepted upper: push to a clean standoff so it stops z-fighting with the skin.
-    # Cover shells are built at the standoff already — skip the second offset.
-    if garment_kind != "cover_shell":
-        ugv_off = _gc.cloth_offset(ugv, body_verts, body_faces, _gc.CLOTH_STANDOFF_M)
-        for i, v in enumerate(garment.data.vertices):
-            v.co = tuple(float(x) for x in ugv_off[i])
+    # The garment was already offset to its shipping standoff above; the gate measured
+    # that geometry. Cover shells are built at the standoff and never re-offset.
     coverage_gate["upper"] = upper_rep
 
     if lower_garment is not None:

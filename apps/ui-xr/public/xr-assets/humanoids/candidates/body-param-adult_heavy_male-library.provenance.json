@@ -15,7 +15,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_adult_cast",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.1,
     "girthScaleHorizontal": 1,
@@ -24,7 +24,7 @@
     "bodyStatureAfterScaleMeters": 1.697401163181368,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.565570613494817,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_adult_cast"
   },
   "morphTargetCount": 32,
@@ -94,13 +94,13 @@
   "footwearTriangleCount": 184,
   "lowerGarmentId": "cortu_cargo_pants_hm08",
   "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
-  "lowerGarmentTriangleCount": 2617,
+  "lowerGarmentTriangleCount": 2599,
   "lowerGarmentLicenseToken": "CC0",
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "af39b437bbdfbfec0c3d6e7ee4426430667769ce8fdbcb8cb8a50d1440ca4965",
+  "glbSha256": "3c9829bc0a3d7c3308e601b38ad896c5ee84717ac8d5318b7b414641ef20a901",
   "torsoGirthProxyMeters": 0.5655706135361036,
   "heightMeters": 1.6974011659622192,
   "notEvidenceFor": [

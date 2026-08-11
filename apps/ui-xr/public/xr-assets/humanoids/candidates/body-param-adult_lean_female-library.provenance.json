@@ -3,8 +3,8 @@
   "producedByStage": "body_param_stage",
   "producedByCommand": "pnpm asset:body-param:fit -- --once",
   "bodyClassId": "adult_lean_female",
-  "garmentId": "openclinxr_hm08_upper_cover_shell",
-  "garmentKind": "cover_shell",
+  "garmentId": "toigo_basic_tucked_t-shirt_hm08",
+  "garmentKind": "library",
   "garmentFittedToBodyClass": "adult_lean_female",
   "phenotype": {
     "weight": 0.18,
@@ -15,7 +15,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_nurse_adult",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.1,
     "girthScaleHorizontal": 1,
@@ -24,7 +24,7 @@
     "bodyStatureAfterScaleMeters": 1.732452514147281,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.49102943597908877,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_nurse_adult"
   },
   "morphTargetCount": 32,
@@ -66,7 +66,7 @@
     "drivenBone": "mixamorig:LeftArm",
     "rotationDegrees": 55,
     "bodyDeformationMeters": 0.32169,
-    "garmentDeformationMeters": 0.12713,
+    "garmentDeformationMeters": 0.28365,
     "medianBoneTipMotionMeters": 0.2102,
     "deformationEpsilonMeters": 0.1051,
     "source": "calibrated_half_median_bone_tip_motion_this_export",
@@ -79,7 +79,7 @@
     },
     "drivenBandRadiusMeters": 0.12519,
     "bodyBandVertexCount": 525,
-    "garmentBandVertexCount": 100
+    "garmentBandVertexCount": 241
   },
   "finishStepsRun": [
     "body_param_stage",
@@ -94,13 +94,13 @@
   "footwearTriangleCount": 184,
   "lowerGarmentId": "cortu_cargo_pants_hm08",
   "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
-  "lowerGarmentTriangleCount": 2530,
+  "lowerGarmentTriangleCount": 2855,
   "lowerGarmentLicenseToken": "CC0",
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-320/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "c24f5153dc9ef8df79725f89fdc5f18b03fac222bb825ac93402c844666ce476",
+  "glbSha256": "6dbefecd1dc107ac530b1507afcc83659eabb6ea6e9302aed255aa5af2f54a74",
   "torsoGirthProxyMeters": 0.49102943279025085,
   "heightMeters": 1.732452630996704,
   "notEvidenceFor": [
