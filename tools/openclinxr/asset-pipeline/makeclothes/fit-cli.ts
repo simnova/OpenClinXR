@@ -181,7 +181,8 @@ async function downloadIfNeeded(
  * Licence token + source string from the asset's own .mhclo header (not the download page).
  *
  * Community .mhclo headers use several shapes (#215 scrub uses `# license: CC-BY`;
- * Cortu pants pack uses `# Cortu Johnstone - CC0`; some use `# license CC0` without colon).
+ * Cortu pants pack uses `# Cortu Johnstone - CC0`; some use `# license CC0` without colon;
+ * #324's `culturalibre_male_boots` uses `# license CC-0` — the dash-zero variant).
  * Only the .mhclo header is authoritative — MakeClothes-exported .obj often stamps AGPL3
  * for the *tool*, which must not be mistaken for the garment licence.
  */
@@ -192,12 +193,12 @@ export function readMhcloLicense(mhcloPath: string): {
 } {
   const header = readFileSync(mhcloPath, "utf8").slice(0, 1600);
   const licColon = header.match(/#\s*license:\s*(.+)/i);
-  const licSpace = header.match(/#\s*license\s+(CC0|CC-?BY[^\n]*)/i);
+  const licSpace = header.match(/#\s*license\s+(CC0|CC-?0|CC-?BY[^\n]*)/i);
   // e.g. "# Cortu Johnstone - CC0"
   const authorDashCc = header.match(
-    /#\s*([^\n]*?)\s*[-–—]\s*(CC0|CC-?BY(?:\s*[0-9.]+)?(?:\s*[^#\n]*)?)\s*$/im,
+    /#\s*([^\n]*?)\s*[-–—]\s*(CC0|CC-?0|CC-?BY(?:\s*[0-9.]+)?(?:\s*[^#\n]*)?)\s*$/im,
   );
-  const anyCc = header.match(/\b(CC0|CC-?BY(?:\s*[0-9.]+)?|public\s+domain)\b/i);
+  const anyCc = header.match(/\b(CC0|CC-?0|CC-?BY(?:\s*[0-9.]+)?|public\s+domain)\b/i);
   const author = header.match(/#\s*author:\s*(.+)/i);
 
   let token = "license_not_found_in_mhclo_header";
@@ -223,7 +224,7 @@ export function readMhcloLicense(mhcloPath: string): {
 
 /** Permitted factory wardrobe tokens (copyleft refused regardless of convenience). */
 export function isPermittedGarmentLicense(token: string): boolean {
-  return /cc0|cc-?by|public\s*domain/i.test(token) && !/agpl|gpl(?!\s*font)/i.test(token);
+  return /cc0|cc-?0|cc-?by|public\s*domain/i.test(token) && !/agpl|gpl(?!\s*font)/i.test(token);
 }
 
 /**

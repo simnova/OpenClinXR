@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T19:26:28.253Z",
+  "generatedAt": "2026-08-11T20:35:40.949Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -26,7 +26,7 @@
       "garmentFittedToBodyClass": "adult_lean_female",
       "garmentTriangleCount": 2700,
       "licenseToken": "CC0",
-      "licenseSource": "mhclo_header:toigo_basic_tucked_t-shirt.mhclo; license=CC0; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/toigo_basic_tucked_t-shirt.mhclo",
+      "licenseSource": "mhclo_header:toigo_basic_tucked_t-shirt.mhclo; license=CC0; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-324/.openclinxr/evidence/issue-151/staging/toigo_basic_tucked_t-shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -37,8 +37,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0041,
-      "glbSha256": "6dbefecd1dc107ac530b1507afcc83659eabb6ea6e9302aed255aa5af2f54a74",
+      "fitWallClockS": 0.0042,
+      "glbSha256": "08f0831cde1dec49d0adeca31167a7441c83ec34f451995d681e27c303cf70ad",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -84,10 +84,13 @@
         "catalog_stamp"
       ],
       "footwearMeshNames": [
-        "openclinxr_footwear_casual_shoe_L_mesh",
-        "openclinxr_footwear_casual_shoe_R_mesh"
+        "openclinxr_footwear_flats_L_mesh",
+        "openclinxr_footwear_flats_R_mesh"
       ],
-      "footwearTriangleCount": 184,
+      "footwearTriangleCount": 28800,
+      "footwearShoeId": "flats_hm08",
+      "footwearLicenseToken": "CC0",
+      "footwearLicenseSource": "mhclo_header:toigo_flats.mhclo; license=CC0; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-324/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/toigo_flats/toigo_flats.mhclo",
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
       "lowerGarmentTriangleCount": 2855,
@@ -109,7 +112,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-322/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-324/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -120,8 +123,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0152,
-      "glbSha256": "3c9829bc0a3d7c3308e601b38ad896c5ee84717ac8d5318b7b414641ef20a901",
+      "fitWallClockS": 0.0146,
+      "glbSha256": "06fffefb2a24b3cbc1fd77280487725965e978534720755097f7e4913afa1138",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -167,10 +170,13 @@
         "catalog_stamp"
       ],
       "footwearMeshNames": [
-        "openclinxr_footwear_hospital_slipper_L_mesh",
-        "openclinxr_footwear_hospital_slipper_R_mesh"
+        "openclinxr_footwear_male_boots_L_mesh",
+        "openclinxr_footwear_male_boots_R_mesh"
       ],
-      "footwearTriangleCount": 184,
+      "footwearTriangleCount": 15384,
+      "footwearShoeId": "male_boots_hm08",
+      "footwearLicenseToken": "CC-0",
+      "footwearLicenseSource": "mhclo_header:culturalibre_male_boots.mhclo; license=CC-0; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-324/.openclinxr-local/provider-cache/garments/sources/makehuman-shoes01/culturalibre_male_boots/culturalibre_male_boots.mhclo",
       "lowerGarmentId": "cortu_cargo_pants_hm08",
       "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
       "lowerGarmentTriangleCount": 2599,
