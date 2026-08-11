@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 import { execFileSync } from "node:child_process";
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { resolveSharedCoordinationPath } from "./coordination-root.js";
 import { loadTrustedBrief, readSessions, trustedSliceDir } from "./dispatch-worker.js";
@@ -211,6 +211,13 @@ export function assertIntegrateHeadUsable(head: string): void {
  *
  * No `done_when` can catch this — a proof that runs in the worktree cannot see what integration
  * carries. So the land path rebuilds, and reports what it rebuilt.
+ *
+ * Discovery delegates the ORDER to `orderPackagesForRebuild` (#292): rebuilding the right packages
+ * in the WRONG order is the same stale-checkout class of bug. Measured on the #291 land, the
+ * consumer `@openclinxr/scenario-fixtures` was rebuilt before its dependency
+ * `@openclinxr/shared-schemas`, against a `dist/` that predated the new `ActorPhenotypeSchema`
+ * field, and `tsgo` failed with `TS2353: 'phenotype' does not exist in type` — which reads like a
+ * bad fixture when the fixture was correct and the type it was checked against was stale.
  */
 export function packagesNeedingRebuild(repoRoot: string, base: string, head: string): string[] {
   let changed: string;
@@ -240,7 +247,106 @@ export function packagesNeedingRebuild(repoRoot: string, base: string, head: str
       // An unreadable manifest is not this function's problem to report.
     }
   }
-  return [...names].sort();
+  return orderPackagesForRebuild([...names], repoRoot);
+}
+
+/**
+ * #292: order a changed set of build-emitting packages for rebuild in DEPENDENCY order.
+ *
+ * #152/#196 established that the land path must rebuild; nothing established WHAT ORDER. The merge
+ * succeeded and the rebuild then failed on the #291 land because `scenario-fixtures` (the consumer)
+ * was built before `shared-schemas` (its dependency). Alphabetical order is not an approximation of
+ * topological order: measured across the workspace there are 27 build-emitting packages and 48
+ * intra-workspace dependency edges, of which 5+ are ordered wrongly by ascending sort and 8+ by
+ * descending sort.
+ *
+ * This is a pure function over package names — no git ref required — so it is testable in isolation
+ * (`tools/openclinxr/evidence/integrate-rebuild-order.test.ts`). It topologically sorts the names
+ * using declared `workspace:*` dependencies restricted to the changed set. A dependency cycle
+ * REFUSES loudly rather than falling back to alphabetical order, because alphabetical is exactly the
+ * ordering that left main un-buildable. Unknown names (no manifest found) are kept in input order:
+ * their edges cannot be seen, so they are unconstrained.
+ */
+export function orderPackagesForRebuild(names: string[], repoRoot: string): string[] {
+  const set = new Set(names);
+  const manifests = workspacePackageManifests(repoRoot);
+
+  const inSetDeps = (name: string): string[] => {
+    const manifest = manifests.get(name);
+    if (manifest === undefined) return [];
+    return manifest.workspaceDeps.filter((dep) => set.has(dep));
+  };
+
+  const result: string[] = [];
+  const done = new Set<string>();
+  const onStack = new Set<string>();
+  const stack: string[] = [];
+
+  const visit = (name: string): void => {
+    if (done.has(name)) return;
+    if (onStack.has(name)) {
+      const cycleStart = stack.indexOf(name);
+      const cycle = [...stack.slice(cycleStart), name];
+      throw new Error(
+        `integrate: cannot order rebuild for ${JSON.stringify(names)} — dependency cycle among `
+        + `changed packages: ${cycle.join(" -> ")}. Refusing to build rather than falling back to `
+        + `alphabetical order, which is exactly the ordering that left main un-buildable (#292).`,
+      );
+    }
+    onStack.add(name);
+    stack.push(name);
+    for (const dep of inSetDeps(name)) visit(dep);
+    stack.pop();
+    onStack.delete(name);
+    done.add(name);
+    result.push(name);
+  };
+
+  for (const name of names) visit(name);
+  return result;
+}
+
+/**
+ * Map every workspace package name to its declared `workspace:*` dependencies, scanning
+ * `packages/**` up to three levels deep (`packages/<group>/<pkg>` and the nested
+ * `packages/openclinxr/arena/<pkg>`). Packages that do not name themselves are skipped.
+ */
+function workspacePackageManifests(repoRoot: string): Map<string, { workspaceDeps: string[] }> {
+  const manifests = new Map<string, { workspaceDeps: string[] }>();
+  const packagesRoot = join(repoRoot, "packages");
+  if (!existsSync(packagesRoot)) return manifests;
+
+  const collect = (dir: string, depth: number): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const child = join(dir, entry.name);
+      if (depth > 0) {
+        const manifestPath = join(child, "package.json");
+        if (existsSync(manifestPath)) {
+          try {
+            const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
+              name?: string;
+              dependencies?: Record<string, string>;
+              devDependencies?: Record<string, string>;
+            };
+            if (manifest.name) {
+              manifests.set(manifest.name, {
+                workspaceDeps: Object.entries({ ...manifest.dependencies, ...manifest.devDependencies })
+                  .filter(([, version]) => version === "workspace:*")
+                  .map(([depName]) => depName),
+              });
+            }
+          } catch {
+            // An unreadable manifest is not this function's problem to report.
+          }
+        }
+        collect(child, depth - 1);
+      }
+    }
+  };
+
+  collect(packagesRoot, 3);
+  return manifests;
 }
 
 /**
