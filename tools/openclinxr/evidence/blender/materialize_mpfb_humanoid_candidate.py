@@ -2,6 +2,7 @@ import argparse
 import pathlib
 
 import bpy
+import numpy as np
 
 
 def make_material(name, color):
@@ -186,6 +187,105 @@ def main():
     print(
         f"GARMENT_FIT {garment.name} verts {garment_verts_before} -> {garment_verts_after} "
         f"tris {garment_tris} weights {weights}"
+    )
+
+    # #323: body-part hiding under the fitted garment — wire the PROVEN tool from
+    # the sibling rail (D1), do not write a second hider. The MPFB2 rail has NO
+    # body-part hiding: the fitted t-shirt and the body it is fitted to both
+    # render, and the body pokes through the cloth in large skin-coloured patches
+    # across chest, abdomen, shoulders and collar (graded on #321's placement
+    # fix). The library rail solves exactly this with
+    # body_param_stage.apply_body_hide_material_region (body_param_stage.py:651)
+    # — the §6s research answer: HIDE the body under the garment (alpha mask)
+    # rather than push the cloth out. The mask is per-triangle from
+    # garment_coverage.body_hide_mask (signed clearance < HIDE_EPSILON_M against
+    # the BODY's outward normal — winding-proof, _orient_outward), and it paints
+    # an alpha-0 material so the hidden faces never render; geometry, rig and
+    # shape keys are untouched (only polygon material indices change). The glTF
+    # exporter maps the constant alpha-0 Principled input to alphaMode=MASK /
+    # alphaCutoff=0.5, so the faces are DISCARDED at render (measured on the
+    # library rail's shipped bytes).
+    #
+    # ORDER IS LOAD-BEARING: the mask runs AFTER the fit + weight transfer so it
+    # covers the FINAL garment footprint (the fit writes body-local coordinates
+    # into the garment mesh, and the export reads material indices at export
+    # time). It does NOT push the garment further out — #322 measured the raw
+    # MakeClothes fit at median ~0.7 mm (half the surface coincident with the
+    # skin) and the 1.5 cm shipping standoff already survives; hiding is the
+    # other half of the fix and standoff alone did not stop the poke-through.
+    #
+    # #295 SCOPE: the mask is scoped away from the hands from the start via
+    # body_param_stage.scope_hide_mask_away_from_hands — a body face whose
+    # vertices are dominated by a hand/finger joint is a BARE hand (the garment
+    # terminates at the wrist), and leaving it under the alpha-MASK would discard
+    # it and show a stump where the sleeve was — the mitten defect on a second
+    # rail.
+    import sys as _sys4
+
+    _stage_dir2 = (
+        pathlib.Path(__file__).resolve().parents[4] / "tools/openclinxr/asset-pipeline/makeclothes"
+    )
+    if str(_stage_dir2) not in _sys4.path:
+        _sys4.path.insert(0, str(_stage_dir2))
+    from body_param_stage import (  # noqa: E402
+        apply_body_hide_material_region,
+        scope_hide_mask_away_from_hands,
+        world_bounds,
+    )
+    from garment_coverage import HIDE_EPSILON_M, body_hide_mask  # noqa: E402
+
+    def _triangulate_numpy(obj: bpy.types.Object):
+        # Fan triangulation mirroring body_param_stage._numpy_mesh: the coverage
+        # predicate assumes triangle faces, and MPFB bodies / OBJ imports are
+        # quad/n-gon meshes (body 13,380 verts / 26,756 tris = 13,378 quads).
+        # WORLD coordinates (matrix_world @ v.co) so the body and garment share
+        # one frame regardless of object transforms — the same frame world_bounds
+        # reports the band in. Feeding raw quads to the predicate garbles the
+        # surface (issue-277, measured on the library gate's first run).
+        mw = obj.matrix_world
+        verts = np.array([tuple(mw @ v.co) for v in obj.data.vertices], dtype=float)
+        faces: list[tuple[int, int, int]] = []
+        for p in obj.data.polygons:
+            iv = list(p.vertices)
+            if len(iv) == 3:
+                faces.append((int(iv[0]), int(iv[1]), int(iv[2])))
+            else:
+                # fan triangulation from vertex 0 — the SAME order
+                # apply_body_hide_material_region consumes (polygon fan order),
+                # so the per-triangle mask maps back to the right polygons.
+                for i in range(1, len(iv) - 1):
+                    faces.append((int(iv[0]), int(iv[i]), int(iv[i + 1])))
+        return verts, np.array(faces, dtype=np.int64)
+
+    body_verts, body_faces = _triangulate_numpy(human)
+    garment_verts, garment_faces = _triangulate_numpy(garment)
+    gb = world_bounds(garment)
+    hide_info = body_hide_mask(
+        body_verts,
+        body_faces,
+        garment_verts,
+        garment_faces,
+        float(gb["min"][2]),
+        float(gb["max"][2]),
+        hide_epsilon_m=HIDE_EPSILON_M,
+        height_axis=2,
+    )
+    hide_mask = hide_info.pop("hideMask")
+    if hide_info["hiddenFaceCount"] == 0:
+        print(
+            "BODY_HIDE WARNING: body_hide_mask found no poking body faces under the "
+            "fitted garment — the #323 poke-through would not be fixed; report this"
+        )
+    # #295 — never discard a bare hand: scope the mask to the covered region.
+    hide_mask, hand_faces_unhidden = scope_hide_mask_away_from_hands(human, hide_mask, armature)
+    applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
+    print(
+        f"BODY_HIDE {hide_info} "
+        f"handFacesUnhidden {hand_faces_unhidden} "
+        f"appliedPolygonCount {applied['appliedPolygonCount']} "
+        f"hiddenMaterialName {applied['hiddenMaterialName']} "
+        f"bodyBlenderVerts {len(human.data.vertices)} "
+        f"garmentBlenderVerts {len(garment.data.vertices)}"
     )
 
     bpy.context.scene.frame_start = 1
