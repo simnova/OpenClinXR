@@ -132,6 +132,33 @@ fast-path only: what landed, and what it changed about the factory's capability.
   body's front-most vertex — the hanging **arm** — so it failed a correctly-placed scalp on the heavy
   male. Replaced by a direct face-band vertex count. **Disclosed weakness:** on a body whose torso
   protrudes past its head, a whole-head cap is caught by neither the old bound nor the new one.
+- 2026-08-10: **#286 THE DARK-FACTORY TEST RAN, AND PASSED FOR ONE CASE** (staging, D9). All eight
+  stations — case params, body, clothing, rigging, room, equipment, placement, render — classified
+  `deterministic`, each with an on-disk artifact; **15 of 15 artifacts present**, so
+  `count(deterministic) == count(rows with artifacts)`. The render is live
+  (`capture-manifest source=live_scene`, `env=pediatric_urgent_care_bay_v1`) and graded: child, parent
+  and nurse in a paediatric urgent-care bay. **A case definition went in and a rendered clinical scene
+  came out with no LLM in the loop.** I expected `absent`/`not_run` rows and was wrong: the pieces were
+  all reachable in-process — **the gap was orchestration, not capability**.
+  *Two gaps it recorded unprompted:* equipment ran the **parametric** builder, not the TRELLIS
+  generated-GLB route; placement resolved in-process rather than via the live SSOT inspector.
+  *And one I found afterwards:* its **runners were never landed** — only artifacts — so the chaining
+  code does not exist in the tree (#64's class). #288 rebuilds it as a real module and runs the
+  population; 15 station bundles ship, #286 covered one.
+- 2026-08-10: **#285 poke-through located** (clothing_consume). 364 poking vertices at 4.56%, worst
+  **−9.5 mm**, `noGarmentNearbyCount: 0` — the garment is present and the body is in front of it. Cause:
+  the cover shell is the body surface offset along vertex normals, and **at the concave hip/waist crease
+  the offset self-intersects**. *"No outward offset fixes a concave fold."* Fix implemented is
+  **body-part hiding** — what the §6s research consult named months ago and nothing had used.
+  **The render is unchanged**: code only, no re-bake. #287 consumes it.
+- 2026-08-10: **#283 / #281 / #280 — three measurements that each retired a fix I was about to make.**
+  #283: the coverage region had no lateral bound and counted the **arms**, which a short-sleeve shirt
+  never claims — bounding it took the heavy male 0.3500 → **0.9266** and the predicate was left
+  unchanged. #281: monitor-vs-actor overlap is **0 in world space**, 94% on screen — framing, not
+  placement, so moving the monitor would have been wrong. #280: all 52 sub-5% pack views are verdict
+  (a) — `frameSpanFraction ≈ 0.8` throughout, so a pole **spans** 80% of frame and **fills** 2%; the
+  framing was already correct.
+
 
 
 **Two standing claims measured false and corrected in place (§7q), not appended:**
