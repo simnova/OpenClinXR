@@ -105,6 +105,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Raycaster,
@@ -121,6 +122,7 @@ import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
+import { computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -481,6 +483,8 @@ declare global {
     __openClinXrTraceActionHandoffEvidence?: XrTraceActionHandoffEvidence;
     __openClinXrTraceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary;
     __openClinXrSceneAssetEvidence?: SceneAssetEvidence;
+    /** #315: model assetId of the actor a comparator capture framed (recorded intent). */
+    __openClinXrComparatorCameraTargetActorId?: string;
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
@@ -647,6 +651,9 @@ function recordBootPhase(phase: string, error?: unknown): void {
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
+/** #315: camera + scene root the comparator capture frames through (assigned in createStationScene). */
+let comparatorCaptureCamera: PerspectiveCamera | null = null;
+let comparatorCaptureSceneRoot: Object3D | null = null;
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
@@ -3191,6 +3198,7 @@ function createStationScene(): StationSceneRuntime {
   const scene = new Scene();
   scene.name = iwsdkStationSceneObjects.stationRoot;
   window.__openClinXrDebugScene = scene;
+  comparatorCaptureSceneRoot = scene;
   scene.background = new Color(doorwayTheme.backgroundColor);
   scene.userData.openClinXrEncounterDoorwayTheme = {
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -3272,6 +3280,7 @@ function createStationScene(): StationSceneRuntime {
     camera.userData.openClinXrCameraFraming = "wide_clean_dynamic_encounter_room_review_three_actor_context";
   }
   locomotionRig.add(camera);
+  comparatorCaptureCamera = camera;
 
   const ambient = new HemisphereLight(0xf4f0dc, 0x223042, 2.2);
   ambient.name = iwsdkStationSceneObjects.ambientLight;
@@ -6632,6 +6641,36 @@ function handleClinicalTouch(
 }
 
 /**
+ * #315: frame a comparator capture on the NAMED actor after it loads.
+ * `peds_anny_real_garment_parent` names the family actor, `..._nurse` the clinical-team
+ * actor. The camera is constructed before any humanoid exists, so authored numbers were
+ * always a guess about where an actor would end up (two hand-fixes reverted — see the
+ * planted contract header). Reuse the proven fit-to-bounds solve (frameCamera) against
+ * the loaded actor's world AABB, and record the model assetId it framed so a gate can
+ * check recorded intent — a test cannot see a picture and byte size is not identity.
+ */
+function frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
+  const comparator = selectedHumanoidSourceComparator();
+  if (comparator !== "peds_anny_real_garment_parent" && comparator !== "peds_anny_real_garment_nurse") return;
+  if (!shouldUseCleanHumanoidSourceComparatorCapture()) return;
+  const namedActorId = comparator === "peds_anny_real_garment_parent"
+    ? runtimeFamilyActorId()
+    : runtimeClinicalTeamActorId();
+  if (!namedActorId || actorId !== namedActorId) return;
+  const cam = comparatorCaptureCamera;
+  if (!cam) return;
+  // World matrices must be current for the freshly-added subtree (#315 parent-aware solve).
+  comparatorCaptureSceneRoot?.updateMatrixWorld(true);
+  const bounds = computeMeshBounds(humanoid);
+  if (!Number.isFinite(bounds.min.x) || !Number.isFinite(bounds.max.x)) return;
+  const frameSpanFraction = frameCamera(cam, bounds, "front");
+  cam.userData.openClinXrCameraFraming =
+    `clean_${comparator}_source_comparator_fit_to_bounds_named_actor_${namedActorId}_no_authored_numbers`;
+  cam.userData.openClinXrComparatorFrameSpanFraction = frameSpanFraction;
+  window.__openClinXrComparatorCameraTargetActorId = modelAssetId;
+}
+
+/**
  * Tag SEPARATE phenotype real-garment meshes with cyan + sleeveDeform userData.
  * ONLY meshes named openclinxr_real_garment* / real_garment_from_phenotype* (or their
  * :y_up_capture_evidence static clone). NEVER cyan-tag anny_base multi-prim role clothing
@@ -6893,6 +6932,9 @@ function loadGeneratedHumanoidIntoActorSlot(
         }
       }
       actorSlot.add(humanoid);
+      // #315: after the named actor loads, frame the comparator capture on IT (not the
+      // patient at the origin) via the proven fit-to-bounds solve, and record the target.
+      frameComparatorCaptureOnNamedActor(options.actorId, humanoid, options.assetId);
       if (isCaptureShadowPath(selectedCaptureMode())) markActorCastShadow(humanoid);
       if (isHumanoidMouthGazePoseReviewCaptureMode()) {
         // parent/nurse comparators center-frame patient primary (role GLB resolved onto patient slot)

@@ -62,6 +62,25 @@ import { describe, expect, it } from "vitest";
  * rather than clipped at an edge. This asserts the camera was aimed at the right subject and recorded
  * it. Judging the picture remains a human grade — which is how this defect was found.
  */
+/**
+ * ## FIXED (#315)
+ *
+ * The camera is no longer framed by construction-time literals. The fit-to-bounds solve was
+ * extracted from the isolated-subject-lab into `apps/ui-xr/src/camera-fit-to-bounds.ts` (D1 reuse)
+ * and is called from `loadGeneratedHumanoidIntoActorSlot` AFTER the named actor loads: the parent
+ * comparator frames `runtimeFamilyActorId()`, the nurse comparator frames
+ * `runtimeClinicalTeamActorId()`, both via the loaded humanoid's world AABB (front view, 80% pack
+ * target). The solve is parent-aware: the comparator camera lives under the locomotion rig
+ * (z=-0.62 for `openclinxrPortalStart=encounter`), so `frameCamera` subtracts the parent's world
+ * position and solves in camera-local space; isolated-lab cameras have no parent and are unchanged.
+ *
+ * Recorded intent: `window.__openClinXrComparatorCameraTargetActorId` is set to the framed actor's
+ * MODEL assetId (`parent_tara_johnson_character` / `nurse_kevin_lee_character`) — the same value
+ * `recordSceneAssetStatus` writes into the loaded-asset list, so rule (3) matches by construction
+ * and echoing the comparator string back would fail. `ui-xr-parent-nurse-sleeve-deform-capture.ts`
+ * copies it into each run's inspection.json entry. The two hand-fixed literals from the header
+ * remain reverted; no per-actor magic numbers survive.
+ */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
@@ -99,7 +118,7 @@ function requireBothRuns(rows: Run[]): void {
 const captured = runs();
 
 describe("a comparator capture records the actor it framed", () => {
-  it.fails("(1) RED: every run records a cameraTargetActorId", () => {
+  it("(1) RED: every run records a cameraTargetActorId", () => {
     expect(captured.length, "runs recorded in inspection.json").toBeGreaterThanOrEqual(2);
     const missing = captured
       .filter((r) => !r.cameraTargetActorId)
@@ -107,7 +126,7 @@ describe("a comparator capture records the actor it framed", () => {
     expect(missing, "runs with no recorded camera target").toEqual([]);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: the parent and nurse runs record DIFFERENT actors — one constant is refused",
     () => {
         requireBothRuns(captured);
@@ -119,7 +138,7 @@ describe("a comparator capture records the actor it framed", () => {
     },
   );
 
-  it.fails(
+  it(
     "(3) RED COUNTERWEIGHT: the recorded target is an ACTOR present in that run's loaded assets — echoing the comparator name is refused",
     () => {
       requireBothRuns(captured);

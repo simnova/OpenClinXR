@@ -121,6 +121,8 @@ async function captureComparator(
   // Collect runtime evidence
   const inspection = await page.evaluate(() => ({
     sceneAssets: (window as any).__openClinXrSceneAssetEvidence ?? null,
+    // #315: the model assetId of the actor the comparator capture framed (recorded intent).
+    cameraTargetActorId: (window as any).__openClinXrComparatorCameraTargetActorId ?? null,
     mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
     adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
     boot: (window as any).__openClinXrBootEvidence ?? null,
@@ -197,6 +199,7 @@ async function main(): Promise<void> {
         captureModeDriven: options.captureMode,
         parent: {
           comparator: parentResult.comparator,
+          cameraTargetActorId: (parentResult.inspection as any)?.cameraTargetActorId ?? null,
           frontPath: parentResult.frontPath,
           frontSizeBytes: parentResult.frontSizeBytes,
           threeQuarterPath: parentResult.threeQuarterPath,
@@ -208,6 +211,7 @@ async function main(): Promise<void> {
         },
         nurse: {
           comparator: nurseResult.comparator,
+          cameraTargetActorId: (nurseResult.inspection as any)?.cameraTargetActorId ?? null,
           frontPath: nurseResult.frontPath,
           frontSizeBytes: nurseResult.frontSizeBytes,
           threeQuarterPath: nurseResult.threeQuarterPath,
