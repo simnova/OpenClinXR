@@ -20,6 +20,20 @@ def make_material(name, color):
     return material
 
 
+def mesh_from_numpy(name, verts, faces):
+    """Build a Blender mesh object from numpy arrays (mirrors body_param_stage._mesh_from_numpy)."""
+    mesh = bpy.data.meshes.new(f"{name}_mesh")
+    mesh.from_pydata(
+        [tuple(float(x) for x in v) for v in verts],
+        [],
+        [tuple(int(x) for x in f) for f in faces],
+    )
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
 def parse_args():
     argv = []
     if "--" in sys.argv:
@@ -490,6 +504,53 @@ def main():
         f"tris {garment_tris} weights {weights}"
     )
 
+    # #326: fit the CC0 cargo pants on the SAME body via the SAME proven
+    # ClothesService path (D1) — the exact garment + service the hm08 library rail
+    # fits (`body-param-cli.ts` `LIBRARY_LOWER_GARMENT_ID` = cortu_cargo_pants,
+    # makehuman-pants01 pack). She ships bare below the waist today (measured:
+    # upper toigo t-shirt 5,400 verts, lower NONE); the library lean_female carries
+    # the same trousers at 8,565 verts through this call. The .mhclo header is
+    # `# Cortu Johnstone - CC0`, basemesh hm08, max vertex ref 13,351 < 13,380 — it
+    # fits the helper-stripped topology exactly like the t-shirt.
+    _pants_dir = (
+        pathlib.Path(__file__).resolve().parents[4]
+        / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
+    )
+    pants_obj = _pants_dir / "cargo_pants.obj"
+    pants_mhclo = _pants_dir / "cargo_pants.mhclo"
+    if not pants_obj.is_file() or not pants_mhclo.is_file():
+        raise RuntimeError(f"cargo pants sources missing in provider cache: {_pants_dir}")
+
+    pants = import_obj(str(pants_obj), "makeclothes_library_cargo_pants", force_z=False)
+    # Same axis bake as the t-shirt (#321 handback): the OBJ importer's rotation is
+    # baked into mesh data so the object is identity/Z-up before the fit writes
+    # body-local coordinates into it.
+    apply_object_transforms(pants)
+    pants.data.materials.clear()
+    # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants) AND
+    # the GARMENT regex of the #323 regression net (makeclothes).
+    pants.data.materials.append(
+        make_material("mat_makeclothes_library_cargo_pants", (0.32, 0.36, 0.42, 1.0))
+    )
+    mhclo_pants = Mhclo()
+    mhclo_pants.load(str(pants_mhclo))
+    try:
+        mhclo_pants.clothes = pants
+    except Exception:
+        pass
+    pants_verts_before = len(pants.data.vertices)
+    ClothesService.fit_clothes_to_human(pants, human, mhclo=mhclo_pants, set_parent=True)
+    bpy.context.view_layer.update()
+    print(
+        f"PANTS_FIT {pants.name} verts {pants_verts_before} -> {len(pants.data.vertices)} "
+        f"tris {sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)}"
+    )
+    # The raw fit is the sparse 392-triangle trouser (#220: 71% leg coverage, 32 open
+    # edges). The LOWER GATE below (mirrored from body_param_stage) measures it against
+    # the leg band and replaces a `does_not_cover` fit with the body-derived cover
+    # shell — the same replacement that gives the library rail its 8,565-vert lower
+    # garment. The weight transfer + print happen there, on the geometry that SHIPS.
+
     # #323: body-part hiding under the fitted garment — wire the PROVEN tool from
     # the sibling rail (D1), do not write a second hider. The MPFB2 rail has NO
     # body-part hiding: the fitted t-shirt and the body it is fitted to both
@@ -530,6 +591,7 @@ def main():
         _sys4.path.insert(0, str(_stage_dir2))
     from body_param_stage import (  # noqa: E402
         apply_body_hide_material_region,
+        clip_hide_mask_to_garment_footprint,
         scope_hide_mask_away_from_hands,
         world_bounds,
     )
@@ -561,6 +623,87 @@ def main():
     body_verts, body_faces = _triangulate_numpy(human)
     garment_verts, garment_faces = _triangulate_numpy(garment)
     gb = world_bounds(garment)
+
+    # #326 — LOWER GATE, mirrored from body_param_stage.build_one_body_class (D1: the
+    # same measurement and the same deterministic fallback, no second fitter). The raw
+    # cargo-pants fit is the sparse 392-triangle trouser the #220 finding records (71%
+    # leg coverage, 32 open edges) — it cannot cover the leg band it claims. A sparse
+    # open fit is replaced by the body-derived cover shell (`build_cover_shell`, covers
+    # by construction), exactly the replacement that gives the hm08 library rail its
+    # 8,565-vert lower garment; a fit that does cover is offset to the shipping standoff
+    # (#322). The shipped lower carries the cargo-pants mesh prefix + material name so
+    # the evidence RED reads it as the lower garment. Runs BEFORE the masks so the hide
+    # masks measure the geometry that SHIPS.
+    from garment_coverage import (  # noqa: E402
+        CLOTH_STANDOFF_M,
+        build_cover_shell,
+        cloth_offset,
+        coverage_report,
+    )
+    from body_param_stage import _LIMB_BONE_RE, _bone_dominant_vertex_indices  # noqa: E402
+
+    hem_z = float(gb["min"][2])  # upper garment hem (Z-up stage frame)
+    ankle_z = float(world_bounds(human)["min"][2]) + 0.10  # bare feet begin below
+    pants_v, pants_f = _triangulate_numpy(pants)
+    lower_rep = coverage_report(
+        body_verts,
+        body_faces,
+        pants_v,
+        pants_f,
+        ankle_z,
+        hem_z,
+        garment_label="lower",
+        height_axis=2,
+    )
+    if lower_rep["verdict"] == "does_not_cover":
+        # #295 — the leg shell must not wrap the hanging hands (measured 3,450
+        # hand-dominant verts in the heavy-male lower fallback): exclude
+        # arm/forearm/hand-dominant body faces from the shell band selection.
+        limb_verts = _bone_dominant_vertex_indices(human, armature, _LIMB_BONE_RE)
+        shell_limb_exclude = np.array(
+            [any(int(vi) in limb_verts for vi in f) for f in body_faces], dtype=bool
+        )
+        shell = build_cover_shell(
+            body_verts,
+            body_faces,
+            ankle_z,
+            hem_z,
+            standoff=CLOTH_STANDOFF_M,
+            label="makeclothes_library_cargo_pants_fallback_mpfb_ob_patient_aisha",
+            height_axis=2,
+            exclude_faces=shell_limb_exclude,
+        )
+        shell_obj = mesh_from_numpy(
+            "makeclothes_library_cargo_pants_mpfb_ob_patient_aisha",
+            np.asarray(shell["position"]).reshape(-1, 3),
+            np.asarray(shell["indices"]).reshape(-1, 3),
+        )
+        shell_obj.data.materials.clear()
+        # Name matches the LOWER_GARMENT regex the evidence RED reads (cargo/pants).
+        shell_obj.data.materials.append(
+            make_material("mat_makeclothes_library_cargo_pants", (0.32, 0.36, 0.42, 1.0))
+        )
+        bpy.data.objects.remove(pants, do_unlink=True)
+        pants = shell_obj
+        lower_rep["note"] = "sparse library fit replaced with body-derived cover shell (#220)"
+        pants_mesh_name = shell_obj.name
+        pants_verts_after = shell["vertexCount"]
+        pants_tris = shell["faceCount"]
+    else:
+        # #322 — a fit that covers ships at the 1.5 cm standoff (mirror the stage else).
+        pants_v_off = cloth_offset(pants_v, body_verts, body_faces, CLOTH_STANDOFF_M)
+        for i, v in enumerate(pants.data.vertices):
+            v.co = tuple(float(x) for x in pants_v_off[i])
+        bpy.context.view_layer.update()
+        pants_mesh_name = pants.name
+        pants_verts_after = len(pants.data.vertices)
+        pants_tris = sum(max(len(p.vertices) - 2, 0) for p in pants.data.polygons)
+    # Bind the trousers to the armature too (same projection as the t-shirt).
+    pants_weights = transfer_weights_body_to_garment(human, pants, armature)
+    print(
+        f"LOWER_GATE {lower_rep} pantsMesh {pants_mesh_name} verts {pants_verts_after} "
+        f"tris {pants_tris} weights {pants_weights}"
+    )
     hide_info = body_hide_mask(
         body_verts,
         body_faces,
@@ -579,14 +722,59 @@ def main():
         )
     # #295 — never discard a bare hand: scope the mask to the covered region.
     hide_mask, hand_faces_unhidden = scope_hide_mask_away_from_hands(human, hide_mask, armature)
+    # #326 — clip the mask to the garment's footprint (SHARED over-reach fix; the
+    # signed-clearance test admits body faces just outside the garment silhouette and
+    # the discarded verts render as slivers — measured 23.7 mm below the hem here).
+    hide_mask, footprint_clipped = clip_hide_mask_to_garment_footprint(
+        hide_mask, human, gb
+    )
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
         f"handFacesUnhidden {hand_faces_unhidden} "
+        f"footprintClippedFaces {footprint_clipped} "
         f"appliedPolygonCount {applied['appliedPolygonCount']} "
         f"hiddenMaterialName {applied['hiddenMaterialName']} "
         f"bodyBlenderVerts {len(human.data.vertices)} "
         f"garmentBlenderVerts {len(garment.data.vertices)}"
+    )
+
+    # #326 — lower channel: hide the body under the cargo pants the same way, with the
+    # same shared tools (D1 — no second hider). The mask is the same signed-clearance
+    # predicate against the trousers' surface, scoped away from the hands and clipped to
+    # the trousers' footprint.
+    pants_verts_np, pants_faces_np = _triangulate_numpy(pants)
+    pb = world_bounds(pants)
+    lower_hide_info = body_hide_mask(
+        body_verts,
+        body_faces,
+        pants_verts_np,
+        pants_faces_np,
+        float(pb["min"][2]),
+        float(pb["max"][2]),
+        hide_epsilon_m=HIDE_EPSILON_M,
+        height_axis=2,
+    )
+    lower_hide_mask = lower_hide_info.pop("hideMask")
+    if lower_hide_info["hiddenFaceCount"] == 0:
+        print(
+            "LOWER_BODY_HIDE WARNING: body_hide_mask found no poking body faces under the "
+            "fitted cargo pants — the #326 lower channel would not hide; report this"
+        )
+    lower_hide_mask, lower_hand_faces = scope_hide_mask_away_from_hands(
+        human, lower_hide_mask, armature
+    )
+    lower_hide_mask, lower_footprint_clipped = clip_hide_mask_to_garment_footprint(
+        lower_hide_mask, human, pb
+    )
+    lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
+    print(
+        f"LOWER_BODY_HIDE {lower_hide_info} "
+        f"handFacesUnhidden {lower_hand_faces} "
+        f"footprintClippedFaces {lower_footprint_clipped} "
+        f"appliedPolygonCount {lower_applied['appliedPolygonCount']} "
+        f"hiddenMaterialName {lower_applied['hiddenMaterialName']} "
+        f"pantsBlenderVerts {len(pants.data.vertices)}"
     )
 
     bpy.context.scene.frame_start = 1

@@ -847,6 +847,81 @@ def scope_hide_mask_away_from_hands(
     return mask, excluded
 
 
+# #326 — the body-hide mask's BOUNDS must stay inside the garment's bounds. The mask
+# is built from a signed-clearance test (`body_hide_mask`, < HIDE_EPSILON_M against the
+# garment surface), so body faces just OUTSIDE the garment silhouette — below the hem,
+# above the collar, past the cuffs — can sit within the epsilon of the rim surface and
+# enter the mask even though the cloth does not cover them. Measured on the shipped
+# GLBs: aisha 23.7 mm below the hem, lean_female 11.7 mm above the collar, heavy_male
+# 14.7 mm; every rail carries it, and the discarded body renders as black slivers at
+# shoulders, cuffs, collar and hem (#323's landing grade). A face beyond the silhouette
+# is not under cloth at all, so it must not be discarded. The CLIP slack is 1.5 mm —
+# below the contract's 2 mm allowance (`mpfb2-lower-garment-and-mask-footprint`
+# MAX_OVERREACH_M) so the exported mask AABB clears the gate with float room (measured
+# worst 1.96 mm at a 2 mm clip; the extra half-millimetre buys a stable margin and
+# removes the same 7-24 mm over-reaches by >4.6x).
+HIDE_MASK_FOOTPRINT_SLACK_M = 0.0015
+
+
+def clip_hide_mask_to_garment_footprint(
+    tri_mask: np.ndarray,
+    basemesh: bpy.types.Object,
+    garment_bounds: dict,
+    *,
+    slack_m: float = HIDE_MASK_FOOTPRINT_SLACK_M,
+) -> tuple[np.ndarray, int]:
+    """#326 — never hide body the garment does not cover: clip the mask to the garment footprint.
+
+    Zero every mask triangle that belongs to a body POLYGON with a vertex outside the
+    garment's world AABB + slack. The clip is polygon-level, not triangle-level, because
+    `apply_body_hide_material_region` hides whole polygons (a quad with any masked fan
+    triangle gets the hidden material on ALL its vertices) — a triangle-level clip lets
+    a polygon whose fourth vertex pokes past the garment silhouette keep its hidden
+    material, and the exported hidden primitive's AABB over-reaches (measured 5.6 mm on
+    the first clip pass). The masked body surface then sits inside the garment's
+    silhouette, so no discarded body face renders as a black sliver through the cloth
+    (issue #326: aisha 23.7 mm below the hem, lean_female 11.7 mm above the collar,
+    heavy_male 14.7 mm before this clip).
+
+    `tri_mask` is aligned to the fan-triangulated body faces (the same order
+    `apply_body_hide_material_region` consumes — polygon fan order); `basemesh` is the
+    body mesh whose polygons carry the fan triangles, in the SAME world frame as
+    `garment_bounds` (the stage applies object transforms before the gate; the MPFB2
+    materializer triangulates in world space).
+
+    Bounds containment is NECESSARY, not SUFFICIENT — a mask can sit inside the garment's
+    bounds and still hide a face the garment does not cover. Per-face containment against
+    the garment SURFACE is the honest next instrument if the slivers survive; this closes
+    the measured 7-24 mm over-reach class (issue #326).
+    """
+    mask = np.asarray(tri_mask, dtype=bool).copy()
+    if not mask.any():
+        return mask, 0
+    gmin = np.asarray(garment_bounds["min"], dtype=float)
+    gmax = np.asarray(garment_bounds["max"], dtype=float)
+    removed = 0
+    tri_i = 0
+    for poly in basemesh.data.polygons:
+        n_tri = max(len(poly.vertices) - 2, 1)
+        if not mask[tri_i : tri_i + n_tri].any():
+            tri_i += n_tri
+            continue
+        inside = True
+        for vi in poly.vertices:
+            v = basemesh.data.vertices[vi].co
+            for a in range(3):
+                if v[a] < gmin[a] - slack_m or v[a] > gmax[a] + slack_m:
+                    inside = False
+                    break
+            if not inside:
+                break
+        if not inside:
+            mask[tri_i : tri_i + n_tri] = False
+            removed += 1
+        tri_i += n_tri
+    return mask, removed
+
+
 def create_mpfb_mixamo_rig(basemesh: bpy.types.Object) -> dict:
     """issue-307 — wire the MPFB-shipped CC0 rig + weight map (D1: the tool is on disk).
 
@@ -2135,6 +2210,12 @@ def build_one_body_class(
         hide_mask, hand_faces_unhidden = scope_hide_mask_away_from_hands(
             basemesh, hide_mask, armature
         )
+        # #326 — clip the mask to the garment's footprint (the SHARED over-reach fix,
+        # carried by all three rails: the signed-clearance test admits body faces just
+        # outside the garment silhouette, and their discarded verts render as slivers).
+        hide_mask, footprint_clipped = clip_hide_mask_to_garment_footprint(
+            hide_mask, basemesh, world_bounds(garment_obj)
+        )
         applied = apply_body_hide_material_region(basemesh, hide_mask, slot=slot)
         return {
             **mask_info,
@@ -2142,7 +2223,11 @@ def build_one_body_class(
             "enabled": True,
             "applied": applied,
             "handFacesUnhidden": hand_faces_unhidden,
-            "note": "body faces under the garment hidden (alpha mask), hands excluded",
+            "footprintClippedFaces": footprint_clipped,
+            "note": (
+                "body faces under the garment hidden (alpha mask), "
+                "hands + outside-footprint faces excluded"
+            ),
         }
 
     body_hide: dict = {"enabled": True, "upper": None, "lower": None}
