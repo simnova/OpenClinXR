@@ -15,7 +15,7 @@
     "proportions": 0.5
   },
   "annyReferenceAsset": "ed_chest_pain_nurse_adult",
-  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+  "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
   "annyStatureAlign": {
     "uniformScale": 0.1,
     "girthScaleHorizontal": 1,
@@ -24,7 +24,7 @@
     "bodyStatureAfterScaleMeters": 1.732452514147281,
     "referenceGirthMeters": 0.5413415682214989,
     "bodyGirthAfterStatureMeters": 0.49102943597908877,
-    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
+    "annyObj": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.anny_base.obj",
     "annyReferenceAsset": "ed_chest_pain_nurse_adult"
   },
   "morphTargetCount": 32,
@@ -63,27 +63,26 @@
     "nose-left-elevation"
   ],
   "deformation": {
-    "drivenBone": "upper_arm.L",
+    "drivenBone": "mixamorig:LeftArm",
     "rotationDegrees": 55,
-    "bodyDeformationMeters": 0.35619,
-    "garmentDeformationMeters": 0.65479,
-    "medianBoneTipMotionMeters": 0.31247,
-    "deformationEpsilonMeters": 0.15624,
+    "bodyDeformationMeters": 0.32169,
+    "garmentDeformationMeters": 0.57213,
+    "medianBoneTipMotionMeters": 0.2102,
+    "deformationEpsilonMeters": 0.1051,
     "source": "calibrated_half_median_bone_tip_motion_this_export",
     "boneTipDeltaCount": 1,
     "drivenChainBoneNames": [
-      "upper_arm.L"
+      "mixamorig:LeftArm"
     ],
     "drivenChainTipMotions": {
-      "upper_arm.L": 0.31247
+      "mixamorig:LeftArm": 0.2102
     },
-    "drivenBandRadiusMeters": 0.1861,
-    "bodyBandVertexCount": 2306,
-    "garmentBandVertexCount": 2209
+    "drivenBandRadiusMeters": 0.12519,
+    "bodyBandVertexCount": 525,
+    "garmentBandVertexCount": 482
   },
   "finishStepsRun": [
     "body_param_stage",
-    "fit_lower_garment_outfit",
     "embed_library_footwear",
     "catalog_stamp"
   ],
@@ -92,15 +91,15 @@
     "openclinxr_footwear_casual_shoe_R_mesh"
   ],
   "footwearTriangleCount": 184,
-  "lowerGarmentId": "cortu_cargo_pants_hm08",
-  "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
-  "lowerGarmentTriangleCount": 2530,
-  "lowerGarmentLicenseToken": "CC0",
+  "lowerGarmentId": null,
+  "lowerGarmentMeshName": null,
+  "lowerGarmentTriangleCount": 0,
+  "lowerGarmentLicenseToken": null,
   "lowerPaintTriangleCount": 0,
   "licenseToken": "CC-BY",
-  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+  "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
   "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-  "glbSha256": "f64f99b432f3c3334b6a625ef9b332a531d10f01f112dbd53fd04b2deb85a685",
+  "glbSha256": "24d9ae1b9c6f28efa1b7c99e6423a17544bbef5a1af8be1648859b5e020dfc53",
   "torsoGirthProxyMeters": 0.49102943279025085,
   "heightMeters": 1.732452630996704,
   "notEvidenceFor": [

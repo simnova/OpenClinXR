@@ -377,10 +377,18 @@ def embed_footwear_z_up(
             arm_mod.object = arm_obj
             arm_mod.use_vertex_groups = True
             bone_names = [b.name for b in arm_obj.data.bones]
+            # issue-307: the library rail now rides the MPFB mixamo_unity rig, so the
+            # foot bones are mixamorig:LeftFoot/RightFoot (colons kept in group names —
+            # they must match the bone names exactly for the armature modifier).
+            mixamo_name = f"mixamorig:{'Left' if side == 'L' else 'Right'}Foot"
             if bone_name in bone_names:
                 vg = shoe.vertex_groups.new(name=bone_name)
                 vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
                 weighted_bones = [bone_name]
+            elif mixamo_name in bone_names:
+                vg = shoe.vertex_groups.new(name=mixamo_name)
+                vg.add(list(range(len(shoe.data.vertices))), 1.0, "REPLACE")
+                weighted_bones = [mixamo_name]
             else:
                 alt = f"foot{side}"
                 if alt in bone_names:
