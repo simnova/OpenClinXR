@@ -97,6 +97,38 @@ Last updated: 2026-08-08
 Per-slice detail lives on the GitHub board (HOT plane). This block is the rehydration
 fast-path only: what landed, and what it changed about the factory's capability.
 
+- 2026-08-11: **ANNY IS INSTALLED — the reference rail is live for the first time** (body_param, D1/D11).
+  `anny 0.6.0` (Apache-2.0, NAVER; bundled `data/mpfb2` assets CC0) + `torch 2.13.0` into the mise
+  Python the pipeline already uses via `sys.executable`. `import anny` had failed since 2026-08-07, so
+  every "Anny reference" claim before this rested on seven tracked `.anny_base.obj` files. Capability
+  unlocked: **`anny.Anthropometry`** gives native `height / bmi / mass / volume / waist_circumference`,
+  and **`anny.AnnyInverter`** fits phenotype params to a target mesh by finite-difference Jacobian —
+  both are proven tools to wire rather than instruments to hand-author (D1).
+- 2026-08-11: **MADR 0051 — the Anny-reference → MPFB match protocol** (`docs/madr/0051-*`). Operator
+  direction: Anny is the phenotype source of truth (dataset-anchored), MPFB is the runtime asset
+  (137 joints incl. finger chains/jaw/tongue, eyes, `.mhclo`-compatible topology) — split by job, not
+  a migration. Records pose parity (A-pose baseline, not literal T-pose), BMI inside Anny's trained
+  range, and bands derived from the INPUT rather than the observed gap.
+- 2026-08-11: **THE TWO RAILS' GENDER AXES RUN OPPOSITE** (#299, landed `660f2e1d`). Anny is
+  **0=male / 1=female**; MakeHuman/MPFB is **0=female / 1=male** — both established by rendering the
+  extremes, because both ends measure plausibly and the parameter names give no hint. The Anny rail's
+  mapping was inverted *and* compressed (female→0.18 vs male-default→0.35, spanning 28% of achievable
+  dimorphism); now female→0.85 / male→0.15 / neutral 0.5, spanning 70%. **Any phenotype carried between
+  rails must flip gender.** Trap recorded: **stature is a misleading proxy** — MPFB `gender=0.0` is
+  3.2 cm *taller*; use shoulder span, chest girth or shoulder/hip ratio.
+- 2026-08-11: **A landmark instrument exists, with two measured defects** (#297 landed, #298 landed,
+  #300 in flight). Torso-only girths by mesh-surface connectivity; agrees with `anny.Anthropometry`
+  within 0.83 cm (lean) and 0.45 cm (BMI 45) after #298. **Two silent failure modes found, both
+  returning plausible numbers rather than refusing:** girths are not translation-invariant (#300 — a
+  mesh shifted up 0.85 m reports waist 0.308 against a true 0.735), and MPFB helper geometry narrows
+  shoulder span by 5.8 mm (#301 — helpers strip exactly at vertex 13,380: 19,158→13,380 verts,
+  36,972→26,756 faces, byte-matching the shipped library GLBs).
+- 2026-08-11: **EXACT Anny→MPFB vertex transfer is RULED OUT, measured** (#296 research). Counts are
+  tantalisingly close — Anny `default-noeyes-notongue` 13,348 verts / 26,692 tris vs hm08 13,380 /
+  26,756 — but index-wise correspondence has median normalised distance **0.448** and nearest-neighbour
+  recovery is only **21% injective** (13,348 verts collapse onto 2,805 targets). Not a permutation, so
+  there is no correspondence to cache. **The procedural path is a macro Jacobian**, not a vertex copy.
+
 - 2026-08-10: **#270 pack framing** (equipment_generate, Q5). Reference-pack renders framed the subject at ~5% of the image; now framed to projected bounds — worst-case small plate 5% → 14–36% coverage, isolation (D3) preserved. Graded on pixels, not bytes.
 - 2026-08-10: **#259 cluster B** (instrument, Q5). Four actors reported `skinnedTriangleCount=0` because the probe sampled mid-load; sampling after all assets settle makes them green. Instrument defect, not product — third instance of the sampling-instant class (§10m).
 - 2026-08-10: **#268 / #266 / #260 / #258 equipment mount chain** (equipment_generate, Q1). Generated GLBs are object-centered and unit-normalized; the chain now translates, preserves the composite parametric stand, and fits uniformly. **Two generated assets are consumed in live stations** — wall clock 34,885 t, bedside monitor 60,378 t.
