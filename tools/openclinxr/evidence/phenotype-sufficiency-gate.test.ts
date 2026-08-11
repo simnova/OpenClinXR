@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -51,9 +53,31 @@ import { describe, expect, it } from "vitest";
  * NOT TESTED: whether the six named fields are the RIGHT set — that is a generator question, and the
  * list is taken from which fields `build_source_body` uses to vary geometry, not from clinical
  * authority. Also untested: the `force_stub_mesh` escape hatch, which deliberately bypasses this.
+ *
+ * ## FIXED (#294)
+ *
+ * The gate now refuses an INSUFFICIENT phenotype, not merely an absent one.
+ *
+ * - `generate_mesh.py` defines `PHENOTYPE_BODY_SHAPE_FIELDS` (age, height_cm, build, bmi,
+ *   body_profile, gender_presentation) and the shared predicate `phenotype_is_sufficient()`.
+ *   `build_source_body` refuses when no body-shape field is present (was `len(phenotype) == 0`).
+ * - `orchestrate_character.py` imports the SAME predicate — one shared helper, not two duplicated
+ *   checks — and fails earlier with the case/actor context. The refusal stays a `SystemExit`,
+ *   matching #291.
+ * - PROOF-FIX (was "cannot pass as written"): `REPO_ROOT` was hardcoded to the main checkout
+ *   (`/Volumes/files/src/openclinxr`), so re-running this test inside a worker worktree — which is
+ *   exactly what the contract proof does — kept exercising MAIN's stale `len == 0` gate and could
+ *   never turn green from a worktree edit. It is now resolved relative to this test file
+ *   (`../../../..`), so the proof inspects the tree it runs in. All hashes and numbers in the
+ *   measured table above are untouched.
+ * - Measured after the fix: `{flush: 0.1}` REFUSES; `{flush, hair_color, eye_color}` REFUSES;
+ *   `{age: 8}` still produces the body; the three authored peds actors still produce byte-identical
+ *   bodies (contract (4) hashes unchanged); `{}` still refuses.
  */
 
-const REPO_ROOT = "/Volumes/files/src/openclinxr";
+// Tree-relative so the contract proof re-runs against the WORKTREE it runs in, not
+// the main checkout (see ## FIXED (#294) above).
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const ANNY_DIR = `${REPO_ROOT}/tools/openclinxr/asset-pipeline/anny`;
 
 type Outcome = { refused: boolean; hash: string | null };
@@ -97,11 +121,11 @@ print(json.dumps(list(walk(exp))))
 const COSMETIC_ONLY = { flush: 0.1, hair_color: "light_brown", eye_color: "hazel" };
 
 describe("the phenotype gate refuses an insufficient phenotype, not merely an absent one", () => {
-  it.fails("(1) a single cosmetic field does not satisfy the gate — {flush: 0.1} must refuse", () => {
+  it("(1) a single cosmetic field does not satisfy the gate — {flush: 0.1} must refuse", () => {
     expect(buildOutcome(JSON.stringify({ flush: 0.1 })).refused).toBe(true);
   });
 
-  it.fails(
+  it(
     "(2) COUNTERWEIGHT: three cosmetic fields must still refuse — no count threshold can satisfy this contract",
     () => {
       expect(buildOutcome(JSON.stringify(COSMETIC_ONLY)).refused).toBe(true);

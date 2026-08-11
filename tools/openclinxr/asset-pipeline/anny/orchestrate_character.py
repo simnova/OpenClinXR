@@ -37,6 +37,10 @@ from typing import Any, Dict, Optional, Tuple
 HERE = Path(__file__).parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
+from generate_mesh import (  # noqa: E402
+    PHENOTYPE_BODY_SHAPE_FIELDS,
+    phenotype_is_sufficient,
+)
 from humanoid_provenance import (  # noqa: E402
     DERIVATION_MODE_ORCHESTRATE,
     build_provenance_document,
@@ -518,16 +522,19 @@ def apply_mpfb2_eye_rig(output_glb: str) -> str:
 def generate(params: Dict[str, Any], case_id: str, actor_role: str, output_glb: str, use_comfy: bool = False, comfy_url: str = "http://127.0.0.1:8188", optimize_meshopt: bool = False, mpfb2_eye_rig: bool = False, garment_source_geometry_hint: bool = False) -> Dict[str, str]:  # garment_source_geometry_hint legacy (aborted); phenotype.garmentLayers drives real embed garment in apply_role_clothing_material_regions (automate:1050) for Q1 blueprint case->skinned-sleeve-geo; patient preset re-orchestrated v2 for expanded obvious sleeves (0.27/0.35r/7x12 + folds/ripple/vivid)
     if use_comfy:
         raise SystemExit("--use-comfy is approval-gated; keep StableGen/ComfyUI off until explicitly approved.")
-    # issue-291 refuse gate: a case-driven generation with no phenotype must
-    # refuse, not silently yield a generic adult (#276). generate_mesh.py also
-    # enforces the same gate; this fails earlier with the case context.
+    # issue-291/294 refuse gate: a case-driven generation with a missing OR
+    # insufficient phenotype must refuse, not silently yield a generic adult (#276).
+    # generate_mesh.py enforces the same predicate (phenotype_is_sufficient); this
+    # fails earlier with the case context.
     authored_phenotype = params.get("phenotype")
-    if not isinstance(authored_phenotype, dict) or len(authored_phenotype) == 0:
+    if not phenotype_is_sufficient(authored_phenotype):
         raise SystemExit(
-            f"REFUSE (issue-291): no phenotype in params for case '{case_id}' actor role '{actor_role}'. "
-            f"A missing phenotype that quietly yields a generic adult is how six humanoids became one "
-            f"body (#276). Author phenotype on the scenario fixture actor record and regenerate the "
-            f"actor-phenotype export, or pass an explicit non-empty phenotype dict."
+            f"REFUSE (issue-294): no body-geometry-driving phenotype in params for case "
+            f"'{case_id}' actor role '{actor_role}'. At least one of "
+            f"{', '.join(PHENOTYPE_BODY_SHAPE_FIELDS)} is required; cosmetic/affect fields "
+            f"(flush, hair_color, ...) do not make a body distinguishable and still yield a "
+            f"generic adult (#276). Author a body-shape field on the scenario fixture actor "
+            f"record and regenerate the actor-phenotype export."
         )
     output_path = Path(output_glb)
     output_path.parent.mkdir(parents=True, exist_ok=True)
