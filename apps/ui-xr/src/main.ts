@@ -125,6 +125,7 @@ import {
   type PedsAdaptiveDialogueBranchResolution,
 } from "./peds-adaptive-dialogue-policy.js";
 import { applyGeneratedScalarVisemeToRoot, applyNamedSpeechVisemes, resolveMorphIndex } from "./viseme-runtime-wire.js";
+import { applyGazeToHumanoid } from "./gaze-drives-eyes.js";
 import {
   actorIdForTraceTag,
   actorResponseTextFromApiResult,
@@ -8169,9 +8170,7 @@ function updateGeneratedHumanoidAnimations(deltaSeconds: number, nowMs: number, 
         slot.root.position.z = slot.baseZ + locomotion * 0.6;
       }
       const gaze = generatedDriveScalar(drive.gazeAversion ?? drive.gaze);
-      if (gaze !== null) {
-        slot.root.rotation.y = gaze * 0.7;
-      }
+      if (gaze !== null) applyGazeToHumanoid(slot.root, gaze); // #311: drive the eye bones, not the actor root
       const viseme = generatedDriveScalar(drive.lipSyncViseme ?? drive.lipSync);
       if (viseme !== null) applyGeneratedScalarVisemeToRoot(slot.root, viseme); // #63 named viseme_*
     }
