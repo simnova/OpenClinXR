@@ -19,9 +19,12 @@ import { describe, expect, it } from "vitest";
  *
  * THE MECHANISM. `mat_makeclothes_library_civilian_shirt` owns 17,345 vertices whose dominant bone is
  * a hand or finger joint — half the shirt's 34,568. The MakeClothes shell does not terminate at the
- * wrist; it continues over the hand. Underneath, `openclinxr_hidden_upper_hm08_basemesh`
- * (baseColorFactor `[0,0,0]`) owns another 11,528 hand-dominant vertices, so the body's own hand is
- * hidden by the body-part-hiding mask. Blue shell over a hidden hand is exactly a mitten, and only
+ * wrist; it continues over the hand. Underneath, `openclinxr_hidden_upper_hm08_basemesh` owns another
+ * 11,528 hand-dominant vertices, so the body's own hand is removed by the body-part-hiding mask
+ * (`body_param_stage.py:650` `apply_body_hide_material_region`, the #285 answer to body-vs-garment
+ * z-fighting). Measured on the export, that material is `baseColorFactor [0,0,0,0]` with
+ * `alphaMode=MASK` and `alphaCutoff=0.5` — alpha 0 falls below the cutoff, so those faces are
+ * DISCARDED, not rendered black. Blue shell over a discarded hand is exactly a mitten, and only
  * 1,274 hand vertices are left carrying `skin_adult_lean_female`.
  *
  * The two library bodies share that shirt and diverge sharply — 17,345 vs 3,450 garment-owned hand
@@ -66,7 +69,8 @@ import { describe, expect, it } from "vitest";
  *      hide mask to the covered region                 | pass| pass| pass| ALL PASS
  *
  * (b) and (c) are refused by (2) because deleting cloth does not un-hide the body beneath — the hand
- * geometry is still discarded by the alpha-MASK material, so removing the sleeve leaves a STUMP. (d) is refused by (1) because un-hiding the body does not stop the sleeve covering it
+ * geometry is still discarded by the alpha-MASK material, so removing the sleeve leaves a STUMP where
+ * the hand was. (d) is refused by (1) because un-hiding the body does not stop the sleeve covering it
  * — the hand stays blue. **The two clauses must be satisfied together and neither deletion reaches
  * both**, which is the point: this is a fit defect on both sides of the same surface. (e) is the
  * degenerate escape and (3) exists for it.
