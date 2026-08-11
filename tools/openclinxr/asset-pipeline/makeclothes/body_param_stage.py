@@ -1696,6 +1696,317 @@ def fit_upper_hem_to_waistband(
     }
 
 
+# ── #329 case-authored phenotype → MPFB macro dict ─────────────────────────────
+# The case definition authors a CLINICAL phenotype (height_cm, age in YEARS, bmi,
+# build, gender_presentation, ...). The MPFB body generator consumes MACRO floats
+# (0..1). Nothing translated between them, so an authored height never reached a
+# vertex and an unauthored body class was the median human at 0.5.
+#
+# #328 closed the height half of this gap on the materializer rail by solving the
+# height macro against MPFB's OWN exported body (bake-measure-interpolate; a closed
+# form is refused because stature is a function of height AND age AND gender — the
+# Anny header measures `(height_cm-85)/115` wrong by up to 47 cm). This issue joins
+# the CHAIN: the macro dict below is derived from the case's authored phenotype, and
+# the height macro is solved against the model via the SAME probe machinery #328
+# proved (one copy lives in materialize_mpfb_humanoid_candidate.py; imported lazily
+# so there is no second solver — D1).
+#
+# The non-height translations are DETERMINISTIC case→macro maps anchored to MPFB's
+# macro.json band semantics (data/targets/macrodetails/macro.json), not clinical
+# claims: gender 0=female..1=male, age 0..0.1875=baby..child, 0.1875..0.5=child..
+# young, 0.5..1=young..old, weight 0=min..1=max, muscle 0=min..1=max. A body that
+# looks like the person the case describes is NOT claimed (the planted contract's
+# NOT TESTED); the claim is that the case's authored values reach the generator and
+# the height is honoured against the model's own measurement.
+
+_AUTHORED_MACRO_KEYS = (
+    "gender",
+    "age",
+    "muscle",
+    "weight",
+    "proportions",
+    "height",
+    "cupsize",
+    "firmness",
+)
+
+
+def _clamp01(value: float) -> float:
+    return min(max(float(value), 0.0), 1.0)
+
+
+def _gender_presentation_to_macro(gender_presentation: object) -> float | None:
+    """Parse a case-authored gender_presentation string into the MPFB gender macro
+    (0.0 female .. 1.0 male). None when the presentation carries no sex signal."""
+    text = str(gender_presentation).strip().lower()
+    if not text or text == "none":
+        return None
+    # "female" CONTAINS the substring "male" — check female FIRST (word-boundary
+    # order), or every female presentation reads as ambiguous.
+    if "female" in text:
+        return 0.0
+    if "male" in text:
+        return 1.0
+    return None  # e.g. "child" — no sex signal; caller keeps the neutral default
+
+
+def _years_to_age_macro(years: object) -> float:
+    """Deterministic years→age-macro map anchored to macro.json's band boundaries.
+
+    macro.json: age 0..0.1875 = baby..child, 0.1875..0.5 = child..young, 0.5..1.0 =
+    young..old. The map is monotonic and passes through those anchors; it is a
+    TRANSLATION of the authored years, not a claim that MPFB's age target is a
+    validated clinical age model.
+    """
+    y = float(years)
+    if y <= 1.0:
+        return 0.02  # infant edge of the child band
+    if y <= 12.0:
+        return 0.05 + (y - 1.0) / 11.0 * (0.1875 - 0.05)  # baby..child → child band
+    if y <= 18.0:
+        return 0.1875 + (y - 12.0) / 6.0 * (0.5 - 0.1875)  # child → young
+    if y <= 65.0:
+        return 0.5 + (y - 18.0) / 47.0 * (0.85 - 0.5)  # young → middle-aged
+    return _clamp01(0.85 + (y - 65.0) / 25.0 * 0.15)  # middle-aged → old
+
+
+def _bmi_to_weight_macro(bmi: object) -> float:
+    """Deterministic bmi→weight-macro map (0=minweight .. 1=maxweight in macro.json).
+
+    Anchored at bmi 25 (WHO normal/overweight boundary) ≈ the averageweight midpoint
+    (0.5); linear to 0.05 at bmi 14 and 1.0 at bmi 35. A translation, not a clinical
+    body-composition claim.
+    """
+    b = float(bmi)
+    return _clamp01(0.05 + (b - 14.0) / 21.0 * 0.95)
+
+
+def _build_to_muscle_macro(build: object) -> float:
+    """Deterministic build-descriptor→muscle-macro map (0=minmuscle .. 1=maxmuscle).
+
+    Authoring a `muscle` float takes precedence over the descriptor (checked by the
+    caller). Unknown descriptors keep the neutral 0.5 (average) default.
+    """
+    text = str(build).strip().lower()
+    if any(k in text for k in ("slender", "lean", "thin", "slim", "asthma", "frail")):
+        return 0.3
+    if any(k in text for k in ("athletic", "muscular", "fit", "toned")):
+        return 0.7
+    if any(k in text for k in ("heavy", "obese", "large", "stout", "stocky")):
+        return 0.45
+    return 0.5  # average / standard / unknown
+
+
+def derive_macro_dict_from_authored_phenotype(
+    authored: dict,
+    *,
+    base_macro: dict | None = None,
+) -> tuple[dict, dict]:
+    """#329 — translate a CASE-authored clinical phenotype into the MPFB macro dict.
+
+    Every key `apply_macros`/`HumanService.create_human` consumes is produced here
+    from an authored clinical key or a documented neutral default; the returned
+    (macro, derivation) pair records WHICH authored key drove WHICH macro so the
+    report can show that `bmi`/`build`/`gender_presentation` reached the generator
+    instead of dying at the materializer.
+
+    `height` is deliberately left at the base/default value — the caller solves it
+    against the model's own body via solve_height_macro_from_stature (a closed-form
+    height map is the refused treatment, see the module header).
+    """
+    if base_macro is None:
+        base_macro = {}
+    macro = {
+        "gender": 0.5,
+        "age": 0.5,
+        "muscle": 0.5,
+        "weight": 0.5,
+        "proportions": 0.5,
+        "height": 0.5,
+        "cupsize": 0.5,
+        "firmness": 0.5,
+        "race": {"asian": 0.33, "caucasian": 0.33, "african": 0.33},
+    }
+    if base_macro:
+        for k in _AUTHORED_MACRO_KEYS:
+            if k in base_macro:
+                macro[k] = float(base_macro[k])
+        if isinstance(base_macro.get("race"), dict):
+            macro["race"].update({k: float(v) for k, v in base_macro["race"].items()})
+
+    derivation: dict[str, str] = {}
+
+    # gender ← gender_presentation string (0=female .. 1=male); authored float wins.
+    if isinstance(authored.get("gender"), (int, float)):
+        macro["gender"] = _clamp01(authored["gender"])
+        derivation["gender"] = "authored gender float"
+    else:
+        gp = _gender_presentation_to_macro(authored.get("gender_presentation"))
+        if gp is not None:
+            macro["gender"] = gp
+            derivation["gender"] = "gender_presentation"
+        else:
+            derivation["gender"] = "default 0.5 (no sex signal in gender_presentation)"
+
+    # age ← authored age in YEARS (the case's `age: 8` is years, not the MPFB macro).
+    if isinstance(authored.get("age"), (int, float)):
+        macro["age"] = round(_years_to_age_macro(authored["age"]), 4)
+        derivation["age"] = "age (years) -> macro.json bands"
+    else:
+        derivation["age"] = "default 0.5 (no authored age)"
+
+    # weight ← authored bmi (monotonic map); authored weight float wins.
+    if isinstance(authored.get("weight"), (int, float)):
+        macro["weight"] = _clamp01(authored["weight"])
+        derivation["weight"] = "authored weight float"
+    elif isinstance(authored.get("bmi"), (int, float)):
+        macro["weight"] = round(_bmi_to_weight_macro(authored["bmi"]), 4)
+        derivation["weight"] = "bmi -> weight macro"
+    else:
+        derivation["weight"] = "default 0.5 (no authored bmi/weight)"
+
+    # muscle ← authored build descriptor (or authored muscle float).
+    if isinstance(authored.get("muscle"), (int, float)):
+        macro["muscle"] = _clamp01(authored["muscle"])
+        derivation["muscle"] = "authored muscle float"
+    elif authored.get("build"):
+        macro["muscle"] = _build_to_muscle_macro(authored["build"])
+        derivation["muscle"] = "build -> muscle macro"
+    else:
+        derivation["muscle"] = "default 0.5 (no authored build/muscle)"
+
+    for key in ("proportions", "cupsize", "firmness"):
+        if isinstance(authored.get(key), (int, float)):
+            macro[key] = _clamp01(authored[key])
+            derivation[key] = f"authored {key}"
+        else:
+            derivation[key] = f"default 0.5 (no authored {key})"
+
+    # height is solved by the caller (never mapped here).
+    derivation["height"] = "SOLVED against the model (bake-measure-interpolate, #328 machinery)"
+    return macro, derivation
+
+
+def _mpfb_probe_stature(macro: dict, tmp_dir) -> float:
+    """Measure MPFB's own stature for a macro dict — REUSE of the #328 probe.
+
+    One copy of the bake-measure-interpolate machinery lives in
+    materialize_mpfb_humanoid_candidate.py (create_human → bake_targets →
+    bake_modifiers_remove_helpers → GLB export → pure-python stature read). This
+    module imports it lazily so the two rails share a solver instead of growing a
+    second one (the issue's refused treatment is a closed-form map, and "do not
+    re-implement" the solve). The lazy import is safe: that module imports this one
+    only inside functions, so there is no cycle.
+    """
+    _ensure_probe_machinery_path()
+    from materialize_mpfb_humanoid_candidate import _bake_and_export_probe  # noqa: E402
+
+    out = pathlib_path(tmp_dir) / "probe.glb"
+    try:
+        return _bake_and_export_probe(macro, str(out))["statureMeters"]
+    finally:
+        out.unlink(missing_ok=True)
+
+
+def pathlib_path(p) -> Path:
+    """Small adapter so callers can pass str or Path."""
+    return Path(p) if not isinstance(p, Path) else p
+
+
+def _ensure_probe_machinery_path() -> None:
+    """Put #328's probe module on sys.path (it lives under evidence/blender, not here).
+
+    The solve is reused, not re-implemented: the bake-measure-interpolate machinery
+    (create_human → bake → strip → GLB export → pure-python stature read) stays in
+    materialize_mpfb_humanoid_candidate.py and is imported lazily from here.
+    """
+    probe_dir = Path(__file__).resolve().parent.parent.parent / "evidence" / "blender"
+    probe_dir_str = str(probe_dir)
+    if probe_dir_str not in sys.path:
+        sys.path.insert(0, probe_dir_str)
+
+
+def measure_height_reachable_band(macro_base: dict, tmp_dir) -> tuple[float, float]:
+    """PER-ACTOR reachable stature band, measured on the MPFB model.
+
+    Probes the model at height macro 0 and 1 with the actor's OTHER macros fixed —
+    the counterweight clause (3) of the planted contract: a band cannot be produced
+    by echoing a float or evaluating a formula, only by measuring the model twice
+    for that actor. Returns (floor_m, ceiling_m) with ceiling > floor.
+    """
+    _ensure_probe_machinery_path()
+    from materialize_mpfb_humanoid_candidate import _bake_and_export_probe  # noqa: E402
+
+    tmp = pathlib_path(tmp_dir)
+    tmp.mkdir(parents=True, exist_ok=True)
+
+    def probe(height_macro: float) -> float:
+        macro = dict(macro_base)
+        macro["height"] = round(float(height_macro), 4)
+        out = tmp / f"band_h{macro['height']:.4f}.glb"
+        try:
+            return _bake_and_export_probe(macro, str(out))["statureMeters"]
+        finally:
+            out.unlink(missing_ok=True)
+
+    s0 = probe(0.0)
+    s1 = probe(1.0)
+    floor_m, ceiling_m = (s0, s1) if s0 <= s1 else (s1, s0)
+    if not (ceiling_m > floor_m):
+        raise RuntimeError(
+            f"#329: degenerate height-macro band [{floor_m:.4f}, {ceiling_m:.4f}] m — "
+            "the MPFB model does not respond to the height macro for this actor"
+        )
+    return (floor_m, ceiling_m)
+
+
+def solve_height_macro_from_stature(
+    macro_base: dict,
+    target_stature_m: float,
+    tmp_dir,
+    *,
+    tol_m: float = 0.01,
+) -> dict:
+    """#329 — solve the height macro so the model's own body reaches the target.
+
+    Delegates to #328's `solve_height_macro` (bake-measure-interpolate against the
+    exported body — the ALL-PASS treatment (d) in the planted header), then measures
+    the solved body once more to record the resulting stature. Refuses loudly when
+    the target is outside the measured reachable band rather than shipping a short
+    body. MADR 0051 §5 tolerance (±1 cm of the authored height) is the caller's —
+    the solve's internal tol is 1 cm and the final probe is reported for the row.
+    """
+    _ensure_probe_machinery_path()
+    from materialize_mpfb_humanoid_candidate import solve_height_macro  # noqa: E402
+
+    tmp = pathlib_path(tmp_dir)
+    tmp.mkdir(parents=True, exist_ok=True)
+    # Band first, OUTSIDE the try: a degenerate band is its own refusal and must not
+    # be re-wrapped (the band variable would not exist in the except block).
+    band = measure_height_reachable_band(macro_base, tmp)
+    try:
+        h_solved = solve_height_macro(
+            dict(macro_base), float(target_stature_m), tmp, tol=tol_m
+        )
+    except RuntimeError as exc:
+        raise RuntimeError(
+            f"#329: authored height {target_stature_m * 100:.1f} cm is outside this "
+            f"actor's measured reachable band [{band[0] * 100:.1f}, "
+            f"{band[1] * 100:.1f}] cm on MPFB's own body — refusing to ship a body "
+            f"that does not honour the case. Measured band recorded; do NOT widen "
+            f"the band to make the row pass. ({exc})"
+        ) from exc
+    solved_macro = dict(macro_base)
+    solved_macro["height"] = round(float(h_solved), 4)
+    measured = _mpfb_probe_stature(solved_macro, tmp)
+    return {
+        "heightMacro": round(float(h_solved), 4),
+        "measuredStatureM": measured,
+        "reachableBandCm": [round(band[0] * 100.0, 2), round(band[1] * 100.0, 2)],
+        "bandMeasured": True,
+    }
+
+
 def build_one_body_class(
     *,
     body_class: dict,
@@ -1753,6 +2064,47 @@ def build_one_body_class(
         "height": float(body_class.get("height", 0.5)),
         "proportions": float(body_class.get("proportions", 0.5)),
     }
+    # #329 — the macros must come from the CASE, not from hand-authored body-class
+    # literals. When the body class carries the case's authored phenotype (resolved
+    # by the CLI from buildActorPhenotypeExport), derive every macro from it and
+    # solve the height against MPFB's own measured body. A body whose own band cannot
+    # reach the authored height REFUSES loudly with the measured band recorded — the
+    # planted contract's clause (1) accepts a recorded refusal, never a silently
+    # short body. The legacy literal path stays as the fallback for a body class
+    # with no authored phenotype (counterweight).
+    macro_source = "authored_body_class_literals"
+    macro_derivation: dict = {}
+    phenotype_solve: dict = {}
+    authored_phenotype = body_class.get("authoredPhenotype")
+    if isinstance(authored_phenotype, dict) and authored_phenotype:
+        base_macro, macro_derivation = derive_macro_dict_from_authored_phenotype(
+            authored_phenotype
+        )
+        target_cm = authored_phenotype.get("height_cm")
+        if isinstance(target_cm, (int, float)) and float(target_cm) > 0:
+            tmp_solve = Path(out_dir).parent / f".{body_class_id}.height-solve"
+            try:
+                solved = solve_height_macro_from_stature(
+                    base_macro, float(target_cm) / 100.0, tmp_solve
+                )
+            finally:
+                import shutil
+
+                shutil.rmtree(tmp_solve, ignore_errors=True)
+            base_macro["height"] = solved["heightMacro"]
+            phenotype = base_macro
+            macro_source = "case_authored_phenotype_issue_329"
+            phenotype_solve = {
+                "authoredHeightCm": float(target_cm),
+                "solvedHeightMacro": solved["heightMacro"],
+                "measuredStatureM": round(solved["measuredStatureM"], 4),
+                "reachableBandCm": solved["reachableBandCm"],
+                "heightHonoured": abs(solved["measuredStatureM"] * 100.0 - float(target_cm)) <= 1.0,
+            }
+        else:
+            phenotype = {k: base_macro[k] for k in ("gender", "age", "muscle", "weight", "proportions")}
+            phenotype["height"] = base_macro.get("height", 0.5)
+            macro_source = "case_authored_phenotype_issue_329_no_height_target"
 
     # ── #275 per-class upper garment selection (case definition → garment) ────────
     # The CLI resolves the garment from the cast role; this stage only executes it.
@@ -2345,6 +2697,15 @@ def build_one_body_class(
         "annyStatureAlign": align_info,
         "annyReferenceAsset": anny_ref_used,
         "annyObj": class_anny or None,
+        # #329 — where this body class's macros came from: the case-authored
+        # phenotype (with the height solved against MPFB's own body) or the legacy
+        # hand-authored body-class literals. `macroDerivation` records which authored
+        # key drove which macro, so bmi/build/gender_presentation are visible in the
+        # report instead of dying at the materializer.
+        "macroSource": macro_source,
+        "macroDerivation": macro_derivation,
+        "phenotypeSolve": phenotype_solve,
+        "authoredPhenotype": authored_phenotype if isinstance(authored_phenotype, dict) else None,
         "rig": rig_info,
         "deformation": deform,
         "skinExport": True,
