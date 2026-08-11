@@ -309,6 +309,233 @@ h3 {
   color: var(--muted);
 }
 
+/* Dark factory pipeline strip */
+.band--factory {
+  background:
+    linear-gradient(180deg, rgba(31, 111, 86, 0.06), transparent 28%),
+    var(--paper);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.pipeline-strip {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px 8px;
+}
+
+.pipeline-step {
+  flex: 1 1 200px;
+  min-width: min(100%, 200px);
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pipeline-step--result {
+  max-width: 300px;
+}
+
+.pipeline-step:has(.pipeline-arrow) {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: none;
+  align-self: center;
+  margin: 0 2px;
+}
+
+.pipeline-arrow {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1;
+  padding: 0 4px;
+  user-select: none;
+}
+
+.pipeline-step__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pipeline-step__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.pipeline-step__label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--green-dark);
+  letter-spacing: 0.01em;
+}
+
+.pipeline-step__body--prompt {
+  flex: 1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0f1613;
+  color: #e8f0eb;
+  overflow: hidden;
+}
+
+.pipeline-prompt {
+  margin: 0;
+  padding: 14px 14px 16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.pipeline-step__figure {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #111;
+}
+
+.pipeline-step__figure img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: #1a1f1c;
+}
+
+.pipeline-step__figure--pack img {
+  aspect-ratio: 4 / 1;
+  object-fit: contain;
+  background: #f0f2ef;
+}
+
+.pipeline-step__figure figcaption {
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--muted);
+  background: var(--panel);
+  border-top: 1px solid var(--line);
+}
+
+.pipeline-step__note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.complexity-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 0.8rem;
+}
+
+.complexity-card div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.complexity-card dt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.complexity-card dd {
+  margin: 0;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.complexity-card--pre {
+  border-color: #c9b28a;
+  background: rgba(183, 121, 31, 0.08);
+}
+
+.complexity-card--post {
+  border-color: #8fbfa8;
+  background: rgba(31, 111, 86, 0.1);
+}
+
+.complexity-card__warn {
+  color: var(--gold);
+}
+
+.complexity-card__ok {
+  color: var(--green-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.complexity-card__savings {
+  color: var(--green);
+  font-size: 1.15rem;
+}
+
+.pipeline-savings-banner {
+  margin-top: 28px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(31, 111, 86, 0.35);
+  background:
+    linear-gradient(90deg, rgba(31, 111, 86, 0.14), rgba(36, 95, 143, 0.08));
+  font-size: 1.02rem;
+  line-height: 1.45;
+  max-width: 960px;
+}
+
+.pipeline-savings-banner__pct {
+  display: inline-block;
+  margin: 0 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 860px) {
+  .pipeline-step:has(.pipeline-arrow) {
+    display: none;
+  }
+
+  .pipeline-step {
+    max-width: none;
+    flex: 1 1 100%;
+  }
+}
+
 /* Footer */
 .site-footer {
   background: var(--ink);

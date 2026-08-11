@@ -23,6 +23,7 @@
         <div class="nav-links">
           <a href="#platform">Platform</a>
           <a href="#now">Now</a>
+          <a href="#dark-factory">Factory</a>
           <a href="#see-it">See it</a>
           <a href="#roadmap">Roadmap</a>
           <a href="#evidence-docs">Evidence Docs</a>
@@ -47,6 +48,7 @@
           </p>
           <div class="actions" aria-label="Project links">
             <a class="button button--primary" href="#now">Where we are</a>
+            <a class="button" href="#dark-factory">Factory pipeline</a>
             <a class="button" href="#see-it">Runtime evidence</a>
             <a class="button" href="#roadmap">What’s queued</a>
             <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub</a>
@@ -208,6 +210,176 @@
           Deeper factory reports live under
           <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr</a>
           and Model Vetting cagematch outputs in the repo.
+        </p>
+      </section>
+
+      <section id="dark-factory" class="band band--factory" aria-labelledby="dark-factory-title">
+        <div class="section-heading">
+          <p class="eyebrow">Dark software factory · shaping up</p>
+          <h2 id="dark-factory-title">Prompt in. Budget mesh out. Deterministic stations in between.</h2>
+        </div>
+        <p class="status-copy">
+          The factory goal is lights-out generation: case or prop intent becomes a learner-visible asset
+          without a hand-model pass. Narrow generative input (Grok Imagine multi-view packs) feeds
+          TRELLIS Metal reconstruction, then a measured meshopt ladder that lands under WebXR triangle
+          budgets. <strong>One ECG cart run, measured 2026-08-11:</strong>
+          <strong>973,639 → 34,443 triangles (−96.5%)</strong> — under the soft prop band (≤40k).
+          Not Quest readiness. Not clinical realism. Proof that the pipeline is real and iterable.
+        </p>
+
+        <ol class="pipeline-strip" aria-label="Dark factory pipeline stages">
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">1</span>
+              <span class="pipeline-step__label">Imagine prompt</span>
+            </div>
+            <div class="pipeline-step__body pipeline-step__body--prompt">
+              <pre class="pipeline-prompt" tabindex="0">Low-poly game-ready medical ECG monitor cart prop for WebXR / Quest.
+Hard-surface stylized, NOT photoreal. Clean boxy forms only.
+Wheeled base · upright column · large matte black screen.
+6–8 square button pads · ≤6 circular jacks. NO free cables.
+NO logos, labels, text. Matte grey plastic. Studio grey bg.
+Maximize large flat planes for 3D reconstruction.</pre>
+            </div>
+            <p class="pipeline-step__note">
+              Hard-surface pack prompt — not a photoreal product shot. Photoreal inputs defeat post-opt
+              (measured ~186k floor); hard-surface packs unlock the soft band.
+            </p>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">2</span>
+              <span class="pipeline-step__label">Image output</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                src="assets/factory-pipeline/01-imagine-image.png"
+                width="1024"
+                height="1024"
+                alt="Grok Imagine hard-surface ECG cart: grey boxy monitor on casters, black screen, colorful button pads and ports"
+                loading="lazy"
+              >
+              <figcaption>
+                Grok Imagine · VR hard-surface reference (single view).
+                Multi-view pack (front / side / ±¾) conditions TRELLIS.
+              </figcaption>
+            </figure>
+            <figure class="pipeline-step__figure pipeline-step__figure--pack">
+              <img
+                src="assets/factory-pipeline/01b-multiview-pack.png"
+                width="2048"
+                height="512"
+                alt="Four-view multi-view pack of the same ECG cart for TRELLIS conditioning"
+                loading="lazy"
+              >
+              <figcaption>Multi-view pack · factory input to <code>factory:trellis:bake</code></figcaption>
+            </figure>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">3</span>
+              <span class="pipeline-step__label">Pre-optimized mesh</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                src="assets/factory-pipeline/02-preopt-mesh.png"
+                width="1280"
+                height="1280"
+                alt="Isolated grade capture of raw TRELLIS ECG cart before meshopt, three-quarter lit"
+                loading="lazy"
+              >
+              <figcaption>
+                Raw TRELLIS Metal multi-view bake · three-quarter lit
+              </figcaption>
+            </figure>
+            <dl class="complexity-card complexity-card--pre">
+              <div>
+                <dt>Triangles</dt>
+                <dd>973,639</dd>
+              </div>
+              <div>
+                <dt>Stage</dt>
+                <dd>raw export</dd>
+              </div>
+              <div>
+                <dt>vs hard budget</dt>
+                <dd class="complexity-card__warn">5.4× over 180k</dd>
+              </div>
+            </dl>
+            <p class="pipeline-step__note">
+              MADR 0050: do not reject the generator on raw tris. Judge after optimization.
+            </p>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step pipeline-step--result">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">4</span>
+              <span class="pipeline-step__label">Post-optimized mesh</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                src="assets/factory-pipeline/03-postopt-mesh.png"
+                width="1280"
+                height="1280"
+                alt="Isolated grade capture of champion post-opt ECG cart at 34443 triangles, three-quarter lit"
+                loading="lazy"
+              >
+              <figcaption>
+                Champion after high-error meshopt ladder · three-quarter lit
+              </figcaption>
+            </figure>
+            <dl class="complexity-card complexity-card--post">
+              <div>
+                <dt>Triangles</dt>
+                <dd>34,443</dd>
+              </div>
+              <div>
+                <dt>Savings</dt>
+                <dd class="complexity-card__savings">−96.5%</dd>
+              </div>
+              <div>
+                <dt>Budgets</dt>
+                <dd class="complexity-card__ok">≤40k soft · ≤60k station · ≤180k hard</dd>
+              </div>
+            </dl>
+            <p class="pipeline-step__note">
+              Technique: direct high-error targets from raw (not chain ratios that plateau ~59k).
+              Delivery: optional <code>factory:trellis:pack</code> (gltfpack). Still a harness prop —
+              not a worn-headset claim.
+            </p>
+          </li>
+        </ol>
+
+        <div class="pipeline-savings-banner" role="status">
+          <strong>Measured delta:</strong>
+          973,639 → 34,443 triangles
+          <span class="pipeline-savings-banner__pct">−96.5% triangle count</span>
+          · soft prop band cleared · same subject (ECG cart, VR hard-surface pack)
+        </div>
+
+        <p class="evidence-note" style="margin-top: 16px;">
+          Pipeline CLIs: <code>pnpm factory:trellis:bake</code> →
+          <code>pnpm factory:trellis:optimize</code> →
+          <code>pnpm factory:trellis:pack</code>.
+          Skill: <code>.agents/skills/trellis-vr-equipment-optimize/</code>.
+          Evidence: <code>.openclinxr/evidence/trellis-bake-vr-hard/</code>,
+          <code>trellis-vr-optimize-iterations/ecg-cart-vr-hard/</code>.
+          claimScope: factory automation path for equipment props.
+          notEvidenceFor: Quest readiness, clinical accuracy, exam equivalence.
         </p>
       </section>
 
