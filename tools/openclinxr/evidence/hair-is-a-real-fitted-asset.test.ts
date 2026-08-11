@@ -58,6 +58,45 @@ import { describe, expect, it } from "vitest";
  * cannot see placement, so placement is deliberately out of scope here and needs its own slice).
  */
 
+/**
+ * ## FIXED (#330)
+ *
+ * `embed_library_hair.py` now fits a staged CC0 MakeClothes hair `.mhclo` through the SAME
+ * `ClothesService.fit_clothes_to_human` the upper/lower/footwear channels use (D1), and
+ * `body-param-cli.ts` runs it as a finish step after footwear. The licence gate is real:
+ * `hair-licence-classify.ts` parses every staged `.mhclo`'s OWN header (the non-uniform
+ * `CC0`/`CC-0`/`CC_by`/`CC BY 4.0`/`AGPL3`/absent spellings) and counts helper-vertex refs against
+ * the #318 stripped basemesh (>= 13380 cannot fit), then writes
+ * `.openclinxr/evidence/issue-330/hair-licence-classification.json` (25 rows) and refuses all ten
+ * AGPL3 styles for the copyleft reason, the four unlicensed `cortu_*` for no licence line,
+ * `faydaen_hair_1` (12 helpers) and `culturalibre_hair_05` (4 helpers) on topology, and classifies
+ * the CC-0 / CC_by / CC BY 4.0 variant spellings as usable (never unlicensed). The six toigo bobs
+ * are the primary usable set.
+ *
+ * Re-baked through the hair finish step (2026-08-11) onto the two library GLBs. Measured on the
+ * shipped bytes: `body-param-adult_lean_female-library.glb` carries
+ * `makeclothes_library_hair_toigo_blunt_bob_with_bangs_adult_lean_female_mesh` (4,976 tris,
+ * JOINTS_0 + WEIGHTS_0 present — skinned, weighted 100% to `mixamorig:Head`), placed on the head by
+ * world body-bounds alignment + the measured stature ratio (glb 1.7325 m vs 0.1*ref 1.6945 m),
+ * glTF y [1.409, 1.673] against the head-joint extent [1.422, 1.732]. The heavy-male class is a
+ * RECORDED SKIP: the licence-clean zero-helper subset is all feminine styles, so a bob on a male
+ * patient would regress realism — recorded in the catalog as `hairSkippedReason`, never silent.
+ *
+ * The two `it.fails` -> `it` flips are clauses (1), (2) and (3) above (three markers, three flips).
+ * Clause (4) was already green and is unchanged. The licence ledger's `makehuman-hair01` row is
+ * expanded with the classification artifact, the fitted style, and the gate. The painted scalp
+ * REGION (#222/#279) is untouched — the fitted hair is geometry ON TOP of it, and the
+ * mpfb-scalp-hair-region contract still sees the body's scalp primitive (its "no separate hair
+ * mesh" clause is scoped to exclude the FITTED library hair mesh — a fitted .mhclo is the opposite
+ * of the hand-authored sphere D1 forbids; the body-identification heuristic was also fixed for the
+ * footwear-sized meshes).
+ *
+ * The six toigo styles remain the usable CC0 set; `culturalibre_hair_06` (CC-0), `o4saken_long01`
+ * (CC BY 4.0) and `elvs_reverse_french_braid_bun` (CC_by) are additionally classified usable with
+ * attribution. NOT covered here: hair on the MPFB2 materializer rail (aisha), hairstyle realism,
+ * scalp-flush placement (pixel-graded separately).
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const ARTIFACT = join(REPO_ROOT, ".openclinxr/evidence/issue-330/hair-licence-classification.json");
@@ -127,7 +166,7 @@ function requireClassified(rows: Classification[]): void {
 }
 
 describe("hair reaches a body as a fitted library asset, under a real licence gate", () => {
-  it.fails("(1) RED: at least one shipped humanoid carries fitted hair GEOMETRY, weighted to the head", async () => {
+  it("(1) RED: at least one shipped humanoid carries fitted hair GEOMETRY, weighted to the head", async () => {
     const withHair = shipped.filter((s) => s.names.some((n) => /hair/i.test(n)));
     expect(
       withHair.map((s) => s.path),
@@ -148,7 +187,7 @@ describe("hair reaches a body as a fitted library asset, under a real licence ga
     }
   });
 
-  it.fails("(2) RED COUNTERWEIGHT: no AGPL3 or unlicensed style is marked usable or shipped — a directory glob is refused", () => {
+  it("(2) RED COUNTERWEIGHT: no AGPL3 or unlicensed style is marked usable or shipped — a directory glob is refused", () => {
     requireClassified(classified);
     const usable = new Set(classified.filter((c) => c.usable).map((c) => c.asset ?? ""));
     const leaked = [...AGPL3_MUST_REFUSE, ...UNLICENSED_MUST_REFUSE].filter((n) => usable.has(n));
@@ -164,7 +203,7 @@ describe("hair reaches a body as a fitted library asset, under a real licence ga
     expect(inShipped, "refused hairstyles present in a shipped humanoid").toEqual([]);
   });
 
-  it.fails("(3) RED COUNTERWEIGHT: variant licence spellings are classified correctly — a `grep -i cc0` is refused", () => {
+  it("(3) RED COUNTERWEIGHT: variant licence spellings are classified correctly — a `grep -i cc0` is refused", () => {
     requireClassified(classified);
     const byName = new Map(classified.map((c) => [c.asset ?? "", c]));
 
