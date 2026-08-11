@@ -123,6 +123,8 @@ async function captureComparator(
     sceneAssets: (window as any).__openClinXrSceneAssetEvidence ?? null,
     // #315: the model assetId of the actor the comparator capture framed (recorded intent).
     cameraTargetActorId: (window as any).__openClinXrComparatorCameraTargetActorId ?? null,
+    // #315 follow-up: framing measurement — NDC of the framed subject + slot visibility.
+    framingDump: (window as any).__openClinXrComparatorFramingDump ?? null,
     mouthGaze: (window as any).__openClinXrMouthGazePoseComparatorEvidence ?? null,
     adaptive: (window as any).__openClinXrPedsAdaptiveDialogueEvidence ?? null,
     boot: (window as any).__openClinXrBootEvidence ?? null,
@@ -207,6 +209,7 @@ async function main(): Promise<void> {
           sleeveDeformEvidence: (parentResult.inspection as any)?.mouthGaze?.garmentGeometry?.sleeveDeform
             ?? "traversed_by_main.ts_real_garment_parent_branch;cyan_emissive;frustumCulled=false;openClinXrSleeveDeformEvidence;parent_cardigan_casual_top",
           garmentGeometry: (parentResult.inspection as any)?.mouthGaze?.garmentGeometry ?? null,
+          framingDump: (parentResult.inspection as any)?.framingDump ?? null,
           sceneAssets: (parentResult.inspection as any)?.sceneAssets ?? null,
         },
         nurse: {
@@ -219,6 +222,7 @@ async function main(): Promise<void> {
           sleeveDeformEvidence: (nurseResult.inspection as any)?.mouthGaze?.garmentGeometry?.sleeveDeform
             ?? "traversed_by_main.ts_real_garment_nurse_branch;cyan_emissive;frustumCulled=false;openClinXrSleeveDeformEvidence;nurse_scrub",
           garmentGeometry: (nurseResult.inspection as any)?.mouthGaze?.garmentGeometry ?? null,
+          framingDump: (nurseResult.inspection as any)?.framingDump ?? null,
           sceneAssets: (nurseResult.inspection as any)?.sceneAssets ?? null,
         },
         claimBoundary: "not_clinical_not_quest_not_production_skeptic_visible_sleeve_deform_runtime_evidence_only",
