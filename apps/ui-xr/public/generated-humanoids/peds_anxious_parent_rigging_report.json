@@ -124,7 +124,7 @@
     "claimScope": "deterministic procedural fallback clips; not motion-capture or Speech2Motion evidence"
   },
   "roleAnimationHandoff": {
-    "actorRole": "parent",
+    "actorRole": "family",
     "roleSpecificClipNames": [
       "openclinxr_role_parent_anxious_fidget_guard"
     ],
@@ -188,61 +188,61 @@
     "unweightedVertexCount": 0,
     "weightedVertexCount": 13348,
     "weightedVertexCountsByBone": {
-      "pelvis": 557,
-      "spine": 1114,
-      "chest": 5516,
-      "neck": 5806,
-      "head": 4487,
-      "eye.L": 1542,
-      "eye.R": 585,
-      "clavicle.L": 548,
-      "upper_arm.L": 1820,
+      "pelvis": 509,
+      "spine": 1084,
+      "chest": 5547,
+      "neck": 5818,
+      "head": 4490,
+      "eye.L": 1154,
+      "eye.R": 284,
+      "clavicle.L": 555,
+      "upper_arm.L": 1822,
       "forearm.L": 0,
       "hand.L": 0,
       "index_finger_base.L": 0,
-      "clavicle.R": 548,
-      "upper_arm.R": 1820,
+      "clavicle.R": 555,
+      "upper_arm.R": 1822,
       "forearm.R": 0,
       "hand.R": 0,
       "index_finger_base.R": 0,
-      "thigh.L": 231,
-      "shin.L": 1394,
-      "foot.L": 1163,
-      "thigh.R": 231,
-      "shin.R": 1394,
-      "foot.R": 1163
+      "thigh.L": 241,
+      "shin.L": 1401,
+      "foot.L": 1160,
+      "thigh.R": 241,
+      "shin.R": 1401,
+      "foot.R": 1160
     },
     "dominantVertexCountsByBone": {
-      "pelvis": 557,
-      "spine": 557,
-      "chest": 1319,
+      "pelvis": 509,
+      "spine": 575,
+      "chest": 1328,
       "neck": 0,
-      "head": 4487,
+      "head": 4490,
       "eye.L": 0,
       "eye.R": 0,
       "clavicle.L": 0,
-      "upper_arm.L": 1820,
+      "upper_arm.L": 1822,
       "forearm.L": 0,
       "hand.L": 0,
       "index_finger_base.L": 0,
       "clavicle.R": 0,
-      "upper_arm.R": 1820,
+      "upper_arm.R": 1822,
       "forearm.R": 0,
       "hand.R": 0,
       "index_finger_base.R": 0,
-      "thigh.L": 231,
-      "shin.L": 1163,
+      "thigh.L": 241,
+      "shin.L": 1160,
       "foot.L": 0,
-      "thigh.R": 231,
-      "shin.R": 1163,
+      "thigh.R": 241,
+      "shin.R": 1160,
       "foot.R": 0
     },
     "leftRightSymmetry": [
       {
         "leftBone": "upper_arm.L",
         "rightBone": "upper_arm.R",
-        "leftDominantVertexCount": 1820,
-        "rightDominantVertexCount": 1820,
+        "leftDominantVertexCount": 1822,
+        "rightDominantVertexCount": 1822,
         "dominantCountDeltaRatio": 0.0
       },
       {
@@ -262,15 +262,15 @@
       {
         "leftBone": "thigh.L",
         "rightBone": "thigh.R",
-        "leftDominantVertexCount": 231,
-        "rightDominantVertexCount": 231,
+        "leftDominantVertexCount": 241,
+        "rightDominantVertexCount": 241,
         "dominantCountDeltaRatio": 0.0
       },
       {
         "leftBone": "shin.L",
         "rightBone": "shin.R",
-        "leftDominantVertexCount": 1163,
-        "rightDominantVertexCount": 1163,
+        "leftDominantVertexCount": 1160,
+        "rightDominantVertexCount": 1160,
         "dominantCountDeltaRatio": 0.0
       },
       {
@@ -281,14 +281,14 @@
         "dominantCountDeltaRatio": 0.0
       }
     ],
-    "shoulderTorsoArmBleedVertexCount": 3640,
+    "shoulderTorsoArmBleedVertexCount": 3644,
     "pelvisSpineChestSplitVertexCounts": {
-      "pelvis": 557,
-      "spine": 1114,
-      "chest": 5516
+      "pelvis": 509,
+      "spine": 1084,
+      "chest": 5547
     },
     "poseProbe": {
-      "actorRole": "parent",
+      "actorRole": "family",
       "bodyMotionProbeClipName": "openclinxr_role_parent_anxious_fidget_guard",
       "animatedClipCount": 5,
       "probeScope": "report_side_body_rig_coverage_and_clip_selection_not_mocap_or_quality_grade"
@@ -308,7 +308,7 @@
       "method": "identity_object_export_yup_false_y_height_self_standing",
       "exportYup": false,
       "ySpan": 1.4691,
-      "zSpan": 0.016982,
+      "zSpan": 0.016498,
       "claimScope": "export_bind_pose_identity_root_upright_mesh_and_joints_not_production_rig_quality",
       "notEvidenceFor": [
         "production_asset_readiness",
@@ -346,9 +346,9 @@
     "rejectedApproach": "visible_bounds_based_role_clothing_cube_markers",
     "reason": "Visual review rejected the procedural torso/cardigan/stripe cube panels as bulky block-like artifacts that obscured the Anny body in isolated captures.",
     "nextSafeStep": "Keep bounds-based mesh clothing material regions and pursue real wardrobe/texture cagematches instead of detached cube markers.",
-    "actorRole": "parent",
-    "roleVisualCue": "anxious_parent",
-    "clothingStyle": "muted_rose_street_cardigan",
+    "actorRole": "family",
+    "roleVisualCue": "anxious_parent_guardian",
+    "clothingStyle": "muted_rose_guardian_cardigan",
     "objectNames": [],
     "claimScope": "visible_role_clothing_cube_markers_disabled_not_realism_evidence",
     "notEvidenceFor": [
@@ -362,15 +362,15 @@
     "meshRegionMaterialMode": "bounds_based_role_clothing_material_assignment",
     "clothingRegionRevision": "v9_arm_colour_tracks_outermost_garment_exact_match_issue_146",
     "topMaterialName": null,
-    "lowerMaterialName": "openclinxr_role_mesh_clothing_parent_lower",
+    "lowerMaterialName": "openclinxr_role_mesh_clothing_family_lower",
     "trimMaterialName": null,
-    "armMaterialName": "openclinxr_role_mesh_clothing_parent_arm",
+    "armMaterialName": "openclinxr_role_mesh_clothing_family_arm",
     "topFaceCount": 0,
-    "lowerFaceCount": 1096,
+    "lowerFaceCount": 1088,
     "trimFaceCount": 0,
-    "armFaceCount": 1400,
+    "armFaceCount": 1428,
     "skippedBackFaceCount": 0,
-    "skippedTorsoPaintFaceCount": 1430,
+    "skippedTorsoPaintFaceCount": 1418,
     "skippedTorsoPaintBecauseRealGarment": true,
     "claimScope": "procedural_bounds_based_clothing_material_regions_not_production_wardrobe",
     "notEvidenceFor": [
@@ -388,23 +388,23 @@
         "layerIndex": 0,
         "layerToken": "casual_top",
         "layerKind": "closed_casual",
-        "faceCount": 2150,
-        "vertexCount": 2139,
+        "faceCount": 2101,
+        "vertexCount": 2098,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.01,
-        "yokePeakY": 1.3853,
-        "bodyShoulderTopY": 1.3403,
+        "yokePeakY": 1.3737,
+        "bodyShoulderTopY": 1.3287,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+upper_arm_along_bone_casual_top_closed",
         "sleeveLenFactor": 0.28,
-        "sleeveAlongArmM": 0.1721,
+        "sleeveAlongArmM": 0.1716,
         "sleeveRows": 9,
         "sleeveCols": 12,
-        "sleeveR0M": 0.0575,
+        "sleeveR0M": 0.0558,
         "sleeveRFactor": 0.28,
-        "torsoRBaseM": 0.2053,
-        "meanRadiusM": 0.1511,
+        "torsoRBaseM": 0.1995,
+        "meanRadiusM": 0.1479,
         "radiusStackScale": 0.93,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -431,26 +431,26 @@
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.358548,
+            -0.352673,
             0.795,
-            -0.037819
+            -0.037108
           ],
           "max": [
-            0.358548,
-            1.431956,
-            0.208154
+            0.352673,
+            1.429002,
+            0.192732
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.358548,
-            -0.208154,
+            -0.352673,
+            -0.192732,
             0.795
           ],
           "max": [
-            0.358548,
-            0.037819,
-            1.431956
+            0.352673,
+            0.037108,
+            1.429002
           ]
         },
         "bodyLocalHeightRange": [
@@ -465,7 +465,7 @@
           "casual_top",
           "open_cardigan"
         ],
-        "role": "parent",
+        "role": "family",
         "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -485,23 +485,23 @@
         "layerIndex": 1,
         "layerToken": "open_cardigan",
         "layerKind": "open_front",
-        "faceCount": 4471,
-        "vertexCount": 3767,
+        "faceCount": 4585,
+        "vertexCount": 3845,
         "hasShoulderYoke": false,
         "authoringClass": "body_surface_normal_offset",
         "clothOffsetM": 0.022,
-        "yokePeakY": 1.3853,
-        "bodyShoulderTopY": 1.3403,
+        "yokePeakY": 1.3737,
+        "bodyShoulderTopY": 1.3287,
         "hasSleeveGeometry": true,
         "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
         "sleeveLenFactor": 0.92,
-        "sleeveAlongArmM": 0.5656,
+        "sleeveAlongArmM": 0.5638,
         "sleeveRows": 11,
         "sleeveCols": 12,
-        "sleeveR0M": 0.0574,
+        "sleeveR0M": 0.0558,
         "sleeveRFactor": 0.232,
-        "torsoRBaseM": 0.2477,
-        "meanRadiusM": 0.1786,
+        "torsoRBaseM": 0.2406,
+        "meanRadiusM": 0.1726,
         "radiusStackScale": 1.02,
         "hasProminentSleeves": true,
         "hasExpandedVolumeDetail": true,
@@ -528,26 +528,26 @@
         "coordinateBasis": "body_local_y_height_bind_pose_v1",
         "bindPoseLocalBBox": {
           "min": [
-            -0.538723,
+            -0.53216,
             0.6972,
-            -0.049789
+            -0.049082
           ],
           "max": [
-            0.538723,
-            1.439995,
-            0.421673
+            0.53216,
+            1.437886,
+            0.410243
           ]
         },
         "bindPoseWorldBBox": {
           "min": [
-            -0.538723,
-            -0.421672,
+            -0.53216,
+            -0.410243,
             0.6972
           ],
           "max": [
-            0.538723,
-            0.049789,
-            1.439995
+            0.53216,
+            0.049082,
+            1.437886
           ]
         },
         "bodyLocalHeightRange": [
@@ -562,7 +562,7 @@
           "casual_top",
           "open_cardigan"
         ],
-        "role": "parent",
+        "role": "family",
         "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
         "notEvidenceFor": [
           "production_asset_readiness",
@@ -595,23 +595,23 @@
       "layerIndex": 1,
       "layerToken": "open_cardigan",
       "layerKind": "open_front",
-      "faceCount": 4471,
-      "vertexCount": 3767,
+      "faceCount": 4585,
+      "vertexCount": 3845,
       "hasShoulderYoke": false,
       "authoringClass": "body_surface_normal_offset",
       "clothOffsetM": 0.022,
-      "yokePeakY": 1.3853,
-      "bodyShoulderTopY": 1.3403,
+      "yokePeakY": 1.3737,
+      "bodyShoulderTopY": 1.3287,
       "hasSleeveGeometry": true,
       "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
       "sleeveLenFactor": 0.92,
-      "sleeveAlongArmM": 0.5656,
+      "sleeveAlongArmM": 0.5638,
       "sleeveRows": 11,
       "sleeveCols": 12,
-      "sleeveR0M": 0.0574,
+      "sleeveR0M": 0.0558,
       "sleeveRFactor": 0.232,
-      "torsoRBaseM": 0.2477,
-      "meanRadiusM": 0.1786,
+      "torsoRBaseM": 0.2406,
+      "meanRadiusM": 0.1726,
       "radiusStackScale": 1.02,
       "hasProminentSleeves": true,
       "hasExpandedVolumeDetail": true,
@@ -638,26 +638,26 @@
       "coordinateBasis": "body_local_y_height_bind_pose_v1",
       "bindPoseLocalBBox": {
         "min": [
-          -0.538723,
+          -0.53216,
           0.6972,
-          -0.049789
+          -0.049082
         ],
         "max": [
-          0.538723,
-          1.439995,
-          0.421673
+          0.53216,
+          1.437886,
+          0.410243
         ]
       },
       "bindPoseWorldBBox": {
         "min": [
-          -0.538723,
-          -0.421672,
+          -0.53216,
+          -0.410243,
           0.6972
         ],
         "max": [
-          0.538723,
-          0.049789,
-          1.439995
+          0.53216,
+          0.049082,
+          1.437886
         ]
       },
       "bodyLocalHeightRange": [
@@ -672,7 +672,7 @@
         "casual_top",
         "open_cardigan"
       ],
-      "role": "parent",
+      "role": "family",
       "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
       "notEvidenceFor": [
         "production_asset_readiness",
@@ -700,8 +700,8 @@
             "foot.L"
           ],
           "minY": -0.002,
-          "maxY": 0.176742,
-          "footVertCount": 1109
+          "maxY": 0.168772,
+          "footVertCount": 1103
         },
         {
           "side": "R",
@@ -714,15 +714,15 @@
             "foot.R"
           ],
           "minY": -0.002,
-          "maxY": 0.176742,
-          "footVertCount": 1109
+          "maxY": 0.168772,
+          "footVertCount": 1103
         }
       ],
       "totalFaceCount": 96,
       "bodyHeight": 1.66,
       "bodyMinY": 0.0,
       "bodyMaxY": 1.66,
-      "role": "parent",
+      "role": "family",
       "claimScope": "procedural_footwear_geometry_on_foot_bones_not_clinical_costume_realism",
       "notEvidenceFor": [
         "production_asset_readiness",
@@ -742,23 +742,23 @@
     "layerIndex": 1,
     "layerToken": "open_cardigan",
     "layerKind": "open_front",
-    "faceCount": 4471,
-    "vertexCount": 3767,
+    "faceCount": 4585,
+    "vertexCount": 3845,
     "hasShoulderYoke": false,
     "authoringClass": "body_surface_normal_offset",
     "clothOffsetM": 0.022,
-    "yokePeakY": 1.3853,
-    "bodyShoulderTopY": 1.3403,
+    "yokePeakY": 1.3737,
+    "bodyShoulderTopY": 1.3287,
     "hasSleeveGeometry": true,
     "sleeveCoverage": "torso+shoulder+full_arm_along_bone_open_cardigan_long_sleeve_to_wrist",
     "sleeveLenFactor": 0.92,
-    "sleeveAlongArmM": 0.5656,
+    "sleeveAlongArmM": 0.5638,
     "sleeveRows": 11,
     "sleeveCols": 12,
-    "sleeveR0M": 0.0574,
+    "sleeveR0M": 0.0558,
     "sleeveRFactor": 0.232,
-    "torsoRBaseM": 0.2477,
-    "meanRadiusM": 0.1786,
+    "torsoRBaseM": 0.2406,
+    "meanRadiusM": 0.1726,
     "radiusStackScale": 1.02,
     "hasProminentSleeves": true,
     "hasExpandedVolumeDetail": true,
@@ -785,26 +785,26 @@
     "coordinateBasis": "body_local_y_height_bind_pose_v1",
     "bindPoseLocalBBox": {
       "min": [
-        -0.538723,
+        -0.53216,
         0.6972,
-        -0.049789
+        -0.049082
       ],
       "max": [
-        0.538723,
-        1.439995,
-        0.421673
+        0.53216,
+        1.437886,
+        0.410243
       ]
     },
     "bindPoseWorldBBox": {
       "min": [
-        -0.538723,
-        -0.421672,
+        -0.53216,
+        -0.410243,
         0.6972
       ],
       "max": [
-        0.538723,
-        0.049789,
-        1.439995
+        0.53216,
+        0.049082,
+        1.437886
       ]
     },
     "bodyLocalHeightRange": [
@@ -819,7 +819,7 @@
       "casual_top",
       "open_cardigan"
     ],
-    "role": "parent",
+    "role": "family",
     "claimScope": "case_phenotype_garment_layers_body_surface_derived_shell_q1_factory_not_ring_tube_not_production_not_clinical_costume",
     "notEvidenceFor": [
       "production_asset_readiness",
@@ -836,8 +836,8 @@
     "hairRegionRevision": "v3_local_y_up_no_face_band_hair_issue_73",
     "hairMaterialName": "openclinxr_mesh_native_scalp_hair_surface",
     "hairColor": "dark_brown",
-    "scalpFaceCount": 1714,
-    "crownFaceCount": 634,
+    "scalpFaceCount": 2042,
+    "crownFaceCount": 670,
     "skippedFaceFrontFaceCount": 0,
     "heightAxis": "y",
     "claimScope": "mesh_native_scalp_material_region_not_hair_groom_or_production_realism",
@@ -878,7 +878,7 @@
     ]
   },
   "wardrobeTags": {
-    "wardrobeRole": "parent_casual",
+    "wardrobeRole": "anxious_parent_casual",
     "garmentLayers": [
       "casual_top",
       "open_cardigan"
@@ -914,9 +914,9 @@
     "claimScope": "synthetic_role_visual_cue_only"
   },
   "provenance": {
-    "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=parent)",
-    "generatedAt": "2026-08-08T10:47:18.743593Z",
-    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.2, \"anxious\": 0.75, \"bmi\": 24.0, \"brow_tension\": 0.4, \"build\": \"average_adult\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_street_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.22, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent\", \"skin_tone\": \"warm_light\", \"sleeveGeometryExpansion\": \"v2_street_from_preset_factory_no_hand_tune\", \"wardrobeRole\": \"parent_casual\"}"
+    "source": "anny-params-v1 + bpy-rig-v1 + stablegen-procedural-fallback (case=peds_asthma_parent_anxiety_v1, actor=family)",
+    "generatedAt": "2026-08-11T08:09:28.662756Z",
+    "phenotypeKey": "{\"accessoryMarkers\": [], \"age_wrinkle\": 0.22, \"anxious\": 0.82, \"bmi\": 24.0, \"brow_tension\": 0.36, \"build\": \"average_parent\", \"clothing_color\": \"muted_rose\", \"clothing_style\": \"muted_rose_guardian_cardigan\", \"eye_color\": \"brown\", \"fabricPalette\": \"muted_rose_and_neutral\", \"fitProfile\": \"adult_parent_average_fit\", \"flush\": 0.28, \"garmentLayers\": [\"casual_top\", \"open_cardigan\"], \"gender_presentation\": \"adult_female_parent\", \"hair_color\": \"dark_brown\", \"hair_density\": 0.72, \"height_cm\": 166, \"materialFinish\": \"cotton_knit_matte\", \"role_visual_cue\": \"anxious_parent_guardian\", \"skin_tone\": \"warm_light\", \"sleeveGeometryExpansion\": \"v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue\", \"wardrobeRole\": \"anxious_parent_casual\"}"
   },
   "licenseExceptionRequired": false,
   "realismGrade": "B",
@@ -924,19 +924,19 @@
     "skin_tone": "warm_light",
     "hair_color": "dark_brown",
     "eye_color": "brown",
-    "gender_presentation": "adult_female",
+    "gender_presentation": "adult_female_parent",
     "height_cm": 166,
-    "build": "average_adult",
+    "build": "average_parent",
     "hair_density": 0.72,
-    "brow_tension": 0.4,
-    "anxious": 0.75,
-    "flush": 0.22,
-    "age_wrinkle": 0.2,
+    "brow_tension": 0.36,
+    "anxious": 0.82,
+    "flush": 0.28,
+    "age_wrinkle": 0.22,
     "bmi": 24.0,
-    "clothing_style": "muted_rose_street_cardigan",
+    "clothing_style": "muted_rose_guardian_cardigan",
     "clothing_color": "muted_rose",
-    "role_visual_cue": "anxious_parent",
-    "wardrobeRole": "parent_casual",
+    "role_visual_cue": "anxious_parent_guardian",
+    "wardrobeRole": "anxious_parent_casual",
     "garmentLayers": [
       "casual_top",
       "open_cardigan"
@@ -945,7 +945,7 @@
     "materialFinish": "cotton_knit_matte",
     "accessoryMarkers": [],
     "fitProfile": "adult_parent_average_fit",
-    "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune"
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
   },
   "sourceProvenance": {
     "generatorMode": "anny_compatible_stub_plus_blender_procedural",

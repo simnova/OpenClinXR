@@ -7,27 +7,27 @@
   "real_anny_weights_used": false,
   "fallback_active": false,
   "input_params": {
-    "age": 38,
-    "body_profile": "adult_standard",
+    "age": 34,
+    "body_profile": "adult_standard_parent",
     "pose": "standing_anxious_guardian",
-    "seed": 1102,
+    "seed": 1002,
     "phenotype": {
       "skin_tone": "warm_light",
       "hair_color": "dark_brown",
       "eye_color": "brown",
-      "gender_presentation": "adult_female",
+      "gender_presentation": "adult_female_parent",
       "height_cm": 166,
-      "build": "average_adult",
+      "build": "average_parent",
       "hair_density": 0.72,
-      "brow_tension": 0.4,
-      "anxious": 0.75,
-      "flush": 0.22,
-      "age_wrinkle": 0.2,
+      "brow_tension": 0.36,
+      "anxious": 0.82,
+      "flush": 0.28,
+      "age_wrinkle": 0.22,
       "bmi": 24.0,
-      "clothing_style": "muted_rose_street_cardigan",
+      "clothing_style": "muted_rose_guardian_cardigan",
       "clothing_color": "muted_rose",
-      "role_visual_cue": "anxious_parent",
-      "wardrobeRole": "parent_casual",
+      "role_visual_cue": "anxious_parent_guardian",
+      "wardrobeRole": "anxious_parent_casual",
       "garmentLayers": [
         "casual_top",
         "open_cardigan"
@@ -36,12 +36,12 @@
       "materialFinish": "cotton_knit_matte",
       "accessoryMarkers": [],
       "fitProfile": "adult_parent_average_fit",
-      "sleeveGeometryExpansion": "v2_street_from_preset_factory_no_hand_tune"
+      "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
     },
     "actor_id": "parent_tara_johnson_v1"
   },
   "output": {
-    "obj_path": "/Volumes/files/src/openclinxr/apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
+    "obj_path": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/apps/ui-xr/public/generated-humanoids/peds_anxious_parent.anny_base.obj",
     "vertex_count": 13348,
     "face_count": 13346,
     "has_uvs": true,
@@ -50,16 +50,16 @@
   },
   "anny_forward_pass": {
     "kind": "real_anny_forward_pass",
-    "package_path": "/Users/patrick/Library/Python/3.11/lib/python/site-packages/anny",
+    "package_path": "/Users/patrick/.local/share/mise/installs/python/3.13.14/lib/python3.13/site-packages/anny",
     "model": "anny.create_fullbody_model(default/default-noeyes-notongue)",
     "topology": "default-noeyes-notongue",
     "topologyIncludesEyes": false,
     "topologyIncludesTongue": false,
     "source_vertex_count": 13348,
     "source_face_count": 13346,
-    "source_height": 1.7000443935394287,
+    "source_height": 1.660559892654419,
     "target_height": 1.66,
-    "scale": 0.9764450894978938,
+    "scale": 0.9996628289910555,
     "external_network_used": false,
     "model_download_used": false,
     "noncommercial_download_used": false
@@ -88,7 +88,8 @@
     "fabricPalette": "muted_rose_and_neutral",
     "materialFinish": "cotton_knit_matte",
     "accessoryMarkers": [],
-    "fitProfile": "adult_parent_average_fit"
+    "fitProfile": "adult_parent_average_fit",
+    "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
   },
   "material_hints": {
     "skin": "warm_light",
@@ -119,6 +120,5 @@
     "This source OBJ came from a local Anny forward pass using bundled package data; no external provider, credential, paid API, model download, or noncommercial download helper was used.",
     "This remains a quarantined source candidate and is not a B+ realism, production, Quest, learner, clinical, or scoring readiness claim.",
     "The produced OBJ + this manifest are the handoff into the headless Blender stage (automate_blender.py)."
-  ],
-  "reuse_note": "blender_only_rebake_on_tracked_anny_base_obj_issue_96_94_no_anny_forward_pass"
+  ]
 }

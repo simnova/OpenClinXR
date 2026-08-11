@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.generated-humanoid-provenance.v1",
-  "derivationMode": "blender_only_rebake",
+  "derivationMode": "orchestrate",
   "scenarioId": "peds_asthma_parent_anxiety_v1",
   "actorId": "nurse_kevin_lee_v1",
   "actorRole": "nurse",
   "assetPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.glb",
   "riggingReportPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin_rigging_report.json",
   "sourceManifestPath": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_manifest.json",
-  "generatorMode": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
+  "generatorMode": "real_anny_local_forward_pass_plus_blender_procedural",
   "sourceKind": "real_anny_candidate_unverified",
   "usesRealAnnyForwardPass": true,
   "realAnnyWeightsUsed": false,
@@ -17,51 +17,33 @@
   "realismGrade": "B",
   "promotionStatus": "runtime_candidate_not_realism_gate_pass",
   "sourceOriginChain": {
-    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1",
-    "rebakedFrom": "peds_nurse_kevin.anny_base.obj (tracked, unchanged by this re-bake)",
-    "garmentAuthoringClass": "body_surface_normal_offset_issue_121",
     "sourceRecordPath": "sources/anny-github-2026.json",
-    "derivationNote": "Topology class inherited from tracked base OBJ; this step did not re-run Anny."
+    "meshStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/generate_mesh.py",
+    "blenderStage": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/automate_blender.py",
+    "orchestrator": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-303/tools/openclinxr/asset-pipeline/anny/orchestrate_character.py",
+    "optimizationStage": null,
+    "sourceManifestKind": "real_anny_candidate_unverified",
+    "sourceTopologyMode": "real_anny_mpfb2_forward_pass_v1"
   },
   "licenseChain": {
-    "status": "inherited_from_base_not_reverified",
-    "base": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
-    "baseTopologyMode": "real_anny_mpfb2_forward_pass_v1",
+    "status": "enumerated_from_source_record_at_orchestrate",
+    "annyCode": "Apache-2.0 per sources/anny-github-2026.json",
+    "mpfb2AdaptedAssets": "CC0 per sources/anny-github-2026.json",
+    "generatedCandidate": "OpenClinXR local Anny forward-pass candidate; no cloud provider, paid API, credential, external model download, or noncommercial download helper used",
     "sourceRecordPath": "sources/anny-github-2026.json",
-    "sourceRecordClaimsSupported": [
-      "Anny code is licensed under Apache-2.0 and uses adapted MPFB2 assets licensed CC0."
-    ],
-    "notRun": [
-      "anny_forward_pass",
-      "orchestrate_character",
-      "licence_text_reenumeration",
-      "mesh_regeneration_from_anny_package"
-    ],
-    "explicitUnknown": [
-      "Licence text was not re-read or re-asserted at rebake time; posture is inherited from the base topology class and source record only.",
-      "Base OBJ has no separate .provenance.json sidecar; chain is path + topology class + source record, not a verified hash chain of licence documents."
-    ],
-    "notes": "Blender-only rebake consumed a tracked real-Anny base OBJ and did not run the Anny package. Do not treat this record as an orchestrate-time licence enumeration."
+    "notRun": []
   },
   "derivativeLineage": {
-    "status": "wardrobe_rebake_derivative",
+    "status": "orchestrate_derivative",
     "caseId": "peds_asthma_parent_anxiety_v1",
     "actorId": "nurse_kevin_lee_v1",
     "actorRole": "nurse",
     "reuseKey": "peds_asthma_parent_anxiety_v1:nurse_kevin_lee_v1:nurse:anny_candidate",
-    "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
-    "rebakePath": "blender_only_rebake_on_tracked_real_anny_base_obj_v1",
-    "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
-    "sourceParametersHash": "adcc49e8249d5bbb62fc1efca33bc3d66db190d6a3b9f5eed66cec013244e204",
-    "notRun": [
-      "anny_forward_pass",
-      "orchestrate_character",
-      "licence_text_reenumeration",
-      "mesh_regeneration_from_anny_package"
-    ]
+    "sourceParametersHash": "1ef1c4b021e4d533bca9c37244e3b682d3e90cf5e3ba4601f54ebfac88bcda52",
+    "notRun": []
   },
-  "toolVersion": "openclinxr-blender-only-rebake-on-tracked-real-anny-base-obj-v1",
-  "promptOrCaseParameterHash": "adcc49e8249d5bbb62fc1efca33bc3d66db190d6a3b9f5eed66cec013244e204",
+  "toolVersion": "openclinxr-real-anny-local-forward-pass-blender-v1-case-actor-presets",
+  "promptOrCaseParameterHash": "1ef1c4b021e4d533bca9c37244e3b682d3e90cf5e3ba4601f54ebfac88bcda52",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "quest_readiness",
@@ -69,24 +51,16 @@
     "learner_readiness",
     "clinical_validity",
     "scoring_validity",
-    "scene_placement_readiness"
+    "scene_placement_readiness",
+    "provider_runtime_readiness",
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity"
   ],
   "sourceNotes": [
-    "Issue #96/#94: Blender-only re-bake on tracked .anny_base.obj (anny package not importable).",
-    "Base apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj; garmentLayers=['scrub_top', 'scrub_pocket'].",
-    "Not full orchestrate_character (would emit ~0.8 MB stubs without anny).",
-    "Not B+ realism / production / clinical readiness.",
-    "Issue #142: licence/derivative chains are mode-tagged inherited_from_base_not_reverified \u2014 not an orchestrate licence fiction."
-  ],
-  "claimScope": "local_role_distinct_wardrobe_rebake_not_readiness",
-  "promotionGates": false,
-  "outputSha256": "061819ce263592cb87614d525edf11c45a77643e34aac21ca66b9dbc669998d6",
-  "outputBytes": 7458040,
-  "generatedAt": "2026-08-08T11:24:43.205088+00:00",
-  "method": "blender_stage_on_existing_real_anny_base_obj_role_wardrobe",
-  "baseObj": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj",
-  "garmentLayers": [
-    "scrub_top",
-    "scrub_pocket"
+    "Generated through the installed local Anny package forward pass plus Blender procedural rigging/material fallback; preserved as a quarantined source candidate until isolated model-vetting evidence clears.",
+    "This is evidence of local Anny source generation only, not B+ realism, production, Quest, learner, clinical, or scoring readiness."
   ]
 }

@@ -156,7 +156,7 @@ for k, p in CASE_ACTOR_PRESETS.items():
 }
 
 describe("a tracked Anny reference matches its own actor's phenotype", () => {
-  it.fails("(1) RED: peds_anxious_parent's waist is within 2 cm of what her phenotype predicts", () => {
+  it("(1) RED: peds_anxious_parent's waist is within 2 cm of what her phenotype predicts", () => {
     const got = shippedWaist("peds_anxious_parent");
     const want = predictedWaist("parent_tara_johnson_v1");
     expect(Math.abs(got - want), `shipped ${got.toFixed(4)} vs predicted ${want.toFixed(4)}`)
@@ -170,7 +170,7 @@ describe("a tracked Anny reference matches its own actor's phenotype", () => {
       .toBeLessThanOrEqual(BAND_M);
   });
 
-  it.fails(
+  it(
     "(3) RED COUNTERWEIGHT: chest AND hip also match the phenotype — a uniform scale that lands the waist pushes hip out by 6.2 cm",
     () => {
       const pred = predictedTorso("parent_tara_johnson_v1");

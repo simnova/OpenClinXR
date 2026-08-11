@@ -34,6 +34,22 @@ import { describe, expect, it } from "vitest";
  *
  * These contracts are the staleness guard: they go RED the moment the shipped bodies change,
  * on purpose, so a future fix that makes bodies distinct forces the artifact to be regenerated.
+ *
+ * ## FIXED (#303)
+ *
+ * 2026-08-11: `peds_anxious_parent` and `peds_nurse_kevin` were re-orchestrated from their own
+ * phenotypes (orchestrate_character.py --case-actor-preset peds_asthma_parent_anxiety_v1:
+ * parent_tara_johnson_v1 / nurse_kevin_lee_v1; anny 0.6.0 installed, real forward pass). Both are
+ * no longer byte-identical to any other actor:
+ *
+ *   peds_anxious_parent.anny_base.obj  29c1fe5dc379 (own forward pass, provenance derivationMode=orchestrate)
+ *   peds_nurse_kevin.anny_base.obj     1124ef98b6ee (own forward pass, provenance derivationMode=orchestrate)
+ *   ed_chest_pain_spouse_adult.anny_base.obj  f704763db502 (still a blender-only re-bake)
+ *
+ * The six adults now resolve to FOUR body classes (3 + 1 + 1 + 1); the anchored fact below is
+ * re-anchored to 4. pre-fix.json and rail-diagnosis.json were regenerated from the live scan.
+ * The remaining three duplicated adults (adult_male_street_casual, ed_chest_pain_adult_cast,
+ * ed_chest_pain_nurse_adult) still have no preset to generate from — #293's authoring gap.
  */
 
 import {
@@ -97,7 +113,7 @@ describe("humanoid body signature (#276)", () => {
     ).toEqual([]);
   }, 180_000);
 
-  it("the six adult Anny assets still share no more than two body classes (the fact the diagnosis is anchored to)", async () => {
+  it("the six adult Anny assets still share no more than four body classes (the fact the diagnosis is anchored to)", async () => {
     const { assets, groups } = await scanShippedHumanoidBodies();
     const adult = assets.filter((a) => ADULT_ANNY_GLBS.includes(a.file));
     expect(adult.length, "expected six adult Anny GLBs in the scan").toBe(6);
@@ -107,7 +123,7 @@ describe("humanoid body signature (#276)", () => {
       adultClasses.size,
       `six adults resolve to ${adultClasses.size} body classes — bodies became distinct. This is the fix landing; ` +
         `regenerate the artifacts and update rail-diagnosis.json instead of widening this assertion.`,
-    ).toBeLessThanOrEqual(2);
+    ).toBeLessThanOrEqual(4);
 
     // The classes are distinct topologies/statures (never a uniform scale of one mesh).
     const adultGroups = groups.filter((g) =>
