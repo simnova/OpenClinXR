@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "openclinxr.dark-factory.station-clothing.v1",
+  "station": "clothing",
+  "implementation": "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts:76 ROLE_TO_GARMENT_LAYERS (deterministic role->layer map)",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "fallbackGarmentId": "wojackowl_scrubs_shirt_hm08",
+  "coverShellId": "openclinxr_hm08_upper_cover_shell",
+  "rows": [
+    {
+      "role": "patient",
+      "garmentLayers": [
+        "hospital_gown"
+      ]
+    },
+    {
+      "role": "nurse",
+      "garmentLayers": [
+        "scrub_top",
+        "scrub_pocket"
+      ]
+    },
+    {
+      "role": "family",
+      "garmentLayers": [
+        "casual_top",
+        "open_cardigan"
+      ]
+    },
+    {
+      "role": "parent",
+      "garmentLayers": [
+        "casual_top",
+        "open_cardigan"
+      ]
+    },
+    {
+      "role": "spouse",
+      "garmentLayers": [
+        "casual_top",
+        "open_cardigan"
+      ]
+    }
+  ]
+}

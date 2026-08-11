@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "openclinxr.dark-factory-station-table.v1",
+  "caseId": "peds_asthma_parent_anxiety_v1",
+  "chain": [
+    "case_to_actor_params",
+    "body",
+    "clothing",
+    "rigging",
+    "room",
+    "equipment",
+    "staging_placement",
+    "render"
+  ],
+  "generatedAt": "2026-08-10T20:35:00Z",
+  "runner": "dispatch issue-286 (deepseek-v4-flash worker, worktree wt/issue-286)",
+  "executionCommands": {
+    "case_to_actor_params": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --list-presets",
+    "body": "python3 tools/openclinxr/asset-pipeline/anny/generate_mesh.py --params <peds patient preset> --output <obj> --manifest <json>",
+    "clothing": "node_modules/.bin/tsx .openclinxr/evidence/issue-286/stage-clothing/run-clothing-selection.ts",
+    "rigging": "python3 tools/openclinxr/asset-pipeline/anny/orchestrate_character.py --case-actor-preset peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1 --output-glb <glb>",
+    "room": "node_modules/.bin/tsx .openclinxr/evidence/issue-286/stage-room/run-room-station.ts pediatric_urgent_care_bay_v1",
+    "equipment": "node_modules/.bin/tsx .openclinxr/evidence/issue-286/stage-equipment/run-equipment-station.ts",
+    "staging_placement": "node_modules/.bin/tsx .openclinxr/evidence/issue-286/stage-placement/run-placement.ts",
+    "render": "node_modules/.bin/tsx .openclinxr/evidence/issue-286/stage-render/run-render.ts"
+  },
+  "stations": [
+    {
+      "stationId": "case_to_actor_params",
+      "stationName": "case -> actor params",
+      "classification": "deterministic",
+      "implementation": "tools/openclinxr/asset-pipeline/anny/orchestrate_character.py:203 CASE_ACTOR_PRESETS (data-driven preset map, no LLM)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-case-params/presets.json",
+        ".openclinxr/evidence/issue-286/stage-case-params/case-actor-preset.json"
+      ],
+      "notes": [
+        "Resolved peds_asthma_parent_anxiety_v1:patient_maya_johnson_v1 preset in-process; garmentLayers=['short_sleeve_exam_tshirt'] reaches phenotype as authored data."
+      ]
+    },
+    {
+      "stationId": "body",
+      "stationName": "body",
+      "classification": "deterministic",
+      "implementation": "tools/openclinxr/asset-pipeline/anny/generate_mesh.py:394 build_source_body (deterministic parametric stub; real-Anny forward pass is a separate blocked path)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-body/anny-peds-patient.obj",
+        ".openclinxr/evidence/issue-286/stage-body/anny-peds-patient-manifest.json",
+        ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child.anny_base.obj"
+      ],
+      "notes": [
+        "Station RAN via the deterministic parametric stub (generator_mode=stub, uses_real_anny_forward_pass=false, 1161 verts).",
+        "GAP: the real Anny forward pass sub-path is not_run — `import anny` fails in this environment (Anny rail blocked per #192, operator declined the restore). The chain ran the stub body, not a real Anny body."
+      ]
+    },
+    {
+      "stationId": "clothing",
+      "stationName": "clothing",
+      "classification": "deterministic",
+      "implementation": "tools/openclinxr/asset-pipeline/makeclothes/garment-selection-by-role.ts:79 ROLE_TO_GARMENT_LAYERS (deterministic role->layer map) + tools/openclinxr/asset-pipeline/anny/automate_blender.py apply_role_clothing_material_regions cover-shell fallback (ran inside the rigging chain)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-clothing/garment-selection.json",
+        ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child_rigging_report.json"
+      ],
+      "notes": [
+        "Selection logic RAN in-process for the peds cast roles (patient/nurse/family).",
+        "Cover-shell fallback RAN as part of the orchestrate chain: rigging report records realGarmentRegionFromPhenotype short_sleeve_exam_tshirt 246 faces (phenotype-embedded body-surface-derived garment) and roleClothingMaterialRegions patient lower/arm.",
+        "GAP: the MakeClothes `.mhclo` fit stage (fit_stage.py / body_param_stage.py) is not_run — the gitignored staging `.mhclo` asset is absent from this worktree by design (0 .mhclo files present). The library GLB catalog exists (apps/ui-xr/public/xr-assets/humanoids/candidates/) but the fit itself requires the staging asset."
+      ]
+    },
+    {
+      "stationId": "rigging",
+      "stationName": "rigging",
+      "classification": "deterministic",
+      "implementation": "tools/openclinxr/asset-pipeline/anny/automate_blender.py:4620 main (Blender armature + auto weights; 23 bones, 25 morph targets)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child.glb",
+        ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child_rigging_report.json",
+        ".openclinxr/evidence/issue-286/stage-rig/peds_patient_child.provenance.json"
+      ],
+      "notes": [
+        "RAN headless Blender 5.1.1 via orchestrate_character.py; GLB exported with canonical 23-bone skeleton, 25 morphs, skinning; provenance + bundle sidecars written."
+      ]
+    },
+    {
+      "stationId": "room",
+      "stationName": "room",
+      "classification": "deterministic",
+      "implementation": "apps/ui-xr/src/station-environment.ts:135 buildStationEnvironment (parametric station shell builder)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-room/room-shell.json"
+      ],
+      "notes": [
+        "RAN in-process for pediatric_urgent_care_bay_v1 (the peds asthma case environmentId): 11 child nodes, environmentId stamped in userData."
+      ]
+    },
+    {
+      "stationId": "equipment",
+      "stationName": "equipment",
+      "classification": "deterministic",
+      "implementation": "apps/ui-xr/src/station-equipment-builders.ts:417 buildDeclaredEquipmentGeometry (parametric equipment builders; generated GLB substitution is a separate adopted path)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-equipment/equipment-geometry.json"
+      ],
+      "notes": [
+        "RAN in-process for the peds asthma case's declared equipment ids (pulse_oximeter, nebulizer_mask, oxygen_wall_port, pediatric_stretcher, parent_chair, inhaler_spacer, wall_clock): 7/7 built, 0 errors.",
+        "GAP note: TRELLIS generated-GLB substitution for some ids (e.g. wall_clock) is a separate path that resolves to gitignored generated GLBs; the parametric builders ran here."
+      ]
+    },
+    {
+      "stationId": "staging_placement",
+      "stationName": "staging / placement",
+      "classification": "deterministic",
+      "implementation": "packages/openclinxr/asset-registry/src/actor-placement.ts:24 generatedActorPlacement (deterministic scene-manifest placement; slotKind/position/posture per cast role)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-placement/placements.json"
+      ],
+      "notes": [
+        "RAN in-process for the peds cast (patient/parent/nurse): each actor resolves to a placement record with slotKind, world position, posture.",
+        "GAP note: the live actor-placement-ssot inspector (tools/openclinxr/evidence/actor-placement-ssot.ts) is a dev-server + browser verification surface; the deterministic scene-manifest data layer ran in-process here."
+      ]
+    },
+    {
+      "stationId": "render",
+      "stationName": "render",
+      "classification": "deterministic",
+      "implementation": "tools/openclinxr/evidence/ui-xr-environment-room-capture.ts:613 captureStationEnvironmentRooms (room-capture path shared with actor-prop-intersection.ts:229,850,1281 spawnPortlessDevServer captures)",
+      "artifactPaths": [
+        ".openclinxr/evidence/issue-286/stage-render/capture/capture-manifest.json",
+        ".openclinxr/evidence/issue-286/stage-render/capture/peds_asthma_parent_anxiety_v1-room.png"
+      ],
+      "notes": [
+        "RAN live: booted @openclinxr/ui-xr portless dev server, loaded peds_asthma_parent_anxiety_v1 in scene-overview capture mode, waited for station shell + humanoid assets, screenshot written (283,298 bytes).",
+        "Live env=pediatric_urgent_care_bay_v1 depth=2.95 floor=0x6321018; capture-manifest source=live_scene."
+      ]
+    }
+  ]
+}

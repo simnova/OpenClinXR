@@ -1,0 +1,39 @@
+{
+  "case_id": "peds_asthma_parent_anxiety_v1",
+  "actor_id": "patient_maya_johnson_v1",
+  "actor_role": "patient",
+  "output_name": "peds_patient_child.glb",
+  "params": {
+    "age": 8,
+    "body_profile": "pediatric_school_age",
+    "pose": "standing_neutral_work_of_breathing",
+    "seed": 1001,
+    "phenotype": {
+      "skin_tone": "warm_light_child",
+      "hair_color": "light_brown",
+      "eye_color": "hazel",
+      "anny_topology": "default",
+      "gender_presentation": "child",
+      "height_cm": 125,
+      "build": "slender_asthma",
+      "hair_density": 0.55,
+      "brow_tension": 0.18,
+      "anxious": 0.42,
+      "flush": 0.05,
+      "age_wrinkle": 0.04,
+      "bmi": 16.5,
+      "clothing_style": "pediatric_soft_blue_exam_tshirt",
+      "clothing_color": "soft_blue",
+      "role_visual_cue": "pediatric_patient",
+      "wardrobeRole": "patient_casual_child",
+      "garmentLayers": [
+        "short_sleeve_exam_tshirt"
+      ],
+      "fabricPalette": "soft_blue_and_warm_white",
+      "materialFinish": "cotton_matte",
+      "accessoryMarkers": [],
+      "fitProfile": "pediatric_slim_fit",
+      "sleeveGeometryExpansion": "v2_obvious_sleeves_0.27_len_r0.35_7r12c_rippled_folds_vivid_blue"
+    }
+  }
+}
