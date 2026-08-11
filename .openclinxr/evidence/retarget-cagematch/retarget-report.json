@@ -1,0 +1,145 @@
+{
+  "sourceClip": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-325/tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh",
+  "targetRig": "Mixamo (hm08 library rig hm08_basemesh_adult_lean_female.rig; retarget_bvh mixamo.json)",
+  "operator": "bpy.ops.mcp.load_and_retarget",
+  "addon": "retarget_bvh (Diffeomorphic, ex-MakeWalk), Blender 5.1 extension",
+  "actionName": "hm080701walk",
+  "frameRange": [
+    0.0,
+    64.0
+  ],
+  "silentMode": true,
+  "errorMessage": "BVH file(s) retargeted",
+  "drivenBones": [
+    {
+      "bone": "mixamorig:Head",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 0.53098
+    },
+    {
+      "bone": "mixamorig:Hips",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.81445
+    },
+    {
+      "bone": "mixamorig:LeftArm",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 7.17017
+    },
+    {
+      "bone": "mixamorig:LeftFoot",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 3.97506
+    },
+    {
+      "bone": "mixamorig:LeftForeArm",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 2.40272
+    },
+    {
+      "bone": "mixamorig:LeftHand",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 4.62863
+    },
+    {
+      "bone": "mixamorig:LeftHandIndex1",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 2.68561
+    },
+    {
+      "bone": "mixamorig:LeftHandThumb1",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.96661
+    },
+    {
+      "bone": "mixamorig:LeftLeg",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 4.51415
+    },
+    {
+      "bone": "mixamorig:LeftShoulder",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.06006
+    },
+    {
+      "bone": "mixamorig:LeftToeBase",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 3.20681
+    },
+    {
+      "bone": "mixamorig:LeftUpLeg",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 5.62613
+    },
+    {
+      "bone": "mixamorig:Neck",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.27241
+    },
+    {
+      "bone": "mixamorig:RightArm",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 5.23618
+    },
+    {
+      "bone": "mixamorig:RightFoot",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 4.02654
+    },
+    {
+      "bone": "mixamorig:RightForeArm",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.72377
+    },
+    {
+      "bone": "mixamorig:RightHand",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 3.2731
+    },
+    {
+      "bone": "mixamorig:RightHandIndex1",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 4.35004
+    },
+    {
+      "bone": "mixamorig:RightHandThumb1",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 4.53107
+    },
+    {
+      "bone": "mixamorig:RightLeg",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 3.66237
+    },
+    {
+      "bone": "mixamorig:RightShoulder",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.06
+    },
+    {
+      "bone": "mixamorig:RightToeBase",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 2.56162
+    },
+    {
+      "bone": "mixamorig:RightUpLeg",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 5.64995
+    },
+    {
+      "bone": "mixamorig:Spine",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.54678
+    },
+    {
+      "bone": "mixamorig:Spine1",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 0.8801
+    },
+    {
+      "bone": "mixamorig:Spine2",
+      "keyframes": 65,
+      "totalRotationDeltaRad": 1.14606
+    }
+  ]
+}
