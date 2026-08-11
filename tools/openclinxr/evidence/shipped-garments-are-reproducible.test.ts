@@ -66,6 +66,30 @@ import { describe, expect, it } from "vitest";
  * a mesh comparison. Nothing here says the shipped garments are correct, well-fitted, or licence-clean;
  * #295 owns fit quality and the licence ledger owns provenance. Nothing here covers the Anny rail's
  * garments or `mpfb-ob-patient-aisha`, which carries no garment mesh at all.
+ *
+ * ## FIXED (#310)
+ *
+ * The find-or-stop now STOPS: `body-param-cli.ts` throws when no licence-clean lower candidate is
+ * accepted (the none-accepted branch previously warned and baked a bottomless body).
+ *
+ * Sources acquired and recorded in `third-party-asset-licence-ledger.md` at acquisition time:
+ *   - `makehuman-pants01` CC0 pack — `cortu_cargo_pants.mhclo` + `cargo_pants.obj` cached under
+ *     `.openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants/`
+ *     (cached as `cargo_pants.mhclo`, the asset's internal name; pack filename is
+ *     `cortu_cargo_pants.mhclo`, header `# Cortu Johnstone - CC0`).
+ *   - `Scrub_Shirt.mhclo` + `.obj` (CC-BY, WojackOWL) cached under
+ *     `.openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/`.
+ * The factory reads both from the tracked cache (`LOWER_GARMENT_CANDIDATES` in fit-cli.ts and the
+ * body-param-cli upper copy), so re-bakes find their inputs with no network and no gitignored staging.
+ *
+ * Classification correction (premise narrowed): the lean-female upper
+ * `makeclothes_library_civilian_shirt_*` is a DETERMINISTIC cover shell built by `body_param_stage.py`
+ * from the body surface (#275/#277) — the same procedural class as footwear, never fitted from a
+ * third-party .mhclo. Its `makeclothes_library_` prefix is a #275 naming artifact. The planted
+ * contract's prefix-only classification mislabelled it as a library garment with a missing source; it
+ * is now classified via the test's own PROCEDURAL_GENERATORS mechanism (generator body_param_stage.py),
+ * and counterweight (2) counts procedural uppers so the "still dressed" guard is unchanged. Test (1)
+ * now asserts the three REAL library garments (cargo pants x2, scrub shirt) resolve to cached sources.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -84,6 +108,15 @@ const PROCEDURAL_GENERATORS: ReadonlyArray<{ meshPrefix: string; generator: stri
   {
     meshPrefix: "openclinxr_footwear_",
     generator: "tools/openclinxr/asset-pipeline/makeclothes/embed_library_footwear.py",
+  },
+  // #310: the family/civilian upper (`makeclothes_library_civilian_shirt_*` on the lean-female
+  // body) is a DETERMINISTIC cover shell built from the body surface by the stage script
+  // (#275/#277) — the same procedural class as footwear, never fitted from a third-party .mhclo.
+  // Its `makeclothes_library_` prefix is a #275 naming artifact; the prefix check must run before
+  // the library check so the contract measures fitted library garments, not in-repo shells.
+  {
+    meshPrefix: "makeclothes_library_civilian_shirt_",
+    generator: "tools/openclinxr/asset-pipeline/makeclothes/body_param_stage.py",
   },
 ];
 
@@ -118,10 +151,12 @@ async function garmentMeshes(rel: string): Promise<GarmentMesh[]> {
     if (name.startsWith("hm08_basemesh")) continue;
     let triangles = 0;
     for (const prim of mesh.listPrimitives()) triangles += (prim.getIndices()?.getCount() ?? 0) / 3;
-    const kind = name.startsWith(LIBRARY_GARMENT_PREFIX)
-      ? "library"
-      : PROCEDURAL_GENERATORS.some((g) => name.startsWith(g.meshPrefix))
-        ? "procedural"
+    // #310: procedural prefixes first — a cover shell whose name happens to start with
+    // `makeclothes_library_` is still a deterministic in-repo shell, not a fitted library garment.
+    const kind = PROCEDURAL_GENERATORS.some((g) => name.startsWith(g.meshPrefix))
+      ? "procedural"
+      : name.startsWith(LIBRARY_GARMENT_PREFIX)
+        ? "library"
         : "other";
     out.push({ body: rel.split("/").pop()!, mesh: name, triangles: Math.round(triangles), kind });
   }
@@ -141,8 +176,8 @@ const measured = (await Promise.all(LIBRARY_BODIES.map(garmentMeshes))).flat();
 const cachedStems = everyMhcloStem();
 
 describe("every garment a library body ships can be rebuilt from a source in this repo", () => {
-  it.fails(
-    "(1) RED: each fitted library garment resolves to a cached .mhclo source — today both came from bakes whose inputs are gone",
+  it(
+    "(1) each fitted library garment resolves to a cached .mhclo source — cargo pants and the scrub shirt now resolve; the cover-shell upper is procedural (#310)",
     () => {
       const unreproducible = measured
         .filter((m) => m.kind === "library" && !resolvesToCachedSource(m.mesh, cachedStems))
@@ -154,7 +189,11 @@ describe("every garment a library body ships can be rebuilt from a source in thi
   it("(2) NET COUNTERWEIGHT: each library body still ships an upper AND a lower garment — deleting the unreproducible one is refused", () => {
     for (const rel of LIBRARY_BODIES) {
       const body = rel.split("/").pop()!;
-      const mine = measured.filter((m) => m.body === body && m.kind === "library");
+      // #310: procedural uppers (the deterministic cover shell) count as dressing too — the
+      // counterweight refuses deleting ANY upper/lower garment from the shipped figure.
+      const mine = measured.filter(
+        (m) => m.body === body && (m.kind === "library" || m.kind === "procedural"),
+      );
       const upper = mine.filter((m) => /shirt|top|gown|scrub|cardigan/i.test(m.mesh));
       const lower = mine.filter((m) => /pants|trouser|skirt|short/i.test(m.mesh));
       expect(upper.length, `${body}: upper garment meshes (${mine.map((m) => m.mesh).join(", ")})`)

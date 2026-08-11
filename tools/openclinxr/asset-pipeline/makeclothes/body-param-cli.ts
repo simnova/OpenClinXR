@@ -479,6 +479,16 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
 
   const mhcloPath = path.join(STAGING_DIR, "Scrub_Shirt.mhclo");
   const objPath = path.join(STAGING_DIR, "Scrub_Shirt.obj");
+  // #310 — the tracked provider cache is the rebuildable source of record. A clean clone must be
+  // able to re-bake without the network; the cached pair is force-added (gitignored path).
+  const cachedScrubMhclo = path.join(
+    REPO_ROOT,
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.mhclo",
+  );
+  const cachedScrubObj = path.join(
+    REPO_ROOT,
+    ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt/Scrub_Shirt.obj",
+  );
   const priorMhclo = "/tmp/ocxr90_garments/scrubs_shirt/Scrub_Shirt.mhclo";
   const priorObj = "/tmp/ocxr90_garments/scrubs_shirt/Scrub_Shirt.obj";
   const issue215Mhclo = path.join(
@@ -490,7 +500,10 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
     ".openclinxr/evidence/issue-215/staging/Scrub_Shirt.obj",
   );
 
-  if (existsSync(priorMhclo) && existsSync(priorObj)) {
+  if (existsSync(cachedScrubMhclo) && existsSync(cachedScrubObj)) {
+    copyFileSync(cachedScrubMhclo, mhcloPath);
+    copyFileSync(cachedScrubObj, objPath);
+  } else if (existsSync(priorMhclo) && existsSync(priorObj)) {
     copyFileSync(priorMhclo, mhcloPath);
     copyFileSync(priorObj, objPath);
   } else if (existsSync(issue215Mhclo) && existsSync(issue215Obj)) {
@@ -546,9 +559,17 @@ export async function runBodyParamOnce(): Promise<BodyParamCatalog> {
         `license=${acceptedLower.licenseToken}`,
     );
   } else {
-    console.warn(
-      `[body-param] #220 no licence-clean lower garment — continuing upper+footwear only ` +
-        `(verdict will be blocked_no_licensed_asset if inspect runs without lower meshes)`,
+    // #310 — find-or-stop must STOP. The lower garment is part of the shipped figure, so baking
+    // without a source silently ships a bottomless body (exactly the #307 regression this issue
+    // reverted). D9: output must be a function of its inputs; a missing input is a loud refusal,
+    // never a silently skipped step.
+    throw new Error(
+      `[body-param] #220/#310 find-or-stop: no licence-clean lower garment candidate accepted ` +
+        `(${lowerExamined.length} examined: ${lowerExamined
+          .map((c) => `${c.garmentId}=${c.licenseToken}`)
+          .join(", ")}). ` +
+        `Refusing to bake a bottomless body — stage a CC0/CC-BY lower .mhclo + .obj under ` +
+        `.openclinxr-local/provider-cache/garments/ and re-run.`,
     );
   }
 
