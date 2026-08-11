@@ -1,0 +1,3365 @@
+{
+  "issue": "280",
+  "measurementKind": "pre-fix framing before-column — one row per sub-5% frameCoverage view across the #256 batch: equipment id, view, frameCoverage, subject world AABB, pack camera (fov/distance/position), computed projected extent (frameSpanFraction) + projected 2D area fraction, and verdict (a) framing computes projected bounds correctly / (b) framing clamped to a floor",
+  "factoryStep": "equipment_generate",
+  "measuredAt": "2026-08-11T00:08:50.855Z",
+  "measuredAgainstCommit": "f4f2d5676ea7c2cbe95081c7a9af99e3adc7941b",
+  "instrument": "tools/openclinxr/evidence/issue-280-framing-measure.ts — one portless dev-server boot, one browser, subject-only 1024x1024 pack views via apps/ui-xr isolated-subject.html. Camera/AABB recording added to apps/ui-xr/src/isolated-subject-lab.ts is additive (records values frameCamera already computes); framing math untouched — proven by the crossCheck section below.",
+  "clearColor": "#18211d",
+  "coverageMetric": "measureCanvasCoverage: fraction of canvas pixels with |dR|+|dG|+|dB| > 36 from the clear color",
+  "viewport": "1024x1024",
+  "summary": {
+    "viewsMeasured": 75,
+    "sub5pctViews": 52,
+    "ids": 15,
+    "sub5KeysFromManifest": 52,
+    "missingFromMeasurement": [],
+    "verdicts": {
+      "a_framing_correct": 52,
+      "b_framing_clamped": 0
+    },
+    "crossCheck": {
+      "maxAbsFrameCoverageDiffVsManifest": 0,
+      "maxAbsFrameSpanFractionDiffVsManifest": 0,
+      "spanFractionValuesCompared": 75
+    }
+  },
+  "subjects": {
+    "abdominal_exam_light_equipment": {
+      "bounds": {
+        "width": 0.75,
+        "height": 1.208,
+        "depth": 0.32,
+        "min": {
+          "x": -0.16,
+          "y": 0.005,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.59,
+          "y": 1.213,
+          "z": 0.16
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.054207801818847656,
+          "frameSpanFraction": 0.7999866327704929,
+          "projectedAreaFraction": 0.41877894909673696,
+          "projectedAspectRatio": 1.5291417050927572,
+          "camera": {
+            "fov": 35,
+            "distance": 2.5095208726153815,
+            "position": {
+              "x": 0.21500000167638061,
+              "y": 1.031522849057422,
+              "z": 2.4832301824237617
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.03851127624511719,
+          "frameSpanFraction": 0.8000587365987544,
+          "projectedAreaFraction": 0.17808548292010737,
+          "projectedAspectRatio": 3.5958052581871467,
+          "camera": {
+            "fov": 35,
+            "distance": 2.7242323600188123,
+            "position": {
+              "x": 2.9150331644693397,
+              "y": 1.031522849057422,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.047206878662109375,
+          "frameSpanFraction": 0.8000602467573079,
+          "projectedAreaFraction": 0.36275641160791,
+          "projectedAspectRatio": 1.7652625683765888,
+          "camera": {
+            "fov": 35,
+            "distance": 2.7275356900699546,
+            "position": {
+              "x": 2.126568476700682,
+              "y": 1.031522849057422,
+              "z": 1.9115684750243014
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.05167865753173828,
+          "frameSpanFraction": 0.8000602467573079,
+          "projectedAreaFraction": 0.3627564124131353,
+          "projectedAspectRatio": 1.7652625678950256,
+          "camera": {
+            "fov": 35,
+            "distance": 2.727535690069954,
+            "position": {
+              "x": -1.6965684733479203,
+              "y": 1.031522849057422,
+              "z": 1.911568475024301
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.05256938934326172,
+          "frameSpanFraction": 0.7999866327704929,
+          "projectedAreaFraction": 0.41877894909673696,
+          "projectedAspectRatio": 1.5291417050927572,
+          "camera": {
+            "fov": 35,
+            "distance": 2.5095208726153815,
+            "position": {
+              "x": 0.21500000167638061,
+              "y": 1.031522849057422,
+              "z": -2.4832301824237617
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "digital_thermometer_equipment": {
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.04556560516357422,
+          "frameSpanFraction": 0.7999815286390645,
+          "projectedAreaFraction": 0.2673300523400437,
+          "projectedAspectRatio": 2.3940455786499846,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8320224835435155,
+            "position": {
+              "x": 0.06043661026284099,
+              "y": 0.7479999989103525,
+              "z": 1.8129010950613078
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.03564262390136719,
+          "frameSpanFraction": 0.8000077022731014,
+          "projectedAreaFraction": 0.18361780677865014,
+          "projectedAspectRatio": 3.485497921916433,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8864525896970903,
+            "position": {
+              "x": 1.9283250901888769,
+              "y": 0.7479999989103525,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.039414405822753906,
+          "frameSpanFraction": 0.8000203506712764,
+          "projectedAreaFraction": 0.28333044917091726,
+          "projectedAspectRatio": 2.258839484006153,
+          "camera": {
+            "fov": 35,
+            "distance": 1.920130561874089,
+            "position": {
+              "x": 1.40527960758789,
+              "y": 0.7479999989103525,
+              "z": 1.3448429973250489
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.04295539855957031,
+          "frameSpanFraction": 0.8000203506712761,
+          "projectedAreaFraction": 0.28330016450182877,
+          "projectedAspectRatio": 2.2588530125552966,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9201305618740885,
+            "position": {
+              "x": -1.2844063870622076,
+              "y": 0.7479999989103525,
+              "z": 1.3448429973250486
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.04555225372314453,
+          "frameSpanFraction": 0.7999815286390645,
+          "projectedAreaFraction": 0.2673300523400437,
+          "projectedAspectRatio": 2.3940455786499846,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8320224835435155,
+            "position": {
+              "x": 0.06043661026284099,
+              "y": 0.7479999989103525,
+              "z": -1.8129010950613078
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "ehr_screen_equipment": {
+      "bounds": {
+        "width": 0.72,
+        "height": 0.48,
+        "depth": 0.095,
+        "min": {
+          "x": -0.36,
+          "y": 1.11,
+          "z": -0.055
+        },
+        "max": {
+          "x": 0.36,
+          "y": 1.59,
+          "z": 0.04
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.3301877975463867,
+          "frameSpanFraction": 0.800016146843171,
+          "projectedAreaFraction": 0.41722738767656764,
+          "projectedAspectRatio": 1.5339323885556764,
+          "camera": {
+            "fov": 35,
+            "distance": 1.4952996287933502,
+            "position": {
+              "x": 0,
+              "y": 1.5179999962449076,
+              "z": 1.4808497508861413
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.021959304809570312,
+          "frameSpanFraction": 0.8000991760561569,
+          "projectedAreaFraction": 0.13207762851550223,
+          "projectedAspectRatio": 4.845248213503883,
+          "camera": {
+            "fov": 35,
+            "distance": 1.294258939111483,
+            "position": {
+              "x": 1.286223231945743,
+              "y": 1.5179999962449076,
+              "z": -0.0074999999441206465
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.3713407516479492,
+          "frameSpanFraction": 0.7999664893804334,
+          "projectedAreaFraction": 0.6322247798192911,
+          "projectedAspectRatio": 1.012319056570094,
+          "camera": {
+            "fov": 35,
+            "distance": 1.2221024675122163,
+            "position": {
+              "x": 0.8581370642346183,
+              "y": 1.5179999962449076,
+              "z": 0.8506370642904977
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.37131595611572266,
+          "frameSpanFraction": 0.7999664893804334,
+          "projectedAreaFraction": 0.6322247798192911,
+          "projectedAspectRatio": 1.012319056570094,
+          "camera": {
+            "fov": 35,
+            "distance": 1.2221024675122163,
+            "position": {
+              "x": -0.8581370642346183,
+              "y": 1.5179999962449076,
+              "z": 0.8506370642904977
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.3382072448730469,
+          "frameSpanFraction": 0.8000161468431707,
+          "projectedAreaFraction": 0.4172273877407429,
+          "projectedAspectRatio": 1.5339323885588487,
+          "camera": {
+            "fov": 35,
+            "distance": 1.4952996287933504,
+            "position": {
+              "x": 0,
+              "y": 1.5179999962449076,
+              "z": -1.4958497507743826
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "ekg_leads_on_bed_equipment": {
+      "bounds": {
+        "width": 0.22,
+        "height": 0.063,
+        "depth": 0.142,
+        "min": {
+          "x": -0.11,
+          "y": 0.01,
+          "z": -0.056
+        },
+        "max": {
+          "x": 0.11,
+          "y": 0.073,
+          "z": 0.086
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.08574962615966797,
+          "frameSpanFraction": 0.8000547321672842,
+          "projectedAreaFraction": 0.18254553367638207,
+          "projectedAspectRatio": 3.5057071125692416,
+          "camera": {
+            "fov": 35,
+            "distance": 0.5081146183561726,
+            "position": {
+              "x": 0,
+              "y": 0.0638158908154852,
+              "z": 0.5227594896112521
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.05355644226074219,
+          "frameSpanFraction": 0.8010052782563054,
+          "projectedAreaFraction": 0.2813676628719873,
+          "projectedAspectRatio": 2.272098219759394,
+          "camera": {
+            "fov": 35,
+            "distance": 0.3928678851459132,
+            "position": {
+              "x": 0.3924084722353261,
+              "y": 0.0638158908154852,
+              "z": 0.015
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.04178047180175781,
+          "frameSpanFraction": 0.7999781901679961,
+          "projectedAreaFraction": 0.20881405599962902,
+          "projectedAspectRatio": 3.064788079023574,
+          "camera": {
+            "fov": 35,
+            "distance": 0.509954360182316,
+            "position": {
+              "x": 0.36034197880069113,
+              "y": 0.0638158908154852,
+              "z": 0.37534197880069115
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.06602859497070312,
+          "frameSpanFraction": 0.7999781901679961,
+          "projectedAreaFraction": 0.20881405599962902,
+          "projectedAspectRatio": 3.064788079023574,
+          "camera": {
+            "fov": 35,
+            "distance": 0.509954360182316,
+            "position": {
+              "x": -0.36034197880069113,
+              "y": 0.0638158908154852,
+              "z": 0.37534197880069115
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.03954124450683594,
+          "frameSpanFraction": 0.8000547321672842,
+          "projectedAreaFraction": 0.18254553367638207,
+          "projectedAspectRatio": 3.5057071125692416,
+          "camera": {
+            "fov": 35,
+            "distance": 0.5081146183561726,
+            "position": {
+              "x": 0,
+              "y": 0.0638158908154852,
+              "z": -0.49275948961125204
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "glucometer_review_equipment": {
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.04766273498535156,
+          "frameSpanFraction": 0.7999768051859129,
+          "projectedAreaFraction": 0.17869586664723644,
+          "projectedAspectRatio": 3.5815068509140904,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7931041789498077,
+            "position": {
+              "x": 0,
+              "y": 0.7309999996703118,
+              "z": 1.7744459971180768
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.04337501525878906,
+          "frameSpanFraction": 0.7999863639785696,
+          "projectedAreaFraction": 0.1880977728899988,
+          "projectedAspectRatio": 3.4019910222017415,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7872499072230217,
+            "position": {
+              "x": 1.7685299632717002,
+              "y": 0.7309999996703118,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.04490470886230469,
+          "frameSpanFraction": 0.8000063505045043,
+          "projectedAreaFraction": 0.23528582847649554,
+          "projectedAspectRatio": 2.7198135255645597,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8385445107573,
+            "position": {
+              "x": 1.2871833432259954,
+              "y": 0.7309999996703118,
+              "z": 1.2871833432259954
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.04484748840332031,
+          "frameSpanFraction": 0.8000063505045043,
+          "projectedAreaFraction": 0.23528582847649554,
+          "projectedAspectRatio": 2.7198135255645597,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8385445107573,
+            "position": {
+              "x": -1.2871833432259954,
+              "y": 0.7309999996703118,
+              "z": 1.2871833432259954
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.047326087951660156,
+          "frameSpanFraction": 0.7999768051859129,
+          "projectedAreaFraction": 0.17869586664723644,
+          "projectedAspectRatio": 3.5815068509140904,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7931041789498077,
+            "position": {
+              "x": 0,
+              "y": 0.7309999996703118,
+              "z": -1.7744459971180768
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "inhaler_spacer_equipment": {
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.04427623748779297,
+          "frameSpanFraction": 0.8000003815919493,
+          "projectedAreaFraction": 0.15614140221371214,
+          "projectedAspectRatio": 4.102981727426622,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8909040981238485,
+            "position": {
+              "x": 0.011468307077884675,
+              "y": 0.78192500022538,
+              "z": 1.8706307721518225
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.04021644592285156,
+          "frameSpanFraction": 0.799999614350164,
+          "projectedAreaFraction": 0.1465839113586747,
+          "projectedAspectRatio": 4.370305126669819,
+          "camera": {
+            "fov": 35,
+            "distance": 1.897453408219319,
+            "position": {
+              "x": 1.8887191197779,
+              "y": 0.78192500022538,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.042756080627441406,
+          "frameSpanFraction": 0.7999385811330779,
+          "projectedAreaFraction": 0.19740264901871515,
+          "projectedAspectRatio": 3.2452861334244907,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9368220113512877,
+            "position": {
+              "x": 1.3670162924097589,
+              "y": 0.78192500022538,
+              "z": 1.3555479853318742
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.04295825958251953,
+          "frameSpanFraction": 0.7999385811330779,
+          "projectedAreaFraction": 0.19739308522640348,
+          "projectedAspectRatio": 3.2452870716012954,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9368220113512877,
+            "position": {
+              "x": -1.3440796782539894,
+              "y": 0.78192500022538,
+              "z": 1.3555479853318742
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.044259071350097656,
+          "frameSpanFraction": 0.8000003815919493,
+          "projectedAreaFraction": 0.15614140221371214,
+          "projectedAspectRatio": 4.102981727426622,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8909040981238485,
+            "position": {
+              "x": 0.011468307077884675,
+              "y": 0.78192500022538,
+              "z": -1.8706307721518225
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "iv_pole_equipment": {
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.031294822692871094,
+          "frameSpanFraction": 0.7999529069585449,
+          "projectedAreaFraction": 0.20536698286065425,
+          "projectedAspectRatio": 3.116379509131826,
+          "camera": {
+            "fov": 35,
+            "distance": 3.304053390618905,
+            "position": {
+              "x": 0,
+              "y": 1.338749979801476,
+              "z": 3.270093663023459
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.029837608337402344,
+          "frameSpanFraction": 0.7999529069585449,
+          "projectedAreaFraction": 0.20536698286065425,
+          "projectedAspectRatio": 3.116379509131826,
+          "camera": {
+            "fov": 35,
+            "distance": 3.304053390618905,
+            "position": {
+              "x": 3.270093663023459,
+              "y": 1.338749979801476,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.028754234313964844,
+          "frameSpanFraction": 0.8000125400430365,
+          "projectedAreaFraction": 0.26057968031178047,
+          "projectedAspectRatio": 2.4560587607120508,
+          "camera": {
+            "fov": 35,
+            "distance": 3.4032608285918675,
+            "position": {
+              "x": 2.383162607158155,
+              "y": 1.338749979801476,
+              "z": 2.383162607158155
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.028862953186035156,
+          "frameSpanFraction": 0.8000125400430365,
+          "projectedAreaFraction": 0.26057968031178047,
+          "projectedAspectRatio": 2.4560587607120508,
+          "camera": {
+            "fov": 35,
+            "distance": 3.4032608285918675,
+            "position": {
+              "x": -2.383162607158155,
+              "y": 1.338749979801476,
+              "z": 2.383162607158155
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.03116607666015625,
+          "frameSpanFraction": 0.7999529069585449,
+          "projectedAreaFraction": 0.20536698286065425,
+          "projectedAspectRatio": 3.116379509131826,
+          "camera": {
+            "fov": 35,
+            "distance": 3.304053390618905,
+            "position": {
+              "x": 0,
+              "y": 1.338749979801476,
+              "z": -3.270093663023459
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "lab_results_panel_equipment": {
+      "bounds": {
+        "width": 0.5,
+        "height": 1.318,
+        "depth": 0.32,
+        "min": {
+          "x": -0.25,
+          "y": 0.002,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.25,
+          "y": 1.32,
+          "z": 0.16
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.08709907531738281,
+          "frameSpanFraction": 0.7999969478326658,
+          "projectedAreaFraction": 0.2557766273673426,
+          "projectedAspectRatio": 2.502034371845149,
+          "camera": {
+            "fov": 35,
+            "distance": 2.724291502823528,
+            "position": {
+              "x": 0,
+              "y": 1.1222936621904371,
+              "z": 2.6954430072787647
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.03330039978027344,
+          "frameSpanFraction": 0.8000057539149205,
+          "projectedAreaFraction": 0.16348029463506697,
+          "projectedAspectRatio": 3.914609151398291,
+          "camera": {
+            "fov": 35,
+            "distance": 2.81404672339239,
+            "position": {
+              "x": 2.7861277383793728,
+              "y": 1.1222936621904371,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.0630178451538086,
+          "frameSpanFraction": 0.8000140181648121,
+          "projectedAreaFraction": 0.26552097977891104,
+          "projectedAspectRatio": 2.4102072064672626,
+          "camera": {
+            "fov": 35,
+            "distance": 2.853895126742554,
+            "position": {
+              "x": 1.9985452468703844,
+              "y": 1.1222936621904371,
+              "z": 1.9985452468703844
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.0683135986328125,
+          "frameSpanFraction": 0.8000140181648121,
+          "projectedAreaFraction": 0.26552097977891104,
+          "projectedAspectRatio": 2.4102072064672626,
+          "camera": {
+            "fov": 35,
+            "distance": 2.853895126742554,
+            "position": {
+              "x": -1.9985452468703844,
+              "y": 1.1222936621904371,
+              "z": 1.9985452468703844
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.028722763061523438,
+          "frameSpanFraction": 0.7999969478326658,
+          "projectedAreaFraction": 0.2557766273673426,
+          "projectedAspectRatio": 2.502034371845149,
+          "camera": {
+            "fov": 35,
+            "distance": 2.724291502823528,
+            "position": {
+              "x": 0,
+              "y": 1.1222936621904371,
+              "z": -2.6954430072787647
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "monitor_equipment": {
+      "bounds": {
+        "width": 0.52,
+        "height": 0.905,
+        "depth": 0.095,
+        "min": {
+          "x": -0.26,
+          "y": 0.625,
+          "z": -0.055
+        },
+        "max": {
+          "x": 0.26,
+          "y": 1.53,
+          "z": 0.04
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.14288902282714844,
+          "frameSpanFraction": 0.7999965634304703,
+          "projectedAreaFraction": 0.3879669860897859,
+          "projectedAspectRatio": 1.6496244134815878,
+          "camera": {
+            "fov": 35,
+            "distance": 1.808481296581402,
+            "position": {
+              "x": 0,
+              "y": 1.3942500051856042,
+              "z": 1.7804855559115855
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.02534008026123047,
+          "frameSpanFraction": 0.8000456534800622,
+          "projectedAreaFraction": 0.07055855091178487,
+          "projectedAspectRatio": 9.070390945671,
+          "camera": {
+            "fov": 35,
+            "distance": 2.0204515183355247,
+            "position": {
+              "x": 2.0021268905362155,
+              "y": 1.3942500051856042,
+              "z": -0.0074999999441206465
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.09900569915771484,
+          "frameSpanFraction": 0.8000218557817225,
+          "projectedAreaFraction": 0.28877173778645976,
+          "projectedAspectRatio": 2.216275671220458,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9779069680429098,
+            "position": {
+              "x": 1.3853526125316589,
+              "y": 1.3942500051856042,
+              "z": 1.3778526125875383
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.0989084243774414,
+          "frameSpanFraction": 0.8000218557817225,
+          "projectedAreaFraction": 0.28877173778645976,
+          "projectedAspectRatio": 2.216275671220458,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9779069680429098,
+            "position": {
+              "x": -1.3853526125316589,
+              "y": 1.3942500051856042,
+              "z": 1.3778526125875383
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.15076732635498047,
+          "frameSpanFraction": 0.7999965634304705,
+          "projectedAreaFraction": 0.3879669861386399,
+          "projectedAspectRatio": 1.6496244134749263,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8084812965814026,
+            "position": {
+              "x": 0,
+              "y": 1.3942500051856042,
+              "z": -1.795485555799827
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "nebulizer_mask_equipment": {
+      "bounds": {
+        "width": 0.245,
+        "height": 0.89,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.15,
+          "y": 0.89,
+          "z": 0.1
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.051513671875,
+          "frameSpanFraction": 0.800000363254031,
+          "projectedAreaFraction": 0.18563936709021234,
+          "projectedAspectRatio": 3.451138433251987,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8325244107519232,
+            "position": {
+              "x": 0.02744717635214329,
+              "y": 0.756424999212101,
+              "z": 1.8129469362381065
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.042939186096191406,
+          "frameSpanFraction": 0.7999797118899161,
+          "projectedAreaFraction": 0.15146659113570035,
+          "projectedAspectRatio": 4.2297653491682015,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8549992560838677,
+            "position": {
+              "x": 1.8631086695706387,
+              "y": 0.756424999212101,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.0465545654296875,
+          "frameSpanFraction": 0.8000034565539078,
+          "projectedAreaFraction": 0.2179072148374835,
+          "projectedAspectRatio": 2.9400976782375476,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8897223856436314,
+            "position": {
+              "x": 1.3502626533586894,
+              "y": 0.756424999212101,
+              "z": 1.3228154770065461
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.047280311584472656,
+          "frameSpanFraction": 0.8000034565539078,
+          "projectedAreaFraction": 0.21788849060048013,
+          "projectedAspectRatio": 2.9401062879103863,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8897223856436314,
+            "position": {
+              "x": -1.2953683006544028,
+              "y": 0.756424999212101,
+              "z": 1.3228154770065461
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.051489830017089844,
+          "frameSpanFraction": 0.800000363254031,
+          "projectedAreaFraction": 0.18563936709021234,
+          "projectedAspectRatio": 3.451138433251987,
+          "camera": {
+            "fov": 35,
+            "distance": 1.8325244107519232,
+            "position": {
+              "x": 0.02744717635214329,
+              "y": 0.756424999212101,
+              "z": -1.8129469362381065
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "oxygen_nasal_cannula_equipment": {
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.04365825653076172,
+          "frameSpanFraction": 0.7999912451355238,
+          "projectedAreaFraction": 0.16439806100190318,
+          "projectedAspectRatio": 3.8929905627489885,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9390486314832736,
+            "position": {
+              "x": 0,
+              "y": 0.7947500001769513,
+              "z": 1.9186530028351934
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.04228019714355469,
+          "frameSpanFraction": 0.7999965129817658,
+          "projectedAreaFraction": 0.1730481365409719,
+          "projectedAspectRatio": 3.697897396808695,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9331956507621038,
+            "position": {
+              "x": 1.9127376124698499,
+              "y": 0.7947500001769513,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.041423797607421875,
+          "frameSpanFraction": 0.8000035082601047,
+          "projectedAreaFraction": 0.2180813683950797,
+          "projectedAspectRatio": 2.934405248880785,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9844747451713167,
+            "position": {
+              "x": 1.3891471779934101,
+              "y": 0.7947500001769513,
+              "z": 1.3891471779934101
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.041411399841308594,
+          "frameSpanFraction": 0.8000035082601047,
+          "projectedAreaFraction": 0.2180813683950797,
+          "projectedAspectRatio": 2.934405248880785,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9844747451713167,
+            "position": {
+              "x": -1.3891471779934101,
+              "y": 0.7947500001769513,
+              "z": 1.3891471779934101
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.0433197021484375,
+          "frameSpanFraction": 0.7999912451355238,
+          "projectedAreaFraction": 0.16439806100190318,
+          "projectedAspectRatio": 3.8929905627489885,
+          "camera": {
+            "fov": 35,
+            "distance": 1.9390486314832736,
+            "position": {
+              "x": 0,
+              "y": 0.7947500001769513,
+              "z": -1.9186530028351934
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "pulse_oximeter_equipment": {
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.0485076904296875,
+          "frameSpanFraction": 0.7999983124296408,
+          "projectedAreaFraction": 0.16054099896046747,
+          "projectedAspectRatio": 3.9909246378444525,
+          "camera": {
+            "fov": 35,
+            "distance": 1.735225656166343,
+            "position": {
+              "x": 0.004947176165878774,
+              "y": 0.7139249992121011,
+              "z": 1.7168076349506953
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.039524078369140625,
+          "frameSpanFraction": 0.7999982810502348,
+          "projectedAreaFraction": 0.16054079903485893,
+          "projectedAspectRatio": 3.990929624333452,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7352782895796008,
+            "position": {
+              "x": 1.721808009167025,
+              "y": 0.7139249992121011,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.037779808044433594,
+          "frameSpanFraction": 0.800002329961001,
+          "projectedAreaFraction": 0.2083903189903558,
+          "projectedAspectRatio": 3.0745581398583215,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7765603670265828,
+            "position": {
+              "x": 1.2484477019592357,
+              "y": 0.7139249992121011,
+              "z": 1.243500525793357
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.043743133544921875,
+          "frameSpanFraction": 0.800002329961001,
+          "projectedAreaFraction": 0.20837221387527796,
+          "projectedAspectRatio": 3.0745549353460624,
+          "camera": {
+            "fov": 35,
+            "distance": 1.7765603670265828,
+            "position": {
+              "x": -1.238553349627478,
+              "y": 0.7139249992121011,
+              "z": 1.243500525793357
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.0402069091796875,
+          "frameSpanFraction": 0.7999983124296408,
+          "projectedAreaFraction": 0.16054099896046747,
+          "projectedAspectRatio": 3.9909246378444525,
+          "camera": {
+            "fov": 35,
+            "distance": 1.735225656166343,
+            "position": {
+              "x": 0.004947176165878774,
+              "y": 0.7139249992121011,
+              "z": -1.7168076349506953
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "side_rails_equipment": {
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.037505149841308594,
+          "frameSpanFraction": 0.799974428289744,
+          "projectedAreaFraction": 0.16381337492397827,
+          "projectedAspectRatio": 3.906924221935223,
+          "camera": {
+            "fov": 35,
+            "distance": 3.3941970502764063,
+            "position": {
+              "x": 0,
+              "y": 0.8529999983310699,
+              "z": 3.3922820661659627
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.048221588134765625,
+          "frameSpanFraction": 0.8006735895556277,
+          "projectedAreaFraction": 0.2652150241210672,
+          "projectedAspectRatio": 2.4114521933207405,
+          "camera": {
+            "fov": 35,
+            "distance": 2.5513758380728997,
+            "position": {
+              "x": 2.548827704539549,
+              "y": 0.8529999983310699,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.03435707092285156,
+          "frameSpanFraction": 0.7999962765423164,
+          "projectedAreaFraction": 0.19077253741971073,
+          "projectedAspectRatio": 3.3547808611993406,
+          "camera": {
+            "fov": 35,
+            "distance": 3.3678217495305,
+            "position": {
+              "x": 2.380044887910398,
+              "y": 0.8529999983310699,
+              "z": 2.380044887910398
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.03348827362060547,
+          "frameSpanFraction": 0.7999962765423164,
+          "projectedAreaFraction": 0.19077253741971073,
+          "projectedAspectRatio": 3.3547808611993406,
+          "camera": {
+            "fov": 35,
+            "distance": 3.3678217495305,
+            "position": {
+              "x": -2.380044887910398,
+              "y": 0.8529999983310699,
+              "z": 2.380044887910398
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.037479400634765625,
+          "frameSpanFraction": 0.799974428289744,
+          "projectedAreaFraction": 0.16381337492397827,
+          "projectedAspectRatio": 3.906924221935223,
+          "camera": {
+            "fov": 35,
+            "distance": 3.3941970502764063,
+            "position": {
+              "x": 0,
+              "y": 0.8529999983310699,
+              "z": -3.3922820661659627
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "surgical_consult_phone_equipment": {
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.036301612854003906,
+          "frameSpanFraction": 0.7999958959714553,
+          "projectedAreaFraction": 0.17547029568525346,
+          "projectedAspectRatio": 3.647341146321289,
+          "camera": {
+            "fov": 35,
+            "distance": 2.0188324821274564,
+            "position": {
+              "x": 0.012969932055391653,
+              "y": 0.8296000006331887,
+              "z": 1.9974866084235292
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.03231239318847656,
+          "frameSpanFraction": 0.7999892624565309,
+          "projectedAreaFraction": 0.16576336236397823,
+          "projectedAspectRatio": 3.8606657479902795,
+          "camera": {
+            "fov": 35,
+            "distance": 2.0259049515267655,
+            "position": {
+              "x": 2.0176043208053933,
+              "y": 0.8296000006331887,
+              "z": 0
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.03344535827636719,
+          "frameSpanFraction": 0.8000038132921911,
+          "projectedAreaFraction": 0.22031926692614195,
+          "projectedAspectRatio": 2.904735640194348,
+          "camera": {
+            "fov": 35,
+            "distance": 2.073401872010643,
+            "position": {
+              "x": 1.4643939711968934,
+              "y": 0.8296000006331887,
+              "z": 1.4514240391415019
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.03523826599121094,
+          "frameSpanFraction": 0.8000038132921918,
+          "projectedAreaFraction": 0.22030977628822979,
+          "projectedAspectRatio": 2.904735545174285,
+          "camera": {
+            "fov": 35,
+            "distance": 2.073401872010643,
+            "position": {
+              "x": -1.4384541070861103,
+              "y": 0.8296000006331887,
+              "z": 1.451424039141502
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.036322593688964844,
+          "frameSpanFraction": 0.7999958959714553,
+          "projectedAreaFraction": 0.17547029568525346,
+          "projectedAspectRatio": 3.647341146321289,
+          "camera": {
+            "fov": 35,
+            "distance": 2.0188324821274564,
+            "position": {
+              "x": 0.012969932055391653,
+              "y": 0.8296000006331887,
+              "z": -1.9974866084235292
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    },
+    "tablet_visit_equipment": {
+      "bounds": {
+        "width": 0.22,
+        "height": 0.34,
+        "depth": 0.031,
+        "min": {
+          "x": -0.11,
+          "y": 0.86,
+          "z": -0.015
+        },
+        "max": {
+          "x": 0.11,
+          "y": 1.2,
+          "z": 0.016
+        }
+      },
+      "views": [
+        {
+          "view": "front",
+          "frameCoverage": 0.29488372802734375,
+          "frameSpanFraction": 0.7999927222547758,
+          "projectedAreaFraction": 0.4369642329961773,
+          "projectedAspectRatio": 1.4646498034953823,
+          "camera": {
+            "fov": 35,
+            "distance": 0.6770971287571987,
+            "position": {
+              "x": 0,
+              "y": 1.1490000051334501,
+              "z": 0.6698702426799521
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "side",
+          "frameCoverage": 0.013082504272460938,
+          "frameSpanFraction": 0.799976859799319,
+          "projectedAreaFraction": 0.06124744080109412,
+          "projectedAspectRatio": 10.449479440822374,
+          "camera": {
+            "fov": 35,
+            "distance": 0.7713802600125159,
+            "position": {
+              "x": 0.7646067650757183,
+              "y": 1.1490000051334501,
+              "z": 0.0005000002626329662
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_left",
+          "frameCoverage": 0.17763614654541016,
+          "frameSpanFraction": 0.7999938435481431,
+          "projectedAreaFraction": 0.31129349667584255,
+          "projectedAspectRatio": 2.0559398449997692,
+          "camera": {
+            "fov": 35,
+            "distance": 0.7501271183951878,
+            "position": {
+              "x": 0.5254934316499332,
+              "y": 1.1490000051334501,
+              "z": 0.5259934319125662
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "three_quarter_right",
+          "frameCoverage": 0.1776285171508789,
+          "frameSpanFraction": 0.7999938435481431,
+          "projectedAreaFraction": 0.31129349667584255,
+          "projectedAspectRatio": 2.0559398449997692,
+          "camera": {
+            "fov": 35,
+            "distance": 0.7501271183951878,
+            "position": {
+              "x": -0.5254934316499332,
+              "y": 1.1490000051334501,
+              "z": 0.5259934319125662
+            }
+          },
+          "verdict": "a_framing_correct"
+        },
+        {
+          "view": "back",
+          "frameCoverage": 0.34703922271728516,
+          "frameSpanFraction": 0.7999927222547758,
+          "projectedAreaFraction": 0.43696423368451465,
+          "projectedAspectRatio": 1.4646498034211393,
+          "camera": {
+            "fov": 35,
+            "distance": 0.6770971287571987,
+            "position": {
+              "x": 0,
+              "y": 1.1490000051334501,
+              "z": -0.6688702421546862
+            }
+          },
+          "verdict": "a_framing_correct"
+        }
+      ]
+    }
+  },
+  "rowsUnder5pct": [
+    {
+      "equipmentId": "abdominal_exam_light_equipment",
+      "view": "side",
+      "frameCoverage": 0.03851127624511719,
+      "frameSpanFraction": 0.8000587365987544,
+      "projectedAreaFraction": 0.17808548292010737,
+      "projectedAspectRatio": 3.5958052581871467,
+      "bounds": {
+        "width": 0.75,
+        "height": 1.208,
+        "depth": 0.32,
+        "min": {
+          "x": -0.16,
+          "y": 0.005,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.59,
+          "y": 1.213,
+          "z": 0.16
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.7242323600188123,
+        "position": {
+          "x": 2.9150331644693397,
+          "y": 1.031522849057422,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8001 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.8% of the frame area (aspect 3.6:1) yet non-background pixels are only 3.85% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "abdominal_exam_light_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.047206878662109375,
+      "frameSpanFraction": 0.8000602467573079,
+      "projectedAreaFraction": 0.36275641160791,
+      "projectedAspectRatio": 1.7652625683765888,
+      "bounds": {
+        "width": 0.75,
+        "height": 1.208,
+        "depth": 0.32,
+        "min": {
+          "x": -0.16,
+          "y": 0.005,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.59,
+          "y": 1.213,
+          "z": 0.16
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.7275356900699546,
+        "position": {
+          "x": 2.126568476700682,
+          "y": 1.031522849057422,
+          "z": 1.9115684750243014
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8001 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 36.3% of the frame area (aspect 1.8:1) yet non-background pixels are only 4.72% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "view": "front",
+      "frameCoverage": 0.04556560516357422,
+      "frameSpanFraction": 0.7999815286390645,
+      "projectedAreaFraction": 0.2673300523400437,
+      "projectedAspectRatio": 2.3940455786499846,
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8320224835435155,
+        "position": {
+          "x": 0.06043661026284099,
+          "y": 0.7479999989103525,
+          "z": 1.8129010950613078
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 26.7% of the frame area (aspect 2.4:1) yet non-background pixels are only 4.56% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "view": "side",
+      "frameCoverage": 0.03564262390136719,
+      "frameSpanFraction": 0.8000077022731014,
+      "projectedAreaFraction": 0.18361780677865014,
+      "projectedAspectRatio": 3.485497921916433,
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8864525896970903,
+        "position": {
+          "x": 1.9283250901888769,
+          "y": 0.7479999989103525,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 18.4% of the frame area (aspect 3.5:1) yet non-background pixels are only 3.56% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.039414405822753906,
+      "frameSpanFraction": 0.8000203506712764,
+      "projectedAreaFraction": 0.28333044917091726,
+      "projectedAspectRatio": 2.258839484006153,
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.920130561874089,
+        "position": {
+          "x": 1.40527960758789,
+          "y": 0.7479999989103525,
+          "z": 1.3448429973250489
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 28.3% of the frame area (aspect 2.3:1) yet non-background pixels are only 3.94% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.04295539855957031,
+      "frameSpanFraction": 0.8000203506712761,
+      "projectedAreaFraction": 0.28330016450182877,
+      "projectedAspectRatio": 2.2588530125552966,
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9201305618740885,
+        "position": {
+          "x": -1.2844063870622076,
+          "y": 0.7479999989103525,
+          "z": 1.3448429973250486
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 28.3% of the frame area (aspect 2.3:1) yet non-background pixels are only 4.30% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "view": "back",
+      "frameCoverage": 0.04555225372314453,
+      "frameSpanFraction": 0.7999815286390645,
+      "projectedAreaFraction": 0.2673300523400437,
+      "projectedAspectRatio": 2.3940455786499846,
+      "bounds": {
+        "width": 0.349,
+        "height": 0.88,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.235,
+          "y": 0.88,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8320224835435155,
+        "position": {
+          "x": 0.06043661026284099,
+          "y": 0.7479999989103525,
+          "z": -1.8129010950613078
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 26.7% of the frame area (aspect 2.4:1) yet non-background pixels are only 4.56% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "ehr_screen_equipment",
+      "view": "side",
+      "frameCoverage": 0.021959304809570312,
+      "frameSpanFraction": 0.8000991760561569,
+      "projectedAreaFraction": 0.13207762851550223,
+      "projectedAspectRatio": 4.845248213503883,
+      "bounds": {
+        "width": 0.72,
+        "height": 0.48,
+        "depth": 0.095,
+        "min": {
+          "x": -0.36,
+          "y": 1.11,
+          "z": -0.055
+        },
+        "max": {
+          "x": 0.36,
+          "y": 1.59,
+          "z": 0.04
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.294258939111483,
+        "position": {
+          "x": 1.286223231945743,
+          "y": 1.5179999962449076,
+          "z": -0.0074999999441206465
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8001 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 13.2% of the frame area (aspect 4.8:1) yet non-background pixels are only 2.20% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "ekg_leads_on_bed_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.04178047180175781,
+      "frameSpanFraction": 0.7999781901679961,
+      "projectedAreaFraction": 0.20881405599962902,
+      "projectedAspectRatio": 3.064788079023574,
+      "bounds": {
+        "width": 0.22,
+        "height": 0.063,
+        "depth": 0.142,
+        "min": {
+          "x": -0.11,
+          "y": 0.01,
+          "z": -0.056
+        },
+        "max": {
+          "x": 0.11,
+          "y": 0.073,
+          "z": 0.086
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 0.509954360182316,
+        "position": {
+          "x": 0.36034197880069113,
+          "y": 0.0638158908154852,
+          "z": 0.37534197880069115
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.9% of the frame area (aspect 3.1:1) yet non-background pixels are only 4.18% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "ekg_leads_on_bed_equipment",
+      "view": "back",
+      "frameCoverage": 0.03954124450683594,
+      "frameSpanFraction": 0.8000547321672842,
+      "projectedAreaFraction": 0.18254553367638207,
+      "projectedAspectRatio": 3.5057071125692416,
+      "bounds": {
+        "width": 0.22,
+        "height": 0.063,
+        "depth": 0.142,
+        "min": {
+          "x": -0.11,
+          "y": 0.01,
+          "z": -0.056
+        },
+        "max": {
+          "x": 0.11,
+          "y": 0.073,
+          "z": 0.086
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 0.5081146183561726,
+        "position": {
+          "x": 0,
+          "y": 0.0638158908154852,
+          "z": -0.49275948961125204
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8001 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 18.3% of the frame area (aspect 3.5:1) yet non-background pixels are only 3.95% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "view": "front",
+      "frameCoverage": 0.04766273498535156,
+      "frameSpanFraction": 0.7999768051859129,
+      "projectedAreaFraction": 0.17869586664723644,
+      "projectedAspectRatio": 3.5815068509140904,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7931041789498077,
+        "position": {
+          "x": 0,
+          "y": 0.7309999996703118,
+          "z": 1.7744459971180768
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.9% of the frame area (aspect 3.6:1) yet non-background pixels are only 4.77% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "view": "side",
+      "frameCoverage": 0.04337501525878906,
+      "frameSpanFraction": 0.7999863639785696,
+      "projectedAreaFraction": 0.1880977728899988,
+      "projectedAspectRatio": 3.4019910222017415,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7872499072230217,
+        "position": {
+          "x": 1.7685299632717002,
+          "y": 0.7309999996703118,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 18.8% of the frame area (aspect 3.4:1) yet non-background pixels are only 4.34% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.04490470886230469,
+      "frameSpanFraction": 0.8000063505045043,
+      "projectedAreaFraction": 0.23528582847649554,
+      "projectedAspectRatio": 2.7198135255645597,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8385445107573,
+        "position": {
+          "x": 1.2871833432259954,
+          "y": 0.7309999996703118,
+          "z": 1.2871833432259954
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 23.5% of the frame area (aspect 2.7:1) yet non-background pixels are only 4.49% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.04484748840332031,
+      "frameSpanFraction": 0.8000063505045043,
+      "projectedAreaFraction": 0.23528582847649554,
+      "projectedAspectRatio": 2.7198135255645597,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8385445107573,
+        "position": {
+          "x": -1.2871833432259954,
+          "y": 0.7309999996703118,
+          "z": 1.2871833432259954
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 23.5% of the frame area (aspect 2.7:1) yet non-background pixels are only 4.48% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "view": "back",
+      "frameCoverage": 0.047326087951660156,
+      "frameSpanFraction": 0.7999768051859129,
+      "projectedAreaFraction": 0.17869586664723644,
+      "projectedAspectRatio": 3.5815068509140904,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.86,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.86,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7931041789498077,
+        "position": {
+          "x": 0,
+          "y": 0.7309999996703118,
+          "z": -1.7744459971180768
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.9% of the frame area (aspect 3.6:1) yet non-background pixels are only 4.73% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "view": "front",
+      "frameCoverage": 0.04427623748779297,
+      "frameSpanFraction": 0.8000003815919493,
+      "projectedAreaFraction": 0.15614140221371214,
+      "projectedAspectRatio": 4.102981727426622,
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8909040981238485,
+        "position": {
+          "x": 0.011468307077884675,
+          "y": 0.78192500022538,
+          "z": 1.8706307721518225
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 15.6% of the frame area (aspect 4.1:1) yet non-background pixels are only 4.43% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "view": "side",
+      "frameCoverage": 0.04021644592285156,
+      "frameSpanFraction": 0.799999614350164,
+      "projectedAreaFraction": 0.1465839113586747,
+      "projectedAspectRatio": 4.370305126669819,
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.897453408219319,
+        "position": {
+          "x": 1.8887191197779,
+          "y": 0.78192500022538,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 14.7% of the frame area (aspect 4.4:1) yet non-background pixels are only 4.02% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.042756080627441406,
+      "frameSpanFraction": 0.7999385811330779,
+      "projectedAreaFraction": 0.19740264901871515,
+      "projectedAspectRatio": 3.2452861334244907,
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9368220113512877,
+        "position": {
+          "x": 1.3670162924097589,
+          "y": 0.78192500022538,
+          "z": 1.3555479853318742
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.7999 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 19.7% of the frame area (aspect 3.2:1) yet non-background pixels are only 4.28% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.04295825958251953,
+      "frameSpanFraction": 0.7999385811330779,
+      "projectedAreaFraction": 0.19739308522640348,
+      "projectedAspectRatio": 3.2452870716012954,
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9368220113512877,
+        "position": {
+          "x": -1.3440796782539894,
+          "y": 0.78192500022538,
+          "z": 1.3555479853318742
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.7999 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 19.7% of the frame area (aspect 3.2:1) yet non-background pixels are only 4.30% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "view": "back",
+      "frameCoverage": 0.044259071350097656,
+      "frameSpanFraction": 0.8000003815919493,
+      "projectedAreaFraction": 0.15614140221371214,
+      "projectedAspectRatio": 4.102981727426622,
+      "bounds": {
+        "width": 0.213,
+        "height": 0.921,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.118,
+          "y": 0.92,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8909040981238485,
+        "position": {
+          "x": 0.011468307077884675,
+          "y": 0.78192500022538,
+          "z": -1.8706307721518225
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 15.6% of the frame area (aspect 4.1:1) yet non-background pixels are only 4.43% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "view": "front",
+      "frameCoverage": 0.031294822692871094,
+      "frameSpanFraction": 0.7999529069585449,
+      "projectedAreaFraction": 0.20536698286065425,
+      "projectedAspectRatio": 3.116379509131826,
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.304053390618905,
+        "position": {
+          "x": 0,
+          "y": 1.338749979801476,
+          "z": 3.270093663023459
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.5% of the frame area (aspect 3.1:1) yet non-background pixels are only 3.13% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "view": "side",
+      "frameCoverage": 0.029837608337402344,
+      "frameSpanFraction": 0.7999529069585449,
+      "projectedAreaFraction": 0.20536698286065425,
+      "projectedAspectRatio": 3.116379509131826,
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.304053390618905,
+        "position": {
+          "x": 3.270093663023459,
+          "y": 1.338749979801476,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.5% of the frame area (aspect 3.1:1) yet non-background pixels are only 2.98% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.028754234313964844,
+      "frameSpanFraction": 0.8000125400430365,
+      "projectedAreaFraction": 0.26057968031178047,
+      "projectedAspectRatio": 2.4560587607120508,
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.4032608285918675,
+        "position": {
+          "x": 2.383162607158155,
+          "y": 1.338749979801476,
+          "z": 2.383162607158155
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 26.1% of the frame area (aspect 2.5:1) yet non-background pixels are only 2.88% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.028862953186035156,
+      "frameSpanFraction": 0.8000125400430365,
+      "projectedAreaFraction": 0.26057968031178047,
+      "projectedAspectRatio": 2.4560587607120508,
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.4032608285918675,
+        "position": {
+          "x": -2.383162607158155,
+          "y": 1.338749979801476,
+          "z": 2.383162607158155
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 26.1% of the frame area (aspect 2.5:1) yet non-background pixels are only 2.89% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "view": "back",
+      "frameCoverage": 0.03116607666015625,
+      "frameSpanFraction": 0.7999529069585449,
+      "projectedAreaFraction": 0.20536698286065425,
+      "projectedAspectRatio": 3.116379509131826,
+      "bounds": {
+        "width": 0.48,
+        "height": 1.575,
+        "depth": 0.48,
+        "min": {
+          "x": -0.24,
+          "y": 0,
+          "z": -0.24
+        },
+        "max": {
+          "x": 0.24,
+          "y": 1.575,
+          "z": 0.24
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.304053390618905,
+        "position": {
+          "x": 0,
+          "y": 1.338749979801476,
+          "z": -3.270093663023459
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.5% of the frame area (aspect 3.1:1) yet non-background pixels are only 3.12% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "lab_results_panel_equipment",
+      "view": "side",
+      "frameCoverage": 0.03330039978027344,
+      "frameSpanFraction": 0.8000057539149205,
+      "projectedAreaFraction": 0.16348029463506697,
+      "projectedAspectRatio": 3.914609151398291,
+      "bounds": {
+        "width": 0.5,
+        "height": 1.318,
+        "depth": 0.32,
+        "min": {
+          "x": -0.25,
+          "y": 0.002,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.25,
+          "y": 1.32,
+          "z": 0.16
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.81404672339239,
+        "position": {
+          "x": 2.7861277383793728,
+          "y": 1.1222936621904371,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.3% of the frame area (aspect 3.9:1) yet non-background pixels are only 3.33% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "lab_results_panel_equipment",
+      "view": "back",
+      "frameCoverage": 0.028722763061523438,
+      "frameSpanFraction": 0.7999969478326658,
+      "projectedAreaFraction": 0.2557766273673426,
+      "projectedAspectRatio": 2.502034371845149,
+      "bounds": {
+        "width": 0.5,
+        "height": 1.318,
+        "depth": 0.32,
+        "min": {
+          "x": -0.25,
+          "y": 0.002,
+          "z": -0.16
+        },
+        "max": {
+          "x": 0.25,
+          "y": 1.32,
+          "z": 0.16
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.724291502823528,
+        "position": {
+          "x": 0,
+          "y": 1.1222936621904371,
+          "z": -2.6954430072787647
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 25.6% of the frame area (aspect 2.5:1) yet non-background pixels are only 2.87% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "monitor_equipment",
+      "view": "side",
+      "frameCoverage": 0.02534008026123047,
+      "frameSpanFraction": 0.8000456534800622,
+      "projectedAreaFraction": 0.07055855091178487,
+      "projectedAspectRatio": 9.070390945671,
+      "bounds": {
+        "width": 0.52,
+        "height": 0.905,
+        "depth": 0.095,
+        "min": {
+          "x": -0.26,
+          "y": 0.625,
+          "z": -0.055
+        },
+        "max": {
+          "x": 0.26,
+          "y": 1.53,
+          "z": 0.04
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.0204515183355247,
+        "position": {
+          "x": 2.0021268905362155,
+          "y": 1.3942500051856042,
+          "z": -0.0074999999441206465
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 7.1% of the frame area (aspect 9.1:1) yet non-background pixels are only 2.53% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "view": "side",
+      "frameCoverage": 0.042939186096191406,
+      "frameSpanFraction": 0.7999797118899161,
+      "projectedAreaFraction": 0.15146659113570035,
+      "projectedAspectRatio": 4.2297653491682015,
+      "bounds": {
+        "width": 0.245,
+        "height": 0.89,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.15,
+          "y": 0.89,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8549992560838677,
+        "position": {
+          "x": 1.8631086695706387,
+          "y": 0.756424999212101,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 15.1% of the frame area (aspect 4.2:1) yet non-background pixels are only 4.29% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.0465545654296875,
+      "frameSpanFraction": 0.8000034565539078,
+      "projectedAreaFraction": 0.2179072148374835,
+      "projectedAspectRatio": 2.9400976782375476,
+      "bounds": {
+        "width": 0.245,
+        "height": 0.89,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.15,
+          "y": 0.89,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8897223856436314,
+        "position": {
+          "x": 1.3502626533586894,
+          "y": 0.756424999212101,
+          "z": 1.3228154770065461
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 21.8% of the frame area (aspect 2.9:1) yet non-background pixels are only 4.66% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.047280311584472656,
+      "frameSpanFraction": 0.8000034565539078,
+      "projectedAreaFraction": 0.21788849060048013,
+      "projectedAspectRatio": 2.9401062879103863,
+      "bounds": {
+        "width": 0.245,
+        "height": 0.89,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.15,
+          "y": 0.89,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.8897223856436314,
+        "position": {
+          "x": -1.2953683006544028,
+          "y": 0.756424999212101,
+          "z": 1.3228154770065461
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 21.8% of the frame area (aspect 2.9:1) yet non-background pixels are only 4.73% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "view": "front",
+      "frameCoverage": 0.04365825653076172,
+      "frameSpanFraction": 0.7999912451355238,
+      "projectedAreaFraction": 0.16439806100190318,
+      "projectedAspectRatio": 3.8929905627489885,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9390486314832736,
+        "position": {
+          "x": 0,
+          "y": 0.7947500001769513,
+          "z": 1.9186530028351934
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.4% of the frame area (aspect 3.9:1) yet non-background pixels are only 4.37% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "view": "side",
+      "frameCoverage": 0.04228019714355469,
+      "frameSpanFraction": 0.7999965129817658,
+      "projectedAreaFraction": 0.1730481365409719,
+      "projectedAspectRatio": 3.697897396808695,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9331956507621038,
+        "position": {
+          "x": 1.9127376124698499,
+          "y": 0.7947500001769513,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.3% of the frame area (aspect 3.7:1) yet non-background pixels are only 4.23% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.041423797607421875,
+      "frameSpanFraction": 0.8000035082601047,
+      "projectedAreaFraction": 0.2180813683950797,
+      "projectedAspectRatio": 2.934405248880785,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9844747451713167,
+        "position": {
+          "x": 1.3891471779934101,
+          "y": 0.7947500001769513,
+          "z": 1.3891471779934101
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 21.8% of the frame area (aspect 2.9:1) yet non-background pixels are only 4.14% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.041411399841308594,
+      "frameSpanFraction": 0.8000035082601047,
+      "projectedAreaFraction": 0.2180813683950797,
+      "projectedAspectRatio": 2.934405248880785,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9844747451713167,
+        "position": {
+          "x": -1.3891471779934101,
+          "y": 0.7947500001769513,
+          "z": 1.3891471779934101
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 21.8% of the frame area (aspect 2.9:1) yet non-background pixels are only 4.14% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "view": "back",
+      "frameCoverage": 0.0433197021484375,
+      "frameSpanFraction": 0.7999912451355238,
+      "projectedAreaFraction": 0.16439806100190318,
+      "projectedAspectRatio": 3.8929905627489885,
+      "bounds": {
+        "width": 0.228,
+        "height": 0.935,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.114,
+          "y": 0.935,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.9390486314832736,
+        "position": {
+          "x": 0,
+          "y": 0.7947500001769513,
+          "z": -1.9186530028351934
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.4% of the frame area (aspect 3.9:1) yet non-background pixels are only 4.33% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "view": "front",
+      "frameCoverage": 0.0485076904296875,
+      "frameSpanFraction": 0.7999983124296408,
+      "projectedAreaFraction": 0.16054099896046747,
+      "projectedAspectRatio": 3.9909246378444525,
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.735225656166343,
+        "position": {
+          "x": 0.004947176165878774,
+          "y": 0.7139249992121011,
+          "z": 1.7168076349506953
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.1% of the frame area (aspect 4.0:1) yet non-background pixels are only 4.85% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "view": "side",
+      "frameCoverage": 0.039524078369140625,
+      "frameSpanFraction": 0.7999982810502348,
+      "projectedAreaFraction": 0.16054079903485893,
+      "projectedAspectRatio": 3.990929624333452,
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7352782895796008,
+        "position": {
+          "x": 1.721808009167025,
+          "y": 0.7139249992121011,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.1% of the frame area (aspect 4.0:1) yet non-background pixels are only 3.95% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.037779808044433594,
+      "frameSpanFraction": 0.800002329961001,
+      "projectedAreaFraction": 0.2083903189903558,
+      "projectedAspectRatio": 3.0745581398583215,
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7765603670265828,
+        "position": {
+          "x": 1.2484477019592357,
+          "y": 0.7139249992121011,
+          "z": 1.243500525793357
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.8% of the frame area (aspect 3.1:1) yet non-background pixels are only 3.78% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.043743133544921875,
+      "frameSpanFraction": 0.800002329961001,
+      "projectedAreaFraction": 0.20837221387527796,
+      "projectedAspectRatio": 3.0745549353460624,
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.7765603670265828,
+        "position": {
+          "x": -1.238553349627478,
+          "y": 0.7139249992121011,
+          "z": 1.243500525793357
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 20.8% of the frame area (aspect 3.1:1) yet non-background pixels are only 4.37% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "view": "back",
+      "frameCoverage": 0.0402069091796875,
+      "frameSpanFraction": 0.7999983124296408,
+      "projectedAreaFraction": 0.16054099896046747,
+      "projectedAspectRatio": 3.9909246378444525,
+      "bounds": {
+        "width": 0.2,
+        "height": 0.84,
+        "depth": 0.2,
+        "min": {
+          "x": -0.095,
+          "y": -0.001,
+          "z": -0.1
+        },
+        "max": {
+          "x": 0.105,
+          "y": 0.84,
+          "z": 0.1
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 1.735225656166343,
+        "position": {
+          "x": 0.004947176165878774,
+          "y": 0.7139249992121011,
+          "z": -1.7168076349506953
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.1% of the frame area (aspect 4.0:1) yet non-background pixels are only 4.02% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "view": "front",
+      "frameCoverage": 0.037505149841308594,
+      "frameSpanFraction": 0.799974428289744,
+      "projectedAreaFraction": 0.16381337492397827,
+      "projectedAspectRatio": 3.906924221935223,
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.3941970502764063,
+        "position": {
+          "x": 0,
+          "y": 0.8529999983310699,
+          "z": 3.3922820661659627
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.4% of the frame area (aspect 3.9:1) yet non-background pixels are only 3.75% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "view": "side",
+      "frameCoverage": 0.048221588134765625,
+      "frameSpanFraction": 0.8006735895556277,
+      "projectedAreaFraction": 0.2652150241210672,
+      "projectedAspectRatio": 2.4114521933207405,
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.5513758380728997,
+        "position": {
+          "x": 2.548827704539549,
+          "y": 0.8529999983310699,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8007 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 26.5% of the frame area (aspect 2.4:1) yet non-background pixels are only 4.82% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.03435707092285156,
+      "frameSpanFraction": 0.7999962765423164,
+      "projectedAreaFraction": 0.19077253741971073,
+      "projectedAspectRatio": 3.3547808611993406,
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.3678217495305,
+        "position": {
+          "x": 2.380044887910398,
+          "y": 0.8529999983310699,
+          "z": 2.380044887910398
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 19.1% of the frame area (aspect 3.4:1) yet non-background pixels are only 3.44% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.03348827362060547,
+      "frameSpanFraction": 0.7999962765423164,
+      "projectedAreaFraction": 0.19077253741971073,
+      "projectedAspectRatio": 3.3547808611993406,
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.3678217495305,
+        "position": {
+          "x": -2.380044887910398,
+          "y": 0.8529999983310699,
+          "z": 2.380044887910398
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 19.1% of the frame area (aspect 3.4:1) yet non-background pixels are only 3.35% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "view": "back",
+      "frameCoverage": 0.037479400634765625,
+      "frameSpanFraction": 0.799974428289744,
+      "projectedAreaFraction": 0.16381337492397827,
+      "projectedAspectRatio": 3.906924221935223,
+      "bounds": {
+        "width": 1.48,
+        "height": 0.38,
+        "depth": 0.91,
+        "min": {
+          "x": -0.74,
+          "y": 0.53,
+          "z": -0.455
+        },
+        "max": {
+          "x": 0.74,
+          "y": 0.91,
+          "z": 0.455
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 3.3941970502764063,
+        "position": {
+          "x": 0,
+          "y": 0.8529999983310699,
+          "z": -3.3922820661659627
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.4% of the frame area (aspect 3.9:1) yet non-background pixels are only 3.75% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "view": "front",
+      "frameCoverage": 0.036301612854003906,
+      "frameSpanFraction": 0.7999958959714553,
+      "projectedAreaFraction": 0.17547029568525346,
+      "projectedAspectRatio": 3.647341146321289,
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.0188324821274564,
+        "position": {
+          "x": 0.012969932055391653,
+          "y": 0.8296000006331887,
+          "z": 1.9974866084235292
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.5% of the frame area (aspect 3.6:1) yet non-background pixels are only 3.63% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "view": "side",
+      "frameCoverage": 0.03231239318847656,
+      "frameSpanFraction": 0.7999892624565309,
+      "projectedAreaFraction": 0.16576336236397823,
+      "projectedAspectRatio": 3.8606657479902795,
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.0259049515267655,
+        "position": {
+          "x": 2.0176043208053933,
+          "y": 0.8296000006331887,
+          "z": 0
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 16.6% of the frame area (aspect 3.9:1) yet non-background pixels are only 3.23% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "view": "three_quarter_left",
+      "frameCoverage": 0.03344535827636719,
+      "frameSpanFraction": 0.8000038132921911,
+      "projectedAreaFraction": 0.22031926692614195,
+      "projectedAspectRatio": 2.904735640194348,
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.073401872010643,
+        "position": {
+          "x": 1.4643939711968934,
+          "y": 0.8296000006331887,
+          "z": 1.4514240391415019
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 22.0% of the frame area (aspect 2.9:1) yet non-background pixels are only 3.34% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "view": "three_quarter_right",
+      "frameCoverage": 0.03523826599121094,
+      "frameSpanFraction": 0.8000038132921918,
+      "projectedAreaFraction": 0.22030977628822979,
+      "projectedAspectRatio": 2.904735545174285,
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.073401872010643,
+        "position": {
+          "x": -1.4384541070861103,
+          "y": 0.8296000006331887,
+          "z": 1.451424039141502
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 22.0% of the frame area (aspect 2.9:1) yet non-background pixels are only 3.52% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "view": "back",
+      "frameCoverage": 0.036322593688964844,
+      "frameSpanFraction": 0.7999958959714553,
+      "projectedAreaFraction": 0.17547029568525346,
+      "projectedAspectRatio": 3.647341146321289,
+      "bounds": {
+        "width": 0.254,
+        "height": 0.976,
+        "depth": 0.24,
+        "min": {
+          "x": -0.114,
+          "y": 0,
+          "z": -0.12
+        },
+        "max": {
+          "x": 0.14,
+          "y": 0.976,
+          "z": 0.12
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 2.0188324821274564,
+        "position": {
+          "x": 0.012969932055391653,
+          "y": 0.8296000006331887,
+          "z": -1.9974866084235292
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 17.5% of the frame area (aspect 3.6:1) yet non-background pixels are only 3.63% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    },
+    {
+      "equipmentId": "tablet_visit_equipment",
+      "view": "side",
+      "frameCoverage": 0.013082504272460938,
+      "frameSpanFraction": 0.799976859799319,
+      "projectedAreaFraction": 0.06124744080109412,
+      "projectedAspectRatio": 10.449479440822374,
+      "bounds": {
+        "width": 0.22,
+        "height": 0.34,
+        "depth": 0.031,
+        "min": {
+          "x": -0.11,
+          "y": 0.86,
+          "z": -0.015
+        },
+        "max": {
+          "x": 0.11,
+          "y": 1.2,
+          "z": 0.016
+        }
+      },
+      "camera": {
+        "fov": 35,
+        "distance": 0.7713802600125159,
+        "position": {
+          "x": 0.7646067650757183,
+          "y": 1.1490000051334501,
+          "z": 0.0005000002626329662
+        }
+      },
+      "verdict": "a_framing_correct",
+      "reason": "frameSpanFraction 0.8000 ≈ 0.8 → the #270 framing computed the subject's projected bounds correctly and positioned the camera to fill 80% of the frame's larger extent (no minimum-distance floor). The subject's projected AABB covers 6.1% of the frame area (aspect 10.4:1) yet non-background pixels are only 1.31% — the subject is small/thin in world terms (its rendered fill is a fraction of its AABB rectangle) and/or its surface is dark near the clear color #18211d. Low coverage is a property of the subject, not the camera."
+    }
+  ],
+  "conclusion": "No b_framing_clamped rows: every sub-5% view's frameSpanFraction ≈ 0.8, so the #270 framing computes projected bounds correctly for ALL of them and positions the camera with no minimum-distance floor (camera distance scales with subject size). Low frameCoverage is a property of the SUBJECTS, not the camera: their world AABBs are small and thin (poles, panel edges, small handhelds), their projected 2D fill is a fraction of the frame, and their dark surfaces sit near the clear color #18211d. The bake question — does low coverage actually hurt TRELLIS reconstruction — is a separate, later slice (one hour per bake) and this closes having established the framing behaviour first.",
+  "notEvidenceFor": [
+    "the TRELLIS bake comparison (explicitly a later slice — one hour per bake)",
+    "any mesh-quality claim",
+    "clinical accuracy or device equivalence"
+  ]
+}

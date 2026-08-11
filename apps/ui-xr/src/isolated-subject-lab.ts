@@ -42,6 +42,7 @@ import {
 } from "./station-stretcher.js";
 import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
 import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
+import { recordPackFraming, type PackFramingRecord } from "./isolated-pack-framing.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
@@ -102,6 +103,8 @@ export type IsolatedSubjectEvidence = {
   extraActorIds: string[];
   meshCount: number;
   boundsMeters: { width: number; height: number; depth: number };
+  /** #280: pack camera + world AABB corners — additive framing audit record. */
+  packFraming: PackFramingRecord;
   frameCoverageHint: number;
   /** Non-clear pixel fraction of the capture canvas (subject + neutral ground). */
   frameCoverage: number;
@@ -487,6 +490,9 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
   const frameSpanFraction = frameCamera(camera, bounds, spec.view);
 
+  // #280: record the framing the code chose (recording only — frameCamera math untouched).
+  const packFraming = recordPackFraming(camera, bounds, spec.view);
+
   let framesAdvanced = 0;
   await new Promise<void>((resolve) => {
     const step = () => {
@@ -553,6 +559,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
       height: Math.round(size.y * 1000) / 1000,
       depth: Math.round(size.z * 1000) / 1000,
     },
+    packFraming,
     frameCoverageHint,
     frameCoverage,
     frameSpanFraction,
