@@ -1,0 +1,1885 @@
+{
+  "schemaVersion": "openclinxr.issue-289.pre-fix.v1",
+  "measuredAt": "2026-08-11T01:23:45.960Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "filePrimitives": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "meshName": "hm08_basemesh_adult_lean_female",
+      "primIndex": 0,
+      "materialName": "skin_adult_lean_female",
+      "alphaMode": "OPAQUE",
+      "baseColorAlpha": 1,
+      "triangles": 16868,
+      "startFace": 0,
+      "endFace": 16868,
+      "pokingFacesBySlot": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFacesBySlot": {
+        "upper": 2,
+        "lower": 1
+      }
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "meshName": "hm08_basemesh_adult_lean_female",
+      "primIndex": 1,
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_lean_female",
+      "alphaMode": "MASK",
+      "baseColorAlpha": 0,
+      "triangles": 7326,
+      "startFace": 16868,
+      "endFace": 24194,
+      "pokingFacesBySlot": {
+        "upper": 6557,
+        "lower": 0
+      },
+      "hiddenFacesBySlot": {
+        "upper": 7094,
+        "lower": 0
+      }
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "meshName": "hm08_basemesh_adult_lean_female",
+      "primIndex": 2,
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_lean_female",
+      "alphaMode": "MASK",
+      "baseColorAlpha": 0,
+      "triangles": 402,
+      "startFace": 24194,
+      "endFace": 24596,
+      "pokingFacesBySlot": {
+        "upper": 0,
+        "lower": 225
+      },
+      "hiddenFacesBySlot": {
+        "upper": 10,
+        "lower": 343
+      }
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "meshName": "hm08_basemesh_adult_lean_female",
+      "primIndex": 3,
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaMode": "OPAQUE",
+      "baseColorAlpha": 1,
+      "triangles": 2160,
+      "startFace": 24596,
+      "endFace": 26756,
+      "pokingFacesBySlot": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFacesBySlot": {
+        "upper": 0,
+        "lower": 0
+      }
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "meshName": "hm08_basemesh_adult_heavy_male",
+      "primIndex": 0,
+      "materialName": "skin_adult_heavy_male",
+      "alphaMode": "OPAQUE",
+      "baseColorAlpha": 1,
+      "triangles": 19614,
+      "startFace": 0,
+      "endFace": 19614,
+      "pokingFacesBySlot": {
+        "upper": 4,
+        "lower": 16
+      },
+      "hiddenFacesBySlot": {
+        "upper": 4,
+        "lower": 16
+      }
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "meshName": "hm08_basemesh_adult_heavy_male",
+      "primIndex": 1,
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_heavy_male",
+      "alphaMode": "MASK",
+      "baseColorAlpha": 0,
+      "triangles": 2262,
+      "startFace": 19614,
+      "endFace": 21876,
+      "pokingFacesBySlot": {
+        "upper": 1449,
+        "lower": 0
+      },
+      "hiddenFacesBySlot": {
+        "upper": 1922,
+        "lower": 0
+      }
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "meshName": "hm08_basemesh_adult_heavy_male",
+      "primIndex": 2,
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_heavy_male",
+      "alphaMode": "MASK",
+      "baseColorAlpha": 0,
+      "triangles": 3076,
+      "startFace": 21876,
+      "endFace": 24952,
+      "pokingFacesBySlot": {
+        "upper": 16,
+        "lower": 2659
+      },
+      "hiddenFacesBySlot": {
+        "upper": 16,
+        "lower": 2942
+      }
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "meshName": "hm08_basemesh_adult_heavy_male",
+      "primIndex": 3,
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaMode": "OPAQUE",
+      "baseColorAlpha": 1,
+      "triangles": 1804,
+      "startFace": 24952,
+      "endFace": 26756,
+      "pokingFacesBySlot": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFacesBySlot": {
+        "upper": 0,
+        "lower": 0
+      }
+    }
+  ],
+  "liveScene": [
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 544
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 720
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.nurse-nurse-kevin-lee",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 2
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_1",
+      "materialName": "skin_adult_heavy_male",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 19614
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_heavy_male",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 2262
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_heavy_male",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 3076
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 1804
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr_footwear_hospital_slipper_L",
+      "materialName": "openclinxr_footwear_hospital_slipper_L_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 162
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr_footwear_hospital_slipper_R",
+      "materialName": "openclinxr_footwear_hospital_slipper_R_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 162
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "makeclothes_library_cargo_pants_adult_heavy_male001",
+      "materialName": "mat_makeclothes_library_cargo_pants_adult_heavy_male.001",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 3779
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+      "materialName": "mat_makeclothes_library_scrub_shirt_adult_heavy_male",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 9384
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.nurse_kevin_lee_character:dialogue_target",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.82,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 352
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.08,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.035,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.58,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 168
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 80
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 168
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 80
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 100
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 100
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.24,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 544
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 720
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.parent-parent-tara-johnson",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 2
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_1",
+      "materialName": "skin_adult_lean_female",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 16868
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_lean_female",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 7326
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_lean_female",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 402
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 2160
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr_footwear_casual_shoe_L",
+      "materialName": "openclinxr_footwear_casual_shoe_L_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 162
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr_footwear_casual_shoe_R",
+      "materialName": "openclinxr_footwear_casual_shoe_R_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 162
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "makeclothes_library_cargo_pants_adult_lean_female001",
+      "materialName": "mat_makeclothes_library_cargo_pants_adult_lean_female.001",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 2536
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "makeclothes_library_civilian_shirt_adult_lean_female",
+      "materialName": "mat_makeclothes_library_civilian_shirt_adult_lean_female",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 11524
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.parent_tara_johnson_character:dialogue_target",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.82,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 352
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.08,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.035,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.58,
+      "transparent": true,
+      "visible": false,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 168
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 80
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 168
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 80
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 100
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 100
+    },
+    {
+      "scenarioId": "peds_asthma_parent_anxiety_v1",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.24,
+      "transparent": true,
+      "visible": true,
+      "frustumCulled": true,
+      "triangles": 12
+    }
+  ],
+  "joined": [
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "triangles": 544,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "triangles": 720,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.nurse-nurse-kevin-lee",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": true,
+      "visible": false,
+      "triangles": 2,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_1",
+      "materialName": "skin_adult_heavy_male",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 19614,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 4,
+        "lower": 16
+      },
+      "hiddenFaces": {
+        "upper": 4,
+        "lower": 16
+      },
+      "pokesOnThisPrimitive": true
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_heavy_male",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "triangles": 2262,
+      "isHiddenMaterial": true,
+      "pokingFaces": {
+        "upper": 1449,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 1922,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": true
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_heavy_male",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "triangles": 3076,
+      "isHiddenMaterial": true,
+      "pokingFaces": {
+        "upper": 16,
+        "lower": 2659
+      },
+      "hiddenFaces": {
+        "upper": 16,
+        "lower": 2942
+      },
+      "pokesOnThisPrimitive": true
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 1804,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr_footwear_hospital_slipper_L",
+      "materialName": "openclinxr_footwear_hospital_slipper_L_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 162,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr_footwear_hospital_slipper_R",
+      "materialName": "openclinxr_footwear_hospital_slipper_R_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 162,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "makeclothes_library_cargo_pants_adult_heavy_male001",
+      "materialName": "mat_makeclothes_library_cargo_pants_adult_heavy_male.001",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 3779,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+      "materialName": "mat_makeclothes_library_scrub_shirt_adult_heavy_male",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 9384,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.nurse_kevin_lee_character:dialogue_target",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.82,
+      "transparent": true,
+      "visible": false,
+      "triangles": 352,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.08,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.035,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.58,
+      "transparent": true,
+      "visible": false,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "triangles": 168,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "triangles": 80,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "triangles": 168,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "triangles": 80,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "triangles": 100,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "triangles": 100,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.nurse_kevin_lee_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.24,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "triangles": 544,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": false,
+      "triangles": 720,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.actor-nameplate.parent-parent-tara-johnson",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": true,
+      "visible": false,
+      "triangles": 2,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_1",
+      "materialName": "skin_adult_lean_female",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 16868,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 2,
+        "lower": 1
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_lean_female",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "triangles": 7326,
+      "isHiddenMaterial": true,
+      "pokingFaces": {
+        "upper": 6557,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 7094,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": true
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_lean_female",
+      "alphaTest": 0.5,
+      "opacity": 0,
+      "transparent": false,
+      "visible": true,
+      "triangles": 402,
+      "isHiddenMaterial": true,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 225
+      },
+      "hiddenFaces": {
+        "upper": 10,
+        "lower": 343
+      },
+      "pokesOnThisPrimitive": true
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 2160,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr_footwear_casual_shoe_L",
+      "materialName": "openclinxr_footwear_casual_shoe_L_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 162,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr_footwear_casual_shoe_R",
+      "materialName": "openclinxr_footwear_casual_shoe_R_mat",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 162,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "makeclothes_library_cargo_pants_adult_lean_female001",
+      "materialName": "mat_makeclothes_library_cargo_pants_adult_lean_female.001",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 2536,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "makeclothes_library_civilian_shirt_adult_lean_female",
+      "materialName": "mat_makeclothes_library_civilian_shirt_adult_lean_female",
+      "alphaTest": 0,
+      "opacity": 1,
+      "transparent": false,
+      "visible": true,
+      "triangles": 11524,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.glb-affordance.parent_tara_johnson_character:dialogue_target",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.82,
+      "transparent": true,
+      "visible": false,
+      "triangles": 352,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.ragdoll-collision-proxy.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.08,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.physician-interaction-target.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.035,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.phoneme-mouth-cue.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.58,
+      "transparent": true,
+      "visible": false,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "triangles": 168,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "triangles": 80,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.32,
+      "transparent": true,
+      "visible": true,
+      "triangles": 168,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.4,
+      "transparent": true,
+      "visible": true,
+      "triangles": 80,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.left-expressive-brow.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.right-expressive-brow.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.28,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "triangles": 100,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.emotion-cheek.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.18,
+      "transparent": true,
+      "visible": true,
+      "triangles": 100,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "openclinxr.peds_asthma_parent_anxiety_v1.runtime-jaw-viseme-target.parent_tara_johnson_character",
+      "materialName": "",
+      "alphaTest": 0,
+      "opacity": 0.24,
+      "transparent": true,
+      "visible": true,
+      "triangles": 12,
+      "isHiddenMaterial": false,
+      "pokingFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "hiddenFaces": {
+        "upper": 0,
+        "lower": 0
+      },
+      "pokesOnThisPrimitive": false
+    }
+  ],
+  "renderDiscard": [
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_1",
+      "materialName": "skin_adult_heavy_male",
+      "nonClearPixels": 15621,
+      "controlSkinPixels": 0,
+      "verdict": "renders",
+      "controlOpacity1Pixels": 0,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_heavy_male",
+      "nonClearPixels": 0,
+      "controlSkinPixels": 1537,
+      "verdict": "discarded",
+      "controlOpacity1Pixels": 1537,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_heavy_male",
+      "nonClearPixels": 0,
+      "controlSkinPixels": 647,
+      "verdict": "discarded",
+      "controlOpacity1Pixels": 647,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "nonClearPixels": 1019,
+      "controlSkinPixels": 0,
+      "verdict": "renders",
+      "controlOpacity1Pixels": 0,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_1",
+      "materialName": "skin_adult_lean_female",
+      "nonClearPixels": 14356,
+      "controlSkinPixels": 0,
+      "verdict": "renders",
+      "controlOpacity1Pixels": 0,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_2",
+      "materialName": "openclinxr_hidden_upper_hm08_basemesh_adult_lean_female",
+      "nonClearPixels": 0,
+      "controlSkinPixels": 1052,
+      "verdict": "discarded",
+      "controlOpacity1Pixels": 1052,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_3",
+      "materialName": "openclinxr_hidden_lower_hm08_basemesh_adult_lean_female",
+      "nonClearPixels": 0,
+      "controlSkinPixels": 486,
+      "verdict": "discarded",
+      "controlOpacity1Pixels": 486,
+      "sceneDeltaPixels": 0
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_4",
+      "materialName": "openclinxr_mesh_native_scalp_hair_surface",
+      "nonClearPixels": 1062,
+      "controlSkinPixels": 0,
+      "verdict": "renders",
+      "controlOpacity1Pixels": 0,
+      "sceneDeltaPixels": 0
+    }
+  ],
+  "visibleSkinInClaimRegion": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "slot": "upper",
+      "regionFaceCount": 11628,
+      "hiddenFaceCount": 7106,
+      "pokingFaceCount": 6557,
+      "noGarmentNearbyFaceCount": 0,
+      "garmentInFrontFaceCount": 4522,
+      "visibleFaceCount": 4522
+    },
+    {
+      "bodyClassId": "adult_lean_female",
+      "slot": "lower",
+      "regionFaceCount": 2662,
+      "hiddenFaceCount": 344,
+      "pokingFaceCount": 225,
+      "noGarmentNearbyFaceCount": 0,
+      "garmentInFrontFaceCount": 2318,
+      "visibleFaceCount": 2318
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "slot": "upper",
+      "regionFaceCount": 3867,
+      "hiddenFaceCount": 1942,
+      "pokingFaceCount": 1469,
+      "noGarmentNearbyFaceCount": 0,
+      "garmentInFrontFaceCount": 1925,
+      "visibleFaceCount": 1925
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "slot": "lower",
+      "regionFaceCount": 5398,
+      "hiddenFaceCount": 2958,
+      "pokingFaceCount": 2675,
+      "noGarmentNearbyFaceCount": 0,
+      "garmentInFrontFaceCount": 2440,
+      "visibleFaceCount": 2440
+    }
+  ],
+  "summary": {
+    "pokesOnHiddenPrimitive": true,
+    "discardHonouredByRenderer": true,
+    "wholeSceneDeltaPixels": 0,
+    "headline": "poking faces are on the hidden primitive AND the renderer discards them — visible skin must be a non-poking class (or the capture predates the re-bake)"
+  },
+  "claimScope": "whether shipped body-part hiding (alpha-0 MASK) is honoured by the ui-xr renderer, per body primitive",
+  "notEvidenceFor": [
+    "garment_aesthetics_or_quality",
+    "clinical_wardrobe",
+    "quest_readiness",
+    "learner_readiness",
+    "cloth_physics_or_deformation"
+  ]
+}
