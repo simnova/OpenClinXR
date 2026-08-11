@@ -132,6 +132,21 @@ fast-path only: what landed, and what it changed about the factory's capability.
   body's front-most vertex — the hanging **arm** — so it failed a correctly-placed scalp on the heavy
   male. Replaced by a direct face-band vertex count. **Disclosed weakness:** on a body whose torso
   protrudes past its head, a whole-head cap is caught by neither the old bound nor the new one.
+- 2026-08-10: **#288 THROUGHPUT MEASURED — 15 cases, 1 complete, and the frontier is named** (staging, D9).
+  A landed, re-runnable chain runner (`tools/openclinxr/dark-factory/multi-case-runner.ts`) executed all
+  eight stations over every shipped case: **70 deterministic station-runs, 39 not_run, 10 absent, 1 error**.
+  Per station across 15 cases — clothing **15**, room **15**, staging **15**, render **15**, equipment 5,
+  case_to_actor_params **2**, body **2**, rigging **1**.
+  **`frontierCounts: { case_to_actor_params: 13, rigging: 1 }`.** The geometry stations are not the limit;
+  the case→actor preset table covering 2 of 15 cases is. It asserted no pass rate and stated the bound on
+  its own numbers (preset-gated vs fixture-gated stations) unprompted.
+  **Root cause measured (#291, in flight):** `CASE_ACTOR_PRESETS` carries age, build, height_cm, skin_tone,
+  brow_tension and the rest; a shipped scenario fixture carries `actorId, role, model, animationClips,
+  gazeProfile` and **no phenotype at all**. The preset table *is* the case definition for phenotype, and it
+  lives in a Python dict inside the asset pipeline. Adding 13 more entries there is the D9 anti-pattern;
+  #291 gives phenotype a home in the case definition instead, migrating **one** already-covered case as
+  proof and explicitly **not** inventing phenotype for the other thirteen (§8d — clinical actor identity is
+  case authoring, not an implementer decision).
 - 2026-08-10: **#286 THE DARK-FACTORY TEST RAN, AND PASSED FOR ONE CASE** (staging, D9). All eight
   stations — case params, body, clothing, rigging, room, equipment, placement, render — classified
   `deterministic`, each with an on-disk artifact; **15 of 15 artifacts present**, so
