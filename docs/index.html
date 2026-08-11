@@ -162,6 +162,10 @@
               <li><strong>Equipment generates itself now:</strong> reference image → Apple Silicon Metal TRELLIS bake → per-subject process isolation → <code>pnpm factory:trellis:bake</code> → a triangle ladder that lands the clock at 34.5k. Three assets, zero hand-modelling, all three visible below.</li>
               <li><strong>A generated asset reached the product:</strong> the TRELLIS wall clock now resolves and renders in a live station at 34,885 triangles — the first procedurally generated equipment to leave the harness. Two layers had to agree: the equipment resolver, and a suppression allowlist that had silently reverted it to a placeholder.</li>
               <li><strong>Multi-view reconstruction, measured both ways:</strong> conditioning TRELLIS on four reference views instead of one closed the torn far side of the ECG cart — far-side fill 0.35 → 0.44, surface area +47%, with 3.7% <em>fewer</em> triangles — and cost the monitor screen, which flattened without camera poses. The technique is adopted; that artifact is not.</li>
+              <li><strong>The factory can rebuild what it ships:</strong> both library garment sources were on no disk in the repository, so every re-bake silently degraded the figure — and the guard that was meant to stop that logged a warning and baked anyway. The guard now throws; the sources are tracked and licence-recorded (CC0 trousers, CC-BY shirt). <a href="#grader">Shown above, with the regression that exposed it.</a></li>
+              <li><strong>The MPFB actor can be posed at all:</strong> the one MPFB2-rigged humanoid a learner loads resolved <strong>1 of 14</strong> runtime pose bones — its rig names them <code>upperarm01.L</code> where the code asked for <code>upper_armL</code>, and a missing bone lookup is a silent skip, not an error. Now 14 of 14 on all three rails. <em>Invisible in any screenshot; it is the difference between an actor that can be posed and one that cannot.</em></li>
+              <li><strong>Facial morphs are reachable:</strong> the only genuinely graded facial morphs in the repository — 4,549 vertices moving in 653 distinct directions on <code>mouth-open</code> — sat unreachable because the runtime keyed on different names. Meanwhile the rail it <em>could</em> address carries constant-offset stubs: identical magnitude on every vertex, one direction, which slides a block of the face rather than opening a mouth. <em>Also invisible until lip-sync drives it.</em></li>
+              <li><strong>Gaze moves the eyes:</strong> a “gaze” drive was writing <code>root.rotation.y</code> — the whole actor pivoting on the spot, feet included — while the eye bones every rail ships and skins were addressed by nothing. The evidence field that made this look handled was a name regex asserting an eye node <em>exists</em>.</li>
             </ul>
           </div>
         </div>
@@ -210,6 +214,99 @@
           Deeper factory reports live under
           <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr</a>
           and Model Vetting cagematch outputs in the repo.
+        </p>
+      </section>
+
+      <section id="grader" class="band band--evidence" aria-labelledby="grader-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="grader-title">The grader caught a figure with no trousers.</h2>
+        </div>
+        <p class="status-copy">
+          On 2026-08-11 a rig upgrade landed on the library bodies — MPFB's 64-bone
+          <code>mixamo_unity</code> skeleton and its shipped CC0 weight map, replacing a hand-rolled
+          bounding-box armature whose hands carried <strong>0.00%</strong> of the skin weight with
+          20,216 vertices collapsed onto a single upper-arm bone. Three machine contracts passed.
+          Then the capture was graded by eye, and the figure had no trousers.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-dressed-2026-08-11.png"
+              alt="Isolated grade capture of the adult lean female library body: an upright clothed figure in a blue shirt and teal trousers, shoes on the ground plane"
+              style="width: 100%; display: block;"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Before · <code>makeclothes_library_cargo_pants…</code> at 2,530 triangles.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-bottomless-regression-2026-08-11.png"
+              alt="The same body after the rig upgrade: the blue shirt remains but the legs are bare skin from hem to shoes, the trousers mesh absent"
+              style="width: 100%; display: block;"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              After the upgrade, since reverted · same mesh list minus the trousers. The lower garment is gone, not mis-shaded.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The revert took one commit. What it exposed took the rest of the day: the trousers were
+          never rebuildable. <code>Scrub_Shirt.mhclo</code> and <code>cortu_cargo_pants.mhclo</code>
+          were on <strong>no disk in the repository</strong> — the staging directory is empty and
+          gitignored, and the provider cache held three upper garments and no lower-body source at
+          all. The 2,530 triangles in the tracked asset came from a bake whose input no longer
+          existed. Meanwhile the pipeline's own “find-or-stop” guard, asked for a lower garment and
+          finding none, logged a warning and baked the body anyway.
+        </p>
+        <p class="status-copy">
+          Both halves are fixed and in the repository: the guard now <strong>throws</strong> instead
+          of warning, and the sources are acquired, tracked, and recorded in the licence ledger at
+          acquisition time — <code>makehuman-pants01</code> (<strong>CC0</strong>, Cortu Johnstone)
+          and <code>Scrub_Shirt</code> (<strong>CC-BY</strong>, WojackOWL). A re-bake now finds its
+          inputs with no network, or refuses loudly.
+        </p>
+
+        <p class="status-copy">
+          <strong>What this picture is not.</strong> It is not a claim that the figure looks good.
+          The same capture carries three defects we have measured and not fixed: a sawtooth band of
+          bare skin where the shirt hem meets the trousers; hands painted the garment colour rather
+          than clothed — the shirt mesh spans Y&nbsp;0.913–1.505&nbsp;m on a 1.760&nbsp;m body while
+          the hands sit near 0.79&nbsp;m, below its lowest vertex; and a shirt with no volume of its
+          own, breast and navel anatomy reading straight through it.
+        </p>
+        <p class="status-copy">
+          <strong>A correction we made to ourselves.</strong> Grading the lit pass alone, we recorded
+          the hands as “mittens with no separated fingers” and were about to file missing hand
+          geometry. The structure pass shows fingers and thumbs present and well formed. Lit resolves
+          silhouette, structure resolves topology, and the lit pass flatters. The wrong finding was
+          caught because both passes are captured, not because anyone was careful.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-structure-2026-08-11.png"
+              alt="Structure pass of the same body: a normal-shaded wireframe showing complete continuous topology including separated fingers and thumbs"
+              style="width: 100%; display: block;"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Structure pass · same asset, same run. Complete continuous topology, fingers included — the detail the lit pass hid.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="evidence-note" style="margin-top: 16px;">
+          Captures produced by <code>model-vetting-glb-grade-capture</code>, whose NodeIO-versus-scene-graph
+          self-check agreed to 1.2&nbsp;×&nbsp;10⁻⁵ relative error. That agreement proves the renderer drew
+          the file and nothing about whether the file is right — which is why a human graded the pixels,
+          and why the missing trousers were noticed at all.
         </p>
       </section>
 
