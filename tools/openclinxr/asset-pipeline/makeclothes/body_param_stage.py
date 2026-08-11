@@ -50,16 +50,8 @@ NOT_EVIDENCE_FOR = [
 ]
 
 # #216 — driven bone for deformation proof + grade pose (local X rotation).
-# issue-307: the library rail now rides the MPFB-shipped mixamo_unity rig (64 bones,
-# CC0 weight map), so the driven bone is the mixamorig LeftArm (swing axis is local X
-# on that rig — measured 2026-08-11 — unlike the old AABB rig's local Z).
-DRIVEN_BONE = "mixamorig:LeftArm"
+DRIVEN_BONE = "upper_arm.L"
 DRIVEN_ROTATION_DEG = 55.0
-
-# issue-307 — the MPFB-built-in rig name whose rig JSON + matching CC0 weight map the
-# factory consumes instead of hand-rolling an AABB skeleton. MADR 0052 decided
-# mixamo_unity (64 bones, strict superset of mixamo's 52 — adds jaw/eyes/orbicularis/root).
-MPFB_RIG_NAME = "mixamo_unity"
 
 # #304 — MakeHuman base units are DECIMETRES; the only scale that preserves the
 # macro-produced stature spread is the dm→m conversion (0.1). The Anny reference is
@@ -265,11 +257,7 @@ def make_material(name: str, color: tuple[float, float, float, float]) -> bpy.ty
     return mat
 
 
-def align_body_to_reference(
-    body: bpy.types.Object,
-    reference: bpy.types.Object,
-    armature: bpy.types.Object | None = None,
-) -> dict:
+def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object) -> dict:
     """Placement-only align to the Anny reference + girth recording — stature comes from macros.
 
     #304: stature is NOT matched to the reference. The two library Anny reference OBJs are
@@ -280,11 +268,6 @@ def align_body_to_reference(
     produced. The reference still supplies foot/centre placement and the recorded girth
     proxy. Girth is NOT forced (girthScaleHorizontal: 1.0) — collapsing phenotype girth
     would make #151's two-class spread vacuous.
-
-    issue-307: the mixamo_unity armature is created at the mesh's MH-scale origin and must
-    receive the SAME scale + translate so bones stay inside the skinned body. Both the
-    mesh and the armature start at the same origin (0,0,0), so mirroring the deltas keeps
-    them aligned. Callers bake both with apply_object_transforms afterwards.
     """
     ref_b = world_bounds(reference)
     body_b = world_bounds(body)
@@ -292,8 +275,6 @@ def align_body_to_reference(
     body_stature = max(body_b["size"])
     scale = MH_UNITS_TO_METRES
     body.scale = (scale, scale, scale)
-    if armature is not None:
-        armature.scale = (scale, scale, scale)
     bpy.context.view_layer.update()
     body_b2 = world_bounds(body)
     ref_min, ref_max = ref_b["min"], ref_b["max"]
@@ -305,10 +286,6 @@ def align_body_to_reference(
     body.location.x += ref_cx - body_cx
     body.location.y += ref_cy - body_cy
     body.location.z += ref_min[2] - body_min[2]
-    if armature is not None:
-        armature.location.x += ref_cx - body_cx
-        armature.location.y += ref_cy - body_cy
-        armature.location.z += ref_min[2] - body_min[2]
     bpy.context.view_layer.update()
 
     # Stature-only match (MADR 0044 path). Do NOT force horizontal girth to the Anny
@@ -499,18 +476,17 @@ def transfer_weights_body_to_garment(
 
         # Envelope pass: verts near arm bone segments get bone-proximity weights so
         # sleeves follow the limb (k-NN from torso surface under-weights arms).
-        # issue-307: mixamorig arm chain (the AABB canonical names no longer exist).
         arm_bone_names = [
             n
             for n in (
-                "mixamorig:LeftShoulder",
-                "mixamorig:LeftArm",
-                "mixamorig:LeftForeArm",
-                "mixamorig:LeftHand",
-                "mixamorig:RightShoulder",
-                "mixamorig:RightArm",
-                "mixamorig:RightForeArm",
-                "mixamorig:RightHand",
+                "clavicle.L",
+                "upper_arm.L",
+                "forearm.L",
+                "hand.L",
+                "clavicle.R",
+                "upper_arm.R",
+                "forearm.R",
+                "hand.R",
             )
             if n in bone_names
         ]
@@ -705,143 +681,18 @@ def apply_body_hide_material_region(
     }
 
 
-def create_mpfb_mixamo_rig(basemesh: bpy.types.Object) -> dict:
-    """issue-307 — wire the MPFB-shipped CC0 rig + weight map (D1: the tool is on disk).
-
-    `HumanService.add_builtin_rig` loads `rig.mixamo_unity.json` (64 bones) and the
-    matching `weights.mixamo_unity.json` (CC0, full finger chains) and parents the mesh
-    to the armature. This replaces the hand-rolled AABB 23-bone armature + Blender
-    ARMATURE_AUTO heuristic (#216) whose bounding-box skeleton has no finger chain —
-    the library bodies' hands shipped at 0.00% weight mass (#307, measured).
-
-    MUST run BEFORE `strip_helper_geometry`: the shipped weight map indexes the FULL
-    MakeHuman topology (max vertex index 19157 = 19158 base.obj verts), so helper
-    deletion would shift the indices and misapply every weight. The rig's CUBE/MEAN
-    position strategies likewise read joint-* vertex groups from the full mesh.
-
-    The mesh is unparented again right after (world preserved), so the rest of the
-    stage (Anny align, coverage gate, body hide, scalp region) keeps its unparented-
-    mesh invariant. The armature object stays in the scene, is scaled/planted WITH the
-    mesh at the align step, and is bound to body + garments at the bind step.
-
-    Returns a status dict; raises if the rig cannot be created (a naked figure is
-    worse than a stiff one — no silent fallback to the old AABB rig).
-    """
-    from bl_ext.user_default.mpfb.services.humanservice import HumanService
-    from bl_ext.user_default.mpfb.services.objectservice import ObjectService
-
-    status: dict = {
-        "ok": False,
-        "rigName": MPFB_RIG_NAME,
-        "method": "HumanService.add_builtin_rig",
-        "boneCount": 0,
-        "boneNames": [],
-        "leftHandWeightMass": None,
-        "weightedVertexCount": 0,
-        "license": "CC0",
-        "error": None,
-    }
-    try:
-        # CUBE/MEAN rig-position strategies read joint-* vertex groups from the mesh;
-        # obj_import alone does not assign them (same guard strip_helper_geometry uses).
-        # Guard on JOINT groups specifically, not on "any groups": the ClothesService
-        # fit (or bake) can leave non-joint groups behind, which made the old
-        # `if not basemesh.vertex_groups` guard skip the assignment and silently fall
-        # back to the rig JSON's stored default_position (MakeHuman Y-up frame) — the
-        # resulting rig was flattened into the hip plane (#307, measured at bind).
-        has_joint_groups = any("joint" in g.name for g in basemesh.vertex_groups)
-        if not has_joint_groups:
-            ObjectService.assign_vertex_groups(
-                basemesh, ObjectService.get_base_mesh_vertex_group_definition(), None
-            )
-        status["jointGroupCountBeforeAssign"] = sum(
-            1 for g in basemesh.vertex_groups if "joint" in g.name
-        )
-        arm = HumanService.add_builtin_rig(basemesh, MPFB_RIG_NAME, import_weights=True)
-        if arm is None:
-            raise RuntimeError(f"add_builtin_rig returned None for rig {MPFB_RIG_NAME}")
-        # add_builtin_rig parents the mesh to the armature and moves the mesh to local
-        # (0,0,0) — the mesh KEEPS its obj_import object rotation (+90° about X: local
-        # MakeHuman Y-up frame -> world Z-up standing). Unparent preserving world so the
-        # pipeline's unparented-mesh invariant holds.
-        mw = basemesh.matrix_world.copy()
-        basemesh.parent = None
-        basemesh.matrix_world = mw
-
-        # issue-307 frame fix: MPFB placed the bones from the mesh's LOCAL coords (the
-        # MakeHuman Y-up frame), but the mesh's WORLD is Z-up (obj_import object
-        # rotation). Left at identity, the armature's bones come out rotated ~90° about
-        # X relative to the skinned body — measured at bind: the head bone at the chest
-        # (y=0.609, z=0.834 on a 1.59 m body) and a zero-vertex deformation band. Give
-        # the armature the SAME object rotation the mesh carries and bake it into the
-        # bones, so the rig sits inside the body. The mesh itself stays UNBAKED (local
-        # Y-up) here — the garment fit + macro bake below read the same local frame the
-        # .mhclo vertex maps expect.
-        arm.matrix_world = mw.copy()
-        bpy.context.view_layer.update()
-        apply_object_transforms(arm)
-
-        # Drop the armature modifier add_builtin_rig added. The fit + macro bake run
-        # AFTER this point with the macros as LIVE shape keys, and an active armature
-        # modifier skins the macro-deformed verts back toward the RAW bind pose — the
-        # garment fit read that distorted surface and collapsed (measured: scrub band
-        # at 0.67-0.90 m instead of the torso 0.9-1.48 m). The vertex GROUPS (the CC0
-        # weights) stay; bind_meshes_to_canonical_armature re-adds the modifier later.
-        for mod in list(basemesh.modifiers):
-            if mod.type == "ARMATURE":
-                basemesh.modifiers.remove(mod)
-        bpy.context.view_layer.update()
-
-        bone_names = [b.name for b in arm.data.bones]
-        vg_names = {g.index: g.name for g in basemesh.vertex_groups}
-        mass: dict[str, float] = {}
-        weighted = 0
-        for v in basemesh.data.vertices:
-            if v.groups:
-                weighted += 1
-            for ge in v.groups:
-                name = vg_names.get(ge.group)
-                if name:
-                    mass[name] = mass.get(name, 0.0) + ge.weight
-        total = sum(mass.values()) or 1.0
-        status.update(
-            {
-                "ok": True,
-                "boneCount": len(bone_names),
-                "boneNames": bone_names,
-                "armatureObjectName": arm.name,
-                "leftHandWeightMass": round(mass.get("mixamorig:LeftHand", 0.0) / total, 6),
-                "leftForeArmWeightMass": round(mass.get("mixamorig:LeftForeArm", 0.0) / total, 6),
-                "leftArmWeightMass": round(mass.get("mixamorig:LeftArm", 0.0) / total, 6),
-                "weightedVertexCount": weighted,
-                "totalVertexCount": len(basemesh.data.vertices),
-                "armatureObject": arm.name,
-            }
-        )
-        return status
-    except Exception as exc:  # noqa: BLE001
-        status["error"] = f"{type(exc).__name__}: {exc}"
-        status["traceback"] = traceback.format_exc()[-2000:]
-        raise RuntimeError(f"issue-307: MPFB mixamo_unity rig creation failed: {status['error']}")
-
-
 def bind_meshes_to_canonical_armature(
     basemesh: bpy.types.Object,
     garment: bpy.types.Object,
     *,
     weight_mode: str = "auto",
     extra_garments: list | None = None,
-    armature: bpy.types.Object | None = None,
 ) -> dict:
-    """issue-307 — bind body + garment(s) to the MPFB mixamo_unity armature.
-
-    The body's skin comes from the SHIPPED CC0 weight map, applied at rig creation
-    (before helper strip — `create_mpfb_mixamo_rig`). ARMATURE_AUTO here would
-    destroy those weights, so the body gets an armature modifier only. Each garment
-    binds via auto-weight + the body→garment weight projection
-    (`transfer_weights_body_to_garment`) so cloth follows the mixamorig limb chain.
+    """#216 — create AABB-driven 23-bone armature, ARMATURE_AUTO on body + garment(s).
 
     Body is Z-up standing after plant/align; pair with export_yup=True.
+    Falls back to envelope if heat weights fail the weighted-group threshold.
+    Each garment gets a weight transfer from the body so cloth follows limbs.
     #220: extra_garments (e.g. lower cargo pants) bind the same way as the upper shirt.
     """
     hm08 = _load_hm08_rig_stage()
@@ -858,39 +709,11 @@ def bind_meshes_to_canonical_armature(
         _unparent(g)
     _unparent(basemesh)
 
-    if armature is None:
-        raise RuntimeError(
-            "issue-307: bind_meshes_to_canonical_armature requires the mixamo armature — "
-            "create_mpfb_mixamo_rig must run first"
-        )
-    arm = armature
-
-    def _ensure_arm_modifier(mesh_obj: bpy.types.Object) -> None:
-        has_arm_mod = any(m.type == "ARMATURE" for m in mesh_obj.modifiers)
-        if not has_arm_mod:
-            mod = mesh_obj.modifiers.new(name="Armature", type="ARMATURE")
-            mod.object = arm
-            mod.use_vertex_groups = True
-        for mod in mesh_obj.modifiers:
-            if mod.type == "ARMATURE":
-                mod.object = arm
-                mod.use_vertex_groups = True
-                mod.use_bone_envelopes = False
-
-    # Body: shipped CC0 weights only — never re-auto-weight (would zero the hands again).
-    _ensure_arm_modifier(basemesh)
-    body_bind: dict = {
-        "mode": "shipped_cc0_weights",
-        "ok": True,
-        "groupCount": len(basemesh.vertex_groups),
-        "weightedGroups": sum(
-            1
-            for g in basemesh.vertex_groups
-            if any(ge.weight > 1e-6 for v in basemesh.data.vertices for ge in v.groups)
-        ),
-        "source": "mpfb_weights_mixamo_unity.json_cc0",
-        "boneNames": [b.name for b in arm.data.bones],
-    }
+    arm = hm08.create_canonical_armature(basemesh, "z")
+    body_bind = hm08.bind_auto_weight(basemesh, arm, weight_mode)
+    if not body_bind.get("ok") and weight_mode == "auto":
+        body_bind = hm08.bind_auto_weight(basemesh, arm, "envelope")
+        body_bind["fallback"] = "envelope_after_auto"
 
     garment_binds: list = []
     for g in garments:
@@ -905,18 +728,12 @@ def bind_meshes_to_canonical_armature(
 
     # Ensure armature modifiers point at our arm object
     for mesh in [basemesh, *garments]:
-        _ensure_arm_modifier(mesh)
+        for mod in mesh.modifiers:
+            if mod.type == "ARMATURE":
+                mod.object = arm
+                mod.use_vertex_groups = True
 
     bpy.context.view_layer.update()
-    # issue-307 diagnostic: record key bone world positions at bind time (the report is
-    # evidence that the mixamo rig is inside the skinned body after align).
-    def _bone_head_world(name: str) -> list[float] | None:
-        eb = arm.data.bones.get(name)
-        if eb is None:
-            return None
-        v = arm.matrix_world @ eb.head_local
-        return [round(float(v.x), 5), round(float(v.y), 5), round(float(v.z), 5)]
-
     return {
         "armatureName": arm.name,
         "boneCount": len(arm.data.bones),
@@ -928,16 +745,6 @@ def bind_meshes_to_canonical_armature(
         "weightModeRequested": weight_mode,
         "drivenBone": DRIVEN_BONE,
         "drivenRotationDegrees": DRIVEN_ROTATION_DEG,
-        "boneHeadWorldAtBind": {
-            "mixamorig:Root": _bone_head_world("mixamorig:Root"),
-            "mixamorig:Hips": _bone_head_world("mixamorig:Hips"),
-            "mixamorig:LeftShoulder": _bone_head_world("mixamorig:LeftShoulder"),
-            "mixamorig:LeftArm": _bone_head_world("mixamorig:LeftArm"),
-            "mixamorig:LeftForeArm": _bone_head_world("mixamorig:LeftForeArm"),
-            "mixamorig:LeftHand": _bone_head_world("mixamorig:LeftHand"),
-            "mixamorig:Head": _bone_head_world("mixamorig:Head"),
-            "mixamorig:LeftFoot": _bone_head_world("mixamorig:LeftFoot"),
-        },
     }
 
 
@@ -1271,6 +1078,12 @@ def load_mpfb_face_shape_keys(basemesh: bpy.types.Object, *, min_count: int = 24
     return status
 
 
+def plant_feet(obj: bpy.types.Object) -> None:
+    b = world_bounds(obj)
+    obj.location.z -= b["min"][2]
+    bpy.context.view_layer.update()
+
+
 def strip_helper_geometry(basemesh: bpy.types.Object) -> dict:
     """Remove MH helper/joint vertices so grade/export is body surface, not the long-skirt helper shell.
 
@@ -1459,21 +1272,6 @@ def build_one_body_class(
     basemesh.data.materials.append(make_material(f"skin_{body_class_id}", BODY_COLORS[class_index % 2]))
     GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=basemesh)
 
-    # issue-307 — wire the MPFB-shipped CC0 rig + weight map HERE, on the RAW mesh
-    # (before macros/bake): MPFB's rig-position strategies read joint-* marker verts
-    # from the current mesh state, and `bake_targets` MANGLES those markers (measured:
-    # joint-head moves from z≈6.97 to z≈−0.48, a 0.75 m drop) — a rig created after
-    # the bake lands flattened into the hip plane with the head at the chest. On the
-    # raw mesh the markers are at their MakeHuman-anatomical positions, so the bones
-    # come out correct and stay there while the body morphs around them.
-    rig_created = create_mpfb_mixamo_rig(basemesh)
-    armature = bpy.data.objects.get(rig_created["armatureObjectName"])
-    if armature is None:
-        raise RuntimeError(
-            f"issue-307: armature {rig_created['armatureObjectName']} missing after rig creation"
-        )
-    bpy.context.view_layer.update()
-
     applied = apply_macros(basemesh, phenotype)
     bpy.context.view_layer.update()
     girth_pre = torso_girth_proxy(basemesh)
@@ -1546,8 +1344,7 @@ def build_one_body_class(
 
     # Foot/centre align to Anny + girth recording (0044 path; NOT stature — #304:
     # stature comes from the macros, the reference is placement-only) while garments
-    # are still parented. issue-307: the mixamo armature gets the SAME scale + translate
-    # so its bones stay inside the skinned body.
+    # are still parented
     align_info: dict = {"skipped": True}
     anny_ref_used: str | None = None
     if class_anny and Path(class_anny).is_file():
@@ -1556,10 +1353,9 @@ def build_one_body_class(
         anny.data.materials.append(make_material("anny_ref", (0.82, 0.68, 0.56, 1.0)))
         for g in outfit:
             _ensure_parented(g)
-        align_info = align_body_to_reference(basemesh, anny, armature=armature)
+        align_info = align_body_to_reference(basemesh, anny)
         bpy.context.view_layer.update()
         apply_object_transforms(basemesh)
-        apply_object_transforms(armature)
         for g in outfit:
             _unparent_apply(g)
         bpy.data.objects.remove(anny, do_unlink=True)
@@ -1568,18 +1364,14 @@ def build_one_body_class(
         align_info["annyReferenceAsset"] = anny_ref_used
     else:
         basemesh.scale = (MH_UNITS_TO_METRES,) * 3
-        armature.scale = (MH_UNITS_TO_METRES,) * 3
         bpy.context.view_layer.update()
         for g in outfit:
             _ensure_parented(g)
         apply_object_transforms(basemesh)
         for g in outfit:
             _unparent_apply(g)
-        feet_z = world_bounds(basemesh)["min"][2]
-        basemesh.location.z -= feet_z
-        armature.location.z -= feet_z
+        plant_feet(basemesh)
         apply_object_transforms(basemesh)
-        apply_object_transforms(armature)
         align_info = {"uniformScale": 0.1, "path": "mpfb_default_0_1_without_anny"}
 
     girth_post = torso_girth_proxy(basemesh)
@@ -1830,20 +1622,14 @@ def build_one_body_class(
     # bind so skinning never touches the material indices.
     scalp_hair_region = apply_scalp_hair_material_region(basemesh)
 
-    # #216/#220/#307 — bind body + upper (+ lower) to the mixamo_unity armature
-    # (the body's skin is the shipped CC0 weight map from create_mpfb_mixamo_rig).
+    # #216/#220 — bind body + upper (+ lower) to canonical armature
     extra = [lower_garment] if lower_garment is not None else None
     rig_info = bind_meshes_to_canonical_armature(
-        basemesh,
-        garment,
-        weight_mode="auto",
-        extra_garments=extra,
-        armature=armature,
+        basemesh, garment, weight_mode="auto", extra_garments=extra
     )
     arm = bpy.data.objects.get(rig_info["armatureName"])
     if arm is None:
         raise RuntimeError(f"armature missing after bind: {rig_info['armatureName']}")
-    rig_info["rigCreated"] = rig_created
 
     deform = measure_pose_deformation(
         basemesh,

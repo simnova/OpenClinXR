@@ -54,32 +54,6 @@ export const MPFB2_RIG_BONE_NAMES: Readonly<Record<string, string>> = {
 };
 
 /**
- * Mixamo-unity rig (issue-307): the library body-param rail now rides the MPFB-shipped
- * `mixamorig_unity` 64-bone rig + CC0 weight map (`rig.mixamoro_unity.json` /
- * `weights.mixamoro_unity.json`), so the canonical landmarks resolve to `mixamorig:`
- * names. Colons are preserved — three.js strips dots only. Verified against the shipped
- * hierarchy: `LeftArm > LeftForeArm > LeftHand`, `LeftUpLeg > LeftLeg`,
- * `Spine1 > Spine2 > Neck > Head`, `Hips > LeftUpLeg/RightUpLeg`.
- */
-export const MIXAMORIG_RIG_BONE_NAMES: Readonly<Record<string, string>> = {
-  upper_armL: "mixamorig:LeftArm",
-  upper_armR: "mixamorig:RightArm",
-  forearmL: "mixamorig:LeftForeArm",
-  forearmR: "mixamorig:RightForeArm",
-  handL: "mixamorig:LeftHand",
-  handR: "mixamorig:RightHand",
-  thighL: "mixamorig:LeftUpLeg",
-  thighR: "mixamorig:RightUpLeg",
-  shinL: "mixamorig:LeftLeg",
-  shinR: "mixamorig:RightLeg",
-  spine: "mixamorig:Spine1",
-  neck: "mixamorig:Neck",
-  head: "mixamorig:Head",
-  pelvis: "mixamorig:Hips",
-  chest: "mixamorig:Spine2",
-};
-
-/**
  * Resolve a canonical runtime pose landmark to the bone name present on the given rig.
  *
  * @param landmark  Canonical pose landmark, three.js-sanitised (e.g. `upper_armL`).
@@ -93,7 +67,5 @@ export function resolvePoseBone(
   if (jointNames.has(landmark)) return landmark;
   const alias = MPFB2_RIG_BONE_NAMES[landmark];
   if (alias !== undefined && jointNames.has(alias)) return alias;
-  const mixamorig = MIXAMORIG_RIG_BONE_NAMES[landmark];
-  if (mixamorig !== undefined && jointNames.has(mixamorig)) return mixamorig;
   return null;
 }

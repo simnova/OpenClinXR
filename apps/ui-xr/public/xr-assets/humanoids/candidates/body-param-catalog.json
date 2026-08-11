@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.body-param-catalog.v1",
-  "generatedAt": "2026-08-11T11:43:23.937Z",
+  "generatedAt": "2026-08-11T09:43:23.089Z",
   "producedByStage": "body_param_stage",
   "claimScope": "factory_body_param_stage_two_mpfb_macro_body_classes_with_per_class_fitted_garment_skin_and_footwear",
   "notEvidenceFor": [
@@ -26,7 +26,7 @@
       "garmentFittedToBodyClass": "adult_lean_female",
       "garmentTriangleCount": 11524,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.18,
@@ -38,7 +38,7 @@
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
       "fitWallClockS": 0,
-      "glbSha256": "24d9ae1b9c6f28efa1b7c99e6423a17544bbef5a1af8be1648859b5e020dfc53",
+      "glbSha256": "f64f99b432f3c3334b6a625ef9b332a531d10f01f112dbd53fd04b2deb85a685",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_nurse_adult",
       "morphTargetCount": 32,
@@ -79,6 +79,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -87,10 +88,10 @@
         "openclinxr_footwear_casual_shoe_R_mesh"
       ],
       "footwearTriangleCount": 184,
-      "lowerGarmentId": null,
-      "lowerGarmentMeshName": null,
-      "lowerGarmentTriangleCount": 0,
-      "lowerGarmentLicenseToken": null,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female.001",
+      "lowerGarmentTriangleCount": 2530,
+      "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     },
     {
@@ -108,7 +109,7 @@
       "garmentFittedToBodyClass": "adult_heavy_male",
       "garmentTriangleCount": 9384,
       "licenseToken": "CC-BY",
-      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-307/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
+      "licenseSource": "mhclo_header:Scrub_Shirt.mhclo; license=CC-BY; author=WojackOWL; path=/Users/patrick/.grok/worktrees/src-openclinxr/issue-304/.openclinxr/evidence/issue-151/staging/Scrub_Shirt.mhclo",
       "producedByStage": "body_param_stage",
       "phenotype": {
         "weight": 0.88,
@@ -119,8 +120,8 @@
         "proportions": 0.5
       },
       "clothesServiceApi": "ClothesService.fit_clothes_to_human",
-      "fitWallClockS": 0.0132,
-      "glbSha256": "2f673006bd7e0f97b51cc01a08ee6f6367f23e842f93a0d038f1f65bcbcbb32d",
+      "fitWallClockS": 0.0135,
+      "glbSha256": "8d70f856fd1c197c6472cd96b6b6b30c2d556e1a094f2c97a6366b69828ede42",
       "gradePngPath": ".openclinxr/evidence/issue-151/body-classes-grade.png",
       "annyReferenceAsset": "ed_chest_pain_adult_cast",
       "morphTargetCount": 32,
@@ -161,6 +162,7 @@
       "producedByCommand": "pnpm asset:body-param:fit -- --once",
       "finishStepsRun": [
         "body_param_stage",
+        "fit_lower_garment_outfit",
         "embed_library_footwear",
         "catalog_stamp"
       ],
@@ -169,10 +171,10 @@
         "openclinxr_footwear_hospital_slipper_R_mesh"
       ],
       "footwearTriangleCount": 184,
-      "lowerGarmentId": null,
-      "lowerGarmentMeshName": null,
-      "lowerGarmentTriangleCount": 0,
-      "lowerGarmentLicenseToken": null,
+      "lowerGarmentId": "cortu_cargo_pants_hm08",
+      "lowerGarmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male.001",
+      "lowerGarmentTriangleCount": 3767,
+      "lowerGarmentLicenseToken": "CC0",
       "lowerPaintTriangleCount": 0
     }
   ],
@@ -193,17 +195,17 @@
   "gradeRenderEngine": "BLENDER_EEVEE",
   "posedDeformationGradePng": ".openclinxr/evidence/issue-216/posed-deformation-grade.png",
   "deformationCalibration": {
-    "drivenBone": "mixamorig:LeftArm",
+    "drivenBone": "upper_arm.L",
     "rotationDegrees": 55,
-    "deformationEpsilonMeters": 0.1051,
+    "deformationEpsilonMeters": 0.15307,
     "source": "calibrated_half_median_bone_tip_motion_this_export",
     "perClassBodyDeformationMeters": [
-      0.32169,
-      0.31467
+      0.35619,
+      0.42529
     ],
     "perClassGarmentDeformationMeters": [
-      0.57213,
-      0.24319
+      0.65479,
+      0.14731
     ]
   }
 }
