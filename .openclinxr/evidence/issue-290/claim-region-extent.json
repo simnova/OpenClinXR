@@ -1,0 +1,1005 @@
+{
+  "schemaVersion": "openclinxr.issue-290.claim-region-extent.v1",
+  "measuredAt": "2026-08-11T02:30:06.677Z",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "captureMode": "scene-overview",
+  "camera": {
+    "mode": "scene-overview",
+    "expected": {
+      "mode": "scene-overview",
+      "framing": "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus",
+      "fov": 60,
+      "position": [
+        0.18,
+        1.32,
+        4.35
+      ],
+      "lookAt": [
+        0.02,
+        1.02,
+        -0.08
+      ]
+    },
+    "liveRead": {
+      "position": [
+        0.18,
+        1.32,
+        4.35
+      ],
+      "quaternion": [
+        -0.0337745330509547,
+        0.018039563122430696,
+        0.000609725070933319,
+        0.9992664726262358
+      ],
+      "fov": 60,
+      "aspect": 1.1333333333333333,
+      "near": 0.1,
+      "far": 100,
+      "framing": "generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus"
+    },
+    "sanity": "matches_default_capture_camera",
+    "note": "live camera matches the scene-overview default (\u0394pos=0.000 m, fov 60, framing \"generated_scene_overview_multi_actor_dynamic_encounter_capture_clinical_focus\")"
+  },
+  "assetEvidence": {
+    "pendingCount": 0,
+    "loadedCount": 3,
+    "failedCount": 1,
+    "failedAssets": [
+      {
+        "assetId": "pediatric_urgent_care_bay_environment",
+        "assetPath": "/xr-assets/environment/pediatric_urgent_care_bay_environment.glb"
+      }
+    ],
+    "loadedAssets": [
+      "/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "/generated-humanoids/peds_patient_child.glb"
+    ]
+  },
+  "liveBodyBounds": [
+    {
+      "actorId": "patient_maya_johnson_v1",
+      "declaredPosture": "standing",
+      "meshHeightMeters": 0.8116628450093485,
+      "lowestVertexY": 0.0074113298370916385,
+      "highestVertexY": 0.8190741748464401,
+      "framesAdvanced": 27
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "declaredPosture": "standing",
+      "meshHeightMeters": 1.6318494211155365,
+      "lowestVertexY": -0.013662581144945,
+      "highestVertexY": 1.6181868399705917,
+      "framesAdvanced": 27
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "declaredPosture": "standing",
+      "meshHeightMeters": 1.4992900942595937,
+      "lowestVertexY": -0.005187668789183727,
+      "highestVertexY": 1.49410242547041,
+      "framesAdvanced": 27
+    }
+  ],
+  "actorWorldPlacements": [
+    {
+      "actorId": "patient_maya_johnson_v1",
+      "meshName": "peds_patient_childanny_base_1",
+      "matrixWorldElements": [
+        0.6881451340537185,
+        -0.009670672701228086,
+        0.026464312406169383,
+        0,
+        0.010433868499251084,
+        0.652237992089439,
+        -0.032966497633600524,
+        0,
+        -0.026055684511871603,
+        0.03531337212756713,
+        0.6904240055315459,
+        0,
+        -0.899648799029629,
+        0.004672182093748342,
+        0.08002072676543527,
+        1
+      ],
+      "liveTriangleCount": 17792
+    },
+    {
+      "actorId": "nurse_kevin_lee_v1",
+      "meshName": "hm08_basemesh_adult_heavy_male_1",
+      "matrixWorldElements": [
+        0.8642633715130168,
+        -0.0036120335531207863,
+        0.2301893522180473,
+        0,
+        0.002677896695686994,
+        0.9213495821847963,
+        0.004403060213085865,
+        0,
+        -0.23020301283664224,
+        -0.003461151485753992,
+        0.8642603504218653,
+        0,
+        0.6491185398054499,
+        -0.011154008004937717,
+        0.3009177920341804,
+        1
+      ],
+      "liveTriangleCount": 19614
+    },
+    {
+      "actorId": "parent_tara_johnson_v1",
+      "meshName": "hm08_basemesh_adult_lean_female_1",
+      "matrixWorldElements": [
+        0.8499865386082537,
+        -0.005704543284420678,
+        0.1371544471414472,
+        0,
+        0.0052018423008476184,
+        0.8503192358666595,
+        0.0031292237607927786,
+        0,
+        -0.13717194462374668,
+        -0.002288896438447415,
+        0.8499997756242257,
+        0,
+        1.427189198259294,
+        -0.0036886430527412343,
+        0.042543084547846964,
+        1
+      ],
+      "liveTriangleCount": 16868
+    }
+  ],
+  "method": {
+    "regionDefinition": "band = garment full Y extent (same as #289); lateral = garment per-slice max |x| footprint, 24 slices (garment_coverage._lateral_footprint); region = body faces with centroid Y in band AND centroid |x| <= footprint(slice) \u2014 exactly the issue-283 corrected claim the factory predicate selects",
+    "bodyHeightFractions": "heightFraction = (centroidY - bodyMinY)/bodyHeight; lateralFraction = |centroidX|/bodyHeight",
+    "immediateRing": "vertical: 8% of body height above/below the band; lateral: 0.06 m past the garment silhouette (coverage ray tolerance)",
+    "visibilityTest": "face visible at the default capture camera iff (a) projects inside the frustum (live fov/aspect), (b) front-facing (outward normal toward the camera), (c) no skinned humanoid triangle of any peds actor (child + parent + nurse bodies, garments, footwear, each transformed by its live world placement matrix) is hit strictly before the face centroid along the camera ray. Geometry is the shipped GLB bind pose; the clinical-idle pose displaces limbs ~1-3 cm from bind pose (residual, see notEvidenceFor). Occluder scope: the three staged humanoids only (bodies + garments + footwear); the room shell, furniture and equipment are NOT in the occluder set (residual, see notEvidenceFor).",
+    "coveredByGarment": "ring faces with signed clearance < 5 mm to ANY garment/footwear surface of the same figure (#285/#289 hide-mask convention, body-normal sign, 8 cm search) \u2014 skin actually under cloth, camera-independent"
+  },
+  "figures": [
+    {
+      "bodyClassId": "adult_lean_female",
+      "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.glb",
+      "actorId": "parent_tara_johnson_v1",
+      "bodyHeightMeters": 1.76,
+      "actorWorldPlacement": {
+        "matrixWorldElements": [
+          0.8499865386082537,
+          -0.005704543284420678,
+          0.1371544471414472,
+          0,
+          0.0052018423008476184,
+          0.8503192358666595,
+          0.0031292237607927786,
+          0,
+          -0.13717194462374668,
+          -0.002288896438447415,
+          0.8499997756242257,
+          0,
+          1.427189198259294,
+          -0.0036886430527412343,
+          0.042543084547846964,
+          1
+        ]
+      },
+      "slots": {
+        "upper": {
+          "garmentMeshName": "makeclothes_library_civilian_shirt_adult_lean_female",
+          "garmentTriangleCount": 11524,
+          "bandMeters": [
+            0.9134,
+            1.5051
+          ],
+          "bandBodyHeightFraction": [
+            0.519,
+            0.8552
+          ],
+          "lateralFootprintMeters": {
+            "min": 0.061,
+            "max": 0.5077,
+            "perSlice": [
+              0.1643,
+              0.1699,
+              0.1647,
+              0.4962,
+              0.5077,
+              0.506,
+              0.5009,
+              0.4896,
+              0.4758,
+              0.46,
+              0.4365,
+              0.4151,
+              0.3887,
+              0.3707,
+              0.3373,
+              0.315,
+              0.2957,
+              0.2757,
+              0.2665,
+              0.2484,
+              0.224,
+              0.1941,
+              0.1728,
+              0.061
+            ]
+          },
+          "lateralFootprintBodyHeightFraction": {
+            "min": 0.0347,
+            "max": 0.2885
+          },
+          "regionFaceCount": 11628,
+          "boundaries": {
+            "above": {
+              "boundary": "above",
+              "faceCount": 8376,
+              "heightFraction": {
+                "mean": 0.9078,
+                "min": 0.8553,
+                "max": 0.9981
+              },
+              "lateralFraction": {
+                "mean": 0.0197,
+                "max": 0.0463
+              },
+              "immediateRing": {
+                "faceCount": 7838,
+                "camera": {
+                  "visible": 3655,
+                  "outsideFrustum": 0,
+                  "backFacing": 2706,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 1477,
+                  "sampledFaceCount": 7838,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 3181,
+                "bareSkinCount": 4657
+              },
+              "fullOutside": {
+                "faceCount": 8376,
+                "camera": {
+                  "visible": 1994,
+                  "outsideFrustum": 0,
+                  "backFacing": 1440,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 754,
+                  "sampledFaceCount": 4188,
+                  "occlusionSampled": true
+                }
+              }
+            },
+            "below": {
+              "boundary": "below",
+              "faceCount": 6752,
+              "heightFraction": {
+                "mean": 0.1288,
+                "min": 0.0005,
+                "max": 0.5187
+              },
+              "lateralFraction": {
+                "mean": 0.0909,
+                "max": 0.1244
+              },
+              "immediateRing": {
+                "faceCount": 632,
+                "camera": {
+                  "visible": 2,
+                  "outsideFrustum": 0,
+                  "backFacing": 304,
+                  "occludedByGarment": 325,
+                  "occludedByBodyOrOther": 1,
+                  "sampledFaceCount": 632,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 254,
+                "bareSkinCount": 378
+              },
+              "fullOutside": {
+                "faceCount": 6752,
+                "camera": {
+                  "visible": 271,
+                  "outsideFrustum": 0,
+                  "backFacing": 2849,
+                  "occludedByGarment": 3609,
+                  "occludedByBodyOrOther": 23,
+                  "sampledFaceCount": 6752,
+                  "occlusionSampled": false
+                }
+              }
+            },
+            "lateral": {
+              "boundary": "lateral",
+              "faceCount": 0,
+              "heightFraction": {
+                "mean": null,
+                "min": null,
+                "max": null
+              },
+              "lateralFraction": {
+                "mean": null,
+                "max": null
+              },
+              "immediateRing": {
+                "faceCount": 0,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 0,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 0,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 0,
+                "bareSkinCount": 0
+              },
+              "fullOutside": {
+                "faceCount": 0,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 0,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 0,
+                  "occlusionSampled": false
+                }
+              }
+            }
+          }
+        },
+        "lower": {
+          "garmentMeshName": "makeclothes_library_cargo_pants_adult_lean_female_mesh",
+          "garmentTriangleCount": 2536,
+          "bandMeters": [
+            0.0895,
+            0.9368
+          ],
+          "bandBodyHeightFraction": [
+            0.0508,
+            0.5322
+          ],
+          "lateralFootprintMeters": {
+            "min": 0.1739,
+            "max": 0.2199,
+            "perSlice": [
+              0.2113,
+              0.2112,
+              0.2049,
+              0.2134,
+              0.2152,
+              0.2172,
+              0.2183,
+              0.2199,
+              0.2162,
+              0.2098,
+              0.2009,
+              0.192,
+              0.1875,
+              0.1869,
+              0.1765,
+              0.1887,
+              0.1904,
+              0.1921,
+              0.1921,
+              0.1917,
+              0.1905,
+              0.1842,
+              0.1774,
+              0.1739
+            ]
+          },
+          "lateralFootprintBodyHeightFraction": {
+            "min": 0.0988,
+            "max": 0.1249
+          },
+          "regionFaceCount": 2662,
+          "boundaries": {
+            "above": {
+              "boundary": "above",
+              "faceCount": 19942,
+              "heightFraction": {
+                "mean": 0.7612,
+                "min": 0.5323,
+                "max": 0.9981
+              },
+              "lateralFraction": {
+                "mean": 0.1162,
+                "max": 0.2803
+              },
+              "immediateRing": {
+                "faceCount": 4424,
+                "camera": {
+                  "visible": 2,
+                  "outsideFrustum": 0,
+                  "backFacing": 2130,
+                  "occludedByGarment": 2292,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 4424,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 3953,
+                "bareSkinCount": 471
+              },
+              "fullOutside": {
+                "faceCount": 19942,
+                "camera": {
+                  "visible": 996,
+                  "outsideFrustum": 0,
+                  "backFacing": 2097,
+                  "occludedByGarment": 1502,
+                  "occludedByBodyOrOther": 391,
+                  "sampledFaceCount": 4986,
+                  "occlusionSampled": true
+                }
+              }
+            },
+            "below": {
+              "boundary": "below",
+              "faceCount": 4152,
+              "heightFraction": {
+                "mean": 0.0231,
+                "min": 0.0005,
+                "max": 0.0507
+              },
+              "lateralFraction": {
+                "mean": 0.1032,
+                "max": 0.1244
+              },
+              "immediateRing": {
+                "faceCount": 4152,
+                "camera": {
+                  "visible": 269,
+                  "outsideFrustum": 0,
+                  "backFacing": 1615,
+                  "occludedByGarment": 2246,
+                  "occludedByBodyOrOther": 22,
+                  "sampledFaceCount": 4152,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 3315,
+                "bareSkinCount": 837
+              },
+              "fullOutside": {
+                "faceCount": 4152,
+                "camera": {
+                  "visible": 269,
+                  "outsideFrustum": 0,
+                  "backFacing": 1615,
+                  "occludedByGarment": 2246,
+                  "occludedByBodyOrOther": 22,
+                  "sampledFaceCount": 4152,
+                  "occlusionSampled": false
+                }
+              }
+            },
+            "lateral": {
+              "boundary": "lateral",
+              "faceCount": 0,
+              "heightFraction": {
+                "mean": null,
+                "min": null,
+                "max": null
+              },
+              "lateralFraction": {
+                "mean": null,
+                "max": null
+              },
+              "immediateRing": {
+                "faceCount": 0,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 0,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 0,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 0,
+                "bareSkinCount": 0
+              },
+              "fullOutside": {
+                "faceCount": 0,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 0,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 0,
+                  "occlusionSampled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "bodyClassId": "adult_heavy_male",
+      "glbPath": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.glb",
+      "actorId": "nurse_kevin_lee_v1",
+      "bodyHeightMeters": 1.76,
+      "actorWorldPlacement": {
+        "matrixWorldElements": [
+          0.8642633715130168,
+          -0.0036120335531207863,
+          0.2301893522180473,
+          0,
+          0.002677896695686994,
+          0.9213495821847963,
+          0.004403060213085865,
+          0,
+          -0.23020301283664224,
+          -0.003461151485753992,
+          0.8642603504218653,
+          0,
+          0.6491185398054499,
+          -0.011154008004937717,
+          0.3009177920341804,
+          1
+        ]
+      },
+      "slots": {
+        "upper": {
+          "garmentMeshName": "makeclothes_library_scrub_shirt_adult_heavy_male",
+          "garmentTriangleCount": 9384,
+          "bandMeters": [
+            0.9619,
+            1.5187
+          ],
+          "bandBodyHeightFraction": [
+            0.5465,
+            0.8629
+          ],
+          "lateralFootprintMeters": {
+            "min": 0.0728,
+            "max": 0.3329,
+            "perSlice": [
+              0.1883,
+              0.181,
+              0.1758,
+              0.173,
+              0.1724,
+              0.1724,
+              0.1721,
+              0.1685,
+              0.1647,
+              0.165,
+              0.1672,
+              0.171,
+              0.271,
+              0.2654,
+              0.285,
+              0.3329,
+              0.3188,
+              0.2984,
+              0.2806,
+              0.2644,
+              0.2267,
+              0.199,
+              0.1163,
+              0.0728
+            ]
+          },
+          "lateralFootprintBodyHeightFraction": {
+            "min": 0.0414,
+            "max": 0.1891
+          },
+          "regionFaceCount": 3867,
+          "boundaries": {
+            "above": {
+              "boundary": "above",
+              "faceCount": 8262,
+              "heightFraction": {
+                "mean": 0.9102,
+                "min": 0.8629,
+                "max": 0.9983
+              },
+              "lateralFraction": {
+                "mean": 0.0217,
+                "max": 0.05
+              },
+              "immediateRing": {
+                "faceCount": 7820,
+                "camera": {
+                  "visible": 3519,
+                  "outsideFrustum": 0,
+                  "backFacing": 2641,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 1660,
+                  "sampledFaceCount": 7820,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 2060,
+                "bareSkinCount": 5760
+              },
+              "fullOutside": {
+                "faceCount": 8262,
+                "camera": {
+                  "visible": 1872,
+                  "outsideFrustum": 0,
+                  "backFacing": 1411,
+                  "occludedByGarment": 0,
+                  "occludedByBodyOrOther": 848,
+                  "sampledFaceCount": 4131,
+                  "occlusionSampled": true
+                }
+              }
+            },
+            "below": {
+              "boundary": "below",
+              "faceCount": 7399,
+              "heightFraction": {
+                "mean": 0.161,
+                "min": 0.0006,
+                "max": 0.5465
+              },
+              "lateralFraction": {
+                "mean": 0.1232,
+                "max": 0.3328
+              },
+              "immediateRing": {
+                "faceCount": 1145,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 560,
+                  "occludedByGarment": 585,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 1145,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 763,
+                "bareSkinCount": 382
+              },
+              "fullOutside": {
+                "faceCount": 7399,
+                "camera": {
+                  "visible": 262,
+                  "outsideFrustum": 0,
+                  "backFacing": 3199,
+                  "occludedByGarment": 3883,
+                  "occludedByBodyOrOther": 55,
+                  "sampledFaceCount": 7399,
+                  "occlusionSampled": false
+                }
+              }
+            },
+            "lateral": {
+              "boundary": "lateral",
+              "faceCount": 7228,
+              "heightFraction": {
+                "mean": 0.5913,
+                "min": 0.5465,
+                "max": 0.7449
+              },
+              "lateralFraction": {
+                "mean": 0.2921,
+                "max": 0.3313
+              },
+              "immediateRing": {
+                "faceCount": 162,
+                "camera": {
+                  "visible": 64,
+                  "outsideFrustum": 0,
+                  "backFacing": 94,
+                  "occludedByGarment": 2,
+                  "occludedByBodyOrOther": 2,
+                  "sampledFaceCount": 162,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 43,
+                "bareSkinCount": 119
+              },
+              "fullOutside": {
+                "faceCount": 7228,
+                "camera": {
+                  "visible": 2116,
+                  "outsideFrustum": 0,
+                  "backFacing": 3417,
+                  "occludedByGarment": 425,
+                  "occludedByBodyOrOther": 1270,
+                  "sampledFaceCount": 7228,
+                  "occlusionSampled": false
+                }
+              }
+            }
+          }
+        },
+        "lower": {
+          "garmentMeshName": "makeclothes_library_cargo_pants_adult_heavy_male_mesh",
+          "garmentTriangleCount": 3779,
+          "bandMeters": [
+            0.0948,
+            0.993
+          ],
+          "bandBodyHeightFraction": [
+            0.0539,
+            0.5642
+          ],
+          "lateralFootprintMeters": {
+            "min": 0.1598,
+            "max": 0.6,
+            "perSlice": [
+              0.256,
+              0.2495,
+              0.2498,
+              0.1598,
+              0.2516,
+              0.2488,
+              0.257,
+              0.2596,
+              0.2551,
+              0.2476,
+              0.2346,
+              0.2253,
+              0.2218,
+              0.2208,
+              0.2236,
+              0.2242,
+              0.2224,
+              0.2159,
+              0.2188,
+              0.214,
+              0.2067,
+              0.2007,
+              0.6,
+              0.5994
+            ]
+          },
+          "lateralFootprintBodyHeightFraction": {
+            "min": 0.0908,
+            "max": 0.3409
+          },
+          "regionFaceCount": 5398,
+          "boundaries": {
+            "above": {
+              "boundary": "above",
+              "faceCount": 17086,
+              "heightFraction": {
+                "mean": 0.7835,
+                "min": 0.5642,
+                "max": 0.9983
+              },
+              "lateralFraction": {
+                "mean": 0.1078,
+                "max": 0.3276
+              },
+              "immediateRing": {
+                "faceCount": 4644,
+                "camera": {
+                  "visible": 1400,
+                  "outsideFrustum": 0,
+                  "backFacing": 2118,
+                  "occludedByGarment": 286,
+                  "occludedByBodyOrOther": 840,
+                  "sampledFaceCount": 4644,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 3434,
+                "bareSkinCount": 1210
+              },
+              "fullOutside": {
+                "faceCount": 17086,
+                "camera": {
+                  "visible": 1482,
+                  "outsideFrustum": 0,
+                  "backFacing": 1700,
+                  "occludedByGarment": 435,
+                  "occludedByBodyOrOther": 655,
+                  "sampledFaceCount": 4272,
+                  "occlusionSampled": true
+                }
+              }
+            },
+            "below": {
+              "boundary": "below",
+              "faceCount": 4198,
+              "heightFraction": {
+                "mean": 0.0127,
+                "min": 0.0006,
+                "max": 0.0537
+              },
+              "lateralFraction": {
+                "mean": 0.1237,
+                "max": 0.1488
+              },
+              "immediateRing": {
+                "faceCount": 4198,
+                "camera": {
+                  "visible": 262,
+                  "outsideFrustum": 0,
+                  "backFacing": 1627,
+                  "occludedByGarment": 2254,
+                  "occludedByBodyOrOther": 55,
+                  "sampledFaceCount": 4198,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 3601,
+                "bareSkinCount": 597
+              },
+              "fullOutside": {
+                "faceCount": 4198,
+                "camera": {
+                  "visible": 262,
+                  "outsideFrustum": 0,
+                  "backFacing": 1627,
+                  "occludedByGarment": 2254,
+                  "occludedByBodyOrOther": 55,
+                  "sampledFaceCount": 4198,
+                  "occlusionSampled": false
+                }
+              }
+            },
+            "lateral": {
+              "boundary": "lateral",
+              "faceCount": 74,
+              "heightFraction": {
+                "mean": 0.1281,
+                "min": 0.1207,
+                "max": 0.1375
+              },
+              "lateralFraction": {
+                "mean": 0.1101,
+                "max": 0.1335
+              },
+              "immediateRing": {
+                "faceCount": 59,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 22,
+                  "occludedByGarment": 37,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 59,
+                  "occlusionSampled": false
+                },
+                "coveredByGarmentCount": 0,
+                "bareSkinCount": 59
+              },
+              "fullOutside": {
+                "faceCount": 74,
+                "camera": {
+                  "visible": 0,
+                  "outsideFrustum": 0,
+                  "backFacing": 29,
+                  "occludedByGarment": 45,
+                  "occludedByBodyOrOther": 0,
+                  "sampledFaceCount": 74,
+                  "occlusionSampled": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "rows": [
+      {
+        "bodyClassId": "adult_lean_female",
+        "actorId": "parent_tara_johnson_v1",
+        "slot": "upper",
+        "regionBandBodyHeightFraction": [
+          0.519,
+          0.8552
+        ],
+        "regionLateralFootprintMaxBodyHeightFraction": 0.2885,
+        "regionFaceCount": 11628,
+        "outside_above_ringFaces": 7838,
+        "outside_above_ringCameraVisible": 3655,
+        "outside_above_ringBareSkin": 4657,
+        "outside_above_fullOutsideFaces": 8376,
+        "outside_above_fullCameraVisible": 1994,
+        "outside_below_ringFaces": 632,
+        "outside_below_ringCameraVisible": 2,
+        "outside_below_ringBareSkin": 378,
+        "outside_below_fullOutsideFaces": 6752,
+        "outside_below_fullCameraVisible": 271,
+        "outside_lateral_ringFaces": 0,
+        "outside_lateral_ringCameraVisible": 0,
+        "outside_lateral_ringBareSkin": 0,
+        "outside_lateral_fullOutsideFaces": 0,
+        "outside_lateral_fullCameraVisible": 0
+      },
+      {
+        "bodyClassId": "adult_lean_female",
+        "actorId": "parent_tara_johnson_v1",
+        "slot": "lower",
+        "regionBandBodyHeightFraction": [
+          0.0508,
+          0.5322
+        ],
+        "regionLateralFootprintMaxBodyHeightFraction": 0.1249,
+        "regionFaceCount": 2662,
+        "outside_above_ringFaces": 4424,
+        "outside_above_ringCameraVisible": 2,
+        "outside_above_ringBareSkin": 471,
+        "outside_above_fullOutsideFaces": 19942,
+        "outside_above_fullCameraVisible": 996,
+        "outside_below_ringFaces": 4152,
+        "outside_below_ringCameraVisible": 269,
+        "outside_below_ringBareSkin": 837,
+        "outside_below_fullOutsideFaces": 4152,
+        "outside_below_fullCameraVisible": 269,
+        "outside_lateral_ringFaces": 0,
+        "outside_lateral_ringCameraVisible": 0,
+        "outside_lateral_ringBareSkin": 0,
+        "outside_lateral_fullOutsideFaces": 0,
+        "outside_lateral_fullCameraVisible": 0
+      },
+      {
+        "bodyClassId": "adult_heavy_male",
+        "actorId": "nurse_kevin_lee_v1",
+        "slot": "upper",
+        "regionBandBodyHeightFraction": [
+          0.5465,
+          0.8629
+        ],
+        "regionLateralFootprintMaxBodyHeightFraction": 0.1891,
+        "regionFaceCount": 3867,
+        "outside_above_ringFaces": 7820,
+        "outside_above_ringCameraVisible": 3519,
+        "outside_above_ringBareSkin": 5760,
+        "outside_above_fullOutsideFaces": 8262,
+        "outside_above_fullCameraVisible": 1872,
+        "outside_below_ringFaces": 1145,
+        "outside_below_ringCameraVisible": 0,
+        "outside_below_ringBareSkin": 382,
+        "outside_below_fullOutsideFaces": 7399,
+        "outside_below_fullCameraVisible": 262,
+        "outside_lateral_ringFaces": 162,
+        "outside_lateral_ringCameraVisible": 64,
+        "outside_lateral_ringBareSkin": 119,
+        "outside_lateral_fullOutsideFaces": 7228,
+        "outside_lateral_fullCameraVisible": 2116
+      },
+      {
+        "bodyClassId": "adult_heavy_male",
+        "actorId": "nurse_kevin_lee_v1",
+        "slot": "lower",
+        "regionBandBodyHeightFraction": [
+          0.0539,
+          0.5642
+        ],
+        "regionLateralFootprintMaxBodyHeightFraction": 0.3409,
+        "regionFaceCount": 5398,
+        "outside_above_ringFaces": 4644,
+        "outside_above_ringCameraVisible": 1400,
+        "outside_above_ringBareSkin": 1210,
+        "outside_above_fullOutsideFaces": 17086,
+        "outside_above_fullCameraVisible": 1482,
+        "outside_below_ringFaces": 4198,
+        "outside_below_ringCameraVisible": 262,
+        "outside_below_ringBareSkin": 597,
+        "outside_below_fullOutsideFaces": 4198,
+        "outside_below_fullCameraVisible": 262,
+        "outside_lateral_ringFaces": 59,
+        "outside_lateral_ringCameraVisible": 0,
+        "outside_lateral_ringBareSkin": 59,
+        "outside_lateral_fullOutsideFaces": 74,
+        "outside_lateral_fullCameraVisible": 0
+      }
+    ]
+  },
+  "claimScope": "extent of the garment claim region on the two shipped body-param library GLBs, and the camera-visible bare-skin census immediately outside it at the default scene-overview capture camera in the peds asthma scenario",
+  "notEvidenceFor": [
+    "garment_aesthetics_or_quality",
+    "clinical_wardrobe_correctness",
+    "quest_readiness",
+    "learner_readiness",
+    "cloth_physics_or_deformation",
+    "any_target_extent_recommendation",
+    "bind_pose_vs_idle_pose_limb_displacement_exactness",
+    "furniture_or_environment_occlusion_of_outside_faces"
+  ]
+}
