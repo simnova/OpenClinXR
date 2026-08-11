@@ -79,5 +79,21 @@ cagematch slice instead.
 
 **APPROVAL STRING:** `approve: acquire CC0/CC-BY MakeHuman hair pack into provider-cache`
 
+**ANSWERED 2026-08-11 — APPROVED.** Operator: *"approval for hair - with CC0/CC-BY - keep track of
+these as we'll eventually look for replacements where possible (you can also research options like
+makehair or hair-packs/packages/plugins that are viable)."*
+
+Acquired: **`hair01`, 26 hairstyles, CC0 1.0**, 217 MB, 25 `.mhclo` + 25 `.mhmat`, into
+`.openclinxr-local/provider-cache/hair/sources/makehuman-hair01/` with a `PROVENANCE.json` stamp.
+
+Researched and **REFUSED**: the `haireditor` pack (geometry-nodes hair/fur, `hair.blend` + `fur.blend`,
+~12 MB) states **no licence** on its source page. It is the pack MPFB's own `haireditorservices.py`
+looks for and the procedural route that best fits D2, so it is worth a licence clarification upstream —
+but unspecified is a refusal, not a maybe.
+
+Tracking surface created: `docs/openclinxr/third-party-asset-licence-ledger.md`, which also gives #193
+("CC-BY garments are allowed — the compliance surface they are conditional on does not exist") the
+record it was missing. Every row carries a replacement posture, per the operator's ask.
+
 **DEFAULT IF SILENT:** no acquisition. Hair stays a painted region, and I will evaluate the
 CharMorph / MB-Lab procedural hair engines as a lane C cagematch instead, since that needs no approval.

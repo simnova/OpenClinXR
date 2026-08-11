@@ -1,0 +1,48 @@
+# Third-party asset licence ledger
+
+**What this is.** One row per third-party asset source acquired into this repo or its provider cache,
+with the licence, where it came from, what consumes it, and whether we intend to replace it.
+
+**Why it exists.** #193 records that CC-BY garments are allowed but "the compliance surface they are
+conditional on does not exist". This is that surface. Operator direction 2026-08-11, approving hair
+acquisition: *"keep track of these as we'll eventually look for replacements where possible."* So every
+row carries a **replacement posture**, not just a licence.
+
+**Rules.**
+- **CC0 and CC-BY only** unless the operator approves otherwise in writing. No AGPL/copyleft, no paid,
+  no unspecified.
+- **An unspecified licence is a refusal, not a maybe.** If the source page does not state a licence, it
+  does not get acquired — record it in the REFUSED table instead so nobody re-litigates it.
+- CC-BY sources require attribution to survive into anything shipped. Record the attribution string
+  here at acquisition time, not later.
+- A row is added when the asset is acquired, not when it is first used.
+
+## Acquired
+
+| source | licence | what | acquired | consumed by | replacement posture |
+|---|---|---|---|---|---|
+| `makehuman-hair01` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/hair01.html)) | **CC0 1.0** | 26 hairstyles, `.mhclo` + `.mhmat`, 217 MB. Authors: Cortu, culturalibre, Elvaerwyn, Faydaen, learning, littleright, punkduck, RehmanPolanski, sonntag78, MargaretToigo | 2026-08-11 | MPFB/hm08 rail via `ClothesService` (hair is clothing in MakeHuman topology terms) | **Keep.** CC0 is the cleanest posture available; replace only on quality grounds, not licence grounds. Mostly low-poly/stylised — likely to be a realism ceiling before it is a licence problem. |
+| `makehuman-shirts01` | CC-BY (per existing cache provenance) | 3 `.mhclo` shirts | pre-existing | `body_param_stage.py` garment fit | **Replace when a CC0 equivalent exists.** CC-BY attribution has to survive into shipped builds; CC0 removes that obligation entirely. |
+| `anny` (PyPI, NAVER Corp) | **Apache-2.0** (code); bundled `data/mpfb2` assets **CC0 1.0** | Parametric body model, phenotype oracle | 2026-08-11 | Anny rail; `anny.Anthropometry`, `AnnyInverter` | **Keep.** Note its optional SMPL-X topology is non-commercial download-only and the pipeline deliberately does not call that path. |
+| MPFB2 (Blender extension) | AGPL-3 (plugin code) — **tool, not shipped asset** | Rig, macros, `ClothesService`, base mesh | pre-existing | `body_param_stage.py`, `add_mpfb2_eye_rig.py` | **Keep as a build-time tool.** It is not linked into or shipped with the runtime; the outputs (meshes) are ours. Flagged here because the repo bars copyleft in *shipped* dependencies and someone will ask. |
+
+## Refused — do not re-litigate without new information
+
+| source | why refused | date |
+|---|---|---|
+| `haireditor` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/haireditor.html)) — geometry-nodes hair/fur, `hair.blend` + `fur.blend`, ~12 MB | **No licence stated on the source page.** This is the pack MPFB's own `haireditorservices.py` looks for (`get_hair_blend_path`), and it is the procedural route that would best satisfy D2 — so it is the one worth chasing a clarification on. Until then, unspecified is a refusal. | 2026-08-11 |
+
+## Open questions
+
+- **`haireditor` licence.** Worth asking upstream. If it comes back CC0/CC-BY it is the preferred hair
+  path: geometry-nodes hair is procedural (D2) and is what MPFB 2.0.11 natively supports, where hair01
+  is static mesh assets.
+- **CC-BY attribution surface.** #193's actual gap: nothing in the build currently emits attribution
+  for CC-BY sources. One CC-BY source is in use today (`makehuman-shirts01`). This ledger records the
+  obligation; it does not discharge it.
+
+## Not tested / not claimed
+
+Licences here are recorded from the source pages as of the acquisition date. This is a tracking record
+maintained by an engineering process, **not a legal review**, and nothing in it constitutes clearance
+for commercial distribution.

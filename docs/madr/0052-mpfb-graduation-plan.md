@@ -56,9 +56,18 @@ presentation FIRST and the girth solve runs after.
 - **P5 Motion.** Retarget onto the 137-bone rig (Mesh2Motion is approved and unused, #70).
 - **P6 Evidence.** Graded captures per phase; website only on a real win (D12).
 
-**Explicitly NOT scheduled, because neither is an engineering blocker:**
-- **Hair** needs a CC0/CC-BY asset pack acquired, or approval to evaluate the cached CharMorph /
-  MB-Lab procedural engines. Filed in `operator-steering-needed-questions.md`.
+**Hair: UNBLOCKED 2026-08-11.** Operator approved CC0/CC-BY. Acquired `hair01` — **26 hairstyles,
+CC0 1.0**, 25 `.mhclo` + 25 `.mhmat` — into the provider cache with a provenance stamp, tracked in
+`docs/openclinxr/third-party-asset-licence-ledger.md`. Hair is clothing in MakeHuman topology terms, so
+it fits the **existing** `ClothesService` path — the same one wardrobe uses (P3), not a new mechanism.
+**Hair therefore joins P3 rather than becoming its own phase**, and lands in an advancement hour after
+the first garment is fitted to a solved MPFB body.
+
+The geometry-nodes `haireditor` pack was researched and **refused**: no licence stated. It is what
+MPFB's `haireditorservices.py` looks for and the better long-term (procedural, D2) route, so a licence
+clarification upstream is worth chasing — recorded in the ledger's REFUSED table.
+
+**Still NOT scheduled, because it is not an engineering blocker:**
 - **Phenotype for the other 13 cases** is clinical authoring (#293). No pipeline slice moves it.
 
 ## The schedule — one meaningful tick per clock hour

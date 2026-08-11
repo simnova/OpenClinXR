@@ -3026,6 +3026,13 @@
       "agentInstructionWeight": "high",
       "action": "follow-when-relevant",
       "rationale": "Skill: TRELLIS multi-view bake + proven 3-iter VR post-opt (measured 2026-08-11)."
+    },
+    {
+      "path": "docs/openclinxr/third-party-asset-licence-ledger.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     }
   ]
 }
