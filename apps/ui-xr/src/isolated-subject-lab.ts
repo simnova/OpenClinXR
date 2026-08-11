@@ -14,13 +14,12 @@
 
 import {
   AmbientLight,
-  Box3,
   Color,
   DirectionalLight,
   Group,
   Mesh,
   MeshStandardMaterial,
-  Object3D,
+  type Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
@@ -31,30 +30,27 @@ import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
-  measureArticulatingHob,
   type ArticulatingHobMeasure,
+  measureArticulatingHob,
 } from "./articulating-hob-measure.js";
+import { type CaptureView, computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
+import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
 import { buildPatientChair } from "./station-chair.js";
+import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
 import {
+  buildPatientStretcher,
   STRETCHER_DECK_TOP_METERS,
   STRETCHER_LENGTH_METERS,
-  buildPatientStretcher,
 } from "./station-stretcher.js";
 import { applyAndPlantSupineOnDeck } from "./supine-deck-plant.js";
-import { buildDeclaredEquipmentGeometry } from "./station-equipment-builders.js";
-import { recordPackFraming, type PackFramingRecord } from "./isolated-pack-framing.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
  * (front/side/two three-quarters) plus a back view — #254 measured that the
  * existing packs have no back view and the rear is where reconstruction fails.
+ * Type moved to ./camera-fit-to-bounds.ts (#315 shared framing module).
  */
-export type CaptureView =
-  | "front"
-  | "side"
-  | "three_quarter_left"
-  | "three_quarter_right"
-  | "back";
+export type { CaptureView } from "./camera-fit-to-bounds.js";
 
 export type IsolatedSubjectKind =
   | "furniture_builder"
@@ -175,22 +171,6 @@ function parseSpec(): IsolatedSubjectSpec {
   };
 }
 
-function computeMeshBounds(root: Object3D): Box3 {
-  const bounds = new Box3();
-  const point = new Vector3();
-  root.updateMatrixWorld(true);
-  root.traverse((object) => {
-    if (!(object instanceof Mesh)) return;
-    const position = object.geometry.getAttribute("position");
-    if (!position) return;
-    for (let i = 0; i < position.count; i += 1) {
-      point.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld);
-      bounds.expandByPoint(point);
-    }
-  });
-  return bounds;
-}
-
 function measureCanvasCoverage(renderer: WebGLRenderer): number {
   const canvas = renderer.domElement;
   const gl = renderer.getContext();
@@ -207,132 +187,6 @@ function measureCanvasCoverage(renderer: WebGLRenderer): number {
     if (Math.abs(r - 0x18) + Math.abs(g - 0x21) + Math.abs(b - 0x1d) > 36) nonBg += 1;
   }
   return nonBg / (w * h);
-}
-
-/** Unit-ish camera direction per pack view: [dx, dz] on the XZ plane (front = +Z). */
-const VIEW_DIRECTIONS: Record<CaptureView, [number, number]> = {
-  front: [0, 1],
-  back: [0, -1],
-  side: [1, 0],
-  three_quarter_left: [0.7071, 0.7071],
-  three_quarter_right: [-0.7071, 0.7071],
-};
-
-/**
- * #270: pack views frame the subject to this fraction of the square frame's
- * shorter dimension (70-85% per the issue; 0.8 chosen mid-high for margin).
- */
-const PACK_FRAME_TARGET = 0.8;
-
-const UP_AXIS = new Vector3(0, 1, 0);
-
-/** The 8 sign combinations of an AABB's 8 corners. */
-const AABB_CORNER_SIGNS: ReadonlyArray<readonly [boolean, boolean, boolean]> = [
-  [false, false, false],
-  [false, false, true],
-  [false, true, false],
-  [false, true, true],
-  [true, false, false],
-  [true, false, true],
-  [true, true, false],
-  [true, true, true],
-];
-
-/**
- * Frame the camera for a subject. Legacy subjects keep the old framing exactly.
- *
- * #270 pack views: solve for the camera distance at which the subject's projected
- * bounding box spans PACK_FRAME_TARGET of the square frame's dimension, instead of
- * the old `radius * 2.4` (with a 0.4 m floor on radius). The old framing left a
- * 12x19 cm wall plate at ~5% frame coverage — the protruding outlet and recessed
- * gauge each occupied a handful of pixels and TRELLIS lost them. Same camera
- * angles (VIEW_DIRECTIONS), same 5 views, same subject-only rule.
- *
- * Returns the achieved span fraction (larger projected extent / frame dimension)
- * for pack views, or null for legacy framing — recorded in the evidence so the
- * 70-85% target is auditable, not just the pixel-coverage floor.
- */
-function frameCamera(camera: PerspectiveCamera, bounds: Box3, view?: CaptureView): number | null {
-  const center = bounds.getCenter(new Vector3());
-  const size = bounds.getSize(new Vector3());
-  const radius = Math.max(size.x, size.y, size.z, 0.4);
-  if (!view) {
-    // Legacy framing — unchanged for furniture/posture subjects.
-    const distance = radius * 2.4;
-    camera.position.set(center.x + distance * 0.55, center.y + radius * 0.35, center.z + distance * 0.85);
-    camera.lookAt(center.x, center.y + size.y * 0.05, center.z);
-    camera.near = 0.01;
-    camera.far = Math.max(50, distance * 4);
-    camera.updateProjectionMatrix();
-    return null;
-  }
-
-  const [dx, dz] = VIEW_DIRECTIONS[view];
-  const horiz = new Vector3(dx, 0, dz);
-  // Proportional elevation (size.y, not the floored radius) — identical to the
-  // old `radius * 0.35` for tall subjects, sane for small plates.
-  const elevation = new Vector3(0, size.y * 0.35, 0);
-  const target = new Vector3(center.x, center.y + size.y * 0.05, center.z);
-
-  const tanHalf = Math.tan((camera.fov * Math.PI) / 360);
-  const frameSpan = 2 * tanHalf;
-  const wantSpan = frameSpan * PACK_FRAME_TARGET;
-
-  // Iterate: the projected span is ~k / distance, so scaling distance by
-  // span / wantSpan converges in a few steps even with perspective foreshortening.
-  let distance = radius * 2.4;
-  let spanFraction = PACK_FRAME_TARGET;
-  for (let i = 0; i < 8; i += 1) {
-    const pos = new Vector3(
-      center.x + horiz.x * distance + elevation.x,
-      center.y + elevation.y,
-      center.z + horiz.z * distance + elevation.z,
-    );
-    const fwd = new Vector3().subVectors(target, pos).normalize();
-    const right = new Vector3().crossVectors(fwd, UP_AXIS).normalize();
-    const up = new Vector3().crossVectors(right, fwd).normalize();
-
-    let minSx = Infinity;
-    let maxSx = -Infinity;
-    let minSy = Infinity;
-    let maxSy = -Infinity;
-    for (const [mx, my, mz] of AABB_CORNER_SIGNS) {
-      const px = mx ? bounds.max.x : bounds.min.x;
-      const py = my ? bounds.max.y : bounds.min.y;
-      const pz = mz ? bounds.max.z : bounds.min.z;
-      const vx = px - pos.x;
-      const vy = py - pos.y;
-      const vz = pz - pos.z;
-      const depth = vx * fwd.x + vy * fwd.y + vz * fwd.z;
-      if (depth < 1e-4) continue;
-      const sx = (vx * right.x + vy * right.y + vz * right.z) / depth;
-      const sy = (vx * up.x + vy * up.y + vz * up.z) / depth;
-      if (sx < minSx) minSx = sx;
-      if (sx > maxSx) maxSx = sx;
-      if (sy < minSy) minSy = sy;
-      if (sy > maxSy) maxSy = sy;
-    }
-    const span = Math.max(maxSx - minSx, maxSy - minSy);
-    if (!Number.isFinite(span) || span < 1e-6) break;
-    spanFraction = span / frameSpan;
-    const next = distance * (span / wantSpan);
-    if (Math.abs(next - distance) < Math.max(distance * 1e-4, 1e-6)) {
-      distance = next;
-      break;
-    }
-    distance = next;
-  }
-
-  camera.position.set(
-    center.x + horiz.x * distance,
-    center.y + elevation.y,
-    center.z + horiz.z * distance,
-  );
-  camera.lookAt(target);
-  camera.near = 0.01;
-  camera.far = Math.max(50, distance * 4);
-  camera.updateProjectionMatrix();
-  return spanFraction;
 }
 
 async function loadHumanoid(bodyGlb: string): Promise<Object3D> {

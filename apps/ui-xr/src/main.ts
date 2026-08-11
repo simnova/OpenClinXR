@@ -105,6 +105,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
+  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   Raycaster,
@@ -121,6 +122,7 @@ import { XRHandModelFactory } from "three/addons/webxr/XRHandModelFactory.js";
 import { createStationApiClient, createStationApiPersistenceSink, type StationApiClient } from "./api-client.js";
 import { assertHumanoidRootUpright } from "./humanoid-load-guard.js";
 import { applyRealGarmentEvidenceSurfaces, sleeveDeformCueForAssetPath } from "./real-garment-evidence-surfaces.js";
+import { computeMeshBounds, frameCamera } from "./camera-fit-to-bounds.js";
 import {
   resolvePedsAdaptiveDialogueBranch,
   type PedsAdaptiveDialogueBranchResolution,
@@ -481,6 +483,30 @@ declare global {
     __openClinXrTraceActionHandoffEvidence?: XrTraceActionHandoffEvidence;
     __openClinXrTraceInteractionEvidenceSummary?: XrTraceInteractionEvidenceSummary;
     __openClinXrSceneAssetEvidence?: SceneAssetEvidence;
+    /** #315: model assetId of the actor a comparator capture framed (recorded intent). */
+    __openClinXrComparatorCameraTargetActorId?: string;
+    /** #315 follow-up: framing measurement — NDC of the framed subject + per-slot visibility/NDC. */
+    __openClinXrComparatorFramingDump?: {
+      comparator: string;
+      namedActorId: string;
+      boundsMin: { x: number; y: number; z: number };
+      boundsMax: { x: number; y: number; z: number };
+      boundsCenter: { x: number; y: number; z: number };
+      camPositionLocal: { x: number; y: number; z: number };
+      camWorldPosition: { x: number; y: number; z: number };
+      camParentName: string | null;
+      camParentMatrixWorld: number[] | null;
+      frameSpanFraction: number | null;
+      ndcBoundsCenter: { x: number; y: number; z: number };
+      namedActorSlotVisible: boolean | null;
+      slots: Array<{
+        slotKind: string;
+        actorId: string;
+        visible: boolean;
+        worldCenter: { x: number; y: number; z: number };
+        ndc: { x: number; y: number; z: number };
+      }>;
+    };
     __openClinXrEnvironmentStateEvidence?: EnvironmentStateEvidence;
     __openClinXrHumanoidSpeechEvidence?: HumanoidSpeechEvidence;
     __openClinXrCaseDefinedHumanoidPerformanceContractEvidence?: CaseDefinedHumanoidPerformanceContractEvidence;
@@ -647,6 +673,9 @@ function recordBootPhase(phase: string, error?: unknown): void {
 
 const sceneAssetStatusRecords = new Map<string, SceneAssetEvidence["assets"][number]>();
 const runtimeEquipmentSlotsByAssetId = new Map<string, Group>();
+/** #315: camera + scene root the comparator capture frames through (assigned in createStationScene). */
+let comparatorCaptureCamera: PerspectiveCamera | null = null;
+let comparatorCaptureSceneRoot: Object3D | null = null;
 let encounterRuntimeAssetBundle = createEdChestPainLocalLearnerRuntimeAssetBundle();
 let patientRuntimeHumanoidAsset = requireEncounterRuntimeAsset(
   findRuntimeActorAsset(encounterRuntimeAssetBundle, "patient_robert_hayes_v1")?.model,
@@ -868,6 +897,21 @@ function runtimeFamilyActorId(): string {
 }
 function runtimeAdditionalActorId(): string {
   return resolveRuntimeSlotAssignment().additionalActorId;
+}
+
+/**
+ * #315 follow-up: the actor a clean comparator capture is named for — the one it must
+ * FRAME and SHOW. `peds_anny_real_garment_parent` names the family actor, `..._nurse`
+ * the clinical-team actor; every other comparator names the patient. The parent/nurse
+ * slots were previously hidden wholesale for clean comparator capture, which is why the
+ * fixed camera (aiming at the named actor) rendered the patient at the frame edge: the
+ * named actor was invisible. Showing only the named subject makes the frame match the aim.
+ */
+function comparatorCaptureSubjectActorId(): string {
+  const comparator = selectedHumanoidSourceComparator();
+  if (comparator === "peds_anny_real_garment_parent") return runtimeFamilyActorId();
+  if (comparator === "peds_anny_real_garment_nurse") return runtimeClinicalTeamActorId();
+  return runtimePatientActorId();
 }
 
 function actorNameplateLabel(prefix: string, actorId: string): string {
@@ -3191,6 +3235,7 @@ function createStationScene(): StationSceneRuntime {
   const scene = new Scene();
   scene.name = iwsdkStationSceneObjects.stationRoot;
   window.__openClinXrDebugScene = scene;
+  comparatorCaptureSceneRoot = scene;
   scene.background = new Color(doorwayTheme.backgroundColor);
   scene.userData.openClinXrEncounterDoorwayTheme = {
     scenarioId: encounterRuntimeAssetBundle.scenarioId,
@@ -3272,6 +3317,7 @@ function createStationScene(): StationSceneRuntime {
     camera.userData.openClinXrCameraFraming = "wide_clean_dynamic_encounter_room_review_three_actor_context";
   }
   locomotionRig.add(camera);
+  comparatorCaptureCamera = camera;
 
   const ambient = new HemisphereLight(0xf4f0dc, 0x223042, 2.2);
   ambient.name = iwsdkStationSceneObjects.ambientLight;
@@ -3579,6 +3625,14 @@ function createStationScene(): StationSceneRuntime {
   patient.name = iwsdkStationSceneObjects.patientRobertHayes;
   patient.position.set(patientPlacement.position.x, patientPlacement.position.y, patientPlacement.position.z);
   patient.visible = Boolean(runtimePatientActorId()) && !selectedScenarioRuntimeMismatch;
+  if (cleanHumanoidSourceComparatorCapture) {
+    // #315 follow-up: only the comparator's named subject renders; the patient is the
+    // subject for the _patient comparators but NOT for _parent/_nurse (those name family/clinical).
+    patient.visible = comparatorCaptureSubjectActorId() === runtimePatientActorId();
+    patient.userData.openClinXrComparatorVisibilityPolicy = patient.visible
+      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
+      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
+  }
   patient.scale.set(patientPlacement.scale.x, patientPlacement.scale.y, patientPlacement.scale.z);
   if (runtimePatientActorId()) applyCleanEncounterVisualReviewActorFraming(patient, runtimePatientActorId());
   if (runtimePatientActorId()) {
@@ -3614,11 +3668,14 @@ function createStationScene(): StationSceneRuntime {
   nurse.name = iwsdkStationSceneObjects.nurseMariaAlvarez;
   nurse.position.set(nursePlacement.position.x, nursePlacement.position.y, nursePlacement.position.z);
   nurse.visible = Boolean(runtimeClinicalTeamActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture || !runtimeClinicalTeamActorId()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    // #315 follow-up: the nurse comparator's named subject is the clinical actor — show it.
+    nurse.visible = comparatorCaptureSubjectActorId() === runtimeClinicalTeamActorId();
+    nurse.userData.openClinXrComparatorVisibilityPolicy = nurse.visible
+      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
+      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
+  } else if (!runtimeClinicalTeamActorId()) {
     nurse.visible = false;
-    if (cleanHumanoidSourceComparatorCapture) {
-      nurse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-    }
   }
   nurse.scale.set(nursePlacement.scale.x, nursePlacement.scale.y, nursePlacement.scale.z);
   if (runtimeClinicalTeamActorId()) applyCleanEncounterVisualReviewActorFraming(nurse, runtimeClinicalTeamActorId());
@@ -3654,11 +3711,14 @@ function createStationScene(): StationSceneRuntime {
   spouse.name = iwsdkStationSceneObjects.spouseAnnaHayes;
   spouse.position.set(spousePlacement.position.x, spousePlacement.position.y, spousePlacement.position.z);
   spouse.visible = Boolean(runtimeFamilyActorId()) && !selectedScenarioRuntimeMismatch;
-  if (cleanHumanoidSourceComparatorCapture || !runtimeFamilyActorId()) {
+  if (cleanHumanoidSourceComparatorCapture) {
+    // #315 follow-up: the parent comparator's named subject is the family actor — show it.
+    spouse.visible = comparatorCaptureSubjectActorId() === runtimeFamilyActorId();
+    spouse.userData.openClinXrComparatorVisibilityPolicy = spouse.visible
+      ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
+      : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
+  } else if (!runtimeFamilyActorId()) {
     spouse.visible = false;
-    if (cleanHumanoidSourceComparatorCapture) {
-      spouse.userData.openClinXrComparatorVisibilityPolicy = "hidden_for_clean_humanoid_source_comparator_capture";
-    }
   }
   if (isPediatricAsthmaRuntimeScenario() && runtimeFamilyActorId()) {
     spouse.position.x = Math.max(spouse.position.x, -1.42);
@@ -6632,6 +6692,81 @@ function handleClinicalTouch(
 }
 
 /**
+ * #315: frame a comparator capture on the NAMED actor after it loads.
+ * `peds_anny_real_garment_parent` names the family actor, `..._nurse` the clinical-team
+ * actor. The camera is constructed before any humanoid exists, so authored numbers were
+ * always a guess about where an actor would end up (two hand-fixes reverted — see the
+ * planted contract header). Reuse the proven fit-to-bounds solve (frameCamera) against
+ * the loaded actor's world AABB, and record the model assetId it framed so a gate can
+ * check recorded intent — a test cannot see a picture and byte size is not identity.
+ */
+function frameComparatorCaptureOnNamedActor(actorId: string, humanoid: Object3D, modelAssetId: string): void {
+  const comparator = selectedHumanoidSourceComparator();
+  if (comparator !== "peds_anny_real_garment_parent" && comparator !== "peds_anny_real_garment_nurse") return;
+  if (!shouldUseCleanHumanoidSourceComparatorCapture()) return;
+  const namedActorId = comparator === "peds_anny_real_garment_parent"
+    ? runtimeFamilyActorId()
+    : runtimeClinicalTeamActorId();
+  if (!namedActorId || actorId !== namedActorId) return;
+  const cam = comparatorCaptureCamera;
+  if (!cam) return;
+  // World matrices must be current for the freshly-added subtree (#315 parent-aware solve).
+  comparatorCaptureSceneRoot?.updateMatrixWorld(true);
+  const bounds = computeMeshBounds(humanoid);
+  if (!Number.isFinite(bounds.min.x) || !Number.isFinite(bounds.max.x)) return;
+  const center = bounds.getCenter(new Vector3());
+  const frameSpanFraction = frameCamera(cam, bounds, "front");
+  cam.userData.openClinXrCameraFraming =
+    `clean_${comparator}_source_comparator_fit_to_bounds_named_actor_${namedActorId}_no_authored_numbers`;
+  cam.userData.openClinXrComparatorFrameSpanFraction = frameSpanFraction;
+  window.__openClinXrComparatorCameraTargetActorId = modelAssetId;
+  // #315 follow-up: recorded framing dump — NDC projection of the framed subject's
+  // world center plus every actor slot's visibility/NDC, so a framing miss is a
+  // measurement, not a pixel guess. A slot with visible=false cannot be the figure
+  // in the frame even though the camera aims at it.
+  cam.updateMatrixWorld(true);
+  cam.matrixWorldInverse.copy(cam.matrixWorld).invert();
+  const projectNdc = (point: Vector3): { x: number; y: number; z: number } => {
+    const p = point.clone().applyMatrix4(cam.matrixWorldInverse).applyMatrix4(cam.projectionMatrix);
+    return { x: Number(p.x.toFixed(3)), y: Number(p.y.toFixed(3)), z: Number(p.z.toFixed(3)) };
+  };
+  const slotRows: NonNullable<NonNullable<Window["__openClinXrComparatorFramingDump"]>["slots"]> = [];
+  comparatorCaptureSceneRoot?.updateMatrixWorld(true);
+  comparatorCaptureSceneRoot?.traverse((o) => {
+    const slotKind = (o as { userData?: { openClinXrSlotKind?: string } }).userData?.openClinXrSlotKind;
+    const slotActorId = (o as { userData?: { openClinXrActorId?: string } }).userData?.openClinXrActorId;
+    if (typeof slotKind !== "string" || typeof slotActorId !== "string" || slotActorId.length === 0) return;
+    const slotBounds = computeMeshBounds(o as Object3D);
+    if (!Number.isFinite(slotBounds.min.x)) return;
+    const slotCenter = slotBounds.getCenter(new Vector3());
+    slotRows.push({
+      slotKind,
+      actorId: slotActorId,
+      visible: (o as { visible: boolean }).visible,
+      worldCenter: { x: Number(slotCenter.x.toFixed(3)), y: Number(slotCenter.y.toFixed(3)), z: Number(slotCenter.z.toFixed(3)) },
+      ndc: projectNdc(slotCenter),
+    });
+  });
+  const worldPos = new Vector3();
+  cam.getWorldPosition(worldPos);
+  window.__openClinXrComparatorFramingDump = {
+    comparator,
+    namedActorId,
+    boundsMin: { x: bounds.min.x, y: bounds.min.y, z: bounds.min.z },
+    boundsMax: { x: bounds.max.x, y: bounds.max.y, z: bounds.max.z },
+    boundsCenter: { x: center.x, y: center.y, z: center.z },
+    camPositionLocal: { x: cam.position.x, y: cam.position.y, z: cam.position.z },
+    camWorldPosition: { x: worldPos.x, y: worldPos.y, z: worldPos.z },
+    camParentName: cam.parent?.name ?? null,
+    camParentMatrixWorld: cam.parent ? Array.from(cam.parent.matrixWorld.elements) : null,
+    frameSpanFraction,
+    ndcBoundsCenter: projectNdc(center),
+    namedActorSlotVisible: humanoid.parent?.visible ?? null,
+    slots: slotRows,
+  };
+}
+
+/**
  * Tag SEPARATE phenotype real-garment meshes with cyan + sleeveDeform userData.
  * ONLY meshes named openclinxr_real_garment* / real_garment_from_phenotype* (or their
  * :y_up_capture_evidence static clone). NEVER cyan-tag anny_base multi-prim role clothing
@@ -6893,13 +7028,19 @@ function loadGeneratedHumanoidIntoActorSlot(
         }
       }
       actorSlot.add(humanoid);
+      // #315: after the named actor loads, frame the comparator capture on IT (not the
+      // patient at the origin) via the proven fit-to-bounds solve, and record the target.
+      frameComparatorCaptureOnNamedActor(options.actorId, humanoid, options.assetId);
       if (isCaptureShadowPath(selectedCaptureMode())) markActorCastShadow(humanoid);
       if (isHumanoidMouthGazePoseReviewCaptureMode()) {
-        // parent/nurse comparators center-frame patient primary (role GLB resolved onto patient slot)
-        const primaryForMouthGaze = runtimePatientActorId();
-        if (options.actorId !== primaryForMouthGaze) {
+        // #315 follow-up: the review subject is the comparator's NAMED actor — family for
+        // _parent, clinical for _nurse, patient for the patient comparators. This block
+        // previously hard-hid every non-patient slot, which re-hid the named parent/nurse
+        // slots after the slot-visibility change and blanked the frame (7,479-byte PNG).
+        const subjectForReview = comparatorCaptureSubjectActorId();
+        if (options.actorId !== subjectForReview) {
           actorSlot.visible = false;
-          actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_secondary_actors_for_primary_humanoid_mouth_gaze_pose_review";
+          actorSlot.userData.openClinXrCaptureVisibilityPolicy = "hide_non_named_subject_actors_for_primary_humanoid_mouth_gaze_pose_review";
         }
       }
       const roleAnimationClipNames = roleAnimationClipNamesForActor(options.actorId);

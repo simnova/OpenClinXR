@@ -62,6 +62,43 @@ import { describe, expect, it } from "vitest";
  * rather than clipped at an edge. This asserts the camera was aimed at the right subject and recorded
  * it. Judging the picture remains a human grade — which is how this defect was found.
  */
+/**
+ * ## FIXED (#315)
+ *
+ * The camera is no longer framed by construction-time literals. The fit-to-bounds solve was
+ * extracted from the isolated-subject-lab into `apps/ui-xr/src/camera-fit-to-bounds.ts` (D1 reuse)
+ * and is called from `loadGeneratedHumanoidIntoActorSlot` AFTER the named actor loads: the parent
+ * comparator frames `runtimeFamilyActorId()`, the nurse comparator frames
+ * `runtimeClinicalTeamActorId()`, both via the loaded humanoid's world AABB (front view, 80% pack
+ * target). The solve is parent-aware: the comparator camera lives under the locomotion rig
+ * (z=-0.62 for `openclinxrPortalStart=encounter`), so `frameCamera` subtracts the parent's world
+ * position and solves in camera-local space; isolated-lab cameras have no parent and are unchanged.
+ *
+ * Recorded intent: `window.__openClinXrComparatorCameraTargetActorId` is set to the framed actor's
+ * MODEL assetId (`parent_tara_johnson_character` / `nurse_kevin_lee_character`) — the same value
+ * `recordSceneAssetStatus` writes into the loaded-asset list, so rule (3) matches by construction
+ * and echoing the comparator string back would fail. `ui-xr-parent-nurse-sleeve-deform-capture.ts`
+ * copies it into each run's inspection.json entry. The two hand-fixed literals from the header
+ * remain reverted; no per-actor magic numbers survive.
+ *
+ * ## FIXED (#315) — follow-up: framing measurement + named-subject visibility
+ *
+ * The first landing framed the named actor's camera correctly (aim NDC x = 0.000) yet the
+ * frames showed a small figure at the OPPOSITE edge. The measurement (framingDump per run in
+ * inspection.json) showed the cause: the named actor's SLOT was hidden for clean comparator
+ * capture (`nurse.visible=false` / `spouse.visible=false`), so the only visible humanoid — the
+ * patient — rendered at the frame edge relative to the new side aim. The camera was never wrong;
+ * its subject was invisible. Fixed by making the comparator's NAMED subject the only visible
+ * actor (`comparatorCaptureSubjectActorId`: parent→family, nurse→clinical, patient comparators→
+ * patient), applied to the four slot-visibility blocks AND the mouth-gaze review slot-hide,
+ * which previously hard-hid every non-patient actor and re-blanked the frame (7,479-byte PNG)
+ * after the slot-visibility change. Measured post-fix, per run (framingDump): parent
+ * ndcBoundsCenter (0, -0.073), nurse (0, -0.074); frameSpanFraction 0.80 both; only the named
+ * slot visible in each run; front frames 130,414 / 122,375 bytes (both > 20 kB). The room the
+ * pre-fix frames appeared to show is not in this capture's pixel data — pre-fix frames were
+ * 4.0% non-background (the child figure) on the same flat theme background; the clean-source
+ * policy has always hidden station/floor/exterior.
+ */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
@@ -99,7 +136,7 @@ function requireBothRuns(rows: Run[]): void {
 const captured = runs();
 
 describe("a comparator capture records the actor it framed", () => {
-  it.fails("(1) RED: every run records a cameraTargetActorId", () => {
+  it("(1) RED: every run records a cameraTargetActorId", () => {
     expect(captured.length, "runs recorded in inspection.json").toBeGreaterThanOrEqual(2);
     const missing = captured
       .filter((r) => !r.cameraTargetActorId)
@@ -107,7 +144,7 @@ describe("a comparator capture records the actor it framed", () => {
     expect(missing, "runs with no recorded camera target").toEqual([]);
   });
 
-  it.fails(
+  it(
     "(2) RED COUNTERWEIGHT: the parent and nurse runs record DIFFERENT actors — one constant is refused",
     () => {
         requireBothRuns(captured);
@@ -119,7 +156,7 @@ describe("a comparator capture records the actor it framed", () => {
     },
   );
 
-  it.fails(
+  it(
     "(3) RED COUNTERWEIGHT: the recorded target is an ACTOR present in that run's loaded assets — echoing the comparator name is refused",
     () => {
       requireBothRuns(captured);
