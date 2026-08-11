@@ -12,7 +12,7 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 36,
-    "total": 427
+    "total": 428
   },
   "entries": [
     {
@@ -3005,6 +3005,13 @@
       "rationale": "Unclassified Markdown; review before using as instruction.",
       "title": "TRELLIS multi-view Grok packs operator spec",
       "summary": "Operator spec for multi-view Grok Imagine packs and factory:trellis:bake multi-image wiring."
+    },
+    {
+      "path": ".agents/skills/trellis-vr-equipment-optimize/SKILL.md",
+      "authority": "agent-methodology",
+      "agentInstructionWeight": "high",
+      "action": "follow-when-relevant",
+      "rationale": "Skill: TRELLIS multi-view bake + proven 3-iter VR post-opt (measured 2026-08-11)."
     }
   ]
 }

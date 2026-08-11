@@ -260,3 +260,5 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 
 | `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` | reference | multi-view Grok packs + factory bake CLI wiring (2026-08-10) |
+
+| `.agents/skills/trellis-vr-equipment-optimize/SKILL.md` | agent-methodology | TRELLIS VR equipment optimize skill |
