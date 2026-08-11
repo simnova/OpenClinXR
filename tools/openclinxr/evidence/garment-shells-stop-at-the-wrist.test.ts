@@ -66,7 +66,7 @@ import { describe, expect, it } from "vitest";
  *      hide mask to the covered region                 | pass| pass| pass| ALL PASS
  *
  * (b) and (c) are refused by (2) because deleting cloth does not un-hide the body beneath — the hand
- * stays black. (d) is refused by (1) because un-hiding the body does not stop the sleeve covering it
+ * geometry is still discarded by the alpha-MASK material, so removing the sleeve leaves a STUMP. (d) is refused by (1) because un-hiding the body does not stop the sleeve covering it
  * — the hand stays blue. **The two clauses must be satisfied together and neither deletion reaches
  * both**, which is the point: this is a fit defect on both sides of the same surface. (e) is the
  * degenerate escape and (3) exists for it.
