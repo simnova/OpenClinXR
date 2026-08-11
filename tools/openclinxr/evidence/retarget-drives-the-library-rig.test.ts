@@ -66,6 +66,16 @@ import { describe, expect, it } from "vitest";
  * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) and (2) are REDs and fail today — no retarget has ever
  * run here. (3) PASSES today at 52/52 and is the premise this slice rests on.
  *
+ * ## FIXED (#326)
+ * The retarget now runs. `bpy.ops.mcp.load_and_retarget` (EXEC_DEFAULT, silent mode on) retargeted
+ * `tools/openclinxr/asset-pipeline/anny/proof-animations/diag/cmu_07_01_walk.bvh` onto the hm08
+ * library rig headless. The addon identified the target as `Mixamo` (its mixamo.json) and the source
+ * as `CMU (MB)` (cmu-mb.json, auto-guessed from the clip's `ROOT Hips`). Result: action
+ * `hm080701walk`, 65 frames, 26 driven bones (65 keyframes each, total rotation delta 0.53–7.17 rad),
+ * every driven bone present in the GLB's 64-joint skin list. Report written to
+ * `.openclinxr/evidence/retarget-cagematch/retarget-report.json` (gitignored; present on the worker
+ * tree). No shipped GLB was modified and no rig bone was renamed. MPFB2/Anny rails were not touched.
+ *
  * NOT TESTED: nothing is rendered and no clip is shipped. This proves the TOOL drives OUR rig, not that
  * the result looks like a person walking, and certainly not that it is clinically useful — see the clip
  * corpus note above. The MPFB2 and Anny rails are out of scope: neither matches `mixamo.json` and
@@ -101,7 +111,7 @@ const mapKeys = existsSync(MIXAMO_MAP)
   : [];
 
 describe("retarget_bvh drives the shipped library rig", () => {
-  it.fails("(1) RED: a retarget report exists naming the clip, the rig and the operator used", () => {
+  it("(1) RED: a retarget report exists naming the clip, the rig and the operator used", () => {
     const r = report();
     expect(r, `retarget report at ${ARTIFACT}`).not.toBeNull();
     expect(r?.sourceClip, "source clip").toBeTruthy();
@@ -109,7 +119,7 @@ describe("retarget_bvh drives the shipped library rig", () => {
     expect(r?.operator, "the retarget_bvh operator invoked").toMatch(/mcp\./);
   });
 
-  it.fails(
+  it(
     `(2) RED: at least ${MIN_DRIVEN_BONES} target bones are driven with real rotation, and each is a bone the rig actually has`,
     () => {
       const r = report();
