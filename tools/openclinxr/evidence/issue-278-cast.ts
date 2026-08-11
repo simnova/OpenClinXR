@@ -344,22 +344,23 @@ export async function buildCastReport(): Promise<unknown> {
     ],
     reCastActors: rows,
     /**
-     * Anti-uniform-scale evidence (#278 Do NOT): both library bodies sit at the SAME 1.76 m
-     * height while differing in torso girth by 8.76 cm (measured #151), and each differs in
-     * topology from the Anny bodies it replaces (MakeHuman basemesh 13,380 verts vs Anny
-     * 13,876/13,872). A uniform scale of one mesh would move height and girth together; these
-     * move girth alone. Girth values are read from the body-param catalog, not invented here.
+     * Anti-uniform-scale evidence (#278 Do NOT): the two library bodies differ in stature
+     * (3.51 cm, #304 — macro-driven, no longer forced onto one shared reference) AND in torso
+     * girth by 7.45 cm (measured #151), and each differs in topology from the Anny bodies it
+     * replaces (MakeHuman basemesh 13,380 verts vs Anny 13,876/13,872). A uniform scale of one
+     * mesh would move height and girth together; these move independently. Girth and height are
+     * read from the body-param catalog, not invented here.
      */
     libraryBodyEvidence: [
       {
         bodyClassId: "adult_lean_female",
-        heightMeters: 1.7599999904632568,
-        torsoGirthProxyMeters: 0.4988371839992518,
+        heightMeters: 1.732452631,
+        torsoGirthProxyMeters: 0.491029433,
       },
       {
         bodyClassId: "adult_heavy_male",
-        heightMeters: 1.7599999904632568,
-        torsoGirthProxyMeters: 0.5864284020526069,
+        heightMeters: 1.697401166,
+        torsoGirthProxyMeters: 0.565570614,
       },
     ],
     coverageBaseline: coverageReport.figures.map((f) => ({

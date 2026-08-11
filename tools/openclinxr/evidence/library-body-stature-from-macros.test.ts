@@ -67,6 +67,26 @@ import { describe, expect, it } from "vitest";
  * all — its phenotype is only {weight, gender, age, muscle}. That authoring gap is #293, not this
  * contract's business. Nothing here claims the girth, mass or proportions are correct, and nothing here
  * touches the Anny rail's own duplication (#303).
+ *
+ * ## FIXED (#304)
+ *
+ * `body_param_stage.py` (`align_body_to_reference`) no longer scales the body onto the reference's
+ * stature. The applied scale is the MakeHuman decimetre→metre conversion only (`MH_UNITS_TO_METRES
+ * = 0.1` — the same constant the no-Anny path already used), so each body keeps the stature its own
+ * macros produced. The Anny reference still supplies foot/centre placement and the recorded girth
+ * proxy; girth remains deliberately unforced (`girthScaleHorizontal: 1.0`). The two reference OBJs
+ * are byte-identical duplicates (#303), so matching to them erased the macro spread.
+ *
+ * Re-baked 2026-08-11 via `pnpm asset:body-param:fit -- --once`:
+ *
+ *   body                | phenotype           | pre-alignment | shipped body mesh
+ *   --------------------|---------------------|---------------|------------------
+ *   adult_lean_female   | weight .18 gender 0 |   17.324526   | 1.732453
+ *   adult_heavy_male    | weight .88 gender 1 |   16.974011   | 1.697401
+ *
+ * Both record `uniformScale: 0.10000000`. The 3.51 cm macro-produced spread is now preserved in
+ * metres; the two RED assertions above hold, and the known-good human-stature column still holds.
+ * The two `it.fails` wrappers are flipped to `it`.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -128,8 +148,8 @@ const pre = Object.fromEntries(
 ) as Record<(typeof BODIES)[number], number>;
 
 describe("a library body's stature comes from its macros, not from a shared reference", () => {
-  it.fails(
-    "(1) RED: the two body classes differ in stature by at least half the spread their own macros produced",
+  it(
+    "(1) FIXED (#304): the two body classes differ in stature by at least half the spread their own macros produced",
     () => {
       const macroSpread = Math.abs(pre.adult_lean_female - pre.adult_heavy_male);
       const shippedSpread = Math.abs(shipped.adult_lean_female - shipped.adult_heavy_male);
@@ -144,8 +164,8 @@ describe("a library body's stature comes from its macros, not from a shared refe
     },
   );
 
-  it.fails(
-    "(2) RED COUNTERWEIGHT: the ratio of the two statures equals the ratio their macros produced — two hardcoded heights cannot satisfy this",
+  it(
+    "(2) FIXED (#304) COUNTERWEIGHT: the ratio of the two statures equals the ratio their macros produced — two hardcoded heights cannot satisfy this",
     () => {
       const wantRatio = pre.adult_lean_female / pre.adult_heavy_male;
       const gotRatio = shipped.adult_lean_female / shipped.adult_heavy_male;

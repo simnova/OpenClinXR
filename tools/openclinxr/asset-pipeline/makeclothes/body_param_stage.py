@@ -53,6 +53,14 @@ NOT_EVIDENCE_FOR = [
 DRIVEN_BONE = "upper_arm.L"
 DRIVEN_ROTATION_DEG = 55.0
 
+# #304 — MakeHuman base units are DECIMETRES; the only scale that preserves the
+# macro-produced stature spread is the dm→m conversion (0.1). The Anny reference is
+# used for foot/centre PLACEMENT and girth recording only, never for stature: the two
+# library reference OBJs are byte-identical duplicates (#303), so forcing
+# `ref_stature / body_stature` erased the macro spread and shipped both opposite-
+# phenotype bodies at 1.760000 m. Same constant as the no-Anny path below.
+MH_UNITS_TO_METRES = 0.1
+
 
 def parse_args() -> argparse.Namespace:
     argv = sys.argv
@@ -101,7 +109,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--anny-obj",
         default="",
-        help="Optional Anny reference OBJ for stature/foot align (0044 path)",
+        help="Optional Anny reference OBJ for foot/centre align + girth recording (0044 path). "
+        "Stature comes from the body's own macros (#304) — never matched to the reference.",
     )
     return p.parse_args(args)
 
@@ -249,15 +258,22 @@ def make_material(name: str, color: tuple[float, float, float, float]) -> bpy.ty
 
 
 def align_body_to_reference(body: bpy.types.Object, reference: bpy.types.Object) -> dict:
-    """Uniform stature scale + foot/centre align (MADR 0044 path), then horizontal girth match.
+    """Placement-only align to the Anny reference + girth recording — stature comes from macros.
 
-    Girth is matched by X/Y scale only so stature (Z) from the uniform pass is preserved.
+    #304: stature is NOT matched to the reference. The two library Anny reference OBJs are
+    byte-identical duplicates (#303) — forcing `ref_stature / body_stature` erased the
+    macro-produced stature spread (3.51 cm, agreeing with MADR 0052's gender Jacobian) and
+    shipped both opposite-phenotype bodies at 1.760000 m. The only scale applied is the
+    MakeHuman decimetre→metre conversion, so each body keeps the stature its own macros
+    produced. The reference still supplies foot/centre placement and the recorded girth
+    proxy. Girth is NOT forced (girthScaleHorizontal: 1.0) — collapsing phenotype girth
+    would make #151's two-class spread vacuous.
     """
     ref_b = world_bounds(reference)
     body_b = world_bounds(body)
     ref_stature = max(ref_b["size"])
     body_stature = max(body_b["size"])
-    scale = ref_stature / body_stature if body_stature > 1e-8 else 1.0
+    scale = MH_UNITS_TO_METRES
     body.scale = (scale, scale, scale)
     bpy.context.view_layer.update()
     body_b2 = world_bounds(body)
@@ -1195,7 +1211,9 @@ def build_one_body_class(
       2) set Basemesh tag + apply macros as live shape keys
       3) ClothesService.fit while shape keys are LIVE (fit reads a from-mix key)
       4) bake macro targets into vertices, then re-load MPFB face keys for morph export
-      5) Anny stature+girth align with garment parented, then unparent + apply
+      5) Anny foot/centre align + girth recording with garment parented (NOT stature —
+         #304: stature comes from the macros; the reference is placement-only), then
+         unparent + apply
       6) bind armature + export WITH skins and morphs
     Baking BEFORE fit rotated/collapsed the scrub (probe: garment Z extent ~2.6 vs
     good no-macro fit Z ~5.1 on the same basemesh).
@@ -1324,7 +1342,9 @@ def build_one_body_class(
 
     outfit: list[bpy.types.Object] = [g for g in [garment, lower_garment] if g is not None]
 
-    # Stature + girth align to Anny (0044 path) while garments are still parented
+    # Foot/centre align to Anny + girth recording (0044 path; NOT stature — #304:
+    # stature comes from the macros, the reference is placement-only) while garments
+    # are still parented
     align_info: dict = {"skipped": True}
     anny_ref_used: str | None = None
     if class_anny and Path(class_anny).is_file():
@@ -1343,7 +1363,7 @@ def build_one_body_class(
         align_info["annyObj"] = class_anny
         align_info["annyReferenceAsset"] = anny_ref_used
     else:
-        basemesh.scale = (0.1, 0.1, 0.1)
+        basemesh.scale = (MH_UNITS_TO_METRES,) * 3
         bpy.context.view_layer.update()
         for g in outfit:
             _ensure_parented(g)

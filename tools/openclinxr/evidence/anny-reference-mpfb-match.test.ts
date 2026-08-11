@@ -175,6 +175,23 @@ import { describe, expect, it } from "vitest";
  *   anny_reference_unchanged:      yes
  *
  * Out-of-scope: MPFB bare legs (no lower garment); blocky mitten hands; T-pose library idle.
+ *
+ * ## FIXED (#304) — height clause re-scoped
+ *
+ * #304 removed the stature forcing from `align_body_to_reference` (body_param_stage): the two
+ * library Anny reference OBJs are byte-identical, sha256 46a6ca8fa5… (#303 — two actors sharing
+ * one body), so matching both MPFB bodies onto that single reference erased the 3.51 cm spread the
+ * macros had produced and shipped opposite-phenotype bodies at 1.760000 m. Stature now comes from
+ * the body's own macros (dm→m conversion only); the reference supplies foot/centre placement and
+ * girth recording. Re-baked: adult_lean_female 1.732 m, adult_heavy_male 1.697 m.
+ *
+ * The old per-body height clause (`|height − annyHeight| ≤ 0.0229`) measured exactly the forcing
+ * #304 deletes — it can no longer hold, and a higher absolute tolerance would be a fitted number
+ * (§9s). It is replaced by the meaningful successor invariant: the shipped stature SPREAD across
+ * the two classes must be ≥ half the macro-produced spread (derived from the recorded pre-alignment
+ * statures — the input of the causal chain), so the alignment can never silently collapse the
+ * phenotype difference again. Girth stays 0044-derived and per-body (never forced). annyReferenceAsset
+ * recording, morph-name measurement, and the deformation counterweight are unchanged.
  */
 
 type MatchedBody = {
@@ -205,7 +222,7 @@ const load = () =>
   import("./anny-reference-mpfb-match.js") as Promise<Record<string, unknown>>;
 
 describe("an MPFB body matches its Anny reference (#221)", () => {
-  it("the MPFB body measurably matches the Anny figure it was built from", async () => {
+  it("the MPFB body is matched to its case: reference recorded, girth within the 0044 residual, macro stature spread survives (#221, height re-scoped by #304)", async () => {
     const mod = await load();
     const inspect = mod["inspectAnnyReferenceMpfbMatch"] as Inspect | undefined;
     expect(inspect).toBeTypeOf("function");
@@ -223,14 +240,7 @@ describe("an MPFB body matches its Anny reference (#221)", () => {
         bad.push(`${m.bodyClassId}: no Anny reference recorded — built from macro sliders alone`);
         continue;
       }
-      const dh = Math.abs(m.heightMeters - m.annyHeightMeters);
       const dg = Math.abs(m.torsoGirthMeters - m.annyTorsoGirthMeters);
-      if (dh > report.tolerance.heightMeters) {
-        bad.push(
-          `${m.bodyClassId}: height ${m.heightMeters.toFixed(3)}m vs Anny ${m.annyHeightMeters.toFixed(3)}m `
-          + `— off by ${dh.toFixed(3)}m, tolerance ${report.tolerance.heightMeters.toFixed(3)}m`,
-        );
-      }
       if (dg > report.tolerance.girthMeters) {
         bad.push(
           `${m.bodyClassId}: girth ${m.torsoGirthMeters.toFixed(3)}m vs Anny ${m.annyTorsoGirthMeters.toFixed(3)}m `
@@ -239,6 +249,22 @@ describe("an MPFB body matches its Anny reference (#221)", () => {
       }
       if (/generated-humanoids\//.test(m.glbPath)) {
         bad.push(`${m.glbPath}: a shipped Anny humanoid was overwritten — this adds library candidates`);
+      }
+    }
+    // height, re-scoped by #304: the two Anny reference OBJs are byte-identical duplicates
+    // (#303), so a per-class stature match to them is impossible by construction — and forcing
+    // it erased the macro-produced spread (the #304 defect this contract must not re-import).
+    // What the macros must produce is a DIFFERENTIATED stature that survives the
+    // placement-only alignment; assert the shipped spread (floor = half the macro-produced
+    // spread, from the recorded pre-alignment statures).
+    if (report.matched.length >= 2) {
+      const statures = report.matched.map((m) => m.heightMeters);
+      const shippedSpread = Math.abs(statures[0]! - statures[1]!);
+      if (!(shippedSpread >= report.tolerance.heightMeters)) {
+        bad.push(
+          `shipped stature spread ${shippedSpread.toFixed(4)}m below the macro-produced floor `
+          + `${report.tolerance.heightMeters.toFixed(4)}m — the alignment erased the phenotype spread (#304)`,
+        );
       }
     }
     expect(bad, `MPFB bodies that do not match their Anny reference:\n${bad.join("\n")}`).toEqual([]);
