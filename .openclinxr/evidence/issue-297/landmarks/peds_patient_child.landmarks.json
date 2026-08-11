@@ -1,0 +1,40 @@
+{
+  "meshId": "peds_patient_child",
+  "annyPath": "real_anny_forward_pass",
+  "provenanceSource": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+  "vertexCount": 13718,
+  "statureMeters": 1.25,
+  "shoulderSpanMeters": 0.554098,
+  "chestGirthMeters": 0.6689269616691799,
+  "waistGirthMeters": 0.599541614125435,
+  "hipGirthMeters": 0.6948526314677059,
+  "waistGirthWidthMeters": 0.21523,
+  "naiveWaistSlabWidthMeters": 0.72584,
+  "headHeightMeters": 0.19999999999999976,
+  "thighLengthMeters": 0.19375000000000017,
+  "shinLengthMeters": 0.25625,
+  "upperArmLengthMeters": 0.1154410768869971,
+  "forearmLengthMeters": 0.11768397097015809,
+  "totalLegLengthMeters": 0.3500000000000001,
+  "totalArmLengthMeters": 0.2331250478571552,
+  "bandHeights": {
+    "chestMeters": 0.8000000000000005,
+    "waistMeters": 0.7250000000000003,
+    "hipMeters": 0.5500000000000002,
+    "shoulderMeters": 0.8250000000000004,
+    "neckMeters": 1.0250000000000004,
+    "crotchMeters": 0.4500000000000001,
+    "kneeMeters": 0.35624999999999996,
+    "ankleMeters": 0.1,
+    "elbowMeters": 0.7212500000000004,
+    "wristMeters": 0.6250000000000002
+  },
+  "methods": {
+    "girth": "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+    "tpose": "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
+    "limbs": "from_mesh_not_rig_reference_obj_has_no_rig",
+    "knee": "anatomical_fraction_knee_0.285_of_measured_stature",
+    "elbow": "anatomical_fraction_fallback_elbow_0.55",
+    "wrist": "lowest_arm_slice_fallback"
+  }
+}

@@ -1,0 +1,530 @@
+{
+  "generatedAt": "2026-08-11T03:48:07.475Z",
+  "claimScope": [
+    "madr_0051_step4_landmark_instrument_over_genuine_anny_base_obj_references",
+    "first_anny_to_anny_comparison_rows_for_the_mpfb_match_protocol",
+    "girths_are_torso_only_arms_excluded_by_lateral_clustering"
+  ],
+  "notEvidenceFor": [
+    "madr_0051_step6_solve_loop_or_step7_tuning_table_next_slice",
+    "anthropometric_or_clinical_validity_of_any_generated_body",
+    "learner_readiness_or_quest_readiness",
+    "mpfb_body_generation"
+  ],
+  "madr0051Bands": [
+    {
+      "landmark": "stature",
+      "bandMeters": 0.01,
+      "source": "MADR 0051 §5: ±1 cm of the phenotype's height_cm — fixed by the input"
+    },
+    {
+      "landmark": "chestGirthMeters|waistGirthMeters|hipGirthMeters|waistGirthWidthMeters",
+      "bandMeters": 0.02,
+      "source": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one"
+    },
+    {
+      "landmark": "bmi",
+      "bandMeters": 1,
+      "source": "MADR 0051 §5: ±1.0 BMI unit of the requested value, computed from measured stature and an estimated volume — not a girth the match is tuning"
+    }
+  ],
+  "bodies": [
+    {
+      "meshId": "adult_male_street_casual",
+      "annyPath": "real_anny_forward_pass",
+      "provenanceSource": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.provenance.json",
+      "vertexCount": 13348,
+      "statureMeters": 1.76,
+      "shoulderSpanMeters": 0.634368,
+      "chestGirthMeters": 0.8425310267334439,
+      "waistGirthMeters": 0.7347184027241769,
+      "hipGirthMeters": 0.9262306371034248,
+      "waistGirthWidthMeters": 0.278782,
+      "naiveWaistSlabWidthMeters": 0.950064,
+      "headHeightMeters": 0.17600000000000152,
+      "thighLengthMeters": 0.3432000000000001,
+      "shinLengthMeters": 0.36079999999999995,
+      "upperArmLengthMeters": 0.2832460517007428,
+      "forearmLengthMeters": 0.15954749487897596,
+      "totalLegLengthMeters": 0.6336,
+      "totalArmLengthMeters": 0.4427935465797187,
+      "bandHeights": {
+        "chestMeters": 1.2671999999999994,
+        "waistMeters": 1.1263999999999998,
+        "hipMeters": 0.8448000000000001,
+        "shoulderMeters": 1.3023999999999993,
+        "neckMeters": 1.5487999999999986,
+        "crotchMeters": 0.7744000000000001,
+        "kneeMeters": 0.5015999999999999,
+        "ankleMeters": 0.1408,
+        "elbowMeters": 1.056,
+        "wristMeters": 0.9504
+      },
+      "methods": {
+        "girth": "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+        "tpose": "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
+        "limbs": "from_mesh_not_rig_reference_obj_has_no_rig",
+        "knee": "anatomical_fraction_knee_0.285_of_measured_stature",
+        "elbow": "mesh_arm_width_interior_local_minimum",
+        "wrist": "lowest_arm_slice_above_hand_tip"
+      }
+    },
+    {
+      "meshId": "ed_chest_pain_spouse_adult",
+      "annyPath": "real_anny_forward_pass",
+      "provenanceSource": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.provenance.json",
+      "vertexCount": 13348,
+      "statureMeters": 1.66,
+      "shoulderSpanMeters": 0.607622,
+      "chestGirthMeters": 0.8280862167446364,
+      "waistGirthMeters": 0.7166615042822087,
+      "hipGirthMeters": 0.8855525008983346,
+      "waistGirthWidthMeters": 0.267336,
+      "naiveWaistSlabWidthMeters": 0.907732,
+      "headHeightMeters": 0.16600000000000126,
+      "thighLengthMeters": 0.3237000000000001,
+      "shinLengthMeters": 0.34029999999999994,
+      "upperArmLengthMeters": 0.26827414386992815,
+      "forearmLengthMeters": 0.15101009951233105,
+      "totalLegLengthMeters": 0.5976,
+      "totalArmLengthMeters": 0.41928424338225917,
+      "bandHeights": {
+        "chestMeters": 1.1951999999999996,
+        "waistMeters": 1.0624,
+        "hipMeters": 0.7968000000000001,
+        "shoulderMeters": 1.2283999999999995,
+        "neckMeters": 1.4607999999999988,
+        "crotchMeters": 0.7304,
+        "kneeMeters": 0.4730999999999999,
+        "ankleMeters": 0.1328,
+        "elbowMeters": 0.9960000000000001,
+        "wristMeters": 0.8964
+      },
+      "methods": {
+        "girth": "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+        "tpose": "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
+        "limbs": "from_mesh_not_rig_reference_obj_has_no_rig",
+        "knee": "anatomical_fraction_knee_0.285_of_measured_stature",
+        "elbow": "mesh_arm_width_interior_local_minimum",
+        "wrist": "lowest_arm_slice_fallback"
+      }
+    },
+    {
+      "meshId": "peds_patient_child",
+      "annyPath": "real_anny_forward_pass",
+      "provenanceSource": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+      "vertexCount": 13718,
+      "statureMeters": 1.25,
+      "shoulderSpanMeters": 0.554098,
+      "chestGirthMeters": 0.6689269616691799,
+      "waistGirthMeters": 0.599541614125435,
+      "hipGirthMeters": 0.6948526314677059,
+      "waistGirthWidthMeters": 0.21523,
+      "naiveWaistSlabWidthMeters": 0.72584,
+      "headHeightMeters": 0.19999999999999976,
+      "thighLengthMeters": 0.19375000000000017,
+      "shinLengthMeters": 0.25625,
+      "upperArmLengthMeters": 0.1154410768869971,
+      "forearmLengthMeters": 0.11768397097015809,
+      "totalLegLengthMeters": 0.3500000000000001,
+      "totalArmLengthMeters": 0.2331250478571552,
+      "bandHeights": {
+        "chestMeters": 0.8000000000000005,
+        "waistMeters": 0.7250000000000003,
+        "hipMeters": 0.5500000000000002,
+        "shoulderMeters": 0.8250000000000004,
+        "neckMeters": 1.0250000000000004,
+        "crotchMeters": 0.4500000000000001,
+        "kneeMeters": 0.35624999999999996,
+        "ankleMeters": 0.1,
+        "elbowMeters": 0.7212500000000004,
+        "wristMeters": 0.6250000000000002
+      },
+      "methods": {
+        "girth": "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+        "tpose": "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
+        "limbs": "from_mesh_not_rig_reference_obj_has_no_rig",
+        "knee": "anatomical_fraction_knee_0.285_of_measured_stature",
+        "elbow": "anatomical_fraction_fallback_elbow_0.55",
+        "wrist": "lowest_arm_slice_fallback"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "pair": [
+        "adult_male_street_casual",
+        "ed_chest_pain_spouse_adult"
+      ],
+      "rows": [
+        {
+          "landmark": "statureMeters",
+          "aValueMeters": 1.76,
+          "bValueMeters": 1.66,
+          "deltaMeters": 0.10000000000000009,
+          "bandMeters": 0.01,
+          "bandSource": "MADR 0051 §5: ±1 cm of the phenotype's height_cm — fixed by the input",
+          "marginMeters": -0.0900000000000001
+        },
+        {
+          "landmark": "shoulderSpanMeters",
+          "aValueMeters": 0.634368,
+          "bValueMeters": 0.607622,
+          "deltaMeters": 0.026746000000000048,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "chestGirthMeters",
+          "aValueMeters": 0.8425310267334439,
+          "bValueMeters": 0.8280862167446364,
+          "deltaMeters": 0.014444809988807483,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": 0.005555190011192517
+        },
+        {
+          "landmark": "waistGirthMeters",
+          "aValueMeters": 0.7347184027241769,
+          "bValueMeters": 0.7166615042822087,
+          "deltaMeters": 0.018056898441968228,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": 0.0019431015580317727
+        },
+        {
+          "landmark": "hipGirthMeters",
+          "aValueMeters": 0.9262306371034248,
+          "bValueMeters": 0.8855525008983346,
+          "deltaMeters": 0.0406781362050902,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.020678136205090198
+        },
+        {
+          "landmark": "waistGirthWidthMeters",
+          "aValueMeters": 0.278782,
+          "bValueMeters": 0.267336,
+          "deltaMeters": 0.011445999999999956,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": 0.008554000000000044
+        },
+        {
+          "landmark": "headHeightMeters",
+          "aValueMeters": 0.17600000000000152,
+          "bValueMeters": 0.16600000000000126,
+          "deltaMeters": 0.010000000000000259,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "thighLengthMeters",
+          "aValueMeters": 0.3432000000000001,
+          "bValueMeters": 0.3237000000000001,
+          "deltaMeters": 0.019500000000000017,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "shinLengthMeters",
+          "aValueMeters": 0.36079999999999995,
+          "bValueMeters": 0.34029999999999994,
+          "deltaMeters": 0.020500000000000018,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "upperArmLengthMeters",
+          "aValueMeters": 0.2832460517007428,
+          "bValueMeters": 0.26827414386992815,
+          "deltaMeters": 0.014971907830814646,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "forearmLengthMeters",
+          "aValueMeters": 0.15954749487897596,
+          "bValueMeters": 0.15101009951233105,
+          "deltaMeters": 0.008537395366644912,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalLegLengthMeters",
+          "aValueMeters": 0.6336,
+          "bValueMeters": 0.5976,
+          "deltaMeters": 0.03600000000000003,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalArmLengthMeters",
+          "aValueMeters": 0.4427935465797187,
+          "bValueMeters": 0.41928424338225917,
+          "deltaMeters": 0.02350930319745953,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        }
+      ]
+    },
+    {
+      "pair": [
+        "adult_male_street_casual",
+        "peds_patient_child"
+      ],
+      "rows": [
+        {
+          "landmark": "statureMeters",
+          "aValueMeters": 1.76,
+          "bValueMeters": 1.25,
+          "deltaMeters": 0.51,
+          "bandMeters": 0.01,
+          "bandSource": "MADR 0051 §5: ±1 cm of the phenotype's height_cm — fixed by the input",
+          "marginMeters": -0.5
+        },
+        {
+          "landmark": "shoulderSpanMeters",
+          "aValueMeters": 0.634368,
+          "bValueMeters": 0.554098,
+          "deltaMeters": 0.08027000000000006,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "chestGirthMeters",
+          "aValueMeters": 0.8425310267334439,
+          "bValueMeters": 0.6689269616691799,
+          "deltaMeters": 0.17360406506426407,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.15360406506426408
+        },
+        {
+          "landmark": "waistGirthMeters",
+          "aValueMeters": 0.7347184027241769,
+          "bValueMeters": 0.599541614125435,
+          "deltaMeters": 0.13517678859874183,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.11517678859874182
+        },
+        {
+          "landmark": "hipGirthMeters",
+          "aValueMeters": 0.9262306371034248,
+          "bValueMeters": 0.6948526314677059,
+          "deltaMeters": 0.23137800563571886,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.21137800563571887
+        },
+        {
+          "landmark": "waistGirthWidthMeters",
+          "aValueMeters": 0.278782,
+          "bValueMeters": 0.21523,
+          "deltaMeters": 0.06355199999999997,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.043551999999999966
+        },
+        {
+          "landmark": "headHeightMeters",
+          "aValueMeters": 0.17600000000000152,
+          "bValueMeters": 0.19999999999999976,
+          "deltaMeters": -0.023999999999998245,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "thighLengthMeters",
+          "aValueMeters": 0.3432000000000001,
+          "bValueMeters": 0.19375000000000017,
+          "deltaMeters": 0.14944999999999994,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "shinLengthMeters",
+          "aValueMeters": 0.36079999999999995,
+          "bValueMeters": 0.25625,
+          "deltaMeters": 0.10454999999999998,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "upperArmLengthMeters",
+          "aValueMeters": 0.2832460517007428,
+          "bValueMeters": 0.1154410768869971,
+          "deltaMeters": 0.16780497481374568,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "forearmLengthMeters",
+          "aValueMeters": 0.15954749487897596,
+          "bValueMeters": 0.11768397097015809,
+          "deltaMeters": 0.04186352390881787,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalLegLengthMeters",
+          "aValueMeters": 0.6336,
+          "bValueMeters": 0.3500000000000001,
+          "deltaMeters": 0.28359999999999996,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalArmLengthMeters",
+          "aValueMeters": 0.4427935465797187,
+          "bValueMeters": 0.2331250478571552,
+          "deltaMeters": 0.2096684987225635,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        }
+      ]
+    },
+    {
+      "pair": [
+        "ed_chest_pain_spouse_adult",
+        "peds_patient_child"
+      ],
+      "rows": [
+        {
+          "landmark": "statureMeters",
+          "aValueMeters": 1.66,
+          "bValueMeters": 1.25,
+          "deltaMeters": 0.4099999999999999,
+          "bandMeters": 0.01,
+          "bandSource": "MADR 0051 §5: ±1 cm of the phenotype's height_cm — fixed by the input",
+          "marginMeters": -0.3999999999999999
+        },
+        {
+          "landmark": "shoulderSpanMeters",
+          "aValueMeters": 0.607622,
+          "bValueMeters": 0.554098,
+          "deltaMeters": 0.053524000000000016,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "chestGirthMeters",
+          "aValueMeters": 0.8280862167446364,
+          "bValueMeters": 0.6689269616691799,
+          "deltaMeters": 0.15915925507545658,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.1391592550754566
+        },
+        {
+          "landmark": "waistGirthMeters",
+          "aValueMeters": 0.7166615042822087,
+          "bValueMeters": 0.599541614125435,
+          "deltaMeters": 0.1171198901567736,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.0971198901567736
+        },
+        {
+          "landmark": "hipGirthMeters",
+          "aValueMeters": 0.8855525008983346,
+          "bValueMeters": 0.6948526314677059,
+          "deltaMeters": 0.19069986943062867,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.17069986943062868
+        },
+        {
+          "landmark": "waistGirthWidthMeters",
+          "aValueMeters": 0.267336,
+          "bValueMeters": 0.21523,
+          "deltaMeters": 0.05210600000000001,
+          "bandMeters": 0.02,
+          "bandSource": "MADR 0051 §5: ±2 cm — the ordinary between-observer tolerance for a tape measurement on a live subject; an external floor, not a fitted one",
+          "marginMeters": -0.03210600000000001
+        },
+        {
+          "landmark": "headHeightMeters",
+          "aValueMeters": 0.16600000000000126,
+          "bValueMeters": 0.19999999999999976,
+          "deltaMeters": -0.033999999999998504,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "thighLengthMeters",
+          "aValueMeters": 0.3237000000000001,
+          "bValueMeters": 0.19375000000000017,
+          "deltaMeters": 0.12994999999999993,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "shinLengthMeters",
+          "aValueMeters": 0.34029999999999994,
+          "bValueMeters": 0.25625,
+          "deltaMeters": 0.08404999999999996,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "upperArmLengthMeters",
+          "aValueMeters": 0.26827414386992815,
+          "bValueMeters": 0.1154410768869971,
+          "deltaMeters": 0.15283306698293103,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "forearmLengthMeters",
+          "aValueMeters": 0.15101009951233105,
+          "bValueMeters": 0.11768397097015809,
+          "deltaMeters": 0.033326128542172956,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalLegLengthMeters",
+          "aValueMeters": 0.5976,
+          "bValueMeters": 0.3500000000000001,
+          "deltaMeters": 0.24759999999999993,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        },
+        {
+          "landmark": "totalArmLengthMeters",
+          "aValueMeters": 0.41928424338225917,
+          "bValueMeters": 0.2331250478571552,
+          "deltaMeters": 0.18615919552510396,
+          "bandMeters": null,
+          "bandSource": "MADR 0051 §5 defines bands only for stature, BMI and girths — this landmark carries the measured delta, no invented band",
+          "marginMeters": null
+        }
+      ]
+    }
+  ]
+}

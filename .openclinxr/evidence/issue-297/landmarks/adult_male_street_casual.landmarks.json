@@ -1,0 +1,40 @@
+{
+  "meshId": "adult_male_street_casual",
+  "annyPath": "real_anny_forward_pass",
+  "provenanceSource": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.provenance.json",
+  "vertexCount": 13348,
+  "statureMeters": 1.76,
+  "shoulderSpanMeters": 0.634368,
+  "chestGirthMeters": 0.8425310267334439,
+  "waistGirthMeters": 0.7347184027241769,
+  "hipGirthMeters": 0.9262306371034248,
+  "waistGirthWidthMeters": 0.278782,
+  "naiveWaistSlabWidthMeters": 0.950064,
+  "headHeightMeters": 0.17600000000000152,
+  "thighLengthMeters": 0.3432000000000001,
+  "shinLengthMeters": 0.36079999999999995,
+  "upperArmLengthMeters": 0.2832460517007428,
+  "forearmLengthMeters": 0.15954749487897596,
+  "totalLegLengthMeters": 0.6336,
+  "totalArmLengthMeters": 0.4427935465797187,
+  "bandHeights": {
+    "chestMeters": 1.2671999999999994,
+    "waistMeters": 1.1263999999999998,
+    "hipMeters": 0.8448000000000001,
+    "shoulderMeters": 1.3023999999999993,
+    "neckMeters": 1.5487999999999986,
+    "crotchMeters": 0.7744000000000001,
+    "kneeMeters": 0.5015999999999999,
+    "ankleMeters": 0.1408,
+    "elbowMeters": 1.056,
+    "wristMeters": 0.9504
+  },
+  "methods": {
+    "girth": "convex_hull_perimeter_of_torso_only_horizontal_slice_arms_excluded_by_lateral_clustering_radius_0.05m",
+    "tpose": "pose_invariant_measurement_no_rig_on_reference_obj_arms_excluded_by_clustering_girths_limbs_along_own_axis",
+    "limbs": "from_mesh_not_rig_reference_obj_has_no_rig",
+    "knee": "anatomical_fraction_knee_0.285_of_measured_stature",
+    "elbow": "mesh_arm_width_interior_local_minimum",
+    "wrist": "lowest_arm_slice_above_hand_tip"
+  }
+}
