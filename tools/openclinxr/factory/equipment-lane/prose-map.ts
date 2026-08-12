@@ -43,38 +43,24 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "surgical consult phone": "surgical_consult_phone_equipment",
   whiteboard: "safety_plan_whiteboard_equipment",
   "glucose meter": "glucometer_review_equipment",
-  // Soft maps — may need dedicated builders later
-  "medication cart": "12_lead_ecg_machine_equipment", // provisional: cart-class until med-cart recipe
+  // Honest secondary maps (same class of object)
   "observation checklist": "observation_station_equipment",
   "vitals panel": "bedside_monitor_equipment",
   "vitals board": "bedside_monitor_equipment",
   "simulated ehr panel": "ehr_screen_equipment",
   "video visit frame": "tablet_visit_equipment",
   "tablet interpreter station": "tablet_visit_equipment",
-  "incentive spirometer": "hydration_supplies_equipment",
-  "call light": "observation_station_equipment",
-  "call bell": "observation_station_equipment",
-  "privacy curtain": "safety_plan_whiteboard_equipment", // weak — flagged in notes via inventory
-  "privacy notice": "safety_plan_whiteboard_equipment",
-  "panic button": "observation_station_equipment",
-  "small table": "exam_table_equipment",
-  "consultation desk": "exam_table_equipment",
   "ehr laptop": "ehr_screen_equipment",
   "imaging report panel": "lab_results_panel_equipment",
-  "joint diagram": "lab_results_panel_equipment",
   "medication list": "ehr_screen_equipment",
-  "medication bottles": "antipyretic_tray_equipment",
   "home glucose log": "glucometer_review_equipment",
-  "urine cup": "hydration_supplies_equipment",
-  "blood-culture kit": "antipyretic_tray_equipment",
-  "neuro exam card": "lab_results_panel_equipment",
-  "ct direction sign": "safety_plan_whiteboard_equipment",
-  "fall-risk sign": "safety_plan_whiteboard_equipment",
-  "sepsis alert panel": "lab_results_panel_equipment",
   "caption panel": "ehr_screen_equipment",
   "low-bandwidth indicator": "tablet_visit_equipment",
-  drain: "abdominal_dressing_equipment",
-  "soft lighting": "abdominal_exam_light_equipment",
+  // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
+  // medication cart, privacy curtain/notice, call light/bell, panic button,
+  // small table, consultation desk, joint diagram, medication bottles,
+  // urine cup, blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs,
+  // drain, soft lighting, incentive spirometer — factory honesty > silent fallback.
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {

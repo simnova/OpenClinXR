@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T03:58:35.413Z",
+  "measuredAt": "2026-08-12T03:59:40.222Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -23,13 +23,10 @@
       "builderSymbol": "build12LeadEcgMachineEquipment",
       "kitRecipeId": "ecg_cart_midband_v1_pending_merge",
       "proseAliases": [
-        "12-lead ECG machine",
-        "medication cart"
+        "12-lead ECG machine"
       ],
       "scenarioIds": [
-        "ed_chest_pain_priority_v1",
-        "stepdown_sepsis_nurse_escalation_v1",
-        "ward_delirium_med_rec_v1"
+        "ed_chest_pain_priority_v1"
       ],
       "midbandStatus": "kit_default",
       "licenceStatus": "n/a",
@@ -41,7 +38,7 @@
         "quest_readiness",
         "exam_equivalence"
       ],
-      "notes": "kit on feature/equipment-kit-approach-b — catalogue provisional modular_kit; prose 'medication cart' provisionally mapped to ECG cart class — replace with dedicated recipe"
+      "notes": "kit on feature/equipment-kit-approach-b — catalogue provisional modular_kit"
     },
     {
       "equipmentId": "abdominal_dressing_equipment",
@@ -51,8 +48,7 @@
       "builderSymbol": "buildAbdominalDressingEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "abdominal dressing",
-        "drain"
+        "abdominal dressing"
       ],
       "scenarioIds": [
         "postop_fever_consult_pressure_v1"
@@ -77,12 +73,10 @@
       "builderSymbol": "buildAbdominalExamLightEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "abdominal exam light",
-        "soft lighting"
+        "abdominal exam light"
       ],
       "scenarioIds": [
-        "adult_abdominal_pain_v1",
-        "oncology_bad_news_family_v1"
+        "adult_abdominal_pain_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -129,14 +123,10 @@
       "builderSymbol": "buildAntipyreticTrayEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "antipyretic tray",
-        "blood-culture kit",
-        "medication bottles"
+        "antipyretic tray"
       ],
       "scenarioIds": [
-        "peds_fever_v1",
-        "stepdown_sepsis_nurse_escalation_v1",
-        "telehealth_diabetes_health_literacy_v1"
+        "peds_fever_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -343,15 +333,11 @@
       "builderSymbol": "buildExamTableEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "consultation desk",
-        "exam table",
-        "small table"
+        "exam table"
       ],
       "scenarioIds": [
         "clinic_abdominal_pain_interpreter_v1",
-        "oncology_bad_news_family_v1",
-        "primary_care_dyslipidemia_joint_pain_v1",
-        "psych_suicidal_ideation_safety_v1"
+        "primary_care_dyslipidemia_joint_pain_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -452,14 +438,10 @@
       "builderSymbol": "buildHydrationSuppliesEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "hydration supplies",
-        "incentive spirometer",
-        "urine cup"
+        "hydration supplies"
       ],
       "scenarioIds": [
-        "ob_headache_preeclampsia_triage_v1",
-        "peds_fever_v1",
-        "postop_fever_consult_pressure_v1"
+        "peds_fever_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -580,16 +562,11 @@
       "kitRecipeId": null,
       "proseAliases": [
         "imaging report panel",
-        "joint diagram",
-        "lab results panel",
-        "neuro exam card",
-        "sepsis alert panel"
+        "lab results panel"
       ],
       "scenarioIds": [
-        "ed_stroke_alert_handoff_v1",
         "oncology_bad_news_family_v1",
-        "primary_care_dyslipidemia_joint_pain_v1",
-        "stepdown_sepsis_nurse_escalation_v1"
+        "primary_care_dyslipidemia_joint_pain_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -661,15 +638,10 @@
       "builderSymbol": "buildObservationStationEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "call bell",
-        "call light",
-        "observation checklist",
-        "panic button"
+        "observation checklist"
       ],
       "scenarioIds": [
-        "ob_headache_preeclampsia_triage_v1",
-        "psych_suicidal_ideation_safety_v1",
-        "ward_delirium_med_rec_v1"
+        "psych_suicidal_ideation_safety_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -867,17 +839,9 @@
       "builderSymbol": "buildSafetyPlanWhiteboardEquipment",
       "kitRecipeId": null,
       "proseAliases": [
-        "CT direction sign",
-        "fall-risk sign",
-        "privacy curtain",
-        "privacy notice",
         "whiteboard"
       ],
       "scenarioIds": [
-        "clinic_abdominal_pain_interpreter_v1",
-        "ed_stroke_alert_handoff_v1",
-        "ob_headache_preeclampsia_triage_v1",
-        "psych_suicidal_ideation_safety_v1",
         "ward_delirium_med_rec_v1"
       ],
       "midbandStatus": "none",
@@ -1050,7 +1014,162 @@
       "notes": ""
     }
   ],
-  "unmappedProse": [],
+  "unmappedProse": [
+    {
+      "prose": "blood-culture kit",
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "call bell",
+      "scenarioIds": [
+        "ward_delirium_med_rec_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "call light",
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "consultation desk",
+      "scenarioIds": [
+        "oncology_bad_news_family_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "CT direction sign",
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "drain",
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "fall-risk sign",
+      "scenarioIds": [
+        "ward_delirium_med_rec_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "incentive spirometer",
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "joint diagram",
+      "scenarioIds": [
+        "primary_care_dyslipidemia_joint_pain_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "medication bottles",
+      "scenarioIds": [
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "medication cart",
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "neuro exam card",
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "panic button",
+      "scenarioIds": [
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "privacy curtain",
+      "scenarioIds": [
+        "clinic_abdominal_pain_interpreter_v1",
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "privacy notice",
+      "scenarioIds": [
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "sepsis alert panel",
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "small table",
+      "scenarioIds": [
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "soft lighting",
+      "scenarioIds": [
+        "oncology_bad_news_family_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    },
+    {
+      "prose": "urine cup",
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "recommendedEquipmentId": null,
+      "reason": "no prose-map entry"
+    }
+  ],
   "summary": {
     "byLane": {
       "bank": 4,
@@ -1062,6 +1181,17 @@
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
-    "scenariosWithUnmappedProse": []
+    "scenariosWithUnmappedProse": [
+      "clinic_abdominal_pain_interpreter_v1",
+      "ed_stroke_alert_handoff_v1",
+      "ob_headache_preeclampsia_triage_v1",
+      "oncology_bad_news_family_v1",
+      "postop_fever_consult_pressure_v1",
+      "primary_care_dyslipidemia_joint_pain_v1",
+      "psych_suicidal_ideation_safety_v1",
+      "stepdown_sepsis_nurse_escalation_v1",
+      "telehealth_diabetes_health_literacy_v1",
+      "ward_delirium_med_rec_v1"
+    ]
   }
 }
