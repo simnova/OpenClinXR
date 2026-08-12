@@ -181,7 +181,7 @@ def _measure_shirt_mhclo_refs(mhclo, human):
     ClothesService.fit_clothes_to_human reads) so the refs are read in the SAME
     macro-deformed frame the fit saw; the key is removed afterwards."""
     key_name = "measure_fit_refs_tmp"
-    human.data.shape_key_add(name=key_name, from_mix=True)
+    human.shape_key_add(name=key_name, from_mix=True)
     try:
         sk = human.data.shape_keys.key_blocks[key_name]
         hv = sk.data
@@ -199,10 +199,18 @@ def _measure_shirt_mhclo_refs(mhclo, human):
         y_size = 0.0
         if y_scale and len(y_scale) == 3:
             y_size = abs(hv[int(y_scale[0])].co.z - hv[int(y_scale[1])].co.z) / float(y_scale[2])
+        # BASIS positions of the same refs (the mesh verts, no shape-key mix) — if the
+        # from_mix frame diverges from the basis, the fit is reading a deformed phantom.
+        bzs = [human.data.vertices[h].co.z for info in (mhclo.verts or {}).values() for h in info["verts"]]
+        keys = []
+        if human.data.shape_keys:
+            for kb in human.data.shape_keys.key_blocks:
+                keys.append(f"{kb.name}={kb.value:.3f}")
         print(
             f"SHIRT_MHCLO_REFS interpSpan {hi - lo:.4f} "
             f"fracBot {(lo - zmin) / stature:.4f} fracTop {(hi - zmin) / stature:.4f} "
-            f"ySize {y_size:.4f}"
+            f"ySize {y_size:.4f} basisRefsZ [{min(bzs):.4f},{max(bzs):.4f}] "
+            f"keys {len(keys)} {','.join(keys[:8])}"
         )
     finally:
         human.shape_key_remove(human.data.shape_keys.key_blocks[key_name])
@@ -1857,6 +1865,28 @@ def main():
         f"HELPER_STRIP verts {verts_before_strip} -> {verts_after_strip}; "
         f"tris {tris_before_strip} -> {tris_after_strip}"
     )
+    # issue-341 round 15: the strip's `reapply_all_details` re-added the macro target
+    # shape keys ($md-*) ON TOP of the basis `bake_targets` already baked (the macro
+    # values live in the object's HumanObjectProperties, which bake_targets does not
+    # clear). The garment fits below read the body through a from_mix shape key, so
+    # they would fit a DOUBLE-DEFORMED phantom body: measured on the child, the same
+    # .mhclo refs sit at 0.356-0.543 H in that frame (its waist/hip) while the baked
+    # basis puts them at 0.556-0.843 H (its neck). The toigo t-shirt therefore fit a
+    # 0.234 m span (0.189 H — the round-15 "bib") and the #332 neck align only
+    # translated it up, preserving the short span. Deleting the macro keys restores
+    # the true baked body for the fits; the face/expression keys (loaded above at
+    # zero weight) stay, and the basis already carries the macros, so no information
+    # is lost. The child's child-band age targets are the strong torso deformers
+    # (0.25-0.37 m phantom shift); aisha's default young-adult targets shift the refs
+    # only ~2 cm, which is why her fit was already correct.
+    if human.data.shape_keys:
+        _macro_keys_removed = 0
+        for _kb in list(human.data.shape_keys.key_blocks):
+            if _kb.name.startswith("$md"):
+                human.shape_key_remove(_kb)
+                _macro_keys_removed += 1
+        if _macro_keys_removed:
+            print(f"MACRO_KEYS_REMOVED {_macro_keys_removed} (post-strip double-deformation guard)")
 
     armature = next((obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"), None)
     if armature is None:
