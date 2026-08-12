@@ -31,6 +31,7 @@ import { buildCallBellEquipment, buildPanicButtonEquipment } from "./station-equ
 import { buildPrivacyCurtainEquipment } from "./station-equipment-privacy-curtain.js";
 import { buildSimpleTableEquipment } from "./station-equipment-tables.js";
 import { buildWallSignEquipment } from "./station-equipment-signs.js";
+import { buildMedicationBottlesEquipment } from "./station-equipment-medication-bottles.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -480,24 +481,15 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     case "hydration_supplies_equipment":
       return buildTrayFamilyEquipment(equipmentId, "hydration");
     // #202 medication cart — honest class for "medication cart" prose (was unmapped)
-    case "medication_cart_equipment":
-      return buildMedicationCartEquipment(equipmentId);
-    // #202 call bell — honest class for "call light"/"call bell" prose (was unmapped)
-    case "call_bell_equipment":
-      return buildCallBellEquipment(equipmentId);
-    // #202 panic button — psych safety room; honest class, not a call bell
-    case "panic_button_equipment":
-      return buildPanicButtonEquipment(equipmentId);
-    // #202 privacy curtain — clinic/OB; honest class for unmapped "privacy curtain" prose
-    case "privacy_curtain_equipment":
-      return buildPrivacyCurtainEquipment(equipmentId);
-    // #202 small table — psych safe room; honest class for unmapped "small table" prose
-    case "small_table_equipment":
-      return buildSimpleTableEquipment(equipmentId, "small_table");
-    // #202 consultation desk — oncology bad-news room; honest class
-    case "consultation_desk_equipment":
-      return buildSimpleTableEquipment(equipmentId, "consultation_desk");
+    case "medication_cart_equipment": return buildMedicationCartEquipment(equipmentId);
+    case "call_bell_equipment": return buildCallBellEquipment(equipmentId);
+    case "panic_button_equipment": return buildPanicButtonEquipment(equipmentId);
+    case "privacy_curtain_equipment": return buildPrivacyCurtainEquipment(equipmentId);
+    case "small_table_equipment": return buildSimpleTableEquipment(equipmentId, "small_table");
+    case "consultation_desk_equipment": return buildSimpleTableEquipment(equipmentId, "consultation_desk");
     case "wall_sign_equipment": return buildWallSignEquipment(equipmentId);
+    // #202 medication bottles — telehealth diabetes; honest small-bottle class
+    case "medication_bottles_equipment": return buildMedicationBottlesEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T06:41:47.721Z
+- measuredAt: 2026-08-12T06:55:31.155Z
 - scenarios: 14
-- equipment rows: 46
-- lanes: {"bank":4,"thin_parametric":41,"modular_kit":1}
-- runtimeSource: {"parametric":42,"gltf":4}
-- unmapped prose: 8
+- equipment rows: 47
+- lanes: {"bank":4,"thin_parametric":42,"modular_kit":1}
+- runtimeSource: {"parametric":43,"gltf":4}
+- unmapped prose: 7
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -114,6 +114,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
 - ehr_screen_equipment (thin_parametric/parametric)
 - glucometer_review_equipment (thin_parametric/parametric)
+- medication_bottles_equipment (thin_parametric/parametric)
 - tablet_visit_equipment (thin_parametric/parametric)
 
 ### ward_delirium_med_rec_v1
