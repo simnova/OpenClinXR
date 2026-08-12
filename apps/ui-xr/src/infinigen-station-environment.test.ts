@@ -451,3 +451,140 @@ describe("product default preview camera inside a closed generated room (#342b)"
  * NOT TESTED: browser/WebXR load of the GLB in a live session; interaction between the loaded
  * room and per-scenario clinical set dressing; a second environmentId row in the asset map.
  */
+
+/**
+ * #342c — fixtures must be re-anchored onto the GENERATED room's measured walls.
+ *
+ * Header IMMUTABLE — append ## FIXED (#342c) below.
+ *
+ * MEASURED on the shipped bake before this existed (live scene-graph dump, product camera,
+ * .openclinxr/evidence/issue-342c/pre-fix-inventory.json): 8 visible fixture meshes lay
+ * outside the generated room's floor footprint (x -3.250..3.126) — the whole wall board
+ * (frame min x -3.995, i.e. 0.745 m out) and four of the five door parts (jamb/header max
+ * x 3.520, i.e. 0.394 m out). Every overhang was on X; nothing was outside on Z.
+ *
+ * `buildStationEnvironment` runs synchronously and anchors those fixtures to the PARAMETRIC
+ * box's walls; the GLB arrives later and hides that box. Nothing moved what was mounted on
+ * it.
+ */
+describe("#342c wall fixtures re-anchor onto the generated room", () => {
+  /**
+   * A room shaped like the SHIPPED bake: an interior surface set plus a separate outer
+   * hull standing proud by one wall thickness. Deliberately NOT a clean convex box —
+   * `stub` reproduces the wall fragments the single-room extraction leaves inside the
+   * footprint, which is what defeated the centre-out raycast on the real room.
+   */
+  function makeShellRoom(halfX: number, halfZ: number, thickness = 0.124, height = 2.4): Group {
+    const room = new Group();
+    room.name = "openclinxr.station-environment.infinigen-room";
+    const floor = new Mesh(new BoxGeometry(halfX * 2, 0.02, halfZ * 2), new MeshStandardMaterial());
+    floor.name = "generated_00floor";
+    room.add(floor);
+    // Interior wall surfaces at +-half; the hull is one thickness further out.
+    const wall = new Mesh(new BoxGeometry(halfX * 2, height, halfZ * 2), new MeshStandardMaterial());
+    wall.name = "generated_00wall";
+    wall.position.set(0, height / 2, 0);
+    room.add(wall);
+    const stub = new Mesh(new BoxGeometry(0.1, height, 0.6), new MeshStandardMaterial());
+    stub.name = "generated_00wall.stub";
+    stub.position.set(-halfX * 0.3, height / 2, 0);
+    room.add(stub);
+    const hull = new Mesh(
+      new BoxGeometry((halfX + thickness) * 2, height + thickness, (halfZ + thickness) * 2),
+      new MeshStandardMaterial(),
+    );
+    hull.name = "generated_00exterior";
+    hull.position.set(0, height / 2, 0);
+    room.add(hull);
+    room.updateMatrixWorld(true);
+    return room;
+  }
+
+  it("measures each inner wall face by insetting the hull, not from the AABB", async () => {
+    const mod = await load();
+    const measure = mod.measureRoomInteriorPlanes as (r: Group) => Array<{
+      wall: string;
+      planeCoordinate: number;
+      method: string;
+    }>;
+    const planes = measure(makeShellRoom(2.75, 1.75));
+    const byWall = new Map(planes.map((p) => [p.wall, p]));
+    // Inner faces are the wall surfaces at +-half, NOT the hull AABB at +-(half+thickness),
+    // and NOT the interior stub at x -0.825 that a centre-out ray would have struck first.
+    expect(byWall.get("+x")?.planeCoordinate).toBeCloseTo(2.75, 3);
+    expect(byWall.get("-x")?.planeCoordinate).toBeCloseTo(-2.75, 3);
+    expect(byWall.get("+z")?.planeCoordinate).toBeCloseTo(1.75, 3);
+    expect(byWall.get("-z")?.planeCoordinate).toBeCloseTo(-1.75, 3);
+    expect(planes.every((p) => p.method === "hull_inset")).toBe(true);
+  });
+
+  it("says aabb_fallback rather than inventing a plane when there is no hull to inset", async () => {
+    const mod = await load();
+    const measure = mod.measureRoomInteriorPlanes as (r: Group) => Array<{
+      wall: string;
+      method: string;
+    }>;
+    // Floor only: no exterior hull, so wall thickness cannot be measured.
+    const room = new Group();
+    const floor = new Mesh(new BoxGeometry(4, 0.02, 4), new MeshStandardMaterial());
+    floor.name = "generated_00floor";
+    room.add(floor);
+    room.updateMatrixWorld(true);
+    const planes = measure(room);
+    expect(planes.length).toBe(4);
+    expect(planes.every((p) => p.method === "aabb_fallback")).toBe(true);
+  });
+
+  it("pulls a board anchored to the 7 m box inside a 5.5 m generated room", async () => {
+    const mod = await load();
+    const reanchor = mod.reanchorWallFixturesToRoom as (i: {
+      stationEnvironment: Group;
+      roomRoot: Group;
+    }) => Array<{ slotId: string; movedMeters: number }>;
+    const { buildStationEnvironment } = await import("./station-environment.js");
+
+    const shell = buildStationEnvironment({ environmentId: "ed_exam_bay_v1" });
+    let board: Mesh | Group | null = null;
+    shell.traverse((o) => {
+      if (o.userData?.fixtureSlotId === "wall_board" && o.userData?.isMarkerCube === false) {
+        board = o as Group;
+      }
+    });
+    expect(board).not.toBeNull();
+    if (!board) return;
+
+    // The 19.25 m2 reachable-minimum footprint measured in #342b (5.5 x 3.5).
+    const room = makeShellRoom(2.75, 1.75);
+    const before = new Box3().setFromObject(board).min.x;
+    expect(before).toBeLessThan(-2.75); // outside the small room before re-anchoring
+    const moved = reanchor({ stationEnvironment: shell, roomRoot: room });
+    const after = new Box3().setFromObject(board);
+    expect(moved.some((m) => m.slotId === "wall_board" && Math.abs(m.movedMeters) > 0)).toBe(true);
+    // Near face lands at the measured plane + the authored 0.08 m mount setback.
+    expect(after.min.x).toBeCloseTo(-2.75 + 0.08, 3);
+    // Counterweight: the board is not shrunk or emptied to make it fit.
+    expect(Math.max(after.max.x - after.min.x, after.max.z - after.min.z)).toBeGreaterThan(1.1);
+  });
+
+  it("leaves fraction-placed furniture and the learner marker where they are", async () => {
+    const mod = await load();
+    const reanchor = mod.reanchorWallFixturesToRoom as (i: {
+      stationEnvironment: Group;
+      roomRoot: Group;
+    }) => unknown;
+    const { buildStationEnvironment } = await import("./station-environment.js");
+    const shell = buildStationEnvironment({ environmentId: "ed_exam_bay_v1" });
+    const sample = (id: string): Vector3 | null => {
+      let hit: Vector3 | null = null;
+      shell.traverse((o) => {
+        if (o.userData?.fixtureSlotId === id) hit = o.position.clone();
+      });
+      return hit;
+    };
+    const stretcherBefore = sample("stretcher");
+    const learnerBefore = sample("learner_start");
+    reanchor({ stationEnvironment: shell, roomRoot: makeShellRoom(2.75, 1.75) });
+    expect(sample("stretcher")).toEqual(stretcherBefore);
+    expect(sample("learner_start")).toEqual(learnerBefore);
+  });
+});

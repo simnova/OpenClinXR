@@ -441,6 +441,9 @@ export const WALL_BOARD: EnvironmentFixtureSlot = {
   placementRule: "wall_anchor",
   wall: "-x",
   wallInsetMeters: BOARD_WALL_INSET_METERS,
+  // #342c: a board hangs ON the wall. Until this existed the 1.15 m frame ran along X
+  // into the −X wall (measured: 0.575 m through the inner face, all 14 environments).
+  facesWall: true,
 };
 
 export const WORK_SURFACE: EnvironmentFixtureSlot = {

@@ -31,6 +31,10 @@
     "./environment-zone-templates": {
       "types": "./dist/environment-zone-templates.d.ts",
       "default": "./dist/environment-zone-templates.js"
+    },
+    "./fixture-wall-mounting": {
+      "types": "./dist/fixture-wall-mounting.d.ts",
+      "default": "./dist/fixture-wall-mounting.js"
     }
   },
   "scripts": {

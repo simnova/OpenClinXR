@@ -14,13 +14,16 @@
  */
 
 import {
+  Box3,
   BoxGeometry,
   CylinderGeometry,
   Group,
   Mesh,
   MeshStandardMaterial,
   type ColorRepresentation,
+  type Object3D,
 } from "three";
+import type { NamedShellWall } from "@openclinxr/asset-registry/fixture-wall-mounting";
 import { roleClassFromFixtureSlotId } from "./fixture-role-ownership.js";
 import { EXAM_TABLE_LENGTH_M } from "./station-equipment-builders.js";
 
@@ -29,6 +32,14 @@ export type BuildArchitectureFixtureInput = {
   purpose?: string;
   position: { x: number; y: number; z: number };
   trimColor: ColorRepresentation;
+  /**
+   * #342c — yaw applied to the assembled root so a wall-mounted fixture FACES its named
+   * wall. Every architecture builder authors its geometry facing +Z (width along X, thin
+   * along Z); nothing ever turned it, so a slot declaring `wall: "-x"` produced a panel
+   * lying ACROSS the left wall rather than against it. Supplied by the caller from the
+   * slot's `wall`, never inferred from sign(x) — #203 rejected that.
+   */
+  rotationY?: number;
 };
 
 export type ArchitectureFixtureKind =
@@ -53,6 +64,51 @@ function tagArchitectureRoot(
   root.userData.openClinXrFixtureKind = kind;
   root.userData.openClinXrFixtureRole = roleClassFromFixtureSlotId(input.slotId);
   root.userData.openClinXrDynamicScenePolicy = "architecture_fixture_multi_mesh_identity";
+  if (typeof input.rotationY === "number" && Number.isFinite(input.rotationY)) {
+    root.rotation.y = input.rotationY;
+    root.userData.openClinXrWallFacingYaw = input.rotationY;
+  }
+}
+
+/**
+ * #342c — slide a fixture along its wall's NORMAL so its nearest face sits `insetMeters`
+ * from the wall's inner plane.
+ *
+ * This is the anchoring the `wallInsetMeters` doc already describes ("fixed metres from
+ * the named wall plane into the room ... so the gap does not grow with the room") but that
+ * `resolveWallAnchorPosition` could not deliver, because it positions the fixture's ORIGIN
+ * and a multi-mesh assembly's extent about that origin is not zero. Measured on main: the
+ * board's origin lands exactly on the wall's inner face while 0.575 m of frame continues
+ * THROUGH it, and the door's assembly crosses by 0.100 m — identically in all 14
+ * environments, because `halfExtent - inset` contains no room dimension.
+ *
+ * The offset is read from the fixture's own world AABB after it is built, so it needs no
+ * per-fixture constant and stays correct if a builder's geometry changes. `planeCoordinate`
+ * is the wall's inner face in world units — measured from the room that is actually
+ * present (generated or parametric), never a room-width constant.
+ *
+ * Returns the metres moved, so a caller can record it as evidence rather than assume.
+ */
+export function anchorFixtureNearFaceToPlane(input: {
+  root: Object3D;
+  wall: NamedShellWall;
+  planeCoordinate: number;
+  insetMeters: number;
+}): number {
+  const { root, wall, planeCoordinate, insetMeters } = input;
+  root.updateMatrixWorld(true);
+  const box = new Box3().setFromObject(root);
+  if (box.isEmpty() || !Number.isFinite(box.min.x)) return 0;
+  const axis: "x" | "z" = wall === "+x" || wall === "-x" ? "x" : "z";
+  // Interior lies at greater coordinate for the -x / -z walls, lesser for +x / +z.
+  const interiorIsGreater = wall === "-x" || wall === "-z";
+  const nearFace = interiorIsGreater ? box.min[axis] : box.max[axis];
+  const target = interiorIsGreater ? planeCoordinate + insetMeters : planeCoordinate - insetMeters;
+  const delta = target - nearFace;
+  if (!Number.isFinite(delta) || Math.abs(delta) < 1e-6) return 0;
+  root.position[axis] += delta;
+  root.updateMatrixWorld(true);
+  return delta;
 }
 
 /** Solid door leaf at the open front of the shell (learner entry). */

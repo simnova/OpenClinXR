@@ -1,0 +1,266 @@
+{
+  "schemaVersion": "openclinxr.issue-342c-fixture-fit-result.v1",
+  "slice": "issue-342c",
+  "premiseCorrection": {
+    "filedAs": "fixtures are placed for the old 7 m parametric box; make placement derive from the generated room's measured bounds",
+    "measuredVerdict": "HALF FALSE, and the half that is false is the one that would have been built first",
+    "why": "resolveWallAnchorPosition places a fixture's ORIGIN at plane -/+ wallInsetMeters. The offending overhang is the assembly's own extent about that origin MINUS the inset - 0.575 - 0.08 = 0.495 m for the board - and that expression contains no room dimension. Re-running the width maths against the generated room's 6.376 m still leaves the board 0.56 m outside. Proven by contract: wall-anchored-fixture-fit.test.ts 'anchors at the same distance from the wall in a small room as a large one'.",
+    "actualDefect": "the board and door are authored facing +Z (width along X, thin along Z) and NOTHING ever rotated them, so a slot declaring wall '-x' rendered a panel lying ACROSS the left wall. It fails on the SHIPPED parametric box, in all 14 environments, before any generated room is involved: 24 offenders, a constant 0.575 m (board) and 0.100 m (door) at every room width."
+  },
+  "changes": [
+    {
+      "file": "packages/openclinxr/asset-registry/src/environment-descriptors.ts",
+      "what": "EnvironmentFixtureSlot.facesWall - authored data, not a fixture-name special case"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/environment-zone-templates.ts",
+      "what": "wallFacingYawRadians(wall) derived from the identity that rotating by t maps +Z to (sin t, 0, cos t); WALL_BOARD gains facesWall: true. DOOR_LEAF deliberately does NOT - its own source comment makes it a free-standing entry assembly, and the parametric shell has no +Z wall."
+    },
+    {
+      "file": "apps/ui-xr/src/station-architecture-fixtures.ts",
+      "what": "rotationY on the build input; anchorFixtureNearFaceToPlane() slides a fixture along its wall normal until its NEAR FACE - read from its own world AABB - sits at wallInsetMeters from a given plane. No per-fixture constant."
+    },
+    {
+      "file": "apps/ui-xr/src/station-environment.ts",
+      "what": "parametricWallInnerPlane() derived from the same expressions the wall meshes are built from; fixtures anchored by near face at build time; the anchor contract (wall + inset) stamped on the fixture for later re-anchoring"
+    },
+    {
+      "file": "apps/ui-xr/src/infinigen-station-environment.ts",
+      "what": "measureRoomInteriorPlanes() + reanchorWallFixturesToRoom(), called on the loader's success path - the same path that hides the procedural shell, so whoever hides the old room owns moving what was mounted on it"
+    }
+  ],
+  "interiorMeasurement": {
+    "method": "outer hull inset by the measured wall thickness",
+    "wallThicknessMeters": 0.124,
+    "measuredPerFace": {
+      "+x": 0.124,
+      "-x": 0.0,
+      "+z": 0.124,
+      "-z": 0.0
+    },
+    "whyMax": "a face reads 0 wherever the bake's wall mesh already carries that wall's outer surface. The two nonzero faces agree exactly.",
+    "derivedPlanes": {
+      "-x": -3.126,
+      "+x": 3.126,
+      "-z": -3.901,
+      "+z": 2.351
+    },
+    "independentCrossChecks": [
+      "wall mesh's own inner vertex plane on -x = -3.126 (from a vertex dump, did not feed the derivation)",
+      "floor mesh z minimum = -3.901",
+      "floor mesh z maximum = 2.351"
+    ],
+    "rejectedInstrument": {
+      "what": "raycast from the interior centre along each horizontal axis",
+      "verdict": "measured and REJECTED",
+      "evidence": "-x struck geometry at x -0.374 - wall STUBS at x -2.118/-1.826/-1.750/-1.533/-1.000/-0.948 left inside the footprint by the single-room extraction. +x struck NOTHING and fell back: at that height and z the ray passes through the room's own doorway. One ray measures one line and this room is neither convex nor unbroken."
+    }
+  },
+  "liveResult": {
+    "instrument": "ui-xr-live-scene-graph-dump.ts --capture-mode none (the PRODUCT's camera)",
+    "outOfBoundsBefore": 8,
+    "outOfBoundsAfter": 0,
+    "wallBoardAfter": [
+      {
+        "mesh": "wall_board.frame",
+        "worldMin": [
+          -3.0455,
+          1.04,
+          -1.625
+        ],
+        "worldMax": [
+          -3.0055,
+          1.76,
+          -0.475
+        ]
+      },
+      {
+        "mesh": "wall_board.surface",
+        "worldMin": [
+          -3.0055,
+          1.09,
+          -1.575
+        ],
+        "worldMax": [
+          -2.9855,
+          1.71,
+          -0.525
+        ]
+      },
+      {
+        "mesh": "wall_board.marker_rail",
+        "worldMin": [
+          -3.0005,
+          1.085,
+          -1.4
+        ],
+        "worldMax": [
+          -2.9505,
+          1.115,
+          -0.7
+        ]
+      },
+      {
+        "mesh": "wall_board.tray",
+        "worldMin": [
+          -3.0155,
+          0.96,
+          -1.325
+        ],
+        "worldMax": [
+          -2.9155,
+          1.0,
+          -0.775
+        ]
+      }
+    ],
+    "doorLeafAfter": [
+      {
+        "mesh": "door_leaf.jamb.left",
+        "worldMin": [
+          1.5855,
+          -0.005,
+          1.0
+        ],
+        "worldMax": [
+          1.6655,
+          2.045,
+          1.1
+        ]
+      },
+      {
+        "mesh": "door_leaf.jamb.right",
+        "worldMin": [
+          2.5455,
+          -0.005,
+          1.0
+        ],
+        "worldMax": [
+          2.6255,
+          2.045,
+          1.1
+        ]
+      },
+      {
+        "mesh": "door_leaf.header",
+        "worldMin": [
+          1.5855,
+          2.03,
+          1.0
+        ],
+        "worldMax": [
+          2.6255,
+          2.13,
+          1.1
+        ]
+      },
+      {
+        "mesh": "door_leaf.leaf",
+        "worldMin": [
+          1.6655,
+          0.005,
+          1.045
+        ],
+        "worldMax": [
+          2.5455,
+          1.955,
+          1.095
+        ]
+      },
+      {
+        "mesh": "door_leaf.handle",
+        "worldMin": [
+          2.3655,
+          0.9762,
+          1.105
+        ],
+        "worldMax": [
+          2.4855,
+          1.0238,
+          1.155
+        ]
+      }
+    ],
+    "viewport": ".openclinxr/evidence/issue-342c/post-fix/ed_chest_pain_priority_v1-none-viewport.png",
+    "boardGradeView": ".openclinxr/evidence/issue-342c/post-fix/board-wall-view.png",
+    "boardGradeCameraVerified": "eye read back as world [-0.9,1.42,-0.7]; board centre projects to NDC [0.338,-0.055] - in frame, verified numerically rather than inferred from the picture",
+    "pixelGrade": "board: dark frame, pale writing surface, red marker rail, grey tray, mounted FACE-ON flat against the wall. Projected frame aspect 470x290 px = 1.62 against the authored 1.15/0.72 = 1.60. door: now reads as a door (grey frame, red leaf, handle) where the pre-fix frame showed an edge-on sliver."
+  },
+  "smallRoomVerdict": {
+    "question": "can the 19.25 m2 reachable minimum (5.5 x 3.5) ship?",
+    "answer": "NO - and the blocker is Z depth, not X width, which is the opposite axis from the one this slice was filed on",
+    "method": "product code (buildStationEnvironment + reanchorWallFixturesToRoom) against a simulated 5.5 x 3.5 room aligned exactly as positionInfinigenRoom aligns the real bake (floor centre z -0.775, verified against the shipped room's measured floor z -3.901..2.351). Actor boxes are the live measured ones, not invented.",
+    "atShippedFootprint": "all fixtures and all three actors fit",
+    "at19_25m2": [
+      {
+        "fixture": "door_leaf",
+        "outX": 0.0,
+        "outZ": 0.18,
+        "whyNotFixed": "wall '+x', so re-anchoring moves it along X only; its Z is set by the descriptor"
+      },
+      {
+        "fixture": "learner_start",
+        "outX": 0.0,
+        "outZ": 0.515,
+        "whyNotFixed": "placementRule 'absolute' - the learner's spawn point, explicitly never remapped"
+      }
+    ],
+    "notReBaked": "no new Infinigen bake was produced. The Z overrun is a property of the 3.5 m depth envelope and the descriptor's fixture Z coordinates under the current centring, so it holds for ANY 5.5 x 3.5 bake and a re-bake cannot change it.",
+    "whatOnlyARealBakeCanStillAnswer": [
+      "where that bake puts its own doorway",
+      "what interior stubs the extraction leaves",
+      "whether the room reads acceptably to a learner at that size"
+    ]
+  },
+  "redSlab": {
+    "identified": "legitimate fixture, correctly placed, but a LAYOUT MARKER rendered to the learner - not debris and not out of bounds",
+    "node": "openclinxr.station-environment.fixture-slot.learner_start",
+    "measuredWorldMin": [
+      -0.09000000357627869,
+      6.705522526129215e-10,
+      1.3099999964237212
+    ],
+    "measuredWorldMax": [
+      0.09000000357627869,
+      0.059999999329447745,
+      1.4900000035762786
+    ],
+    "source": "apps/ui-xr/src/station-environment.ts:296-312 - BoxGeometry(0.18, 0.06, 0.18), MeshStandardMaterial color+emissive = d.wallTrimColor",
+    "colour": "0xdc2626, from environment-descriptors.ts:145 wallTrimColor for ed_exam_bay_v1",
+    "slot": "environment-descriptors.ts:163 { slotId: learner_start, position: {x:0,y:0,z:1.4} }, placementRule absolute (never remapped)",
+    "corroboration": "predicted 0.18 x 0.06 x 0.18 at (0, 0.03, 1.4) from source; measured AABB min [-0.09,0,1.31] max [0.09,0.06,1.49] - identical. Visible as a red pad on the floor mid-frame in the pre-fix viewport, which I graded by eye.",
+    "inBounds": true,
+    "notChangedInThisSlice": "it fits; whether a learner should see their own spawn anchor is a separate product decision, and deleting a fixture is out of scope here."
+  },
+  "verification": {
+    "uiXrSuite": "177/177 (169 at #342b + 8 new)",
+    "strictTypecheck": "clean",
+    "toolsAndPackages": "27 failing files / 45 failing tests, IDENTICAL before and after (full run both sides). generator-sweep-harness is 9/9 red on both sides from ReferenceError: self is not defined in three's GLTFLoader under Node - pre-existing, environmental.",
+    "biome": "18 errors on the touched pre-existing files, before and after; the new test file is clean",
+    "guards": "agent:alignment and docs:drift-check both green",
+    "destructiveProbes": [
+      {
+        "probe": "disable the wall-facing rotation",
+        "result": "FIRST ATTEMPT PASSED 4/4 - the gate did not test what it claimed. The counterweight used max(xSpan,zSpan), which is orientation-blind, so an unrotated board slid clear of the wall satisfied it. Contract corrected to assert the two axes separately; the probe then failed with along-wall extent 0.13 m against the required 1.1 m."
+      },
+      {
+        "probe": "disable near-face anchoring in the parametric shell",
+        "result": "fails - 24 offenders return (board 0.020 m, door 0.100 m)"
+      },
+      {
+        "probe": "early-return from reanchorWallFixturesToRoom",
+        "result": "fails - the board is not pulled inside the 5.5 m room"
+      }
+    ]
+  },
+  "claimScope": "wall-anchored architecture fixtures lie against the wall of whichever room is actually present - parametric or generated - for the environments enumerated from the registry, and every visible fixture and actor in ed_chest_pain_priority_v1 is inside the shipped generated room's measured interior.",
+  "notEvidenceFor": [
+    "any environmentId other than ed_exam_bay_v1 rendered live - the other 13 are covered only by the parametric-shell contract, not by pixels",
+    "clinical realism or clinical staging correctness",
+    "Quest readiness",
+    "a re-baked smaller room",
+    "the capture-mode framings, still authored for the open parametric box",
+    "fraction-placed furniture, which was already inside and was not changed",
+    "the red learner_start marker, identified and deliberately left alone"
+  ]
+}

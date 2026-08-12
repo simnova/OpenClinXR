@@ -1,0 +1,267 @@
+{
+  "schemaVersion": "openclinxr.issue-342c-fixture-fit-inventory.v1",
+  "slice": "issue-342c",
+  "measuredAgainst": {
+    "commit": "f0577453",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "environmentId": "ed_exam_bay_v1",
+    "instrument": "tools/openclinxr/evidence/ui-xr-live-scene-graph-dump.ts --capture-mode none (the PRODUCT's own camera, not a capture framing)",
+    "dump": ".openclinxr/evidence/issue-342c/pre-fix/ed_chest_pain_priority_v1-none-scene-graph.json",
+    "framesAdvanced": 59,
+    "nodesTotal": 396
+  },
+  "generatedRoomMeasured": {
+    "floorMesh": {
+      "name": "dining-room_00floor",
+      "worldMin": [
+        -3.25,
+        -0.0,
+        -3.9005
+      ],
+      "worldMax": [
+        3.1255,
+        0,
+        2.3505
+      ],
+      "footprintMeters": [
+        6.3755,
+        6.2511
+      ],
+      "areaM2": 39.854
+    },
+    "wallMesh": {
+      "worldMin": [
+        -3.25,
+        -0.0,
+        -4.025
+      ],
+      "worldMax": [
+        3.1255,
+        2.4011,
+        2.3505
+      ]
+    },
+    "exteriorHull": {
+      "worldMin": [
+        -3.25,
+        -0.1245,
+        -4.025
+      ],
+      "worldMax": [
+        3.25,
+        2.5255,
+        2.475
+      ]
+    },
+    "note": "These are mesh AABBs, i.e. the walls' OUTER extent. The usable interior air volume is inset by the wall thickness and is measured separately by raycast (see interiorPlanes in the post-fix artifact). The AABB is used here only as the coarse footprint an out-of-bounds fixture must clear."
+  },
+  "authoredBasis": {
+    "descriptor": "packages/openclinxr/asset-registry/src/environment-descriptors.ts:140 ed_exam_bay_v1",
+    "roomWidthMeters": 7,
+    "roomDepthMeters": 3.45,
+    "consumedBy": "apps/ui-xr/src/station-environment.ts:140 -> resolveFixtureSlotsForRoom -> packages/openclinxr/asset-registry/src/environment-zone-templates.ts:260 roomHalfW = room.widthMeters/2 = 3.5",
+    "wallAnchorMath": {
+      "+x": "x = roomHalfW - wallInsetMeters = 3.5 - 0.5 = 3.0 (DOOR_WALL_INSET_METERS, environment-zone-templates.ts:415)",
+      "-x": "x = -roomHalfW + wallInsetMeters = -3.5 + 0.08 = -3.42 (BOARD_WALL_INSET_METERS, environment-zone-templates.ts:421)"
+    },
+    "why": "buildStationEnvironment runs BEFORE the Infinigen room finishes loading and is never told the generated room's size, so the wall plane the fixtures anchor to is the 7 m parametric box's, at +-3.5."
+  },
+  "outOfBoundsCount": 8,
+  "outOfBounds": [
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.door_leaf.jamb.right",
+      "worldMin": [
+        3.44,
+        -0.005,
+        1.0
+      ],
+      "worldMax": [
+        3.52,
+        2.045,
+        1.1
+      ],
+      "metresOutsideFloorFootprintX": 0.3945,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.door_leaf.header",
+      "worldMin": [
+        2.48,
+        2.03,
+        1.0
+      ],
+      "worldMax": [
+        3.52,
+        2.13,
+        1.1
+      ],
+      "metresOutsideFloorFootprintX": 0.3945,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.door_leaf.leaf",
+      "worldMin": [
+        2.56,
+        0.005,
+        1.045
+      ],
+      "worldMax": [
+        3.44,
+        1.955,
+        1.095
+      ],
+      "metresOutsideFloorFootprintX": 0.3145,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.door_leaf.handle",
+      "worldMin": [
+        3.26,
+        0.9762,
+        1.105
+      ],
+      "worldMax": [
+        3.38,
+        1.0238,
+        1.155
+      ],
+      "metresOutsideFloorFootprintX": 0.2545,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.wall_board.frame",
+      "worldMin": [
+        -3.995,
+        1.04,
+        -1.07
+      ],
+      "worldMax": [
+        -2.845,
+        1.76,
+        -1.03
+      ],
+      "metresOutsideFloorFootprintX": 0.745,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.wall_board.surface",
+      "worldMin": [
+        -3.945,
+        1.09,
+        -1.03
+      ],
+      "worldMax": [
+        -2.895,
+        1.71,
+        -1.01
+      ],
+      "metresOutsideFloorFootprintX": 0.695,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.wall_board.marker_rail",
+      "worldMin": [
+        -3.77,
+        1.085,
+        -1.025
+      ],
+      "worldMax": [
+        -3.07,
+        1.115,
+        -0.975
+      ],
+      "metresOutsideFloorFootprintX": 0.52,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    },
+    {
+      "mesh": "openclinxr.station-environment.fixture-slot.wall_board.tray",
+      "worldMin": [
+        -3.695,
+        0.96,
+        -1.04
+      ],
+      "worldMax": [
+        -3.145,
+        1.0,
+        -0.94
+      ],
+      "metresOutsideFloorFootprintX": 0.445,
+      "metresOutsideFloorFootprintZ": 0,
+      "outside": true
+    }
+  ],
+  "inBoundsFixtureMeshes": [
+    "openclinxr.station-environment.fixture-slot.stretcher.deck.seat.mesh",
+    "openclinxr.station-environment.fixture-slot.stretcher.deck.back.mesh",
+    "openclinxr.station-environment.fixture-slot.stretcher.pillow",
+    "openclinxr.station-environment.fixture-slot.stretcher.rail.back.left",
+    "openclinxr.station-environment.fixture-slot.stretcher.rail.back.right",
+    "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.left",
+    "openclinxr.station-environment.fixture-slot.stretcher.rail.seat.right",
+    "openclinxr.station-environment.fixture-slot.stretcher.base",
+    "openclinxr.station-environment.fixture-slot.stretcher.leg.0",
+    "openclinxr.station-environment.fixture-slot.stretcher.leg.1",
+    "openclinxr.station-environment.fixture-slot.stretcher.leg.2",
+    "openclinxr.station-environment.fixture-slot.stretcher.leg.3",
+    "openclinxr.station-environment.fixture-slot.monitor.stand",
+    "openclinxr.station-environment.fixture-slot.monitor.panel",
+    "openclinxr.station-environment.fixture-slot.ecg_cart.body",
+    "openclinxr.station-environment.fixture-slot.ecg_cart.top",
+    "openclinxr.station-environment.fixture-slot.door_leaf.jamb.left",
+    "openclinxr.station-environment.fixture-slot.learner_start",
+    "openclinxr.equipment.monitor_equipment.mast",
+    "openclinxr.equipment.monitor_equipment.bezel",
+    "openclinxr.equipment.monitor_equipment.screen",
+    "openclinxr.equipment.monitor_equipment.wall_plate",
+    "ecg_cart_wheel_0_-012",
+    "ecg_cart_wheel_0_012",
+    "ecg_cart_wheel_1_-012",
+    "ecg_cart_wheel_1_012",
+    "ecg_cart_12_lead",
+    "ecg_monitor_screen",
+    "ecg_keyboard_shelf",
+    "ecg_lead_bundle",
+    "iv_pole_with_pump",
+    "iv_infusion_pump",
+    "pump_status_screen",
+    "iv_pole_base_leg_front",
+    "iv_pole_base_leg_back",
+    "iv_pole_base_leg_left",
+    "iv_pole_base_leg_right",
+    "iv_bag_hook"
+  ],
+  "redSlab": {
+    "identified": "legitimate fixture, correctly placed, but a LAYOUT MARKER rendered to the learner - not debris and not out of bounds",
+    "node": "openclinxr.station-environment.fixture-slot.learner_start",
+    "measuredWorldMin": [
+      -0.09000000357627869,
+      6.705522526129215e-10,
+      1.3099999964237212
+    ],
+    "measuredWorldMax": [
+      0.09000000357627869,
+      0.059999999329447745,
+      1.4900000035762786
+    ],
+    "source": "apps/ui-xr/src/station-environment.ts:296-312 - BoxGeometry(0.18, 0.06, 0.18), MeshStandardMaterial color+emissive = d.wallTrimColor",
+    "colour": "0xdc2626, from environment-descriptors.ts:145 wallTrimColor for ed_exam_bay_v1",
+    "slot": "environment-descriptors.ts:163 { slotId: learner_start, position: {x:0,y:0,z:1.4} }, placementRule absolute (never remapped)",
+    "corroboration": "predicted 0.18 x 0.06 x 0.18 at (0, 0.03, 1.4) from source; measured AABB min [-0.09,0,1.31] max [0.09,0.06,1.49] - identical. Visible as a red pad on the floor mid-frame in the pre-fix viewport, which I graded by eye.",
+    "inBounds": true,
+    "notChangedInThisSlice": "it fits; whether a learner should see their own spawn anchor is a separate product decision, and deleting a fixture is out of scope here."
+  },
+  "claimScope": "world-space AABBs of every visible fixture mesh in one scenario against the generated room's measured floor footprint",
+  "notEvidenceFor": [
+    "any environmentId other than ed_exam_bay_v1",
+    "clinical realism",
+    "the smaller 19.25 m2 bake, not yet loaded",
+    "actor/cast placement, measured separately below"
+  ]
+}

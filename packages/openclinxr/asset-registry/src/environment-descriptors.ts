@@ -66,6 +66,19 @@ export type EnvironmentFixtureSlot = {
    * shared DOOR_LEAF absolute coordinate). Along-wall axes still fraction-scale.
    */
   wallInsetMeters?: number;
+  /**
+   * #342c — true when the fixture is MOUNTED ON its named wall and must be turned to face
+   * into the room. Architecture builders author geometry facing +Z (width along X, thin
+   * along Z); nothing ever rotated it, so a board declaring `wall: "-x"` rendered as a
+   * panel lying ACROSS the left wall — 0.575 m of frame through it, in every environment,
+   * at every room width.
+   *
+   * Left false for fixtures that are anchored NEAR a wall but are free-standing and should
+   * keep facing the learner — the door leaf is the shipped example: the parametric shell
+   * has no front wall and its own source comment reads "Open front of shell is +Z; park
+   * leaf toward doorway corner". Anchoring positions it; it is not mounted on +X.
+   */
+  facesWall?: boolean;
 };
 
 /** Parametric shell a kit-bash or generated room plugs into later. */

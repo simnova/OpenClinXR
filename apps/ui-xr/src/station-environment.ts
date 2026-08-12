@@ -18,8 +18,15 @@
  */
 
 import { resolveEnvironmentShellDescriptor } from "@openclinxr/asset-registry";
+import {
+  type NamedShellWall,
+  wallFacingYawRadians,
+} from "@openclinxr/asset-registry/fixture-wall-mounting";
 // #196: subpath avoids growing the frozen asset-registry barrel (index.ts freeze 2843).
-import { resolveFixtureSlotsForRoom } from "@openclinxr/asset-registry/environment-zone-templates";
+import {
+  fixturePlacementRule,
+  resolveFixtureSlotsForRoom,
+} from "@openclinxr/asset-registry/environment-zone-templates";
 import {
   BoxGeometry,
   Group,
@@ -28,7 +35,10 @@ import {
   type ColorRepresentation,
   type Object3D,
 } from "three";
-import { tryBuildArchitectureFixture } from "./station-architecture-fixtures.js";
+import {
+  anchorFixtureNearFaceToPlane,
+  tryBuildArchitectureFixture,
+} from "./station-architecture-fixtures.js";
 import {
   ownedRolesFromFixtureSlots,
   roleClassFromFixtureSlotId,
@@ -53,6 +63,37 @@ export type BuildStationEnvironmentInput = {
 /** Spawn anchor — never furniture (#133). */
 export function isLearnerStartSlotId(slotId: string): boolean {
   return slotId.toLowerCase() === "learner_start";
+}
+
+/** Parametric wall/ceiling slab thickness. One source for the builder and the wall planes. */
+export const PARAMETRIC_WALL_THICKNESS_M = 0.08;
+const HALF_WALL = PARAMETRIC_WALL_THICKNESS_M / 2;
+
+/** Floor centre Z of the parametric shell (doorway opens +Z). */
+export function parametricShellFloorCenterZ(depthMeters: number): number {
+  return -(depthMeters / 2) + 0.95;
+}
+
+/**
+ * #342c — world coordinate of a named parametric wall's INNER face.
+ *
+ * Derived from the same expressions the wall meshes are built from below (`halfW`,
+ * `backZ`, slab thickness), so a fixture anchored to a plane and the wall it is anchored
+ * to cannot drift apart. `+z` has no wall — the shell is deliberately open at the front
+ * for capture framing — so its plane is the floor's front edge.
+ */
+export function parametricWallInnerPlane(
+  wall: NamedShellWall,
+  widthMeters: number,
+  depthMeters: number,
+): number {
+  const halfW = widthMeters / 2 - HALF_WALL;
+  const floorZ = parametricShellFloorCenterZ(depthMeters);
+  const backZ = floorZ - depthMeters / 2 + HALF_WALL;
+  if (wall === "+x") return halfW - HALF_WALL;
+  if (wall === "-x") return -halfW + HALF_WALL;
+  if (wall === "-z") return backZ + HALF_WALL;
+  return floorZ + depthMeters / 2;
 }
 
 /**
@@ -180,7 +221,7 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
     "parametric_shell_from_shared_environment_descriptor_kitbash_slot";
   shell.userData.hasCeiling = true;
   // Place room so doorway (z≈0.9 exterior) opens into negative-Z encounter space.
-  const floorZ = -(depth / 2) + 0.95;
+  const floorZ = parametricShellFloorCenterZ(depth);
 
   const floor = new Mesh(
     new BoxGeometry(width, 0.08, depth),
@@ -205,9 +246,9 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
     metalness: 0,
   });
 
-  const backZ = floorZ - depth / 2 + 0.04;
+  const backZ = floorZ - depth / 2 + HALF_WALL;
   const sideZ = floorZ;
-  const halfW = width / 2 - 0.04;
+  const halfW = width / 2 - HALF_WALL;
 
   const backWall = new Mesh(new BoxGeometry(width, height, 0.08), wallMaterial.clone());
   backWall.name = "openclinxr.station-environment.back-wall";
@@ -264,8 +305,29 @@ export function buildStationEnvironment(input: BuildStationEnvironmentInput): Gr
       purpose: slot.purpose,
       position: slot.position,
       trimColor: d.wallTrimColor,
+      // #342c: turn a wall-MOUNTED fixture to face its named wall before it is anchored.
+      ...(slot.facesWall === true && slot.wall
+        ? { rotationY: wallFacingYawRadians(slot.wall) }
+        : {}),
     });
     if (arch) {
+      // #342c: anchor by the assembly's NEAR FACE, not its origin. resolveFixtureSlotPosition
+      // places the origin at `plane ∓ inset`, which leaves whatever the assembly extends
+      // about that origin inside the wall — measured on main as 0.575 m for the board and
+      // 0.100 m for the door, identically at every room width.
+      if (slot.wall && fixturePlacementRule(slot) === "wall_anchor") {
+        const plane = parametricWallInnerPlane(slot.wall, width, depth);
+        const insetMeters = slot.wallInsetMeters ?? 0;
+        anchorFixtureNearFaceToPlane({
+          root: arch,
+          wall: slot.wall,
+          planeCoordinate: plane,
+          insetMeters,
+        });
+        // #342c: carry the anchor contract on the fixture so a generated room loading LATER
+        // can re-anchor it to ITS measured walls without re-deriving intent from the id.
+        arch.userData.openClinXrWallAnchor = { wall: slot.wall, insetMeters };
+      }
       shell.add(arch);
       continue;
     }

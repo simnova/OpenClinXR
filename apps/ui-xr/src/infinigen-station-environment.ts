@@ -25,6 +25,8 @@
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Box3, type Group, Mesh, type Object3D, type Scene, Vector3 } from "three";
+import type { NamedShellWall } from "@openclinxr/asset-registry/fixture-wall-mounting";
+import { anchorFixtureNearFaceToPlane } from "./station-architecture-fixtures.js";
 
 /** environmentId → shipped Infinigen room GLB. Deterministic bake; add rows as rooms are produced. */
 export const INFINIGEN_ENVIRONMENT_ASSETS: Readonly<Record<string, string>> = {
@@ -220,6 +222,163 @@ function roomInteriorAndHull(roomRoot: Object3D): { interior: Box3 | null; hull:
   return { interior, hull };
 }
 
+/** A named wall's measured inner face in world units, plus how it was obtained. */
+export type MeasuredWallPlane = {
+  wall: NamedShellWall;
+  planeCoordinate: number;
+  /** "hull_inset" = outer hull inset by the measured wall thickness. Otherwise a guess. */
+  method: "hull_inset" | "aabb_fallback";
+};
+
+/**
+ * #342c — MEASURED AND REJECTED: raycasting the interior from the room centre.
+ *
+ * The obvious instrument for "where is the inner wall face" is a ray from the middle of the
+ * room outward. It was built, run against the shipped bake, and produced two wrong answers
+ * out of two, for two DIFFERENT reasons — both properties of a real generated room that a
+ * synthetic four-slab test fixture does not have:
+ *
+ *   -x  struck geometry at x = -0.374, nowhere near the wall. Dumping the wall mesh's
+ *       vertices in the probe's own height band shows planes at x = -2.118, -1.826, -1.750,
+ *       -1.533, -1.000, -0.948: wall STUBS standing inside the footprint, left behind by the
+ *       single-room extraction the bake is built with. A centre-out ray hits those first.
+ *   +x  struck NOTHING and fell back. At the probe's height and z the ray passes straight
+ *       through the room's own DOORWAY, so the "wall" it was sent to find is not there.
+ *
+ * One ray measures one line, and this room is neither convex nor unbroken. So the planes are
+ * derived from the two surfaces that ARE whole: the outer hull, inset by the wall thickness.
+ */
+
+/**
+ * #342c — measure a generated room's four INNER wall faces.
+ *
+ * The room's mesh AABB is the walls' OUTER extent, so it cannot be used as the interior:
+ * on the shipped bake it reads x -3.250..3.126 while the hull reads -3.250..3.250, i.e. the
+ * bake is not a uniform offset shell and "AABB minus one wall thickness" would be an
+ * assumption on two of the four sides, not a measurement.
+ *
+ * So each face is measured directly: cast a ray from the interior centre, at mid-wall
+ * height, along each horizontal axis, and take the first surface it strikes. That is the
+ * plane a fixture must not cross, whatever the bake's shape or symmetry. A direction that
+ * strikes nothing (an open side, a hole) falls back to the AABB face and SAYS so, so a
+ * caller can tell a measurement from a guess rather than infer it from a number.
+ */
+export function measureRoomInteriorPlanes(roomRoot: Object3D): MeasuredWallPlane[] {
+  const { interior, hull } = roomInteriorAndHull(roomRoot);
+  if (interior === null) return [];
+  const room: Box3 = interior;
+
+  const aabbFace: Record<NamedShellWall, number> = {
+    "+x": room.max.x,
+    "-x": room.min.x,
+    "+z": room.max.z,
+    "-z": room.min.z,
+  };
+  const walls: readonly NamedShellWall[] = ["+x", "-x", "+z", "-z"];
+
+  if (hull === null) {
+    return walls.map((wall) => ({ wall, planeCoordinate: aabbFace[wall], method: "aabb_fallback" }));
+  }
+  const shell: Box3 = hull;
+
+  /**
+   * Wall thickness = how far the outer hull stands proud of the interior union. It is
+   * measured on all four horizontal faces and the LARGEST is taken, because a face reads
+   * 0 wherever the interior union already contains that wall's outer surface (the bake's
+   * "wall" mesh carries some outer faces and not others). Taking the max is not a guess:
+   * on the shipped bake the two nonzero faces agree exactly at 0.1240 m, and the resulting
+   * planes reproduce three quantities that did NOT feed the derivation —
+   *   -x: the wall mesh's own inner vertex plane, -3.1260
+   *   -z: the floor mesh's z minimum,             -3.9010
+   *   +z: the floor mesh's z maximum,              2.3510
+   * all to 4 dp. Same value as `deriveInteriorPreviewCamera`'s stand-off (#342b).
+   */
+  const thickness = Math.max(
+    shell.max.x - room.max.x,
+    room.min.x - shell.min.x,
+    shell.max.z - room.max.z,
+    room.min.z - shell.min.z,
+    0,
+  );
+  if (!(thickness > 0)) {
+    return walls.map((wall) => ({ wall, planeCoordinate: aabbFace[wall], method: "aabb_fallback" }));
+  }
+
+  const inset: Record<NamedShellWall, number> = {
+    "+x": shell.max.x - thickness,
+    "-x": shell.min.x + thickness,
+    "+z": shell.max.z - thickness,
+    "-z": shell.min.z + thickness,
+  };
+  return walls.map((wall) => ({
+    wall,
+    planeCoordinate: inset[wall],
+    method: "hull_inset",
+  }));
+}
+
+/**
+ * #342c — re-anchor the shell's wall_anchor fixtures onto the GENERATED room's measured
+ * walls.
+ *
+ * `buildStationEnvironment` runs synchronously, before the room GLB finishes loading, and
+ * anchors every wall_anchor fixture to the PARAMETRIC shell's planes — the 7 m box's
+ * ±3.42. When a generated room then replaces that shell, those planes are gone and the
+ * fixtures are left where a room that is no longer drawn used to be. Measured on the
+ * shipped bake: the board 0.745 m and the door 0.394 m beyond the room's own floor
+ * footprint.
+ *
+ * The fix is not to re-run the width maths against a new width — the offending overhang is
+ * width-independent (see wall-anchored-fixture-fit.test.ts). Each fixture is slid along its
+ * wall's normal until its NEAR FACE sits at the authored `wallInsetMeters` from the plane
+ * that was just MEASURED off the room in the scene. Along-wall position and every other
+ * fixture are untouched.
+ *
+ * Returns one row per fixture moved, for evidence.
+ */
+export function reanchorWallFixturesToRoom(input: {
+  stationEnvironment: Object3D;
+  roomRoot: Object3D;
+}): Array<{ slotId: string; wall: NamedShellWall; movedMeters: number; method: string }> {
+  const planes = measureRoomInteriorPlanes(input.roomRoot);
+  if (planes.length === 0) return [];
+  const planeByWall = new Map(planes.map((p) => [p.wall, p]));
+  const moved: Array<{ slotId: string; wall: NamedShellWall; movedMeters: number; method: string }> = [];
+
+  const roots: Object3D[] = [];
+  input.stationEnvironment.traverse((obj: Object3D) => {
+    const anchor = obj.userData?.openClinXrWallAnchor;
+    if (anchor && typeof anchor.wall === "string") roots.push(obj);
+  });
+
+  for (const root of roots) {
+    const anchor = root.userData.openClinXrWallAnchor as {
+      wall: NamedShellWall;
+      insetMeters: number;
+    };
+    const plane = planeByWall.get(anchor.wall);
+    if (!plane) continue;
+    const delta = anchorFixtureNearFaceToPlane({
+      root,
+      wall: anchor.wall,
+      planeCoordinate: plane.planeCoordinate,
+      insetMeters: anchor.insetMeters,
+    });
+    root.userData.openClinXrWallAnchorReanchored = {
+      planeCoordinate: plane.planeCoordinate,
+      method: plane.method,
+      movedMeters: delta,
+    };
+    moved.push({
+      slotId: String(root.userData.fixtureSlotId ?? ""),
+      wall: anchor.wall,
+      movedMeters: delta,
+      method: plane.method,
+    });
+  }
+  return moved;
+}
+
 /**
  * #342b — where the PRODUCT's flat-preview camera must stand to see inside a CLOSED
  * generated room.
@@ -391,6 +550,16 @@ export function loadInfinigenEnvironmentIntoStation(input: {
         roomRoot.userData.openClinXrInfinigenPlacement = placement;
         roomRoot.userData.openClinXrHiddenShellMeshes = hiddenShellMeshes;
         input.stationEnvironment.add(roomRoot);
+        // #342c — the fixtures were anchored to the PARAMETRIC box's walls at build time,
+        // synchronously, before this GLB existed. Those walls have just been hidden, so
+        // re-anchor to the walls that are now actually in the scene. Same success path as
+        // hideProceduralShellMeshes for the same reason: whoever hides the old room owns
+        // moving what was mounted on it.
+        const reanchored = reanchorWallFixturesToRoom({
+          stationEnvironment: input.stationEnvironment,
+          roomRoot,
+        });
+        roomRoot.userData.openClinXrReanchoredFixtures = reanchored;
         const loaded: InfinigenEnvironmentStatus = {
           environmentId: input.environmentId,
           state: "loaded",
