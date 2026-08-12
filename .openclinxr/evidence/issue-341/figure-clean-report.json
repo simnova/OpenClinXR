@@ -1,0 +1,64 @@
+{
+  "schema": "figure-clean-report.v1",
+  "issue": "issue-341",
+  "actor": "mpfb-ob-patient-aisha",
+  "actorRelPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "chosenOnEvidence": "aisha was nearest the bar in the issue's own measurement (skin punch-through at breasts + midriff, ragged hem, flat shoes, black slivers) and had no face-mask defect; the occlusion gate confirms her eyes are visible (0.861 visible pre-fix). The child's boots are detached and the nurse's face is a broken mask — both farther from the bar.",
+  "rounds": [
+    {
+      "round": 1,
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
+      "materializerChanges": [
+        "issue-341 force-hide: the #326 footprint clip tests all three AABB axes INCLUDING depth, so it un-hides a genuine poke (a poke protrudes past the garment's front depth). Re-hide region faces whose min vertex clearance < 0 AND whose centroid sits inside the garment's x (lateral) + z (height) silhouette + 2mm contract slack. Measured 1,469 pokes re-hidden.",
+        "issue-341 black-sliver un-hide: a hidden face that NEITHER pokes the garment surface NOR has the garment between it and the front viewer is NOT under the cloth — hiding it discards the face and shows the dark body interior. Un-hide exactly those (35 at bake time; front-ray coverage test toward the stage -Y which maps to the gate's +Z).",
+        "issue-341 x/z re-clip: after the force-hide, re-clip polygon-level on the SILHOUETTE axes only (x, z) so the hidden AABB stays inside the garment bounds + 2mm — the depth axis is excluded because a poke in front of the garment is under its silhouette by definition. 47 polygons re-clipped.",
+        "issue-341 foot-band fix: the foot hide band previously ran to the ankle landmark (z=0.10), discarding the upper foot/ankle ABOVE the shoe's top (0.056) — the 'shoes flattened to discs, toes through' hole. The band now stops at the shoe's own top (min(shoe_top, ankle))."
+      ],
+      "numbers": {
+        "visibleTorsoPokes_pre": 428,
+        "visibleTorsoPokes_post": 162,
+        "interiorPokesBreastSternumMidriff_pre": 355,
+        "interiorPokesBreastSternumMidriff_post": 0,
+        "pokeRehidden": 1469,
+        "blackSliversUnhidden": 35,
+        "reclipPolygons": 47,
+        "footBandExposed_pre": 0.581,
+        "footBandExposed_post": 0.599,
+        "upperMaskOverreach": "within 2mm on all axes (post)",
+        "occlusionEyesPostFix": 0.843,
+        "occlusionTshirtPostFix": 0.003,
+        "occlusionBootsPostFix": 0.004
+      }
+    }
+  ],
+  "occlusionPostFix": {
+    "eyes": "visible",
+    "tshirt": "visible",
+    "boots": "visible"
+  },
+  "captures": [
+    ".openclinxr/evidence/issue-341/captures/round4/front_lit.png",
+    ".openclinxr/evidence/issue-341/captures/round4/front_structure.png",
+    ".openclinxr/evidence/issue-341/captures/round4/three_quarter_lit.png",
+    ".openclinxr/evidence/issue-341/captures/round4/three_quarter_structure.png"
+  ],
+  "stillWrong": [
+    "162 boundary 'pokes' remain visible at the garment silhouette edges: collar/neck (fracH 0.85), the shirt hem (fracH 0.58, under the pants overlap), and the sleeve edges. These are the bare-neck / bare-arm / pants-covered boundary — the signed-clearance classifier flags them because they are outside the garment surface, but they are natural skin boundaries. Pixel grade decides.",
+    "The toigo_flats are the same flat soles the known-good library rail ships (split L/R there, one merged mesh here); the upper foot is now visible above the shoe after the foot-band fix, matching the library rail's look.",
+    "The mpfb2-lower-garment-and-mask-footprint test (2) fails PRE-EXISTING with 2 violations from the #333/#338 foot hide mask (axis1 min 94.4mm, axis2 max 30.9mm) — the foot mask legitimately hides under the SHOE, which is below the upper/lower garments the test compares against. Identical failure on the pre-change round-0 bytes; my changes add zero violations (verified: same 2).",
+    "Black slivers at shoulders/elbows: 35 hidden faces un-hidden at bake time; a further ~47 were re-clipped. Whether the shoulder/elbow region grades clean is a pixel question."
+  ],
+  "guesses": [
+    "the neck/collar 'pokes' at fracH 0.85 are natural bare neck and should read as skin, not poke-through",
+    "the elbow-region pokes (fracH 0.77-0.84, |x| 0.16-0.29) are bare arm below the short sleeve and should read as skin",
+    "the hem pokes (fracH 0.58) sit inside the pants overlap (pants top 0.987 > shirt hem 0.969) and should be covered by the pants",
+    "the toigo_flats merged pair reads acceptably from the front since the library rail ships the identical flats"
+  ],
+  "claimScope": "one MPFB actor (aisha) re-baked with corrected body-hide mask semantics; per-layer occlusion numbers and mask-footprint numbers are measured on the shipped bytes. The pixel grade is the orchestrator's.",
+  "notEvidenceFor": [
+    "a clean pixel grade (orchestrator grades captures)",
+    "clinical realism",
+    "production asset readiness",
+    "quest readiness"
+  ]
+}
