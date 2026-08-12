@@ -1,0 +1,54 @@
+{
+  "verdict": "single_room_extracted",
+  "verdictReason": "Extracted room \"bedroom\" from 10-wall multi-room shell in 1.0s. Result: 2 walls, 1580 tris (0.9% of 180000 station ceiling), floor=true, ceiling=true, door_aperture=true. Source rooms: balcony, bathroom, bedroom, closet, dining-room, kitchen, living-room. MADR 0043 Decision unchanged — no runtime adoption.",
+  "sourceWallCount": 10,
+  "extractedWallCount": 2,
+  "rawTriangleCount": 1580,
+  "hasFloor": true,
+  "hasCeiling": true,
+  "doorOpeningSurvives": true,
+  "exportPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-346/.openclinxr/evidence/issue-236/extracted-single-room.glb",
+  "claimScope": [
+    "post-process single-room extraction from #229 multi-room trimmed shell",
+    "mesh-name-based room selection (largest room by triangle count)",
+    "structural measure of extracted room (walls, floor, ceiling, door apertures)",
+    "MADR 0043 Decision unchanged"
+  ],
+  "notEvidenceFor": [
+    "adoption of Infinigen as environmentId-driven runtime source (MADR 0043 Decision stands)",
+    "Quest worn readiness",
+    "clinical validity or exam equivalence",
+    "ui-xr wiring or learner-facing environment selection",
+    "decimation / LOD pipeline viability"
+  ],
+  "extractedRoomName": "bedroom",
+  "blendPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-346/.openclinxr/evidence/issue-236/extracted-single-room.glb",
+  "sourceBlendPath": "/Users/patrick/.openclinxr-tools/infinigen/outputs/no_trim_override/scene.blend",
+  "meshCount": 8,
+  "materialCount": 7,
+  "exportBytes": 79460,
+  "sourceTriangleCount": 10628,
+  "extractSeconds": 1.027852958,
+  "wallEulerChecks": [
+    {
+      "name": "bedroom_0/0.wall",
+      "euler": -6,
+      "hasHoles": true
+    },
+    {
+      "name": "bedroom_0/1.wall",
+      "euler": 89,
+      "hasHoles": false
+    }
+  ],
+  "measuredAt": "2026-08-12T14:29:02.591Z",
+  "blendVersion": "5.1.1",
+  "decimationStage": {
+    "verdict": "skipped_noop",
+    "reason": "source already at 1580 tris <= 150000 budget; meshoptimizer no-op",
+    "inputTris": 1580,
+    "outputTris": 1580,
+    "targetTriangles": 150000,
+    "outputPath": "/Users/patrick/.grok/worktrees/src-openclinxr/issue-346/.openclinxr/evidence/room-decimate/extracted-room-decimated.glb"
+  }
+}
