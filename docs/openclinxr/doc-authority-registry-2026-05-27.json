@@ -12,7 +12,7 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 37,
-    "total": 439
+    "total": 443
   },
   "entries": [
     {
@@ -3091,6 +3091,34 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Equipment three-lane catalogue SSOT / report (MADR 0055)."
+    },
+    {
+      "path": "docs/openclinxr/equipment-factory-15m-loop.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Loop contract for 15m equipment factory autonomy"
+    },
+    {
+      "path": "docs/openclinxr/equipment-factory-loop-log.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Tick log for equipment factory loop"
+    },
+    {
+      "path": "docs/openclinxr/equipment-factory-loop-state.json",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Loop counter state"
+    },
+    {
+      "path": "docs/openclinxr/equipment-factory-architect-notes.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architect cadence notes for equipment factory"
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
+  "active": true,
+  "tick": 0,
+  "interval": "15m",
+  "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
+  "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
+  "lastTickAt": null,
+  "lastAction": null,
+  "nextPriority": "hospital_bed_bank_acquire_after_verify",
+  "researcherEveryN": 3,
+  "architectEveryN": 4,
+  "stopWhen": [
+    "PROJECT_STATUS PAUSED or equipment-factory STOP",
+    "unmappedProse=0 and deck surfaces banked or explicitly deferred"
+  ]
+}

@@ -215,6 +215,7 @@
     "factory:equipment:catalog:validate": "tsx tools/openclinxr/factory/equipment-lane/equipment-catalog-cli.ts validate",
     "factory:equipment:catalog:report": "tsx tools/openclinxr/factory/equipment-lane/equipment-catalog-cli.ts report",
     "factory:equipment:catalog:loop": "tsx tools/openclinxr/factory/equipment-lane/equipment-catalog-cli.ts loop",
+    "factory:equipment:loop:status": "node -e \"const s=require('./docs/openclinxr/equipment-factory-loop-state.json'); console.log(JSON.stringify(s,null,2))\"",
     "factory:trellis:bake:validate": "tsx tools/openclinxr/asset-pipeline/trellis/trellis-bake-cli.ts --validate-latest",
     "factory:trellis:postopt": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.ts",
     "factory:trellis:postopt:validate": "tsx tools/openclinxr/evidence/trellis-deeper-postopt.test.ts",
