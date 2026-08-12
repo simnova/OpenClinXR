@@ -28,6 +28,7 @@
 | asset | URL | licence | approx tris | subject | usable? | attribution |
 |-------|-----|---------|-------------|---------|---------|-------------|
 | IV Stand (teeart) | https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9 | CC BY 4.0 | 5,084 | IV pole | **Yes** | `IV Stand by teeart (Sketchfab, CC BY 4.0)` |
+| Kenney Furniture Kit (beds) | https://kenney.nl/assets/furniture-kit | **CC0 VERIFIED** (page text) | 314-932 / bed | hospital-bed deck (generic, no rails) | **Yes — token-free** | none required (CC0) |
 | Hospital Bed (Matt LeMoine) | https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa | CC BY 4.0 | 3,058 | Hospital bed | **Yes** — top priority | `Hospital Bed by Matt LeMoine (Sketchfab, CC BY 4.0)` |
 | Hospital Stretcher Trolley (UsmanAzhar2256) | https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c | CC BY 4.0 | 2,245 | Stretcher | **Yes** — re-verified 2026-08-12 | `Hospital Stretcher Trolley by UsmanAzhar2256 (Sketchfab, CC BY 4.0)` |
 | Exam Table (orphic_oasis8) | https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15 | CC BY 4.0 | 7,940 | Exam table | **Yes** — re-verified 2026-08-12 | `Exam Table by orphic_oasis8 (Sketchfab, CC BY 4.0)` |
@@ -95,3 +96,19 @@ Method note: unauthenticated search payload returns `license: null` — read `/v
 - `SKETCHFAB_API_TOKEN` — **VERIFIED absent** (no env / `.env` match); blocks download of every VERIFIED CC-BY row above and in the ledger.
 
 Top 3 things that would save the most work: (1) operator sets `SKETCHFAB_API_TOKEN` → unblocks lane-1 download of the 6 VERIFIED CC BY 4.0 rows (bed / stretcher / exam table / curtain+monitor / monitor / vacutainer); (2) blood-culture kit = acquire the VERIFIED vacutainer OR ship a thin parametric 2-bottle builder — no downloadable "blood culture kit" exists, stop re-searching; (3) stop OSS-searching neuro exam card / joint diagram / soft lighting — non-equipment classes, keep deliberately unmapped per factory honesty.
+
+## researcher findings 2026-08-12 (deck CC0 alt)
+
+Deck-surface bank path (hospital bed / stretcher / exam table) blocked on `SKETCHFAB_API_TOKEN`. Question: CC0 / unambiguous CC-BY alternatives OUTSIDE Sketchfab, reachable without a token. poly.pizza search pages are Cloudflare-challenged for curl but render via the web_fetch tool (bypassed this pass); model-page licences read directly.
+
+- poly.pizza **GRADD Hospital Room** — https://poly.pizza/m/9sUalfQ76kn — **VERIFIED CC BY 3.0** (page: CC link to cc/3.0) — OBJ/GLTF ward-room scene containing a hospital bed; bed mesh extractable for deck surface. Single asset from GRADD CO.
+- OpenGameArt **Small Hospital Bed** — https://opengameart.org/content/small-hospital-bed — **VERIFIED CC BY 3.0** (page: "license CCBY3+", attribution "by TiZiana | edits by qubodup"); low-poly (~280 faces) dedicated hospital bed. Corrects earlier note: this is CC-BY, NOT CC0.
+- Kenney **Furniture Kit** (beds) — https://kenney.nl/assets/furniture-kit — **VERIFIED CC0** (kenney.nl page + poly.pizza mirror /m/sn8az3odMR both state Public Domain CC0). Generic bed only — no rails/wheels; deck-only or Blender-modify.
+- poly.pizza **Bed Single by Quaternius** — https://poly.pizza/m/ianC28eMOF — **VERIFIED CC0** (page: Public Domain CC0). Generic single bed, not hospital-styled.
+- poly.pizza **IV drip "15" by Daisuke Takeoka** — https://poly.pizza/m/2S4tGImSXzt — **VERIFIED CC BY 3.0** (#IV drip/#hospital tags). Adjacent equipment, not a deck.
+- poly.pizza **Dentist chair V2 by li chang** — https://poly.pizza/m/emInffdGy1E — **VERIFIED CC BY 3.0** — reclining chair + headrest; usable as exam-chair proxy for exam-table lane.
+- **Stretcher — NOT FOUND** outside Sketchfab: poly.pizza `search/stretcher` + `search/gurney` return only camp beds / cots / bedroll frames (Kenney bedroll, Steve B camp beds); OpenGameArt 3D search for "stretcher" = 0 art results.
+- **Exam table — NOT FOUND** as such; closest free-licence proxies are the dentist chair (above) or generic CC0 beds. Poly by Google "Hospital" (/m/asNvyjkcSG1) is a CC BY 3.0 building, not equipment.
+- GitHub repo search — **NOT FOUND**: `hospital bed 3d cc0`, `medical equipment 3d license:cc0-1.0`, `hospital+bed+glb` → 0 hits; broad medical-assets queries return only unlicensed/irrelevant repos. Kenney dedicated hospital pack — **NOT FOUND**.
+
+Top 3: (1) GRADD Hospital Room (CC BY 3.0, ward bed in-scene) is the strongest non-Sketchfab bed/deck source — extract bed mesh from the GLTF scene; (2) OGA Small Hospital Bed (CC BY 3.0, qubodup) is the standalone hospital-bed fallback — attribution string captured; (3) stretcher/exam-table have no CC0/CC-BY source outside Sketchfab — reuse CC0 Kenney/Quaternius generic bed decks or the CC-BY dentist chair, or stay on `SKETCHFAB_API_TOKEN` for the VERIFIED Sketchfab rows.

@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 18,
+  "tick": 19,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T08:25:00.000Z",
-  "lastAction": "ECG kit merge progress: assessed branch, recorded rebase blocker in plan (deletes catalogue CLI scripts + family helpers); researcher spawned on CC0 deck alternatives",
-  "nextPriority": "kit merge needs rebase as dedicated slice (blocker recorded in plan) OR researcher CC0-deck findings if arrived OR deck token unblock; loop near natural fills-end - fills: mapped=all real classes, wiring=closed, bank=token-blocked, kit=rebase-blocked",
+  "lastTickAt": "2026-08-12T08:40:00.000Z",
+  "lastAction": "token-free deck-bank acquisition: staged Kenney Furniture Kit CC0 (bed models 314-932 tris) at .openclinxr/staging/equipment/kenney-furniture-kit/; ledger + candidates rows landed",
+  "nextPriority": "deck-bank slice: convert staged Kenney bedSingle OBJ->GLB (Blender, control/treatment per #67/#156) and promote for hospital_bed_equipment; OR GRADD/OGA CC-BY bed as alternative; stretcher/exam-table remain token-blocked",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [
