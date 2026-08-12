@@ -1,0 +1,367 @@
+{
+  "schema": "figure-occlusion-report.v1",
+  "issue": "issue-338",
+  "stage": "pre-fix",
+  "calibration": {
+    "figure": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    "tshirtVisible": 0.0096,
+    "bootsVisible": 0.0459,
+    "eyesOccluded": 0.5517,
+    "eyeOccluders": {
+      "scalp": 0.5,
+      "skin": 0.0517
+    },
+    "passes": true
+  },
+  "instrument": {
+    "intersector": "_ray_tri_hits (garment_coverage.py:184)",
+    "viewerDirection": [
+      0,
+      0,
+      1
+    ],
+    "maxRayMeters": 0.5,
+    "selfLayerIncluded": true,
+    "hiddenLayersExcluded": true,
+    "claimScope": "which named layer renders in front of which, per actor, from a front (+Z) viewer; between-layers occlusion predicate",
+    "notEvidenceFor": [
+      "garment aesthetics",
+      "clinical wardrobe",
+      "Quest readiness",
+      "cloth physics",
+      "pixel grading (orchestrator grades captures)"
+    ]
+  },
+  "actors": {
+    "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb": {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+      "layers": {
+        "eyes": {
+          "layer": "eyes",
+          "present": true,
+          "triangleCount": 172,
+          "sampledCount": 108,
+          "visibleFraction": 0.787,
+          "selfOccludedFraction": 0.0,
+          "occludedByOtherFraction": 0.213,
+          "occludedBy": {
+            "scalp": 0.0093,
+            "skin": 0.2037
+          }
+        },
+        "scalp": {
+          "layer": "scalp",
+          "present": true,
+          "triangleCount": 3188,
+          "sampledCount": 1616,
+          "visibleFraction": 0.6281,
+          "selfOccludedFraction": 0.151,
+          "occludedByOtherFraction": 0.2209,
+          "occludedBy": {
+            "eyes": 0.1999,
+            "skin": 0.021
+          }
+        },
+        "tshirt": {
+          "layer": "tshirt",
+          "present": true,
+          "triangleCount": 2700,
+          "sampledCount": 1087,
+          "visibleFraction": 0.8592,
+          "selfOccludedFraction": 0.126,
+          "occludedByOtherFraction": 0.0148,
+          "occludedBy": {
+            "pants": 0.0028,
+            "skin": 0.012
+          }
+        },
+        "boots": {
+          "layer": "boots",
+          "present": true,
+          "triangleCount": 57600,
+          "sampledCount": 3736,
+          "visibleFraction": 0.8006,
+          "selfOccludedFraction": 0.1255,
+          "occludedByOtherFraction": 0.0739,
+          "occludedBy": {
+            "skin": 0.0739
+          }
+        },
+        "pants": {
+          "layer": "pants",
+          "present": true,
+          "triangleCount": 2764,
+          "sampledCount": 1366,
+          "visibleFraction": 0.9165,
+          "selfOccludedFraction": 0.0835,
+          "occludedByOtherFraction": 0,
+          "occludedBy": {}
+        },
+        "skin": {
+          "layer": "skin",
+          "present": true,
+          "triangleCount": 21036,
+          "sampledCount": 3782,
+          "visibleFraction": 0.7938,
+          "selfOccludedFraction": 0.1753,
+          "occludedByOtherFraction": 0.031,
+          "occludedBy": {
+            "boots": 0.0127,
+            "eyes": 0.0048,
+            "pants": 0.0103,
+            "scalp": 0.0008,
+            "tshirt": 0.0024
+          }
+        },
+        "hair": {
+          "layer": "hair",
+          "present": false,
+          "triangleCount": 0
+        },
+        "other": {
+          "layer": "other",
+          "present": false,
+          "triangleCount": 0
+        }
+      },
+      "landmarks": {
+        "scalp": {
+          "minY": 1.4899,
+          "maxY": 1.6669,
+          "maxZ": 0.1533,
+          "triangleCount": 3188
+        },
+        "eyes": {
+          "minY": 1.5323,
+          "maxY": 1.56,
+          "maxZ": 0.1392,
+          "triangleCount": 172
+        }
+      },
+      "verdicts": {
+        "eyes": "visible",
+        "tshirt": "visible",
+        "boots": "visible"
+      }
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "layers": {
+        "eyes": {
+          "layer": "eyes",
+          "present": true,
+          "triangleCount": 172,
+          "sampledCount": 116,
+          "visibleFraction": 0.4483,
+          "selfOccludedFraction": 0.0,
+          "occludedByOtherFraction": 0.5517,
+          "occludedBy": {
+            "scalp": 0.5,
+            "skin": 0.0517
+          }
+        },
+        "scalp": {
+          "layer": "scalp",
+          "present": true,
+          "triangleCount": 4852,
+          "sampledCount": 3556,
+          "visibleFraction": 0.5503,
+          "selfOccludedFraction": 0.257,
+          "occludedByOtherFraction": 0.1926,
+          "occludedBy": {
+            "eyes": 0.1693,
+            "skin": 0.0233
+          }
+        },
+        "tshirt": {
+          "layer": "tshirt",
+          "present": true,
+          "triangleCount": 2700,
+          "sampledCount": 1344,
+          "visibleFraction": 0.8371,
+          "selfOccludedFraction": 0.1533,
+          "occludedByOtherFraction": 0.0096,
+          "occludedBy": {
+            "scalp": 0.0074,
+            "skin": 0.0022
+          }
+        },
+        "boots": {
+          "layer": "boots",
+          "present": true,
+          "triangleCount": 30768,
+          "sampledCount": 3071,
+          "visibleFraction": 0.7825,
+          "selfOccludedFraction": 0.1716,
+          "occludedByOtherFraction": 0.0459,
+          "occludedBy": {
+            "skin": 0.0459
+          }
+        },
+        "pants": {
+          "layer": "pants",
+          "present": true,
+          "triangleCount": 3891,
+          "sampledCount": 1347,
+          "visibleFraction": 0.781,
+          "selfOccludedFraction": 0.1685,
+          "occludedByOtherFraction": 0.0505,
+          "occludedBy": {
+            "skin": 0.0505
+          }
+        },
+        "skin": {
+          "layer": "skin",
+          "present": true,
+          "triangleCount": 17064,
+          "sampledCount": 3746,
+          "visibleFraction": 0.7157,
+          "selfOccludedFraction": 0.209,
+          "occludedByOtherFraction": 0.0753,
+          "occludedBy": {
+            "boots": 0.0443,
+            "pants": 0.0254,
+            "scalp": 0.0003,
+            "tshirt": 0.0053
+          }
+        },
+        "hair": {
+          "layer": "hair",
+          "present": false,
+          "triangleCount": 0
+        },
+        "other": {
+          "layer": "other",
+          "present": false,
+          "triangleCount": 0
+        }
+      },
+      "landmarks": {
+        "scalp": {
+          "minY": 1.5946,
+          "maxY": 1.7601,
+          "maxZ": 0.1529,
+          "triangleCount": 4852
+        },
+        "eyes": {
+          "minY": 1.6345,
+          "maxY": 1.6634,
+          "maxZ": 0.1416,
+          "triangleCount": 172
+        }
+      },
+      "verdicts": {
+        "eyes": "occluded",
+        "tshirt": "visible",
+        "boots": "visible"
+      }
+    },
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb": {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+      "layers": {
+        "eyes": {
+          "layer": "eyes",
+          "present": true,
+          "triangleCount": 172,
+          "sampledCount": 116,
+          "visibleFraction": 0.7845,
+          "selfOccludedFraction": 0.0,
+          "occludedByOtherFraction": 0.2155,
+          "occludedBy": {
+            "skin": 0.2155
+          }
+        },
+        "scalp": {
+          "layer": "scalp",
+          "present": true,
+          "triangleCount": 3088,
+          "sampledCount": 1854,
+          "visibleFraction": 0.5545,
+          "selfOccludedFraction": 0.1014,
+          "occludedByOtherFraction": 0.3441,
+          "occludedBy": {
+            "eyes": 0.2729,
+            "skin": 0.0712
+          }
+        },
+        "tshirt": {
+          "layer": "tshirt",
+          "present": true,
+          "triangleCount": 2700,
+          "sampledCount": 1414,
+          "visibleFraction": 0.6952,
+          "selfOccludedFraction": 0.2397,
+          "occludedByOtherFraction": 0.065,
+          "occludedBy": {
+            "pants": 0.0014,
+            "skin": 0.0636
+          }
+        },
+        "boots": {
+          "layer": "boots",
+          "present": true,
+          "triangleCount": 1004,
+          "sampledCount": 676,
+          "visibleFraction": 0.5325,
+          "selfOccludedFraction": 0.4675,
+          "occludedByOtherFraction": 0,
+          "occludedBy": {}
+        },
+        "pants": {
+          "layer": "pants",
+          "present": true,
+          "triangleCount": 4029,
+          "sampledCount": 1655,
+          "visibleFraction": 0.8429,
+          "selfOccludedFraction": 0.1366,
+          "occludedByOtherFraction": 0.0205,
+          "occludedBy": {
+            "skin": 0.0205
+          }
+        },
+        "skin": {
+          "layer": "skin",
+          "present": true,
+          "triangleCount": 21416,
+          "sampledCount": 3571,
+          "visibleFraction": 0.7998,
+          "selfOccludedFraction": 0.1476,
+          "occludedByOtherFraction": 0.0526,
+          "occludedBy": {
+            "eyes": 0.0207,
+            "pants": 0.0319
+          }
+        },
+        "hair": {
+          "layer": "hair",
+          "present": false,
+          "triangleCount": 0
+        },
+        "other": {
+          "layer": "other",
+          "present": false,
+          "triangleCount": 0
+        }
+      },
+      "landmarks": {
+        "scalp": {
+          "minY": 1.1141,
+          "maxY": 1.241,
+          "maxZ": 0.1221,
+          "triangleCount": 3088
+        },
+        "eyes": {
+          "minY": 1.131,
+          "maxY": 1.1581,
+          "maxZ": 0.1104,
+          "triangleCount": 172
+        }
+      },
+      "verdicts": {
+        "eyes": "visible",
+        "tshirt": "visible",
+        "boots": "visible"
+      }
+    }
+  }
+}
