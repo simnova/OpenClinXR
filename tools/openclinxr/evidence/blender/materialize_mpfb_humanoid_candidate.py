@@ -368,40 +368,72 @@ def apply_texture_mask_hairline(
         human.select_set(True)
         bpy.context.view_layer.objects.active = human
 
+    # ---- helper: rebuild a material's node tree as a flat-color DIFFUSE bake ----
+    def _flat_color_material(mat, color, image):
+        for _n in list(mat.node_tree.nodes):
+            mat.node_tree.nodes.remove(_n)
+        _b = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+        _b.inputs["Base Color"].default_value = color
+        _b.inputs["Roughness"].default_value = 0.9
+        _o = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        mat.node_tree.links.new(_b.outputs["BSDF"], _o.inputs["Surface"])
+        _t = mat.node_tree.nodes.new("ShaderNodeTexImage")
+        _t.image = image
+        _t.select = True  # the bake writes only to the ACTIVE AND SELECTED image node
+        mat.node_tree.nodes.active = _t
+
+    # ---- helper: rebuild a material's node tree as a world-position DIFFUSE bake ----
+    def _position_material(mat, image, x0, x1, y0, y1, z0, z1):
+        for _n in list(mat.node_tree.nodes):
+            mat.node_tree.nodes.remove(_n)
+        _b = mat.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
+        _b.inputs["Roughness"].default_value = 0.9
+        _o = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
+        _geo = mat.node_tree.nodes.new("ShaderNodeNewGeometry")
+        _sep = mat.node_tree.nodes.new("ShaderNodeSeparateXYZ")
+        _comb = mat.node_tree.nodes.new("ShaderNodeCombineXYZ")
+        mat.node_tree.links.new(_b.outputs["BSDF"], _o.inputs["Surface"])
+        mat.node_tree.links.new(_geo.outputs["Position"], _sep.inputs["Vector"])
+        mat.node_tree.links.new(_comb.outputs["Vector"], _b.inputs["Base Color"])
+        _mrs = []
+        for _axis, (_lo, _hi) in zip(("X", "Y", "Z"), ((x0, x1), (y0, y1), (z0, z1))):
+            _mr = mat.node_tree.nodes.new("ShaderNodeMapRange")
+            _mr.inputs["From Min"].default_value = float(_lo)
+            _mr.inputs["From Max"].default_value = float(_hi)
+            _mr.inputs["To Min"].default_value = 0.0
+            _mr.inputs["To Max"].default_value = 1.0
+            _mrs.append(_mr)
+            mat.node_tree.links.new(_sep.outputs[_axis], _mr.inputs["Value"])
+        for _mr, _sock in zip(_mrs, ("X", "Y", "Z")):
+            mat.node_tree.links.new(_mr.outputs["Result"], _comb.inputs[_sock])
+        _t = mat.node_tree.nodes.new("ShaderNodeTexImage")
+        _t.image = image
+        _t.select = True
+        mat.node_tree.nodes.active = _t
+
+    skin_mat_obj = human.data.materials[skin_idx]
+    scalp_mat_obj = human.data.materials[scalp_idx]
+
     # ---- (1) mask bake: white where the scalp region is, black everywhere else ----
+    # Drives the EXISTING skin/scalp materials (the same mechanism the proven skin
+    # bake uses — no temp-material reassignment, which the first two attempts
+    # proved flaky against the depsgraph). The skin polys bake black, the scalp
+    # polys bake white; the hidden-mask polys have no active image node and are
+    # skipped, leaving their UV areas at zero (black = not hair).
     mask_img = bpy.data.images.new("mpfb_scalp_mask", resolution, resolution)
     mask_img.colorspace_settings.name = "Non-Color"
-    mask_white = make_material("__texture_mask_white__", (1.0, 1.0, 1.0, 1.0))
-    mask_black = make_material("__texture_mask_black__", (0.0, 0.0, 0.0, 1.0))
-    for _m in (mask_white, mask_black):
-        _n = _m.node_tree.nodes.new("ShaderNodeTexImage")
-        _n.image = mask_img
-        _n.select = True  # the bake writes only to the ACTIVE AND SELECTED image node
-        _m.node_tree.nodes.active = _n
-    saved_indices = [p.material_index for p in human.data.polygons]
-    white_idx = len(human.data.materials)
-    human.data.materials.append(mask_white)
-    black_idx = len(human.data.materials)
-    human.data.materials.append(mask_black)
-    for _p in human.data.polygons:
-        _p.material_index = white_idx if _p.material_index == scalp_idx else black_idx
-    bpy.context.view_layer.update()  # the bake reads the depsgraph, not the raw mesh
+    _flat_color_material(skin_mat_obj, (0.0, 0.0, 0.0, 1.0), mask_img)
+    _flat_color_material(scalp_mat_obj, (1.0, 1.0, 1.0, 1.0), mask_img)
+    bpy.context.view_layer.update()
     _select_human_only()
-    human.active_material_index = white_idx
+    human.active_material_index = skin_idx
     try:
         # use_clear=False: mask_img is freshly created (zeros) and baked_img must
         # NOT be cleared — the active-material image is otherwise the bake's
         # primary clear target, which wiped the skin texture on the first run.
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=False)
-    finally:
-        for _p, _orig in zip(human.data.polygons, saved_indices):
-            _p.material_index = _orig
-        bpy.context.view_layer.update()
-        try:
-            human.data.materials.pop(index=len(human.data.materials) - 1)
-            human.data.materials.pop(index=len(human.data.materials) - 1)
-        except Exception:
-            pass
+    except Exception as _e:
+        print(f"TEXTURE_HAIRLINE WARNING: mask bake failed: {_e}")
 
     # ---- (2) position bake: world (x, y, z) per texel over the head bounds ----
     _head = [
@@ -418,49 +450,20 @@ def apply_texture_mask_hairline(
 
     pos_img = bpy.data.images.new("mpfb_position_map", resolution, resolution)
     pos_img.colorspace_settings.name = "Non-Color"
-    pos_mat = bpy.data.materials.new("__texture_position__")
-    pos_mat.use_nodes = True
-    _prin = pos_mat.node_tree.nodes["Principled BSDF"]
-    _geo = pos_mat.node_tree.nodes.new("ShaderNodeNewGeometry")
-    _sep = pos_mat.node_tree.nodes.new("ShaderNodeSeparateXYZ")
-    _comb = pos_mat.node_tree.nodes.new("ShaderNodeCombineXYZ")
     # EMIT-bake types silently produce nothing in this Blender build (probed), so
     # the position is driven through the Principled BASE COLOR and DIFFUSE-baked —
     # the same pass the skin bake uses. The bake is a measurement instrument, not
-    # the character material (the character skin stays MaterialService #343).
-    pos_mat.node_tree.links.new(_geo.outputs["Position"], _sep.inputs["Vector"])
-    pos_mat.node_tree.links.new(_comb.outputs["Vector"], _prin.inputs["Base Color"])
-    _range_nodes = []
-    for _axis, (_lo, _hi) in zip(("X", "Y", "Z"), ((hx0, hx1), (hy0, hy1), (hz0, hz1))):
-        _mr = pos_mat.node_tree.nodes.new("ShaderNodeMapRange")
-        _mr.inputs["From Min"].default_value = float(_lo)
-        _mr.inputs["From Max"].default_value = float(_hi)
-        _mr.inputs["To Min"].default_value = 0.0
-        _mr.inputs["To Max"].default_value = 1.0
-        _range_nodes.append(_mr)
-        pos_mat.node_tree.links.new(_sep.outputs[_axis], _mr.inputs["Value"])
-    for _mr, _out_sock in zip(_range_nodes, ("X", "Y", "Z")):
-        pos_mat.node_tree.links.new(_mr.outputs["Result"], _comb.inputs[_out_sock])
-    _pos_node = pos_mat.node_tree.nodes.new("ShaderNodeTexImage")
-    _pos_node.image = pos_img
-    _pos_node.select = True
-    pos_mat.node_tree.nodes.active = _pos_node
-    for _p in human.data.polygons:
-        _p.material_index = len(human.data.materials)
-    human.data.materials.append(pos_mat)
+    # the character material (the character skin stays MaterialService #343; the
+    # export rebuilds this tree from scratch below).
+    _position_material(skin_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
+    _position_material(scalp_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
     bpy.context.view_layer.update()
     _select_human_only()
-    human.active_material_index = len(human.data.materials) - 1
+    human.active_material_index = skin_idx
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=False)
-    finally:
-        for _p, _orig in zip(human.data.polygons, saved_indices):
-            _p.material_index = _orig
-        bpy.context.view_layer.update()
-        try:
-            human.data.materials.pop(index=len(human.data.materials) - 1)
-        except Exception:
-            pass
+    except Exception as _e:
+        print(f"TEXTURE_HAIRLINE WARNING: position bake failed: {_e}")
     bpy.context.scene.render.engine = prev_engine
     bpy.context.scene.cycles.device = prev_device
 
