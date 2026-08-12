@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "openclinxr.issue-343.pre-fix.v1",
+  "issue": 343,
+  "measuredAgainstCommit": "d2322e29db286af4b05fbb9fd55ddfff6ef61d6b",
+  "measuredAt": "2026-08-12T07:1x:00Z",
+  "method": "Headless Blender 5.1.1 (blender --background --python), MPFB 2.0.15 extension enabled via bpy.ops.preferences.addon_enable; GLB read-back via @gltf-transform/core NodeIO (the same instrument the planted contracts use).",
+  "bakeQuestion": {
+    "question": "Does the shipped MPFB2 enhanced_skin node tree (data/node_trees/enhanced_skin.json, loaded through MaterialService) bake to a baseColorTexture that survives glTF export under Blender 5.1 headless?",
+    "answer": "NOT AUTOMATICALLY through the glTF exporter; YES via an explicit Cycles bake step. The exporter has NO material-bake capability in Blender 5.1; the shipped node tree's output survives export only when the pipeline bakes it to an image and wires that image into a Principled baseColor.",
+    "measurements": [
+      {
+        "experiment": "As-is export: create_human -> MaterialService.create_v2_skin_material('test_skin', human) -> bpy.ops.export_scene.gltf",
+        "result": "exported skin material has baseColorTexture=NONE, baseColorFactor=[1,1,1,1]. The enhanced_skin node tree's output does not survive export untouched.",
+        "evidence": "NodeIO read-back of /tmp/bake_q_enhanced.glb: 'MAT: test_skin | baseColorTexture: NONE | factor: [1,1,1,1]'"
+      },
+      {
+        "experiment": "Exporter capability: introspected bpy.ops.export_scene.gltf operator properties and searched io_scene_gltf2 source for material baking",
+        "result": "No bake_materials/material-bake property exists in Blender 5.1's glTF exporter (only export_materials enum EXPORT/PLACEHOLDER/VIEWPORT/NONE, export_image_format etc.). The exporter never bakes procedural node graphs.",
+        "evidence": "Full operator property list dumped via get_rna_type(); grep for 'bake' in addons_core/io_scene_gltf2 found only export_bake_animation (skeletal animation baking), not material baking."
+      },
+      {
+        "experiment": "Explicit Cycles bake: create_human -> create_v2_skin_material -> add ShaderNodeTexImage (active) -> render.engine=CYCLES CPU -> bpy.ops.object.bake(type='DIFFUSE', pass_filter={'COLOR'}, use_clear=True) -> wire baked image into a fresh Principled Base Color -> export",
+        "result": "bpy.ops.object.bake succeeds (BAKE_OK, 1,042,362-byte PNG). The exported GLB carries baseColorTexture='probe_baked_skin' (1,042,362 B) on the skin material. The baked texture survives glTF export.",
+        "evidence": "NodeIO read-back of /tmp/bake_q_full.glb: 'MAT: probe_exportable_skin | baseColorTexture: probe_baked_skin (1042362B) | factor: [1,1,1,1]'. Baked PNG has 67 distinct coarse colours (real variation, not a flat fill)."
+      }
+    ],
+    "conclusion": "The enhanced_skin route is VIABLE but only with an explicit Cycles bake step in the materializer. glTF carries no procedural shaders; a node graph alone reaches no learner. The slice must: (1) load the shipped node tree via MaterialService.create_v2_skin_material, (2) drive tone from phenotype (MpfbSkinMasterColor 'colorgroup' SkinColor input), (3) Cycles-bake the skin surface to a texture, (4) wire that texture into the exported Principled baseColor."
+  },
+  "currentState": {
+    "sharedLiteral": "materialize_mpfb_humanoid_candidate.py:572 hardcodes make_material(skin_material_name, (0.68, 0.53, 0.44, 1.0)) for all three MPFB actors (aisha, nurse, child).",
+    "shippedBytes": {
+      "mpfb-ob-patient-aisha.glb": "mpfb_skin_ob_patient_aisha: baseColorTexture=NONE, baseColorFactor=[0.68,0.53,0.44]",
+      "mpfb-peds-nurse-kevin.glb": "mpfb_skin_peds_nurse_kevin: baseColorTexture=NONE, baseColorFactor=[0.68,0.53,0.44]",
+      "mpfb-peds-patient-child.glb": "mpfb_skin_peds_patient_child: baseColorTexture=NONE, baseColorFactor=[0.68,0.53,0.44]"
+    },
+    "phenotypeTonesAvailable": {
+      "peds_nurse_kevin": "medium_warm (peds_nurse_kevin.anny_manifest.json input_params.phenotype.skin_tone)",
+      "peds_patient_child": "warm_light_child (peds_patient_child.anny_manifest.json input_params.phenotype.skin_tone)",
+      "ob_patient_aisha": "no anny manifest / no declared skin_tone in ob-preeclampsia fixture -> needs a default"
+    },
+    "licence": "MPFB2 (Blender extension) code GPL-3.0-or-later (blender_manifest.toml); bundled data/textures CC0 1.0 per upstream LICENSE.ASSETS.md (verified via web fetch 2026-08-12). Recorded in third-party-asset-licence-ledger.md."
+  }
+}
