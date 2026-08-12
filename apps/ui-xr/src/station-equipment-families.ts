@@ -43,7 +43,8 @@ export type EquipmentFamily =
   | "medication_cart"
   | "call_bell"
   | "panic_button"
-  | "privacy_curtain";
+  | "privacy_curtain"
+  | "tables";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });

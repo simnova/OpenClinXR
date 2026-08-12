@@ -29,6 +29,7 @@ import {
 import { buildMedicationCartEquipment } from "./station-equipment-medication-cart.js";
 import { buildCallBellEquipment, buildPanicButtonEquipment } from "./station-equipment-call-bell.js";
 import { buildPrivacyCurtainEquipment } from "./station-equipment-privacy-curtain.js";
+import { buildSimpleTableEquipment } from "./station-equipment-tables.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -489,6 +490,9 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     // #202 privacy curtain — clinic/OB; honest class for unmapped "privacy curtain" prose
     case "privacy_curtain_equipment":
       return buildPrivacyCurtainEquipment(equipmentId);
+    // #202 small table — psych safe room; honest class for unmapped "small table" prose
+    case "small_table_equipment":
+      return buildSimpleTableEquipment(equipmentId, "small_table");
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

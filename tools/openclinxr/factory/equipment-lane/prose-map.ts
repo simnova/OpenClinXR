@@ -65,11 +65,13 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "panic button": "panic_button_equipment",
   // Bed-side privacy curtain (clinic / OB) — dedicated thin parametric id.
   "privacy curtain": "privacy_curtain_equipment",
+  // Psych safe-room furnishing — dedicated thin parametric id.
+  "small table": "small_table_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // privacy notice, small table, consultation desk, joint diagram,
-  // medication bottles, urine cup, blood-culture kit, neuro exam card,
-  // CT/fall-risk/sepsis signs, drain, soft lighting, incentive spirometer —
-  // factory honesty > silent fallback.
+  // privacy notice, consultation desk, joint diagram, medication bottles,
+  // urine cup, blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs,
+  // drain, soft lighting, incentive spirometer — factory honesty > silent
+  // fallback.
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T05:39:57.663Z",
+  "measuredAt": "2026-08-12T05:54:54.581Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 43,
+  "equipmentCount": 44,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -986,6 +986,31 @@
       "notes": ""
     },
     {
+      "equipmentId": "small_table_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildSmallTableEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "small table"
+      ],
+      "scenarioIds": [
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
       "equipmentId": "stretcher_equipment",
       "lane": "thin_parametric",
       "runtimeSource": "parametric",
@@ -1208,14 +1233,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "small table",
-      "scenarioIds": [
-        "psych_suicidal_ideation_safety_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "soft lighting",
       "scenarioIds": [
         "oncology_bad_news_family_v1"
@@ -1235,11 +1252,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 38,
+      "thin_parametric": 39,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 39,
+      "parametric": 40,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
