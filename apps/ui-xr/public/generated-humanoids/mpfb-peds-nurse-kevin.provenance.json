@@ -10,7 +10,7 @@
   "sourceKind": "mpfb2_makehuman_basemesh_from_anny_reference",
   "usesRealAnnyForwardPass": false,
   "realAnnyWeightsUsed": false,
-  "textureMode": "procedural_fallback",
+  "textureMode": "authored_or_baked",
   "animationMode": "procedural_clinical_idle_conversation_posture_fallback",
   "optimizationMode": "unoptimized_post_blender_glb",
   "realismGrade": "not_graded",
@@ -20,7 +20,7 @@
     "annyReference": "apps/ui-xr/public/generated-humanoids/peds_nurse_kevin.anny_base.obj (tracked)",
     "materializedFrom": "MPFB2 HumanService.create_human with macro_detail_dict derived from the tracked Anny reference",
     "generator": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "derivationNote": "Issue #328: the MPFB2 materializer now derives its macro dict from the tracked Anny reference instead of baking the default human. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. #317 face keys (32 targets / 13 mouth), #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris), #321 toigo t-shirt fit (2,700 tris, k-NN weighted to the standard rig) and #323 body-part hiding all ran unchanged. Measured (largest non-garment/non-hidden primitive): stature 1.6528 m, chest 0.9484, waist 1.1056, chest:waist ratio 0.8578. Regenerated 2026-08-11 (#337 resume): merged main (#335) and re-baked with CC0 MakeHuman default eyes (data/eyes/hm08/low-poly, header-verified CC0) fitted pre-#318-strip via HumanService.add_mhclo_asset(asset_type=\"eyes\", material_type=\"PROCEDURAL_EYES\"); eye mesh renamed makeclothes_library_eyes_low_poly_mpfb_<body>_mesh (96 verts / 172 tris), weighted 1.0 to eye.L/eye.R by interpolate_weights (dominant groups eye.L 48 / eye.R 48); #334 hide-mask head-joint bound and #335 casts preserved; iris rotation delta at gaze=1 measured 10-13 mm, 89-94% lateral."
+    "derivationNote": "Issue #328: the MPFB2 materializer now derives its macro dict from the tracked Anny reference instead of baking the default human. age=0.6 from the measured head-height fraction (0.100, adult band); height=0.5827 SOLVED by bake-measure-interpolate so the baked+stripped exported body reaches the reference stature (1.76 m). Macros baked into the basis via TargetService.bake_targets immediately after create_human. #317 face keys (32 targets / 13 mouth), #318 helper strip (19,158->13,380 verts / 36,972->26,756 tris), #321 toigo t-shirt fit (2,700 tris, k-NN weighted to the standard rig) and #323 body-part hiding all ran unchanged. Measured (largest non-garment/non-hidden primitive): stature 1.6528 m, chest 0.9484, waist 1.1056, chest:waist ratio 0.8578. Regenerated 2026-08-11 (#337 resume): merged main (#335) and re-baked with CC0 MakeHuman default eyes (data/eyes/hm08/low-poly, header-verified CC0) fitted pre-#318-strip via HumanService.add_mhclo_asset(asset_type=\"eyes\", material_type=\"PROCEDURAL_EYES\"); eye mesh renamed makeclothes_library_eyes_low_poly_mpfb_<body>_mesh (96 verts / 172 tris), weighted 1.0 to eye.L/eye.R by interpolate_weights (dominant groups eye.L 48 / eye.R 48); #334 hide-mask head-joint bound and #335 casts preserved; iris rotation delta at gaze=1 measured 10-13 mm, 89-94% lateral. Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat — brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture."
   },
   "licenseChain": {
     "status": "mpfb2_makehuman_license_not_reverified_at_comparator",
@@ -52,11 +52,12 @@
     "gender/muscle/weight/proportions/cupsize/firmness remain MPFB defaults — only age + height are driven by reference measurement this slice.",
     "Exact MADR 0051 §5 landmark match (shoulder, girths, limb lengths) is anny-mpfb-landmark-compare's follow-on; NOT claimed here.",
     "Issue #333: re-baked on the merged #328 materializer with the #326 lower channel (cargo-pants cover shell) and the #333 footwear channel (culturalibre_male_boots, sole grounded to body bottom).",
-    "Issue #335: re-baked with the #334 hide-mask head-joint clip (the t-shirt collar rides high on this body — 0.920 H against its own head joint 0.914 H — so the mask is clipped to the body's own head joint and no longer discards the jaw) and the uniform upper-garment mesh rename to the makeclothes_library_*_mpfb_<ref> convention. Cast into peds_asthma_parent_anxiety_v1 as the nurse; promotionStatus set to promoted_runtime_cast_not_realism_gate_pass (NOT a realism gate pass)."
+    "Issue #335: re-baked with the #334 hide-mask head-joint clip (the t-shirt collar rides high on this body — 0.920 H against its own head joint 0.914 H — so the mask is clipped to the body's own head joint and no longer discards the jaw) and the uniform upper-garment mesh rename to the makeclothes_library_*_mpfb_<ref> convention. Cast into peds_asthma_parent_anxiety_v1 as the nurse; promotionStatus set to promoted_runtime_cast_not_realism_gate_pass (NOT a realism gate pass).",
+    "Issue #340: re-baked with the eye material consuming the asset's OWN declared .mhmat — brown.mhmat's diffuseTexture brown_eye.png (CC0, 610,817 bytes, git blob bda1b4b0 == upstream main) bound as glTF baseColorTexture via the generic make_material_from_mhmat path; the flat eye baseColor (#337 white / #338 brown) is gone. Eye geometry (96 verts / 172 tris, eye.L/eye.R weights) unchanged; body macros, hide masks, garment fits, footwear and sole grounding re-run identically. textureMode updated procedural_fallback -> authored_or_baked because the eye channel now carries a baked diffuse texture."
   ],
   "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
   "promotionGates": false,
-  "generatedAt": "2026-08-11T21:10:00Z",
-  "outputSha256": "9039b7b967c419155a451736fc2372ef06ed3b6365a9dda1cca96adf32770d45",
-  "outputBytes": 13512900
+  "generatedAt": "2026-08-11T22:40:00Z",
+  "outputSha256": "3eb585d128ae2b5f795dd42e7938ef728c0a354512057de12be556b91e6125a4",
+  "outputBytes": 14327928
 }
