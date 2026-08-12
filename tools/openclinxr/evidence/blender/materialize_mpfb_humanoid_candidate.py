@@ -1088,6 +1088,34 @@ def main():
         )
         bpy.data.objects.remove(pants, do_unlink=True)
         pants = shell_obj
+        # issue-341 round 6 — the cover shell's bottom edge follows the body's
+        # triangulation at the ankle-foot junction, not a garment hem. Measured on
+        # aisha round-5c: the front hem zigs ~8 cm between the lateral ankle
+        # (y 0.105) and the medial ankle (y 0.192), and the bottom ring's depth
+        # spans 11 cm ('jagged trouser hems at the ankle'). The shell is the body
+        # surface offset by the 1.5 cm standoff; its bottom boundary is the band
+        # cut, which slices the body's foot-transition triangles at an angle. Clip
+        # the shell at a horizontal plane at the band bottom (ankle_z, the 'bare
+        # feet begin below' #326 landmark the band was derived from) so the shipped
+        # hem is a straight horizontal line. bisect_plane + clear_inner removes the
+        # part below the plane; the cut edge is exactly horizontal. The plane IS an
+        # existing anatomical landmark — no new threshold.
+        import bmesh as _bmesh
+
+        _bm = _bmesh.new()
+        _bm.from_mesh(pants.data)
+        _geom = _bm.verts[:] + _bm.edges[:] + _bm.faces[:]
+        _bmesh.ops.bisect_plane(
+            _bm,
+            geom=_geom,
+            plane_co=(0.0, 0.0, ankle_z),
+            plane_no=(0.0, 0.0, 1.0),
+            clear_inner=True,
+        )
+        _bm.to_mesh(pants.data)
+        _bm.free()
+        bpy.context.view_layer.update()
+        print(f"SHELL_HEM_CLIP planeZ {ankle_z:.4f}")
         lower_rep["note"] = "sparse library fit replaced with body-derived cover shell (#220)"
         pants_mesh_name = shell_obj.name
         pants_verts_after = shell["vertexCount"]
@@ -1167,25 +1195,44 @@ def main():
         & (_poke_fcent[:, 2] >= _gz_lo)
         & (_poke_fcent[:, 2] <= _gz_hi)
     )
-    _rehide = (_poke_per < 0) & _in_xz
+    # #334 — VERTEX-based head-joint bound shared by every re-hide below: the clip
+    # ran at the head joint and each re-hide (force, coincident, tilted, full-body)
+    # runs AFTER it, so a re-hide must not re-add a face whose vertices reach above
+    # the joint (a collar that rides above it must not put the jaw/neck back under
+    # the mask — measured: nurse collar 0.921H vs joint 0.914H, the shipped mask
+    # AABB is max-vertex).
+    _below_joint = (
+        body_verts[body_faces[_poke_fidx]].max(axis=1)[:, 2] <= head_joint_z
+    )
+    _rehide = (_poke_per < 0) & _in_xz & _below_joint
     _force_hidden = int(_rehide.sum())
     hide_mask[_poke_fidx[_rehide]] = True
-    # per-face poke classification aligned with body_faces (full length), for the
-    # black-sliver refinement below.
-    _poke_per_full = np.zeros(len(body_faces), dtype=bool)
-    _poke_per_full[_poke_fidx[_poke_per < 0]] = True
-    # issue-341 black-sliver refinement: a hidden face that NEITHER pokes the garment
-    # surface (clearance < 0, hiding reveals the garment behind it) NOR has the garment
-    # between it and the front viewer is NOT under the cloth — hiding it discards the
-    # face and the viewer sees the dark body interior through the hole (measured on
-    # aisha's round-1 bake: 952 hidden tris with no shirt in front, clustered at the
-    # collar/neck, sleeve edges and hem). Un-hide exactly those faces; the #326
-    # over-reach class is now surface-truth rather than a 3D AABB guess. The viewer
-    # ray runs toward the stage's front (-Y: Blender create_human faces -Y, which the
-    # glTF export maps to +Z — the same +Z the occlusion gate shoots from).
+    # issue-341 black-sliver refinement: a hidden face that NEITHER has the garment
+    # between it and the front viewer NOR has the garment within the shipping
+    # standoff BEHIND it along the viewer axis is NOT under the cloth — hiding it
+    # discards the face and the viewer sees the dark body interior through the hole
+    # (measured on aisha's round-1 bake: 952 hidden tris with no shirt in front,
+    # clustered at the collar/neck, sleeve edges and hem; re-measured round-6d on
+    # the shipped bytes: 49 + 86 hidden tris at the shoulder/arm silhouette edges
+    # are the FRONT-MOST surface in their column with NOTHING rendering behind them
+    # — the "dark slivers at both shoulders and along the elbow line" pixel grade).
+    # The BEHIND test replaces the strict-poke exemption: a poke has the cloth
+    # behind it along the viewer axis at ANY reach (hiding reveals the cloth), but
+    # a silhouette-edge face has NO cloth behind — hiding it reveals the dark
+    # interior. The reach is the gate's own MAX_RAY_T (0.5 m), the same as the
+    # front test — NOT a standoff bound: the child's loose adult-authored t-shirt
+    # hangs 2-5 cm off the body (measured 2026-08-12: round-6b first bake with a
+    # 1.5 cm behind-bound left the child's skin pokes un-hidden and the occlusion
+    # gate read tshirt occludedByOther 0.1379; the 0.5 m reach keeps them hidden
+    # and the shirt renders). Un-hide exactly the no-cloth-anywhere faces; the
+    # #326 over-reach class is now surface-truth rather than a 3D AABB guess. The
+    # viewer ray runs toward the stage's front (-Y: Blender create_human faces -Y,
+    # which the glTF export maps to +Z — the same +Z the occlusion gate shoots
+    # from).
     from garment_coverage import _ray_tri_hits as _ray_tri_hits_341  # noqa: E402
 
     _VIEW_Y = np.array([0.0, -1.0, 0.0])
+    _BLACK_BACK_Y = np.array([0.0, 1.0, 0.0])
     _garment_tris_341 = garment_verts[garment_faces]
     _hidden_idx = np.where(hide_mask)[0]
     _black_slivers = 0
@@ -1195,10 +1242,128 @@ def main():
         _h_dirs = np.tile(_VIEW_Y, (len(_h_origins), 1))
         _h_hits = _ray_tri_hits_341(_h_origins, _h_dirs, _garment_tris_341, 0.5)
         _covered = np.isfinite(_h_hits)
-        _poke_of_hidden = _poke_per_full[_hidden_idx]
-        _unhide = ~_covered & ~_poke_of_hidden
+        _h_back_origins = _hcent + _BLACK_BACK_Y * 1e-4
+        _h_back_dirs = np.tile(_BLACK_BACK_Y, (len(_h_origins), 1))
+        _h_back_hits = _ray_tri_hits_341(
+            _h_back_origins, _h_back_dirs, _garment_tris_341, 0.5
+        )
+        _cloth_behind = np.isfinite(_h_back_hits)
+        _unhide = ~_covered & ~_cloth_behind
         _black_slivers = int(_unhide.sum())
         hide_mask[_hidden_idx[_unhide]] = False
+    # issue-341 round 6 — the coincident-class re-hide. The force-hide above
+    # restores only STRICT pokes (min vertex clearance < 0). body_hide_mask's OWN
+    # threshold is HIDE_EPSILON_M (5 mm), which also covers the COINCIDENT class
+    # (clearance in [0, 5 mm): the garment surface within 5 mm of the skin along
+    # the body normal — sub-mm z-fight). Measured on aisha round-5c: 20 skin faces
+    # at x +-0.04..0.08, y 1.09-1.20, z 0.151-0.159 carry clearance 0.07-1.28 mm
+    # (all < HIDE_EPSILON_M, none < 0) — they were hidden by body_hide_mask, then
+    # UN-hidden by #326's footprint clip (their depth pokes past the garment's
+    # depth AABB) and left un-hidden by the black-sliver un-hide (not a strict
+    # poke). They render as the "small skin patches at the midriff" pixel grade.
+    # Re-hide exactly those, plus the TILTED-SURFACE sibling measured at the same
+    # spot (aisha round-5c: 4 faces at x +-0.036..0.042, y 1.088-1.098 whose
+    # normal clearance is 19 mm — the cloth is NOT within epsilon along the normal
+    # — but whose skin still renders 3-6 mm IN FRONT of the cloth along the viewer
+    # ray: the lower-belly surface curves away from the cloth). Both classes are
+    # the same render truth: front-facing skin with the cloth within
+    # CLOTH_STANDOFF_M BEHIND it along the viewer ray and no cloth in front —
+    # hiding reveals the cloth, never the dark interior (the black-sliver un-hide
+    # above stays for faces with nothing behind them; the natural bare ankle at
+    # frac 0.05 measures 6-9 cm of cloth behind and is excluded by the same bound).
+    _coinc = (_poke_per >= 0) & (_poke_per < HIDE_EPSILON_M)
+    _rehide_coinc = np.zeros(len(_poke_per), dtype=bool)
+    # #334 — the shared VERTEX-based head-joint bound (computed with the force-hide
+    # above) applies to every re-hide.
+    if _coinc.any():
+        _BACK_Y = np.array([0.0, 1.0, 0.0])
+        _cc = _poke_fcent[_coinc]
+        _origins = _cc + _BACK_Y * 1e-4
+        _dirs = np.tile(_BACK_Y, (len(_origins), 1))
+        _hits_b = _ray_tri_hits_341(_origins, _dirs, _garment_tris_341, CLOTH_STANDOFF_M)
+        _behind = np.isfinite(_hits_b)
+        # Restrict to FRONT-FACING faces (normal toward the viewer, stage -Y): a
+        # coincident face on the side/back of the body is not a visible patch — it
+        # sits behind the body's own front surface and re-hiding it is pointless.
+        # `_poke_fn` is per-vertex (3 samples per face); average to the face normal.
+        _front_facing = _poke_fn.reshape(len(_poke_fidx), 3, 3).mean(axis=1)[:, 1] < 0.0
+        _rehide_coinc[_coinc] = _behind
+        _rehide_coinc = _rehide_coinc & _in_xz & _front_facing & _below_joint
+    # the tilted-surface sibling: front-facing skin with NO cloth in front along
+    # the viewer ray and the cloth within CLOTH_STANDOFF_M behind it.
+    _rehide_tilted = np.zeros(len(_poke_per), dtype=bool)
+    if True:
+        _BACK_Y2 = np.array([0.0, 1.0, 0.0])
+        _origins_f = _poke_fcent + _VIEW_Y * 1e-4
+        _dirs_f = np.tile(_VIEW_Y, (len(_poke_fcent), 1))
+        _hits_f = _ray_tri_hits_341(_origins_f, _dirs_f, _garment_tris_341, CLOTH_STANDOFF_M)
+        _no_cloth_front = ~np.isfinite(_hits_f)
+        _origins_b = _poke_fcent + _BACK_Y2 * 1e-4
+        _dirs_b = np.tile(_BACK_Y2, (len(_poke_fcent), 1))
+        _hits_b2 = _ray_tri_hits_341(_origins_b, _dirs_b, _garment_tris_341, CLOTH_STANDOFF_M)
+        _cloth_behind = np.isfinite(_hits_b2)
+        _front_facing2 = _poke_fn.reshape(len(_poke_fidx), 3, 3).mean(axis=1)[:, 1] < 0.0
+        _rehide_tilted = _no_cloth_front & _cloth_behind & _front_facing2 & _in_xz
+        # #334 — same VERTEX-based head-joint bound as the coincident re-hide.
+        _rehide_tilted = _rehide_tilted & _below_joint
+    _rehide_coinc = _rehide_coinc | _rehide_tilted
+    _coinc_rehidden = int(_rehide_coinc.sum())
+    hide_mask[_poke_fidx[_rehide_coinc]] = True
+    print(f"COINCIDENT_REHIDE faces {_coinc_rehidden}")
+    # issue-341 round 6 — the full-body viewer-poke scan. The region selection
+    # above (and the hide mask's own region) is bounded by the shared per-slice
+    # lateral footprint (_lateral_footprint), and that footprint has a
+    # mesh-resolution artifact: measured on aisha, slice 6 of the t-shirt reads
+    # 3.4 cm while the shirt's real extent at that height is 13.1 cm, so the 4
+    # lower-belly faces at x +-0.036..0.042 were NEVER SAMPLED and could not be
+    # re-hidden by any region-bounded step. Scan ALL body faces (not region-
+    # restricted): front-facing, no cloth in front along the viewer ray, cloth
+    # within CLOTH_STANDOFF_M behind along the viewer ray, inside the garment's
+    # x/height silhouette. The standoff behind-bound is what keeps the natural
+    # bare ankle (6-9 cm of cloth behind, measured) and the bare forearms out of
+    # the mask — cloth within the shipping standoff BEHIND a front-facing face is
+    # a z-fight poke by definition, and hiding reveals the cloth, never the dark
+    # interior.
+    _VIEWER_POKE_BACK = np.array([0.0, 1.0, 0.0])
+    _bc_all = body_verts[body_faces].mean(axis=1)
+    _pre_sel = (
+        (_bc_all[:, 0] >= _gx_lo - CLOTH_STANDOFF_M)
+        & (_bc_all[:, 0] <= _gx_hi + CLOTH_STANDOFF_M)
+        & (_bc_all[:, 2] >= _gz_lo - CLOTH_STANDOFF_M)
+        & (_bc_all[:, 2] <= _gz_hi + CLOTH_STANDOFF_M)
+    )
+    _pre_idx = np.where(_pre_sel)[0]
+    _viewer_poke_rehidden = 0
+    if len(_pre_idx):
+        # #334 — the full-body scan must also respect the head joint (vertex-based,
+        # same as the coincident re-hide): the collar can ride above it (measured:
+        # nurse collar 0.921H vs joint 0.914H) and the neck above the joint must
+        # never be discarded.
+        _pre_sel = _pre_sel & (
+            body_verts[body_faces].max(axis=1)[:, 2] <= head_joint_z
+        )
+        _pre_idx = np.where(_pre_sel)[0]
+    if len(_pre_idx):
+        _bp_tris = body_verts[body_faces[_pre_idx]]
+        _bp_fn = np.cross(_bp_tris[:, 1] - _bp_tris[:, 0], _bp_tris[:, 2] - _bp_tris[:, 0])
+        _bp_fn = _bp_fn / (np.linalg.norm(_bp_fn, axis=1, keepdims=True) + 1e-12)
+        _front = _bp_fn[:, 1] < 0.0
+        _f_idx = np.where(_front)[0]
+        if len(_f_idx):
+            _bc_f = _bc_all[_pre_idx][_f_idx]
+            _o_f = _bc_f + _VIEW_Y * 1e-4
+            _d_f = np.tile(_VIEW_Y, (len(_f_idx), 1))
+            _h_f = _ray_tri_hits_341(_o_f, _d_f, _garment_tris_341, CLOTH_STANDOFF_M)
+            _no_cloth_f = ~np.isfinite(_h_f)
+            _o_b = _bc_f + _VIEWER_POKE_BACK * 1e-4
+            _d_b = np.tile(_VIEWER_POKE_BACK, (len(_f_idx), 1))
+            _h_b = _ray_tri_hits_341(_o_b, _d_b, _garment_tris_341, CLOTH_STANDOFF_M)
+            _cloth_b = np.isfinite(_h_b)
+            _poke_sel = _pre_idx[_f_idx[_no_cloth_f & _cloth_b]]
+            if len(_poke_sel):
+                _viewer_poke_rehidden = int(len(_poke_sel))
+                hide_mask[_poke_sel] = True
+    print(f"VIEWER_POKE_REHIDE faces {_viewer_poke_rehidden}")
     # issue-341: re-clip the force-hide on the SILHOUETTE axes (x lateral, z height)
     # only — the depth axis is deliberately excluded, because a poke in front of the
     # garment is under its silhouette by definition. The #326 footprint clip tests all
@@ -1222,6 +1387,13 @@ def main():
             hide_mask[_tri_i : _tri_i + _n_tri] = False
             _reclip_polygons += 1
         _tri_i += _n_tri
+    # #334 — re-apply the head-joint clip after every re-hide/refinement step: the
+    # black-sliver and re-hides run after the first clip and can leave the mask a
+    # sub-mm above the joint (measured 2026-08-12: nurse mask 0.9143H vs joint
+    # 0.9139H when the behind-bound kept a collar-region face hidden). Idempotent.
+    hide_mask, head_clipped_final = clip_hide_mask_below_joint(hide_mask, human, head_joint_z)
+    if head_clipped_final:
+        print(f"HEAD_CLIP_FINAL polygons {head_clipped_final}")
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
@@ -1305,6 +1477,32 @@ def main():
         )
     else:
         print("WAISTBAND_HIDE WARNING: pants top below shirt hem — band empty; report this")
+    # issue-341 round 6 — the black-sliver refinement for the LOWER mask. The
+    # waistband band above hides ALL body faces in the band inside the pants'
+    # footprint, including the waist SIDES (measured on aisha round-6e: 15 hidden
+    # faces at x +-0.13..0.15, y 0.97-0.99 with NO cloth in front along the viewer
+    # ray and nothing rendering behind — the same render-truth the upper mask's
+    # black-sliver fixes, and the upper one cannot see them because they live in
+    # the lower mask). Un-hide lower-mask faces with no cloth (pants) in front and
+    # no cloth within the shipping standoff behind; the belly faces the round-5b
+    # band was written for stay hidden (the pants render in front of them).
+    _pants_tris_341 = pants_verts_np[pants_faces_np]
+    _lower_hidden_idx = np.where(lower_hide_mask)[0]
+    _lower_black_slivers = 0
+    if len(_lower_hidden_idx):
+        _lh = body_verts[body_faces[_lower_hidden_idx]].mean(axis=1)
+        _l_orig = _lh + _VIEW_Y * 1e-4
+        _l_dir = np.tile(_VIEW_Y, (len(_l_orig), 1))
+        _l_hits = _ray_tri_hits_341(_l_orig, _l_dir, _pants_tris_341, 0.5)
+        _l_covered = np.isfinite(_l_hits)
+        _l_b_orig = _lh + _BLACK_BACK_Y * 1e-4
+        _l_b_dir = np.tile(_BLACK_BACK_Y, (len(_l_orig), 1))
+        _l_b_hits = _ray_tri_hits_341(_l_b_orig, _l_b_dir, _pants_tris_341, CLOTH_STANDOFF_M)
+        _l_behind = np.isfinite(_l_b_hits)
+        _l_unhide = ~_l_covered & ~_l_behind
+        _lower_black_slivers = int(_l_unhide.sum())
+        lower_hide_mask[_lower_hidden_idx[_l_unhide]] = False
+        print(f"LOWER_BLACK_SLIVERS unhidden {_lower_black_slivers}")
     lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
     print(
         f"LOWER_BODY_HIDE {lower_hide_info} "
