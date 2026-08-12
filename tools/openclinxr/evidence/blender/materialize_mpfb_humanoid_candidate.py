@@ -553,6 +553,79 @@ def main():
         f"dominantGroups {dict(_dom.most_common(6))}"
     )
 
+    # #338 — the between-layers defect this issue exists to instrument. The scalp
+    # material region is painted ABOVE (line ~439) BEFORE the eyes are fitted here,
+    # and its crown band (0.935 H) covers the eye sockets: the scalp-painted brow
+    # renders IN FRONT of the eyes (measured on the shipped bytes: nurse eyes 0.50
+    # occluded-by-scalp, scalp maxZ 1.1 cm anterior to the eye maxZ; #337 landed the
+    # eyes 20 minutes after #282 fixed the face band, and the band [0.82, 0.93] is
+    # correct and blind to eyes at 0.93-0.945 H). Keep the band and the crown — the
+    # scalp legitimately covers the crown (#6p: no deletion without a replacement).
+    # UNPAINT the scalp only inside the fitted eye mesh's own XY footprint, reverting
+    # those polygons to the skin material: the eye area then shows skin and the eyes
+    # render through the socket opening. The footprint is measured from the fitted
+    # eye mesh — no fitted constant. Both frames are world (matrix_world) so the
+    # comparison is transform-safe.
+    eye_world = np.array([tuple(eyes_asset.matrix_world @ v.co) for v in eyes_asset.data.vertices])
+    eye_min_x = float(eye_world[:, 0].min())
+    eye_max_x = float(eye_world[:, 0].max())
+    eye_min_y = float(eye_world[:, 1].min())
+    eye_max_y = float(eye_world[:, 1].max())
+    # Expand the footprint by the BODY's own median edge length — the natural scale
+    # of the surface. A polygon whose CENTER sits just outside the eye bounds still
+    # overhangs the socket (measured: the first bake left 18 scalp polygons whose
+    # quad centres sat at the footprint edge, still rendering in front of the eye).
+    # The expansion is a property of the mesh resolution, not a fitted constant.
+    h_mesh = human.data
+    edge_lens: list[float] = []
+    for poly in h_mesh.polygons:
+        iv = list(poly.vertices)
+        for k in range(len(iv)):
+            a = h_mesh.vertices[iv[k]].co
+            b = h_mesh.vertices[iv[(k + 1) % len(iv)]].co
+            edge_lens.append(float((a - b).length))
+    edge_pad = float(np.median(edge_lens)) if edge_lens else 0.01
+    skin_idx = next(
+        (i for i, m in enumerate(human.data.materials) if "skin" in (m.name or "").lower()),
+        0,
+    )
+    scalp_idx = next(
+        (
+            i
+            for i, m in enumerate(human.data.materials)
+            if "scalp_hair" in (m.name or "").lower()
+        ),
+        None,
+    )
+    if scalp_idx is None:
+        raise RuntimeError("#338: scalp material region missing for the eye-socket unpaint")
+    h_world = human.matrix_world
+    eye_socket_unpainted = 0
+    for poly in human.data.polygons:
+        if poly.material_index != scalp_idx:
+            continue
+        c = h_world @ poly.center
+        if (
+            eye_min_x - edge_pad <= c.x <= eye_max_x + edge_pad
+            and eye_min_y - edge_pad <= c.y <= eye_max_y + edge_pad
+        ):
+            poly.material_index = skin_idx
+            eye_socket_unpainted += 1
+    # The eye material the fitter applied is MPFB's procedural eyes NODE TREE, which
+    # the GLB exporter does not bake (measured on the shipped bytes: the exported eye
+    # material has NO baseColorFactor — it renders flat WHITE). A flat dark base
+    # colour is the deterministic minimum that reads as an eye in a socket.
+    eyes_asset.data.materials.clear()
+    eye_mat = make_material(
+        f"mat_makeclothes_library_eyes_{args.reference or 'ob_patient_aisha'}",
+        (0.12, 0.09, 0.07, 1.0),
+    )
+    eyes_asset.data.materials.append(eye_mat)
+    print(
+        f"EYE_SOCKET_UNPAINT {eye_socket_unpainted} polygons reverted to skin "
+        f"in the eye footprint x[{eye_min_x:.4f},{eye_max_x:.4f}] y[{eye_min_y:.4f},{eye_max_y:.4f}]"
+    )
+
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
     # helper geometry — 36,972 tris, exactly MADR 0052's "with helpers" figure — and Aisha
@@ -1024,6 +1097,44 @@ def main():
     print(
         f"FOOTWEAR_FIT {shoe.name} verts {shoe_verts_before} -> {shoe_verts_after} "
         f"tris {shoe_tris} soleDeltaZ {delta_z:.6f} weights {shoe_weights}"
+    )
+
+    # #338 — toes through boot soles: the fitted footwear leaves the foot body
+    # visible where the shoe does not cover it. Measured on the shipped bytes by the
+    # #338 occlusion gate: the foot-skin band (y<0.15) reports 0.78 (nurse) / 0.90
+    # (aisha) / 1.00 (child) of its front samples EXPOSED — the toes render in front
+    # of the boot's side uppers (nurse, y<0.03) or above the shoe's upper (child).
+    # The proven body-hide mechanism (#323, body_param_stage.apply_body_hide_material_
+    # region) hides body faces that POKE the garment surface (signed clearance <
+    # HIDE_EPSILON_M against the BODY's outward normal — winding-proof). Run it
+    # against the FOOTWEAR surface over the foot band (body bottom -> the same
+    # ankle landmark the lower band uses), so poking toes are hidden and the shoe's
+    # silhouette reads as the foot. Faces INSIDE the shoe (positive clearance) are
+    # untouched. Deterministic, threshold-free, no geometry authored.
+    foot_lo_z = float(world_bounds(human)["min"][2])
+    foot_hi_z = ankle_z  # "bare feet begin below" — the #326 landmark
+    footwear_verts, footwear_faces = _triangulate_numpy(shoe)
+    foot_hide_info = body_hide_mask(
+        body_verts,
+        body_faces,
+        footwear_verts,
+        footwear_faces,
+        foot_lo_z,
+        foot_hi_z,
+        hide_epsilon_m=HIDE_EPSILON_M,
+        height_axis=2,
+    )
+    foot_hide_mask = foot_hide_info.pop("hideMask")
+    if foot_hide_info["hiddenFaceCount"] == 0:
+        print(
+            "FOOT_HIDE WARNING: body_hide_mask found no poking body faces under the "
+            "fitted footwear — the toes-through-soles class would not hide; report this"
+        )
+    foot_applied = apply_body_hide_material_region(human, foot_hide_mask, slot="foot")
+    print(
+        f"FOOT_HIDE {foot_hide_info} "
+        f"appliedPolygonCount {foot_applied['appliedPolygonCount']} "
+        f"hiddenMaterialName {foot_applied['hiddenMaterialName']}"
     )
 
     bpy.context.scene.frame_start = 1

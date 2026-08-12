@@ -275,34 +275,6 @@ def run_actor(rel: str) -> dict:
     return report
 
 
-def calibration_block(actors_report: dict[str, dict]) -> dict:
-    """The issue's calibration column, written BEFORE any product edit: on the
-    calibration figure the t-shirt and boots must report VISIBLE (near-zero
-    occluded-by-other) and the eyes must report OCCLUDED (>0.5 occluded-by-other).
-    Both directions are asserted so an instrument that says everything is occluded
-    OR everything is visible fails. The figure is the one where the known-good
-    t-shirt/boots and the defect eyes coexist on the SAME body."""
-    calib = {}
-    for rel, a in actors_report.items():
-        if rel.endswith("mpfb-peds-nurse-kevin.glb"):
-            eyes = a["layers"]["eyes"]
-            tshirt = a["layers"]["tshirt"]
-            boots = a["layers"]["boots"]
-            calib = {
-                "figure": rel,
-                "tshirtVisible": round(tshirt["occludedByOtherFraction"], 4),
-                "bootsVisible": round(boots["occludedByOtherFraction"], 4),
-                "eyesOccluded": round(eyes["occludedByOtherFraction"], 4),
-                "eyeOccluders": eyes["occludedBy"],
-                "passes": (
-                    tshirt["occludedByOtherFraction"] < 0.2
-                    and boots["occludedByOtherFraction"] < 0.2
-                    and eyes["occludedByOtherFraction"] > 0.5
-                ),
-            }
-    return calib
-
-
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     p = argparse.ArgumentParser(description="issue-338 between-layers occlusion gate")
@@ -315,11 +287,76 @@ def main(argv: list[str] | None = None) -> int:
     for rel in actors:
         actors_report[rel] = run_actor(rel)
 
+    # PRE-FIX BASELINE — the calibration snapshot, written 2026-08-11 BEFORE any
+    # product edit and committed as b9ef5176. Immutable evidence that the instrument
+    # discriminated on one figure (t-shirt + boots visible, eyes occluded) before it
+    # was used to assert anything. The fix work then re-pointed the defects at it.
+    pre_fix = {
+        "calibration": {
+            "figure": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+            "tshirtOccludedByOther": 0.0096,
+            "bootsOccludedByOther": 0.0459,
+            "eyesOccludedByOther": 0.5517,
+            "eyeOccluders": {"scalp": 0.5, "skin": 0.0517},
+            "passes": True,
+            "note": (
+                "written before any product edit; both directions of the discriminator "
+                "proved on one figure — an instrument that said everything occluded or "
+                "everything visible would have failed this row"
+            ),
+        },
+        "actors": {
+            "mpfb-ob-patient-aisha.glb": {
+                "eyesOccludedByOther": 0.213,
+                "tshirtOccludedByOther": 0.015,
+                "bootsOccludedByOther": 0.074,
+            },
+            "mpfb-peds-nurse-kevin.glb": {
+                "eyesOccludedByOther": 0.552,
+                "tshirtOccludedByOther": 0.010,
+                "bootsOccludedByOther": 0.046,
+            },
+            "mpfb-peds-patient-child.glb": {
+                "eyesOccludedByOther": 0.215,
+                "tshirtOccludedByOther": 0.065,
+                "bootsOccludedByOther": 0.0,
+            },
+        },
+        "note": (
+            "the issue's bounding-box proxy (scalp maxZ vs eye maxZ) over-claimed for "
+            "aisha/child: the ray instrument shows their eyes mostly VISIBLE (the scalp "
+            "is beside/above those eyes, not in front). Only the nurse's eyes were "
+            "genuinely scalp-occluded (§11s: a box cannot see in front of vs beside)."
+        ),
+    }
+
+    fix_summary: dict[str, dict] = {}
+    for rel, a in actors_report.items():
+        name = rel.split("/")[-1]
+        base = pre_fix["actors"][name]
+        fix_summary[name] = {
+            "eyes": {
+                "preFixOccludedByOther": base["eyesOccludedByOther"],
+                "postFixOccludedByOther": a["layers"]["eyes"]["occludedByOtherFraction"],
+                "postFixOccluders": a["layers"]["eyes"]["occludedBy"],
+                "postFixVisibleFraction": a["layers"]["eyes"]["visibleFraction"],
+            },
+            "tshirt": {
+                "preFixOccludedByOther": base["tshirtOccludedByOther"],
+                "postFixOccludedByOther": a["layers"]["tshirt"]["occludedByOtherFraction"],
+            },
+            "boots": {
+                "preFixOccludedByOther": base["bootsOccludedByOther"],
+                "postFixOccludedByOther": a["layers"]["boots"]["occludedByOtherFraction"],
+            },
+        }
+
     report = {
         "schema": "figure-occlusion-report.v1",
         "issue": "issue-338",
-        "stage": "pre-fix",
-        "calibration": calibration_block(actors_report),
+        "stage": "post-fix",
+        "preFixBaseline": pre_fix,
+        "fixSummary": fix_summary,
         "instrument": {
             "intersector": "_ray_tri_hits (garment_coverage.py:184)",
             "viewerDirection": [0, 0, 1],
