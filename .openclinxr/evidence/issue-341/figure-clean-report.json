@@ -75,6 +75,42 @@
       ]
     },
     {
+      "round": "5c",
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5c.glb",
+      "materializerChanges": [
+        "issue-341 toes through shoe fronts: the fitted shoe sat ~3.4cm MEDIAL of the foot — measured on the shipped bytes: body left foot x [-0.270,-0.174] (9.6cm) vs shoe x [-0.236,-0.138] (9.8cm), SAME width but shoe centre -0.187 vs foot centre -0.222, so the foot's lateral edge rendered outside the shoe ('toes protrude through both shoe fronts'). The ClothesService fit anchors the shoe to the foot's own .mhclo refs, so the fit is sound; the shipped shoe drifted medially — the same corrective-alignment class the existing sole grounding already performs. The materializer now aligns each shoe half's x-centre to the BODY's own foot-band x-centre (measured per-body, no fitted constant; deltaX +-0.0425 for aisha). Runs BEFORE the weight transfer and the foot-hide so the shoe binds and hides at its final position. Foot-hide coverage grew 2048 -> 3900 faces (the lateral foot now sits under the shoe)."
+      ],
+      "numbers": {
+        "footXPreFix": [-0.270, -0.174],
+        "shoeXPreFix": [-0.236, -0.138],
+        "lateralDeltaX": [-0.0425, 0.0425],
+        "shoeXPostFix": [-0.279, -0.181],
+        "footHideHiddenFacesPreFix": 2048,
+        "footHideHiddenFacesPostFix": 3900,
+        "visibleFootSkinPreFixPct": 50.8,
+        "visibleToeSkinPostFix": "0 samples with z > 0.13 (toe tips covered); residual visible skin is the upper ankle (y 0.054-0.106, z < 0.083) above the shoe top — normal anatomy for a flat shoe",
+        "occlusionEyesVisibleFraction": 0.7685,
+        "occlusionTshirtOccludedByOther": 0.0028,
+        "occlusionBootsOccludedByOther": 0.0,
+        "occlusionVerdicts": "eyes visible / tshirt visible / boots visible"
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5c/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Upper ankle skin above the shoe top (y 0.054-0.106) is the round-4 'restored upper foot' — normal for a flat shoe (the shoe is 5.6cm tall); whether it reads clean is a pixel question.",
+        "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the lateral alignment uses the mean x-centre of the body's foot band below the shoe top — the foot's natural lateral extent, not a fitted offset",
+        "the shoe's medial edge moved to -0.181; the ankle/leg at x ~-0.18 remains under the shoe",
+        "the residual visible ankle skin (z < 0.083) is at the back/lateral ankle — from the front viewer it sits beside the shoe's side, which reads as an ankle above a flat"
+      ]
+    },
+    {
       "round": 1,
       "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
       "materializerChanges": [

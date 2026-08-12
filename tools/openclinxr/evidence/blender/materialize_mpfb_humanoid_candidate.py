@@ -1375,6 +1375,43 @@ def main():
         for v in shoe.data.vertices:
             v.co.z += delta_z
         bpy.context.view_layer.update()
+
+    # issue-341 round 5c — the fitted shoe sits ~3 cm MEDIAL of the foot. Measured
+    # on the shipped bytes: the body's left foot spans x [-0.270, -0.174] (9.6 cm)
+    # while the fitted shoe spans x [-0.236, -0.138] (9.8 cm) — the SAME width, but
+    # the shoe's x-centre (-0.187) is ~3.4 cm medial of the foot's (-0.222), so the
+    # foot's lateral edge renders OUTSIDE the shoe ("toes protrude through both
+    # shoe fronts; shoes are flat grey discs"). The ClothesService fit anchors the
+    # shoe to the foot's own .mhclo refs (x -0.26..-0.17 on the base mesh), so the
+    # fit itself is sound; the shipped shoe drifted medially — the same class of
+    # corrective alignment the existing sole grounding (delta_z above) already
+    # performs. Align each shoe half's x-centre to the BODY's own foot-band
+    # x-centre: measured per-body, no fitted constant. Runs BEFORE the weight
+    # transfer and the foot-hide so the shoe binds and hides at its final position.
+    shoe_top_z = float(max(v.co.z for v in shoe.data.vertices))
+    foot_band = [v for v in human.data.vertices if v.co.z < shoe_top_z]
+    shoe_left = [v for v in shoe.data.vertices if v.co.x < 0]
+    shoe_right = [v for v in shoe.data.vertices if v.co.x > 0]
+    _shoe_lat_deltas: list[float] = []
+    for _foot_vs, _shoe_vs, _side in (
+        ([v for v in foot_band if v.co.x < -0.1], shoe_left, "L"),
+        ([v for v in foot_band if v.co.x > 0.1], shoe_right, "R"),
+    ):
+        if not _foot_vs or not _shoe_vs:
+            print(f"FOOTWEAR_LATERAL WARNING: empty {_side} foot or shoe band — skip side")
+            continue
+        _foot_cx = sum(v.co.x for v in _foot_vs) / len(_foot_vs)
+        _shoe_cx = sum(v.co.x for v in _shoe_vs) / len(_shoe_vs)
+        _delta_x = _foot_cx - _shoe_cx
+        for v in _shoe_vs:
+            v.co.x += _delta_x
+        _shoe_lat_deltas.append(_delta_x)
+        print(
+            f"FOOTWEAR_LATERAL {_side} footCx {_foot_cx:.4f} shoeCx {_shoe_cx:.4f} "
+            f"deltaX {_delta_x:.4f}"
+        )
+    if _shoe_lat_deltas:
+        bpy.context.view_layer.update()
     shoe_verts_after = len(shoe.data.vertices)
     shoe_tris = sum(max(len(p.vertices) - 2, 0) for p in shoe.data.polygons)
     # Bind the shoe to the same armature so it is skinned and deforms with the foot
