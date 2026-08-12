@@ -667,6 +667,25 @@ def apply_texture_mask_hairline(
     # known-good [53,47,43]; the round-12 render keeps a dark band over the
     # eyes/nose because the socket exclusion was applied in the broken frame).
     _uv_layer = human.data.uv_layers[0].data
+    # issue-341 round 14 — the composite must run in the SAME UV frame as the
+    # Cycles bakes and the glTF export. `bpy.ops.object.bake` writes to the
+    # mesh's ACTIVE UV layer and the glTF exporter reads the ACTIVE UV layer,
+    # while this composite read `uv_layers[0]`. Measured on the shipped bytes
+    # of all three actors (aisha L 82.1%/R 46.4%, nurse 87.0%/57.3%, child
+    # 82.8%/49.2%): the two layers differ, so the mask read and the
+    # face-band/socket splats landed in layer-0 coordinates while the baked
+    # texture and the exported TEXCOORD_0 are in active-layer coordinates — the
+    # hair paint read back asymmetric on every actor. Use the ACTIVE layer,
+    # the same frame the bakes and the export use.
+    _uv_layer0 = human.data.uv_layers[0]
+    _uv_active = human.data.uv_layers.active
+    _active_uv_layer = _uv_active if _uv_active is not None else _uv_layer0
+    if _uv_active is not None and _uv_active.name != _uv_layer0.name:
+        print(
+            f"TEXTURE_HAIRLINE UV_FRAME_FIX layer0={_uv_layer0.name!r} "
+            f"active={_uv_active.name!r} — composite switched to the active layer"
+        )
+    _uv_layer = _active_uv_layer.data
     _loops = human.data.loops
     _verts = human.data.vertices
     _face_band = np.zeros((resolution, resolution), dtype=bool)
@@ -710,6 +729,70 @@ def apply_texture_mask_hairline(
     # forehead is hair, and the crown/sides keep the per-polygon mask.
     _socket_low = _socket & ~_above_hair
 
+    # issue-341 round 14 — stage-by-stage L/R instrumentation. The shipped
+    # textures carry a 30-36 pt hair asymmetry (LEFT 82-87%, RIGHT 46-57%) while
+    # the per-polygon mask and every region predicate are X-symmetric (measured).
+    # These prints locate which stage the bias enters by sampling the texel grids
+    # at the DOME verts' own UVs (frac >= 0.94 H, |x| > 5 mm), exactly as the
+    # planted hair-covers-both-sides-of-the-head test samples the shipped bytes.
+    def _side_dome(_grid):
+        _out = {"L": 0, "R": 0}
+        if _grid is None:
+            return _out
+        _lo = min((h_world @ v.co).z for v in _verts)
+        _hi = max((h_world @ v.co).z for v in _verts)
+        _H = _hi - _lo
+        for _poly in human.data.polygons:
+            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+                _vi = _loops[_li].vertex_index
+                _p = h_world @ _verts[_vi].co
+                if (_p.z - _lo) / _H < 0.94:
+                    continue
+                if abs(_p.x) <= 0.005:
+                    continue
+                _u = _uv_layer[_li].uv
+                _tx = int(_u.x * resolution) % resolution
+                _ty = int((1.0 - _u.y) * resolution) % resolution
+                if _grid[_ty, _tx]:
+                    _out["L" if _p.x < 0 else "R"] += 1
+        return _out
+
+    def _side_transitions(_final, _ref):
+        _out = {"L": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}, "R": {"wd": 0, "wl": 0, "bd": 0, "bl": 0}}
+        _lo = min((h_world @ v.co).z for v in _verts)
+        _hi = max((h_world @ v.co).z for v in _verts)
+        _H = _hi - _lo
+        for _poly in human.data.polygons:
+            for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total):
+                _vi = _loops[_li].vertex_index
+                _p = h_world @ _verts[_vi].co
+                if (_p.z - _lo) / _H < 0.94:
+                    continue
+                if abs(_p.x) <= 0.005:
+                    continue
+                _u = _uv_layer[_li].uv
+                _tx = int(_u.x * resolution) % resolution
+                _ty = int((1.0 - _u.y) * resolution) % resolution
+                _m = bool(_ref[_ty, _tx])
+                _f = bool(_final[_ty, _tx])
+                _k = "wd" if (_m and _f) else "wl" if (_m and not _f) else "bd" if (not _m and _f) else "bl"
+                _out["L" if _p.x < 0 else "R"][_k] += 1
+        return _out
+
+    print(
+        "TEXTURE_HAIRLINE_SIDES "
+        f"uvLayers={len(human.data.uv_layers)} "
+        f"active={human.data.uv_layers.active.name if human.data.uv_layers.active else 'None'} "
+        f"texelTotals face={int(_face_band.sum())} above={int(_above_hair.sum())} "
+        f"socket={int(_socket.sum())} socketLow={int(_socket_low.sum())} "
+        f"maskWhite={int((mask_a > 0.5).sum())} "
+        f"domeMaskWhiteL={_side_dome(mask_a > 0.5)['L']} domeMaskWhiteR={_side_dome(mask_a > 0.5)['R']} "
+        f"domeFaceL={_side_dome(_face_band)['L']} domeFaceR={_side_dome(_face_band)['R']} "
+        f"domeAboveL={_side_dome(_above_hair)['L']} domeAboveR={_side_dome(_above_hair)['R']} "
+        f"domeSocketL={_side_dome(_socket)['L']} domeSocketR={_side_dome(_socket)['R']} "
+        f"domeSockLowL={_side_dome(_socket_low)['L']} domeSockLowR={_side_dome(_socket_low)['R']}"
+    )
+
     hair = mask_a > 0.5
     override = _face_band
     _fallback = None
@@ -726,6 +809,10 @@ def apply_texture_mask_hairline(
         # the nose" cannot recur in any bake frame.
         hair[_face_band] = _above_hair[_face_band]
         hair[_socket_low] = False
+    print(
+        "TEXTURE_HAIRLINE_SIDES_FINAL "
+        f"transitions={json.dumps(_side_transitions(hair, mask_a > 0.5))}"
+    )
     out_rgba = skin_rgba.copy()
     out_rgba[hair] = np.array(hair_color, dtype=np.float32)
     baked_img.pixels[:] = out_rgba.reshape(-1).tolist()
