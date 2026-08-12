@@ -414,6 +414,22 @@ def apply_texture_mask_hairline(
     skin_mat_obj = human.data.materials[skin_idx]
     scalp_mat_obj = human.data.materials[scalp_idx]
 
+    # issue-341 round 10 (handback) — the bake evaluates the ARMATURE-DEFORMED
+    # mesh, and on the macro-solved reference bodies the rest-pose deformation
+    # shifts the mesh vertically (measured: child crownZ raw 1.2410 vs evaluated
+    # 0.8840), so a baked world-position map is in a different frame than the
+    # raw-mesh quantities this composite classifies against (hairline snap
+    # height, eye footprint, forehead plane — all raw frame). The mask bake is
+    # per-face colour and unaffected either way. The helper bakes therefore run
+    # with the armature's render evaluation DISABLED, so the baked position map
+    # is in the same frame as the hairline derivation. The skin bake already
+    # completed; the export rebuilds the skin material from scratch below.
+    _arm_mods = [m for m in human.modifiers if m.type == "ARMATURE"]
+    _arm_mod_states = [m.show_render for m in _arm_mods]
+    for _m in _arm_mods:
+        _m.show_render = False
+    bpy.context.view_layer.update()
+
     # ---- (1) mask bake: white where the scalp region is, black everywhere else ----
     # Drives the EXISTING skin/scalp materials (the same mechanism the proven skin
     # bake uses — no temp-material reassignment, which the first two attempts
@@ -458,18 +474,60 @@ def apply_texture_mask_hairline(
     _position_material(skin_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
     _position_material(scalp_mat_obj, pos_img, hx0, hx1, hy0, hy1, hz0, hz1)
     bpy.context.view_layer.update()
+    # issue-341 round 10 (handback) — the bake evaluates the armature-deformed
+    # mesh, and the macro-solved reference bodies do not rest-pose identity
+    # (measured: child crownZ raw 1.2410 vs evaluated 0.8840; disabling the
+    # modifier's render evaluation did NOT change the bake's frame). The position
+    # map must be in the RAW frame — the frame the hairline/eye/forehead
+    # quantities were derived in — so it is baked from a MODIFIER-FREE duplicate
+    # of the mesh (same data, same UVs, same material slots; no armature).
+    bpy.ops.object.select_all(action="DESELECT")
+    human.select_set(True)
+    bpy.context.view_layer.objects.active = human
+    # FULL (non-linked) duplicate: its own mesh data, its own modifier stack.
+    # A linked duplicate inherits the original's modifiers, which is how the
+    # armature deformation survived the previous attempt (measured: the child's
+    # baked Z still decoded to the deformed frame).
+    bpy.ops.object.duplicate(linked=False)
+    _pos_camper = bpy.context.active_object
+    _mods_removed = 0
+    for _m in list(_pos_camper.modifiers):
+        _pos_camper.modifiers.remove(_m)
+        _mods_removed += 1
+    print(f"TEXTURE_HAIRLINE POS_CAMPER modifiersRemoved={_mods_removed} remaining={len(list(_pos_camper.modifiers))}")
+    bpy.context.view_layer.update()
     _select_human_only()
-    human.active_material_index = skin_idx
+    bpy.ops.object.select_all(action="DESELECT")
+    _pos_camper.select_set(True)
+    bpy.context.view_layer.objects.active = _pos_camper
     try:
         bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=2, use_clear=False)
     except Exception as _e:
         print(f"TEXTURE_HAIRLINE WARNING: position bake failed: {_e}")
+    finally:
+        bpy.data.objects.remove(_pos_camper, do_unlink=True)
+        bpy.context.view_layer.update()
+        _select_human_only()
     bpy.context.scene.render.engine = prev_engine
     bpy.context.scene.cycles.device = prev_device
+    # restore the armature render evaluation (the export needs the deformed mesh)
+    for _m, _st in zip(_arm_mods, _arm_mod_states):
+        _m.show_render = _st
+    bpy.context.view_layer.update()
 
     # ---- diagnostic: what did the two helper bakes actually write? ----
     _mstat = np.array(mask_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)
     _pstat = np.array(pos_img.pixels[:], dtype=np.float32).reshape(resolution, resolution, 4)[..., :3]
+    # the position material's actual map-range node values (why does the child's Z bake to 0?)
+    _mr_vals = []
+    for _mat in (skin_mat_obj, scalp_mat_obj):
+        for _n in _mat.node_tree.nodes:
+            if _n.bl_idname == "ShaderNodeMapRange":
+                try:
+                    _mr_vals.append([round(float(_n.inputs["From Min"].default_value), 4),
+                                     round(float(_n.inputs["From Max"].default_value), 4)])
+                except Exception:
+                    pass
     _head_zs = [float((h_world @ v.co).z) for v in human.data.vertices if (h_world @ v.co).z >= head_z0][:3]
     _white_mask = _mstat[..., 0] > 0.5
     _b_at_hair = float(_pstat[_white_mask][:, 2].mean()) if _white_mask.any() else -1.0
@@ -491,7 +549,8 @@ def apply_texture_mask_hairline(
         f"armScale={[round(float(s), 4) for s in _arm.matrix_world.to_scale()] if _arm else 'n/a'} "
         f"crownZ raw={_crown_z_raw:.4f} eval={_crown_z_eval:.4f} "
         f"headZSample={[round(z, 4) for z in _head_zs]} "
-        f"headZ0={head_z0:.4f} hz0={hz0:.4f} hz1={hz1:.4f}"
+        f"headZ0={head_z0:.4f} hz0={hz0:.4f} hz1={hz1:.4f} "
+        f"mapRangeFromTo={_mr_vals}"
     )
 
     # ---- (3) composite in numpy: read all three maps, re-classify the strip ----
