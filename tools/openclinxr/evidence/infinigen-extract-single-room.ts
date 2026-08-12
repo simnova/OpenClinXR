@@ -23,6 +23,7 @@ import { execSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { NodeIO } from "@gltf-transform/core";
+import { decimateGlb, measureGlb as measureGlbRoom } from "./room-decimate.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "../../..");
@@ -30,6 +31,13 @@ const REPO_ROOT = path.resolve(HERE, "../../..");
 const EVIDENCE_DIR = path.join(REPO_ROOT, ".openclinxr/evidence/issue-236");
 const MEASURE_PATH = path.join(EVIDENCE_DIR, "extract-measure.json");
 const EXTRACT_GLB_PATH = path.join(EVIDENCE_DIR, "extracted-single-room.glb");
+/** Decimation stage output — MADR 0055 item 2: decimate instead of extract. */
+const DECIMATED_GLB_PATH = path.join(
+  REPO_ROOT,
+  ".openclinxr/evidence/room-decimate/extracted-room-decimated.glb",
+);
+/** Decimation budget — Quest station posture is 180k; the room lane's net is 250k. */
+const DECIMATION_TARGET_TRIANGLES = 150_000;
 
 const HOME = process.env.HOME ?? "";
 const TOOLS_ROOT =
@@ -62,6 +70,18 @@ export type ExtractMeasure = {
   wallEulerChecks: Array<{ name: string; euler: number; hasHoles: boolean }>;
   measuredAt: string;
   blendVersion: string | null;
+  /**
+   * Decimation stage (#346, MADR 0055 item 2) — meshoptimizer simplify applied to the
+   * extracted room GLB. Null when the stage did not run (blocked earlier in the flow).
+   */
+  decimationStage: {
+    verdict: "decimated" | "skipped_noop" | "failed";
+    reason: string;
+    inputTris: number | null;
+    outputTris: number | null;
+    targetTriangles: number;
+    outputPath: string;
+  } | null;
 };
 
 function ensureDir(dir: string): void {
@@ -109,6 +129,7 @@ function blocked(reason: string): ExtractMeasure {
     wallEulerChecks: [],
     measuredAt: new Date().toISOString(),
     blendVersion: null,
+    decimationStage: null,
   };
 }
 
@@ -456,6 +477,39 @@ export async function inspectInfinigenExtractSingleRoom(): Promise<ExtractMeasur
   const doorOpeningSurvives = extraction.doorOpeningSurvives;
   const sourceWallCount = extraction.sourceWallCount;
 
+  // #346 decimation stage (MADR 0055 item 2): meshoptimizer simplify of the extracted
+  // room GLB to the room-lane budget. Never gates the extraction verdict — the stage
+  // is recorded, and a failure here is a "failed" row, not an extraction failure.
+  let decimationStage: ExtractMeasure["decimationStage"] = null;
+  if (exportExists) {
+    try {
+      const result = await decimateGlb(EXTRACT_GLB_PATH, DECIMATED_GLB_PATH, {
+        targetTriangles: DECIMATION_TARGET_TRIANGLES,
+      });
+      const after = await measureGlbRoom(DECIMATED_GLB_PATH);
+      decimationStage = {
+        verdict: result.ratio >= 1 ? "skipped_noop" : "decimated",
+        reason:
+          result.ratio >= 1
+            ? `source already at ${result.afterTris} tris <= ${DECIMATION_TARGET_TRIANGLES} budget; meshoptimizer no-op`
+            : `meshoptimizer simplify ratio ${result.ratio.toFixed(4)} -> ${after.triangleCount.toLocaleString()} tris`,
+        inputTris: triangleCount,
+        outputTris: after.triangleCount,
+        targetTriangles: DECIMATION_TARGET_TRIANGLES,
+        outputPath: DECIMATED_GLB_PATH,
+      };
+    } catch (err) {
+      decimationStage = {
+        verdict: "failed",
+        reason: String(err).slice(0, 800),
+        inputTris: triangleCount,
+        outputTris: null,
+        targetTriangles: DECIMATION_TARGET_TRIANGLES,
+        outputPath: DECIMATED_GLB_PATH,
+      };
+    }
+  }
+
   // Determine verdict
   let verdict: ExtractMeasure["verdict"];
   let verdictReason: string;
@@ -516,6 +570,7 @@ export async function inspectInfinigenExtractSingleRoom(): Promise<ExtractMeasur
     wallEulerChecks: extraction.wallEulerChecks,
     measuredAt: new Date().toISOString(),
     blendVersion: extraction.blendVersion,
+    decimationStage,
   };
 
   writeFileSync(MEASURE_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
