@@ -30,6 +30,7 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { magentaSwapMaterials } from "./hide-mask-magenta.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { ModelVettingStudioEvidence } from "./studio-state.js";
@@ -193,7 +194,6 @@ export type ModelVettingDualCandidateCaptureEvidence = {
   scoringValidityClaimAllowed: false;
   notEvidenceFor: ModelVettingStudioEvidence["notEvidenceFor"];
 };
-
 export async function renderCandidateCapture(input: {
   mount: HTMLElement;
   evidence: ModelVettingStudioEvidence;
@@ -285,7 +285,7 @@ export async function renderCandidateCapture(input: {
         skinnedMeshes.push(object as SkinnedMesh);
       }
       const material = capturePass === "structure" ? structureMaterial : useSourceMaterials
-        ? ((input.hideMaskMagenta && (object.material?.name ?? "").includes("openclinxr_hidden")) ? hideMaskMagentaMaterial : object.material) : inspectionMaterial;
+        ? magentaSwapMaterials(object.material, input.hideMaskMagenta, hideMaskMagentaMaterial) : inspectionMaterial;
       const mesh = new Mesh(object.geometry, material);
       mesh.name = `${object.name || "mesh"}_inspection_clone`;
       mesh.frustumCulled = false;
