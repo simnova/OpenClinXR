@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "openclinxr.eye-approach-ranking.v1",
+  "issue": 337,
+  "generatedAt": "2026-08-11",
+  "generator": "sub-manager issue-337 worktree (text-only worker; ranking written BEFORE implementation)",
+  "problem": "gaze drive reaches the eye bones on all four rails (resolvePoseBone eyeL/eyeR, #312) but zero shipped humanoid carries eye GEOMETRY skinned to those bones, so rotating the bones visibly moves nothing (#296's zero-eye-dominant-verts applies to every rail).",
+  "measuredFacts": {
+    "shippedRailsWithoutEyeGeometry": ["mpfb2_aisha", "library_lean_female", "library_heavy_male", "anny_parent"],
+    "eyeBonePresence": "all four rails carry eye bones; mpfb2_aisha skin has 137 joints incl. eyeL (idx 117) / eyeR (idx 122); body prim carries 31 verts >0.01 weighted to eyeL and 30 to eyeR (measured NodeIO 2026-08-11)",
+    "strip": "materialize_mpfb_humanoid_candidate.py calls ExportService.bake_modifiers_remove_helpers (exportservice.py:79) -> 19,158 -> 13,380 verts; helper-l-eye verts 14598-14669 and helper-r-eye verts 14670-14741 are ALL >= 13380 and are deleted by the strip",
+    "eyeBoneOrigin": "MPFB standard rig positions eyeL/eyeR from basemesh joint cubes at verts 13606-13621; the bones are armature bones and survive the strip",
+    "mpfbEyeAssets": "MPFB's own data tree ships procedural_eyes.json + eye_settings.default.json (the shader) but 0 x .mhclo / 0 x .mhmat eye geometry (issue measurement confirmed: data/ has no eyes subdir in the installed extension)",
+    "eyeAssetVerts": "MakeHuman upstream default eye .mhclo (data/eyes/hm08/low-poly) references basemesh verts 14598-14741 ONLY (all >= 13380) -> any eye fit MUST run pre-strip"
+  },
+  "approaches": [
+    {
+      "id": "A",
+      "name": "MPFB system assets pack (makehuman_system_assets_cc0.zip)",
+      "supplied": true,
+      "description": "Acquire the official CC0 makehuman_system_assets pack (267 MB zip, files.makehumancommunity.org), install as an MPFB pack, then fit its bundled eye .mhclo via HumanService.add_mhclo_asset(..., asset_type='eyes', material_type='PROCEDURAL_EYES') and drive with the shipped procedural_eyes.json shader.",
+      "d1Compliance": "HIGH - MPFB's own geometry through MPFB's own services; zero hand-authored geometry",
+      "preStripFeasibility": "REQUIRED - the pack eyes are the same MakeHuman default eyes whose .mhclo refs are all >= 13380; fit must run before the #318 strip",
+      "licence": "MEDIUM - pack page declares CC0 but the brief demands 'read the .mhclo header not the pack page'; 267 MB acquisition needs a licence sweep of every staged file; pack installation needs MPFB pack-metadata JSON plumbing",
+      "gazeDrivability": "HIGH (expected) - eyes fit to the socket inherit weights via MPFB's interpolate_weights / set_up_rigging; shipped body socket verts already carry eyeL/eyeR weights (31/30 verts measured), so the projection should bind eyeL/eyeR",
+      "effort": "HIGH - 267 MB download, pack install plumbing (pack metadata json), whole-pack licence sweep, verify asset matches upstream",
+      "risk": "pack source/host reliability; licence verified at pack level not header level; the pack is 1000x larger than the asset needed"
+    },
+    {
+      "id": "B",
+      "name": "Procedural spheres at the helper volumes",
+      "supplied": true,
+      "description": "Generate parametric eyeballs positioned/scaled from helper-l-eye/helper-r-eye before the strip; weight directly to joint-l-eye/joint-r-eye; material from procedural_eyes.json. In-tree precedent: add_mpfb2_eye_rig.py (cagematch stage for the Anny rail).",
+      "d1Compliance": "LOW-MEDIUM - closest to hand-authoring; 'a sphere is not an eye' (sclera/iris/cornea layering is what the shader expects); D1 says wire proven tools, never hand-author geometry. The in-tree precedent is a CAGEMATCH stage explicitly not shipped",
+      "preStripFeasibility": "POSSIBLE pre-strip (helper volumes) OR post-strip (eye bone head positions survive the strip) - most flexible",
+      "licence": "HIGH - no acquisition, no licence question",
+      "gazeDrivability": "HIGH - direct weighting to eyeL/eyeR by construction",
+      "effort": "LOW-MEDIUM - no acquisition; but geometry + material authoring and no vendor eye shape",
+      "risk": "D1 tension is the disqualifier per the brief's own first criterion; fidelity of a sphere as an eye is low"
+    },
+    {
+      "id": "C",
+      "name": "MakeHuman upstream default eyes, scoped acquisition, fitted pre-strip through the already-proven in-tree fit path",
+      "supplied": false,
+      "description": "The MPFB 'system assets' eyes ARE MakeHuman's default eyes, released CC0 in September 2020 and present in the makehumancommunity/makehuman2 repo at data/eyes/hm08/{low-poly,high-poly}/*.mhclo + *.obj (basemesh hm08). The .mhclo header IS the licence: 'This asset was explicitly released as CC0 in september 2020' with named copyright holders (Data Collection AB, Joel Palmius, Jonas Hauquier) - read directly, satisfying the brief's 'read the .mhclo header not the pack page'. Acquire ONLY the ~150 KB eye pair, stage in .openclinxr-local/provider-cache, fit pre-strip with the exact proven path the materializer already uses for the t-shirt/cargo-pants/toigo-flats (import_obj + apply_object_transforms + ClothesService.fit_clothes_to_human + transfer_weights_body_to_garment k-NN), material via MPFB's own PROCEDURAL_EYES path (procedural_eyes.json + eye_settings.default.json).",
+      "d1Compliance": "HIGH - real vendor eye geometry (not a sphere) fitted by MPFB's own ClothesService + the k-NN weight projection already proven on this rail for three garment channels; zero hand-authored geometry",
+      "preStripFeasibility": "REQUIRED and deterministic - the .mhclo vert refs 14598-14741 only exist pre-strip; the materializer already has an ordered pre-strip slot (after add_standard_rig / face keys, before the strip)",
+      "licence": "HIGH - CC0 verified IN THE ASSET HEADER itself (not a pack page), with copyright holders; identical licence text in low-poly and high-poly .mhclo; brown.mhmat included",
+      "gazeDrivability": "HIGH (expected, verified empirically this slice) - k-NN body-group projection transfers the socket body verts' eyeL/eyeR weights (31/30 measured on the shipped body) onto the eye mesh",
+      "effort": "LOW-MEDIUM - ~150 KB scoped download; no pack install plumbing; reuses in-tree proven functions",
+      "risk": "the fit must run pre-strip (order is load-bearing); low-poly eye at 96 verts / ~172 tris is low-poly by design (the vendor's own low-poly default)"
+    }
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "id": "C",
+      "rationale": "Wins every criterion that matters: (1) D1 - real vendor CC0 eye geometry fitted through MPFB's own ClothesService and the k-NN projection already proven on this rail, not a hand-authored sphere; (2) licence - CC0 verified by reading the asset's own header with named copyright holders, exactly what the brief demands (no 267 MB pack, no pack-page licence claim); (3) pre-strip - deterministic, fits the existing ordered materializer; (4) gaze - inherits the shipped body's measured eye-bone socket weights; (5) effort - smallest acquisition, reuses in-tree proven code."
+    },
+    {
+      "rank": 2,
+      "id": "A",
+      "rationale": "Same geometry class and same services as C but strictly worse on acquisition: 267 MB pack-level (not header-level) licence claim, pack-install plumbing, and whole-pack sweep. A is effectively C after paying for 1000x more download and a pack-format detour. Falls back here only if the upstream repo host is unreachable and the pack host is not."
+    },
+    {
+      "rank": 3,
+      "id": "B",
+      "rationale": "Clean licence and guaranteed gaze, but it is the one the brief itself flags: closest to hand-authoring (D1 tension) and a sphere is not an eye. The in-tree precedent (add_mpfb2_eye_rig.py) is an explicit cagematch stage, not a shipped rail. Only if both CC0 eye acquisitions fail AND a measured dead end is recorded for each."
+    }
+  ],
+  "fallbackPolicy": "On rank-1 failure: record the measured cause (which contract clause / which gate), then rank-2. On rank-2 failure: rank-3. A measured dead end is a deliverable; no fabricated win.",
+  "doneWhenAlignment": {
+    "run": "pnpm exec vitest run tools/openclinxr/evidence/gaze-eye-bones-resolve-on-every-rail.test.ts (resolution net, must stay green)",
+    "exists": ".openclinxr/evidence/issue-337/eye-approach-ranking.json (this artifact)",
+    "changed": "docs/openclinxr/third-party-asset-licence-ledger.md (CC0 eye entry)"
+  },
+  "successCriterion": "one shipped humanoid with eye geometry (a) skinned to the bones resolvePoseBone('eyeL'/'eyeR') returns, (b) visibly rotating when those bones rotate, (c) carrying a verified licence; per-body report: mesh name, tris, bone bindings, eye-bone rotation delta in mm at the iris"
+}

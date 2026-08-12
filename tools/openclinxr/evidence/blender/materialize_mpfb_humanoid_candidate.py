@@ -492,6 +492,67 @@ def main():
             f"a bake that ships without usable mouth morphs must fail loudly"
         )
 
+    # #337: fit MakeHuman's default CC0 eyes on the FULL basemesh BEFORE the #318 helper
+    # strip. The eye .mhclo (`data/eyes/hm08/low-poly` in the makehumancommunity/makehuman2
+    # repo) references ONLY helper verts 14598-14741 — the helper-l-eye / helper-r-eye
+    # volumes the issue measured — so the fit MUST run while those verts exist. The header
+    # of the .mhclo is the licence: "This asset was explicitly released as CC0 in september
+    # 2020", copyright holders Data Collection AB / Joel Palmius / Jonas Hauquier (recorded
+    # in third-party-asset-licence-ledger.md). `HumanService.add_mhclo_asset` is the proven
+    # MPFB-native path (mesh load + ClothesService fit + delete group + rigging);
+    # material_type="PROCEDURAL_EYES" applies MPFB's OWN shipped shader
+    # (data/node_trees/procedural_eyes.json + data/settings/eye_settings.default.json), so
+    # no hand-authored geometry and no hand-authored material. `add_mhclo_asset`'s own
+    # set_up_rigging/interpolate_weights then weights every eye vert to the standard rig's
+    # eye.L/eye.R bones (probe below: dominant groups eye.L: 48 / eye.R: 48) — the eye
+    # mesh, not the socket skin, is what the gaze drive must move (#296). The eye is a
+    # SEPARATE object, so the #318 helper strip (which deletes the helper verts the fit
+    # referenced) does not touch it.
+    _eyes_dir = (
+        pathlib.Path(__file__).resolve().parents[4]
+        / ".openclinxr-local/provider-cache/eyes/makehuman-default"
+    )
+    eye_mhclo = _eyes_dir / "low-poly.mhclo"
+    eye_obj = _eyes_dir / "low-poly.obj"
+    if not eye_mhclo.is_file() or not eye_obj.is_file():
+        raise RuntimeError(f"#337: CC0 MakeHuman default eye sources missing in provider cache: {_eyes_dir}")
+
+    from bl_ext.user_default.mpfb.services.humanservice import HumanService as _HumanService  # noqa: E402
+
+    eyes_asset = _HumanService.add_mhclo_asset(
+        str(eye_mhclo),
+        human,
+        asset_type="eyes",
+        subdiv_levels=0,
+        material_type="PROCEDURAL_EYES",
+    )
+    bpy.context.view_layer.update()
+    # #337 resume: name the eye mesh data with the eye channel so the exported glTF mesh
+    # name matches the evidence regex (`/eye|cornea|iris|sclera/`) — the OBJ import's
+    # `low-poly` data name does not. Same convention as the footwear channel rename.
+    eyes_asset.data.name = f"makeclothes_library_eyes_low_poly_mpfb_{args.reference or 'ob_patient_aisha'}_mesh"
+    eye_tris = sum(max(len(p.vertices) - 2, 0) for p in eyes_asset.data.polygons)
+    # Probe: dominant vertex groups on the eye mesh immediately after add_mhclo_asset
+    # (before the k-NN transfer below) — tells us whether interpolate_weights gave the
+    # eye mesh eye-bone weights from the helper verts.
+    from collections import Counter as _Counter
+
+    _dom = _Counter()
+    for _v in eyes_asset.data.vertices:
+        best = None
+        best_w = 0.0
+        for _ge in _v.groups:
+            _g = eyes_asset.vertex_groups[_ge.group]
+            if _ge.weight > best_w:
+                best, best_w = _g.name, _ge.weight
+        if best:
+            _dom[best] += 1
+    print(
+        f"EYES_FIT {eyes_asset.name} verts {len(eyes_asset.data.vertices)} "
+        f"tris {eye_tris} material {[m.name for m in eyes_asset.data.materials]} "
+        f"dominantGroups {dict(_dom.most_common(6))}"
+    )
+
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
     # helper geometry — 36,972 tris, exactly MADR 0052's "with helpers" figure — and Aisha
@@ -523,6 +584,17 @@ def main():
     if armature is None:
         raise RuntimeError("MPFB standard rig was not created")
     armature.name = f"mpfb_{args.reference or 'ob_patient_aisha'}_standard_rig"
+
+    # #337 eye-bone skinning: NOTHING MORE TO DO — `add_mhclo_asset`'s own
+    # set_up_rigging/interpolate_weights already weighted every one of the 96 eye verts to
+    # the standard rig's eye.L/eye.R bones (probe: dominant groups eye.L: 48 / eye.R: 48),
+    # exactly MakeHuman's eye rigging design. Measured attempt at replacing it with the
+    # garment k-NN projection (transfer_weights_body_to_garment) was WRONG: k-NN over the
+    # 12 nearest body verts diluted the eye-bone weights to ~1/96 verts (the socket body
+    # verts carrying eye weights are a 31/30 minority of the local neighbourhood), so the
+    # eye would rotate with the head, not with the gaze. The interpolate_weights result is
+    # kept and the transfer is NOT run. (The 31/30 eye-weighted BODY verts measured in
+    # #337's issue body are the socket skin — the eye MESH is what the gaze drive needs.)
 
     # #321: fit a real MakeHuman garment on the helper-stripped basemesh via the
     # PROVEN ClothesService path (D1) — the same code body_param_stage.py uses for
