@@ -698,6 +698,70 @@ def main():
         ):
             poly.material_index = skin_idx
             eye_socket_unpainted += 1
+
+    # #341 round 5 — the forehead rectangle. Measured on the shipped bytes: the
+    # scalp's crown band (0.935 H, the paint the #338 eye-socket unpaint leaves
+    # behind) still covers the FACE FRONT from just above the eye socket to the
+    # crown — the "black rectangle on the forehead" pixel grade, on every MPFB
+    # body (aisha scalp y=[0.894,1.000]H, zmax 1.4 cm anterior of the eyes).
+    # The band's own face-front exclusion never fires because its depth line is
+    # computed from the WHOLE-BODY bounds, which the hanging arms dominate
+    # (measured: `skippedFaceFrontFaceCount: 0` on every bake — the #282
+    # conjunction's "correct on each axis, wrong as a conjunction").
+    #
+    # There is NO hairline reference in the shipped anatomy — measured: the MPFB
+    # basemesh has no hairline vertex group (all joint/head groups are helper
+    # verts >= 13,380, stripped), and no MakeHuman target marks the hairline (the
+    # forehead targets run to the crown; the brow targets mark the lower face).
+    # The hairline is therefore DERIVED from the body's own surface: the
+    # forehead is a near-vertical front column whose front depth stays ~constant
+    # from the brow to the crown, and the hairline is the top of that column —
+    # the highest face-front vertex still at or ahead of the forehead plane. The
+    # plane and the column width are measured per-body: the forehead plane is the
+    # median depth (y) of the head's midline surface in the EYE mesh's own height
+    # band (the fitted eye mesh extent is the sanctioned reference — the eye
+    # socket is the lower bound of the forehead), and the midline half-width is
+    # the eye mesh's own half-width. No fitted constant: every quantity is the
+    # eye mesh's measured extent or the body's own geometry.
+    eye_min_z = float(eye_world[:, 2].min())
+    eye_max_z = float(eye_world[:, 2].max())
+    eye_half_w = float(np.max(np.abs(eye_world[:, 0])))
+    # Head region: above the neck band bottom (the materializer's own NECK_BAND_H
+    # MADR 0051 §4 band — a documented anatomical landmark, not a fitted number).
+    _h_zmin = float(min((h_world @ v.co).z for v in human.data.vertices))
+    _h_zmax = float(max((h_world @ v.co).z for v in human.data.vertices))
+    _h_stature = _h_zmax - _h_zmin
+    head_z0 = _h_zmin + 0.78 * _h_stature
+    _midline = [
+        tuple(h_world @ v.co) for v in human.data.vertices
+        if (h_world @ v.co).z >= head_z0 and abs((h_world @ v.co).x) <= eye_half_w
+    ]
+    _eye_band = [p for p in _midline if eye_min_z <= p[2] <= eye_max_z]
+    forehead_plane = float(np.median([p[1] for p in _eye_band])) if _eye_band else None
+    hairline_z = None
+    if forehead_plane is not None:
+        _at_plane = [p for p in _midline if p[1] <= forehead_plane]
+        if _at_plane:
+            hairline_z = float(max(p[2] for p in _at_plane))
+    if hairline_z is None:
+        print(
+            "FOREHEAD_HAIRLINE WARNING: could not measure a face-front hairline "
+            "(empty midline or eye band) — the forehead rectangle will not be unpainted; report this"
+        )
+    else:
+        forehead_unpainted = 0
+        for poly in human.data.polygons:
+            if poly.material_index != scalp_idx:
+                continue
+            c = h_world @ poly.center
+            if c.y <= forehead_plane and c.z <= hairline_z:
+                poly.material_index = skin_idx
+                forehead_unpainted += 1
+        print(
+            f"FOREHEAD_HAIRLINE planeY {forehead_plane:.4f} hairlineZ {hairline_z:.4f} "
+            f"(hairlineFrac {(hairline_z - _h_zmin) / _h_stature:.4f}) "
+            f"unpainted {forehead_unpainted} scalp polys in the face front below the hairline"
+        )
     # The eye material the fitter applied is MPFB's procedural eyes NODE TREE, which
     # the GLB exporter does not bake (measured on the shipped bytes: the exported eye
     # material has NO baseColorFactor — it renders flat WHITE). #337/#338 each then
@@ -1204,6 +1268,43 @@ def main():
     lower_hide_mask, lower_head_clipped = clip_hide_mask_below_joint(
         lower_hide_mask, human, head_joint_z
     )
+    # issue-341 — the waistband sawtooth. Measured on the shipped bytes: the body
+    # skin in the band between the shirt hem and the pants top is EXPOSED — neither
+    # the upper nor the lower poke-mask covers it (diagnostic: 26/26 torso band
+    # faces in neither mask; aisha band y [0.969, 0.987]). The poke-mask hides only
+    # body faces that POKE the garment surface (signed clearance < 5 mm); the belly
+    # faces at the shirt's hem edge sit ~9 mm INSIDE the cloth (clearance > 5 mm,
+    # never hidden) while the shirt's hem ring and the pants' sparse waistband ring
+    # both leave front-view gaps at the same (x, y) — so the belly renders as the
+    # "ragged sawtooth band of skin between shirt hem and trouser top". The body in
+    # this band is UNDER the pants (pantsTop 0.987 >= shirtHem 0.969 — the band is
+    # the pants' own extent), so hiding ALL body faces in the band inside the pants'
+    # x/z footprint is the correct region hide: derived from the two garments' own
+    # measured extents, no fitted constant.
+    _pants_x_lo = float(pants_verts_np[:, 0].min())
+    _pants_x_hi = float(pants_verts_np[:, 0].max())
+    _pants_d_lo = float(pants_verts_np[:, 1].min())
+    _pants_d_hi = float(pants_verts_np[:, 1].max())
+    _waist_band_lo = float(garment_verts[:, 2].min())   # the shirt's hem
+    _waist_band_hi = float(pants_verts_np[:, 2].max())  # the pants' top
+    if _waist_band_hi >= _waist_band_lo:
+        _wb_cent = body_verts[body_faces].mean(axis=1)
+        _wb_hide = (
+            (_wb_cent[:, 2] >= _waist_band_lo)
+            & (_wb_cent[:, 2] <= _waist_band_hi)
+            & (_wb_cent[:, 0] >= _pants_x_lo)
+            & (_wb_cent[:, 0] <= _pants_x_hi)
+            & (_wb_cent[:, 1] >= _pants_d_lo)
+            & (_wb_cent[:, 1] <= _pants_d_hi)
+        )
+        _waist_band_hidden = int(_wb_hide.sum())
+        lower_hide_mask = lower_hide_mask | _wb_hide
+        print(
+            f"WAISTBAND_HIDE band [{_waist_band_lo:.4f},{_waist_band_hi:.4f}] "
+            f"faces {_waist_band_hidden}"
+        )
+    else:
+        print("WAISTBAND_HIDE WARNING: pants top below shirt hem — band empty; report this")
     lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
     print(
         f"LOWER_BODY_HIDE {lower_hide_info} "
@@ -1273,6 +1374,43 @@ def main():
     if abs(delta_z) > 1e-9:
         for v in shoe.data.vertices:
             v.co.z += delta_z
+        bpy.context.view_layer.update()
+
+    # issue-341 round 5c — the fitted shoe sits ~3 cm MEDIAL of the foot. Measured
+    # on the shipped bytes: the body's left foot spans x [-0.270, -0.174] (9.6 cm)
+    # while the fitted shoe spans x [-0.236, -0.138] (9.8 cm) — the SAME width, but
+    # the shoe's x-centre (-0.187) is ~3.4 cm medial of the foot's (-0.222), so the
+    # foot's lateral edge renders OUTSIDE the shoe ("toes protrude through both
+    # shoe fronts; shoes are flat grey discs"). The ClothesService fit anchors the
+    # shoe to the foot's own .mhclo refs (x -0.26..-0.17 on the base mesh), so the
+    # fit itself is sound; the shipped shoe drifted medially — the same class of
+    # corrective alignment the existing sole grounding (delta_z above) already
+    # performs. Align each shoe half's x-centre to the BODY's own foot-band
+    # x-centre: measured per-body, no fitted constant. Runs BEFORE the weight
+    # transfer and the foot-hide so the shoe binds and hides at its final position.
+    shoe_top_z = float(max(v.co.z for v in shoe.data.vertices))
+    foot_band = [v for v in human.data.vertices if v.co.z < shoe_top_z]
+    shoe_left = [v for v in shoe.data.vertices if v.co.x < 0]
+    shoe_right = [v for v in shoe.data.vertices if v.co.x > 0]
+    _shoe_lat_deltas: list[float] = []
+    for _foot_vs, _shoe_vs, _side in (
+        ([v for v in foot_band if v.co.x < -0.1], shoe_left, "L"),
+        ([v for v in foot_band if v.co.x > 0.1], shoe_right, "R"),
+    ):
+        if not _foot_vs or not _shoe_vs:
+            print(f"FOOTWEAR_LATERAL WARNING: empty {_side} foot or shoe band — skip side")
+            continue
+        _foot_cx = sum(v.co.x for v in _foot_vs) / len(_foot_vs)
+        _shoe_cx = sum(v.co.x for v in _shoe_vs) / len(_shoe_vs)
+        _delta_x = _foot_cx - _shoe_cx
+        for v in _shoe_vs:
+            v.co.x += _delta_x
+        _shoe_lat_deltas.append(_delta_x)
+        print(
+            f"FOOTWEAR_LATERAL {_side} footCx {_foot_cx:.4f} shoeCx {_shoe_cx:.4f} "
+            f"deltaX {_delta_x:.4f}"
+        )
+    if _shoe_lat_deltas:
         bpy.context.view_layer.update()
     shoe_verts_after = len(shoe.data.vertices)
     shoe_tris = sum(max(len(p.vertices) - 2, 0) for p in shoe.data.polygons)

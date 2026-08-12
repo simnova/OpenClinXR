@@ -6,6 +6,128 @@
   "chosenOnEvidence": "aisha was nearest the bar in the issue's own measurement (skin punch-through at breasts + midriff, ragged hem, flat shoes, black slivers) and had no face-mask defect; the occlusion gate confirms her eyes are visible (0.861 visible pre-fix). The child's boots are detached and the nurse's face is a broken mask — both farther from the bar.",
   "rounds": [
     {
+      "round": 5,
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5.glb",
+      "materializerChanges": [
+        "issue-341 forehead hairline: the scalp crown band painted the FACE FRONT from just above the eye socket to the crown (the 'black rectangle on the forehead'). Root cause measured: the shared scalp function's face-front exclusion NEVER fires on the MPFB bodies because its depth line comes from WHOLE-BODY bounds, which the hanging arms dominate (skippedFaceFrontFaceCount: 0 on every bake). There is no hairline vertex group in the shipped anatomy (measured: all head joint groups are helper verts >= 13380, stripped; no MakeHuman hairline target; the forehead targets run to the crown). The materializer now derives the hairline per-body from the body's own surface: the forehead plane = median depth (y) of the head's midline surface within the fitted EYE MESH's own height band, and the hairline = the highest face-front vertex still at/ahead of that plane (aisha: 0.9715 H). Midline half-width = the eye mesh's own half-width. 60 scalp polys unpainted in the face front below the hairline."
+      ],
+      "numbers": {
+        "scalpMaxZPreFix": 0.153,
+        "scalpMaxZPostFix": 0.1316,
+        "eyeMaxZ": 0.1392,
+        "scalpZVsEyeZ": "0.1316 < 0.1392 (scalp now BEHIND the eyes, was 1.4cm ANTERIOR)",
+        "scalpTriangleCountPreFix": 2640,
+        "scalpTriangleCountPostFix": 2544,
+        "hairlineFraction": 0.9715,
+        "foreheadPlaneY": -0.1366,
+        "foreheadUnpaintedPolygons": 60,
+        "occlusionEyesVisibleFraction": 0.8333,
+        "occlusionEyesOccluders": {
+          "skin": 0.1667
+        },
+        "occlusionScalpOccludesEyes": "no scalp occluder on eyes (was 0.5 nurse / 0.213 aisha pre-fix)",
+        "occlusionTshirtOccludedByOther": 0.0027,
+        "occlusionBootsOccludedByOther": 0.0016
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Waistband sawtooth NOT yet fixed this round: a band of unhidden belly skin at the front waist (y 0.97-0.99) where the shirt front surface is coincident with the belly (measured: 12/14 front belly samples have no shirt or pants triangle in front along +Z). Queued as the next round.",
+        "Toes through shoe fronts / flat disc shoes NOT yet fixed this round. Queued after the waistband.",
+        "Shoulder/elbow dark slivers: round-4's 35 unhidden + 47 reclipped; whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the 1.5 eye-height facial-proportion fallback was NOT used — the hairline came out geometrically at 0.9715, matching the measured eye-top + 1.5 eye-heights candidate (0.9725) within 1mm",
+        "the hairline is a horizontal band across the full face front — real hairlines curve lower at the temples, but a straight hairline above the eyes reads as natural",
+        "the scalp behind the eyes at zmax 0.1316 vs eyes 0.1392 leaves the temples at the sides (x +/-0.05) as the front-most scalp — reads as hair at the sides, intended"
+      ]
+    },
+    {
+      "round": "5b",
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5b.glb",
+      "materializerChanges": [
+        "issue-341 waistband sawtooth: the body skin in the band between the shirt hem and the pants top (aisha y [0.969, 0.987]) was EXPOSED — the poke-hide masks hide only faces that poke the garments (signed clearance < 5mm), and the belly faces at the shirt hem edge sit ~9mm INSIDE the cloth (clearance > 5mm, never hidden) while the shirt hem ring and the pants sparse waistband ring both leave front-view gaps at the same (x,y). Measured on the shipped bytes: 26/26 torso band faces in neither mask; 12/14 front belly ray samples hit no shirt/pants triangle. The band is the pants' own extent (pantsTop 0.987 >= shirtHem 0.969), so the materializer now hides ALL body faces in the band inside the pants' x/depth footprint — a region hide derived from the two garments' own measured extents, no fitted constant. 68 faces hidden; post-fix ray probe: 0/54 unhidden torso waistband samples visible (was 21.8%)."
+      ],
+      "numbers": {
+        "waistbandBandY": [
+          0.9692,
+          0.9871
+        ],
+        "waistbandHiddenFaces": 68,
+        "waistbandVisiblePreFixPct": 21.8,
+        "waistbandVisiblePostFixPct": 0.0,
+        "waistbandDiagnosticPreFix": "26/26 band faces in neither mask",
+        "occlusionTshirtOccludedByOther": 0.0027,
+        "occlusionBootsOccludedByOther": 0.0016
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5b/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Toes through shoe fronts / flat grey disc shoes: the body's foot is ~3.4cm LATERAL of the shoe (measured: foot x [-0.270,-0.174], shoe x [-0.236,-0.138], same width ~9.8cm but shoe ~3cm medial). The foot's lateral edge renders outside the shoe. Queued next.",
+        "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the waistband band top = the pants' AABB top (0.9871); exposed skin above it (y 0.987-0.99) is a ~3mm sliver, sub-pixel at the capture distance — not separately addressed this round",
+        "hiding ALL body faces in the band (not just pokes) is safe because the band is the pants' own extent (opaque) — no see-through"
+      ]
+    },
+    {
+      "round": "5c",
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5c.glb",
+      "materializerChanges": [
+        "issue-341 toes through shoe fronts: the fitted shoe sat ~3.4cm MEDIAL of the foot — measured on the shipped bytes: body left foot x [-0.270,-0.174] (9.6cm) vs shoe x [-0.236,-0.138] (9.8cm), SAME width but shoe centre -0.187 vs foot centre -0.222, so the foot's lateral edge rendered outside the shoe ('toes protrude through both shoe fronts'). The ClothesService fit anchors the shoe to the foot's own .mhclo refs, so the fit is sound; the shipped shoe drifted medially — the same corrective-alignment class the existing sole grounding already performs. The materializer now aligns each shoe half's x-centre to the BODY's own foot-band x-centre (measured per-body, no fitted constant; deltaX +-0.0425 for aisha). Runs BEFORE the weight transfer and the foot-hide so the shoe binds and hides at its final position. Foot-hide coverage grew 2048 -> 3900 faces (the lateral foot now sits under the shoe)."
+      ],
+      "numbers": {
+        "footXPreFix": [
+          -0.27,
+          -0.174
+        ],
+        "shoeXPreFix": [
+          -0.236,
+          -0.138
+        ],
+        "lateralDeltaX": [
+          -0.0425,
+          0.0425
+        ],
+        "shoeXPostFix": [
+          -0.279,
+          -0.181
+        ],
+        "footHideHiddenFacesPreFix": 2048,
+        "footHideHiddenFacesPostFix": 3900,
+        "visibleFootSkinPreFixPct": 50.8,
+        "visibleToeSkinPostFix": "0 samples with z > 0.13 (toe tips covered); residual visible skin is the upper ankle (y 0.054-0.106, z < 0.083) above the shoe top — normal anatomy for a flat shoe",
+        "occlusionEyesVisibleFraction": 0.7685,
+        "occlusionTshirtOccludedByOther": 0.0028,
+        "occlusionBootsOccludedByOther": 0.0,
+        "occlusionVerdicts": "eyes visible / tshirt visible / boots visible"
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5c/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Upper ankle skin above the shoe top (y 0.054-0.106) is the round-4 'restored upper foot' — normal for a flat shoe (the shoe is 5.6cm tall); whether it reads clean is a pixel question.",
+        "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the lateral alignment uses the mean x-centre of the body's foot band below the shoe top — the foot's natural lateral extent, not a fitted offset",
+        "the shoe's medial edge moved to -0.181; the ankle/leg at x ~-0.18 remains under the shoe",
+        "the residual visible ankle skin (z < 0.083) is at the back/lateral ankle — from the front viewer it sits beside the shoe's side, which reads as an ankle above a flat"
+      ]
+    },
+    {
       "round": 1,
       "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
       "materializerChanges": [
@@ -37,22 +159,20 @@
     "boots": "visible"
   },
   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round4/front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round4/front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round4/three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round4/three_quarter_structure.png"
+    ".openclinxr/evidence/issue-341/captures/round5c/front_lit.png",
+    ".openclinxr/evidence/issue-341/captures/round5c/front_structure.png",
+    ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_lit.png",
+    ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_structure.png"
   ],
   "stillWrong": [
-    "162 boundary 'pokes' remain visible at the garment silhouette edges: collar/neck (fracH 0.85), the shirt hem (fracH 0.58, under the pants overlap), and the sleeve edges. These are the bare-neck / bare-arm / pants-covered boundary — the signed-clearance classifier flags them because they are outside the garment surface, but they are natural skin boundaries. Pixel grade decides.",
-    "The toigo_flats are the same flat soles the known-good library rail ships (split L/R there, one merged mesh here); the upper foot is now visible above the shoe after the foot-band fix, matching the library rail's look.",
-    "The mpfb2-lower-garment-and-mask-footprint test (2) fails PRE-EXISTING with 2 violations from the #333/#338 foot hide mask (axis1 min 94.4mm, axis2 max 30.9mm) — the foot mask legitimately hides under the SHOE, which is below the upper/lower garments the test compares against. Identical failure on the pre-change round-0 bytes; my changes add zero violations (verified: same 2).",
-    "Black slivers at shoulders/elbows: 35 hidden faces un-hidden at bake time; a further ~47 were re-clipped. Whether the shoulder/elbow region grades clean is a pixel question."
+    "upper ankle skin above the 5.6cm flat (round-4 restored upper foot) — normal anatomy for a flat shoe; pixel question",
+    "shoulder/elbow dark slivers — whether they grade clean is a pixel question",
+    "the scalp face-front exclusion relies on the eye mesh extent + head surface (no hairline vertex group exists — measured); the temple-front scalp (x +/-0.05) is the front-most scalp"
   ],
   "guesses": [
-    "the neck/collar 'pokes' at fracH 0.85 are natural bare neck and should read as skin, not poke-through",
-    "the elbow-region pokes (fracH 0.77-0.84, |x| 0.16-0.29) are bare arm below the short sleeve and should read as skin",
-    "the hem pokes (fracH 0.58) sit inside the pants overlap (pants top 0.987 > shirt hem 0.969) and should be covered by the pants",
-    "the toigo_flats merged pair reads acceptably from the front since the library rail ships the identical flats"
+    "hairline is a horizontal band across the full face front — real hairlines curve at the temples, straight reads as natural",
+    "the waistband band top = the pants AABB top; the ~3mm sliver above it is sub-pixel",
+    "the shoe lateral alignment uses the mean foot-band x-centre, not a fitted offset"
   ],
   "claimScope": "one MPFB actor (aisha) re-baked with corrected body-hide mask semantics; per-layer occlusion numbers and mask-footprint numbers are measured on the shipped bytes. The pixel grade is the orchestrator's.",
   "notEvidenceFor": [
