@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 9,
+  "tick": 10,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T06:10:00.000Z",
-  "lastAction": "honest map consultation desk (oncology) -> consultation_desk_equipment (tables module variant); unmappedProse 13->12; researcher 019ff497 bg on small-prop OSS",
-  "nextPriority": "researcher findings (small-prop OSS vs thin parametric) OR next honest map (privacy notice / medication bottles) OR re-verify remaining INFERRED (brodys_arts monitor)",
+  "lastTickAt": "2026-08-12T06:25:00.000Z",
+  "lastAction": "re-verify INFERRED medical monitor (brodys_arts) -> VERIFIED CC BY 4.0, downloadable, 4924 tris (optional alt)",
+  "nextPriority": "next honest map (privacy notice / medication bottles / urine cup) OR ECG kit merge check (deck bank still token-blocked) OR researcher findings if arrived",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

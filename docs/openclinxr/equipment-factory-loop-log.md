@@ -12,4 +12,5 @@
 | 7 | 2026-08-12T05:40Z | honest map: "privacy curtain" (clinic+OB) → privacy_curtain_equipment own module (track + 2 panels; case + prose map) | errors=0 warnings=14 | unmapped prose 15→14; tests 3/3; budgets clean |
 | 8 | 2026-08-12T05:55Z | honest map: "small table" (psych) → small_table_equipment (tables module, small_table/consultation_desk variants; case + prose map); architect consult 019ff489 bg | errors=0 warnings=13 | unmapped prose 14→13; tests 3/3 |
 | 9 | 2026-08-12T06:10Z | honest map: "consultation desk" (oncology) → consultation_desk_equipment (existing tables module variant; case + prose map); researcher 019ff497 bg on small-prop OSS | errors=0 warnings=12 | unmapped prose 13→12; tests 3/3; commit 94dd0989 landed direct (gate green) |
+| 10 | 2026-08-12T06:25Z | re-verify INFERRED medical monitor (brodys_arts) via Sketchfab API → VERIFIED CC BY 4.0, downloadable, 4,924 tris | errors=0 warnings=12 | ledger + candidates updated; monitor is optional alt (bank has bedside-monitor) |
 | 4b | 2026-08-12 | orchestrator landed tick4 medication_cart commit 8f64e701 | — | unblocked concurrent asset-registry budget |
