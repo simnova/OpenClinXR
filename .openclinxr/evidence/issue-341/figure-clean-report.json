@@ -308,6 +308,88 @@
         "the outer-facing/back-facing distinction (winding normal toward the stage front) is the render truth for 'does the cloth fill a discarded hole' \u2014 verified on the nurse jaw (collar back panel back-facing -> hole) and aisha chest (shirt front panel front-facing -> fills)",
         "area sampling at 7 points per polygon catches the straddling class without needing a fitted seam threshold"
       ]
+    },
+    {
+      "round": 8,
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round8.glb (aisha), nurse-round8.glb, child-round8.glb",
+      "materializerChanges": [
+        "issue-341 round 8 hairline boundary regularization: after the round-5 forehead unpaint, the face-front strip (|x| <= fitted eye half-width) is snapped to the mesh's own edge ring \u2014 a scalp polygon stays scalp only if ALL its vertices sit above the strip's measured seam mean height (HAIRLINE_SNAP; aisha frac 0.9198, nurse 0.9199, child 0.9176). Makes the front hairline follow one edge ring instead of meandering.",
+        "model-vetting-glb-grade-capture.ts: captureViewWithScreenshot never passed hideMaskMagenta to the gallery captures (only the AABB self-check got it) \u2014 the round-7 --hide-mask-magenta captures were byte-identical. Now plumbed; studio-side swap made array-safe via apps/arena/model-vetting-studio/src/hide-mask-magenta.ts."
+      ],
+      "numbers": {
+        "flipRateCentralForeheadSeam": {
+          "mpfb-ob-patient-aisha": {
+            "pre": "67%",
+            "post": "65.6% (21/32)",
+            "meanH": "0.9363",
+            "scalpTris": 2364,
+            "medianStepMm": 14.2
+          },
+          "mpfb-peds-nurse-kevin": {
+            "pre": "60%",
+            "post": "6.3% (1/16)",
+            "meanH": "0.9517",
+            "scalpTris": 2384,
+            "medianStepMm": 1.5
+          },
+          "mpfb-peds-patient-child": {
+            "pre": "54%",
+            "post": "63.3% (19/30)",
+            "meanH": "0.9386",
+            "scalpTris": 2008,
+            "medianStepMm": 6.6
+          }
+        },
+        "approach": "chose the smooth-ring candidate (per-polygon assignment snapped to the mesh ring via a strict all-vertices-above rule) AFTER measuring: exhaustive search ruled out the horizontal-line, global-strict, majority-filter and median-row-snap variants at every height in the NET band [0.90,0.96] (finest sweep 0.001 H); none reach flip <= 25% for aisha/child with a meaningful seam (min 43.8-50%).",
+        "hideMaskMagenta": {
+          "fixed": true,
+          "rootCause": "flag was plumbed to the AABB self-check capture only; captureViewWithScreenshot (the gallery images) never received it, so round-7 magenta captures were byte-identical",
+          "verification": {
+            "magentaFrontLitSha256": "0779c3c64adb325bea0c2edf60fe1be2a14dc3019bf31b05989f7bb43668098d",
+            "plainFrontLitSha256": "4bae976ae7c5aa0f5c70818c0193a27992e77c684d83db0e68bb99f7cd87e8cd",
+            "differ": true,
+            "magentaPixelsSampled": 4190
+          }
+        }
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round8/aisha-front_lit.png (from bake aisha-round8.glb)",
+        ".openclinxr/evidence/issue-341/captures/round8/nurse-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round8/child-front_lit.png"
+      ],
+      "stillWrong": [
+        "The planted flip-rate gate (<=25%) is NOT met for aisha (65.6%) or child (63.3%). Measured cause: the metric is amplitude-blind \u2014 it counts sign changes in dY at 1-micron sensitivity, and a boundary that follows triangle edges on this irregular MPFB head mesh alternates sub-mm at every vertex even when visually flat. Additionally the skin region's boundary has TWO components (the front-to-top fold arc at 0.90-0.93H and the crown-front at 0.985-0.988H) that alternate along x. A per-polygon boundary cannot be smooth (in the metric's sense) at this mesh density; the definitive fix is a per-pixel texture-mask hairline \u2014 the #343 route.",
+        "round-8 bakes NOT promoted over the shipped apps/ui-xr/public/generated-humanoids GLBs \u2014 the gate is not met for 2/3 actors (child's flip rate regresses 54->63 on the metric even though its visual median step halves 14.9->6.6mm); the materializer change is committed and the next accepted bake can produce them.",
+        "hairline edge remains faceted (cosmetic)"
+      ],
+      "guesses": [
+        "the hairline-snap height (seam mean of the face-front strip) is derived per-body from the current boundary; for aisha/child this does not flatten the seam enough for the metric because their front meshes have no clean ring at an in-band height",
+        "whether the orchestrator's pixel grade will read the tightened (aisha 27->14mm, child 15->6.6mm median step) hairline as improved despite the flip-rate metric moving little or regressing for the child"
+      ],
+      "inScopeVisual": {
+        "mpfb-ob-patient-aisha": {
+          "hairline_smooth": "yes \u2014 tightened to a 0.93H ring (median step 14.2mm vs 27.3mm)",
+          "hairline_at_right_height": "yes (meanH 0.9363 in [0.90,0.96])",
+          "scalp_present": "yes (2364 tris)"
+        },
+        "mpfb-peds-nurse-kevin": {
+          "hairline_smooth": "yes \u2014 flat 1.5mm ring (flip 6.3%)",
+          "hairline_at_right_height": "yes (meanH 0.9517)",
+          "scalp_present": "yes (2384 tris)"
+        },
+        "mpfb-peds-patient-child": {
+          "hairline_smooth": "partially \u2014 median step halved to 6.6mm but flip metric 63.3% (regressed)",
+          "hairline_at_right_height": "yes (meanH 0.9386)",
+          "scalp_present": "yes (2008 tris)"
+        }
+      },
+      "notEvidenceFor_round8": [
+        "a clean pixel grade (orchestrator grades captures)",
+        "flip-rate gate satisfaction for aisha/child (metric is amplitude-blind at this mesh density)",
+        "clinical realism",
+        "production asset readiness",
+        "quest readiness"
+      ]
     }
   ],
   "occlusionPostFix": {
@@ -341,7 +423,7 @@
     "the full-body scan uses CLOTH_STANDOFF_M as the behind-bound \u2014 measured to separate the belly pokes (0.3-1.0cm) from the natural bare ankle (6.3-9.4cm)",
     "un-hiding silhouette-edge pokes restores skin at the arm outline; whether that reads better than the dark sliver is a pixel question"
   ],
-  "claimScope": "all three MPFB actors re-baked with the round-5 + round-6 fixes; per-layer occlusion numbers, dark-sliver counts and mask-footprint numbers measured on the shipped bytes. The pixel grade is the orchestrator\u2019s.",
+  "claimScope": "all three MPFB actors re-baked (round-8 bakes, NOT promoted to shipped paths); flip rates, NET band means, scalp counts and magenta-hash verification measured on the round-8 bytes; the pixel grade is the orchestrator's.",
   "notEvidenceFor": [
     "a clean pixel grade (orchestrator grades captures)",
     "clinical realism",
