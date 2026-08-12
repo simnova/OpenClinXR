@@ -75,13 +75,16 @@ Non-Sketchfab deck candidates are exhausted, each with a measured or transport-b
 ECG kit lives on `feature/equipment-kit-approach-b` until iter 5 integration. Main catalogue treats
 ECG as `thin_parametric` or `modular_kit` provisional based on main tree until merge.
 
-## Iter-5 merge blocker (tick 18, 2026-08-12)
+## Iter-5 merge blocker (tick 18, 2026-08-12; re-measured tick 24)
 
-Merge is NOT blind-ready — the branch is stale vs main (predates the 15m loop and its 17 ticks).
-Measured conflict surface (merge-tree):
+Merge is NOT blind-ready — the branch is stale vs main. **Re-measured tick 24 (2026-08-12):**
+merge-base = `f70ff1d2`; **main has moved +58 commits** since the merge-base; branch +10 commits
+(tip `76029fb3` "feat(equipment-kit): parallel multi-strategy midband exploration"). Conflict
+surfaces re-confirmed live:
 
 1. **package.json** — branch REPLACES the `factory:equipment:catalog:{inventory,validate,report,loop,status}`
-   script family with kit scripts. Merging as-is deletes the catalogue CLI the loop runs on. Rebase
+   script family with kit scripts (measured: branch carries 0 `factory:equipment:catalog` scripts vs
+   main 4). Merging as-is deletes the catalogue CLI the loop runs on. Rebase
    must keep both (catalogue scripts + new `equipment:kit:*` scripts).
 2. **station-equipment-families.ts** — branch removes the shared helpers `equipmentMat` /
    `tagEquipmentRootShared` and the family-union members added by ticks 4-16; my family modules
@@ -91,3 +94,6 @@ Measured conflict surface (merge-tree):
 
 **Action:** rebase `feature/equipment-kit-approach-b` onto current main, resolve the two conflicts
 preserving both sides, verify gates, then merge as a dedicated slice (not inside the 15m tick).
+Re-measured tick 24: main is +58 since the branch's merge-base, so the rebase is now a dedicated
+slice with a fresh `git diff --stat main...<branch>` conflict scan before resolving — do NOT
+blind-merge; the branch's own package.json + families.ts deletions make a naive merge-kill fail.
