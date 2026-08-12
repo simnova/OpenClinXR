@@ -1,0 +1,1067 @@
+{
+  "schemaVersion": "openclinxr.equipment-catalog.v1",
+  "measuredAt": "2026-08-12T03:58:35.413Z",
+  "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
+  "notEvidenceFor": [
+    "clinical_accuracy",
+    "quest_readiness",
+    "exam_equivalence",
+    "photoreal_match"
+  ],
+  "madr": [
+    "0054",
+    "0055"
+  ],
+  "scenarioCount": 14,
+  "equipmentCount": 39,
+  "rows": [
+    {
+      "equipmentId": "12_lead_ecg_machine_equipment",
+      "lane": "modular_kit",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "build12LeadEcgMachineEquipment",
+      "kitRecipeId": "ecg_cart_midband_v1_pending_merge",
+      "proseAliases": [
+        "12-lead ECG machine",
+        "medication cart"
+      ],
+      "scenarioIds": [
+        "ed_chest_pain_priority_v1",
+        "stepdown_sepsis_nurse_escalation_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "kit_default",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": "kit on feature/equipment-kit-approach-b — catalogue provisional modular_kit; prose 'medication cart' provisionally mapped to ECG cart class — replace with dedicated recipe"
+    },
+    {
+      "equipmentId": "abdominal_dressing_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildAbdominalDressingEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "abdominal dressing",
+        "drain"
+      ],
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "abdominal_exam_light_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildAbdominalExamLightEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "abdominal exam light",
+        "soft lighting"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1",
+        "oncology_bad_news_family_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "abdominal_exam_zone_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildAbdominalExamZoneEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "abdominal exam zone"
+      ],
+      "scenarioIds": [
+        "clinic_abdominal_pain_interpreter_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "antipyretic_tray_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildAntipyreticTrayEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "antipyretic tray",
+        "blood-culture kit",
+        "medication bottles"
+      ],
+      "scenarioIds": [
+        "peds_fever_v1",
+        "stepdown_sepsis_nurse_escalation_v1",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "bedside_monitor_equipment",
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "bedside-monitor-generated.glb",
+      "builderSymbol": "buildBedsideMonitorEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "bedside monitor",
+        "vitals board",
+        "vitals panel"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1",
+        "clinic_abdominal_pain_interpreter_v1",
+        "ed_chest_pain_priority_v1",
+        "ed_stroke_alert_handoff_v1",
+        "postop_fever_consult_pressure_v1"
+      ],
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/bedside-monitor-generated.glb",
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "blood_pressure_cuff_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildBloodPressureCuffEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "blood-pressure cuff"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "chairs_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildChairsEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "chairs",
+        "family chair",
+        "two chairs"
+      ],
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1",
+        "oncology_bad_news_family_v1",
+        "primary_care_dyslipidemia_joint_pain_v1",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "digital_thermometer_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildDigitalThermometerEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "digital thermometer"
+      ],
+      "scenarioIds": [
+        "peds_fever_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "ecg_cart_equipment",
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "ecg-cart-12-lead.glb",
+      "builderSymbol": null,
+      "kitRecipeId": null,
+      "proseAliases": [],
+      "scenarioIds": [],
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/ecg-cart-12-lead.glb",
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "ehr_screen_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildEhrScreenEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "EHR laptop",
+        "EHR screen",
+        "caption panel",
+        "medication list",
+        "simulated EHR panel"
+      ],
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1",
+        "primary_care_dyslipidemia_joint_pain_v1",
+        "telehealth_diabetes_health_literacy_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "ekg_leads_on_bed_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildEkgLeadsOnBedEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [],
+      "scenarioIds": [],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "exam_table_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildExamTableEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "consultation desk",
+        "exam table",
+        "small table"
+      ],
+      "scenarioIds": [
+        "clinic_abdominal_pain_interpreter_v1",
+        "oncology_bad_news_family_v1",
+        "primary_care_dyslipidemia_joint_pain_v1",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "fetal_monitor_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildFetalMonitorEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "fetal monitor"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "glucometer_review_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildGlucometerReviewEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "glucose meter",
+        "home glucose log"
+      ],
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "hospital_bed_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildHospitalBedEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "OB triage bed",
+        "hospital bed"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "hydration_supplies_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildHydrationSuppliesEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "hydration supplies",
+        "incentive spirometer",
+        "urine cup"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1",
+        "peds_fever_v1",
+        "postop_fever_consult_pressure_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "inhaler_spacer_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildInhalerSpacerEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "inhaler spacer"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "iv_pole_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildIvPoleEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "IV pole"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1",
+        "ed_chest_pain_priority_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "iv_pump_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildIvPumpEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "IV pump"
+      ],
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "iv_stand_equipment",
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "iv-pole-with-pump.glb",
+      "builderSymbol": null,
+      "kitRecipeId": null,
+      "proseAliases": [],
+      "scenarioIds": [],
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/iv-pole-with-pump.glb",
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "lab_results_panel_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildLabResultsPanelEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "imaging report panel",
+        "joint diagram",
+        "lab results panel",
+        "neuro exam card",
+        "sepsis alert panel"
+      ],
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1",
+        "oncology_bad_news_family_v1",
+        "primary_care_dyslipidemia_joint_pain_v1",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "monitor_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildMonitorEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "monitor"
+      ],
+      "scenarioIds": [
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "nebulizer_mask_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildNebulizerMaskEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "nebulizer mask"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "observation_station_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildObservationStationEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "call bell",
+        "call light",
+        "observation checklist",
+        "panic button"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1",
+        "psych_suicidal_ideation_safety_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "oxygen_nasal_cannula_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildOxygenNasalCannulaEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "oxygen cannula",
+        "oxygen nasal cannula"
+      ],
+      "scenarioIds": [
+        "ed_chest_pain_priority_v1",
+        "stepdown_sepsis_nurse_escalation_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "oxygen_wall_port_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildOxygenWallPortEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "oxygen wall port"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "parent_chair_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildParentChairEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "parent chair"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1",
+        "peds_fever_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "pediatric_stretcher_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildPediatricStretcherEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "pediatric stretcher"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1",
+        "peds_fever_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "post_op_bed_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildPostOpBedEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "post-op bed"
+      ],
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "pulse_oximeter_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildPulseOximeterEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "pulse oximeter"
+      ],
+      "scenarioIds": [
+        "peds_asthma_parent_anxiety_v1",
+        "peds_fever_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "safe_room_chair_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildSafeRoomChairEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [],
+      "scenarioIds": [],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "safety_plan_whiteboard_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildSafetyPlanWhiteboardEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "CT direction sign",
+        "fall-risk sign",
+        "privacy curtain",
+        "privacy notice",
+        "whiteboard"
+      ],
+      "scenarioIds": [
+        "clinic_abdominal_pain_interpreter_v1",
+        "ed_stroke_alert_handoff_v1",
+        "ob_headache_preeclampsia_triage_v1",
+        "psych_suicidal_ideation_safety_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "side_rails_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildSideRailsEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "side rails"
+      ],
+      "scenarioIds": [
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "stretcher_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildStretcherEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "stretcher"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1",
+        "ed_chest_pain_priority_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "surgical_consult_phone_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildSurgicalConsultPhoneEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "surgical consult phone"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "tablet_visit_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildTabletVisitEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "low-bandwidth indicator",
+        "tablet interpreter station",
+        "video visit frame"
+      ],
+      "scenarioIds": [
+        "clinic_abdominal_pain_interpreter_v1",
+        "telehealth_diabetes_health_literacy_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "tissue_box_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildTissueBoxEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "tissue box"
+      ],
+      "scenarioIds": [
+        "oncology_bad_news_family_v1",
+        "psych_suicidal_ideation_safety_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "wall_clock_equipment",
+      "lane": "bank",
+      "runtimeSource": "gltf",
+      "gltfFileName": "wall-clock-analog.glb",
+      "builderSymbol": "buildWallClockEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "wall clock"
+      ],
+      "scenarioIds": [
+        "adult_abdominal_pain_v1",
+        "ed_chest_pain_priority_v1",
+        "ed_stroke_alert_handoff_v1"
+      ],
+      "midbandStatus": "glb_present",
+      "licenceStatus": "internal",
+      "provenancePath": "apps/ui-xr/public/xr-assets/medical-equipment/wall-clock-analog.glb",
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    }
+  ],
+  "unmappedProse": [],
+  "summary": {
+    "byLane": {
+      "bank": 4,
+      "thin_parametric": 34,
+      "modular_kit": 1
+    },
+    "byRuntimeSource": {
+      "parametric": 35,
+      "gltf": 4
+    },
+    "gltfMissingOnDisk": [],
+    "scenariosWithUnmappedProse": []
+  }
+}

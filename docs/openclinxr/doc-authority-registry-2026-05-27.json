@@ -12,7 +12,7 @@
     "agent-memory": 34,
     "historical-synthesis": 11,
     "decision-record": 37,
-    "total": 430
+    "total": 439
   },
   "entries": [
     {
@@ -1896,63 +1896,63 @@
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/AUTONOMOUS_WORK_PLAN.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/coordination/2026-08/PROJECT_COORDINATION_INDEX.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/iterations/0009/07-final-synthesis.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/index.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-factory-iterations.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/agent-ops-revisions.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/coordination-ledgers.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/_archive/wiki/topics/openclinxr-product-docs.md",
       "authority": "historical-synthesis",
       "agentInstructionWeight": "none",
       "action": "summarize-before-use",
-      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks \u2014 see DOC-WAREHOUSE.md."
+      "rationale": "Docs warehouse cold tier (docs/_archive); open only for archivist/historical tasks — see DOC-WAREHOUSE.md."
     },
     {
       "path": "docs/agent-factory/README.md",
@@ -3054,6 +3054,43 @@
       "agentInstructionWeight": "medium",
       "action": "treat-as-evidence",
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
+      "path": "docs/madr/0054-equipment-three-lane-factory.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
+      "title": "0054 — Equipment three-lane factory (bank / thin parametric / modular kit)"
+    },
+    {
+      "path": "docs/madr/0055-equipment-asset-catalog-ssot.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue.",
+      "title": "0055 — Equipment asset catalogue file-first SSOT (+ optional Mongo)"
+    },
+    {
+      "path": "docs/openclinxr/equipment-oss-candidates.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Staging list for equipment OSS candidates; subordinate to licence ledger and MADR 0054/0055."
+    },
+    {
+      "path": "docs/openclinxr/equipment-catalog.v1.json",
+      "authority": "generated-evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Equipment three-lane catalogue SSOT / report (MADR 0055)."
+    },
+    {
+      "path": "docs/openclinxr/equipment-catalog-report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Equipment three-lane catalogue SSOT / report (MADR 0055)."
     }
   ]
 }
