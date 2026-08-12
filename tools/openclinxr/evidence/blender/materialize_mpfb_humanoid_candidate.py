@@ -934,7 +934,7 @@ def main():
         scope_hide_mask_away_from_hands,
         world_bounds,
     )
-    from garment_coverage import HIDE_EPSILON_M, body_hide_mask  # noqa: E402
+    from garment_coverage import HIDE_EPSILON_M, _region_signed_clearance_samples, body_hide_mask  # noqa: E402
 
     def _triangulate_numpy(obj: bpy.types.Object):
         # Fan triangulation mirroring body_param_stage._numpy_mesh: the coverage
@@ -1076,11 +1076,96 @@ def main():
     # body's own head joint puts the jaw under the mask. Clip the mask to the head
     # joint (no-op on bodies whose mask already stops below — the known-good ones).
     hide_mask, head_clipped = clip_hide_mask_below_joint(hide_mask, human, head_joint_z)
+    # issue-341: #326's footprint clip tests ALL THREE AABB axes INCLUDING depth, so it
+    # un-hides a genuine poke — a poke protrudes PAST the garment's front depth and its
+    # vertices sit outside the garment's depth AABB. Measured on aisha's shipped bytes:
+    # 443 pokes at breast/sternum/midriff/collar were un-hidden by the clip and render
+    # as visible skin through the shirt. Re-hide any region face that genuinely pokes
+    # the garment surface (min vertex clearance < 0) AND sits inside the garment's
+    # LATERAL (x) + VERTICAL (z) footprint. The depth axis is deliberately excluded: a
+    # face in front of the garment is by definition under its silhouette. The clip's
+    # over-reach trimming (below the hem, above the collar, outside the x silhouette)
+    # is preserved for non-poking faces.
+    _poke_cl, _poke_fidx, _poke_fv, _poke_fn = _region_signed_clearance_samples(
+        body_verts, body_faces, garment_verts, garment_faces,
+        float(gb["min"][2]), float(gb["max"][2]),
+        max_search_m=0.08, height_axis=2, lateral_axis=0,
+    )
+    _poke_per = _poke_cl.reshape(len(_poke_fidx), 3).min(axis=1)
+    _poke_fcent = body_verts[body_faces[_poke_fidx]].mean(axis=1)
+    _gx_lo = float(garment_verts[:, 0].min()) - 0.002
+    _gx_hi = float(garment_verts[:, 0].max()) + 0.002
+    _gz_lo = float(garment_verts[:, 2].min()) - 0.002
+    _gz_hi = float(garment_verts[:, 2].max()) + 0.002
+    _in_xz = (
+        (_poke_fcent[:, 0] >= _gx_lo)
+        & (_poke_fcent[:, 0] <= _gx_hi)
+        & (_poke_fcent[:, 2] >= _gz_lo)
+        & (_poke_fcent[:, 2] <= _gz_hi)
+    )
+    _rehide = (_poke_per < 0) & _in_xz
+    _force_hidden = int(_rehide.sum())
+    hide_mask[_poke_fidx[_rehide]] = True
+    # per-face poke classification aligned with body_faces (full length), for the
+    # black-sliver refinement below.
+    _poke_per_full = np.zeros(len(body_faces), dtype=bool)
+    _poke_per_full[_poke_fidx[_poke_per < 0]] = True
+    # issue-341 black-sliver refinement: a hidden face that NEITHER pokes the garment
+    # surface (clearance < 0, hiding reveals the garment behind it) NOR has the garment
+    # between it and the front viewer is NOT under the cloth — hiding it discards the
+    # face and the viewer sees the dark body interior through the hole (measured on
+    # aisha's round-1 bake: 952 hidden tris with no shirt in front, clustered at the
+    # collar/neck, sleeve edges and hem). Un-hide exactly those faces; the #326
+    # over-reach class is now surface-truth rather than a 3D AABB guess. The viewer
+    # ray runs toward the stage's front (-Y: Blender create_human faces -Y, which the
+    # glTF export maps to +Z — the same +Z the occlusion gate shoots from).
+    from garment_coverage import _ray_tri_hits as _ray_tri_hits_341  # noqa: E402
+
+    _VIEW_Y = np.array([0.0, -1.0, 0.0])
+    _garment_tris_341 = garment_verts[garment_faces]
+    _hidden_idx = np.where(hide_mask)[0]
+    _black_slivers = 0
+    if len(_hidden_idx):
+        _hcent = body_verts[body_faces[_hidden_idx]].mean(axis=1)
+        _h_origins = _hcent + _VIEW_Y * 1e-4
+        _h_dirs = np.tile(_VIEW_Y, (len(_h_origins), 1))
+        _h_hits = _ray_tri_hits_341(_h_origins, _h_dirs, _garment_tris_341, 0.5)
+        _covered = np.isfinite(_h_hits)
+        _poke_of_hidden = _poke_per_full[_hidden_idx]
+        _unhide = ~_covered & ~_poke_of_hidden
+        _black_slivers = int(_unhide.sum())
+        hide_mask[_hidden_idx[_unhide]] = False
+    # issue-341: re-clip the force-hide on the SILHOUETTE axes (x lateral, z height)
+    # only — the depth axis is deliberately excluded, because a poke in front of the
+    # garment is under its silhouette by definition. The #326 footprint clip tests all
+    # three axes, so it un-hides genuine pokes (they protrude past the garment's front
+    # depth); this polygon-level clip mirrors it on the axes that define the silhouette
+    # and keeps the hidden AABB inside the garment bounds + the contract's 2 mm slack.
+    _tri_i = 0
+    _reclip_polygons = 0
+    for _poly in human.data.polygons:
+        _n_tri = max(len(_poly.vertices) - 2, 1)
+        if not hide_mask[_tri_i : _tri_i + _n_tri].any():
+            _tri_i += _n_tri
+            continue
+        _inside = True
+        for _vi in _poly.vertices:
+            _c = human.data.vertices[_vi].co
+            if _c.x < _gx_lo or _c.x > _gx_hi or _c.z < _gz_lo or _c.z > _gz_hi:
+                _inside = False
+                break
+        if not _inside:
+            hide_mask[_tri_i : _tri_i + _n_tri] = False
+            _reclip_polygons += 1
+        _tri_i += _n_tri
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
         f"handFacesUnhidden {hand_faces_unhidden} "
         f"footprintClippedFaces {footprint_clipped} "
+        f"pokeRehidden {_force_hidden} "
+        f"blackSliversUnhidden {_black_slivers} "
+        f"reclipPolygons {_reclip_polygons} "
         f"appliedPolygonCount {applied['appliedPolygonCount']} "
         f"hiddenMaterialName {applied['hiddenMaterialName']} "
         f"bodyBlenderVerts {len(human.data.vertices)} "
@@ -1211,9 +1296,19 @@ def main():
     # ankle landmark the lower band uses), so poking toes are hidden and the shoe's
     # silhouette reads as the foot. Faces INSIDE the shoe (positive clearance) are
     # untouched. Deterministic, threshold-free, no geometry authored.
+    #
+    # issue-341: the band must STOP at the shoe's OWN top, not the ankle landmark.
+    # Measured on aisha's shipped bytes: the foot hide (band to ankle_z=0.10) hides
+    # 2,266 faces including the upper foot/ankle ABOVE the shoe (shoe top 0.056,
+    # hidden primitives run to 0.111) — the discarded upper foot renders as a hollow
+    # gap between the shoe and the leg ("shoes flattened to discs, toes through").
+    # The shoe does not cover the upper foot; discarding it is a hole. The band is
+    # the shoe's own vertical extent (its z-max in the stage frame), the natural
+    # limit of what the footwear can hide.
     foot_lo_z = float(world_bounds(human)["min"][2])
-    foot_hi_z = ankle_z  # "bare feet begin below" — the #326 landmark
     footwear_verts, footwear_faces = _triangulate_numpy(shoe)
+    shoe_top_z = float(footwear_verts[:, 2].max())
+    foot_hi_z = min(shoe_top_z, ankle_z)  # "bare feet begin below" — the #326 landmark
     foot_hide_info = body_hide_mask(
         body_verts,
         body_faces,
