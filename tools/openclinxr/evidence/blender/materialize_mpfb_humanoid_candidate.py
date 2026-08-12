@@ -1268,6 +1268,43 @@ def main():
     lower_hide_mask, lower_head_clipped = clip_hide_mask_below_joint(
         lower_hide_mask, human, head_joint_z
     )
+    # issue-341 — the waistband sawtooth. Measured on the shipped bytes: the body
+    # skin in the band between the shirt hem and the pants top is EXPOSED — neither
+    # the upper nor the lower poke-mask covers it (diagnostic: 26/26 torso band
+    # faces in neither mask; aisha band y [0.969, 0.987]). The poke-mask hides only
+    # body faces that POKE the garment surface (signed clearance < 5 mm); the belly
+    # faces at the shirt's hem edge sit ~9 mm INSIDE the cloth (clearance > 5 mm,
+    # never hidden) while the shirt's hem ring and the pants' sparse waistband ring
+    # both leave front-view gaps at the same (x, y) — so the belly renders as the
+    # "ragged sawtooth band of skin between shirt hem and trouser top". The body in
+    # this band is UNDER the pants (pantsTop 0.987 >= shirtHem 0.969 — the band is
+    # the pants' own extent), so hiding ALL body faces in the band inside the pants'
+    # x/z footprint is the correct region hide: derived from the two garments' own
+    # measured extents, no fitted constant.
+    _pants_x_lo = float(pants_verts_np[:, 0].min())
+    _pants_x_hi = float(pants_verts_np[:, 0].max())
+    _pants_d_lo = float(pants_verts_np[:, 1].min())
+    _pants_d_hi = float(pants_verts_np[:, 1].max())
+    _waist_band_lo = float(garment_verts[:, 2].min())   # the shirt's hem
+    _waist_band_hi = float(pants_verts_np[:, 2].max())  # the pants' top
+    if _waist_band_hi >= _waist_band_lo:
+        _wb_cent = body_verts[body_faces].mean(axis=1)
+        _wb_hide = (
+            (_wb_cent[:, 2] >= _waist_band_lo)
+            & (_wb_cent[:, 2] <= _waist_band_hi)
+            & (_wb_cent[:, 0] >= _pants_x_lo)
+            & (_wb_cent[:, 0] <= _pants_x_hi)
+            & (_wb_cent[:, 1] >= _pants_d_lo)
+            & (_wb_cent[:, 1] <= _pants_d_hi)
+        )
+        _waist_band_hidden = int(_wb_hide.sum())
+        lower_hide_mask = lower_hide_mask | _wb_hide
+        print(
+            f"WAISTBAND_HIDE band [{_waist_band_lo:.4f},{_waist_band_hi:.4f}] "
+            f"faces {_waist_band_hidden}"
+        )
+    else:
+        print("WAISTBAND_HIDE WARNING: pants top below shirt hem — band empty; report this")
     lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
     print(
         f"LOWER_BODY_HIDE {lower_hide_info} "

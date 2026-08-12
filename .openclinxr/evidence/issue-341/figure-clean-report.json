@@ -45,6 +45,36 @@
       ]
     },
     {
+      "round": "5b",
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5b.glb",
+      "materializerChanges": [
+        "issue-341 waistband sawtooth: the body skin in the band between the shirt hem and the pants top (aisha y [0.969, 0.987]) was EXPOSED — the poke-hide masks hide only faces that poke the garments (signed clearance < 5mm), and the belly faces at the shirt hem edge sit ~9mm INSIDE the cloth (clearance > 5mm, never hidden) while the shirt hem ring and the pants sparse waistband ring both leave front-view gaps at the same (x,y). Measured on the shipped bytes: 26/26 torso band faces in neither mask; 12/14 front belly ray samples hit no shirt/pants triangle. The band is the pants' own extent (pantsTop 0.987 >= shirtHem 0.969), so the materializer now hides ALL body faces in the band inside the pants' x/depth footprint — a region hide derived from the two garments' own measured extents, no fitted constant. 68 faces hidden; post-fix ray probe: 0/54 unhidden torso waistband samples visible (was 21.8%)."
+      ],
+      "numbers": {
+        "waistbandBandY": [0.9692, 0.9871],
+        "waistbandHiddenFaces": 68,
+        "waistbandVisiblePreFixPct": 21.8,
+        "waistbandVisiblePostFixPct": 0.0,
+        "waistbandDiagnosticPreFix": "26/26 band faces in neither mask",
+        "occlusionTshirtOccludedByOther": 0.0027,
+        "occlusionBootsOccludedByOther": 0.0016
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round5b/front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "Toes through shoe fronts / flat grey disc shoes: the body's foot is ~3.4cm LATERAL of the shoe (measured: foot x [-0.270,-0.174], shoe x [-0.236,-0.138], same width ~9.8cm but shoe ~3cm medial). The foot's lateral edge renders outside the shoe. Queued next.",
+        "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
+      ],
+      "guesses": [
+        "the waistband band top = the pants' AABB top (0.9871); exposed skin above it (y 0.987-0.99) is a ~3mm sliver, sub-pixel at the capture distance — not separately addressed this round",
+        "hiding ALL body faces in the band (not just pokes) is safe because the band is the pants' own extent (opaque) — no see-through"
+      ]
+    },
+    {
       "round": 1,
       "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
       "materializerChanges": [

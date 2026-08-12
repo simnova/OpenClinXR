@@ -50,7 +50,7 @@
     "method": "mpfb2_standard_rig_137_joints_26756_body_tris_plus_2700_fitted_garment_tris"
   },
   "toolVersion": "openclinxr-mpfb2-promotion-v1",
-  "promptOrCaseParameterHash": "regenerated_2026-08-12_issue_341_forehead_hairline",
+  "promptOrCaseParameterHash": "regenerated_2026-08-12_issue_341_forehead_hairline_waistband",
   "notEvidenceFor": [
     "b_plus_visual_realism_gate",
     "production_asset_readiness",
@@ -75,8 +75,8 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "c7a153a6dc302bc16cbf8144109967843bbee2907bae02bf8d670e0f3eeed645",
-  "outputBytes": 13280168,
-  "generatedAt": "2026-08-12T06:20:00Z",
+  "outputSha256": "257c9e61c6509e9da361f29c7a3b52731a03538c29d38c60bfe09b23f7a399e1",
+  "outputBytes": 13298112,
+  "generatedAt": "2026-08-12T06:35:00Z",
   "method": "mpfb2_materializer_rebake_on_promoted_cast"
 }
