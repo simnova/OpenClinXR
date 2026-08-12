@@ -48,12 +48,12 @@
     "The mpfb2-lower-garment-and-mask-footprint test (2) fails PRE-EXISTING with 2 violations from the #333/#338 foot hide mask (axis1 min 94.4mm, axis2 max 30.9mm) — the foot mask legitimately hides under the SHOE, which is below the upper/lower garments the test compares against. Identical failure on the pre-change round-0 bytes; my changes add zero violations (verified: same 2).",
     "Black slivers at shoulders/elbows: 35 hidden faces un-hidden at bake time; a further ~47 were re-clipped. Whether the shoulder/elbow region grades clean is a pixel question."
   ],
-  "guesses": {
+  "guesses": [
     "the neck/collar 'pokes' at fracH 0.85 are natural bare neck and should read as skin, not poke-through",
     "the elbow-region pokes (fracH 0.77-0.84, |x| 0.16-0.29) are bare arm below the short sleeve and should read as skin",
     "the hem pokes (fracH 0.58) sit inside the pants overlap (pants top 0.987 > shirt hem 0.969) and should be covered by the pants",
     "the toigo_flats merged pair reads acceptably from the front since the library rail ships the identical flats"
-  },
+  ],
   "claimScope": "one MPFB actor (aisha) re-baked with corrected body-hide mask semantics; per-layer occlusion numbers and mask-footprint numbers are measured on the shipped bytes. The pixel grade is the orchestrator's.",
   "notEvidenceFor": [
     "a clean pixel grade (orchestrator grades captures)",
