@@ -107,7 +107,9 @@ const RAILS = [
     id: "mpfb2_aisha",
     glb: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     body: "mpfb_ob_patient_aisha_body",
-    bodyIsLargest: true,
+    // #333: the fitted toigo_flats (28,808 v) now outgrow the body (15,418 v), exactly
+    // as the library lean_female footwear already did — identity still resolves it.
+    bodyIsLargest: false,
   },
 ] as const;
 

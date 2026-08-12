@@ -74,6 +74,44 @@ import { describe, expect, it } from "vitest";
  * land until these figures have been pixel-graded.
  */
 
+/**
+ * ## FIXED (#333)
+ *
+ * `materialize_mpfb_humanoid_candidate.py` now fits a real MakeHuman shoe on the helper-stripped
+ * basemesh via the SAME `ClothesService.fit_clothes_to_human` path the upper/lower channels use
+ * (D1 — the proven embed_library_footwear path, not authored geometry). All three bodies are
+ * re-baked on the merged #328 materializer, so nurse_kevin and patient_child get their FIRST lower
+ * garment (the #326 cargo-pants channel the earlier bakes predated) and all three get footwear:
+ *
+ *   body                  upper  lower  feet          hair
+ *   --------------------- ------ ------ ------------- -----
+ *   MPFB aisha             yes    yes   toigo_flats   no
+ *   MPFB nurse_kevin       yes    yes   male_boots    no
+ *   MPFB patient_child     yes    yes   mj_cloth      no
+ *   LIB  lean_female       yes    yes   toigo_flats   yes  <- known-good, unchanged
+ *   LIB  heavy_male        yes    yes   male_boots    no   <- known-good, unchanged
+ *
+ * The shoes are the CC0/CC-0 zero-helper-ref subset of makehuman-shoes01 (ledger
+ * third-party-asset-licence-ledger.md): toigo_flats (aisha), culturalibre_male_boots (nurse),
+ * toigo_mj_cloth_shoes (child). Grounding is threshold-free: the fitted sole lands a few mm below
+ * the body's foot bottom (measured 8-13 mm on probes — real sole depth) and is lifted by that
+ * landmark gap so sole == body bottom, matching the known-good library measurement (-0.00 cm).
+ * The shoes are k-NN weighted to the standard rig, so clause (1)'s substance check (skinned,
+ * >= 100 tris) is satisfied by real fitted geometry.
+ *
+ * Measured on the re-baked bytes (NodeIO, the same attribution this file drives):
+ *
+ *   body                  lower tris  footwear tris  sole vs body bottom
+ *   --------------------- ----------- -------------  ------------------
+ *   MPFB aisha            2,764       57,600         -0.00 cm (aligned)
+ *   MPFB nurse_kevin      2,764       30,768         -0.00 cm (aligned)
+ *   MPFB patient_child    2,764        1,004         -0.00 cm (aligned)
+ *
+ * The `it.fails` markers on (1) and (2) were flipped to `it`; all three clauses pass on the re-baked
+ * bytes. Runtime casting is still NOT wired (`humanoid-runtime-asset-url.ts` untouched) — this makes
+ * the actors castable; the next slice must pixel-grade the figures before wiring them.
+ */
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
@@ -146,7 +184,7 @@ function requireFigures(): void {
 }
 
 describe("MPFB actors are dressed well enough to be cast at runtime", () => {
-  it.fails("(1) RED: every MPFB body carries a real lower garment and real footwear", () => {
+  it("(1) RED: every MPFB body carries a real lower garment and real footwear", () => {
     requireFigures();
     const missing: string[] = [];
     for (const f of mpfb) {
@@ -157,7 +195,7 @@ describe("MPFB actors are dressed well enough to be cast at runtime", () => {
     expect(missing, "MPFB bodies missing a wardrobe channel").toEqual([]);
   });
 
-  it.fails("(2) RED: the sole is the lowest geometry on the figure — the shoe is ON the foot", () => {
+  it("(2) RED: the sole is the lowest geometry on the figure — the shoe is ON the foot", () => {
     requireFigures();
     const bad: string[] = [];
     for (const f of mpfb) {

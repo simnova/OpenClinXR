@@ -157,6 +157,7 @@ type Shape = {
   garmentPrims: number;
   garmentVerts: number;
   totalTris: number;
+  bodyTris: number;
   usableMouth: number;
 };
 
@@ -177,6 +178,7 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
   let garmentPrims = 0;
   let garmentVerts = 0;
   let totalTris = 0;
+  let bodyTris = 0;
   let bodyVerts = 0;
   let usableMouth = 0;
 
@@ -195,6 +197,7 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
 
       if (prim.listTargets().length === 0 || pos.getCount() <= bodyVerts) continue;
       bodyVerts = pos.getCount();
+      bodyTris = indices ? indices.getCount() / 3 : pos.getCount() / 3;
       let found = 0;
       const el: [number, number, number] = [0, 0, 0];
       prim.listTargets().forEach((target, index) => {
@@ -212,7 +215,7 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
       usableMouth = found;
     }
   }
-  return { id, garmentPrims, garmentVerts, totalTris, usableMouth };
+  return { id, garmentPrims, garmentVerts, totalTris, bodyTris, usableMouth };
 }
 
 /** Invert a column-major 4x4 (the skin's inverse bind matrix) → the joint's bind world position. */
@@ -328,10 +331,14 @@ describe("the MPFB2 actor wears a fitted MakeHuman garment", () => {
     }
   });
 
-  it(`(3) COUNTERWEIGHT: aisha stays helper-stripped (<= ${MAX_BODY_TRIS} tris) — reverting #318 to fit the polo is refused`, () => {
+  it(`(3) COUNTERWEIGHT: aisha stays helper-stripped (body <= ${MAX_BODY_TRIS} tris) — reverting #318 to fit the polo is refused`, () => {
     requireMeasured();
-    expect(aisha.totalTris, "aisha total triangles — 26,756 stripped, 36,972 with helpers").toBeLessThanOrEqual(
-      MAX_BODY_TRIS + 12_000,
+    // #333: the bound moved from a TOTAL-tris proxy (<= 40k, which aisha's first
+    // footwear — the same ~57k-tri toigo_flats the library rail ships — now exceeds)
+    // to the BODY primitive's tris directly. The intent was always the strip, not the
+    // wardrobe: 26,756 stripped, 36,972 with helpers.
+    expect(aisha.bodyTris, "aisha body triangles — 26,756 stripped, 36,972 with helpers").toBeLessThanOrEqual(
+      MAX_BODY_TRIS,
     );
   });
 
