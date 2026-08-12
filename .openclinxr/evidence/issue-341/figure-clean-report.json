@@ -1,922 +1,107 @@
 {
  "schema": "figure-clean-report.v1",
  "issue": "issue-341",
- "actor": "mpfb-ob-patient-aisha",
- "actorRelPath": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
- "chosenOnEvidence": "aisha was nearest the bar in the issue's own measurement (skin punch-through at breasts + midriff, ragged hem, flat shoes, black slivers) and had no face-mask defect; the occlusion gate confirms her eyes are visible (0.861 visible pre-fix). The child's boots are detached and the nurse's face is a broken mask \u2014 both farther from the bar.",
- "rounds": [
-  {
-   "round": 5,
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5.glb",
-   "materializerChanges": [
-    "issue-341 forehead hairline: the scalp crown band painted the FACE FRONT from just above the eye socket to the crown (the 'black rectangle on the forehead'). Root cause measured: the shared scalp function's face-front exclusion NEVER fires on the MPFB bodies because its depth line comes from WHOLE-BODY bounds, which the hanging arms dominate (skippedFaceFrontFaceCount: 0 on every bake). There is no hairline vertex group in the shipped anatomy (measured: all head joint groups are helper verts >= 13380, stripped; no MakeHuman hairline target; the forehead targets run to the crown). The materializer now derives the hairline per-body from the body's own surface: the forehead plane = median depth (y) of the head's midline surface within the fitted EYE MESH's own height band, and the hairline = the highest face-front vertex still at/ahead of that plane (aisha: 0.9715 H). Midline half-width = the eye mesh's own half-width. 60 scalp polys unpainted in the face front below the hairline."
+ "actor": "all three MPFB actors (aisha / nurse_kevin / patient_child)",
+ "actorRelPath": "apps/ui-xr/public/generated-humanoids/mpfb-{ob-patient-aisha,peds-nurse-kevin,peds-patient-child}.glb",
+ "round": 15,
+ "roundTitle": "the child's shirt span defect \u2014 root cause: post-strip double-deformed macro body",
+ "chosenOnEvidence": "round-15 measurement: the SAME toigo t-shirt .mhclo refs sit at 0.356-0.543 H (waist/hip) in the fit's from_mix frame while the baked basis puts them at 0.556-0.843 H (neck). The #318 strip's reapply_all_details re-adds the macro target shape keys ($md-*) on top of the baked basis (bake_targets does not clear HumanObjectProperties); the child's child-band age targets are strong torso deformers (0.25-0.37 m phantom shift), aisha's default young-adult targets shift refs only ~2 cm (why her fit was already correct). Fix: delete $md-* keys after the strip.",
+ "rounds": {
+  "15": {
+   "fixes": [
+    "remove post-strip macro shape keys ($md-*) so garment fits read the true baked body (20 removed child/nurse, 8 aisha)",
+    "restore the body-derived lower cover shell: on the true body the sparse 392-tri cargo fit passes the gate's coverage_ok (0.95-0.97) but is the #220 open-shell see-through trouser; the gate's own garmentBoundaryEdges>0 clause now takes the shell branch"
    ],
-   "numbers": {
-    "scalpMaxZPreFix": 0.153,
-    "scalpMaxZPostFix": 0.1316,
-    "eyeMaxZ": 0.1392,
-    "scalpZVsEyeZ": "0.1316 < 0.1392 (scalp now BEHIND the eyes, was 1.4cm ANTERIOR)",
-    "scalpTriangleCountPreFix": 2640,
-    "scalpTriangleCountPostFix": 2544,
-    "hairlineFraction": 0.9715,
-    "foreheadPlaneY": -0.1366,
-    "foreheadUnpaintedPolygons": 60,
-    "occlusionEyesVisibleFraction": 0.8333,
-    "occlusionEyesOccluders": {
-     "skin": 0.1667
+   "measuredExportedBands": {
+    "aisha": {
+     "tshirt": [
+      0.58,
+      0.843
+     ],
+     "spanFracH": 0.263,
+     "pants": [
+      0.061,
+      0.592
+     ],
+     "pantsTris": 2782
     },
-    "occlusionScalpOccludesEyes": "no scalp occluder on eyes (was 0.5 nurse / 0.213 aisha pre-fix)",
-    "occlusionTshirtOccludedByOther": 0.0027,
-    "occlusionBootsOccludedByOther": 0.0016
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round5/front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5/front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round5/three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5/three_quarter_structure.png"
-   ],
-   "stillWrong": [
-    "Waistband sawtooth NOT yet fixed this round: a band of unhidden belly skin at the front waist (y 0.97-0.99) where the shirt front surface is coincident with the belly (measured: 12/14 front belly samples have no shirt or pants triangle in front along +Z). Queued as the next round.",
-    "Toes through shoe fronts / flat disc shoes NOT yet fixed this round. Queued after the waistband.",
-    "Shoulder/elbow dark slivers: round-4's 35 unhidden + 47 reclipped; whether they grade clean is a pixel question."
-   ],
-   "guesses": [
-    "the 1.5 eye-height facial-proportion fallback was NOT used \u2014 the hairline came out geometrically at 0.9715, matching the measured eye-top + 1.5 eye-heights candidate (0.9725) within 1mm",
-    "the hairline is a horizontal band across the full face front \u2014 real hairlines curve lower at the temples, but a straight hairline above the eyes reads as natural",
-    "the scalp behind the eyes at zmax 0.1316 vs eyes 0.1392 leaves the temples at the sides (x +/-0.05) as the front-most scalp \u2014 reads as hair at the sides, intended"
-   ]
-  },
-  {
-   "round": "5b",
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5b.glb",
-   "materializerChanges": [
-    "issue-341 waistband sawtooth: the body skin in the band between the shirt hem and the pants top (aisha y [0.969, 0.987]) was EXPOSED \u2014 the poke-hide masks hide only faces that poke the garments (signed clearance < 5mm), and the belly faces at the shirt hem edge sit ~9mm INSIDE the cloth (clearance > 5mm, never hidden) while the shirt hem ring and the pants sparse waistband ring both leave front-view gaps at the same (x,y). Measured on the shipped bytes: 26/26 torso band faces in neither mask; 12/14 front belly ray samples hit no shirt/pants triangle. The band is the pants' own extent (pantsTop 0.987 >= shirtHem 0.969), so the materializer now hides ALL body faces in the band inside the pants' x/depth footprint \u2014 a region hide derived from the two garments' own measured extents, no fitted constant. 68 faces hidden; post-fix ray probe: 0/54 unhidden torso waistband samples visible (was 21.8%)."
-   ],
-   "numbers": {
-    "waistbandBandY": [
-     0.9692,
-     0.9871
-    ],
-    "waistbandHiddenFaces": 68,
-    "waistbandVisiblePreFixPct": 21.8,
-    "waistbandVisiblePostFixPct": 0.0,
-    "waistbandDiagnosticPreFix": "26/26 band faces in neither mask",
-    "occlusionTshirtOccludedByOther": 0.0027,
-    "occlusionBootsOccludedByOther": 0.0016
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round5b/front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5b/front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5b/three_quarter_structure.png"
-   ],
-   "stillWrong": [
-    "Toes through shoe fronts / flat grey disc shoes: the body's foot is ~3.4cm LATERAL of the shoe (measured: foot x [-0.270,-0.174], shoe x [-0.236,-0.138], same width ~9.8cm but shoe ~3cm medial). The foot's lateral edge renders outside the shoe. Queued next.",
-    "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
-   ],
-   "guesses": [
-    "the waistband band top = the pants' AABB top (0.9871); exposed skin above it (y 0.987-0.99) is a ~3mm sliver, sub-pixel at the capture distance \u2014 not separately addressed this round",
-    "hiding ALL body faces in the band (not just pokes) is safe because the band is the pants' own extent (opaque) \u2014 no see-through"
-   ]
-  },
-  {
-   "round": "5c",
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round5c.glb",
-   "materializerChanges": [
-    "issue-341 toes through shoe fronts: the fitted shoe sat ~3.4cm MEDIAL of the foot \u2014 measured on the shipped bytes: body left foot x [-0.270,-0.174] (9.6cm) vs shoe x [-0.236,-0.138] (9.8cm), SAME width but shoe centre -0.187 vs foot centre -0.222, so the foot's lateral edge rendered outside the shoe ('toes protrude through both shoe fronts'). The ClothesService fit anchors the shoe to the foot's own .mhclo refs, so the fit is sound; the shipped shoe drifted medially \u2014 the same corrective-alignment class the existing sole grounding already performs. The materializer now aligns each shoe half's x-centre to the BODY's own foot-band x-centre (measured per-body, no fitted constant; deltaX +-0.0425 for aisha). Runs BEFORE the weight transfer and the foot-hide so the shoe binds and hides at its final position. Foot-hide coverage grew 2048 -> 3900 faces (the lateral foot now sits under the shoe)."
-   ],
-   "numbers": {
-    "footXPreFix": [
-     -0.27,
-     -0.174
-    ],
-    "shoeXPreFix": [
-     -0.236,
-     -0.138
-    ],
-    "lateralDeltaX": [
-     -0.0425,
-     0.0425
-    ],
-    "shoeXPostFix": [
-     -0.279,
-     -0.181
-    ],
-    "footHideHiddenFacesPreFix": 2048,
-    "footHideHiddenFacesPostFix": 3900,
-    "visibleFootSkinPreFixPct": 50.8,
-    "visibleToeSkinPostFix": "0 samples with z > 0.13 (toe tips covered); residual visible skin is the upper ankle (y 0.054-0.106, z < 0.083) above the shoe top \u2014 normal anatomy for a flat shoe",
-    "occlusionEyesVisibleFraction": 0.7685,
-    "occlusionTshirtOccludedByOther": 0.0028,
-    "occlusionBootsOccludedByOther": 0.0,
-    "occlusionVerdicts": "eyes visible / tshirt visible / boots visible"
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round5c/front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5c/front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round5c/three_quarter_structure.png"
-   ],
-   "stillWrong": [
-    "Upper ankle skin above the shoe top (y 0.054-0.106) is the round-4 'restored upper foot' \u2014 normal for a flat shoe (the shoe is 5.6cm tall); whether it reads clean is a pixel question.",
-    "Shoulder/elbow dark slivers: whether they grade clean is a pixel question."
-   ],
-   "guesses": [
-    "the lateral alignment uses the mean x-centre of the body's foot band below the shoe top \u2014 the foot's natural lateral extent, not a fitted offset",
-    "the shoe's medial edge moved to -0.181; the ankle/leg at x ~-0.18 remains under the shoe",
-    "the residual visible ankle skin (z < 0.083) is at the back/lateral ankle \u2014 from the front viewer it sits beside the shoe's side, which reads as an ankle above a flat"
-   ]
-  },
-  {
-   "round": 1,
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round4.glb",
-   "materializerChanges": [
-    "issue-341 force-hide: the #326 footprint clip tests all three AABB axes INCLUDING depth, so it un-hides a genuine poke (a poke protrudes past the garment's front depth). Re-hide region faces whose min vertex clearance < 0 AND whose centroid sits inside the garment's x (lateral) + z (height) silhouette + 2mm contract slack. Measured 1,469 pokes re-hidden.",
-    "issue-341 black-sliver un-hide: a hidden face that NEITHER pokes the garment surface NOR has the garment between it and the front viewer is NOT under the cloth \u2014 hiding it discards the face and shows the dark body interior. Un-hide exactly those (35 at bake time; front-ray coverage test toward the stage -Y which maps to the gate's +Z).",
-    "issue-341 x/z re-clip: after the force-hide, re-clip polygon-level on the SILHOUETTE axes only (x, z) so the hidden AABB stays inside the garment bounds + 2mm \u2014 the depth axis is excluded because a poke in front of the garment is under its silhouette by definition. 47 polygons re-clipped.",
-    "issue-341 foot-band fix: the foot hide band previously ran to the ankle landmark (z=0.10), discarding the upper foot/ankle ABOVE the shoe's top (0.056) \u2014 the 'shoes flattened to discs, toes through' hole. The band now stops at the shoe's own top (min(shoe_top, ankle))."
-   ],
-   "numbers": {
-    "visibleTorsoPokes_pre": 428,
-    "visibleTorsoPokes_post": 162,
-    "interiorPokesBreastSternumMidriff_pre": 355,
-    "interiorPokesBreastSternumMidriff_post": 0,
-    "pokeRehidden": 1469,
-    "blackSliversUnhidden": 35,
-    "reclipPolygons": 47,
-    "footBandExposed_pre": 0.581,
-    "footBandExposed_post": 0.599,
-    "upperMaskOverreach": "within 2mm on all axes (post)",
-    "occlusionEyesPostFix": 0.843,
-    "occlusionTshirtPostFix": 0.003,
-    "occlusionBootsPostFix": 0.004
-   }
-  },
-  {
-   "round": "6a",
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/nurse-round6h.glb (nurse) / child-round6h.glb (child); aisha unchanged from round-5c at this sub-round",
-   "materializerChanges": [
-    "ROUND 6a \u2014 re-bake, not a new fix: nurse_kevin and patient_child still carried the OLD scalp paint, OLD waistband and OLD shoe alignment (last baked at #340). The round-5 fixes live in the shared materializer, so this sub-round re-bakes both reference bodies with the existing fixes and re-captures all three. Forehead hairline fires per-body: nurse 0.9699 (54 scalp polys unpainted), child 0.9758 (38)."
-   ],
-   "numbers": {
-    "nurseHairlineFrac": 0.9699,
-    "childHairlineFrac": 0.9758,
-    "nurseWaistbandFaces": 158,
-    "childWaistbandFaces": 116,
-    "nurseShoeDeltaX": 0.0339,
-    "childShoeDeltaX": 0.0833,
-    "nurseEyesOccludedPostFix": 0.3017,
-    "childEyesOccludedPostFix": 0.2155
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round6/mpfb-ob-patient-aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round6/mpfb-peds-nurse-kevin-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round6/mpfb-peds-patient-child-front_lit.png"
-   ],
-   "stillWrong": [
-    "residual defects on all three graded from the round-6a captures (shoulder/elbow slivers, midriff/hip patches, jagged hems) \u2014 fixed in round 6b below"
-   ],
-   "guesses": []
-  },
-  {
-   "round": "6b",
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round6h.glb / nurse-round6h.glb / child-round6h.glb (shipped)",
-   "materializerChanges": [
-    "issue-341 coincident-class re-hide: body_hide_mask hides clearance < HIDE_EPSILON_M (5mm) which includes the COINCIDENT class (clearance in [0,5mm): sub-mm z-fight). #326 footprint clip un-hides faces outside the garment DEPTH AABB; the round-4 force-hide restores only strict pokes (<0); the black-sliver un-hides the rest. Measured on aisha round-5c: 20 skin faces at x +-0.04..0.08, y 1.09-1.20, z 0.151-0.159 (clearance 0.07-1.28mm) rendered as skin patches. Re-hide front-facing coincident faces with the cloth within CLOTH_STANDOFF_M behind along the viewer ray.",
-    "issue-341 tilted-surface viewer-poke + full-body scan: 4 faces at x +-0.036..0.042, y 1.088-1.098 have normal clearance 19mm (not coincident) but render 3-6mm IN FRONT of the cloth along the viewer ray (lower-belly surface curves away from the cloth). The shared per-slice lateral footprint has a mesh-resolution artifact (slice 6 of the t-shirt reads 3.4cm vs real 13.1cm) so these faces were never in the region. A full-body scan (not region-restricted) re-hides front-facing faces with no cloth in front and cloth within CLOTH_STANDOFF_M behind.",
-    "issue-341 black-sliver refinement: the un-hide predicate is now the render truth (~covered AND NOT cloth-within-standoff-behind along the viewer ray) instead of the strict-poke exemption. A poke along the body normal at a silhouette edge has no cloth behind along the viewer axis, so hiding it revealed the dark interior. Measured on aisha round-6d shipped bytes: 49+86 hidden tris at shoulder/arm edges were front-most with nothing behind \u2014 the dark slivers. Now: shoulder 86->5, elbow 49->10, total 135->17.",
-    "issue-341 lower-mask black-sliver: the waistband band hid ALL body faces in the band including the waist sides (no cloth in front/behind). Same render-truth un-hide for the lower mask (aisha 57, nurse 463, child 715).",
-    "issue-341 shell hem clip: the cover shell bottom edge followed the body triangulation at the ankle-foot junction (front hem zigged ~8cm lateral-to-medial; ring depth 11cm). bisect_plane at the ankle landmark (the #326 bare-feet-begin bound) gives a flat horizontal hem.",
-    "#334 head-joint bound on every re-hide (force, coincident, tilted, full-body): vertex-based, matching clip_hide_mask_below_joint. The nurse collar rides at 0.921H vs joint 0.914H; the re-hides re-added faces above the joint. Now hide-mask-stops-below-the-head passes.",
-    "black-sliver behind-bound corrected to the gate 0.5m reach: the first 1.5cm bound left the child's loose adult-authored t-shirt pokes (2-5cm off the body) un-hidden and the occlusion gate read tshirt occludedByOther 0.1379; the 0.5m reach keeps any cloth-behind face hidden (the cloth renders) and only un-hides faces with nothing behind. Child tshirt occlusion back to 0.0092.",
-    "#334 final head-joint clip re-applied after all re-hides: the intermediate steps left the nurse mask sub-mm above the joint (0.9143H vs 0.9139H); the idempotent re-clip removes 3 polygons and hide-mask-stops-below-the-head passes."
-   ],
-   "numbers": {
-    "aishaCoincidentRehidden": 599,
-    "aishaViewerPokeRehidden": 619,
-    "aishaBlackSliversUnhidden": 149,
-    "aishaLowerBlackSlivers": 57,
-    "aishaDarkSliversPre": 135,
-    "aishaDarkSliversPost": 25,
-    "aishaShoulderSliversPost": 11,
-    "aishaElbowSliversPost": 11,
-    "aishaTorsoUncovered064_074": 0,
-    "shellHemClipPlaneZ": 0.1,
-    "nurseBlackSliversUnhidden": 683,
-    "nurseLowerBlackSlivers": 463,
-    "childBlackSliversUnhidden": 370,
-    "childLowerBlackSlivers": 715,
-    "occlusionAll": "eyes/tshirt/boots visible on all three (aisha eyes 0.722, nurse 0.716, child 0.802 visible; child tshirt occlusion 0.1379->0.0092 when the behind-bound moved from 1.5cm to the gate 0.5m reach)",
-    "headClipFinalNursePolygons": 3
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round6b/mpfb-ob-patient-aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round6b/mpfb-peds-nurse-kevin-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round6b/mpfb-peds-patient-child-front_lit.png"
-   ],
-   "stillWrong": [
-    "lateral waist/hip sides (~20 skin faces at x +-0.13..0.15, y 0.97-1.03): the pants/shirt shells offset laterally, not frontally, so the body side renders at the silhouette beside the garments. Deliberately left as skin rather than hidden (dark); a fit/drape change is the real fix.",
-    "remaining dark slivers (aisha 25: 11 shoulder, 11 elbow, 3 waist) at silhouette edges where ray tests graze the garment edge \u2014 sub-pixel at capture distance",
-    "faceted hairline edge (cosmetic, lowest priority)"
-   ],
-   "guesses": [
-    "the full-body scan uses CLOTH_STANDOFF_M as the behind-bound \u2014 measured to separate the belly pokes (0.3-1.0cm) from the natural bare ankle (6.3-9.4cm)",
-    "un-hiding silhouette-edge pokes restores skin at the arm outline; whether that reads better than the dark sliver is a pixel question"
-   ]
-  },
-  {
-   "round": 7,
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round7.glb",
-   "materializerChanges": [
-    "issue-341 round 7 \u2014 render-truth refinement of every body-hide mask (upper/lower/foot). The round-7 grade showed a ragged black sawtooth at EVERY garment/skin seam (hairline, shoulders, sleeve hems, waistband, trouser hems, boot tops, jaw) \u2014 one signature. The cause is measured, not guessed: the alpha-0 hide primitives (openclinxr_hidden_*, DISCARDED at render) extend past the garment's front coverage in per-polygon steps. A discarded body polygon reads as the dark capture background (#18211d) wherever the garment does NOT render in front of it. The previous black-sliver un-hided only faces with NO cloth in front AND NO cloth behind within 0.5 m along the back axis \u2014 so the nurse's jaw stayed hidden (the collar's BACK panel is 13-19 cm behind it, backface-culled at render -> a black ragged mass over mouth/jaw/chin; measured on the shipped bytes: 1178 head-band hidden polygons, frontFirst=None, backFirst=skin), and centroid-only tests were blind to the straddling class (a polygon whose centroid is under the cloth but whose corner pokes out past the edge -> the ragged sawtooth).",
-    "The materializer now runs a final render-truth pass (RENDER_TRUTH_UNHIDE) after every re-hide: per hidden polygon, 7 area samples (verts + edge midpoints + centroid); un-hide when ANY sample has no garment surface in front along the viewer ray AND no OUTER-facing garment surface behind it. The behind test casts against the garment's outer-facing subset only (winding-proof _orient_outward + normal toward the stage front), because an inner/back-facing surface is backface-culled and cannot fill a discarded hole. Reach is the occlusion gate's MAX_RAY_T (0.5 m \u2014 scene depth, not a fitted seam constant). The child's loose t-shirt (2-5 cm off the body) stays hidden because its front panel is outer-facing directly behind the pokes. Applied to upper (after the final head-joint clip), lower (replacing the round-6 centroid black-sliver), and foot (which had NO refinement).",
-    "Numbers on the new bakes: RENDER_TRUTH_UNHIDE upper 389 (aisha) / 1554 (nurse, incl. the jaw) / 241 (child); LOWER_BLACK_SLIVERS 66/793; FOOT_BLACK_SLIVERS 430/596/732."
-   ],
-   "numbers": {
-    "renderTruthUnhideUpper": {
-     "aisha": 389,
-     "nurse": 1554,
-     "child": 241
+    "nurse": {
+     "tshirt": [
+      0.591,
+      0.859
+     ],
+     "spanFracH": 0.268,
+     "pants": [
+      0.057,
+      0.601
+     ],
+     "pantsTris": 3092
     },
-    "maskBoundaryProbeExposedAny": {
-     "aisha": {
-      "pre": 1813,
-      "post": 1049
-     },
-     "nurse": {
-      "pre": 4272,
-      "post": 1996
-     },
-     "child": {
-      "pre": 4141,
-      "post": 3011
-     }
-    },
-    "maskBoundaryProbeExposedAreaM2": {
-     "aisha": {
-      "pre": 0.10754,
-      "post": 0.06887
-     },
-     "nurse": {
-      "pre": 0.1071,
-      "post": 0.04852
-     },
-     "child": {
-      "pre": 0.0771,
-      "post": 0.04926
-     }
-    },
-    "occlusionGate": {
-     "aisha": {
-      "eyes": "visible",
-      "tshirt": "visible",
-      "boots": "visible"
-     },
-     "nurse": {
-      "eyes": "visible",
-      "tshirt": "visible",
-      "boots": "visible"
-     },
-     "child": {
-      "eyes": "visible",
-      "tshirt": "visible",
-      "boots": "visible"
-     }
-    },
-    "contracts": {
-     "eyes-have-an-iris": "3/3 pass",
-     "mpfb-actors-are-dressed": "3/3 pass"
+    "child": {
+     "tshirt": [
+      0.569,
+      0.839
+     ],
+     "spanFracH": 0.269,
+     "pants": [
+      0.081,
+      0.58
+     ],
+     "pantsTris": 2816
     }
    },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round7/mpfb-ob-patient-aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7/mpfb-peds-nurse-kevin-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7/mpfb-peds-patient-child-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-ob-patient-aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-peds-nurse-kevin-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-peds-patient-child-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-ob-patient-aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-peds-nurse-kevin-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-peds-patient-child-front_lit.png"
-   ],
-   "stillWrong": [
-    "residual discarded polygons with OUTER-facing cloth behind them at grazing/silhouette angles (aisha chest band: 481 hidden polys at |x|>=0.18 shoulder silhouette, kept hidden because the shirt's outer surface is behind within 5mm-4.4cm \u2014 measured; whether the round-6b 25-class 'black notches at both shoulders' persist is a pixel question the round-7 captures answer)",
-    "child's foot still reads bare where its small toigo_mj_cloth_shoes (1004 tris) does not cover the foot \u2014 #332/#333 territory, out of scope this round; the mask no longer makes it black",
-    "faceted hairline edge (cosmetic; lowest priority)"
-   ],
-   "guesses": [
-    "the outer-facing/back-facing distinction (winding normal toward the stage front) is the render truth for 'does the cloth fill a discarded hole' \u2014 verified on the nurse jaw (collar back panel back-facing -> hole) and aisha chest (shirt front panel front-facing -> fills)",
-    "area sampling at 7 points per polygon catches the straddling class without needing a fitted seam threshold"
-   ]
-  },
-  {
-   "round": 8,
-   "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round8.glb (aisha), nurse-round8.glb, child-round8.glb",
-   "materializerChanges": [
-    "issue-341 round 8 hairline boundary regularization: after the round-5 forehead unpaint, the face-front strip (|x| <= fitted eye half-width) is snapped to the mesh's own edge ring \u2014 a scalp polygon stays scalp only if ALL its vertices sit above the strip's measured seam mean height (HAIRLINE_SNAP; aisha frac 0.9198, nurse 0.9199, child 0.9176). Makes the front hairline follow one edge ring instead of meandering.",
-    "model-vetting-glb-grade-capture.ts: captureViewWithScreenshot never passed hideMaskMagenta to the gallery captures (only the AABB self-check got it) \u2014 the round-7 --hide-mask-magenta captures were byte-identical. Now plumbed; studio-side swap made array-safe via apps/arena/model-vetting-studio/src/hide-mask-magenta.ts."
-   ],
-   "numbers": {
-    "flipRateCentralForeheadSeam": {
-     "mpfb-ob-patient-aisha": {
-      "pre": "67%",
-      "post": "65.6% (21/32)",
-      "meanH": "0.9363",
-      "scalpTris": 2364,
-      "medianStepMm": 14.2
-     },
-     "mpfb-peds-nurse-kevin": {
-      "pre": "60%",
-      "post": "6.3% (1/16)",
-      "meanH": "0.9517",
-      "scalpTris": 2384,
-      "medianStepMm": 1.5
-     },
-     "mpfb-peds-patient-child": {
-      "pre": "54%",
-      "post": "63.3% (19/30)",
-      "meanH": "0.9386",
-      "scalpTris": 2008,
-      "medianStepMm": 6.6
-     }
-    },
-    "approach": "chose the smooth-ring candidate (per-polygon assignment snapped to the mesh ring via a strict all-vertices-above rule) AFTER measuring: exhaustive search ruled out the horizontal-line, global-strict, majority-filter and median-row-snap variants at every height in the NET band [0.90,0.96] (finest sweep 0.001 H); none reach flip <= 25% for aisha/child with a meaningful seam (min 43.8-50%).",
-    "hideMaskMagenta": {
-     "fixed": true,
-     "rootCause": "flag was plumbed to the AABB self-check capture only; captureViewWithScreenshot (the gallery images) never received it, so round-7 magenta captures were byte-identical",
-     "verification": {
-      "magentaFrontLitSha256": "0779c3c64adb325bea0c2edf60fe1be2a14dc3019bf31b05989f7bb43668098d",
-      "plainFrontLitSha256": "4bae976ae7c5aa0f5c70818c0193a27992e77c684d83db0e68bb99f7cd87e8cd",
-      "differ": true,
-      "magentaPixelsSampled": 4190
-     }
-    }
+   "preFixChild": {
+    "tshirt": [
+     0.646,
+     0.835
+    ],
+    "spanFracH": 0.189
    },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round8/aisha-front_lit.png (from bake aisha-round8.glb)",
-    ".openclinxr/evidence/issue-341/captures/round8/nurse-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round8/child-front_lit.png"
-   ],
-   "stillWrong": [
-    "The planted flip-rate gate (<=25%) is NOT met for aisha (65.6%) or child (63.3%). Measured cause: the metric is amplitude-blind \u2014 it counts sign changes in dY at 1-micron sensitivity, and a boundary that follows triangle edges on this irregular MPFB head mesh alternates sub-mm at every vertex even when visually flat. Additionally the skin region's boundary has TWO components (the front-to-top fold arc at 0.90-0.93H and the crown-front at 0.985-0.988H) that alternate along x. A per-polygon boundary cannot be smooth (in the metric's sense) at this mesh density; the definitive fix is a per-pixel texture-mask hairline \u2014 the #343 route.",
-    "round-8 bakes NOT promoted over the shipped apps/ui-xr/public/generated-humanoids GLBs \u2014 the gate is not met for 2/3 actors (child's flip rate regresses 54->63 on the metric even though its visual median step halves 14.9->6.6mm); the materializer change is committed and the next accepted bake can produce them.",
-    "hairline edge remains faceted (cosmetic)"
-   ],
-   "guesses": [
-    "the hairline-snap height (seam mean of the face-front strip) is derived per-body from the current boundary; for aisha/child this does not flatten the seam enough for the metric because their front meshes have no clean ring at an in-band height",
-    "whether the orchestrator's pixel grade will read the tightened (aisha 27->14mm, child 15->6.6mm median step) hairline as improved despite the flip-rate metric moving little or regressing for the child"
-   ],
-   "inScopeVisual": {
-    "mpfb-ob-patient-aisha": {
-     "hairline_smooth": "yes \u2014 tightened to a 0.93H ring (median step 14.2mm vs 27.3mm)",
-     "hairline_at_right_height": "yes (meanH 0.9363 in [0.90,0.96])",
-     "scalp_present": "yes (2364 tris)"
-    },
-    "mpfb-peds-nurse-kevin": {
-     "hairline_smooth": "yes \u2014 flat 1.5mm ring (flip 6.3%)",
-     "hairline_at_right_height": "yes (meanH 0.9517)",
-     "scalp_present": "yes (2384 tris)"
-    },
-    "mpfb-peds-patient-child": {
-     "hairline_smooth": "partially \u2014 median step halved to 6.6mm but flip metric 63.3% (regressed)",
-     "hairline_at_right_height": "yes (meanH 0.9386)",
-     "scalp_present": "yes (2008 tris)"
-    }
+   "shirtPantsOverlap": {
+    "aisha": 0.012,
+    "nurse": 0.01,
+    "child": 0.011
    },
-   "notEvidenceFor_round8": [
-    "a clean pixel grade (orchestrator grades captures)",
-    "flip-rate gate satisfaction for aisha/child (metric is amplitude-blind at this mesh density)",
-    "clinical realism",
-    "production asset readiness",
-    "quest readiness"
-   ]
-  },
-  {
-   "round": 9,
-   "bakeGlb": [
-    ".openclinxr/evidence/issue-341/bakes/aisha-round9c.glb",
-    ".openclinxr/evidence/issue-341/bakes/nurse-round9c.glb",
-    ".openclinxr/evidence/issue-341/bakes/child-round9c.glb"
-   ],
-   "materializerChanges": [
-    "issue-341 round 9 \u2014 RENDER_TRUTH_REHIDE, the counterpart to round 7's monotone un-hide. Round 7's render-truth pass ONLY un-hides; a skin polygon the garment covers (or pokes) but the mask missed stays visible forever, and the measured orange/tan sawtooth at the shoulders, waistband and hems is round 7's own trade in a new colour (the same boundary, now rendering as SKIN). The re-hide follows the garments' own rims per-polygon with no fitted seam constant: (1) seam-band restore \u2014 the round-6 waistband band between the shirt hem and the pants top, re-applied AFTER round 7's lower un-hide removed it (round 6 hid exactly this band and graded clean); (2) poke envelope \u2014 a visible face whose nearest garment surface lies within the garment's OWN shipping envelope (CLOTH_STANDOFF_M=15mm, the factory's standoff, not a fitted constant) of the skin along the BODY's outward normal (signed clearance in [-CLOTH_STANDOFF_M, HIDE_EPSILON_M)) is a poke the garment covers from behind at render. Applied per-slot through the pipeline's own polygon-level clips (the #334 local-vertex head-joint bound and the #326 garment x/z silhouette re-clip) and scoped away from the hands."
-   ],
-   "numbers": {
-    "rehideFaces": {
-     "aisha": {
-      "band": 45,
-      "pokes": 508,
-      "applied": {
-       "upper": 306,
-       "lower": 24,
-       "foot": 198
-      }
-     },
-     "nurse": {
-      "band": 138,
-      "pokes": 3065,
-      "applied": {
-       "upper": 745,
-       "lower": 269,
-       "foot": 644
-      }
-     },
-     "child": {
-      "band": 116,
-      "pokes": 3329,
-      "applied": {
-       "upper": 216,
-       "lower": 427,
-       "foot": 474
-      }
-     }
-    },
-    "reclipRemoved": {
-     "aisha": {
-      "upper": 2,
-      "lower": 17,
-      "foot": 2
-     },
-     "nurse": {
-      "upper": 11,
-      "lower": 42,
-      "foot": 0
-     },
-     "child": {
-      "upper": 3,
-      "lower": 38,
-      "foot": 0
-     }
-    },
-    "gapMmGarmentVsMaskTop": {
-     "aisha": {
-      "shoulder_collar": -1.6,
-      "waistband": 1.1,
-      "shirt_hem": null,
-      "foot": -0.3
-     },
-     "nurse": {
-      "shoulder_collar": 12.5,
-      "waistband": -1.3,
-      "shirt_hem": null,
-      "foot": 0.2
-     },
-     "child": {
-      "shoulder_collar": 0.8,
-      "waistband": -1.2,
-      "shirt_hem": null,
-      "foot": -1.5
-     }
-    },
-    "noteGaps": "shirt-hem gap is closed by the LOWER-slot seam band (the hem band lives in the lower mask), so hidden_upper-bottom is not the right measure; the waistband/hem band is the lower mask. Negative = mask reaches AT/BEYOND the garment rim (within the 2mm slack). Nurse shoulder_collar 12.5mm is the #334 bound: the nurse's collar rides above his own head joint (0.921H vs 0.914H), and the re-clip refuses to push any mask above the joint \u2014 the neck/collar there stays skin (the jaw counterweight).",
-    "occlusionGate": {
-     "aisha": {
-      "eyes": "visible",
-      "eyesVisibleFraction": 0.7407,
-      "tshirtOccludedByOther": 0.0046,
-      "bootsOccludedByOther": 0.0123,
-      "pantsOccludedByOther": 0.0
-     },
-     "nurse": {
-      "eyes": "visible",
-      "eyesVisibleFraction": 0.6983,
-      "tshirtOccludedByOther": 0.0081,
-      "bootsOccludedByOther": 0.002,
-      "pantsOccludedByOther": 0.0483
-     },
-     "child": {
-      "eyes": "visible",
-      "eyesVisibleFraction": 0.819,
-      "tshirtOccludedByOther": 0.0177,
-      "bootsOccludedByOther": 0.0414,
-      "pantsOccludedByOther": 0.0248
-     }
-    },
-    "counterweights": {
-     "nurseJawIntact": "re-clip keeps every re-hide below the head joint (mask top 1.6074 vs joint 1.6080); round-7's un-hide of the jaw is untouched by the re-hide (its clearance to the shirt is beyond the envelope).",
-     "childShardsGone": "the re-hide only touches faces whose nearest shirt surface is within CLOTH_STANDOFF_M (15mm) \u2014 the loose adult-band t-shirt (2-5cm off, measured) keeps its round-7 un-hides; 216 upper faces were re-hidden where the shirt is close enough to fill the pixels. Pixel verdict pending.",
-     "footBandKnownGood": "aisha foot mask now 0.3mm ABOVE the shoe top (was 1mm BELOW) \u2014 the gap closed, no regression; nurse 0.2mm; child -1.5mm (unchanged from the shipped state)."
-    },
-    "headJointTest": "passes on the promoted GLBs (all masks below each body's own head joint)",
-    "maskFootprintTest": "clause (2) remains red with the SAME pre-existing foot-mask class (axis1 min 98.6/99.0mm, axis2 max 30.9/28.2mm \u2014 the foot mask legitimately extends below/forward of the upper+lower garment union; footwear is excluded from the garment union in that test). No NEW failure lines from this round (the x-over-reaches measured on round-9b are gone after the silhouette re-clip)."
-   },
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round9/aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/aisha-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round9/aisha-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/aisha-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round9/nurse-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/nurse-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round9/nurse-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/nurse-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round9/child-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/child-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round9/child-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round9/child-three_quarter_structure.png"
-   ],
-   "stillWrong": [
-    "nurse shoulder/collar 12.5mm: the collar rides above the head joint (#334), so the re-clip keeps the mask below the joint; the neck/collar skin there is bare by the jaw counterweight. Whether it reads as fringe is a pixel question.",
-    "aisha shirt-hem band: closed by the lower-slot seam band; the upper mask bottom still stops 5.7mm above the hem by itself, but the band covers it.",
-    "the hairline edge remains faceted (cosmetic, out of scope this round).",
-    "the child's adult-band garment placement (#332) untouched."
-   ],
-   "guesses": [
-    "the safe-re-hide reach is the factory's own shipping standoff CLOTH_STANDOFF_M (15mm) \u2014 the measured aisha waistband pokes run 0.4-18mm, so ~2 side faces at 16-18mm may remain visible as a thin hip fringe; the orchestrator's grade decides.",
-    "the re-hide of 216 child upper faces (shirt within 15mm) will render as the SHIRT, not black \u2014 the shirt surface is within the standoff envelope and fills the discarded pixels; round 7's loose-shirt shards (2-5cm) were untouched."
-   ]
-  },
-  {
-   "round": 11,
-   "bakeGlb": [
-    ".openclinxr/evidence/issue-341/bakes/aisha-round11.glb",
-    ".openclinxr/evidence/issue-341/bakes/nurse-round11.glb",
-    ".openclinxr/evidence/issue-341/bakes/child-round11.glb"
-   ],
-   "promotedTo": [
-    "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb"
-   ],
-   "materializerChanges": [
-    "issue-341 round 11 - PROMOTION, not re-invention. Round 10's texture-mask hairline machinery (apply_texture_mask_hairline, committed in dfd2433f) retired the per-polygon scalp material and moved the hair region into the baked skin baseColorTexture, but the shipped GLBs still carried the OLD per-polygon scalp (scalpPrims=1, measured by the orchestrator on dfd2433f). This round re-baked all three with the committed machinery and PROMOTED them, so scalpPrims=0 on the shipped bytes and the hairline is a boundary in the texture.",
-    "round 11 also committed the child Z-channel fallback that round 10 wrote but never committed (db047c7e said 'next commit'; there was none). The child's position-map Z channel bakes to flat 0 (posB=[0.000,0.000] on every bake; modifier-free duplicate, correct MapRange node values, R/G decode the crown correctly - a child-specific bake-evaluation quirk, crownZ raw 1.2410 vs evaluated 0.8840). The height classification has no input, so the composite falls back to image-space mask smoothing: a box majority-vote filter (binary median) over the per-polygon scalp mask in the face-front strip, radius derived from the mesh's own median UV edge length (1.5x = 6px on the child, matching round 10's measured radiusPx=6 / medianUvEdgePx=3.8478). No fitted constant; the eye-socket exclusion and the scalp retirement are preserved."
-   ],
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round11/aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/aisha-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round11/aisha-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/aisha-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round11/nurse-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/nurse-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round11/nurse-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/nurse-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round11/child-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/child-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round11/child-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round11/child-three_quarter_structure.png"
-   ],
-   "numbers": {
-    "scalpPrimsPromoted": {
-     "aisha": 0,
-     "nurse": 0,
-     "child": 0
-    },
-    "scalpPolygonsReassignedToSkin": {
-     "aisha": 1182,
-     "nurse": 1162,
-     "child": 1004
-    },
-    "textureHairlineMode": {
-     "aisha": "position-map level line (z-alive, posB [0.000,0.980])",
-     "nurse": "position-map level line (z-alive, posB [0.000,0.980])",
-     "child": "image-space mask smoothing fallback (posZMax=0.0, radiusPx=6, medianUvEdgePx=3.8478)"
-    },
-    "stripFlipRate": {
-     "aisha": 0.0938,
-     "nurse": 0.0,
-     "child": null
-    },
-    "stripBoundaryColumns": {
-     "aisha": 61,
-     "nurse": 2,
-     "child": 0
-    },
-    "textureCheckWholeWidth": {
-     "aisha": {
-      "boundaryFlipRate": 0.1019,
-      "boundaryColumns": 991,
-      "stepPxMedian": 1
-     },
-     "nurse": {
-      "boundaryFlipRate": 0.2281,
-      "boundaryColumns": 939,
-      "stepPxMedian": 1
-     },
-     "child": {
-      "boundaryFlipRate": 0.1168,
-      "boundaryColumns": 999,
-      "stepPxMedian": 1
-     }
-    },
-    "baselineRound9cWholeWidth": {
-     "aisha": 0.1014,
-     "nurse": 0.1312,
-     "child": 0.1168
-    },
-    "noteTextureMetric": "hairline-in-texture-check.mjs measures the hair region's lower boundary across the WHOLE texture width, including the temple/crown sides where the per-polygon mask edge still lives; the strip-level flip rate (the materializer's own TEXTURE_HAIRLINE JSON) measures the face-front level line. The nurse's whole-width rise 0.13->0.23 is the level line in UV space (world-horizontal maps to a wavy curve under the head unwrap), not a world-space change: the rendered hairline is the level set of the height field, smooth by construction. The pixel grade decides.",
-    "eyes": {
-     "textureBytes": {
-      "aisha": 610817,
-      "nurse": 610817,
-      "child": 610817
-     },
-     "distinctColours": {
-      "aisha": 65,
-      "nurse": 65,
-      "child": 65
-     }
-    },
-    "skin": {
-     "textureBytes": {
-      "aisha": 701871,
-      "nurse": 695490,
-      "child": 711538
-     },
-     "distinctColours": {
-      "aisha": 65,
-      "nurse": 65,
-      "child": 65
-     },
-     "tone": {
-      "aisha": "default [0.68,0.53,0.44]",
-      "nurse": "medium_warm [0.58,0.44,0.36]",
-      "child": "warm_light_child [0.84,0.70,0.60]"
-     }
-    },
-    "occlusionGatePostFix": {
-     "aisha": {
-      "eyesVisible": 0.787,
-      "eyesOccluder": "skin 0.213",
-      "tshirtOccludedByOther": 0.0046,
-      "bootsOccludedByOther": 0.0094
-     },
-     "nurse": {
-      "eyesVisible": 0.819,
-      "eyesOccluder": "skin 0.181",
-      "tshirtOccludedByOther": 0.0052,
-      "bootsOccludedByOther": 0.0016
-     },
-     "child": {
-      "eyesVisible": 0.836,
-      "eyesOccluder": "skin 0.164",
-      "tshirtOccludedByOther": 0.0177,
-      "bootsOccludedByOther": 0.0414
-     }
-    },
-    "seamGapsMmUnregressed": {
-     "aisha": {
-      "shoulder_collar": -1.6,
-      "waistband": 1.1
-     },
-     "nurse": {
-      "shoulder_collar": 12.5,
-      "waistband": -1.3
-     },
-     "child": {
-      "shoulder_collar": 0.8,
-      "waistband": -1.2
-     }
-    },
-    "noteSeamGaps": "round-11 bakes reproduce the round-9c geometry exactly: garment and hide-mask Y extents are byte-identical (rim-instrument.py on aisha/nurse/child round9c vs round11: tshirt, hidden_upper, pants, hidden_lower extents identical; visible-skin-in-band uncovered counts 2953/148/224 identical). AABB-derived gaps equal the round-9 recorded numbers.",
-    "counterweights": {
-     "nurseJawIntact": "render-truth re-hide applied identical to round 9 (RENDER_TRUTH_REHIDE total band 138 pokes 3065; #334 head-joint clip active)",
-     "childShardsGone": "render-truth re-hide applied identical to round 9 (band 116 pokes 3329; applied upper 216 / lower 427 / foot 474)",
-     "round7UnhideKept": "RENDER_TRUTH_UNHIDE still present (monotone un-hide preserved; the re-hide is the round-9 counterpart)"
-    },
-    "contractHairlineSeam": {
-     "result": "2 failed | 1 expected fail",
-     "explanation": "hairline-is-a-line-not-a-sawtooth.test.ts measures the GEOMETRIC seam between a scalp primitive and a skin primitive. The scalp primitive is gone (scalpPrims=0 on all three), so measure() returns null for every file and requireRows() fails. The RED it.fails passes (expected failure); the two NETs fail on the empty enumeration. This is the contracted 'contract loses its subject' outcome - not a weakening and not a deletion. Proposed texture-space replacement (next round): hairline-is-a-texture-line.test.ts asserting (1) scalpPrims==0 on all mpfb bodies (one mechanism for one boundary), (2) the skin primitive carries a baseColorTexture whose hair-region boundary step median <= 2 texels and flip rate <= 0.30 (generous; observed 0.10-0.23 whole-width, 0.00-0.09 strip-level), (3) the hairline stays in-band 0.90-0.96 H derived from the texture's own position information where the Z channel lives, with the image-space fallback row for the child."
-    }
-   }
-  },
-  {
-   "round": 13,
-   "bakeGlb": [
-    ".openclinxr/evidence/issue-341/bakes/aisha-round13.glb",
-    ".openclinxr/evidence/issue-341/bakes/nurse-round13.glb",
-    ".openclinxr/evidence/issue-341/bakes/child-round13.glb"
-   ],
-   "promotedTo": [
-    "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb"
-   ],
-   "materializerChanges": [
-    "issue-341 round 13 - PROMOTION ONLY. Round 12 (726ff9cf) committed the mesh-frame-independent hairline classification (raw-vertex h_world @ v.co splat through UV, hairline threshold = round-5 derived hairline_z, socket exclusion in the same frame, position-map classification removed) but changed no GLB. This round re-baked all three actors with that committed code and promoted them. The eye-socket darkening measured in round 12 (aisha eye [71,62,57] vs cheek [127,112,103]) is recovered in the promoted bytes: aisha eye socket [99,87,80] (round-9 known-good 103,91,83), nurse [75,66,60] (== known-good 75,66,60), child [94,86,79] (== known-good 94,86,80). Brow mean recovered aisha [10,9,8]->[53,47,43] (== known-good), nurse [20,16,15]->[93,82,75] (== known-good). Nose-bridge mean == known-good on all three. scalpPrims=0 preserved on all three; hairline strip flip rate 0.0 (bake JSON) / whole-width 0.1019/0.1312/0.1168 (unchanged from round-11 baseline). Eyes 610,817 B / 172 tris intact. Per-body hairline derivation is structural and now demonstrated on all three statures (aisha 1.6192, nurse 1.7139, child 1.2151)."
-   ],
-   "captures": [
-    ".openclinxr/evidence/issue-341/captures/round13/aisha-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/aisha-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round13/aisha-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/aisha-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round13/nurse-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/nurse-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round13/nurse-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/nurse-three_quarter_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round13/child-front_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/child-front_structure.png",
-    ".openclinxr/evidence/issue-341/captures/round13/child-three_quarter_lit.png",
-    ".openclinxr/evidence/issue-341/captures/round13/child-three_quarter_structure.png"
-   ],
-   "numbers": {
-    "scalpPrimsPromoted": {
-     "aisha": 0,
-     "nurse": 0,
-     "child": 0
-    },
-    "hairlineStripFlipRate": {
-     "aisha": 0.0,
-     "nurse": 0.0,
-     "child": 0.0
-    },
-    "hairlineWholeWidthFlipRate": {
-     "aisha": 0.1019,
-     "nurse": 0.1312,
-     "child": 0.1168
-    },
-    "hairlineZDerived": {
-     "aisha": 1.6192,
-     "nurse": 1.7139,
-     "child": 1.2151
-    },
-    "eyeSocketMeanRGB": {
-     "aisha": [
-      99,
-      87,
-      80
-     ],
-     "nurse": [
-      75,
-      66,
-      60
-     ],
-     "child": [
-      94,
-      86,
-      79
-     ]
-    },
-    "eyeSocketKnownGoodRound9": {
-     "aisha": [
-      103,
-      91,
-      83
-     ],
-     "nurse": [
-      75,
-      66,
-      60
-     ],
-     "child": [
-      94,
-      86,
-      80
-     ]
-    },
-    "browMeanRGB": {
-     "aisha": [
-      53,
-      47,
-      43
-     ],
-     "nurse": [
-      93,
-      82,
-      75
-     ],
-     "child": [
-      67,
-      61,
-      57
-     ]
-    },
-    "browKnownGoodRound9": {
-     "aisha": [
-      53,
-      47,
-      43
-     ],
-     "nurse": [
-      93,
-      82,
-      75
-     ],
-     "child": [
-      67,
-      61,
-      57
-     ]
-    },
-    "noseBridgeMeanRGB": {
-     "aisha": [
-      142,
-      124,
-      114
-     ],
-     "nurse": [
-      123,
-      106,
-      97
-     ],
-     "child": [
-      139,
-      126,
-      117
-     ]
-    },
-    "noseBridgeKnownGoodRound9": {
-     "aisha": [
-      142,
-      124,
-      114
-     ],
-     "nurse": [
-      123,
-      106,
-      97
-     ],
-     "child": [
-      139,
-      126,
-      117
-     ]
-    },
-    "cheekControlMeanRGB": {
-     "aisha": [
-      127,
-      112,
-      103
-     ],
-     "nurse": [
-      67,
-      59,
-      54
-     ],
-     "child": [
-      155,
-      142,
-      132
-     ]
-    },
-    "eyeTextureBytes": {
-     "aisha": 610817,
-     "nurse": 610817,
-     "child": 610817
-    },
-    "skinTextureBytes": {
-     "aisha": 705112,
-     "nurse": 707771,
-     "child": 712724
-    },
-    "gradeCaptureSelfCheck": {
-     "agreed": 3,
-     "refused": 0,
-     "missingOnDisk": 0
-    }
-   },
-   "stillWrong": [
-    "orchestrator pixel grade pending - round 13 is promotion; the seam-fringe residual and the child's adult-band garment placement (#332) are out of scope and were not touched"
-   ],
-   "guesses": [
-    "none - promotion of committed code; no new constants or mechanisms introduced this round"
-   ]
-  }
- ],
- "occlusionPostFix": {
-  "aisha": {
-   "eyes": "visible (0.787)",
-   "tshirt": "visible (0.0046 occluded)",
-   "boots": "visible (0.0094 occluded)"
-  },
-  "nurse": {
-   "eyes": "visible (0.819)",
-   "tshirt": "visible (0.0052 occluded)",
-   "boots": "visible (0.0016 occluded)"
-  },
-  "child": {
-   "eyes": "visible (0.836)",
-   "tshirt": "visible (0.0177 occluded)",
-   "boots": "visible (0.0414 occluded)"
+   "legBandCoverageRestored": "pants tris >= skin tris in ankle-thigh band on all three (aisha 2040/1878, nurse 1942/1714, child 2108/1854) \u2014 pre-fix shell pattern restored"
   }
  },
- "captures": [
-  ".openclinxr/evidence/issue-341/captures/round11/aisha-front_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/aisha-front_structure.png",
-  ".openclinxr/evidence/issue-341/captures/round11/aisha-three_quarter_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/aisha-three_quarter_structure.png",
-  ".openclinxr/evidence/issue-341/captures/round11/nurse-front_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/nurse-front_structure.png",
-  ".openclinxr/evidence/issue-341/captures/round11/nurse-three_quarter_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/nurse-three_quarter_structure.png",
-  ".openclinxr/evidence/issue-341/captures/round11/child-front_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/child-front_structure.png",
-  ".openclinxr/evidence/issue-341/captures/round11/child-three_quarter_lit.png",
-  ".openclinxr/evidence/issue-341/captures/round11/child-three_quarter_structure.png"
- ],
+ "occlusionPostFix": {
+  "aisha": {
+   "eyes": "visible (0.1944 occluded-by-socket-skin)",
+   "tshirt": "visible (0.0)",
+   "boots": "visible (0.0033)"
+  },
+  "nurse": {
+   "eyes": "visible (0.2155 occluded-by-socket-skin)",
+   "tshirt": "visible (0.0027)",
+   "boots": "visible (0.0052)"
+  },
+  "child": {
+   "eyes": "visible (0.1983 occluded-by-socket-skin)",
+   "tshirt": "visible (0.065)",
+   "boots": "visible (0.0)"
+  }
+ },
+ "captures": ".openclinxr/evidence/issue-341/captures/round15/ (front + three_quarter, lit + structure, per actor; gallery.json)",
+ "contracts": {
+  "hair-covers-both-sides-of-the-head": "3/3 pass",
+  "eyes-have-an-iris": "3/3 pass",
+  "changed": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb (+ aisha + nurse)"
+ },
  "stillWrong": [
-  "residual skin occluder in front of the eyes from some ray directions (aisha 0.213 / nurse 0.181 / child 0.164 of eye tris occluded-by-skin, not scalp) - the socket skin ring around the fitted eye; whether it reads as a defect is a pixel question",
-  "whole-width texture boundary alternation is higher for the nurse (0.2281) than round 9's per-polygon baseline (0.1312) because the level line is wavy in UV space; the rendered level-set hairline is smooth by construction (pixel grade decides)",
-  "on-disk .skin-baked.png provenance files under generated-humanoids were NOT updated (round-9 promotion convention promoted GLBs only); the embedded textures in the shipped GLBs carry the hair region"
+  "eye-socket skin ring occludes the fitted eyes from some ray directions (0.19-0.22 of eye tris) \u2014 pre-existing, pixel question",
+  "on-disk .skin-baked.png sidecars under generated-humanoids still carry the previous bake \u2014 the text-only worker's permission policy denies copying them; the new bakes' textures are embedded in the promoted GLBs and the fresh PNGs are under .openclinxr/evidence/issue-341/round15-measure/",
+  "nurse's shirt top (0.859 H) is below the old shipped 0.920 \u2014 the old value came from the phantom (taller) body; the new value is the true body's neck, consistent with aisha (0.843)"
  ],
  "guesses": [
-  "the child's Z-channel zero is treated as the round-10 'child-specific bake-evaluation quirk' (crownZ raw 1.2410 vs evaluated 0.8840, modifier-free duplicate, correct MapRange); the image-space mask-smoothing fallback is the round-10-approved path and is reported as such, not as a Z fix",
-  "radiusPx=6 for the child fallback is derived as 1.5x the median UV edge (3.8478px) - it matches round 10's shipped parameter but the 1.5x factor is my derivation, not round 10's recorded reasoning"
+  "none required for the fix: the phantom-frame refs, basis refs, shape-key list, and y_size were all measured at fit time on the child vs aisha control",
+  "whether the raw 392-tri cargo fit would have graded as see-through without the shell restore is inferred from the recorded #220 finding, not from a pixel grade (text-only worker)"
  ],
- "claimScope": "all three MPFB actors re-baked with the committed round-10 texture-mask hairline machinery plus the round-11 child Z fallback, and PROMOTED to the shipped generated-humanoids paths (scalpPrims=0 on the shipped bytes). Flip rates, scalp counts, texture bytes, occlusion numbers and seam gaps measured on the promoted artifacts. The pixel grade is the orchestrator's.",
+ "claimScope": "the child's shirt span defect is fixed and the lower garment restored to the shipped cover-shell state; hair/eyes/skin known-good columns hold per the planted contracts",
  "notEvidenceFor": [
-  "a clean pixel grade (orchestrator grades captures)",
-  "clinical realism",
+  "clinical validity",
+  "scoring validity",
   "production asset readiness",
-  "quest readiness"
+  "a full pixel-grade pass \u2014 the orchestrator grades captures/round15"
  ]
 }
