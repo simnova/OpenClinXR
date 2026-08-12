@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 2,
+  "tick": 3,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T04:26:00.000Z",
-  "lastAction": "re-verify exam_table INFERRED -> VERIFIED CC BY 4.0 (Sketchfab API; downloadable, 7940 tris)",
-  "nextPriority": "re-verify curtain+monitor INFERRED OR bed bank acquire once token appears",
+  "lastTickAt": "2026-08-12T04:41:00.000Z",
+  "lastAction": "re-verify curtain+vitals-monitor INFERRED -> VERIFIED CC BY 4.0 (Sketchfab API; downloadable, 8812 tris); curious researcher spawned on download path + CC0 bed alternatives (019ff445)",
+  "nextPriority": "bed bank acquire once token appears (all 4 top assets VERIFIED+downloadable) OR wire existing parametric GLBs into bank map",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

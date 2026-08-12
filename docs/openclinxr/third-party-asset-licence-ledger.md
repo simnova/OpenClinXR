@@ -51,7 +51,7 @@ Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 00
 | IV Stand (teeart) [Sketchfab](https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9) | **CC BY 4.0 VERIFIED** · ~5k tris | IV pole alt | Optional; bank already has iv-pole GLB |
 | Hospital Stretcher Trolley (UsmanAzhar2256) [Sketchfab](https://sketchfab.com/3d-models/hospital-stretcher-trolley-edfeb93b201b4c8da2c7a4fb5dea090c) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~2.2k tris | stretcher | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
 | Exam Table (orphic_oasis8) [Sketchfab](https://sketchfab.com/3d-models/exam-table-459c00d5a0524c67a4ad2fa5c6eacb15) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~7.9k tris · downloadable | exam table | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
-| Bed Curtain + Vital Signs Monitor (Ethan Cragun) | CC BY 4.0 **INFERRED** | curtain + monitor | Re-read; covers unmapped privacy curtain prose |
+| Bed Curtain + Vital Signs Monitor (Ethan Cragun) [Sketchfab](https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71) | **CC BY 4.0 VERIFIED** (API re-read 2026-08-12) · ~8.8k tris · downloadable | curtain + monitor | **Acquire** with attribution; needs `SKETCHFAB_API_TOKEN` |
 | Emergency Cart (tutminchai) | CC BY 4.0 **INFERRED** · ~412k tris | crash cart | Only if decimation budget accepted; else keep kit ECG cart |
 | Poly Haven wheelchair_01 | **CC0 VERIFIED** (site-wide) | wheelchair | Optional; not in current bank scenarios |
 | OpenGameArt small hospital bed (qubodup) | CC BY 3.0 **INFERRED** · 540 tris | bed alt | Re-read page; cheapest bed |
