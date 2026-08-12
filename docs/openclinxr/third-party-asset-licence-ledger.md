@@ -37,6 +37,26 @@ row carries a **replacement posture**, not just a licence.
 | source | why refused | date |
 |---|---|---|
 | `haireditor` ([pack page](https://static.makehumancommunity.org/assets/assetpacks/haireditor.html)) — geometry-nodes hair/fur, `hair.blend` + `fur.blend`, ~12 MB | **No licence stated on the source page.** This is the pack MPFB's own `haireditorservices.py` looks for (`get_hair_blend_path`), and it is the procedural route that would best satisfy D2 — so it is the one worth chasing a clarification on. Until then, unspecified is a refusal. | 2026-08-11 |
+| Sketchfab Medical Monitor (pistonstone / Medical Modeller) [model](https://sketchfab.com/3d-models/medical-monitor-8d9b3789c39b4c789cb9e4b45bc6aa3a) | **API licence null + not downloadable.** Search snippets called it free; API said no licence. Unspecified = refusal. | 2026-08-12 |
+| Sketchfab Medical Cart (yazzywazzy) [model](https://sketchfab.com/3d-models/medical-cart-d5e03bd688394269be0ad02b8f9aae62) | **CC BY-SA** (ShareAlike not in allowed set). | 2026-08-12 |
+| Sketchfab Patient Monitor (Guardiano) [model](https://sketchfab.com/3d-models/patient-monitor-ce4b4459e9fa4713b56d1385997aac5b) | **CC BY-NC** (non-commercial not allowed). | 2026-08-12 |
+
+## Equipment candidates (NOT acquired — staging only, 2026-08-12)
+
+Full table + poly counts: `docs/openclinxr/equipment-oss-candidates.md`. MADR 0054 lane-1 bank path; acquire only after licence-tab re-verify for INFERRED rows.
+
+| source | licence (status) | subject | next action |
+|---|---|---|---|
+| Hospital Bed (Matt LeMoine) [Sketchfab](https://sketchfab.com/3d-models/hospital-bed-9cd9464990d2456e98b69978447852aa) | **CC BY 4.0 VERIFIED** (API) · ~3k tris | `hospital_bed_equipment` | **Priority acquire** with attribution; post-opt if needed (0050) |
+| IV Stand (teeart) [Sketchfab](https://sketchfab.com/3d-models/iv-stand-dd3115aafb0e4a628f261d0de7a787b9) | **CC BY 4.0 VERIFIED** · ~5k tris | IV pole alt | Optional; bank already has iv-pole GLB |
+| Hospital Stretcher Trolley (UsmanAzhar2256) | CC BY 4.0 **INFERRED** | stretcher | Re-read licence tab, then acquire |
+| Exam Table (orphic_oasis8) | CC BY 4.0 **INFERRED** | exam table | Re-read licence tab, then acquire |
+| Bed Curtain + Vital Signs Monitor (Ethan Cragun) | CC BY 4.0 **INFERRED** | curtain + monitor | Re-read; covers unmapped privacy curtain prose |
+| Emergency Cart (tutminchai) | CC BY 4.0 **INFERRED** · ~412k tris | crash cart | Only if decimation budget accepted; else keep kit ECG cart |
+| Poly Haven wheelchair_01 | **CC0 VERIFIED** (site-wide) | wheelchair | Optional; not in current bank scenarios |
+| OpenGameArt small hospital bed (qubodup) | CC BY 3.0 **INFERRED** · 540 tris | bed alt | Re-read page; cheapest bed |
+
+**Structural note:** no CC0 ward bed / IV pole / crash cart pack found. External equipment path is CC-BY + attribution (same as scrub-shirt), or stay thin_parametric (lane 2).
 
 ## Licence uncertainties surfaced 2026-08-11 (researcher; NOT resolved)
 
