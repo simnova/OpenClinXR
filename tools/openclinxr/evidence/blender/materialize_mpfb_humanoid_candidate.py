@@ -692,8 +692,6 @@ def apply_texture_mask_hairline(
             _u = _uv_layer[_li].uv
             _tx = int(_u.x * resolution) % resolution
             _ty = int((1.0 - _u.y) * resolution) % resolution
-            if _poly.material_index == scalp_idx:
-                _scalp_region[_ty, _tx] = True
             if abs(_p.x) <= eye_half_w and _p.y <= forehead_plane and _p.z >= head_z0:
                 _face_band[_ty, _tx] = True
                 if hairline_z is not None and _p.z >= hairline_z:
@@ -719,20 +717,46 @@ def apply_texture_mask_hairline(
     _face_band = _dilate(_face_band)
     _above_hair = _dilate(_above_hair)
     _socket = _dilate(_socket)
-    # issue-341 round 14 — the composite mask is the union of the Cycles BAKE and
-    # the splatted scalp region. Measured on the array (ARRAY_TRUTH): the hair
-    # boolean from the splat alone is symmetric but leaves BLACK HOLES — the skin
-    # bake skips the scalp-material polys (they are not skin at bake time), so
-    # their UV triangles are (0,0,0) in the skin texture, and a corner splat plus
-    # the UV-scale dilation does not fill every poly interior (the left crown's UV
-    # island has lower texel density, so its interiors stay black → the texture
-    # reads dark-left even with symmetric hair). The BAKE covers full UV triangles
-    # (no holes) but mis-assigns the right crown (the basemesh UV overlap). The
-    # union keeps the bake's full coverage and the splat's region truth: neither
-    # defect survives.
-    mask_baked = np.array(mask_img.pixels[:], dtype=np.float32).reshape(w, h, 4)[..., 0] > 0.5
-    _scalp_region = _dilate(_scalp_region)
-    mask_a = np.maximum(mask_baked, _scalp_region).astype(np.float32)
+    # issue-341 round 14 — the composite mask is the scalp region RASTERIZED from
+    # the mesh (full UV-triangle coverage), not the Cycles bake and not a corner
+    # splat. Both alternatives were measured defective on the array:
+    #   * the BAKE covers full triangles but mis-assigns the right crown (basemesh
+    #     UV-overlap: own-poly cross-tab L scalp_white 335/black 8, R 256/87).
+    #   * a corner splat + UV-scale dilation is symmetric but leaves BLACK HOLES —
+    #     the skin bake skips the scalp-material polys (they are not skin at bake
+    #     time), so their UV triangles are (0,0,0); the left crown's UV island has
+    #     lower texel density so its interiors stay black (ARRAY_TRUTH L dark 460
+    #     vs hair 336, R 336/336 on the splat-only composite).
+    # The rasterization is the region truth AND the full coverage: deterministic,
+    # frame-consistent, and immune to both defects. The bake still runs for the
+    # provenance PNG and stats, but its output does not feed the composite.
+    def _rasterize_tri(_mask, _tri):
+        _xs = [_p[0] * resolution for _p in _tri]
+        _ys = [(1.0 - _p[1]) * resolution for _p in _tri]
+        _x0 = max(0, int(min(_xs)))
+        _x1 = min(resolution - 1, int(max(_xs)))
+        _y0 = max(0, int(min(_ys)))
+        _y1 = min(resolution - 1, int(max(_ys)))
+        if _x1 < _x0 or _y1 < _y0:
+            return
+        _gx, _gy = np.meshgrid(np.arange(_x0, _x1 + 1) + 0.5, np.arange(_y0, _y1 + 1) + 0.5)
+        (_ax, _ay), (_bx, _by), (_cx, _cy) = zip(*[_xs, _ys])
+        _e0 = (_bx - _ax) * (_gy - _ay) - (_by - _ay) * (_gx - _ax)
+        _e1 = (_cx - _bx) * (_gy - _by) - (_cy - _by) * (_gx - _bx)
+        _e2 = (_ax - _cx) * (_gy - _cy) - (_ay - _cy) * (_gx - _cx)
+        _inside = ((_e0 >= 0) & (_e1 >= 0) & (_e2 >= 0)) | ((_e0 <= 0) & (_e1 <= 0) & (_e2 <= 0))
+        _mask[_y0:_y1 + 1, _x0:_x1 + 1][_inside] = True
+
+    _scalp_raster = np.zeros((resolution, resolution), dtype=bool)
+    for _poly in human.data.polygons:
+        if _poly.material_index != scalp_idx:
+            continue
+        _pts = [_uv_layer[_li].uv for _li in range(_poly.loop_start, _poly.loop_start + _poly.loop_total)]
+        if len(_pts) < 3:
+            continue
+        for _k in range(1, len(_pts) - 1):
+            _rasterize_tri(_scalp_raster, (_pts[0], _pts[_k], _pts[_k + 1]))
+    mask_a = _scalp_raster.astype(np.float32)
     # the eye/brow/nose region: the face-front socket band BELOW the hairline is
     # never hair — the eyes and brows render through the skin texture (#340's eye
     # mesh is separate geometry and is unaffected). Above the hairline the
