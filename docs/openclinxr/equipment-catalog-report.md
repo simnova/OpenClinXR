@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T09:54:41.936Z
+- measuredAt: 2026-08-12T09:58:32.626Z
 - scenarios: 14
 - equipment rows: 51
 - lanes: {"bank":4,"thin_parametric":46,"modular_kit":1}
 - runtimeSource: {"parametric":47,"gltf":4}
-- unmapped prose: 3
+- unmapped prose: 0
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)

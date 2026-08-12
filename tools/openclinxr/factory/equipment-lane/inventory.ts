@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { scenarioBank } from "../../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.ts";
-import { resolveProseToEquipmentId } from "./prose-map.js";
+import { resolveDeferredNonEquipment, resolveProseToEquipmentId } from "./prose-map.js";
 import {
   defaultBuilderSymbol,
   defaultLaneFor,
@@ -66,22 +66,33 @@ export function rebuildEquipmentCatalog(repoRoot: string = REPO_ROOT): Equipment
   const idAliases = new Map<string, Set<string>>();
   const idScenarios = new Map<string, Set<string>>();
   const unmappedProse: EquipmentCatalogDocument["unmappedProse"] = [];
+  const deferredProse: EquipmentCatalogDocument["deferredProse"] = [];
 
   for (const [prose, scenarioIds] of proseScenarios) {
     const resolved = resolveProseToEquipmentId(prose);
-    if (!resolved) {
-      unmappedProse.push({
+    if (resolved) {
+      if (!idAliases.has(resolved)) idAliases.set(resolved, new Set());
+      if (!idScenarios.has(resolved)) idScenarios.set(resolved, new Set());
+      idAliases.get(resolved)!.add(prose);
+      for (const sid of scenarioIds) idScenarios.get(resolved)!.add(sid);
+      continue;
+    }
+    const deferred = resolveDeferredNonEquipment(prose);
+    if (deferred) {
+      deferredProse.push({
         prose,
         scenarioIds: [...scenarioIds].sort(),
-        recommendedEquipmentId: null,
-        reason: "no prose-map entry",
+        class: deferred.class,
+        reason: deferred.reason,
       });
       continue;
     }
-    if (!idAliases.has(resolved)) idAliases.set(resolved, new Set());
-    if (!idScenarios.has(resolved)) idScenarios.set(resolved, new Set());
-    idAliases.get(resolved)!.add(prose);
-    for (const sid of scenarioIds) idScenarios.get(resolved)!.add(sid);
+    unmappedProse.push({
+      prose,
+      scenarioIds: [...scenarioIds].sort(),
+      recommendedEquipmentId: null,
+      reason: "no prose-map entry",
+    });
   }
 
   // Include all builder ids and glb map keys
@@ -181,11 +192,13 @@ export function rebuildEquipmentCatalog(repoRoot: string = REPO_ROOT): Equipment
     equipmentCount: rows.length,
     rows,
     unmappedProse: unmappedProse.sort((a, b) => a.prose.localeCompare(b.prose)),
+    deferredProse: deferredProse.sort((a, b) => a.prose.localeCompare(b.prose)),
     summary: {
       byLane,
       byRuntimeSource,
       gltfMissingOnDisk,
       scenariosWithUnmappedProse,
+      deferredProseCount: deferredProse.length,
     },
   };
 }

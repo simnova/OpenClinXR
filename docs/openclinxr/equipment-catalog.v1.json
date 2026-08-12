@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T09:54:41.936Z",
+  "measuredAt": "2026-08-12T09:58:32.626Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -1324,30 +1324,31 @@
       "notes": ""
     }
   ],
-  "unmappedProse": [
+  "unmappedProse": [],
+  "deferredProse": [
     {
       "prose": "joint diagram",
       "scenarioIds": [
         "primary_care_dyslipidemia_joint_pain_v1"
       ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
+      "class": "education_poster",
+      "reason": "education poster / chart — not a mountable equipment builder class"
     },
     {
       "prose": "neuro exam card",
       "scenarioIds": [
         "ed_stroke_alert_handoff_v1"
       ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
+      "class": "handheld_cognitive_aid",
+      "reason": "handheld cognitive-aid card — not room equipment geometry"
     },
     {
       "prose": "soft lighting",
       "scenarioIds": [
         "oncology_bad_news_family_v1"
       ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
+      "class": "environment_lighting",
+      "reason": "environment lighting cue — not equipment; room/light system owns it"
     }
   ],
   "summary": {
@@ -1361,10 +1362,7 @@
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
-    "scenariosWithUnmappedProse": [
-      "ed_stroke_alert_handoff_v1",
-      "oncology_bad_news_family_v1",
-      "primary_care_dyslipidemia_joint_pain_v1"
-    ]
+    "scenariosWithUnmappedProse": [],
+    "deferredProseCount": 3
   }
 }

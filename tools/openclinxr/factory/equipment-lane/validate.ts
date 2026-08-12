@@ -48,7 +48,7 @@ export function validateEquipmentCatalog(doc: EquipmentCatalogDocument): Validat
     errors.push(`gltf missing on disk: ${missing}`);
   }
 
-  // Soft: unmapped prose is warning until allowlist emptied (iter 1 closes)
+  // True gaps only — deferred non-equipment is classified, not a warning
   for (const u of doc.unmappedProse) {
     warnings.push(
       `unmapped prose "${u.prose}" in ${u.scenarioIds.join(",")}: ${u.reason}`,

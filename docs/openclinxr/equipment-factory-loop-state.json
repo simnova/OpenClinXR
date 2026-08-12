@@ -1,16 +1,16 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
-  "active": true,
-  "tick": 24,
+  "active": false,
+  "tick": 25,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T10:35:00.000Z",
-  "lastAction": "tick24 ECG kit rebase doc refreshed (priority b): merge-base f70ff1d2, main +58, branch +10, package.json conflict LIVE (0 vs 4 catalog scripts) — no blind merge; cadence consults spawned (researcher + architect) but outputs did not land (harness not-found); next: (c) deferred prose classification",
-  "nextPriority": "(c) deferred non-equipment prose classification — implement minimal honest mechanism (prose-map.ts DEFERRED_NON_EQUIPMENT set + inventory route + types field + validate/report) for joint diagram / neuro exam card / soft lighting so unmappedProse 3->0; with deck already deferred this meets the stop condition → record terminal state; NO image Read",
+  "lastTickAt": "2026-08-12T10:58:00.000Z",
+  "lastAction": "orchestrator: deferred non-equipment prose classification — unmappedProse 3→0; deck already deferred; LOOP STOP CONDITION MET (fills phase complete)",
+  "nextPriority": "DEDICATED SLICES ONLY: (1) ECG kit rebase+merge from feature/equipment-kit-approach-b preserving catalog CLI; (2) Sketchfab token or browser GRADD acquire if clinical-looking bed wanted; (3) optional re-enable loop for pack grade",
   "researcherEveryN": 3,
   "architectEveryN": 4,
-  "failureClass": "deepseek_no_image_url",
+  "terminalReason": "unmappedProse=0 + deck surfaces explicitly deferred + all real equipment classes mapped + PARAMETRIC_KINDS closed",
   "stopWhen": [
     "PROJECT_STATUS PAUSED or equipment-factory STOP",
     "unmappedProse=0 and deck surfaces banked or explicitly deferred"

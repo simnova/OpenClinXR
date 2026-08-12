@@ -85,13 +85,43 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "incentive spirometer": "incentive_spirometer_equipment",
   // Stepdown sepsis blood-culture collection set — dedicated thin parametric id.
   "blood-culture kit": "blood_culture_kit_equipment",
-  // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // joint diagram, neuro exam card, soft lighting — non-equipment classes
-  // (education poster / handheld cognitive-aid card / environment lighting);
-  // factory honesty > silent fallback.
+};
+
+/**
+ * Scenario-bank strings that are NOT runtime equipment (MADR 0054 honesty).
+ * Classified so they leave unmappedProse=0 without fake equipment ids.
+ * Lowercased keys.
+ */
+export type DeferredNonEquipmentClass =
+  | "education_poster"
+  | "handheld_cognitive_aid"
+  | "environment_lighting";
+
+export const DEFERRED_NON_EQUIPMENT: Readonly<
+  Record<string, { class: DeferredNonEquipmentClass; reason: string }>
+> = {
+  "joint diagram": {
+    class: "education_poster",
+    reason: "education poster / chart — not a mountable equipment builder class",
+  },
+  "neuro exam card": {
+    class: "handheld_cognitive_aid",
+    reason: "handheld cognitive-aid card — not room equipment geometry",
+  },
+  "soft lighting": {
+    class: "environment_lighting",
+    reason: "environment lighting cue — not equipment; room/light system owns it",
+  },
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {
   const key = prose.trim().toLowerCase();
   return PROSE_TO_EQUIPMENT_ID[key] ?? null;
+}
+
+export function resolveDeferredNonEquipment(
+  prose: string,
+): { class: DeferredNonEquipmentClass; reason: string } | null {
+  const key = prose.trim().toLowerCase();
+  return DEFERRED_NON_EQUIPMENT[key] ?? null;
 }

@@ -59,10 +59,18 @@ export type EquipmentCatalogDocument = {
     recommendedEquipmentId: string | null;
     reason: string;
   }>;
+  /** Scenario strings classified as non-equipment (not errors). */
+  deferredProse: Array<{
+    prose: string;
+    scenarioIds: string[];
+    class: string;
+    reason: string;
+  }>;
   summary: {
     byLane: Record<EquipmentLane, number>;
     byRuntimeSource: Record<string, number>;
     gltfMissingOnDisk: string[];
     scenariosWithUnmappedProse: string[];
+    deferredProseCount: number;
   };
 };

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { rebuildEquipmentCatalog } from "./inventory.js";
 import { validateEquipmentCatalog } from "./validate.js";
-import { resolveProseToEquipmentId } from "./prose-map.js";
+import { resolveDeferredNonEquipment, resolveProseToEquipmentId } from "./prose-map.js";
 
 describe("equipment catalogue (MADR 0054/0055)", () => {
   it("resolves core prose labels", () => {
@@ -10,6 +10,11 @@ describe("equipment catalogue (MADR 0054/0055)", () => {
       "12_lead_ecg_machine_equipment",
     );
     expect(resolveProseToEquipmentId("stretcher")).toBe("stretcher_equipment");
+  });
+
+  it("classifies non-equipment prose as deferred, not equipment ids", () => {
+    expect(resolveDeferredNonEquipment("soft lighting")?.class).toBe("environment_lighting");
+    expect(resolveProseToEquipmentId("soft lighting")).toBeNull();
   });
 
   it("rebuilds catalogue covering full scenario bank and builders", () => {
@@ -21,6 +26,10 @@ describe("equipment catalogue (MADR 0054/0055)", () => {
     expect(doc.summary.byLane.thin_parametric + doc.summary.byLane.bank + doc.summary.byLane.modular_kit).toBe(
       doc.equipmentCount,
     );
+    // Non-equipment prose classified (loop stop condition)
+    expect(doc.unmappedProse).toHaveLength(0);
+    expect(doc.deferredProse.length).toBeGreaterThanOrEqual(3);
+    expect(doc.summary.deferredProseCount).toBe(doc.deferredProse.length);
   });
 
   it("validates a fresh inventory without hard errors on glb files present", () => {
