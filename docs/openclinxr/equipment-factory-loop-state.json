@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 13,
+  "tick": 14,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T07:10:00.000Z",
-  "lastAction": "honest map: urine cup (OB triage) -> new thin parametric id urine_cup_equipment (own module; unmapped prose 7->6)",
-  "nextPriority": "next honest map (drain / incentive spirometer / blood-culture kit) OR ECG kit merge check; tick-12 consult outputs unlanded - respawn at next cadence with explicit file-write instruction",
+  "lastTickAt": "2026-08-12T07:25:00.000Z",
+  "lastAction": "honest map: drain (post-op fever) -> new thin parametric id drain_equipment (own module; unmapped prose 6->5)",
+  "nextPriority": "next honest map (incentive spirometer / blood-culture kit) OR ECG kit merge check; tick 15 = researcher cadence (respawn with explicit file-write); builders 597/600 - compress dispatcher cases if next fill exceeds",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

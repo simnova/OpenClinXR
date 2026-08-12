@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T07:10:04.819Z",
+  "measuredAt": "2026-08-12T07:24:50.210Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 48,
+  "equipmentCount": 49,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -290,6 +290,31 @@
       ],
       "scenarioIds": [
         "peds_fever_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
+      "equipmentId": "drain_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildDrainEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "drain"
+      ],
+      "scenarioIds": [
+        "postop_fever_consult_pressure_v1"
       ],
       "midbandStatus": "none",
       "licenceStatus": "n/a",
@@ -1259,14 +1284,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "drain",
-      "scenarioIds": [
-        "postop_fever_consult_pressure_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "incentive spirometer",
       "scenarioIds": [
         "postop_fever_consult_pressure_v1"
@@ -1302,11 +1319,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 43,
+      "thin_parametric": 44,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 44,
+      "parametric": 45,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
