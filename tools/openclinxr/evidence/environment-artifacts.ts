@@ -360,10 +360,10 @@ function buildQuestBudget(generatedAt: string) {
       colliderStrategy: "primitive_zone_colliders",
     },
     currentBundleEstimate: {
-      environmentTriangles: 680,
-      // #345: baked albedo+AO baseColorTextures on all 15 shell materials (~9.9 MB
-      // at 1024px). Measured on the baked shell GLB; not a budget change.
-      staticTextureMegabytes: 10,
+      environmentTriangles: 792,
+      // #345: baked albedo+AO baseColorTextures on all 29 shell materials (~16.3 MB
+      // at 1024px, measured on the merged trimmed shell). Not a budget change.
+      staticTextureMegabytes: 16,
       dynamicLights: 1,
       generatedMeshPresent: true,
     },
@@ -455,6 +455,60 @@ def cube(name, location, scale, mat):
     obj.data.materials.append(mat)
     return obj
 
+# --- Parametric room geometry constants (#347, MADR 0055 items 4+5) -------------
+# The room shell is driven by these numbers: walls, floor, skirting, chamfers,
+# the door reveal frame and every scale-setting prop derive from them, so the
+# next room case reuses the builder instead of hand-authoring another room.
+ROOM_W = 2.4          # room width along X (m)
+ROOM_D = 1.8          # room depth along Z (m)
+ROOM_H = 2.1          # wall height (m)
+WALL_T = 0.04         # wall thickness (m)
+SKIRT_H = 0.10        # skirting board height (m)
+SKIRT_T = 0.02        # skirting board thickness (m)
+CHAMFER = 0.02        # chamfer leg length (m)
+DOOR_W = 0.75         # front doorway opening width (m)
+DOOR_H = 1.98         # door reveal opening height (m)
+TRIM_FRAME_T = 0.08   # door reveal frame depth (m)
+
+def chamfer_prism(name, mat, A, tangent, n1, n2, leg, length):
+    """Solid triangular chamfer strip along an edge (closes a sharp 90-degree corner).
+
+    A: start point of the sharp corner line. tangent: unit vector along the edge.
+    n1, n2: unit vectors from A into the two faces meeting at the edge.
+    leg: chamfer leg length (m); length: strip length (m). The visible 45-degree
+    hypotenuse connects A + n1*leg and A + n2*leg and faces the room interior.
+    Face normals are recalculated so the closed prism is always outward-wound.
+    """
+    import bmesh
+    from mathutils import Vector
+    A = Vector(A)
+    t = Vector(tangent).normalized() * length
+    u = Vector(n1).normalized() * leg
+    v = Vector(n2).normalized() * leg
+    verts = [A, A + u, A + v, A + t, A + t + u, A + t + v]
+    faces = [(0, 1, 2), (3, 5, 4), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)]
+    mesh = bpy.data.meshes.new(name)
+    mesh.from_pydata(verts, [], faces)
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    if mat is not None:
+        obj.data.materials.append(mat)
+    return obj
+
+def empty_root(name, location):
+    """Parent node for a multi-part prop so the glTF keeps the parts together."""
+    bpy.ops.object.empty_add(type="PLAIN_AXES", location=location)
+    root = bpy.context.object
+    root.name = name
+    root.empty_display_size = 0.02
+    return root
+
 clear_scene()
 floor_mat = material("ed_bay_warm_gray_floor", (0.45, 0.47, 0.48, 1.0))
 wall_mat = material("ed_bay_soft_blue_wall", (0.70, 0.78, 0.84, 1.0))
@@ -471,6 +525,21 @@ sign_mat = material("infection_control_and_handoff_signage", (0.92, 0.98, 0.96, 
 scuff_mat = material("subtle_floor_scuff_wear", (0.30, 0.32, 0.33, 0.32))
 tape_mat = material("privacy_zone_floor_tape_yellow", (0.92, 0.74, 0.22, 0.55))
 zone_mat = material("subtle_interaction_zone_markers", (0.25, 0.55, 0.70, 0.35))
+# Trim + scale-setting prop materials (#347).
+trim_mat = material("architectural_trim_white", (0.92, 0.94, 0.95, 1.0))
+chamfer_mat = material("wall_chamfer_soft_blue", (0.62, 0.70, 0.77, 1.0))
+outlet_plate_mat = material("outlet_plate_white", (0.96, 0.97, 0.96, 1.0))
+outlet_socket_mat = material("outlet_socket_dark", (0.25, 0.26, 0.27, 1.0))
+switch_plate_mat = material("light_switch_plate_ivory", (0.95, 0.93, 0.88, 1.0))
+switch_toggle_mat = material("light_switch_toggle_white", (0.98, 0.98, 0.98, 1.0))
+gel_bottle_mat = material("hand_gel_bottle_teal", (0.18, 0.55, 0.60, 1.0))
+gel_nozzle_mat = material("hand_gel_nozzle_dark", (0.30, 0.32, 0.34, 1.0))
+gel_bracket_mat = material("hand_gel_bracket_metal", (0.72, 0.74, 0.72, 1.0))
+whiteboard_frame_mat = material("whiteboard_frame_gray", (0.45, 0.48, 0.52, 1.0))
+whiteboard_surface_mat = material("whiteboard_surface_white", (0.97, 0.98, 0.97, 1.0))
+whiteboard_tray_mat = material("whiteboard_marker_tray_dark", (0.30, 0.32, 0.36, 1.0))
+curtain_rail_mat = material("curtain_track_rail_metal", (0.72, 0.74, 0.72, 1.0))
+curtain_ring_mat = material("curtain_track_ring_metal", (0.75, 0.77, 0.75, 1.0))
 cube("ed_exam_bay_floor", (0, -0.03, 0), (2.4, 0.03, 1.8), floor_mat)
 cube("ed_exam_bay_back_wall", (0, 1.05, -1.8), (2.4, 1.05, 0.04), wall_mat)
 cube("ed_exam_bay_left_wall", (-2.4, 1.05, 0), (0.04, 1.05, 1.8), wall_mat)
@@ -504,14 +573,82 @@ cube("ed_exam_bay_doorway_orientation_sign", (-1.02, 1.92, 1.74), (0.34, 0.09, 0
 cube("ed_exam_bay_doorway_escalation_badge", (-0.62, 1.9, 1.74), (0.09, 0.075, 0.025), accent_red_mat)
 cube("ed_exam_bay_monitor_lead_cable", (-0.52, 0.76, -0.42), (0.04, 0.025, 0.62), screen_mat)
 cube("ed_exam_bay_bed_wheel_locks", (-0.82, 0.2, 0.82), (0.1, 0.055, 0.1), accent_red_mat)
-cube("ed_exam_bay_curtain_track_rings", (2.12, 1.98, 0.25), (0.035, 0.035, 0.62), metal_mat)
+# Curtain track — horizontal rail + hanging rings (was a single flat box; #347 item 5).
+# Scale cue: 1.4 m rail with ~0.21 m ring spacing, hung from the ceiling zone.
+curtain_track_root = empty_root("ed_exam_bay_curtain_track", (2.16, 1.98, 0.25))
+curtain_rail = cube("ed_exam_bay_curtain_track_rail", (2.16, 1.98, 0.25), (0.03, 0.02, 1.4), curtain_rail_mat)
+for ring_index, ring_z in enumerate((-0.35, -0.14, 0.07, 0.28, 0.49, 0.70)):
+    ring = cube("ed_exam_bay_curtain_track_ring_%d" % (ring_index + 1), (2.16, 1.952, ring_z), (0.012, 0.05, 0.012), curtain_ring_mat)
+    ring.parent = curtain_track_root
+curtain_rail.parent = curtain_track_root
 cube("ed_exam_bay_trash_liner_fold", (-2.04, 0.56, 0.85), (0.2, 0.035, 0.18), equipment_mat)
 cube("ed_exam_bay_iv_tubing_line", (0.75, 1.05, 0.54), (0.025, 0.42, 0.025), light_mat)
 cube("ed_exam_bay_floor_scuff_path", (-0.18, 0.006, 0.62), (1.22, 0.006, 0.045), scuff_mat)
 cube("ed_exam_bay_infection_control_sign", (-2.36, 1.55, 1.28), (0.025, 0.2, 0.28), sign_mat)
-cube("ed_exam_bay_handoff_whiteboard", (-1.15, 1.52, -1.74), (0.58, 0.25, 0.025), sign_mat)
+# Handoff whiteboard — recognisable frame + surface + marker tray + header strip
+# (was a single flat box; #347 MADR 0055 item 5). Scale cue: 0.64 m wide board.
+whiteboard_root = empty_root("ed_exam_bay_handoff_whiteboard", (-1.15, 1.52, -1.76))
+whiteboard_frame = cube("ed_exam_bay_handoff_whiteboard_frame", (-1.15, 1.52, -1.76), (0.64, 0.31, 0.03), whiteboard_frame_mat)
+whiteboard_surface = cube("ed_exam_bay_handoff_whiteboard_surface", (-1.15, 1.52, -1.752), (0.58, 0.25, 0.012), whiteboard_surface_mat)
+whiteboard_tray = cube("ed_exam_bay_handoff_whiteboard_tray", (-1.15, 1.375, -1.745), (0.5, 0.03, 0.05), whiteboard_tray_mat)
+whiteboard_strip = cube("ed_exam_bay_handoff_whiteboard_header", (-1.15, 1.642, -1.745), (0.3, 0.025, 0.01), accent_red_mat)
+for part in (whiteboard_frame, whiteboard_surface, whiteboard_tray, whiteboard_strip):
+    part.parent = whiteboard_root
 cube("ed_exam_bay_supply_drawer_labels", (-1.78, 0.82, 1.48), (0.3, 0.14, 0.025), paper_mat)
 cube("ed_exam_bay_privacy_zone_floor_tape", (0.82, 0.008, 1.08), (0.68, 0.008, 0.035), tape_mat)
+
+# --- Item 4: trim the corners (parametric, derived from room constants) ----------
+# Skirting boards run the full back and left walls at the base; a corner block
+# closes the junction. Scale cue: 0.10 m baseboard is a standard interior trim.
+skirting_back = cube("ed_exam_bay_skirting_back", (0, SKIRT_H / 2, -1.8 + WALL_T / 2 + SKIRT_T / 2),
+                     (ROOM_W - 0.04, SKIRT_H, SKIRT_T), trim_mat)
+skirting_left = cube("ed_exam_bay_skirting_left", (-2.4 + WALL_T / 2 + SKIRT_T / 2, SKIRT_H / 2, 0),
+                     (SKIRT_T, SKIRT_H, ROOM_D - 0.04), trim_mat)
+skirting_corner = cube("ed_exam_bay_skirting_corner", (-2.4 + WALL_T / 2 + SKIRT_T / 2, SKIRT_H / 2, -1.8 + WALL_T / 2 + SKIRT_T / 2),
+                       (SKIRT_T, SKIRT_H, SKIRT_T), trim_mat)
+
+# ~2 cm chamfer where wall meets wall and wall meets floor: solid triangular
+# prisms closing the sharp 90-degree corners (tens of triangles, not a subdivided wall).
+chamfer_back_floor = chamfer_prism("ed_exam_bay_chamfer_back_floor", chamfer_mat,
+                                   (-ROOM_W / 2, 0, -1.8 + WALL_T / 2), (1, 0, 0),
+                                   (0, 1, 0), (0, 0, 1), CHAMFER, ROOM_W)
+chamfer_left_floor = chamfer_prism("ed_exam_bay_chamfer_left_floor", chamfer_mat,
+                                   (-2.4 + WALL_T / 2, 0, -ROOM_D / 2), (0, 0, 1),
+                                   (0, 1, 0), (1, 0, 0), CHAMFER, ROOM_D)
+chamfer_wall_corner = chamfer_prism("ed_exam_bay_chamfer_wall_corner", chamfer_mat,
+                                    (-2.4 + WALL_T / 2, 0, -1.8 + WALL_T / 2), (0, 1, 0),
+                                    (1, 0, 0), (0, 0, 1), CHAMFER, ROOM_H)
+
+# Door reveal: framed opening at the room's front entry — header lintel + two
+# jambs. Scale cue: 0.75 m doorway width / 1.98 m opening height reads as a door.
+door_reveal_header = cube("ed_exam_bay_door_reveal_header", (0, DOOR_H + 0.04, 0.86), (DOOR_W + 0.12, 0.08, TRIM_FRAME_T), trim_mat)
+door_reveal_jamb_l = cube("ed_exam_bay_door_reveal_jamb_l", (-DOOR_W / 2 - 0.03, DOOR_H / 2, 0.86), (0.06, DOOR_H, TRIM_FRAME_T), trim_mat)
+door_reveal_jamb_r = cube("ed_exam_bay_door_reveal_jamb_r", (DOOR_W / 2 + 0.03, DOOR_H / 2, 0.86), (0.06, DOOR_H, TRIM_FRAME_T), trim_mat)
+
+# --- Item 5: scale-setting props (recognisable, multi-part, parametric) -----------
+# Outlet plate — 0.075 x 0.12 m plate with two recessed sockets, mounted ~0.38 m up
+# the back wall. A standard US duplex outlet is a universal size reference.
+outlet_root = empty_root("ed_exam_bay_outlet_plate", (-0.62, 0.38, -1.8 + WALL_T / 2 + 0.012))
+outlet_plate = cube("ed_exam_bay_outlet_plate_body", (-0.62, 0.38, -1.762), (0.075, 0.12, 0.015), outlet_plate_mat)
+outlet_socket_l = cube("ed_exam_bay_outlet_plate_socket_l", (-0.6325, 0.415, -1.753), (0.022, 0.035, 0.008), outlet_socket_mat)
+outlet_socket_r = cube("ed_exam_bay_outlet_plate_socket_r", (-0.6075, 0.415, -1.753), (0.022, 0.035, 0.008), outlet_socket_mat)
+for part in (outlet_plate, outlet_socket_l, outlet_socket_r):
+    part.parent = outlet_root
+
+# Light switch — 0.075 x 0.12 m plate with a toggle, mounted ~1.2 m up the left wall.
+switch_root = empty_root("ed_exam_bay_light_switch", (-2.4 + WALL_T / 2 + 0.012, 1.2, -0.35))
+switch_plate = cube("ed_exam_bay_light_switch_plate", (-2.36, 1.2, -0.35), (0.015, 0.12, 0.075), switch_plate_mat)
+switch_toggle = cube("ed_exam_bay_light_switch_toggle", (-2.352, 1.2, -0.35), (0.006, 0.035, 0.02), switch_toggle_mat)
+switch_plate.parent = switch_root
+switch_toggle.parent = switch_root
+
+# Hand-gel dispenser — wall bracket + teal bottle + pump nozzle, ~0.35 m tall.
+gel_root = empty_root("ed_exam_bay_hand_gel_dispenser", (0.85, 1.15, -1.8 + WALL_T / 2 + 0.01))
+gel_bracket = cube("ed_exam_bay_hand_gel_dispenser_bracket", (0.85, 1.30, -1.762), (0.045, 0.035, 0.035), gel_bracket_mat)
+gel_bottle = cube("ed_exam_bay_hand_gel_dispenser_bottle", (0.85, 1.13, -1.745), (0.11, 0.26, 0.075), gel_bottle_mat)
+gel_nozzle = cube("ed_exam_bay_hand_gel_dispenser_nozzle", (0.85, 1.24, -1.702), (0.03, 0.05, 0.05), gel_nozzle_mat)
+for part in (gel_bracket, gel_bottle, gel_nozzle):
+    part.parent = gel_root
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.export_scene.gltf(filepath=output_path, export_format="GLB", export_animations=False)

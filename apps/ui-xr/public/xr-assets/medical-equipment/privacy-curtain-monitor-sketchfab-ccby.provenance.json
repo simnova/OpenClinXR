@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "openclinxr.medical-equipment-provenance.v1",
+  "derivationMode": "sketchfab_ccby_download_normalize_promote",
+  "scenarioId": null,
+  "assetId": "privacy_curtain_equipment",
+  "assetPath": "apps/ui-xr/public/xr-assets/medical-equipment/privacy-curtain-monitor-sketchfab-ccby.glb",
+  "sourceRecordPath": ".openclinxr/staging/equipment/sketchfab/curtain_monitor/provenance.json",
+  "generatorMode": "sketchfab_token_api_glb_download_then_blender_normalize",
+  "sourceKind": "third_party_sketchfab_cc_by_4_0",
+  "usesRealTrellisForwardPass": false,
+  "backgroundRemovalUsed": false,
+  "textureMode": "author_embedded_materials",
+  "animationMode": "none_static_equipment",
+  "optimizationMode": "length_width_deck_unit_normalize_no_decimation",
+  "realismGrade": null,
+  "promotionStatus": "runtime_candidate_not_readiness_gate_pass",
+  "sha256": "89ccdab93ce4f6ca1cdd0c8f94afe834db431ed667ddac4580bbd9cc3c22a8bf",
+  "bytes": 3717432,
+  "measuredNormalize": {
+    "lengthM": 2.001667022705078,
+    "widthM": 1.8111050128936768,
+    "heightM": 2.200000047683716,
+    "deckTopM": 1.855,
+    "passHospitalBed": false,
+    "passStretcher": false,
+    "passExamTable": false,
+    "passPrivacyCurtain": true,
+    "removedMeshes": []
+  },
+  "sourceOriginChain": {
+    "sketchfabUid": "295ed50eeaa249e8bbeed7b305d3da71",
+    "url": "https://sketchfab.com/3d-models/bed-curtain-and-vital-signs-monitor-295ed50eeaa249e8bbeed7b305d3da71",
+    "attribution": "Bed Curtain and Vital Signs Monitor by Ethan Cragun (Sketchfab, CC BY 4.0)",
+    "licence": "CC BY 4.0",
+    "rawStagingGlb": ".openclinxr/staging/equipment/sketchfab/curtain_monitor/curtain_monitor.glb",
+    "normalizedStagingGlb": ".openclinxr/staging/equipment/sketchfab/curtain_monitor/curtain_monitor_norm.glb",
+    "normalizeReport": ".openclinxr/staging/equipment/sketchfab/curtain_monitor/normalize-report.json",
+    "derivationNote": "Downloaded via Sketchfab Token API (downloadable=true, licence by). Blender 5.1.1 normalize-equipment-glb.py: length/width/deck unit fit to runtime SSOT; hospital_bed drops BedsideStand meshes. Runtime stamps deckTopYMeters from SUPPORT_SURFACE_DECK_TOP_BY_EQUIPMENT_ID."
+  },
+  "licenseChain": {
+    "status": "verified_cc_by_4_0_at_download",
+    "licence": "CC BY 4.0",
+    "attributionRequired": true,
+    "attribution": "Bed Curtain and Vital Signs Monitor by Ethan Cragun (Sketchfab, CC BY 4.0)",
+    "licenseSource": "Sketchfab API license.slug=by + provenance staging record",
+    "sourceRecordClaimsSupported": [
+      "Sketchfab API reported CC BY 4.0 at download time.",
+      "Asset is downloadable under API token terms."
+    ],
+    "notRun": [
+      "reverification_after_promote",
+      "author_page_html_reparse"
+    ],
+    "explicitUnknown": [
+      "Whether embedded textures include third-party content beyond the model licence grant."
+    ],
+    "notes": "CC-BY attribution must appear in PROVENANCE.md and any public/marketing surface that shows these assets. No Quest/clinical claims."
+  },
+  "derivativeLineage": {
+    "status": "sketchfab_normalize_promote_derivative",
+    "assetId": "privacy_curtain_equipment",
+    "method": "copy_normalized_glb_to_tracked_library",
+    "promotedFrom": ".openclinxr/staging/equipment/sketchfab/curtain_monitor/curtain_monitor_norm.glb",
+    "lineageSteps": [
+      "Sketchfab Token API download to staging.",
+      "Blender normalize (length/width/deck SSOT).",
+      "Promote byte-identical normalized GLB into medical-equipment library.",
+      "Wire REAL_EQUIPMENT_GLTF_BY_ID + deckTopYMeters stamp."
+    ]
+  },
+  "toolVersion": "openclinxr-equipment-bank-promote-v1",
+  "promotedAt": "2026-08-12T14:01:20.609822+00:00",
+  "notEvidenceFor": [
+    "b_plus_visual_realism_gate",
+    "quest_readiness",
+    "production_asset_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "scene_placement_readiness"
+  ]
+}

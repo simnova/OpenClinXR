@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "openclinxr.glb-grade-capture.v1",
+  "generatedAt": "2026-08-12T15:25:23.280Z",
+  "claimScope": "browser_threejs_render_with_independent_geometry_self_check_not_visual_realism_or_readiness",
+  "purpose": "Render every shipped humanoid through the real model-vetting three.js path, fail-closed when in-page geometry disagrees with the NodeIO probe, and emit lit+structure passes for human grading. Does not assert any asset looks right.",
+  "defaultRelativeTolerance": 0.15,
+  "coverage": {
+    "generatedHumanoidsGlbCount": 0,
+    "cagematchCurrentGlbCount": 0,
+    "total": 2,
+    "missingOnDisk": []
+  },
+  "assets": [
+    {
+      "sourceGlbPath": "apps/ui-xr/public/xr-assets/environment/ed-exam-bay-shell.glb",
+      "assetId": "ed-exam-bay-shell",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 0.00005510813748884669,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 5.319999868050218,
+          "horizontalExtent": 9.070499858353287
+        },
+        "inPage": {
+          "height": 5.32,
+          "horizontalExtent": 9.07
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/ed-exam-bay-shell/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/ed-exam-bay-shell/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/ed-exam-bay-shell/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/ed-exam-bay-shell/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=5.3200 horiz=9.0705",
+        "inPage height=5.3200 horiz=9.0700",
+        "relativeError=0.0001 tol=0.15",
+        "lit_sha256=fc1c7765c940",
+        "structure_sha256=4af9bd85a4af"
+      ]
+    },
+    {
+      "sourceGlbPath": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "assetId": "infinigen-ed-exam-bay",
+      "exists": true,
+      "selfCheck": {
+        "agrees": true,
+        "writeImages": true,
+        "relativeError": 3.5987708791466974e-8,
+        "tolerance": 0.15,
+        "probe": {
+          "height": 2.6500000953674316,
+          "horizontalExtent": 6.5
+        },
+        "inPage": {
+          "height": 2.65,
+          "horizontalExtent": 6.5
+        }
+      },
+      "images": {
+        "front_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/infinigen-ed-exam-bay/front_lit.png",
+        "front_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/infinigen-ed-exam-bay/front_structure.png",
+        "three_quarter_lit": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/infinigen-ed-exam-bay/three_quarter_lit.png",
+        "three_quarter_structure": ".openclinxr/evidence/glb-grade-capture/2026-08-12T15-25-13Z/assets/infinigen-ed-exam-bay/three_quarter_structure.png"
+      },
+      "refusedReason": null,
+      "notes": [
+        "probe height=2.6500 horiz=6.5000",
+        "inPage height=2.6500 horiz=6.5000",
+        "relativeError=0.0000 tol=0.15",
+        "lit_sha256=fb0167872898",
+        "structure_sha256=fa15c00c253a"
+      ]
+    }
+  ],
+  "notEvidenceFor": [
+    "production_asset_readiness",
+    "quest_readiness",
+    "learner_readiness",
+    "clinical_validity",
+    "scoring_validity",
+    "b_plus_visual_realism_gate",
+    "visual_grade_verdict"
+  ]
+}
