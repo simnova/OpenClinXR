@@ -96,6 +96,7 @@ if (cagematchReportsIndex) {
             candidateId: captureCandidateId,
             view: captureView,
             capturePass,
+            hideMaskMagenta: params.get("captureHideMaskMagenta") === "1",
             ...(captureDialogueText ? { dialogueText: captureDialogueText } : {}),
           }).then((captureEvidence) => {
             window.__openClinXrModelVettingCandidateCaptureEvidence = captureEvidence;

@@ -223,12 +223,109 @@
         "the full-body scan uses CLOTH_STANDOFF_M as the behind-bound \u2014 measured to separate the belly pokes (0.3-1.0cm) from the natural bare ankle (6.3-9.4cm)",
         "un-hiding silhouette-edge pokes restores skin at the arm outline; whether that reads better than the dark sliver is a pixel question"
       ]
+    },
+    {
+      "round": 7,
+      "bakeGlb": ".openclinxr/evidence/issue-341/bakes/aisha-round7.glb",
+      "materializerChanges": [
+        "issue-341 round 7 \u2014 render-truth refinement of every body-hide mask (upper/lower/foot). The round-7 grade showed a ragged black sawtooth at EVERY garment/skin seam (hairline, shoulders, sleeve hems, waistband, trouser hems, boot tops, jaw) \u2014 one signature. The cause is measured, not guessed: the alpha-0 hide primitives (openclinxr_hidden_*, DISCARDED at render) extend past the garment's front coverage in per-polygon steps. A discarded body polygon reads as the dark capture background (#18211d) wherever the garment does NOT render in front of it. The previous black-sliver un-hided only faces with NO cloth in front AND NO cloth behind within 0.5 m along the back axis \u2014 so the nurse's jaw stayed hidden (the collar's BACK panel is 13-19 cm behind it, backface-culled at render -> a black ragged mass over mouth/jaw/chin; measured on the shipped bytes: 1178 head-band hidden polygons, frontFirst=None, backFirst=skin), and centroid-only tests were blind to the straddling class (a polygon whose centroid is under the cloth but whose corner pokes out past the edge -> the ragged sawtooth).",
+        "The materializer now runs a final render-truth pass (RENDER_TRUTH_UNHIDE) after every re-hide: per hidden polygon, 7 area samples (verts + edge midpoints + centroid); un-hide when ANY sample has no garment surface in front along the viewer ray AND no OUTER-facing garment surface behind it. The behind test casts against the garment's outer-facing subset only (winding-proof _orient_outward + normal toward the stage front), because an inner/back-facing surface is backface-culled and cannot fill a discarded hole. Reach is the occlusion gate's MAX_RAY_T (0.5 m \u2014 scene depth, not a fitted seam constant). The child's loose t-shirt (2-5 cm off the body) stays hidden because its front panel is outer-facing directly behind the pokes. Applied to upper (after the final head-joint clip), lower (replacing the round-6 centroid black-sliver), and foot (which had NO refinement).",
+        "Numbers on the new bakes: RENDER_TRUTH_UNHIDE upper 389 (aisha) / 1554 (nurse, incl. the jaw) / 241 (child); LOWER_BLACK_SLIVERS 66/793; FOOT_BLACK_SLIVERS 430/596/732."
+      ],
+      "numbers": {
+        "renderTruthUnhideUpper": {
+          "aisha": 389,
+          "nurse": 1554,
+          "child": 241
+        },
+        "maskBoundaryProbeExposedAny": {
+          "aisha": {
+            "pre": 1813,
+            "post": 1049
+          },
+          "nurse": {
+            "pre": 4272,
+            "post": 1996
+          },
+          "child": {
+            "pre": 4141,
+            "post": 3011
+          }
+        },
+        "maskBoundaryProbeExposedAreaM2": {
+          "aisha": {
+            "pre": 0.10754,
+            "post": 0.06887
+          },
+          "nurse": {
+            "pre": 0.1071,
+            "post": 0.04852
+          },
+          "child": {
+            "pre": 0.0771,
+            "post": 0.04926
+          }
+        },
+        "occlusionGate": {
+          "aisha": {
+            "eyes": "visible",
+            "tshirt": "visible",
+            "boots": "visible"
+          },
+          "nurse": {
+            "eyes": "visible",
+            "tshirt": "visible",
+            "boots": "visible"
+          },
+          "child": {
+            "eyes": "visible",
+            "tshirt": "visible",
+            "boots": "visible"
+          }
+        },
+        "contracts": {
+          "eyes-have-an-iris": "3/3 pass",
+          "mpfb-actors-are-dressed": "3/3 pass"
+        }
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round7/mpfb-ob-patient-aisha-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7/mpfb-peds-nurse-kevin-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7/mpfb-peds-patient-child-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-ob-patient-aisha-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-peds-nurse-kevin-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-magenta/mpfb-peds-patient-child-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-ob-patient-aisha-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-peds-nurse-kevin-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round7-debug/mpfb-peds-patient-child-front_lit.png"
+      ],
+      "stillWrong": [
+        "residual discarded polygons with OUTER-facing cloth behind them at grazing/silhouette angles (aisha chest band: 481 hidden polys at |x|>=0.18 shoulder silhouette, kept hidden because the shirt's outer surface is behind within 5mm-4.4cm \u2014 measured; whether the round-6b 25-class 'black notches at both shoulders' persist is a pixel question the round-7 captures answer)",
+        "child's foot still reads bare where its small toigo_mj_cloth_shoes (1004 tris) does not cover the foot \u2014 #332/#333 territory, out of scope this round; the mask no longer makes it black",
+        "faceted hairline edge (cosmetic; lowest priority)"
+      ],
+      "guesses": [
+        "the outer-facing/back-facing distinction (winding normal toward the stage front) is the render truth for 'does the cloth fill a discarded hole' \u2014 verified on the nurse jaw (collar back panel back-facing -> hole) and aisha chest (shirt front panel front-facing -> fills)",
+        "area sampling at 7 points per polygon catches the straddling class without needing a fitted seam threshold"
+      ]
     }
   ],
   "occlusionPostFix": {
-    "eyes": "visible",
-    "tshirt": "visible",
-    "boots": "visible"
+    "aisha": {
+      "eyes": "visible (0.7685)",
+      "tshirt": "visible (0.8675)",
+      "boots": "visible (0.8456)"
+    },
+    "nurse": {
+      "eyes": "visible (0.8362)",
+      "tshirt": "visible (0.8281)",
+      "boots": "visible (0.8128)"
+    },
+    "child": {
+      "eyes": "visible (0.7845)",
+      "tshirt": "visible (0.698)",
+      "boots": "visible (0.4541)"
+    }
   },
   "captures": [
     ".openclinxr/evidence/issue-341/captures/round6b/mpfb-ob-patient-aisha-front_lit.png",

@@ -328,6 +328,8 @@ export async function runGlbGradeCapture(options: {
   port?: number;
   views?: readonly string[];
   cwd?: string;
+  /** issue-341 debug: force alpha-0 body-hide primitives visible in magenta. */
+  hideMaskMagenta?: boolean;
 }): Promise<{ gallery: GlbGradeGallery; galleryPath: string; runDir: string }> {
   const cwd = options.cwd ?? process.cwd();
   const port = options.port ?? 5197;
@@ -371,6 +373,7 @@ export async function runGlbGradeCapture(options: {
           port,
           views,
           runDir,
+          hideMaskMagenta: options.hideMaskMagenta,
         }));
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -523,6 +526,7 @@ async function gradeOneGlb(input: {
   port: number;
   views: string[];
   runDir: string;
+  hideMaskMagenta?: boolean;
 }): Promise<GlbGradeAssetResult> {
   const plan = planGlbGradeCapture({ glbPath: input.glbPath, views: input.views });
   const assetId = input.assetId;
@@ -578,6 +582,7 @@ async function gradeOneGlb(input: {
     candidateId: input.candidateId,
     view: firstView,
     capturePass: "lit",
+    hideMaskMagenta: input.hideMaskMagenta,
   });
   const inPageRaw = evidence.sourceMeshAabbMeters;
   if (!inPageRaw || !(inPageRaw.height > 0)) {
@@ -701,12 +706,14 @@ async function captureView(input: {
   candidateId: string;
   view: string;
   capturePass: "lit" | "structure";
+  hideMaskMagenta?: boolean;
 }): Promise<CaptureEvidence> {
   const url =
     `http://127.0.0.1:${input.port}/?reportUrl=${encodeURIComponent(input.reportUrl)}`
     + `&captureCandidateId=${encodeURIComponent(input.candidateId)}`
     + `&captureView=${encodeURIComponent(input.view)}`
-    + `&capturePass=${encodeURIComponent(input.capturePass)}`;
+    + `&capturePass=${encodeURIComponent(input.capturePass)}`
+    + (input.hideMaskMagenta ? "&captureHideMaskMagenta=1" : "");
   // Preflight: ensure the ephemeral report is served as JSON (not HTML 404/error).
   const reportProbe = await input.page.request.get(`http://127.0.0.1:${input.port}${input.reportUrl}`);
   if (!reportProbe.ok()) {
@@ -881,12 +888,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 async function main(argv: string[]): Promise<void> {
   let allShipped = false;
   let validateLatest = false;
+  let hideMaskMagenta = false;
   let port = 5197;
   const glbPaths: string[] = [];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
     if (arg === "--all-shipped-humanoids") allShipped = true;
     else if (arg === "--validate-latest") validateLatest = true;
+    else if (arg === "--hide-mask-magenta") hideMaskMagenta = true;
     else if (arg === "--glb" && argv[i + 1]) glbPaths.push(argv[++i]!);
     else if (arg === "--port" && argv[i + 1]) port = Number(argv[++i]);
   }
@@ -906,6 +915,7 @@ async function main(argv: string[]): Promise<void> {
     allShippedHumanoids: allShipped || glbPaths.length === 0,
     glbPaths: glbPaths.length ? glbPaths : undefined,
     port,
+    hideMaskMagenta,
   });
   const agreed = gallery.assets.filter((a) => a.selfCheck.agrees).length;
   const refused = gallery.assets.filter((a) => a.refusedReason).length;
