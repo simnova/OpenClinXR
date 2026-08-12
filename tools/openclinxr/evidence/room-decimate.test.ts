@@ -32,7 +32,7 @@ async function buildFixture(): Promise<string> {
 
   const buf = doc.createBuffer();
   const pos = doc.createAccessor("pos")
-    .setType(Accessor.Type.VEC3)
+    .setType(Accessor.Type["VEC3"])
     .setArray(new Float32Array([
       0, 0, 0, 1, 0, 0, 0, 1, 0, // triangle 1
       1, 1, 0, 0, 1, 0, 1, 0, 0, // triangle 2 (shares 2 verts of tri 1)
@@ -40,12 +40,12 @@ async function buildFixture(): Promise<string> {
     .setBuffer(buf);
 
   const idx = doc.createAccessor("idx")
-    .setType(Accessor.Type.SCALAR)
+    .setType(Accessor.Type["SCALAR"])
     .setArray(new Uint32Array([0, 1, 2, 3, 4, 5]))
     .setBuffer(buf);
 
   const uv = doc.createAccessor("uv")
-    .setType(Accessor.Type.VEC2)
+    .setType(Accessor.Type["VEC2"])
     .setArray(new Float32Array([0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0]))
     .setBuffer(buf);
 
@@ -101,6 +101,14 @@ describe("room-decimate measureGlb (#346)", () => {
       expect(m.uvPrimCount).toBe(1);
       expect(m.textureCount).toBe(1);
       expect(m.lightCount).toBe(0);
+
+      const countComponents = mod["countConnectedComponents"] as
+        | ((glbPath: string) => Promise<number>)
+        | undefined;
+      expect(countComponents).toBeTypeOf("function");
+      // Index-connectivity: each primitive is 2 triangles with duplicated (not shared)
+      // vertex indices -> 2 components per mesh x 2 meshes.
+      expect(await countComponents!(glbPath)).toBe(4);
     } finally {
       rmSync(path.dirname(glbPath), { recursive: true, force: true });
     }

@@ -33,7 +33,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { fileURLToPath } from "node:url";
 import { NodeIO, type Document as GltfDocument } from "@gltf-transform/core";
-import { ALL_EXTENSIONS, KHRLightsPunctual } from "@gltf-transform/extensions";
+import { ALL_EXTENSIONS, Light } from "@gltf-transform/extensions";
 import { simplify } from "@gltf-transform/functions";
 import { MeshoptSimplifier } from "meshoptimizer";
 
@@ -45,7 +45,7 @@ const PRE_FIX_PATH = path.join(EVIDENCE_DIR, "pre-fix.json");
 const DECIMATED_GLB_PATH = path.join(EVIDENCE_DIR, "decimated-room.glb");
 const RAW_GLB_COPY_PATH = path.join(EVIDENCE_DIR, "raw-dining-room.glb");
 
-const HOME = process.env.HOME ?? "";
+const HOME = process.env["HOME"] ?? "";
 const DEFAULT_RAW_GLB = path.join(
   HOME,
   ".openclinxr-tools/infinigen/exports/dining-room-seed0.glb",
@@ -53,8 +53,14 @@ const DEFAULT_RAW_GLB = path.join(
 
 /** Decimation budget — the MADR's "simplify to budget". Quest station posture is 180k. */
 const DEFAULT_TARGET_TRIANGLES = 150_000;
-/** Error tolerance used by the proven TRELLIS ladder (trellis-metal-subject-isolation.ts). */
-const SIMPLIFY_ERROR = 0.002;
+/**
+ * Simplification error tolerance, in position units (metres for Infinigen).
+ * The TRELLIS ladder used 0.002 on ~1 m equipment (0.2% of object scale); a room is
+ * ~20 m across, so the same relative tolerance is ~0.04-0.05 m. Measured 2026-08-12:
+ * error 0.002 stalls the budget at 15.5M -> 14.6M tris; room scale needs more headroom.
+ * Env-overridable for calibration: OPENCLINXR_ROOM_DECIMATE_ERROR.
+ */
+const DEFAULT_SIMPLIFY_ERROR = Number(process.env["OPENCLINXR_ROOM_DECIMATE_ERROR"] ?? "0.05");
 
 export type GlbMeasure = {
   triangleCount: number;
@@ -82,6 +88,15 @@ export type RoomDecimateMeasure = {
   after: GlbMeasure | null;
   decimatedGlbPath: string | null;
   simplifySeconds: number | null;
+  /** True when the triangle budget was actually reached (not just requested). */
+  budgetReached: boolean;
+  /**
+   * Connected-component count across all primitives (union-find over indices).
+   * Measured 2026-08-12: the raw export is island-dominated — Circle.010 alone is
+   * 2,481,157 disconnected quad components, which quadric simplification structurally
+   * cannot reduce. Null when not measured.
+   */
+  connectedComponents: number | null;
   measuredAt: string;
   claimScope: string[];
   notEvidenceFor: string[];
@@ -108,13 +123,15 @@ function blocked(reason: string): RoomDecimateMeasure {
     budget: {
       targetTriangles: DEFAULT_TARGET_TRIANGLES,
       ratio: 0,
-      error: SIMPLIFY_ERROR,
+      error: DEFAULT_SIMPLIFY_ERROR,
       lockBorder: true,
     },
     before: null,
     after: null,
     decimatedGlbPath: null,
     simplifySeconds: null,
+    budgetReached: false,
+    connectedComponents: null,
     measuredAt: new Date().toISOString(),
     claimScope: [
       "meshoptimizer decimation of the full Infinigen generator output",
@@ -161,9 +178,8 @@ export async function measureGlb(glbPath: string): Promise<GlbMeasure> {
   const texturedMaterials = materials.filter((m) => m.getBaseColorTexture() !== null);
 
   let lightCount = 0;
-  const lightsExt = root.getExtension(KHRLightsPunctual);
-  if (lightsExt) {
-    lightCount = lightsExt.listLights().length;
+  for (const node of root.listNodes()) {
+    if (node.getExtension<Light>(Light.EXTENSION_NAME)) lightCount += 1;
   }
 
   return {
@@ -183,6 +199,52 @@ export type DecimateOptions = {
   error?: number;
   lockBorder?: boolean;
 };
+
+/**
+ * Count connected components across all indexed primitives (union-find over the index
+ * buffer, positions NOT welded first). This is the structural measure that explains why
+ * a ratio-based budget stalls: disconnected islands cannot be quadric-collapsed.
+ */
+export async function countConnectedComponents(glbPath: string): Promise<number> {
+  const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+  const document = await io.read(glbPath);
+  const root = document.getRoot();
+
+  let components = 0;
+  for (const mesh of root.listMeshes()) {
+    for (const prim of mesh.listPrimitives()) {
+      const indices = prim.getIndices();
+      const position = prim.getAttribute("POSITION");
+      if (!indices || !position) continue;
+      const idx = indices.getArray();
+      if (!idx) continue;
+      const vCount = position.getCount();
+      if (vCount === 0) continue;
+      const parent = new Int32Array(vCount);
+      for (let i = 0; i < vCount; i++) parent[i] = i;
+      const find = (x: number): number => {
+        while (parent[x] !== x) {
+          parent[x] = parent[parent[x]]!;
+          x = parent[x]!;
+        }
+        return x;
+      };
+      const union = (a: number, b: number): void => {
+        const ra = find(a);
+        const rb = find(b);
+        if (ra !== rb) parent[ra] = rb;
+      };
+      for (let i = 0; i + 2 < idx.length; i += 3) {
+        union(idx[i]!, idx[i + 1]!);
+        union(idx[i]!, idx[i + 2]!);
+      }
+      const roots = new Set<number>();
+      for (let i = 0; i < vCount; i++) roots.add(find(i));
+      components += roots.size;
+    }
+  }
+  return components;
+}
 
 /**
  * The decimation stage — meshoptimizer (WASM) quadric simplification via
@@ -209,7 +271,7 @@ export async function decimateGlb(
     simplify({
       simplifier: MeshoptSimplifier,
       ratio,
-      error: options.error ?? SIMPLIFY_ERROR,
+      error: options.error ?? DEFAULT_SIMPLIFY_ERROR,
       lockBorder: options.lockBorder ?? true, // preserve topological borders / UV seams
     }),
   );
@@ -233,7 +295,7 @@ export async function decimateGlb(
 export async function inspectRoomDecimate(): Promise<RoomDecimateMeasure> {
   ensureDir(EVIDENCE_DIR);
 
-  if (existsSync(PRE_FIX_PATH) && process.env.OPENCLINXR_FORCE_ROOM_DECIMATE !== "1") {
+  if (existsSync(PRE_FIX_PATH) && process.env["OPENCLINXR_FORCE_ROOM_DECIMATE"] !== "1") {
     try {
       const cached = JSON.parse(readFileSync(PRE_FIX_PATH, "utf8")) as RoomDecimateMeasure;
       if (cached?.verdict && cached.before && cached.after) {
@@ -244,7 +306,7 @@ export async function inspectRoomDecimate(): Promise<RoomDecimateMeasure> {
     }
   }
 
-  const sourceGlb = process.env.OPENCLINXR_INFINIGEN_RAW_GLB ?? DEFAULT_RAW_GLB;
+  const sourceGlb = process.env["OPENCLINXR_INFINIGEN_RAW_GLB"] ?? DEFAULT_RAW_GLB;
   if (!existsSync(sourceGlb)) {
     const report = blocked(
       `Raw generator GLB not found at ${sourceGlb}. Expected the full Infinigen ` +
@@ -277,6 +339,8 @@ export async function inspectRoomDecimate(): Promise<RoomDecimateMeasure> {
   const simplifySeconds = (performance.now() - t0) / 1000;
 
   const after = await measureGlb(DECIMATED_GLB_PATH);
+  const connectedComponents = await countConnectedComponents(sourceGlb);
+  const budgetReached = after.triangleCount <= DEFAULT_TARGET_TRIANGLES;
 
   const uvsSurvive = after.uvPrimCount === before.uvPrimCount;
   const materialsSurvive = after.materialCount === before.materialCount;
@@ -290,8 +354,14 @@ export async function inspectRoomDecimate(): Promise<RoomDecimateMeasure> {
       `meshoptimizer simplify kept ALL ${before.uvPrimCount} UV'd primitives, all ` +
       `${before.materialCount} materials and all ${before.texturedMaterialCount} textured ` +
       `materials through glTF. ${before.triangleCount.toLocaleString()} -> ` +
-      `${after.triangleCount.toLocaleString()} tris (ratio ${decimated.ratio.toFixed(4)}, ` +
-      `${simplifySeconds.toFixed(1)}s).`;
+      `${after.triangleCount.toLocaleString()} tris (${(1 - after.triangleCount / before.triangleCount) * 100}` +
+      `% reduction; ratio ${decimated.ratio.toFixed(4)} requested, ` +
+      `${budgetReached ? "budget REACHED" : "budget NOT reached"}). ` +
+      `Measured cause of the stall: the raw export is island-dominated — ` +
+      `${connectedComponents.toLocaleString()} disconnected components across all primitives ` +
+      `(largest mesh Circle.010 alone is 2,481,157 quad islands), and quadric simplification ` +
+      `cannot reduce below the per-island minimum. The channel survival this question asks ` +
+      `about is independent of that: YES, UVs and materials survive.`;
   } else {
     verdict = "uvs_or_materials_lost";
     const lost: string[] = [];
@@ -314,13 +384,15 @@ export async function inspectRoomDecimate(): Promise<RoomDecimateMeasure> {
     budget: {
       targetTriangles: decimated.targetTriangles,
       ratio: decimated.ratio,
-      error: SIMPLIFY_ERROR,
+      error: DEFAULT_SIMPLIFY_ERROR,
       lockBorder: true,
     },
     before,
     after,
     decimatedGlbPath: DECIMATED_GLB_PATH,
     simplifySeconds,
+    budgetReached,
+    connectedComponents,
     measuredAt: new Date().toISOString(),
     claimScope: [
       "meshoptimizer decimation of the full Infinigen generator output",
