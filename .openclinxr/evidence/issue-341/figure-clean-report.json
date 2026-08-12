@@ -390,6 +390,140 @@
         "production asset readiness",
         "quest readiness"
       ]
+    },
+    {
+      "round": 9,
+      "bakeGlb": [
+        ".openclinxr/evidence/issue-341/bakes/aisha-round9c.glb",
+        ".openclinxr/evidence/issue-341/bakes/nurse-round9c.glb",
+        ".openclinxr/evidence/issue-341/bakes/child-round9c.glb"
+      ],
+      "materializerChanges": [
+        "issue-341 round 9 \u2014 RENDER_TRUTH_REHIDE, the counterpart to round 7's monotone un-hide. Round 7's render-truth pass ONLY un-hides; a skin polygon the garment covers (or pokes) but the mask missed stays visible forever, and the measured orange/tan sawtooth at the shoulders, waistband and hems is round 7's own trade in a new colour (the same boundary, now rendering as SKIN). The re-hide follows the garments' own rims per-polygon with no fitted seam constant: (1) seam-band restore \u2014 the round-6 waistband band between the shirt hem and the pants top, re-applied AFTER round 7's lower un-hide removed it (round 6 hid exactly this band and graded clean); (2) poke envelope \u2014 a visible face whose nearest garment surface lies within the garment's OWN shipping envelope (CLOTH_STANDOFF_M=15mm, the factory's standoff, not a fitted constant) of the skin along the BODY's outward normal (signed clearance in [-CLOTH_STANDOFF_M, HIDE_EPSILON_M)) is a poke the garment covers from behind at render. Applied per-slot through the pipeline's own polygon-level clips (the #334 local-vertex head-joint bound and the #326 garment x/z silhouette re-clip) and scoped away from the hands."
+      ],
+      "numbers": {
+        "rehideFaces": {
+          "aisha": {
+            "band": 45,
+            "pokes": 508,
+            "applied": {
+              "upper": 306,
+              "lower": 24,
+              "foot": 198
+            }
+          },
+          "nurse": {
+            "band": 138,
+            "pokes": 3065,
+            "applied": {
+              "upper": 745,
+              "lower": 269,
+              "foot": 644
+            }
+          },
+          "child": {
+            "band": 116,
+            "pokes": 3329,
+            "applied": {
+              "upper": 216,
+              "lower": 427,
+              "foot": 474
+            }
+          }
+        },
+        "reclipRemoved": {
+          "aisha": {
+            "upper": 2,
+            "lower": 17,
+            "foot": 2
+          },
+          "nurse": {
+            "upper": 11,
+            "lower": 42,
+            "foot": 0
+          },
+          "child": {
+            "upper": 3,
+            "lower": 38,
+            "foot": 0
+          }
+        },
+        "gapMmGarmentVsMaskTop": {
+          "aisha": {
+            "shoulder_collar": -1.6,
+            "waistband": 1.1,
+            "shirt_hem": null,
+            "foot": -0.3
+          },
+          "nurse": {
+            "shoulder_collar": 12.5,
+            "waistband": -1.3,
+            "shirt_hem": null,
+            "foot": 0.2
+          },
+          "child": {
+            "shoulder_collar": 0.8,
+            "waistband": -1.2,
+            "shirt_hem": null,
+            "foot": -1.5
+          }
+        },
+        "noteGaps": "shirt-hem gap is closed by the LOWER-slot seam band (the hem band lives in the lower mask), so hidden_upper-bottom is not the right measure; the waistband/hem band is the lower mask. Negative = mask reaches AT/BEYOND the garment rim (within the 2mm slack). Nurse shoulder_collar 12.5mm is the #334 bound: the nurse's collar rides above his own head joint (0.921H vs 0.914H), and the re-clip refuses to push any mask above the joint \u2014 the neck/collar there stays skin (the jaw counterweight).",
+        "occlusionGate": {
+          "aisha": {
+            "eyes": "visible",
+            "eyesVisibleFraction": 0.7407,
+            "tshirtOccludedByOther": 0.0046,
+            "bootsOccludedByOther": 0.0123,
+            "pantsOccludedByOther": 0.0
+          },
+          "nurse": {
+            "eyes": "visible",
+            "eyesVisibleFraction": 0.6983,
+            "tshirtOccludedByOther": 0.0081,
+            "bootsOccludedByOther": 0.002,
+            "pantsOccludedByOther": 0.0483
+          },
+          "child": {
+            "eyes": "visible",
+            "eyesVisibleFraction": 0.819,
+            "tshirtOccludedByOther": 0.0177,
+            "bootsOccludedByOther": 0.0414,
+            "pantsOccludedByOther": 0.0248
+          }
+        },
+        "counterweights": {
+          "nurseJawIntact": "re-clip keeps every re-hide below the head joint (mask top 1.6074 vs joint 1.6080); round-7's un-hide of the jaw is untouched by the re-hide (its clearance to the shirt is beyond the envelope).",
+          "childShardsGone": "the re-hide only touches faces whose nearest shirt surface is within CLOTH_STANDOFF_M (15mm) \u2014 the loose adult-band t-shirt (2-5cm off, measured) keeps its round-7 un-hides; 216 upper faces were re-hidden where the shirt is close enough to fill the pixels. Pixel verdict pending.",
+          "footBandKnownGood": "aisha foot mask now 0.3mm ABOVE the shoe top (was 1mm BELOW) \u2014 the gap closed, no regression; nurse 0.2mm; child -1.5mm (unchanged from the shipped state)."
+        },
+        "headJointTest": "passes on the promoted GLBs (all masks below each body's own head joint)",
+        "maskFootprintTest": "clause (2) remains red with the SAME pre-existing foot-mask class (axis1 min 98.6/99.0mm, axis2 max 30.9/28.2mm \u2014 the foot mask legitimately extends below/forward of the upper+lower garment union; footwear is excluded from the garment union in that test). No NEW failure lines from this round (the x-over-reaches measured on round-9b are gone after the silhouette re-clip)."
+      },
+      "captures": [
+        ".openclinxr/evidence/issue-341/captures/round9/aisha-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/aisha-front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round9/aisha-three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/aisha-three_quarter_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round9/nurse-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/nurse-front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round9/nurse-three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/nurse-three_quarter_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round9/child-front_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/child-front_structure.png",
+        ".openclinxr/evidence/issue-341/captures/round9/child-three_quarter_lit.png",
+        ".openclinxr/evidence/issue-341/captures/round9/child-three_quarter_structure.png"
+      ],
+      "stillWrong": [
+        "nurse shoulder/collar 12.5mm: the collar rides above the head joint (#334), so the re-clip keeps the mask below the joint; the neck/collar skin there is bare by the jaw counterweight. Whether it reads as fringe is a pixel question.",
+        "aisha shirt-hem band: closed by the lower-slot seam band; the upper mask bottom still stops 5.7mm above the hem by itself, but the band covers it.",
+        "the hairline edge remains faceted (cosmetic, out of scope this round).",
+        "the child's adult-band garment placement (#332) untouched."
+      ],
+      "guesses": [
+        "the safe-re-hide reach is the factory's own shipping standoff CLOTH_STANDOFF_M (15mm) \u2014 the measured aisha waistband pokes run 0.4-18mm, so ~2 side faces at 16-18mm may remain visible as a thin hip fringe; the orchestrator's grade decides.",
+        "the re-hide of 216 child upper faces (shirt within 15mm) will render as the SHIRT, not black \u2014 the shirt surface is within the standoff envelope and fills the discarded pixels; round 7's loose-shirt shards (2-5cm) were untouched."
+      ]
     }
   ],
   "occlusionPostFix": {
