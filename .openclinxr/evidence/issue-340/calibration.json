@@ -1,0 +1,28 @@
+{
+  "schema": "issue-340-calibration.v1",
+  "issue": 340,
+  "stage": "pre-product-edit",
+  "instrument": "figure-occlusion-gate.py (issue-338) — ray hit-order via garment_coverage._ray_tri_hits (no new intersector, no clearance threshold)",
+  "calibrationFigure": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "bothDirectionsProven": {
+    "visibleDirection": {
+      "tshirtOccludedByOther": 0.0089,
+      "bootsOccludedByOther": 0.0003,
+      "note": "near-zero occludedByOther on the current tree — the garment and footwear are genuinely the frontmost surface on torso/feet. An instrument that reported everything occluded would fail this row."
+    },
+    "occludedDirection": {
+      "preFixEyesOccludedByOther": 0.5517,
+      "preFixEyeOccluders": {"scalp": 0.5, "skin": 0.0517},
+      "source": "figure-occlusion-gate.py embedded pre-fix baseline, committed b9ef5176 by #338 BEFORE that slice's product edit",
+      "note": "the same instrument measured the pre-#338 nurse eyes as scalp-occluded (0.5517). An instrument that reported everything visible would fail this row."
+    }
+  },
+  "currentTreeEyes": {
+    "mpfb-ob-patient-aisha.glb": {"occludedByOther": 0.1389, "visible": 0.8611},
+    "mpfb-peds-nurse-kevin.glb": {"occludedByOther": 0.2931, "visible": 0.7069},
+    "mpfb-peds-patient-child.glb": {"occludedByOther": 0.1897, "visible": 0.8103}
+  },
+  "claimScope": "the occlusion instrument discriminates between layers in both directions on one figure; the current-tree eye occlusion numbers are a pre-edit snapshot for post-bake regression comparison.",
+  "notEvidenceFor": "pixel grading; iris appearance; the material binding this issue fixes. This file is the instrument calibration only.",
+  "generatedAt": "2026-08-11"
+}

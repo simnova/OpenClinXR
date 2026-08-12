@@ -103,6 +103,93 @@ def make_material(name, color):
     return material
 
 
+def parse_mhmat(path):
+    """Parse a MakeHuman .mhmat key-value material file.
+
+    The format is `key value1 value2 ...` per line with '#' comments (the
+    brown.mhmat the low-poly eye .mhclo declares is a representative example).
+    Returns the raw multi-value lists; each consumer decides which keys it uses
+    (diffuseTexture, diffuseColor, ...) — no invented interpretation of keys
+    this repo does not consume.
+    """
+    props = {}
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        t = line.strip()
+        if not t or t.startswith("#"):
+            continue
+        parts = t.split()
+        if len(parts) >= 2:
+            props[parts[0]] = parts[1:]
+    return props
+
+
+def mhmat_for_mhclo(mhclo_path):
+    """Resolve a .mhclo's declared `material <rel>` line to a real .mhmat path.
+
+    Upstream, the material lives one directory up (`data/eyes/hm08/low-poly/
+    low-poly.mhclo` declares `material ../materials/brown.mhmat`), but the
+    provider cache stages the asset files FLAT in one directory (#337), so the
+    declared path resolves beside the .mhclo instead. The declared path is tried
+    first; the flat-cache layout is the measured fallback. Either way the
+    material is the ASSET'S OWN declaration, not one authored here (D1).
+    """
+    declared = None
+    for line in mhclo_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        t = line.strip()
+        if t.startswith("material "):
+            declared = (mhclo_path.parent / t.split(None, 1)[1].strip()).resolve()
+            break
+    if declared is not None and declared.is_file():
+        return declared
+    if declared is not None:
+        flat = mhclo_path.parent / declared.name
+        if flat.is_file():
+            return flat
+    raise RuntimeError(f"#340: no .mhmat found for {mhclo_path} (declared {declared})")
+
+
+def make_material_from_mhmat(mhmat_path, name):
+    """Build a glTF-exportable Principled BSDF material from a MakeHuman .mhmat.
+
+    MakeHuman's material model is a litsphere shader with a diffuse map; the
+    litsphere has no glTF equivalent, but the diffuse map IS the glTF
+    baseColorTexture — the binding the #340 evidence RED reads. The pipeline
+    previously emitted a FLAT baseColor for every channel (two slices adjusted
+    the eye colour and produced no eye), because nothing ever consumed a
+    .mhmat. This is the generic path: `diffuseTexture` is resolved relative to
+    the .mhmat and wired to Principled Base Color; `diffuseColor` (RGB; the
+    .mhmat format has no alpha key) becomes the baseColorFactor with alpha 1.
+    The blend stays OPAQUE so the glTF exporter emits alphaMode=OPAQUE and an
+    RGBA texture's alpha channel (a MakeHuman shader input, not a cutout mask)
+    is not misread as a discard mask. Skin and garments take the same path when
+    their .mhmat files are staged — this is not eye-special-cased.
+    """
+    props = parse_mhmat(mhmat_path)
+    diffuse = props.get("diffuseTexture")
+    color = props.get("diffuseColor") or ["1.0", "1.0", "1.0"]
+    try:
+        factor = [float(color[0]), float(color[1]), float(color[2]), 1.0]
+    except (IndexError, ValueError):
+        factor = [1.0, 1.0, 1.0, 1.0]
+    material = bpy.data.materials.new(name)
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Base Color"].default_value = factor
+    if diffuse:
+        tex_rel = pathlib.Path(diffuse[0])
+        tex_path = (mhmat_path.parent / tex_rel).resolve()
+        if not tex_path.is_file():
+            raise RuntimeError(
+                f"#340: {mhmat_path.name} declares diffuseTexture {tex_rel} "
+                f"but {tex_path} is not staged in the provider cache"
+            )
+        img = bpy.data.images.load(str(tex_path), check_existing=True)
+        tex_node = material.node_tree.nodes.new("ShaderNodeTexImage")
+        tex_node.image = img
+        material.node_tree.links.new(tex_node.outputs["Color"], bsdf.inputs["Base Color"])
+    return material
+
+
 def mesh_from_numpy(name, verts, faces):
     """Build a Blender mesh object from numpy arrays (mirrors body_param_stage._mesh_from_numpy)."""
     mesh = bpy.data.meshes.new(f"{name}_mesh")
@@ -613,14 +700,27 @@ def main():
             eye_socket_unpainted += 1
     # The eye material the fitter applied is MPFB's procedural eyes NODE TREE, which
     # the GLB exporter does not bake (measured on the shipped bytes: the exported eye
-    # material has NO baseColorFactor — it renders flat WHITE). A flat dark base
-    # colour is the deterministic minimum that reads as an eye in a socket.
+    # material has NO baseColorFactor — it renders flat WHITE). #337/#338 each then
+    # replaced it with a flat baseColor (white, then dark brown) and neither produced
+    # an eye: a sclera and an iris cannot be one colour. #340: consume the ASSET'S
+    # OWN declared material instead — the .mhclo declares `material ../materials/
+    # brown.mhmat` and that .mhmat declares `diffuseTexture brown_eye.png` (the
+    # iris/sclera map, CC0 header in the same directory, 610,817 bytes upstream-
+    # verified). make_material_from_mhmat is the generic .mhmat path (skin and
+    # garments can take it later); it is not eye-special-cased.
     eyes_asset.data.materials.clear()
-    eye_mat = make_material(
+    eye_mhmat = mhmat_for_mhclo(eye_mhclo)
+    eye_mat = make_material_from_mhmat(
+        eye_mhmat,
         f"mat_makeclothes_library_eyes_{args.reference or 'ob_patient_aisha'}",
-        (0.12, 0.09, 0.07, 1.0),
     )
     eyes_asset.data.materials.append(eye_mat)
+    eye_tex = eye_mat.node_tree.nodes.get("Image Texture")
+    print(
+        f"EYE_MATERIAL {eye_mhmat.name} diffuseTexture "
+        f"{eye_tex.image.filepath if eye_tex and eye_tex.image else 'NONE'} "
+        f"name {eye_mat.name}"
+    )
     print(
         f"EYE_SOCKET_UNPAINT {eye_socket_unpainted} polygons reverted to skin "
         f"in the eye footprint x[{eye_min_x:.4f},{eye_max_x:.4f}] y[{eye_min_y:.4f},{eye_max_y:.4f}]"
