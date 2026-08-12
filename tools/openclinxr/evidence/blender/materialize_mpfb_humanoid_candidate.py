@@ -20,6 +20,79 @@ SHOE_BY_REFERENCE = {
     "peds_patient_child": "toigo_mj_cloth_shoes",
 }
 
+# #335/#332 — the anatomical neck band (MADR 0051 §4, anny-mpfb-landmark-compare.ts
+# BAND_WINDOWS.neck): the narrowest torso slice below the head, as a fraction of
+# the body's own stature. A fitted upper garment whose COLLAR (top vertex) sits
+# below this band is misplaced — measured 2026-08-11: the child's t-shirt collar
+# at 0.545 H (its hip) while every adult on both rails sits at 0.852-0.920.
+NECK_BAND_H = (0.78, 0.92)
+
+
+def _joint_world_z(armature: bpy.types.Object, name: str) -> float:
+    """World Z of a rest-pose bone head — the same frame world_bounds reports.
+
+    Walks pose -> rest matrix -> world, NOT inverse-bind inversion (#334's failed
+    instrument: `-R^T·t` assumes no scale and MPFB's IBMs carry it). The scene is
+    at rest when the masks/align run (the ClinicalIdle action is created later),
+    so `pose_bone.matrix` is the rest matrix.
+    """
+    pose_bone = armature.pose.bones.get(name)
+    if pose_bone is None:
+        raise RuntimeError(f"#335: {name} bone missing from the MPFB standard rig")
+    return (armature.matrix_world @ pose_bone.matrix).translation.z
+
+
+def align_upper_garment_to_neck(garment, human, armature):
+    """#332 — a fitted upper garment whose collar sits BELOW the neck band is
+    translated so its collar lands at the body's OWN neck01 joint.
+
+    `ClothesService.fit_clothes_to_human` maps the .mhclo body-vertex refs onto the
+    armature-deformed body, so the SAME t-shirt lands differently on each body
+    (measured 2026-08-11: aisha collar 0.852 H, nurse 0.920 H, child 0.545 H — the
+    child's at its hip). Anchoring the collar to the body's own neck01 reproduces
+    the aisha working fit (collar 0.852 vs neck01 0.848 — the collar sits at the
+    base of the neck) on every body, per-body and anatomy-derived, no fitted
+    constant. Only the TOO-LOW case is aligned: a collar ABOVE the band is the
+    #334 hide-mask's territory (the mask clips to the head joint), not a translate.
+
+    FRAMES, measured (the materializer's rig is added on the FULL base before the
+    #318 helper strip, so the depsgraph armature-modifier evaluation does NOT match
+    the glTF export): the body's stature is read from the RAW mesh
+    (`matrix_world @ v.co` on `human.data.vertices`, the same frame
+    `_triangulate_numpy` and the export use), NOT from `world_bounds` (which reads
+    the armature-deformed evaluated mesh — measured 0.824 m against the shipped
+    1.241 m body). The garment's top is `v.co.z` (local == world; the exported
+    bytes confirm local == exported world). The neck01 joint is read at rest via
+    `_joint_world_z` (the armature aligns with the full base; measured 1.036 m for
+    the child, matching the exported GLB).
+
+    The translate runs BEFORE the weight projection so the k-NN binds the shirt to
+    the torso/neck bones at its final height, and before the hide-mask computation
+    so the mask follows the shirt.
+    """
+    top_z = max(v.co.z for v in garment.data.vertices)
+    mw_h = human.matrix_world
+    zmin = min((mw_h @ v.co).z for v in human.data.vertices)
+    zmax = max((mw_h @ v.co).z for v in human.data.vertices)
+    stature = zmax - zmin
+    if stature <= 0:
+        raise RuntimeError("#332: non-positive body stature for the neck-band fraction")
+    frac = (top_z - zmin) / stature
+    if frac >= NECK_BAND_H[0]:
+        print(f"GARMENT_NECK_ALIGN keep collarFrac {frac:.4f} (at or above the neck band)")
+        return {"aligned": False, "collarFrac": frac, "deltaZ": 0.0}
+    neck_z = _joint_world_z(armature, "neck01")
+    delta = neck_z - top_z
+    for v in garment.data.vertices:
+        v.co.z += delta
+    bpy.context.view_layer.update()
+    new_top = max(v.co.z for v in garment.data.vertices)
+    print(
+        f"GARMENT_NECK_ALIGN collarFrac {frac:.4f} -> topZ {new_top:.4f} "
+        f"(neck01 {neck_z:.4f}, deltaZ {delta:.4f})"
+    )
+    return {"aligned": True, "collarFrac": frac, "deltaZ": delta}
+
 
 def make_material(name, color):
     material = bpy.data.materials.new(name)
@@ -536,7 +609,7 @@ def main():
     _stage_dir = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
     if str(_stage_dir) not in _sys3.path:
         _sys3.path.insert(0, str(_stage_dir))
-    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment  # noqa: E402
+    from body_param_stage import import_obj, apply_object_transforms, transfer_weights_body_to_garment, world_bounds  # noqa: E402
 
     _garment_dir = (
         REPO_ROOT
@@ -574,6 +647,16 @@ def main():
     bpy.context.view_layer.update()
     garment_verts_after = len(garment.data.vertices)
     garment_tris = sum(max(len(p.vertices) - 2, 0) for p in garment.data.polygons)
+    # Rename the shirt mesh data to the library convention (the OBJ importer keeps
+    # the pack stem `t_shirt_basic_tucked`; the pants/shoes follow the
+    # `makeclothes_library_*_mpfb_<ref>` convention) so the garment classifiers on
+    # both rails see the upper channel as a real MakeClothes garment.
+    _ref_tag = args.reference or "ob_patient_aisha"
+    garment.data.name = f"makeclothes_library_toigo_t_shirt_mpfb_{_ref_tag}_mesh"
+    # #332: anchor the fitted shirt's collar to the body's own neck when the fit
+    # lands it below the neck band (the child's shirt fits at its hip). Must run
+    # BEFORE the weight projection so the k-NN binds the shirt at its final height.
+    neck_align = align_upper_garment_to_neck(garment, human, armature)
     # Bind the garment to the same armature so it deforms with the body (the proven
     # weight projection body_param_stage runs for the hm08 rail; not a rigid shell).
     weights = transfer_weights_body_to_garment(human, garment, armature)
@@ -669,6 +752,7 @@ def main():
         _sys4.path.insert(0, str(_stage_dir2))
     from body_param_stage import (  # noqa: E402
         apply_body_hide_material_region,
+        clip_hide_mask_below_joint,
         clip_hide_mask_to_garment_footprint,
         scope_hide_mask_away_from_hands,
         world_bounds,
@@ -782,6 +866,11 @@ def main():
         f"LOWER_GATE {lower_rep} pantsMesh {pants_mesh_name} verts {pants_verts_after} "
         f"tris {pants_tris} weights {pants_weights}"
     )
+    # #334: the head joint is the per-body bound below which a hide mask may stop —
+    # the reference is the body's OWN skeleton (it cannot be moved by the garment
+    # change being measured), not a stature fraction or a fitted constant. Read it
+    # at rest; the ClinicalIdle action is created after the masks.
+    head_joint_z = _joint_world_z(armature, "head")
     hide_info = body_hide_mask(
         body_verts,
         body_faces,
@@ -806,6 +895,10 @@ def main():
     hide_mask, footprint_clipped = clip_hide_mask_to_garment_footprint(
         hide_mask, human, gb
     )
+    # #334 — never discard the head/face: a garment whose collar rides above the
+    # body's own head joint puts the jaw under the mask. Clip the mask to the head
+    # joint (no-op on bodies whose mask already stops below — the known-good ones).
+    hide_mask, head_clipped = clip_hide_mask_below_joint(hide_mask, human, head_joint_z)
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
@@ -844,6 +937,10 @@ def main():
     )
     lower_hide_mask, lower_footprint_clipped = clip_hide_mask_to_garment_footprint(
         lower_hide_mask, human, pb
+    )
+    # #334 — same head-joint bound on the lower mask (a no-op today; uniform rule).
+    lower_hide_mask, lower_head_clipped = clip_hide_mask_below_joint(
+        lower_hide_mask, human, head_joint_z
     )
     lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
     print(

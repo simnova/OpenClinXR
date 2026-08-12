@@ -37,6 +37,7 @@ import {
 } from "./learner-exam-form-boot.js";
 import { scenariosFromFixtureSequence } from "./learner-exam-scenario-source.js";
 import { buildStationEnvironment } from "./station-environment.js";
+import { loadInfinigenEnvironmentIntoStation } from "./infinigen-station-environment.js";
 import { roomPropColourNumbers } from "./room-prop-materials.js";
 import { buildRoomPropGroup } from "./room-prop-geometry.js";
 import {
@@ -3365,6 +3366,17 @@ function createStationScene(): StationSceneRuntime {
     roomDepthMeters: stationEnvironment.userData.roomDepthMeters,
     environmentFallbackActive: stationEnvironment.userData.environmentFallbackActive,
   };
+  // #336: generated Infinigen room selected by environmentId; procedural box stays as fallback.
+  if (!cleanHumanoidSourceComparatorCapture) {
+    loadInfinigenEnvironmentIntoStation({
+      scene,
+      environmentId: activeEnvironmentId,
+      stationEnvironment,
+      onStatus: (status) => {
+        stationEnvironment.userData.openClinXrInfinigenEnvironmentStatus = status;
+      },
+    });
+  }
   // Env glTF container for factory-produced world assets.
   const gltfEnvContainer = new Group();
   gltfEnvContainer.name = `${runtimeSceneObjectPrefix()}.case-env-gltf-container`;

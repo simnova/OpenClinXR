@@ -1,0 +1,36 @@
+{
+  "shellFound": true,
+  "environmentId": "ed_exam_bay_v1",
+  "status": {
+    "environmentId": "ed_exam_bay_v1",
+    "state": "loaded",
+    "assetPath": "/xr-assets/environment/infinigen-ed-exam-bay.glb"
+  },
+  "roomFound": true,
+  "roomPosition": [
+    0,
+    -0.07553453445434571,
+    -0.7750000000000001
+  ],
+  "roomMeta": {
+    "boundsMin": [
+      -3.25,
+      -0.1244654655456543,
+      -3.25
+    ],
+    "boundsMax": [
+      3.25,
+      2.5255346298217773,
+      3.25
+    ],
+    "sizeMeters": [
+      6.5,
+      2.6500000953674316,
+      6.5
+    ],
+    "floorTopY": 0.07553453445434571,
+    "floorCenterZ": -0.7750000000000001
+  },
+  "hiddenShellMeshes": 6,
+  "roomVisible": true
+}

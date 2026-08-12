@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-08-11T23:37:06.622Z",
+  "measuredAt": "2026-08-12T00:43:26.917Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -53,19 +53,19 @@
       "file": "mpfb-peds-nurse-kevin.glb",
       "bodyMeshName": "mpfb_peds_nurse_kevin_body",
       "triangles": 26756,
-      "vertices": 15729,
+      "vertices": 15689,
       "heightMeters": 1.760076550213853,
       "bodySha256": "0023adb5d69cc1548c93a1d7865f1d41cf913b934a2ae97a4ecb78775f4c0004",
-      "bodyClassKey": "15729|26756|1.76"
+      "bodyClassKey": "15689|26756|1.76"
     },
     {
       "file": "mpfb-peds-patient-child.glb",
       "bodyMeshName": "mpfb_peds_patient_child_body",
       "triangles": 26756,
-      "vertices": 14937,
+      "vertices": 15384,
       "heightMeters": 1.2410178188438294,
-      "bodySha256": "bdedbbd137e6f7b14a566ff3b30054a0e5bd88aa8a8f87e0f6ed08e21717c386",
-      "bodyClassKey": "14937|26756|1.24"
+      "bodySha256": "d0997a6cc32f66ac8cce84af73b309b41a7a3998c293d83ea98d2f5786ab07a4",
+      "bodyClassKey": "15384|26756|1.24"
     },
     {
       "file": "peds_anxious_parent.glb",
@@ -161,12 +161,12 @@
       ]
     },
     {
-      "bodyClassKey": "14937|26756|1.24",
+      "bodyClassKey": "15384|26756|1.24",
       "triangles": 26756,
-      "vertices": 14937,
+      "vertices": 15384,
       "heightMeters": 1.2410178188438294,
       "distinctSha256": [
-        "bdedbbd137e6f7b14a566ff3b30054a0e5bd88aa8a8f87e0f6ed08e21717c386"
+        "d0997a6cc32f66ac8cce84af73b309b41a7a3998c293d83ea98d2f5786ab07a4"
       ],
       "assets": [
         "mpfb-peds-patient-child.glb"
@@ -185,9 +185,9 @@
       ]
     },
     {
-      "bodyClassKey": "15729|26756|1.76",
+      "bodyClassKey": "15689|26756|1.76",
       "triangles": 26756,
-      "vertices": 15729,
+      "vertices": 15689,
       "heightMeters": 1.760076550213853,
       "distinctSha256": [
         "0023adb5d69cc1548c93a1d7865f1d41cf913b934a2ae97a4ecb78775f4c0004"

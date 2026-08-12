@@ -25,6 +25,7 @@ const generatedSceneAssetHashes = {
   "medical-equipment/bedside-monitor-generated.glb": "cff08df0a94ee25651d02c4667fe94232aff659d2702b04084c99c7440953f3b",
   "environment/ed-exam-bay-shell.glb": "af010787db369953d9b00a3f050cbba88a51e25262a213308fc84fc36f43779b",
   "environment/pediatric_urgent_care_bay_environment.glb": "9c431d8e158cbb7486de557ffaed02e79a0bac9681704b80449ace7dc4af8c62",
+  "environment/infinigen-ed-exam-bay.glb": "1bddb589715d6ef4fb6cdeff2d72414daef81b42b154a7999e53a712bb990ba1",
 } as const;
 
 describe("static browser assets", () => {

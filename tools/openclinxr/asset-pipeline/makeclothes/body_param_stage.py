@@ -922,6 +922,47 @@ def clip_hide_mask_to_garment_footprint(
     return mask, removed
 
 
+def clip_hide_mask_below_joint(
+    tri_mask,
+    basemesh: bpy.types.Object,
+    joint_world_z: float,
+) -> tuple[np.ndarray, int]:
+    """#334 — never discard the head/face: zero the mask for any body polygon with a
+    vertex ABOVE the body's own head-joint world height.
+
+    The hide mask is built from a signed-clearance test against the garment surface
+    (`body_hide_mask`), so a garment whose collar rides high on a body — the same
+    fitted t-shirt lands differently on bodies with different proportions (measured
+    2026-08-11: nurse_kevin's collar at 0.920 H against his OWN head joint at
+    0.914 H, aisha 0.851 vs 0.909, child 0.546 vs 0.894) — puts the jaw under the
+    mask and the alpha-MASK discards it, rendering a black band across the face.
+    A mask that hides the head is worse than the poke-through it prevents: the head
+    region is not "under cloth". The bound is the body's OWN skeleton (per-body
+    anatomy, scales across a 124 cm child and a 176 cm adult), never a stature
+    fraction or a fitted constant — the reference cannot be moved by the garment
+    change being measured. Polygon-level, exactly like the footprint clip:
+    `apply_body_hide_material_region` hides whole polygons, so a triangle-level clip
+    lets a polygon whose fourth vertex pokes above the joint keep its hidden material.
+    """
+    mask = np.asarray(tri_mask, dtype=bool).copy()
+    if not mask.any():
+        return mask, 0
+    removed = 0
+    tri_i = 0
+    for poly in basemesh.data.polygons:
+        n_tri = max(len(poly.vertices) - 2, 1)
+        if not mask[tri_i : tri_i + n_tri].any():
+            tri_i += n_tri
+            continue
+        # Same frame convention as the footprint clip (basemesh at identity in the
+        # stage/materializer, so local coords ARE world coords).
+        if any(basemesh.data.vertices[vi].co.z > joint_world_z for vi in poly.vertices):
+            mask[tri_i : tri_i + n_tri] = False
+            removed += 1
+        tri_i += n_tri
+    return mask, removed
+
+
 def create_mpfb_mixamo_rig(basemesh: bpy.types.Object) -> dict:
     """issue-307 — wire the MPFB-shipped CC0 rig + weight map (D1: the tool is on disk).
 

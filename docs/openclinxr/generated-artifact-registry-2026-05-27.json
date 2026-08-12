@@ -6,10 +6,11 @@
   "counts": {
     "keep-evidence": 118,
     "ignore-local-cache": 2112,
-    "keep-current": 115,
+    "keep-current": 116,
     "keep-compatibility-input": 24,
     "keep-template": 6,
-    "entries": 2375
+    "entries": 2375,
+    "total": 1
   },
   "entries": [
     {
@@ -15487,7 +15488,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "#151 body_param factory candidate — heavy male MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+      "rationale": "#151 body_param factory candidate \u2014 heavy male MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_heavy_male-library.provenance.json",
@@ -15501,7 +15502,7 @@
       "authority": "keep-current",
       "tracked": true,
       "action": "keep",
-      "rationale": "#151 body_param factory candidate — lean female MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
+      "rationale": "#151 body_param factory candidate \u2014 lean female MPFB macros + per-class ClothesService-fitted CC-BY scrub; phenotype reaches vertices."
     },
     {
       "path": "apps/ui-xr/public/xr-assets/humanoids/candidates/body-param-adult_lean_female-library.provenance.json",
@@ -16636,6 +16637,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Orchestrator value decision recorded after grading a rendered sweep (value-decision.ts). Tracked deliberately: the first version wrote under the gitignored .openclinxr tree, so the record vanished on clone while the assertion that reads it stayed. The sheet stays in evidence; the decision must survive."
+    },
+    {
+      "path": "apps/ui-xr/public/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "authority": "keep-current",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Generated Infinigen room shell (#336), deterministic seed-0 bake, environmentId-keyed runtime consumer; provenance in public/xr-assets/environment/PROVENANCE.md + MADR 0053."
     }
   ]
 }

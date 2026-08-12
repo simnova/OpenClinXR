@@ -11,8 +11,8 @@
     "protected-policy": 10,
     "agent-memory": 34,
     "historical-synthesis": 11,
-    "decision-record": 36,
-    "total": 429
+    "decision-record": 37,
+    "total": 430
   },
   "entries": [
     {
@@ -3047,6 +3047,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Modular agentic methodology / harness rules (extracted from AGENTS.md for LOW_TOKEN targeted reads + multi-harness standardization); canonical source. Discovered by Grok etc via .grok/rules/ symlinks (see grok-harness-usage.md and source-of-truth order)."
+    },
+    {
+      "path": "docs/madr/0053-infinigen-environmentid-learner-consumer.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     }
   ]
 }

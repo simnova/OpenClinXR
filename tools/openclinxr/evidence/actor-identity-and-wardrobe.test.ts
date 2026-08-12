@@ -194,8 +194,15 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     const child = report.actors.find((a) => a.actorId.includes("patient"));
     expect(child, "no patient role in the pediatric encounter").toBeDefined();
 
+    // #335: the peds patient is cast to the MPFB child, whose garments are the MakeClothes
+    // library fits (toigo t-shirt + cargo pants), not Anny-rail `openclinxr_real_garment_*`
+    // meshes. The declared garment exists as real geometry on either rail — same acceptance
+    // the parent/nurse clause gained when #278 moved those roles onto the library rail.
     const real = child!.garmentMeshNames.filter(
-      (n) => n.includes("openclinxr_real_garment_") && !n.includes("declared_upper_layers"),
+      (n) =>
+        (n.includes("openclinxr_real_garment_")
+          || /makeclothes_library_.*(scrub|shirt|pant|trouser|gown)/i.test(n))
+        && !n.includes("declared_upper_layers"),
     );
     expect(real.length, "the pediatric patient has no real garment mesh").toBeGreaterThan(0);
 
@@ -204,13 +211,14 @@ describe("actors are distinguishable and dressed (#96 + #94)", () => {
     const inBand = child!.garmentTriangleCounts.filter((t) => t >= 400 && t <= 4000);
     expect(inBand.length, `garment triangle counts were ${child!.garmentTriangleCounts.join(", ")}`).toBeGreaterThan(0);
 
-    expect(
-      child!.realGarmentRegionFaceCount,
-      "the rigging report declares a garment region that does not exist",
-    ).not.toBeNull();
-    expect(inBand, `region face count ${child!.realGarmentRegionFaceCount} matches no garment mesh`).toContain(
-      child!.realGarmentRegionFaceCount,
-    );
+    // The rigging-report region (realGarmentRegionFromPhenotype) is Anny-rail machinery; the
+    // MPFB rail has no rigging report, so declaration↔geometry agreement is asserted only when
+    // a rigging report exists (#335 cast change).
+    if (child!.realGarmentRegionFaceCount !== null) {
+      expect(inBand, `region face count ${child!.realGarmentRegionFaceCount} matches no garment mesh`).toContain(
+        child!.realGarmentRegionFaceCount,
+      );
+    }
   }, 600_000);
 
   it("the parent and nurse still carry their garment shells (COUNTERWEIGHT — already true)", async () => {
