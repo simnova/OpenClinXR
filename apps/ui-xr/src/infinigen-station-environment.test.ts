@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Group, Mesh, BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
+import { Box3, Group, Mesh, BoxGeometry, MeshStandardMaterial, Vector3 } from "three";
 
 /**
  * PLANTED CONTRACTS (#336). Infinigen-generated station environment, selected by environmentId.
@@ -126,6 +126,105 @@ describe("Infinigen station environment by environmentId (#336)", () => {
     });
     expect(status.state).toBe("pending");
     expect(status.assetPath).toBe("/xr-assets/environment/infinigen-ed-exam-bay.glb");
+  });
+});
+
+/**
+ * PLANTED CONTRACTS (#342). The composite station rendered a blank grey viewport while the
+ * #336 contracts above were green, because both of their fixtures avoid the failure class.
+ *
+ * Measured from the LIVE scene graph before the fix (ED chest pain, scene-overview):
+ *   dining-room_00floor  world y = -0.076   (humanoids ground at y=0; nurse lowest vertex -0.02)
+ *   openclinxr.ed-chest-pain.floor          VISIBLE, y -0.08..0, z -2.5..0.95  (procedural floor
+ *                                           still drawing on top of the generated one)
+ *
+ * Cause of both: a NAME MISMATCH the #336 fixtures could not exhibit.
+ *   - `positionInfinigenRoom` matched `.floor` (dotted). The fixture above is named
+ *     `infinigen_room_0/0.floor` — dotted — so it matched. The shipped bake is
+ *     `dining-room_00floor` — NOT dotted — so it never matched, and the no-floor fallback
+ *     (`box.min.y + 0.2`) placed the room 0.0755 m low.
+ *   - `hideProceduralShellMeshes` matched the name `openclinxr.station-environment.floor`.
+ *     main.ts renames that mesh to `openclinxr.<scenario>.floor` AFTER buildStationEnvironment
+ *     returns, so the live floor was never hidden. The #336 fixture sets the pre-rename name.
+ *
+ * Header IMMUTABLE — append ## FIXED (#342) below.
+ */
+describe("Infinigen room placement against the SHIPPED bake's names (#342)", () => {
+  it("finds the floor when the bake names it without a dot, as the shipped GLB does", async () => {
+    const mod = await load();
+    const position = mod["positionInfinigenRoom"] as
+      | ((roomRoot: Group, stationEnvironment: Group) => { floorTopY: number })
+      | undefined;
+    expect(position).toBeTypeOf("function");
+
+    // Real names from the shipped bake, read off the live scene graph.
+    const roomRoot = new Group();
+    const floorPlane = new Mesh(new BoxGeometry(6.38, 0.0, 6.25), new MeshStandardMaterial());
+    floorPlane.name = "dining-room_00floor";
+    floorPlane.position.y = 0;
+    const wall = new Mesh(new BoxGeometry(6.38, 2.41, 6.38), new MeshStandardMaterial());
+    wall.name = "dining-room_00wall";
+    wall.position.y = -0.0755 + 2.41 / 2;
+    const hull = new Mesh(new BoxGeometry(6.5, 2.65, 6.5), new MeshStandardMaterial());
+    hull.name = "dining-room_00exterior";
+    hull.position.y = -0.1245 + 2.65 / 2;
+    roomRoot.add(floorPlane, wall, hull);
+
+    const shell = new Group();
+    const shellFloor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
+    shellFloor.name = "openclinxr.station-environment.floor";
+    shellFloor.position.set(0, -0.04, -0.775);
+    shell.userData.floorMesh = shellFloor;
+
+    roomRoot.updateMatrixWorld(true);
+    const result = position!(roomRoot, shell);
+
+    // The floor plane IS the standing surface: it must be found, not the 0.2 m fallback band.
+    expect(result.floorTopY).toBeCloseTo(0.0, 3);
+    // Regression guard on the exact defect: the fallback produced +0.0755 here.
+    expect(Math.abs(result.floorTopY - 0.0755)).toBeGreaterThan(0.01);
+    // Floor top lands at world y=0, where every humanoid grounds.
+    roomRoot.updateMatrixWorld(true);
+    const floorTopWorldY = new Box3().setFromObject(floorPlane).max.y;
+    expect(floorTopWorldY).toBeCloseTo(0.0, 3);
+  });
+
+  it("hides the procedural floor after main.ts has renamed it to a scenario-prefixed id", async () => {
+    const mod = await load();
+    const hide = mod["hideProceduralShellMeshes"] as ((shell: Group) => number) | undefined;
+    expect(hide).toBeTypeOf("function");
+
+    const shell = new Group();
+    shell.name = "openclinxr.station-environment-shell";
+    const floor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
+    // main.ts:3335 — `floor.name = iwsdkStationSceneObjects.floor` renames it post-build.
+    floor.name = "openclinxr.ed-chest-pain.floor";
+    const wall = new Mesh(new BoxGeometry(0.08, 2.65, 3.45), new MeshStandardMaterial());
+    wall.name = "openclinxr.station-environment.back-wall";
+    const stretcher = new Mesh(new BoxGeometry(0.9, 0.9, 1.9), new MeshStandardMaterial());
+    stretcher.name = "openclinxr.station-environment.fixture-slot.stretcher";
+    shell.add(floor, wall, stretcher);
+    shell.userData.floorMesh = floor;
+
+    const hidden = hide!(shell);
+
+    // The generated room's own floor plane is the replacement for this surface.
+    expect(floor.visible).toBe(false);
+    expect(wall.visible).toBe(false);
+    expect(stretcher.visible).toBe(true);
+    expect(hidden).toBe(2);
+  });
+
+  it("counts a mesh hidden once when it matches by BOTH name and floorMesh identity", async () => {
+    const mod = await load();
+    const hide = mod["hideProceduralShellMeshes"] as ((shell: Group) => number) | undefined;
+    const shell = new Group();
+    const floor = new Mesh(new BoxGeometry(7, 0.08, 3.45), new MeshStandardMaterial());
+    floor.name = "openclinxr.station-environment.floor";
+    shell.add(floor);
+    shell.userData.floorMesh = floor;
+    expect(hide!(shell)).toBe(1);
+    expect(floor.visible).toBe(false);
   });
 });
 

@@ -50,6 +50,19 @@ const SHELL_MESH_SUFFIXES = [
   "wall-trim",
 ] as const;
 
+/**
+ * #342 — a mesh is the room's standing surface when its name ends in "floor".
+ *
+ * Was `.floor` (a DOTTED suffix). Infinigen's single-room extraction bakes
+ * `dining-room_00floor` — no dot — so the match never fired on the only shipped room and
+ * `positionInfinigenRoom` silently took its no-floor fallback (`box.min.y + 0.2`), landing
+ * the floor 0.0755 m BELOW y=0 while every humanoid grounds at y=0. Measured live before the
+ * fix: floor plane world y = -0.076, nurse/spouse lowest vertex y = -0.02.
+ */
+function isFloorMeshName(name: string): boolean {
+  return /floor$/.test(name.toLowerCase());
+}
+
 export function resolveInfinigenEnvironmentAsset(environmentId: string): string | null {
   return INFINIGEN_ENVIRONMENT_ASSETS[environmentId] ?? null;
 }
@@ -61,18 +74,35 @@ export function resolveInfinigenEnvironmentAsset(environmentId: string): string 
  */
 export function hideProceduralShellMeshes(stationEnvironment: Group): number {
   let hidden = 0;
+  const hide = (obj: Object3D): void => {
+    if (obj.visible === false) return;
+    obj.visible = false;
+    obj.userData.openClinXrInfinigenPolicy =
+      "hidden_generated_infinigen_room_owns_shell_procedural_box_is_fallback";
+    hidden += 1;
+  };
+
   stationEnvironment.traverse((obj: Object3D) => {
     if (obj === stationEnvironment) return;
     if (!obj.name.startsWith(SHELL_MESH_NAME_PREFIX)) return;
     if (obj.name.startsWith(FIXTURE_SLOT_PREFIX)) return;
     const suffix = obj.name.slice(SHELL_MESH_NAME_PREFIX.length);
     if ((SHELL_MESH_SUFFIXES as readonly string[]).includes(suffix)) {
-      obj.visible = false;
-      obj.userData.openClinXrInfinigenPolicy =
-        "hidden_generated_infinigen_room_owns_shell_procedural_box_is_fallback";
-      hidden += 1;
+      hide(obj);
     }
   });
+
+  // #342 — the floor must be hidden by IDENTITY, not by name. main.ts renames the shell's
+  // floor mesh to a scenario-prefixed id (`openclinxr.ed-chest-pain.floor`) after
+  // buildStationEnvironment returns, so the name match above never reached it: measured live,
+  // the procedural floor stayed VISIBLE at y=0 spanning z -2.5..0.95 on top of the generated
+  // room's own floor plane. The generated room's floor is the replacement for this surface —
+  // it is only hidden on the same success path that adds that replacement.
+  const floorMesh = stationEnvironment.userData.floorMesh;
+  if (floorMesh instanceof Mesh) {
+    hide(floorMesh);
+  }
+
   return hidden;
 }
 
@@ -81,9 +111,10 @@ export function hideProceduralShellMeshes(stationEnvironment: Group): number {
  * shell's floor top) and its X/Z center coincides with the shell's floor center.
  *
  * The baked GLB is already centered with the floor slab at y≈0; this re-derives the floor
- * top from the room's OWN ".floor" mesh (never an invented constant) so any bake offset is
- * absorbed. Walls extend below the floor slab (baked as a single shell), which is fine: the
- * slab is the standing surface the actor-floor contracts measure.
+ * top from the room's OWN floor mesh (see `isFloorMeshName` — name ends in "floor", dotted or
+ * not; never an invented constant) so any bake offset is absorbed. Walls extend below the
+ * floor slab (baked as a single shell), which is fine: the slab is the standing surface the
+ * actor-floor contracts measure.
  */
 export function positionInfinigenRoom(
   roomRoot: Group,
@@ -95,21 +126,25 @@ export function positionInfinigenRoom(
   box.getSize(size);
   box.getCenter(center);
 
-  // Floor top = world max-y of the room's own floor slab mesh (name ends ".floor").
+  // Floor top = world max-y across the room's own floor mesh(es) (name ends "floor").
   let floorTopY = 0;
   const floorProbe = new Box3();
   let foundFloor = false;
   roomRoot.traverse((obj: Object3D) => {
-    if (foundFloor) return;
-    if (obj instanceof Mesh && obj.isMesh && obj.name.toLowerCase().endsWith(".floor")) {
-      floorProbe.setFromObject(obj);
+    if (obj instanceof Mesh && obj.isMesh && isFloorMeshName(obj.name)) {
+      const meshBox = new Box3().setFromObject(obj);
+      if (!Number.isFinite(meshBox.max.y)) return;
+      if (foundFloor) floorProbe.union(meshBox);
+      else floorProbe.copy(meshBox);
       foundFloor = true;
     }
   });
   if (foundFloor) {
     floorTopY = floorProbe.max.y;
   } else {
-    // No ".floor" mesh (unexpected bake): fall back to the lowest y band of the whole room.
+    // No floor-named mesh (unexpected bake): fall back to the lowest y band of the whole room.
+    // This fallback is a LAST RESORT, not a working path: on the shipped bake it landed the
+    // room 0.0755 m low for as long as the name match was wrong (#342).
     floorTopY = box.min.y + Math.min(0.2, size.y * 0.1);
   }
 

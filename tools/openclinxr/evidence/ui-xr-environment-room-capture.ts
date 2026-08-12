@@ -37,6 +37,34 @@ export type LiveShell = {
   encounterFloorTheme?: unknown;
   captureMode?: string;
   cameraFraming?: string;
+  /**
+   * #342 — the generated room, read from the LOADED SCENE.
+   *
+   * Every field above this point comes from `shell.userData`, i.e. the PARAMETRIC box
+   * written by `buildStationEnvironment`. That is why the manifest reported
+   * `roomWidthMeters 7 / roomDepthMeters 3.45` (the box) while the shipped Infinigen room
+   * measures 6.38 x 6.25 m, and why `shellVisible: true` stayed true with a blank viewport:
+   * no field in the old shape could observe the generated room at all, so none could fail.
+   */
+  infinigenRoom?: InfinigenRoomLiveFacts | null;
+};
+
+/** Measured facts about the generated room as it exists in the running scene. */
+export type InfinigenRoomLiveFacts = {
+  present: boolean;
+  effectivelyVisible: boolean;
+  meshCount: number;
+  /** Interior extent (room meshes excluding the outer hull), world metres. */
+  interiorSizeMeters: [number, number, number] | null;
+  interiorMin: [number, number, number] | null;
+  interiorMax: [number, number, number] | null;
+  /** World Y of the generated floor's top surface; humanoids ground at y=0. */
+  floorTopY: number | null;
+  /** True when the rendering camera's world position lies inside the interior extent. */
+  cameraInsideRoom: boolean;
+  cameraWorldPosition: [number, number, number] | null;
+  /** Procedural box meshes still drawing under/over the generated room. */
+  proceduralShellMeshesStillVisible: string[];
 };
 
 export type RoomCaptureManifestEntry = {
@@ -406,6 +434,121 @@ export async function readLivePostureGeometryFromPage(page: Page): Promise<LiveP
 
 type LiveShellFromPage = LiveShell & { ready: boolean; reason?: string };
 
+/**
+ * #342 — measure the generated room from the live scene graph.
+ *
+ * String IIFE (no TypeScript syntax) so tsx/esbuild cannot inject `__name` into the page,
+ * and no `THREE` namespace is required on `window`: world AABBs come from transforming the
+ * 8 corners of each geometry's local bounding box by its `matrixWorld`.
+ */
+export async function readInfinigenRoomLiveFacts(page: Page): Promise<InfinigenRoomLiveFacts> {
+  return page.evaluate(`(() => {
+    const absent = {
+      present: false, effectivelyVisible: false, meshCount: 0,
+      interiorSizeMeters: null, interiorMin: null, interiorMax: null, floorTopY: null,
+      cameraInsideRoom: false, cameraWorldPosition: null, proceduralShellMeshesStillVisible: []
+    };
+    const scene = window.__openClinXrDebugScene;
+    if (!scene || typeof scene.traverse !== "function") return absent;
+    scene.updateMatrixWorld(true);
+
+    const worldBoxOf = function (obj) {
+      const geom = obj.geometry;
+      if (!geom) return null;
+      if (!geom.boundingBox && typeof geom.computeBoundingBox === "function") geom.computeBoundingBox();
+      const bb = geom.boundingBox;
+      const e = obj.matrixWorld && obj.matrixWorld.elements;
+      if (!bb || !e) return null;
+      const xs = [bb.min.x, bb.max.x], ys = [bb.min.y, bb.max.y], zs = [bb.min.z, bb.max.z];
+      const a = [Infinity, Infinity, Infinity], b = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
+        const x = xs[i], y = ys[j], z = zs[k];
+        const p = [
+          e[0] * x + e[4] * y + e[8] * z + e[12],
+          e[1] * x + e[5] * y + e[9] * z + e[13],
+          e[2] * x + e[6] * y + e[10] * z + e[14]
+        ];
+        for (let c = 0; c < 3; c++) { if (p[c] < a[c]) a[c] = p[c]; if (p[c] > b[c]) b[c] = p[c]; }
+      }
+      return isFinite(a[0]) ? { min: a, max: b } : null;
+    };
+    const grow = function (acc, box) {
+      if (!box) return acc;
+      if (!acc) return { min: box.min.slice(), max: box.max.slice() };
+      for (let c = 0; c < 3; c++) {
+        if (box.min[c] < acc.min[c]) acc.min[c] = box.min[c];
+        if (box.max[c] > acc.max[c]) acc.max[c] = box.max[c];
+      }
+      return acc;
+    };
+    const effectivelyVisible = function (obj) {
+      let cur = obj;
+      while (cur && cur !== scene) { if (cur.visible === false) return false; cur = cur.parent; }
+      return true;
+    };
+
+    let roomRoot = null;
+    const stillVisible = [];
+    scene.traverse(function (o) {
+      if (!roomRoot && o.name === "openclinxr.station-environment.infinigen-room") roomRoot = o;
+    });
+    if (!roomRoot) return absent;
+
+    // Procedural box surfaces that should have been hidden once the room loaded.
+    scene.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      const n = o.name || "";
+      const isShellSurface =
+        /^openclinxr\\.station-environment\\.(floor|back-wall|left-wall|right-wall|ceiling|wall-trim)$/.test(n)
+        || (/\\.floor$/.test(n) && !!(o.userData && o.userData.openClinXrEncounterSpecificRuntimeTheme));
+      if (isShellSurface && effectivelyVisible(o)) stillVisible.push(n);
+    });
+
+    let interior = null, meshCount = 0, floorTopY = null;
+    roomRoot.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      meshCount += 1;
+      const box = worldBoxOf(o);
+      if (/exterior/i.test(o.name || "")) return;
+      interior = grow(interior, box);
+      if (box && /floor$/.test((o.name || "").toLowerCase())) {
+        floorTopY = floorTopY === null ? box.max[1] : Math.max(floorTopY, box.max[1]);
+      }
+    });
+
+    let camera = null;
+    scene.traverse(function (o) {
+      if (!camera && (o.isPerspectiveCamera || o.type === "PerspectiveCamera")) camera = o;
+    });
+    let camPos = null;
+    if (camera && camera.matrixWorld) {
+      const e = camera.matrixWorld.elements;
+      camPos = [e[12], e[13], e[14]];
+    }
+    let inside = false;
+    if (camPos && interior) {
+      inside = camPos[0] >= interior.min[0] && camPos[0] <= interior.max[0]
+        && camPos[1] >= interior.min[1] && camPos[1] <= interior.max[1]
+        && camPos[2] >= interior.min[2] && camPos[2] <= interior.max[2];
+    }
+
+    return {
+      present: true,
+      effectivelyVisible: effectivelyVisible(roomRoot),
+      meshCount: meshCount,
+      interiorSizeMeters: interior
+        ? [interior.max[0] - interior.min[0], interior.max[1] - interior.min[1], interior.max[2] - interior.min[2]]
+        : null,
+      interiorMin: interior ? interior.min : null,
+      interiorMax: interior ? interior.max : null,
+      floorTopY: floorTopY,
+      cameraInsideRoom: inside,
+      cameraWorldPosition: camPos,
+      proceduralShellMeshesStillVisible: stillVisible
+    };
+  })()`) as Promise<InfinigenRoomLiveFacts>;
+}
+
 async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
   return page.evaluate(() => {
     type Obj = {
@@ -483,11 +626,204 @@ async function readLiveShellFromPage(page: Page): Promise<LiveShellFromPage> {
 }
 
 /**
- * Pull camera back / elevate slightly so walls + floor of the parametric shell
- * read as a room rather than an actor close-up. scene-overview already starts
- * wider than face-detail; this nudges toward a learner standing at the doorway.
+ * Frame the room from a learner viewpoint.
+ *
+ * #342 — when a generated Infinigen room is loaded, the camera position is DERIVED from that
+ * room's own measured interior bounds and the live actor bounds; nothing is hardcoded. The
+ * previous fixed `(1.35, 2.05, 3.15)` was tuned for the PARAMETRIC shell, which is open at +Z
+ * (its walls and ceiling stop at z=0.95, there is no front wall), so a camera at z=3.15 looked
+ * in from outside and that worked. The Infinigen room is a CLOSED shell spanning z -4.03..2.47
+ * with an untextured exterior hull, so the same camera stood outside it and photographed the
+ * hull: a flat grey viewport, while every probe field reported success.
+ *
+ * Derivation, all four inputs measured live, no constants:
+ *   eyeX  = centre X of the actor bounds        eyeY = top Y of the actor bounds (standing eye)
+ *   eyeZ  = interior max Z - wall thickness,    where wall thickness = exteriorMaxZ - interiorMaxZ
+ *   look  = centre of the actor bounds
+ * i.e. stand inside the room, backed against the doorway-side interior wall — the furthest
+ * in-room viewpoint the geometry allows — and look at the encounter.
+ *
+ * With no Infinigen room (unmapped environmentId, e.g. telehealth) the original parametric
+ * framing is kept unchanged, so the fallback path's capture is unaffected.
  */
 async function reframeCameraForRoom(page: Page): Promise<string> {
+  // NOTE: string IIFE — keep free of TypeScript syntax so tsx/esbuild cannot inject `__name`.
+  const derived = (await page.evaluate(`(() => {
+    const scene = window.__openClinXrDebugScene;
+    if (!scene || typeof scene.traverse !== "function") return null;
+    scene.updateMatrixWorld(true);
+
+    const worldBoxOf = function (obj) {
+      const geom = obj.geometry;
+      if (!geom) return null;
+      if (!geom.boundingBox && typeof geom.computeBoundingBox === "function") geom.computeBoundingBox();
+      const bb = geom.boundingBox;
+      const e = obj.matrixWorld && obj.matrixWorld.elements;
+      if (!bb || !e) return null;
+      const xs = [bb.min.x, bb.max.x], ys = [bb.min.y, bb.max.y], zs = [bb.min.z, bb.max.z];
+      let a = [Infinity, Infinity, Infinity], b = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) for (let k = 0; k < 2; k++) {
+        const x = xs[i], y = ys[j], z = zs[k];
+        const p = [
+          e[0] * x + e[4] * y + e[8] * z + e[12],
+          e[1] * x + e[5] * y + e[9] * z + e[13],
+          e[2] * x + e[6] * y + e[10] * z + e[14]
+        ];
+        for (let c = 0; c < 3; c++) { if (p[c] < a[c]) a[c] = p[c]; if (p[c] > b[c]) b[c] = p[c]; }
+      }
+      return isFinite(a[0]) ? { min: a, max: b } : null;
+    };
+    const grow = function (acc, box) {
+      if (!box) return acc;
+      if (!acc) return { min: box.min.slice(), max: box.max.slice() };
+      for (let c = 0; c < 3; c++) {
+        if (box.min[c] < acc.min[c]) acc.min[c] = box.min[c];
+        if (box.max[c] > acc.max[c]) acc.max[c] = box.max[c];
+      }
+      return acc;
+    };
+
+    let roomRoot = null;
+    scene.traverse(function (o) {
+      if (!roomRoot && o.name === "openclinxr.station-environment.infinigen-room") roomRoot = o;
+    });
+    if (!roomRoot) return null;
+
+    // Interior = the room's own meshes EXCLUDING the outer hull; hull = the "exterior" mesh.
+    let interior = null, exterior = null;
+    roomRoot.traverse(function (o) {
+      if (!(o.isMesh || o.isSkinnedMesh)) return;
+      const box = worldBoxOf(o);
+      if (/exterior/i.test(o.name || "")) exterior = grow(exterior, box);
+      else interior = grow(interior, box);
+    });
+    if (!interior) return null;
+
+    // Encounter focus = union of the live skinned actor meshes.
+    let actors = null;
+    scene.traverse(function (o) {
+      if (!o.isSkinnedMesh) return;
+      actors = grow(actors, worldBoxOf(o));
+    });
+    if (!actors) return null;
+
+    // Per-actor bounds, so a viewpoint can be scored on its distance to the NEAREST actor.
+    const actorBoxes = [];
+    scene.traverse(function (o) {
+      if (!o.isSkinnedMesh) return;
+      const box = worldBoxOf(o);
+      if (box) actorBoxes.push(box);
+    });
+
+    const wallThickness = exterior ? Math.max(0, exterior.max[2] - interior.max[2]) : 0;
+    const look = [
+      (actors.min[0] + actors.max[0]) / 2,
+      (actors.min[1] + actors.max[1]) / 2,
+      (actors.min[2] + actors.max[2]) / 2
+    ];
+
+    // Candidate viewpoints: the interior corners and edge midpoints on the DOORWAY side
+    // (+Z, the side a learner enters from), inset by TWICE the measured wall thickness.
+    // The interior AABB's face is the wall's OUTER surface, so one thickness only reaches the
+    // inner surface and leaves the camera coplanar with it — measured at attempt 2, that
+    // grazed the west wall and exposed a fixture standing outside the room. Two clears both
+    // faces. The multiplier is the wall's own two surfaces, not a tuned stand-off.
+    const zEye = interior.max[2] - 2 * wallThickness;
+    const xLeft = interior.min[0] + 2 * wallThickness;
+    const xRight = interior.max[0] - 2 * wallThickness;
+    const candidates = [
+      [xLeft, zEye], [xRight, zEye], [(xLeft + xRight) / 2, zEye],
+      [(xLeft + (xLeft + xRight) / 2) / 2, zEye], [((xLeft + xRight) / 2 + xRight) / 2, zEye]
+    ];
+
+    // Score = distance to the CLOSEST actor box in the XZ plane. Maximising it is exactly
+    // "no single actor dominates the frame"; it is a selection rule over measured geometry,
+    // not a tuned camera position. Backing straight out along the encounter's own axis put
+    // the camera 1.54 m from the nurse and she filled the viewport.
+    const nearestActorDistance = function (x, z) {
+      let best = Infinity;
+      for (let i = 0; i < actorBoxes.length; i++) {
+        const b = actorBoxes[i];
+        const dx = Math.max(b.min[0] - x, 0, x - b.max[0]);
+        const dz = Math.max(b.min[2] - z, 0, z - b.max[2]);
+        const d = Math.sqrt(dx * dx + dz * dz);
+        if (d < best) best = d;
+      }
+      return best;
+    };
+    let eyeXZ = candidates[0], bestScore = -1;
+    for (let i = 0; i < candidates.length; i++) {
+      const s = nearestActorDistance(candidates[i][0], candidates[i][1]);
+      if (s > bestScore) { bestScore = s; eyeXZ = candidates[i]; }
+    }
+
+    const eye = [eyeXZ[0], actors.max[1], eyeXZ[1]];
+    return {
+      eye: eye, look: look, wallThickness: wallThickness,
+      nearestActorMeters: bestScore,
+      interiorMin: interior.min, interiorMax: interior.max,
+      actorMin: actors.min, actorMax: actors.max
+    };
+  })()`)) as {
+    eye: [number, number, number];
+    look: [number, number, number];
+    wallThickness: number;
+    nearestActorMeters: number;
+    interiorMin: [number, number, number];
+    interiorMax: [number, number, number];
+  } | null;
+
+  if (derived) {
+    return page.evaluate((d) => {
+      type Vec3 = { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
+      type Cam = {
+        position: Vec3;
+        lookAt: (x: number, y: number, z: number) => void;
+        fov?: number;
+        updateProjectionMatrix?: () => void;
+        userData?: Record<string, unknown>;
+        parent?: { worldToLocal?: (v: Vec3) => unknown; updateMatrixWorld?: (force?: boolean) => void };
+      };
+      type Obj = { isPerspectiveCamera?: boolean; type?: string } & Partial<Cam>;
+      const scene = (window as unknown as {
+        __openClinXrDebugScene?: { traverse?: (cb: (o: Obj) => void) => void };
+      }).__openClinXrDebugScene;
+      if (!scene?.traverse) return "no-scene";
+      let camera: Cam | undefined;
+      scene.traverse((object) => {
+        if (camera) return;
+        if (object.isPerspectiveCamera || object.type === "PerspectiveCamera") {
+          camera = object as unknown as Cam;
+        }
+      });
+      if (!camera) return "no-camera";
+      // `eye` is a WORLD point derived from world-space room bounds, but `camera.position` is
+      // LOCAL to the locomotion rig the camera is parented to. Setting it directly landed the
+      // camera at world z 1.48 instead of the intended 2.10 — still inside the room, but 0.62 m
+      // off what the derivation claims. Convert through the parent so the two agree.
+      // `lookAt` already takes a world point and accounts for the parent, so it is unchanged.
+      // `camera.position` IS a THREE.Vector3, so it can be passed to `worldToLocal` (which
+      // calls `applyMatrix4` and rejects a plain object). Write the world point into it, then
+      // convert in place against the rig's matrix.
+      camera.position.set(d.eye[0], d.eye[1], d.eye[2]);
+      const parent = camera.parent;
+      if (parent && typeof parent.worldToLocal === "function") {
+        parent.updateMatrixWorld?.(true);
+        parent.worldToLocal(camera.position);
+      }
+      camera.lookAt(d.look[0], d.look[1], d.look[2]);
+      if (typeof camera.fov === "number") {
+        camera.fov = 62;
+        camera.updateProjectionMatrix?.();
+      }
+      if (camera.userData) {
+        camera.userData["openClinXrCameraFraming"] =
+          "environment_room_capture_infinigen_interior_learner_view_derived_from_room_and_actor_bounds_#342";
+      }
+      return `roomCam(derived)=${d.eye.map((v) => v.toFixed(2)).join(",")} look=${d.look.map((v) => v.toFixed(2)).join(",")} nearestActor=${d.nearestActorMeters.toFixed(2)}m interiorMaxZ=${d.interiorMax[2].toFixed(2)} wallThickness=${d.wallThickness.toFixed(3)}`;
+    }, derived);
+  }
+
   return page.evaluate(() => {
     type Cam = {
       position: { set: (x: number, y: number, z: number) => void; x: number; y: number; z: number };
@@ -650,9 +986,17 @@ export async function captureStationEnvironmentRooms(
           await page.goto(url, { waitUntil: "load", timeout: 180_000 });
 
           const live = await waitForStationShell(page, 180_000);
-          if (live.shellVisible === false || live.floorVisible === false) {
+          // #342 — the empty-stage guard requires A STANDING SURFACE, not specifically the
+          // PROCEDURAL one. When a generated room loads it now hides the procedural floor
+          // (that floor is renamed by main.ts, so the loader's name match never reached it and
+          // two floors drew at once). The generated room's own floor plane is the replacement,
+          // so it satisfies this guard; with no generated room the original condition stands.
+          const earlyRoom = await readInfinigenRoomLiveFacts(page);
+          const generatedFloorPresent =
+            earlyRoom.present && earlyRoom.effectivelyVisible && earlyRoom.floorTopY !== null;
+          if (live.shellVisible === false || (live.floorVisible === false && !generatedFloorPresent)) {
             throw new Error(
-              `environment shell hidden for ${scenarioId} (shellVisible=${String(live.shellVisible)} floorVisible=${String(live.floorVisible)}); refuse empty-stage photograph`,
+              `environment shell hidden for ${scenarioId} (shellVisible=${String(live.shellVisible)} floorVisible=${String(live.floorVisible)} generatedFloor=${String(generatedFloorPresent)}); refuse empty-stage photograph`,
             );
           }
 
@@ -671,10 +1015,37 @@ export async function captureStationEnvironmentRooms(
 
           // Re-read after screenshot so facts match the drawn frame.
           const liveAfter = await readLiveShellFromPage(page);
+          const roomFacts = await readInfinigenRoomLiveFacts(page);
+
+          // #342 — fail closed on the two states that previously photographed as a blank
+          // viewport while every legacy field reported success. Only applies where a
+          // generated room is actually mapped; unmapped ids keep the parametric fallback.
+          if (roomFacts.present) {
+            if (!roomFacts.effectivelyVisible) {
+              throw new Error(
+                `generated room loaded but not effectively visible for ${scenarioId}; refuse blank-room photograph`,
+              );
+            }
+            if (!roomFacts.cameraInsideRoom) {
+              throw new Error(
+                `camera ${JSON.stringify(roomFacts.cameraWorldPosition)} is OUTSIDE the generated room interior `
+                + `${JSON.stringify(roomFacts.interiorMin)}..${JSON.stringify(roomFacts.interiorMax)} for ${scenarioId}; `
+                + `the room is a closed shell, so an outside camera photographs its untextured exterior hull`,
+              );
+            }
+            if (roomFacts.proceduralShellMeshesStillVisible.length > 0) {
+              throw new Error(
+                `procedural shell surfaces still visible under the generated room for ${scenarioId}: `
+                + `${roomFacts.proceduralShellMeshesStillVisible.join(", ")}`,
+              );
+            }
+          }
+
           pageReadings.push({
             scenarioId,
             imagePath: imageName,
             liveShell: {
+              infinigenRoom: roomFacts.present ? roomFacts : null,
               environmentId: liveAfter.environmentId || live.environmentId,
               floorColor: liveAfter.floorColor ?? live.floorColor,
               roomDepthMeters: liveAfter.roomDepthMeters ?? live.roomDepthMeters,
