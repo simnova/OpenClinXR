@@ -1,0 +1,581 @@
+{
+  "measuredAgainstCommit": "3b97b5773907d83ffa0c5b349d9302f59cd8bf99",
+  "actors": {
+    "aisha": {
+      "shippedRound11": {
+        "label": "aisha-shipped-round11",
+        "file": "mpfb-ob-patient-aisha.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0446,
+            1.5323,
+            0.1188
+          ],
+          "max": [
+            0.0446,
+            1.56,
+            0.1392
+          ]
+        },
+        "texBytes": 701871,
+        "regions": {
+          "eyeSocket": {
+            "verts": 1016,
+            "meanRGB": [
+              71,
+              62,
+              57
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8525,
+              0.5635
+            ]
+          },
+          "noseBridge": {
+            "verts": 271,
+            "meanRGB": [
+              139,
+              121,
+              111
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0476,
+              0.4065,
+              0.8594,
+              0.54
+            ]
+          },
+          "cheekControl": {
+            "verts": 34,
+            "meanRGB": [
+              127,
+              112,
+              103
+            ],
+            "minRGB": [
+              9,
+              7,
+              6
+            ],
+            "uvBox": [
+              0.8577,
+              0.4145,
+              0.9057,
+              0.6192
+            ]
+          },
+          "brow": {
+            "verts": 68,
+            "meanRGB": [
+              10,
+              9,
+              8
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0403,
+              0.3971,
+              0.823,
+              0.5677
+            ]
+          }
+        }
+      },
+      "knownGoodRound9": {
+        "label": "aisha-known-round9",
+        "file": "aisha-round9c.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0446,
+            1.5323,
+            0.1188
+          ],
+          "max": [
+            0.0446,
+            1.56,
+            0.1392
+          ]
+        },
+        "texBytes": 707193,
+        "regions": {
+          "eyeSocket": {
+            "verts": 974,
+            "meanRGB": [
+              103,
+              91,
+              83
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8525,
+              0.5635
+            ]
+          },
+          "noseBridge": {
+            "verts": 271,
+            "meanRGB": [
+              142,
+              124,
+              114
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0476,
+              0.4065,
+              0.8594,
+              0.54
+            ]
+          },
+          "cheekControl": {
+            "verts": 18,
+            "meanRGB": [
+              145,
+              127,
+              118
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.8583,
+              0.4145,
+              0.9057,
+              0.6192
+            ]
+          },
+          "brow": {
+            "verts": 68,
+            "meanRGB": [
+              53,
+              47,
+              43
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0403,
+              0.3971,
+              0.823,
+              0.5677
+            ]
+          }
+        }
+      }
+    },
+    "nurse": {
+      "shippedRound11": {
+        "label": "nurse-shipped-round11",
+        "file": "mpfb-peds-nurse-kevin.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0452,
+            1.6345,
+            0.1186
+          ],
+          "max": [
+            0.0452,
+            1.6634,
+            0.1416
+          ]
+        },
+        "texBytes": 695490,
+        "regions": {
+          "eyeSocket": {
+            "verts": 1157,
+            "meanRGB": [
+              34,
+              29,
+              26
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8536,
+              0.5659
+            ]
+          },
+          "noseBridge": {
+            "verts": 308,
+            "meanRGB": [
+              88,
+              76,
+              69
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0469,
+              0.4061,
+              0.8561,
+              0.5408
+            ]
+          },
+          "cheekControl": {
+            "verts": 30,
+            "meanRGB": [
+              67,
+              59,
+              54
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.8535,
+              0.4128,
+              0.8864,
+              0.6208
+            ]
+          },
+          "brow": {
+            "verts": 32,
+            "meanRGB": [
+              20,
+              16,
+              15
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0455,
+              0.4018,
+              0.8214,
+              0.5691
+            ]
+          }
+        }
+      },
+      "knownGoodRound9": {
+        "label": "nurse-known-round9",
+        "file": "nurse-round9c.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0452,
+            1.6345,
+            0.1186
+          ],
+          "max": [
+            0.0452,
+            1.6634,
+            0.1416
+          ]
+        },
+        "texBytes": 708015,
+        "regions": {
+          "eyeSocket": {
+            "verts": 1157,
+            "meanRGB": [
+              75,
+              66,
+              60
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8536,
+              0.5659
+            ]
+          },
+          "noseBridge": {
+            "verts": 308,
+            "meanRGB": [
+              123,
+              106,
+              97
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0469,
+              0.4061,
+              0.8561,
+              0.5408
+            ]
+          },
+          "cheekControl": {
+            "verts": 0,
+            "meanRGB": [
+              null,
+              null,
+              null
+            ],
+            "minRGB": [
+              null,
+              null,
+              null
+            ],
+            "uvBox": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "brow": {
+            "verts": 32,
+            "meanRGB": [
+              93,
+              82,
+              75
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0455,
+              0.4018,
+              0.8214,
+              0.5691
+            ]
+          }
+        }
+      }
+    },
+    "child": {
+      "shippedRound11": {
+        "label": "child-shipped-round11",
+        "file": "mpfb-peds-patient-child.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0394,
+            1.131,
+            0.0889
+          ],
+          "max": [
+            0.0394,
+            1.1581,
+            0.1104
+          ]
+        },
+        "texBytes": 711538,
+        "regions": {
+          "eyeSocket": {
+            "verts": 1180,
+            "meanRGB": [
+              91,
+              83,
+              76
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8565,
+              0.5659
+            ]
+          },
+          "noseBridge": {
+            "verts": 358,
+            "meanRGB": [
+              138,
+              126,
+              117
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0454,
+              0.4061,
+              0.921,
+              0.9177
+            ]
+          },
+          "cheekControl": {
+            "verts": 22,
+            "meanRGB": [
+              155,
+              142,
+              132
+            ],
+            "minRGB": [
+              9,
+              7,
+              6
+            ],
+            "uvBox": [
+              0.8558,
+              0.4062,
+              0.8785,
+              0.6275
+            ]
+          },
+          "brow": {
+            "verts": 54,
+            "meanRGB": [
+              69,
+              63,
+              58
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.041,
+              0.3995,
+              0.821,
+              0.5691
+            ]
+          }
+        }
+      },
+      "knownGoodRound9": {
+        "label": "child-known-round9",
+        "file": "child-round9c.glb",
+        "eyeBounds": {
+          "min": [
+            -0.0394,
+            1.131,
+            0.0889
+          ],
+          "max": [
+            0.0394,
+            1.1581,
+            0.1104
+          ]
+        },
+        "texBytes": 713427,
+        "regions": {
+          "eyeSocket": {
+            "verts": 1174,
+            "meanRGB": [
+              94,
+              86,
+              80
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0118,
+              0.3671,
+              0.8565,
+              0.5659
+            ]
+          },
+          "noseBridge": {
+            "verts": 358,
+            "meanRGB": [
+              139,
+              126,
+              117
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.0454,
+              0.4061,
+              0.921,
+              0.9177
+            ]
+          },
+          "cheekControl": {
+            "verts": 16,
+            "meanRGB": [
+              182,
+              167,
+              155
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.8626,
+              0.4062,
+              0.8785,
+              0.6275
+            ]
+          },
+          "brow": {
+            "verts": 54,
+            "meanRGB": [
+              67,
+              61,
+              57
+            ],
+            "minRGB": [
+              0,
+              0,
+              0
+            ],
+            "uvBox": [
+              0.041,
+              0.3995,
+              0.821,
+              0.5691
+            ]
+          }
+        }
+      }
+    }
+  }
+}
