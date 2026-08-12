@@ -1,15 +1,16 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 20,
+  "tick": 21,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T08:55:00.000Z",
-  "lastAction": "deck-bank conversion+measurement: Kenney bedSingle->GLB (214t) MEASURED 1.125m x deck-top 0.375m vs runtime 2.15/0.58 -> spec-incompatible; parametric bed stays deck SSOT; GRADD/OGA CC-BY beds next",
-  "nextPriority": "acquire GRADD Hospital Room (CC BY 3.0) or OGA Small Hospital Bed (CC BY 3.0), convert+measure against HOSPITAL_BED spec, promote if spec-matching; OR architect tick-20 findings; loop near natural stop (fills exhausted, deck measured, kit rebase-blocked)",
+  "lastTickAt": "2026-08-12T09:12:00.000Z",
+  "lastAction": "tick21 FAILED image_url 400 on deepseek-flash; contract hardened (no vision); architect tick-20 notes recovery; next: GRADD/OGA measure-first bed OR dedicated kit rebase",
+  "nextPriority": "acquire OGA Small Hospital Bed or GRADD bed mesh (CC BY 3.0), convert+measure against HOSPITAL_BED_DECK_TOP_M 0.58 / LENGTH 2.15 — promote only on match; else document negative; NO image Read",
   "researcherEveryN": 3,
   "architectEveryN": 4,
+  "failureClass": "deepseek_no_image_url",
   "stopWhen": [
     "PROJECT_STATUS PAUSED or equipment-factory STOP",
     "unmappedProse=0 and deck surfaces banked or explicitly deferred"

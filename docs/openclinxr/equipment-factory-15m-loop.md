@@ -43,3 +43,14 @@ Do not block the fill on consults — spawn background, integrate findings next 
 - Kit is modular_kit only (ECG until more recipes).
 - Beds/stretchers prefer bank (lane 1) when CC-BY/CC0 verified.
 - Main session posture: orchestrator; implementation via tools/CLI/spawn, not sprawl.
+
+## Model / tool constraints (HARD — tick 21 failure class)
+
+DeepSeek flash/pro reject multimodal message parts (`image_url` → 400 deserialize). Therefore:
+
+- **Never** `Read` / open PNG/JPG/WebP/GIF/screenshot paths.
+- **Never** use image_gen / image_edit / vision tools.
+- Grade geometry with **JSON + glTF/Node measures + CLI**, not pixels.
+- Prefer short text files only: loop state, log, catalogue report (markdown), MADRs, candidates md, ledger.
+- If a prior tick left image content in a session, **start a fresh session** (do not `--resume` a vision-polluted transcript).
+- Spawn consults with **text-only** prompts; forbid “open the screenshot”.

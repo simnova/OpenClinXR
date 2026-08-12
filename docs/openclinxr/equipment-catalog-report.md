@@ -2,7 +2,7 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T07:54:57.271Z
+- measuredAt: 2026-08-12T09:09:16.913Z
 - scenarios: 14
 - equipment rows: 51
 - lanes: {"bank":4,"thin_parametric":46,"modular_kit":1}
