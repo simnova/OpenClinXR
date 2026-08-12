@@ -10,6 +10,15 @@ import numpy as np
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[4]
 
+# The mask machinery's proven pure-numpy ray intersector + winding orientation
+# (garment_coverage.py imports only stdlib + numpy — safe at module load). The
+# round-7 render-truth helpers use them; the in-main imports below keep the
+# existing convention for the rest of the pipeline.
+_MAKECLOTHES_DIR = REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes"
+if str(_MAKECLOTHES_DIR) not in sys.path:
+    sys.path.insert(0, str(_MAKECLOTHES_DIR))
+from garment_coverage import _orient_outward, _ray_tri_hits  # noqa: E402
+
 # #333: footwear mapped by reference id. All three are the CC0/CC-0 zero-helper-ref
 # subset of makehuman-shoes01 (ledger: toigo_flats CC0, toigo_mj_cloth_shoes CC0,
 # culturalibre_male_boots CC-0; every .mhclo references only basemesh verts < 13,380),
@@ -469,6 +478,45 @@ def solve_height_macro(base_macro, target_stature, tmp_dir, tol=0.01):
             h_f = a[0] + (b[0] - a[0]) * (target_stature - a[1]) / (b[1] - a[1])
             return min(max(h_f, 0.0), 1.0)
     return h_c
+
+
+def _area_sample_points(tris: np.ndarray) -> np.ndarray:
+    """7 points per triangle: 3 vertices + 3 edge midpoints + centroid.
+
+    issue-341 round 7: a hidden body polygon that STRADDLES a garment edge has its
+    centroid under the cloth while a corner pokes out past the edge. A centroid-only
+    test is blind to that class — it produces the ragged per-polygon black sawtooth
+    at every garment/skin seam (measured: the round-6 black-sliver left the seam
+    holes hidden because their centroids were covered). Area-level sampling catches
+    the straddlers: a polygon is un-hidden when ANY area sample is a hole.
+    """
+    v0, v1, v2 = tris[:, 0], tris[:, 1], tris[:, 2]
+    verts = np.stack([v0, v1, v2], axis=1)
+    mids = np.stack([(v0 + v1) * 0.5, (v1 + v2) * 0.5, (v2 + v0) * 0.5], axis=1)
+    cent = tris.mean(axis=1, keepdims=True)
+    return np.concatenate([verts, mids, cent], axis=1)  # (F, 7, 3)
+
+
+def _outer_facing_front_tris(garment_verts, garment_faces) -> np.ndarray:
+    """Garment triangles whose OUTER winding normal faces the stage front (-Y, the
+    create_human forward axis — the glTF export maps this to +Z, the occlusion
+    gate's viewer).
+
+    issue-341 round 7: a discarded body polygon reveals a cloth surface only when
+    that surface is OUTER-facing toward the viewer (it renders). An inner/back-facing
+    surface is backface-culled at render and reads as the dark capture background.
+    The round-6 black-sliver's behind test counted ANY cloth surface within reach
+    — so the nurse's jaw stayed hidden because the collar's BACK panel is 13-19 cm
+    behind it (measured), and the discarded jaw read as a black ragged mass. This
+    subset is what the behind test must cast against: the front panel of a shirt,
+    the outer side of a boot — surfaces that actually fill a discarded hole.
+    Orientation is the same winding-proof _orient_outward (signed volume + the
+    centroid-away tiebreak) the mask machinery already uses; _orient_outward
+    returns the outward unit normals in face order.
+    """
+    oriented_normals = _orient_outward(garment_verts, garment_faces)
+    tris = garment_verts[garment_faces]
+    return tris[oriented_normals[:, 1] < 0.0]
 
 
 def main():
@@ -998,7 +1046,12 @@ def main():
         scope_hide_mask_away_from_hands,
         world_bounds,
     )
-    from garment_coverage import HIDE_EPSILON_M, _region_signed_clearance_samples, body_hide_mask  # noqa: E402
+    from garment_coverage import (  # noqa: E402
+        HIDE_EPSILON_M,
+        _orient_outward,
+        _region_signed_clearance_samples,
+        body_hide_mask,
+    )
 
     def _triangulate_numpy(obj: bpy.types.Object):
         # Fan triangulation mirroring body_param_stage._numpy_mesh: the coverage
@@ -1394,6 +1447,45 @@ def main():
     hide_mask, head_clipped_final = clip_hide_mask_below_joint(hide_mask, human, head_joint_z)
     if head_clipped_final:
         print(f"HEAD_CLIP_FINAL polygons {head_clipped_final}")
+    # issue-341 round 7 — the render-truth refinement, run LAST so no later
+    # re-hide can undo it. A discarded (alpha-0) body polygon reads as the dark
+    # capture background wherever the garment does NOT render in front of it: the
+    # per-polygon mask boundary is jagged, so hidden polygons straddling a garment
+    # edge (shoulders, sleeve hems, waistband, trouser hems, boot tops) and body
+    # above a garment edge (the nurse's jaw/chin — the collar's BACK panel is
+    # 13-19 cm behind it and is backface-culled, measured) all render as the
+    # round-7 "black sawtooth at every garment/skin seam". The render truth:
+    #   hole(sample) = no garment surface in front along the viewer ray AND no
+    #   OUTER-facing garment surface behind it
+    #   un_hide(polygon) = ANY area sample is a hole
+    # The front test uses ANY garment surface (an inner-surface hit still means the
+    # shell's outer surface renders in front of the face). The behind test casts
+    # against the garment's OUTER-facing subset only (see _outer_facing_front_tris):
+    # a back-facing surface cannot fill a discarded hole at render. The reach is the
+    # occlusion gate's MAX_RAY_T (0.5 m) — the scene depth, not a fitted seam
+    # constant — and the child's loose t-shirt (2-5 cm off the body) stays hidden
+    # because its front panel is outer-facing and directly behind the pokes.
+    _rt_front_tris = _outer_facing_front_tris(garment_verts, garment_faces)
+    _rt_hidden_idx = np.where(hide_mask)[0]
+    _rt_unhidden = 0
+    if len(_rt_hidden_idx):
+        _rt_tris = body_verts[body_faces[_rt_hidden_idx]]
+        _rt_samples = _area_sample_points(_rt_tris)  # (F,7,3)
+        _rt_orig = (_rt_samples + _VIEW_Y * 1e-4).reshape(-1, 3)  # (F*7,3)
+        _rt_dir = np.tile(_VIEW_Y, (len(_rt_orig), 1))
+        _rt_hits = _ray_tri_hits_341(_rt_orig, _rt_dir, _garment_tris_341, 0.5)
+        _rt_hits = _rt_hits.reshape(len(_rt_hidden_idx), 7)
+        _rt_covered = np.isfinite(_rt_hits)
+        _rt_b_orig = (_rt_samples + _BLACK_BACK_Y * 1e-4).reshape(-1, 3)
+        _rt_b_dir = np.tile(_BLACK_BACK_Y, (len(_rt_orig), 1))
+        _rt_b_hits = _ray_tri_hits_341(_rt_b_orig, _rt_b_dir, _rt_front_tris, 0.5)
+        _rt_b_hits = _rt_b_hits.reshape(len(_rt_hidden_idx), 7)
+        _rt_outer_behind = np.isfinite(_rt_b_hits)
+        _rt_hole = ~_rt_covered & ~_rt_outer_behind
+        _rt_unhide = _rt_hole.any(axis=1)
+        _rt_unhidden = int(_rt_unhide.sum())
+        hide_mask[_rt_hidden_idx[_rt_unhide]] = False
+    print(f"RENDER_TRUTH_UNHIDE upper faces {_rt_unhidden}")
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
@@ -1487,19 +1579,29 @@ def main():
     # no cloth within the shipping standoff behind; the belly faces the round-5b
     # band was written for stay hidden (the pants render in front of them).
     _pants_tris_341 = pants_verts_np[pants_faces_np]
+    # issue-341 round 7 — same render-truth refinement as the upper mask: the
+    # behind test casts against the pants' OUTER-facing subset (see
+    # _outer_facing_front_tris) and the front test is area-sampled, so a hidden
+    # lower polygon is un-hidden when ANY area sample has no cloth in front and no
+    # outer-facing cloth behind it.
+    _pants_front_tris_341 = _outer_facing_front_tris(pants_verts_np, pants_faces_np)
     _lower_hidden_idx = np.where(lower_hide_mask)[0]
     _lower_black_slivers = 0
     if len(_lower_hidden_idx):
-        _lh = body_verts[body_faces[_lower_hidden_idx]].mean(axis=1)
-        _l_orig = _lh + _VIEW_Y * 1e-4
+        _lhf = body_verts[body_faces[_lower_hidden_idx]]
+        _l_samples = _area_sample_points(_lhf)  # (F,7,3)
+        _l_orig = (_l_samples + _VIEW_Y * 1e-4).reshape(-1, 3)  # (F*7,3)
         _l_dir = np.tile(_VIEW_Y, (len(_l_orig), 1))
         _l_hits = _ray_tri_hits_341(_l_orig, _l_dir, _pants_tris_341, 0.5)
+        _l_hits = _l_hits.reshape(len(_lower_hidden_idx), 7)
         _l_covered = np.isfinite(_l_hits)
-        _l_b_orig = _lh + _BLACK_BACK_Y * 1e-4
+        _l_b_orig = (_l_samples + _BLACK_BACK_Y * 1e-4).reshape(-1, 3)
         _l_b_dir = np.tile(_BLACK_BACK_Y, (len(_l_orig), 1))
-        _l_b_hits = _ray_tri_hits_341(_l_b_orig, _l_b_dir, _pants_tris_341, CLOTH_STANDOFF_M)
-        _l_behind = np.isfinite(_l_b_hits)
-        _l_unhide = ~_l_covered & ~_l_behind
+        _l_b_hits = _ray_tri_hits_341(_l_b_orig, _l_b_dir, _pants_front_tris_341, 0.5)
+        _l_b_hits = _l_b_hits.reshape(len(_lower_hidden_idx), 7)
+        _l_outer_behind = np.isfinite(_l_b_hits)
+        _l_hole = ~_l_covered & ~_l_outer_behind
+        _l_unhide = _l_hole.any(axis=1)
         _lower_black_slivers = int(_l_unhide.sum())
         lower_hide_mask[_lower_hidden_idx[_l_unhide]] = False
         print(f"LOWER_BLACK_SLIVERS unhidden {_lower_black_slivers}")
@@ -1661,6 +1763,36 @@ def main():
             "FOOT_HIDE WARNING: body_hide_mask found no poking body faces under the "
             "fitted footwear — the toes-through-soles class would not hide; report this"
         )
+    # issue-341 round 7 — the foot mask had NO render-truth refinement: its
+    # boundary at the shoe top is per-polygon jagged and discarded foot polygons
+    # past the shoe's upper read as black holes against the capture background
+    # (round-7 grade: the child's "shoes are dark specks and the feet read bare").
+    # Same predicate as the upper/lower masks: un-hide a hidden foot polygon when
+    # ANY area sample has no footwear surface in front along the viewer ray AND no
+    # OUTER-facing footwear surface behind it. Toes genuinely under the shoe stay
+    # hidden (the shoe's outer surface is in front or directly behind them).
+    _foot_tris_341 = footwear_verts[footwear_faces]
+    _foot_front_tris_341 = _outer_facing_front_tris(footwear_verts, footwear_faces)
+    _foot_hidden_idx = np.where(foot_hide_mask)[0]
+    _foot_black_slivers = 0
+    if len(_foot_hidden_idx):
+        _ff_tris = body_verts[body_faces[_foot_hidden_idx]]
+        _fs_samples = _area_sample_points(_ff_tris)  # (F,7,3)
+        _f_orig = (_fs_samples + _VIEW_Y * 1e-4).reshape(-1, 3)  # (F*7,3)
+        _f_dir = np.tile(_VIEW_Y, (len(_f_orig), 1))
+        _f_hits = _ray_tri_hits(_f_orig, _f_dir, _foot_tris_341, 0.5)
+        _f_hits = _f_hits.reshape(len(_foot_hidden_idx), 7)
+        _f_covered = np.isfinite(_f_hits)
+        _f_b_orig = (_fs_samples + _BLACK_BACK_Y * 1e-4).reshape(-1, 3)
+        _f_b_dir = np.tile(_BLACK_BACK_Y, (len(_f_orig), 1))
+        _f_b_hits = _ray_tri_hits(_f_b_orig, _f_b_dir, _foot_front_tris_341, 0.5)
+        _f_b_hits = _f_b_hits.reshape(len(_foot_hidden_idx), 7)
+        _f_outer_behind = np.isfinite(_f_b_hits)
+        _f_hole = ~_f_covered & ~_f_outer_behind
+        _f_unhide = _f_hole.any(axis=1)
+        _foot_black_slivers = int(_f_unhide.sum())
+        foot_hide_mask[_foot_hidden_idx[_f_unhide]] = False
+        print(f"FOOT_BLACK_SLIVERS unhidden {_foot_black_slivers}")
     foot_applied = apply_body_hide_material_region(human, foot_hide_mask, slot="foot")
     print(
         f"FOOT_HIDE {foot_hide_info} "

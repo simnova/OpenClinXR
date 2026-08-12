@@ -1,0 +1,287 @@
+{
+  "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "triangleCount": 2464,
+        "currentPredicateUnhide": 37,
+        "proposedPredicateUnhide": 422,
+        "newlyUnhidden": 385,
+        "keptHiddenByBoth": 2042,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 199,
+          "chest(0.64-0.82)": 152,
+          "waist(0.55-0.64)": 34,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 184,
+          "chest(0.64-0.82)": 1606,
+          "waist(0.55-0.64)": 252,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        }
+      },
+      "lower": {
+        "slot": "lower",
+        "triangleCount": 290,
+        "currentPredicateUnhide": 0,
+        "proposedPredicateUnhide": 17,
+        "newlyUnhidden": 17,
+        "keptHiddenByBoth": 273,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 17,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 9,
+          "hip(0.44-0.55)": 258,
+          "thigh(0.24-0.44)": 6,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        }
+      },
+      "foot": {
+        "slot": "foot",
+        "triangleCount": 3940,
+        "currentPredicateUnhide": 274,
+        "proposedPredicateUnhide": 548,
+        "newlyUnhidden": 274,
+        "keptHiddenByBoth": 3392,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 146
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 1264
+        }
+      }
+    }
+  },
+  "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "triangleCount": 3478,
+        "currentPredicateUnhide": 72,
+        "proposedPredicateUnhide": 1805,
+        "newlyUnhidden": 1733,
+        "keptHiddenByBoth": 1673,
+        "newBands": {
+          "head(0.90-1.00)": 1118,
+          "neck(0.82-0.90)": 415,
+          "chest(0.64-0.82)": 200,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 12,
+          "neck(0.82-0.90)": 403,
+          "chest(0.64-0.82)": 1258,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        }
+      },
+      "lower": {
+        "slot": "lower",
+        "triangleCount": 392,
+        "currentPredicateUnhide": 18,
+        "proposedPredicateUnhide": 80,
+        "newlyUnhidden": 62,
+        "keptHiddenByBoth": 312,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 17,
+          "waist(0.55-0.64)": 45,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 3,
+          "waist(0.55-0.64)": 55,
+          "hip(0.44-0.55)": 242,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 10,
+          "foot(0.00-0.06)": 2
+        }
+      },
+      "foot": {
+        "slot": "foot",
+        "triangleCount": 4016,
+        "currentPredicateUnhide": 358,
+        "proposedPredicateUnhide": 640,
+        "newlyUnhidden": 282,
+        "keptHiddenByBoth": 3376,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 282
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 3376
+        }
+      }
+    }
+  },
+  "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "triangleCount": 1458,
+        "currentPredicateUnhide": 55,
+        "proposedPredicateUnhide": 577,
+        "newlyUnhidden": 522,
+        "keptHiddenByBoth": 881,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 66,
+          "chest(0.64-0.82)": 456,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 14,
+          "chest(0.64-0.82)": 867,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        }
+      },
+      "lower": {
+        "slot": "lower",
+        "triangleCount": 496,
+        "currentPredicateUnhide": 44,
+        "proposedPredicateUnhide": 162,
+        "newlyUnhidden": 118,
+        "keptHiddenByBoth": 334,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 14,
+          "waist(0.55-0.64)": 62,
+          "hip(0.44-0.55)": 42,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 14,
+          "waist(0.55-0.64)": 26,
+          "hip(0.44-0.55)": 280,
+          "thigh(0.24-0.44)": 14,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 0
+        }
+      },
+      "foot": {
+        "slot": "foot",
+        "triangleCount": 3276,
+        "currentPredicateUnhide": 540,
+        "proposedPredicateUnhide": 1842,
+        "newlyUnhidden": 1302,
+        "keptHiddenByBoth": 1434,
+        "newBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 1268
+        },
+        "keptHiddenBands": {
+          "head(0.90-1.00)": 0,
+          "neck(0.82-0.90)": 0,
+          "chest(0.64-0.82)": 0,
+          "waist(0.55-0.64)": 0,
+          "hip(0.44-0.55)": 0,
+          "thigh(0.24-0.44)": 0,
+          "knee(0.14-0.24)": 0,
+          "ankle(0.06-0.14)": 0,
+          "foot(0.00-0.06)": 1392
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,605 @@
+{
+  "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "figureYRange": [
+      0.001,
+      1.647
+    ],
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "present": true,
+        "triangleCount": 2094,
+        "garmentTriCount": 63094,
+        "normalCovered": 1421,
+        "normalMiss": 673,
+        "viewerCoveredAny": 1607,
+        "viewerExposedAny": 843,
+        "viewerExposedHalfOrMore": 627,
+        "exposedFractionMean": 0.3033,
+        "exposedAreaM2": 0.0646,
+        "totalAreaM2": 0.24658,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 215,
+            "exposedAny": 93,
+            "exposedHalfOrMore": 71
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 1621,
+            "exposedAny": 693,
+            "exposedHalfOrMore": 538
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 258,
+            "exposedAny": 57,
+            "exposedHalfOrMore": 18
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "lower": {
+        "slot": "lower",
+        "present": true,
+        "triangleCount": 272,
+        "garmentTriCount": 63094,
+        "normalCovered": 270,
+        "normalMiss": 2,
+        "viewerCoveredAny": 272,
+        "viewerExposedAny": 0,
+        "viewerExposedHalfOrMore": 0,
+        "exposedFractionMean": 0.0,
+        "exposedAreaM2": 0.0,
+        "totalAreaM2": 0.04321,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 12,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 260,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "foot": {
+        "slot": "foot",
+        "present": true,
+        "triangleCount": 3520,
+        "garmentTriCount": 63094,
+        "normalCovered": 3064,
+        "normalMiss": 456,
+        "viewerCoveredAny": 3500,
+        "viewerExposedAny": 206,
+        "viewerExposedHalfOrMore": 64,
+        "exposedFractionMean": 0.0224,
+        "exposedAreaM2": 0.00427,
+        "totalAreaM2": 0.07268,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 3520,
+            "exposedAny": 206,
+            "exposedHalfOrMore": 64
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      }
+    },
+    "summary": {
+      "hiddenPolygons": 5886,
+      "exposedAny": 1049,
+      "exposedFracOfHidden": 0.1782,
+      "exposedAreaM2": 0.06887
+    }
+  },
+  "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    "figureYRange": [
+      -0.0,
+      1.743
+    ],
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "present": true,
+        "triangleCount": 1874,
+        "garmentTriCount": 37373,
+        "normalCovered": 1041,
+        "normalMiss": 833,
+        "viewerCoveredAny": 1184,
+        "viewerExposedAny": 906,
+        "viewerExposedHalfOrMore": 800,
+        "exposedFractionMean": 0.4237,
+        "exposedAreaM2": 0.04031,
+        "totalAreaM2": 0.20929,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 16,
+            "exposedAny": 16,
+            "exposedHalfOrMore": 16
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 528,
+            "exposedAny": 244,
+            "exposedHalfOrMore": 233
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 1330,
+            "exposedAny": 646,
+            "exposedHalfOrMore": 551
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "lower": {
+        "slot": "lower",
+        "present": true,
+        "triangleCount": 302,
+        "garmentTriCount": 37373,
+        "normalCovered": 286,
+        "normalMiss": 16,
+        "viewerCoveredAny": 302,
+        "viewerExposedAny": 8,
+        "viewerExposedHalfOrMore": 1,
+        "exposedFractionMean": 0.0076,
+        "exposedAreaM2": 0.00013,
+        "totalAreaM2": 0.04691,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 6,
+            "exposedAny": 3,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 46,
+            "exposedAny": 5,
+            "exposedHalfOrMore": 1
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 242,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 8,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "foot": {
+        "slot": "foot",
+        "present": true,
+        "triangleCount": 3408,
+        "garmentTriCount": 37373,
+        "normalCovered": 2744,
+        "normalMiss": 664,
+        "viewerCoveredAny": 2892,
+        "viewerExposedAny": 1082,
+        "viewerExposedHalfOrMore": 794,
+        "exposedFractionMean": 0.2302,
+        "exposedAreaM2": 0.00808,
+        "totalAreaM2": 0.08951,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 3408,
+            "exposedAny": 1082,
+            "exposedHalfOrMore": 794
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      }
+    },
+    "summary": {
+      "hiddenPolygons": 5584,
+      "exposedAny": 1996,
+      "exposedFracOfHidden": 0.3574,
+      "exposedAreaM2": 0.04852
+    }
+  },
+  "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb": {
+    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+    "figureYRange": [
+      -0.0,
+      1.229
+    ],
+    "slots": {
+      "upper": {
+        "slot": "upper",
+        "present": true,
+        "triangleCount": 1190,
+        "garmentTriCount": 7773,
+        "normalCovered": 224,
+        "normalMiss": 966,
+        "viewerCoveredAny": 443,
+        "viewerExposedAny": 801,
+        "viewerExposedHalfOrMore": 771,
+        "exposedFractionMean": 0.6487,
+        "exposedAreaM2": 0.03903,
+        "totalAreaM2": 0.074,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 26,
+            "exposedAny": 18,
+            "exposedHalfOrMore": 18
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 1164,
+            "exposedAny": 783,
+            "exposedHalfOrMore": 753
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "lower": {
+        "slot": "lower",
+        "present": true,
+        "triangleCount": 366,
+        "garmentTriCount": 7773,
+        "normalCovered": 362,
+        "normalMiss": 4,
+        "viewerCoveredAny": 366,
+        "viewerExposedAny": 4,
+        "viewerExposedHalfOrMore": 2,
+        "exposedFractionMean": 0.0049,
+        "exposedAreaM2": 3e-05,
+        "totalAreaM2": 0.03214,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 30,
+            "exposedAny": 4,
+            "exposedHalfOrMore": 2
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 328,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 8,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      },
+      "foot": {
+        "slot": "foot",
+        "present": true,
+        "triangleCount": 2520,
+        "garmentTriCount": 7773,
+        "normalCovered": 204,
+        "normalMiss": 2316,
+        "viewerCoveredAny": 352,
+        "viewerExposedAny": 2206,
+        "viewerExposedHalfOrMore": 2182,
+        "exposedFractionMean": 0.8655,
+        "exposedAreaM2": 0.0102,
+        "totalAreaM2": 0.02341,
+        "bands": {
+          "head(0.90-1.00)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "neck(0.82-0.90)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "chest(0.64-0.82)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "waist(0.55-0.64)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "hip(0.44-0.55)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "thigh(0.24-0.44)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "knee(0.14-0.24)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "ankle(0.06-0.14)": {
+            "hidden": 0,
+            "exposedAny": 0,
+            "exposedHalfOrMore": 0
+          },
+          "foot(0.00-0.06)": {
+            "hidden": 2520,
+            "exposedAny": 2206,
+            "exposedHalfOrMore": 2182
+          }
+        },
+        "note": "normalCovered = garment hit along the polygon's OWN outward normal (BVH, presence only); viewerExposedAny = at least one area sample has no garment in front along +Z (the black-hole class); bands are in BODY-height fractions."
+      }
+    },
+    "summary": {
+      "hiddenPolygons": 4076,
+      "exposedAny": 3011,
+      "exposedFracOfHidden": 0.7387,
+      "exposedAreaM2": 0.04926
+    }
+  }
+}

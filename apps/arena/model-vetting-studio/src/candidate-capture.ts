@@ -202,6 +202,8 @@ export async function renderCandidateCapture(input: {
   dialogueText?: string;
   /** lit = source materials; structure = normal+wireframe so shredded interior is visible (#59). */
   capturePass?: "lit" | "structure";
+  /** issue-341 debug: force alpha-0 body-hide primitives visible in vivid magenta (lit only). */
+  hideMaskMagenta?: boolean;
 }): Promise<ModelVettingCandidateCaptureEvidence> {
   const candidate = input.evidence.candidates.find((item) => item.candidateId === input.candidateId);
   if (!candidate) throw new Error(`Unknown candidateId ${input.candidateId}`);
@@ -249,6 +251,7 @@ export async function renderCandidateCapture(input: {
   // Structure pass: normal+wireframe makes shredded interior / collapsed volume visible,
   // not just silhouette (meshAabb.heightExceedsHorizontal cannot see that).
   const structureMaterial = new MeshNormalMaterial({ wireframe: true, flatShading: true });
+  const hideMaskMagentaMaterial = new MeshBasicMaterial({ color: "#ff00ff" });
   const emotionTransitionCapture = input.view === "emotion_transition";
   const useSourceMaterials = capturePass === "lit";
   const visemeTimelineCapture = input.view === "viseme_timeline";
@@ -281,11 +284,8 @@ export async function renderCandidateCapture(input: {
         skinnedMeshCount += 1;
         skinnedMeshes.push(object as SkinnedMesh);
       }
-      const material = capturePass === "structure"
-        ? structureMaterial
-        : useSourceMaterials
-          ? object.material
-          : inspectionMaterial;
+      const material = capturePass === "structure" ? structureMaterial : useSourceMaterials
+        ? ((input.hideMaskMagenta && (object.material?.name ?? "").includes("openclinxr_hidden")) ? hideMaskMagentaMaterial : object.material) : inspectionMaterial;
       const mesh = new Mesh(object.geometry, material);
       mesh.name = `${object.name || "mesh"}_inspection_clone`;
       mesh.frustumCulled = false;
