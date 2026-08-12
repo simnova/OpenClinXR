@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 1,
+  "tick": 2,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T04:11:00.000Z",
-  "lastAction": "re-verify stretcher INFERRED -> VERIFIED CC BY 4.0 (Sketchfab API; downloadable, 2245 tris); bed re-confirmed CC BY 4.0 + isDownloadable=true; acquisition staged pending SKETCHFAB_API_TOKEN",
-  "nextPriority": "hospital_bed_bank_acquire_after_token OR re-verify exam_table INFERRED",
+  "lastTickAt": "2026-08-12T04:26:00.000Z",
+  "lastAction": "re-verify exam_table INFERRED -> VERIFIED CC BY 4.0 (Sketchfab API; downloadable, 7940 tris)",
+  "nextPriority": "re-verify curtain+monitor INFERRED OR bed bank acquire once token appears",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [
