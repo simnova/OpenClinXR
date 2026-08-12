@@ -101,6 +101,10 @@ Top 3 things that would save the most work: (1) operator sets `SKETCHFAB_API_TOK
 
 Deck-surface bank path (hospital bed / stretcher / exam table) blocked on `SKETCHFAB_API_TOKEN`. Question: CC0 / unambiguous CC-BY alternatives OUTSIDE Sketchfab, reachable without a token. poly.pizza search pages are Cloudflare-challenged for curl but render via the web_fetch tool (bypassed this pass); model-page licences read directly.
 
+### MEASURED (tick 20, 2026-08-12): Kenney bedSingle converted + measured — spec-incompatible
+
+Converted `bedSingle.obj` → GLB (Blender 5.1.1, staged at `.openclinxr/staging/equipment/bedSingle.glb`, 214 tris) and measured: **1.125 m long × 0.571 m wide, deck top at 0.375 m**. Runtime deck spec is `HOSPITAL_BED_DECK_TOP_M = 0.58` / `HOSPITAL_BED_LENGTH_M = 2.15` (station-equipment-support-surfaces.ts:48-50). **Direct promotion would break the supine plant** (#159/#171 class — actor on 0.375 m deck while runtime expects 0.58 m). A 1.9× length scale would distort the bed. **Verdict: Kenney bed is NOT a promotion candidate as-is.** Better candidates: GRADD Hospital Room (CC BY 3.0, hospital-styled ward bed) or OGA Small Hospital Bed (CC BY 3.0, qubodup) — verify dimensions after conversion before promoting. Parametric bed remains the deck SSOT until a spec-matching GLB lands.
+
 - poly.pizza **GRADD Hospital Room** — https://poly.pizza/m/9sUalfQ76kn — **VERIFIED CC BY 3.0** (page: CC link to cc/3.0) — OBJ/GLTF ward-room scene containing a hospital bed; bed mesh extractable for deck surface. Single asset from GRADD CO.
 - OpenGameArt **Small Hospital Bed** — https://opengameart.org/content/small-hospital-bed — **VERIFIED CC BY 3.0** (page: "license CCBY3+", attribution "by TiZiana | edits by qubodup"); low-poly (~280 faces) dedicated hospital bed. Corrects earlier note: this is CC-BY, NOT CC0.
 - Kenney **Furniture Kit** (beds) — https://kenney.nl/assets/furniture-kit — **VERIFIED CC0** (kenney.nl page + poly.pizza mirror /m/sn8az3odMR both state Public Domain CC0). Generic bed only — no rails/wheels; deck-only or Blender-modify.

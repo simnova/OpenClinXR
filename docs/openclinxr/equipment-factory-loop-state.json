@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 19,
+  "tick": 20,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T08:40:00.000Z",
-  "lastAction": "token-free deck-bank acquisition: staged Kenney Furniture Kit CC0 (bed models 314-932 tris) at .openclinxr/staging/equipment/kenney-furniture-kit/; ledger + candidates rows landed",
-  "nextPriority": "deck-bank slice: convert staged Kenney bedSingle OBJ->GLB (Blender, control/treatment per #67/#156) and promote for hospital_bed_equipment; OR GRADD/OGA CC-BY bed as alternative; stretcher/exam-table remain token-blocked",
+  "lastTickAt": "2026-08-12T08:55:00.000Z",
+  "lastAction": "deck-bank conversion+measurement: Kenney bedSingle->GLB (214t) MEASURED 1.125m x deck-top 0.375m vs runtime 2.15/0.58 -> spec-incompatible; parametric bed stays deck SSOT; GRADD/OGA CC-BY beds next",
+  "nextPriority": "acquire GRADD Hospital Room (CC BY 3.0) or OGA Small Hospital Bed (CC BY 3.0), convert+measure against HOSPITAL_BED spec, promote if spec-matching; OR architect tick-20 findings; loop near natural stop (fills exhausted, deck measured, kit rebase-blocked)",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [
