@@ -46,7 +46,8 @@ export type EquipmentFamily =
   | "privacy_curtain"
   | "tables"
   | "wall_sign"
-  | "medication_bottles";
+  | "medication_bottles"
+  | "urine_cup";
 
 function mat(color: ColorRepresentation, roughness = 0.55, metalness = 0.12): MeshStandardMaterial {
   return new MeshStandardMaterial({ color, roughness, metalness });

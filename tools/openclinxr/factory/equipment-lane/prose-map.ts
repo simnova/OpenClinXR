@@ -77,9 +77,11 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "sepsis alert panel": "wall_sign_equipment",
   // Small prescription bottles (telehealth diabetes) — dedicated thin parametric id.
   "medication bottles": "medication_bottles_equipment",
+  // OB triage specimen cup — dedicated thin parametric id.
+  "urine cup": "urine_cup_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // joint diagram, urine cup, neuro exam card, blood-culture kit, drain,
-  // soft lighting, incentive spirometer — factory honesty > silent fallback.
+  // joint diagram, neuro exam card, blood-culture kit, drain, soft lighting,
+  // incentive spirometer — factory honesty > silent fallback.
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {

@@ -32,6 +32,7 @@ import { buildPrivacyCurtainEquipment } from "./station-equipment-privacy-curtai
 import { buildSimpleTableEquipment } from "./station-equipment-tables.js";
 import { buildWallSignEquipment } from "./station-equipment-signs.js";
 import { buildMedicationBottlesEquipment } from "./station-equipment-medication-bottles.js";
+import { buildUrineCupEquipment } from "./station-equipment-urine-cup.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -490,6 +491,8 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     case "wall_sign_equipment": return buildWallSignEquipment(equipmentId);
     // #202 medication bottles — telehealth diabetes; honest small-bottle class
     case "medication_bottles_equipment": return buildMedicationBottlesEquipment(equipmentId);
+    // #202 urine cup — OB triage; honest specimen-cup class
+    case "urine_cup_equipment": return buildUrineCupEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");

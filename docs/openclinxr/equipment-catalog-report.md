@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T06:55:31.155Z
+- measuredAt: 2026-08-12T07:10:04.819Z
 - scenarios: 14
-- equipment rows: 47
-- lanes: {"bank":4,"thin_parametric":42,"modular_kit":1}
-- runtimeSource: {"parametric":43,"gltf":4}
-- unmapped prose: 7
+- equipment rows: 48
+- lanes: {"bank":4,"thin_parametric":43,"modular_kit":1}
+- runtimeSource: {"parametric":44,"gltf":4}
+- unmapped prose: 6
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -53,6 +53,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - fetal_monitor_equipment (thin_parametric/parametric)
 - hospital_bed_equipment (thin_parametric/parametric)
 - privacy_curtain_equipment (thin_parametric/parametric)
+- urine_cup_equipment (thin_parametric/parametric)
 
 ### oncology_bad_news_family_v1
 

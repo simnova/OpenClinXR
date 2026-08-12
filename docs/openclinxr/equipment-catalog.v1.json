@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T06:55:31.155Z",
+  "measuredAt": "2026-08-12T07:10:04.819Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 47,
+  "equipmentCount": 48,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -1166,6 +1166,31 @@
       "notes": ""
     },
     {
+      "equipmentId": "urine_cup_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildUrineCupEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "urine cup"
+      ],
+      "scenarioIds": [
+        "ob_headache_preeclampsia_triage_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
+    },
+    {
       "equipmentId": "wall_clock_equipment",
       "lane": "bank",
       "runtimeSource": "gltf",
@@ -1272,30 +1297,21 @@
       ],
       "recommendedEquipmentId": null,
       "reason": "no prose-map entry"
-    },
-    {
-      "prose": "urine cup",
-      "scenarioIds": [
-        "ob_headache_preeclampsia_triage_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
     }
   ],
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 42,
+      "thin_parametric": 43,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 43,
+      "parametric": 44,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
     "scenariosWithUnmappedProse": [
       "ed_stroke_alert_handoff_v1",
-      "ob_headache_preeclampsia_triage_v1",
       "oncology_bad_news_family_v1",
       "postop_fever_consult_pressure_v1",
       "primary_care_dyslipidemia_joint_pain_v1",
