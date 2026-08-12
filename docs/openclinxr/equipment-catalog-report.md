@@ -2,12 +2,12 @@
 
 MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 
-- measuredAt: 2026-08-12T06:09:36.755Z
+- measuredAt: 2026-08-12T06:41:47.721Z
 - scenarios: 14
-- equipment rows: 45
-- lanes: {"bank":4,"thin_parametric":40,"modular_kit":1}
-- runtimeSource: {"parametric":41,"gltf":4}
-- unmapped prose: 12
+- equipment rows: 46
+- lanes: {"bank":4,"thin_parametric":41,"modular_kit":1}
+- runtimeSource: {"parametric":42,"gltf":4}
+- unmapped prose: 8
 - gltf missing on disk: 0
 
 ## Blueprints (14 scenario-bank cases)
@@ -44,6 +44,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - chairs_equipment (thin_parametric/parametric)
 - glucometer_review_equipment (thin_parametric/parametric)
 - wall_clock_equipment (bank/gltf)
+- wall_sign_equipment (thin_parametric/parametric)
 
 ### ob_headache_preeclampsia_triage_v1
 
@@ -99,6 +100,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - panic_button_equipment (thin_parametric/parametric)
 - small_table_equipment (thin_parametric/parametric)
 - tissue_box_equipment (thin_parametric/parametric)
+- wall_sign_equipment (thin_parametric/parametric)
 
 ### stepdown_sepsis_nurse_escalation_v1
 
@@ -106,6 +108,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - medication_cart_equipment (thin_parametric/parametric)
 - monitor_equipment (thin_parametric/parametric)
 - oxygen_nasal_cannula_equipment (thin_parametric/parametric)
+- wall_sign_equipment (thin_parametric/parametric)
 
 ### telehealth_diabetes_health_literacy_v1
 
@@ -122,6 +125,7 @@ MADRs: 0054, 0055 · schema `openclinxr.equipment-catalog.v1`
 - medication_cart_equipment (thin_parametric/parametric)
 - safety_plan_whiteboard_equipment (thin_parametric/parametric)
 - side_rails_equipment (thin_parametric/parametric)
+- wall_sign_equipment (thin_parametric/parametric)
 
 ## Bank lane
 

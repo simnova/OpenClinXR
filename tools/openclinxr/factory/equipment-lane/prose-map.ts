@@ -69,10 +69,16 @@ export const PROSE_TO_EQUIPMENT_ID: Readonly<Record<string, string>> = {
   "small table": "small_table_equipment",
   // Oncology consultation room furnishing — dedicated thin parametric id.
   "consultation desk": "consultation_desk_equipment",
+  // Wall-mounted informational panel — dedicated thin parametric id. Honest
+  // class for sign/notice prose across psych / ED stroke / ward / stepdown.
+  "privacy notice": "wall_sign_equipment",
+  "ct direction sign": "wall_sign_equipment",
+  "fall-risk sign": "wall_sign_equipment",
+  "sepsis alert panel": "wall_sign_equipment",
   // Deliberately NOT mapped (appear as unmappedProse until real ids exist):
-  // privacy notice, joint diagram, medication bottles, urine cup,
-  // blood-culture kit, neuro exam card, CT/fall-risk/sepsis signs, drain,
-  // soft lighting, incentive spirometer — factory honesty > silent fallback.
+  // joint diagram, medication bottles, urine cup, neuro exam card,
+  // blood-culture kit, drain, soft lighting, incentive spirometer —
+  // factory honesty > silent fallback.
 };
 
 export function resolveProseToEquipmentId(prose: string): string | null {

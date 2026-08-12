@@ -1,13 +1,13 @@
 {
   "schemaVersion": "openclinxr.equipment-factory-loop-state.v1",
   "active": true,
-  "tick": 10,
+  "tick": 11,
   "interval": "15m",
   "plan": ".openclinxr/plans/equipment-three-lane-factory.md",
   "contract": "docs/openclinxr/equipment-factory-15m-loop.md",
-  "lastTickAt": "2026-08-12T06:25:00.000Z",
-  "lastAction": "re-verify INFERRED medical monitor (brodys_arts) -> VERIFIED CC BY 4.0, downloadable, 4924 tris (optional alt)",
-  "nextPriority": "next honest map (privacy notice / medication bottles / urine cup) OR ECG kit merge check (deck bank still token-blocked) OR researcher findings if arrived",
+  "lastTickAt": "2026-08-12T06:41:00.000Z",
+  "lastAction": "honest map: privacy notice / CT direction sign / fall-risk sign / sepsis alert panel -> new thin parametric id wall_sign_equipment (own module; unmapped prose 12->8)",
+  "nextPriority": "next honest map (medication bottles / urine cup / drain) OR ECG kit merge check (deck bank still token-blocked) OR researcher findings if arrived",
   "researcherEveryN": 3,
   "architectEveryN": 4,
   "stopWhen": [

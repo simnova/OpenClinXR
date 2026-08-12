@@ -1,6 +1,6 @@
 {
   "schemaVersion": "openclinxr.equipment-catalog.v1",
-  "measuredAt": "2026-08-12T06:09:36.755Z",
+  "measuredAt": "2026-08-12T06:41:47.721Z",
   "claimScope": "equipment three-lane catalogue over scenario-bank blueprints + runtime builders (MADR 0054/0055)",
   "notEvidenceFor": [
     "clinical_accuracy",
@@ -13,7 +13,7 @@
     "0055"
   ],
   "scenarioCount": 14,
-  "equipmentCount": 45,
+  "equipmentCount": 46,
   "rows": [
     {
       "equipmentId": "12_lead_ecg_machine_equipment",
@@ -1166,6 +1166,37 @@
         "exam_equivalence"
       ],
       "notes": ""
+    },
+    {
+      "equipmentId": "wall_sign_equipment",
+      "lane": "thin_parametric",
+      "runtimeSource": "parametric",
+      "gltfFileName": null,
+      "builderSymbol": "buildWallSignEquipment",
+      "kitRecipeId": null,
+      "proseAliases": [
+        "CT direction sign",
+        "fall-risk sign",
+        "privacy notice",
+        "sepsis alert panel"
+      ],
+      "scenarioIds": [
+        "ed_stroke_alert_handoff_v1",
+        "psych_suicidal_ideation_safety_v1",
+        "stepdown_sepsis_nurse_escalation_v1",
+        "ward_delirium_med_rec_v1"
+      ],
+      "midbandStatus": "none",
+      "licenceStatus": "n/a",
+      "provenancePath": null,
+      "ledgerSource": null,
+      "claimScope": "factory routing + runtime equipment identity",
+      "notEvidenceFor": [
+        "clinical_accuracy",
+        "quest_readiness",
+        "exam_equivalence"
+      ],
+      "notes": ""
     }
   ],
   "unmappedProse": [
@@ -1178,25 +1209,9 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "CT direction sign",
-      "scenarioIds": [
-        "ed_stroke_alert_handoff_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "drain",
       "scenarioIds": [
         "postop_fever_consult_pressure_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
-      "prose": "fall-risk sign",
-      "scenarioIds": [
-        "ward_delirium_med_rec_v1"
       ],
       "recommendedEquipmentId": null,
       "reason": "no prose-map entry"
@@ -1234,22 +1249,6 @@
       "reason": "no prose-map entry"
     },
     {
-      "prose": "privacy notice",
-      "scenarioIds": [
-        "psych_suicidal_ideation_safety_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
-      "prose": "sepsis alert panel",
-      "scenarioIds": [
-        "stepdown_sepsis_nurse_escalation_v1"
-      ],
-      "recommendedEquipmentId": null,
-      "reason": "no prose-map entry"
-    },
-    {
       "prose": "soft lighting",
       "scenarioIds": [
         "oncology_bad_news_family_v1"
@@ -1269,11 +1268,11 @@
   "summary": {
     "byLane": {
       "bank": 4,
-      "thin_parametric": 40,
+      "thin_parametric": 41,
       "modular_kit": 1
     },
     "byRuntimeSource": {
-      "parametric": 41,
+      "parametric": 42,
       "gltf": 4
     },
     "gltfMissingOnDisk": [],
@@ -1283,10 +1282,8 @@
       "oncology_bad_news_family_v1",
       "postop_fever_consult_pressure_v1",
       "primary_care_dyslipidemia_joint_pain_v1",
-      "psych_suicidal_ideation_safety_v1",
       "stepdown_sepsis_nurse_escalation_v1",
-      "telehealth_diabetes_health_literacy_v1",
-      "ward_delirium_med_rec_v1"
+      "telehealth_diabetes_health_literacy_v1"
     ]
   }
 }

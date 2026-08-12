@@ -30,6 +30,7 @@ import { buildMedicationCartEquipment } from "./station-equipment-medication-car
 import { buildCallBellEquipment, buildPanicButtonEquipment } from "./station-equipment-call-bell.js";
 import { buildPrivacyCurtainEquipment } from "./station-equipment-privacy-curtain.js";
 import { buildSimpleTableEquipment } from "./station-equipment-tables.js";
+import { buildWallSignEquipment } from "./station-equipment-signs.js";
 import {
   buildHospitalBedEquipment,
   buildSideRailsEquipment,
@@ -496,6 +497,7 @@ export function buildDeclaredEquipmentGeometry(equipmentId: string): Group {
     // #202 consultation desk — oncology bad-news room; honest class
     case "consultation_desk_equipment":
       return buildSimpleTableEquipment(equipmentId, "consultation_desk");
+    case "wall_sign_equipment": return buildWallSignEquipment(equipmentId);
     // #202 device-on-stand
     case "digital_thermometer_equipment":
       return buildDeviceOnStandFamilyEquipment(equipmentId, "thermometer");
